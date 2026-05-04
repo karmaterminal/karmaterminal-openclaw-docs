@@ -60,3 +60,20 @@ This means the load-bearing OV-1 finding sharpens:
 - 🟡 Explicit-targeting axis (`targetSessionKey: <other-session>`) recipient-delivery NOT YET ATTESTED — runner-seat fire shows owner-keyed-to-dispatcher in a context where that IS the silent-retarget shape
 
 The two axes are substrate-truthfully different, not analogous. The EVIDENCE-LAYERS.md canon should be read with the layer-collapse case in mind: when dispatcher and recipient are intended to be the same session by mode, recipient-delivery attestation collapses onto dispatcher-health attestation legitimately. Only when they are intended to be different sessions does the four-layer separation apply rigorously.
+
+## Substrate-finding closure (post-task_runs byte-pin)
+
+The earlier framing of OV-1 fire-1 explicit-targeting as *"open substrate-finding pending figs/cohort eyes on (intended/bug) interpretation"* is **byte-stale as of `runtime-byte-pin-targetSessionKey-ignored.md` (commit `9b9cc3b`)**. The substrate-finding closed on **(bug)**:
+
+- `task_runs.runtime = subagent` — plain subagent spawn primitive, NOT a cross-session router
+- `task_runs.child_session_key = agent:main:subagent:3282d176-…` — a brand-new subagent session was spawned, NOT a delivery into the named `agent:main:main`
+- `state_json.targetSessionKey` is preserved on the dispatcher flow_run and **silently discarded at runtime spawn-routing**
+
+**Per-seat acknowledgments banked after `9b9cc3b` should read this state.md alongside `runtime-byte-pin-targetSessionKey-ignored.md` to avoid carrying the older "open substrate-finding" framing forward.** The substrate-finding is closed; the cohort-decision is the still-open piece.
+
+## What is actually open now (cohort-decision shape, not substrate-finding)
+
+1. Was the #551 cross-session primitive promised at this level for v5.2 ship → runtime fix needed before ship (`dispatchToolDelegates` or the spawn-routing layer must consume `state_json.targetSessionKey` and route to the named session instead of falling through to plain subagent spawn)?
+2. Or was the tool description over-promising → tool description must be updated to remove the over-promise (`"targetSessionKey returns to one other session"` is currently misleading), and OV-1 acceptance shape must be re-cast against the actual semantics?
+
+Pending figs / cohort eyes.

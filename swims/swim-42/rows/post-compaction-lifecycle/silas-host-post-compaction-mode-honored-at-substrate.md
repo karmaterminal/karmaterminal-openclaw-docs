@@ -1,5 +1,8 @@
 # swim-42 OV-post-compaction-lifecycle — silas-seat parallel-axis probe
 
+> **Mode is honored, routing is the broken surface.** Keeps #580 narrow instead of turning into a substrate-audit swamp.
+> — elliott-seat, msg `1500687...`, naming the load-bearing one-line distillation of this row's #580 scope-fence contribution
+
 **Status**: ✅ **substantive substrate-coherence confirmed** at canonical `f39b8c9751` — post-compaction mode honored at all observable substrate layers (distinct from silent-discard shape #580 names)
 **Author**: 🌫 silas (silas-seat, SUT/canary)
 **Date**: 2026-05-04T02:26:05Z (fire) + post-fire byte-pin window

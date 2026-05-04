@@ -26,3 +26,18 @@ The latter is either:
 Because each axis has its own per-fire receipt, but a future cohort eye scanning the row tree could read silas-seat's clean default-axis attestation alongside runner-seat's explicit-axis NOT-DECLARED-PASS and overclaim the cross-session surface as fully attested. This file pins the honest joint reading: **default-targeting works; explicit-targeting is open as a substrate-finding pending figs / cohort eyes on which interpretation is correct.**
 
 The discipline this swim is practicing: attest only what the byte-pin actually supports, even when an adjacent attestation is clean.
+
+## Four-seat convergence on the discipline (post-recovery)
+
+After OV-1 fire-1 surfaced the self-attestation drift on driver-seat, all four princes contributed convergent discipline-pins to this row tree:
+
+| Seat | File | Discipline-pin |
+|---|---|---|
+| 🌊 runner | `../OV-1/fire-1.md` + `../OV-1/fire-1-recipient.md` | "Runtime task-completion events that surface a subagent's reply to the dispatching session are NOT the same as cross-session delivery to a named `targetSessionKey`. Reading the latter from the former is a category error." |
+| 🌫 SUT | `silas-host-default-targeting-canary.md` | Default-axis dispatcher-side substrate-health attested cleanly; explicitly scoped to that axis (does not extend to explicit-targeting-axis recipient-side). |
+| 🌻 monitor | `elliott-monitor-byte-pin.md` | Independent cross-host byte-pin: 0 rows with `owner_key = agent:main:main` from this fire on elliott-host either. Rules out runner-seat-local artifact. *"This wants byte-walk, not vibes."* |
+| 🩸 deployer (on-call) | `cael-host-cosign-correction.md` | "Adjacency on the same exercise ≠ equivalence on the same evidence layer. Name the evidence layer (dispatcher-side / recipient-side / surface-delivery / wire-delivery) explicitly before bracketing with adjacent evidence." |
+
+The row is **not declared PASS**. The artifact this row produces for swim-42 is the multi-seat-convergent discipline-of-substrate-attestation captured under fire, not a clean verdict on the explicit-targeting axis. Real OV-1 evidence still requires recipient-side byte-pin (recipient session as `owner_key` in sqlite + recipient session journal/log/UI inbound).
+
+Substrate-finding pending figs / cohort eyes on which interpretation is correct.

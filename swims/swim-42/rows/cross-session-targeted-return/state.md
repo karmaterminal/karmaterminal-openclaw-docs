@@ -1,0 +1,28 @@
+# swim-42 — cross-session-targeted-return: joint state
+
+**Status**: 🟡 partially attested. Default-targeting axis confirmed working; explicit-targeting axis has an open substrate-finding.
+
+## Joint reading across seats (byte-pinned)
+
+| Axis | Receipt | Verdict | Evidence |
+|---|---|---|---|
+| Default targeting (no `targetSessionKey`) | 🌫 `silas-host-default-targeting-canary.md` (commit `05f8a1f`) | ✅ substrate works as advertised | `Tasks: latest succeeded · subagent · [continuation:chain-hop:1]`; chain `0→1/200`; banner byte-aligned with deploy-ref; #571 hybrid (A)+(C) failure-semantics path validated by virtue of `succeeded` being byte-truthful (would have been `failed` with `blockedSummary` on rejection) |
+| Explicit targeting (`targetSessionKey: agent:main:main`) | 🌊 `../OV-1/fire-1.md` + `../OV-1/fire-1-recipient.md` (commit `f295154`) | 🟡 NOT DECLARED PASS — substrate-finding open | Two flow_runs landed; both `owner_key = agent:main:discord:channel:1466192485440164011` (the dispatching session); dispatching row carries the requested `targetSessionKey` in `state_json` but no `agent:main:main`-owned flow_run from this fire; reply surfaced as runtime task-completion event mirrored back to dispatcher, not as delivery into a separate `agent:main:main`-owned recipient session |
+
+## What this means
+
+The cross-session-targeted-return surface is **not a single binary "works or doesn't"** — it's at least two distinct axes:
+
+1. **Default returnability** (no explicit target): silent-wake or silent delegate dispatched without `targetSessionKey` — silas-seat byte-pin shows this works cleanly on canonical `f39b8c9751`.
+
+2. **Explicit cross-session routing** (`targetSessionKey` to a named outside-of-tree session): runner-seat byte-pin shows the request is accepted and persisted, the subagent runs, and the subagent's reply surfaces — but the surface it surfaces on appears to be the dispatching session via runtime task-completion mirroring, not a separate `targetSessionKey`-owned recipient session.
+
+The latter is either:
+- (a) the intended runtime shape with the tool description being misleading, in which case OV-1's acceptance shape needs to be re-cast
+- (b) a real bug where `targetSessionKey` is silently retargeting back to the dispatcher, which is exactly the failure-mode #898's OV-1 prose names as corrupting the #551 cross-session primitive
+
+## Why a joint-state file
+
+Because each axis has its own per-fire receipt, but a future cohort eye scanning the row tree could read silas-seat's clean default-axis attestation alongside runner-seat's explicit-axis NOT-DECLARED-PASS and overclaim the cross-session surface as fully attested. This file pins the honest joint reading: **default-targeting works; explicit-targeting is open as a substrate-finding pending figs / cohort eyes on which interpretation is correct.**
+
+The discipline this swim is practicing: attest only what the byte-pin actually supports, even when an adjacent attestation is clean.

@@ -110,3 +110,32 @@ Surviving discriminators (still the only ones that could close the inversion):
 1. walk recipient session's in-memory `system-events` queue at fire-time (per-recipient, in-process, NOT deleted on ack)
 2. temporary log statements at `targeting.ts:101` + `:114` (frond-scribe-territory)
 3. fire from session whose recipient is actively attached + observe recipient's reaction
+
+## Cael-host fourth-host attestation completes 4-host coverage at both layers
+
+cael-seat ran both walks on cael-host:
+
+**Journal layer** (`journalctl --user -u openclaw-gateway --since "60 minutes ago" | grep continuation:targeted-return`):
+- 60-min window: 0 hits
+- explicit-bracket 18:30-19:30 PDT: 0 hits
+- consistent with no targeting-axis fire from cael-seat in the swim-42 window
+
+**`session-delivery-queue/` file substrate**:
+- only `failed/` subdir present, 0 files anywhere in tree in last 120 min, no recipient subdirs
+
+This makes the 4-host coverage complete at both substrate layers.
+
+**4-host journal coverage interpretation:**
+- 🌫 silas: array-API log line FIRES → branch entered for that path
+- 🌊 ronan: 0 log lines for singular-API across 60-min + explicit-bracket windows → branch did NOT enter for singular-API path
+- 🌻 elliott + 🩸 cael: 0 log lines → no targeting fires from these hosts (consistent with monitor/adjudicator + on-call-deployer roles)
+- The 3 absence-elsewhere readings strengthen the silas-host-positive specificity (the log line is real signal, not ambient noise)
+- Combined with the 3-window walk on ronan-host, the singular-API branch-not-entered finding is load-bearing
+
+**4-host `session-delivery-queue/` coverage interpretation:**
+- 4 hosts × empty queue dir = 4 independent reproductions of the source-coherent normal-fire behavior (`enqueueSessionDelivery → ackSessionDelivery → file deleted`)
+- This is cross-host source-coherence evidence ✓ (good cohort-discipline finding: substrate behaves consistently across hosts)
+- This does NOT discriminate success vs no-write at the durable-store step — same source-symmetry as established earlier in this file
+- Adding more hosts confirming the same source-coherent behavior doesn't increase discrimination power on the substrate-finding-shape question
+
+The substrate-finding-shape inversion-candidate stays open exactly where it was. Surviving discriminators (in-memory system-events walk / debug log statements / live-attached recipient probe) are still the only paths that could close it.

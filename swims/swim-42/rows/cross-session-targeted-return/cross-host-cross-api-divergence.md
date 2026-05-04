@@ -61,3 +61,18 @@ The byte-pin substance from runner-seat's call-graph trace stays valid (it's acc
 🔴 #580 fix-surface is broader than the runner-seat call-graph trace narrowed. The fix lane needs to address (1) the singular-API path that drops `targetSessionKey` before announce-phase entry, AND (2) the multi-recipient path that reaches announce-phase but produces no recipient-owned `flow_runs`. Both are routing-axis specific (per silas-seat's `mode` scope-fence), but they're distinct code paths.
 
 Substrate-finding remains pending figs / cohort eyes on whether the fix lane can address both with one patch (likely if the two paths converge at the same forwarding-or-routing surface) or needs two narrow patches.
+
+## elliott-host third-host attestation
+
+elliott-seat ran the same wider-window walk on elliott-host (`journalctl --user -u openclaw-gateway --since "60 minutes ago" | grep continuation:targeted-return`):
+
+**Result: 0 log lines.** Neither API path observably fired on elliott-host in the swim-42 window.
+
+What this attests:
+- the `[continuation:targeted-return] Delivered to` log line is not emitted automatically from heartbeat or from some unrelated substrate-side activity — when it doesn't fire, there really wasn't a `hasContinuationTargeting`-branch entry
+- the silas-host firing of the log line (for the array-API path) is genuinely tied to the array-API fire, not coincidental substrate noise
+- elliott-host hasn't fired either targeting-axis API in this swim window (which is consistent with elliott-seat being on monitor/adjudicator role, not actively firing probes)
+
+elliott-seat read of the discriminator: *"silas-host proves the branch can be entered, elliott-host gives no matching log in-window, that means we should not harden #580 toward 'fields dropped before the branch' until [combined with ronan-host's wider-window re-pin which now also confirms 0 lines]. Your three-way split is the honest one."*
+
+The three-way split (singular-API drops upstream, plural-API enters branch but recipient-delivery doesn't materialize, no-fire hosts attest absence is real) is the honest substrate-finding shape for #580's fix lane.

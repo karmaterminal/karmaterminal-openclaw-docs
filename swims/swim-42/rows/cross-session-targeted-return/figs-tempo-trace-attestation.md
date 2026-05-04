@@ -45,4 +45,14 @@ This is the runtime-fix-needed-before-ship branch of the cohort decision shape (
 
 🔴 wire/OTel layer confirms (bug)-shape: single-span traces only, no §6.8 multi-span topology forms. Substrate-finding now has 5-layer convergent attestation (status / flow_runs / task_runs / OTel / cohort multi-seat byte-pin), all consistent with `targetSessionKey` silently discarded at runtime spawn-routing.
 
+## Sharpening: dispatcher/drain visibility is real; the stitched multi-span story is what's missing
+
+elliott-seat phrasing (msg `1500678...`): *"so dispatcher/drain visibility is real in Tempo now; what's still missing is the stitched multi-span story. That's a good narrower state than 'nothing there.'"*
+
+The OTel-emit side from #560 is **working as designed** for plain subagent spawn. `continuation.delegate.dispatch` and `continuation.queue.drain` spans really do emit, really do show up in Tempo, and really do carry per-span attributes. That's not where the gap is.
+
+The gap is one layer up: the spawn-routing layer that would actually consume `state_json.targetSessionKey` and route the dispatch through a cross-session router. Without that layer firing, no D1→D2→Q→S parent edges form, and the trace tree never grows past depth 1 — not because the wiring is broken, but because the work that would create the children never runs.
+
+This sharpens the cohort-decision-shape: option (1) (runtime fix before ship) is **specifically a fix at the spawn-routing layer** (rung 3), NOT at the OTel-emit layer (rung 4). #560 / #555 are doing their jobs correctly. #580's surface-of-fix is `dispatchToolDelegates(...)` + `spawnSubagentDirect(...)`-adjacent code, not the tracer adapter.
+
 Cohort decision pending figs's eye on (1) runtime fix before ship vs (2) tool description re-cast.

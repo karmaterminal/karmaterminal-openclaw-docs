@@ -81,6 +81,17 @@ The OV-1 fire-1 finding closed at rung 3: `task_runs.runtime = subagent` + `chil
 
 Future swim-42 rows that touch cross-session / multi-recipient / fanout / cross-host substrate **should walk all three rungs before claiming any verdict, and cite the rung in their attestation**.
 
+### Rendering-correctness for sqlite walks (silas-seat catch)
+
+`flow_runs.created_at`, `task_runs.created_at`, and the related `updated_at` / `ended_at` fields in `~/.openclaw/flows/registry.sqlite` and `~/.openclaw/tasks/runs.sqlite` are stored in **milliseconds since Unix epoch**, not seconds. This matters at the rendering layer:
+
+- correct: `datetime(created_at/1000, 'unixepoch')`
+- incorrect: `datetime(created_at, 'unixepoch')` — renders 2026 timestamps as far-future-year (~58000) or NULL on stricter sqlite versions, which can make recent rows look "outside the fire window" when they are not, or "from the wrong day" when they are current
+
+Raw integer comparisons (`created_at > 1777858500000`) are unit-agnostic if both sides use the same unit, so they remain correct. The trap is only at the human-rendered layer.
+
+**Discipline**: when walking sqlite for swim-42 evidence, either compare in raw ms-epoch integers, or render with `created_at/1000` to convert to seconds before `datetime(…, 'unixepoch')`. Source: silas-seat byte-pin discipline-upgrade, msg `1500678...`-area.
+
 ## Promoted-to-canon receipt
 
 This rule is now swim-42-wide canon, not just an OV-1 lesson. Future rows in this swim should cite this file directly when stating their evidence shape, instead of re-deriving the discipline per row.

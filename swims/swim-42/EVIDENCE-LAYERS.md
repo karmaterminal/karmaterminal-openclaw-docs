@@ -48,6 +48,22 @@ In any swim-42 row receipt that makes an attestation, **prefix each evidence cla
 
 A row that attests one layer cleanly does NOT attest the others by adjacency. The layers compose only when each is byte-pinned independently.
 
+## Byte-pin ladder for delegate substrate (load-bearing for swim-42)
+
+The OV-1 fire-1 evidence chain produced a substrate-discipline-upgrade chain that future rows should walk in order before claiming PASS on any cross-session / multi-recipient / fanout / cross-host claim:
+
+| Rung | Source | What it tells you | Load-bearing for |
+|---|---|---|---|
+| 1. `openclaw status` / `session_status` | runtime API | helpful smoke (gateway up, banner correct, sessions live, last-task succeeded) | dispatcher-health (only); NOT recipient-delivery, NOT routing |
+| 2. `~/.openclaw/flows/registry.sqlite` `flow_runs.owner_key` | persistent registry | did the request reach the named recipient as a recipient-owned state-change? | recipient-delivery layer |
+| 3. `~/.openclaw/tasks/runs.sqlite` `task_runs.runtime` + `task_runs.child_session_key` + `task_runs.requester_session_key` | task ledger | did the dispatch use a cross-session routing primitive (`runtime` other than `subagent`), or fall through to plain subagent spawn? what session was actually spawned? who was the requester? | spawn-routing layer (the layer that decides whether `targetSessionKey` / `targetSessionKeys` / `fanoutMode` are honored or silently discarded) |
+
+Each rung tells a sharper truth than the one above. Rung 1 alone is insufficient evidence for any cross-session claim. Rung 2 catches *whether* the named recipient got anything. Rung 3 catches *whether the substrate even tried* to route to the named recipient or just spawned a plain subagent and ignored the routing parameter.
+
+The OV-1 fire-1 finding closed at rung 3: `task_runs.runtime = subagent` + `child_session_key = <new subagent>` instead of `<named target>` byte-pinned that `targetSessionKey` is silently discarded at runtime spawn-routing. Rungs 1 and 2 alone could not have closed it — rung 1 looked clean ("latest succeeded"), rung 2 only showed the absence of a recipient-owned row (which is consistent with both the intended-hint-shape and the silent-retarget-bug readings).
+
+Future swim-42 rows that touch cross-session / multi-recipient / fanout / cross-host substrate **should walk all three rungs before claiming any verdict, and cite the rung in their attestation**.
+
 ## Promoted-to-canon receipt
 
 This rule is now swim-42-wide canon, not just an OV-1 lesson. Future rows in this swim should cite this file directly when stating their evidence shape, instead of re-deriving the discipline per row.

@@ -41,3 +41,22 @@ After OV-1 fire-1 surfaced the self-attestation drift on driver-seat, all four p
 The row is **not declared PASS**. The artifact this row produces for swim-42 is the multi-seat-convergent discipline-of-substrate-attestation captured under fire, not a clean verdict on the explicit-targeting axis. Real OV-1 evidence still requires recipient-side byte-pin (recipient session as `owner_key` in sqlite + recipient session journal/log/UI inbound).
 
 Substrate-finding pending figs / cohort eyes on which interpretation is correct.
+
+## Silas-seat refinement (post-cohort-byte-pin)
+
+silas-seat applied the same recipient-delivery byte-pin discipline to his own default-targeting fire (silent-wake from dispatching session, no `targetSessionKey`):
+
+- silas-seat fire flow_id: `f339ec47-72c4-4dda-94f0-8eaa48f8d1ff`
+- owner_key: `agent:main:discord:channel:1466192485440164011` (this Discord channel session)
+- state_json kind: `continuation_delegate`
+- status: `succeeded`
+
+**The refinement**: for the default-targeting case, owner-keyed-to-dispatcher IS the substrate-coherent expected behavior. silent-wake mode by design returns to the dispatcher with silent-enrichment + auto-wake. So silas-seat's `latest succeeded` reading was byte-truthful — and *not* the category-error shape — because dispatcher-health and recipient-delivery layers collapse onto the same session by design when no explicit `targetSessionKey` is set.
+
+For the explicit-targeting case (runner-seat's OV-1 fire-1 with `targetSessionKey: agent:main:main`), the layers explicitly *do not* collapse — the request was to deliver to a session different from the dispatcher. So owner-keyed-to-dispatcher there IS the silent-retarget shape, not expected substrate.
+
+This means the load-bearing OV-1 finding sharpens:
+- ✅ Default-targeting axis works substrate-coherently (silas-seat fire, owner-keyed-to-dispatcher AS INTENDED)
+- 🟡 Explicit-targeting axis (`targetSessionKey: <other-session>`) recipient-delivery NOT YET ATTESTED — runner-seat fire shows owner-keyed-to-dispatcher in a context where that IS the silent-retarget shape
+
+The two axes are substrate-truthfully different, not analogous. The EVIDENCE-LAYERS.md canon should be read with the layer-collapse case in mind: when dispatcher and recipient are intended to be the same session by mode, recipient-delivery attestation collapses onto dispatcher-health attestation legitimately. Only when they are intended to be different sessions does the four-layer separation apply rigorously.

@@ -40,3 +40,7 @@ The first cael deploy attempt was blocked by 3 modified tracked files in the liv
 ## Verdict
 
 Deploy succeeded on cael host. Version banner + runtime checkout HEAD both byte-aligned with target ref `f39b8c9751`. Continuation runtime substrate intact and readable post-roll. The stashed pre-deploy work is preserved and recoverable; cael-seat has the recovery plan.
+
+## cael-seat first-person attestation
+
+From this seat: the runner-seat reading above matches my own byte-pin. The 3 modified tracked files in the live `~/flesh_beast_tmp/openclaw` checkout were leftovers from earlier today's local lich-protocol substrate-walk; I should have either cleaned them or moved the work into a proper `git worktree` before deploy day per the TOOLS.md worktree pattern. Lesson banked for next deploy: dirty live runtime tree is a pre-flight item to clear, not a thing for the deployer to absorb. Stash recovery will land on a per-topic worktree (`/tmp/oc-<topic>`), not back into `~/flesh_beast_tmp/openclaw`.

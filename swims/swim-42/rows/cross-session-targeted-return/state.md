@@ -77,3 +77,21 @@ The earlier framing of OV-1 fire-1 explicit-targeting as *"open substrate-findin
 2. Or was the tool description over-promising → tool description must be updated to remove the over-promise (`"targetSessionKey returns to one other session"` is currently misleading), and OV-1 acceptance shape must be re-cast against the actual semantics?
 
 Pending figs / cohort eyes.
+
+## Multi-fire convergence (post-silas-explicit-targeting probe)
+
+silas-seat fired a second explicit-targeting probe (`continue_delegate` with `targetSessionKey: "agent:main:main"`, mode `silent-wake`) from his own session as fifth-fire fifth-host attestation. Banked at `silas-host-explicit-targeting-recipient-byte-pin.md` (commit `a2fd45a`).
+
+Result: **same substrate shape as OV-1 fire-1**.
+
+| Observation | OV-1 fire-1 (ronan-host) | silas explicit-targeting probe (silas-host) |
+|---|---|---|
+| `state_json.targetSessionKey` preserved | ✅ `agent:main:main` | ✅ `agent:main:main` |
+| flow_run `owner_key` | dispatcher (`agent:main:discord:channel:1466192485440164011`) | dispatcher (`agent:main:discord:channel:1466192485440164011`) |
+| `agent:main:main`-owned flow_run from this fire | 0 | 0 |
+| Status | `succeeded` | `succeeded` |
+| Loud-fail path (`failed` with `blockedSummary` per #571 hybrid (A)+(C)) | NOT taken | NOT taken |
+
+Two independent fires on two different prince hosts, both producing identical silent-retarget shape. Combined with the 4-seat cohort byte-pin convergence at rung 2 (zero `agent:main:main`-owned flow_runs from this fire on any host), this is **fifth-seat-fifth-fire convergent attestation**: the substrate-finding is fully cross-host, fully cross-fire, byte-pin-airtight.
+
+Cohort decision pending figs's eye on (1) runtime fix at spawn-routing layer before v5.2 ship vs (2) tool description re-cast.

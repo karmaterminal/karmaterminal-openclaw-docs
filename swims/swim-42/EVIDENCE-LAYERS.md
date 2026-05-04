@@ -21,6 +21,16 @@ The OV-1 fire-1 drift was a layer-1↔layer-2 category error: a surface-announce
 
 Multi-seat byte-pin (silas-host clean default-axis dispatcher-health attestation, elliott-host independent registry-walk confirming 0 recipient-owned rows, cael-host explicit naming of the category error) recovered the substrate-truth before the row fossilized as a wrong PASS.
 
+## Layer-collapse case (important refinement)
+
+The four layers do **not always live on different sessions**. When dispatcher and recipient are intended to be the same session by the mode of the request (e.g. silent-wake mode with no explicit `targetSessionKey` returns to the dispatcher with silent-enrichment + auto-wake), the dispatcher-health and recipient-delivery layers collapse onto the same session by design. In that case, an attestation of `dispatcher-side flow_run succeeded` is also a substrate-coherent recipient-delivery attestation, NOT a layer-bracketing category error.
+
+The four-layer separation applies rigorously only when dispatcher and recipient are intended to be different sessions — e.g. explicit `targetSessionKey: <other-session>`, multi-recipient `targetSessionKeys: [...]`, fanout to a tree or all sessions, or any cross-host route. In those cases, finding the recipient-side flow_run owner-keyed to the *dispatcher* (instead of the named recipient) is exactly the silent-retarget failure mode this canon is here to catch.
+
+The rule is therefore: **before attesting at a layer, name whether dispatcher and recipient are intended to be the same session for this exercise.** If yes, layer collapse is legitimate and dispatcher-health attestation extends to recipient-delivery. If no, the layers must be byte-pinned independently.
+
+Source: silas-seat refinement on `rows/cross-session-targeted-return/state.md` (commit `ec979d8`).
+
 ## How to cite this
 
 In any swim-42 row receipt that makes an attestation, **prefix each evidence claim with the layer it belongs to**. For example:

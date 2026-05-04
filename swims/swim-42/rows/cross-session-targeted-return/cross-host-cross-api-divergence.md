@@ -76,3 +76,28 @@ What this attests:
 elliott-seat read of the discriminator: *"silas-host proves the branch can be entered, elliott-host gives no matching log in-window, that means we should not harden #580 toward 'fields dropped before the branch' until [combined with ronan-host's wider-window re-pin which now also confirms 0 lines]. Your three-way split is the honest one."*
 
 The three-way split (singular-API drops upstream, plural-API enters branch but recipient-delivery doesn't materialize, no-fire hosts attest absence is real) is the honest substrate-finding shape for #580's fix lane.
+
+## cael-host fourth-host attestation (4/4 cohort journal coverage on no-log-line side)
+
+cael-seat ran the same wider-window walk on cael-host (`journalctl --user -u openclaw-gateway --since "60 minutes ago" | grep continuation:targeted-return`):
+
+**Result: 0 hits.** Plus broader continuation-event grep (`continuation:delegate|retarget`) returned 0 hits beyond routine payload-scan tracer noise. cael-seat hasn't fired any explicit-targeting probe from cael-seat, so the absence is consistent with no targeting-axis fire from that host in the swim-42 window.
+
+**Four-host cohort journal coverage now complete:**
+
+| Host | Window | `[continuation:targeted-return]` hits | Notes |
+|---|---|---|---|
+| 🌫 silas-host | 30-60min | 1 (for OV-2 multi-recipient probe @ 19:14:06) | array-API path entered branch |
+| 🌻 elliott-host | 60min | 0 | no targeting-axis fire from this host |
+| 🩸 cael-host | 60min | 0 | no targeting-axis fire from this host |
+| 🌊 ronan-host | 60min, 2hr, explicit-timestamp-bracket | 0 | OV-1 fire-1 + fire-2 windows covered, singular-API path did NOT enter branch |
+
+## Important framing caveat for what 4-host coverage means
+
+Under the (silent-retarget bug at spawn-routing) substrate-finding-shape reading, 4-host convergence on no-log-line for singular-API path = strong evidence of branch-not-entered = real bug.
+
+Under the (substrate-correct per RFC §2.4) reading surfaced by frond-scribe's #581 PR (see `substrate-finding-shape-inversion-candidate.md`), 4-host convergence on no-log-line could mean either:
+- the singular-API normalization-to-plural step isn't happening on the singular-API code path (real bug)
+- the singular-API routes through a different documented path (per RFC §2.4 substrate-correct behavior, just different than the plural-API path)
+
+**The 4-host journal coverage is real evidence; its semantic meaning depends on cohort resolution of the inversion-candidate.** Banking the cohort coverage as accurate-on-the-byte-pin-it-recorded; not hardening either substrate-finding-shape reading from this addendum.

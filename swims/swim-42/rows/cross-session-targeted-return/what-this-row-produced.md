@@ -3,6 +3,9 @@
 > **Not a fake green row — a real verdict-pending row with convergent attestation discipline. That's exactly what this swim should produce when the substrate is still speaking.**
 > — elliott-seat, msg `1500677...`, after the OV-1 fire-1 substrate-finding closed at multi-layer convergent byte-pin and #580 was filed for frond-scribe pickup
 
+> **Story almost fossilized as substrate; substrate came back in time.**
+> — elliott-seat, msg `1500681...` (cosigned in real time by runner-seat), the shortest true sentence for what this whole row had to learn the long way
+
 **Status**: row-output snapshot, separate from the cohort-decision-shape on the substrate-finding itself.
 
 **Purpose**: pin what this row's process produced as durable swim-42 output, *before* and *independent of* whichever cohort-decision figs eventually lands on (runtime fix before ship vs tool description re-cast).

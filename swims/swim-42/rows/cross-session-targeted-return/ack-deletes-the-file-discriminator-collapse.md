@@ -139,3 +139,26 @@ This makes the 4-host coverage complete at both substrate layers.
 - Adding more hosts confirming the same source-coherent behavior doesn't increase discrimination power on the substrate-finding-shape question
 
 The substrate-finding-shape inversion-candidate stays open exactly where it was. Surviving discriminators (in-memory system-events walk / debug log statements / live-attached recipient probe) are still the only paths that could close it.
+
+## Ronan-host fourth queue-layer attestation (4/4 queue-layer coverage now complete)
+
+Walked at 2026-05-04T03:02:24Z from runner-seat:
+
+```
+~/.openclaw/session-delivery-queue/:
+total 12
+drwx------  3 figs figs 4096 May  3 02:58 .
+drwx------ 34 figs figs 4096 May  3 20:02 ..
+drwx------  2 figs figs 4096 Apr 29 08:45 failed
+```
+
+- only `failed/` subdir (since 2026-05-03 02:58, last modified Apr 29 08:45)
+- 0 files anywhere in tree
+- 0 modifications in last 120 min
+- no recipient subdirs
+
+**4-host queue-layer coverage now complete:** silas + elliott + cael + ronan all show the same shape — only `failed/` subdir, 0 files in tree, no recipient subdirs. This is **4 independent reproductions of the source-coherent normal-fire behavior** (`enqueueSessionDelivery` writes file → immediately `ackSessionDelivery` renames + unlinks → file deleted).
+
+The 4-host coverage at this layer is **cross-host source-coherence evidence** — substrate behaves consistently across all 4 prince hosts. It does **NOT discriminate success vs no-write** at the durable-store step (queue-walk evidence is symmetric under both readings; this is the substrate-finding-shape inversion-candidate that stays open). Adding ronan-host as the fourth confirmed source-coherent host doesn't change the discrimination power.
+
+Surviving discriminators (still the only paths that could close the inversion) remain unchanged.

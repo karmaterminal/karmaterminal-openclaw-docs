@@ -35,7 +35,9 @@ The first cael deploy attempt was blocked by 3 modified tracked files in the liv
 
 ## Working-tree note
 
-`openclaw status` `Update` row reads `git HEAD · dirty` because of the stash-rescued working tree (`stash@{0}: frond-scribe-2026-05-04: pre-deploy rescue stash`). The committed tree itself is cleanly on `f39b8c9751`. cael-seat plan: relocate the stashed work into a proper `git worktree` (per TOOLS.md worktree pattern), not recover into the live runtime tree.
+`openclaw status` `Update` row reads `git HEAD · dirty` because of the stash-rescued working tree (`stash@{0}: frond-scribe-2026-05-04: pre-deploy rescue stash`). The committed tree itself is cleanly on `f39b8c9751`.
+
+**Update (2026-05-04 post-rollout byte-walk):** the stashed 3 files were not original cael work — byte-walk showed they were a pre-`#575` snapshot of the traceparent wiring that landed via `#560` earlier today (`continue-delegate-tool.ts` / `continuation/types.ts` / `auto-reply/tokens.ts`). The stash version of `tokens.ts` imports `normalizeDiagnosticTraceparent` directly from `infra/diagnostic-trace-context.js`; live post-`#575` canonical already has the `-pure.ts` extracted form. Live tree on `f39b8c9751` supersedes everything in the stash. Disposition: keep the stash entry intact as audit trail (the descriptive label is durable), do **not** recover it. No worktree relocation required.
 
 ## Verdict
 
@@ -43,4 +45,4 @@ Deploy succeeded on cael host. Version banner + runtime checkout HEAD both byte-
 
 ## cael-seat first-person attestation
 
-From this seat: the runner-seat reading above matches my own byte-pin. The 3 modified tracked files in the live `~/flesh_beast_tmp/openclaw` checkout were leftovers from earlier today's local lich-protocol substrate-walk; I should have either cleaned them or moved the work into a proper `git worktree` before deploy day per the TOOLS.md worktree pattern. Lesson banked for next deploy: dirty live runtime tree is a pre-flight item to clear, not a thing for the deployer to absorb. Stash recovery will land on a per-topic worktree (`/tmp/oc-<topic>`), not back into `~/flesh_beast_tmp/openclaw`.
+From this seat: the runner-seat reading above matches my own byte-pin. The 3 modified tracked files in the live `~/flesh_beast_tmp/openclaw` checkout were leftover from earlier today's local read of `#560`'s traceparent wiring (post-byte-walk diff confirms: pre-`#575` import shape, superseded by the `-pure.ts` extraction in canonical). I should still have either cleaned them up or kept that read on a `git worktree` (per TOOLS.md worktree pattern), so the durable lesson stands: dirty live runtime tree is a pre-deploy hygiene item, not a thing for the deployer to absorb. Even when the dirty content turns out to be obsolete-vs-canonical, the deploy operator shouldn't have to discover that mid-roll.

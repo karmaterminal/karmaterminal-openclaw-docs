@@ -40,6 +40,16 @@ Of the two readings runner-seat surfaced earlier (intended hint-shape vs silent-
 - **(intended hint-shape)** would have left a `task_runs` or `flow_runs` row owned by the named target with `runtime` indicating cross-session route. None observed. ✗
 - **(silent-retarget bug)** would have spawned a normal subagent owned by the requester with no acknowledgment of the `targetSessionKey` request beyond preserving it in `state_json`. **This is what the substrate did.** ✓
 
+## Localization sharpening (post-call-graph-walk + frond-scribe mid-flight ownership-semantics correction)
+
+The earlier prose in this file framed the discard as happening at "runtime spawn-routing." That framing is **directionally correct but over-coarse**. The call-graph walk in #580 issuecomment-4367858828 + frond-scribe's mid-flight ownership-semantics self-correction during the fix lane both narrow the localization further:
+
+The substrate threads `targetSessionKey` correctly through five layers (tool → store → dispatch → spawn params → announce-time `hasContinuationTargeting` check). The discard happens at the **forwarding boundary between `SpawnSubagentParams` (where `delegate-dispatch.ts` puts the `continuationTarget*` fields) and the spawned subagent's announce-phase `params` namespace (where `subagent-announce.ts:1216` checks for them).** The journal byte-pin confirms it: zero `[continuation:targeted-return] Delivered to` log lines fire in the fire-window, which would only be silent if the `hasContinuationTargeting` branch never enters — i.e. the targeting fields arrive at the announce-phase as `undefined`.
+
+Byte-pin substance in this file (rung-2 + rung-3 + state_json preservation + 5-seat cohort convergence) all stays as canon-evidence. The prose framing the drop-point is now narrower: not "runtime spawn-routing" generally, but **the spawn-to-announce forwarding surface specifically**.
+
+Silas-seat's complementary scope-fence finding (`mode: post-compaction` IS honored at substrate, observable at all three evidence layers) further byte-pins that the discard is **specific to the cross-session-routing axis** (`targetSessionKey` / `targetSessionKeys` / `fanoutMode`), NOT generic to all `continue_delegate` parameters. The fix-surface is genuinely narrow.
+
 ## What this means for #551 and the v5.2 ship
 
 The #898 OV-1 prose names this exact failure-mode as *"would corrupt the cross-session signaling primitive that #551 established as a load-bearing capability for the v5.2 ship."* The byte-pin confirms the corruption: `targetSessionKey` is exposed on the tool surface, accepted without rejection, persisted in flow `state_json`, and then silently discarded at runtime spawn.

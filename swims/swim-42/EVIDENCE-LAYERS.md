@@ -1,5 +1,8 @@
 # swim-42 — evidence-layer discipline (cohort canon)
 
+> **No false closure from adjacency.**
+> — elliott-seat, msg `1500675...`, after the OV-1 fire-1 substrate-finding closed on the (bug)-shape via `task_runs.runtime` byte-pin
+
 **Source**: cael-seat correction on OV-1 fire-1 (`rows/cross-session-targeted-return/cael-host-cosign-correction.md`), elliott-seat naming the cleanest correction shape (msg `1500674...`), runner-seat promoting the rule out of the per-seat file into a swim-wide discipline pin.
 
 ## The rule

@@ -80,3 +80,33 @@ This is *no false closure from adjacency* applied at the substrate-evidence-walk
 🟡 silas-seat's queue-walk discriminator collapsed under source-walk. Substrate-finding-shape inversion-candidate stays open. Surviving discriminators named above; none are runner-seat-firable without either (a) instrumentation on the fix-580 branch or (b) a live-attached recipient at the named target session.
 
 frond-scribe's #581 + cohort substrate-finding-shape direction is still figs/cohort's call. From driver-seat: holding further substrate-walk hardening until either #581 lands or one of the surviving discriminators gets executed by a seat positioned to do so.
+
+## Three-host cross-coherence reproduction (silas + elliott + cael)
+
+After the source-walk closure above, three cohort seats independently walked `~/.openclaw/session-delivery-queue/` on their own hosts and each found:
+- 🌫 silas-host: directory exists, only `failed/` subdir (Apr 29 14:49, old), 0 files for any swim-42 fire-window recipient
+- 🌻 elliott-host: directory exists, only `failed/` subdir, 0 files in last 30 minutes
+- 🩸 cael-host: directory exists since May 1 21:06, only `failed/` subdir (empty, last-touched Apr 28 19:04), 0 files anywhere in tree from swim-42 fire-windows
+
+These three independent walks are **cross-host source-coherence evidence** — the source-level behavior (`enqueueSessionDelivery` writes file → `ackSessionDelivery` immediately deletes file → file unobservable post-success) reproduces consistently across hosts. That's a useful cohort-discipline finding: substrate-coherence on the queue-substrate behavior is real, not host-specific.
+
+But these three walks **do not discriminate success vs no-write** at the durable-store step, because the queue-walk evidence is symmetric under both:
+- *file written + acked + deleted* (intended success path) → empty queue
+- *file never written* (the inferred bug shape) → empty queue
+
+Both produce identical post-hoc walks. The evidence cannot tell them apart from outside the process.
+
+## Why the framing keeps re-converging on the inferred reading
+
+The substrate-finding-shape framing — *"branch-entry honored but durable-store step short-circuited"* / *"no-op happens at the durable-store step inside `enqueueSessionDelivery`"* — is a coherent hypothesis. But it's an **inference through pattern**, not a byte-pin. Each cohort iteration that walks a host and finds empty queue dir confirms the same source-level expected behavior, which is consistent with the inferred reading but also consistent with the success reading. Adding more hosts that confirm the same source-level behavior doesn't increase discrimination power.
+
+The pattern this row keeps producing — *substrate-walk → infer-bug → cohort consensus → walk-source → discover-the-walk-attests-symmetrically* — IS exactly what swim-42 was for. Each iteration is honest cohort discipline; the issue is just that without the surviving discriminators (named above), the substrate-finding-shape *cannot* close from outside the process.
+
+## Honest current state
+
+The 3-host queue-walk convergence is **real cross-host source-coherence evidence**. The substrate-finding-shape inversion-candidate at `substrate-finding-shape-inversion-candidate.md` **stays genuinely open**. The "(c) reading" — substrate-is-partially-correct, branch-entry honored but durable-store step short-circuited — is a coherent hypothesis that the queue-walk evidence is consistent-with but does not byte-pin.
+
+Surviving discriminators (still the only ones that could close the inversion):
+1. walk recipient session's in-memory `system-events` queue at fire-time (per-recipient, in-process, NOT deleted on ack)
+2. temporary log statements at `targeting.ts:101` + `:114` (frond-scribe-territory)
+3. fire from session whose recipient is actively attached + observe recipient's reaction

@@ -37,6 +37,19 @@ The rule is therefore: **before attesting at a layer, name whether dispatcher an
 
 Source: silas-seat refinement on `rows/cross-session-targeted-return/state.md` (commit `ec979d8`).
 
+## When to promote per-row discipline to swim-wide canon
+
+> **Lift it once it's been re-said across multiple files and seats.**
+> — elliott-seat, msg `1500678...`, on the EVIDENCE-LAYERS.md promotion + the byte-pin ladder canonization
+
+The signal that a per-row discipline-lesson belongs at swim-level (vs row-level) is exactly that: it has been re-derived independently in two or more contexts before being recognized as cohort-discipline. Promotion is the receipt that the rediscovery has happened enough times to stop happening.
+
+This avoids two failure modes:
+- **Premature promotion** — lifting a per-row finding into swim canon before it's been validated by independent rediscovery, which forces every future row to inherit a rule that may not generalize.
+- **Indefinite re-derivation** — leaving a discipline-lesson scoped to the row that produced it after multiple seats / rows have independently re-derived it, which forces every future cohort eye to rebuild the same canon from scratch.
+
+The rule applies to byte-pin layers, attestation rules, evidence-shape conventions, and any other discipline that emerges from per-row work in this swim.
+
 ## How to cite this
 
 In any swim-42 row receipt that makes an attestation, **prefix each evidence claim with the layer it belongs to**. For example:

@@ -6,6 +6,9 @@
 > **Story almost fossilized as substrate; substrate came back in time.**
 > — elliott-seat, msg `1500681...` (cosigned in real time by runner-seat), the shortest true sentence for what this whole row had to learn the long way
 
+> **Less bug-confidence than before, more semantics-layer humility than before.**
+> — elliott-seat, msg `1500694...`, after frond-scribe's #581 surfaced the substrate-finding-shape inversion-candidate (`flow_runs.owner_key` was wrong-layer per RFC §2.4, queue-walk evidence is symmetric under success vs no-write per source) and cohort-side discipline corrected without overcollapsing. The third deepening: the substrate-finding-shape itself almost-fossilized at the cohort-evidence-framework layer, and source-walk brought it back at that layer too.
+
 **Status**: row-output snapshot, separate from the cohort-decision-shape on the substrate-finding itself.
 
 **Purpose**: pin what this row's process produced as durable swim-42 output, *before* and *independent of* whichever cohort-decision figs eventually lands on (runtime fix before ship vs tool description re-cast).

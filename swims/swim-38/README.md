@@ -3,6 +3,8 @@
 **Status in source artifact**: ACTIVE charter / pre-swim gate  
 **Candidate**: `0a960498dccbba3b0ed2ef64ecd8cd2cc9368e1b` (PR #469 head)  
 **Driver**: Ronan 🌊
+**Provenance class**: `bootstrap-pointer` — public surface evacuated from `karmaterminal/openclaw-bootstrap` (e.g. `swims/swim-NN-…/`, `SWIM/history/`); bootstrap remains the source-of-truth body for this swim. See `swims/README.md` for the full provenance-class definitions and `swims/HISTORY.md` for the archive-surface map.
+
 
 ## Status
 

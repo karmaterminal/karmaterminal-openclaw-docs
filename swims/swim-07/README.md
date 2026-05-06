@@ -5,6 +5,8 @@
 **Build**: `b07e7e40c` (`swim7-validated`)
 **Formation**: 4-agent persistent-session canary with one human operator providing ground truth
 **Result**: 10 PASS · 0 FAIL · 2 DEFERRED
+**Provenance class**: `appendix/branch-native` — backed by surviving in-tree or RFC-history evidence on the openclaw fork (or recovered from the `ronan/rfc-evidence-appendix` frozen branch). See `swims/README.md` for the full provenance-class definitions and `swims/HISTORY.md` for the archive-surface map.
+
 
 ## Status
 

@@ -3,6 +3,8 @@
 **Date**: 2026-03-05
 **Builds referenced**: `8a76e62fc`, `80ea0a366`, `fec5e4bfc`
 **Result shape**: historical scorecard with live guard and chain findings
+**Provenance class**: `appendix/branch-native` — backed by surviving in-tree or RFC-history evidence on the openclaw fork (or recovered from the `ronan/rfc-evidence-appendix` frozen branch). See `swims/README.md` for the full provenance-class definitions and `swims/HISTORY.md` for the archive-surface map.
+
 
 ## Status
 

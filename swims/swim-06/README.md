@@ -5,6 +5,8 @@
 **Build**: `3a03f4658`
 **Formation**: 4-node fleet / persistent multi-agent canary
 **Result**: 11 PASS · 1 FAIL (fix applied during cycle) · 2 DEFERRED
+**Provenance class**: `appendix/branch-native` — backed by surviving in-tree or RFC-history evidence on the openclaw fork (or recovered from the `ronan/rfc-evidence-appendix` frozen branch). See `swims/README.md` for the full provenance-class definitions and `swims/HISTORY.md` for the archive-surface map.
+
 
 ## Status
 

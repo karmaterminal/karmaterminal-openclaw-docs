@@ -4,6 +4,8 @@
 **Formation**: Driver Ronan 🌊 · SUT Silas 🌫️ · Monitor Elliott 🌻 · Coord Cael 🩸  
 **Primary artifact**: formal row-matrix plus companion behavioral packet  
 **Result shape**: full-board charter / matrix artifact; not a single compact public scorecard
+**Provenance class**: `bootstrap-pointer` — public surface evacuated from `karmaterminal/openclaw-bootstrap` (e.g. `swims/swim-NN-…/`, `SWIM/history/`); bootstrap remains the source-of-truth body for this swim. See `swims/README.md` for the full provenance-class definitions and `swims/HISTORY.md` for the archive-surface map.
+
 
 ## Status
 

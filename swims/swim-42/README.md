@@ -3,6 +3,8 @@
 **Status at charter time:** OPEN / scaffolded, later exercised as live row clusters in this docs directory
 **Substrate target at swim-wake:** `frond/v2026.5.2/canonical @ f39b8c9751...`
 **Meaning:** final-release integration charter for the v5.2 line, with the public row receipts in this directory as its evidence surface
+**Provenance class**: `bootstrap-pointer` — public surface evacuated from `karmaterminal/openclaw-bootstrap` (e.g. `swims/swim-NN-…/`, `SWIM/history/`); bootstrap remains the source-of-truth body for this swim. See `swims/README.md` for the full provenance-class definitions and `swims/HISTORY.md` for the archive-surface map.
+
 
 ## Why this page exists
 

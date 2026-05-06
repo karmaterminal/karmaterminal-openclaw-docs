@@ -23,7 +23,7 @@ Before reading further, confirm:
 - you have read access to `SWIM/cases/CATALOG.md` (the canonical case registry)
 - `swims/` directory exists in `karmaterminal/karmaterminal-openclaw-docs` for instance landing
 
-If any of those are missing, fix that before continuing — this walkthrough does not work without the substrate stack landed (PR #938 already merged at `1efd7cf4c3935d951ceaa3872feb5483c013d5b5`; PRs #908 + #929 still in flight at filing time but should land first for the walkthrough to satisfy its own preconditions on first read).
+If any of those are missing, fix that before continuing — this walkthrough does not work without the substrate stack landed (all of PR #908, #929-as-#944, #938, #941, #943 merged 2026-05-06; SWIM/ factory migrated from openclaw-bootstrap to karmaterminal-openclaw-docs via PR #9 + bootstrap #945 same day).
 
 ---
 

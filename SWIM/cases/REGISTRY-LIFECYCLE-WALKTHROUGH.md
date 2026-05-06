@@ -232,7 +232,7 @@ This is the tombstone shape. A `lost` case carries a confidence tag and a proven
 
 ## 6. Version-bump worked example
 
-A registry version bump captures one or more lifecycle transitions. It is its own PR against `karmaterminal-openclaw-docs/SWIM/cases/` (or `karmaterminal/openclaw-bootstrap/SWIM/cases/` until migration #939 lands).
+A registry version bump captures one or more lifecycle transitions. It is its own PR against `karmaterminal-openclaw-docs/SWIM/cases/`.
 
 **Worked example: bumping v1 → v2 to capture the transitions in §1 + §3**:
 

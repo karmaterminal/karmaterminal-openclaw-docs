@@ -1,6 +1,6 @@
 # FORMAL SWIM RUNBOOK
 
-This is the authoritative swim starter for continuation verification on `openclaw-bootstrap`.
+This is the authoritative swim starter for continuation verification.
 
 It is a synthesis of:
 - `openclaw-bootstrap#427` (Swim 29 formal matrix shape)

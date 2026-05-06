@@ -6,6 +6,8 @@
 **Duration**: approximately 5 hours
 **Formation**: driver, log monitor, SUT, coordinator, human user (5-role canary)
 **Result**: 12 PASS · 0 FAIL · 1 DEFERRED
+**Provenance class**: `appendix/branch-native` — backed by surviving in-tree or RFC-history evidence on the openclaw fork (or recovered from the `ronan/rfc-evidence-appendix` frozen branch). See `swims/README.md` for the full provenance-class definitions and `swims/HISTORY.md` for the archive-surface map.
+
 
 ## Status
 

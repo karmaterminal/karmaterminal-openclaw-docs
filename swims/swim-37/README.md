@@ -3,6 +3,8 @@
 **Status in source artifact**: ACTIVE scaffold / deploy-gate era  
 **Candidate**: `karmaterminal/openclaw:feature/context-pressure-squashed`  
 **Baseline tag**: `v2026.4.21`
+**Provenance class**: `bootstrap-pointer` — public surface evacuated from `karmaterminal/openclaw-bootstrap` (e.g. `swims/swim-NN-…/`, `SWIM/history/`); bootstrap remains the source-of-truth body for this swim. See `swims/README.md` for the full provenance-class definitions and `swims/HISTORY.md` for the archive-surface map.
+
 
 ## Status
 

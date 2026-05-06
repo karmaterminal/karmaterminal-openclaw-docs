@@ -5,6 +5,8 @@
 **Driver**: 🌊 Ronan (4th prince)
 **Tracker**: [`karmaterminal/openclaw-bootstrap#892`](https://github.com/karmaterminal/openclaw-bootstrap/issues/892) (private; cohort-internal)
 **Driver-stamp**: opened at [issuecomment-4365486568](https://github.com/karmaterminal/openclaw-bootstrap/issues/892#issuecomment-4365486568) on 2026-05-03
+**Provenance class**: `appendix/branch-native` — backed by surviving in-tree or RFC-history evidence on the openclaw fork (or recovered from the `ronan/rfc-evidence-appendix` frozen branch). See `swims/README.md` for the full provenance-class definitions and `swims/HISTORY.md` for the archive-surface map.
+
 
 ## Purpose
 

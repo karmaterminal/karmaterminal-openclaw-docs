@@ -3,6 +3,8 @@
 **Substrate of record**: wave-1 `7eae057a74`, wave-2 `ae4f09282a`  
 **Baseline tag**: `a448042c2edd94a4e8ee86d5ed90a5ed9fe8e4cd`  
 **Bootstrap**: `08a4e9f`
+**Provenance class**: `bootstrap-pointer` — public surface evacuated from `karmaterminal/openclaw-bootstrap` (e.g. `swims/swim-NN-…/`, `SWIM/history/`); bootstrap remains the source-of-truth body for this swim. See `swims/README.md` for the full provenance-class definitions and `swims/HISTORY.md` for the archive-surface map.
+
 
 ## Status
 

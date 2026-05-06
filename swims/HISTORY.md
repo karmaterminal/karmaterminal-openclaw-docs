@@ -17,21 +17,25 @@ This index collects the continuation swim artifacts that are currently recoverab
 
 ## Currently evidenced swims in this public docs surface
 
-- Swim 05 — generation guard / chain-hop enforcement historical scorecard
-- Swim 06 — three-layer canary validation
-- Swim 07 — canary scorecard and methodology snapshot
-- Swim 09 — historical canary scorecard
-- Swim 10 — historical full-path canary scorecard
-- Swim 31 — evidence artifact / timer-arm failure investigation
-- Swim 34 — formal matrix / whole-board continuation battery
-- Swim 35 — stabilization scaffold
-- Swim 36 — full-surface charter
-- Swim 37 — pre-ship validation overlay / deploy swim
-- Swim 38 — slippy-hoodie edition charter
-- Swim 39 — volatile-purge charter + case inventory
-- Swim 40 — v29 substrate verification charter + scoreboard
-- Swim 41 — v5.2 substrate verification
-- Swim 42 — v5.5 cohort / evidence-layer validation surface
+Each swim below is tagged with its provenance class per `swims/README.md` (see also the appendix-discipline ledger at `karmaterminal/openclaw-bootstrap` PR #912 / `swims/MISSING-SWIMS-LEDGER.md`):
+
+- Swim 05 — generation guard / chain-hop enforcement historical scorecard — `appendix/branch-native`
+- Swim 06 — three-layer canary validation — `appendix/branch-native`
+- Swim 07 — canary scorecard and methodology snapshot — `appendix/branch-native`
+- Swim 09 — historical canary scorecard — `appendix/branch-native`
+- Swim 10 — historical full-path canary scorecard — `appendix/branch-native`
+- Swim 31 — evidence artifact / timer-arm failure investigation — `bootstrap-pointer`
+- Swim 34 — formal matrix / whole-board continuation battery — `bootstrap-pointer`
+- Swim 35 — stabilization scaffold — `bootstrap-pointer`
+- Swim 36 — full-surface charter — `bootstrap-pointer`
+- Swim 37 — pre-ship validation overlay / deploy swim — `bootstrap-pointer`
+- Swim 38 — slippy-hoodie edition charter — `bootstrap-pointer`
+- Swim 39 — volatile-purge charter + case inventory — `bootstrap-pointer`
+- Swim 40 — v29 substrate verification charter + scoreboard — `bootstrap-pointer`
+- Swim 41 — v5.2 substrate verification — `appendix/branch-native`
+- Swim 42 — v5.5 cohort / evidence-layer validation surface — `bootstrap-pointer`
+
+Provenance grammar: `appendix/branch-native` = backed by surviving in-tree or RFC-history evidence on `karmaterminal/openclaw`; `bootstrap-pointer` = bootstrap remains the source-of-truth body and the public page is a pointer; `adjacent branch-era` / `inferred from neighboring evidence, not directly preserved` = reserved for future evacuations (no swim sits here yet).
 
 ## Thin or still-missing areas
 

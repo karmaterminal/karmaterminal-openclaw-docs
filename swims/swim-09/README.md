@@ -5,6 +5,8 @@
 **Build**: `b2322f5`
 **Duration**: approximately 2 hours, Phase 1 low-context testing
 **Result**: 5/5 PASS after fixing a missing forwarding of `requestCompactionOpts` from `run.ts` to `attempt.ts`
+**Provenance class**: `appendix/branch-native` — backed by surviving in-tree or RFC-history evidence on the openclaw fork (or recovered from the `ronan/rfc-evidence-appendix` frozen branch). See `swims/README.md` for the full provenance-class definitions and `swims/HISTORY.md` for the archive-surface map.
+
 
 ## Status
 

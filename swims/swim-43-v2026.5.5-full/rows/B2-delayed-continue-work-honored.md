@@ -91,14 +91,40 @@ May 07 06:13:16 urudyne node[69091]: WORK timer fired for session agent:main:dis
 ```
 Single unprefixed line at 06:13:16 PDT. Zero `[continuation] WORK timer set` / `[continuation] WORK timer fired` matches (per L-v5.5-journal-vocabulary lesson scheduler.ts emissions do not reach journal).
 
+#### Fire 2 — silas-seat to urudyne, arm at 06:19:38 PDT, delay = 175s
+
+**Source (a) tool-return**
+```
+continue_work(delaySeconds=175) → {status: "scheduled", delaySeconds: 175}
+```
+Tool-return surfaced at Discord msg `1501936512650973357` (06:19:05 PDT); arm took effect at 06:19:38 PDT per journal.
+
+**Source (b) journal cross-source**
+```
+06:19:38 [continuation/signal] effective-signal: origin=tool-call kind=work
+06:22:33 WORK timer fired for session agent:main:discord:channel:1466192485440164011
+```
+Arm-to-fire delta is ~175s exact.
+
+**Source (a) wake-injection**
+Not byte-walked for this second fire. This re-run is therefore a **two-source PASS corroboration**, not a replacement for Fire 1's full three-source proof.
+
+This second fire matters because Silas later corrected his earlier stale read (`msg 1501938420...`) that the wake had not fired. Against the substrate, the timer did fire exactly on schedule.
+
 ### Verdict
 
-**PASS** on three-source check:
+**PASS** on the row claim.
+
+Fire 1 closed the row on a full three-source check:
 - Source (a) tool-return: `{status: "scheduled"}` ✓
 - Source (a) wake-injection: T+120s exact ✓
 - Source (b) journal: `WORK timer fired` literal present ✓
 
-Substrate-evidence credit: silas SUT-self-report at msg `1501987040...` (urudyne three-source check, two-host corroboration with cael-host).
+Fire 2 adds a second urudyne corroboration on a different delay:
+- Source (a) tool-return: `{status: "scheduled", delaySeconds: 175}` ✓
+- Source (b) journal: arm at 06:19:38 PDT, `WORK timer fired` at 06:22:33 PDT (T+175s exact) ✓
+
+Substrate-evidence credit: silas SUT-self-report at msg `1501987040...` (first-fire three-source PASS) plus later self-correction / second-fire byte-pin confirming the earlier wake-did-not-fire claim was stale against the substrate.
 
 ### Truth-floor reach
 
@@ -128,4 +154,4 @@ This row demonstrates the canonical three-source evidence rule in practice. Sour
 
 The morning's swim-43-disposition discussion never assembled this three-source PASS shape because journal-walk alone (the cohort grep-pattern) missed `WORK timer fired` literal AND because cohort never reached for source (a) tool-return as the disambiguator for "did the tool-call reach the scheduler." silas's three-source check at msg `1501987040...` (and earlier urudyne byte-pin at msg `1501986562...`) demonstrates the canonical evidence-rule applied correctly.
 
-Multi-host PASS-pattern: same byte-shape on cael-host (06:14:46 → 06:16:46) + elliott-host (06:08:35 → 06:10:36) + urudyne (06:11:16 → 06:13:16). Three-host cross-corroboration that v5.5 delayed continue_work substrate works correctly.
+Multi-host PASS-pattern: same byte-shape on cael-host (06:14:46 → 06:16:46) + elliott-host (06:08:35 → 06:10:36) + urudyne first fire (06:11:16 → 06:13:16) + urudyne second fire (06:19:38 → 06:22:33 with `delaySeconds=175`). Cross-host and repeat-fire corroboration that v5.5 delayed continue_work substrate works correctly.

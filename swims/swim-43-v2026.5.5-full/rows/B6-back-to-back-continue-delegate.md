@@ -88,6 +88,37 @@ Observed behavior:
 - no visible collision or collapse between announces
 - no missing second fire
 
+**Source (a) tool-return + substrate trace append** (cael-seat byte-pin appended after initial bank):
+
+Three-source PASS shape now present:
+```text
+(a) tool-return on dispatch: both delegates returned {status:"scheduled"} in the same turn
+(a) visible-return A: NONCE:B6-BB-A
+(a) visible-return B: NONCE:B6-BB-B
+```
+
+Post-fire substrate trace (cael-seat):
+```text
+pre-dispatch: 147 total flow_runs / 0 queued+runnable
+post-fire: 151 total / 0 queued+runnable
+
+delta +4 = 2 marker rows + 2 child-spawn entries
+
+marker rows:
+- 821f0a41-... created=14:41:46 updated=14:41:55 (~+9s; A + spawn/runtime)
+- 30a678d7-... created=14:41:46 updated=14:41:56 (~+10s; B + spawn/runtime)
+
+child-spawn entries:
+- created 14:41:56, succeeded by 14:42:11
+- created 14:41:59, succeeded by 14:42:11
+```
+
+Interpretation:
+- exactly two marker rows materialized from the single originating turn
+- exactly two child-spawn rows followed from those markers
+- independent flow_ids, independent timing, no overlap-induced coalesce
+- no race, no double-fire, no lost second fire at substrate layer
+
 ### Verdict
 
 **PASS** on the row claim.
@@ -102,7 +133,12 @@ The row's product-surface claim is satisfied: back-to-back `continue_delegate(mo
 
 ### Truth-floor reach
 
-This is a source-(a)-heavy PASS grounded in cael-seat dispatch parameters plus two visible nonce-tagged shard returns. Tool-return JSON and gateway journal spawn literals were not separately pasted into the row for this fire; a future corroborating fire could add those for extra substrate depth, but the user-visible row claim is already closed.
+This is now a stronger source-(a)-heavy PASS with three-source shape on the originating seat:
+- tool-return scheduling bytes
+- two visible nonce-tagged shard returns
+- post-fire flow_runs substrate trace
+
+Gateway journal spawn literals were still not separately pasted for this fire, so a future corroborating fire could add cross-seat source-(b) depth, but the row claim is substantively closed from cael-seat alone.
 
 ## Status ladder
 

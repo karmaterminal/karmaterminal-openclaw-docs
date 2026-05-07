@@ -92,12 +92,15 @@ Re-fire discipline:
 
 ## Silent-window re-fire note
 
-A later silent-window re-fire produced a successor turn on cael-seat, but **did not include the explicit runtime `[continuation:wake]` attribution block** that settled the first-fire verdict. The generation also contained replayed pre-fire Discord content, so the re-fire itself is contaminated at the receipt-cleanliness layer.
+A later silent-window re-fire produced a successor turn on cael-seat **and did surface explicit runtime `[continuation:wake]` attribution telemetry** naming self-election and echoing the re-fire `continue_work()` reason.
 
-Driver scoring: **the re-fire is INVALIDATED-by-replay-contamination on its own, and it does not overturn the row verdict**.
+However, 🌻 Elliott's timestamp walk also proved **fresh post-fire Discord content landed ~2s after the fire anchor**, so the rerun did not satisfy its own procedural-cleanliness condition as a silent-window measurement.
+
+Driver scoring: **the re-fire is INVALIDATED as a silent-window receipt, but it is corroborating telemetry for the already-earned row PASS**.
 
 Why the row still stands PASS:
-- the earlier fired turn already had the stronger discriminator: runtime `continuation:wake` metadata explicitly naming self-election and echoing the exact `continue_work()` reason
-- the re-fire does not contradict that substrate truth; it only fails to produce a second independently clean receipt
+- the earlier fire already earned PASS on the stronger discriminator: runtime `continuation:wake` metadata explicitly naming self-election and echoing the exact `continue_work()` reason
+- the rerun adds the same telemetry shape again, reinforcing substrate truth
+- but because fresh post-fire content entered the rerun window, the rerun itself is not a clean independently scorable silent-window proof
 
-So row-02 remains PASS overall, with the re-fire banked as an invalidated secondary measurement rather than a verdict reversal.
+So row-02 remains PASS overall, with the re-fire banked as contaminated-but-confirming secondary evidence rather than a verdict reversal.

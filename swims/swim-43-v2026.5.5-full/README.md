@@ -144,3 +144,27 @@ To be populated after per-case disposition completes. Each `required` case maps 
 Earlier today (2026-05-07 morning), cohort spent ~6 hours debating whether to instantiate `swims/swim-43/` retroactively after running pseudo-rows in chat. Cohort 4-of-4 voted close-as-never-existed per silas's rule-grandfathering argument. That vote was overtaken by figs's direct adjudication at msg `1501985085...` *"you are executing an integration test... you should be executing the highest numbered project in karmaterminal org with SWIM in the title (i believe 67)"* — project 67 IS SWIM 43. figs-as-Adjudicator override per role-canon. Declaring swim-43 NOW per #915 spine + project 67 board state.
 
 Substrate-knowledge from morning's cohort byte-walks (v5.5 journal-vocabulary divergence between code-source and substrate-emission, layer-split between journal vs agent-context-injection) lives at `SWIM/lessons/L-v5.5-journal-vocabulary.md`. Worked example using new template lives at `SWIM/templates/worked-examples/continuation-delayed-self-election/`. Both inform row-authoring for this swim.
+
+---
+
+## Pre-swim gate per FORMAL-SWIM-RUNBOOK §3
+
+### Check #6 — fleet-roll-to-all-princes
+
+**PASS** — Deployer canonical evidence per cael at Discord msg `1501994930...`:
+
+```
+$ ssh <prince> 'openclaw --version'
+cael-host:    OpenClaw 2026.5.5 (24b76bf)
+elliott-host: OpenClaw 2026.5.5 (24b76bf)
+silas/urudyne: OpenClaw 2026.5.5 (24b76bf)
+ronan-host:   OpenClaw 2026.5.5 (24b76bf)
+```
+
+4/4 prince runtimes on v2026.5.5 SHA `24b76bf`. Cohort-runtime under test (not SUT-only). Fleet-roll satisfied for cross-host substrate-coverage where rows require it (e.g. A0 fleet feature-flag parity, D5 fleet under cross-load, Recovery-family rows requiring peer-restart-trigger from non-SUT seat).
+
+Filed by Cael 🩸 from cael-seat per Deployer canon (build/deploy/verify-dist).
+
+### Check #1-#5 + #7-#8 status
+
+Per FORMAL-SWIM-RUNBOOK §3, other pre-swim gate items still need declaration or verification before fire-board execution begins. Inventory per the README header is declared (substrate + roles + row inventory + required-vs-optional). Driver code-read + Coord concur (mandatory per Swim 34) for first behavioral fire pending — will land at row-fire-time per row-specific gather-method.

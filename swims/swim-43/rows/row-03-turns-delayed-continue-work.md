@@ -32,3 +32,13 @@ On deployed v5.5 substrate, a non-zero `continue_work()` delay is honored: the s
 ## Test shape
 
 Use a short explicit delay (driver call will name it), keep the room quiet through the timing window as much as practical, and score off both runtime wake telemetry and channel timestamps.
+
+
+## Driver-call parameters
+
+**Delay window for first fire**: 120 seconds
+
+Scoring rule for this row:
+- PASS if successor turn arrives after the delay window with runtime `continuation:wake` attribution matching the row-03 `continue_work()` reason
+- FAIL if successor arrives materially early or does not arrive within a reasonable post-delay timeout
+- INVALIDATED if fresh inbound/replay noise makes wake attribution non-interpretable

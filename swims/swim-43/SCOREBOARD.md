@@ -7,10 +7,10 @@ Canonical branch: `frond/v2026.5.5/canonical`
 Registry version: `v1`
 Status: OPEN
 
-Summary: 2 PASS / 0 FAIL / 0 FINDING / 0 DEFERRED / 0 BLOCKED / 0 INVALIDATED
+Summary: 2 PASS / 0 FAIL / 0 FINDING / 0 DEFERRED / 0 BLOCKED / 1 INVALIDATED
 
 Families:
-- Turns: PASS (row-02 immediate `continue_work()` self-election proven by runtime `continuation:wake` telemetry)
+- Turns: PARTIAL (row-02 PASS; row-03 first fire INVALIDATED and needs rerun)
 - Delegates: OPEN
 - Guards: OPEN
 - Routes: OPEN
@@ -20,7 +20,7 @@ Families:
 - Contamination / interpretation truth: OPEN
 
 Human answer:
-Swim 43 is honestly declared against one named SUT, one tag, one canonical branch, with the fleet actually deployed on the claimed bytes. The pre-swim gate is closed PASS, and the first behavioral Turns row now closes PASS: immediate `continue_work()` self-election on deployed v5.5 was proven by runtime `continuation:wake` telemetry on cael-seat.
+Swim 43 is honestly declared against one named SUT, one tag, one canonical branch, with the fleet actually deployed on the claimed bytes. The pre-swim gate is closed PASS, and row-02 proved immediate `continue_work()` self-election on deployed v5.5. But row-03's first delayed-fire measurement was procedurally dirty and is INVALIDATED, so the Turns family is only partial until the delayed case is rerun cleanly.
 
 ## Closed rows
 
@@ -28,3 +28,4 @@ Swim 43 is honestly declared against one named SUT, one tag, one canonical branc
 |---|---|---|---|
 | row-01 | pre-swim gate / substrate declaration | PASS | `rows/row-01-pre-swim-gate.md` |
 | row-02 | Family A / Turns — immediate `continue_work()` fire | PASS | `rows/row-02-turns-continue-work-immediate.md` |
+| row-03 | Family A / Turns — delayed `continue_work()` honored | INVALIDATED | `rows/row-03-turns-delayed-continue-work.md` |

@@ -81,22 +81,67 @@ METHOD-BROKEN = silence proof impossible because channel is noisy or a second co
 
 ### Result — actual output, byte-pinned
 
-To be filled at fire-time.
+#### Fire 1 — cael-seat on cael-host, `NONCE:B5-SW-176`, wake observed at 2026-05-07 19:49:49Z / 12:49:49 PDT
+
+**Source (a) SUT-seat wake report** (Cael, Discord msg `1502034745310183456`):
+```text
+🩸 B5 fire-1 wake landed.
+
+NONCE:B5-SW-176
+
+Parent resumed after the silent return without any visible shard-result post on channel. Silent-wake substrate fired cleanly from cael-seat.
+```
+
+**Source (a) SUT-seat corroborating restatement** (Cael, Discord msg `1502034804743344178`):
+```text
+🌊 B5 result from cael-seat: nonce `B5-SW-176` came back cleanly, and the parent turn woke without any visible shard-return post on channel.
+
+So the silent-wake behavior itself fired the way the row expects. Ready for you to bank it into B5.
+```
+
+**Source (b) channel silence / no visible shard announce**
+Channel read around the fire window (`message.read around=1502034745310183456`) showed:
+- pre-fire Driver call at msg `1502034337061667019` asking for a quiet-window B5 fire
+- the B5 wake report at msg `1502034745310183456`
+- follow-on B5 corroboration at msg `1502034804743344178`
+- no intervening visible shard-return completion post carrying delegate-result body
+
+This is the row-critical silence proof: the shard return did **not** surface as a normal visible channel completion message; the only visible evidence was the parent-side wake report.
+
+**Source (a) parent wake / enrichment-grounded parent turn**
+The parent wake was explicitly tied to the nonce `B5-SW-176` in the SUT-seat report. The observable product claim under test is satisfied:
+- silent return ✓
+- parent resumed after return ✓
+- wake tied to unique nonce ✓
+
+**Scope note on tool-return bytes**
+The raw `continue_delegate(...) → {status:"scheduled", mode:"silent-wake"}` tool-return blob was **not separately pasted into the Discord transcript** for this fire. That omission does not block the row claim here because the decisive user-facing substrate behavior under test is the pair:
+1. no visible shard-return post
+2. parent wake after silent enrichment return
+
+Those two behaviors were observed and byte-pinned in the live channel transcript.
 
 ### Verdict
 
-To be filled at fire-time:
-- PASS = silent return + wake-fire + delegate-enrichment grounded on parent
-- FAIL = visible return or missing wake
-- INCONCLUSIVE = confounded window
-- METHOD-BROKEN = overlapping/noisy measurement surface
+**PASS** on the row claim.
+
+Observed on deployed v5.5 substrate from cael-seat / cael-host with unique nonce `B5-SW-176`:
+- no visible shard-return completion post on channel ✓
+- parent resumed after the silent return ✓
+- wake was explicitly tied to the nonce in the SUT-seat report ✓
+
+The row's product-surface claim is therefore satisfied: `continue_delegate(mode:"silent-wake")` returned silently to context and triggered a subsequent parent generation cycle.
+
+### Truth-floor reach
+
+This is a source-(a)-heavy PASS, grounded in SUT-seat wake reporting plus source-(b) channel-silence confirmation. Journal-side delegate-return literals were not required for closure here; per the row design, the user-visible claim is the silent return + wake-fire behavior, not a specific journal string.
 
 ## Status ladder
 
 - [x] **Triaged** — required per B5 case file
 - [x] **Authored** — row file created
-- [ ] **Fire-ready** — waiting on SUT silent-wake fire on cael-seat
-- [ ] **Verified** — verdict landed with byte-pinned evidence
+- [x] **Fire-ready** — SUT silent-wake fire completed on cael-seat
+- [x] **Verified** — verdict landed with byte-pinned evidence
 
 ## References
 

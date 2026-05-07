@@ -129,3 +129,11 @@ This row demonstrates the canonical three-source evidence rule in practice. Sour
 The morning's swim-43-disposition discussion never assembled this three-source PASS shape because journal-walk alone (the cohort grep-pattern) missed `WORK timer fired` literal AND because cohort never reached for source (a) tool-return as the disambiguator for "did the tool-call reach the scheduler." silas's three-source check at msg `1501987040...` (and earlier urudyne byte-pin at msg `1501986562...`) demonstrates the canonical evidence-rule applied correctly.
 
 Multi-host PASS-pattern: same byte-shape on cael-host (06:14:46 → 06:16:46) + elliott-host (06:08:35 → 06:10:36) + urudyne (06:11:16 → 06:13:16). Three-host cross-corroboration that v5.5 delayed continue_work substrate works correctly.
+
+---
+
+## Lesson #8 cross-reference (added per cael's methodology-walk msg `1501992...`)
+
+Per `SWIM/SWIM-METHODOLOGY.md` Lesson #8: *"SUT self-report + tool call results ARE valid evidence. Successfully calling a tool that 'doesn't exist' is impossible. `{status: 'scheduled'}` from continue_work proves the tool is registered. The tool call IS the test."*
+
+Source (a) tool-return + wake-injection (this row's first two sources) are the LOAD-BEARING canonical evidence per Lesson #8. Source (b) journal cross-source is supplementary refinement that confirms substrate behavior at deploy-config layer (per L-v5.5-journal-vocabulary lesson Case 1). The three-source check converges on PASS, but the canonical-evidence-weighting per methodology is: tool-return + wake-injection primary; journal-walk supplementary.

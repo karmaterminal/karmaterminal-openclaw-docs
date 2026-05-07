@@ -59,6 +59,71 @@ Per `CASE-REGISTRY-RULES.md` §2: every active case in registry v1 must be dispo
 | B7 | F7 subagent-announce path — ghost-wake / stale-wake | Delegates | **required** | regression-protection per RFC §3.4; graceful handling not crash/double-emit |
 | B8 | F8 post-compaction delegate survival | Recovery | **required** | core Recovery substrate; pre-compaction stage + post-compaction execute in successor |
 
+### Family C (registry block C) — P-series candidate-port behavioral coverage
+
+| Case | Title | Modern family | Disposition | Reason |
+|---|---|---|---|---|
+| C1 | P1 structured wake markers observable on the wire | Routes | **required** | core Routes wire-observability for wake-events |
+| C2 | P2 pending-flag lifecycle (arm → fire → clear) | Routes | **required** | core Routes flag-lifecycle correctness |
+| C3 | P3 timer disposal on generation change | Recovery | **required** | core Recovery timer-cleanup on session-generation-change |
+| C4 | P4 cache bounds under long chain (N=50 hops) | Guards | **required** | core Guards cache-bound budget at 50-hop boundary |
+| C5 | P5 CPU bound under permutation load | Guards | **required** | core Guards CPU-budget under cohort permutation load |
+| C6 | P6 memory bound under 100-turn chain | Guards | **required** | core Guards memory-budget at 100-turn boundary |
+| C7 | P7 announce-delivery memoization (no double-fire) | Routes | **required** | core Routes idempotency at announce-boundary |
+
+### Family D (registry block D) — R-series recovery + rollout
+
+| Case | Title | Modern family | Disposition | Reason |
+|---|---|---|---|---|
+| D1 | R1 boot-time stall check | Recovery | **required** | core Recovery boot-stall protection |
+| D2 | R2 memory growth over 1h idle + light inbound | Rollout | **required** | core Rollout idle-memory-stability under release conditions |
+| D3 | R3 compaction recovery (trigger threshold + delegate survives) | Recovery | **required** | core Recovery compaction-survival path |
+| D4 | R4 gateway restart recovery (peer-restart, not self) | Recovery | **required** | core Recovery peer-restart-survival per HEARTBEAT safety |
+| D5 | R5 multi-prince simultaneous activity (fleet under cross-load) | Rollout | **required** | core Rollout fleet-cross-load behavior |
+
+### Family E (registry block E) — V-series build/test green
+
+| Case | Title | Modern family | Disposition | Reason |
+|---|---|---|---|---|
+| E1 | V1 pnpm build green | Rollout-supporting | **required** | base build-green precondition; not FULL-defining alone but block-supporting |
+| E2 | V2 check / lint / type-check green | Rollout-supporting | **required** | base type-correctness precondition |
+| E3 | V3 full test suite green | Rollout-supporting | **required** | base test-suite precondition |
+
+### Family N (extension cases since swim-34) — cross-session targeted return + OTel + request_compaction
+
+| Case | Title | Modern family | Disposition | Reason |
+|---|---|---|---|---|
+| N001 | Cross-session targeted continue_delegate return (`targetSessionKey`) | Routes | **required** | core Routes for cross-session-targeting feature |
+| N002 | Multi-recipient continue_delegate return (`targetSessionKeys`) | Routes | **required** | core Routes for multi-recipient feature |
+| N003 | fanoutMode `tree` return (resolved-ancestor recipient set) | Routes | **required** | core Routes for ancestor-fanout feature |
+| N004 | fanoutMode `all` return (all-known-sessions recipient set) | Routes | **required** | core Routes for all-fanout feature |
+| N005 | Chain-budget anti-flood (fanout consumes 1 chain-step regardless of recipient count) | Guards | **required** | core Guards for fanout-budget-anti-flood |
+| N006 | OTel trace-context (`traceparent`) propagation across queue boundary | Observability | **required** | core Observability for OTel trace-context preservation |
+| N007 | OTel trace-context preserved through restart-replay path | Recovery | **required** | core Recovery for OTel preservation through restart |
+| N008 | request_compaction success path with cooldown arming + diagnostic count | Recovery | **required** | core Recovery for request_compaction success path |
+| N009 | request_compaction failure path (`[system:compaction-failed]` system event + staged-delegate residue) | Recovery | **required** | core Recovery for request_compaction failure path |
+| N010 | Post-compaction successor receives correct state, not stale ghost state | Recovery | **required** | core Recovery for successor-state-truth |
+
+### Family X (extension cases) — boundary + visibility + permutation
+
+| Case | Title | Modern family | Disposition | Reason |
+|---|---|---|---|---|
+| X1 | Public continuation tool visibility matrix (across session kinds) | Observability | **required** | core Observability for tool-visibility matrix |
+| X2 | Main-session vs delegate vs leaf tool visibility | Observability | **required** | core Observability for session-kind-vs-tool-visibility |
+| X3 | NO_REPLY coexistence with continuation tools | Guards | **required** | core Guards for NO_REPLY coexistence |
+| X4 | HEARTBEAT_OK coexistence when heartbeat seat active | Guards | **required** | core Guards for HEARTBEAT_OK coexistence |
+| X5 | request_compaction guard / reachability / threshold behavior | Recovery | **required** | core Recovery for request_compaction guards |
+| X6 | Generation-guard drift / preemption behavior | Guards | **required** | core Guards for generation-guard correctness |
+| X7 | Max chain boundary — probe past declared cap | Guards | **required** | core Guards for chain-cap boundary |
+| X8 | Max delegates per turn — boundary exploration | Guards | **required** | core Guards for delegate-per-turn boundary |
+| X9 | Hot-reload vs restart requirement for config changes | Guards | **required** | core Guards for config-reload-vs-restart truth |
+| X10 | Textless-turn / tool-only delegate consumption | Delegates | **required** | core Delegates textless-turn correctness |
+| X11 | Silent-return trust boundary | Delegates | **required** | core Delegates silent-return-trust boundary |
+| X12 | Blind enrichment accuracy / contamination resistance | Contamination | **required** | core Contamination/interpretation-truth |
+| X13 | Chained-delegate permutations at depth 3 / 5 / 10 | Delegates | **required** | core Delegates depth-permutation correctness |
+| X14 | Simultaneous delegate completion / announce-back ordering | Delegates | **required** | core Delegates simultaneous-completion ordering |
+| X15 | Future-intent / delayed scheduling | Delegates | **required** | core Delegates delayed-scheduling correctness |
+
 (continues for C / D / E / N / X — all 56 cases need disposition; this skeleton lists structure, full disposition follows in subsequent commits as Driver reads each case file + makes disposition call)
 
 ## Declared row inventory

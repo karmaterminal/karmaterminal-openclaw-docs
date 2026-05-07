@@ -92,12 +92,12 @@ Re-fire discipline:
 
 ## Silent-window re-fire note
 
-A later silent-window re-fire produced a successor turn on cael-seat, but **did not include the explicit runtime `[continuation:wake]` attribution block** that settled the first-fire verdict. The generation also contained replayed pre-fire Discord content, so the re-fire alone is not a clean independent attribution proof.
+A later silent-window re-fire produced a successor turn on cael-seat, but **did not include the explicit runtime `[continuation:wake]` attribution block** that settled the first-fire verdict. The generation also contained replayed pre-fire Discord content, so the re-fire itself is contaminated at the receipt-cleanliness layer.
 
-Driver scoring: **the re-fire is observational / indeterminate on its own, but it does not overturn the row verdict**.
+Driver scoring: **the re-fire is INVALIDATED-by-replay-contamination on its own, and it does not overturn the row verdict**.
 
 Why the row still stands PASS:
 - the earlier fired turn already had the stronger discriminator: runtime `continuation:wake` metadata explicitly naming self-election and echoing the exact `continue_work()` reason
-- the re-fire does not contradict that substrate truth; it only fails to add a cleaner second proof
+- the re-fire does not contradict that substrate truth; it only fails to produce a second independently clean receipt
 
-So row-02 remains PASS overall, with the re-fire banked as a test-cleanliness note rather than a verdict reversal.
+So row-02 remains PASS overall, with the re-fire banked as an invalidated secondary measurement rather than a verdict reversal.

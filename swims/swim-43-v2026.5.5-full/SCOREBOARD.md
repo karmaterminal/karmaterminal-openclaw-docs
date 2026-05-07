@@ -114,7 +114,7 @@
 
 | Row | Case | Status | Verdict |
 |---|---|---|---|
-| N006 | OTel traceparent across queue boundary | TBD | TBD |
+| N006 | OTel traceparent across queue boundary | Authored | METHOD-BROKEN — config exists, hostname unresolved on cael-host; IP reachability works (`#39`) |
 | X1 | Public continuation tool visibility matrix | TBD | TBD |
 | X2 | Main vs delegate vs leaf tool visibility | TBD | TBD |
 
@@ -130,7 +130,7 @@
 
 Charter §6 closure rules: FULL-PASS requires all required rows verdicted PASS. FULL-WITH-FINDINGS allows non-blocker FAIL/FINDING. NOT-FULL if any required row left at TBD/DEFERRED/BLOCKED/INVALIDATED at close.
 
-Current verdict-roll: **4 PASS / 51 TBD = NOT-FULL eligible at this snapshot**. Verdict pending row authoring + fires + closure declaration.
+Current verdict-roll: **4 PASS / 50 TBD = NOT-FULL eligible at this snapshot**. Verdict pending row authoring + fires + closure declaration.
 
 ## Substrate-knowledge references
 

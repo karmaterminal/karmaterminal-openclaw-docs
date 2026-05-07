@@ -46,7 +46,7 @@
 | A3 | delegatePendingFlags from TaskFlow | TBD | TBD | TBD |
 | B3 | F3 clean continue_delegate (default/normal) | Authored | **PASS** | cael-host morning row-04 fire (23:31:35→23:31:45 PDT) |
 | B4 | F4 noisy continue_delegate | TBD | TBD | TBD |
-| B5 | F5 silent-wake via continue_delegate | TBD | TBD | TBD |
+| B5 | F5 silent-wake via continue_delegate | Authored | pending fire | row file authored; awaiting SUT silent-wake fire |
 | B6 | F6 back-to-back scheduling | TBD | TBD | TBD |
 | B7 | F7 announce-boundary ghost-wake/stale-wake | TBD | TBD | TBD |
 | X10 | Textless-turn / tool-only delegate | TBD | TBD | TBD |
@@ -89,7 +89,7 @@
 |---|---|---|---|
 | B8 | F8 post-compaction delegate survival | TBD | TBD |
 | C3 | P3 timer disposal on generation change | TBD | TBD |
-| D1 | R1 boot-time stall check | TBD | TBD |
+| D1 | R1 boot-time stall check | Authored | INCONCLUSIVE (baseline no-stall only) |
 | D3 | R3 compaction recovery | TBD | TBD |
 | D4 | R4 gateway restart recovery (peer) | TBD | TBD |
 | N007 | OTel preserved through restart-replay | TBD | TBD |
@@ -104,7 +104,7 @@
 |---|---|---|---|
 | A0 | Fleet feature-flag parity | TBD | TBD |
 | A0.2 | Post-deploy log enumeration | TBD | TBD |
-| D2 | R2 memory growth 1h idle | TBD | TBD |
+| D2 | R2 memory growth 1h idle | Authored | pending 1h window |
 | D5 | R5 fleet under cross-load | TBD | TBD |
 | E1 | V1 pnpm build green | TBD | TBD |
 | E2 | V2 check/lint/type-check green | TBD | TBD |

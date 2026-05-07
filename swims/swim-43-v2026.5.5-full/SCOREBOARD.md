@@ -104,7 +104,7 @@
 |---|---|---|---|
 | A0 | Fleet feature-flag parity | TBD | TBD |
 | A0.2 | Post-deploy log enumeration | TBD | TBD |
-| D2 | R2 memory growth 1h idle | Authored | pending 1h window |
+| D2 | R2 memory growth 1h idle | Authored | INCONCLUSIVE (fire-1 contaminated by planned restart) |
 | D5 | R5 fleet under cross-load | TBD | TBD |
 | E1 | V1 pnpm build green | TBD | TBD |
 | E2 | V2 check/lint/type-check green | TBD | TBD |

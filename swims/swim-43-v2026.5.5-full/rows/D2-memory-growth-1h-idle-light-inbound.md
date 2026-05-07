@@ -86,11 +86,41 @@ NRestarts=0
 
 **Chatter note at baseline**: light cohort chatter only; no restart on cael-host since 09:47:11 PDT baseline, swim-43 row authoring / issue truth-keeping in progress.
 
-Pending follow-up samples at T+15m, T+30m, T+45m, T+60m.
+Pending follow-up samples at T+30m, T+45m, T+60m.
+
+#### Fire 1 — T+15m sample contaminated by planned restart
+
+**T_epoch**: `1778178440` (2026-05-07 11:27:20 PDT)
+
+```text
+$ ssh cael 'GW_PID=$(systemctl --user show openclaw-gateway --property=MainPID --value) && ps -o pid,rss,vsz,etime,cmd -p $GW_PID'
+GW_PID=67252
+RSS=926628 KB
+VSZ=10664984 KB
+ELAPSED=00:13
+
+$ ssh cael 'systemctl --user show openclaw-gateway --property=MemoryCurrent,NRestarts,ActiveState,SubState --value'
+MemoryCurrent=903393280
+NRestarts=0
+ActiveState=active
+SubState=running
+```
+
+**Restart-cause byte-pin**
+```text
+$ gh api repos/karmaterminal/openclaw-bootstrap/actions/runs/25514442794 --jq '{actor:.actor.login,created_at,conclusion}'
+{"actor":"cael-dandelion-cult","created_at":"2026-05-07T18:26:51Z","conclusion":"success"}
+```
+
+This matches the cael-host journal stop/start at `11:26:58 → 11:27:07 PDT`. The D2 window was contaminated by a planned `restart-gateway.yml` run.
 
 ### Verdict
 
-To be filled at fire-time:
+**Current verdict: INCONCLUSIVE (fire-1 contaminated).**
+
+Reason: a planned gateway restart (`restart-gateway.yml`, actor `cael-dandelion-cult`, created `2026-05-07T18:26:51Z`) occurred inside the 1h observation window, falsifying the row's unchanged-uptime / unchanged-restart-count expectation. Restart was clean and non-OOM, but it still contaminates the bounded-memory window for this fire.
+
+Verdict meanings:
 - PASS = bounded memory under 1h idle + light inbound
 - FAIL = runaway / restart / OOM
 - INCONCLUSIVE = contaminated window
@@ -101,7 +131,8 @@ To be filled at fire-time:
 - [x] **Triaged**
 - [x] **Authored**
 - [x] **Baseline started** — T0 byte-pinned from elliott-seat at 2026-05-07 11:16:22 PDT
-- [ ] **1h series complete**
+- [x] **Fire-1 INCONCLUSIVE** — planned restart landed inside the 1h window at T+10m/T+15m
+- [ ] **Fresh 1h series complete**
 - [ ] **Verified**
 
 ## References

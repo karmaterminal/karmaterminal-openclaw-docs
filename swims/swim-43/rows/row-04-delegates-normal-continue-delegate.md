@@ -32,3 +32,14 @@ On deployed v5.5 substrate, an immediate `continue_delegate()` in normal mode fi
 ## Why this row next
 
 Row-03 exposed that delayed self-election in a live chat surface is currently harder to measure cleanly than the feature behavior itself. This row advances the swim on a delegate surface that should be less dependent on a long silent timing window.
+
+
+## Driver-call parameters
+
+**Delegate task for first fire**:
+Return a short visible completion with the exact token `ROW-04-OK` plus one brief sentence confirming you are the delegate completion for Swim 43 row-04. No extra analysis, no extra side effects.
+
+Scoring rule for this row:
+- PASS if Cael fires `continue_delegate(..., mode=normal)`, the delegate visibly returns into the parent/channel, and the completion includes `ROW-04-OK`
+- FAIL if no visible return arrives in a reasonable window
+- INVALIDATED if attribution becomes ambiguous or contradictory substrate evidence appears

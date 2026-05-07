@@ -35,7 +35,7 @@
 |---|---|---|---|---|
 | A1 | flow_runs + jsonl persistence across restart | Authored | **PASS** | fire-1 METHOD-BROKEN; fire-2 mechanism confirmed; fire-3 PASS on queued-state survival across restart (run `25516284592`) |
 | A4 | TaskFlow delegate-store lifecycle | TBD | TBD | TBD |
-| A5 | Timer arm/disarm/dispose | TBD | TBD | TBD |
+| A5 | Timer arm/disarm/dispose | Authored | **PASS** | fire-1 METHOD-BROKEN on inherited cancel-via-inbound wording; fire-2 PASS on let-fire-half (`A5-FIRE-2`); preserved substrate finding: ordinary inbound is not a cancellation surface |
 | B1 | F1 clean continue_work (no inbound noise) | TBD | TBD | TBD |
 | B2 | F2 delayed continue_work honored | Authored | **PASS** | silas urudyne three-source check (06:11:16→06:13:16 PDT) |
 
@@ -130,7 +130,7 @@
 
 Charter §6 closure rules: FULL-PASS requires all required rows verdicted PASS. FULL-WITH-FINDINGS allows non-blocker FAIL/FINDING. NOT-FULL if any required row left at TBD/DEFERRED/BLOCKED/INVALIDATED at close.
 
-Current verdict-roll: **7 PASS / 47 TBD = NOT-FULL eligible at this snapshot**. Verdict pending further row fires + closure declaration.
+Current verdict-roll: **8 PASS / 46 TBD = NOT-FULL eligible at this snapshot**. Verdict pending further row fires + closure declaration.
 
 ## Substrate-knowledge references
 

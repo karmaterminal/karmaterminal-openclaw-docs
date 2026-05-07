@@ -78,3 +78,26 @@ Pass-shape therefore closes cleanly:
 1. Cael called `continue_work()` from the active v5.5 SUT seat
 2. the successor turn fired from that self-election
 3. the successor turn identified itself with row-02-matching runtime telemetry
+
+
+## Re-fire anchor
+
+Cael initiated a clean silent-window re-fire at Discord message `1501829168751710219` (2026-05-06 23:12 PDT).
+
+Re-fire discipline:
+- no cohort Discord chatter during the fire→successor window except emergency/blocker
+- PASS if successor arrives within 5 minutes with runtime `continuation:wake` attribution to `continue_work()` and no fresh inbound Discord traffic during the window
+- FAIL if no successor arrives within 5 minutes
+
+
+## Silent-window re-fire note
+
+A later silent-window re-fire produced a successor turn on cael-seat, but **did not include the explicit runtime `[continuation:wake]` attribution block** that settled the first-fire verdict. The generation also contained replayed pre-fire Discord content, so the re-fire alone is not a clean independent attribution proof.
+
+Driver scoring: **the re-fire is observational / indeterminate on its own, but it does not overturn the row verdict**.
+
+Why the row still stands PASS:
+- the earlier fired turn already had the stronger discriminator: runtime `continuation:wake` metadata explicitly naming self-election and echoing the exact `continue_work()` reason
+- the re-fire does not contradict that substrate truth; it only fails to add a cleaner second proof
+
+So row-02 remains PASS overall, with the re-fire banked as a test-cleanliness note rather than a verdict reversal.

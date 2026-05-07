@@ -158,3 +158,31 @@ Not PASS (expected literals absent). Not FAIL (delegate scheduled per tool retur
 
 - row-03: same fire shape from silas-host or elliott-host to triangulate whether journal-routing divergence is ronan-host-specific or shared with multiple hosts
 - L-v5.5-journal-vocabulary lesson update: extend Case 2 to document host-divergence finding alongside mode-divergence finding
+
+---
+
+## Fire 1 — substrate-finding refinement (post-Verdict, agent-context evidence)
+
+After committing the SUBSTRATE-FINDING verdict above, the delegate completion surfaced in ronan-seat agent-context-injection layer at 09:26:21 PDT (~3min after dispatch) as:
+
+```
+[continuation:delegate-spawned] Tool delegate turn 2/200: swim-44/row-02 fire from ronan-seat ... [task body]
+```
+
+This is the wake-injection literal per `L-v5.5-journal-vocabulary` lesson Case 1 pattern (`[continuation:wake]` for `continue_work` emits to agent-context not journal) — extended to **`[continuation:delegate-spawned]` for `continue_delegate(normal)` ALSO emits to agent-context not journal**.
+
+**Refined substrate-finding (host-divergence-was-wrong-attribution)**: the divergence isn't host-related (cael-host-vs-ronan-host journal-routing). It's layer-related. The two expected PASS literals split:
+
+- `Consuming N tool delegate(s)` → emits to journal (ronan-host fire-1 didn't show this — possible explanation: process-state at fire-time, log-level filter, or different code-path on this gateway version, NOT host-divergence)
+- `[continuation:delegate-spawned] hop=N/MAX mode=normal` → emits to **agent-context-injection layer**, NOT to journal. This is the L-v5.5-journal-vocabulary Case 1 pattern extended from `continue_work` to `continue_delegate`.
+
+Cael's row-01 silent-mode fire surfaced `Consuming` to cael-host journal. My ronan-seat normal-mode fire surfaced `[continuation:delegate-spawned]` to ronan-seat agent-context. Different layers, different literals — neither is "missing"; both are present at their canonical layers.
+
+**Revised verdict**: PASS-WITH-LAYER-CORRECTION. Both expected literals exist; they just emit to different layers (journal vs agent-context-injection). Row's original two-literals-both-in-journal expectation was source-code-inferred + wrong about layer-routing per L-v5.5-journal-vocabulary lesson. Update row-design + measure.sh to check BOTH layers (journal-walk for `Consuming` AND session-side agent-context for `[continuation:delegate-spawned]`).
+
+This refinement strengthens L-v5.5-journal-vocabulary lesson Case 2 — extends silent-mode-vs-normal-mode finding to layer-routing-divergence. Both modes emit one literal to journal; both modes emit the other literal to agent-context-injection. Mode-specific differences may exist within those layers but the layer-split itself is mode-independent.
+
+### Follow-on (this row)
+
+- L-v5.5-journal-vocabulary lesson update: Case 2 should document the layer-split (journal vs agent-context) for delegate emissions, mirroring Case 1's pattern for continue_work
+- measure.sh update: add agent-context-injection layer check (or document that script can only verify journal-side; agent-context-side requires session-state-walk separate from harness)

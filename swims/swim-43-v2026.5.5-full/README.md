@@ -50,14 +50,14 @@ Per `CASE-REGISTRY-RULES.md` §2: every active case in registry v1 must be dispo
 
 | Case | Title | Modern family | Disposition | Reason |
 |---|---|---|---|---|
-| B1 | (TBD) | TBD | TBD | TBD |
-| B2 | (TBD) | TBD | TBD | TBD |
-| B3 | (TBD) | TBD | TBD | TBD |
-| B4 | (TBD) | TBD | TBD | TBD |
-| B5 | (TBD) | TBD | TBD | TBD |
-| B6 | (TBD) | TBD | TBD | TBD |
-| B7 | (TBD) | TBD | TBD | TBD |
-| B8 | (TBD) | TBD | TBD | TBD |
+| B1 | F1 clean continue_work (no inbound noise) | Turns | **required** | core Turns clean-fire baseline; quiet-channel single-fire verification |
+| B2 | F2 noisy continue_work (inbound during reservation) | Turns | **required** | core Turns reservation-vs-fold semantics; never-both invariant |
+| B3 | F3 clean continue_delegate (quiet room) | Delegates | **required** | core Delegates default-mode lifecycle; spawn+return+announce |
+| B4 | F4 noisy continue_delegate (inbound during delay) | Delegates | **required** | core Delegates noisy-channel correctness; no-loss-no-double under inbound |
+| B5 | F5 silent-wake via continue_delegate | Delegates | **required** | core Delegates silent-wake mode; silent-return + subsequent-turn-fire both verified |
+| B6 | F6 back-to-back scheduling (two delegates same turn) | Delegates | **required** | core Delegates concurrency; race-free arm + independent fire + return |
+| B7 | F7 subagent-announce path — ghost-wake / stale-wake | Delegates | **required** | regression-protection per RFC §3.4; graceful handling not crash/double-emit |
+| B8 | F8 post-compaction delegate survival | Recovery | **required** | core Recovery substrate; pre-compaction stage + post-compaction execute in successor |
 
 (continues for C / D / E / N / X — all 56 cases need disposition; this skeleton lists structure, full disposition follows in subsequent commits as Driver reads each case file + makes disposition call)
 

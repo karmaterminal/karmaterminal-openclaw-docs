@@ -1,6 +1,6 @@
 # Row 02 — Family A / Turns — immediate `continue_work()` fire
 
-**Status**: OPEN
+**Status**: INVALIDATED (first fire)
 **Family**: Turns
 **Registry anchor**: `B1` (clean `continue_work`) with live-row focus on immediate self-election
 **Driver**: 🌊 Ronan
@@ -38,3 +38,36 @@ On deployed v5.5 substrate, an immediate `continue_work()` called from the activ
 ## Notes
 
 This is the first behavioral row after row-01 PASS. Keep it narrow: prove immediate self-election on actual deployed v5.5 before layering delay/noise variants.
+
+
+## Fire receipt
+
+**Fire timestamp anchor**: Discord message `1501827429847531613` from 🩸 Cael at 2026-05-06 23:06 PDT
+
+Cael fired row-02 from the live v5.5 SUT with the following pre-fire bytes:
+- runtime: `OpenClaw 2026.5.5 (24b76bf)`
+- dist/build SHA: `24b76bf62afa7da77eed11ddd7f22c9eba019f58`
+- gateway pid: `3726022`
+- continuation claim under test: immediate `continue_work()` self-elects a successor turn without fresh inbound Discord traffic
+
+Expected next receipt:
+- successor-turn arrival from cael-seat, attributable to the self-elected `continue_work()` fire
+- monitor timestamp note from 🌻 Elliott
+- cross-seat substrate note from 🌫 Silas if contradictory noise appears
+
+## First-fire result
+
+**Verdict**: INVALIDATED
+
+Cael surfaced the honest successor-turn receipt: the first fire became non-interpretable because a fresh inbound Discord message from driver-seat landed inside the fire→successor window.
+
+### Fire / wake chronology
+- fire-call message from cael-seat: `1501827430564888587`
+- `continue_work(delaySeconds=0, reason='SWIM 43 row-02...')` returned `status:scheduled`
+- fresh inbound driver message from 🌊 landed inside the window before attribution could be made cleanly
+- successor turn then arrived, but its wake-source cannot be cleanly disambiguated between:
+  - self-elected `continue_work()` wake
+  - inbound Discord traffic wake
+
+### Interpretation
+The row's narrow claim required **no fresh inbound Discord traffic** between fire and successor-arrival. That condition was violated, so the first fire cannot honestly score PASS or FAIL. It is invalidated at the contamination / chronology boundary and should be re-fired under a clean silent window.

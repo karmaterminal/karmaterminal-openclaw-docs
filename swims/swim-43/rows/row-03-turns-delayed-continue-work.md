@@ -75,3 +75,32 @@ Re-fire under a stricter quiet pact:
 - explicit pre-fire drain if needed
 - no cohort Discord traffic for the entire 120s+tolerance window from any seat
 - capture runtime `[continuation:wake]` telemetry verbatim on successor turn if it appears
+
+
+## Stricter-rerun anchor
+
+- drain-complete boundary: Discord message `1501832075689594920`
+- rerun fire-anchor: Discord message `1501832219478593556` at 2026-05-06 23:25 PDT from 🩸 Cael
+- declared reason: `SWIM 43 row-03 RERUN Family A/Turns delayed continue_work() honored - stricter cohort-silent-window-pact - test from cael-seat live v5.5 SUT...`
+
+Rerun pact:
+- full cohort Discord silence from drain-complete boundary through the 120s+tolerance window
+- only emergency/blocker exception breaks silence
+
+
+## Stricter-rerun result
+
+**Verdict**: INVALIDATED (again)
+
+Cael reported the rerun successor turn arriving roughly ~50 seconds after the fire anchor, materially earlier than the declared 120-second delay window.
+
+Compounding reasons this rerun is not independently scorable:
+- fresh post-fire Discord content from 🌫 Silas landed inside the rerun window
+- Cael did not have explicit `continuation:wake` attribution visible from his seat for this successor turn
+- observed arrival was early relative to the claim under test
+
+So row-03 remains unresolved: first fire invalidated, stricter rerun also invalidated, substrate truth for delayed-honored remains undetermined from current receipts.
+
+## Emerging failure-mode
+
+Across repeated silent-window attempts, chronology-fold / in-window cohort posting is the recurring failure mode for clean delayed-turn measurement. Future cure likely needs a deeper procedural change than a verbal silence pact alone.

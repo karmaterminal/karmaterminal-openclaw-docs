@@ -29,6 +29,19 @@ User-facing guarantee: a prince can stage continuation work (delegates pending i
 
 ### What we expect — literal substrate bytes for PASS
 
+Three byte-shaped pieces of evidence per fire.
+
+**Electing mechanism for substantive fire-2**
+
+Before taking the pre-restart snapshot, the SUT must stage one delayed delegate so `flow_runs` has a real in-flight entry:
+
+```text
+continue_delegate(mode: "silent", delaySeconds: 600, task: "A1 fire-2 marker ...")
+→ {"status":"scheduled","mode":"silent","delaySeconds":600,...}
+```
+
+Then wait for that TaskFlow entry to materialize in `flow_runs` as `queued`/`runnable`, and only then take the pre-restart snapshot. `continue_work(...)` is not the right electing mechanism for this row; fire-1 established it uses the in-process scheduler rather than TaskFlow-backed `flow_runs` persistence.
+
 Three byte-shaped pieces of evidence per fire:
 
 **1. flow_runs sqlite snapshot pre-restart and post-restart match** (excluding restart-induced bookkeeping fields like `updated_at` if any):
@@ -178,10 +191,10 @@ The discriminator: did the runtime LOSE in-flight continuation state, or did the
 ## Status ladder
 
 - [x] **Triaged** — required per A1 case file (live-row + cross-seat evidence class)
-- [x] **Authored** — script + row file committed to branch `ronan/20260507/swim-43-v5-5-full-declaration`
-- [ ] **PASS-candidate** / **PARTIAL** / **OPEN-GAP** / **METHOD-BROKEN** (pick one when fired)
-- [ ] **Comprehension-gated** — driver code-read of TaskFlow flow_runs + per-agent jsonl substrate signed off
-- [ ] **Verified** — Verdict landed on byte-pinned Result block; cross-seat cosigned
+- [x] **Authored** — row + harness exist on the swim branch and mainline history
+- [x] **METHOD-BROKEN (fire-1)** — row-spec substrate-mechanism gap captured honestly before restart dispatch
+- [ ] **Fire-2 rework** — electing mechanism swapped to `continue_delegate(mode: silent, delaySeconds: 600)` and wait-for-entry-to-land added to the fire sequence
+- [ ] **Verified** — substantive fire-2 verdict landed with byte-pinned pre/post snapshots + cross-seat cosign
 - [ ] **Evidence-cleansed** — N/A unless contributing to frozen-branch evidence appendix per Charter Rule 8
 
 ## References
@@ -198,4 +211,4 @@ This row exercises substrate-truth that the morning's swim-43 disposition discus
 
 **Restart canon (per figs at Discord msg `1501992707709468783` 2026-05-07 10:02 PDT)**: princes use the `restart-gateway.yml` workflow in `karmaterminal/openclaw-bootstrap` to trigger gateway restart. Self-target guard (`github.actor == "${target_prince}-dandelion-cult"`) allows a prince to dispatch their own gateway restart from their own session. The earlier *"no SUT self-restart per HEARTBEAT safety, peer-restart-trigger required"* framing was OLD/INCORRECT canon — superseded by the workflow-based pattern that produces a durable Actions audit trail. Cael-seat dispatching with `target_prince=cael` is canon-aligned (self-target, source-(a) Deployer-canon work).
 
-Cross-seat byte-pin requirement (silas/urudyne or elliott/elliott-host verifies same flow_runs state) satisfies the methodology three-source evidence rule (SUT self-report + SSH gateway logs/state + cross-seat verification).
+Cross-seat byte-pin requirement (silas/urudyne or elliott/elliott-host verifies same flow_runs state on cael-host via SSH) satisfies the methodology three-source evidence rule (SUT self-report + SSH gateway logs/state + cross-seat verification).

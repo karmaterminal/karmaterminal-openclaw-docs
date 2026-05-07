@@ -46,7 +46,7 @@
 | A3 | delegatePendingFlags from TaskFlow | TBD | TBD | TBD |
 | B3 | F3 clean continue_delegate (default/normal) | Authored | **PASS** | cael-host morning row-04 fire (23:31:35→23:31:45 PDT) |
 | B4 | F4 noisy continue_delegate | TBD | TBD | TBD |
-| B5 | F5 silent-wake via continue_delegate | Authored | pending fire | row file authored; awaiting SUT silent-wake fire |
+| B5 | F5 silent-wake via continue_delegate | PASS | fire-1 PASS | nonce `B5-SW-176`; silent return with no visible shard post; parent wake landed from cael-seat |
 | B6 | F6 back-to-back scheduling | TBD | TBD | TBD |
 | B7 | F7 announce-boundary ghost-wake/stale-wake | TBD | TBD | TBD |
 | X10 | Textless-turn / tool-only delegate | TBD | TBD | TBD |
@@ -130,7 +130,7 @@
 
 Charter §6 closure rules: FULL-PASS requires all required rows verdicted PASS. FULL-WITH-FINDINGS allows non-blocker FAIL/FINDING. NOT-FULL if any required row left at TBD/DEFERRED/BLOCKED/INVALIDATED at close.
 
-Current verdict-roll: **4 PASS / 50 TBD = NOT-FULL eligible at this snapshot**. Verdict pending row authoring + fires + closure declaration.
+Current verdict-roll: **5 PASS / 49 TBD = NOT-FULL eligible at this snapshot**. Verdict pending further row fires + closure declaration.
 
 ## Substrate-knowledge references
 

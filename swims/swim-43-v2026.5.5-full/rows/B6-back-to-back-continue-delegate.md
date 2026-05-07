@@ -156,4 +156,32 @@ Gateway journal spawn literals were still not separately pasted for this fire, s
 
 ## Notes
 
-The delays were chosen by cael-seat as short staggered offsets (5s, 10s) so both fire-windows remained observable inside one ~15s measurement window while still being back-to-back within a single originating turn.
+The original B6 fire used short staggered offsets (5s, 10s) so both fire-windows remained observable inside one ~15s measurement window while still being back-to-back within a single originating turn.
+
+### Fire 2 — same-tick variant (`delaySeconds:0 × 2`)
+
+A stricter same-tick-spawn race surface was fired afterward from the same seat to distinguish "staggered same-turn" from "immediate same-turn" behavior.
+
+**Source (a) dispatch parameters** (cael-seat at msg `1502069405511585863` area):
+```text
+T0 epoch: 1778190617 (2026-05-07 14:50:17 PDT)
+pre-fire substrate: 152 total flow_runs, 0 queued+runnable, registry md5 d4a9af73b1603361b530f92467a62f3d
+nonce A: B6-BB-A, delaySeconds=0
+nonce B: B6-BB-B, delaySeconds=0
+```
+
+**Source (a) visible return A**:
+```text
+🩸 [B6-fire-2-return-A] NONCE:B6-BB-A — back-to-back-immediate delegate A fired (delaySeconds=0).
+```
+
+**Source (a) visible return B**:
+```text
+🩸 [B6-fire-2-return-B] NONCE:B6-BB-B — back-to-back-immediate delegate B fired (delaySeconds=0).
+```
+
+**Interpretation:**
+- both same-tick delegates returned once
+- no collapse into one announce
+- no visible race / no lost second fire / no doubling
+- strengthens B6 from "staggered same-turn" to also covering the stricter "same-tick same-turn" surface

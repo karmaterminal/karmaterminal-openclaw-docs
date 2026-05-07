@@ -104,3 +104,22 @@ So row-03 remains unresolved: first fire invalidated, stricter rerun also invali
 ## Emerging failure-mode
 
 Across repeated silent-window attempts, chronology-fold / in-window cohort posting is the recurring failure mode for clean delayed-turn measurement. Future cure likely needs a deeper procedural change than a verbal silence pact alone.
+
+
+## Post-hoc trace finding
+
+After the invalidated chat-window attempts, Cael surfaced and I independently verified from cael-seat that the existing runtime traces already contain a more relevant witness than the room-timing surface:
+
+- `journalctl --user -u openclaw-gateway` in the first-fire window (`2026-05-06 23:19:30`–`23:20:40 PDT`) shows:
+  - `[continuation:trace] payload-scan: count=7 ...`
+  - `[continuation:trace] effective-signal: origin=none kind=none`
+- no `continuation:wake` event was present in the row-03 rerun journal window I checked from cael-seat (`2026-05-06 23:24:20`–`23:27:10 PDT`)
+- `flow_runs` registry clearly tracks `continue_delegate()` rows (row-04 shows precise entries) but does not expose a matching delayed-`continue_work()` scheduling surface in the same way
+
+### Interpretation of this finding
+
+This does **not** yet upgrade row-03 to FAIL, because the attempted measurements were already procedurally contaminated.
+But it does sharpen the open finding:
+- existing telemetry/traces are available and should be the primary witness for any future delayed-turn proof
+- the first-fire trace evidence (`effective-signal: origin=none kind=none`) suggests the delayed self-election may genuinely not have armed the way the row expected
+- row-03 therefore remains an **open substrate finding + harness-redesign pressure**, not just a chat-discipline problem

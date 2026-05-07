@@ -114,6 +114,27 @@ $ gh api repos/karmaterminal/openclaw-bootstrap/actions/runs/25514442794 --jq '{
 
 This matches the cael-host journal stop/start at `11:26:58 → 11:27:07 PDT`. The D2 window was contaminated by a planned `restart-gateway.yml` run.
 
+#### Fire 1 — T+64m follow-up sample (post-contamination, still same fire)
+
+**T_epoch**: `1778181644` (2026-05-07 12:20:44 PDT)
+
+```text
+$ ssh cael 'GW_PID=$(systemctl --user show openclaw-gateway --property=MainPID --value) && ps -o pid,rss,vsz,etime,cmd -p $GW_PID'
+GW_PID=100312
+RSS=939912 KB
+VSZ=10647452 KB
+ELAPSED=15:38
+
+$ ssh cael 'systemctl --user show openclaw-gateway --property=ActiveEnterTimestamp,MemoryCurrent,NRestarts,ActiveState,SubState --value'
+ActiveEnterTimestamp=Thu 2026-05-07 12:05:06 PDT
+MemoryCurrent=927444992
+NRestarts=0
+ActiveState=active
+SubState=running
+```
+
+This follow-up sample is useful operationally — it shows the post-restart process remained stable at ~15m uptime with RSS still under the pre-restart baseline — but it does **not** rescue fire-1's verdict. Once the restart landed inside the observation window, the original 1h bounded-memory fire was already contaminated.
+
 ### Verdict
 
 **Current verdict: INCONCLUSIVE (fire-1 contaminated).**

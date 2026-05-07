@@ -34,30 +34,30 @@
 
 Per `CASE-REGISTRY-RULES.md` §2: every active case in registry v1 must be dispositioned (in scope / required / deferred / omitted with reason). 56 active cases total in `SWIM/cases/`.
 
-### Family A — Turns
+### Family A (registry block A) — maps to multiple modern families per FULL-SWIM-CROSSWALK.md
 
-| Case | Title | Disposition | Reason |
-|---|---|---|---|
-| A0 | (TBD — read case file) | TBD | TBD |
-| A0.2 | (TBD) | TBD | TBD |
-| A1 | TaskFlow flow_runs + per-agent sessions persistence across restart | required | core Turns / pre-fire substrate |
-| A2 | TBD | TBD | TBD |
-| A3 | TBD | TBD | TBD |
-| A4 | TBD | TBD | TBD |
-| A5 | TBD | TBD | TBD |
+| Case | Title | Modern family | Disposition | Reason |
+|---|---|---|---|---|
+| A0 | Fleet feature-flag parity (precondition gate) | Rollout | **required** | precondition for any downstream row; cohort already on v5.5 SHA `24b76bf` per `ssh cael 'openclaw --version'` so flag-parity-by-deploy-version satisfied; needs explicit cross-seat byte-confirmation of flag state pre-row-1 |
+| A0.2 | Post-deploy log enumeration & categorization (precondition) | Rollout | **required** | precondition; substrate-knowledge in L-v5.5-journal-vocabulary lesson already documents v5.5 anomaly categories (log.info-from-scheduler not surfacing) |
+| A1 | Flow registry + per-agent sessions persistence across restart | Turns | **required** | core Turns substrate-truth; needs explicit fire-restart-verify cycle on cael-host SUT with cross-seat attestation |
+| A2 | continuationChainCount / continuationChainTokens accounting | Guards | **required** | core Guards budget-truth; needs chain-fire at known depth + fanout-fire at known recipient count |
+| A3 | delegatePendingFlags derivation from TaskFlow (post-Bug-A) | Delegates | **required** | post-Bug-A regression-protection; needs stage-pending + restart + verify-derivation cycle |
+| A4 | TaskFlow delegate-store lifecycle (create → read → consume → expire) | Turns | **required** | core Turns lifecycle-truth; janitor-expire-path needs explicit verification |
+| A5 | Timer arm / disarm / dispose (no leaks, no double-fire) | Turns | **required** | core Turns timer-correctness; cancellation path + single-fire path both need verification per RFC §6.7 |
 
-### Family B — Delegates
+### Family B (registry block B)
 
-| Case | Title | Disposition | Reason |
-|---|---|---|---|
-| B1 | TBD | TBD | TBD |
-| B2 | TBD | TBD | TBD |
-| B3 | TBD | TBD | TBD |
-| B4 | TBD | TBD | TBD |
-| B5 | TBD | TBD | TBD |
-| B6 | TBD | TBD | TBD |
-| B7 | TBD | TBD | TBD |
-| B8 | TBD | TBD | TBD |
+| Case | Title | Modern family | Disposition | Reason |
+|---|---|---|---|---|
+| B1 | (TBD) | TBD | TBD | TBD |
+| B2 | (TBD) | TBD | TBD | TBD |
+| B3 | (TBD) | TBD | TBD | TBD |
+| B4 | (TBD) | TBD | TBD | TBD |
+| B5 | (TBD) | TBD | TBD | TBD |
+| B6 | (TBD) | TBD | TBD | TBD |
+| B7 | (TBD) | TBD | TBD | TBD |
+| B8 | (TBD) | TBD | TBD | TBD |
 
 (continues for C / D / E / N / X — all 56 cases need disposition; this skeleton lists structure, full disposition follows in subsequent commits as Driver reads each case file + makes disposition call)
 

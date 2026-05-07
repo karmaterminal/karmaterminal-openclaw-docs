@@ -1,6 +1,6 @@
 # Row 05 — Family G / Observability — version witness hierarchy on deployed v5.5
 
-**Status**: OPEN
+**Status**: PASS
 **Family**: Observability
 **Registry anchor**: observability minimum — visible status surfaces must match real runtime state / decorative-status lies caught
 **Driver**: 🌊 Ronan
@@ -27,3 +27,37 @@ On deployed v5.5, the authoritative version witnesses are `openclaw --version` a
 ## Why this row now
 
 Swim 43 already depended on this witness rule operationally during fleet deploy and gate closure. Capturing it as an explicit observability row turns a banked keeper into a scored receipt.
+
+## Witness pack
+
+### Cael-seat authoritative witnesses
+
+**Witness 1 — `openclaw --version`**
+`OpenClaw 2026.5.5 (24b76bf)`
+
+**Witness 2 — `dist/build-info.json`**
+- version: `2026.5.5`
+- commit: `24b76bf62afa7da77eed11ddd7f22c9eba019f58`
+- builtAt: `2026-05-07T05:54:58.692Z`
+
+**Witness 3 — decorative/stale surface**
+`systemctl --user status openclaw-gateway` first line:
+`OpenClaw Gateway (v2026.4.11)`
+
+### Cross-seat convergence
+
+Ronan-seat and Silas-seat both reproduce the same hierarchy:
+- `openclaw --version` = `OpenClaw 2026.5.5 (24b76bf)`
+- `dist/build-info.json` = `24b76bf62afa7da77eed11ddd7f22c9eba019f58`
+- `systemctl --user status` Description still says `OpenClaw Gateway (v2026.4.11)`
+
+## Verdict
+
+**PASS**
+
+### Interpretation
+
+This row proves the witness hierarchy cleanly on deployed v5.5:
+- authoritative runtime witnesses (`openclaw --version`, `dist/build-info.json`) agree on the actual running artifact
+- the systemd Description is stale/decorative and does not override runtime truth
+- cross-seat checks converge on the same shape, so this is not a one-host oddity

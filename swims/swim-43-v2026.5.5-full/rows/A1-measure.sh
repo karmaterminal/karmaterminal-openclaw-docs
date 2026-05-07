@@ -28,15 +28,15 @@ POST_JSONL="$OUT_DIR/jsonl-post-md5.txt"
 CROSS_SEAT="$OUT_DIR/cross-seat.txt"
 
 REGISTRY="$HOME/.openclaw/flows/registry.sqlite"
-SESSION_DIR="$HOME/.openclaw/sessions/${SESSION}"
+SESSION_FILE="$HOME/.openclaw/agents/main/sessions/${SESSION}.jsonl"
 
 # Step 1: METHOD-BROKEN check — substrate access
 if [ ! -f "$REGISTRY" ]; then
   echo "METHOD-BROKEN: registry.sqlite not found at $REGISTRY" >&2
   exit 3
 fi
-if [ ! -d "$SESSION_DIR" ]; then
-  echo "METHOD-BROKEN: session dir not found at $SESSION_DIR" >&2
+if [ ! -f "$SESSION_FILE" ]; then
+  echo "METHOD-BROKEN: session jsonl not found at $SESSION_FILE" >&2
   exit 3
 fi
 
@@ -52,19 +52,20 @@ fi
 sqlite3 "$REGISTRY" "SELECT flow_id, status, shape, current_step, created_at FROM flow_runs WHERE status IN ('runnable','queued') ORDER BY flow_id" > "$PRE_FR" 2>&1
 PRE_FR_COUNT=$(wc -l < "$PRE_FR")
 
-# Step 3: Snapshot pre-restart jsonl hashes for SUT session
-md5sum "$SESSION_DIR"/*.jsonl 2>/dev/null | awk '{print $1, $2}' | sort > "$PRE_JSONL"
+# Step 3: Snapshot pre-restart jsonl hash for SUT session
+md5sum "$SESSION_FILE" 2>/dev/null | awk '{print $1, $2}' > "$PRE_JSONL"
 PRE_JSONL_COUNT=$(wc -l < "$PRE_JSONL")
 
-if [ "$PRE_FR_COUNT" -eq 0 ] && [ "$PRE_JSONL_COUNT" -eq 0 ]; then
-  echo "METHOD-BROKEN: pre-state has no in-flight flow_runs AND no jsonl files (degenerate test surface)" >&2
+if [ "$PRE_FR_COUNT" -eq 0 ]; then
+  echo "METHOD-BROKEN: pre-state has no runnable/queued flow_runs (degenerate test surface for A1)" >&2
   echo "  pre flow_runs: $PRE_FR" >&2
   echo "  pre jsonl: $PRE_JSONL" >&2
   exit 3
 fi
 
 # Step 4: Dispatch canonical restart-gateway workflow with self-target
-# Per RESTART_GATEWAY.md: prince can dispatch their own restart; self-hosted runner does the systemctl
+# Per RESTART_GATEWAY.md and workflow self-target guard: target prince (or karmafeast) dispatches
+# their own restart; self-hosted runner does the systemctl out-of-process with Actions audit trail.
 echo "[A1-measure] dispatching restart-gateway.yml for target_prince=${HOST}..." >&2
 RUN_OUTPUT=$(gh workflow run restart-gateway.yml \
   --repo karmaterminal/openclaw-bootstrap \
@@ -105,30 +106,18 @@ if ! systemctl --user is-active openclaw-gateway >/dev/null 2>&1; then
   exit 2
 fi
 
-# Step 8: Snapshot post-restart flow_runs + jsonl hashes
+# Step 8: Snapshot post-restart flow_runs + jsonl hash
 sqlite3 "$REGISTRY" "SELECT flow_id, status, shape, current_step, created_at FROM flow_runs WHERE status IN ('runnable','queued') ORDER BY flow_id" > "$POST_FR" 2>&1
-md5sum "$SESSION_DIR"/*.jsonl 2>/dev/null | awk '{print $1, $2}' | sort > "$POST_JSONL"
+md5sum "$SESSION_FILE" 2>/dev/null | awk '{print $1, $2}' > "$POST_JSONL"
 
 # Step 9: Compare snapshots
 FR_DIFF=$(diff "$PRE_FR" "$POST_FR")
 JSONL_DIFF=$(diff "$PRE_JSONL" "$POST_JSONL")
 
-# Step 10: Cross-seat verification (best-effort; degraded-PASS if cross-seat unreachable)
-CROSS_SEAT_AVAILABLE=0
-for PEER in elliott silas; do
-  if ssh -o ConnectTimeout=3 -o BatchMode=yes "$PEER" "test -f $REGISTRY" 2>/dev/null; then
-    CROSS_SEAT_AVAILABLE=1
-    # Cross-seat sees remote registry — for cael-host SUT, we want elliott/silas to walk THEIR
-    # registry.sqlite to verify they don't have unexpected entries. The cross-seat byte-pin per
-    # row spec is verifying that cael-host flow_runs IDs aren't inadvertently leaking elsewhere.
-    ssh "$PEER" "sqlite3 $REGISTRY \"SELECT COUNT(*) FROM flow_runs WHERE status IN ('runnable','queued')\"" > "$CROSS_SEAT" 2>&1
-    echo "[A1-measure] cross-seat $PEER reports: $(cat "$CROSS_SEAT")" >&2
-    break
-  fi
-done
-if [ "$CROSS_SEAT_AVAILABLE" -eq 0 ]; then
-  echo "[A1-measure] cross-seat verification skipped (peers unreachable); SUT-side evidence only" >&2
-fi
+# Step 10: Cross-seat verification is performed separately by Monitor/SUT seats via SSH to cael-host.
+# This harness records SUT-side evidence only; peer byte-pin is attached in the row Result block.
+printf '%s\n' 'cross-seat verification: external Monitor/SUT SSH byte-pin required' > "$CROSS_SEAT"
+echo "[A1-measure] cross-seat verification must be attached separately by Monitor/SUT seat" >&2
 
 # Step 11: Verdict
 {

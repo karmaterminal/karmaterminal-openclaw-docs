@@ -33,7 +33,7 @@
 
 | Row | Case | Status | Verdict | Evidence |
 |---|---|---|---|---|
-| A1 | flow_runs + jsonl persistence across restart | Authored | pending fire | needs peer-restart-trigger from Monitor seat |
+| A1 | flow_runs + jsonl persistence across restart | Authored | METHOD-BROKEN (fire-1) | electing-mechanism gap found; fire-2 should use continue_delegate + workflow self-restart |
 | A4 | TaskFlow delegate-store lifecycle | TBD | TBD | TBD |
 | A5 | Timer arm/disarm/dispose | TBD | TBD | TBD |
 | B1 | F1 clean continue_work (no inbound noise) | TBD | TBD | TBD |

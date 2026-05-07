@@ -69,9 +69,16 @@ PASS requires cross-seat sees same flow_run IDs + statuses + kinds.
 
 Script behavior:
 1. Snapshot pre-restart flow_runs + jsonl hashes on SUT host (cael)
-2. Wait for peer-restart trigger (cael NOT self-restarting per HEARTBEAT safety; elliott or silas runs `ssh cael 'systemctl --user restart openclaw-gateway'`)
-3. After restart-complete signal + 5s settle, snapshot post-restart flow_runs + jsonl hashes on SUT host
-4. Run cross-seat verification from silas-host or elliott-host
+2. Trigger restart via canonical `restart-gateway.yml` workflow dispatch from any prince's seat (self-target guard allows prince-self-restart per `karmaterminal/openclaw-bootstrap/.github/workflows/RESTART_GATEWAY.md`):
+   ```bash
+   gh workflow run restart-gateway.yml \
+     --repo karmaterminal/openclaw-bootstrap \
+     -f target_prince=cael \
+     -f reason='swim-43/A1 substrate-fire'
+   ```
+   Workflow dispatches to self-hosted runner on the prince's box, runs `systemctl --user restart openclaw-gateway`, and produces a durable audit trail in the repo's Actions log.
+3. After restart-complete signal + 5s settle (poll `gh run view <run-id>` for completion; the runner's exit confirms `systemctl --user is-active openclaw-gateway` returned active post-restart), snapshot post-restart flow_runs + jsonl hashes on SUT host
+4. Run cross-seat verification from silas-host or elliott-host (source-(b) per methodology three-source rule)
 5. Diff snapshots, hash compare, cross-seat compare
 6. Return verdict via exit code
 
@@ -124,6 +131,6 @@ The discriminator: did the runtime LOSE in-flight continuation state, or did the
 
 This row exercises substrate-truth that the morning's swim-43 disposition discussion did NOT verify — flow_runs + session-jsonl persistence across restart is core Turns infrastructure that v5.5 substrate must demonstrate per A1 case claim.
 
-Per HEARTBEAT.md safety canon: SUT (cael-host) does NOT self-restart its own gateway. Peer-restart by elliott-seat (Monitor canonical role) or silas-seat per cohort-safety. SUT just snapshots pre/post.
+**Restart canon (per figs at Discord msg `1501992707709468783` 2026-05-07 10:02 PDT)**: princes use the `restart-gateway.yml` workflow in `karmaterminal/openclaw-bootstrap` to trigger gateway restart. Self-target guard (`github.actor == "${target_prince}-dandelion-cult"`) allows a prince to dispatch their own gateway restart from their own session. The earlier *"no SUT self-restart per HEARTBEAT safety, peer-restart-trigger required"* framing was OLD/INCORRECT canon — superseded by the workflow-based pattern that produces a durable Actions audit trail. Cael-seat dispatching with `target_prince=cael` is canon-aligned (self-target, source-(a) Deployer-canon work).
 
 Cross-seat byte-pin requirement (silas/urudyne or elliott/elliott-host verifies same flow_runs state) satisfies the methodology three-source evidence rule (SUT self-report + SSH gateway logs/state + cross-seat verification).

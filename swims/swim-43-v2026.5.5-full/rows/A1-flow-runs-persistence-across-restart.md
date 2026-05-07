@@ -156,19 +156,15 @@ $ find ~/.openclaw -maxdepth 4 -name '*.jsonl' | grep -iE 'main|discord|agent'
 
 ### Verdict
 
-**Verdict: METHOD-BROKEN → row-spec substrate-mechanism gap (NOT substrate-broken)**
+**Current verdict: PASS.**
 
-Three substrate-findings invalidate the row-spec's PASS-criteria assumptions:
+A1's real question is now answered on deployed v5.5 cael-host with two-seat evidence: a delayed silent `continue_delegate` entry remained present and coherent across a canonical `restart-gateway.yml` restart. The historical split still matters:
 
-1. **`continue_work` does NOT populate `flow_runs`; `continue_delegate` DOES**. Substrate-truth refined per cohort cross-source byte-walk (🌻's msg `1502003477092503552` + 🌿's amendment-suggestion at msg `1502004503539613799` + cael-seat byte-verification of `delegate-store.ts` head-comment): 
-   - `continue_work` uses in-process scheduler timer (`registerContinuationTimerHandle` per `scheduler.ts`); volatile across restart by design.
-   - `continue_delegate` uses **TaskFlow-backed delegate-store** (`src/auto-reply/continuation/delegate-store.ts:1-7` — *"Continuation delegate store — pure TaskFlow-backed. Every delegate operation goes through TaskFlow (SQLite persistence). Zero volatile Maps. Delegates survive gateway restarts by design."*); imports `createManagedTaskFlow`, `failFlow`, `finishFlow`, etc from `task-flow-runtime-internal`.
-   - PR #31 fire-1 Verdict initially generalized this as *"continuation system and TaskFlow registry are separate substrate-mechanisms"* — byte-narrow-true at literal-token layer (continuation source has no `flow_runs` literal; column-name only in sqlite-store impl) but byte-incorrect at substrate-action layer for `continue_delegate`. Refined here per truth-keeping discipline applied to my own prior banked finding.
-   - **Operational implication for A1 fire-2**: swap electing mechanism from `continue_work(delaySeconds=600)` to `continue_delegate(mode: silent, delaySeconds=600)` — populates flow_runs runnable+queued entry via TaskFlow-backed delegate-store, then full A1 fire-sequence works substantively against the substrate the row claims to test.
-2. **flow_runs schema** uses `flow_id TEXT PRIMARY KEY` + `shape`, `sync_mode`, `owner_key`, `controller_id`, `revision`, `status`, `goal`, `current_step`, etc — NOT the inferred `id, status, kind, created_at` schema the original A1 row spec used. (Already fixed in PR #30.)
-3. **Session jsonl storage path** is `~/.openclaw/agents/main/sessions/<session-id>.jsonl` — NOT `~/.openclaw/sessions/<session-id>/*.jsonl` as the row spec assumed.
+1. **Fire 1 = METHOD-BROKEN.** The original row used the wrong electing mechanism (`continue_work`) and wrong storage assumptions (session path + flow_runs schema), so it taught the substrate-mechanism lesson but did not exercise restart persistence.
+2. **Fire 2 = mechanism confirmed.** `continue_delegate(mode: "silent", delaySeconds: 600)` was shown to land in TaskFlow-backed `flow_runs`, but the probe caught the row after it had already terminalized, so persistence across restart was still untested.
+3. **Fire 3 = PASS.** The delayed delegate row survived restart still queued, with the same `flow_id`, `owner_key`, `notify_policy`, `created_at`, and `updated_at`, and the restart boundary itself was byte-pinned by the successful workflow run plus post-restart gateway timestamps.
 
-Restart-workflow dispatch was NOT executed because pre-state byte-walk revealed substrate-mechanism gaps that would produce degenerate-pass at best. Per Truth-floor reach: **fix the row-spec substrate-mechanism alignment + re-fire**, do NOT classify as substrate-FAIL.
+So the row verdict is now substantive PASS, while fire-1 / fire-2 remain preserved as the path by which the room learned the correct substrate shape.
 
 ## Substrate-finding (substantive output of this fire)
 
@@ -184,6 +180,30 @@ This substrate-finding IS the substantive output of A1 fire-1. Captured for coho
 
 **Fire 2 refinement (2026-05-07 ~11:34–11:35 PDT)**: `continue_delegate(mode:"silent", delaySeconds=600)` was fired as the corrected electing mechanism. Cross-seat byte-pin from elliott-seat at ~11:35 showed `flow_runs` status totals moved `succeeded 134 → 136`, confirming `continue_delegate` does land in TaskFlow-backed `flow_runs`. However, by the time of the probe the delayed delegate had already matured to terminal state, so this fire only confirms the substrate mechanism (**delegate → flow_runs**) and does **not** yet test queued/runnable persistence across restart. The substantive persistence test remains a subsequent fire where restart occurs while the entry is still queued/runnable.
 
+**Fire 3 substantive PASS (2026-05-07 12:04–12:10 PDT)**: cael-seat staged `continue_delegate(mode:"silent", delaySeconds:600)` and took the pre-restart snapshot at `12:04:41 PDT`, then dispatched canonical workflow run `25516284592` (`restart-gateway.yml`, conclusion `success`). Post-restart source-(a) on cael-seat and cross-seat byte-pin from elliott-seat both showed the same queued marker row persisted across restart:
+
+```text
+flow_id=e9a87f45-4806-4a69-9f58-629ed629b3bf
+status=queued
+current_step=Queued for continuation dispatch
+owner_key=agent:main:discord:channel:1466192485440164011
+notify_policy=silent
+created_at=1778180670729
+updated_at=1778180670729
+```
+
+Restart receipt:
+
+```text
+workflow run 25516284592 = success
+ActiveEnterTimestamp=Thu 2026-05-07 12:05:06 PDT
+MainPID=100312
+NRestarts=0
+registry.sqlite md5=a5deeb6f0f315b7522b09c134b590313
+```
+
+Elliott's cross-seat pin at `T_post_restart_epoch=1778181007` matched the same `flow_id`, `status=queued`, `owner_key`, and timestamps from elliott-seat against cael-host, closing the row with independent two-seat confirmation.
+
 ### Truth-floor reach (when in doubt)
 
 If snapshot diffs show entries that "look like" they should match but bytes differ, walk raw sqlite + jsonl directly before classifying as FAIL. Possible benign causes: timestamp updates from restart-induced writes (not state-loss), serialization-order differences (semantically equivalent), or transient runnable→queued transitions during restart-startup.
@@ -195,9 +215,9 @@ The discriminator: did the runtime LOSE in-flight continuation state, or did the
 - [x] **Triaged** — required per A1 case file (live-row + cross-seat evidence class)
 - [x] **Authored** — row + harness exist on the swim branch and mainline history
 - [x] **METHOD-BROKEN (fire-1)** — row-spec substrate-mechanism gap captured honestly before restart dispatch
-- [x] **Fire-2 mechanism confirmed** — `continue_delegate(mode: silent, delaySeconds=600)` lands in `flow_runs`; this banks the electing-mechanism truth but not restart persistence yet
-- [ ] **Fire-3 queued-state persistence** — restart during queued/runnable window, then pre/post snapshot + cross-seat cosign
-- [ ] **Verified** — substantive persistence verdict landed with byte-pinned pre/post snapshots + cross-seat cosign
+- [x] **Fire-2 mechanism confirmed** — `continue_delegate(mode: silent, delaySeconds=600)` lands in `flow_runs`; this banked the electing-mechanism truth
+- [x] **Fire-3 queued-state persistence** — same queued marker row survived canonical restart on cael-host
+- [x] **Verified** — substantive persistence verdict landed with byte-pinned pre/post snapshots + cross-seat cosign
 - [ ] **Evidence-cleansed** — N/A unless contributing to frozen-branch evidence appendix per Charter Rule 8
 
 ## References

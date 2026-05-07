@@ -33,7 +33,7 @@
 
 | Row | Case | Status | Verdict | Evidence |
 |---|---|---|---|---|
-| A1 | flow_runs + jsonl persistence across restart | Authored | METHOD-BROKEN (fire-1); mechanism confirmed (fire-2) | next substantive fire must restart during queued/runnable delegate window |
+| A1 | flow_runs + jsonl persistence across restart | Authored | **PASS** | fire-1 METHOD-BROKEN; fire-2 mechanism confirmed; fire-3 PASS on queued-state survival across restart (run `25516284592`) |
 | A4 | TaskFlow delegate-store lifecycle | TBD | TBD | TBD |
 | A5 | Timer arm/disarm/dispose | TBD | TBD | TBD |
 | B1 | F1 clean continue_work (no inbound noise) | TBD | TBD | TBD |
@@ -130,7 +130,7 @@
 
 Charter §6 closure rules: FULL-PASS requires all required rows verdicted PASS. FULL-WITH-FINDINGS allows non-blocker FAIL/FINDING. NOT-FULL if any required row left at TBD/DEFERRED/BLOCKED/INVALIDATED at close.
 
-Current verdict-roll: **2 PASS / 53 TBD = NOT-FULL eligible at this snapshot**. Verdict pending row authoring + fires + closure declaration.
+Current verdict-roll: **3 PASS / 52 TBD = NOT-FULL eligible at this snapshot**. Verdict pending row authoring + fires + closure declaration.
 
 ## Substrate-knowledge references
 

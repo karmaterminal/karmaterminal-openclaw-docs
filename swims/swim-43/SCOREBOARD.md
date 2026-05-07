@@ -7,10 +7,10 @@ Canonical branch: `frond/v2026.5.5/canonical`
 Registry version: `v1`
 Status: OPEN
 
-Summary: 1 PASS / 0 FAIL / 0 FINDING / 0 DEFERRED / 0 BLOCKED / 1 INVALIDATED
+Summary: 2 PASS / 0 FAIL / 0 FINDING / 0 DEFERRED / 0 BLOCKED / 0 INVALIDATED
 
 Families:
-- Turns: INVALIDATED (row-02 first fire contaminated by inbound chronology-fold; rerun needed)
+- Turns: PASS (row-02 immediate `continue_work()` self-election proven by runtime `continuation:wake` telemetry)
 - Delegates: OPEN
 - Guards: OPEN
 - Routes: OPEN
@@ -20,11 +20,11 @@ Families:
 - Contamination / interpretation truth: OPEN
 
 Human answer:
-Swim 43 is honestly declared against one named SUT, one tag, one canonical branch, with the fleet actually deployed on the claimed bytes. The pre-swim gate is closed PASS. First behavioral fire (row-02) was invalidated by inbound chronology-fold, so no Turns verdict has been earned yet and the row must be re-fired under a clean silent window.
+Swim 43 is honestly declared against one named SUT, one tag, one canonical branch, with the fleet actually deployed on the claimed bytes. The pre-swim gate is closed PASS, and the first behavioral Turns row now closes PASS: immediate `continue_work()` self-election on deployed v5.5 was proven by runtime `continuation:wake` telemetry on cael-seat.
 
 ## Closed rows
 
 | Row | Title | Verdict | Receipt |
 |---|---|---|---|
 | row-01 | pre-swim gate / substrate declaration | PASS | `rows/row-01-pre-swim-gate.md` |
-| row-02 | Family A / Turns — immediate `continue_work()` fire | INVALIDATED | `rows/row-02-turns-continue-work-immediate.md` |
+| row-02 | Family A / Turns — immediate `continue_work()` fire | PASS | `rows/row-02-turns-continue-work-immediate.md` |

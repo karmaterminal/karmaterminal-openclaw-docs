@@ -41,7 +41,8 @@ if [ ! -d "$SESSION_DIR" ]; then
 fi
 
 # Step 2: Snapshot pre-restart flow_runs (focus on runnable + queued — the in-flight state A1 tests)
-sqlite3 "$REGISTRY" "SELECT id, status, kind, created_at FROM flow_runs WHERE status IN ('runnable','queued') ORDER BY id" > "$PRE_FR" 2>&1
+# Schema byte-walked from cael-host registry.sqlite 2026-05-07 10:30 PDT: flow_id (PK), shape, sync_mode, owner_key, status, goal, current_step, created_at, updated_at, ended_at
+sqlite3 "$REGISTRY" "SELECT flow_id, status, shape, current_step, created_at FROM flow_runs WHERE status IN ('runnable','queued') ORDER BY flow_id" > "$PRE_FR" 2>&1
 PRE_FR_COUNT=$(wc -l < "$PRE_FR")
 
 # Step 3: Snapshot pre-restart jsonl hashes for SUT session
@@ -98,7 +99,7 @@ if ! systemctl --user is-active openclaw-gateway >/dev/null 2>&1; then
 fi
 
 # Step 8: Snapshot post-restart flow_runs + jsonl hashes
-sqlite3 "$REGISTRY" "SELECT id, status, kind, created_at FROM flow_runs WHERE status IN ('runnable','queued') ORDER BY id" > "$POST_FR" 2>&1
+sqlite3 "$REGISTRY" "SELECT flow_id, status, shape, current_step, created_at FROM flow_runs WHERE status IN ('runnable','queued') ORDER BY flow_id" > "$POST_FR" 2>&1
 md5sum "$SESSION_DIR"/*.jsonl 2>/dev/null | awk '{print $1, $2}' | sort > "$POST_JSONL"
 
 # Step 9: Compare snapshots

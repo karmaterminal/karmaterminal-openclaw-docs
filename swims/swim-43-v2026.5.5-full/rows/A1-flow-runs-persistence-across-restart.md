@@ -31,17 +31,17 @@ User-facing guarantee: a prince can stage continuation work (delegates pending i
 
 Three byte-shaped pieces of evidence per fire:
 
-**1. flow_runs sqlite snapshot pre-restart and post-restart match** (excluding restart-induced fields like restart_count if any):
+**1. flow_runs sqlite snapshot pre-restart and post-restart match** (excluding restart-induced bookkeeping fields like `updated_at` if any):
 
 ```bash
-# pre-restart
-sqlite3 ~/.openclaw/flows/registry.sqlite "SELECT id, status, kind, created_at FROM flow_runs WHERE status IN ('runnable','queued') ORDER BY id"
+# pre-restart (byte-walked schema 2026-05-07 cael-host: flow_id PK, status, shape, current_step, created_at)
+sqlite3 ~/.openclaw/flows/registry.sqlite "SELECT flow_id, status, shape, current_step, created_at FROM flow_runs WHERE status IN ('runnable','queued') ORDER BY flow_id"
 
-# post-restart (after `systemctl --user restart openclaw-gateway` from peer-seat)
-sqlite3 ~/.openclaw/flows/registry.sqlite "SELECT id, status, kind, created_at FROM flow_runs WHERE status IN ('runnable','queued') ORDER BY id"
+# post-restart (after restart-gateway.yml workflow dispatch from any prince's seat)
+sqlite3 ~/.openclaw/flows/registry.sqlite "SELECT flow_id, status, shape, current_step, created_at FROM flow_runs WHERE status IN ('runnable','queued') ORDER BY flow_id"
 ```
 
-PASS requires byte-identical results (order + count + per-row fields).
+PASS requires byte-identical results (order + count + per-row fields). Schema reference: `flow_id TEXT PRIMARY KEY` + `status TEXT NOT NULL` + `shape TEXT` + `current_step TEXT` + `created_at INTEGER NOT NULL`.
 
 **2. Per-agent session jsonl byte-diff is empty** for the SUT session-id:
 
@@ -58,10 +58,10 @@ PASS requires hash-identical for all jsonl files in the SUT session dir.
 **3. Cross-seat byte-pin from non-cael seat** (silas/urudyne or elliott/elliott-host) verifying same flow_runs state via SSH walk:
 
 ```bash
-ssh silas "sqlite3 ~/.openclaw/flows/registry.sqlite \"SELECT id, status, kind FROM flow_runs WHERE id IN (<sut-flow-ids>)\""
+ssh silas "sqlite3 ~/.openclaw/flows/registry.sqlite \"SELECT flow_id, status, shape FROM flow_runs WHERE flow_id IN (<sut-flow-ids>)\""
 ```
 
-PASS requires cross-seat sees same flow_run IDs + statuses + kinds.
+PASS requires cross-seat sees same flow_run flow_ids + statuses + shapes.
 
 ### How to gather what we expect — path to harness script in row dir
 

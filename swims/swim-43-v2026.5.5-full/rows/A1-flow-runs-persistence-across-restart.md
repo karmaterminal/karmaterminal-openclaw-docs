@@ -16,7 +16,7 @@
 
 Per `SWIM/cases/A1.md`: TaskFlow `flow_runs` table and per-agent session jsonl files survive gateway restart with no loss of in-flight continuation state.
 
-User-facing guarantee: a prince can stage continuation work (delegates pending in TaskFlow, session-state in jsonl on disk) + survive a gateway restart (peer-restart per HEARTBEAT safety) + resume with all in-flight state intact. A violation looks like flow_runs entries lost or session jsonl missing/corrupted post-restart, leaving princes with orphaned delegates or split-brain session-state.
+User-facing guarantee: a prince can stage continuation work (delegates pending in TaskFlow, session-state in jsonl on disk) + survive a gateway restart (via the canonical `restart-gateway.yml` workflow) + resume with all in-flight state intact. A violation looks like flow_runs entries lost or session jsonl missing/corrupted post-restart, leaving princes with orphaned delegates or split-brain session-state.
 
 ## Coverage expectation
 
@@ -69,7 +69,7 @@ PASS requires cross-seat sees same flow_run flow_ids + statuses + shapes.
 
 Script behavior:
 1. Snapshot pre-restart flow_runs + jsonl hashes on SUT host (cael)
-2. Trigger restart via canonical `restart-gateway.yml` workflow dispatch from any prince's seat (self-target guard allows prince-self-restart per `karmaterminal/openclaw-bootstrap/.github/workflows/RESTART_GATEWAY.md`):
+2. Trigger restart via canonical `restart-gateway.yml` workflow dispatch from the target prince's own seat (or `karmafeast`) per the workflow self-target guard in `karmaterminal/openclaw-bootstrap/.github/workflows/RESTART_GATEWAY.md`:
    ```bash
    gh workflow run restart-gateway.yml \
      --repo karmaterminal/openclaw-bootstrap \
@@ -87,7 +87,7 @@ Script behavior:
 ```
 FAIL = pre-restart flow_runs snapshot has runnable/queued entries that are MISSING from post-restart snapshot, OR jsonl hash differs without expected restart-induced state-write reason, OR cross-seat byte-pin disagrees with SUT-side state.
 
-INCONCLUSIVE = restart didn't complete cleanly (gateway stuck in start-account phase, OOM during restart, peer-restart-trigger failed). Re-run on stable conditions.
+INCONCLUSIVE = restart didn't complete cleanly (gateway stuck in start-account phase, OOM during restart, workflow dispatch failed, or workflow run failed). Re-run on stable conditions.
 
 METHOD-BROKEN = sqlite/jsonl access path wrong (file-not-found, permission denied) OR hash command output differs from expected format. Fix harness, re-run.
 ```

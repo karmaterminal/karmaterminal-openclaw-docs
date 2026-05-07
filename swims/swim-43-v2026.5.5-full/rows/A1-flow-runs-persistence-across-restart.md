@@ -182,6 +182,8 @@ Until row-spec-vs-substrate alignment lands, A1 fires can't substantively exerci
 
 This substrate-finding IS the substantive output of A1 fire-1. Captured for cohort-record + future Driver row-author re-authoring.
 
+**Fire 2 refinement (2026-05-07 ~11:34–11:35 PDT)**: `continue_delegate(mode:"silent", delaySeconds=600)` was fired as the corrected electing mechanism. Cross-seat byte-pin from elliott-seat at ~11:35 showed `flow_runs` status totals moved `succeeded 134 → 136`, confirming `continue_delegate` does land in TaskFlow-backed `flow_runs`. However, by the time of the probe the delayed delegate had already matured to terminal state, so this fire only confirms the substrate mechanism (**delegate → flow_runs**) and does **not** yet test queued/runnable persistence across restart. The substantive persistence test remains a subsequent fire where restart occurs while the entry is still queued/runnable.
+
 ### Truth-floor reach (when in doubt)
 
 If snapshot diffs show entries that "look like" they should match but bytes differ, walk raw sqlite + jsonl directly before classifying as FAIL. Possible benign causes: timestamp updates from restart-induced writes (not state-loss), serialization-order differences (semantically equivalent), or transient runnable→queued transitions during restart-startup.
@@ -193,8 +195,9 @@ The discriminator: did the runtime LOSE in-flight continuation state, or did the
 - [x] **Triaged** — required per A1 case file (live-row + cross-seat evidence class)
 - [x] **Authored** — row + harness exist on the swim branch and mainline history
 - [x] **METHOD-BROKEN (fire-1)** — row-spec substrate-mechanism gap captured honestly before restart dispatch
-- [ ] **Fire-2 rework** — electing mechanism swapped to `continue_delegate(mode: silent, delaySeconds: 600)` and wait-for-entry-to-land added to the fire sequence
-- [ ] **Verified** — substantive fire-2 verdict landed with byte-pinned pre/post snapshots + cross-seat cosign
+- [x] **Fire-2 mechanism confirmed** — `continue_delegate(mode: silent, delaySeconds=600)` lands in `flow_runs`; this banks the electing-mechanism truth but not restart persistence yet
+- [ ] **Fire-3 queued-state persistence** — restart during queued/runnable window, then pre/post snapshot + cross-seat cosign
+- [ ] **Verified** — substantive persistence verdict landed with byte-pinned pre/post snapshots + cross-seat cosign
 - [ ] **Evidence-cleansed** — N/A unless contributing to frozen-branch evidence appendix per Charter Rule 8
 
 ## References

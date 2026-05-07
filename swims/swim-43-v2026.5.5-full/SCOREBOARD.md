@@ -89,7 +89,7 @@
 |---|---|---|---|
 | B8 | F8 post-compaction delegate survival | TBD | TBD |
 | C3 | P3 timer disposal on generation change | TBD | TBD |
-| D1 | R1 boot-time stall check | Authored | INCONCLUSIVE (baseline no-stall only) |
+| D1 | R1 boot-time stall check | Authored | **PASS** | fire-1 no-stall baseline; fire-2 PASS with staged queued row surviving restart (`25516284592`) |
 | D3 | R3 compaction recovery | TBD | TBD |
 | D4 | R4 gateway restart recovery (peer) | TBD | TBD |
 | N007 | OTel preserved through restart-replay | TBD | TBD |
@@ -130,7 +130,7 @@
 
 Charter §6 closure rules: FULL-PASS requires all required rows verdicted PASS. FULL-WITH-FINDINGS allows non-blocker FAIL/FINDING. NOT-FULL if any required row left at TBD/DEFERRED/BLOCKED/INVALIDATED at close.
 
-Current verdict-roll: **3 PASS / 52 TBD = NOT-FULL eligible at this snapshot**. Verdict pending row authoring + fires + closure declaration.
+Current verdict-roll: **4 PASS / 51 TBD = NOT-FULL eligible at this snapshot**. Verdict pending row authoring + fires + closure declaration.
 
 ## Substrate-knowledge references
 

@@ -100,23 +100,55 @@ There was no runnable/queued staged work at fire-time.
 
 ### Verdict
 
-**INCONCLUSIVE for full D1 claim; positive baseline for no-stall boot timing.**
+**Current verdict: PASS.**
 
-What this fire proves:
-- cael-host restarted cleanly without boot-time stall in the observed 09:47 window
+Historical split:
+- **Fire 1** gave a clean no-stall baseline but was INCONCLUSIVE for the full row because there was no staged work to preserve.
+- **Fire 2** completed the missing half using the same canonical restart window that closed A1: boot remained clean and staged queued continuation work survived the restart coherently.
 
-What it does **not** yet prove:
-- staged continuation work recovery/expiry behavior, because there was no runnable/queued flow state to preserve
+#### Fire 2 — substantive staged-work restart using A1 fire-3 window (2026-05-07 12:04–12:10 PDT)
 
-This fire is therefore a valid baseline/no-stall observation, but not a substantive full D1 PASS.
+**Source (a) staged-work pre-restart**
+```text
+flow_id=e9a87f45-4806-4a69-9f58-629ed629b3bf
+status=queued
+current_step=Queued for continuation dispatch
+owner_key=agent:main:discord:channel:1466192485440164011
+notify_policy=silent
+created_at=1778180670729
+updated_at=1778180670729
+```
+
+**Source (a) restart receipt / boot timing**
+```text
+workflow run 25516284592 = success
+ActiveEnterTimestamp=Thu 2026-05-07 12:05:06 PDT
+MainPID=100312
+NRestarts=0
+```
+
+**Source (b) staged-work post-restart / cross-seat corroboration**
+```text
+T_post_restart_epoch=1778181007
+flow_id|status|shape|current_step|owner_key|notify_policy|created_at|updated_at
+e9a87f45-4806-4a69-9f58-629ed629b3bf|queued||Queued for continuation dispatch|agent:main:discord:channel:1466192485440164011|silent|1778180670729|1778180670729
+```
+
+What this now proves:
+- cael-host reaches `active/running` cleanly without boot stall in the observed restart windows
+- staged queued continuation work present before restart remains coherent after boot, not orphaned or lost
+
+So D1 now satisfies both coupled claims in the case file:
+1. no boot-time stall on deployed v5.5 cael-host
+2. staged continuation work survives the boot path without being orphaned
 
 ## Status ladder
 
 - [x] **Triaged**
 - [x] **Authored**
 - [x] **Baseline evidence captured** — no-stall restart observed
-- [ ] **Substantive fire with staged work**
-- [ ] **Verified PASS/FAIL**
+- [x] **Substantive fire with staged work** — queued TaskFlow row survived canonical restart
+- [x] **Verified PASS**
 
 ## References
 
@@ -127,4 +159,4 @@ This fire is therefore a valid baseline/no-stall observation, but not a substant
 
 ## Notes
 
-The 09:47 restart was byte-walked as a clean SIGTERM stop/start tied to context-pressure compaction on cael-seat, not an OOM or monitor-probe side-effect. Useful baseline, but D1 still needs a restart with staged work present if it is to satisfy the full Recovery-family claim.
+The 09:47 restart remains the useful no-stall baseline. The later 12:04–12:10 PDT restart window (workflow run `25516284592`) completed the row by adding the missing staged-work preservation proof. A1 and D1 now share the same restart receipts from different angles: A1 answers TaskFlow row persistence directly; D1 answers boot/recovery cleanliness with staged work present.

@@ -42,6 +42,13 @@ fi
 
 # Step 2: Snapshot pre-restart flow_runs (focus on runnable + queued — the in-flight state A1 tests)
 # Schema byte-walked from cael-host registry.sqlite 2026-05-07 10:30 PDT: flow_id (PK), shape, sync_mode, owner_key, status, goal, current_step, created_at, updated_at, ended_at
+#
+# CALLER PRE-CONDITION: caller should have dispatched continue_delegate(mode: silent, delaySeconds=600) BEFORE invoking this script,
+# AND waited for the flow_runs entry to materialize (the dispatch tool-return is canonical-evidence per Lesson #8 that the call reached the
+# scheduling layer, but per agent-runner.ts dispatch semantics the actual TaskFlow entry materializes AFTER response-completion asynchronously).
+# Without a prior continue_delegate dispatch + entry-landing wait, this script captures empty pre-state and produces degenerate-pass.
+# (Per A1 fire-1 substrate-finding: continue_work uses in-process scheduler, NOT TaskFlow-backed; continue_delegate IS TaskFlow-backed via
+# delegate-store.ts head-comment. Use continue_delegate as the electing mechanism for substantive A1 fire.)
 sqlite3 "$REGISTRY" "SELECT flow_id, status, shape, current_step, created_at FROM flow_runs WHERE status IN ('runnable','queued') ORDER BY flow_id" > "$PRE_FR" 2>&1
 PRE_FR_COUNT=$(wc -l < "$PRE_FR")
 

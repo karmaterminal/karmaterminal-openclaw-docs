@@ -147,7 +147,11 @@ $ find ~/.openclaw -maxdepth 4 -name '*.jsonl' | grep -iE 'main|discord|agent'
 
 Three substrate-findings invalidate the row-spec's PASS-criteria assumptions:
 
-1. **`continue_work`/`continue_delegate` do NOT populate `flow_runs`**. The continuation system (`src/auto-reply/continuation/`) and the TaskFlow registry (`src/tasks/task-flow-registry.store.sqlite.ts`) are separate substrate-mechanisms. `flow_runs` entries come from TaskFlow-shaped operations (hosted-task dispatches, tool-mirrored tasks, etc), NOT from `continue_*` tool-calls. The row spec assumed `continue_*` would populate runnable+queued flow_runs entries pre-restart; substrate-truth says it doesn't.
+1. **`continue_work` does NOT populate `flow_runs`; `continue_delegate` DOES**. Substrate-truth refined per cohort cross-source byte-walk (🌻's msg `1502003477092503552` + 🌿's amendment-suggestion at msg `1502004503539613799` + cael-seat byte-verification of `delegate-store.ts` head-comment): 
+   - `continue_work` uses in-process scheduler timer (`registerContinuationTimerHandle` per `scheduler.ts`); volatile across restart by design.
+   - `continue_delegate` uses **TaskFlow-backed delegate-store** (`src/auto-reply/continuation/delegate-store.ts:1-7` — *"Continuation delegate store — pure TaskFlow-backed. Every delegate operation goes through TaskFlow (SQLite persistence). Zero volatile Maps. Delegates survive gateway restarts by design."*); imports `createManagedTaskFlow`, `failFlow`, `finishFlow`, etc from `task-flow-runtime-internal`.
+   - PR #31 fire-1 Verdict initially generalized this as *"continuation system and TaskFlow registry are separate substrate-mechanisms"* — byte-narrow-true at literal-token layer (continuation source has no `flow_runs` literal; column-name only in sqlite-store impl) but byte-incorrect at substrate-action layer for `continue_delegate`. Refined here per truth-keeping discipline applied to my own prior banked finding.
+   - **Operational implication for A1 fire-2**: swap electing mechanism from `continue_work(delaySeconds=600)` to `continue_delegate(mode: silent, delaySeconds=600)` — populates flow_runs runnable+queued entry via TaskFlow-backed delegate-store, then full A1 fire-sequence works substantively against the substrate the row claims to test.
 2. **flow_runs schema** uses `flow_id TEXT PRIMARY KEY` + `shape`, `sync_mode`, `owner_key`, `controller_id`, `revision`, `status`, `goal`, `current_step`, etc — NOT the inferred `id, status, kind, created_at` schema the original A1 row spec used. (Already fixed in PR #30.)
 3. **Session jsonl storage path** is `~/.openclaw/agents/main/sessions/<session-id>.jsonl` — NOT `~/.openclaw/sessions/<session-id>/*.jsonl` as the row spec assumed.
 
@@ -155,11 +159,11 @@ Restart-workflow dispatch was NOT executed because pre-state byte-walk revealed 
 
 ## Substrate-finding (substantive output of this fire)
 
-A1 was framed against substrate-mechanism assumptions that don't match deployed v5.5 cael-host. The row's substantive PASS-criterion (*"flow_runs persistence across restart"*) is a real continuation-substrate-question worth testing, but requires:
+A1 was framed against substrate-mechanism assumptions that don't match deployed v5.5 cael-host. The row's substantive PASS-criterion (*"flow_runs persistence across restart"*) is a real continuation-substrate-question worth testing, **and per the refined finding #1 above, the substrate-mechanism that exercises it is `continue_delegate` (TaskFlow-backed) not `continue_work` (in-process scheduler)**. A1 fire-2 substantive-fix is a small electing-mechanism-swap, not full row-rework:
 
-- A trigger-mechanism that actually populates `flow_runs` runnable+queued entries (TaskFlow-shaped operation, e.g. hosted-task dispatch via `task_*` tools, or tool-mirrored continuation that uses the TaskFlow path, or any natural cohort substrate-activity that lands in flow_runs)
+- Swap `continue_work(delaySeconds=600)` → `continue_delegate(mode: silent, delaySeconds=600)` in row spec + harness
 - Session jsonl path corrected to `~/.openclaw/agents/main/sessions/<session-id>.jsonl`
-- Driver row-author re-authoring the spec with byte-walked substrate-mechanism alignment
+- Wait-for-entry-to-land between dispatch tool-return and pre-restart snapshot (per 🌻's substrate-finding at msg `1502000994932883606`: tool-return is canonical-evidence per Lesson #8 but flow_runs sqlite materialization happens AFTER response-completion asynchronously; need polling loop or wait-window)
 
 Until row-spec-vs-substrate alignment lands, A1 fires can't substantively exercise persistence-across-restart — they fire over an empty runnable+queued substrate that the restart-workflow trivially preserves (empty=empty, byte-identical, but NOT a substantive test of the persistence-across-restart guarantee).
 

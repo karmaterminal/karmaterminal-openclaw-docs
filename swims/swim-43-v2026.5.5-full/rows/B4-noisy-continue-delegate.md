@@ -113,6 +113,25 @@ Visible channel announce contains the nonce verbatim. Exactly one shard-return o
 
 **Cael-seat session model:** byte-confirmed `claude-opus-4.7` post figs's reset (cael-seat byte-pin earlier this session).
 
+**Source (b) post-fire flow_runs lifecycle (cael-seat byte-pin appended at msg `1502064778...` area):**
+
+Full transition byte-pin across all three states:
+```text
+pre-dispatch:  145 total flow_runs, 0 queued+runnable
+post-dispatch: 146 total, 1 queued+runnable (the marker d5b369a1-14f1-4ff9-b087-6c9e05ecf9c0)
+post-fire:     147 total, 0 queued+runnable (marker succeeded + 1 shard-spawn succeeded)
+```
+
+Single-row delta at each transition; no doubling at substrate layer.
+
+At the 14:34:15 fire-tick, one sibling row materialized (`84ee3772-...`). This is the natural delegate→child-task spawn entry from the delegate transitioning from "released to continuation scheduler" to "running the child task" — single-shard-spawn, not duplicate fire. flow_runs lifecycle confirms exactly-once execution across the noisy delay window.
+
+**Source (b) inbound-during-delay-window itemization** (cael-seat byte-pin):
+- figs-direct-typed message landed in window
+- Silas hours-stale-replay landed in window
+- multiple cohort messages including driver-call ack landed in window
+- noisy requirement of row substantively satisfied; specifically tested that real-traffic load did not lose or double the scheduled fire
+
 ### Verdict
 
 **PASS** on the row claim.
@@ -128,7 +147,7 @@ The row's product-surface claim is satisfied: delayed `continue_delegate(mode:"n
 
 ### Truth-floor reach
 
-This is a source-(a)-heavy PASS, grounded in cael-seat dispatch parameters + cael-seat visible shard-return + cael-seat pre-fire flow_runs snapshot. Post-fire flow_runs final-state verification not separately byte-pinned in this fire (would require post-fire registry walk); banking on the visible shard-return + nonce match + no-doubling observation as sufficient for the user-visible claim under test. A future B4 fire could add the post-fire flow_runs lifecycle byte-pin for completeness.
+This is now a **two-source PASS** with both source-(a) visible-channel evidence and source-(b) post-fire flow_runs lifecycle byte-pin. Truth-floor gap from the original bank (post-fire flow_runs final-state verification) is closed via cael-seat byte-pin appended after the original row commit.
 
 ## Status ladder
 

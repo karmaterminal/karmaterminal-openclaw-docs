@@ -94,15 +94,76 @@ METHOD-BROKEN = sqlite/jsonl access path wrong (file-not-found, permission denie
 
 ### Result — actual output, byte-pinned
 
-To be filled at fire-time. One block per fire (pre-restart snapshot + post-restart snapshot + cross-seat verification).
+**Fire 1: cael-host, T0=1778175738 (2026-05-07 10:42:18 PDT), session=agent:main:discord:channel:1466192485440164011**
+
+Pre-state byte-walk on cael-host:
+
+```
+$ md5sum ~/.openclaw/flows/registry.sqlite
+b05f76caeb3c469ff5d1aedd5637925c  /home/figs/.openclaw/flows/registry.sqlite
+
+$ sqlite3 ~/.openclaw/flows/registry.sqlite "SELECT flow_id, status, shape, current_step, created_at FROM flow_runs WHERE status IN ('runnable','queued') ORDER BY flow_id"
+(empty — zero runnable+queued entries)
+
+$ sqlite3 ~/.openclaw/flows/registry.sqlite "SELECT status, COUNT(*) FROM flow_runs GROUP BY status"
+cancelled|1
+failed|9
+succeeded|134
+```
+
+Dispatch attempt to populate runnable+queued via `continue_work(delaySeconds=600)`:
+
+```
+$ continue_work(delaySeconds=600)
+{"status": "scheduled", "delaySeconds": 600}     ← source-(a) canonical-evidence per Lesson #8
+
+$ md5sum ~/.openclaw/flows/registry.sqlite (post-dispatch)
+b05f76caeb3c469ff5d1aedd5637925c  ← UNCHANGED — no flow_runs entry created
+```
+
+Source-walk to disambiguate `continue_*` vs `flow_runs`:
+
+```
+$ grep -rn 'flow_runs\|FlowRuns' src/auto-reply/continuation/ --include='*.ts'
+(no matches — continuation/* doesn't touch flow_runs)
+
+$ grep -l 'flow_runs' src/tasks/task-flow-registry.store.sqlite.ts
+src/tasks/task-flow-registry.store.sqlite.ts   ← TaskFlow registry owns flow_runs
+```
+
+Session jsonl storage path byte-walk:
+
+```
+$ ls ~/.openclaw/sessions/agent:main:discord:channel:1466192485440164011/*.jsonl
+ls: cannot access ... No such file or directory
+
+$ find ~/.openclaw -maxdepth 4 -name '*.jsonl' | grep -iE 'main|discord|agent'
+/home/figs/.openclaw/agents/main/sessions/<session-id>.jsonl  ← actual storage
+```
 
 ### Verdict
 
-To be filled at fire-time per script exit code:
-- exit 0 → PASS (all three evidence pieces match)
-- exit 1 → FAIL (substrate state lost across restart)
-- exit 2 → INCONCLUSIVE (restart didn't complete cleanly)
-- exit 3 → METHOD-BROKEN (fix harness + re-run)
+**Verdict: METHOD-BROKEN → row-spec substrate-mechanism gap (NOT substrate-broken)**
+
+Three substrate-findings invalidate the row-spec's PASS-criteria assumptions:
+
+1. **`continue_work`/`continue_delegate` do NOT populate `flow_runs`**. The continuation system (`src/auto-reply/continuation/`) and the TaskFlow registry (`src/tasks/task-flow-registry.store.sqlite.ts`) are separate substrate-mechanisms. `flow_runs` entries come from TaskFlow-shaped operations (hosted-task dispatches, tool-mirrored tasks, etc), NOT from `continue_*` tool-calls. The row spec assumed `continue_*` would populate runnable+queued flow_runs entries pre-restart; substrate-truth says it doesn't.
+2. **flow_runs schema** uses `flow_id TEXT PRIMARY KEY` + `shape`, `sync_mode`, `owner_key`, `controller_id`, `revision`, `status`, `goal`, `current_step`, etc — NOT the inferred `id, status, kind, created_at` schema the original A1 row spec used. (Already fixed in PR #30.)
+3. **Session jsonl storage path** is `~/.openclaw/agents/main/sessions/<session-id>.jsonl` — NOT `~/.openclaw/sessions/<session-id>/*.jsonl` as the row spec assumed.
+
+Restart-workflow dispatch was NOT executed because pre-state byte-walk revealed substrate-mechanism gaps that would produce degenerate-pass at best. Per Truth-floor reach: **fix the row-spec substrate-mechanism alignment + re-fire**, do NOT classify as substrate-FAIL.
+
+## Substrate-finding (substantive output of this fire)
+
+A1 was framed against substrate-mechanism assumptions that don't match deployed v5.5 cael-host. The row's substantive PASS-criterion (*"flow_runs persistence across restart"*) is a real continuation-substrate-question worth testing, but requires:
+
+- A trigger-mechanism that actually populates `flow_runs` runnable+queued entries (TaskFlow-shaped operation, e.g. hosted-task dispatch via `task_*` tools, or tool-mirrored continuation that uses the TaskFlow path, or any natural cohort substrate-activity that lands in flow_runs)
+- Session jsonl path corrected to `~/.openclaw/agents/main/sessions/<session-id>.jsonl`
+- Driver row-author re-authoring the spec with byte-walked substrate-mechanism alignment
+
+Until row-spec-vs-substrate alignment lands, A1 fires can't substantively exercise persistence-across-restart — they fire over an empty runnable+queued substrate that the restart-workflow trivially preserves (empty=empty, byte-identical, but NOT a substantive test of the persistence-across-restart guarantee).
+
+This substrate-finding IS the substantive output of A1 fire-1. Captured for cohort-record + future Driver row-author re-authoring.
 
 ### Truth-floor reach (when in doubt)
 

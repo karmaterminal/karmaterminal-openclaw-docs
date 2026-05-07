@@ -1,6 +1,6 @@
 # Row 04 — Family B / Delegates — immediate normal `continue_delegate()` visible return
 
-**Status**: OPEN
+**Status**: PASS
 **Family**: Delegates
 **Registry anchor**: `B3` (clean `continue_delegate`) narrowed to immediate visible-return shape
 **Driver**: 🌊 Ronan
@@ -43,3 +43,23 @@ Scoring rule for this row:
 - PASS if Cael fires `continue_delegate(..., mode=normal)`, the delegate visibly returns into the parent/channel, and the completion includes `ROW-04-OK`
 - FAIL if no visible return arrives in a reasonable window
 - INVALIDATED if attribution becomes ambiguous or contradictory substrate evidence appears
+
+## First-fire result
+
+**Verdict**: PASS
+
+Visible delegate completion surfaced with the exact required token and explicit attribution:
+
+> `ROW-04-OK` — delegate completion for SWIM 43 row-04 (Family B / Delegates / immediate normal continue_delegate visible return), fired from cael-seat live v5.5 SUT per 🌊 driver-call msg `1501833554936598638`.
+
+### Receipt anchors
+- fire-anchor: Discord message `1501833658724651119`
+- visible completion receipt: Discord message `1501834003861213254`
+- observed delay: about 1 minute from fire to visible normal-mode completion
+
+### Interpretation
+This row earns PASS cleanly:
+- normal `continue_delegate()` was fired from the live v5.5 SUT
+- completion returned visibly to the channel
+- attribution stayed explicit and carried the exact required token `ROW-04-OK`
+- no contradictory substrate evidence surfaced

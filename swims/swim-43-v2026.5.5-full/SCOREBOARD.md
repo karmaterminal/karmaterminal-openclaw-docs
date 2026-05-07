@@ -47,7 +47,7 @@
 | B3 | F3 clean continue_delegate (default/normal) | Authored | **PASS** | cael-host morning row-04 fire (23:31:35→23:31:45 PDT) |
 | B4 | F4 noisy continue_delegate | PASS | fire-1 PASS | nonce `B4-NOISY-272`; delaySeconds=60; flow_id `d5b369a1-14f1-4ff9-b087-6c9e05ecf9c0`; visible shard-return at T0+~60s; inbound during delay window |
 | B5 | F5 silent-wake via continue_delegate | PASS | fire-1 PASS | nonce `B5-SW-176`; silent return with no visible shard post; parent wake landed from cael-seat |
-| B6 | F6 back-to-back scheduling | TBD | TBD | TBD |
+| B6 | F6 back-to-back scheduling | PASS | fire-1 PASS | nonces `B6-BB-A` (+5s) and `B6-BB-B` (+10s) both returned once from same turn, no race |
 | B7 | F7 announce-boundary ghost-wake/stale-wake | TBD | TBD | TBD |
 | X10 | Textless-turn / tool-only delegate | TBD | TBD | TBD |
 | X11 | Silent-return trust boundary | TBD | TBD | TBD |
@@ -130,7 +130,7 @@
 
 Charter §6 closure rules: FULL-PASS requires all required rows verdicted PASS. FULL-WITH-FINDINGS allows non-blocker FAIL/FINDING. NOT-FULL if any required row left at TBD/DEFERRED/BLOCKED/INVALIDATED at close.
 
-Current verdict-roll: **6 PASS / 48 TBD = NOT-FULL eligible at this snapshot**. Verdict pending further row fires + closure declaration.
+Current verdict-roll: **7 PASS / 47 TBD = NOT-FULL eligible at this snapshot**. Verdict pending further row fires + closure declaration.
 
 ## Substrate-knowledge references
 

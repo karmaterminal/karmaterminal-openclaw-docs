@@ -53,13 +53,22 @@ Source code has emit points in `agent-runner.ts` (dispatch path) + `continuation
 
 Expected from source-code reading: two literals — `Consuming N tool delegate(s)` AND `[continuation:delegate-spawned] hop=N/MAX mode=...`.
 
-Byte-walked on cael-host (swim-44 row-01, 2026-05-07 08:50:22 PDT, extended window 4x):
+**Initial single-host byte-walk (cael-host, swim-44 row-01, 2026-05-07 08:50:22 PDT, extended window 4x)**:
 - ONE `[continue_delegate] Consuming N tool delegate(s) for session ...` line
-- ZERO `delegate-spawned hop=` lines in silent mode
+- ZERO `delegate-spawned hop=` lines
 
-**Substrate truth for silent mode**: only `Consuming N tool delegate(s)` surfaces. The `delegate-spawned hop=` literal appears to be normal-mode-specific in deployed v5.5; silent-mode does not produce it (or it routes through a `log.info`-equivalent that doesn't reach user-systemd journal).
+**Cross-host byte-walk (elliott-host, swim-44/row-02-elliott-host-cross-walk-probe, 2026-05-07 09:27:50 PDT)** — same v5.5 SHA `24b76bf`, different host, same fire-shape (silent-mode `continue_delegate`):
+```
+May 07 09:27:50 elliott node[1664094]: [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=silent session=agent:main:subagent:321049b4-d615-4e7f-889c-d4eced6f704b task=swim-44/row-02-elliott-host-cross-walk-probe ...
+```
 
-**Comparison**: row-04 from swim-43 morning (normal-mode delegate) DID emit `delegate-spawned hop=6/200 mode=normal`. So the divergence is between modes (silent vs normal), not just between log-routes.
+Elliott-host DID emit the `delegate-spawned hop= ... mode=silent` literal. Same code path, same v5.5 binary, different host — different result.
+
+**Substrate truth (cross-host-corrected)**: silent-mode `continue_delegate` MAY emit both `Consuming N tool delegate(s)` AND `[continuation:delegate-spawned] hop=N/MAX mode=silent` literals; the second literal is observed firing on at least one host (elliott-host) under at least some fire-conditions. The cael-host swim-44 row-01 fire that produced ZERO `delegate-spawned hop=` lines is host-divergent OR fire-condition-divergent from the elliott-host emission, NOT silent-mode-design-intent.
+
+Do NOT write a row's silent-mode PASS-bytes assuming the second literal won't fire. Both literals are valid PASS-bytes for silent-mode under at least some conditions. The cael-host single-host pattern of expected-literal-not-firing may be related to issue #21 (cael-host swim-43 row-03 first-fire anomaly: tool-call-didnt-reach-scheduler vs setTimeout-didnt-run vs journal-lost-line) and issue #24 (this disambiguation, reopened with cross-host evidence).
+
+**Comparison with normal mode**: row-04 from swim-43 morning (normal-mode delegate, cael-host 2026-05-06 23:31:35 PDT) emitted `Consuming` + `[continuation:delegate-spawned] hop=6/200 mode=normal` per swim-43/B3 PASS evidence. Both modes emit both literals at least sometimes; the cael-host pattern of silent-mode-fires-without-delegate-spawned-literal is the substantive open question, not a clean silent-vs-normal-mode divergence.
 
 ## Cure for row authors
 

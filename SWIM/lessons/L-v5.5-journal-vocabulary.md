@@ -74,21 +74,31 @@ Do NOT write a row's silent-mode PASS-bytes assuming the second literal won't fi
 
 **Code-walk informs the *what should appear* hypothesis. Byte-walk verifies the *what does appear* truth. Never cite source-code-emissions as journal-bytes without byte-walking the deployed journal first.**
 
+**Per `SWIM-METHODOLOGY.md` Lesson #8 (*"SUT self-report + tool call results ARE valid evidence"*): the dispatch tool-return is itself canonical-evidence. *"Successfully calling a tool that 'doesn't exist' is impossible. `{status: "scheduled"}` from `continue_work` proves the tool is registered. The tool call IS the test."* Treat tool-return as primary canonical-evidence; treat journal-walk as supplementary refinement, not as the load-bearing source.**
+
 In practice for a continuation-substrate row:
 
-1. Read source code to identify candidate emission points.
-2. Fire the test once on the SUT in a quiet window.
+1. **Tool-return first** — fire the test on the SUT, capture the dispatch return value (`{status: "scheduled"}`, `{delegateIndex: N, delegatesThisTurn: M}`, etc). This is canonical-evidence per Lesson #8 that the tool-call reached the registration + scheduling layer.
+2. Read source code to identify candidate emission points for *supplementary* journal-evidence.
 3. `journalctl --user -u openclaw-gateway --since '<T0>' --until '<T0+window>' --no-pager` — RAW, no grep.
 4. Read raw output. See what the substrate actually emits in your window.
 5. Build the row's PASS-bytes literal from observed-in-journal vocabulary, not from code-source-inference.
 6. Build the harness script's narrow grep from observed vocabulary.
 7. If a future fire returns zero matches under the narrow grep but raw shows substrate activity, the row's METHOD-BROKEN verdict-state catches it — fix the spec, do not interpret as substrate-broken.
+8. **Verdict weighting**: tool-return + agent-context (system-message wake-injection) are source-(a) per `SWIM-METHODOLOGY.md` lines 9-19; journal-walk is source-(b) cross-source refinement. A row's PASS verdict can stand on source-(a) tool-return + agent-context alone (Lesson #8 makes that canonical); journal-walk corroboration strengthens but does not gate.
+
+## Retrospective from swim-44/row-01 (cael-host, 2026-05-07 08:50:22 PDT)
+
+Fire at swim-44/row-01 dispatched `continue_delegate(silent)` and got `{status: "scheduled", delegateIndex: 1, delegatesThisTurn: 1}` — source-(a) tool-return canonical-evidence per Lesson #8 that delegate-dispatch reached the scheduling layer. Row's verdict was driven by journal-walk evidence (single `Consuming N tool delegate(s)` literal observed; second literal `[continuation:delegate-spawned] hop=` not surfaced) which over-weighted source-(b) journal-walk relative to canonical source-(a) tool-return. Row classified METHOD-BROKEN → substrate-finding via truth-floor reach, which was substrate-correct outcome but the Verdict-rationale path treated journal-walk as load-bearing when Lesson #8 says tool-return was already canonical.
+
+For future continuation-substrate rows: weight tool-return as primary canonical-evidence per Lesson #8; weight journal-walk as supplementary cross-source refinement (substantively useful for catching code-vs-deployed-substrate vocabulary divergence per Cases 1 + 2 above, but not load-bearing for PASS verdict if tool-return + agent-context-injection are already canonical-clean).
 
 The post-PR-13 + PR-15 row-issue-template structurally enforces this: `Gather` field as path-to-script-in-row-dir, PASS-bytes / FAIL-bytes / Result / Verdict / METHOD-BROKEN structure, truth-floor-reach as ordered investigation procedure when narrowed gather returns 0. Use it.
 
 ## Related substrate-knowledge
 
 - `SWIM-METHODOLOGY.md:90` — *"grep before claiming. SSH before asserting. Read before speaking."* This lesson is the v5.5-specific instantiation of that principle: read RAW journal before constraining grep.
+- `SWIM-METHODOLOGY.md` Lesson #8 (*"SUT self-report + tool call results ARE valid evidence"*) — the load-bearing weighting that makes this lesson's Cure section coherent: tool-return is canonical-evidence, journal-walk is supplementary cross-source refinement. The two together form the *three-source check* canon (source-(a) tool-return + source-(a) agent-context-injection + source-(b) journal-walk) that swim-43/B2 + B3 PASS rows demonstrate.
 - `SWIM/templates/row-issue-template.md` — post-PR-13 + PR-15 template with measurement-protocol fields. This lesson is the substrate-knowledge that makes the template's PASS-bytes field fillable correctly.
 - swim-44/row-01 (`cael/swim-44-row-01-continue-delegate-silent-wake`) — first canonical-template-shape row demonstrating METHOD-BROKEN catching the source-code-inference vs byte-walked divergence in real fire.
 

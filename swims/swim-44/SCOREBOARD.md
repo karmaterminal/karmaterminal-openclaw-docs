@@ -104,8 +104,8 @@
 
 | Row | Case | Status | Verdict | Evidence |
 |---|---|---|---|---|
-| A0 | Fleet feature-flag parity (precondition gate) | TBD | TBD | TBD |
-| A0.2 | Post-deploy log enumeration & categorization (precondition) | TBD | TBD | TBD |
+| A0 | Fleet feature-flag parity (precondition gate) | Authored | **PASS** | cross-host byte-walk: ronan + cael + silas/urudyne all on v2026.5.7 SHA `4c2a69b` (per `1502420758` + `1502420231` + `1502430973`); same-binary-cross-fleet = internal-runtime-flag-parity-by-construction per v5.7-substrate canon-aligned; row-evidence at `swims/swim-44/rows/A0-fleet-feature-flag-parity-precondition-gate.md` |
+| A0.2 | Post-deploy log enumeration & categorization (precondition) | Authored | **PASS** | cross-host journal-byte-walk: ronan (90) + cael (68) + silas/urudyne (22) `continuation:*` emissions; NEW v5.7-categories `[continuation:trace] payload-scan` + `[continuation:trace] effective-signal` present-cross-fleet consistently; row-evidence at `swims/swim-44/rows/A0.2-post-deploy-log-enumeration-and-categorization.md` |
 | D2 | R2 memory growth over 1h idle + light inbound | TBD | TBD | TBD |
 | D5 | R5 multi-prince simultaneous activity | **DEFERRED-PENDING** | n/a | requires Elliott seat-restoration; currently network-trapped at WAN-egress per frond-scribe `1502396735...` byte-walk |
 

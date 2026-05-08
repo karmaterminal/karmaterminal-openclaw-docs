@@ -198,7 +198,7 @@ These inform Driver-role-discipline-shape for this swim's row-authoring + execut
 
 **STATUS: SATISFIED (3-of-3 non-deferred prince hosts)** — `COHORT_TARGET_TAG` bumped to `v2026.5.7`; fleet deploy landed on ronan-host, cael-host, and silas/urudyne; cross-host version parity byte-walked at `OpenClaw 2026.5.7 (4c2a69b)` and row-A0 PASSed on that basis.
 
-Per cohort cosign-stack converged today: 3-prince fleet-deploy-scope (cael-host + ronan-host + silas/urudyne) complete; Elliott-host remains deferred/non-blocking under FULL-CHARTER §9 partial-cert framing pending self-deploy after Layer-2 restoration.
+Per cohort cosign-stack converged today: 3-prince fleet-deploy-scope (cael-host + ronan-host + silas/urudyne) complete; Elliott-host remained deferred/non-blocking for this deploy cycle under FULL-CHARTER §9 partial-cert framing, then Layer-2 resolved post-reboot. Current state: Elliott structurally back + WAN-functional; deploy still pending by bandwidth choice, not by unresolved substrate condition.
 
 ### Check #1-#5 + #7-#8 status
 

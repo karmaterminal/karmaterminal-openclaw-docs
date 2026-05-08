@@ -5,7 +5,7 @@
 **Spine**: `karmaterminal/openclaw-bootstrap#956` (parent #915)
 **Charter**: `SWIM/FULL-SWIM-CHARTER.md`
 **Registry**: v1
-**Status**: DECLARED — pre-fire (post-bump-and-fleet-deploy)
+**Status**: IN PROGRESS — A0 + A0.2 merged; first behavioral row pending
 
 ---
 
@@ -14,8 +14,8 @@
 - **Candidate branch**: `frond/v2026.5.7/canonical`
 - **SHA**: `4c2a69b3d5` (Project 70 canonical settled state — continuation feature merged + WO-605 attachments + paired P1 fixes)
 - **Tag**: `v2026.5.7`
-- **SUT host**: TBD post-fleet-deploy (cohort decision)
-- **SUT seat**: TBD post-bump-and-fleet-deploy
+- **SUT host**: `silas/urudyne`
+- **SUT seat**: `agent:main:discord:channel:1466192485440164011`
 
 ## Roles per SWIM-METHODOLOGY.md lines 9-19
 
@@ -146,9 +146,9 @@ These remain in-place as historical-evidence-of-v5.5-substrate-walk-from-yesterd
 
 ### Check #6 — fleet-roll-to-all-princes
 
-**STATUS: PENDING** — bump v5.5 → v5.7 + fleet-deploy-to-3-princes still-pending technical-permission-resolution. Cohort-cosigns-sufficient per figs-immaterial-gate canon (`1502378376...`); sandbox-cage-blockade on `gh variable set COHORT_TARGET_TAG` action remains technical-permission-rule resolution-pending.
+**STATUS: SATISFIED (3-of-3 non-deferred prince hosts)** — `COHORT_TARGET_TAG` is `v2026.5.7`; ronan-host, cael-host, and silas/urudyne all byte-walked at `OpenClaw 2026.5.7 (4c2a69b)`; row-A0 PASSed via version parity and row-A0.2 PASSed via cross-fleet continuation-log enumeration.
 
-3-prince fleet-deploy-scope (cael-host + ronan-host + silas/urudyne); Elliott-host-deferred per substrate-condition (currently WAN-egress-trapped per frond-scribe `1502396735...` byte-walk).
+3-prince fleet-deploy-scope complete. Elliott-host was deferred/non-blocking for this deploy cycle under FULL-CHARTER §9 partial-cert framing; Layer-2 has since resolved post-reboot. Current state: Elliott structurally back + WAN-functional; deploy still pending by bandwidth choice, not by unresolved substrate condition.
 
 ### Other pre-swim gate items
 

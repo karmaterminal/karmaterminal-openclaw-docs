@@ -4,7 +4,7 @@
 **Spine**: `karmaterminal/openclaw-bootstrap#956` (parent #915)
 **Charter**: `SWIM/FULL-SWIM-CHARTER.md`
 **Registry**: `SWIM/cases/CATALOG.md` v1
-**Status**: DECLARED — pre-fire (post-bump-and-fleet-deploy)
+**Status**: IN PROGRESS — A0 + A0.2 fired/merged; first behavioral row pending
 
 ---
 
@@ -15,8 +15,8 @@
 - **Exact commit SHA**: `4c2a69b3d5` (per Project 70 canonical settled state — continuation feature merged + WO-605 attachments + paired P1 fixes)
 - **Release tag basis**: `v2026.5.7`
 - **Canonical branch name**: `frond/v2026.5.7/canonical`
-- **SUT host**: TBD post-fleet-deploy (`cael-host` or `silas/urudyne` per cohort decision; v5.5 swim-43 used cael-host)
-- **SUT seat/channel**: TBD post-bump-and-fleet-deploy
+- **SUT host**: `silas/urudyne`
+- **SUT seat/channel**: `agent:main:discord:channel:1466192485440164011`
 
 ## Fixed roles per SWIM-METHODOLOGY.md lines 9-19
 
@@ -196,9 +196,9 @@ These inform Driver-role-discipline-shape for this swim's row-authoring + execut
 
 ### Check #6 — fleet-roll-to-all-princes
 
-**STATUS: PENDING** — bump v5.5 → v5.7 + fleet-deploy-to-3-princes still-pending technical-permission-resolution per cohort-substrate-record at end-of-day 2026-05-08. Cohort-cosigns-sufficient per figs-immaterial-gate canon; sandbox-cage-blockade on `gh variable set COHORT_TARGET_TAG` action remains technical-permission-rule resolution-pending.
+**STATUS: SATISFIED (3-of-3 non-deferred prince hosts)** — `COHORT_TARGET_TAG` bumped to `v2026.5.7`; fleet deploy landed on ronan-host, cael-host, and silas/urudyne; cross-host version parity byte-walked at `OpenClaw 2026.5.7 (4c2a69b)` and row-A0 PASSed on that basis.
 
-Per cohort cosign-stack converged today: 3-prince fleet-deploy-scope (cael-host + ronan-host + silas/urudyne); Elliott-host-deferred per substrate-condition (currently WAN-egress-trapped per frond-scribe `1502396735...` byte-walk; figs-attention-required on (a)/(b)/(c) fix-shape decision).
+Per cohort cosign-stack converged today: 3-prince fleet-deploy-scope (cael-host + ronan-host + silas/urudyne) complete; Elliott-host remained deferred/non-blocking for this deploy cycle under FULL-CHARTER §9 partial-cert framing, then Layer-2 resolved post-reboot. Current state: Elliott structurally back + WAN-functional; deploy still pending by bandwidth choice, not by unresolved substrate condition.
 
 ### Check #1-#5 + #7-#8 status
 

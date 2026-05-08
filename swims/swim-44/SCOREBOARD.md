@@ -35,7 +35,7 @@
 
 | Row | Case | Status | Verdict | Evidence |
 |---|---|---|---|---|
-| A1 | flow_runs + jsonl persistence across restart | TBD | TBD | TBD |
+| A1 | flow_runs + jsonl persistence across restart | Authored | **METHOD-BROKEN-by-timing** | round-1 fire 2026-05-08 nonce `A1-URUDYNE-20260508T1609PDT`: delegate dispatched naturally at T0+600s before restart-fire window completed; restart fired ~7min after natural-dispatch; row-spec PASS-criteria substrate-shifted before tested. Re-fire required per cohort-cosigned (c)+(b) path. Row-evidence: `swims/swim-44/rows/A1-flow-runs-persistence-across-restart.md` |
 | A4 | TaskFlow delegate-store lifecycle | TBD | TBD | TBD |
 | A5 | Timer arm/disarm/dispose | TBD | TBD | TBD |
 | B1 | F1 clean continue_work (no inbound noise) | TBD | TBD | TBD |

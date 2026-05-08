@@ -1,7 +1,7 @@
 # swim-44 v2026.5.7 FULL — declaration
 
 **Project**: [karmaterminal Project 71 — SEAL-BOY 🌊🩲💦 SWIM 44 — v5.7 frond release](https://github.com/orgs/karmaterminal/projects/71)
-**Spine**: TBD (filed alongside this charter)
+**Spine**: `karmaterminal/openclaw-bootstrap#956` (parent #915)
 **Charter**: `SWIM/FULL-SWIM-CHARTER.md`
 **Registry**: `SWIM/cases/CATALOG.md` v1
 **Status**: DECLARED — pre-fire (post-bump-and-fleet-deploy)

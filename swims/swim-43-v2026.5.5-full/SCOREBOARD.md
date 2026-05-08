@@ -106,8 +106,8 @@
 | A0.2 | Post-deploy log enumeration | TBD | TBD |
 | D2 | R2 memory growth 1h idle | Authored | INCONCLUSIVE (fire-1 contaminated by planned restart) |
 | D5 | R5 fleet under cross-load | TBD | TBD |
-| E1 | V1 pnpm build green | TBD | TBD |
-| E2 | V2 check/lint/type-check green | TBD | TBD |
+| E1 | V1 pnpm build green | Authored | **PASS** — fresh worktree hydrated, `pnpm build` exit 0 on `24b76bf62af`; first-fire miss was environment/precondition only |
+| E2 | V2 check/lint/type-check green | Authored | FAIL — `pnpm format:check` failed first on 9 files in hydrated fresh worktree at `24b76bf62af`; `pnpm check` not reached |
 | E3 | V3 full test suite green | TBD | TBD |
 
 ### Family Observability (3 rows)
@@ -115,8 +115,8 @@
 | Row | Case | Status | Verdict |
 |---|---|---|---|
 | N006 | OTel traceparent across queue boundary | Authored | METHOD-BROKEN — config exists, hostname unresolved on cael-host; IP reachability works (`#39`) |
-| X1 | Public continuation tool visibility matrix | TBD | TBD |
-| X2 | Main vs delegate vs leaf tool visibility | TBD | TBD |
+| X1 | Public continuation tool visibility matrix | Authored | INCONCLUSIVE — repo-test registration + execute-guard surface pinned; live session-kind matrix still open |
+| X2 | Main vs delegate vs leaf tool visibility | Authored | INCONCLUSIVE — current tree appears uniform-by-wiring, not depth-aware; live session-kind matrix still open |
 
 ### Family Contamination (1 row)
 

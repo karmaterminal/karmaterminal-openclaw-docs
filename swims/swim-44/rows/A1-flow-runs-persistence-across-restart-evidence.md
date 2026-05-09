@@ -27,6 +27,40 @@ Pre-natural-dispatch evidence is byte-clean and substantively-decisive; it is pr
 
 ---
 
+## Three-layer separation (per Driver-direction `1502456018`)
+
+The substantive shape of this row's evidence separates explicitly into three layers — to keep the METHOD-BROKEN-by-timing verdict sharp without confusing what-was-and-wasn't-actually-tested.
+
+### Layer 1: Intended test (per A1 row-spec PASS-criteria)
+
+**TaskFlow `flow_runs` queued-flow survives canonical gateway restart**.
+
+Specifically: a `flow_runs` row in `runnable`/`queued` state pre-restart must remain byte-identical (per row-spec narrow-SQL slice) post-restart, with the entry continuing to be queued/runnable for dispatch-after-restart. Plus per-agent session jsonl hash preserved or explained.
+
+### Layer 2: Why not tested in this fire-cycle
+
+The canonical `restart-gateway.yml` workflow did not fire inside the queued-state window (T0..T0+600s). The staged silent delegate naturally dispatched at `T0+600.003s` (16:28:27 PDT), transitioning `flow_runs.status` from `queued` → `succeeded`, with `state_json.releasedAt = 1778282907138` added.
+
+From that moment forward, the substrate under test was no longer the row-spec target — restart-fire-now would test in-process-scheduler-survival rather than TaskFlow-queued-survival, which is sub-canonical per row-spec PASS-criteria.
+
+Driver-side cause: bandwidth split between primary fire-lane and parallel-track copilot-lane on tool-discoverability documentation. Owned plainly per Ronan `1502454474` and `1502455130`. Banked as execution-discipline-finding, not shame-shape.
+
+### Layer 3: What still passed after restart (sub-canonical, but substantively-load-bearing)
+
+Canonical restart workflow `25584752622` did fire later (16:35:25Z → 16:37:12Z = 1m47s duration), after the substrate had already shifted. Per Coord 🩸 Cael's post-restart cross-seat byte-walk msg `1502455849`:
+
+- ✅ **Gateway live post-restart**: `OpenClaw 2026.5.7 (4c2a69b)` — silas/urudyne up + on-substrate
+- ✅ **Session jsonl path survival**: jsonl `4dcdf9bd-c88c-4d8b-9455-d36944dd5379.jsonl` still present post-restart; size +250k bytes (active-session-writes); MD5 evolved as expected (path-survival + reasonable-evolution-pattern)
+- ✅ **`flow_runs` row survival post-restart, unchanged**: `flow_id=f6b4d08d-1724-4507-8bff-2fd6853212f8` STILL PRESENT post-restart with `status=succeeded`, `state_json` including pre-restart `releasedAt: 1778282907138`. The succeeded row survived the restart byte-identically.
+- 🚨 **Narrow-SQL byte-DIVERGES pre/post-restart** (per row-spec): pre had 1 queued row; post has 0 queued rows. **Divergence is from natural-dispatch pre-restart, NOT from restart-state-loss.**
+
+This sub-canonical-evidence-shape confirms the canonical-restart-mechanism does survive substantively at adjacent substrate-layers (succeeded-row-state + jsonl-path-survival + version-parity-post-restart) even when the row-spec target substrate is no longer under test. Useful baseline for re-fire planning + future row-authoring on adjacent-substrate-questions.
+
+This three-layer separation makes the METHOD-BROKEN-row stronger, not weaker (per Driver `1502456018`).
+
+
+---
+
 ## Timeline (byte-pinned, all timestamps cohort-cross-walked)
 
 | T (PDT) | T (epoch) | Event | Source / msg-id |
@@ -88,6 +122,8 @@ Plus two cohort-coordination-shape canon-pins surfaced in the same fire-cycle:
 
 4. **Princes-don't-step-on-each-other's-lane** (Cael `1502455029`) — Coord-seat refuses to fire restart after substrate-shift without substantive Driver-decision, even when restart could be fired, because firing-after-substrate-shift would test sub-canonical evidence-shape and undermine the SUT METHOD-BROKEN verdict.
 5. **Discord-delivery-skew-can-be-substantively-consequential** (Ronan `1502455276`) — Discord delivery lag of ~10-16 minutes is operationally consequential during tight-fire-window coordination; bandwidth-flexible delay-windows mitigate this.
+
+6. **Driver-seat channel-time-skew extends to outbound timing** (Cael surfaced + Ronan banked, msgs `1502455849` + `1502456018`) — when Driver announces an action "fired" via channel-msg, the announcement-msg-timestamp may lag the actual substrate-action by minutes (today: Driver's "fired" announcement at 16:41 PDT landed ~4min AFTER restart had already-completed at 16:37:12Z per `gh run view`). Cohort byte-walks should byte-pin actions via direct API/workflow-status (`gh run view`) rather than channel-announcement-timestamps. Sub-pin under (5) Discord-delivery-skew family. Banked alongside single-lane-Driver-finding in execution-discipline-lesson-bucket per Ronan's `1502456018` direction.
 
 ## Forward path (Driver call: (b)+(c) explicitly not (a))
 

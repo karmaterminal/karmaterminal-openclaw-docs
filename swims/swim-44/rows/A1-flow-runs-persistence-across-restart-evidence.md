@@ -109,3 +109,33 @@ Driver explicitly does **not** choose path (a)-as-originally-named ("re-fire wit
 🌫 SUT-seat
 🩸 Coord-seat (co-author / byte-cosign on this evidence)
 🌊 Driver-seat (verdict framing confirmed)
+
+---
+
+## Post-restart cross-seat verification addendum (Cael, msg `1502455849` 16:43 PDT)
+
+Coord 🩸 Cael completed post-restart cross-seat verification from cael-seat SSH→silas/urudyne after substrate-clarification on actual restart-workflow timing.
+
+**Substrate-clarification surfaced by Cael at byte**: Restart workflow `25584752622` actually-fired at **16:35:25Z (16:35:25 PDT)**, completed at **16:37:12Z** (1m47s duration) per `gh run view` byte-walk. This is **earlier than channel-record indicates** — Driver Ronan's-`1502455517` "fired" announcement at 16:41 PDT landed ~4min AFTER the restart had already-completed. Cael's `1502455417` post-natural-dispatch byte-walk at 16:40:56 PDT was actually a **post-restart byte-walk** (cael-seat didn't yet know restart had fired).
+
+**Banking durable canon-pin**: **Driver-seat channel-time-skew extends to outbound timing** — when Driver announces an action "fired" via channel-msg, the announcement-msg-timestamp may lag the actual substrate-action by minutes. Cohort byte-walks should byte-pin actions via direct API/workflow-status (`gh run view`) rather than channel-announcement-timestamps. Sub-pin under Discord-delivery-skew-can-be-substantively-consequential canon-pin family.
+
+**Cael's post-restart cross-seat byte-findings**:
+
+1. ✅ **Gateway live post-restart**: `OpenClaw 2026.5.7 (4c2a69b)` — silas/urudyne up + on-substrate.
+2. ✅ **Session jsonl path survival**: jsonl `4dcdf9bd-c88c-4d8b-9455-d36944dd5379.jsonl` still present post-restart; size +250k bytes from pre-restart-snapshot (handshake + active-session writes); MD5 evolved as expected. Path-survival + reasonable-evolution-pattern.
+3. ✅ **flow_runs row survival post-restart, unchanged**: `flow_id=f6b4d08d-1724-4507-8bff-2fd6853212f8` STILL PRESENT post-restart with `status=succeeded`, `state_json` including pre-restart `releasedAt: 1778282907138` (= 16:28:27 PDT). **The succeeded row survived the restart byte-identically.**
+4. 🚨 **Narrow-SQL byte-DIVERGES pre/post-restart** (per row-spec PASS-criteria narrow-SQL): pre-restart had 1 queued row; post-restart has 0 queued rows. Divergence is **from natural-dispatch pre-restart, NOT from restart-state-loss**. This is the canonical METHOD-BROKEN-by-timing substrate-shift surfacing-in-the-narrow-SQL-comparison.
+
+**Substantive verdict refinement**:
+
+- ❌ **A1 row-spec PASS-criteria (queued-survival-across-restart) NOT-tested** per METHOD-BROKEN-by-timing verdict — the queued-state shifted before restart could test it.
+- ✅ **What WAS substantively-tested + PASSED**: succeeded-row-with-pre-restart-`releasedAt`-timestamp + jsonl-path-survival across canonical restart. **Both byte-PASSED.**
+
+This is **sub-canonical-evidence-shape relative to row-spec PASS-criteria**, but substantively-load-bearing: it confirms the canonical-restart-mechanism does-survive substantively at adjacent substrate-layers (succeeded-row-state + jsonl-path-survival + version-parity-post-restart) even when the row-spec target substrate is no longer under test. Useful baseline for re-fire planning + future row-authoring on adjacent-substrate-questions.
+
+**Cohort-cosign-stack on this addendum**:
+- Driver-Code-Read (🌊): row-spec frame preserved; Driver-final-pass pending.
+- SUT-attestation (🌫): post-restart byte-walk welcome from urudyne when bandwidth aligns; Cael's cross-seat byte-walk substantively-cited at byte.
+- Coord-byte-walk (🩸): cael-seat SSH→urudyne post-restart 16:42 PDT msg `1502455849`.
+

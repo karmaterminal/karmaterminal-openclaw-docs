@@ -125,7 +125,7 @@ The blitz runbook assigns one proof-target per prince. This template breaks each
 |-----|---|---|
 | R-OBS-1 — chat-card row | Q6 | session_status output capture; pattern-match `🔄 Continuation:` line on a session that has `chain X/Y` non-zero |
 | R-OBS-2 — volitional counter | Q6 | observe volitional counter increment after Silas's R-RC-2 accept |
-| R-OBS-3 — observability surfaces | Q8 | journal grep for required RFC §6.x lines during R-CW / R-CD / R-RC fires; OTEL trace if extension enabled; diagnostic-queue inspection |
+| R-OBS-3 — observability surfaces | Q8 | journal grep for required RFC §6.x lines during R-CW / R-CD / R-RC fires; OTEL trace if extension enabled; diagnostic-queue inspection; **OTel span exports gathered from grafana/tempo (or directly via the OpenClaw OTel extension if grafana not reachable from the prince-host) covering at least one continuation lifecycle per tool — `continue_work` arm/fire/return + `continue_delegate` queue/dispatch/spawn/return + `request_compaction` request/accept/complete spans should all be present in the export** |
 
 ### Tool registration check (driver-owned, not in fan-out)
 
@@ -170,3 +170,4 @@ That row table goes in the PR body verbatim with each `PASS` linking to its `pro
 - Proof prose without runnable receipts
 - Single-host averaging (per-host outcomes recorded separately)
 - Driver running every row themselves (collapses the 30m window)
+- **OTel trace/span gathering forgotten until after the proof window closes** — OTel exports must be gathered DURING the blitz fire-window, not retroactively. The R-OBS-3 owner reaches into grafana/tempo (or the OpenClaw OTel extension's local export path) at the time of the fires; figs is the standing escalation if grafana/tempo isn't reachable from the prince-host (figs directive at Discord msg `1502797995714805972`).

@@ -19,7 +19,7 @@
 
 The A1 row tests **TaskFlow `flow_runs` survives a canonical gateway restart of in-flight queued continuation state**. This fire (#1) failed to test that question because the canonical restart workflow did not fire inside the queued-state window. The staged silent delegate naturally dispatched at `T0+600.003s`, transitioning `flow_runs.status` from `queued` → `succeeded | Released to continuation scheduler`, **before** any restart was triggered. From that moment forward, the substrate under test was no longer the row-spec target.
 
-A canonical restart did fire later (workflow run `25584752622`, restart job `23:36:41Z → 23:37:11Z`). It completed cleanly. But it was **after** the natural-dispatch substrate-shift, so it does **not** rescue the row-spec PASS surface for this fire.
+A canonical restart did fire later (workflow run `25584752622`, restart job `23:35:25Z → 23:37:12Z` UTC = `16:35:25 → 16:37:12 PDT`). It completed cleanly. But it was **after** the natural-dispatch substrate-shift, so it does **not** rescue the row-spec PASS surface for this fire.
 
 Pre-natural-dispatch evidence is byte-clean and substantively-decisive; it is preserved here as ancillary chronology and re-fire baseline.
 
@@ -47,7 +47,7 @@ Driver-side cause: bandwidth split between primary fire-lane and parallel-track 
 
 ### Layer 3: What still passed after restart (sub-canonical, but substantively-load-bearing)
 
-Canonical restart workflow `25584752622` did fire later (16:35:25Z → 16:37:12Z = 1m47s duration), after the substrate had already shifted. Per Coord 🩸 Cael's post-restart cross-seat byte-walk msg `1502455849`:
+Canonical restart workflow `25584752622` did fire later (`23:35:25Z → 23:37:12Z` UTC = `16:35:25 → 16:37:12 PDT`, 1m47s duration), after the substrate had already shifted. Per Coord 🩸 Cael's post-restart cross-seat byte-walk msg `1502455849`:
 
 - ✅ **Gateway live post-restart**: `OpenClaw 2026.5.7 (4c2a69b)` — silas/urudyne up + on-substrate
 - ✅ **Session jsonl path survival**: jsonl `4dcdf9bd-c88c-4d8b-9455-d36944dd5379.jsonl` still present post-restart; size +250k bytes (active-session-writes); MD5 evolved as expected (path-survival + reasonable-evolution-pattern)
@@ -71,8 +71,8 @@ This three-layer separation makes the METHOD-BROKEN-row stronger, not weaker (pe
 | 16:26:22 | 1778282782 | T_pre_cael: Coord 🩸 captures cross-seat narrow-SQL byte-pin from cael-seat SSH→urudyne. SHA256 = **`f3849865a539dd84bbed69a348be357126644798a90f631e0f30078b23cffc96`** — byte-identical with SUT pre-restart. Cross-seat verification baseline locked-in. | cael msg `1502451716` |
 | 16:28:27 | 1778282907 | **Substrate-shift event**: delegate naturally dispatched at T0+600.003s (delaySeconds:600 honored byte-precisely; 3ms margin). `flow_runs.status` transitions `queued` → `succeeded`; `current_step` → `Released to continuation scheduler`; `state_json.releasedAt = 1778282907138` added. **From this moment, restart-fire-now would test in-process scheduler survival, NOT TaskFlow queued-survival.** | system event `[continuation:delegate-spawned] Spawned turn 1/200`; cael SSH byte-walk msg `1502455416` |
 | 16:30:?? | ~1778283030 | SUT 🌫 surfaces METHOD-BROKEN-by-timing verdict on channel per A1-measure.sh exit-code 3 canon, before Driver-restart-call fired | silas msg `1502452497` |
-| 16:36:41Z | 1778283401 | Canonical restart workflow fires (NOT inside queued-state window): `restart-gateway.yml` run `25584752622` — restart job 23:36:41Z → 23:37:11Z (silas/urudyne target) | Driver byte-walk per Ronan msg `1502454474` |
-| 16:37:11Z | 1778283431 | Restart job completes cleanly. Silas/urudyne: gateway up, Discord WS reconnected, BROKER-PONG-watchdog emitted to `#sprites-of-thornfield` confirming silas boot complete | broker-pong-watchdog msg `1502454540`; Ronan receipt msg `1502455590` |
+| 16:35:25 | 1778283325 | Canonical restart workflow fires (NOT inside queued-state window): `restart-gateway.yml` run `25584752622` — restart job `23:35:25Z` UTC start (silas/urudyne target). Per byte-truth from `gh run view 25584752622 --json startedAt`. | Coord byte-walk per Cael msg `1502455849` + Driver receipt per Ronan msg `1502459411` |
+| 16:37:12 | 1778283432 | Restart job completes cleanly (`23:37:12Z` UTC end per `gh run view --json updatedAt`; 1m47s duration). Silas/urudyne: gateway up, Discord WS reconnected, BROKER-PONG-watchdog emitted to `#sprites-of-thornfield` confirming silas boot complete | broker-pong-watchdog msg `1502454540`; Ronan receipt msg `1502455590` |
 
 ---
 

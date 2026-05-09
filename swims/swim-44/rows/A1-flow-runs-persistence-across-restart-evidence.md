@@ -88,17 +88,26 @@ METHOD-BROKEN = wrong access path / no staged queued entry / harness cannot read
 
 ## Result
 
-### What was intended to be tested vs. what actually happened
+### Three-layer separation per 🌊 Driver-framing-canon
 
-🌊 Driver-framing-canon at msg `1502455660934205543`:
+🌊 at msg `1502456018` sharpened the row-evidence framing into three explicit layers:
 
-> **What was intended to be tested** = queued-flow survival across restart.
->
-> **What actually happened** = queued entry materialized, then naturally dispatched before restart, later restart succeeded outside the intended window.
->
-> *That separation is the whole row.*
+#### Layer 1 — Intended test
 
-This separation is the substantive shape of the verdict. The row-spec PASS-criteria (queued-flow survival across restart) was NOT executed at byte because the queued-state-window had elapsed before any restart fired. The post-natural-dispatch substrate (succeeded-row-with-`releasedAt`-timestamp + jsonl-path-persistence + gateway-version-parity) DID survive the later restart, but that is **chronology, not rescue** of the original row-spec question per Driver verdict at `1502454474` + `1502454478` + `1502454918` + `1502454980` + `1502455130`.
+**Queued-flow survival across restart.** Per `SWIM/cases/A1.md` + row-spec evidence-piece-1 (narrow-SQL `WHERE status IN ('runnable','queued') ORDER BY flow_id` byte-identical pre/post restart). This is what A1 row-spec PASS-criteria substantively tests.
+
+#### Layer 2 — Why intended test was NOT executed at byte
+
+**Natural dispatch happened before restart window.** The staged delegate's `delaySeconds:600` window elapsed at T0+600.003s = 16:28:27 PDT, dispatching the delegate naturally before any `restart-gateway.yml` workflow fired. By the time Driver dispatched restart workflow `25584752622` at 16:35:25 PDT (T0+1006s, ~7min after natural-dispatch), the queued-state under test no longer existed. The narrow-SQL slice went from 1 queued row pre-natural-dispatch (SHA256 `f3849865...`) to 0 queued rows post-natural-dispatch (empty SHA256 `e3b0c44...`).
+
+#### Layer 3 — What still passed across the later restart (chronology, not rescue)
+
+These post-restart facts hold but are NOT row-spec PASS-criteria-substrate:
+- ✅ Gateway live: `OpenClaw 2026.5.7 (4c2a69b)` post-restart (per cael-seat SSH→silas at 16:42:07 PDT + Silas's broker PONG at `1502454540` 16:37 PDT confirming boot complete + Discord WS reconnected)
+- ✅ Session jsonl path persistence: `4dcdf9bd-c88c-4d8b-9455-d36944dd5379.jsonl` still present post-restart
+- ✅ flow_runs row for `f6b4d08d` STILL PRESENT post-restart, status=`succeeded` UNCHANGED with `releasedAt: 1778282907138` timestamp PRESERVED (set at 16:28:27 PDT pre-restart, preserved across restart)
+
+Per Driver verdict at `1502454474` + `1502454478` + `1502454918` + `1502454980` + `1502455130` + `1502455882` + `1502455957` + `1502456018`: **chronology, not rescue** of the original row-spec question. *That separation is the whole row.*
 
 ### Verdict: METHOD-BROKEN-by-timing
 
@@ -167,21 +176,35 @@ This sub-canonical evidence substantively-tests:
 
 These pass at byte but are NOT the row-spec PASS-criteria-substrate. Distinct test-substrate, banked for future row-shapes.
 
-## Substantive cohort-discipline canon-pin banked from this fire
+## Substantive cohort-discipline canon-pins banked from this fire
 
-🌫 named at `1502452497` (cohort-cosigned by 🌊 + 🩸):
+Three substantive sub-pins under swim-execution-discipline canon-pin family, all cohort-cosigned 🌊 + 🌫 + 🩸 today:
 
-> **Likely-cause-of-METHOD-BROKEN: parallel-track activity pulled Driver-bandwidth during tight-time-window; concurrent-bandwidth-on-Driver-seat-during-tight-time-window can-METHOD-BROKEN-the-row-fire.**
->
-> **Sub-pin under swim-execution-discipline canon-pin family.**
+### Canon-pin 1 — Tight fire window Driver-discipline
 
-🌊 own-shape at `1502454474`:
+🌊 sharpened at `1502455725` (substantively-load-bearing canonical-shape):
 
-> *"during a tight fire window, my bandwidth has to stay solely on the primary lane. I split attention across the parallel discoverability thread and that materially contributed to missing the 600s window. That one is on me."*
+> **Tight fire window = Driver on the primary lane only.**
 
-🩸 Coord-input at `1502454092` (cohort-cosigned):
+Source: 🌫 first-named at `1502452497` (*"concurrent-bandwidth-on-Driver-seat-during-tight-time-window can-METHOD-BROKEN-the-row-fire"*) → 🌊 own-shape at `1502454474` (*"during a tight fire window, my bandwidth has to stay solely on the primary lane. I split attention across the parallel discoverability thread and that materially contributed to missing the 600s window. That one is on me."*) → 🩸 Coord-input at `1502454092` → 🌊 sharpened-canonical at `1502455725` + `1502455130` (*"METHOD-BROKEN-by-bandwidth"* sub-naming).
 
-> **Driver-discipline-canon shift: when A1-tight-window is firing, Driver-bandwidth must be SOLELY on primary-lane until restart-fires. Parallel-track activity (copilot-lane / discoverability / cohort-discussion) gets paused-mid-tight-window-fire.**
+### Canon-pin 2 — Channel-time-skew outbound-timing chronology-confusion
+
+🌊 substantively-banked at `1502456018`:
+
+> **Channel-time-skew on Driver-seat outbound-timing can produce stale-chronology in fire-window directives, materially interfering with the row-fire lane. Belongs in execution-discipline lesson bucket alongside the single-lane Driver finding.**
+
+Source: 🩸 surfaced at `1502453489` (substrate-divergence-finding: 6 Ronan-seat fire-direction-asks in 13 minutes substrate-stale on already-completed-and-already-posted-substrate; outbound-timing lag-pattern) → 🌊 own-shape at `1502455276` (*"yes — confirmed. That anomaly was real on my seat. I was operating on stale inbound state for a stretch, and it materially interfered with the A1 fire lane"*) → 🌊 banking-canon at `1502456018`.
+
+### Canon-pin 3 — Narrow-SQL cross-seat byte-pin
+
+🌊 cosigned-canonical at `1502454615`:
+
+> **Use the row-spec narrow SQL slice (e.g., `SELECT ... WHERE status IN ('runnable','queued') ORDER BY flow_id`) for cross-seat byte-pin. Do not use full-table SHA as the decisive comparator. Full-table drift from unrelated completed/failed rows contaminates evidence story.**
+
+Source: 🩸 substrate-finding at `1502451716` (cael-seat caught full-table-SHA divergence + walked-back to narrow-SQL byte-identical match across SUT-seat + Coord-seat 7-minute-window) → 🌊 canonical-cosign at `1502454615`. Sub-pin: row-spec PASS-criteria defines the test-substrate; cross-seat-byte-pin should mirror that exact substrate-shape, not a broader full-table-shape.
+
+All three canon-pins worth promoting to `SWIM/lessons/` post-merge for cross-swim durability.
 
 ## Re-fire plan (round 2)
 

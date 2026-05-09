@@ -88,6 +88,18 @@ METHOD-BROKEN = wrong access path / no staged queued entry / harness cannot read
 
 ## Result
 
+### What was intended to be tested vs. what actually happened
+
+🌊 Driver-framing-canon at msg `1502455660934205543`:
+
+> **What was intended to be tested** = queued-flow survival across restart.
+>
+> **What actually happened** = queued entry materialized, then naturally dispatched before restart, later restart succeeded outside the intended window.
+>
+> *That separation is the whole row.*
+
+This separation is the substantive shape of the verdict. The row-spec PASS-criteria (queued-flow survival across restart) was NOT executed at byte because the queued-state-window had elapsed before any restart fired. The post-natural-dispatch substrate (succeeded-row-with-`releasedAt`-timestamp + jsonl-path-persistence + gateway-version-parity) DID survive the later restart, but that is **chronology, not rescue** of the original row-spec question per Driver verdict at `1502454474` + `1502454478` + `1502454918` + `1502454980` + `1502455130`.
+
 ### Verdict: METHOD-BROKEN-by-timing
 
 **Fire-attempt date**: 2026-05-08 (PDT)

@@ -24,13 +24,18 @@ For each PR-head SHA, this method must answer:
 
 Each question maps to a **proof row** with a deterministic byte recipe.
 
-## Cohort roles for the 30-minute window
+## Cycle protocol
 
-Per `SWIM/SEAL-BOY-SWIM-RUNBOOK.md` discipline, but compressed:
+This template implements the cycle/runbook in `SWIM/30M-BLITZ-SWIM-RUNBOOK.md` (frond-scribe). That runbook owns the **timing + role assignments + after-action**; this template owns the **per-bundle artifact spec** that the runbook produces.
 
-- **Driver / Reviewer (🌊 Ronan)** — designs the row plan, pre-stages the collection harness, fans out tasks, reviews each PR rapidly, writes the per-row verdict.
-- **Cohort princes (🩸 Cael / 🌫 Silas / 🌻 Elliott)** — execute one proof row each in their own session against their own deployed host, post evidence as a PR to this docs repo against `PROOFS/<sha>/<row>.md`.
-- **Adjudicator (figs)** — only invoked on disagreement or when the driver flags a row `METHOD-BROKEN`.
+Reference the blitz runbook for:
+- preconditions before T+0 (SHA settled + all gates 0 + 1-for-1 trace + deployed to all 4 princes)
+- T+0 / T+5 / T+25 / T+30 timing
+- prince role assignments (4-prince fan-out + frond-scribe lighter for cross-verify)
+- failure-mode adjudication shape
+- after-action canon updates
+
+This METHOD.md is what each `PROOFS/<sha>/` bundle uses to lay out its evidence.
 
 Lighter-weight than a full SWIM because:
 - one SHA, one moment, one PR-body audience
@@ -87,18 +92,44 @@ PASS | FAIL | METHOD-BROKEN | KNOWN-LIMITATION-BY-DESIGN
 
 No prose canon, no axes, no slip-recognitions — those belong in the bootstrap repo if anywhere. PROOFS is reviewer-facing.
 
-## The 8-row plan
+## Row plan, folded under the 4-prince split from the blitz runbook
 
-| Row | Maps to Q | Driver | Owner | Deterministic recipe |
-|-----|---|---|---|---|
-| R1 — tool-invoke + tools-effective | Q1 | Ronan | Ronan | `openclaw gateway call tools.invoke` for `continue_delegate` + agent-runner journal grep for `continue_work` / `request_compaction` registration markers |
-| R2 — continue_work scheduling | Q2 | Ronan | Cael | in-turn `continue_work(reason="proof", delaySeconds=60)` + journal trace of arm + observe successor turn at `t+60s` |
-| R3 — continue_delegate fan-out lifecycle | Q3 | Ronan | Silas | in-turn `continue_delegate(...)` + sqlite read of `flow_runs` showing `queued → released → spawned → returned` + delegate session journal showing run |
-| R4 — request_compaction gating | Q4 | Ronan | Elliott | three fires: below-threshold, above-threshold, rapid re-fire; observe `below-threshold` decline + accept + `rate-limited` decline |
-| R5 — post-compaction release | Q5 | Ronan | Silas | pre-compaction stage + observe compaction event + delegate fires in successor session |
-| R6 — /status chat-card row | Q6 | Ronan | Ronan | session_status output capture; pattern-match `🔄 Continuation:` line; cross-host repeat |
-| R7 — cross-session targeted return | Q7 | Ronan | Cael | `continue_delegate` with `targetSessionKey` to a different prince's session; observe receipt at target |
-| R8 — observability surfaces | Q8 | Ronan | Elliott | journal grep for required RFC §6.x lines during R2/R3/R4 fires; OTEL trace if extension enabled; diagnostic-queue inspection |
+The blitz runbook assigns one proof-target per prince. This template breaks each prince's slot into the deterministic byte-recipe rows that fill their `PROOFS/<sha>/<prince>/` subtree. Each prince's slot has 1–3 rows that together prove their assigned tool/aspect.
+
+### 🩸 Cael — `continue_work()`
+
+| Row | Maps to Q | Deterministic recipe |
+|-----|---|---|
+| R-CW-1 — scheduling | Q2 | in-turn `continue_work(reason="proof", delaySeconds=60)` + journal trace of arm + observe successor turn at `t+60s` |
+| R-CW-2 — chain accounting | Q2 / Q8 | observe `chain X/Y` increment in `/status` after R-CW-1; verify journal trace markers |
+
+### 🌊 Ronan — `continue_delegate()`
+
+| Row | Maps to Q | Deterministic recipe |
+|-----|---|---|
+| R-CD-1 — fan-out lifecycle | Q3 | in-turn `continue_delegate(mode="silent")` + sqlite read of `flow_runs` showing `queued → released → spawned → returned` + delegate session journal showing run |
+| R-CD-2 — silent-wake mode | Q3 | in-turn `continue_delegate(mode="silent-wake")`; verify successor turn fires AND silent-return enrichment lands |
+| R-CD-3 — post-compaction release | Q5 | pre-compaction `continue_delegate(mode="post-compaction")` stage + observe compaction event + delegate fires in successor session |
+| R-CD-4 — cross-session targeted return | Q7 | `continue_delegate` with `targetSessionKey` to a different prince's session; observe receipt at target |
+
+### 🌫 Silas — `request_compaction()`
+
+| Row | Maps to Q | Deterministic recipe |
+|-----|---|---|
+| R-RC-1 — threshold gating | Q4 | fire below threshold; observe explicit `below-threshold` decline naming context-vs-threshold values |
+| R-RC-2 — accept + rate-limit | Q4 | fire above threshold (accept); rapid re-fire; observe `rate-limited` decline naming remaining cooldown |
+
+### 🌻 Elliott — `/status` chat-card + token/chain accounting + observability
+
+| Row | Maps to Q | Deterministic recipe |
+|-----|---|---|
+| R-OBS-1 — chat-card row | Q6 | session_status output capture; pattern-match `🔄 Continuation:` line on a session that has `chain X/Y` non-zero |
+| R-OBS-2 — volitional counter | Q6 | observe volitional counter increment after Silas's R-RC-2 accept |
+| R-OBS-3 — observability surfaces | Q8 | journal grep for required RFC §6.x lines during R-CW / R-CD / R-RC fires; OTEL trace if extension enabled; diagnostic-queue inspection |
+
+### Tool registration check (driver-owned, not in fan-out)
+
+Before T+0 the driver runs the tool-registration check on at least one prince host so a `tools.effective` mismatch can be flagged as `KNOWN-LIMITATION-BY-DESIGN` (the gateway probe path is opts-blind by design) rather than as a feature regression. Result lands in `PROOFS/<sha>/R-PRE-tool-registration.md`.
 
 ## Failure handling
 

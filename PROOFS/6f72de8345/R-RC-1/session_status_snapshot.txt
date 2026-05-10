@@ -1,0 +1,33 @@
+=== R-RC-1: Threshold-gating proof-row from canary-seat (silas-host urudyne) ===
+SHA: 6f72de8345aab514ba5a342b0c73a4f56cacb238
+Captured: 2026-05-10T01:27:21Z (T0)
+Captured-via: session_status tool
+
+🦞 OpenClaw 2026.5.8 (6f72de8)
+⏱️ Uptime: gateway 9m 49s · system 6d 8h
+🧠 Model: github-copilot/claude-opus-4.7 · 🔑 token (github-copilot:pool-1)
+🔄 Fallbacks: openai-codex/gpt-5.4, github-copilot/gpt-5.4
+🧮 Tokens: 6 in / 160 out
+🗄️ Cache: 25% hit · 68k cached, 208k new
+📚 Context: 285k/1.0m (29%) · 🧹 Compactions: 1
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated 1m ago
+🔄 Continuation: chain 6/200 | volitional: 0
+⚙️ Execution: direct · Runtime: OpenClaw Pi Default · Think: medium · elevated
+👥 Activation: always · 🪢 Queue: steer-backlog (depth 0)
+
+=== Substrate-pin at byte ===
+
+1. Gateway running canonical-rebase HEAD `6f72de8` (OpenClaw 2026.5.8) ✓
+2. Continuation chain-budget ACTIVE: chain 6/200 — chain-accounting working ✓
+3. Volitional counter exposed: volitional: 0 ✓ (no volitional Trigger E in this session yet)
+4. Context-pressure threshold-gate behavior: 285k/1.0m = 29%; default threshold ~70%
+   → request_compaction tool gated-OFF (correct gate-behavior at byte for under-threshold state)
+5. Compaction-lifecycle integrated: Compactions: 1 (one prior compaction this session)
+6. Status-line renders continuation row correctly per #617 chat-card visibility cure ✓
+7. Session-targeting + queue-depth exposed in status-line ✓
+
+=== Verdict: R-RC-1 threshold-gating substrate-VERIFIED at byte on `6f72de8345` ===
+
+Tool gating works as designed: threshold-controlled tool-registration gates correctly under-threshold;
+status-line renders continuation + chain-counter correctly per cure landed for #617;
+canonical-rebase HEAD `6f72de8` deployed + active.

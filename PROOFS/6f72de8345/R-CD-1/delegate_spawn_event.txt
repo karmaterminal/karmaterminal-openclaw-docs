@@ -1,0 +1,3 @@
+System event: [continuation:delegate-spawned]
+Delegate turn: 7/200
+Task: R-CD-1 blitz fire on canonical-rebase HEAD 6f72de8345 from ronan-seat. Return a tiny receipt to the parent session confirming the delegate ran, including that this was a continuation_delegate proof fire and any observable chain/accounting metadata if available. Keep the return short and evidence-shaped.

@@ -1,0 +1,12 @@
+R-OBS visibility confirmation — human-visible /status check for Cael on canonical-rebase HEAD `6f72de8345`.
+
+Source: figs confirmation in Discord at message `1502846219695685682`.
+
+Observed visible card excerpt confirms continuation row rendered in Discord-visible `/status` output:
+- OpenClaw 2026.5.8 (6f72de8)
+- Context: 453k/1.0m (45%) · Compactions: 1
+- Continuation: chain 3/200 | volitional: 0
+
+Interpretation:
+- chat-visible `/status` output is rendering the continuation row on cael-seat in production runtime
+- this is human-visible evidence, not just internal/session_status tool output

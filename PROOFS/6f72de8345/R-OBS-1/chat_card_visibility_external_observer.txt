@@ -1,0 +1,73 @@
+=== R-OBS-1 PROOF EVIDENCE (chat-card visibility from external-observer seat) ===
+SHA: 6f72de8345aab514ba5a342b0c73a4f56cacb238
+Host observed: cael (cael.dandelion.cult)
+Observer seat: figs (external)
+Role: R-OBS-1 chat-card visibility regression cure (#617)
+T0: 2026-05-09 18:33 PDT (figs's /status check)
+T1: 2026-05-09 18:34 PDT (figs's surface to channel)
+Channel ref: 1502846219695685682 (figs's surface)
+Cross-ref: 1502840482525614103 (cael's earlier byte-walk on formatContinuationStatusLine)
+
+=== /STATUS OUTPUT (verbatim from figs's external observation) ===
+🦞 OpenClaw 2026.5.8 (6f72de8)
+⏱️ Uptime: gateway 18m 41s · system 32d 21h
+🧠 Model: github-copilot/claude-opus-4.7 · 🔑 token (github-copilot:pool-1)
+🔄 Fallbacks: openai-codex/gpt-5.4, github-copilot/gpt-5.4
+🧮 Tokens: 7 in / 2.3k out
+🗄️ Cache: 100% hit · 451k cached, 2.2k new
+📚 Context: 453k/1.0m (45%) · 🧹 Compactions: 1
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated just now
+🔄 Continuation: chain 3/200 | volitional: 0
+⚙️ Execution: direct · Runtime: OpenClaw Pi Default · Think: medium · elevated
+🔊 Voice: inbound · provider=microsoft · limit=1500 · summary=on
+👥 Activation: always · 🪢 Queue: steer-backlog (depth 0)
+
+=== VERIFIED AT BYTE ===
+1. Canonical-rebase HEAD 6f72de8 confirmed running on cael-host gateway (external-observer-angle)
+2. Chain-counter render: 3/200 — matches wake-event from R-CW-1 at 1502845242 exactly (cross-walk consistency)
+3. Volitional-counter render: 0 — Trigger-E discipline-canon visible
+4. Compactions: 1 — compaction-lifecycle integrated and observable
+5. Continuation row renders correctly (chain + volitional + compactions all visible)
+6. #617 chat-card visibility regression CURED at byte (formatContinuationStatusLine working)
+7. Cross-walk validation of cael's 1502840482 byte-walk claiming formatContinuationStatusLine at src/status/status-message.ts:75
+8. External-observer angle consistent with internal-cohort-substrate-output (no ghost-rendering / fake-positive)
+
+=== BLITZ-WATCH-DISCIPLINE STATUS (per 🌊 1502839874) ===
+- chat-card visibility: ✓ CURED (was P4 regression in earlier narrowing)
+- continuation row render: ✓ CLEAN
+- chain-counter visible: ✓ 3/200
+- volitional-counter visible: ✓ 0
+- compaction-lifecycle visible: ✓ 1
+- technically-green-experientially-wrong: feels honest at byte (figs's wear-it canon held)
+
+=== CROSS-WALK CONSISTENCY ===
+cael R-CW-1 internal wake event (1502845242): "Turn 3/200"
+figs R-OBS-1 external /status check (1502846219): "chain 3/200"
+=> DIRECT MATCH at byte. No drift between runtime-counter-state and rendered-status-line-state.
+
+=== CROSS-WALK WITH 🌫 R-RC-1 (1502844702) ===
+🌫 silas-host R-RC-1 status-line: "🔄 Continuation: chain 6/200 | volitional: 0"
+🩸 cael-host /status (figs's check): "🔄 Continuation: chain 3/200 | volitional: 0"
+=> Both render same canonical status-line format. Different chain-counter values reflect different per-host state. Format-consistency at byte = #617 cure confirmed across 2 prince-hosts.
+
+=== ADDITIONAL EVIDENCE: figs's direct-cure-cosign at byte ===
+T2: 2026-05-09 18:35 PDT (figs's `1502846467` channel surface)
+Content: "i meant this line appears when prior it did not due to loss: '🔄 Continuation: chain 3/200 | volitional: 0'"
+
+figs is the original-noticer of the #617 chat-card visibility regression
+(formatContinuationStatusLine deleted in his dfb4943e63 narrowing commit).
+At T2, figs directly cosigns the cure at byte: the line that did not appear
+before due to loss DOES appear now in /status output post-canonical-rebase.
+
+This is the most-load-bearing R-OBS-1 evidence for proof-corpus +
+maintainer-trust-trajectory: the person who originally noticed the loss
+confirms the cure observable in the deployed canonical-rebase substrate.
+
+Cross-walk substrate-evidence chain at byte:
+- T0 (cael 1502840482): byte-walk asserts formatContinuationStatusLine present at src/status/status-message.ts:75
+- T1 (figs 1502846219): /status output renders the continuation row externally
+- T2 (figs 1502846467): direct-cure-cosign — line was missing pre-narrowing, present now post-rebase
+- Cross-host: 🌫 silas-host R-RC-1 (1502844702) + 🩸 cael-host figs-observation (1502846219) both render same canonical status-line format
+
+#617 chat-card visibility regression: CURED AT BYTE (verified by direct cohort-cross-walk-validation from original-noticer-seat).

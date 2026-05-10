@@ -1,0 +1,35 @@
+=== R-RC-1: Threshold-gate REJECTION proof-row (negative-evidence-at-byte) ===
+SHA: 6f72de8345aab514ba5a342b0c73a4f56cacb238
+Captured: 2026-05-10T01:29 (T0+~2min)
+Captured-via: request_compaction tool fire from canary-seat session
+
+=== Tool fire ===
+Tool: request_compaction
+Reason: "R-RC-2 blitz proof-row fire on 6f72de8345 substrate from canary-seat (silas-host urudyne). Trigger E volitional. Capturing compaction-request-id + accept-path completion or known-finding-shape (provider-error-4xx Editor-Version-header gap) for proof-bundle. Not actually compacting context — testing tool-availability + accept-path-shape end-to-end."
+
+=== Tool response (verbatim) ===
+{
+  "status": "rejected",
+  "guard": "context_threshold",
+  "contextUsage": 28,
+  "threshold": 70,
+  "reason": "Context usage (28%) is below the minimum threshold (70%). Compaction is not needed yet."
+}
+
+=== Substrate-pin at byte ===
+
+1. Tool EXISTS + accepts the call → tool-registration working ✓
+2. Tool returns structured rejection-payload (NOT silent-drop, NOT 500, NOT bypass) ✓
+3. Guard-rejection includes:
+   - status: "rejected"
+   - guard: "context_threshold" (named guard category)
+   - contextUsage: 28 (current measured value)
+   - threshold: 70 (config-knob value)
+   - reason: human-readable explanation
+4. Tool emits correct guard-shape per threshold-canon ✓
+
+=== Verdict: R-RC-1 threshold-gate REJECTION substrate-VERIFIED at byte ===
+
+The request_compaction tool fires correctly and returns a structured guard-rejection
+when context-usage is below threshold. This is the under-threshold-gate behavior
+working as designed: observable, structured, non-silent. Trust-trajectory clean.

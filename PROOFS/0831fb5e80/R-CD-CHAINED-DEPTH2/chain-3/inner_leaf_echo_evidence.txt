@@ -1,0 +1,31 @@
+=== CD-CHAIN-DEPTH2 Chain 3 — ECHO arm: announce-up-tree + Discord channel echo, INNER LEAF receipt on `0831fb5e80` ===
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Captured-via: native subagent push-based completion event observed at the ROOT (this main session) — fanoutMode=tree announce + explicit Discord message-send to channel:1473320126433464465
+
+=== Inner leaf return (verbatim from inner subagent) ===
+INNER LEAF RECEIPT — CD-CHAIN-DEPTH2 Chain 3 (ECHO to root + channel:1473320126433464465) on SHA 0831fb5e80
+Inner session key: agent:main:subagent:94389a7e-a7f4-4fe2-aa36-fb70d6abf78c
+Inner depth: 2/5
+Inner chain hop: 1
+Inner host: ronan
+Inner model: github-copilot/claude-opus-4.7
+Return mode: normal + fanoutMode=tree (announce echoes to root) AND explicit message-send to channel:1473320126433464465
+Discord message id of the channel echo: 1502874753562837014
+Captured: 2026-05-10T03:27:44Z
+
+=== Routing observed at byte (orchestration layer) ===
+- Outer (depth-1): agent:main:subagent:2335734c-61e1-41ac-b189-ddebd56ac2f2 — completed; reported it did NOT post in sprites.
+- Inner (depth-2): agent:main:subagent:94389a7e-a7f4-4fe2-aa36-fb70d6abf78c — `[continuation:chain-hop:1]`. Inner sent ONE Discord message to channel:1473320126433464465 with body:
+    "🌊 CD-CHAIN-DEPTH2 Chain 3 inner-leaf reporting in: depth-2 leaf reached; this message is the ECHO arm. SHA 0831fb5e80."
+  Returned message id: 1502874753562837014
+- Inner completion arrived at the ROOT via fanoutMode=tree (normal-mode announce), not silent.
+- Outer respected scope: did NOT post in sprites; only the inner echoed, and only to channel:1473320126433464465.
+
+=== Verified at byte ===
+1. Strict 2-deep chain: continue_delegate (root → outer) followed by continue_delegate (outer → inner).
+2. Inner depth banner: 2/5.
+3. fanoutMode=tree announce on a normal-mode delegate propagated up the ancestor chain to root.
+4. Inner leaf simultaneously performed a discrete side-effect: a single Discord message to a non-source channel id, returning a real Discord message id.
+5. Outer link did not leak side-effects into the source channel — scope honored.
+
+=== Verdict: CD-CHAIN-DEPTH2 Chain 3 PASS — chained continue_delegate at depth 2 with normal-mode tree-announce AND cross-channel side-effect observable on `0831fb5e80` ===

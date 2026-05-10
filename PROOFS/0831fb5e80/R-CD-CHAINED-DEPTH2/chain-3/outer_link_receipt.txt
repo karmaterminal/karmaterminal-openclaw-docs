@@ -1,0 +1,39 @@
+=== CD-CHAIN-DEPTH2 Chain 3 — ECHO to root + Discord channel <#1473320126433464465>, outer-link receipt on `0831fb5e80` ===
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Captured: 2026-05-10T03:28Z (PDT 20:28)
+Captured-via: native subagent push-based completion event from outer (depth-1)
+
+=== Outer (depth-1) subagent context ===
+Outer session key: agent:main:subagent:2335734c-61e1-41ac-b189-ddebd56ac2f2
+Outer session id:  6239a001-c4c7-42d2-9cee-2382dfd59f8a
+Outer depth:       1/5
+Outer chain hop:   1 (parent → outer)
+Outer host:        ronan
+Outer model:       github-copilot/claude-opus-4.7
+Outer build:       OpenClaw 2026.5.8 (0831fb5)
+Root requester:    agent:main:discord:channel:1466192485440164011 (sprites — outer NOT posting here per task spec)
+
+=== Inner scheduling-receipt (verbatim, captured by outer at scheduling time) ===
+- status:            scheduled
+- mode:              normal
+- delaySeconds:      0
+- delegateIndex:     1
+- delegatesThisTurn: 1
+- fanoutMode:        tree
+- note:              "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+
+Outer self-confirmation (verbatim):
+"OUTER LINK Chain 3 — depth-2 inner scheduled with mode=normal fanoutMode=tree, will echo announce up-tree AND send a single Discord message to channel:1473320126433464465."
+"Did NOT post in sprites (current channel). Echo target is channel:1473320126433464465 only, owned by the inner leaf."
+
+=== Verified at byte (outer-stage) ===
+1. Outer subagent ran inside a continue_delegate-spawned context.
+2. Outer dispatched a further continue_delegate from inside its turn.
+3. Inner scheduling-receipt explicitly carries mode=normal + fanoutMode=tree.
+4. Outer respected scope boundary — did NOT post in sprites; the channel echo is the inner leaf's job to a different channel id.
+5. Depth banner visible to outer: 1/5.
+
+=== Pending-by-design (now closed) ===
+Inner leaf (a) sent Discord message id `1502874753562837014` to `channel:1473320126433464465` and (b) emitted normal-mode delegate completion announce that fanoutMode=tree propagated back up to the root. Both arms in `inner_leaf_echo_evidence.txt`.
+
+=== Verdict (outer): CD-CHAIN-DEPTH2 Chain 3 OUTER scheduled cleanly on `0831fb5e80` ===

@@ -1,0 +1,27 @@
+=== CD-CHAIN-DEPTH2 Chain 1 — UP-TREE silent-wake INNER LEAF receipt on `0831fb5e80` ===
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Captured-via: native subagent push-based completion event observed at the ROOT (this main session) — fanoutMode=tree silently-woke ancestors
+
+=== Inner leaf return (verbatim from inner subagent) ===
+INNER LEAF RECEIPT — CD-CHAIN-DEPTH2 Chain 1 (UP-TREE silent-wake) on SHA 0831fb5e80
+Inner session key: agent:main:subagent:98b3720e-bcd9-423f-bc1a-cb26f4b61d12
+Inner depth: 2/5
+Inner chain hop: 1
+Inner host: ronan
+Inner model: github-copilot/claude-opus-4.7
+Return mode: silent-wake / fanoutMode=tree (up-tree propagation)
+Captured: 2026-05-10T03:27:00Z
+
+=== Routing observed at byte (orchestration layer) ===
+- Outer (depth-1): agent:main:subagent:e7aabd2d-0071-4a71-9331-517d96ee8fc7 — completed first.
+- Inner (depth-2): agent:main:subagent:98b3720e-bcd9-423f-bc1a-cb26f4b61d12 — completed AFTER outer; inner's task was dispatched as a continuation hop spawned from inside outer's turn (gateway tagged it `[continuation:chain-hop:1]`).
+- Inner-leaf return arrived at the ROOT (this main session) silently — no in-channel post, propagated up the ancestor chain via fanoutMode=tree.
+
+=== Verified at byte ===
+1. Strict 2-deep chain: continue_delegate (root → outer) followed by continue_delegate (outer → inner). Two distinct subagent session keys in lineage.
+2. Inner depth banner reports 2/5 — depth-counter accurate at the leaf.
+3. Inner chain hop = 1 inside inner's own subtree (gateway preserves chain semantics on the new fork while still capping global depth).
+4. Return mode: silent-wake + fanoutMode=tree honored at fire-time and at completion-event delivery.
+5. Up-tree wake landed at root through ancestor propagation, not at outer alone.
+
+=== Verdict: CD-CHAIN-DEPTH2 Chain 1 PASS — chained continue_delegate at depth 2 with up-tree silent-wake propagation observable on `0831fb5e80` ===

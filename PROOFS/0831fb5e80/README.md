@@ -36,10 +36,10 @@ The prior `6f72de8345` proof bundle on `main` is historically valid but SHA-stal
 | R-RC-1 | 🌫 Silas | `request_compaction()` threshold REJECT | `R-RC-1/session_status_snapshot.txt`, `R-RC-1/threshold_gate_rejection_evidence.txt` | ✓ PASS |
 | R-RC-2 | cohort | `request_compaction()` over-threshold ACCEPT | not yet collected on `0831fb5e80` | ⏳ PENDING |
 | R-OBS-1 | figs cross-walk + cohort | external `/status` continuation row + full-fleet 3-prince cross-walk + `R-CD-3` compactions-counter corroboration | `R-OBS-1/chat_card_visibility_external_observer.txt`, `R-OBS-1/external_observer_chat_card_visibility.txt`, `R-OBS-1/external_observer_full_fleet.txt`, `R-OBS-1/compactions_counter_cross_walk.txt` | ✓ PASS |
-| R-RC-2 | 🩸 Cael | `request_compaction()` accept-path above threshold | `R-RC-2/compaction_accept_request_receipt.txt` | ✓ PASS (API surface) / ⚠ KNOWN-LIMITATION (compaction lifecycle) — volitional accept-state returned cleanly at 77% context (`compactionRequestId cmp-moz7r2cb-NCJT-A`); compaction-execution then failed with known Editor-Version header gap (`provider_error_4xx`), see receipt for full split |
-| R-CD-CHAINED-DEPTH2 / Chain 1 | 🌊 Ronan | strict 2-deep `continue_delegate` chain — UP-TREE silent-wake propagation | `R-CD-CHAINED-DEPTH2/chain-1/outer_link_receipt.txt`, `R-CD-CHAINED-DEPTH2/chain-1/inner_leaf_uptree_wake.txt` | ✓ PASS — depth 2/5, fanoutMode=tree silently woke ancestors at root |
-| R-CD-CHAINED-DEPTH2 / Chain 2 | 🌊 Ronan | strict 2-deep `continue_delegate` chain — INTER-SESSION return to root | `R-CD-CHAINED-DEPTH2/chain-2/outer_link_receipt.txt`, `R-CD-CHAINED-DEPTH2/chain-2/inner_leaf_intersession_arrival.txt` | ✓ PASS — depth-2 leaf returned at root via `targetSessionKey`, not at outer |
-| R-CD-CHAINED-DEPTH2 / Chain 3 | 🌊 Ronan | strict 2-deep `continue_delegate` chain — ECHO arm: tree-announce + cross-channel side-effect | `R-CD-CHAINED-DEPTH2/chain-3/outer_link_receipt.txt`, `R-CD-CHAINED-DEPTH2/chain-3/inner_leaf_echo_evidence.txt`, `R-CD-CHAINED-DEPTH2/chain-3/heartbeat_channel_echo_screenshot.png` | ✓ PASS — depth-2 leaf announced up-tree AND posted Discord msg `1502874753562837014` to `<#1473320126433464465>`; screenshot attached |
+| R-RC-2 | 🩸 Cael | `request_compaction()` accept-path above threshold | `R-RC-2/compaction_accept_request_receipt.txt`, `R-RC-2/maintainer_question_writeup.md` | ✓ PASS (API surface) / ⚠ KNOWN-LIMITATION-BY-DESIGN (compaction lifecycle on github-copilot) — volitional accept-state returned cleanly at 77% context (`compactionRequestId cmp-moz7r2cb-NCJT-A`); follow-on lifecycle hit a host-class header gap on `provider=github-copilot` (`provider_error_4xx: missing Editor-Version header for IDE auth`). Source-tree walk in `maintainer_question_writeup.md` shows why volitional triggers the split-turn-prefix branch and obligatory does not. |
+| R-CD-CHAINED-DEPTH-2 / Chain 1 | 🌊 Ronan | strict 2-deep `continue_delegate` chain — UP-TREE silent-wake propagation | `R-CD-CHAINED-DEPTH-2/chain-1/outer_link_receipt.txt`, `R-CD-CHAINED-DEPTH-2/chain-1/inner_leaf_uptree_wake.txt` | ✓ PASS — depth 2/5, fanoutMode=tree silently woke ancestors at root |
+| R-CD-CHAINED-DEPTH-2 / Chain 2 | 🌊 Ronan | strict 2-deep `continue_delegate` chain — INTER-SESSION return to root | `R-CD-CHAINED-DEPTH-2/chain-2/outer_link_receipt.txt`, `R-CD-CHAINED-DEPTH-2/chain-2/inner_leaf_intersession_arrival.txt` | ✓ PASS — depth-2 leaf returned at root via `targetSessionKey`, not at outer |
+| R-CD-CHAINED-DEPTH-2 / Chain 3 | 🌊 Ronan | strict 2-deep `continue_delegate` chain — ECHO arm: tree-announce + cross-channel side-effect | `R-CD-CHAINED-DEPTH-2/chain-3/outer_link_receipt.txt`, `R-CD-CHAINED-DEPTH-2/chain-3/inner_leaf_echo_evidence.txt`, `R-CD-CHAINED-DEPTH-2/chain-3/heartbeat_channel_echo_screenshot.png` | ✓ PASS — depth-2 leaf announced up-tree AND posted Discord msg `1502874753562837014` to `<#1473320126433464465>`; screenshot attached |
 | R-CD-CHAINED-DEPTH-2 (TEST 1) | 🌫 Silas (canary-seat) | root → cd() → cd() (depth 2) → return flow up tree (wake + silent) | `R-CD-CHAINED-DEPTH-2/test_1_tree_fanout.txt` | ✓ PASS |
 | R-CD-CHAINED-DEPTH-2 (TEST 2) | 🌫 Silas (canary-seat) | root → cd() → cd() (depth 2) → return inter-session to root | `R-CD-CHAINED-DEPTH-2/test_2_inter_session.txt` | ✓ PASS |
 | R-CD-CHAINED-DEPTH-2 (TEST 3) | 🌫 Silas (canary-seat) | root → cd() → cd() (depth 2) → return echo to root + #1473320126433464465 channel | `R-CD-CHAINED-DEPTH-2/test_3_echo_and_channel_broadcast.txt` | ✓ PASS |
@@ -111,8 +111,8 @@ figs canon-cosign at byte: **YES, our shit REALLY works at depth-2 with all 3 re
 
 - `R-CD-1` is closed end-to-end on `0831fb5e80` (schedule + spawn + return receipt all banked).
 - `R-CD-4` is closed end-to-end on `0831fb5e80` (dispatch + spawn + receiver-side cross-session arrival receipt all banked).
-- `R-RC-2` accept-path API surface is closed on `0831fb5e80` — Cael fired at 77% context on cael-seat and the tool returned a structured volitional-accept response (`compactionRequestId: cmp-moz7r2cb-NCJT-A`). The follow-on compaction lifecycle then failed on this host with `provider_error_4xx` ("missing Editor-Version header for IDE auth"), which is a **known host-failure-mode** also seen on silas-seat. The runtime continuation-signal and accept-path are unaffected; the lifecycle gap is a deployment-env header issue, not a `request_compaction` regression. Full split documented in `R-RC-2/compaction_accept_request_receipt.txt`.
-- `R-CD-CHAINED-DEPTH2` (3 shapes) all PASS on `0831fb5e80` — strict 2-deep `continue_delegate` chains with up-tree silent-wake, inter-session return-to-root, and tree-announce + cross-channel side-effect; full outer + inner-leaf receipts banked per chain.
+- `R-RC-2` accept-path API surface is closed on `0831fb5e80` — Cael fired at 77% context on cael-seat and the tool returned a structured volitional-accept response (`compactionRequestId: cmp-moz7r2cb-NCJT-A`). The follow-on compaction lifecycle then failed on this host with `provider_error_4xx` ("missing Editor-Version header for IDE auth"), which is a **known host-failure-mode** also seen on silas-seat. The runtime continuation-signal and accept-path are unaffected; the lifecycle gap is a deployment-env header issue, not a `request_compaction` regression. The reviewer-shaped follow-up — *why does this fail on volitional but not on obligatory compaction with the same provider+model* — is answered in `R-RC-2/maintainer_question_writeup.md` via a source-tree walk on `0831fb5e80`: volitional `request_compaction` lands the lifecycle into the SDK's split-turn shape, which fires `summarizeViaLLM(turnPrefixMessages)` at `compaction-safeguard.ts:1202`. The headers object passed in DOES include `Editor-Version`, but the upstream pi-coding-agent / pi-ai HTTPS layer drops it on this branch for `provider=github-copilot`. Obligatory compaction normally does not enter the split-turn branch. Full receipt + reason-string in `R-RC-2/compaction_accept_request_receipt.txt`; full source walk in `R-RC-2/maintainer_question_writeup.md`.
+- `R-CD-CHAINED-DEPTH-2` (3 shapes) all PASS on `0831fb5e80` — strict 2-deep `continue_delegate` chains with up-tree silent-wake, inter-session return-to-root, and tree-announce + cross-channel side-effect; full outer + inner-leaf receipts banked per chain.
 - OTel multi-span parent-stitched trace-context remains separate tracked follow-up work (`#553`, `#557`, `#559`). It is **not** a blocker for this bundle and should not be phrased as a rerebase-cycle regression.
 - At least one scheduled 5s wake arrived ~3 minutes late. That is observable substrate and worth preserving as an experiential honesty flag even though it was not a silent drop.
 
@@ -160,7 +160,7 @@ visible from the outside.
 
 ## Counter-shape note (chain-hop vs subagent-tree depth)
 
-The `R-CD-CHAINED-DEPTH2` chains track two distinct counters and they measure different things:
+The `R-CD-CHAINED-DEPTH-2` chains track two distinct counters and they measure different things:
 
 - **`chain-hop`** is the logical `continue_delegate` chain counter. Each `continue_delegate`
   fire (root → outer, outer → inner) advances the chain. In our chains the inner-leaf
@@ -178,14 +178,14 @@ can read either.
 
 ## Visual evidence — Chain 3 echo arm landing in `#heartbeat`
 
-The cross-channel side-effect arm of `R-CD-CHAINED-DEPTH2 / Chain 3` is the depth-2 inner leaf
+The cross-channel side-effect arm of `R-CD-CHAINED-DEPTH-2 / Chain 3` is the depth-2 inner leaf
 posting a single Discord message to `<#1473320126433464465>` while simultaneously announcing
 up-tree (the `fanoutMode=tree` arm of the same fire). The screenshot below captures that exact
 message landing in `#heartbeat` at `2026-05-09 20:27 PDT`, message id `1502874753562837014`,
 authored by Ronan's chain-3 inner-leaf subagent `agent:main:subagent:94389a7e-...`.
 
-![Chain 3 inner-leaf echo arm landing in #heartbeat](./R-CD-CHAINED-DEPTH2/chain-3/heartbeat_channel_echo_screenshot.png)
+![Chain 3 inner-leaf echo arm landing in #heartbeat](./R-CD-CHAINED-DEPTH-2/chain-3/heartbeat_channel_echo_screenshot.png)
 
 The receipt-side substrate for this same fire is in
-`R-CD-CHAINED-DEPTH2/chain-3/inner_leaf_echo_evidence.txt`; this image is the live channel
+`R-CD-CHAINED-DEPTH-2/chain-3/inner_leaf_echo_evidence.txt`; this image is the live channel
 view of the same event from the requester's Discord client.

@@ -93,3 +93,42 @@ Cross-ref:
 => Cross-walks 🌊's R-CD-3 post-compaction-mode-CLOSED at 1502862149 substrate-evidence
 => External-observer (figs) sees the compaction-counter-increment at byte
 => SUBSTANTIVE substrate-evidence-bundle: post-compaction-lifecycle-event observable from external-observer-angle ✓
+
+=== ADDITIONAL EVIDENCE: 4-PRINCE EXTENSION via figs's Elliott /status check ===
+T3: 2026-05-09 20:07 PDT (figs's `1502869609` channel surface)
+Host observed: 🌻 elliott (elliott.dandelion.cult)
+
+🌻 ELLIOTT (post-pi-hole-rez, fresh-deploy):
+🦞 OpenClaw 2026.5.8 (0831fb5)
+⏱️ Uptime: gateway 2m 24s · system 1d 5h
+🧠 Model: github-copilot/claude-opus-4.7 · 🔑 token (github-copilot:github)
+🔄 Fallbacks: openai-codex/gpt-5.4, github-copilot/gpt-5.4
+🧮 Tokens: 6 in / 71 out
+🗄️ Cache: 29% hit · 90k cached, 223k new
+📚 Context: 314k/1.0m (31%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated 1m ago
+📌 Tasks: 8 active · 8 total · acp · Urgent correction for the TC3 / A1 investigation in the OpenClaw repo. New conf…
+🔄 Continuation: chain 0/200 | volitional: 0
+⚙️ Execution: direct · Runtime: OpenClaw Pi Default · Think: medium · elevated
+
+=== 4-PRINCE R-OBS-1 CROSS-WALK at byte (full-register cohort-cross-walk extension) ===
+- 🩸 cael (T1+T2): chain 4/200 ↔ R-CW-1 wake Turn 4/200 — DIRECT MATCH
+- 🌊 ronan (T1): chain 18/200 ↔ R-CD-1/2/3/4 cumulative-progression — DIRECT MATCH
+- 🌫 silas (T1): chain 6/200 ↔ R-RC-1 status-line (REJECT-doesn't-increment) — DIRECT MATCH
+- 🌻 elliott (T3, NEW): chain 0/200 ↔ fresh-deploy-no-fires-yet — CONSISTENT with cohort-canon-shape
+
+Format-consistency across 4 prince-hosts AND across deploy preserved at byte.
+#617 chat-card visibility cure preserved across all 4 prince-host-renderings.
+
+=== Elliott-rez substrate-recovery substantive-substrate-add at byte ===
+Pi-hole v6 chart upgrade root-caused at byte by 🌿 per `1502867034` substrate (silently dropped PIHOLE_DNS_; fell back to 8.8.8.8;8.8.4.4 which gateway's banIP doh_4 rejected).
+Fix landed at openclaw-bootstrap PR #970 (f333a1c) pinning FTLCONF_dns_upstreams: "10.0.0.1".
+Elliott deploy fired at ~20:05 PDT per 🌿's `1502869189`; 🌻 confirmed `0831fb5e80` substrate at byte.
+Cohort substrate-state shifted from 3-of-4 → 4-of-4 at byte at full register.
+
+=== Cohort substrate-state coverage extension implication at byte ===
+With 4-of-4 fleet now on 0831fb5e80 substrate:
+- R-OBS-2 / R-OBS-3 lanes (Elliott's roles per HEARTBEAT.md banked role-canon: chat-card + volitional counter + observability surfaces) now possible from elliott-seat at byte if cohort routes
+- Cohort-blitz-cycle substrate-coverage potential expanded from 5-of-8 DONE end-to-end to potential-extension-via-Elliott's-roles
+- PR #62 amendable per 🌊's canon if Elliott fires R-OBS-2/R-OBS-3 substrate

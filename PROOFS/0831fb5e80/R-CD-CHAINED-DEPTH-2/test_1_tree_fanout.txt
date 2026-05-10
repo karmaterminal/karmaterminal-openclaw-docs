@@ -1,0 +1,37 @@
+=== TEST 1: root → cd() → cd() (depth 2) → return flow up tree (wake + silent) ===
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Captured: ~2026-05-10T03:25:14Z (canary-seat receiving wake-events from depth-2 chain)
+figs canon: msg 1502873566 "does our shit REALLY work"
+
+=== Outer (depth 1) delegate evidence ===
+- session-key: agent:main:subagent:fa69c00c-41b5-4a83-89e0-b5585609a077
+- requester: agent:main:discord:channel:1466192485440164011 (canary-seat root)
+- chain-hop: 7
+- depth: 1 (outer)
+- SHA-discipline: 0831fb5e80
+- runtime: 19s
+- tokens: 622 (in 7 / out 615)
+
+=== Inner-fire-receipt at depth-1 ===
+- status: scheduled
+- delegateIndex: 1
+- delegatesThisTurn: 1
+- fanoutMode: tree
+- mode: silent-wake
+- delaySeconds: 0
+
+=== Inner (depth 2) leaf return ===
+- session-key: agent:main:subagent:33648626-8d7a-4be5-88c0-e44d291c6bdb
+- chain-hop: 1 (NEW chain on inner subagent — chain-restart-on-spawn shape)
+- depth: 2/5 (depth-bound observable at byte; 5 = maxChainDepth)
+- runtime: 5s
+- tokens: 100 (in 6 / out 94)
+- output verbatim: "depth-2 leaf reached, returning to tree" + "traceparent: not-provided-in-context | chain-hop: 1 | depth: 2/5"
+
+=== Tree-fanout-return-shape verified at byte ===
+- Inner-leaf returned via fanoutMode=tree silent-wake-shape
+- Wake-event arrived at canary-seat-root via tree-traversal: leaf → depth-1 → root
+- No silent-drop, no error, structured-completion-event at byte
+
+=== Verdict ===
+TEST 1 PASS at byte. Tree-fanout-return-shape substantively-functional at depth-2 on `0831fb5e80`.

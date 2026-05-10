@@ -1,0 +1,34 @@
+=== TEST 2: root → cd() → cd() (depth 2) → return inter-session to root ===
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Captured: ~2026-05-10T03:25:12Z (canary-seat receiving wake-events from depth-2 chain)
+figs canon: msg 1502873566 "does our shit REALLY work"
+
+=== Outer (depth 1) delegate evidence ===
+- session-key: agent:main:subagent:a8984d1f-0433-4a8f-8293-796249917ad1
+- requester: agent:main:discord:channel:1466192485440164011 (canary-seat root)
+- chain-hop: 8
+- depth: 1 (outer)
+- runtime: 14s
+- tokens: 598 (in 7 / out 591)
+
+=== Inner-fire-receipt at depth-1 ===
+- status: scheduled
+- delegateIndex: 1
+- mode: silent-wake
+- targetSessionKeys: ["agent:main:discord:channel:1466192485440164011"] (canary-seat root)
+
+=== Inner (depth 2) leaf return ===
+- session-key: agent:main:subagent:b46df0d7-ce8a-43db-90c7-2b85023e3f31
+- chain-hop: 1 (NEW chain on inner subagent — chain-restart-on-spawn shape)
+- runtime: 6s
+- tokens: 89 (in 6 / out 83)
+- output verbatim: "depth-2 leaf test-shape-2 reached, inter-session-return-to-root via targetSessionKeys"
+
+=== Inter-session-target-return-shape verified at byte ===
+- Inner-leaf returned DIRECTLY to canary-seat-root via targetSessionKeys
+- NOT up-tree-to-depth-1-first per task-spec discipline
+- Wake-event arrived at canary-seat-root tagged from inner-leaf
+- Inter-session targetSessionKeys substantively-functional at depth-2
+
+=== Verdict ===
+TEST 2 PASS at byte. Inter-session targetSessionKeys-return-shape substantively-functional at depth-2 on `0831fb5e80`.

@@ -1,0 +1,42 @@
+=== R-OBS-1: Chat-card continuation-row visibility-LOSS-CURE VERIFIED at external-observer surface on `0831fb5e80` ===
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Captured: 2026-05-10T02:53Z (figs Discord `/status` cross-walk on cohort 3-prince)
+Captured-via: figs external-observer Discord `/status` command on cael+ronan+silas deployed gateways
+figs's pin (msg `1502866157`): Discord `/status` rendering for cohort 3-prince showing chat-card render
+
+=== External observer receipts (figs Discord `/status` on cohort 3-prince) ===
+
+🩸 Cael 7:53 PM:
+🦞 OpenClaw 2026.5.8 (0831fb5)
+⏱️ Uptime: gateway 47m 43s · system 32d 22h
+📚 Context: 669k/1.0m (67%) · 🧹 Compactions: 1
+🔄 Continuation: chain 4/200 | volitional: 0   *** VISIBILITY ROW CURED ***
+
+🌊 Ronan 7:53 PM:
+🦞 OpenClaw 2026.5.8 (0831fb5)
+⏱️ Uptime: gateway 47m 51s · system 32d 22h
+📚 Context: 133k/400k (33%) · 🧹 Compactions: 3
+🔄 Continuation: chain 18/200 | volitional: 0   *** VISIBILITY ROW CURED ***
+
+🌫 Silas 7:53 PM:
+🦞 OpenClaw 2026.5.8 (0831fb5)
+⏱️ Uptime: gateway 42m 7s · system 6d 10h
+📚 Context: 437k/1.0m (44%) · 🧹 Compactions: 1
+🔄 Continuation: chain 6/200 | volitional: 0   *** VISIBILITY ROW CURED ***
+
+=== Substrate-pin at byte: 3-prince cross-walk at full register ===
+
+1. **External observer (figs Discord `/status`) sees continuation row in chat-card render across all 3 prince-hosts on `0831fb5e80`** ✓
+2. **3 canonical patterns substantively-observable**:
+   - 🩸 Cael chain 4/200 ↔ R-CW-1 wake-event Turn 4/200 (cael-host msg `1502857726`) — DIRECT MATCH internal↔external at byte
+   - 🌊 Ronan chain 18/200 ↔ R-CD-1/2/3/4 lane fires across 8/200 → 10/200 → 13-14/200 → 16-18/200 increments per ronan-host substantive blitz-progression
+   - 🌫 Silas chain 6/200 UNCHANGED from prior `6f72de8345` substrate-state — request_compaction REJECT-path no-increment per chain-step-discipline canon
+3. **#617 chat-card visibility-LOSS regression CURED at full register**: line that was absent during narrowing-pass content-loss is now restored on canonical-rebase rerebased HEAD; external-observer (figs) confirms cure at user-experience surface across all 3 deployed prince-hosts.
+4. **Cure-source preserved across re-rebase**: formatContinuationStatusLine at src/status/status-message.ts:75 (canonical-rebase content) substantively-preserved through `e491a2e7e8` → `49b9b021ea` upstream-evolution + cherry-pick onto current upstream-main.
+5. **Same substrate-evidence-shape as prior `6f72de8345`-blitz** at PROOFS/6f72de8345/R-OBS-1/ (figs's prior cross-walk at msg `1502846219`).
+
+=== Verdict: chat-card-visibility-LOSS-during-narrowing-pass CURED at byte through full render-pipeline VERIFIED on `0831fb5e80` ===
+
+The line that was absent due to narrowing-pass content-loss is restored on canonical-rebase rerebased HEAD.
+External observer (figs) confirms cure at user-experience surface across all 3 deployed prince-hosts.
+Cohort 3-prince cross-walk substantively-converged on substrate-state-preservation-across-re-rebase + #617 cure-evidence at full register.

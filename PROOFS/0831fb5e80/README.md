@@ -39,7 +39,7 @@ The prior `6f72de8345` proof bundle on `main` is historically valid but SHA-stal
 | R-RC-2 | 🩸 Cael | `request_compaction()` accept-path above threshold | `R-RC-2/compaction_accept_request_receipt.txt` | ✓ PASS (API surface) / ⚠ KNOWN-LIMITATION (compaction lifecycle) — volitional accept-state returned cleanly at 77% context (`compactionRequestId cmp-moz7r2cb-NCJT-A`); compaction-execution then failed with known Editor-Version header gap (`provider_error_4xx`), see receipt for full split |
 | R-CD-CHAINED-DEPTH2 / Chain 1 | 🌊 Ronan | strict 2-deep `continue_delegate` chain — UP-TREE silent-wake propagation | `R-CD-CHAINED-DEPTH2/chain-1/outer_link_receipt.txt`, `R-CD-CHAINED-DEPTH2/chain-1/inner_leaf_uptree_wake.txt` | ✓ PASS — depth 2/5, fanoutMode=tree silently woke ancestors at root |
 | R-CD-CHAINED-DEPTH2 / Chain 2 | 🌊 Ronan | strict 2-deep `continue_delegate` chain — INTER-SESSION return to root | `R-CD-CHAINED-DEPTH2/chain-2/outer_link_receipt.txt`, `R-CD-CHAINED-DEPTH2/chain-2/inner_leaf_intersession_arrival.txt` | ✓ PASS — depth-2 leaf returned at root via `targetSessionKey`, not at outer |
-| R-CD-CHAINED-DEPTH2 / Chain 3 | 🌊 Ronan | strict 2-deep `continue_delegate` chain — ECHO arm: tree-announce + cross-channel side-effect | `R-CD-CHAINED-DEPTH2/chain-3/outer_link_receipt.txt`, `R-CD-CHAINED-DEPTH2/chain-3/inner_leaf_echo_evidence.txt` | ✓ PASS — depth-2 leaf announced up-tree AND posted Discord msg `1502874753562837014` to `<#1473320126433464465>` |
+| R-CD-CHAINED-DEPTH2 / Chain 3 | 🌊 Ronan | strict 2-deep `continue_delegate` chain — ECHO arm: tree-announce + cross-channel side-effect | `R-CD-CHAINED-DEPTH2/chain-3/outer_link_receipt.txt`, `R-CD-CHAINED-DEPTH2/chain-3/inner_leaf_echo_evidence.txt`, `R-CD-CHAINED-DEPTH2/chain-3/heartbeat_channel_echo_screenshot.png` | ✓ PASS — depth-2 leaf announced up-tree AND posted Discord msg `1502874753562837014` to `<#1473320126433464465>`; screenshot attached |
 
 ## Substantive substrate adds on the rerebased SHA
 
@@ -127,3 +127,17 @@ Internal/external matches at byte:
 This is the "single addendum-citable bundle" surface: the chat-card row is back, three princes render
 it cleanly, the chain numbers cross-walk to internal proof rows, and the compaction lifecycle is
 visible from the outside.
+
+## Visual evidence — Chain 3 echo arm landing in `#heartbeat`
+
+The cross-channel side-effect arm of `R-CD-CHAINED-DEPTH2 / Chain 3` is the depth-2 inner leaf
+posting a single Discord message to `<#1473320126433464465>` while simultaneously announcing
+up-tree (the `fanoutMode=tree` arm of the same fire). The screenshot below captures that exact
+message landing in `#heartbeat` at `2026-05-09 20:27 PDT`, message id `1502874753562837014`,
+authored by Ronan's chain-3 inner-leaf subagent `agent:main:subagent:94389a7e-...`.
+
+![Chain 3 inner-leaf echo arm landing in #heartbeat](./R-CD-CHAINED-DEPTH2/chain-3/heartbeat_channel_echo_screenshot.png)
+
+The receipt-side substrate for this same fire is in
+`R-CD-CHAINED-DEPTH2/chain-3/inner_leaf_echo_evidence.txt`; this image is the live channel
+view of the same event from the requester's Discord client.

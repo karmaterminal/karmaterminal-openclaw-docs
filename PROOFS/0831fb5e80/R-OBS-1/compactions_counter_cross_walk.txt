@@ -1,0 +1,30 @@
+=== R-OBS-1 cross-walk: Compactions counter 1 -> 3 on ronan-seat is external evidence for R-CD-3 ===
+
+Source observation: figs's full-fleet /status check at Discord message
+  1502866157101650020 (2026-05-09 19:53 PDT)
+
+Ronan-seat status card at that moment:
+  📚 Context: 133k/400k (33%) · 🧹 Compactions: 3
+  🔄 Continuation: chain 18/200 | volitional: 0
+
+Prior-SHA baseline cross-walk:
+  On `6f72de8345` substrate, Ronan-seat /status had `🧹 Compactions: 1`.
+  After the rerebased blitz on `0831fb5e80`, the same counter reads `3`.
+  The increment happened during the blitz cycle while R-CD-3
+  (`continue_delegate(mode="post-compaction")`) was being exercised on this seat.
+
+Internal-side evidence pair:
+  - R-CD-3 stage receipt: PROOFS/0831fb5e80/R-CD-3/post_compaction_stage_receipt.txt
+  - R-CD-3 return receipt: PROOFS/0831fb5e80/R-CD-3/post_compaction_return_receipt.txt
+
+External-side evidence pair:
+  - Full-fleet /status snapshot: PROOFS/0831fb5e80/R-OBS-1/external_observer_full_fleet.txt
+  - This cross-walk note
+
+Substrate read:
+  - The Compactions counter incremented from 1 to 3 on the seat that ran R-CD-3.
+  - That increment is observable from outside the runtime via the rendered /status card.
+  - It corroborates R-CD-3's "lifeboat path held" finding with an external-observer signal,
+    not just an internal post-compaction return receipt.
+  - This is a real proof-row strengthening: post-compaction lifecycle is not only
+    reachable from the inside, it is visible from the outside on the same SHA.

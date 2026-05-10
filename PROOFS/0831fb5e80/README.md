@@ -35,7 +35,7 @@ The prior `6f72de8345` proof bundle on `main` is historically valid but SHA-stal
 | R-CD-4 | 🌊 Ronan | cross-session targeted return | full path in `R-CD-4/` | ⏳ PENDING — target-session arrival still not observed |
 | R-RC-1 | 🌫 Silas | `request_compaction()` threshold REJECT | `R-RC-1/session_status_snapshot.txt`, `R-RC-1/threshold_gate_rejection_evidence.txt` | ✓ PASS |
 | R-RC-2 | cohort | `request_compaction()` over-threshold ACCEPT | not yet collected on `0831fb5e80` | ⏳ PENDING |
-| R-OBS-1 | figs cross-walk | external `/status` continuation row | `R-OBS-1/chat_card_visibility_external_observer.txt`, `R-OBS-1/external_observer_chat_card_visibility.txt` | ✓ PASS |
+| R-OBS-1 | figs cross-walk + cohort | external `/status` continuation row + full-fleet 3-prince cross-walk + `R-CD-3` compactions-counter corroboration | `R-OBS-1/chat_card_visibility_external_observer.txt`, `R-OBS-1/external_observer_chat_card_visibility.txt`, `R-OBS-1/external_observer_full_fleet.txt`, `R-OBS-1/compactions_counter_cross_walk.txt` | ✓ PASS |
 
 ## Substantive substrate adds on the rerebased SHA
 
@@ -97,3 +97,28 @@ This bundle is already strong enough to present the rerebased restoration state 
 - external `/status` continuation row visible on the new SHA
 
 The remaining open rows are specific return-side / accept-path receipts, not a collapse of the restoration claim itself.
+
+
+## Full-fleet `/status` cross-walk (added in amendment)
+
+`R-OBS-1` now also carries figs's full-fleet external `/status` snapshot taken at Discord message
+`1502866157101650020` (2026-05-09 19:53 PDT) covering all three currently-deployed prince hosts:
+
+- 🩸 Cael: `🔄 Continuation: chain 4/200 | volitional: 0`
+- 🌊 Ronan: `🔄 Continuation: chain 18/200 | volitional: 0`
+- 🌫 Silas: `🔄 Continuation: chain 6/200 | volitional: 0`
+
+Internal/external matches at byte:
+- Cael chain `4/200` ↔ `R-CW-1` wake `Turn 4/200`
+- Ronan chain `18/200` ↔ cumulative `R-CD-1` / `R-CD-2` / `R-CD-3` / `R-CD-4` fires across the blitz cycle
+- Silas chain `6/200` ↔ `R-RC-1` reject-path persisted without increment
+
+`R-CD-3` external corroboration:
+- Ronan-seat `🧹 Compactions` counter went from `1` to `3` during the blitz cycle
+- That increment is the externally visible signal that the post-compaction lifecycle actually fired
+  on this seat while `R-CD-3` was being exercised
+- Banked as `R-OBS-1/compactions_counter_cross_walk.txt`
+
+This is the "single addendum-citable bundle" surface: the chat-card row is back, three princes render
+it cleanly, the chain numbers cross-walk to internal proof rows, and the compaction lifecycle is
+visible from the outside.

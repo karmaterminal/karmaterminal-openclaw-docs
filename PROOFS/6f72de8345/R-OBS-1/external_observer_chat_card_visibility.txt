@@ -1,0 +1,42 @@
+=== R-OBS-1: Chat-card continuation-row visibility-LOSS-CURE VERIFIED at external-observer surface ===
+SHA: 6f72de8345aab514ba5a342b0c73a4f56cacb238
+Captured: ~2026-05-10T01:34Z (figs `/status` check on cael)
+Captured-via: figs external-observer Discord `/status` command on cael's deployed gateway
+figs's pin (msg `1502846467`): "this line appears when prior it did not due to loss"
+
+=== External observer receipt (figs Discord `/status` on cael) ===
+
+Cael 🩸  APP — 6:33 PM
+🦞 OpenClaw 2026.5.8 (6f72de8)
+⏱️ Uptime: gateway 18m 41s · system 32d 21h
+🧠 Model: github-copilot/claude-opus-4.7 · 🔑 token (github-copilot:pool-1)
+🔄 Fallbacks: openai-codex/gpt-5.4, github-copilot/gpt-5.4
+🧮 Tokens: 7 in / 2.3k out
+🗄️ Cache: 100% hit · 451k cached, 2.2k new
+📚 Context: 453k/1.0m (45%) · 🧹 Compactions: 1
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated just now
+🔄 Continuation: chain 3/200 | volitional: 0   *** VISIBILITY-LOSS CURED ***
+⚙️ Execution: direct · Runtime: OpenClaw Pi Default · Think: medium · elevated
+🔊 Voice: inbound · provider=microsoft · limit=1500 · summary=on
+👥 Activation: always · 🪢 Queue: steer-backlog (depth 0)
+
+=== figs's substrate-pin (verbatim) ===
+
+"i meant this line appears when prior it did not due to loss: '🔄 Continuation: chain 3/200 | volitional: 0'"
+(figs Discord msg `1502846467`)
+
+=== Substrate-pin at byte ===
+
+1. PRIOR (lost-during-narrowing-pass): line absent from `/status` output
+2. NOW (canonical-rebase HEAD `6f72de8`): line restored at rendered-output-surface
+3. Cure-source: formatContinuationStatusLine at src/status/status-message.ts:75 (canonical-rebase content)
+4. Visible to non-cohort observer (figs) via Discord `/status` command on cael's deployed gateway
+5. End-to-end visibility: format → render → chat-card → external-observer-eyes ✓
+6. Pairs with cael R-CW-1 internal Turn 3/200 incrementing AND chat-card external-render-of-Turn 3/200 → values consistent at-byte from internal+external paths
+
+=== Verdict: chat-card-visibility-LOSS-during-narrowing-pass CURED at byte through full render-pipeline ===
+
+The line that was absent due to narrowing-pass content-loss is now restored on canonical-rebase HEAD.
+External observer (figs) confirms cure at user-experience surface, not just code-byte.
+This IS the regression-CURE substrate-evidence — feature-loss-CURED at observable surface.

@@ -1,0 +1,9 @@
+Tool: request_compaction (fired from ronan-seat session)
+Response:
+{
+  "status": "compaction_requested",
+  "compactionRequestId": "cmp-moz3i7p2-eV09mg",
+  "trigger": "volitional",
+  "contextUsage": 71,
+  "reason": "R-RC-2 blitz accept-path on canonical-rebase HEAD 6f72de8345 from ronan-seat at 71% context; verifying request_compaction accept-path / structured receipt for proof corpus."
+}

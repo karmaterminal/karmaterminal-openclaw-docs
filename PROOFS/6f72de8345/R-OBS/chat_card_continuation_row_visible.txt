@@ -1,0 +1,18 @@
+R-OBS chat-card continuation-row visibility proof — canonical-rebase HEAD `6f72de8345`
+
+Source messages:
+- figs confirmation in Discord at `1502846219695685682`
+- frond-scribe interpretation / restoration context at `1502846589323051099`
+
+Human-visible `/status` card excerpt on cael-seat:
+`🔄 Continuation: chain 3/200 | volitional: 0`
+
+Why this is load-bearing:
+- this exact continuation row was missing on the narrowed/broken PR #79925 head
+- its visible reappearance is the chat-card restoration item audited in `karmaterminal/openclaw#617`
+- this is maintainer-facing runtime evidence: the continuation signal is visible directly in the chat card, not only in internal traces/logs
+
+Supporting visible card context from figs message `1502846219695685682`:
+- `🦞 OpenClaw 2026.5.8 (6f72de8)`
+- `📚 Context: 453k/1.0m (45%) · 🧹 Compactions: 1`
+- `🔄 Continuation: chain 3/200 | volitional: 0`

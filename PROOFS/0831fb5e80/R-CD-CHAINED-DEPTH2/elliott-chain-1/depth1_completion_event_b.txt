@@ -1,0 +1,24 @@
+# Internal task completion event — CHAIN-1 chain-hop:2 (depth-1 b, RE-FIRE)
+# Captured: 2026-05-09T20:25:13 PDT (T3, up-tree wake delivered to elliott-seat root)
+# Build: OpenClaw 2026.5.8 (0831fb5)
+# Root: elliott-seat (channel 1466192485440164011)
+
+source: subagent
+session_key: agent:main:subagent:85a3e4b4-66b0-411e-9a2e-f7da5e981039
+session_id: 1d36c389-4b3f-417c-9d29-cdb5b21db96f
+type: subagent task
+chain: continuation:chain-hop:2
+turn: 1/200
+status: completed successfully
+
+depth-1 reported (verbatim from prompt-data block):
+  CHAIN-1 RE-FIRE: depth-1 fired (post gateway restart). One child
+  continue_delegate scheduled at depth-2 with mode=silent-wake. Returning
+  now to propagate the up-tree wake.
+
+stats: runtime 13s • tokens 359 (in 7 / out 352) • prompt/cache 59.9k
+
+Verdict: second independent depth-1 fire (post-restart) confirms behavior is
+deterministic, not a one-shot. Both depth-1 sessions spawned a depth-2 leaf
+with mode=silent-wake and returned cleanly. Up-tree wake to elliott-seat
+root delivered as this [Internal task completion event].

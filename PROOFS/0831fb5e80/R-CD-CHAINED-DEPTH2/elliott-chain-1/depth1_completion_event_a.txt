@@ -1,0 +1,26 @@
+# Internal task completion event — CHAIN-1 chain-hop:1 (depth-1 a)
+# Captured: 2026-05-09T20:25:13 PDT (T3, up-tree wake delivered to elliott-seat root)
+# Build: OpenClaw 2026.5.8 (0831fb5)
+# Root: elliott-seat (channel 1466192485440164011)
+
+source: subagent
+session_key: agent:main:subagent:465fa63b-34f3-428a-8bcd-5b294c61a8d2
+session_id: 6004fdbb-e0cc-4b10-a501-5121935e13b8
+type: subagent task
+chain: continuation:chain-hop:1
+turn: 1/200
+status: completed successfully
+
+depth-1 reported (verbatim from prompt-data block):
+  CHAIN-1 (depth-1) dispatched. Leaf child scheduled with mode=silent-wake.
+  Returning now so the up-tree wake propagates: leaf -> me -> root.
+  - depth-1 fired-at: 2026-05-09T20:24 PDT
+  - child mode: silent-wake
+  - delegateIndex: 1
+  Done.
+
+stats: runtime 12s • tokens 362 (in 7 / out 355) • prompt/cache 59.9k
+
+Verdict: depth-1 fired, depth-2 leaf scheduled with silent-wake, up-tree wake
+delivered back to elliott-seat root as this very [Internal task completion event].
+The wake's arrival in root IS the return receipt at byte for shape (1).

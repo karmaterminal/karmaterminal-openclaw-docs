@@ -1,0 +1,9 @@
+Follow-up probe on target session `agent:main:subagent:6725c11d-88c7-4347-a3ed-498a396086fb`
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Time: follow-up after additional wait
+
+Question asked via sessions_send:
+Has the R-CD-4 targeted continuation return landed since the last probe?
+
+Reply:
+"Still no targeted receipt — R-CD-4 has not landed in this session."

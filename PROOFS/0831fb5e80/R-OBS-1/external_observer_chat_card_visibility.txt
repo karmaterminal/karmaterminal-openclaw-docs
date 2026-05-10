@@ -1,0 +1,9 @@
+=== R-OBS-1 cross-walk note ===
+figs invoked `/status` from Discord after the rerebased `0831fb5e80` deployment.
+The rendered chat card visibly included the continuation row:
+
+`🔄 Continuation: chain 4/200 | volitional: 0`
+
+This is the human-visible surface the earlier narrowing pass had sacrificed and the restoration lane set out to recover. The message pair is:
+- invocation: `1502865981729542204`
+- rendered card: `1502866019704766557`

@@ -1,0 +1,4 @@
+System event: [continuation:delegate-spawned]
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Delegate turn: 9/200
+Task: R-CD-4 cross-session-targeted-return proof on shipping SHA 0831fb5e80. Return a tiny receipt to target session `agent:main:subagent:6725c11d-88c7-4347-a3ed-498a396086fb` confirming a targeted continuation return landed, including this SHA and any observable chain/depth metadata if available. Keep it short and evidence-shaped.

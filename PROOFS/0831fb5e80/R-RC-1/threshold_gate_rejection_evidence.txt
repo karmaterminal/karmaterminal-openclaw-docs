@@ -1,0 +1,34 @@
+=== R-RC-1: Threshold-gate REJECTION proof-row on `0831fb5e80` ===
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Captured: ~2026-05-10T02:16Z (T0+~1min)
+Captured-via: request_compaction tool fire from canary-seat session
+
+=== Tool fire ===
+Tool: request_compaction
+Reason: "R-RC-1 blitz re-fire on `0831fb5e80` substrate from canary-seat (silas urudyne). Trigger E volitional. Capturing structured guard-rejection at under-threshold per cohort-canon proof-tied-discipline. Same substrate-evidence-shape as `6f72de8345`-blitz at message `1502844934` but tied-to-new-shipping-SHA `0831fb5e80`."
+
+=== Tool response (verbatim) ===
+{
+  "status": "rejected",
+  "guard": "context_threshold",
+  "contextUsage": 40,
+  "threshold": 70,
+  "reason": "Context usage (40%) is below the minimum threshold (70%). Compaction is not needed yet."
+}
+
+=== Substrate-pin at byte ===
+
+1. Tool EXISTS + accepts the call → tool-registration working ✓
+2. Tool returns structured rejection-payload (NOT silent-drop, NOT 500, NOT bypass) ✓
+3. Guard-rejection structure consistent with prior-SHA-blitz on `6f72de8345`:
+   - status: "rejected"
+   - guard: "context_threshold" (named guard category)
+   - contextUsage: 40 (current measured value)
+   - threshold: 70 (config-knob value)
+   - reason: human-readable explanation
+4. Tool emits correct guard-shape per threshold-canon ✓
+
+=== Verdict: R-RC-1 threshold-gate REJECTION substrate-VERIFIED at byte on `0831fb5e80` ===
+
+Re-rebase preserved substrate-behavior. Same observable, structured, non-silent gate-rejection
+as prior-SHA-blitz; substrate-evidence-class consistent across both SHAs.

@@ -1,0 +1,11 @@
+R-CD-2 silent-wake return receipt
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+
+Silent-wake delegate executed successfully.
+
+Observable metadata:
+- Chain depth: 1/5
+- Continuation hop: 10/200
+- Mode: silent-wake
+- Host under test: ronan
+- Result: execution confirmed, requester binding intact, no stray channel post during delegate run

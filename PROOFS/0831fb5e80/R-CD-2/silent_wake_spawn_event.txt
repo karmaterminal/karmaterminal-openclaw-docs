@@ -1,0 +1,4 @@
+System event: [continuation:delegate-spawned]
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Delegate turn: 10/200
+Task: R-CD-2 silent-wake-mode proof on shipping SHA 0831fb5e80. Return a tiny receipt confirming silent-wake delegate execution on 0831fb5e80 and include any observable chain/depth metadata if available. Keep it short and evidence-shaped.

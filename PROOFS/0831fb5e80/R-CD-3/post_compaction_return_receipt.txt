@@ -1,0 +1,13 @@
+Post-compaction delegate fired. Receipt:
+
+R-CD-3 post-compaction proof — shipping SHA `0831fb5e80`
+
+- Delegate mode: `post-compaction` ✓ (fired after parent compaction event, not on timer)
+- Chain depth: 1/5 (per subagent context header)
+- Chain hop: 15 (per task tag `[continuation:chain-hop:15]`)
+- Subagent session: `agent:main:subagent:a3a34d10-54f2-4825-ae0c-a9d0f3fd2a9c`
+- Requester session: `agent:main:discord:channel:1466192485440164011`
+- Host: ronan | model: github-copilot/claude-opus-4.7
+- Wake observed: post-compaction substrate (no busy-poll, no timer; gateway-driven release)
+
+Working state preserved across compaction boundary. Lifeboat held.

@@ -128,6 +128,24 @@ This is the "single addendum-citable bundle" surface: the chat-card row is back,
 it cleanly, the chain numbers cross-walk to internal proof rows, and the compaction lifecycle is
 visible from the outside.
 
+## Counter-shape note (chain-hop vs subagent-tree depth)
+
+The `R-CD-CHAINED-DEPTH2` chains track two distinct counters and they measure different things:
+
+- **`chain-hop`** is the logical `continue_delegate` chain counter. Each `continue_delegate`
+  fire (root → outer, outer → inner) advances the chain. In our chains the inner-leaf
+  reports `chain hop: 1` because each `continue_delegate` opens a fresh top-level subagent
+  rather than nesting inside the dispatcher's existing subagent tree.
+- **subagent-tree depth `N/5`** is the runtime depth banner of the subagent the leaf is
+  running inside. The inner leaf reports `2/5` because, from the gateway's runtime view,
+  it is two hops below the human-bound root session.
+
+These counters are deliberately decoupled. The depth-2 banner on every inner-leaf receipt
+is the subagent-tree counter; the strict "delegate spawned a sub-delegate" claim is the
+chain-counter shape (each chain has both an outer-link `continue_delegate` schedule receipt
+and an inner-leaf return). Both counters appear in every chain receipt so the maintainer
+can read either.
+
 ## Visual evidence — Chain 3 echo arm landing in `#heartbeat`
 
 The cross-channel side-effect arm of `R-CD-CHAINED-DEPTH2 / Chain 3` is the depth-2 inner leaf

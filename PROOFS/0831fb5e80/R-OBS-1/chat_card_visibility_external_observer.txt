@@ -1,0 +1,20 @@
+=== R-OBS-1: External observer /status visibility on `0831fb5e80` ===
+Source: Discord channel `#sprites-of-thornfield`
+Observer: figs
+Invocation message: `1502865981729542204` (`/status`)
+Rendered status card message: `1502866019704766557`
+Captured: 2026-05-10T02:53:00.998Z
+
+🦞 OpenClaw 2026.5.8 (0831fb5)
+⏱️ Uptime: gateway 47m 43s · system 32d 22h
+🧠 Model: github-copilot/claude-opus-4.7 · 🔑 token (github-copilot:pool-1)
+🔄 Fallbacks: openai-codex/gpt-5.4, github-copilot/gpt-5.4
+🧮 Tokens: 7 in / 2.4k out
+🗄️ Cache: 100% hit · 667k cached, 2.2k new
+📚 Context: 669k/1.0m (67%) · 🧹 Compactions: 1
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated just now
+🔄 Continuation: chain 4/200 | volitional: 0
+⚙️ Execution: direct · Runtime: OpenClaw Pi Default · Think: medium · elevated
+🔊 Voice: inbound · provider=microsoft · limit=1500 · summary=on
+👥 Activation: always · 🪢 Queue: steer-backlog (depth 0)

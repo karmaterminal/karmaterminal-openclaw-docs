@@ -1,0 +1,29 @@
+=== R-RC-1: Threshold-gating proof-row from canary-seat (silas-host urudyne) on `0831fb5e80` ===
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Captured: 2026-05-10T02:15:49Z (T0)
+Captured-via: session_status tool
+
+🦞 OpenClaw 2026.5.8 (0831fb5)
+⏱️ Uptime: gateway 4m 38s · system 6d 9h
+🧠 Model: github-copilot/claude-opus-4.7 · 🔑 token (github-copilot:pool-1)
+🔄 Fallbacks: openai-codex/gpt-5.4, github-copilot/gpt-5.4
+🧮 Tokens: 6 in / 529 out
+🗄️ Cache: 17% hit · 69k cached, 332k new
+📚 Context: 409k/1.0m (41%) · 🧹 Compactions: 1
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated just now
+🔄 Continuation: chain 6/200 | volitional: 0
+⚙️ Execution: direct · Runtime: OpenClaw Pi Default · Think: medium · elevated
+👥 Activation: always · 🪢 Queue: steer-backlog (depth 0)
+
+=== Substrate-pin at byte ===
+
+1. Gateway running rerebased canonical-rebase HEAD `0831fb5` (OpenClaw 2026.5.8) ✓
+2. Continuation chain-budget ACTIVE: chain 6/200 — chain-accounting working ✓
+3. Volitional counter exposed: volitional: 0 ✓
+4. Context-pressure threshold-gate behavior: 409k/1.0m = 41%; default threshold ~70% → request_compaction tool gated-OFF correctly ✓
+5. Compactions: 1 lifecycle integrated ✓
+6. Status-line renders continuation row correctly per #617 chat-card visibility cure ✓
+
+=== Verdict: R-RC-1 threshold-gating substrate-VERIFIED at byte on `0831fb5e80` ===
+
+Same shape as prior-SHA-blitz at `6f72de8345` (canary-seat-evidence at /home/figs/.openclaw/proofs/6f72de8345/R-RC-1/). Substrate-state preserved across re-rebase (cohort-canonical-rebase-runbook working at full register).

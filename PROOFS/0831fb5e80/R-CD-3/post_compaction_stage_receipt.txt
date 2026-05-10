@@ -1,0 +1,8 @@
+Tool: continue_delegate (post-compaction probe)
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Response:
+{
+  "status": "queued-for-compaction",
+  "mode": "post-compaction",
+  "note": "Delegate will fire when compaction occurs, not on a timer. The shard starts at the moment of compaction and returns to the post-compaction session. Chain tracking applies at dispatch time."
+}

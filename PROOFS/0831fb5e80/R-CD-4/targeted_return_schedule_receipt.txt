@@ -1,0 +1,10 @@
+Tool: continue_delegate (cross-session-targeted-return probe)
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Response:
+{
+  "status": "scheduled",
+  "mode": "silent",
+  "delaySeconds": 5,
+  "targetSessionKey": "agent:main:subagent:6725c11d-88c7-4347-a3ed-498a396086fb",
+  "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+}

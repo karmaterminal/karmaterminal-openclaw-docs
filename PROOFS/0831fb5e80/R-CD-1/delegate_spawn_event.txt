@@ -1,0 +1,4 @@
+System event: [continuation:delegate-spawned]
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Delegate turn: 8/200
+Task: R-CD-1 re-fire on rerebased shipping SHA 0831fb5e80 from ronan-seat. Return a tiny receipt confirming the delegate ran on 0831fb5e80, including any observable chain/depth metadata if available. Keep the return short and evidence-shaped.

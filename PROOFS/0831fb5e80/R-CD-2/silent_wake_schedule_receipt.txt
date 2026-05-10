@@ -1,0 +1,9 @@
+Tool: continue_delegate (silent-wake-mode probe)
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Response:
+{
+  "status": "scheduled",
+  "mode": "silent-wake",
+  "delaySeconds": 5,
+  "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+}

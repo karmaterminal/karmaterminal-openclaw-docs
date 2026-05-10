@@ -1,0 +1,9 @@
+Tool: continue_delegate (fired from ronan-seat session)
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Response:
+{
+  "status": "scheduled",
+  "mode": "silent-wake",
+  "delaySeconds": 5,
+  "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+}

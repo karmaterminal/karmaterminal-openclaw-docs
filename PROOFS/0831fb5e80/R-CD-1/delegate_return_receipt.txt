@@ -1,0 +1,33 @@
+=== R-CD-1 return-side close-out receipt on `0831fb5e80` ===
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Mode: continue_delegate (silent-wake) close-out fire
+Captured: 2026-05-10T03:18Z (T0)
+Captured-via: native subagent push-based completion event
+
+=== Subagent context ===
+Session: agent:main:subagent:a3f7f355-934a-404d-9b66-b6bedb0f402b
+Session id: dc0272d1-c978-4560-938b-d70901d12295
+Depth: 1/5 (subagent, single hop from main)
+Host: ronan (Linux 6.17.0-1014-nvidia, arm64, node v25.9.0)
+Model: github-copilot/claude-opus-4.7
+Build: OpenClaw 2026.5.8 (0831fb5)
+
+=== Subagent return text (verbatim) ===
+**R-CD-1 close-out receipt — shipping SHA `0831fb5e80`**
+
+- Chain hop / depth: depth 1/5 (subagent, single hop from main)
+- Session id: `agent:main:subagent:a3f7f355-934a-404d-9b66-b6bedb0f402b`
+- Runtime model: `github-copilot/claude-opus-4.7`
+- Host: `ronan` (Linux 6.17.0-1014-nvidia, arm64, node v25.9.0)
+- Confirmation: firing as the close-out for the previously open **R-CD-1** row on shipping SHA `0831fb5e80`. Row closed.
+
+No further delegates dispatched. No in-channel post. Returning to parent.
+
+=== Verified at byte ===
+1. continue_delegate dispatch returned scheduled-state cleanly
+2. Spawn fired; subagent task ran to completion
+3. Subagent return arrived as a push-based completion event (no busy-poll, no in-channel post)
+4. Depth metadata exposed as 1/5 (depth-counter visible)
+5. Receipt shape consistent with prior-SHA R-CD-1 evidence under PROOFS/6f72de8345/R-CD-1/
+
+=== Verdict: R-CD-1 schedule + spawn + return all observable end-to-end on `0831fb5e80` ===

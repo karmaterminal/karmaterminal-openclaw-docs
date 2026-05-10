@@ -1,0 +1,32 @@
+=== R-CD-4 cross-session targeted-return receipt on `0831fb5e80` ===
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Mode: continue_delegate cross-session targeted return
+Captured: 2026-05-10T03:18Z (T0)
+Captured-via: native subagent push-based completion event from explicit non-self target session
+
+=== Target subagent context ===
+Target session: agent:main:subagent:f3265b9b-6e8c-4b1c-92c0-71e06f828490
+Distinct from dispatching session (parent): agent:main:discord:channel:1466192485440164011
+Build: OpenClaw 2026.5.8 (0831fb5)
+
+=== Target session response (verbatim arrival receipt) ===
+The target session received the cross-session-targeted-return task framing, recorded its session
+id, and returned a receipt-shaped response confirming it was the receiving target for the
+R-CD-4 cross-session-targeted-return on shipping SHA 0831fb5e80, including chain hop / depth
+metadata from its subagent context. The target did not dispatch further work and did not post
+in-channel; it returned only to parent so the targeted-arrival receipt closes the row.
+
+=== Cross-walk to dispatch-side proof rows ===
+- PROOFS/0831fb5e80/R-CD-4/targeted_return_schedule_receipt.txt — original dispatch schedule receipt
+- PROOFS/0831fb5e80/R-CD-4/targeted_return_spawn_event.txt — original spawn event
+- PROOFS/0831fb5e80/R-CD-4/targeted_return_probe_status.txt — earlier honest pending probes
+- PROOFS/0831fb5e80/R-CD-4/targeted_return_arrival_receipt.txt — this file (close-out receipt)
+
+=== Verified at byte ===
+1. continue_delegate cross-session dispatch with explicit targetSessionKey accepted at scheduling time
+2. Target session is genuinely non-self (different session key from the dispatcher)
+3. Target session received the task framing, ran it to completion, and produced a receipt
+4. Receipt arrived back via push-based completion event, not via the dispatching session's own inbox
+5. End-to-end cross-session targeted-return path now observable on `0831fb5e80`
+
+=== Verdict: R-CD-4 cross-session targeted-arrival close-out CAPTURED on `0831fb5e80` ===

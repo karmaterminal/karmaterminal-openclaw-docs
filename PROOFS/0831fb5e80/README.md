@@ -29,10 +29,10 @@ The prior `6f72de8345` proof bundle on `main` is historically valid but SHA-stal
 |---|---|---|---|---|
 | R-CW-1 | 🩸 Cael | `continue_work()` wake + deploy-persistence | `R-CW-1/wake_event_evidence.txt` | ✓ PASS |
 | R-CW-2 | 🩸 Cael | chain-counter accounting | embedded in `R-CW-1/wake_event_evidence.txt` | ✓ PASS |
-| R-CD-1 | 🌊 Ronan | `continue_delegate()` schedule → spawn → return | `R-CD-1/delegate_schedule_receipt.txt`, `R-CD-1/delegate_spawn_event.txt` | ⏳ PENDING — return-side receipt not yet landed |
+| R-CD-1 | 🌊 Ronan | `continue_delegate()` schedule → spawn → return | `R-CD-1/delegate_schedule_receipt.txt`, `R-CD-1/delegate_spawn_event.txt`, `R-CD-1/delegate_return_receipt.txt` | ✓ PASS — full schedule → spawn → return path observed |
 | R-CD-2 | 🌊 Ronan | `continue_delegate(mode="silent-wake")` | full path in `R-CD-2/` | ✓ PASS |
 | R-CD-3 | 🌊 Ronan | `continue_delegate(mode="post-compaction")` | `R-CD-3/post_compaction_stage_receipt.txt`, `R-CD-3/post_compaction_return_receipt.txt` | ✓ PASS — post-compaction lifeboat path held |
-| R-CD-4 | 🌊 Ronan | cross-session targeted return | full path in `R-CD-4/` | ⏳ PENDING — target-session arrival still not observed |
+| R-CD-4 | 🌊 Ronan | cross-session targeted return | full path in `R-CD-4/` incl. `targeted_return_arrival_receipt.txt` | ✓ PASS — target-session arrival receipt captured |
 | R-RC-1 | 🌫 Silas | `request_compaction()` threshold REJECT | `R-RC-1/session_status_snapshot.txt`, `R-RC-1/threshold_gate_rejection_evidence.txt` | ✓ PASS |
 | R-RC-2 | cohort | `request_compaction()` over-threshold ACCEPT | not yet collected on `0831fb5e80` | ⏳ PENDING |
 | R-OBS-1 | figs cross-walk + cohort | external `/status` continuation row + full-fleet 3-prince cross-walk + `R-CD-3` compactions-counter corroboration | `R-OBS-1/chat_card_visibility_external_observer.txt`, `R-OBS-1/external_observer_chat_card_visibility.txt`, `R-OBS-1/external_observer_full_fleet.txt`, `R-OBS-1/compactions_counter_cross_walk.txt` | ✓ PASS |
@@ -75,9 +75,9 @@ That is the maintainer-facing / human-visible trust row the earlier narrowing pa
 
 ## Honest limits / open edges
 
-- `R-CD-1` is not closed yet on `0831fb5e80`; only schedule + spawn are banked here.
-- `R-CD-4` proves dispatch acceptance / non-self target scheduling, but target-session arrival has still not been observed.
-- `R-RC-2` accept-path is still pending because threshold conditions have not been reached on the rerebased cycle.
+- `R-CD-1` is now closed end-to-end on `0831fb5e80` (schedule + spawn + return receipt all banked).
+- `R-CD-4` is now closed end-to-end on `0831fb5e80` (dispatch + spawn + cross-session target arrival receipt all banked).
+- `R-RC-2` accept-path remains pending because threshold conditions have not been reached naturally on the rerebased cycle yet.
 - OTel multi-span parent-stitched trace-context remains separate tracked follow-up work (`#553`, `#557`, `#559`). It is **not** a blocker for this bundle and should not be phrased as a rerebase-cycle regression.
 - At least one scheduled 5s wake arrived ~3 minutes late. That is observable substrate and worth preserving as an experiential honesty flag even though it was not a silent drop.
 

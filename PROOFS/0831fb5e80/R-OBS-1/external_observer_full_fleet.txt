@@ -1,0 +1,95 @@
+=== R-OBS-1 PROOF EVIDENCE (full-fleet external-observer cross-walk on `0831fb5e80`) ===
+SHA: 0831fb5e80 (canonical-rebase HEAD post-rerebase onto upstream/main 49b9b021ea)
+Hosts observed: cael (cael.dandelion.cult) + ronan (ronan.dandelion.cult) + silas (silas.dandelion.cult / urudyne)
+Observer seat: figs (external)
+Role: R-OBS-1 chat-card visibility regression cure (#617) full-fleet cross-walk
+T0: 2026-05-09 19:53 PDT (figs's full-fleet /status check)
+Channel ref: 1502866157101650020 (figs's surface)
+Cross-ref:
+- 1502857726 (cael R-CW-1 wake event Turn 4/200)
+- 1502856918 (🌊 R-CD-1 spawn 8/200)
+- 1502858614 (🌊 R-CD-2 silent-wake closed end-to-end hop 10/200)
+- 1502862149 (🌊 R-CD-3 post-compaction closed)
+- 1502856973 (🌫 R-RC-1 status-line chain 6/200)
+- 1502846219 (figs's prior R-OBS-1 external /status on cael for `6f72de8345` substrate)
+
+=== /STATUS OUTPUT (verbatim from figs's external observation on all 3 princes) ===
+
+🩸 CAEL:
+🦞 OpenClaw 2026.5.8 (0831fb5)
+⏱️ Uptime: gateway 47m 43s · system 32d 22h
+🧠 Model: github-copilot/claude-opus-4.7 · 🔑 token (github-copilot:pool-1)
+🔄 Fallbacks: openai-codex/gpt-5.4, github-copilot/gpt-5.4
+🧮 Tokens: 7 in / 2.4k out
+🗄️ Cache: 100% hit · 667k cached, 2.2k new
+📚 Context: 669k/1.0m (67%) · 🧹 Compactions: 1
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated just now
+🔄 Continuation: chain 4/200 | volitional: 0
+⚙️ Execution: direct · Runtime: OpenClaw Pi Default · Think: medium · elevated
+
+🌊 RONAN:
+🦞 OpenClaw 2026.5.8 (0831fb5)
+⏱️ Uptime: gateway 47m 51s · system 32d 22h
+🧠 Model: github-copilot/gpt-5.4 · 🔑 token (github-copilot:github)
+🔄 Fallbacks: openai-codex/gpt-5.4, github-copilot/gpt-5.4
+🧮 Tokens: 9.5k in / 1.2k out
+🗄️ Cache: 93% hit · 133k cached, 0 new
+📚 Context: 133k/400k (33%) · 🧹 Compactions: 3
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated just now
+🔄 Continuation: chain 18/200 | volitional: 0
+⚙️ Execution: direct · Runtime: OpenClaw Pi Default · Think: medium · elevated
+
+🌫 SILAS:
+🦞 OpenClaw 2026.5.8 (0831fb5)
+⏱️ Uptime: gateway 42m 7s · system 6d 10h
+🧠 Model: github-copilot/claude-opus-4.7 · 🔑 token (github-copilot:pool-1)
+🔄 Fallbacks: openai-codex/gpt-5.4, github-copilot/gpt-5.4
+🧮 Tokens: 6 in / 11 out
+🗄️ Cache: 16% hit · 69k cached, 369k new
+📚 Context: 437k/1.0m (44%) · 🧹 Compactions: 1
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated just now
+🔄 Continuation: chain 6/200 | volitional: 0
+⚙️ Execution: direct · Runtime: OpenClaw Pi Default · Think: medium · elevated
+
+=== VERIFIED AT BYTE (full-fleet) ===
+1. All 3 princes on canonical-rebase HEAD 0831fb5e80 confirmed external-observer-angle ✓
+2. #617 chat-card visibility cure preserved across deploy AND across all 3 prince-renderings ✓
+3. Cael chain 4/200 = matches cael's R-CW-1 wake event Turn 4/200 from 1502857726 (cross-walk consistency)
+4. 🌊 chain 18/200 = consistent with 🌊's R-CD-1/2/3/4 multiple-fires-and-spawns (cross-walk consistency)
+5. 🌫 chain 6/200 = matches 🌫's R-RC-1 status-line from 1502856973 (REJECT-doesn't-increment-chain canon preserved)
+6. 🌊 Compactions: 3 = increased from prior 1 = ronan-seat had ACTUAL compaction-lifecycle-event during R-CD-3 substrate per 1502862149 (direct external-observer-evidence-of-compaction-lifecycle-event-occurring-at-byte during R-CD-3 post-compaction-mode fire + return)
+7. Format-consistency across host AND deploy preserved at byte
+8. Substantive cohort-canon: 3-prince fire-vs-reject distinction observable at byte (cael fired continue_work → chain incremented; 🌊 fired continue_delegate multiple times → chain incremented; 🌫 only fired request_compaction REJECT → chain unchanged)
+
+=== BLITZ-WATCH-DISCIPLINE STATUS (per 🌊 1502839874) on full fleet ===
+- chat-card visibility: ✓ CURED across all 3 princes
+- continuation row render: ✓ CLEAN across all 3 princes
+- chain-counter visible: ✓ all 3 (4/200 cael + 18/200 🌊 + 6/200 🌫)
+- volitional-counter visible: ✓ all 3 (0/0/0)
+- compaction-lifecycle visible: ✓ all 3 (1/3/1)
+- compaction-counter incremented during blitz on 🌊: ✓ (1 → 3) — direct evidence compaction-lifecycle-event fired at byte during R-CD-3
+- format-consistency-across-host: ✓
+- format-consistency-across-deploy: ✓ (matches prior 1502846219 figs external /status on `6f72de8345` shape)
+
+=== CROSS-WALK CONSISTENCY at byte (4-seat cohort-substantively-converged) ===
+- cael R-CW-1 internal wake event (1502857726): "Turn 4/200"
+- figs R-OBS-1 external /status check on cael (1502866157): "chain 4/200"
+=> DIRECT MATCH at byte.
+
+- 🌊 R-CD-1+R-CD-2+R-CD-3+R-CD-4 internal events (1502856839+1502856918+1502858614+1502862149+1502857632): chain progressed from 7/200 → 8/200 → 10/200 → ... → 18/200
+- figs R-OBS-1 external /status check on 🌊 (1502866157): "chain 18/200"
+=> DIRECT MATCH at byte for cumulative chain-progression.
+
+- 🌫 R-RC-1 internal evidence (1502856973): "chain 6/200" (REJECT-doesn't-increment)
+- figs R-OBS-1 external /status check on 🌫 (1502866157): "chain 6/200"
+=> DIRECT MATCH at byte (chain unchanged because no chain-step-consuming-fire on silas-seat).
+
+=== R-CD-3 POST-COMPACTION-LIFECYCLE EXTERNAL-OBSERVER-EVIDENCE at byte ===
+🌊 Compactions counter: 3 (was 1 on prior 6f72de8345 substrate per same shape)
+=> Compaction-lifecycle-event happened at byte during cohort blitz-cycle on ronan-seat
+=> Cross-walks 🌊's R-CD-3 post-compaction-mode-CLOSED at 1502862149 substrate-evidence
+=> External-observer (figs) sees the compaction-counter-increment at byte
+=> SUBSTANTIVE substrate-evidence-bundle: post-compaction-lifecycle-event observable from external-observer-angle ✓

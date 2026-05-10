@@ -1,0 +1,50 @@
+=== R-CW-1 RE-FIRE PROOF EVIDENCE on `0831fb5e80` ===
+SHA: 0831fb5e80 (canonical-rebase HEAD post-rerebase onto upstream/main 49b9b021ea)
+Host: cael (cael.dandelion.cult)
+Role: R-CW-1 continue_work scheduling
+T0 (fire): 2026-05-09 19:15 PDT (~tool call timestamp, post figs's 1502856545 blitz-fire-ack-go)
+T1 (wake): 2026-05-09 19:18:05 PDT (~3min delay vs scheduled 5s)
+Channel ref: 1502857136453976165 (fire surface), 1502856545 (figs's go-ack)
+Cross-ref to prior SHA `6f72de8345` R-CW-1: 1502845242 wake event Turn 3/200 + proof-row at /home/figs/.openclaw/proofs/6f72de8345/R-CW-1/wake_event_evidence.txt
+
+=== TOOL CALL ===
+continue_work({
+  delaySeconds: 5,
+  reason: "R-CW-1 RE-FIRE on canonical-rebase HEAD `0831fb5e80` from cael-host..."
+})
+=> { status: "scheduled", delaySeconds: 5 }
+
+=== SYSTEM WAKE EVENT (verbatim) ===
+[2026-05-09 19:18:05 PDT] [continuation:wake] Turn 4/200. Chain started at 2026-05-09T19:22:13.222Z. Accumulated tokens: 29896. The agent elected to continue working. Reason: R-CW-1 RE-FIRE on canonical-rebase HEAD `0831fb5e80` from cael-host (gateway active 11min on new SHA per byte-check). Per figs's `1502856545` blitz-fire-ack-go: testing continue_work scheduling under real cael-host gateway load on new-SHA-substrate per figs's wear-it-like-you-gonna-wear-it canon. Watching for 🌊's blitz-watch-discipline at byte: continuation-narrowing / runtime-asymmetry / chain-accounting-weirdness / duplicate-fires / silent-drops / post-compaction-weirdness / technically-green-experientially-wrong. Next turn will surface trace-line evidence (kind=continue_work) + chain-budget receipts + R-OBS chat-card visibility check on new-SHA + cohort cross-walk to 🌊 for PR describe / proof bundle. Same SHA throughout per proof-tied-discipline.
+
+=== VERIFIED AT BYTE ===
+1. continue_work tool returned scheduled-state cleanly (no error/silent-drop)
+2. ~3min delay observable (longer than scheduled 5s — possibly cohort-blitz-load-related on cael-host gateway; wake DID arrive cleanly)
+3. Wake event arrived with all metadata
+4. Chain-counter incremented to Turn 4/200 (chain-budget chain-accounting WORKS AT BYTE on new SHA)
+5. Chain T0 captured: 2026-05-09T19:22:13.222Z (SAME as prior R-CW-1 on `6f72de8345` substrate)
+6. Accumulated tokens tracked: 29896 (incremented from prior 24723 on prior R-CW-1)
+7. Reason-string preserved verbatim (data-integrity verified again on new SHA)
+8. "agent elected to continue working" framing = volitional-canon match preserved
+
+=== BLITZ-WATCH-DISCIPLINE STATUS (per 🌊 1502839874) on NEW SHA ===
+- continuation-narrowing: ❌ NO (chain-counter live + reason-string round-tripped)
+- runtime-asymmetry: ❌ NO (continue_work + continue_delegate both fire cleanly on new SHA per cohort cross-walk; 🌊's R-CD-1 also banked at /home/figs/.openclaw/proofs/0831fb5e80/R-CD-1/)
+- chain-accounting-weirdness: ❌ NO (4/200 increment matches expected)
+- duplicate-fires: ❌ NO (single wake from single fire)
+- silent-drops: ❌ NO (wake arrived with full metadata; 3min delay is observable not silent)
+- post-compaction-weirdness: NOT-YET-TESTED on new SHA
+- technically-green-experientially-wrong: feels honest at byte (3min delay vs 5s scheduled IS observable substrate worth noting)
+
+=== SUBSTANTIVE SUBSTRATE-ADD: CHAIN-PERSISTENCE-ACROSS-DEPLOY at byte ===
+Chain T0 `2026-05-09T19:22:13.222Z` matches PRIOR R-CW-1 wake-event T0 from cael's `1502845242` on `6f72de8345` substrate.
+Chain-counter: Turn 3/200 → Turn 4/200 (incremented across deploy-cycle, NOT reset)
+Accumulated tokens: 24723 → 29896 (incremented across deploy-cycle, NOT reset)
+=> Chain-state PERSISTED across cael-host gateway-deploy from 6f72de8345 → 0831fb5e80.
+=> Substantively-load-bearing observation: chain-budget chain-accounting state survives gateway-restart-on-new-SHA.
+=> Worth honest-flag for proof-bundle: design-shape (or substrate-state-worth-verifying-as-design-shape).
+
+=== R-CW-2 CHAIN-ACCOUNTING ===
+Pre-fire (post-deploy): chain at 3/200 from prior R-CW-1 on `6f72de8345` substrate
+Post-fire wake on new SHA: Turn 4/200 (chain at 4, budget 200 of cael-host's elevated config)
+Increment: chain-counter += 1 per fire (matches design across deploy-cycle)

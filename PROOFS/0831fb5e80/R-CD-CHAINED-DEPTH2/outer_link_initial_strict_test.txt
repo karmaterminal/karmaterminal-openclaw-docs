@@ -1,0 +1,41 @@
+=== CD-CHAIN strict outer-link receipt on `0831fb5e80` ===
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Mode: continue_delegate spawned by a continue_delegate (depth-2 chain, outer link)
+Captured: 2026-05-10T03:24Z (T0)
+Captured-via: native subagent push-based completion event
+
+=== Outer subagent context ===
+Session key: agent:main:subagent:95e01119-85e4-46bb-9662-1f98082fc53d
+Session id: 34d10dc4-7e66-4ce4-a1c3-b504a454a2b3
+Depth: 1/5 (per subagent banner)
+Chain hop: outer (hop 1 of 2-deep chain)
+Host: ronan (Linux 6.17.0-1014-nvidia, arm64, node v25.9.0)
+Model: github-copilot/claude-opus-4.7
+Build: OpenClaw 2026.5.8 (0831fb5)
+Requester: agent:main:discord:channel:1466192485440164011
+
+=== Inner-delegate spawn-event metadata (verbatim from outer's continue_delegate return) ===
+- status: scheduled
+- mode: silent
+- delaySeconds: 0
+- delegateIndex: 1
+- delegatesThisTurn: 1
+- note: "Delegate will be dispatched after your response completes."
+
+(childSessionKey + runId materialize at fire-time post-response; outer captured the scheduling receipt only.)
+
+=== Verified at byte ===
+1. Outer subagent received its own task via continue_delegate from main session.
+2. Outer dispatched continue_delegate from inside its delegated turn — i.e. a delegate spawned a sub-delegate.
+3. Inner is silent-mode and instructed NOT to dispatch further, capping chain depth at 2.
+4. Outer banner reports depth 1/5; depth-counter visible to outer link.
+
+=== NOTE — STRICT INTENT FROM FIGS (msg 1502873566) ===
+figs wants the FULL depth-2 chain captured in three distinct return-shape variants, not just "outer scheduled inner":
+  (1) root → CD → CD(d=2) → return flow UP THE TREE wake-and-silent
+  (2) root → CD → CD(d=2) → return INTER-SESSION to root
+  (3) root → CD → CD(d=2) → return ECHO to root + Discord channel <#1473320126433464465>
+This file documents the OUTER scheduling step only. The full 3-variant capture is in `R-CD-CHAINED-DEPTH2/{chain-1,chain-2,chain-3}/` per the new fire cycle.
+
+=== Verdict: CD-CHAIN strict outer-link spawn observable on `0831fb5e80` ===
+=== Strict chain proof rows continue under R-CD-CHAINED-DEPTH2/. ===

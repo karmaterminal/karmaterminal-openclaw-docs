@@ -1,0 +1,38 @@
+=== CD-CHAIN-DEPTH2 Chain 2 — INTER-SESSION return to root, outer-link receipt on `0831fb5e80` ===
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Captured: 2026-05-10T03:27Z (PDT 20:27)
+Captured-via: native subagent push-based completion event from outer (depth-1)
+
+=== Outer (depth-1) subagent context ===
+Outer session key: agent:main:subagent:7caa2a13-45d1-49ce-8604-51dd645d8098
+Outer session id:  49609ea5-f3d4-45d5-8376-72a9e69d10ab
+Outer depth:       1/5
+Outer chain hop:   1 (parent → outer)
+Outer host:        ronan
+Outer model:       github-copilot/claude-opus-4.7
+Outer build:       OpenClaw 2026.5.8 (0831fb5)
+Root requester:    agent:main:discord:channel:1466192485440164011
+
+=== Inner scheduling-receipt (verbatim, captured by outer at scheduling time) ===
+- status:            scheduled
+- mode:              silent-wake
+- delaySeconds:      0
+- delegateIndex:     1
+- delegatesThisTurn: 1
+- targetSessionKey:  agent:main:discord:channel:1466192485440164011
+- note:              "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+
+Outer self-confirmation (verbatim):
+"OUTER LINK Chain 2 — depth-2 inner scheduled with mode=silent-wake targetSessionKey=root-discord-session. Inner return will land at root, not at outer."
+
+=== Verified at byte (outer-stage) ===
+1. Outer subagent ran inside a continue_delegate-spawned context.
+2. Outer dispatched a further continue_delegate from inside its turn.
+3. Inner scheduling-receipt explicitly carries targetSessionKey pointed at the ROOT discord session, NOT at outer.
+4. The return target deliberately routes to a session distinct from outer (cross-session within the chain).
+5. Depth banner visible to outer: 1/5; gateway carries chain-tracking + depth-limit.
+
+=== Pending-by-design (now closed) ===
+Inner-leaf return arrived at the ROOT (this main session), NOT at outer. See `inner_leaf_intersession_arrival.txt`.
+
+=== Verdict (outer): CD-CHAIN-DEPTH2 Chain 2 OUTER scheduled cleanly on `0831fb5e80` ===

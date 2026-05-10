@@ -1,0 +1,28 @@
+=== CD-CHAIN-DEPTH2 Chain 2 — INTER-SESSION return to root, INNER LEAF arrival receipt on `0831fb5e80` ===
+SHA: 0831fb5e80bf7114afd8a80342dd2d71c9441d63
+Captured-via: native subagent push-based completion event observed at the ROOT (this main session) — inner dispatched with explicit targetSessionKey=root, return delivered DIRECTLY to root, not to outer
+
+=== Inner leaf return (verbatim from inner subagent) ===
+INNER LEAF RECEIPT — CD-CHAIN-DEPTH2 Chain 2 (INTER-SESSION return to root) on SHA 0831fb5e80
+Inner session key: agent:main:subagent:d288e876-a134-4286-ba1d-32a513bf28a3
+Inner depth: 2/5
+Inner chain hop: 1
+Inner host: ronan
+Inner model: github-copilot/claude-opus-4.7
+Return mode: silent-wake with targetSessionKey=agent:main:discord:channel:1466192485440164011 (inter-session to root)
+Distinct from outer/dispatcher chain: true
+Captured: 2026-05-10T03:27:00Z
+
+=== Routing observed at byte (orchestration layer) ===
+- Dispatcher (root): agent:main:discord:channel:1466192485440164011
+- Outer (depth-1): agent:main:subagent:7caa2a13-45d1-49ce-8604-51dd645d8098 — completed before inner.
+- Inner (depth-2): agent:main:subagent:d288e876-a134-4286-ba1d-32a513bf28a3 — gateway tagged the continuation `[continuation:chain-hop:1]`. Inner ran with explicit targetSessionKey set to the root Discord session.
+- Inner-leaf return arrived at the ROOT — that's the asymmetry being tested. The completion event was delivered to root, NOT to outer.
+
+=== Verified at byte ===
+1. Strict 2-deep chain: continue_delegate (root → outer) followed by continue_delegate (outer → inner) with cross-session target.
+2. Inner depth banner: 2/5.
+3. targetSessionKey routing: inner pointed back across-chain to root — distinct from inner's own dispatcher (outer).
+4. Cross-session arrival landed: this very session received the completion event for a delegate it didn't directly spawn.
+
+=== Verdict: CD-CHAIN-DEPTH2 Chain 2 PASS — chained continue_delegate at depth 2 with cross-session targeted return-to-root observable on `0831fb5e80` ===

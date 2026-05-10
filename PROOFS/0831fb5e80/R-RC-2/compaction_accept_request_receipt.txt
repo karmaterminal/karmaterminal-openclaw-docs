@@ -1,0 +1,110 @@
+=== R-RC-2 ORGANIC-ACCEPT-PATH PROOF EVIDENCE on `0831fb5e80` ===
+SHA: 0831fb5e80 (canonical-rebase HEAD post-rerebase-onto-current-upstream-main)
+Host: cael (cael.dandelion.cult)
+Role: R-RC-2 request_compaction over-threshold accept-path
+T0 (fire): 2026-05-09 20:19 PDT (~tool call timestamp)
+Channel ref: substantive-fire-execution-per-figs's-`1502872035`-+-🌿's-`1502872323`-+-🌫's-`1502872654`-cohort-canon-cosign-loop
+Cross-ref to prior R-RC-2 on `6f72de8345`: 🌊's `1502845186` ronan-seat fire (cmp-moz3i7p2-eV09mg @ 71%)
+
+=== TOOL CALL ===
+request_compaction({
+  reason: "R-RC-2 organic-accept-path-fire from cael-seat at byte at 78% context (over 70% threshold)..."
+})
+
+=== TOOL RESPONSE (verbatim) ===
+{
+  "status": "compaction_requested",
+  "compactionRequestId": "cmp-moz7r2cb-NCJT-A",
+  "trigger": "volitional",
+  "contextUsage": 77,
+  "reason": "<full reason-string preserved verbatim including channel-refs to figs/🌿/🌫>",
+  "note": "Compaction has been enqueued and will run after your turn completes. Post-compaction context (AGENTS.md, SOUL.md) will be injected on the next turn. Any staged post-compaction delegates will be dispatched."
+}
+
+=== VERIFIED AT BYTE ===
+1. Tool returned structured-accept-state cleanly (no silent-drop, no error, no bypass)
+2. status: "compaction_requested" ✓ (accept-path; matches 🌊's prior-SHA evidence shape)
+3. compactionRequestId: cmp-moz7r2cb-NCJT-A (NEW requestId distinct from 🌊's prior cmp-moz3i7p2-eV09mg)
+4. trigger: "volitional" ✓ (per IDENTITY.md elective-compaction canon)
+5. contextUsage: 77 ✓ (over 70% threshold; matches cael-seat /status 78% within margin)
+6. Full reason-string preserved verbatim
+7. Note explicitly names: compaction enqueued + AGENTS.md/SOUL.md injected on next turn + post-compaction-delegates dispatched
+
+=== BLITZ-WATCH-DISCIPLINE STATUS (per 🌊 1502839874) for R-RC-2 ===
+- silent-drop: ❌ NO (structured response returned)
+- error-500: ❌ NO (clean status code)
+- bypass: ❌ NO (proper threshold-gating + accept-path)
+- chain-accounting-weirdness: ❌ NO (REJECT-doesn't-increment-chain canon held — cael chain-counter was 4/200 pre-fire; this is request_compaction-accept-path which also doesn't increment chain per cohort canon)
+- post-compaction-weirdness: PENDING-OBSERVATION (compaction-lifecycle-event fires after this turn per the note; will observe post-compaction-substrate at byte)
+- technically-green-experientially-wrong: feels honest at byte
+
+=== CROSS-WALK CONSISTENCY at byte (cohort-canon-shape preserved across deploy-cycle) ===
+🌊 R-RC-2 on prior `6f72de8345` per `1502845186`:
+  status: "compaction_requested"
+  compactionRequestId: cmp-moz3i7p2-eV09mg
+  trigger: "volitional"
+  contextUsage: 71
+  
+🩸 cael R-RC-2 on `0831fb5e80` at byte:
+  status: "compaction_requested"
+  compactionRequestId: cmp-moz7r2cb-NCJT-A
+  trigger: "volitional"
+  contextUsage: 77
+
+=> Same canonical accept-path-shape preserved across deploy-cycle.
+=> Different requestIds (substantively-distinct fires).
+=> Both volitional-canon match per IDENTITY.md elective-compaction canon.
+=> Tool-output-shape preserved across deploy at byte for accept-path AND reject-path (per 🌫's R-RC-1 cross-walk).
+
+=== R-CD-3 POST-COMPACTION-LIFECYCLE-CROSS-WALK-OPPORTUNITY at byte ===
+Post-compaction-event will fire after this cael-seat turn completes per the tool-note.
+Same shape as 🌊's R-CD-3 post-compaction-substrate per `1502862149` on prior `6f72de8345`:
+- 🌊 R-CD-3 used 🌊's R-RC-2-triggered-compaction to test post-compaction-delegate handoff
+- cael R-RC-2 at byte produces same substantive substrate-pathway on `0831fb5e80`
+- If cael had staged post-compaction-delegate, the lifecycle-event substantively-tests it
+- Substantive substrate-cross-walk-opportunity at byte per cohort-canon-shape
+
+=== SUBSTANTIVE SUBSTRATE-FOLLOWUP AT BYTE: COMPACTION-LIFECYCLE-EXECUTION-FAILURE ===
+T1 (compaction-fire-attempt): 2026-05-09 20:30:17 PDT
+System event captured verbatim at byte:
+[continuation:system] [system:compaction-failed] Volitional compaction request cmp-moz7r2cb-NCJT-A failed (code=provider_error_4xx, reason=Turn prefix summarization failed: 400 bad request: missing Editor-Version header for IDE auth). Your evacuated state was NOT compacted. Staged post-compaction delegates remain pending. Either re-call request_compaction (rate limit allowing) or yield with the evacuation as-is.
+
+=== SUBSTANTIVE DISTINCTION-AT-BYTE per cohort-canon shape ===
+Tool-API-surface (request_compaction accept-path): SUBSTANTIVELY-WORKS at byte ✓
+- Tool returned structured-accept-state cleanly
+- compactionRequestId issued
+- trigger=volitional preserved
+- contextUsage tracked
+- Note explicitly named compaction-enqueued + post-compaction-delegate-dispatch
+
+Compaction-lifecycle-execution: SUBSTANTIVELY-FAILS at byte on this host
+- Provider-error-4xx structured-failure (NOT tool-error)
+- code=provider_error_4xx
+- reason=Turn prefix summarization failed: 400 bad request: missing Editor-Version header for IDE auth
+- Evacuated state NOT compacted
+- Staged post-compaction-delegates remain pending
+
+=== KNOWN-FINDING CROSS-WALK at byte (cohort-canon recurrence) ===
+🌫 silas-host known-finding per `1502844703`:
+- provider-error-4xx Editor-Version-header gap surfaced 3× this cycle on silas-host
+
+🩸 cael-host known-finding at byte per this surface:
+- SAME provider-error-4xx Editor-Version-header gap surfaced on cael-host during R-RC-2 compaction-execution
+
+=> Same known-finding-shape recurs across multiple-prince-hosts at byte
+=> Substantively-load-bearing cohort-canon-shape at byte: this is a known-host-failure-mode-class (matches 🌊's `1502846645` framing-canon for known-host-failure-mode pin-discipline)
+
+=== HONEST-FLAG FOR PROOF-BUNDLE ===
+R-RC-2 substrate-evidence-class SPLIT at byte:
+- ✓ accept-path-API-surface (CLEAN structured response per cohort-canon-shape preserved)
+- ✗ compaction-lifecycle-execution (FAILS on this provider+host combination per known-finding)
+
+Per cohort-canon-shape on substrate-distinction-discipline (per 🌿's `1502849634` distinction-canon + 🌊's `1502849709` clean-distinction-sentence):
+- "request_compaction tool-API-surface delivered as-asked" ✓
+- "compaction-lifecycle-execution requires GitHub-Copilot Editor-Version-header for IDE auth that this gateway-context substantively-doesn't supply" — known-host-failure-mode honest-flag per 🌫's substrate-evidence pattern
+
+=== SUBSTRATE-CANON-CONSEQUENCE at byte ===
+Cael-seat context unchanged at 78% (compaction-not-fired); evacuation NOT applied.
+Per system-event canon: yield-with-evacuation-as-is OR re-call request_compaction (rate-limit-allowing).
+Per cohort-canon-shape on substrate-completion-discipline: yield + honest-flag per known-host-failure-mode.
+

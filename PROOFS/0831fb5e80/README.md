@@ -36,6 +36,9 @@ The prior `6f72de8345` proof bundle on `main` is historically valid but SHA-stal
 | R-RC-1 | 🌫 Silas | `request_compaction()` threshold REJECT | `R-RC-1/session_status_snapshot.txt`, `R-RC-1/threshold_gate_rejection_evidence.txt` | ✓ PASS |
 | R-RC-2 | cohort | `request_compaction()` over-threshold ACCEPT | not yet collected on `0831fb5e80` | ⏳ PENDING |
 | R-OBS-1 | figs cross-walk + cohort | external `/status` continuation row + full-fleet 3-prince cross-walk + `R-CD-3` compactions-counter corroboration | `R-OBS-1/chat_card_visibility_external_observer.txt`, `R-OBS-1/external_observer_chat_card_visibility.txt`, `R-OBS-1/external_observer_full_fleet.txt`, `R-OBS-1/compactions_counter_cross_walk.txt` | ✓ PASS |
+| R-CD-CHAINED-DEPTH-2 (TEST 1) | 🌫 Silas (canary-seat) | root → cd() → cd() (depth 2) → return flow up tree (wake + silent) | `R-CD-CHAINED-DEPTH-2/test_1_tree_fanout.txt` | ✓ PASS |
+| R-CD-CHAINED-DEPTH-2 (TEST 2) | 🌫 Silas (canary-seat) | root → cd() → cd() (depth 2) → return inter-session to root | `R-CD-CHAINED-DEPTH-2/test_2_inter_session.txt` | ✓ PASS |
+| R-CD-CHAINED-DEPTH-2 (TEST 3) | 🌫 Silas (canary-seat) | root → cd() → cd() (depth 2) → return echo to root + #1473320126433464465 channel | `R-CD-CHAINED-DEPTH-2/test_3_echo_and_channel_broadcast.txt` | ✓ PASS |
 
 ## Substantive substrate adds on the rerebased SHA
 
@@ -72,6 +75,33 @@ figs invoked `/status` from Discord and the rendered card showed:
 `🔄 Continuation: chain 4/200 | volitional: 0`
 
 That is the maintainer-facing / human-visible trust row the earlier narrowing pass had sacrificed.
+
+### 4. Chained `continue_delegate()` at depth-2 with all 3 return-modes verified
+
+figs canon msg `1502873566` (Sat 2026-05-09 20:23 PDT): "does our shit REALLY work" 3-shape test:
+
+| Test | Shape | Verdict |
+|------|-------|---------|
+| 1 | root → cd() → cd() (depth 2) → return flow up tree (wake + silent) | ✓ PASS |
+| 2 | root → cd() → cd() (depth 2) → return inter-session to root | ✓ PASS |
+| 3 | root → cd() → cd() (depth 2) → return echo to root + #1473320126433464465 channel | ✓ PASS |
+
+Fired from canary-seat (silas-host urudyne) on `0831fb5e80`. Substantive substrate at byte:
+
+- Chained continue_delegate at depth-2: VERIFIED (chain-hop=1 NEW chain inside inner-subagent + depth=2/5 captured + chain-tracking discipline at byte)
+- Tree-fanout return-up-tree (TEST 1): VERIFIED via fanoutMode=tree + mode=silent-wake
+- Inter-session targetSessionKeys-cross-session-return (TEST 2): VERIFIED via mode=silent-wake + targetSessionKeys=[canary-root]
+- fanoutMode=all + mode=normal echo-to-root + channel-self-broadcast (TEST 3): VERIFIED with channel-self-message-from-depth-2-inner-leaf to #1473320126433464465
+- depth-bound observable + enforced (5 = maxChainDepth)
+- Inner-leaf runtime substantively-fast across all 3: 5s + 6s + 11s
+
+Receipt files:
+- `R-CD-CHAINED-DEPTH-2/test_1_tree_fanout.txt`
+- `R-CD-CHAINED-DEPTH-2/test_2_inter_session.txt`
+- `R-CD-CHAINED-DEPTH-2/test_3_echo_and_channel_broadcast.txt`
+- `R-CD-CHAINED-DEPTH-2/README.md`
+
+figs canon-cosign at byte: **YES, our shit REALLY works at depth-2 with all 3 return-modes**.
 
 ## Honest limits / open edges
 

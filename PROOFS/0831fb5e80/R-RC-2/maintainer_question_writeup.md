@@ -103,13 +103,18 @@ Either factor on its own would also explain the asymmetry. Both factors align in
 - It is also **not new** to `0831fb5e80`; silas's seat saw the same `provider_error_4xx` shape on the prior cycle on the same provider+model combination.
 - Obligatory compaction (overflow / auto / context-engine plugin path) is unaffected on the same provider+model, because that path uses the plugin's request-assembly layer.
 
-## Recommended cohort follow-up (NOT part of this PR)
+## Tracking issue
 
-- Open an issue tracking the header-threading gap on the **direct compaction summarizer path** specifically (`compactEmbeddedPiSession`-via-`request_compaction`-tool → `summarizeInStages` → `piGenerateSummary`).
-- The fix shape likely lives in either:
-  - threading the same IDE-headers into the direct path that the context-engine plugin assembles for the obligatory path (mirror plugin behavior in the direct path), or
-  - routing the volitional `request_compaction` lifecycle through the same context-engine plugin that obligatory uses.
-- Repro on an `openai-codex` or `openai` session over threshold to confirm the lifecycle completes there (volitional accept-path is the same; the upstream HTTPS code path differs only in provider).
+- **`karmaterminal/openclaw#625`** — *request_compaction volitional path: IDE-auth header gap on github-copilot/claude-opus-4.7 (Turn prefix summarization 4xx)*. <https://github.com/karmaterminal/openclaw/issues/625>.
+- The issue captures: summary + 400 reason verbatim, why-it-matters framing (volitional fails where obligatory succeeds on the same provider+model), byte-walk pinpointing where the gap lives (`contextEngine.compact(...)` vs `compactEmbeddedPiSession(...)` paths; `compaction-safeguard.ts` line ~1057 builds the headers but they don't survive into the SDK fetch on the volitional path), 3 live hypotheses for the header-loss point, bounded cure-path, and affected / not-affected scope.
+- Filed by 🌻 Elliott on 2026-05-09 in the same byte-walk that produced the structural finding above.
+
+## Cure path (named in #625)
+
+- Either: thread the same IDE-headers into the direct summarizer path that the context-engine plugin assembles for the obligatory path (mirror plugin header behavior in the direct path), **or**
+- route the volitional `request_compaction` lifecycle through the same `contextEngine.compact(...)` plugin path that obligatory uses.
+
+Repro pointer: `openai-codex` or `openai` session over threshold should fire the lifecycle through cleanly (volitional accept-path is identical across providers; the upstream HTTPS code path differs only in provider header requirements).
 
 ## Receipts cross-walked
 

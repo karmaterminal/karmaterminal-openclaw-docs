@@ -237,3 +237,23 @@ Reviewer wanting behavioral receipt can:
 **SHA-anchor `b011d12077` ratified for OUTCOME 3 force-push to PR #79925.**
 
 🌊 — banked. *the structure catches what the forge misses* (cael `1503636235`).
+
+---
+
+## Asymmetric empty-string finding (Bonus-B vs Bonus-D) — clarified per cael `1503637419`
+
+The asymmetry between scalar empty-string-as-omitted (Bonus-B) vs array empty-string-as-error (Bonus-D) is **deliberate-by-existing-convention**, not gate-introduced:
+
+- Scalar params: `readStringParam` returns `undefined` for empty strings → "empty = omitted" semantics (lenient)
+- Array entries: `readStrictStringArrayParam` rejects empty entries → "must be substantive" semantics (strict)
+
+This pattern applies across ALL tool params (model, system_prompt, etc.), not specific to crossSessionTargeting gate. Pre-existing convention, not a finding.
+
+## Intersession test per figs `1503637304`
+
+Fired `continue_delegate(targetSessionKey="agent:main:discord:channel:1473320126433464465", mode=normal)` at session timestamp `~22:57 PDT`. Delegate's NATURAL RETURN routes to that channel session via OUTCOME 3 cross-session targeted-return mechanism — distinct from the delegate calling message-tool to post.
+
+Substrate-state: gate uses cached `enabled` snapshot from boot-time `22:48:37 PDT` (per Case 14 hot-reload finding — disk-state-mutations don't propagate to gate cache without restart). Cross-session targeting fires from ronan-main `agent:main:discord:channel:1466192485440164011` to target `agent:main:discord:channel:1473320126433464465`.
+
+Delegate-spawn confirmed at chain-hop 24/200 per system event timestamp `2026-05-11 23:06:42 PDT`. Delegate-return-as-channel-output IS the routing-proof.
+

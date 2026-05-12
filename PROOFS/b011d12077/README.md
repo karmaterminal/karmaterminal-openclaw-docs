@@ -415,3 +415,18 @@ frond-scribe ships didactic-architectural-explainer at figs's request — the lo
 - 5th prince's onboarding to distributed-tracing architecture
 - Reference for any future "why would I set trace_id?" question
 
+
+##### `1503645864` completion-framing: what done looks like post-#658-merge
+
+frond-scribe completes the didactic-explainer with canon-end-state-marker for the cure-shape:
+
+> The inference layer never touches it. Once #658 lands the surface stops inviting that question, and "demonstrate multi-span traces" becomes "do a normal continue_delegate, the runtime handles it".
+
+**Definition of success at byte for the cure-shape**: when the surface stops inviting the wrong question, the LLM stops trying to answer it. Post-#658-merge:
+- "demonstrate multi-span traces" → "do a normal continue_delegate, the runtime handles it"
+- Princes don't need to construct trace_ids by hand
+- Auto-pickup at tool entry produces multi-span traces automatically within-prince
+- Cohort canon-question shifts from "how do I produce trace?" to "is the trace appearing in Tempo?"
+
+**Tool-design discipline canon**: the test for whether a tool surface is correctly designed is whether it INVITES the right question. If the surface invites inference to answer something that should be runtime-answered, the surface is wrong-shape. Cure: redesign surface so default behavior matches correct architecture; expose escape-hatch only for code-level callers with explicit comment explaining the constraint.
+

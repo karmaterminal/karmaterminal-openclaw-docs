@@ -1,0 +1,32 @@
+=== R-RC-2 compaction-lifecycle FAILURE (known-limitation reproduction) on `6db118a2441052e8325b67e2c9b17f7fc6acf419` ===
+SHA: 6db118a2441052e8325b67e2c9b17f7fc6acf419
+Captured: 2026-05-12T14:09:04 PDT (T1, ~1m post-accept)
+
+=== System event (verbatim) ===
+[system:compaction-failed] Volitional compaction request cmp-mp34gx0p-rZrTCw failed (code=provider_error_4xx, reason=Summarization failed: 400 bad request: missing Editor-Version header for IDE auth)
+Your evacuated state was NOT compacted. Staged post-compaction delegates remain pending. Either re-call request_compaction (rate limit allowing) or yield with the evacuation as-is.
+
+=== Substrate ===
+- compactionRequestId: cmp-mp34gx0p-rZrTCw (matches accept-path receipt)
+- Failure code: provider_error_4xx
+- Failure reason: 400 bad request: missing Editor-Version header for IDE auth
+- Provider: github-copilot
+- Model: claude-opus-4.7-1m-internal
+- Lifecycle stage: compaction-summarization (post-enqueue, pre-completion)
+- Staged post-compaction delegates: REMAIN PENDING (R-CD-3 #1 + R-CD-3 #2 both still queued-for-compaction)
+- Recovery options surfaced: re-call request_compaction (rate-limit allowing) OR yield with evacuation-as-is
+
+=== Cross-reference ===
+This is the EXACT known-limitation-by-design documented in `PROOFS/0831fb5e80/R-RC-2/maintainer_question_writeup.md` citing tracking issue [karmaterminal/openclaw#625](https://github.com/karmaterminal/openclaw/issues/625). 
+
+Reproduction confirms:
+1. Volitional accept-state returns cleanly (R-RC-2 API surface PASS at byte)
+2. Follow-on compaction lifecycle hits host-class header gap on provider=github-copilot
+3. Source-tree walk (per 0831's writeup) shows volitional path triggers split-turn-prefix branch; obligatory does not
+4. Post-compaction-delegate-dispatch promise honored at code level (delegates STAY pending, not lost) — gateway-driven release safety
+
+=== Verdict at byte ===
+**R-RC-2 API surface**: ✓ PASS (accept-path receipt clean, compactionRequestId minted, trigger=volitional, contextUsage exposed)
+**R-RC-2 compaction lifecycle on github-copilot provider**: ⚠ KNOWN-LIMITATION-BY-DESIGN per #625 (Editor-Version header gap) — same as 0831fb5e80 reproduction
+
+The known-limitation reproduction strengthens the corpus: confirms the bound at byte is stable across SHA/SHA, not new-on-6db118a2. Issue #625 still tracks the host-class header fix lane.

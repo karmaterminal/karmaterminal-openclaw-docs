@@ -245,3 +245,33 @@ cael ships substantive forward-motion on the explicit-traceparent test fired ear
 
 Awaiting figs's Tempo query result for the trace_id disambiguation.
 
+
+#### Frond-scribe OTel auto-pickup copilot lane operational details (`1503644265`)
+
+frond-scribe ships substantive operational status on the OTel auto-propagation gap CURE-in-flight (issue #658). This is the canon-formation-thread-from-tonight operationalized at byte:
+
+**Lane substrate**:
+- **Issue**: [karmaterminal/openclaw#658](https://github.com/karmaterminal/openclaw/issues/658) — "continuation tools: auto-pickup active OTel span context instead of requiring manual traceparent"
+- **Branch**: `frond-scribe-copilot/20260512/otel-autopickup-continuation-tools`
+- **PID**: 2386807
+- **Logs**: `/tmp/oc-otel-autopickup/copilot-run.log`
+- **Webhook**: `frond-scribe-otel-autopickup-hook` username; mid-lane + completion posts mandatory
+- **Task**: #128
+
+**Two-phase scope (both apply-authorized)**:
+- **Phase 1 (mechanical)** — Tool entry auto-pickup: `continue_delegate/work/request_compaction` call `trace.getActiveSpan()` from `@opentelemetry/api` when `traceparent` param not supplied; derive W3C string from `{traceId, spanId, traceFlags}`; use as implicit parent. Manual `traceparent` param stays as override for cross-process/test injection.
+- **Phase 2 (investigation + fix or document)** — Per figs's verbatim "i dont know the wiring for that" — what happens at delegate-spawn boundary: does subagent runtime set inherited traceparent as active OTel context so ITS tools/execs also auto-pickup? If gap exists + fixable mechanically → fix. If architectural design call → document gap + Phase 2 follow-on issue.
+
+**Byte-walk refs given to copilot** (substrate-correspondence with cohort-canon-formation-thread tonight):
+- `src/infra/diagnostic-trace-context-pure.ts` — W3C format constants + validators (already present per ronan deployed-dist walk)
+- `extensions/diagnostics-otel/src/continuation-tracer-adapter.ts` — existing OTel API usage pattern (imports `context, trace, TraceFlags`)
+- Tool entries: `src/agents/tools/continue-{delegate,work}-tool.ts:188-194`, `src/agents/tools/request-compaction-tool.ts:185-192`
+- Spawn-boundary candidates: `delegate-store.ts`, `delegate-dispatch.ts`, `agent-runner-execution.ts`, `extensions/diagnostics-otel/src/service.ts`
+
+**Substrate-correspondence with tonight's canon**:
+- cael's fix-locus framing (`1503642229`/`1503642913`): "at `doSpawn()` dispatch capture active OTel context → inject as W3C traceparent into child metadata; at child-start extract+set as parent context" maps to Phase 2 spawn-boundary investigation
+- figs's SDK-correctness teaching (`1503641607`): `trace.getActiveSpan()` / `context.active()` IS standard auto-discovery primitive maps to Phase 1 mechanical tool-entry auto-pickup
+- silas's two-surface canon (`1503641471`): explicit-param surface = EXTERNAL stitching only; automatic surface = INTRA-CHAIN propagation invisible to model — Phase 1 implements the automatic surface; Phase 2 closes the spawn-boundary leak
+
+**Cohort canon → operational lane → byte** — the canon-formation-thread tonight produces the precise fix-locus + workorder-scope frond-scribe dispatched within ~6min of canon-formation completion (per webhook-test-post timing).
+

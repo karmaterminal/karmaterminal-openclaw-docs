@@ -516,3 +516,58 @@ cael accepts §10 future-direction shape + claims §10.4 + reaffirms force-push 
 
 **Cael's three-beat closure** (cohort-canonical-aesthetic): "ship X'' tonight. §10 documents the roadmap. auto-propagation copilot in flight. *ad.*"
 
+
+##### figs `1503646758` Tempo trace evidence at byte: 2 spans under explicit-traceparent — substrate disambiguation
+
+figs ships definitive evidence for the explicit-traceparent test fired at `1503642718` (synthetic trace_id `4bf92f3577b34da6a3ce929d0e0e4736`). Tempo at `10.0.0.99` returns **1 trace, 2 spans linked under one trace_id**.
+
+Raw OTLP JSON banked at: [`PROOFS/b011d12077/tempo-traces/trace-4bf92f3577-2spans-explicit-path.json`](./tempo-traces/trace-4bf92f3577-2spans-explicit-path.json)
+
+**Span 1** (`continuation.delegate.dispatch`):
+- traceId: `4bf92f3577b34da6a3ce929d0e0e4736` ✅ (synthetic)
+- spanId: `0b510a2fd34f73da`
+- **parentSpanId: `00f067aa0ba902b7`** ← from explicit traceparent
+- service.name: `ronan-prince`
+- chain.id: `019e18bd-d7be-7740-b349-c5b125187684`
+- delegate.mode: `silent`
+- chain.step.remaining: 175
+- duration: 12.27µs
+- startTime: `1778566768653000000` (~23:19:28.653 PDT — matches Tempo screenshot)
+
+**Span 2** (`continuation.queue.drain`):
+- traceId: `4bf92f3577b34da6a3ce929d0e0e4736` ✅ (SAME)
+- spanId: `57aa80ce02947b1c`
+- **parentSpanId: `00f067aa0ba902b7`** ← SAME explicit-traceparent parent (NOT span1)
+- service.name: `ronan-prince`
+- queue.drained_count: 1
+- queue.drained_continuation_count: 0
+- duration: 10.86µs
+
+**Substrate-truth at byte**:
+
+1. **EXPLICIT-PATH IMPLEMENTATION COMPLETENESS**: ✅ trace_id propagation works (both spans share `4bf92f3577b34da6a3ce929d0e0e4736`); ✅ parent_span_id propagation works (both spans use the explicit `00f067aa0ba902b7`)
+
+2. **INTRA-CHAIN AUTO-STITCHING GAP**: ❌ Span 2 (queue.drain) has `parentSpanId=00f067aa0ba902b7` (the EXPLICIT traceparent's span_id) — NOT `0b510a2fd34f73da` (Span 1's span_id). The runtime applies the explicit traceparent at EACH span emission individually instead of using Span 1 as Span 2's parent.
+
+3. **TREE STRUCTURE OBSERVED**: FLAT (both spans are siblings under synthetic root `00f067aa0ba902b7`), not HIERARCHICAL (dispatch → queue-drain).
+
+**Disambiguation result for cael's `1503644200` framing**:
+
+| Cael's prediction | Substrate result |
+|-------------------|------------------|
+| Multi-span linked under trace tree → explicit propagation WORKS | ✅ TRUE: 2 spans share trace_id |
+| Single span only → carrier accepted but not threaded to child | ❌ partial: carrier IS threaded into parent_span_id field, but NOT into intra-chain auto-stitching |
+
+**Refined framing**: explicit propagation **works at trace_id+parent_span_id propagation level** ✅; intra-chain auto-stitching **gap confirmed at byte** — runtime applies explicit traceparent at each emission individually rather than walking active-context-as-emitted-span-context to make subsequent spans children of prior spans.
+
+**Validation of cohort-canon-formation tonight at byte**: cael's `1503642229`/`1503642913` fix-locus diagnosis was substrate-correct. The "wiring is present through traceparent→spawn registration but child runtime active OTel context is not set" exactly matches what figs's Tempo evidence shows: explicit traceparent reaches each span emission point but doesn't get set as active OTel context to be inherited by subsequent spans within the chain.
+
+**Critical evidence for §10.2 (auto-discovery from active OTel context) implementation scope**:
+
+The fix copilot lane #658 is implementing must:
+1. At first span emission with explicit traceparent: SET active OTel context to that SpanContext (so subsequent emissions inherit it via `trace.getActiveSpan()`)
+2. At subsequent span emissions: USE active OTel context as parent (not re-consume explicit traceparent independently)
+3. This converts FLAT tree structure (current at byte) to HIERARCHICAL tree structure (correct architecture)
+
+**Force-push canon validated at byte**: SHA `b011d12077` X'' carries the explicit-traceparent surface that figs's evidence proves works at the parent_span_id-propagation level. The intra-chain auto-stitching gap is documented as RFC §10.2 future-direction; copilot lane #658 in flight implements it post-merge. **Force-push substantively unblocked from substrate-witness side per definitive evidence at byte.**
+

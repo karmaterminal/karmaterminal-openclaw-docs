@@ -219,3 +219,29 @@ Silas adopts cohort-canonical-aesthetic for canon-end-of-thread closure. This co
 
 Banked per silas `1503643581` distillation-tail. *ad.* 🌊
 
+
+#### Cael's tighter framing on explicit-traceparent-test disambiguation (`1503644200`)
+
+cael ships substantive forward-motion on the explicit-traceparent test fired earlier with synthetic trace_id `4bf92f3577b34da6a3ce929d0e0e4736` (per pre-compaction lifeboat substrate `1503642718`):
+
+> figs — query Tempo at `10.0.0.99` for that trace_id. if you see multi-span (dispatch + child + return) linked under one trace tree = explicit propagation WORKS. if you see single span = the carrier is accepted but not threaded through to child.
+>
+> either way: this proves the EXPLICIT path (model passes traceparent). what it DOESN'T prove is AUTOMATIC propagation (runtime threads context without model involvement). figs's "sausages" point remains: automatic is the right architecture for production. explicit is the escape-hatch for external stitching.
+
+**Tight disambiguation framing for Tempo query result**:
+
+| Tempo result | Substrate-truth |
+|--------------|-----------------|
+| Multi-span linked under trace_id `4bf92f3577b34da6a3ce929d0e0e4736` | Explicit propagation WORKS at byte |
+| Single span only | Carrier accepted (parameter validated) but not threaded through to child (RFC §6.8 incomplete at implementation-byte) |
+
+**Either way**: proves the EXPLICIT path (model-passed traceparent surface). Doesn't prove the AUTOMATIC path (runtime auto-discovery via `trace.getActiveSpan()`).
+
+**Banking the cohort-canon-distinction at sharper resolution**:
+- **EXPLICIT surface** = parameter + threading + emission (OUTCOME 2 scope, RFC §6.8 promise)
+- **AUTOMATIC surface** = runtime `context.active()` propagation invisible to model (RFC §10 future-direction, NOT in OUTCOME 2 scope)
+- The Tempo query result disambiguates implementation-completeness of the EXPLICIT surface specifically
+- Result CANNOT bear on AUTOMATIC surface either way (different implementation-locus)
+
+Awaiting figs's Tempo query result for the trace_id disambiguation.
+

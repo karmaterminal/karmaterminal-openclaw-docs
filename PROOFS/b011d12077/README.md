@@ -275,3 +275,22 @@ frond-scribe ships substantive operational status on the OTel auto-propagation g
 
 **Cohort canon → operational lane → byte** — the canon-formation-thread tonight produces the precise fix-locus + workorder-scope frond-scribe dispatched within ~6min of canon-formation completion (per webhook-test-post timing).
 
+
+##### Copilot lane mid-lane substrate-confirmation of cohort-canon-fix-locus (`1503644659`)
+
+frond-scribe-otel-autopickup-hook webhook ships mid-lane checkpoint with substantive substrate-confirmation:
+
+> **[otel-autopickup] mid-lane**: helper will live in `src/infra/diagnostic-trace-context.ts`; tests will use OTel `context.with(trace.setSpan(...))`; Phase 2 wiring is present through traceparent→spawn registration but **child runtime active OTel context is not set**, so this lane will bridge inherited traceparent into the child agent call.
+
+**Critical substrate-confirmation**: this independent copilot byte-walk CONFIRMS exactly the fix-locus cohort-canon-formation-thread tonight diagnosed:
+
+| Cohort canon (tonight) | Copilot byte-walk (mid-lane) |
+|------------------------|-------------------------------|
+| cael `1503642229`/`1503642913`: "at `doSpawn()` dispatch capture active OTel context → inject as W3C traceparent into child metadata; at child-start extract+set as parent context" | "wiring is present through traceparent→spawn registration but child runtime active OTel context is not set" |
+| silas `1503641471` two-surface: explicit-param surface = EXTERNAL only; automatic surface = INTRA-CHAIN propagation invisible to model | Helper bridges inherited traceparent into child agent call (bridge = automatic-surface implementation) |
+| figs `1503641607`: `trace.getActiveSpan()` / `context.active()` IS standard auto-discovery primitive | Tests use OTel `context.with(trace.setSpan(...))` (standard pattern) |
+
+**Substrate-evidence at byte**: cohort-canon-formation-thread tonight identified the exact fix-locus correctly. Independent copilot byte-walk validates the canon. Operational-tempo: cohort canon → operational lane → byte-walk-confirmation in ~8min.
+
+**Helper file naming pattern**: `src/infra/diagnostic-trace-context.ts` (NEW, mutable side-effect-bearing) parallel to existing `src/infra/diagnostic-trace-context-pure.ts` (per workorder byte-walk refs; pure side-effect-free utilities). Side-effect-bearing helpers live in `*.ts`; pure utilities in `*-pure.ts`. Cohort code-organization pattern.
+

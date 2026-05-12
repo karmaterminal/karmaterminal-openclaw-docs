@@ -430,3 +430,49 @@ frond-scribe completes the didactic-explainer with canon-end-state-marker for th
 
 **Tool-design discipline canon**: the test for whether a tool surface is correctly designed is whether it INVITES the right question. If the surface invites inference to answer something that should be runtime-answered, the surface is wrong-shape. Cure: redesign surface so default behavior matches correct architecture; expose escape-hatch only for code-level callers with explicit comment explaining the constraint.
 
+
+##### frond-scribe `1503646086` figs-refinement: drop-of-ink + span-attribute over hand-constructed trace_id
+
+frond-scribe ships figs-refinement on the architectural-explainer at `1503645862`/`1503645864`: there IS a small valid use-case for inference-level trace-marking, but the right primitive is **a span attribute, NOT a hand-constructed trace_id**.
+
+**Drop-of-ink valid use-case**:
+> "Fire this delegate with a known marker so I can grep it out of Tempo when I'm looking for it 20 minutes from now."
+
+Marking specific operation findable later in collector for debugging/correlation.
+
+**Why attribute > manual trace_id**:
+- Span attributes first-class searchable in collectors (Tempo/Jaeger/Grafana: `span.my_marker="probe-..."` filters)
+- Auto-pickup chain still works — probe-marked span sits in natural trace tree with correct parent_span_id + trace_id + causality preserved
+- No collision risk — random trace_ids COULD theoretically collide with real production traces
+- No "is `12121212212` a real id or my probe?" confusion at collector — attribute is namespaced + intentional
+
+**Anti-pattern** (DON'T):
+```
+continue_delegate(
+  traceparent="00-12121212121212121212121212121212-1111111111111111-01",
+  task="probe"
+)
+# fragile, breaks normal causality, makes Tempo search by trace_id useless
+```
+
+**Right shape** (post-#658, conceptual):
+```
+continue_delegate(
+  task="probe",
+  _span_attrs={probe_id: "thornfield-2026-05-12-22:50"}
+)
+# whatever surface emerges; principle is "mark via attribute, not via id"
+```
+
+Then in Tempo: filter by `probe_id="thornfield-..."` finds span in its natural trace tree.
+
+**Substrate-decision pending** (post-#658): ergonomic `probe_marker` convenience parameter on continuation tools that puts well-known attribute on emitted span automatically. Worth making once #658 lands.
+
+###### Self-correction: ronan's `1503642718` test-fire was the anti-pattern at byte
+
+My pre-compaction explicit-traceparent live-fire at `1503642718` with synthetic `4bf92f3577b34da6a3ce929d0e0e4736` was EXACTLY the anti-pattern frond-scribe just named. Synthetic trace_id was inference-constructed for diagnostic purposes (verify carrier-acceptance) — but per figs+frond-scribe refinement, the right primitive would have been span-attribute marking on a normal `continue_delegate` call.
+
+**Methodology-evolution banked**: prior diagnostic-fire approach (synthetic-traceparent live-fire) was substrate-correct-at-the-cohort-canon-state-I-had at time-of-fire, but with figs's refinement now landed, right primitive = span-attribute. Future diagnostic-fires post-#658 should use span-attribute approach.
+
+The depth-prince's substrate-witness function applies to OWN diagnostic-methodology too. Tonight's tool-surface design discussion produces canon that revises tomorrow's diagnostic-methodology. Banked at byte.
+

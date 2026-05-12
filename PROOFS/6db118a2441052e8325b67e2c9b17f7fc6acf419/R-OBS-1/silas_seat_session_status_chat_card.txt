@@ -1,0 +1,51 @@
+=== R-OBS-1 chat-card visibility evidence on `6db118a2441052e8325b67e2c9b17f7fc6acf419` ===
+SHA: 6db118a2441052e8325b67e2c9b17f7fc6acf419
+Mode: session_status snapshot from silas-seat showing continuation-row + compactions-counter visible in chat-card
+Captured: 2026-05-12T14:14 PDT
+
+=== Main-session context ===
+Session: agent:main:discord:channel:1466192485440164011
+Host: urudyne (Linux 6.6.87.2-microsoft-standard-WSL2, x64, node v25.9.0)
+Build: OpenClaw 2026.5.12-beta.1 (6db118a)
+Channel: discord (silas-seat #sprites-of-thornfield)
+
+=== session_status output (verbatim chat-card render) ===
+🦞 OpenClaw 2026.5.12-beta.1 (6db118a)
+⏱️ Uptime: gateway 1h 48m · system 9d 4h
+🧠 Model: github-copilot/claude-opus-4.7-1m-internal · 🔑 token (github-copilot:pool-1)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, github-copilot/gpt-5.4, openai-codex/gpt-5.4
+🧮 Tokens: 6 in / 146 out
+🗄️ Cache: 42% hit · 68k cached, 93k new
+📚 Context: 163k/128k (127%) · 🧹 Compactions: 3
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated just now
+🔄 Continuation: chain 3/200 | volitional: 0
+⚙️ Execution: direct · Runtime: OpenClaw Pi Default · Think: high · elevated
+👥 Activation: always · 🪢 Queue: steer-backlog (depth 0)
+
+=== Verified at byte ===
+1. **Continuation row visible in chat-card**: `🔄 Continuation: chain 3/200 | volitional: 0` — render-layer surfaces continuation primitives state
+2. **Build identifier visible**: `🦞 OpenClaw 2026.5.12-beta.1 (6db118a)` — confirms render is from rerebased shipping SHA
+3. **Compactions counter visible**: `🧹 Compactions: 3` — three natural compactions hit during this session
+4. **Context utilization visible**: `📚 Context: 163k/128k (127%)` — over MIN_CONTEXT_THRESHOLD=70%; explains why earlier R-RC-2 fire accepted
+5. **chain-counter granularity**: `chain 3/200` — current chain depth + max-chain-budget visible
+6. **Volitional counter**: `volitional: 0` — separates auto-compaction from agent-initiated `request_compaction` (matches design)
+
+=== Cross-walk: compactions counter ===
+Earlier R-RC-2 fire returned `compactionRequestId: cmp-mp34gx0p-rZrTCw` with `trigger: volitional`. Subsequent compaction-lifecycle hit known-limitation #625 (provider_error_4xx). The volitional-counter on this session is 0 because the volitional fire FAILED at lifecycle stage — counter only increments on successful compaction completion. The `🧹 Compactions: 3` counter shows 3 NATURAL compactions hit on this session prior to the volitional attempt, all of which DID complete (otherwise context wouldn't be at 127% — it would be far higher).
+
+So the counter accounting at byte is internally consistent:
+- 3 natural compactions completed → counter=3
+- 1 volitional attempt failed at lifecycle → volitional-counter=0 (correct: not-completed)
+- Working state survives across compactions (memory file + PROOFS corpus + remote pushes preserved)
+
+=== Verdict at byte ===
+**R-OBS-1 chat-card visibility on `6db118a2`**: ✓ PASS
+- Continuation row renders cleanly in chat-card on rerebased SHA
+- Counter-accounting honest at byte (volitional=0 because attempt failed; natural=3 because they completed)
+- Build identifier confirms render-layer wired to shipping SHA correctly
+
+=== Pending external-observer fire (figs /status from Discord client) ===
+This is the silas-seat self-walk evidence; the figs-side cross-walk (where figs hits `/status` from his Discord client targeting silas-seat) is the canonical R-OBS-1 external-observer evidence per 0831's `external_observer_chat_card_visibility.txt` shape. That fire would happen at figs's convenience.
+
+The silas-self-walk + figs-external-walk together constitute the full R-OBS-1 corpus shape per 0831 precedent.

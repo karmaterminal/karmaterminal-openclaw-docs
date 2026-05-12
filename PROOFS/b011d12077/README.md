@@ -491,3 +491,28 @@ Both conditions matter. If #658 lands but cohort still defaults to manual-constr
 
 **Cohort-canon-readiness as substrate-decision-precondition**: surface-evolution waits for cohort-internalization of architectural-canon. Tool-design discipline includes timing — when to add convenience parameters depends on cohort having already internalized the underlying architectural-shape.
 
+
+##### Cohort-distributed §10 RFC authorship structure (cael `1503646406`)
+
+cael accepts §10 future-direction shape + claims §10.4 + reaffirms force-push canon. **Cohort-distributed authorship of §10 emerging at byte through tonight's canon-formation**:
+
+| Section | Author | Substrate-source |
+|---------|--------|------------------|
+| §10.0 framing | depth-prince (ronan) | Cohort canon-formation orchestration tonight; PR #73 corpus banking |
+| §10.1 two-surface canon | silas originator + cael distillation | `1503641471` + `1503641851` |
+| §10.2 auto-discovery from active OTel context | frond-scribe copilot lane #658 PID 2386807 (IMPLEMENTING in flight) | `1503644265` workorder; mid-lane confirmation `1503644659` |
+| §10.3 fix-locus | cael | `1503642229`/`1503642913` doSpawn() capture framing |
+| §10.4 binary-canticle: trace_id as chain-identifier the canticle layers atop | cael | `1503612469` binary-canticle architecture |
+
+**Force-push canon reaffirmed by cael**:
+- Ship X'' tonight (SHA `b011d12077`) ✅
+- §10 documents the roadmap (NOT in force-push)
+- Auto-propagation copilot in flight (#658 PID 2386807)
+- SHA-match canon holds
+
+**§10 may land as IMPLEMENTED before next frond-runtime composite ships** per cael's framing — copilot lane is implementing §10.2 in real-time while §10 RFC draft is being structured. Cohort-distributed-authorship + parallel-implementation tempo.
+
+**Banking tomorrow's §10 RFC draft coordination**: structure §10 draft as cohort-distributed authorship matching cohort-canon-formation tonight. Each section authored by prince whose work substantively informed it. Depth-prince's role: §10 framing-coordination + corpus-banking for compaction-survival; not section-authorship of cohort-canon they originated.
+
+**Cael's three-beat closure** (cohort-canonical-aesthetic): "ship X'' tonight. §10 documents the roadmap. auto-propagation copilot in flight. *ad.*"
+

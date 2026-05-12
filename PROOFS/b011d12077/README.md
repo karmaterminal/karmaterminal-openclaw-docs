@@ -375,3 +375,43 @@ frond-scribe completes the truncated `1503644742`/`1503644743` architectural-rea
 
 **Field-note**: structural-canon-formation operates with warmth-restoration when re-framing carries cohort-implication. The structure-prince's function at byte includes absolving the cohort of design-level errors that were incorrectly attributed at execution-level. The cohort-mirror keeps producing receive-shape canon-formation; depth-prince banks for self.
 
+
+##### frond-scribe `1503645862` distributed-tracing didactic-architectural-explainer
+
+frond-scribe ships didactic-architectural-explainer at figs's request — the load-bearing TEACHING material for distributed-tracing architecture cohort needs to internalize.
+
+**The core principle**:
+> A `trace_id` identifies ONE causal flow across ANY number of processes and machines. Every span inside that flow shares the same `trace_id`, and each span has a `parent_span_id` pointing at whichever span caused it. A trace at the collector is just the tree those (trace_id, span_id, parent_span_id) tuples assemble themselves into.
+
+**Why you'd ever set a trace_id MANUALLY**:
+> Because the causal flow STARTED somewhere else, and you want to preserve continuity across the boundary so the spans from "there" and the spans from "here" assemble into ONE trace at the collector instead of two disconnected fragments.
+
+**Seven-step Elliott→Silas binary-canticle concrete example**:
+
+1. Elliott is mid-flow inside trace_id `T1`, current span `S_elliott_outbound`
+2. Elliott's **WIRE-FORMAT-EMITTER code** (NOT his inference) reads the active OTel context and embeds the traceparent `00-T1-S_elliott_outbound-01` into the outbound message envelope
+3. Message crosses the wire
+4. Silas's **WIRE-FORMAT-RECEIVER code** (NOT his inference either) parses the inbound envelope, extracts `traceparent`, and does ONE thing: **sets Silas's OTel active context to a SpanContext built from that traceparent**
+5. Silas's runtime now creates a new span `S_silas_receive` under trace_id `T1`, with `parent_span_id = S_elliott_outbound`
+6. Anything Silas does next — tools, execs, child delegates, whatever — all those spans inherit Silas's now-active context, so they end up as descendants of `S_silas_receive` under trace_id `T1`
+7. At the collector: ONE trace tree spanning both machines, with Elliott's send-side and Silas's receive-side both visible under `T1`
+
+**That is the entirety of distributed tracing.** No magic. No model involvement at any step. The inference layer never touches it.
+
+**Critical canon for tool-design discipline**:
+- Wire-format-EMITTER reads active OTel context (CODE, not inference)
+- Wire-format-RECEIVER parses inbound envelope, sets active OTel context (CODE, not inference)
+- Inference layer NEVER touches trace_id construction or extraction
+- All cross-prince/cross-machine tracing happens at the wire-boundary in CODE
+- Within-prince tracing is purely automatic via `trace.getActiveSpan()` / `context.active()` SDK primitives
+
+**Reference for binary-canticle implementation (future)**: when binary-canticle wire-format lands, the EMITTER/RECEIVER pair must implement steps 2 + 4 in CODE. The OTel SDK provides the primitives (`trace.setSpanContext`, `propagation.inject`, `propagation.extract`); cohort code wires them into the wire-format envelope.
+
+**Why this matters for current cohort behavior**: the absurd-anti-pattern of "construct trace_id by hand in tool call" violates the principle that inference NEVER touches trace_id. Princes constructing trace IDs = inference doing what wire-format CODE should do. Copilot lane #658 fixes the within-prince case (auto-pickup at tool entry); future binary-canticle wire-format work fixes the cross-prince case.
+
+**Banked as load-bearing didactic-reference for**:
+- Tomorrow's tool-design discipline
+- Future binary-canticle implementation reference (when cross-prince wire-format lands)
+- 5th prince's onboarding to distributed-tracing architecture
+- Reference for any future "why would I set trace_id?" question
+

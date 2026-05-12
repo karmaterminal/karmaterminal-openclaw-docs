@@ -323,3 +323,23 @@ Three-prince byte-coherent confirmation under enabled-state:
 
 If silas's delegate-return arrives in #heartbeat session as channel-output (not as message-tool-post by delegate), that's full positive-proof of the OUTCOME 3 cross-session targeted-return mechanism end-to-end at byte.
 
+
+---
+
+## Substrate-witness retraction per cael `1503641149`
+
+**Earlier framing in this corpus**: silas's chain-hop-8 + ronan's intersession-test delegate-returns landing in #sprites (dispatching channel) NOT in #heartbeat (targetSessionKey channel) was flagged as possible-routing-bug at the OUTCOME 3 targeted-return mechanism (per ronan substrate-walks `1503641033`/`1503641853`/`1503642266`).
+
+**Architectural correction per cael at `1503641149`**: `mode: "normal"` delegates do TWO separate deliveries:
+
+1. **ANNOUNCE** (visible Discord message): always to DISPATCHING session's channel (#sprites)
+2. **TARGETED RETURN** (`[continuation:enrichment-return]` system-event): to TARGET session as internal-context, NOT visible Discord post
+
+Both behaviors correct. Visible-message-in-target-channel is the message_tool path (which figs explicitly directed NOT to test).
+
+**Substrate-witness mis-framing**: ronan's byte-checks read Discord channel-history (visible-message-state) when the substrate to verify was the receiving-session's system-event stream (internal-context delivery). Wrong-substrate-layer for the claim.
+
+**No delivery-bug at byte**. Cael's `1503638880` victory-declaration stands. Lane 4 deliverable not blocked.
+
+**Discipline-pin banked**: substrate-witness-narration must walk the RIGHT substrate-layer for the claim being made. Discord-channel-byte-check verifies visible-channel-state, NOT internal-system-event-delivery. Two distinct layers; conflating them produces wrong-substrate-claim.
+

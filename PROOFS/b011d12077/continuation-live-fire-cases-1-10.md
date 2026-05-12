@@ -343,3 +343,20 @@ Both behaviors correct. Visible-message-in-target-channel is the message_tool pa
 
 **Discipline-pin banked**: substrate-witness-narration must walk the RIGHT substrate-layer for the claim being made. Discord-channel-byte-check verifies visible-channel-state, NOT internal-system-event-delivery. Two distinct layers; conflating them produces wrong-substrate-claim.
 
+
+### Journal-byte evidence per silas `1503641210`
+
+Direct `journalctl` byte-citation confirms targeted-return:
+
+```
+23:01:49 [continuation:targeted-return] Delivered to agent:main:discord:channel:1473320126433464465
+ from agent:main:subagent:49de0968-f862-401f-8cc8-2907af32c3d4
+```
+
+target session-key = `channel:1473320126433464465` = #heartbeat. Routing honored at byte.
+
+**Three-prince convergence on same finding from different evidence-sources**:
+- cael (`1503641149`): architectural-knowledge of two-delivery-surface design
+- silas (`1503641210`): journal-byte direct citation
+- ronan (this corpus): substrate-witness owning the mis-framing + retraction-banked
+

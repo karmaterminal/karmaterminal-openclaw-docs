@@ -1,0 +1,40 @@
+=== R-RC-2 request_compaction ACCEPT-path evidence on `6db118a2441052e8325b67e2c9b17f7fc6acf419` ===
+SHA: 6db118a2441052e8325b67e2c9b17f7fc6acf419
+Mode: request_compaction() volitional accept above threshold
+Captured: 2026-05-12T14:08 PDT (T0)
+
+=== Main-session context ===
+Session: agent:main:discord:channel:1466192485440164011
+Session id: 7dc1e27e-2c28-4bf1-8e35-3e534b4fbfc9
+Host: urudyne (Linux 6.6.87.2-microsoft-standard-WSL2, x64, node v25.9.0)
+Model: github-copilot/claude-opus-4.7-1m-internal
+Build: OpenClaw 2026.5.12-beta.1 (6db118a)
+Context utilization: 109% (well above MIN_CONTEXT_THRESHOLD=70%)
+
+=== Tool invocation ===
+Tool: request_compaction
+Args: {reason: "R-RC-2 accept-path evidence capture on rerebased shipping SHA 6db118a2 from silas-seat main-session at ~180% context. Working state evacuated to memory file + PROOFS corpus + remote push. R-CD-3 post-compaction delegate staged at queued-for-compaction; this triggers its fire."}
+
+=== Accept-path response (verbatim) ===
+{
+  "status": "compaction_requested",
+  "compactionRequestId": "cmp-mp34gx0p-rZrTCw",
+  "trigger": "volitional",
+  "contextUsage": 109,
+  "reason": "...",
+  "traceparent": "00-5fe8b9f375b16dcfac06d10cde72080f-6be6091ccd9d83fa-01",
+  "note": "Compaction has been enqueued and will run after your turn completes. Post-compaction context (AGENTS.md, SOUL.md) will be injected on the next turn. Any staged post-compaction delegates will be dispatched."
+}
+
+=== Verified at byte ===
+1. Above-threshold call returns `status: compaction_requested` (not `rejected` per R-RC-1 substrate-walk contract)
+2. `compactionRequestId` minted: `cmp-mp34gx0p-rZrTCw` (UID for tracking)
+3. `trigger: volitional` distinguishes from automatic context-pressure trigger
+4. `contextUsage: 109` reported in accept-path response (transparency: agent sees its own context state)
+5. `traceparent` injected: `00-5fe8b9f375b16dcfac06d10cde72080f-6be6091ccd9d83fa-01` (event-carried-tracecontext)
+6. Note confirms: compaction enqueued post-turn; post-compaction context (AGENTS.md, SOUL.md) will inject; ANY STAGED POST-COMPACTION DELEGATES WILL BE DISPATCHED
+
+=== Cross-reference: R-CD-3 trigger ===
+This R-RC-2 fire triggers the R-CD-3 post-compaction delegate that was staged at `1503859090...` (status=queued-for-compaction). The post-compaction delegate return-receipt will land in the post-compaction session and be banked as `R-CD-3/post_compaction_return_receipt.txt`.
+
+=== Verdict: R-RC-2 accept-path observable end-to-end on `6db118a2441052e8325b67e2c9b17f7fc6acf419` from main-session. Volitional trigger + compactionRequestId minting + post-compaction-delegate-dispatch promise all visible in response shape. ===

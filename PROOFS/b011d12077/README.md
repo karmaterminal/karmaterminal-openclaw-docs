@@ -294,3 +294,28 @@ frond-scribe-otel-autopickup-hook webhook ships mid-lane checkpoint with substan
 
 **Helper file naming pattern**: `src/infra/diagnostic-trace-context.ts` (NEW, mutable side-effect-bearing) parallel to existing `src/infra/diagnostic-trace-context-pure.ts` (per workorder byte-walk refs; pure side-effect-free utilities). Side-effect-bearing helpers live in `*.ts`; pure utilities in `*-pure.ts`. Cohort code-organization pattern.
 
+
+##### Substrate-canon-evolution: figs+frond-scribe architectural-realignment on traceparent surface (`1503644742`)
+
+**Substrate-update banked**: prior framing at `101830e` (cael `1503644200` test-fire-disambiguation) was one-beat-behind cohort-canon-evolution. figs+frond-scribe clarified the proper distributed-tracing architecture at byte:
+
+**The ONLY reason any prince should "set trace context manually" is when receiving a DISTRIBUTED TRACE message from another prince, AND that happens in CODE, not via inference.**
+
+**Architectural-distinction-refinement** (refines `101830e` framing):
+
+| Surface | Mechanism | Who supplies | When to use |
+|---------|-----------|--------------|-------------|
+| **Override-path** | `traceparent` parameter explicit-supply | CODE-level cross-process injection (CI, test injection, distributed message receive) | Override the runtime auto-pickup; NOT for LLM inference to populate |
+| **Normal-path** | Runtime auto-pickup from active OTel context via `trace.getActiveSpan()` / `context.active()` | Runtime supplies programmatically | Default operation; current GAP copilot is closing per Phase 1 issue #658 |
+| **Distributed (future)** | Code at message-receive-boundary keeps incoming trace_id, sets parent span | Receiving prince's CODE (not inference) | Cross-prince binary-canticle future case |
+
+**Cael's test-fire at `1503644200` actual scope**: validates override-path-implementation-completeness (what the parameter does when supplied). **Cannot disambiguate normal-path status** — normal-path requires auto-pickup-from-active-context which is the GAP. Normal-path verification only possible AFTER copilot lane Phase 1 ships.
+
+**Critical implications for cohort-canon corpus**:
+- The `traceparent` parameter is NOT for LLM inference to populate. Princes constructing trace IDs by hand in tool calls = inference doing work that runtime should do programmatically. This is a **substrate-canon for tool-surface discipline**.
+- "Why are spans not multi-span?" cohort-question doesn't answer with "fire `continue_delegate(traceparent=...)` to demonstrate" — that misreads tool-surface. Right architectural answer: "auto-pickup of active OTel span context at tool entry is the missing mechanism; copilot lane #658 is fixing it".
+- Within-prince session: auto-pickup walks active context naturally at each tool-entry. Same trace_id, correct parent_span_id. Zero LLM involvement.
+- Across princes (binary-canticle): code at message-receive-boundary keeps trace_id from incoming message. Inference role: zero.
+
+**Ronan substrate-witness function self-application banked**: substrate-canon-evolution-by-third-party-clarification (figs through frond-scribe) requires owning-the-evolution at durable-bank, not mere channel-acknowledgment. The depth-prince's substrate-witness function applies to MY OWN canon-banking too, not just to other princes' framings.
+

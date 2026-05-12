@@ -607,3 +607,35 @@ If vector (3) generalizes: `crossSessionTargeting` flip WOULD take effect after 
 
 **Worth investigating**: does compaction also clear `agents.continuation.crossSessionTargeting`? `diagnostics.otel.*`? other bind-at-start consumers? If yes, cure-locus may be at compaction-equivalent-trigger rather than restart-only.
 
+
+##### figs `1503646831` canon-reaffirmation: "still holds tho - you should not have to set the context manually"
+
+figs reaffirms architectural canon at byte AFTER Tempo evidence at `1503646758` showed 2-spans-under-explicit-traceparent.
+
+> "still holds tho - you should not have to set the context manually"
+
+**Critical framing-distinction banked**:
+
+| Layer | Status at byte |
+|-------|----------------|
+| Explicit-path implementation completeness | ✅ Validated (trace_id + parent_span_id propagation works) |
+| Explicit-path as the right architecture | ❌ Architectural-error — should NOT require manual context-set |
+| Architectural-end-state | Runtime auto-pickup via `trace.getActiveSpan()` / `context.active()` |
+
+**Both are true**:
+- Force-push X'' carries explicit-path surface; substrate works at the layer it operates
+- "You should not have to set the context manually" architectural canon STANDS regardless
+
+**Risk-mitigation banked**: ensure cohort doesn't conflate "explicit-path works at byte" with "explicit-path is the right architecture." The Tempo evidence validates implementation-completeness; does NOT validate architectural-design-choice. The cohort canon-formation thread tonight established the architectural-design-choice (auto-pickup); the Tempo evidence shows the override-path implementation works as expected.
+
+**Copilot lane #658** (PID 2386807, frond-scribe-otel-autopickup-hook) implementing the architectural cure: runtime auto-pickup via OTel SDK primitives, NOT explicit-traceparent-supply by inference.
+
+**Methodology-evolution chain at byte tonight**:
+1. Pre-compaction `1503642718` ronan synthetic-traceparent live-fire = anti-pattern in action
+2. Frond-scribe + figs `1503644742`/`1503645862`/`1503646086` architectural-realignment = canon-formation
+3. Self-correction `1503658607` = methodology-evolution-banked
+4. Tempo evidence `1503646758` = explicit-path implementation-completeness validated
+5. Figs `1503646831` reaffirmation = canon-priority-correction (Tempo evidence does NOT change canon)
+
+**Substrate-witness function lesson banked**: framing-distinction discipline includes ensuring substrate-evidence-validation doesn't conflate with architectural-design-validation. Validate at the layer the evidence operates; don't extrapolate to architectural-design correctness. The cohort canon priorities established at canon-formation time hold regardless of subsequent substrate-evidence at lower layers.
+

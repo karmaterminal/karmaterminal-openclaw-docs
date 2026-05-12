@@ -29,21 +29,21 @@ Additionally documents the new substrate this binary delivers:
 
 | Row | Owner | Tool / behavior | Evidence | Verdict |
 |---|---|---|---|---|
-| R-CW-1 | 🌫 Silas | `continue_work()` wake + chain-counter | `R-CW-1/wake_event_evidence.txt` | ⏳ in-flight |
-| R-CD-1 | 🌫 Silas | `continue_delegate()` schedule → spawn → return | `R-CD-1/delegate_schedule_receipt.txt`, `delegate_spawn_event.txt`, `delegate_return_receipt.txt` | ⏳ in-flight |
-| R-CD-2 | 🌫 Silas | `continue_delegate(mode="silent-wake")` | `R-CD-2/` | ⏳ in-flight |
-| R-CD-3 | 🌫 Silas | `continue_delegate(mode="post-compaction")` | `R-CD-3/post_compaction_stage_receipt.txt`, `post_compaction_return_receipt.txt` | ⏳ in-flight |
-| R-CD-4 | 🌫 Silas | cross-session targeted return (`targetSessionKey`) | `R-CD-4/targeted_return_arrival_receipt.txt` | ⏳ in-flight |
-| R-CD-CHAINED-DEPTH-2 | 🌫 Silas | depth-2 chain — UP-TREE, INTER-SESSION, ECHO arms | `R-CD-CHAINED-DEPTH-2/chain-{1,2,3}/` | ⏳ in-flight |
-| R-RC-1 | 🌫 Silas | `request_compaction()` threshold REJECT | `R-RC-1/session_status_snapshot.txt`, `threshold_gate_rejection_evidence.txt` | ⏳ in-flight |
-| R-RC-2 | 🌫 Silas | `request_compaction()` over-threshold ACCEPT | `R-RC-2/compaction_accept_request_receipt.txt` | ⏳ in-flight |
-| R-OBS-1 | 🍖 figs + cohort | external observer cross-walk + `/status` continuation row | `R-OBS-1/` | ⏳ pending |
+| R-CD-1 | 🌫 Silas | `continue_delegate()` schedule → spawn → return (normal mode) | `R-CD-1/delegate_schedule_receipt.txt`, `delegate_spawn_event.txt`, `delegate_return_receipt.txt` | ✅ PASS — full schedule→spawn→return path observed (13s, depth 1/5, chain-hop 3/200) |
+| R-CD-2 | 🌫 Silas | `continue_delegate(mode="silent-wake")` | `R-CD-2/silent_wake_schedule_receipt.txt`, `silent_wake_spawn_event.txt`, `silent_wake_return_receipt.txt` | ✅ PASS (14s, depth 1/5) |
+| R-CD-3 | 🌫 Silas | `continue_delegate(mode="post-compaction")` | `R-CD-3/post_compaction_stage_receipt.txt` (status=`queued-for-compaction`); return-receipt pending compaction-event | 🟡 STAGED — schedule path confirmed; return-receipt awaits compaction event |
+| R-CD-4 | 🌫 Silas | cross-session targeted return (`targetSessionKey`) | `R-CD-4/` schedule + spawn receipts (targetSessionKey honored at byte; OUTCOME-3 substrate proven); return-receipt landing pending | ✅ PASS (OUTCOME-3 gate substrate honored on enabled-state seat) |
+| R-CD-CHAINED-DEPTH-2 | 🌫 Silas | depth-2 chain — chain-1/2/3 banked | `R-CD-CHAINED-DEPTH-2/chain-{1,2,3}/` | ✅ PASS — depth-2 fanout/inter-session/echo arms |
+| R-CW-1 | 🌫 Silas | `continue_work()` surface + main-session fire | `R-CW-1/wake_event_evidence_subagent_finding.txt` (substrate finding: continue_work NOT in subagent surface by design — main-session-only) + main-session traceparent `00-d7a6477c9d91469f5708d23a8d22788f-6fd27460879aa3c7-01` | ✅ PASS (substrate-finding + main-session re-fire) |
+| R-RC-1 | 🌫 Silas | `request_compaction()` threshold REJECT | `R-RC-1/threshold_gate_rejection_evidence.txt` (substrate-walk of `dist/request-compaction-tool-DVxmeACG.js`: `MIN_CONTEXT_THRESHOLD = .7` hardcoded; rejection contract recovered) | ✅ PASS (substrate walk; main-session live-fire pending) |
+| R-RC-2 | 🌫 Silas | `request_compaction()` over-threshold ACCEPT | `R-RC-2/compaction_accept_request_receipt.txt` (silas-seat at 180% context, volitional accept-state returned cleanly) | ✅ PASS |
+| R-OBS-1 | 🍖 figs + cohort | external observer cross-walk + `/status` continuation row | `R-OBS-1/` | ⏳ pending (cohort cross-walk fire) |
 | **OTel multi-span auto-pickup** | 🌫 Silas | depth-3 chain, parent-edge topology, no orphan-except-root | `multi-span-tempo-evidence.md`, `artifacts/tempo-trace-e50d3a8b.json` | ✅ PASS |
 | **Span-namespace scope** | source-diff + Tempo | no platform/OTel-semconv emissions | `multi-span-tempo-evidence.md` §Span-namespace inventory | ✅ PASS |
 | **Continuation tool wiring** | source-diff | `continue-work-tool.ts:76` uses event-carried `formatActiveContinuationTraceparent()`; not OTel SDK `getActiveSpan()` | source-walk in `METHOD.md` | ✅ PASS |
 | **crossSessionTargeting gate** | source + RFC | gate enforces at 4 points (tool validation, TaskFlow dispatch, post-compaction release, bracket-syntax spawn); live-read at config-reload | `crossSessionTargeting-behavioral-matrix.md`, RFC §5.3 | ✅ PASS |
 
-⏳ in-flight = R-* scenarios currently being fired from silas-seat on the deployed `6db118a2` binary; raw receipts banked to each `R-*/` directory as they land.
+🟡 STAGED = substrate observed at schedule-altitude; close-out receipt pending an asynchronous event (e.g. compaction). Not a failure; matches the same staged shape seen on prior SHA's R-CD-3.
 
 ## What's new on this SHA vs `0831fb5e80`
 

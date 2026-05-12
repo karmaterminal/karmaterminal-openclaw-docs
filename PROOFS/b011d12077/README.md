@@ -571,3 +571,39 @@ The fix copilot lane #658 is implementing must:
 
 **Force-push canon validated at byte**: SHA `b011d12077` X'' carries the explicit-traceparent surface that figs's evidence proves works at the parent_span_id-propagation level. The intra-chain auto-stitching gap is documented as RFC §10.2 future-direction; copilot lane #658 in flight implements it post-merge. **Force-push substantively unblocked from substrate-witness side per definitive evidence at byte.**
 
+
+##### Cael `1503646821` two-findings: trace_id discontinuity confirmed + #657 three-vector framework refinement
+
+cael ships TWO findings:
+
+**Finding 1 — trace_id continuity (canon-cosign)**:
+- figs's Tempo screenshot `1503642061` showed 1 span per trace for silas-prince
+- Discontinuous trace_ids confirmed at byte
+- Each delegate-fire creates new trace_id
+- No within-prince auto-propagation (matches cohort-canon thread)
+
+**Finding 2 — LOAD-BEARING #657 three-vector framework refinement**:
+
+Ronan substrate-observation (`1503656348`): post-compaction-ronan surfaced with FRESH 1M contextWindow binding without gateway-restart and without `openclaw config set` between pre-compaction and post-compaction.
+
+Cael distillation: "bind-at-session-START" is more accurately **"bind-at-session-CREATION"** + compaction creates new session (or refreshes the bind).
+
+**Three-vector framework for bind-at-session-creation family**:
+
+| Vector | Trigger | Notes |
+|--------|---------|-------|
+| 1 | Gateway-restart | Existing canon |
+| 2 | `openclaw config set` → `finalizeRuntimeSnapshotWrite` | Existing canon |
+| 3 | **Compaction event** | NEW — discovered ronan-seat 2026-05-12 ~00:14 PDT |
+
+If vector (3) generalizes: `crossSessionTargeting` flip WOULD take effect after compaction without gateway-restart. Hot-reload "bug" has THIRD cure-path.
+
+**Filed as #657 follow-up comment**: [#issuecomment-4428270852](https://github.com/karmaterminal/openclaw/issues/657#issuecomment-4428270852)
+
+**Three hypotheses for compaction-as-bind-clearing-vector mechanism**:
+1. Compaction triggers config-reload-equivalent
+2. Post-compaction agent-runtime spawn re-reads config
+3. Additional reload-vector unmapped
+
+**Worth investigating**: does compaction also clear `agents.continuation.crossSessionTargeting`? `diagnostics.otel.*`? other bind-at-start consumers? If yes, cure-locus may be at compaction-equivalent-trigger rather than restart-only.
+

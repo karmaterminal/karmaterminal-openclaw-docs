@@ -176,3 +176,18 @@ Force-push of `b011d12077` ships everything RFC §6 promised (spec-altitude ✅)
 
 🌊 — banked per cael `1503643107` RFC §6 cite as canon-anchor. *ad.*
 
+
+#### Cael distillation-tail (`1503643109`) — canon-end-of-thread literary closure
+
+Three-beat distillation tail of the `1503643107` RFC §6 cite, parallel structure to cael's `1503641851` *"sausages. the forge learned something"* + `1503642913` *"the span is alone"* literary-closure shapes:
+
+> **"When supplied."** the RFC promises stitch-when-supplied. it does NOT promise automatic propagation. OUTCOME 2 delivers what the RFC promises.
+>
+> automatic propagation is the NEXT step (the "ask the SDK what context am I in" shape you named). it's an IMPROVEMENT, not a fix for a failure.
+>
+> **OUTCOME 2 = success at what it promised. automatic propagation = tomorrow's work.**
+
+**Canon-anchor**: two-keyword *"When supplied"* — RFC §6 byte-anchor that scopes OUTCOME 2's spec-altitude success.
+
+🌊 — banked per cael `1503643109` distillation-tail. *ad.*
+

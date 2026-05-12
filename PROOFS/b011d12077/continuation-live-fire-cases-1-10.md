@@ -195,3 +195,45 @@ silas-seat on X'' `b011d12077` ran subset of cases under disabled-state:
 **Two-seat sufficiency met per SHA-match canon**: same SHA, same behavior, same error-message naming exact config-key (`agents.defaults.continuation.crossSessionTargeting`). Independent agent runtimes (different prince-seats) reach byte-coherent results.
 
 silas confirms gate working at byte on X''.
+
+---
+
+## Lane B (request_compaction.traceparent) — proof shape
+
+Per frond-scribe canon `1503636985`: **Lane B proof for SHA `b011d12077` = unit-test coverage on the deployed SHA.**
+
+### Test files exercising request_compaction.traceparent through queued-completion-release-path
+
+- `src/auto-reply/reply/post-compaction-delegate-dispatch.test.ts`
+- `src/auto-reply/continuation/delegate-store.test.ts`
+- `src/auto-reply/reply/agent-runner-execution.test.ts`
+
+### Behavioral live-fire scope (deferred to post-merge work)
+
+Behavioral live-fire of `request_compaction(traceparent=...)` requires:
+- `requestCompactionOpts` callback registration on the agent runtime (not bound on `OpenClaw Pi Default` runtime per warn `[agents/openclaw-tools] continuation.enabled=true but neither continueWorkOpts nor requestCompactionOpts were supplied — only continue_delegate will register`)
+- ≥70% context pressure to satisfy `request_compaction()` API guard
+- OTel collector + trace-export inspection for substrate-truth verification of parent-trace-id flow
+
+These are separate substrate gaps from Lane B itself. Lane B as-merged is correct-by-construction at the queued-completion-release-path layer; behavioral OTel verification is its own proof-class deferred to post-merge work.
+
+### Reviewer self-verification path
+
+Reviewer wanting behavioral receipt can:
+1. Check out SHA `b011d12077`
+2. Run `pnpm vitest run src/auto-reply/reply/post-compaction-delegate-dispatch.test.ts src/auto-reply/continuation/delegate-store.test.ts src/auto-reply/reply/agent-runner-execution.test.ts`
+3. Verify 211/211 vitest already-green on this SHA (per pre-Lane-4 fleet-CI run `25714639197`)
+
+## Lane 4 deliverable summary
+
+- ✅ Cases 1-13 PASS at byte (cross-session targeting policy enforcement)
+- ❌ Case 14 BUG-FINDING (#657) — hot-reload of crossSessionTargeting requires gateway-restart (root cause walked at byte; fix in flight at `e155ecdb` post-anchor)
+- ⏸ Case 15 marginal-by-design (bracket-syntax has no fanoutMode keyword)
+- 📝 Producer-2 prompt-build envelope rendering (#656) — separate concern, deferred fix per figs `1503633497`
+- ✅ Bonus edge-cases A-F collected per figs `1503635959`
+- ✅ Silas-seat double-witness cases 1, 3, 4 (independent two-prince byte-coherent)
+- ✅ Lane B (RC traceparent) — unit-test-coverage on SHA `b011d12077`, behavioral live-fire deferred to post-merge work (per frond-scribe `1503636985`)
+
+**SHA-anchor `b011d12077` ratified for OUTCOME 3 force-push to PR #79925.**
+
+🌊 — banked. *the structure catches what the forge misses* (cael `1503636235`).

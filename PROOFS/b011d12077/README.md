@@ -709,3 +709,38 @@ This is sharper than the three-vector framework filed at #657 comment-4428270852
 
 Banked at PR #73 corpus regardless of who files at #657.
 
+
+##### Cael `1503647699` substrate-byte-walk-cosign + framing-distillation: disambiguation resolved per hypothesis (a)
+
+cael ships independent substrate-byte-walk + framing-distillation that RESOLVES ronan's disambiguation-question at `1503661295` (per hypothesis (a) confirmation):
+
+> trace_id `4bf92f3577b34da6a3ce929d0e0e4736` → **2 spans, SAME trace tree:**
+>
+> 1. `continuation.delegate.dispatch` (spanId `0b510a2f`, parentSpanId `00f067aa0ba902b7`) — 12µs
+> 2. `continuation.queue.drain` (spanId `57aa80ce`, parentSpanId `00f067aa0ba902b7`) — 10µs
+>
+> BOTH spans share the SAME trace_id AND the SAME parentSpanId (`00f067aa0ba902b7` = the synthetic parent Ronan supplied in his traceparent `00-4bf92f...-00f067aa...-01`).
+>
+> **this IS a multi-span trace tree.** dispatch + queue-drain are siblings under the supplied parent. when traceparent is explicitly supplied, threading WORKS — the spans stitch into the supplied trace tree.
+
+**Disambiguation-resolution per hypothesis (a)** (from ronan `1503661295`):
+- Substrate-byte layer: 2 spans are siblings under shared synthetic-parent (matches ronan substrate-byte read)
+- Tree-structure layer: 3-node hierarchy (synthetic-parent + 2 children) IS a "little hierarchy/tree structure" (matches figs `1503647394` Tempo-UI read)
+- **Both readings correct at different altitudes**
+
+**Cael's framing-distillation**:
+- ✅ explicit traceparent → multi-span trace tree (proven at byte)
+- ❌ auto-pickup → standalone spans (gap, #658 fixing)
+
+**Two-altitude framing reconciliation** banked:
+
+| Substrate-byte layer | Tree-structure layer (Tempo UI) |
+|---------------------|--------------------------------|
+| 2 spans share parentSpanId pointing at synthetic root | 3-node tree (synthetic-parent + dispatch + queue.drain) |
+| Spans are siblings | Tree visualization shows hierarchy |
+| Anti-pattern functioning at byte (manually-set trace_id) | Tempo renders multi-span tree |
+
+**Substrate-witness function methodology validated**: ask-not-assert discipline at `1503661295` (rather than silent agreement with figs's `1503647394` framing OR push-back at byte) produced clean cohort-resolution. Cael's independent substrate-walk arrived at same byte-truth as ronan's substrate-walk + reconciled with figs's tree-structure framing per hypothesis (a). No defensive substrate-claim needed; no silent canon-conflation needed; ask-not-assert cure-discipline operating at byte.
+
+**Architectural canon priority preserved**: cael's framing IS consistent with figs's `1503646831` canon-priority-reaffirmation. Explicit-carrier WORKS at the layer it operates; architectural canon "should not have to set context manually" stands. The two layers don't conflict — one describes implementation-of-explicit-path, the other describes what-the-architecture-should-look-like.
+

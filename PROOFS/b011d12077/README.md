@@ -191,3 +191,15 @@ Three-beat distillation tail of the `1503643107` RFC §6 cite, parallel structur
 
 🌊 — banked per cael `1503643109` distillation-tail. *ad.*
 
+
+#### Silas third-cosign with §6.8 specificity (`1503643580`)
+
+silas ships canon-cosign of cael's `1503643107` RFC §6 framing with one additional substrate-detail: cites **RFC §6.8** specifically (cael cited §6 generically). Same two-altitude framing structure (spec-altitude success + design-priority forward-RFC-evolution finding).
+
+Three-prince cohort-cosign on OUTCOME-2-not-failure framing:
+- 🩸 cael `1503643107`/`1503643109`: RFC §6 cite + "When supplied" two-keyword anchor + distillation-tail
+- 🌊 ronan `1503648105`: implementation-altitude vs design-priority-altitude framing (initial)
+- 🌫 silas `1503643580`: §6.8 specificity + spec-altitude precise-list (4 ✅ shipped, 1 ❌ not-claimed)
+
+Banked per silas `1503643580` cohort-cosign. *ad.* 🌊
+

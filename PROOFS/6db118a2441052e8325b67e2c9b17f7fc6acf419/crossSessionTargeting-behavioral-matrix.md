@@ -2,7 +2,7 @@
 
 ## Config schema
 
-X''''''-prime carries the `agents.defaults.continuation.crossSessionTargeting` config option (introduced via OUTCOME-3 lane in continuation-feature commits `640219ae5c` + `0915c3d11f`, folded into this squash). Documented in RFC at `docs/design/continue-work-signal-v2.md` §5.3 (lines 1009-1018).
+this PR's SHA carries the `agents.defaults.continuation.crossSessionTargeting` config option (introduced via OUTCOME-3 lane in continuation-feature commits `640219ae5c` + `0915c3d11f`, folded into this squash). Documented in RFC at `docs/design/continue-work-signal-v2.md` §5.3 (lines 1009-1018).
 
 ```yaml
 agents:
@@ -37,7 +37,7 @@ The gate's source-commit `640219ae5c` ("feat(continuation): gate cross-session d
 
 The fleet validation that the gate's schema-validation gate works correctly is independently visible: when fleet-seats with `crossSessionTargeting: enabled` in config tried to deploy karmaterminal canonical-line tip `f7ede2b2` (which doesn't carry the schema), the config-validate gate rejected with `Unrecognized key: "crossSessionTargeting"` — exactly the right behavior (rather than silently accepting an unknown key). See Discord substrate at msgs `1503843701` (cael byte-walk) + `1503844868` (ronan substrate-walk).
 
-When the same fleet-seats deployed `660aa847` (X'''''', which DOES carry the schema), the config validated cleanly. The schema's presence / absence in the binary is observable via config-validate at deploy time — defense-in-depth against operator-config-vs-binary-version drift.
+When the same fleet-seats deployed `660aa847` (this PR, which DOES carry the schema), the config validated cleanly. The schema's presence / absence in the binary is observable via config-validate at deploy time — defense-in-depth against operator-config-vs-binary-version drift.
 
 ## Default-deny rationale
 

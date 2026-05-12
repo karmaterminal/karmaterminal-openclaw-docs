@@ -1,6 +1,6 @@
 # Multi-span Tempo evidence — trace `e50d3a8bb49f81bf71692041361009e7`
 
-**SHA tested**: `6db118a2441052e8325b67e2c9b17f7fc6acf419` (X''''''-prime)
+**SHA tested**: `6db118a2441052e8325b67e2c9b17f7fc6acf419` (this PR's SHA)
 **Seat**: silas (`OpenClaw 2026.5.12-beta.1 (6db118a)`)
 **Live-fire driver**: silas-seat session, depth-3 `continue_delegate` chain spec (root → child → grandchild via silent leaf), no explicit traceparent
 **Capture timestamp**: 2026-05-12 around 19:28 UTC (silas's heartbeat at `1503841221`)

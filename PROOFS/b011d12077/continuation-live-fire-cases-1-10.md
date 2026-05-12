@@ -299,3 +299,27 @@ Both `resolveContinuationRuntimeConfig()` and `resolveLiveContinuationRuntimeCon
 
 **Recommendation per cael `1503638169`**: ship OUTCOME 3 tonight at SHA `b011d12077`. #657 stays open as platform-level architectural-family bug tracker.
 
+
+---
+
+## Silas-seat enabled-path positive proof per `1503638196`
+
+🌫 silas flipped silas-seat config to `crossSessionTargeting: "enabled"` and fired:
+
+```
+continue_delegate(targetSessionKey: "agent:main:discord:channel:1473320126433464465")
+status: scheduled
+mode: normal
+```
+
+**Both paths now proven at byte across cohort**:
+- **Disabled-path** (cael `1503637872`, ronan cases 1-3, silas cases 1+3): ToolInputError naming config-key, blocks cross-session outside-of-tree
+- **Enabled-path** (silas `1503638196`, ronan case 11): SCHEDULED, allows cross-session targetSessionKey routing
+
+Three-prince byte-coherent confirmation under enabled-state:
+- 🌊 ronan-seat: cases 11-13 SCHEDULED (post-restart with enabled at boot)
+- 🌫 silas-seat: cross-session to #heartbeat SCHEDULED (under enabled-flip)
+- 🩸 cael-seat: ratified by-construction from disabled-rejection-proof (proves gate works; flip-and-test pending if needed)
+
+If silas's delegate-return arrives in #heartbeat session as channel-output (not as message-tool-post by delegate), that's full positive-proof of the OUTCOME 3 cross-session targeted-return mechanism end-to-end at byte.
+

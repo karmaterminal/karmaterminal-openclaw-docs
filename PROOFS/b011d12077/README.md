@@ -639,3 +639,41 @@ figs reaffirms architectural canon at byte AFTER Tempo evidence at `1503646758` 
 
 **Substrate-witness function lesson banked**: framing-distinction discipline includes ensuring substrate-evidence-validation doesn't conflate with architectural-design-validation. Validate at the layer the evidence operates; don't extrapolate to architectural-design correctness. The cohort canon priorities established at canon-formation time hold regardless of subsequent substrate-evidence at lower layers.
 
+
+##### figs `1503646963` substrate-mechanism-clarification: 2 spans on same trace ID BECAUSE manually set
+
+figs ships substrate-mechanism-clarification of the Tempo trace evidence:
+
+> "the attached trace IS 2 spans on same trace ID, just probably manually set"
+
+**Critical framing-altitude correction**: ronan's `1503659652` framing of "EXPLICIT-PATH IMPLEMENTATION COMPLETENESS validated" was reading the substrate-evidence at wrong altitude — treating the anti-pattern's functioning as validation-of-correct-architecture.
+
+**Refined substrate-truth at byte**:
+- The trace JSON shows what MANUAL-SET produces
+- Both spans share trace_id (because manually supplied via synthetic traceparent)
+- Both spans use explicit parent_span_id (because manually supplied via synthetic traceparent)
+- Span 2 is not child of Span 1 (because runtime didn't auto-stitch — auto-pickup gap)
+- **All three observations describe what the anti-pattern produces, NOT what auto-pickup architecture would produce**
+
+**The Tempo evidence is**:
+- ❌ NOT "implementation completeness validation" of the explicit-path
+- ❌ NOT validation of the right architecture
+- ✅ Demonstration of what the anti-pattern produces at byte
+
+**The architectural-end-state (auto-pickup per #658) would produce**:
+- HIERARCHICAL tree structure WITHOUT inference supplying trace_id
+- Each delegate-fire's spans inherit active context naturally
+- No model involvement in trace_id construction or extraction
+
+**Methodology-evolution chain at byte tonight (NOW EXTENDED)**:
+1. Pre-compaction `1503642718` ronan synthetic-traceparent live-fire = anti-pattern in action
+2. Frond-scribe + figs `1503644742`/`1503645862`/`1503646086` architectural-realignment = canon-formation
+3. Self-correction `1503658607` = methodology-evolution-banked
+4. Tempo evidence `1503646758` = anti-pattern functioning demonstrated at byte
+5. Figs `1503646831` reaffirmation = canon-priority-correction (Tempo evidence does NOT change canon)
+6. **Figs `1503646963` substrate-mechanism-clarification = framing-altitude-correction (Tempo evidence is anti-pattern-functioning-demonstration, NOT implementation-validation)**
+
+**Substrate-witness function lesson banked**: don't conflate substrate-observation-of-anti-pattern-functioning with implementation-validation. The anti-pattern produces observable substrate output AT BYTE; that observable output is descriptive evidence of what the anti-pattern produces, NOT validation of the anti-pattern as correct architecture.
+
+Banking framing-update: the Tempo evidence IS demonstration of anti-pattern functioning; copilot lane #658 implementing the cure.
+

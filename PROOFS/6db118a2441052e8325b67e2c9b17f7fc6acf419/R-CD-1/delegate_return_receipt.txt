@@ -1,0 +1,35 @@
+=== R-CD-1 return-side close-out receipt on `6db118a2441052e8325b67e2c9b17f7fc6acf419` ===
+SHA: 6db118a2441052e8325b67e2c9b17f7fc6acf419
+Mode: continue_delegate (normal mode) close-out fire
+Captured: 2026-05-12T13:39 PDT (T0)
+Captured-via: native subagent push-based completion event
+
+=== Subagent context ===
+Session: agent:main:subagent:bb496678-9896-4eb7-a0af-1365a061e639
+Session id: eb52c4b5-9ebb-47a4-ad05-639be0e50857
+Depth: 1/5 (subagent, single hop from main)
+Host: urudyne (Linux 6.6.87.2-microsoft-standard-WSL2, x64, node v25.9.0)
+Model: github-copilot/claude-opus-4.7-1m-internal
+Build: OpenClaw 2026.5.12-beta.1 (6db118a)
+Runtime: 13s
+Tokens: 488 (in 7 / out 481) prompt/cache 57.7k
+
+=== Subagent return text (verbatim) ===
+**R-CD-1 receipt — silas-seat, 2026-05-12 13:39 PDT**
+
+- Binary: `OpenClaw 2026.5.12-beta.1 (6db118a)` ✓ matches shipping SHA `6db118a2441052e8325b67e2c9b17f7fc6acf419`
+- Subagent depth: 1/5 (per inbound subagent-context header)
+- Chain hop: 3/200 (per task spec `[continuation:chain-hop:3]`)
+- Session: `agent:main:subagent:bb496678-9896-4eb7-a0af-1365a061e639`
+- Requester: `agent:main:discord:channel:1466192485440164011`
+- Delegate fired clean on rerebased shipping SHA. No errors, gateway healthy.
+
+=== Verified at byte ===
+1. continue_delegate dispatch returned scheduled-state cleanly with traceparent injected (`00-d7a6477c9d91469f5708d23a8d22788f-6c58f2bb05b3b21e-01`)
+2. Spawn fired immediately (delaySeconds=0); subagent task ran to completion in 13s
+3. Subagent return arrived as a push-based completion event (no busy-poll, no in-channel post)
+4. Depth metadata exposed as 1/5 (depth-counter visible in subagent context banner)
+5. Chain marker `[continuation:chain-hop:3]` turn 3/200 stamps depth-N continuation chain at runtime
+6. Receipt shape consistent with prior-SHA R-CD-1 evidence under PROOFS/0831fb5e80/R-CD-1/
+
+=== Verdict: R-CD-1 schedule + spawn + return all observable end-to-end on `6db118a2441052e8325b67e2c9b17f7fc6acf419` ===

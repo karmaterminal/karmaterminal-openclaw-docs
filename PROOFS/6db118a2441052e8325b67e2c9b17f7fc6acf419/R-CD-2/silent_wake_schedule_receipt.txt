@@ -1,0 +1,12 @@
+Tool: continue_delegate (fired from silas-seat session)
+SHA: 6db118a2441052e8325b67e2c9b17f7fc6acf419
+Response:
+{
+  "status": "scheduled",
+  "mode": "silent-wake",
+  "delaySeconds": 5,
+  "delegateIndex": 1,
+  "delegatesThisTurn": 1,
+  "traceparent": "00-0345904da81b41c31fc9596959e67bdc-6e81777f4ab76aab-01",
+  "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+}

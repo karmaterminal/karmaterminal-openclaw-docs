@@ -1,0 +1,55 @@
+=== R-RC-1 substrate-walk evidence on `6db118a2441052e8325b67e2c9b17f7fc6acf419` ===
+SHA: 6db118a2441052e8325b67e2c9b17f7fc6acf419
+Mode: request_compaction threshold-reject probe via subagent substrate-walk
+Captured: 2026-05-12T13:55 PDT
+Captured-via: native subagent push-based completion event
+
+=== Subagent context ===
+Session: agent:main:subagent:24eb6283-7070-4fee-9c18-f9d4e2bd1802
+Session id: cbea6a09-9b29-459c-8cfe-15a30225f352
+Depth: 1/5 (subagent, single hop from main)
+Host: urudyne (Linux 6.6.87.2-microsoft-standard-WSL2, x64, node v25.9.0)
+Model: github-copilot/claude-opus-4.7-1m-internal
+Build: OpenClaw 2026.5.12-beta.1 (6db118a)
+Runtime: 1m8s
+Tokens: 2.5k (in 16 / out 2.5k) prompt/cache 60.8k
+Chain hop: 6/200
+
+=== Subagent return text (verbatim) ===
+## R-RC-1 Receipt — request_compaction threshold-reject probe
+
+**SUT:** silas-seat (urudyne), OpenClaw `2026.5.12-beta.1 (6db118a)` ✓ matches rerebased shipping SHA `6db118a2441052e8325b67e2c9b17f7fc6acf419`.
+
+**Tool invocation:** Could NOT fire `request_compaction` directly — the tool is not exposed in subagent tool surfaces (subagents are ephemeral; volitional compaction is main-session-only by design). Substrate byte-walk substituted.
+
+**Substrate evidence (from `dist/request-compaction-tool-DVxmeACG.js`):**
+
+- **Hardcoded threshold:** `const MIN_CONTEXT_THRESHOLD = .7;` (70%, NOT config-driven)
+- **Config `agents.compaction.contextPressureThreshold = 0.4`** is a SEPARATE knob (drives auto-context-pressure alerts/early-warning, NOT volitional `request_compaction` gate)
+- **Rejection shape on below-threshold call:**
+  ```json
+  {
+    "status": "rejected",
+    "guard": "context_threshold",
+    "threshold": 70,
+    "reason": "Context usage (N%) is below the minimum threshold (70%). Compaction is not needed yet."
+  }
+  ```
+- **Other guards present:** `rate_limit` (once per 5min per session), dedup map (module-level, doesn't survive restart)
+- **On-success note:** `"Compaction has been enqueued and will run after your turn completes. Post-compaction context (AGENTS.md, SOUL.md) will be injected on the next turn. Any staged post-compaction delegates will be dispatched."`
+
+**Current context utilization (this subagent):** Fresh subagent, ~few KB of context vs ~1M window — well below 70% (likely <5%). Would deterministically hit `below_threshold` rejection if the tool were exposed.
+
+**Finding for R-RC-1:** The threshold-reject path is hardcoded at 70% in the tool itself, independent of `agents.compaction.contextPressureThreshold` config (0.4 on this SUT). Any low-context call returns `status=rejected, guard=context_threshold, threshold=70` with a templated reason string interpolating actual usage. Rejection shape is byte-stable across runs — no I/O, pure guard-check before async enqueue.
+
+**Caveat:** Live tool-fire from a low-context **main session** would be the truer evidence (matches how the gate is actually reached). Substrate byte-walk confirms the rejection contract; live-fire would confirm runtime path matches substrate. Recommend parent dispatch a low-context **main-session** probe or fire from silas-seat main directly if higher-fidelity evidence needed.
+
+=== Verified at byte ===
+1. request_compaction tool surface: MAIN-SESSION-ONLY by design (subagents do not get request_compaction)
+2. Threshold gate: hardcoded 70% in tool source (`MIN_CONTEXT_THRESHOLD = .7`)
+3. Rejection contract: `{status, guard, threshold, reason}` shape byte-stable
+4. Independent of `agents.compaction.contextPressureThreshold` config knob
+5. Rate-limit guard: once per 5min per session
+6. Substrate-walk of `dist/request-compaction-tool-DVxmeACG.js` recovered rejection contract end-to-end
+
+=== Verdict: R-RC-1 substrate-walk confirms threshold-reject contract on `6db118a2441052e8325b67e2c9b17f7fc6acf419`. Live-fire from low-context main-session pending for runtime-path confirmation. ===

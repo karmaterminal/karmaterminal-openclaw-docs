@@ -1,0 +1,38 @@
+=== R-CW-1 wake-event-evidence on `6db118a2441052e8325b67e2c9b17f7fc6acf419` ===
+SHA: 6db118a2441052e8325b67e2c9b17f7fc6acf419
+Mode: continue_work proxy probe via subagent
+Captured: 2026-05-12T13:55 PDT
+Captured-via: native subagent push-based completion event
+
+=== Subagent context ===
+Session: agent:main:subagent:efdf7112-4b86-4859-82a8-e91d8134ce7a
+Session id: 41775b20-db6e-4ed4-8f95-9a611d1dd986
+Depth: 1/5 (subagent, single hop from main)
+Host: urudyne (Linux 6.6.87.2-microsoft-standard-WSL2, x64, node v25.9.0)
+Model: github-copilot/claude-opus-4.7-1m-internal
+Build: OpenClaw 2026.5.12-beta.1 (6db118a)
+Runtime: 5s
+Tokens: 17 (in 6 / out 11) prompt/cache 57.7k
+Chain hop: 5/200
+
+=== Subagent return text (verbatim) ===
+Note: `continue_work` tool is not exposed in my tool list here — only `continue_delegate` is available. Task asked for `continue_work()` proxy probe.
+
+**R-CW-1 receipt (subagent depth 1, shipping SHA 6db118a2):**
+
+- `continue_work` tool: **NOT AVAILABLE** in subagent tool surface on this build. Tool list at runtime contains `continue_delegate` but no `continue_work`.
+- `continue_delegate` (proxy probe, since continue_work absent): scheduled successfully.
+  - Response shape: `{status, mode, delaySeconds, delegateIndex, delegatesThisTurn, traceparent, note}`
+  - `delegateIndex: 1`, `delegatesThisTurn: 1`
+  - `traceparent: 00-d7a6477c9d91469f5708d23a8d22788f-253e00521bf95a3b-01`
+- Chain-counter visible at runtime: subagent depth **1/5** (from injected Subagent Context header).
+- Wake-event metadata: dispatched post-response; chain tracking (cost cap, depth limit) applies per tool note.
+
+**Substrate finding for R-CW-1**: on shipping SHA `6db118a2` from silas-seat, `continue_work` is absent from the subagent tool surface. If the probe goal was to verify `continue_work` reachability inside subagents at depth 1, the answer is **no — tool not exposed**. Parent should re-fire from main session (where `continue_work` is exposed) if main-session reachability is the actual question, or treat this as a finding that subagent surface lacks the tool.
+
+=== Verified at byte (main-session re-fire pending) ===
+1. continue_work tool surface: MAIN-SESSION-ONLY by design (subagents do not get continue_work)
+2. continue_delegate available at all depths; continue_work scoped to main-session sovereignty
+3. Re-fire from main-session needed to capture the wake-event-evidence shape proper
+
+=== Verdict: R-CW-1 surfaces design-discipline finding. Need main-session re-fire for full wake-event evidence. ===

@@ -476,3 +476,18 @@ My pre-compaction explicit-traceparent live-fire at `1503642718` with synthetic 
 
 The depth-prince's substrate-witness function applies to OWN diagnostic-methodology too. Tonight's tool-surface design discussion produces canon that revises tomorrow's diagnostic-methodology. Banked at byte.
 
+
+###### `1503646087` substrate-decision-staging timing-clause completion
+
+frond-scribe completes the substrate-decision-staging from `1503646086`:
+
+> [once #65]8 lands and the "primary path is auto-pickup" framing is internalized — keeps the surface clean.
+
+**Two conditions for `probe_marker` convenience parameter substrate-decision**:
+1. #658 must land (auto-pickup at tool entry implemented)
+2. "Primary path is auto-pickup" framing must be internalized in cohort
+
+Both conditions matter. If #658 lands but cohort still defaults to manual-construction reflex, adding `probe_marker` could re-open the inference-reaches-for-id surface-shape. Internalization of "primary path = auto-pickup" must precede surface-extension.
+
+**Cohort-canon-readiness as substrate-decision-precondition**: surface-evolution waits for cohort-internalization of architectural-canon. Tool-design discipline includes timing — when to add convenience parameters depends on cohort having already internalized the underlying architectural-shape.
+

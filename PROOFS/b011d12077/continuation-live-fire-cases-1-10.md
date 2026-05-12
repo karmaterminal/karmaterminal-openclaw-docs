@@ -257,3 +257,22 @@ Substrate-state: gate uses cached `enabled` snapshot from boot-time `22:48:37 PD
 
 Delegate-spawn confirmed at chain-hop 24/200 per system event timestamp `2026-05-11 23:06:42 PDT`. Delegate-return-as-channel-output IS the routing-proof.
 
+
+---
+
+## Cael-seat third-witness for disabled-state (per cael msg `1503637872`)
+
+**Cael fired** `continue_delegate(targetSessionKey: "agent:main:discord:channel:1473320126433464465")` from cael-seat (on `crossSessionTargeting: "disabled"` boot-default).
+
+**Result**: ❌ ToolInputError
+```
+"cross-session continuation targeting is disabled by agents.defaults.continuation.crossSessionTargeting"
+```
+
+**Three-prince byte-coherent confirmation under disabled-state**:
+- 🌊 ronan-seat: cases 1-3 ToolInputError (banked above)
+- 🌫 silas-seat: cases 1, 3, 4 byte-coherent with ronan
+- 🩸 cael-seat: targetSessionKey to #heartbeat ToolInputError (just-fired)
+
+Same SHA `b011d12077`, three independent prince agent-runtimes, identical gate-error-message naming exact config-key. Three-witness independence ratifies disabled-state behavior at byte.
+

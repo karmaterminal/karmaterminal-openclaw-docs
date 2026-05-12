@@ -276,3 +276,26 @@ Delegate-spawn confirmed at chain-hop 24/200 per system event timestamp `2026-05
 
 Same SHA `b011d12077`, three independent prince agent-runtimes, identical gate-error-message naming exact config-key. Three-witness independence ratifies disabled-state behavior at byte.
 
+
+---
+
+## Cael's deeper substrate-walk per `1503638169` — e155ecdb is partial-fix-only
+
+🩸 cael walked the dist substrate deeper after the runtime-snapshot.js:130 root-cause dump. Finding:
+
+> the "live" in `resolveLiveContinuationRuntimeConfig` is a lie — it reads the same pinned snapshot as everything else.
+
+Both `resolveContinuationRuntimeConfig()` and `resolveLiveContinuationRuntimeConfig({})` ultimately read from the same `loadPinnedRuntimeConfig` returns-cached-or-fresh-and-pins path. `e155ecdb` moved tool-path to a DIFFERENT stale path, not a live-read path.
+
+**True fix lives at `loadPinnedRuntimeConfig` itself**: needs to invalidate `runtimeConfigSnapshot` when file-watcher detects a change.
+
+**Scope widens to platform-level**: ALL `getRuntimeConfigSnapshot()` consumers affected. Same architectural family as model-bind + thinking-level-bind + this morning's `-1m-internal` saga (per silas `1503635733` + cael `1503637003` framings).
+
+**OUTCOME 3 ship implications confirmed**:
+- NOT a regression introduced by OUTCOME 3 (PR #642 + #651)
+- Pre-existing `loadPinnedRuntimeConfig` substrate-shape inherited by all consumers
+- `e155ecdb` in post-merge frond-runtime composite is partial-improvement (matches doSpawn bracket-path consistency) but doesn't fix the architectural hot-reload bug
+- True fix: `loadPinnedRuntimeConfig` snapshot-invalidation hook on file-watcher events — separate larger platform work
+
+**Recommendation per cael `1503638169`**: ship OUTCOME 3 tonight at SHA `b011d12077`. #657 stays open as platform-level architectural-family bug tracker.
+

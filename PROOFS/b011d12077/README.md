@@ -78,3 +78,65 @@ NOT shipped in PR #79925 force-push per SHA-match canon. Lands in post-merge fro
 The depth-prince's substrate-witness function landing at byte: live-fire on deployed SHA caught what code-walk-without-byte-walk could not. Three related substrate-walks tonight reconciled at byte (cael's source-walk + silas's pattern-naming + ronan's runtime-dist root-cause-walk + elliott's load-bearing finding earlier).
 
 🌊 — *ad.*
+
+## OTel auto-propagation gap finding (per frond-scribe `1503642784` ask)
+
+**Substrate-finding banked separately from cases 1-15 gate matrix**: tonight's cohort byte-walks (six substrates from four princes + figs canon-seal at `1503641747` + figs visual-evidence at `1503642061`) revealed a real OTel-substrate gap **distinct from OUTCOME 3 gate behavior**.
+
+### What works at byte (per cael source-walk `1503641732` + figs Grafana visual `1503642061`)
+- ✅ **Span EMISSION**: `continuation-tracer.ts` emits diagnostic spans (continuation.work, continuation.delegate, continuation.disabled) → OTLP exporter → collector. Visible at figs's Tempo as `silas-prince` / `continuation.delegate.dispatch` / 26.09µs spans.
+- ✅ **Explicit traceparent THREADING** (PR #627 OTel substrate cael wired): caller passes `traceparent` param via `readStringParam$1` → `doSpawn(options?.traceparent)` → `spawnSubagentDirect` → child can extract for downstream span linking. Test-fire at ronan msg `1503642718` with synthetic traceparent `4bf92f3577b34da6a3ce929d0e0e4736` confirmed carrier-acceptance at byte.
+
+### What does NOT work at byte
+- ❌ **Automatic trace-context PROPAGATION** — runtime does NOT capture dispatching turn's active OTel context and thread it as parent into child delegate. Each delegate-hop starts a fresh trace tree. Single-span-per-delegate observations are evidence that auto-pickup isn't firing. Figs canon-seal at `1503641747`: *"but no stitching"*.
+- ❌ **Tool-surface design**: `traceparent` is currently exposed as MODEL-FACING parameter (model constructs and passes W3C traceparent strings). That's backwards — model shouldn't touch trace context at all; gateway should be instrumentation layer. Per cael `1503641850` + `1503641851` + silas `1503641471` + figs SDK-teaching `1503641607`.
+
+### The fix-shape (RFC §10 future-direction, NOT in this force-push)
+
+Per cael `1503642229` diagnosis-closure with implementation-locus:
+- At `doSpawn()` dispatch: capture active OTel context (via `trace.getActiveSpan()` / `context.active()` per OTel SDK standard pattern) → inject as W3C traceparent into child's metadata
+- At child-start: extract inherited traceparent → set as parent context before emitting child spans
+- Result: one trace tree across full chain, parent→child→grandchild
+
+Two-surface canon (silas `1503641471`):
+- **Explicit-param surface**: EXTERNAL stitching only (CI system wants to join an existing trace they own — rare, opt-in)
+- **Automatic surface**: INTRA-CHAIN propagation invisible to model — should be the default
+
+### Cohort canon-formation triangulation (six substrates + figs canon-seal)
+
+| Source | Substrate | Finding |
+|--------|-----------|---------|
+| 🌫 silas `1503641471` | architectural-knowledge | Two-surface distinction (explicit-stitch vs intra-chain) |
+| 🩸 cael `1503641337` | architectural-decomposition | Current=manual / ask=automatic + 3 substrate-changes |
+| 🌊 ronan `1503643541` | deployed-dist byte-walk | `readStringParam$1(params, "traceparent")` only — no `context.active()` read |
+| figs `1503641607` | SDK-correctness teaching | `trace.getActiveSpan()` IS the standard auto-discovery primitive; manual passing is anti-pattern |
+| figs `1503641724` | collector-side observation | "oh i see the spans" — emission validated at figs's Tempo |
+| figs `1503641747` | collector-side canon-seal | "but no stitching" — auto-propagation gap visually confirmed |
+| 🩸 cael `1503641732` | source-walk | ✅ emission, ✅ explicit-threading, ❌ automatic context propagation (3-state finding) |
+| figs `1503642061` | Grafana Tempo visual-evidence | `silas-prince / continuation.delegate.dispatch / 26µs / 1 span isolated` (chain.id attribute exists but not as parent-span-id) |
+| 🩸 cael `1503641850`/`1503641851` | canon-distillation | `traceparent` tool param should only exist for EXTERNAL stitching; intra-chain propagation should be invisible to model |
+| 🌫 silas `1503641928` | third-cosign | Real architecture gap — gateway should be instrumentation layer |
+| 🩸 cael `1503642229` | diagnosis-closure | emission ✅ + propagation ❌; fix-locus at `doSpawn()` + child-start |
+| 🌿 frond-scribe `1503642783`/`1503642784` | structure-of-keeping-record brake-pull | Single-span-per-delegate observations ARE the bug; auto-pickup not firing |
+
+### Distinction from cases 1-15 gate matrix
+
+OUTCOME 3 cases 1-15 prove **gate-policy substrate** (crossSessionTargeting config-driven block/allow). OTel auto-propagation gap is **observability-substrate** — orthogonal to gate behavior. Both substrates true at byte:
+- Gate WORKS (cases 1-13 PASS, case 14 known-limitation hot-reload, case 15 marginal-by-design)
+- Auto-propagation gap exists (single-span observations, no parent-stitching, traceparent only via explicit-param)
+
+Force-push of SHA `b011d12077` ships the gate substrate proven-at-byte. RFC §10 future-direction lane handles auto-propagation as separate scope (per cael `1503642229` "ship X'' tonight, build propagation tomorrow").
+
+### Bonus elliott→Tempo pipeline finding (per figs `1503642293`)
+
+figs surfaced at byte: only `silas-prince` + `elliott-prince` traces visible at his Tempo (10.0.0.99); NO `ronan-prince` + `cael-prince` traces. Ronan-seat byte-walk (msg `1503648702`) confirmed:
+- Plugin loaded ✅, config correct ✅
+- 2 ESTAB TCP connections to `10.0.0.10:4318` (elliott OTLP receiver)
+- 605KB + 2.2MB bytes_sent, 557 + 1632 data_segs_out — actual data flowing at byte
+
+So ronan-seat IS emitting; gap is downstream of emit (elliott→Tempo pipeline OR receiver-side service-name indexing). Substrate-walk needs elliott-side investigation: (a) what services elliott:4318 has received, (b) Tempo query for ronan-prince/cael-prince directly from inside trust-boundary. Possible substrates: protocol mismatch, schema-version, gzip handling, or service-name indexing dropping 2-of-4 prince serviceNames.
+
+This is **separate from the auto-propagation gap above** — the auto-propagation issue is about parent-span-id linking (architectural); the elliott→Tempo gap is about observability-pipeline-completeness (operational).
+
+🌊 — banked per frond-scribe `1503642784` ask. *ad.*
+

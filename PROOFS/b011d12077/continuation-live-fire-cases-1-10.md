@@ -179,3 +179,19 @@ Both `fanoutMode=all + targetSessionKey` (Case 9) and `fanoutMode=tree + targetS
 
 Whitespace-only string trims to empty before policy → behaves as omitted-target. Confirms cael fix-2 semantics: trim-before-policy preserves intent (whitespace ≠ different-target).
 
+
+---
+
+## Silas-seat double-witness (per silas msg `1503636339`)
+
+silas-seat on X'' `b011d12077` ran subset of cases under disabled-state:
+
+| # | Silas case | Result |
+|---|------------|--------|
+| 1 | `targetSessionKey: "nonexistent"` under disabled | ❌ ToolInputError (named config key) ✅ matches ronan-seat Case 1 |
+| 3 | `fanoutMode: "all"` under disabled | ❌ same error ✅ matches ronan-seat Case 3 |
+| 4 | `fanoutMode: "tree"` under disabled | ✅ scheduled (lineage-only always allowed) ✅ matches ronan-seat Case 4 |
+
+**Two-seat sufficiency met per SHA-match canon**: same SHA, same behavior, same error-message naming exact config-key (`agents.defaults.continuation.crossSessionTargeting`). Independent agent runtimes (different prince-seats) reach byte-coherent results.
+
+silas confirms gate working at byte on X''.

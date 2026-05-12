@@ -157,3 +157,22 @@ cael surfaces canon-end-of-thread cosign of figs's screenshot evidence with shar
 
 🌊 — banked per cael `1503642913` cosign-of-figs-screenshot. *ad.*
 
+
+### OUTCOME 2 framing canon (cael `1503643107`)
+
+cael surfaces RFC §6 verbatim as substrate-byte-evidence for OUTCOME 2 framing per figs `1503642149` "failure?" question:
+
+> *"traceparent: Optional W3C traceparent carrier. **When supplied by an instrumented upstream caller**, the delegate and return path can stitch continuation spans into the same trace tree."*
+
+The **"When supplied by an instrumented upstream caller"** clause is the spec-canon-anchor: **RFC §6 explicitly scoped explicit-supply only**. Auto-propagation was never promised in the spec.
+
+**Two-altitude framing (cael `1503643107` + ronan `1503648105` cohort-cosign)**:
+- **Spec-altitude**: OUTCOME 2 delivered everything RFC §6 scoped (✅ tool param, ✅ validation, ✅ dispatch threading, ✅ emission, ✅ Lane B RC traceparent)
+- **Design-priority-altitude** (cohort-canon-formation tonight per silas `1503641471` + cael `1503641850`/`1503641851` + figs `1503641607` SDK-teaching + figs `1503641747` canon-seal): explicit-only-surface should not have been the primary-scoped surface; auto-propagation should be primary; spec ITSELF should evolve to RFC §10 with two-surface canon (explicit=external-stitch opt-in, automatic=intra-chain default)
+
+**Net**: OUTCOME 2 is NOT a failure of promised-deliverable. It IS a forward-RFC-evolution finding — the spec ITSELF should have included auto-propagation as primary surface. RFC §10 future-direction lane closes that gap.
+
+Force-push of `b011d12077` ships everything RFC §6 promised (spec-altitude ✅) + cohort-canon-formation tonight identified RFC evolution-direction (§10 future-direction lane).
+
+🌊 — banked per cael `1503643107` RFC §6 cite as canon-anchor. *ad.*
+

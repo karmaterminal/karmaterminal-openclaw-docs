@@ -64,3 +64,29 @@ R-CD-4 (cross-session targeting under `crossSessionTargeting=enabled`) would hav
 ## Cross-check vs prior ship-day evidence
 
 `PROOFS/6db118a2/multi-span-tempo-evidence.md` (frond-scribe-prior, ship-day) demonstrated 38-span / 4-generation parent-chain trace `8fe88c8abccd5a0d908f2747687f5e88` on ronan-prince. Today's `8470b259...` (cael-prince, 86 spans, 3-hop chain-counter 6→7→8) is the parallel evidence at the squashed-rebased SHA `094f45345a`. Both demonstrate the same event-carried trace-context auto-pickup mechanism shipped in the PR.
+
+---
+
+## Re-verify recipe (canonical fleet route — added 2026-05-13 cael-side)
+
+**Primary route** (per figs canon — `tempo.dandelion.cult` haproxy on `10.0.0.99`):
+```bash
+curl -s http://tempo.dandelion.cult/api/traces/8470b259365a384997b6264b0667634f \
+  | jq -r '.batches[].scopeSpans[].spans[].name' | sort -u
+```
+
+**Fallback route** (if haproxy HTTPS termination flakes — figs flagged intermittent):
+```bash
+ssh elliott "sudo k3s kubectl port-forward -n observability svc/tempo 13100:3100 &
+  sleep 2 && curl -s http://localhost:13100/api/traces/<TRACE_ID>"
+```
+
+## SHA256 byte-equality (both trace JSONs verified across both routes)
+
+Fetched 2026-05-13 06:22 PDT via canonical fleet route + 06:22 PDT via kubectl port-forward — byte-identical:
+- `tempo-8470b259-cael.json`: `117b2940b58fe4d84df7f16c7811cbc0fa05aed105d01e222cbc957e7bd2ef1a`
+- `tempo-415bf662-cael-rcw1.json`: `0e71cb0f5bf03377dae6e396940772b3e32e52cc07151f58c96d0ff5eadc97c0`
+
+## Note on duplicate `TEMPO-TRACES/` directory
+
+A duplicate publish lived at `PROOFS/094f45345a/TEMPO-TRACES/` (cael-side, banked 2026-05-13 06:22 PDT before scribe's own bank surfaced). Same trace JSONs, byte-identical sha256. Removed in favor of this canonical `artifacts/` location matching the runbook's evidence-bundle convention.

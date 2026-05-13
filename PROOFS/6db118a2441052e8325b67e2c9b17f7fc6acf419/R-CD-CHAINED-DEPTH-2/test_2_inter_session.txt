@@ -1,0 +1,23 @@
+R-CD-CHAINED-DEPTH-2 TEST 2: INTER-SESSION (cross-session return to root)
+SHA: b4ce9883591904361c91d55d5f3ddb31125080cf (rebased 6db118a2)
+Date: 2026-05-12 ~17:37 PDT
+Fired from: silas-seat (urudyne WSL2)
+
+OUTER LINK:
+  session: agent:main:subagent:5c0029f4-3d9f-406a-b48e-864a148d5677
+  chain counter: 9/200
+  dispatched inner leaf for inter-session return to root
+
+INNER LEAF:
+  session: agent:main:subagent:b44eb9a5-f661-4e81-8c4a-ab878761674a
+  chain counter: 1/200 (depth 2/5)
+  requester (outer link): agent:main:subagent:5c0029f4-3d9f-406a-b48e-864a148d5677
+  inter-session hop CONFIRMED: outer link dispatched inner leaf → result returned to ROOT session
+  runtime: 8s
+
+VERDICT: ✅ PASS
+  - Root dispatched outer link (depth 1) ✓
+  - Outer link dispatched inner leaf (depth 2) ✓
+  - Inner leaf returned to ROOT session (inter-session hop) ✓
+  - Chain counter + depth tracking across hops ✓
+  - Cross-session return path validated ✓

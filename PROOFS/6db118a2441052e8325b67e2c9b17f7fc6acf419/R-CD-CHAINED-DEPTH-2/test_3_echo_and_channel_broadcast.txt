@@ -1,0 +1,21 @@
+R-CD-CHAINED-DEPTH-2 TEST 3: ECHO (fanoutMode=tree, mode=normal)
+SHA: b4ce9883591904361c91d55d5f3ddb31125080cf (rebased 6db118a2)
+Date: 2026-05-12 ~17:37 PDT
+Fired from: silas-seat (urudyne WSL2)
+
+OUTER LINK:
+  session: agent:main:subagent:35ea11ab-0d68-482c-9ab0-e05265e05275
+  chain counter: 11/200
+  dispatched inner leaf with: fanoutMode=tree, mode=normal (echo return to all ancestors)
+  runtime: 10s
+
+INNER LEAF:
+  dispatched by outer link
+  mode: normal (announces to channel)
+  fanoutMode: tree (result echoes to all ancestors in chain)
+
+VERDICT: ✅ PASS
+  - Root dispatched outer link (depth 1) ✓
+  - Outer link dispatched inner leaf (depth 2) ✓
+  - Chain counter tracked across 3 hops (7→9→11) ✓
+  - fanoutMode=tree + mode=normal echo pattern accepted ✓

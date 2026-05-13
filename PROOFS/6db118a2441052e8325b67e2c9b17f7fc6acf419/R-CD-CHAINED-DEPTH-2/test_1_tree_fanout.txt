@@ -1,0 +1,21 @@
+R-CD-CHAINED-DEPTH-2 TEST 1: UP-TREE (fanoutMode=tree, silent-wake)
+SHA: b4ce9883591904361c91d55d5f3ddb31125080cf (rebased 6db118a2)
+Date: 2026-05-12 ~17:36 PDT
+Fired from: silas-seat (urudyne WSL2)
+
+OUTER LINK:
+  session: agent:main:subagent:27a90b89-69d2-49ca-9354-1dde2a89d21b
+  chain counter: 7/200
+  dispatched inner leaf with: fanoutMode=tree, mode=silent-wake
+  runtime: 15s
+
+INNER LEAF:
+  dispatched by outer link
+  mode: silent-wake (returns silently + wakes dispatcher)
+  fanoutMode: tree (result flows up to all ancestors)
+
+VERDICT: ✅ PASS
+  - Root dispatched outer link (depth 1) ✓
+  - Outer link dispatched inner leaf (depth 2) ✓
+  - Chain counter tracked across hops ✓
+  - fanoutMode=tree + silent-wake mode accepted ✓

@@ -4,6 +4,14 @@
 **Target SHA**: `094f45345a` (squashed-deployed; squash of `19541c1bb347022263a9804e88812418f6483786` P1-fix from copilot wo-p1-gate confirmed by Elliott `1504001131`)
 **Deploy**: gh run `25783217461` GREEN (silas via path-2 scribe-dispatch from ronan-seat at 06:51:01Z 2026-05-13)
 
+## Tempo trace evidence
+
+Raw Tempo trace JSON exports for the trace-IDs cited in per-R-* proofs are banked at [`artifacts/`](./artifacts/):
+
+- [`tempo-8470b259-cael.json`](./artifacts/tempo-8470b259-cael.json) (86 spans, R-CD-1/2/3 + R-CD-CHAINED-DEPTH-2)
+- [`tempo-415bf662-cael-rcw1.json`](./artifacts/tempo-415bf662-cael-rcw1.json) (55 spans, R-CW-1)
+- [`tempo-evidence.md`](./artifacts/tempo-evidence.md) — span-name inventory, per-R-* receipt mapping, W3C-propagation pin, re-verify recipe via canonical fleet route (`http://tempo.dandelion.cult/api/traces/<id>`) + sha256 byte-equality
+
 ## SUMMARY VERDICT
 
 | ID | Status | Notes |

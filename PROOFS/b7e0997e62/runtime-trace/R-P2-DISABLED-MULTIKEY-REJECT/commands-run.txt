@@ -1,0 +1,20 @@
+# Cell: R-P2-DISABLED-MULTIKEY-REJECT
+# Build: b7e0997e62cddef4ab73613a4741491477bccc77 (PR #79925 squash head)
+# Binary: /tmp/oc-79925-walk/repo/openclaw.mjs (OpenClaw 2026.5.12-beta.1, b7 build)
+# Substrate: vitest-driven direct-invocation against b7 production code (same as
+#            tranche-1). Drives createContinueDelegateTool(), setRuntimeConfigSnapshot(),
+#            gate at src/agents/subagent-announce.ts:264 (rejectCrossSessionTargetingForSubagentDispatch).
+# Substrate-honesty note: same as tranche-1 — NOT a fully-running gateway with
+#            model-emitted brackets; SAME production code path the live gateway invokes.
+# Tranche: 2 (completeness) — added beat-2 by harness-driver delegate 2026-05-14 ~10:00 PDT.
+# Isolation: OPENCLAW_STATE_DIR=/tmp/oc-79925-runtime-proof/R-P2-DISABLED-MULTIKEY-REJECT (per-cell)
+# Logging:   OPENCLAW_LOG_LEVEL=debug
+# Tempo:     not collected (no otel-collector reachable).
+# Test file: test/79925-direct-probe.test.ts
+# Test filter: -t "R-P2-DISABLED-MULTIKEY-REJECT"
+# Expected:  REJECT
+# Invocation:
+cd /tmp/oc-79925-walk/repo
+OPENCLAW_STATE_DIR=/tmp/oc-79925-runtime-proof/R-P2-DISABLED-MULTIKEY-REJECT \
+OPENCLAW_LOG_LEVEL=debug \
+node_modules/.bin/vitest run test/79925-direct-probe.test.ts -t "R-P2-DISABLED-MULTIKEY-REJECT" --reporter=verbose

@@ -1,0 +1,24 @@
+# Cell: R-MAIN-CONFIG-CROSS-SESSION-TARGETING-ABSENT (baseline-contrast)
+# Build (baseline): 446e285f7d (pre-cure parent of b7e0997e62)
+# Build (post-cure for diff): b7e0997e62
+# Substrate: source-grep diff via `git grep` and `git diff`.
+#
+# REFRAMING NOTE: the original framing said "demonstrate config-key didn't
+# exist pre-cure". Source-grep below shows the config key
+# `crossSessionTargeting` ALREADY EXISTED at 446e285f in:
+#   - src/config/config.ts (schema definition)
+#   - src/agents/tools/continue-delegate-tool.ts (gate consumer)
+# What cure-(1) commit ADDS is the consumer in src/agents/subagent-announce.ts
+# where the same config key is now read inside the chain-hop dispatch path
+# and used to gate the subagent-emitted dispatch boundary. So the ACTUAL
+# baseline-contrast finding is: the config key existed but was NOT applied at
+# the subagent-announce dispatch boundary pre-cure; cure-(1) makes the
+# enforcement universal across all dispatch boundaries.
+#
+# Commands:
+cd /tmp/oc-79925-walk/repo
+git grep -nE "crossSessionTargeting" 446e285f -- src/agents/subagent-announce.ts
+# (expected: no matches — proves boundary did not consume the key pre-cure)
+git grep -nE "crossSessionTargeting" b7e0997e62 -- src/agents/subagent-announce.ts
+# (expected: matches showing the boundary now reads + enforces the key)
+git diff 446e285f..b7e0997e62 -- src/agents/subagent-announce.ts | grep -E "^\+.*crossSessionTargeting"

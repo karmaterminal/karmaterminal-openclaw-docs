@@ -1,0 +1,32 @@
+# Cell: R-P2-CHAIN-HOP-DISABLED-ALL-REJECT-TOOL
+# Build: b7e0997e62cddef4ab73613a4741491477bccc77 (PR #79925 squash head)
+# Binary: /tmp/oc-79925-walk/repo/openclaw.mjs (OpenClaw 2026.5.12-beta.1, b7 build, verified working)
+#
+# Substrate: vitest-driven direct-invocation against b7 production code.
+#   - createContinueDelegateTool() — live tool factory at src/agents/tools/continue-delegate-tool.ts
+#   - setRuntimeConfigSnapshot() — live config layer at src/config/config.ts
+#   - gate function: rejectCrossSessionTargetingForSubagentDispatch() at src/agents/subagent-announce.ts:264
+#
+# Why-this-substrate-not-live-gateway-with-model:
+#   "Live gateway with model emitting bracket" requires running gateway + provider
+#   API keys + cooperative model. Not feasible in clean isolated state-dir within
+#   spec time-box. The chosen substrate exercises the SAME production code path
+#   the live gateway would invoke (the gate function, the tool factory, the config
+#   snapshot, the delegate store) — without the model-cooperation prerequisite.
+#   The decision-trace observed is the actual gateway-level decision the gate
+#   would emit under matching policy + targeting at runtime.
+#
+# Isolation:    OPENCLAW_STATE_DIR=/tmp/oc-79925-runtime-proof/R-P2-CHAIN-HOP-DISABLED-ALL-REJECT-TOOL  (per-cell, fresh dir, not shared)
+# Logging:      OPENCLAW_LOG_LEVEL=debug
+# Tempo:        not collected (no otel-collector reachable from this host;
+#               ephemeral isolated state). Per-spec: noted-and-skipped.
+#
+# Test file:    src/agents/subagent-announce.chain-guard.test.ts
+# Test filter:  -t "rejects child tool-delegate fanout=all when cross-session targeting is disabled"
+# Expected:     REJECT
+#
+# Invocation:
+cd /tmp/oc-79925-walk/repo
+OPENCLAW_STATE_DIR=/tmp/oc-79925-runtime-proof/R-P2-CHAIN-HOP-DISABLED-ALL-REJECT-TOOL \
+OPENCLAW_LOG_LEVEL=debug \
+node_modules/.bin/vitest run src/agents/subagent-announce.chain-guard.test.ts -t "rejects child tool-delegate fanout=all when cross-session targeting is disabled" --reporter=verbose

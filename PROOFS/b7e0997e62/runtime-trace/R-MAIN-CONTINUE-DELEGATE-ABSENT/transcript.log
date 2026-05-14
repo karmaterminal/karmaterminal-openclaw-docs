@@ -1,0 +1,17 @@
+=== git grep at 446e285f (pre-cure) for rejectCrossSessionTargetingForSubagentDispatch ===
+[exit=1] expected: no matches
+
+=== git grep at b7e0997e62 (post-cure) for rejectCrossSessionTargetingForSubagentDispatch ===
+b7e0997e62:src/agents/subagent-announce.ts:253:async function rejectCrossSessionTargetingForSubagentDispatch(params: {
+b7e0997e62:src/agents/subagent-announce.ts:1017:                await rejectCrossSessionTargetingForSubagentDispatch({
+b7e0997e62:src/agents/subagent-announce.ts:1168:                await rejectCrossSessionTargetingForSubagentDispatch({
+[exit=0]
+
+=== diff highlight: function definition + call sites added by cure-(1) ===
++async function rejectCrossSessionTargetingForSubagentDispatch(params: {
++              const rejectedByTargetingPolicy =
++                await rejectCrossSessionTargetingForSubagentDispatch({
++              if (rejectedByTargetingPolicy) {
++              const rejectedByTargetingPolicy =
++                await rejectCrossSessionTargetingForSubagentDispatch({
++              if (rejectedByTargetingPolicy) {

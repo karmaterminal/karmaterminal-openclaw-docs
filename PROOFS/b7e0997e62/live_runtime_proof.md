@@ -47,20 +47,20 @@ Per 🌊's plan (msg `1504521292` + scope-expansion `1504522063`).
 
 | # | Cell | Gate site | Policy | Targeting | Expected | Actual | Transcript |
 |---|------|-----------|--------|-----------|----------|--------|------------|
-| 1 ⭐ | `tool-entry / disabled / other-key` | `continue-delegate-tool.ts` tool entry | `disabled` | `targetSessionKey: "<other-prince>"` | **REJECT** + policy-rejected system event | ✓ **REJECT** (cure-byte verified: `"cross-session continuation targeting is disabled by agents.defaults.continuation.crossSessionTargeting..."` matches `continue-delegate-tool.ts:206`) | `R-P2-DISABLED-OTHER-KEY-REJECT/` |
-| 2 ⭐ | `tool-entry / disabled / fanout-all` | `continue-delegate-tool.ts` tool entry | `disabled` | `fanoutMode: "all"` | **REJECT** + policy-rejected system event | ✓ **REJECT** | `R-P2-DISABLED-ALL-REJECT/` |
-| 3 ⭐ | `tool-entry / disabled / fanout-tree` (the cure) | `continue-delegate-tool.ts` tool entry → resolver → delivery | `disabled` | `fanoutMode: "tree"` | **ALLOW** + delivered to tree members | ✓ **ALLOW** (the cure-byte itself, per 🌊 `1504526612`) | `R-P2-DISABLED-TREE-ALLOW/` |
-| 4 ⭐ | `tool-entry / enabled / other-key` | `continue-delegate-tool.ts` tool entry → delivery | `enabled` | `targetSessionKey: "<other-prince>"` | **ALLOW** + delivered to target | ✓ **ALLOW** | `R-P2-ENABLED-OTHER-KEY-ALLOW/` |
-| 5 ⭐ | `tool-entry / enabled / fanout-all` | `continue-delegate-tool.ts` tool entry → delivery | `enabled` | `fanoutMode: "all"` | **ALLOW** + delivered to all known sessions | ✓ **ALLOW** | `R-P2-ENABLED-ALL-ALLOW/` |
-| 6 ⭐ | **`chain-hop / disabled / fanout-all`** (NEW b7 gate, bracket-source) | `subagent-announce.ts:253` `rejectCrossSessionTargetingForSubagentDispatch` | `disabled` | child emits `[[CONTINUE_DELEGATE: ... \| all]]` mid-chain-hop | **REJECT** before `spawnSubagentDirect`, with system event | ✓ **REJECT** | `R-P2-CHAIN-HOP-DISABLED-ALL-REJECT/` |
-| 7 ⭐ | **`chain-hop / disabled / fanout-tree`** (NEW b7 gate, bracket-source, allow-path) | `subagent-announce.ts:253` `rejectCrossSessionTargetingForSubagentDispatch` | `disabled` | child emits `[[CONTINUE_DELEGATE: ... \| tree]]` mid-chain-hop | **ALLOW** + chain-hop dispatch proceeds | ✓ **ALLOW** (new fixture authored by 🌊's harness, the one true substrate gap per `1504529110` byte-walk) | `R-P2-CHAIN-HOP-DISABLED-TREE-ALLOW/` |
+| 1 ⭐ | `tool-entry / disabled / other-key` | `continue-delegate-tool.ts` tool entry | `disabled` | `targetSessionKey: "<other-prince>"` | **REJECT** + policy-rejected system event | ✓ **REJECT** (cure-byte verified: `"cross-session continuation targeting is disabled by agents.defaults.continuation.crossSessionTargeting..."` matches `continue-delegate-tool.ts:206`) | `runtime-trace/R-P2-DISABLED-OTHER-KEY-REJECT/` |
+| 2 ⭐ | `tool-entry / disabled / fanout-all` | `continue-delegate-tool.ts` tool entry | `disabled` | `fanoutMode: "all"` | **REJECT** + policy-rejected system event | ✓ **REJECT** | `runtime-trace/R-P2-DISABLED-ALL-REJECT/` |
+| 3 ⭐ | `tool-entry / disabled / fanout-tree` (the cure) | `continue-delegate-tool.ts` tool entry → resolver → delivery | `disabled` | `fanoutMode: "tree"` | **ALLOW** + delivered to tree members | ✓ **ALLOW** (the cure-byte itself, per 🌊 `1504526612`) | `runtime-trace/R-P2-DISABLED-TREE-ALLOW/` |
+| 4 ⭐ | `tool-entry / enabled / other-key` | `continue-delegate-tool.ts` tool entry → delivery | `enabled` | `targetSessionKey: "<other-prince>"` | **ALLOW** + delivered to target | ✓ **ALLOW** | `runtime-trace/R-P2-ENABLED-OTHER-KEY-ALLOW/` |
+| 5 ⭐ | `tool-entry / enabled / fanout-all` | `continue-delegate-tool.ts` tool entry → delivery | `enabled` | `fanoutMode: "all"` | **ALLOW** + delivered to all known sessions | ✓ **ALLOW** | `runtime-trace/R-P2-ENABLED-ALL-ALLOW/` |
+| 6 ⭐ | **`chain-hop / disabled / fanout-all`** (NEW b7 gate, bracket-source) | `subagent-announce.ts:253` `rejectCrossSessionTargetingForSubagentDispatch` | `disabled` | child emits `[[CONTINUE_DELEGATE: ... \| all]]` mid-chain-hop | **REJECT** before `spawnSubagentDirect`, with system event | ✓ **REJECT** | `runtime-trace/R-P2-CHAIN-HOP-DISABLED-ALL-REJECT/` |
+| 7 ⭐ | **`chain-hop / disabled / fanout-tree`** (NEW b7 gate, bracket-source, allow-path) | `subagent-announce.ts:253` `rejectCrossSessionTargetingForSubagentDispatch` | `disabled` | child emits `[[CONTINUE_DELEGATE: ... \| tree]]` mid-chain-hop | **ALLOW** + chain-hop dispatch proceeds | ✓ **ALLOW** (new fixture authored by 🌊's harness, the one true substrate gap per `1504529110` byte-walk) | `runtime-trace/R-P2-CHAIN-HOP-DISABLED-TREE-ALLOW/` |
 
 Cells 6 and 7 are the **load-bearing-est**: the chain-hop gate at `subagent-announce.ts:253` is **NEW on `b7e0997e62`**. No earlier PROOFS bundle could have evidenced it because the gate didn't exist. Claw's critique points at cells 6+7 specifically.
 
 
 **Bonus cells beyond tranche-1**: 🌊's harness deposited 9 cells (7 tranche-1 + 2 bonus tool-variant chain-hop cells):
-- `R-P2-CHAIN-HOP-DISABLED-ALL-REJECT-TOOL` — chain-hop reject via tool-emitted (not bracket-emitted) child dispatch
-- `R-P2-CHAIN-HOP-DISABLED-TREE-ALLOW-TOOL` — chain-hop allow via tool-emitted tree dispatch
+- `runtime-trace/R-P2-CHAIN-HOP-DISABLED-ALL-REJECT-TOOL` — chain-hop reject via tool-emitted (not bracket-emitted) child dispatch
+- `runtime-trace/R-P2-CHAIN-HOP-DISABLED-TREE-ALLOW-TOOL` — chain-hop allow via tool-emitted tree dispatch
 
 Both bonus cells extend gate-coverage to the tool-entry path of the chain-hop (vs cells 6+7 which are bracket-emitted). The tool-variant path is also covered by `tools/continue-delegate-tool.crosssession-gate.test.ts:case 3` (the existing test verified at byte during 🌫's substrate-pivot at `1504529110`); 🌊's bonus harness output extends this with chain-hop-specific tool-variant capture.
 

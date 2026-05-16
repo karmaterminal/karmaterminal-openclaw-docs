@@ -1,0 +1,18 @@
+{
+  "depth1_traceparent": null,
+  "depth2_traceparent": "00-69586b47ef094d9a3bd6e17b5cc28b10-69c3893824f5e092-01",
+  "depth2_schedule_response": {
+    "status": "scheduled",
+    "mode": "silent",
+    "delaySeconds": 3,
+    "delegateIndex": 1,
+    "delegatesThisTurn": 1,
+    "traceparent": "00-69586b47ef094d9a3bd6e17b5cc28b10-69c3893824f5e092-01",
+    "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+  },
+  "dispatching_session": "sprites-of-thornfield",
+  "return_target_session": "heartbeat",
+  "seat": "ronan",
+  "timestamp": "2026-05-16T18:23:15Z",
+  "context_note": "Chain-2 retried alone in own turn — Lane-B classification confirmation"
+}

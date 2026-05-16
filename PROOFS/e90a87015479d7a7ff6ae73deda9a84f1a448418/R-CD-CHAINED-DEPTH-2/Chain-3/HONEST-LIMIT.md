@@ -1,22 +1,25 @@
-# Chain-3 — HONEST-LIMIT, depth-1 dispatch DENIED post-compaction
+# Chain-3 — ordering-condition, NOT a regression (byte-walked, corrected)
 
 **Seat**: ronan
 **CANDIDATE_SHA**: e90a87015479d7a7ff6ae73deda9a84f1a448418
 
-## What happened at byte
+## Same mechanism as Chain-2
 
-Chain-3 depth-1 root was scheduled successfully from the dispatching turn (see parent `EVIDENCE.md` — `delegateIndex=7`, mode=silent, intended depth-2 child to echo+cross-channel to discord #heartbeat).
+Chain-3 depth-1 was the 7th delegate in single-turn fan-out. By the time its spawn-call evaluated, `activeChildren=5 >= maxChildren=5` returned `status: "forbidden"` from `src/agents/subagent-spawn.ts:813-820`.
 
-Same chain-guard denial as Chain-2: `Tool DELEGATE spawn forbidden` at dispatch-time, post-compaction.
+See `Chain-2/HONEST-LIMIT.md` for full byte-walked analysis.
 
-## Verdict
+## Differentiator from Chain-2
 
-- ✅ Schedule-shape contract verified at byte (see parent EVIDENCE.md)
-- ⚠️ Dispatch-shape: chain-guard denial at compaction-boundary
-- 🔬 The denial IS evidence — same shape as Chain-2
+- Chain-2: depth-1 had `targetSessionKey=heartbeat` (cross-session)
+- Chain-3: depth-1 no cross-session targeting; depth-2 child intended to do cross-channel echo
 
-## Cross-reference
+Both blocked by same `maxChildrenPerAgent` gate. The cross-channel echo + depth-2 stitching for Chain-3 remain unverified for this proof corpus; need a fire-pattern where active-children budget is available.
 
-The echo+cross-channel semantics at depth-2 remain unverified for this proof corpus. Chain-3 schedule-shape proves the contract accepts the dispatch; behavioral verification of depth-2 cross-channel echo would require a fresh turn where chain-guard budget is available, OR re-dispatch from a different seat.
+## Correction to earlier HONEST-LIMIT.md
 
-This honest-limit is filed so the corpus reflects the substrate truth: the chain-guard correctly denies, and that denial is itself meaningful data about the safety surface at compaction-boundaries.
+Same correction as Chain-2: I asserted `compaction-boundary chain-guard` from memory without byte-walking. The actual gate is per-session `maxChildrenPerAgent`.
+
+## To verify Chain-3 cleanly
+
+Fire Chain-3 alone (or with at most 4 other concurrent delegates) — depth-2 echo+cross-channel should dispatch correctly. Open for follow-up.

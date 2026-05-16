@@ -1,28 +1,66 @@
-# Chain-2 — HONEST-LIMIT, depth-1 dispatch DENIED post-compaction
+# Chain-2 — ordering-condition, NOT a regression (byte-walked, corrected)
 
 **Seat**: ronan
 **CANDIDATE_SHA**: e90a87015479d7a7ff6ae73deda9a84f1a448418
 
-## What happened at byte
+## Correction to earlier hypothesis
 
-Chain-2 depth-1 root was scheduled successfully from the dispatching turn (see parent `EVIDENCE.md` — `delegateIndex=6`, `targetSessionKey=agent:main:discord:channel:1473320126433464465`).
+Earlier `HONEST-LIMIT.md` cited `compaction-boundary chain-guard` as cause. **That was wrong.** Byte-walk of gateway journal + source code shows the actual gate:
 
-However: between schedule-time and dispatch-time, the dispatching session compacted (3rd compaction this session, at ~11:08:30 PDT). Post-compaction, when the runtime attempted to spawn Chain-2's depth-1 shard, the tool was denied with `Tool DELEGATE spawn forbidden`.
+```
+src/agents/subagent-spawn.ts:813-820
+  const maxChildren = cfg.agents?.defaults?.subagents?.maxChildrenPerAgent
+    ?? DEFAULT_SUBAGENT_MAX_CHILDREN_PER_AGENT  (=5)
+  const activeChildren = countActiveRunsForSession(requesterInternalKey)
+  if (activeChildren >= maxChildren) {
+    return { status: "forbidden", error: "sessions_spawn has reached max active children for this session" }
+  }
+```
 
-Chain-1 dispatched successfully BEFORE the post-compaction-shard for R-CD-3 fired, but Chain-2 + Chain-3 were forbidden after.
+## Journal evidence (gateway log, 2026-05-16 11:08:30-40 PDT)
 
-## Hypothesis (verify-at-byte not from memory)
+```
+11:08:30.199 [continue_delegate] Consuming 6 tool delegate(s) for session sprites
+11:08:30.278 Post-compaction delegate dispatch: R-CD-3
+11:08:40.216 Tool DELEGATE spawn rejected (forbidden) for session sprites
+11:08:40.229 Tool DELEGATE spawn rejected (forbidden) for session sprites
+```
 
-The chain-guard at `src/auto-reply/continuation/signal.ts` and/or the post-compaction shard scheduler likely enforces a per-turn delegate fan-out budget that gets re-budgeted post-compaction, OR Chain-2 + Chain-3 hit the `delegatesThisTurn` ceiling at dispatch-time (not at schedule-time) because the compaction-boundary collapses the turn-scope.
+Two `forbidden` events at 11:08:40 = Chain-2 + Chain-3.
 
-This is itself behavioral data about chain-guard semantics at compaction-boundaries — load-bearing for the continuation-feature surface.
+## Mechanism
 
-## Verdict
+7 delegates fired from single turn:
+1. R-CD-1 (normal, delay=5s)
+2. R-CD-2 (silent-wake, delay=8s)
+3. R-CD-3 (post-compaction → handled by post-compaction-delegate-dispatch, separate path)
+4. R-CD-4 (silent, cross-session targetSessionKey, delay=5s)
+5. Chain-1 depth-1 (silent, delay=3s) → spawned ✅ (activeChildren=4 at dispatch)
+6. Chain-2 depth-1 (silent, cross-session, delay=3s) → **forbidden** (activeChildren=5 at dispatch ≥ maxChildren=5)
+7. Chain-3 depth-1 (silent, delay=3s) → **forbidden** (activeChildren=5 at dispatch)
 
-- ✅ Schedule-shape contract verified at byte (see parent EVIDENCE.md, R-CD-CHAINED-DEPTH-2 section)
-- ⚠️ Dispatch-shape: chain-guard denies post-compaction spawn for Chain-2 (depth-1 with cross-session targetSessionKey)
-- 🔬 The denial IS evidence — verifies chain-guard enforces depth/fan-out limits at the compaction-boundary, not just at schedule-time
+Chain-1 squeaked through because it was the 5th-active (activeChildren=4 < 5 at the moment its spawn-call was evaluated). Chain-2 + Chain-3 hit `activeChildren=5 >= maxChildren=5` and returned forbidden.
 
-## Cross-reference
+## Classification
 
-Chain-1 (same-session depth-2) completed successfully — see `Chain-1/depth-1-EVIDENCE.json` + `Chain-1/depth-2-payload.txt`. The differentiator vs Chain-1: Chain-2 added cross-session targetSessionKey at depth-1. The hypothesis is that Chain-1 dispatched BEFORE the compaction shard-eligibility was consumed; Chain-2 + Chain-3 dispatched AFTER.
+**Ordering condition, NOT regression, NOT environmental.**
+
+- `src/agents/subagent-spawn.ts` diff PR-head→CANDIDATE_SHA = 0 bytes (verified via 🌿's byte-walk in `1505272930`)
+- Same gate would have fired on PR-head with the same fire-pattern
+- My config has `subagents.maxConcurrent=16, maxSpawnDepth=5` but no `maxChildrenPerAgent` set → default 5
+- The gate fired correctly; my dispatch fired 6 regular delegates + 1 post-compaction in single turn, exceeded per-session active-children budget
+
+## Why my earlier HONEST-LIMIT.md was wrong
+
+I asserted `compaction-boundary chain-guard` from memory without byte-walking. The journal grep regex `delegate-rejected|DELEGATE spawn forbidden` missed the actual log line `DELEGATE spawn rejected (forbidden)`. The error log line phrasing differs from my mental model. Same shape as morning's *praecipitatio*: assertion before byte-check.
+
+## Verdict at byte
+
+- ✅ Schedule-shape contract verified at byte (parent EVIDENCE.md)
+- ✅ Dispatch correctly fired `maxChildrenPerAgent` policy gate
+- 🔬 Behavioral data: cross-session targeting at depth-1 (Chain-2) is NOT relevant; the gate fired purely on active-children count
+- ⚠️ Self-correction: never assert mechanism without byte-walking the journal + the source
+
+## To re-verify Chain-2 behavior cleanly
+
+Fire Chain-2 alone (not coupled with R-CD-1/2/3/4 + Chain-1/3 in same turn). With activeChildren=0 at fire-time, the cross-session-targeted-return depth-2 chain should dispatch correctly. Open for follow-up if needed.

@@ -1,0 +1,28 @@
+Session-status snapshot for R-RC-1 thread-bound spawn attempt
+==============================================================
+Date: 2026-05-16T18:21:50Z
+
+Runtime header (injected at spawn):
+  agent=main | host=cael | repo=/home/figs/.openclaw/workspace
+  os=Linux 6.17.0-1014-nvidia (arm64) | node=v25.9.0
+  model=github-copilot/claude-opus-4.7-1m-internal
+  default_model=github-copilot/claude-opus-4.7-1m-internal
+  shell=bash | channel=discord
+  capabilities=nativeapprovals,threadbound-acp-spawn,threadbound-subagent-spawn
+  thinking=high
+
+Session class (per Subagent Context header):
+  "You are a subagent spawned by the main agent for a specific task."
+  Depth: 1/5
+  Session key: agent:main:subagent:1e77d051-6fa9-4c2e-b83d-6ce728189320
+  Requester: agent:main:discord:channel:1466192485440164011
+
+Binary: OpenClaw 2026.5.17 (e90a870)
+
+Note: The agent=main token in the Runtime header refers to the agent-profile
+(default main profile), NOT main-session-class. The actual session-class is
+"subagent" per the injected Subagent Context. This is a known runtime-header
+naming-collision that has bit multiple cohort byte-walks.
+
+session_status slash-command not invokable from subagent tool surface.
+Context usage snapshot unavailable from this seat (no introspection tool present).

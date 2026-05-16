@@ -1,0 +1,46 @@
+R-RC-1 Thread-Bound Spawn Attempt — Evidence (Honest Negative)
+================================================================
+Date: 2026-05-16T18:21:50Z
+Seat: cael (10.0.0.148)
+Binary: OpenClaw 2026.5.17 (e90a870)
+Spawn parameters (from dispatching agent): sessions_spawn with thread=true, mode=session
+Expected: thread-bound main-session-class agent with access to request_compaction tool
+Actual: subagent (depth 1/5) per injected Subagent Context header
+
+Verdict: GATING-BLOCKER PERSISTS (not REJECT capture)
+====================================================
+
+The thread-bound spawn (thread=true, mode=session) did NOT elevate the spawned agent
+to main-session-class. The runtime injected the standard Subagent Context header
+("You are a subagent spawned by the main agent...") and the request_compaction tool
+is NOT present in my tool surface.
+
+This means the leaf-subagent gate that blocked R-RC-1 at PROOFS/e90a870154/39abb540
+also applies to thread=true/mode=session spawns. The dispatching agent's hypothesis
+("thread-bound main-session bypasses the leaf-subagent gate") is FALSIFIED at byte.
+
+Tool surface check:
+- request_compaction: NOT PRESENT
+- continue_work: NOT PRESENT
+- continue_delegate: PRESENT (chain delegation tool)
+- Standard subagent tools (exec, read, write, edit, sessions_spawn, etc.): PRESENT
+
+What this means for R-RC-1:
+- The under-threshold REJECT capture cannot be obtained from any subagent-class
+  spawn, regardless of thread-binding or mode=session.
+- The only path to capture R-RC-1 REJECT evidence is from the actual main-session
+  agent (the one with direct figs-channel binding), OR by surfacing a runtime
+  change that exposes request_compaction to thread-bound main-session spawns.
+- This finding SUPERSEDES the prior 39abb540 gating-blocker only insofar as it
+  extends the gate scope: not just leaf-subagent, but also thread-bound spawns.
+
+Note: Fired from thread-bound spawn (sessions_spawn with thread=true, mode=session)
+on cael-seat. Runtime did not honor the main-session-class elevation request;
+spawned agent received standard subagent context header at depth 1/5.
+
+No request_compaction call was made (tool absent). No trace ID was generated.
+No Tempo trace exists for this attempt.
+
+Honest negative captured per task step 3 ("If you instead get... report that as
+honest negative"). Extended to the gating-blocker case: no tool = no call = no
+verdict.

@@ -18,19 +18,21 @@ Per figs's 2026-05-16 role-shift directive ("1 driver and a controlled flow — 
 
 | Row | Owner | Tool / behavior | Evidence | Verdict |
 |---|---|---|---|---|
-| R-CW-1 | 🩸 Cael | `continue_work()` wake + deploy-persistence | `R-CW-1/wake_event_evidence.txt` + `R-CW-1/wake_event_trace.json` | ⏳ PENDING fleet-deploy at CANDIDATE_SHA |
-| R-CW-2 | 🩸 Cael | chain-counter accounting | embedded in `R-CW-1/wake_event_evidence.txt` | ⏳ PENDING |
-| R-CD-1 | 🌊 Ronan | `continue_delegate()` schedule → spawn → return | `R-CD-1/{delegate_schedule_receipt,delegate_spawn_event,delegate_return_receipt}.txt` + traces | ⏳ PENDING |
-| R-CD-2 | 🌊 Ronan | `continue_delegate(mode="silent-wake")` | full path in `R-CD-2/` + traces | ⏳ PENDING |
-| R-CD-3 | 🌊 Ronan | `continue_delegate(mode="post-compaction")` | `R-CD-3/{post_compaction_stage_receipt,post_compaction_return_receipt}.txt` + traces | ⏳ PENDING |
-| R-CD-4 | 🌊 Ronan | cross-session targeted return | `R-CD-4/targeted_return_arrival_receipt.txt` + trace | ⏳ PENDING |
-| R-RC-1 | 🌫 Silas | `request_compaction()` threshold REJECT | `R-RC-1/{session_status_snapshot,threshold_gate_rejection_evidence}.txt` + trace | ⏳ PENDING |
-| R-RC-2 | 🩸 Cael | `request_compaction()` over-threshold ACCEPT | `R-RC-2/compaction_accept_request_receipt.txt` + trace (host-failure-mode #625 tracked separately) | ⏳ PENDING |
-| R-OBS-1 | 🌻 Elliott (+ figs cross-walk) | external `/status` continuation row + 4-prince cross-walk | `R-OBS-1/external_observer_full_fleet.txt` | ⏳ PENDING |
-| R-CD-CHAINED-DEPTH-2 / Chain 1 | 🌊 Ronan | strict 2-deep up-tree silent-wake | `R-CD-CHAINED-DEPTH-2/chain-1/{outer_link_receipt,inner_leaf_uptree_wake}.txt` + traces | ⏳ PENDING |
-| R-CD-CHAINED-DEPTH-2 / Chain 2 | 🌊 Ronan | strict 2-deep inter-session return-to-root | `R-CD-CHAINED-DEPTH-2/chain-2/{outer_link_receipt,inner_leaf_intersession_arrival}.txt` + traces | ⏳ PENDING |
-| R-CD-CHAINED-DEPTH-2 / Chain 3 | 🌊 Ronan | strict 2-deep echo + cross-channel | `R-CD-CHAINED-DEPTH-2/chain-3/{outer_link_receipt,inner_leaf_echo_evidence,heartbeat_channel_echo_screenshot}.{txt,png}` + traces | ⏳ PENDING |
-| R-CD-CHAINED-DEPTH-2 (TEST 1-3) | 🌫 Silas (canary-seat) | depth-2 chain — 3 return modes | `R-CD-CHAINED-DEPTH-2/test_{1,2,3}_*.txt` + traces | ⏳ PENDING |
+| R-CW-1 | 🩸 Cael | `continue_work()` wake + deploy-persistence | [`R-CW-1/EVIDENCE.md`](R-CW-1/EVIDENCE.md) + wake_event_trace.json | ✅ PASS |
+| R-CW-2 | 🩸 Cael | chain-counter accounting | embedded in [`R-CW-1/EVIDENCE.md`](R-CW-1/EVIDENCE.md) | ✅ PASS |
+| R-CD-1 | 🌊 Ronan | `continue_delegate()` schedule → spawn → return | [`R-CD-1/EVIDENCE.md`](R-CD-1/EVIDENCE.md) + receipts + traces | ✅ PASS |
+| R-CD-2 | 🌊 Ronan | `continue_delegate(mode="silent-wake")` | [`R-CD-2/EVIDENCE.md`](R-CD-2/EVIDENCE.md) + traces | ✅ PASS |
+| R-CD-3 | 🌊 Ronan | `continue_delegate(mode="post-compaction")` | [`R-CD-3/EVIDENCE.md`](R-CD-3/EVIDENCE.md) + traces | ✅ PASS |
+| R-CD-4 | 🌊 Ronan | cross-session targeted return | [`R-CD-4/EVIDENCE.md`](R-CD-4/EVIDENCE.md) + trace | ✅ PASS |
+| R-RC-1 | 🌫 Silas | `request_compaction()` threshold REJECT | [`R-RC-1/SUBSTRATE-FINDING.md`](R-RC-1/SUBSTRATE-FINDING.md) | ⚠️ HONEST-LIMIT (option-g — structurally-blocked at all-seats-over-threshold; gate-stack working as-designed) |
+| R-RC-2 | 🩸 Cael | `request_compaction()` over-threshold ACCEPT | [`R-RC-2/EVIDENCE.md`](R-RC-2/EVIDENCE.md) + `compaction_accept_request_trace.json` (host-failure-mode #625 tracked separately) | ✅ PASS |
+| R-OBS-1 | 🌻 Elliott (+ figs cross-walk) | external `/status` continuation row + 4-prince cross-walk | [`R-OBS-1/chat_card_visibility_external_observer.md`](R-OBS-1/chat_card_visibility_external_observer.md) + `external_observer_full_fleet.txt` | ✅ PASS (4-prince fleet at CANDIDATE_SHA, 🔄 chain row visible, 0-volitional-compactions invariant verified) |
+| R-CD-CHAINED-DEPTH-2 / Chain-1 | 🌊 Ronan | strict 2-deep up-tree silent-wake | [`R-CD-CHAINED-DEPTH-2/Chain-1/`](R-CD-CHAINED-DEPTH-2/Chain-1/) (receipts + traces) | ✅ PASS |
+| R-CD-CHAINED-DEPTH-2 / Chain-2 | 🌊 Ronan | strict 2-deep inter-session return-to-root | [`R-CD-CHAINED-DEPTH-2/Chain-2/HONEST-LIMIT.md`](R-CD-CHAINED-DEPTH-2/Chain-2/HONEST-LIMIT.md) (initial) + [`Chain-2-RETRY/EVIDENCE.md`](R-CD-CHAINED-DEPTH-2/Chain-2-RETRY/EVIDENCE.md) (retry) | ✅ PASS on RETRY (initial HONEST-LIMIT was `maxChildrenPerAgent=5` saturation ordering-condition; isolated-turn retry confirmed) |
+| R-CD-CHAINED-DEPTH-2 / Chain-3 | 🌊 Ronan | strict 2-deep echo + cross-channel | [`R-CD-CHAINED-DEPTH-2/Chain-3/HONEST-LIMIT.md`](R-CD-CHAINED-DEPTH-2/Chain-3/HONEST-LIMIT.md) (initial) + [`Chain-3-RETRY/EVIDENCE.md`](R-CD-CHAINED-DEPTH-2/Chain-3-RETRY/EVIDENCE.md) (retry) | ✅ PASS on RETRY (same ordering-condition as Chain-2; isolated-turn retry confirmed) |
+| R-CD-CHAINED-DEPTH-2 / TEST-1 | 🌫 Silas (canary-seat) | depth-2 chain — up-tree silent-wake | [`R-CD-CHAINED-DEPTH-2/test_1_uptree_silent_wake/`](R-CD-CHAINED-DEPTH-2/test_1_uptree_silent_wake/) (receipts + traces) | ✅ PASS |
+| R-CD-CHAINED-DEPTH-2 / TEST-2 | 🌫 Silas (canary-seat) | depth-2 chain — inter-session return | [`R-CD-CHAINED-DEPTH-2/test_2_intersession_return/`](R-CD-CHAINED-DEPTH-2/test_2_intersession_return/) (receipts + traces) | ✅ PASS |
+| R-CD-CHAINED-DEPTH-2 / TEST-3 | 🌫 Silas (canary-seat) | depth-2 chain — echo broadcast | [`R-CD-CHAINED-DEPTH-2/test_3_echo_broadcast/`](R-CD-CHAINED-DEPTH-2/test_3_echo_broadcast/) (receipts + traces) | ✅ PASS |
 
 Local gates GREEN at CANDIDATE_SHA (pre-fleet-deploy):
 - Cure-bytes byte-identical PR-head→resolved on 4-cure-file set ✅ (see `cure-bytes/`)

@@ -1,0 +1,76 @@
+R-RC-1 Proof Fire — UNABLE TO EXECUTE FROM SUBAGENT (Honest Negative Result)
+============================================================================
+
+Date: 2026-05-17 (subagent fire from cael-seat main:discord:1466192485440164011)
+Subagent depth: 1/5
+Subagent session: agent:main:subagent:a8f1dd01-c97f-4d4d-82b4-a10871ceabe7
+Binary: OpenClaw 2026.5.17 (e90a870)
+
+VERDICT: R-RC-1 cannot be captured from a subagent context.
+========================================================
+
+Root cause (byte-walked from src/auto-reply/continuation/signal.ts):
+
+  // Critical for subagent chain-hops where
+  // the bracket is the ONLY continuation path (tool is denied for leaf subagents).
+
+The continuation tools — `request_compaction`, `continue_work`, `continue_delegate` —
+are gated OFF for leaf subagents by design. Subagents must use the bracket-fallback
+syntax (e.g. `[[CONTINUE_DELEGATE: ...]]`) for continuation work, and there is NO
+bracket-fallback for request_compaction because compaction-of-subagent doesn't make
+sense (subagents are ephemeral and die at task completion; their context isn't
+persisted across compaction the way main-session context is).
+
+Also: `session_status` (📊) — the runtime status tool — is similarly not in the
+subagent tool-surface visible to this subagent.
+
+Tool surface available to this subagent (filtered from main-session toolset by
+policy): standard subagent tools (read/write/edit/exec/web_*/browser/canvas/
+message/sessions_*/subagents/image*/pdf/tts/video/voice/wiki/memory + claude_*
++ council_* + dir_* + file_* + continue_delegate + ultraplan/ultrareview).
+
+Notably ABSENT for subagent: request_compaction, session_status.
+
+What this means for R-RC-1 capture
+==================================
+
+The R-RC-1 test case (under-threshold REJECT shape) MUST be fired from a main-
+thread agent context, not a subagent. The subagent-spawn-for-fresh-low-context
+trick used for other R-tests in PROOFS/e90a870154/ doesn't apply here because
+the tool being tested is itself denied to subagents.
+
+Suggested cure-path for the requesting main-session:
+
+1. Drop to a fresh main-session context (e.g. start a new Discord conversation
+   thread to get a clean low-context main-thread agent), OR
+
+2. Fire request_compaction() directly from current main-session if contextUsage
+   is verified below 70% (use session_status first to confirm), OR
+
+3. Accept that R-RC-1 over-threshold ACCEPT shape can be captured but the
+   under-threshold REJECT shape requires either of the above — there is no
+   subagent-delegation path for this specific test case.
+
+Honest reporting per task instructions: "If request_compaction actually returns
+ACCEPT (status=compaction_requested), that means even fresh subagent context is
+over threshold — report this honest negative result with the contextUsage
+number, don't fabricate a REJECT."
+
+Extending that discipline to this case: rather than fabricate a REJECT response
+or pretend the tool fired and returned something, I report that the tool is
+not callable from this subagent context at all. No trace was generated because
+no call could be made. No traceparent to fetch. /tmp/r-rc-1-trace.json was not
+created.
+
+Byte-evidence of the tool-gating
+================================
+
+File: src/auto-reply/continuation/signal.ts
+Lines (around the gating comment):
+
+  // and the model may emit multiple text fragments per turn; the marker can
+  // legitimately live on any of them. Critical for subagent chain-hops where
+  // the bracket is the ONLY continuation path (tool is denied for leaf subagents).
+  // Per karmaterminal/openclaw#622: previous "stop at last text payload" shape
+  // silently dropped markers on earlier payloads when later text existed.
+

@@ -1,0 +1,18 @@
+{
+  "depth1_traceparent": null,
+  "depth1_traceparent_note": "no OTEL_TRACEPARENT or trace env vars exposed to subagent runtime; runtime did not surface inbound traceparent",
+  "depth2_traceparent": "00-2aac17fa815fbf2254be4ffe9687c486-c4a2eacdb58027b9-01",
+  "depth2_schedule_response": {
+    "status": "scheduled",
+    "mode": "silent",
+    "delaySeconds": 3,
+    "delegateIndex": 1,
+    "delegatesThisTurn": 1,
+    "traceparent": "00-2aac17fa815fbf2254be4ffe9687c486-c4a2eacdb58027b9-01",
+    "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+  },
+  "timestamp": "2026-05-16T18:09:05Z",
+  "seat": "ronan",
+  "shard": "R-CD-CHAINED-DEPTH-2/Chain-1",
+  "depth": 1
+}

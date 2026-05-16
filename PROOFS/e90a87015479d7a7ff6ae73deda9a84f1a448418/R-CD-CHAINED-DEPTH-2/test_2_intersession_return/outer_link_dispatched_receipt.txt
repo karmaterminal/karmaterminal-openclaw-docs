@@ -1,0 +1,12 @@
+R-CD-CHAINED-DEPTH-2 TEST-2 OUTER LINK dispatched-receipt
+========================================================
+chain: TEST-2 inter-session return-to-root (outer-link → inner-leaf dispatched)
+outer_delegateIndex (this turn): 2
+inner_leaf_dispatch_traceparent: 00-1705b4c9fb02ffc1cbbeb24f448ea6e8-7f64d6110cbd1458-01
+inner_leaf_status: scheduled
+inner_leaf_mode: silent-wake
+inner_leaf_delegateIndex (this turn): 2
+inner_leaf_delaySeconds: 0
+expected_evidence_after_wake: /tmp/r-cd-chain-2-inner.txt with depth=2 traceparent + sessions_send tool-result + payload "inner_leaf_intersession_arrival_delivered to=<recipient> messageId=<id>"
+root_traceparent: 00-8ed6a32f81fa71dffba17fe92d47d0ae-f9ddbf43e0f0ca6d-01
+outer_traceparent_layer: 00-1705b4c9fb02ffc1cbbeb24f448ea6e8-7f64d6110cbd1458-01

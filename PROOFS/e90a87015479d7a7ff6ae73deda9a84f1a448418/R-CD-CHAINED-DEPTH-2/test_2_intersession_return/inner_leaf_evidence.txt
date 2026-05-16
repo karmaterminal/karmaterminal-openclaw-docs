@@ -1,0 +1,27 @@
+R-CD-CHAINED-DEPTH-2 TEST-2 INNER LEAF evidence
+================================================
+
+own_session_key: agent:main:subagent:f50f42e8-a89c-4a2c-b377-0d83ea2ddf7d
+own_sessionId: a1bb7424-3f76-4c03-b452-a3a15c983548
+own_delegateId: <not exposed to subagent runtime surface>
+own_traceparent: <not exposed to subagent runtime surface>
+depth_self_report: 2
+chain: TEST-2 inter-session
+candidate_sha: e90a87015479
+
+recipient_sessionKey: agent:main:subagent:bc5dcabc-34ed-41c7-9e8d-d90c961defe3
+recipient_selection_rationale: sibling subagent under same parent (agent:main:discord:channel:1466192485440164011), status=running, NOT the silas-main parent
+
+sessions_send_tool_result: TOOL_UNAVAILABLE
+  - The task specifies `sessions_send` but no such tool is exposed in this subagent's toolset.
+  - Available adjacent tools: message (channel msg), continue_delegate (spawn new subagent), sessions_spawn, sessions_history, sessions_list.
+  - No inter-session direct-send primitive available; payload could not be delivered to peer sessionKey via the requested mechanism.
+  - messageId: N/A
+  - receipt: N/A
+
+intended_payload:
+  "R-CD-CHAINED-DEPTH-2 TEST-2 inter-session arrival from inner_leaf delegateId=<unavailable> traceparent=<unavailable> depth=2 to=agent:main:subagent:bc5dcabc-34ed-41c7-9e8d-d90c961defe3. This is a non-actionable receipt for cohort proof corpus. NO_REPLY expected."
+
+root_traceparent: 00-8ed6a32f81fa71dffba17fe92d47d0ae-f9ddbf43e0f0ca6d-01
+
+note_for_corpus: tool-gap finding — TEST-2 inter-session delivery requires a `sessions_send` primitive that is not currently exposed to subagent contexts. Recommend cohort runtime audit.

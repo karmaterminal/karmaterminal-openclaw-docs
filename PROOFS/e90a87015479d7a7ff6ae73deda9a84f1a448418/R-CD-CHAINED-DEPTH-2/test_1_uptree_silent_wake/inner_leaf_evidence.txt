@@ -1,0 +1,11 @@
+dispatchedAt: 2026-05-16T11:00:48-07:00
+chain: TEST-1 up-tree silent-wake
+depth: 2 (inner leaf)
+self_report: depth=2 inner-leaf of silas-root → outer-link (turn 1/200) → THIS
+own_delegateId: (not surfaced in subagent visible context; system event holding it is parent-side)
+own_traceparent: (not surfaced in this subagent's visible context — traceparent injection only visible to gateway/parent)
+parent_outer_link_traceparent: 00-8ed6a32f81fa71dffba17fe92d47d0ae-f9ddbf43e0f0ca6d-01
+candidate_sha: e90a87015479
+seat: silas
+return_mode: default tree-up (silent-wake to ancestor)
+note: traceparent + delegateId for SELF are not present in subagent-visible context; only parent's spawn-system-event carries them. Reporting what is observable from leaf-side.

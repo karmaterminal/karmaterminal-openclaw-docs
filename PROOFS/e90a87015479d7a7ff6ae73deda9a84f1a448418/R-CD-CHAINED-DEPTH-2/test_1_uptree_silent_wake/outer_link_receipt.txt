@@ -1,0 +1,15 @@
+R-CD-CHAINED-DEPTH-2 TEST-1 OUTER LINK receipt
+=================================================
+chain: TEST-1 up-tree silent-wake
+depth: 1 (outer link)
+seat: silas (urudyne, WSL2, canary)
+candidate_sha: e90a87015479d7a7ff6ae73deda9a84f1a448418
+dispatchedAt: 2026-05-16T10:59:14 PDT (per [continuation:delegate-spawned] system event)
+delegateIndex: 1
+root_traceparent (shared across all 3 outer links): 00-8ed6a32f81fa71dffba17fe92d47d0ae-f9ddbf43e0f0ca6d-01
+mode: silent-wake
+execution_mode: outer-link task delivered back to silas-root session as delegate-turn 1/200 (re-entered same session, not spawned isolated child — silent-wake delegate-execution shape)
+own_traceparent: will be emitted when this turn completes (visible in Tempo as openclaw.run span)
+own_delegateId: not exposed directly to tool surface; inferable from system event id "continuation:delegate-spawned" turn 1
+parent_context: silas-main session (R-CD-CHAINED-DEPTH-2 root dispatcher)
+next_action: fire ONE continue_delegate(mode=silent-wake) as INNER LEAF, then write outer-dispatched receipt

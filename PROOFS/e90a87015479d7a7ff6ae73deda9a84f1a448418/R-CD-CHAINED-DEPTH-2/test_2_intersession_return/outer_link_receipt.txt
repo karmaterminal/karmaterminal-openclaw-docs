@@ -1,0 +1,13 @@
+R-CD-CHAINED-DEPTH-2 TEST-2 OUTER LINK receipt
+=================================================
+chain: TEST-2 inter-session return-to-root
+depth: 1 (outer link)
+seat: silas (urudyne, WSL2, canary)
+candidate_sha: e90a87015479d7a7ff6ae73deda9a84f1a448418
+dispatchedAt: 2026-05-16T10:59:18 PDT
+delegateIndex: 2
+root_traceparent (shared across all 3 outer links): 00-8ed6a32f81fa71dffba17fe92d47d0ae-f9ddbf43e0f0ca6d-01
+mode: silent-wake
+execution_mode: outer-link task delivered back to silas-root session as delegate-turn 2/200
+parent_context: silas-main session (R-CD-CHAINED-DEPTH-2 root dispatcher)
+next_action: fire ONE continue_delegate(mode=silent-wake) as INNER LEAF that uses sessions_list+sessions_send to deliver to a sibling/peer session

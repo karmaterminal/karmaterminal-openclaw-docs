@@ -1,0 +1,19 @@
+TEST-3 INNER LEAF (depth=2) EVIDENCE
+=====================================
+chain: TEST-3 echo+broadcast
+depth: 2 (self-report)
+delegateId: agent:main:subagent:bc5dcabc-34ed-41c7-9e8d-d90c961defe3
+own_traceparent: <not exposed to runtime in this surface>
+candidate_sha: e90a87015479
+host: silas-seat
+
+#heartbeat broadcast:
+  channel: 1473320126433464465
+  messageId: 1505268869961482513
+  sentAt: 1778954465389
+
+sent_text:
+R-CD-CHAINED-DEPTH-2 TEST-3 echo from silas-seat inner-leaf depth=2 traceparent=<own> at 2026-05-15T_runtime root_traceparent=00-8ed6a32f81fa71dffba17fe92d47d0ae-f9ddbf43e0f0ca6d-01 — proof-corpus receipt, no reply needed
+
+root_traceparent: 00-8ed6a32f81fa71dffba17fe92d47d0ae-f9ddbf43e0f0ca6d-01
+parent_chain: silas-root → outer-link (turn 3/200) → inner-leaf (turn 6/200)

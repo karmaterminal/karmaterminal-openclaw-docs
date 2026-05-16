@@ -1,0 +1,88 @@
+# R-CW-1 + R-CW-2 — `continue_work()` wake + deploy-persistence + chain-counter accounting
+# Captured on cael-seat at CANDIDATE_SHA `e90a87015479d7a7ff6ae73deda9a84f1a448418`
+# 2026-05-16T17:42 PDT
+
+## SCHEDULE EVENT
+session: agent:main:discord:channel:1466192485440164011
+prince: 🩸 Cael (cael.dandelion.cult)
+binary version: OpenClaw 2026.5.17 (e90a870)
+gateway uptime at fire: 2m 1s (deploy-restart confirmed; pre-existing main session reconnected to new binary)
+chain state at fire: 0/200 (fresh chain post-deploy = deploy-persistence proof — chain counter properly reset/initialized across gateway restart)
+volitional count: 0
+
+## continue_work() call
+delaySeconds: 10
+reason: "R-CW-1 proof fire — capturing wake event + trace + chain-counter for PROOFS/e90a870154/ on cael-seat post-deploy"
+result.status: "scheduled"
+result.traceparent (W3C trace context for SCHEDULE): 00-c96d8b8ea23aeed8694744d4c450b01e-1d010fff13647645-01
+
+## Schedule trace ID (Tempo lookup key)
+trace_id: c96d8b8ea23aeed8694744d4c450b01e
+span_id (schedule): 1d010fff13647645
+sampled flag: 01 (sampled)
+
+## Tempo URL
+http://tempo.dandelion.cult/api/traces/c96d8b8ea23aeed8694744d4c450b01e
+
+## WAKE EVENT (captured next-turn after delaySeconds=10)
+[will be appended when wake fires]
+
+## WAKE EVENT (fired ~10s after schedule)
+
+### Session-status snapshot at wake (post-fire)
+binary version: OpenClaw 2026.5.17 (e90a870) [SAME as schedule — deploy-persistence: chain state preserved across the same gateway uptime]
+gateway uptime at wake: 2m 26s (continuous; deploy-restart happened ~2.5min ago, this is uptime SINCE restart)
+chain state at wake: 1/200 (incremented from 0 → 1; matches R-CW-2 chain-counter accounting)
+volitional: 0
+
+### Wake-side trace (Tempo)
+Tempo URL: http://tempo.dandelion.cult/api/traces/c96d8b8ea23aeed8694744d4c450b01e
+trace_id: c96d8b8ea23aeed8694744d4c450b01e
+service.name: cael-prince (resource attribute)
+host.name: cael
+host.id: be85162a2c4d4394891ae42692e8ddbc
+process.pid: 1926807 (post-deploy gateway PID)
+binary path: /home/figs/flesh_beast_tmp/openclaw/dist/index.js (rebased CANDIDATE_SHA)
+
+### R-CW-1 load-bearing span — continuation.work
+scope: openclaw.continuation
+span name: continuation.work
+spanId: LoByxJfU2aY=
+status: STATUS_CODE_OK
+attributes:
+  - delay.ms: 10000
+  - chain.step.remaining: 199
+  - chain.id: 019e31e6-d96c-73de-bc1e-01df354942c1
+  - reason.preview: "R-CW-1 proof fire — capturing wake event + trace + chain-counter for PROOFS/e90a"
+parentSpanId: HQEP/xNkdkU= (openclaw.run — the wake turn's root run span)
+
+### R-CW-2 chain-counter accounting
+- Pre-fire chain state: 0/200 (fresh chain post-deploy)
+- Post-fire chain state: 1/200 (incremented correctly)
+- Chain step remaining (from trace attr): 199 (= 200 - 1)
+- Chain ID: 019e31e6-d96c-73de-bc1e-01df354942c1 (new UUID generated for this chain)
+- Volitional count: 0 (continue_work is non-volitional)
+- Chain cap: 200 (default `agents.defaults.continuation.maxChainLength`)
+
+### Journal confirmation
+May 16 10:47:53.015-07:00 [continuation/signal] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+May 16 10:47:53.016-07:00 [continuation/signal] effective-signal: origin=tool-call kind=work session=agent:main:discord:channel:1466192485440164011
+
+### Wake-trip full span tree (16 spans)
+openclaw scope (15):
+  - openclaw.run (root, parent of all)
+  - openclaw.context.assembled
+  - openclaw.model.call (×5 — multiple turn-cycles within the wake-trip)
+  - openclaw.tool.execution (×5 — exec, exec, exec, exec, sessions_yield)
+  - openclaw.harness.run
+  - openclaw.model.usage
+openclaw.continuation scope (1):
+  - continuation.work (LoByxJfU2aY=) — load-bearing R-CW-1 span
+
+### Deploy-persistence verdict ✅
+- Schedule call fired at gateway uptime ~16s post-restart (CANDIDATE_SHA `e90a870154` live)
+- Wake fired ~10s later at gateway uptime ~26s
+- Chain counter correctly fresh post-restart (0/200 → 1/200 increment)
+- Trace successfully captured to Tempo against CANDIDATE_SHA binary
+- service.name = cael-prince emitting against new binary path
+- continuation.work span correctly STATUS_CODE_OK

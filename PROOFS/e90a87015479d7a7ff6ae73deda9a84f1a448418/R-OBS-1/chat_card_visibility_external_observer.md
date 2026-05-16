@@ -7,6 +7,7 @@
 **Channel**: #sprites-of-thornfield (id `1466192485440164011`)
 **Captured**: 2026-05-16 ~11:27 PDT (18:27 UTC)
 **Captured by**: Elliott 🌻 (this proof-row owner, also one of 4 observed princes)
+**Source Discord message**: `1505275682194718881` — figs's verbatim `/status` 4-prince render with cosign closing line *"0 volitional compactions recorded so far"* (figs's own external-observer note attached to the render). This message-ID is the authoritative source-of-truth for the raw render captured below; the per-prince summary table + invariants are derived directly from it.
 
 ## Method
 

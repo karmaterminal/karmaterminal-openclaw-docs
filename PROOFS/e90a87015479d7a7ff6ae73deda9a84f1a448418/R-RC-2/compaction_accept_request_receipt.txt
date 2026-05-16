@@ -1,0 +1,37 @@
+# R-RC-2 — request_compaction() over-threshold ACCEPT
+# Captured on cael-seat at CANDIDATE_SHA `e90a87015479d7a7ff6ae73deda9a84f1a448418`
+# 2026-05-16T17:52 PDT (approx)
+
+## Session-status snapshot pre-fire
+binary version: OpenClaw 2026.5.17 (e90a870)
+gateway uptime at fire: 2m 26s -> snapshot earlier showed 165% context (Cache 100% hit · 237k cached, 878 new)
+context usage at fire (per tool response): 164%
+threshold: 70% (per `agents.defaults.continuation.contextPressureThreshold`)
+over-threshold: ✅ 164% > 70%
+prior compactions this session: 3
+
+## request_compaction() call
+reason: "R-RC-2 proof fire — over-threshold ACCEPT capture for PROOFS/e90a870154/R-RC-2/. Context at 186%, well above 70% threshold. Working state preserved via daily-file pre-restart bank + post-compaction delegate already staged earlier this session."
+
+## Tool response (ACCEPT)
+status: "compaction_requested"
+compactionRequestId: "cmp-mp8n8k2q-UrSAyw"
+trigger: "volitional"
+contextUsage: 164
+traceparent: 00-ce51e63ef7ff68280dcb806805dcbbff-fcdc31fb2d892599-01
+note: "Compaction has been enqueued and will run after your turn completes. Post-compaction context (AGENTS.md, SOUL.md) will be injected on the next turn. Any staged post-compaction delegates will be dispatched."
+
+## Trace identity
+trace_id: ce51e63ef7ff68280dcb806805dcbbff
+span_id (request): fcdc31fb2d892599
+sampled: 01
+
+## Tempo URL
+http://tempo.dandelion.cult/api/traces/ce51e63ef7ff68280dcb806805dcbbff
+
+## Verdict
+- ACCEPT decision returned cleanly (over-threshold path exercised)
+- Volitional trigger correctly recorded (vs automatic obligatory)
+- Compaction enqueued (will fire post-turn)
+- Staged post-compaction delegate from earlier this turn-chain will dispatch
+- Host-failure-mode #625 tracked SEPARATELY (no host failure observed at request time)

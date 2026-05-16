@@ -1,0 +1,55 @@
+$ node scripts/check.mjs
+
+[check] preflight guards
+$ node scripts/check-no-conflict-markers.mjs
+$ node scripts/check-package-patches.mjs
+$ node scripts/generate-host-env-security-policy-swift.mjs --check
+$ node scripts/check-plugin-sdk-wildcard-reexports.mjs
+$ node scripts/check-extension-wildcard-reexports.mjs
+$ node security/opengrep/check-rule-metadata.mjs
+$ node --import tsx scripts/check-no-deprecated-channel-access.ts
+$ node scripts/check-changelog-attributions.mjs
+$ node --import tsx scripts/check-runtime-sidecar-loaders.mjs
+OK apps/macos/Sources/OpenClaw/HostEnvSecurityPolicy.generated.swift
+$ node scripts/check-duplicates.mjs --coverage
+No plugin-sdk wildcard re-exports found in extension API barrels.
+$ node --import tsx scripts/tool-display.ts --check
+No guarded extension wildcard re-exports found.
+$ node scripts/check-media-download-helper-roundtrip.mjs
+[dup:check] target coverage ok
+check-opengrep-rule-metadata: /tmp/oc-pr79925-drive-2026-05-16/security/opengrep/precise.yml ok
+PASS package patch guard: no new pnpm patches; 2 legacy patches allowlisted.
+tool-display snapshot is up to date
+OK: bundled plugin production code avoids deprecated channel access seams.
+runtime-sidecar-loaders: local runtime sidecar loaders look OK.
+
+[check] typecheck
+$ pnpm tsgo:core && pnpm tsgo:extensions
+$ node scripts/run-tsgo.mjs -p tsconfig.core.json --incremental --tsBuildInfoFile .artifacts/tsgo-cache/core.tsbuildinfo
+$ node scripts/run-tsgo.mjs -p tsconfig.extensions.json --incremental --tsBuildInfoFile .artifacts/tsgo-cache/extensions.tsbuildinfo
+
+[check] lint
+$ node scripts/run-oxlint-shards.mjs
+[oxlint:core] starting
+[oxlint:extensions] starting
+[oxlint:scripts] starting
+Found 0 warnings and 0 errors.
+Finished in 1.1s on 434 files with 216 rules using 1 threads.
+[oxlint:scripts] finished
+Found 0 warnings and 0 errors.
+Finished in 10.1s on 8639 files with 216 rules using 1 threads.
+[oxlint:core] finished
+Found 0 warnings and 0 errors.
+Finished in 12.4s on 5364 files with 216 rules using 1 threads.
+[oxlint:extensions] finished
+
+[check] policy guards
+$ node scripts/check-webhook-auth-body-order.mjs
+$ node --import tsx scripts/check-temp-path-guardrails.ts
+$ node scripts/check-no-runtime-action-load-config.mjs
+$ node scripts/check-deprecated-api-usage.mjs
+$ node scripts/check-no-pairing-store-group-auth.mjs
+$ node --import tsx scripts/check-import-cycles.ts
+$ node scripts/check-pairing-account-scope.mjs
+deprecated API usage guard passed
+Import cycle check: 0 runtime value cycle(s).

@@ -1,0 +1,55 @@
+Commits HEAD has, PR-head lacks (rebase delta + upstream catch-up):
+e90a870154 feat(continuation): context-pressure-aware continuation + cure clawsweeper P2
+a3e7fc7de7 test(telegram): fix cache invalidation test contexts
+b11f67964c test(telegram): cover bot info cache invalidation
+95741daeb4 fix(telegram): cache startup bot info
+5774517fce Fix exec allowlist wildcard target normalization (#75723)
+405535d4ce fix: polish gateway restart diagnostics
+92fe2a8f5f fix(gateway): improve restart readiness diagnostics
+597b7b0628 fix(skills): default codex review to yolo mode
+38cf54593e fix: accept device identity dashboard probes
+6ed16d9356 test(extensions): harden plugin prerelease shards
+deaf46a07d fix(auth): avoid keychain creation for oauth profile secrets
+fddac1c507 test(extensions): align mocks with runtime contracts
+4526b44778 fix: preserve generated media completion attachments
+15b0d43412 docs: clarify plugin gateway auto-restart
+777d289979 fix(matrix): avoid state-after sync opt-in
+2fcaab0010 fix: clean up approval handler PR landing (#82482)
+a2f1f73107 docs(plugins): note cancelDelivered in channel plugin interactions list
+ea9793b2e1 fix(approvals): release Matrix reaction target on mid-flight cancel
+851b9271a5 fix(infra): skip unbindPending without a binding handle (dts build)
+06dfa6f160 fix(infra): drop in-flight approval delivery after onStopped
+2c59ea8a2e fix(sessions): estimate local transcript usage
+575936473d fix(auto-reply): log suppressed message-tool-only finals (#82609)
+ffdc7aa7a6 fix(slack): route DM thread replies to main session instead of thread-scoped session (#82418)
+cc22c2ad79 docs: add codex app-server timeout changelog
+2074cde6cf test: stabilize codex app-server waits
+18cbc7bc48 test: repair current CI drift
+21c5f8dc6d fix(codex): keep run lane timeout progress-aware
+a641a27bd4 fix(codex): harden app-server progress watchdog
+efe3790dd3 fix(codex): preserve queued turn-start progress
+6778da05d6 fix(codex): scope app-server request watchdog progress
+d7d597cfd8 fix: scope codex attempt watchdog to turn progress
+722161271e fix: make codex app-server timeout progress-aware
+55439fe34b fix(agents): observe detail-less responses failures
+0eca3a92e3 fix(auto-reply): preserve session model display for heartbeat usage (#82267)
+1769e6a2f0 fix(agents): log detail-less responses failures (#82593)
+0b708a2574 OC Path: restore YAML support (#81436)
+f7b1148bed Strip inbound metadata from replayed user turns (#82614)
+fa9a22b960 changelog: credit TUI fallback model display fix (#82296)
+0b24ffb91f fix(ci): keep performance artifacts on report publish failure
+22858769e4 fix(tui): update model display during fallback (#82296)
+9dedc4d95c fix: honor Codex auth order for OpenAI PI (#82605)
+16e5d6692d fix(gateway): bound traced channel startup handoff (#82592)
+eebdbabae9 fix: omit Ollama think for non-reasoning models
+caf8fa2ebf Revert "Fix bundled channel dist-runtime setup roots" (#82612)
+58083866d0 fix: sync codex app-server protocol drift
+8092761d7b fix: mark codex compaction events completed
+6a65ea8c3a fix: preserve post-compaction session token freshness (#82578)
+b9921e21b9 docs(changelog): note telegram final reply fix
+0fb0b5197e test(telegram): cover truncated progress finals
+20c3580394 fix(telegram): deliver transcript-backed final replies
+
+Commits PR-head has, HEAD lacks (should be just the pre-rebase squash being replaced):
+72706b899a feat(continuation): context-pressure-aware continuation + cure clawsweeper P2
+Total: 249 commits HEAD→PR-head; 1 commits PR-head→HEAD

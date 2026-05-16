@@ -1,0 +1,37 @@
+$ node scripts/build-all.mjs
+[build-all] plugins:assets:build
+$ node scripts/bundled-plugin-assets.mjs --phase build
+[canvas] build: node scripts/bundle-a2ui.mjs
+<DIR>/a2ui.bundle.js  chunk │ size: 394.34 kB
+
+✔ rolldown v1.0.1 Finished in 46.94 ms
+[build-all] tsdown
+[build-all] check-cli-bootstrap-imports
+CLI bootstrap import guard passed.
+[build-all] runtime-postbuild
+runtime-postbuild: plugin SDK root alias completed in 0ms
+runtime-postbuild: bundled plugin metadata completed in 79ms
+runtime-postbuild: official channel catalog completed in 1ms
+runtime-postbuild: bundled plugin runtime overlay completed in 63ms
+runtime-postbuild: static extension assets completed in 23ms
+runtime-postbuild: stable root runtime imports completed in 88ms
+runtime-postbuild: stable root runtime aliases completed in 12ms
+runtime-postbuild: legacy root runtime compat aliases completed in 2ms
+runtime-postbuild: legacy CLI exit compat chunks completed in 0ms
+[build-all] build-stamp
+[build-all] runtime-postbuild-stamp
+[build-all] build:plugin-sdk:dts
+$ node scripts/run-tsgo.mjs -p tsconfig.plugin-sdk.dts.json --declaration true
+[build-all] write-plugin-sdk-entry-dts
+[build-all] check-plugin-sdk-exports
+OK: All 4 required plugin-sdk exports verified.
+[build-all] plugins:assets:copy
+$ node scripts/bundled-plugin-assets.mjs --phase copy
+[canvas] copy: node scripts/copy-a2ui.mjs
+[build-all] copy-hook-metadata
+[copy-hook-metadata] Copied 5 hook metadata files.
+[build-all] copy-export-html-templates
+[copy-export-html-templates] Copied 5 export-html assets.
+[build-all] write-build-info
+[build-all] write-cli-startup-metadata
+[build-all] write-cli-compat

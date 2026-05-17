@@ -26,7 +26,7 @@ Per `RUNBOOKS/PROOF-CORPUS-METHOD.md`: each prince fires assigned R-* rows from 
 | R-CD-4 | 🌊 Ronan | cross-session targeted return | pending ronan-seat fire | ⏳ PENDING |
 | R-RC-1 | 🌫 Silas | `request_compaction()` threshold REJECT | pending silas-seat fire | ⏳ PENDING |
 | R-RC-2 | 🩸 Cael | `request_compaction()` over-threshold ACCEPT | pending cael-seat fire | ⏳ PENDING |
-| R-OBS-1 | 🌻 Elliott (+ figs cross-walk) | external `/status` continuation row + 4-prince cross-walk | [`R-OBS-1/external_observer_full_fleet.md`](R-OBS-1/external_observer_full_fleet.md) (4-prince capture by figs at 17:17 PDT; all 4 seats verified at byte; volitional-counter metering-observation diagnosed via source-byte-walk as downstream manifestation of Failure-class C, NOT separate class) | ✅ PASS |
+| R-OBS-1 | 🌻 Elliott (+ figs cross-walk) | external `/status` continuation row + 4-prince cross-walk | [`R-OBS-1/external_observer_full_fleet.md`](R-OBS-1/external_observer_full_fleet.md) (4-prince capture by figs at 17:17 PDT; all 4 seats verified at byte; cohort-converged finding D-design-question: scheduling-success-vs-execution-success counter-semantics) | ✅ PASS + 1 design-question (D) |
 | R-CD-CHAINED-DEPTH-2 / Chain-1 | 🌊 Ronan | strict 2-deep up-tree silent-wake | pending ronan-seat fire | ⏳ PENDING |
 | R-CD-CHAINED-DEPTH-2 / Chain-2 | 🌊 Ronan | strict 2-deep inter-session return-to-root | pending ronan-seat fire (note maxChildrenPerAgent=5 ordering-condition per cure-(1) PROOFS/) | ⏳ PENDING |
 | R-CD-CHAINED-DEPTH-2 / Chain-3 | 🌊 Ronan | strict 2-deep echo + cross-channel | pending ronan-seat fire (same ordering-condition) | ⏳ PENDING |

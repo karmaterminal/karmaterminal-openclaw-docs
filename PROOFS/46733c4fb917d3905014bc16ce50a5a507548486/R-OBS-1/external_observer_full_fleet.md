@@ -174,17 +174,20 @@ The cohort recursive-cure-discipline cascade for this finding at byte:
 3. Byte-walk flag (🌻 `1505365517`): compactions=4→4 contradicts "delegate fired" causal-claim
 4. Disambiguation (🩸 `1505366090`): names both hypotheses without claiming "delegate fired"
 5. Source-byte-walk (🌫 `1505366328`): exact increment-condition at `request-compaction-tool.ts:283-293` shows counter gated on `result.ok && result.compacted`
-6. Cohort converges: Failure-class D RETRACTED — collapses into Failure-class C downstream manifestation
+6. Cohort converges: Failure-class D-as-counter-broken RETRACTED (🌊's initial misread); Failure-class D-as-design-question STANDS as discussion-class entry (counter behaves as DESIGNED per source-byte-walk; design-question is whether the design-choice should track election-attempts separately from execution-completions)
 
 Same discipline-shape as today's SAGE §Limitations correction-flag, 🩸's "over-caution-owned" on agent-runner.ts, and 🌫's canonical "treated paraphrase as bytes" naming.
 
-### Net failure-mode-class candidates from cure-(2) drift-cure cycle (corrected at byte)
+### Net failure-mode-class candidates from cure-(2) drift-cure cycle (cohort-converged at byte)
 
-- A: scheduler-spawn-discrepancy under `maxDelegatesPerTurn` cap (🌊 surfaced; 🩸 cosigned P3-bug)
-- B: silent-mode-subagent done-receipt ≠ instructed-action-completion (🌊 surfaced)
-- C: compaction-scheduling-vs-execution provider-header gap (🌫 surfaced; upstream-class, NOT cure-(2) regression). **Volitional-counter-stays-at-0 is downstream manifestation of this class.**
+- **A**: scheduler-spawn-discrepancy under `maxDelegatesPerTurn` cap (🌊 surfaced; 🩸 cosigned P3-bug)
+- **B**: silent-mode-subagent done-receipt ≠ instructed-action-completion (🌊 surfaced)
+- **C**: compaction-scheduling-vs-execution provider-header gap (🌫 surfaced; upstream-class, NOT cure-(2) regression)
+- **D-design-question**: should volitional-counter increment on scheduling-success (election-attempt) vs only execution-success (completion)? Counter currently gated on `result.ok && result.compacted` per 🌫 source-byte-walk at `request-compaction-tool.ts:283-293` — BYTE-VERIFIED behaves-as-designed. The design-question is whether the counter SHOULD also track election-attempts (arg: tracks what agent elected, not what completed; counter-stays-at-0 obscures agent IS exercising volition) vs only-completions (arg: only completed-compactions reduce context-state). Discussion-class ENTRYPOINT.md entry; substrate-evidence is 🌫's R-RC-1 ACCEPT + execution-fail. Distinct from withdrawn D-as-counter-broken (which was 🌊's initial misread of elliott /status delta).
 
-3 substantive failure-mode-class candidates + 1 retracted-on-byte-walk = cohort substrate-fidelity-discipline operating as designed.
+**Separately**: elliott /status 17:17→17:18 "1 post-compaction staged → 0" transition with Compactions count unchanged at 4. Worth own substrate-investigation as a separate-finding — possible delegate-clearance-via-timeout/expiry/cancellation without compaction-fire. NOT part of D-design-question.
+
+4 substantive failure-mode-class candidates + 1 separate substrate-observation worth investigation = cohort substrate-fidelity-discipline operating as designed across the cure-(2) drift-cure day-arc.
 
 ## Source receipt anchor
 
@@ -192,4 +195,4 @@ figs's Discord message at `Sat 2026-05-16 17:19 PDT` forwarded the 4-seat /statu
 
 ## Verdict
 
-✅ **PASS** — R-OBS-1 substrate verified at byte across all 4 prince seats at cure-(2) SHA `46733c4f`. Continuation-feature surface visible-to-external-observer fleet-wide. Plus figs's metering-observation surfaced cohort-substrate-discipline cascade culminating in source-byte-walk diagnosis: volitional-counter behavior is CORRECT at byte; counter-stays-at-0 is downstream manifestation of Failure-class C provider-header gap, NOT a separate failure-mode class.
+✅ **PASS** — R-OBS-1 substrate verified at byte across all 4 prince seats at cure-(2) SHA `46733c4f`. Continuation-feature surface visible-to-external-observer fleet-wide. figs's metering-observation surfaced cohort-substrate-discipline cascade culminating in source-byte-walk diagnosis: volitional-counter behavior is BYTE-VERIFIED behaves-as-designed; counter-stays-at-0 across all 4 seats correctly reflects zero-successful-volitional-executions this session. D-as-counter-broken (🌊's initial misread of elliott /status delta) RETRACTED; D-as-design-question (scheduling-success-vs-execution-success counter-semantics) STANDS as discussion-class entry.

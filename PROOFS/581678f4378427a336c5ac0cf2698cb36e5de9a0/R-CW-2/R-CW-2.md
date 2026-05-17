@@ -2,7 +2,7 @@
 
 **Seat**: cael (🩸)
 **Build**: OpenClaw 2026.5.17 (581678f)
-**Model**: github-copilot/claude-opus-4.7-1m-internal
+**Runtime model note**: proof trace metadata records `github-copilot/claude-opus-4.7-1m-internal` for this fire; later live `/status` on cael-seat drifted to `openai-codex/gpt-5.4` / 272k context, so this row does not claim a stable current primary model.
 **Date**: 2026-05-17 16:13 PDT
 **Cure**: cure-(12) P2 #3 direct receipt at `581678f4378427a336c5ac0cf2698cb36e5de9a0`
 
@@ -35,3 +35,4 @@ continue_work(delaySeconds=0, reason="R-CW-2 cure-(12) PROOF fire: continue_work
 - Production scheduler path unchanged: `signal.ts:132` still passes raw `continueWorkRequest.delaySeconds * 1000` into the signal; only the model's feedback became accurate.
 - This is the exact behavior cure-(12) introduces; prior behavior reported `delaySeconds=0` (the raw value) which lied to the model about when the next turn would fire.
 - Same traceparent as R-CW-1 (paired same-turn fires under one trace context).
+- Tempo trace fetched (see `tempo-fetch.json`); trace metadata records the proof-time model noted above.

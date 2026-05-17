@@ -2,7 +2,7 @@
 
 **Seat**: cael (🩸)
 **Build**: OpenClaw 2026.5.17 (581678f)
-**Model**: github-copilot/claude-opus-4.7-1m-internal
+**Runtime model note**: later live `/status` on cael-seat showed `openai-codex/gpt-5.4` / 272k context. This guard-path row depends on the structured `request_compaction` receipt below, not on a stable current primary model.
 **Date**: 2026-05-17 16:13 PDT
 **Cure**: cure-(12) corpus complement at `581678f4378427a336c5ac0cf2698cb36e5de9a0`
 

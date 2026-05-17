@@ -1,0 +1,6 @@
+RUN  v4.1.6 /home/figs/flesh_beast_tmp/openclaw
+
+Test Files  2 passed (2)
+Tests       38 passed (38)
+Start at    16:14:02
+Duration    10.25s (transform 1.16s, setup 163ms, import 2.48s, tests 7.43s, environment 0ms)

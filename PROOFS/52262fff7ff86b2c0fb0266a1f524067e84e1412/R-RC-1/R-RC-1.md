@@ -24,15 +24,15 @@ Gateway response (verbatim):
 }
 ```
 
-## Contract verified
+## Contract verified / failure observed
 
 - `trigger=volitional` (agent-initiated, not threshold-auto)
 - `contextUsage=141` (over 70% threshold gate, accepted)
 - Unique `compactionRequestId` emitted: `cmp-mpa51b8m-45tuPA`
 - `status=compaction_requested` returned (deferred-execution receipt)
-- Compaction scheduled post-turn, AGENTS.md + SOUL.md re-injected next turn
-- Post-compaction delegates honored
 - Traceparent emitted for tempo cross-reference
+- **Post-turn execution then failed** at 2026-05-17 12:00:29 PDT: `provider_error_4xx`, reason `Turn prefix summarization failed: 400 bad request: missing Editor-Version header for IDE auth`
+- Evacuated state was NOT compacted; staged post-compaction delegates remained pending
 
 ## Tempo evidence
 
@@ -40,4 +40,4 @@ See `tempo-fetch.json` — same trace as R-XSDT-1 + R-CD-1. 17 spans captured un
 
 ## Verdict
 
-✅ `request_compaction` works on ship-SHA `52262fff7f`. Volitional-trigger flow confirmed. Threshold-respecting (would reject below 70%, accepted at 141%). Compaction-enqueue receipt shape stable. Continuation infrastructure (post-compaction delegate dispatch, AGENTS.md/SOUL.md re-injection) intact.
+⚠️ **Partial / failure-class evidence** on ship-SHA `52262fff7f`: request acceptance and threshold/enqueue receipt shape work (`status=compaction_requested`, `compactionRequestId=cmp-mpa51b8m-45tuPA`), but the actual compaction execution failed in provider auth/summarization with missing `Editor-Version` header. This row is therefore NOT a full successful compaction proof; it is a live failure receipt for task #162/config-drift follow-up.

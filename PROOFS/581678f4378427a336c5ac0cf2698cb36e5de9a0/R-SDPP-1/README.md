@@ -11,7 +11,7 @@ Cure-(12) preserves the adopted upstream `resolveSkillDispatchTools` policy seam
 
 ## Method
 
-1. Confirmed live `/status` reports `OpenClaw 2026.5.17 (581678f)`, primary `github-copilot/claude-opus-4.7-1m-internal`, context `164k/1.0m (16%)`, queue `steer`.
+1. Confirmed live `/status` reports `OpenClaw 2026.5.17 (581678f)`, context `164k/1.0m (16%)`, queue `steer`. Later fleet status cards showed the active primary model varied by seat; this proof depends on build SHA + deployed bundle bytes, not primary-model pin.
 2. Confirmed deployed `dist/build-info.json` commit is `581678f4378427a336c5ac0cf2698cb36e5de9a0`.
 3. Located deployed runtime bundle `dist/get-reply-Bon0g1Wv.js`.
 4. Byte-extracted the `resolveSkillDispatchTools` call site and surrounding skill-command dispatch context.

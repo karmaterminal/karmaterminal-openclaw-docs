@@ -1,0 +1,17 @@
+R-CD-1 runtime gates at cure-(12) ship-SHA 581678f4378427a336c5ac0cf2698cb36e5de9a0
+
+Worktree: /tmp/oc-cure12-fulltest (detached HEAD @ 581678f437, clean)
+
+Gate 1: src/agents/tools/continue-work-tool.test.ts
+Result: 20/20 PASS (2 test files × 10 tests; dual-project agents-core + agents-tools)
+Duration: 606ms
+Exit: 0
+Log: /tmp/oc-cure12-proofs/R-CD-1-continue-work-tool-20260517T231137Z.log
+
+Gate 2: src/auto-reply/reply/agent-runner.continuation-work-span.test.ts
+Result: 3/3 PASS
+Duration: 1216ms
+Exit: 0
+Log: /tmp/oc-cure12-proofs/R-CD-1-agent-runner-span-20260517T231245Z.log
+
+Verdict: R-CD-1 GREEN @ 581678f437

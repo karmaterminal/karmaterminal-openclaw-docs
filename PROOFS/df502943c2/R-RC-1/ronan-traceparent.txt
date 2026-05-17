@@ -1,0 +1,10 @@
+trace_id: e8284b1601059489cc1aa84a86cbcc97
+span_id: cebb3479ad86e234
+sampled: 01
+traceparent_full: 00-e8284b1601059489cc1aa84a86cbcc97-cebb3479ad86e234-01
+tool: request_compaction
+compactionRequestId: cmp-mp9ftz0m-tMwgmA
+trigger: volitional
+contextUsage: 145
+fired_at: 2026-05-17T00:12:32-07:00
+build: OpenClaw 2026.5.17 (df50294)

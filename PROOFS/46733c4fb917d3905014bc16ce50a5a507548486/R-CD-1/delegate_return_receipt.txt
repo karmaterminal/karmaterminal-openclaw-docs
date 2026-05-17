@@ -1,0 +1,5 @@
+R-CD-1: fired delegate woke at 2026-05-16T16:58:14-07:00 on SHA 46733c4 with trace (unavailable in subagent context)
+
+Source: /home/figs/.openclaw/workspace/memory/cure-2-ronan-proofs.md (appended by delegate subagent on wake)
+
+VERDICT: PASS. continue_delegate basic fire → silent-wake-delegate woke + appended proof receipt to instructed file → dispatcher woke on silent-wake return. End-to-end continuation-feature surface operational at cure-(2) SHA 46733c4.

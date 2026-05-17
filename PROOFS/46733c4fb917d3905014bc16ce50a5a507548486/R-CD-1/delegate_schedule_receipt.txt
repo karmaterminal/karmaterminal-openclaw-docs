@@ -1,0 +1,16 @@
+Tool: continue_delegate (fired from ronan-seat session)
+SHA: 46733c4fb917d3905014bc16ce50a5a507548486
+Mode: silent-wake
+DelaySeconds: 3
+Parent traceparent: 00-bb3f5ba51fb2666f62d0c98c46cd4677-fab8cebf93691367-01
+
+Response:
+{
+  "status": "scheduled",
+  "mode": "silent-wake",
+  "delaySeconds": 3,
+  "delegateIndex": 1,
+  "delegatesThisTurn": 1,
+  "traceparent": "00-bb3f5ba51fb2666f62d0c98c46cd4677-fab8cebf93691367-01",
+  "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+}

@@ -1,0 +1,5 @@
+[continuation:delegate-spawned] Tool delegate turn 13/200: R-CD-1 PROOF FIRE (cure-(2) byte-verification at SHA 46733c4 on ronan-seat).
+
+Task fired as continue_delegate child. Subagent index 5, session agent:main:subagent:2af9531f-4885-4d85-82b5-a4075f289599.
+Runtime: 14s (13576ms). Status: done. Tokens: 643 (in 10 / out 633), prompt/cache 57k.
+Started: 1778975885290 (2026-05-16T16:58:05.290Z). Ended: 1778975900831 (2026-05-16T16:58:20.831Z).

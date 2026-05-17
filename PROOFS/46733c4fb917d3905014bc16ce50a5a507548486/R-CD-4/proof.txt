@@ -1,0 +1,45 @@
+Tool: continue_delegate (fired from ronan-seat session)
+SHA: 46733c4fb917d3905014bc16ce50a5a507548486
+
+NOTE: This row required RE-FIRE due to silent-mode-subagent-loose-write failure-mode (see Findings section).
+
+=== ORIGINAL FIRE (R-CD-4) ===
+Mode: silent
+DelaySeconds: 15
+Parent traceparent: 00-bb3f5ba51fb2666f62d0c98c46cd4677-fab8cebf93691367-01
+
+Schedule response:
+{
+  "status": "scheduled",
+  "mode": "silent",
+  "delaySeconds": 15,
+  "delegateIndex": 4,
+  "delegatesThisTurn": 4,
+  "traceparent": "00-bb3f5ba51fb2666f62d0c98c46cd4677-fab8cebf93691367-01"
+}
+
+Subagent: index 2, sessionKey agent:main:subagent:daccdf79-44c6-4895-8206-14eb31fdaf4a
+Runtime: 10s (9850ms). Status: done. Tokens: 389.
+Started: 2026-05-16T16:58:12.000Z. Ended: 2026-05-16T16:58:24.423Z.
+
+OUTCOME: subagent ran + reported `done` but did NOT append proof to instructed file. Silent-mode subagent task-completion ≠ instructed-action-completion. Surfaced as ENTRYPOINT.md failure-class candidate.
+
+=== RE-FIRE (R-CD-4-REFIRE) with MANDATORY-append guard ===
+Mode: silent-wake (changed from silent to ensure dispatcher could verify)
+DelaySeconds: 3
+Parent traceparent: 00-0c312ede4d11e60b141606aace07cd2e-27f2b47844e4ca5d-01
+
+Schedule response:
+{
+  "status": "scheduled",
+  "mode": "silent-wake",
+  "delaySeconds": 3,
+  "delegateIndex": 1,
+  "delegatesThisTurn": 1,
+  "traceparent": "00-0c312ede4d11e60b141606aace07cd2e-27f2b47844e4ca5d-01"
+}
+
+Append result (from /home/figs/.openclaw/workspace/memory/cure-2-ronan-proofs.md):
+R-CD-4-REFIRE: silent-wake-delegate woke at 2026-05-16T17:00:16-07:00 SHA 46733c4 trace unset
+
+VERDICT: PASS (on re-fire with MANDATORY-append guard). continue_delegate with explicit mandatory-append instruction → subagent honored the append. Underlying continuation-feature surface OPERATIONAL; subagent-task-fidelity required explicit instruction-strength.

@@ -1,0 +1,24 @@
+Tool: continue_delegate (fired from ronan-seat session)
+SHA: 46733c4fb917d3905014bc16ce50a5a507548486
+Mode: silent
+DelaySeconds: 10
+Parent traceparent: 00-bb3f5ba51fb2666f62d0c98c46cd4677-fab8cebf93691367-01
+
+Response:
+{
+  "status": "scheduled",
+  "mode": "silent",
+  "delaySeconds": 10,
+  "delegateIndex": 2,
+  "delegatesThisTurn": 2,
+  "traceparent": "00-bb3f5ba51fb2666f62d0c98c46cd4677-fab8cebf93691367-01"
+}
+
+Subagent: index 4, sessionKey agent:main:subagent:5958008b-91e5-4f06-8ee0-f329e61e8a7a
+Runtime: 14s. Status: done. Tokens: 688.
+Started: 2026-05-16T16:58:07.364Z. Ended: 2026-05-16T16:58:23.110Z.
+
+Append result (from /home/figs/.openclaw/workspace/memory/cure-2-ronan-proofs.md):
+R-CD-2: silent-delegate woke at 2026-05-16T23:58:17Z on SHA 46733c4 with trace unset after delaySeconds=10
+
+VERDICT: PASS. continue_delegate silent mode with 10s delay → silent-delegate woke on schedule + appended proof + yielded silent (no dispatcher wake, no channel post). Silent-mode contract honored.

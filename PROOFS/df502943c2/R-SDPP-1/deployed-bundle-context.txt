@@ -1,0 +1,40 @@
+ from unauthorized sender: ${command.senderId || "<unknown>"}`);
+			typing.cleanup();
+			return {
+				kind: "reply",
+				reply: void 0
+			};
+		}
+		const dispatch = skillInvocation.command.dispatch;
+		if (dispatch?.kind === "tool") {
+			const rawArgs = (skillInvocation.args ?? "").trim();
+			const { resolveSkillDispatchTools } = await loadSkillToolDispatchRuntime();
+			const tool = resolveSkillDispatchTools({
+				ctx,
+				cfg,
+				agentId,
+				agentDir,
+				sessionEntry: targetSessionEntry,
+				sessionKey,
+				workspaceDir,
+				provider,
+				model,
+				senderId: command.senderId,
+				senderIsOwner: command.senderIsOwner,
+				currentChannelId: command.channelId
+			}).find((candidate) => candidate.name === dispatch.toolName);
+			if (!tool) {
+				typing.cleanup();
+				return {
+					kind: "reply",
+					reply: { text: `❌ Tool not available: ${dispatch.toolName}` }
+				};
+			}
+			const toolCallId = `cmd_${generateSecureToken(8)}`;
+			try {
+				const toolArgs = {
+					command: rawArgs,
+					commandName: skillInvocation.command.name,
+					skillName: skillInvocation.command.skillName
+				};
+		

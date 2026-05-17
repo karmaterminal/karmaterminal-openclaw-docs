@@ -31,8 +31,8 @@ Per 🌫's substrate-walk at Discord `1505619065`:
 
 - 🌻 elliott — Discord [`1505619609`](https://discord.com/channels/1466192485440164011/1466192485440164011/1505619609984700547) (post-correction at `1505619492`)
 - 🌫 silas — driver, Stage 1 declared `1505619065`
-- 🌊 ronan — _pending_
-- 🩸 cael — _pending_
+- 🩸 cael — Discord [`1505621523`](https://discord.com/channels/1466192485440164011/1466192485440164011/1505621523468255332)
+- 🌊 ronan — implicit at canon byte-walk `1505621xxx` + R-XSDT-1 draft staged
 
 ## Focused vitest verdict (🌫's pre-push gate)
 
@@ -55,11 +55,11 @@ cure-(11) substrate-new surfaces vs cure-(10):
 
 Plus re-fire of cure-(10) runtime rows (R-CW-1/2, R-CD-1, R-RC-1/2, R-LSTC-1, R-RDT-1, R-SDPP-1) at the new SHA to confirm rebase didn't regress.
 
-Distribution (provisional, cohort can swap):
-- 🩸 cael — R-CW-1 / R-CW-2 / R-RC-2 (continuation tools live-fire)
-- 🌊 ronan — R-CD-1 / R-RC-1 / T-3 runtime / T-4 runtime
+Distribution (re-aligned per 🩸 `1505621523`):
+- 🩸 cael — R-CW-1 (continue_work) / R-CW-2 (continue_delegate) / R-RC-2 (request_compaction-2nd-instance)
+- 🌊 ronan — R-RC-1 (request_compaction) / R-XSDT-1 (cross-session-delivery-targeting) / T-3 runtime / T-4 runtime
 - 🌫 silas — R-SDPP-1 / R-LSTC-1 / R-RDT-1
-- 🌻 elliott — R-RC-1-addendum + new T-2 runtime fire (cost-cap boundary live)
+- 🌻 elliott — R-RC-1-addendum + T-2 cost-cap-boundary runtime fire (new substrate from `8f58ad3e70`)
 
 ## Discipline (per figs `1505460056`-area cure-(10) canon)
 
@@ -71,11 +71,17 @@ Distribution (provisional, cohort can swap):
 
 - Stage 1 (candidate-prep): ✅ COMPLETE 🌫
 - Stage 2 (local 7-gate): 🟡 fork-CI cycle in flight at candidate-SHA
-- Stage 3 (deploy-to-4-princes via deploy-gateway.yml): _pending Stage 2 green_
-- Stage 4 (PROOFS rows fire across 4 seats): _pending Stage 3 deploy_
-- Stage 5 (cohort byte-walk + figs ship-call): _pending Stage 4_
+- Stage 3 (deploy-to-4-princes via deploy-gateway.yml): 🟡 🩸 cael-seat deploy `25997583929` in_progress
+- Stage 4 (PROOFS rows fire across 4 seats): _pending Stage 3 + squashed-SHA per figs `1505621xxx` canon_
+- Stage 5 (cohort byte-walk + figs ship-call): 3/4 cosigns at byte (🌻 🩸 🌫); 🌊 implicit at canon byte-walk
 - Stage 6 (savegame branch push): _pending Stage 5_
-- Stage 7 (force-push --force-with-lease with karmafeast committer): _pending Stage 6_
+- Stage 7 (force-push --force-with-lease as karmafeast committer, single-squash-shape per figs canon `1505621xxx`): _pending Stage 6_
 - Stage 8 (PR body update — PROOFS-path only, NO OV-narrative per 🩸 `1505616434` correction): _pending Stage 7_
 - Stage 9 (cohort announce + downstream-rebase notify): _pending Stage 8_
+
+## figs ship-shape canon (`1505621xxx`)
+
+> "just squash 1 - put authorship in comment. because its simpler and the maintainers dont get pissy because shit is split"
+
+Step 7 force-push presentation = **single squash commit** onto presentation branch `frond-scribe-claude/20260509/narrow-surgery-tight`, with multi-prince authorship via `Co-authored-by:` trailers in commit message body. NOT 7-commit shape currently on `silas/cure11-candidate-2026-05-17`. Candidate is intermediate-substrate; squash happens at Step 7.
 

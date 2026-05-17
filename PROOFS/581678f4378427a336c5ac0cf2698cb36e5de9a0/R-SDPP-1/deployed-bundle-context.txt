@@ -1,0 +1,32 @@
+1344-		commandBodyNormalized: command.commandBodyNormalized,
+1345-		skillCommands
+1346-	}) : null;
+1347-	if (skillInvocation) {
+1348-		if (!command.isAuthorizedSender) {
+1349-			logVerbose(`Ignoring /${skillInvocation.command.name} from unauthorized sender: ${command.senderId || "<unknown>"}`);
+1350-			typing.cleanup();
+1351-			return {
+1352-				kind: "reply",
+1353-				reply: void 0
+1354-			};
+1355-		}
+1356-		const dispatch = skillInvocation.command.dispatch;
+1357-		if (dispatch?.kind === "tool") {
+1358-			const rawArgs = (skillInvocation.args ?? "").trim();
+1359:			const { resolveSkillDispatchTools } = await loadSkillToolDispatchRuntime();
+1360:			const tool = resolveSkillDispatchTools({
+1361-				ctx,
+1362-				cfg,
+1363-				agentId,
+1364-				agentDir,
+1365-				sessionEntry: targetSessionEntry,
+1366-				sessionKey,
+1367-				workspaceDir,
+1368-				provider,
+1369-				model,
+1370-				senderId: command.senderId,
+1371-				senderIsOwner: command.senderIsOwner,
+1372-				currentChannelId: command.channelId
+1373-			}).find((candidate) => candidate.name === dispatch.toolName);
+1374-			if (!tool) {
+1375-				typing.cleanup();

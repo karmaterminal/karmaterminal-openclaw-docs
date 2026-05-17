@@ -1,0 +1,14 @@
+89-	});
+90-}
+91-function getActiveDiagnosticTraceContext() {
+92-	return getDiagnosticTraceScopeState().storage.getStore();
+93-}
+94-function runWithDiagnosticTraceContext(trace, callback) {
+95-	return getDiagnosticTraceScopeState().storage.run(freezeDiagnosticTraceContext(trace), callback);
+96-}
+97:function runWithDiagnosticTraceparent(traceparent, callback) {
+98-	if (!parseDiagnosticTraceparent(traceparent)?.spanId) return callback();
+99-	return runWithDiagnosticTraceContext(createDiagnosticTraceContext({ traceparent }), callback);
+100-}
+101-//#endregion
+102:export { getActiveDiagnosticTraceContext as a, freezeDiagnosticTraceContext as i, createDiagnosticTraceContext as n, runWithDiagnosticTraceContext as o, formatDiagnosticTraceparent as r, runWithDiagnosticTraceparent as s, createChildDiagnosticTraceContext as t };

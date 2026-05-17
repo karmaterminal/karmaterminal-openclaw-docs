@@ -1,0 +1,31 @@
+11309-	});
+11310-	const includeMessageTool = !embedded || options?.sourceReplyDeliveryMode === "message_tool_only" || messageExplicitlyAllowed;
+11311-	const includeSubagentSpawnTool = !embedded || options?.allowGatewaySubagentBinding === true;
+11312-	const effectiveCallGateway = embedded ? createEmbeddedCallGateway() : openClawToolsDeps.callGateway;
+11313-	const includeUpdatePlanTool = isToolExplicitlyAllowedByFactoryPolicy({
+11314-		toolName: "update_plan",
+11315-		allowlist: explicitFactoryAllowlist,
+11316-		denylist: explicitFactoryDenylist
+11317-	}) || isUpdatePlanToolEnabledForOpenClawTools({
+11318-		config: resolvedConfig,
+11319-		agentSessionKey: options?.agentSessionKey,
+11320-		agentId: options?.requesterAgentIdOverride,
+11321-		modelProvider: options?.modelProvider,
+11322-		modelId: options?.modelId
+11323-	});
+11324:	const sessionToolConfig = options?.liveSessionToolConfig ? { getConfig: getRuntimeConfig } : { config: resolvedConfig };
+11325-	const tools = [
+11326-		...embedded ? [] : [nodesTool, createCronTool({
+11327-			agentSessionKey: options?.agentSessionKey,
+11328-			currentDeliveryContext: {
+11329-				channel: options?.agentChannel,
+11330-				to: options?.currentChannelId ?? options?.agentTo,
+11331-				accountId: options?.agentAccountId,
+11332-				threadId: options?.currentThreadTs ?? options?.agentThreadId
+11333-			},
+11334-			...options?.cronSelfRemoveOnlyJobId ? { selfRemoveOnlyJobId: options.cronSelfRemoveOnlyJobId } : {}
+11335-		})],
+11336-		...messageTool && includeMessageTool ? [messageTool] : [],
+11337-		...collectPresentOpenClawTools([heartbeatTool]),
+11338-		createTtsTool({
+11339-			agentChannel: options?.agentChannel,

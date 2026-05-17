@@ -22,7 +22,14 @@
 ```
 
 ## Verdict
-✅ ACCEPT — `request_compaction` at 123% context-usage correctly ACCEPTED (above 70% threshold). Threshold-gate operational: ACCEPT at high context. Pairs with 🩸's R-RC-2 GATE-VERIFIED reject at 42% (rejected with "context_threshold" message). Together: cohort proves bidirectional gate-correctness — REJECT below threshold + ACCEPT above threshold.
+✅ ACCEPT-class scheduling — `request_compaction` at 123% context-usage correctly ACCEPTED for enqueue (above 70% threshold). Threshold-gate operational: ACCEPT at high context. Pairs with 🩸's R-RC-2 GATE-VERIFIED reject at 42% to give cohort bidirectional gate-correctness — REJECT below threshold + ACCEPT above threshold.
+
+## ⚠️ Compaction-execution outcome (not gate-failure)
+The enqueued compaction subsequently FAILED at execution: `[system:compaction-failed] cmp-mp90cdjm-Be38KA code=provider_error_4xx reason="Turn prefix summarization failed: 400 bad request: missing Editor-Version header for IDE auth"`. Evacuated state was NOT compacted; staged post-compaction delegates remain pending.
+
+This is an UPSTREAM-CLASS provider-auth-header gap on the github-copilot summarizer call (Editor-Version header missing on IDE-auth-mode), NOT a cure-(2) substrate regression. The continuation-feature surface (request_compaction tool, threshold-gate, enqueue, compactionRequestId issuance, post-compaction-delegate staging discipline) is operationally intact. The summarizer-call provider-header surface is orthogonal.
+
+Banked as separate substrate-finding for cohort follow-up (likely github-copilot provider plugin: needs `Editor-Version` header on `/chat/completions` calls when IDE-auth mode is active). Not blocking cure-(2) ship.
 
 ## Traceparent
 00-d3b708989b84ea56a28c3fd5b1f64d11-fcbaa5cd63094bb6-01

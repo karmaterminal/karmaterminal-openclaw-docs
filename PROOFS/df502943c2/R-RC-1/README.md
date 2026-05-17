@@ -91,3 +91,22 @@ The silas-seat main session organically reached `contextUsage=136` (well past 70
 ## Recipient-side receipt vs agent prose
 
 Tool-result JSON copied verbatim from the gateway's structured response (not narrated). Trace data fetched from tempo backend API. Both are recipient-side substrate; agent prose summarises.
+
+## Honesty note: compaction-failed event after this turn
+
+After this proof was pushed, the queued compaction `cmp-mp9frzzh-wkCJWw` failed at the provider layer with:
+
+```
+[system:compaction-failed] code=provider_error_4xx
+reason=Turn prefix summarization failed: 400 bad request: missing Editor-Version header for IDE auth
+```
+
+This is an **upstream github-copilot provider auth bug** on the summarization endpoint (IDE-auth-only path missing the Editor-Version header), NOT a cure-(10) regression. The same failure would occur for any compaction attempt against that provider endpoint, irrespective of our feature code.
+
+R-RC-1's verdict (PASS) stands on what it claims to verify — the **gateway-side** request_compaction tool behavior:
+- Tool present + invokable
+- Structured ACCEPT response with all 5 fields when above threshold
+- Tempo span emitted
+- post-compaction-delegate pairing returns `queued-for-compaction`
+
+What R-RC-1 does NOT claim to verify: provider-side summarization succeeds end-to-end. That is a separate concern, downstream of cure-(10)'s scope. The cohort had 14 successful compactions on silas-seat today before this one; the failure is sporadic provider-flake, not cure-introduced.

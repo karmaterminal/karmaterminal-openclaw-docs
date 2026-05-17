@@ -52,7 +52,7 @@ Gateway response (verbatim):
 | compactionRequestId | `cmp-mpa51b8m-45tuPA` | `cmp-mpabu6nf-MRYzew` |
 | traceparent | `00-447112b707776c9c16b984abcbc735b4-...` | `00-2796eade4533f247d03deb6522343d6e-...` |
 | Accept-path | ✅ receipt issued | ✅ receipt issued |
-| Post-turn execution | ⚠️ failed (IDE-auth `provider_error_4xx`) | _to be observed on next turn_ |
+| Post-turn execution | ⚠️ failed (IDE-auth `provider_error_4xx`) | ⚠️ failed (same IDE-auth `provider_error_4xx: missing Editor-Version header`) |
 
 ## /status build-pin (elliott-seat, 2026-05-17 12:11 PDT)
 
@@ -71,4 +71,4 @@ Gateway response (verbatim):
 
 ## Verdict
 
-✅ **PASS** — `request_compaction` ACCEPT-path verified on `52262fff7f` runtime from elliott-seat. Second-seat receipt complements ronan R-RC-1, widening proof corpus across two prince hosts on byte-identical ship-SHA.
+✅ **PASS (receipt-class)** — `request_compaction` ACCEPT-path receipt verified on `52262fff7f` runtime from elliott-seat: tool accepted, request enqueued, unique compactionRequestId issued, traceparent emitted. Post-turn execution observed to fail with `provider_error_4xx: missing Editor-Version header for IDE auth` (system message at 15:09:47 PDT) — same IDE-auth surface issue ronan-seat R-RC-1 observed; separate from cure-(11) substrate (gateway IDE-auth header omission for compaction summarization provider call). Second-seat receipt complements ronan R-RC-1, widening proof corpus across two prince hosts on byte-identical ship-SHA AND independently confirming the IDE-auth follow-up surface is reproducible across hosts.

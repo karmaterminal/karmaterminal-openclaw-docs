@@ -1,0 +1,23 @@
+7th-path extension preserved in squash
+======================================
+
+The squashed head keeps the extension first discovered on the parallel
+copilot lane after the two harnesses had already converged on the cure-region
+delete.
+
+Preserved extension shape in src/agents/subagent-announce.ts:
+
+- introduces ContinuationDispatchTargeting
+- introduces rejectCrossSessionTargetingForSubagentDispatch(...)
+- applies that shared-helper-backed gate before bracket-source chain-hop spawn
+- applies that same gate before tool-source chain-hop spawn
+- emits a trusted system event when the policy rejects cross-session targeting
+
+This matters because child-emitted [[CONTINUE_DELEGATE:...]] targeting would
+otherwise bypass policy enforcement before final return delivery.
+
+Architecturally honest outcome:
+
+- policy gate moved upstream to chain-hop dispatch
+- delivery-time gate stays removed
+- shared hasCrossSessionDelegateTargeting helper remains the predicate of record

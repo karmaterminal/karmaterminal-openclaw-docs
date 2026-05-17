@@ -1,0 +1,18 @@
+Pre-squash provenance map
+=========================
+
+These candidate SHAs are no longer the PR head, but remain historically valid
+receipts for how the cohort arrived at the shipping squash:
+
+- 418ec5cef0 — claude lane declare-done, 6-path cure candidate
+- 5615cf2516 — copilot lane declare-done, extended-shape candidate
+- a7413ee844 — chain-hop extension commit later absorbed into the squash
+- 5a2e135f9219 — first converged cure-region commit (same 18-line delete)
+
+Interpretation rule:
+
+- use b7e0997e62 for maintainer-facing byte claims
+- use the candidate SHAs only when describing provenance, convergence,
+  or pre-squash validation history
+
+The squash changed presentation, not cure substance.

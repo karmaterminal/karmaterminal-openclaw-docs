@@ -1,0 +1,11 @@
+peState().storage.getStore();
+}
+function runWithDiagnosticTraceContext(trace, callback) {
+	return getDiagnosticTraceScopeState().storage.run(freezeDiagnosticTraceContext(trace), callback);
+}
+function runWithDiagnosticTraceparent(traceparent, callback) {
+	if (!parseDiagnosticTraceparent(traceparent)?.spanId) return callback();
+	return runWithDiagnosticTraceContext(createDiagnosticTraceContext({ traceparent }), callback);
+}
+//#endregion
+export { getActiveDiagnosticTraceContext as a, freezeDiagnosticTraceContext as i, createDiagnosticTraceContext as n, runWithDiagnosticTraceContext as o, formatDiagnosticTraceparent as r, runWithDiagnosticTraceparent as s, createChildDiagnosticTraceContext as t };

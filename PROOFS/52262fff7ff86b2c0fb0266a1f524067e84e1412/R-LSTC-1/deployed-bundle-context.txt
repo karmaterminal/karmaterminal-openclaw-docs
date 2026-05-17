@@ -1,0 +1,38 @@
+owedByFactoryPolicy({
+		toolName: "update_plan",
+		allowlist: explicitFactoryAllowlist,
+		denylist: explicitFactoryDenylist
+	}) || isUpdatePlanToolEnabledForOpenClawTools({
+		config: resolvedConfig,
+		agentSessionKey: options?.agentSessionKey,
+		agentId: options?.requesterAgentIdOverride,
+		modelProvider: options?.modelProvider,
+		modelId: options?.modelId
+	});
+	const sessionToolConfig = options?.liveSessionToolConfig ? { getConfig: getRuntimeConfig } : { config: resolvedConfig };
+	const tools = [
+		...embedded ? [] : [nodesTool, createCronTool({
+			agentSessionKey: options?.agentSessionKey,
+			currentDeliveryContext: {
+				channel: options?.agentChannel,
+				to: options?.currentChannelId ?? options?.agentTo,
+				accountId: options?.agentAccountId,
+				threadId: options?.currentThreadTs ?? options?.agentThreadId
+			},
+			...options?.cronSelfRemoveOnlyJobId ? { selfRemoveOnlyJobId: options.cronSelfRemoveOnlyJobId } : {}
+		})],
+		...messageTool && includeMessageTool ? [messageTool] : [],
+		...collectPresentOpenClawTools([heartbeatTool]),
+		createTtsTool({
+			agentChannel: options?.agentChannel,
+			config: resolvedConfig,
+			agentId: sessionAgentId,
+			agentAccountId: options?.agentAccountId
+		}),
+		...collectPresentOpenClawTools([
+			imageGenerateTool,
+			musicGenerateTool,
+			videoGenerateTool
+		]),
+		...embedded ? [] : [createGatewayTool({
+			agentSessionKey: options?.agentSess

@@ -95,3 +95,7 @@ The substrate works end-to-end on `df502943c2`.
 ## Recipient-side receipt vs agent prose
 
 Trace data fetched from tempo backend API (file `trace.json`). Bundle bytes inspected on disk. Both are recipient-side evidence; agent prose summarises them; substrate is in the files.
+
+## Honesty note: delegate marker line
+
+The delegate was tasked to also emit `LSTC-PROOF-OK trace=<the-traceparent-you-were-spawned-with>` as an additional marker. Delegate returned `trace=unknown` instead — the spawned child didn't surface its own traceparent into the textual response. **This does not affect the verdict**: the load-bearing evidence is the tempo span tree (delegate's `openclaw.run` parented to `continuation.delegate.dispatch` with matching config attrs + shared `chain.id`), captured in `trace.json` from the recipient-side backend. The marker-line was a redundant convenience check, not the substrate of the claim. Recording the gap for substrate-honesty.

@@ -1,0 +1,9 @@
+trace_id: 35286da765c65ea5f72cc74ffe972cd8
+span_id: e4e33ab70279b895
+sampled: 01
+traceparent_full: 00-35286da765c65ea5f72cc74ffe972cd8-e4e33ab70279b895-01
+tool: continue_delegate
+mode: silent-wake
+delaySeconds: 0
+fired_at: 2026-05-17T00:04:08-07:00
+build: OpenClaw 2026.5.17 (df50294)

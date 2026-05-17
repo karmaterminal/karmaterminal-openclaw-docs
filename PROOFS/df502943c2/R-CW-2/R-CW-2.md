@@ -76,3 +76,37 @@ should contain a `continuation.work` span with `reason.preview` matching the R-C
 - Reaches cure-(10) policy seam
 - Above-floor delay path exercised — complements R-CW-1 clamp-path
 - No skipped cases
+
+
+---
+
+## POST-WAKE UPDATE (2026-05-17T07:28Z)
+
+Wake fired (turn 16/200, chain.step.remaining decremented from 187 → 184). Tempo trace now contains the `continuation.work` span at fire-time SHA.
+
+### `continuation.work` span attributes (post-wake fetch)
+
+```json
+{
+  "name": "continuation.work",
+  "attributes": [
+    {"key": "delay.ms", "value": {"intValue": "10000"}},
+    {"key": "chain.step.remaining", "value": {"intValue": "184"}},
+    {"key": "chain.id", "value": {"stringValue": "019e31e6-d96c-73de-bc1e-01df354942c1"}},
+    {"key": "reason.preview", "value": {"stringValue": "R-CW-2 PROOF FIRE for cure-(9/10) PR-79925 at df502943c2. continue_work tool wit"}}
+  ]
+}
+```
+
+### Key observations
+
+1. **`delay.ms=10000` (NOT clamped)** — confirms the no-clamp path. R-CW-1 emitted `delay.ms=5000` (clamped from 3s). The 10s request was honored verbatim.
+2. **Same `chain.id` as R-CW-1** (`019e31e6-d96c-73de-bc1e-01df354942c1`) — chain continuation across multiple `continue_work` calls in the same session works correctly.
+3. **`chain.step.remaining=184`** — was 187 at R-CW-1 fire-time, decremented by 3 (R-CW-1 + R-RC-2 + R-CW-2 fires consumed steps).
+4. **`reason.preview` matches the cure-(10) string** — byte-pin from tempo backend, not agent prose.
+
+### Disposition: ✅ GREEN (both fire-side AND wake-side)
+
+The synchronous-side proof (above) is now joined by the wake-side `continuation.work` span emission. Full cycle proven: tool call → tempo span emission with cure-(10) reason-string + chain-tracking + no-clamp delay honored.
+
+Tempo fetch updated: `tempo-fetch.json` now contains the post-wake trace.

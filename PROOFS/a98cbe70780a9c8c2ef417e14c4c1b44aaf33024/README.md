@@ -21,8 +21,11 @@ $ git rev-list --count d350ac3feb..a98cbe70780a9c8c
 ## Diff shape
 
 ```
-311 files changed, 38,623 insertions(+), 1,369 deletions(-)
+$ git diff --shortstat d350ac3feb..a98cbe70780a9c8c
+ 313 files changed, 39079 insertions(+), 1386 deletions(-)
 ```
+
+Cohort byte-walk cross-cosigns (🩸 `1505384471`, 🌊 `1505384484`, 🌻 `1505384774`/`1505386079`, 🌊 re-walk `1505386198`).
 
 ## Drift-adoption: 2 conflicts resolved + cascade renames
 
@@ -65,7 +68,7 @@ The continuation feature surface (`continue_work` / `continue_delegate` / `reque
 - `PROOFS/46733c4fb917d3905014bc16ce50a5a507548486/R-OBS-*` — external-observation rows (figs's cross-walk)
 - `PROOFS/bb7ddc066c415efe8341a856c339d92f13876ae3/R-CD-A-FIX/` — A-fix test-runner validation (same diff, same test transcript at cure-(2) A-delta)
 
-Cure-(3) tree-content-changes vs cure-(2) A-delta are scoped to **upstream-drift adoption only** (3 rename pairs cascaded through ~9 sites in 2 files). No feature-behavior modifications.
+Cure-(3) tree-content-changes vs cure-(2) A-delta are scoped to **upstream-drift adoption only** (3 rename pairs cascaded through ~9 sites in 2 files + the 77-commit upstream surface that auto-merged cleanly). No feature-behavior modifications from our side.
 
 ## Gate state
 

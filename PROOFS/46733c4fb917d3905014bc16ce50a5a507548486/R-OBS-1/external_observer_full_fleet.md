@@ -123,35 +123,68 @@ PLUS: **substantive finding surfaced by figs** — volitional-counter increment 
 
 ## Findings surfaced by figs's external observation
 
-### Finding 4 (NEW from R-OBS-1 capture): volitional-counter doesn't increment on scheduling-success
+### figs's metering-eye observation: *"do not see volitional compact counter raise"*
 
-**figs's annotation**: *"do not see volitional compact counter raise"*
+figs flagged that the volitional-compaction-counter did not increment despite 🌫 silas-canary-seat firing R-RC-1 ACCEPT (volitional=true) earlier in the cure-(2) day-arc. The cohort byte-walked this observation:
 
-**Substrate**: 🌫 silas-canary-seat fired R-RC-1 ACCEPT (volitional=true) per proof-corpus commit `f4a4a9c`. compactionRequestId `cmp-mp90cdjm-Be38KA` was successfully enqueued + threshold-gate accepted. Subsequent compaction-execution FAILED at provider-call layer (`compaction-failed code=provider_error_4xx reason="Turn prefix summarization failed: 400 bad request: missing Editor-Version header for IDE auth"`).
+**Source-code byte-walk** (🌫 surfaced via `src/agents/tools/request-compaction-tool.ts:283-293`):
 
-🌫's /status card at byte shows `volitional: 0` — counter did NOT increment for the volitional R-RC-1 ACCEPT.
+```typescript
+.then((result) => {
+  if (result.ok && result.compacted) {
+    incrementVolitionalCompactionCount(sessionKey); // line 292
+    return;
+  }
+  // failure paths: log.warn / log.error, NO counter increment
+})
+```
 
-**Diagnosis at byte**: counter increments on execution-success, NOT scheduling-success. Same layer-N-success ≠ layer-N+1-success shape as Failure-classes A/B/C documented in `4ffa264:FINDINGS.md`.
+**Diagnosis at byte**: counter-increment is gated on `result.ok && result.compacted` — execution-success required, NOT scheduling-success. The counter is honest at byte; tracks successful-not-attempted.
 
-**Question for behavior-design**: should `volitional` counter track:
-- (a) `request_compaction(volitional=true)` successful-acceptance-by-threshold-gate (scheduling-success), OR
-- (b) `request_compaction(volitional=true)` successful-execution-by-summarizer (execution-success)
+**Substrate at byte**:
+- 🌫's R-RC-1 ACCEPT (volitional=true, compactionRequestId `cmp-mp90cdjm-Be38KA`) was successfully scheduled at threshold-gate per commit `f4a4a9c`
+- Subsequent compaction-execution FAILED at provider-call layer with `provider_error_4xx` (Failure-class C: github-copilot Editor-Version header gap upstream)
+- `result.ok=false`, counter correctly stayed at 0
+- volitional: 0 in /status card across all 4 seats is byte-honest reflection of zero-successful-volitional-executions
 
-Current impl is (b). Argument for (a): the volitional counter is meant to track *what the agent elected*, not *what completed*. An accepted-but-failed-execution still represents the agent's election; the counter being stuck at 0 obscures that the agent IS exercising volition. Argument for (b): only completed-compactions reduce context-state; an "elected but failed" doesn't yield a context-reset.
+**Conclusion**: NOT a new failure-mode-class. The volitional-counter not incrementing is downstream manifestation of Failure-class C (provider-header gap blocking execution). Counter mechanism works as designed.
 
-**Filing-shape**: same family as Failure-classes A/B/C — **layer-boundary counter-update semantics**. Worth a P3-or-discussion-class ENTRYPOINT.md entry. May be intentional behavior or may be an oversight; merits cohort discussion.
+### Elliott 17:17 → 17:18 transition disambiguation
 
-**This is the 4th ENTRYPOINT.md candidate from cure-(2) drift-cure cycle**:
-- Failure-class A: scheduler-spawn-discrepancy under maxDelegatesPerTurn cap (🌊 surfaced; 🩸 cosigned as P3-bug)
-- Failure-class B: silent-mode-subagent done-receipt ≠ instructed-action-completion (🌊 surfaced)
-- Failure-class C: compaction-scheduling-succeeds + compaction-execution-fails on provider-header gap (🌫 surfaced; upstream-class, not cure-(2) regression)
-- **Failure-class D (NEW from R-OBS-1)**: volitional-counter doesn't increment on scheduling-success when execution-fails (figs surfaced via external observation)
+The "1 post-compaction staged → 0" line transition between elliott's 17:17 and 17:18 snapshots was initially framed as "delegate fired". At byte this framing does NOT hold:
 
-### Cross-walk methodology success
+- elliott 17:17 `🧹 Compactions: 4`
+- elliott 17:18 `🧹 Compactions: 4` — UNCHANGED
+- Post-compaction-delegates fire ON compaction-event by design
+- No compaction occurred between snapshots → delegate could NOT have fired
 
-R-OBS-1 was the row that REQUIRED external observation — internal /status from any single seat cannot verify all 4 seats simultaneously, and self-rendering by definition cannot capture observer-perspective integrity. figs's manual /status invocation across 4 seats simultaneously produced the verifiably-coherent fleet-state snapshot that PASSES the R-OBS-1 invariant set + surfaced 1 new failure-mode-class candidate the cohort had not yet caught.
+The "1 staged → 0 staged" line transition is real substrate but the causal mechanism is NOT "delegate fired". Possible mechanisms (not disambiguated in this capture): display-state-conditional-render, OR staged-delegate-cleared-without-firing (timeout/expiry/cancellation). May merit separate substrate-finding writeup.
+
+### External-observer-cross-walk methodology canon
+
+R-OBS-1 was the row that REQUIRED external observation — internal /status from any single seat cannot verify all 4 seats simultaneously, and self-rendering by definition cannot capture observer-perspective integrity. figs's manual /status invocation across 4 seats simultaneously produced the verifiably-coherent fleet-state snapshot that PASSES the R-OBS-1 invariant set + surfaced an observation about volitional-counter that prompted cohort source-byte-walk diagnosis.
 
 **This vindicates the proof-corpus-method discipline of separating row-classes by who-can-verify-what**: some invariants are seat-local (R-CW + R-CD + R-RC), some are observer-required (R-OBS).
+
+**Methodology-paper paper-quote-substrate candidate**: *"External-observer-cross-walk surfaces downstream-manifestations; source-byte-walk diagnoses to root-cause-class."*
+
+The cohort recursive-cure-discipline cascade for this finding at byte:
+1. figs surfaced metering-observation via external /status cross-walk
+2. Initial framing: "Failure-class D — volitional-counter-doesn't-increment on post-compaction-delegate-fire"
+3. Byte-walk flag (🌻 `1505365517`): compactions=4→4 contradicts "delegate fired" causal-claim
+4. Disambiguation (🩸 `1505366090`): names both hypotheses without claiming "delegate fired"
+5. Source-byte-walk (🌫 `1505366328`): exact increment-condition at `request-compaction-tool.ts:283-293` shows counter gated on `result.ok && result.compacted`
+6. Cohort converges: Failure-class D RETRACTED — collapses into Failure-class C downstream manifestation
+
+Same discipline-shape as today's SAGE §Limitations correction-flag, 🩸's "over-caution-owned" on agent-runner.ts, and 🌫's canonical "treated paraphrase as bytes" naming.
+
+### Net failure-mode-class candidates from cure-(2) drift-cure cycle (corrected at byte)
+
+- A: scheduler-spawn-discrepancy under `maxDelegatesPerTurn` cap (🌊 surfaced; 🩸 cosigned P3-bug)
+- B: silent-mode-subagent done-receipt ≠ instructed-action-completion (🌊 surfaced)
+- C: compaction-scheduling-vs-execution provider-header gap (🌫 surfaced; upstream-class, NOT cure-(2) regression). **Volitional-counter-stays-at-0 is downstream manifestation of this class.**
+
+3 substantive failure-mode-class candidates + 1 retracted-on-byte-walk = cohort substrate-fidelity-discipline operating as designed.
 
 ## Source receipt anchor
 
@@ -159,4 +192,4 @@ figs's Discord message at `Sat 2026-05-16 17:19 PDT` forwarded the 4-seat /statu
 
 ## Verdict
 
-✅ **PASS** — R-OBS-1 substrate verified at byte across all 4 prince seats at cure-(2) SHA `46733c4f`. Continuation-feature surface visible-to-external-observer fleet-wide. Plus 1 new ENTRYPOINT.md failure-mode-class candidate (Failure-class D: volitional-counter scheduling-vs-execution semantics) surfaced by figs's external observation.
+✅ **PASS** — R-OBS-1 substrate verified at byte across all 4 prince seats at cure-(2) SHA `46733c4f`. Continuation-feature surface visible-to-external-observer fleet-wide. Plus figs's metering-observation surfaced cohort-substrate-discipline cascade culminating in source-byte-walk diagnosis: volitional-counter behavior is CORRECT at byte; counter-stays-at-0 is downstream manifestation of Failure-class C provider-header gap, NOT a separate failure-mode class.

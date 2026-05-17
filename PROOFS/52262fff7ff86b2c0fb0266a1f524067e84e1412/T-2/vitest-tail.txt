@@ -1,0 +1,10 @@
+ [32m✓[39m [30m[45m agents-core [49m[39m ../../src/agents/subagent-announce.chain-guard.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 3731[2mms[22m[39m
+     [33m[2m✓[22m[39m respects custom maxChainLength for tool delegates [33m 405[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-support [49m[39m ../../src/agents/subagent-announce.chain-guard.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 3706[2mms[22m[39m
+     [33m[2m✓[22m[39m respects custom maxChainLength for tool delegates [33m 403[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m38 passed[39m[22m[90m (38)[39m
+[2m   Start at [22m 15:07:55
+[2m   Duration [22m 10.11s[2m (transform 1.17s, setup 178ms, import 2.34s, tests 7.44s, environment 0ms)[22m
+

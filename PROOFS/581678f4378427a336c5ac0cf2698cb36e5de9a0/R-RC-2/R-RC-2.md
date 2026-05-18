@@ -2,7 +2,7 @@
 
 **Seat**: cael (🩸)
 **Build**: OpenClaw 2026.5.17 (581678f)
-**Runtime model note**: later live `/status` on cael-seat showed `openai-codex/gpt-5.4` / 272k context. This guard-path row depends on the structured `request_compaction` receipt below, not on a stable current primary model.
+**Runtime model note**: saved config on cael-seat held canon (`github-copilot/claude-opus-4.7-1m-internal`) throughout. Cael-seat saw transient session-bound fallback drift to `openai-codex/gpt-5.4` later in the run; cleared via session model override reset. This guard-path row's receipt-class does not depend on stable current primary model — the structured `request_compaction` envelope is the byte-source of truth.
 **Date**: 2026-05-17 16:13 PDT
 **Cure**: cure-(12) corpus complement at `581678f4378427a336c5ac0cf2698cb36e5de9a0`
 
@@ -30,6 +30,6 @@ request_compaction(reason="R-RC-2 cure-(12) PROOF fire: request_compaction at lo
 
 ## Substrate notes
 
-- Complements 🌊's R-RC-1 guard-path receipt at lower context (25%) — cross-seat corroboration of the context_threshold guard at sub-30% usage.
-- Pairs with 🌻's R-RC-1-addendum and 🌊's R-RC-1 from prior cure-(11) PROOFS corpus (high-context IDE-auth provider_error_4xx receipt-class verdicts).
+- Complements 🌊's R-RC-1 guard-path receipt at lower context (25%) — cross-seat corroboration of the `context_threshold` guard at sub-30% usage on cure-(12) `581678f437`.
+- Cross-seat coverage on cure-(12): 🌊 R-RC-1 (REJECT at 25%), 🩸 R-RC-2 (REJECT at 24%), 🌻 R-RC-1-addendum (REJECT at 18%) — three independent low-context guard-path receipts confirm `request_compaction` gate code is unchanged on cure-(12). ACCEPT-path coverage by runtime-identical-attest against prior cure-(11) corpus `PROOFS/52262fff7f/R-RC-1/` (gate code byte-identical between cure-(11) and cure-(12) ship SHAs).
 - No traceparent emitted for guard-rejected calls (no trace context created when call short-circuits at guard).

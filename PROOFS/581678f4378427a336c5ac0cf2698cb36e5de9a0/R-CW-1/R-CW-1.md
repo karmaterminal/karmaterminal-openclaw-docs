@@ -2,7 +2,7 @@
 
 **Seat**: cael (🩸)
 **Build**: OpenClaw 2026.5.17 (581678f)
-**Runtime model note**: proof trace metadata records `github-copilot/claude-opus-4.7-1m-internal` for this fire; later live `/status` on cael-seat drifted to `openai-codex/gpt-5.4` / 272k context, so this row does not claim a stable current primary model.
+**Runtime model note**: proof trace metadata records `github-copilot/claude-opus-4.7-1m-internal` (canon) for this fire. Cael-seat saw transient session-bound fallback drift to `openai-codex/gpt-5.4` later in the run; saved config remained canonical throughout. After session model override clear, cael-seat returned to canon. This row's receipt-class does not depend on stable current primary model — Tempo trace metadata is the byte-source of truth for which model executed this fire.
 **Date**: 2026-05-17 16:13 PDT
 **Cure**: cure-(12) ship candidate at `581678f4378427a336c5ac0cf2698cb36e5de9a0`
 

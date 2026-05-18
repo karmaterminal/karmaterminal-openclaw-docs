@@ -1,0 +1,33 @@
+{
+  "trace_id": "0d2a9d0f18b6386eb543d7414dd85dc0",
+  "span_id": "a815bf5022efea8d",
+  "trace_flags": "01",
+  "traceparent_w3c": "00-0d2a9d0f18b6386eb543d7414dd85dc0-a815bf5022efea8d-01",
+  "captured_at_utc": "2026-05-18T21:46:00Z",
+  "tool": "continue_delegate",
+  "tool_response": {
+    "status": "scheduled",
+    "mode": "silent-wake",
+    "delaySeconds": 0,
+    "delegateIndex": 1,
+    "delegatesThisTurn": 1,
+    "traceparent": "00-0d2a9d0f18b6386eb543d7414dd85dc0-a815bf5022efea8d-01",
+    "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+  },
+  "session": "agent:main:discord:channel:1466192485440164011",
+  "deploy_sha": "a726a815afa22cadb429ec89eafd552170f216f6",
+  "deploy_workflow_run": "26062010256",
+  "deploy_built_at_utc": "2026-05-18T21:44:12.450Z",
+  "gateway_version": "2026.5.17",
+  "gateway_short": "a726a81",
+  "host": "urudyne",
+  "reference_corpora": [
+    "PROOFS/718d8558eb618304b5cc43c8a3b5d93ff5bef454/R-TA-1/",
+    "PROOFS/cac1d3cc011cb85c25a63f84c1359e3abaf99540/R-TA-1-RECONFIRM/",
+    "PROOFS/6fb0e108bf75ad279ce73d1f36dd1071ae25a09b/R-TA-1-RECONFIRM/",
+    "PROOFS/3b0eba6adbb04df75d70693984ac7e0be67e7df1/R-TA-1-RECONFIRM/",
+    "PROOFS/6acbda514c1ae5851f9f2b5e442b721c05f0f0a3/R-TA-1-RECONFIRM/",
+    "PROOFS/607d72ac33208d4c487242f573e36517ff2e6186/R-TA-1-RECONFIRM/",
+    "PROOFS/e1c012c3beda2611cc0a2db98c1c6eb73bc3dcd9/R-TA-1-RECONFIRM/"
+  ]
+}

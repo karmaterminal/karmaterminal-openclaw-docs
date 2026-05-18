@@ -50,7 +50,7 @@ Local raw logs:
 
 See `tempo-fetch.json` — same trace as R-XSDT-1 on this turn.
 Fetched: `http://tempo.dandelion.cult/api/traces/35e9f7a1ec2c8e254366d93586ba6253`
-File size: 36,667 bytes
+File size: 110,504 bytes (86 spans covering full `openclaw.run` → `model.call` → `tool.execution` chain)
 
 ## Verdict
 

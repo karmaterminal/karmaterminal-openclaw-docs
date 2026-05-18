@@ -34,7 +34,7 @@ Gateway response (verbatim):
 ## Tempo evidence
 
 Fetched: `http://tempo.dandelion.cult/api/traces/35e9f7a1ec2c8e254366d93586ba6253`
-File: `tempo-fetch.json` (36,667 bytes)
+File: `tempo-fetch.json` (110,504 bytes, 86 spans covering full `openclaw.run` → `model.call` → `tool.execution` chain)
 
 ## Verdict
 

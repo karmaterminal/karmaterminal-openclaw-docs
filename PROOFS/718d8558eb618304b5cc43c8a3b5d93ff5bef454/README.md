@@ -53,3 +53,71 @@ Cure-(13) is drift-rebase of cure-(12) substrate (`3a37573434`, 1-ahead-of `b0b1
   - `4df99ac0b1`: add 7 cure-introduced underscored names to `.oxlintrc.json` allow list
 
 cure-(12) shipped at `a289329d0f` (PR head currently) with PROOFS at `581678f4378427a336c5ac0cf2698cb36e5de9a0/`. cure-(13) preserves all cure-(12) substrate plus lock-patch.
+
+
+## Appendix A — Drift characterization at proof-time
+
+Per 🩸 suggestion (Discord `1505946352…`): bank the byte-level drift probe as evidence
+for why `karmaterminal/openclaw#707` (automated daily rebase) matters. The conflict surface
+**grows** with elapsed time, and changes class in ways that auto-merge cannot resolve.
+
+### Probe timeline
+
+| time (UTC) | upstream/main HEAD | conflict files vs cure-(13) | conflict class |
+|---|---|---|---|
+| 14:11Z (squash time, frozen as proof base) | `6a5a1353c7` | 0 (squashed clean) | n/a |
+| ~14:20Z (🌊 first stale-flag) | `4f4d108639` | 6 | test files only |
+| ~14:40Z (🌊 fresh probe at `1505940421…`) | `c49d909b60` | **9** | **6 test + 1 lint + 2 prod-semantic** |
+
+### Detailed surface at `c49d909b60`
+
+| file | class | resolution shape |
+|---|---|---|
+| `.oxlintrc.json` | semantic / convention | upstream simplified to bare `"error"`; cure has ~200-entry allow list. Adopt-or-walk decision. |
+| `src/agents/subagent-announce-delivery.test.ts` | rename refactor | upstream renamed `__testing` → `testing` |
+| `src/agents/subagent-announce.live.test.ts` | rename refactor | same |
+| `src/agents/subagent-registry.lifecycle-retry-grace.e2e.test.ts` | rename refactor | same |
+| `src/agents/subagent-registry.test.ts` | semantic | upstream relocated/removed cure-added test block |
+| `src/auto-reply/reply/agent-runner.misc.runreplyagent.test.ts` | rename refactor | same `__testing` → `testing` plus extra cure import |
+| `extensions/codex/src/app-server/run-attempt.test.ts` | rename refactor | same `__testing` → `testing` |
+| `src/agents/pi-embedded-runner/run.ts` | **prod semantic** | both sides add different fields to same object-literal line |
+| `src/auto-reply/reply/agent-runner-execution.ts` | **prod semantic (2 blocks)** | orthogonal additions to `runWithModelFallback` union + options object |
+
+### Operational findings
+
+1. **GitHub auto-merge does NOT resolve any of these.** Renames + semantic adds are real `UU`
+   conflicts requiring manual 3-way resolution.
+2. **The conflict class hardens over time.** At T+10min the surface was test-only mechanical;
+   by T+30min it included 2 prod-semantic 3-way merges in load-bearing code paths.
+3. **Re-rebase work estimate** at `c49d909b60`: 30–45 minutes of careful resolution + a full gate
+   cycle to re-prove, then byte-walks invalidating any pre-existing cosigns. Each minute spent
+   on it lets upstream advance further.
+4. **The `__testing` → `testing` rename is codebase-wide convention churn.** Even after resolving
+   the 6 listed files, downstream callers of the renamed identifiers would need walking. Adopting
+   upstream's convention is the only stable choice; partial-adoption is a regression vector.
+
+### Why this argues for #707
+
+The cure-(10) through cure-(13) treadmill burned 30+ hours of cohort time **each cycle** because:
+
+- Upstream advances ~1 commit per 5–10 min (observed during this window).
+- Without automated daily rebase + alert on conflicts, cure work always starts on an already-stale
+  base.
+- Manual probe → resolve → gate → cosign cycle takes 60+ min minimum; by the time cosigns land,
+  upstream has moved enough to invalidate the parent.
+- The freeze-as-proof-base decision is a tactical workaround, not a strategic solution. It works
+  because PROOFS validate runtime behavior, but it leaves a parent-freshness debt at force-push time.
+
+`#707` automates the daily probe: rebase nightly, push if clean, fail-loud + Discord ping if
+conflicts. That converts the treadmill from a 30+h-per-cycle manual lift into a 0–5min-per-day
+ambient cost. The freeze workaround remains available when needed; #707 ensures the freeze base
+is at most 24h stale rather than however-many-hours-the-current-cycle-took.
+
+### Provenance
+
+- probe worktree: `/tmp/oc-cure13-conflict-class/probe`
+- probe SHA-base: `718d8558eb618304b5cc43c8a3b5d93ff5bef454`
+- probe target (current at probe time): `c49d909b60a68999a3df28b56524a00c6e7cbbb2`
+- Discord references: `1505935105…` (first stale-flag), `1505940421…` (full conflict analysis), `1505946352…` (🩸 ask)
+
+— Ronan 🌊

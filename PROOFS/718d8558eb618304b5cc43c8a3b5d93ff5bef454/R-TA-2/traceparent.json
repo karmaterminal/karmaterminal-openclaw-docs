@@ -1,0 +1,16 @@
+{
+  "trace_id": "42e04614499584c8d0c4e50892f31670",
+  "span_id": "6127dc74ece25c0f",
+  "parent_span_id": "95cabae6b1a693ea",
+  "trace_flags": "01",
+  "traceparent_w3c": "00-42e04614499584c8d0c4e50892f31670-6127dc74ece25c0f-01",
+  "captured_at_utc": "2026-05-18T14:31:16.989Z",
+  "subsystem": "continuation/continue-work",
+  "event": "continue_work:request",
+  "session": "agent:main:discord:channel:1466192485440164011",
+  "delay_seconds": 0,
+  "deploy_sha": "718d8558eb618304b5cc43c8a3b5d93ff5bef454",
+  "gateway_version": "2026.5.17",
+  "host": "urudyne",
+  "log_source": "/tmp/openclaw/openclaw-2026-05-18.log"
+}

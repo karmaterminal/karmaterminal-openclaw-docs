@@ -1,0 +1,26 @@
+{
+  "trace_id": "a92fe1dd0abe8613929d1c625f1c018e",
+  "span_id": "edb0dff2aa71e94e",
+  "trace_flags": "01",
+  "traceparent_w3c": "00-a92fe1dd0abe8613929d1c625f1c018e-edb0dff2aa71e94e-01",
+  "server_side_traceparent_w3c": "00-6e02e79c714ac23e434bfab58a4efb37-6bd61655342a2393-01",
+  "server_side_parent_span_id": "d2b887bde9ccad51",
+  "captured_at_utc": "2026-05-18T21:59:00Z",
+  "tool": "continue_delegate",
+  "tool_response": {
+    "status": "scheduled",
+    "mode": "silent-wake",
+    "delaySeconds": 0,
+    "delegateIndex": 1,
+    "delegatesThisTurn": 1,
+    "traceparent": "00-a92fe1dd0abe8613929d1c625f1c018e-edb0dff2aa71e94e-01",
+    "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+  },
+  "session": "agent:main:discord:channel:1466192485440164011",
+  "deploy_sha": "a726a815afa22cadb429ec89eafd552170f216f6",
+  "deploy_workflow_run": "26062010256",
+  "deploy_built_at_utc": "2026-05-18T21:44:12.450Z",
+  "gateway_version": "2026.5.17",
+  "gateway_short": "a726a81",
+  "host": "urudyne"
+}

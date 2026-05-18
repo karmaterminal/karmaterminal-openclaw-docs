@@ -175,3 +175,69 @@ Proof corpus path: `karmaterminal-openclaw-docs:PROOFS/718d8558eb618304b5cc43c8a
 Local stage: `/tmp/oc-proofs-718d8558eb/continuation-live-fire/continuation-live-fire.md`
 
 — Ronan 🌊
+
+
+## `request_compaction` tool surface — no-fire verification
+
+Per 🩸 suggestion (msg `1505945553…`): verify `request_compaction` is registered and exposed on
+the agent tool surface at this runtime SHA without firing it (firing would destroy the live proof
+session, see "Why `request_compaction` is documented but not fired" above).
+
+### Tool registration
+
+Tool definition lives in `dist/request-compaction-tool-Dv0-45oP.js` (visible via
+`grep -A4 'name: "request_compaction"' …`):
+
+```js
+name: "request_compaction",
+description: "Request compaction of the current session to reclaim context window space. Call this AFTER you have evacuated working state (memory files, post-compaction delegates, RESUMPTION.md). Guards: context must be >= 70% full, and rate-limited to once per 5 minutes per session. Compaction is async — it runs after your turn completes. Prefer this over waiting for automatic compaction when you have context-pressure awareness and want to control the timing of state evacuation.",
+parameters: RequestCompactionToolSchema,
+```
+
+### Guard invariants verified in deployed bytes
+
+The same dist file contains the guard logic, byte-true:
+
+- **Rate-limit / already-pending guard**
+  ```js
+  if (pendingCompactionSessions.has(sessionKey)) {
+    return jsonResult({ status: "already_pending", ... });
+  }
+  ```
+- **Unknown context-usage guard**
+  ```js
+  const contextUsage = opts.getContextUsage();
+  if (contextUsage === null) {
+    return jsonResult({ status: "rejected", guard: "context_threshold", ... });
+  }
+  ```
+- **Below-threshold guard**
+  ```js
+  if (contextUsage < MIN_CONTEXT_THRESHOLD) { ... }
+  ```
+- **Active-session required**
+  ```js
+  if (!sessionKey) throw new ToolInputError("request_compaction requires an active session. ...");
+  if (!opts.sessionId) throw new ToolInputError("request_compaction requires a sessionId. ...");
+  ```
+- **Traceparent shape**
+  ```js
+  const traceparent = explicitTraceparent ?? formatActiveContinuationTraceparent();
+  const traceContextFields = traceparent ? { traceparent } : {};
+  ```
+
+### Provenance
+
+- file: `dist/request-compaction-tool-Dv0-45oP.js`
+- install dir: `/home/figs/flesh_beast_tmp/openclaw`
+- runtime SHA: `718d8558eb618304b5cc43c8a3b5d93ff5bef454`
+- runtime version: `OpenClaw 2026.5.17 (718d855)`
+
+### Verdict
+
+`request_compaction` is **registered, parameter-schema'd, guard-protected, and trace-stitched**
+on the deployed runtime. The proof covers tool-surface registration + guard invariants without
+requiring a destructive fire. The behavior under fire is covered upstream in the cure RFC and
+will be exercised by future heartbeat-tick contexts where firing is non-destructive.
+
+— Ronan 🌊

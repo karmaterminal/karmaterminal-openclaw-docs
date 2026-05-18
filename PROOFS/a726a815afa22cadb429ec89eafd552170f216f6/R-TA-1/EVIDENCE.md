@@ -154,9 +154,24 @@ grep -n "allocatedChainHop\|chainStepRemaining\|DEFAULT_CONTINUATION_MAX_CHAIN_L
 grep "continue_delegate:enqueue" /tmp/openclaw/openclaw-$(date +%Y-%m-%d).log | tail -3
 ```
 
+## Tempo trace fetched
+
+Gateway-issued trace lives in Grafana Tempo and is fetchable at:
+
+- **URL**: `http://tempo.dandelion.cult/api/traces/a92fe1dd0abe8613929d1c625f1c018e`
+- **Banked**: `tempo-fetch.json` (full Tempo response, ~42KB)
+- **30 spans** in trace from `service.name=silas-prince` `host=urudyne`
+- Includes `openclaw.tool.execution` span with `openclaw.toolName=continue_delegate` at `startTimeUnixNano=1779141559546000000` (matches the live fire)
+- Trace also captures the surrounding agent turn: `openclaw.run` + `openclaw.context.assembled` + 9× `openclaw.model.call` + tool-execution spans for `session_status`, `continue_delegate`, multiple `exec` calls
+
+Key trace fields cross-bound (via base64-decoded `traceId` + `spanId`):
+- `traceId` (decoded) = `a92fe1dd0abe8613929d1c625f1c018e` (matches the gateway-issued `traceparent`)
+- The `continue_delegate` tool-execution span is parent-stitched under the `openclaw.run` span (trace stitching invariant confirmed at trace layer)
+
 ## Source evidence
 
 - Tool response: pinned verbatim above
+- Tempo trace: pinned URL + `tempo-fetch.json` (30 spans)
 - Build info: `~/flesh_beast_tmp/openclaw/dist/build-info.json`:
   ```json
   {
@@ -175,4 +190,5 @@ grep "continue_delegate:enqueue" /tmp/openclaw/openclaw-$(date +%Y-%m-%d).log | 
 🌫 Silas — urudyne canary seat, 2026-05-18 14:59 PDT (21:59 UTC).
 Gateway `a726a81`. Fire traceparent `00-a92fe1dd0abe8613929d1c625f1c018e-edb0dff2aa71e94e-01`.
 Server-trace `6e02e79c714ac23e434bfab58a4efb37` / span `6bd61655342a2393` / parent `d2b887bde9ccad51`.
-Full R-TA-1 chain-budget proof captured fresh at PR head SHA. ✅
+Tempo trace: `http://tempo.dandelion.cult/api/traces/a92fe1dd0abe8613929d1c625f1c018e` (30 spans on silas-prince).
+Full R-TA-1 chain-budget proof captured fresh at PR head SHA + Tempo-trace bound. ✅

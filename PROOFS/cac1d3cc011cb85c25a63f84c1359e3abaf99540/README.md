@@ -81,3 +81,96 @@ Cure-(14) preserves cure-(13)'s feature surface byte-identical at runtime. The c
 - 🌻 elliott — directional labels match rebase-semantics on all 4 files (Discord `1505964276…`)
 
 Plus figs's warmth-register `--theirs`/`--ours` correctness reminder at Discord `1505964162…` triggered 4-seat verification — labels stayed correct against the kick_in_the_teeth § (5) trip-wire canon banked yesterday.
+
+
+## Appendix A — Runtime-identical-attest (continuation surface byte-identical to cure-13)
+
+Per cohort consensus (`1505965437…` / `1505965455…` / `1505965494…`): cure-14 is a mechanical drift-cure of cure-13. The continuation tool surface (registrations, schemas, guards, gateway traceparent stitching, fan-out counter, status discriminator) is byte-identical between the two SHAs. The substantive feature proofs from cure-13 (`PROOFS/718d8558eb618304b5cc43c8a3b5d93ff5bef454/`) apply unchanged via runtime-identical-attest.
+
+This appendix files the byte truth.
+
+### Method
+
+For each load-bearing continuation surface file:
+
+```
+git diff 718d8558eb618304b5cc43c8a3b5d93ff5bef454..cac1d3cc011cb85c25a63f84c1359e3abaf99540 -- <path> | grep -c '^@@'
+```
+
+A hunk count of `0` means zero `@@` change-blocks → file is byte-identical between cure-13 and cure-14.
+
+### Results — 24/24 files: ZERO hunks
+
+| file | hunks |
+|------|-------|
+| `src/agents/tools/continue-work-tool.ts` | 0 |
+| `src/agents/tools/continue-delegate-tool.ts` | 0 |
+| `src/agents/tools/request-compaction-tool.ts` | 0 |
+| `src/agents/tools/continuation-tools-registration.test.ts` | 0 |
+| `src/auto-reply/continuation/config.ts` | 0 |
+| `src/auto-reply/continuation/context-pressure.ts` | 0 |
+| `src/auto-reply/continuation/delegate-dispatch.ts` | 0 |
+| `src/auto-reply/continuation/delegate-store.ts` | 0 |
+| `src/auto-reply/continuation/post-compaction-release.ts` | 0 |
+| `src/auto-reply/continuation/scheduler.ts` | 0 |
+| `src/auto-reply/continuation/signal.ts` | 0 |
+| `src/auto-reply/continuation/state.ts` | 0 |
+| `src/auto-reply/continuation/targeting.ts` | 0 |
+| `src/auto-reply/continuation/targeting-pure.ts` | 0 |
+| `src/auto-reply/continuation/types.ts` | 0 |
+| `src/auto-reply/continuation/lazy.runtime.ts` | 0 |
+| `src/auto-reply/continuation-delegate-store.ts` | 0 |
+| `src/infra/chain-budget.ts` | 0 |
+| `src/infra/session-keys.ts` | 0 |
+| `src/infra/continuation-tracer.ts` | 0 |
+| `extensions/diagnostics-otel/src/continuation-tracer-adapter.ts` | 0 |
+| `src/agents/subagent-announce.continuation.runtime.ts` | 0 |
+| `src/logging/diagnostic-continuation-queues.ts` | 0 |
+| `docs/design/continue-work-signal-v2.md` | 0 |
+
+### Why this is sufficient evidence
+
+The continuation feature surface — every tool registration, every guard, every gateway-side
+scheduler, every traceparent-stitching site, every chain-budget enforcement point — is
+**byte-identical** between cure-13 (`718d8558eb`) and cure-14 (`cac1d3cc01`).
+
+The cure-14 deltas vs cure-13 (the 10 conflict resolutions) are all in code paths that **do not
+touch** the continuation surface:
+
+- `.oxlintrc.json` — lint config, no runtime impact
+- 4× `__testing` → `testing` test renames — identifier-only, zero behavioral change
+- `subagent-registry.test.ts` — upstream-added test block, not feature-load-bearing
+- `extensions/codex/src/app-server/run-attempt.ts` — codex extension wrapper evolution
+- `src/agents/pi-embedded-runner/run.ts` — orthogonal-additive: upstream's `onAssistantErrorMessagePersisted` + cure's `requestCompactionOpts` coexist
+- `src/auto-reply/reply/agent-runner-execution.ts` — orthogonal-additive (2 blocks): upstream's `queuedUserMessagePersistedAcrossFallback` / `assistantErrorPersistedAcrossFallback` / `suppressAssistantErrorPersistence` / `onAssistantErrorMessagePersisted` callbacks + cure's `runWithModelFallback` union-type widening / `drainsContinuationDelegateQueue` / `continueWorkOpts` coexist
+
+Cohort byte-walked both prod-semantic merges and confirmed both features coexist without
+clobber (`1505964189…` Ronan + `1505964450…` Cael + `1505964276…` Elliott).
+
+### What this evidences
+
+- `continue_work` behavior at cure-14 SHA = `continue_work` behavior at cure-13 SHA
+- `continue_delegate` (silent / silent-wake / post-compaction modes) behavior at cure-14 = cure-13
+- `request_compaction` guards (rate-limit, unknown-context, below-threshold, active-session, traceparent stitching) at cure-14 = cure-13
+- Fan-out counter / status discriminator (timer vs queued-for-compaction) at cure-14 = cure-13
+- Single gateway-issued traceparent per turn at cure-14 = cure-13
+
+cure-13 proof corpus `PROOFS/718d8558eb618304b5cc43c8a3b5d93ff5bef454/` applies in full to
+cure-14 (`cac1d3cc011cb85c25a63f84c1359e3abaf99540`) by byte-identity of continuation-surface
+files.
+
+Empirical re-verification on the new SHA:
+
+- 🩸 `continue_work` fire on cael-host post-deploy (Discord `1505966910…`): traceparent issued, scheduled, chain-counter advances. Tool surface accepts calls cleanly.
+- 🌫 `continue_delegate(silent-wake)` fire on urudyne post-deploy (`PROOFS/.../R-TA-1-RECONFIRM/`): response shape byte-identical to cure-13 R-TA-1.
+
+Empirical fires confirm runtime behavior is unchanged. The byte-identity above proves *why*.
+
+### Provenance
+
+- Probe worktree: `/tmp/oc-cure13-conflict-class/probe`
+- cure-13 SHA: `718d8558eb618304b5cc43c8a3b5d93ff5bef454`
+- cure-14 SHA: `cac1d3cc011cb85c25a63f84c1359e3abaf99540`
+- Discord refs: `1505965437…` (cohort consensus on attest pattern), `1505968695…` (figs sanction), `1505969243…` (scribe ship confirmation)
+
+— Ronan 🌊

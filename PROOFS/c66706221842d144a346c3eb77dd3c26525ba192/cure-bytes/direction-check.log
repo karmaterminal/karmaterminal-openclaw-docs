@@ -1,0 +1,19 @@
+=== Direction check: cure-(22) drift-rebase commits-walked + upstream commits absorbed ===
+
+Method: per Lane-B failure-mode 5, walk commits in each direction to verify no upstream commits were destroyed by the rebase
+
+From https://github.com/karmaterminal/openclaw
+ * branch                  savegame/cure-22-candidate-c667062218 -> FETCH_HEAD
+ * [new branch]            savegame/cure-22-candidate-c667062218 -> origin/savegame/cure-22-candidate-c667062218
+
+PR-head pre-cure-(22): e0a273405be058c5e838a155e9def40f7982db21
+Upstream/main at rebase moment: b7ba7c3f2a1e0c8bfead084596911aa7a0ef9852
+CANDIDATE_SHA: c66706221842d144a346c3eb77dd3c26525ba192
+
+Commits CANDIDATE → PR-head-pre:
+81
+
+Commits PR-head-pre → CANDIDATE:
+1
+
+Zero upstream commits destroyed: verified via no-commits-in-reverse-direction (cure-22 replaces single squash commit with new squash atop fresh upstream)

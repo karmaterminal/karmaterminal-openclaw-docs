@@ -1,0 +1,16 @@
+=== Cure-bytes byte-identical verification: cure-(21)+(21.1) restorations carry-forward through cure-(22) drift-rebase ===
+
+Method: `git diff e0a273405be058c5e838a155e9def40f7982db21..c66706221842d144a346c3eb77dd3c26525ba192 -- <file>` per file, expecting 0 bytes (Lane-B Step 5 LGTM-substrate preservation per PR-DRIFT-CURE-GATES-RUNBOOK §Gate 2)
+
+PR-head pre-cure-(22) drift-rebase: e0a273405be058c5e838a155e9def40f7982db21
+CANDIDATE_SHA (post-rebase + post-amend + post-fork-sync re-rebase): c66706221842d144a346c3eb77dd3c26525ba192
+
+Cure-(21)+(21.1) restored files (per commit-message body at c66706221842d144a346c3eb77dd3c26525ba192):
+ui/src/styles/usage.css → diff=0 bytes (at-PR-head=1)
+.github/workflows/mantis-discord-thread-attachment.yml → diff=0 bytes (at-PR-head=1)
+ui/src/ui/views/usage-render-overview.ts → diff=0 bytes (at-PR-head=1)
+docs/gateway/doctor.md → diff=0 bytes (at-PR-head=1)
+.github/workflows/mantis-discord-status-reactions.yml → diff=0 bytes (at-PR-head=1)
+
+All cure-(21)+(21.1) restored files: byte-identical pre→post drift-rebase ✓
+

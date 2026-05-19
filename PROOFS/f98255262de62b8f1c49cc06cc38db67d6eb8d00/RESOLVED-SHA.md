@@ -22,7 +22,7 @@
 
 | Gate | Receipt | Verdict |
 |---|---|---|
-| 1 — Savegame verification | `git ls-remote` | ✅ `savegame/cure-24-reworded-f98255262d` resolves to `f98255262de62b8f1c49cc06cc38db67d6eb8d00` |
+| 1 — Savegame verification | `git ls-remote` | ✅ `savegame/f98255262d` resolves to `f98255262de62b8f1c49cc06cc38db67d6eb8d00` |
 | 2 — Cure-bytes 4path | `cure-bytes/gate-4a-cure-bytes-4path.log` | ✅ 356 files / +41082 / -2323 vs upstream parent |
 | 3e — vitest full-suite | `gates/gate-3e-pnpm-vitest.log` | 8 failed / 60320 passed / 53 skipped — all 8 byte-confirmed upstream-class |
 | upstream-baseline broken-class | `gates/upstream-main-broken-class-receipt.log` | 9 failed / 60320 passed on bare upstream `e00cb664ad` |

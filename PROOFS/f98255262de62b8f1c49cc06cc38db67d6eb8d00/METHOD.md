@@ -7,7 +7,7 @@ Methodology for the `f98255262de62b8f1c49cc06cc38db67d6eb8d00` corpus.
 | Baseline | SHA | Purpose |
 |---|---|---|
 | `bare-upstream` | `e00cb664ad4bd346866dfb1ad863e7b6c72dd7e6` | openclaw/openclaw:main at PR-head's rebase-base time |
-| `PR-head` | `f98255262de62b8f1c49cc06cc38db67d6eb8d00` | Cure-bundle: cure-(22) bytes + agents-core fileParallelism: false + event-projector test alignment, atop bare-upstream |
+| `PR-head` | `f98255262de62b8f1c49cc06cc38db67d6eb8d00` | continuation feature bytes + agents-core fileParallelism: false test config + event-projector test alignment, atop bare-upstream |
 
 ## Gate procedure
 
@@ -16,7 +16,7 @@ Per `karmaterminal/openclaw-bootstrap:RUNBOOKS/PR-DRIFT-CURE-GATES-RUNBOOK.md`.
 ### Gate 1 — Savegame verification
 
 ```bash
-git ls-remote https://github.com/karmaterminal/openclaw.git refs/heads/savegame/cure-24-reworded-f98255262d
+git ls-remote https://github.com/karmaterminal/openclaw.git refs/heads/savegame/f98255262d
 # expect → f98255262de62b8f1c49cc06cc38db67d6eb8d00
 ```
 
@@ -70,4 +70,4 @@ This corpus omits R-CW / R-CD / R-RC / R-OBS behavioral rows per `PROOF-CORPUS-M
 
 - Test runs at 33GB heap via `NODE_OPTIONS='--max-old-space-size=33000'` to prevent V8 process-internal OOM under FULL-suite parallel load
 - 16-worker parallelism via `OPENCLAW_VITEST_MAX_WORKERS=16`
-- agents-core shard uses `fileParallelism: false` per cohort precedent (extension-telegram + tasks + cron + live shards) to serialize timing-sensitive QuickJS-WASI tests
+- agents-core shard uses `fileParallelism: false` per existing precedent (extension-telegram + tasks + cron + live shards) to serialize timing-sensitive QuickJS-WASI tests

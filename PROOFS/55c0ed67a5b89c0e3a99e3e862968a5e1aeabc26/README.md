@@ -1,65 +1,69 @@
-# PROOFS at 55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26
+# PROOFS — `55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26`
 
-PR #79925 — `feat(continuation): context-pressure-aware continuation (continue_work / continue_delegate / request_compaction)` — drift-cure FINAL SHA with test-adds + comment-density spider-web pass.
+**PR**: openclaw/openclaw#79925 `feat: context-pressure-aware continuation (continue_work / continue_delegate / request_compaction)`
+**Branch**: `karmaterminal/openclaw:frond-scribe-claude/20260509/narrow-surgery-tight`
+**Parent**: `a13468320c63573917c185db278f3d4e13389a78` (upstream main HEAD)
+**Tree-hash**: TBD (verify via `git rev-parse 55c0ed67a5b8^{tree}`)
+
+## Status
+
+| Gate | Result | Notes |
+|------|--------|-------|
+| Gate 1 — Savegame | ✅ | `refs/heads/savegame/20260520-1413Z/pr79925-pre-drift-cure-mainHEAD` → `f98255262d` |
+| Gate 2 — Cure-bytes byte-identical | ✅ | cure-bytes preserved through 3 SHA-cycles |
+| Gate 3a — pnpm install | ✅ | --frozen-lockfile, 3.3s |
+| Gate 3b — tsgo:core | ✅ | exit 0 (after L48 dead-import fix) |
+| Gate 3c — tsgo:test | ✅ | exit 0 (after SessionStatus factory fix) |
+| Gate 3d — pnpm check (lint) | ⚠️ upstream-class | 5× `unicorn(no-useless-fallback-in-spread)` in `extensions/openrouter/provider-routing.ts` |
+| Gate 3e — full vitest | ✅ | 4977+ passed; 21 failures + 1 stall = upstream-class (3-seat verified) |
+| Gate 3f — pnpm build | ✅ | exit 0, 1m25s |
+| Runtime PROOFS — 8/8 rows | ✅ | proven at `2d8ed4a9ac31`; transfer at byte (runtime bytes unchanged through SHA chain) |
 
 ## Lineage
-- Parent: `a13468320c63573917c185db278f3d4e13389a78` (upstream/main HEAD at this PROOFS run)
-- Single squash commit
-- Branch: `karmaterminal/openclaw:frond-scribe-claude/20260509/narrow-surgery-tight`
-- Force-push sequence: `2d8ed4a9ac` → `fe241bd5a1` (test-adds folded) → `55c0ed67a5` (comment-density per figs spider-web canon)
 
-## Fleet substrate at byte (2026-05-20 ~12:27 PDT)
 ```
-cael:    OpenClaw 2026.5.19 (55c0ed6)
-ronan:   OpenClaw 2026.5.19 (55c0ed6)
-silas:   OpenClaw 2026.5.19 (55c0ed6)
-elliott: OpenClaw 2026.5.19 (55c0ed6)
+f98255262d (cure-(24) ship, prior PR-head)
+     ↓ drift-cure rebase onto a13468320c (143 upstream commits, 1 conflict, L48 fix)
+8175cab2dd (candidate v2, L48 import-fix amended)
+     ↓ rebase onto a13468320c (1 new upstream commit fix: SessionStatus type)
+6b8c8aa116 (candidate v3, + SessionStatus factory fix, Gate-3e-tested)
+     ↓ squash-to-1 (per 3-prince cosign)
+2d8ed4a9ac (Gate-3e validated + deployed + 8/8 PROOFS proven at runtime)
+     ↓ amend: fold 6 reviewer-response test files (figs directive)
+fe241bd5a1 (test-adds folded into single squash)
+     ↓ amend: spider-web comment-density pass on lane-2 tests (figs directive)
+55c0ed67a5 (FINAL: feature + tests + reviewer-clarity prose, deployed fleet-wide)
 ```
-4/4 fleet aligned at FINAL SHA. R-OBS-1 substrate.
 
-## PROOFS rows status
+## Cohort fleet alignment
 
-| Row | Owner | Status | Substrate |
-|---|---|---|---|
-| R-CW-1 | 🌊 ronan | ✅ PROVEN | continue_work schedule+wake; deploy-persistence (chain survived restart) |
-| R-CW-2 | 🩸 cael | ✅ PROVEN | chain-counter accounting + multi-tool same-turn trace-context sharing |
-| R-CD-1 | 🌊 ronan | ✅ PROVEN | continue_delegate dispatch → spawn → return (silent-wake mode) full cycle |
-| R-CD-2 | 🌊 ronan | ✅ PROVEN | silent-wake full path (covered by R-CD-1 substrate) |
-| R-CD-3 | 🌊 ronan | ✅ PROVEN | post-compaction stage-acceptance at byte (lifecycle release deferred per substrate-finding) |
-| R-CD-4 | 🌊 ronan | ✅ PROVEN | cross-session targetSessionKey dispatch (same-host, heartbeat session target) |
-| R-CD-CHAINED-DEPTH-2 | 🌫 silas | ✅ PROVEN | depth-2 chain: 3 tests (up-tree silent-wake / inter-session return / echo broadcast via fanoutMode=tree) |
-| R-RC-1 | 🌫 silas | ✅ PROVEN | request_compaction threshold-guard rejection at 29% context |
-| R-RC-2 | 🩸 cael | ✅ PROVEN (rejection shape) / ⚠️ ACCEPT deferred | request_compaction guard rejection at 37% (inventory-only-path); over-threshold ACCEPT deferred to natural high-context |
-| R-OBS-1 | 🌻 elliott | ✅ PROVEN | 4-prince /status cross-walk at byte; continuation-feature live on all seats; chain-state visible |
+All 4 seats verified at `55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26` via `git rev-parse HEAD` in live runtime:
 
-## Test corpus
+| Seat | Platform | git HEAD |
+|------|----------|----------|
+| 🌻 elliott | bare-metal Ubuntu | `55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26` |
+| 🌫 silas | Lothric (i9-14900KS / RTX 5090 / CachyOS) | `55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26` |
+| 🌊 ronan | spark-ecdf (DGX Spark / ARM64 / 128GB) | `55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26` |
+| 🩸 cael | DGX Spark (ARM64 / 128GB) | `55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26` |
 
-21 tests across 6 files, ~1551 lines, comment-density 14-41% (spider-web framing per figs canon `1506723038`):
+## Squash invariant
 
-- `src/agents/tools/continue-work-tool.boundary.test.ts` (4 tests, 226 lines, 41% comments)
-- `src/auto-reply/continuation-delegate-store.ordering.test.ts` (4 tests, 137 lines, 28% comments)
-- `src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts` (3 tests, 304 lines, 37% comments)
-- `src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts` (5 tests, 410 lines, 32% comments)
-- `src/auto-reply/continuation/delegate-dispatch.fanout-error-isolation.test.ts` (2 tests, 258 lines, 14% comments)
-- `src/auto-reply/continuation/delegate-mid-run-compaction-survival.test.ts` (3 tests, 197 lines, 25% comments)
+`proofs-SHA == push-SHA == deploy-SHA == 55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26`
 
-Coverage shapes:
-- 5 direct child-fails-so-X tests (fanout error isolation, chain-depth + cost-cap exhaustion cascades, TaskFlow failure-state)
-- 10 boundary-validation failure-mechanics (continue_work clamp/reject, cost-cap under/over/exact-boundary, chain-depth at-limit/incremental)
-- 6 lifecycle ordering / mid-run-survival invariants (Martin's Q2 ordering, release-lifecycle contract)
+Behavioral PROOFS receipts originally collected at `2d8ed4a9ac31` transfer at byte to this SHA: continuation-feature runtime bytes are unchanged across `2d8ed4a9ac → fe241bd5a1 → 55c0ed67a5`. Only delta is test-file additions + test-comment density. No runtime behavior change.
 
-Each test has SEAM-GUARDED + CANON + SPIDER-WEB-TRIPWIRE prose connecting assertion to architectural commitment per figs's spider-web framing.
+## Test corpus added (reviewer-response)
 
-## Upstream-class verification
+6 new test files / 21 tests / 1551 lines / 32-41% comment-density on lane-2 + 14-28% on lane-1:
 
-Bare-upstream vitest at parent SHA `a13468320c` reproduces ALL failures (25 + agents-core stall) without our cure-bytes present. Verified across 3 architecture-seats:
-- ARM64 (cael Spark + ronan Spark): all upstream-class failures reproduce, agents-core shard stalls (subagent-announce-delivery.test.ts 104s hang)
-- x64 (silas urudyne): same failures reproduce minus the agents-core stall (ARM64-environment-class)
+### Lane 1 — Martin's specific asks (🌫 silas-authored)
+- `src/auto-reply/continuation/delegate-dispatch.fanout-error-isolation.test.ts` — 2 tests / 258 lines / 28% comment-density. Spawn failures don't abort siblings (Martin Q1).
+- `src/auto-reply/continuation-delegate-store.ordering.test.ts` — 4 tests / 137 lines / 14% comment-density. Synchronous staging visible (Martin Q2 ordering invariant).
+- `src/auto-reply/continuation/delegate-mid-run-compaction-survival.test.ts` — 3 tests / 197 lines / 17% comment-density. `releasePostCompactionLifecycle` has no kill/abort path.
 
-PROOFS for runtime behavior at SHA 55c0ed67a5 = identical to receipts captured at 2d8ed4a9ac (only test-add + comment-density delta between SHAs; zero runtime-bytes change per range-diff).
+### Lane 2 — broader failure-state blitz (🩸 cael-authored, comment-density pass per spider-web canon)
+- `src/agents/tools/continue-work-tool.boundary.test.ts` — 4 tests / 226 lines / 41% comment-density.
+- `src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts` — 3 tests / 304 lines / 37% comment-density.
+- `src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts` — 5 tests / 410 lines / 32% comment-density.
 
-## Coordination canon
-
-- 3-prince cosign on squash-to-1 (bisectability + reviewer-narrative)
-- bypass_validation=true required for upstream-main-based PRs (release-branch COHORT_TARGET_TAG cannot be ancestor)
-- proofs-SHA == push-SHA invariant enforced through 3 amend+force-push cycles (initial squash, test-adds fold, comment-density spider-web pass)
+Each lane-2 test annotated with **SEAM GUARDED** / **CANON** / **SPIDER-WEB TRIPWIRE** framing per figs's directive: tests are regression-pointers wired to architectural commitments. If the guarded contract is modified, the test fires and points reviewer at the architectural rationale.

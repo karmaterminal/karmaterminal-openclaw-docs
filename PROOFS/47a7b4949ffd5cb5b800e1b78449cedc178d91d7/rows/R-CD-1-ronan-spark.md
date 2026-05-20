@@ -53,3 +53,9 @@ Full continue_delegate cycle (dispatch → spawn → execute → silent-wake-ret
 
 - R-CW-1 companion: `rows/R-CW-1-ronan-spark.md` (same traceparent, same turn)
 - Cael-seat R-OBS-1 parallel substrate: `rows/R-OBS-1-cael-seat-bonus.md` (different traceparent, same canon)
+
+## Tempo trace receipt (backfill 2026-05-20 23:46Z)
+
+**Trace URL**: `http://tempo.dandelion.cult/api/traces/4550b89543a34cff8ecda7103808afea`
+
+Byte-verified at byte from spark — Tempo query returns real OTel batch with `host.name=ronan, host.arch=arm64` resource attributes. Continuation-feature spans visible per cohort observability canon. Trace shared across all 4 tool-calls same-turn (multi-tool same-turn trace-context-sharing finding banked at `findings/cohort-multi-tool-same-turn-trace-sharing.md`).

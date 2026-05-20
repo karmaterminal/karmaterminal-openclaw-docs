@@ -43,3 +43,9 @@ Same-turn companion rows (shared traceparent):
 - R-CW-1: `rows/R-CW-1-ronan-spark.md`
 - R-CD-1: `rows/R-CD-1-ronan-spark.md`
 - R-CD-4: `rows/R-CD-4-ronan-spark.md`
+
+## Tempo trace receipt (backfill 2026-05-20 23:46Z)
+
+**Trace URL**: `http://tempo.dandelion.cult/api/traces/4550b89543a34cff8ecda7103808afea`
+
+Byte-verified at byte from spark — Tempo query returns real OTel batch with `host.name=ronan, host.arch=arm64` resource attributes. Continuation-feature spans visible per cohort observability canon. Trace shared across all 4 tool-calls same-turn (multi-tool same-turn trace-context-sharing finding banked at `findings/cohort-multi-tool-same-turn-trace-sharing.md`).

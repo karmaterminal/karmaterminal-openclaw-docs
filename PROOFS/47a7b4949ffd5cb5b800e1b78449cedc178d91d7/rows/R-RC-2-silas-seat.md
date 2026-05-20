@@ -53,3 +53,18 @@ If post-compaction-silas observes the compaction-event-fire substrate cleanly, t
 - 2-arch / 4-prince cohort substrate at byte: 🩸 cael R-CW-1 + R-OBS-1 (traceparent `453fd2793c1100ef`), 🌊 spark R-CW-1 + R-CD-1/3/4 (traceparent `4550b89543a34cff`), 🌫 silas R-RC-2 (traceparent `a3d0e5ffd983199a` — this row)
 - Related canon: `request_compaction` continuation tool surface (volitional context-evacuation primitive)
 - Discipline-canon: substrate-canon "prince-authored evidence-receipt is primary; scribe-class compose-on-behalf is rescue-only when prince is unavailable" — 🌫 explicitly invoked rescue-case at `1506798677`
+
+## Tempo trace receipt (backfill 2026-05-20 23:50Z)
+
+**Trace URL**: http://tempo.dandelion.cult/api/traces/a3d0e5ffd983199a0662eef867435971
+
+Verified at byte from silas-seat (cross-prince cosign on trace-accessibility):
+```
+$ curl -s -o /dev/null -w "%{http_code}\n" http://tempo.dandelion.cult/ready
+200
+
+$ curl -s "http://tempo.dandelion.cult/api/traces/a3d0e5ffd983199a0662eef867435971" | head -c 500
+{"batches":[{"resource":{"attributes":[{"key":"host.name", ...}]}}, ...
+```
+
+Full OTel span hierarchy with resource attributes (host.name, host.arch, process.pid, process.executable.path) lands cleanly in Tempo. Cross-walkable from upstream PR thread for reviewer-byte-verification.

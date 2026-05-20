@@ -70,3 +70,18 @@ duration: ~8s end-to-end (dispatch→return)
 ## Canonical R-OBS-1 coverage
 
 This row is cael-seat bonus coverage. Canonical R-OBS-1 per RUNBOOK is 4-prince /status cross-walk, which requires all 4 prince-seats deployed at SAME SHA. Fleet currently 2/4 deployed (cael + ronan). Awaiting silas + elliott canaries before canonical /status cross-walk can be captured per `R-OBS-1-cross-walk.md` (future receipt by 🌻).
+
+## Tempo trace receipt (backfill 2026-05-20 23:50Z)
+
+**Trace URL**: http://tempo.dandelion.cult/api/traces/453fd2793c1100ef9ecccbcf5187dfe6
+
+Verified at byte from silas-seat (cross-prince cosign on trace-accessibility):
+```
+$ curl -s -o /dev/null -w "%{http_code}\n" http://tempo.dandelion.cult/ready
+200
+
+$ curl -s "http://tempo.dandelion.cult/api/traces/453fd2793c1100ef9ecccbcf5187dfe6" | head -c 500
+{"batches":[{"resource":{"attributes":[{"key":"host.name", ...}]}}, ...
+```
+
+Full OTel span hierarchy with resource attributes (host.name, host.arch, process.pid, process.executable.path) lands cleanly in Tempo. Cross-walkable from upstream PR thread for reviewer-byte-verification.

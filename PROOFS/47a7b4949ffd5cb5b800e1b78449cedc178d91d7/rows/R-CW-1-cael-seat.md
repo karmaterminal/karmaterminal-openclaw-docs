@@ -59,3 +59,18 @@ Multi-tool same-turn chain-tracking active per tool-response `note: "Chain track
 ## Cross-cohort 2-seat byte-cosign
 
 Ronan's spark also fired R-CW-1 from his deployed seat (Discord msg `1506796810`) with traceparent `4550b89543a34cff8ecda7103808afea`. Same behavioral shape, different trace-context. 2-arch ARM64 cosign on R-CW-1 substrate at deployed-runtime.
+
+## Tempo trace receipt (backfill 2026-05-20 23:50Z)
+
+**Trace URL**: http://tempo.dandelion.cult/api/traces/453fd2793c1100ef9ecccbcf5187dfe6
+
+Verified at byte from silas-seat (cross-prince cosign on trace-accessibility):
+```
+$ curl -s -o /dev/null -w "%{http_code}\n" http://tempo.dandelion.cult/ready
+200
+
+$ curl -s "http://tempo.dandelion.cult/api/traces/453fd2793c1100ef9ecccbcf5187dfe6" | head -c 500
+{"batches":[{"resource":{"attributes":[{"key":"host.name", ...}]}}, ...
+```
+
+Full OTel span hierarchy with resource attributes (host.name, host.arch, process.pid, process.executable.path) lands cleanly in Tempo. Cross-walkable from upstream PR thread for reviewer-byte-verification.

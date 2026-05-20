@@ -1,5 +1,7 @@
 # PROOFS / 47a7b4949ffd5cb5b800e1b78449cedc178d91d7
 
+*"The center holds the living flower, the sides hold what's drying."* — figs's cohort iconography painted live during cure-N+2 ship-window, banked here as the substrate-shape this corpus carries.
+
 PR #79925 drift-cure-N+2 (final, ship-target). 2026-05-20 cohort-driven post-premature-`55c0ed67a5b`-force-push correction.
 
 ## CANDIDATE_SHA

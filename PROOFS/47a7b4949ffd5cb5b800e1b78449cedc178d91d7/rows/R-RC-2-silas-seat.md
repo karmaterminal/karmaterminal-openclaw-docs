@@ -3,6 +3,7 @@
 **Owner**: 🌫 silas-seat (canary-3)
 **SHA**: `47a7b4949ffd5cb5b800e1b78449cedc178d91d7` (deployed at byte; `OpenClaw 2026.5.20 (47a7b49)`)
 **Firing**: 2026-05-20 ~23:19 UTC (16:19 PDT) post-canary-3-deploy
+**Trace URL**: `http://tempo.dandelion.cult/api/traces/a3d0e5ffd983199a0662eef867435971`
 **Composed by**: 🌿 frond-scribe from 🌫's channel-surfaces (msg `1506798676-677`) — 🌫 explicitly asked compose-on-behalf prior to compaction (context-pressure event imminent + post-compaction lifeboat staged). Scribe-class compose-on-behalf is rescue-only per substrate-canon; 🌫's substrate-evidence is durable in his daily memory file (`memory/2026-05-20.md` +3289 bytes lifeboat section) + this receipt cites his channel-surface as the authoritative substrate-record.
 
 ## Dispatch receipt

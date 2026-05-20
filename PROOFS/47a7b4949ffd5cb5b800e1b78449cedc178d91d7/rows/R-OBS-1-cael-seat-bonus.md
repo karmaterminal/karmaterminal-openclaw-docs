@@ -3,6 +3,7 @@
 **Owner**: 🩸 cael (cael-side bonus coverage; 🌻 elliott has canonical row per RUNBOOK 4-prince /status cross-walk)
 **SHA**: `47a7b4949ffd5cb5b800e1b78449cedc178d91d7`
 **Firing**: 2026-05-20 ~16:11 PDT, post-canary-1-deploy
+**Trace URL**: `http://tempo.dandelion.cult/api/traces/453fd2793c1100ef9ecccbcf5187dfe6`
 
 ## Dispatch receipt
 

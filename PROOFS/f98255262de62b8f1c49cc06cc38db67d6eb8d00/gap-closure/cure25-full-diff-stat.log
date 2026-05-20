@@ -1,0 +1,8 @@
+ src/agents/failover-error.test.ts                  |  14 ---
+ src/agents/failover-error.ts                       |  35 +------
+ src/agents/model-fallback.test.ts                  |  28 ------
+ .../pi-embedded-runner/google-prompt-cache.test.ts |  16 +--
+ .../pi-embedded-runner/google-prompt-cache.ts      |   3 +-
+ .../run/attempt.session-lock.test.ts               |  21 ++--
+ .../pi-embedded-runner/run/attempt.session-lock.ts | 110 ++-------------------
+ 7 files changed, 35 insertions(+), 192 deletions(-)

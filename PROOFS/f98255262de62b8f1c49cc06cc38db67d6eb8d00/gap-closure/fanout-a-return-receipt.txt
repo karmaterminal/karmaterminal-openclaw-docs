@@ -1,0 +1,22 @@
+PROOF FANOUT-A return substrate-receipt
+========================================
+Source: subagent task completion event from cael-host gateway
+Session: agent:main:subagent:e0454ce1-fcbd-4f34-82a8-7ab769a226e1
+Session-id: f9ad0c17-d20b-4690-8022-05ca30d6d1ab
+Type: subagent task (delegated via continue_delegate tool)
+Chain-hop: 6/200
+Mode: normal (return-to-caller)
+Runtime: 3m6s (sleep 180s + uuid generation + return)
+Cost: 617 tokens (10 in / 607 out)
+Trace: fe08fac37b3e33795ebe9fb7225c800f
+
+Return payload:
+- timestamp: 1779240720 (2026-05-19T18:32:00 PDT)
+- uuid: 1c0f0f48-6ea2-467a-9ae9-33c786b78c6b
+- label: FANOUT-A-180s
+- delay: 180s (sleep executed to completion)
+
+Substrate-shape proven: continue_delegate(task=<count+random>, delaySeconds=0) tool-call schedules
+delegate that fires immediately (delaySeconds=0), executes 180s sleep, then returns fresh
+random-value (UUID from /proc/sys/kernel/random/uuid) to caller. Round-trip latency = 3m6s
+(180s sleep + ~6s overhead).

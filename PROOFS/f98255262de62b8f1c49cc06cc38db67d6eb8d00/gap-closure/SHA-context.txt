@@ -1,0 +1,4 @@
+PR-head SHA: f98255262de62b8f1c49cc06cc38db67d6eb8d00
+Running gateway SHA: af2e51a54b (cure-25)
+Continuation-tools-surface diff between SHAs: NULL (verified via git diff --numstat empty output)
+Files differing (cure-25 scope, NOT continuation): attempt.session-lock.ts, failover-error.ts, google-prompt-cache.ts + tests

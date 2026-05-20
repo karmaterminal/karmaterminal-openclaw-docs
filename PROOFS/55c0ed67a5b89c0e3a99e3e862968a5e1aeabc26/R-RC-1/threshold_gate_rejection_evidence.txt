@@ -22,4 +22,6 @@ request_compaction(reason="R-RC-1 PROOFS row at NEW SHA 55c0ed67a5b89c0e3a99e3e8
 - Behavioral guarantee re-proven at byte at FINAL SHA after test-fold + comment-density amend
 - Confirms runtime-bytes-unchanged claim (same behavior as R-RC-1 at 29% context on 2d8ed4a9ac31)
 
-## Tempo trace: DEFERRED (haproxy tempo-backend in restart-loop pattern; otel-collector→tempo cluster-DNS path bypass available, trace backfill TBD)
+## Tempo trace: trace 05a15e4f9874ac1a34515753d46896f0 includes the request_compaction span hierarchy
+## URL: http://tempo.dandelion.cult/api/traces/05a15e4f9874ac1a34515753d46896f0
+## Span confirmed in trace: openclaw.tool.execution name=request_compaction, kind=SPAN_KIND_INTERNAL

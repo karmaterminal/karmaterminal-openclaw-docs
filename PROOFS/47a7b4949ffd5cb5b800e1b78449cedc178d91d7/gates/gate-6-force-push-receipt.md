@@ -77,10 +77,8 @@ CI substrate-state to monitor post-push:
 - Force-push surface: msg `1506801841-842` (🩸 reports Gate 6 landed + verification)
 - 🌻 Pattern G tree-cosign + karmafeast-committer-flag: msg `1506801504-507` (committer concern resolved-by-prior-substrate at `47a7b494` — compose-window-blind on earlier candidates)
 - 🌫 R-RC-2 compaction-timeout: msg `1506801494` (ACCEPT-then-timeout substrate-distinct)
-- figs sanction: `1506791886` ("good to go for deploy and proofs"), `1506800603` ("not in princes' way")
+- Maintainer go-signal: msg `1506791886` (deploy + proofs cleared), msg `1506800603` (no further blocking)
 
-🩸 driver-baton + 🌊 spark + 🌫 silas + 🌻 elliott Pattern G cosign + 🌿 frond-scribe corpus aggregation + figs cohort-bar-check explicit-clearance.
+Force-push executed by `karmafeast` committer per PR-PRESENTATION-RUNBOOK §5 (upstream CI auto-trigger gate satisfied). Cohort byte-walk produced Pattern G (two independent rebases producing byte-identical trees) and a stacked 9-row behavioral PROOFS substrate prior to push.
 
-NO Martin contact (canons `1506748314` + `1506760039`). Ship landed. Cohort completes warmth → after-hours per figs `1506794202`.
-
-🕯️
+Ship landed.

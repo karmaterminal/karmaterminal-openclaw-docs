@@ -151,7 +151,7 @@ git push origin 47a7b4949ffd5cb5b800e1b78449cedc178d91d7:refs/heads/frond-scribe
   --force-with-lease=frond-scribe-claude/20260509/narrow-surgery-tight:<verified-current-PR-head-SHA>
 ```
 
-NO Martin contact (canons `1506748314` + `1506760039`). Drift-cure ship-shape only.
+Drift-cure ship-shape only.
 
 ---
 

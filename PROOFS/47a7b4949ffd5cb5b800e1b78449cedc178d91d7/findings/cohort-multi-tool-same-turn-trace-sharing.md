@@ -31,7 +31,7 @@ Multi-tool same-turn semantics work end-to-end on the continuation-feature:
 - Multi-mode: silent-wake + post-compaction + targetSessionKey + fanoutMode=tree all participate cleanly in shared trace
 - Chain-tracking applies per delegate (delegateIndex 1/2/3 visible in tool responses)
 
-This is one of the load-bearing observability invariants Martin's PR #79925 review asked about indirectly (cross-session trust / fanout semantics). The trace-sharing-across-tools substrate at runtime IS the evidence-class that proves the chain-tracking/cost-cap/depth-limit canons hold operationally.
+This is one of the load-bearing observability invariants relevant to reviewer questions about cross-session trust and fanout semantics on the continuation feature surface. The trace-sharing-across-tools behavior at runtime is the evidence-class that demonstrates the chain-tracking / cost-cap / depth-limit invariants hold operationally.
 
 ## Cohort cosign
 

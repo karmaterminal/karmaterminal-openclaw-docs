@@ -1,0 +1,16 @@
+Scope: all 129 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 0, reused 1, downloaded 0, added 0
+Packages: +12 -216
+++++----------------------------------------------------------------------------
+Progress: resolved 0, reused 176, downloaded 0, added 12, done
+node_modules/baileys preinstall$ node ./engine-requirements.js
+node_modules/baileys preinstall: Done
+
+. preinstall$ node scripts/preinstall-package-manager-warning.mjs
+. preinstall: Done
+. postinstall$ node scripts/postinstall-bundled-plugins.mjs
+. postinstall: Done
+. prepare$ command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath git-hooks || exit 0
+. prepare: Done
+Done in 1.9s using pnpm v11.1.0

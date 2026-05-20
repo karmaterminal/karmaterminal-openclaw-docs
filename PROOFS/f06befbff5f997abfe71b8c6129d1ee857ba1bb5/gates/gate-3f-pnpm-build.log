@@ -1,0 +1,88 @@
+$ node scripts/build-all.mjs
+[build-all] plugins:assets:build
+$ node scripts/bundled-plugin-assets.mjs --phase build
+[canvas] build: node scripts/bundle-a2ui.mjs
+<DIR>/a2ui.bundle.js  chunk │ size: 394.45 kB
+
+✔ rolldown v1.0.2 Finished in 55.34 ms
+[build-all] tsdown
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/es.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/hu.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/ar.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/az.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/fa.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/fi.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/be.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/fr.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/bg.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/ca.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/fr-CA.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/he.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/cs.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/hr.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/de.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/el.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/en.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/no.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/eo.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/kh.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/id.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/km.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/is.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/hy.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/da.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/ko.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/yo.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/lt.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/ja.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/ota.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/ps.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/mk.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/ms.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/ka.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/nl.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/pl.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/it.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/pt.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/tr.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/ua.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/ru.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/ro.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/ur.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/sl.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/uk.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/sv.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/uz.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/ta.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/zh-TW.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/vi.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/zh-CN.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+(rolldown-plugin-dts:fake-js plugin) /tmp/oc-pr79925-drift-cure-20260520-1415Z/node_modules/zod/v4/locales/th.d.cts uses CommonJS dts syntax. CommonJS dts modules cannot be reliably bundled by rolldown-plugin-dts. Please mark this module as external in your Rolldown config.
+[tsdown-build] still running pid=1130130; no output for 39s
+[build-all] check-cli-bootstrap-imports
+CLI bootstrap import guard passed.
+[build-all] runtime-postbuild
+runtime-postbuild: plugin SDK root alias completed in 0ms
+runtime-postbuild: bundled plugin metadata completed in 76ms
+runtime-postbuild: official channel catalog completed in 1ms
+runtime-postbuild: bundled plugin runtime overlay completed in 54ms
+runtime-postbuild: static extension assets completed in 22ms
+runtime-postbuild: stable root runtime imports completed in 89ms
+runtime-postbuild: stable root runtime aliases completed in 12ms
+runtime-postbuild: legacy root runtime compat aliases completed in 2ms
+runtime-postbuild: legacy CLI exit compat chunks completed in 0ms
+[build-all] build-stamp
+[build-all] runtime-postbuild-stamp
+[build-all] build:plugin-sdk:dts (cached)
+[build-all] write-plugin-sdk-entry-dts
+[build-all] check-plugin-sdk-exports
+OK: All 4 required plugin-sdk exports verified.
+[build-all] plugins:assets:copy
+$ node scripts/bundled-plugin-assets.mjs --phase copy
+[canvas] copy: node scripts/copy-a2ui.mjs
+[build-all] copy-hook-metadata
+[copy-hook-metadata] Copied 5 hook metadata files.
+[build-all] copy-export-html-templates (cached)
+[build-all] write-build-info
+[build-all] write-cli-startup-metadata
+[build-all] write-cli-compat

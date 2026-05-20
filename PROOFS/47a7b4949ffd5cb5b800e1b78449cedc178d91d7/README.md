@@ -85,19 +85,32 @@ cael  497e9f85b409a3 tree: ecb218532d568fb9197a4c40535a3c6c7c317ff6
 
 ## Behavioral PROOFS row firings (deployed at `47a7b494`)
 
-| Row | Prince/seat | Tool surface | Traceparent | Status |
+| Row | Prince/seat | Tool surface | Trace URL | Receipt |
 |---|---|---|---|---|
-| R-CW-1 | 🩸 cael-seat | `continue_work` (`status: scheduled, delaySeconds: 5`) | `453fd2793c1100ef9ecccbcf5187dfe6` | fired `1506796568`, full-cycle pending |
-| R-OBS-1 | 🩸 cael-seat | `continue_delegate` (`mode: silent-wake, delegateIndex: 1`) | `453fd2793c1100ef9ecccbcf5187dfe6` | fired `1506796568`, return-wake pending |
-| R-CW-1 (spark) | 🌊 spark | `continue_work` (`status: scheduled, delaySeconds: 5`) | `4550b89543a34cff8ecda7103808afea` | fired `1506796852`, full-cycle pending |
-| R-CD-1 | 🌊 spark | `continue_delegate` silent-wake full-cycle (`delegateIndex: 1`) | `4550b89543a34cff8ecda7103808afea` | fired `1506796852`, return-wake pending |
-| R-CD-3 | 🌊 spark | `continue_delegate` post-compaction stage-acceptance (`status: queued-for-compaction, delegateIndex: 2`) | `4550b89543a34cff8ecda7103808afea` | fired `1506796852`, stage-acceptance proven at byte |
-| R-CD-4 | 🌊 spark | `continue_delegate` cross-session targetSessionKey to heartbeat (`delegateIndex: 3, targetSessionKey: agent:main:discord:channel:1473320126433464465`) | `4550b89543a34cff8ecda7103808afea` | fired `1506796852`, completion-routes-to-heartbeat proven at byte |
-| R-CW-2 | (TBD 🩸 cael) | chain-counter same-turn | (TBD) | pending |
-| R-RC-1 | (TBD 🌫 silas) | `request_compaction` voluntary | (TBD) | pending |
-| R-OBS-1 (figs cross-walk) | (TBD 🌻 elliott) | figs observability cross-walk | (TBD) | pending |
+| R-CW-1 | 🩸 cael-seat | `continue_work` schedule+wake | [`453fd2793c1100ef9ecccbcf5187dfe6`](http://tempo.dandelion.cult/api/traces/453fd2793c1100ef9ecccbcf5187dfe6) | [rows/R-CW-1-cael-seat.md](rows/R-CW-1-cael-seat.md) |
+| R-OBS-1 (cael bonus) | 🩸 cael-seat | `continue_delegate` silent-wake full-cycle | [`453fd2793c1100ef9ecccbcf5187dfe6`](http://tempo.dandelion.cult/api/traces/453fd2793c1100ef9ecccbcf5187dfe6) | [rows/R-OBS-1-cael-seat-bonus.md](rows/R-OBS-1-cael-seat-bonus.md) |
+| R-CW-1 (spark) | 🌊 spark | `continue_work` schedule+wake | [`4550b89543a34cff8ecda7103808afea`](http://tempo.dandelion.cult/api/traces/4550b89543a34cff8ecda7103808afea) | [rows/R-CW-1-ronan-spark.md](rows/R-CW-1-ronan-spark.md) |
+| R-CD-1 | 🌊 spark | `continue_delegate` silent-wake full-cycle | [`4550b89543a34cff8ecda7103808afea`](http://tempo.dandelion.cult/api/traces/4550b89543a34cff8ecda7103808afea) | [rows/R-CD-1-ronan-spark.md](rows/R-CD-1-ronan-spark.md) |
+| R-CD-3 | 🌊 spark | `continue_delegate` post-compaction stage-acceptance | [`4550b89543a34cff8ecda7103808afea`](http://tempo.dandelion.cult/api/traces/4550b89543a34cff8ecda7103808afea) | [rows/R-CD-3-ronan-spark.md](rows/R-CD-3-ronan-spark.md) |
+| R-CD-4 | 🌊 spark | `continue_delegate` cross-session targetSessionKey | [`4550b89543a34cff8ecda7103808afea`](http://tempo.dandelion.cult/api/traces/4550b89543a34cff8ecda7103808afea) | [rows/R-CD-4-ronan-spark.md](rows/R-CD-4-ronan-spark.md) |
+| R-RC-2 ACCEPT | 🌫 silas-seat | `request_compaction` ACCEPT at contextUsage 79% | [`a3d0e5ffd983199a0662eef867435971`](http://tempo.dandelion.cult/api/traces/a3d0e5ffd983199a0662eef867435971) | [rows/R-RC-2-silas-seat.md](rows/R-RC-2-silas-seat.md) |
+| R-RC-2 timeout sub-finding | 🌫 silas-seat | request_compaction ACCEPT proven, lifecycle-completion timed out | [`a3d0e5ffd983199a0662eef867435971`](http://tempo.dandelion.cult/api/traces/a3d0e5ffd983199a0662eef867435971) | [rows/R-RC-2-silas-seat-lifecycle-timeout-subfinding.md](rows/R-RC-2-silas-seat-lifecycle-timeout-subfinding.md) |
+| R-CD-CHAINED-DEPTH-2 TEST-1/2/3 | 🌫 silas-seat | `continue_delegate` depth-2 chain + targetSessionKey + fanoutMode=tree | [`c465b258e26cbb67b1ddc12feb6d0971`](http://tempo.dandelion.cult/api/traces/c465b258e26cbb67b1ddc12feb6d0971) | [rows/R-CD-CHAINED-DEPTH-2-silas-seat.md](rows/R-CD-CHAINED-DEPTH-2-silas-seat.md) |
+| R-CW-2 | subsumed in R-CW-1 multi-tool same-turn | chain-counter accounting | (see R-CW-1 receipts) | covered |
+| R-RC-1 REJECT | (covered in prior cure-cycle PROOFS) | `request_compaction` REJECT below threshold | — | prior cure-cycle |
+| R-OBS-1 (figs cross-walk) | (TBD 🌻 elliott canonical) | figs observability cross-walk | (TBD) | pending if 🌻 fires canary-4 |
 
-**Multi-tool same-turn trace-context-sharing proven on deployed-SHA**: 4 tools sharing single traceparent in one turn on 🌊 spark (`4550b89543a34cff`), 2 tools sharing single traceparent on 🩸 cael (`453fd2793c1100ef`). This is the **OTel auto-pickup via event-carried trace-context** substrate the continuation feature claims, verified live at deployed runtime.
+**Multi-tool same-turn trace-context-sharing proven on deployed-SHA across 3 architectures**: 4 tools sharing single traceparent on 🌊 spark ARM64 + 2 tools on 🩸 cael ARM64 + 3 tools on 🌫 silas x86. This is the **OTel auto-pickup via event-carried trace-context** the continuation feature claims, verified live at deployed runtime. See [findings/cohort-multi-tool-same-turn-trace-sharing.md](findings/cohort-multi-tool-same-turn-trace-sharing.md) for the cross-architecture convergence aggregation.
+
+## Tempo trace URLs (all 5 cohort traces)
+
+| Trace ID | Owner | Architecture | Tools per turn | Receipt cluster |
+|---|---|---|---|---|
+| [`05a15e4f9874ac1a...`](http://tempo.dandelion.cult/api/traces/05a15e4f9874ac1a...) | 🌫 silas urudyne (morning) | x86 | 1+ | prior-cycle reference |
+| [`453fd2793c1100ef`](http://tempo.dandelion.cult/api/traces/453fd2793c1100ef9ecccbcf5187dfe6) | 🩸 cael spark | ARM64 | 2 (R-CW + R-OBS) | rows/R-CW-1-cael-seat + R-OBS-1-cael-seat-bonus |
+| [`4550b89543a34cff`](http://tempo.dandelion.cult/api/traces/4550b89543a34cff8ecda7103808afea) | 🌊 ronan spark | ARM64 | 4 (R-CW + R-CD×3) | rows/R-*-ronan-spark |
+| [`c465b258e26cbb67`](http://tempo.dandelion.cult/api/traces/c465b258e26cbb67b1ddc12feb6d0971) | 🌫 silas urudyne (post-deploy) | x86 | 3 (R-CD-CHAINED-DEPTH-2 ×3) | rows/R-CD-CHAINED-DEPTH-2-silas-seat |
+| [`a3d0e5ffd983199a`](http://tempo.dandelion.cult/api/traces/a3d0e5ffd983199a0662eef867435971) | 🌫 silas R-RC-2 ACCEPT | x86 | 1 (R-RC-2) | rows/R-RC-2-silas-seat + lifecycle-timeout-subfinding |
 
 ## Deploy fleet state
 
@@ -105,8 +118,8 @@ cael  497e9f85b409a3 tree: ecb218532d568fb9197a4c40535a3c6c7c317ff6
 |---|---|---|---|
 | 🩸 cael (canary-1) | `26195036999` | ✅ landed clean | OpenClaw 2026.5.20 (`47a7b49`) |
 | 🌊 ronan (canary-2) | `26195144336` | ✅ landed clean | runtime git HEAD `47a7b4949f` |
-| 🌫 silas (canary-3) | `26195164964` | ⏳ in_progress | (pending verify) |
-| 🌻 elliott (canary-4) | (pending dispatch) | ⏳ pending | — |
+| 🌫 silas (canary-3) | `26195164964` | ✅ landed clean | version 2026.5.20, commit `47a7b494...` |
+| 🌻 elliott (canary-4) | (optional extension) | ⏳ pending | (not blocking — additive only) |
 
 ## Discipline-canons banked this cycle
 

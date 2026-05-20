@@ -1,0 +1,25 @@
+# R-RC-1: request_compaction() threshold REJECT at FINAL SHA
+
+## Seat: silas (urudyne, x64)
+## SHA: 55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26
+## Timestamp: 2026-05-20T12:27 PDT
+
+## Tool call:
+request_compaction(reason="R-RC-1 PROOFS row at NEW SHA 55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26: testing threshold REJECT at sub-70% context. Expecting rejection (proves guard still works at final SHA).")
+
+## Response:
+{
+  "status": "rejected",
+  "guard": "context_threshold",
+  "contextUsage": 48,
+  "threshold": 70,
+  "reason": "Context usage (48%) is below the minimum threshold (70%). Compaction is not needed yet."
+}
+
+## Verdict: PASS
+- Tool correctly rejects when context below 70% floor
+- contextUsage (48%) < threshold (70%) → guard fires
+- Behavioral guarantee re-proven at byte at FINAL SHA after test-fold + comment-density amend
+- Confirms runtime-bytes-unchanged claim (same behavior as R-RC-1 at 29% context on 2d8ed4a9ac31)
+
+## Tempo trace: DEFERRED (haproxy tempo-backend in restart-loop pattern; otel-collector→tempo cluster-DNS path bypass available, trace backfill TBD)

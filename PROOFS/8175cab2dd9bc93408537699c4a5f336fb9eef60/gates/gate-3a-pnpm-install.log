@@ -1,0 +1,26 @@
+Scope: all 129 workspace projects
+Lockfile is up to date, resolution step is skipped
+Packages: +1165
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 0, reused 1, downloaded 0, added 0
+Progress: resolved 0, reused 1053, downloaded 79, added 1163
+Progress: resolved 0, reused 1053, downloaded 81, added 1165
+Progress: resolved 0, reused 1053, downloaded 81, added 1165, done
+node_modules/protobufjs postinstall$ node scripts/postinstall
+node_modules/protobufjs postinstall: Done
+.../pi-ai/node_modules/@google/genai preinstall$ echo 'preinstall: no-op'
+node_modules/@google/genai preinstall$ echo 'preinstall: no-op'
+.../pi-ai/node_modules/@google/genai preinstall: preinstall: no-op
+node_modules/@google/genai preinstall: preinstall: no-op
+node_modules/@google/genai preinstall: Done
+.../pi-ai/node_modules/@google/genai preinstall: Done
+node_modules/baileys preinstall$ node ./engine-requirements.js
+node_modules/baileys preinstall: Done
+
+. preinstall$ node scripts/preinstall-package-manager-warning.mjs
+. preinstall: Done
+. postinstall$ node scripts/postinstall-bundled-plugins.mjs
+. postinstall: Done
+. prepare$ command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath git-hooks || exit 0
+. prepare: Done
+Done in 3.3s using pnpm v11.1.0

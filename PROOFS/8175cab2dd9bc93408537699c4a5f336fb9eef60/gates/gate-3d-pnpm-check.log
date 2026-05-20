@@ -1,0 +1,108 @@
+$ node scripts/check.mjs
+
+[check] preflight guards
+$ node scripts/check-extension-wildcard-reexports.mjs
+$ node scripts/generate-host-env-security-policy-swift.mjs --check
+$ node scripts/check-no-conflict-markers.mjs
+$ node --import tsx scripts/check-no-deprecated-channel-access.ts
+$ node scripts/check-media-download-helper-roundtrip.mjs
+$ node --import tsx scripts/tool-display.ts --check
+$ node --import tsx scripts/check-runtime-sidecar-loaders.mjs
+$ node scripts/check-package-patches.mjs
+$ node scripts/check-changelog-attributions.mjs
+$ node scripts/check-plugin-sdk-wildcard-reexports.mjs
+OK apps/macos/Sources/OpenClaw/HostEnvSecurityPolicy.generated.swift
+$ node scripts/check-duplicates.mjs --coverage
+$ node security/opengrep/check-rule-metadata.mjs
+No guarded extension wildcard re-exports found.
+No plugin-sdk wildcard re-exports found in extension API barrels.
+[dup:check] target coverage ok
+check-opengrep-rule-metadata: /tmp/oc-pr79925-drift-cure-20260520-1415Z/security/opengrep/precise.yml ok
+tool-display snapshot is up to date
+PASS package patch guard: no new pnpm patches; 2 legacy patches allowlisted.
+OK: bundled plugin production code avoids deprecated channel access seams.
+runtime-sidecar-loaders: local runtime sidecar loaders look OK.
+
+[check] typecheck
+$ pnpm tsgo:core && pnpm tsgo:extensions
+$ node scripts/run-tsgo.mjs -p tsconfig.core.json --incremental --tsBuildInfoFile .artifacts/tsgo-cache/core.tsbuildinfo
+$ node scripts/run-tsgo.mjs -p tsconfig.extensions.json --incremental --tsBuildInfoFile .artifacts/tsgo-cache/extensions.tsbuildinfo
+
+[check] lint
+$ node scripts/run-oxlint-shards.mjs
+[oxlint:core] starting
+[oxlint:extensions] starting
+[oxlint:scripts] starting
+Found 0 warnings and 0 errors.
+Finished in 1.5s on 447 files with 217 rules using 1 threads.
+[oxlint:scripts] finished
+Found 0 warnings and 0 errors.
+Finished in 10.2s on 8763 files with 217 rules using 1 threads.
+[oxlint:core] finished
+
+  x unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+    ,-[extensions/openrouter/provider-routing.ts:59:5]
+ 58 |   const merged = {
+ 59 |     ...(providerRouting ?? {}),
+    :     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 60 |     ...(modelRouting ?? {}),
+    `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  x unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+    ,-[extensions/openrouter/provider-routing.ts:60:5]
+ 59 |     ...(providerRouting ?? {}),
+ 60 |     ...(modelRouting ?? {}),
+    :     ^^^^^^^^^^^^^^^^^^^^^^^
+ 61 |     ...(extraRouting ?? {}),
+    `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  x unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+    ,-[extensions/openrouter/provider-routing.ts:61:5]
+ 60 |     ...(modelRouting ?? {}),
+ 61 |     ...(extraRouting ?? {}),
+    :     ^^^^^^^^^^^^^^^^^^^^^^^
+ 62 |   };
+    `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  x unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+    ,-[extensions/openrouter/provider-routing.ts:81:7]
+ 80 |     patch: {
+ 81 |       ...(providerConfigParams ?? {}),
+    :       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 82 |       ...(modelParams ?? {}),
+    `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+  x unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary
+    ,-[extensions/openrouter/provider-routing.ts:82:7]
+ 81 |       ...(providerConfigParams ?? {}),
+ 82 |       ...(modelParams ?? {}),
+    :       ^^^^^^^^^^^^^^^^^^^^^^
+ 83 |       ...ctx.extraParams,
+    `----
+  help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+Found 0 warnings and 5 errors.
+Finished in 12.6s on 5424 files with 217 rules using 1 threads.
+[oxlint:extensions] finished
+[ELIFECYCLE] Command failed with exit code 1.
+
+[check] summary
+   734ms  ok         conflict markers
+   315ms  ok         changelog attributions
+   307ms  ok         guarded extension wildcard re-exports
+   338ms  ok         plugin-sdk wildcard re-exports
+   732ms  ok         deprecated channel access seams
+   362ms  ok         media download helper guard
+   6.61s  ok         runtime sidecar loader guard
+   410ms  ok         tool display
+   283ms  ok         host env policy
+   388ms  ok         opengrep rule metadata
+   340ms  ok         duplicate scan target coverage
+   562ms  ok         package patch guard
+   5.95s  ok         typecheck prod
+  21.63s  failed:1   lint
+[ELIFECYCLE] Command failed with exit code 1.

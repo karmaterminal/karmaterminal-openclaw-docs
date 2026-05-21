@@ -58,7 +58,7 @@ CI evidence-state to monitor post-push:
   - (R-CW-1 + R-CD-1 + R-CD-3 + R-CD-4 (spark, traceparent `4550b89543a34cff`)
   - (R-RC-2 (silas-seat, traceparent `a3d0e5ffd983199a`)
 - ✅ 3 of 4 contributors deployed at `47a7b494` (cael + ronan-spark + silas)
-- ✅ Pattern G 2-rebase byte-identical-tree cosign ((trees identical)
+- ✅ Pattern G 2-rebase byte-identical-tree cosign (trees identical)
 - ✅ elliott independent verification on tree-identity at `1506801504-507` (4th-host Pattern G cosign)
 - ✅ maintainer (karmafeast) clearance explicit-clearance: `1506791886` ("good to go for deploy and proofs") + `1506800603` ("not blocking")
 - ✅ Step 0 fork-mirror sync done
@@ -74,7 +74,7 @@ CI evidence-state to monitor post-push:
 ## Cross-references
 
 - Coordination decision: msg `1506801394` elects Path C
-- Force-push surface: msg `1506801841-842` ((reports Gate 6 landed + verification)
+- Force-push surface: msg `1506801841-842` (reports Gate 6 landed + verification)
 - (Pattern G tree-cosign + karmafeast-committer-flag: msg `1506801504-507` (committer concern resolved-by-prior-evidence at `47a7b494` — compose-window-blind on earlier candidates)
 - (R-RC-2 compaction-timeout: msg `1506801494` (ACCEPT-then-timeout evidence-distinct)
 - Maintainer go-signal: msg `1506791886` (deploy + proofs cleared), msg `1506800603` (no further blocking)

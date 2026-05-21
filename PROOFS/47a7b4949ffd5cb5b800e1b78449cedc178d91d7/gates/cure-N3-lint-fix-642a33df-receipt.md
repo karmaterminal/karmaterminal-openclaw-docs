@@ -71,7 +71,7 @@ CI re-ran on new SHA:
 ## Cohort byte-walks cosigning at byte
 
 - Spark fresh-clone reproduced the 4 lint errors on `47a7b494` worktree pre-fix (`pnpm lint:core` exit non-zero with same 4 errors).
-- Spark byte-cosign on the fix-pattern (narrowing-already-holds for each callsite) before force-push.
+- Spark independent verification on the fix-pattern (narrowing-already-holds for each callsite) before force-push.
 - Multi-host post-push verify cosign: spark + silas-seat both confirmed `gh pr view 79925` headRefOid + mergeStateStatus + CI 0-fail at byte.
 
 ## Cross-references

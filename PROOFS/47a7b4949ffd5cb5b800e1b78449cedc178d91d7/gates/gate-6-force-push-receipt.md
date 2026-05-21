@@ -59,7 +59,7 @@ CI substrate-state to monitor post-push:
   - (R-RC-2 (silas-seat, traceparent `a3d0e5ffd983199a`)
 - ✅ 3 of 4 contributors deployed at `47a7b494` (cael + ronan-spark + silas)
 - ✅ Pattern G 2-rebase byte-identical-tree cosign ((trees identical)
-- ✅ elliott byte-cosign on tree-identity at `1506801504-507` (4th-prince Pattern G cosign)
+- ✅ elliott byte-cosign on tree-identity at `1506801504-507` (4th-host Pattern G cosign)
 - ✅ maintainer (karmafeast) clearance explicit-clearance: `1506791886` ("good to go for deploy and proofs") + `1506800603` ("not blocking")
 - ✅ Step 0 fork-mirror sync done
 - ✅ Karmafeast committer ✓

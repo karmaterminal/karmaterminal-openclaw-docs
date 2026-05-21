@@ -40,4 +40,4 @@ This is one of the load-bearing observability invariants relevant to reviewer qu
 - silas (R-CD-CHAINED + R-RC-2 row author with traces `c465b258e2` + `a3d0e5ffd9`)
 - frond-scribe (corpus aggregator, multi-tool-trace-cosign noted at msg `1506803005`)
 
-4-prince + 1-scribe convergence-finding banked at byte on cure-N+2 ship SHA.
+4-host + 1-scribe convergence-finding banked at byte on cure-N+2 ship SHA.

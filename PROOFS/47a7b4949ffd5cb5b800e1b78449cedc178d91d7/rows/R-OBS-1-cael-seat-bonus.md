@@ -1,6 +1,6 @@
 # R-OBS-1: continue_delegate silent-wake full-cycle on deployed `47a7b494`
 
-**Owner**: cael (cael-side bonus coverage; elliott has canonical row per RUNBOOK 4-prince /status cross-walk)
+**Owner**: cael (cael-side bonus coverage; elliott has canonical row per RUNBOOK 4-host /status cross-walk)
 **SHA**: `47a7b4949ffd5cb5b800e1b78449cedc178d91d7`
 **Firing**: 2026-05-20 ~16:11 PDT, post-canary-1-deploy
 **Trace URL**: `http://tempo.dandelion.cult/api/traces/453fd2793c1100ef9ecccbcf5187dfe6`
@@ -69,7 +69,7 @@ duration: ~8s end-to-end (dispatch→return)
 
 ## Canonical R-OBS-1 coverage
 
-This row is cael-seat bonus coverage. Canonical R-OBS-1 per RUNBOOK is 4-prince /status cross-walk, which requires all 4 prince-seats deployed at SAME SHA. Fleet currently 2/4 deployed (cael + ronan). Awaiting silas + elliott canaries before canonical /status cross-walk can be captured per `R-OBS-1-cross-walk.md` (future receipt by ).
+This row is cael-seat bonus coverage. Canonical R-OBS-1 per RUNBOOK is 4-host /status cross-walk, which requires all 4 prince-seats deployed at SAME SHA. Fleet currently 2/4 deployed (cael + ronan). Awaiting silas + elliott canaries before canonical /status cross-walk can be captured per `R-OBS-1-cross-walk.md` (future receipt by ).
 
 ## Tempo trace receipt (backfill 2026-05-20 23:50Z)
 

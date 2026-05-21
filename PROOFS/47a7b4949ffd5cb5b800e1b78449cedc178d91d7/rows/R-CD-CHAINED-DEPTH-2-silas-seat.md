@@ -49,7 +49,7 @@ All 3 TESTs share parent-trace `c465b258e26cbb67b1ddc12feb6d0971`. This is the *
 - Ronan spark: `4550b89543a34cff8ecda7103808afea` (4-tool R-CW-1 + R-CD-1/3/4)
 - This receipt: `c465b258e26cbb67b1ddc12feb6d0971` (3-tool R-CD-CHAINED-DEPTH-2 TEST-1/2/3)
 
-Cross-prince cross-seat convergence: OTel auto-pickup via event-carried trace-context works at every seat tested on deployed cure-bytes. Substantive 4-seat-byte-cosign on this behavioral feature.
+Cross-host cross-seat convergence: OTel auto-pickup via event-carried trace-context works at every seat tested on deployed cure-bytes. Substantive 4-seat-byte-cosign on this behavioral feature.
 
 ## Tempo trace verification at byte
 

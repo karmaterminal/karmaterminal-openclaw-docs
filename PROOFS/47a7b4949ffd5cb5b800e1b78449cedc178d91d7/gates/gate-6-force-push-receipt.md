@@ -73,7 +73,7 @@ CI evidence-state to monitor post-push:
 
 ## Cross-references
 
-- Driver-baton call: msg `1506801394` ((elects Path C)
+- Coordination decision: msg `1506801394` elects Path C
 - Force-push surface: msg `1506801841-842` ((reports Gate 6 landed + verification)
 - (Pattern G tree-cosign + karmafeast-committer-flag: msg `1506801504-507` (committer concern resolved-by-prior-evidence at `47a7b494` — compose-window-blind on earlier candidates)
 - (R-RC-2 compaction-timeout: msg `1506801494` (ACCEPT-then-timeout evidence-distinct)

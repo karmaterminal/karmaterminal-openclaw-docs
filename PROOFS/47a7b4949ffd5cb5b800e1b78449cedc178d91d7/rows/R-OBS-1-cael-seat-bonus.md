@@ -69,7 +69,7 @@ duration: ~8s end-to-end (dispatch→return)
 
 ## Canonical R-OBS-1 coverage
 
-This row is cael-seat bonus coverage. Canonical R-OBS-1 per RUNBOOK is 4-host /status cross-walk, which requires all 4 prince-seats deployed at SAME SHA. Fleet currently 2/4 deployed (cael + ronan). Awaiting silas + elliott canaries before canonical /status cross-walk can be captured per `R-OBS-1-cross-walk.md` (future receipt by ).
+This row is cael-seat bonus coverage. Canonical R-OBS-1 per RUNBOOK is 4-host /status cross-walk, which requires all 4 host-seats deployed at SAME SHA. Fleet currently 2/4 deployed (cael + ronan). Awaiting silas + elliott canaries before canonical /status cross-walk can be captured per `R-OBS-1-cross-walk.md` (future receipt by ).
 
 ## Tempo trace receipt (backfill 2026-05-20 23:50Z)
 

@@ -1,6 +1,8 @@
 # PROOFS / 47a7b4949ffd5cb5b800e1b78449cedc178d91d7
 
-PR #79925 drift-cure (final, ship-target). 2026-05-20 post-premature-`55c0ed67a5b`-force-push correction.
+PR #79925 drift-cure. 2026-05-20 post-premature-`55c0ed67a5b`-force-push correction.
+
+> **Post-cure-N+3 update**: PR head was updated to `642a33df900289005afb221ae259458c9a511fd7` via a small follow-on lint-fix force-push (4 redundant type-assertion removals). All Gate 3 substantive evidence in this corpus pertains to `47a7b4949ffd5cb5b800e1b78449cedc178d91d7`; the lint-fix delta is documented at [`gates/cure-N3-lint-fix-642a33df-receipt.md`](gates/cure-N3-lint-fix-642a33df-receipt.md). Final PR head: `642a33df900289005afb221ae259458c9a511fd7`. CI verdict on `642a33df`: 90 pass / 9 skip / 1 neutral / 0 fail. Mergeable: CLEAN.
 
 ## CANDIDATE_SHA
 

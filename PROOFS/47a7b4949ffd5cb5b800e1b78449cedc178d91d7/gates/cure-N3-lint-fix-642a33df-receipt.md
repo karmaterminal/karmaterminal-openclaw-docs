@@ -68,7 +68,7 @@ CI re-ran on new SHA:
 
 `mergeStateStatus: CLEAN` (no conflicts with base branch). PR is mergeable upstream pending maintainer review.
 
-## Cohort byte-walks cosigning at byte
+## Team byte-walks cosigning at byte
 
 - Spark fresh-clone reproduced the 4 lint errors on `47a7b494` worktree pre-fix (`pnpm lint:core` exit non-zero with same 4 errors).
 - Spark independent verification on the fix-pattern (narrowing-already-holds for each callsite) before force-push.

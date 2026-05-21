@@ -7,12 +7,12 @@
 ## Force-push receipt
 
 ```
-[FORCE-PUSH] team-scribe-claude/20260509/narrow-surgery-tight:
+[FORCE-PUSH] frond-scribe-claude/20260509/narrow-surgery-tight:
   55c0ed67a5 → 47a7b4949ffd5cb5b800e1b78449cedc178d91d7
   (lease=55c0ed67a5..., reason=team-cosign + 7 PROOFS rows + figs go via 1506791886+1506800603)
 ```
 
-Lease-byte: `--force-with-lease=team-scribe-claude/20260509/narrow-surgery-tight:55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26` — verified PR-head at push-time was `55c0ed67a5b...` (matched lease), no upstream-race-condition collision.
+Lease-byte: `--force-with-lease=frond-scribe-claude/20260509/narrow-surgery-tight:55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26` — verified PR-head at push-time was `55c0ed67a5b...` (matched lease), no upstream-race-condition collision.
 
 ## Post-push verification
 

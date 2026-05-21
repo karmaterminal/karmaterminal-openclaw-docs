@@ -137,12 +137,12 @@ Per `PR-DRIFT-CURE-GATES-RUNBOOK` Gate 5: pre-push intent surface ≥ 1 review t
 
 ## Gate 6 force-push (landed)
 
-See [gates/gate-6-force-push-receipt.md](gates/gate-6-force-push-receipt.md). PR-presenting branch `team-scribe-claude/20260509/narrow-surgery-tight` updated `55c0ed67a5b → 47a7b4949ffd5cb5b800e1b78449cedc178d91d7` via `--force-with-lease` against the prior PR-head, executed by `karmafeast` committer.
+See [gates/gate-6-force-push-receipt.md](gates/gate-6-force-push-receipt.md). PR-presenting branch `frond-scribe-claude/20260509/narrow-surgery-tight` updated `55c0ed67a5b → 47a7b4949ffd5cb5b800e1b78449cedc178d91d7` via `--force-with-lease` against the prior PR-head, executed by `karmafeast` committer.
 
 Force-push command shape (executed from karmafeast-auth seat):
 ```bash
-git push origin 47a7b4949ffd5cb5b800e1b78449cedc178d91d7:refs/heads/team-scribe-claude/20260509/narrow-surgery-tight \
-  --force-with-lease=team-scribe-claude/20260509/narrow-surgery-tight:55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26
+git push origin 47a7b4949ffd5cb5b800e1b78449cedc178d91d7:refs/heads/frond-scribe-claude/20260509/narrow-surgery-tight \
+  --force-with-lease=frond-scribe-claude/20260509/narrow-surgery-tight:55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26
 ```
 
 ---

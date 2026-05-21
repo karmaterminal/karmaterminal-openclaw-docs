@@ -16,6 +16,8 @@ PR #79925 drift-cure. 2026-05-20 post-premature-`55c0ed67a5b`-force-push correct
 
 ## Candidate progression this cycle
 
+- **PR-head (final, CLEAN)**: `642a33df900289005afb221ae259458c9a511fd7` (cure-N+3 lint-fix at follow-on force-push; 4 unnecessary-type-assertion removals in test files; CI: 90 pass / 9 skip / 1 neutral / 0 fail; MERGEABLE/CLEAN; see [`gates/cure-N3-lint-fix-642a33df-receipt.md`](gates/cure-N3-lint-fix-642a33df-receipt.md))
+- **PR-head (cure-N+2, superseded)**: `47a7b4949ffd5cb5b800e1b78449cedc178d91d7` (this corpus directory; all Gate 3 evidence pertains to this SHA; CI on this SHA had 1 check-lint fail from 4 redundant type-assertions; cured at N+3)
 - **PR-head (prior, broken)**: `55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26` (cure-N premature-force-push with 18 CI failures; see [`../55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26/`](../55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26/))
 - **Stale candidate (pre-drift-rebase, forensic)**: `766f5d39f30b736008c3636c46d1b7f71b3fdc7a` (rebased onto stale `1a7669bc63`; see [`../f06befbff5f997abfe71b8c6129d1ee857ba1bb5/`](../f06befbff5f997abfe71b8c6129d1ee857ba1bb5/) for related forensic)
 - **Drift-window**: candidate's prior parent `1a7669bc63` → drift-rebase target `4d47f9a4c0` = **19 commits**. Upstream advanced during the cure-cycle window itself; the team rebased onto current HEAD before push.

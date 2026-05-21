@@ -60,7 +60,7 @@ Per silent-wake enrichment landing at parent-cael:
 duration: ~8s end-to-end (dispatch→return)
 ```
 
-## Cross-coverage with cohort
+## Cross-coverage
 
 - 🌊 spark R-CD-1 (continue_delegate silent-wake) fired same shape on his deployed seat (msg `1506796810`, traceparent `4550b89543a34cff8ecda7103808afea`, delegateIndex=1)
 - 🌊 spark R-CD-3 (post-compaction stage-acceptance) returned `status: queued-for-compaction` on deployed `47a7b494`

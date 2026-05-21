@@ -63,9 +63,9 @@ $ curl -s http://tempo.dandelion.cult/api/traces/a3d0e5ffd983199a0662eef86743597
 
 Trace lands cleanly in Tempo. Cross-walkable for follow-on investigation.
 
-## Discipline-canon
+## Evidence discipline
 
-This sub-finding shape is exactly what figs `1506782729` "all the things, skipped nothing" + scribe-class "aggregate evidence not claims" discipline catches. Without the bare-truth byte-receipt, this would have been: "R-RC-2 ACCEPT proven" alone. With it: "R-RC-2 ACCEPT-dispatch proven, lifecycle-completion-substrate is TIMEOUT-class, separate investigation."
+This sub-finding shape reflects the team convention "aggregate evidence not claims." Without the captured tool response and downstream timeout observation, this would have been recorded as "R-RC-2 ACCEPT proven" alone. With both, the record is precise: "R-RC-2 ACCEPT-dispatch proven; lifecycle-completion timed out; separate investigation."
 
 ## Cross-references
 

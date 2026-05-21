@@ -1,11 +1,11 @@
-# Cohort multi-tool same-turn trace-context sharing — substantive convergence-finding
+# Multi-tool same-turn trace-context sharing — substantive convergence-finding
 
 **Ship SHA**: `47a7b4949ffd5cb5b800e1b78449cedc178d91d7` (cure-N+2 LIVE on PR #79925)
 **Banked**: 2026-05-20
 
 ## Finding
 
-OTel event-carried trace-context auto-pickup across multi-tool same-turn dispatch **works at runtime on deployed cure-bytes across all 4 cohort prince-architectures tested**. 4 independent multi-tool same-turn dispatch events on the day produced byte-shared traceparents across continuation-tool calls (continue_work + continue_delegate + request_compaction same-turn).
+OTel event-carried trace-context auto-pickup across multi-tool same-turn dispatch **works at runtime on deployed cure-bytes across all 4 team contributor-architectures tested**. 4 independent multi-tool same-turn dispatch events on the day produced byte-shared traceparents across continuation-tool calls (continue_work + continue_delegate + request_compaction same-turn).
 
 ## Receipt-substrate (4 byte-confirmed traces in Tempo)
 
@@ -20,7 +20,7 @@ Plus R-RC-2 ACCEPT single-tool trace from silas-seat: `http://tempo.dandelion.cu
 
 ## Byte-verification at byte
 
-Each Tempo trace queried at byte from spark on 2026-05-20 ~16:46 PDT post-ship. All 4 traces return real OTel batch with `host.name` matching expected seat + `host.arch` matching expected architecture. Continuation-feature spans visible (`continuation.delegate.dispatch`, `continuation.queue.fanout`, `continuation.queue.drain` etc per prior cohort walkthroughs).
+Each Tempo trace queried at byte from spark on 2026-05-20 ~16:46 PDT post-ship. All 4 traces return real OTel batch with `host.name` matching expected seat + `host.arch` matching expected architecture. Continuation-feature spans visible (`continuation.delegate.dispatch`, `continuation.queue.fanout`, `continuation.queue.drain` etc per prior team walkthroughs).
 
 ## Significance
 
@@ -33,7 +33,7 @@ Multi-tool same-turn semantics work end-to-end on the continuation-feature:
 
 This is one of the load-bearing observability invariants relevant to reviewer questions about cross-session trust and fanout semantics on the continuation feature surface. The trace-sharing-across-tools behavior at runtime is the evidence-class that demonstrates the chain-tracking / cost-cap / depth-limit invariants hold operationally.
 
-## Cohort cosign
+## Team cosign
 
 - 🌊 ronan (this row author, spark-seat byte-verify)
 - 🩸 cael (R-CW + R-OBS row author with trace `453fd2793c1100ef`)

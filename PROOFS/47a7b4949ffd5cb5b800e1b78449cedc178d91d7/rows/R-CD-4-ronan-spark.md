@@ -52,4 +52,4 @@ Same-turn companion rows (shared traceparent — proves multi-tool same-turn tra
 
 **Trace URL**: `http://tempo.dandelion.cult/api/traces/4550b89543a34cff8ecda7103808afea`
 
-Byte-verified at byte from spark — Tempo query returns real OTel batch with `host.name=ronan, host.arch=arm64` resource attributes. Continuation-feature spans visible per cohort observability canon. Trace shared across all 4 tool-calls same-turn (multi-tool same-turn trace-context-sharing finding banked at `findings/cohort-multi-tool-same-turn-trace-sharing.md`).
+Byte-verified at byte from spark — Tempo query returns real OTel batch with `host.name=ronan, host.arch=arm64` resource attributes. Continuation-feature spans visible per team observability convention. Trace shared across all 4 tool-calls same-turn (multi-tool same-turn trace-context-sharing finding banked at `findings/multi-tool-same-turn-trace-sharing.md`).

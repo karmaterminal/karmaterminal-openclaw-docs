@@ -1,6 +1,6 @@
 # Tempo trace JSON exports
 
-OTel span trees for the 5 cohort behavioral PROOFS traces, exported from `tempo.dandelion.cult` at byte on 2026-05-20.
+OTel span trees for the 5 team behavioral PROOFS traces, exported from `tempo.dandelion.cult` at byte on 2026-05-20.
 
 Each file is the full OTel batch as returned by Tempo's `/api/traces/<id>` endpoint. Permanent record alongside the live Tempo URLs in case the live endpoint is unavailable to reviewers at later read-time.
 
@@ -12,4 +12,4 @@ Each file is the full OTel batch as returned by Tempo's `/api/traces/<id>` endpo
 | `trace-c465b258e26cbb67b1ddc12feb6d0971.json` | `c465b258e26cbb67b1ddc12feb6d0971` | silas (urudyne) | x86 | R-CD-CHAINED-DEPTH-2 TEST-1/2/3 three-tool same-turn (post-deploy on `47a7b494`) |
 | `trace-a3d0e5ffd983199a0662eef867435971.json` | `a3d0e5ffd983199a0662eef867435971` | silas (urudyne) | x86 | R-RC-2 ACCEPT path |
 
-Live Tempo URLs in each row receipt under `../rows/`. Findings analysis in `../findings/cohort-multi-tool-same-turn-trace-sharing.md`.
+Live Tempo URLs in each row receipt under `../rows/`. Findings analysis in `../findings/multi-tool-same-turn-trace-sharing.md`.

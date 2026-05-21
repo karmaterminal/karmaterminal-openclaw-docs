@@ -56,7 +56,7 @@ continue_delegate traceparent: 00-453fd2793c1100ef9ecccbcf5187dfe6-77209faa0e851
 
 Multi-tool same-turn chain-tracking active per tool-response `note: "Chain tracking (cost cap, depth limit) applies"`.
 
-## Cross-cohort 2-seat byte-cosign
+## Cross-team 2-seat byte-cosign
 
 Ronan's spark also fired R-CW-1 from his deployed seat (Discord msg `1506796810`) with traceparent `4550b89543a34cff8ecda7103808afea`. Same behavioral shape, different trace-context. 2-arch ARM64 cosign on R-CW-1 substrate at deployed-runtime.
 

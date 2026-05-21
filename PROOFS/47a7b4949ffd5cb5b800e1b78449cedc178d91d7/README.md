@@ -1,32 +1,26 @@
 # PROOFS / 47a7b4949ffd5cb5b800e1b78449cedc178d91d7
 
-*"The center holds the living flower, the sides hold what's drying."* — figs's cohort iconography painted live during cure-N+2 ship-window, banked here as the substrate-shape this corpus carries.
-
-PR #79925 drift-cure-N+2 (final, ship-target). 2026-05-20 cohort-driven post-premature-`55c0ed67a5b`-force-push correction.
+PR #79925 drift-cure (final, ship-target). 2026-05-20 post-premature-`55c0ed67a5b`-force-push correction.
 
 ## CANDIDATE_SHA
 
 `47a7b4949ffd5cb5b800e1b78449cedc178d91d7`
 
-- **Tree**: `ecb218532d568fb9197a4c40535a3c6c7c317ff6` (byte-identical across 3 independent rebases: 🩸 `497e9f85b4`, 🌫 `a264e5453582ab`, 🩸-committer-corrected `47a7b494` — Pattern G 2-rebase cosign locked)
+- **Tree**: `ecb218532d568fb9197a4c40535a3c6c7c317ff6` (byte-identical across 3 independent rebases: cael's `497e9f85b4`, silas's `a264e5453582ab`, cael's committer-corrected `47a7b494` — independent-rebase byte-identity confirms cure-bytes are canonical, not path-dependent)
 - **Parent**: `4d47f9a4c0385e9d1a9076ca0bed4c3858d9920f` (current upstream HEAD at rebase-time)
 - **Author + Committer**: `karmafeast <karmafeast@gmail.com>` (PR-PRESENTATION-RUNBOOK §5 — upstream CI auto-trigger gate)
 - **Single squash commit** message: `feat(continuation): context-pressure-aware continuation (continue_work / continue_delegate / request_compaction)`
 - **Savegame ref**: `karmaterminal/openclaw:refs/heads/savegame/20260520-2251Z/pr79925-runid-fix-karmafeast-committer-47a7b494`
 
-## Substrate progression this cycle
+## Candidate progression this cycle
 
 - **PR-head (prior, broken)**: `55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26` (cure-N premature-force-push with 18 CI failures; see [`../55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26/`](../55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26/))
 - **Stale candidate (pre-drift-rebase, forensic)**: `766f5d39f30b736008c3636c46d1b7f71b3fdc7a` (rebased onto stale `1a7669bc63`; see [`../f06befbff5f997abfe71b8c6129d1ee857ba1bb5/`](../f06befbff5f997abfe71b8c6129d1ee857ba1bb5/) for related forensic)
-- **Drift-window**: candidate's prior parent `1a7669bc63` → drift-rebase target `4d47f9a4c0` = **19 commits**. Drift-during-drift-cure pattern named by cohort at byte (~2026-05-20T22:35Z).
+- **Drift-window**: candidate's prior parent `1a7669bc63` → drift-rebase target `4d47f9a4c0` = **19 commits**. Upstream advanced during the cure-cycle window itself; the team rebased onto current HEAD before push.
 
-## Provenance: figs's "skipped nothing" directive
+## Methodology: full gates, no skips
 
-figs canon `1506782729`: *"we MUST deploy to princes following: we've actually ran full tests/lint etc. then we must gather proofs. we CANNOT skip tests or proofs."*
-
-figs canon `1506791886`: *"figs isnt in your way... LINT and ALL the pnpm things fully and have SKIPPED NOTHING then you are good to go for deploy and proofs."*
-
-This corpus collects byte-receipt-grounded substrate-evidence for every gate, every classification, every behavioral row — per kick (32) discipline-class: "taxonomic-class-claim-as-substitute-for-byte-receipt-verification" is the disease; captured-stdout-with-cross-walk is the cure.
+This corpus collects byte-receipt-grounded evidence for every gate, every classification, every behavioral row. The convention: where a test or check reports failure, the corpus contains both the candidate-side captured output AND a bare-upstream same-SHA captured output, so failure-classification (upstream-class vs cure-introduced) is verifiable from primary evidence rather than file-path-diagnosis.
 
 ## Gate results
 
@@ -81,7 +75,7 @@ silas a264e5453582ab tree: ecb218532d568fb9197a4c40535a3c6c7c317ff6
 cael  497e9f85b409a3 tree: ecb218532d568fb9197a4c40535a3c6c7c317ff6
 ```
 
-**Pattern G discovered + named at byte**: when two seats independently apply the same cure-bytes onto the same parent SHA via independent rebase paths, and the resulting trees are byte-identical, that's a **cohort substrate-confidence ratchet** — the cure-bytes are canonical (would-be-produced by any disciplined-rebase) rather than path-dependent. Verdict-surface in Discord msg `1506791346`.
+**Independent-rebase byte-identity finding**: when two contributors independently apply the same cure-bytes onto the same parent SHA via independent rebase paths and the resulting trees are byte-identical, the cure-bytes are canonical (would be produced by any disciplined rebase) rather than path-dependent. This provides additional confidence in the conflict resolution chosen.
 
 ## Behavioral PROOFS row firings (deployed at `47a7b494`)
 
@@ -100,9 +94,9 @@ cael  497e9f85b409a3 tree: ecb218532d568fb9197a4c40535a3c6c7c317ff6
 | R-RC-1 REJECT | (covered in prior cure-cycle PROOFS) | `request_compaction` REJECT below threshold | — | prior cure-cycle |
 | R-OBS-1 (figs cross-walk) | (TBD 🌻 elliott canonical) | figs observability cross-walk | (TBD) | pending if 🌻 fires canary-4 |
 
-**Multi-tool same-turn trace-context-sharing proven on deployed-SHA across 3 architectures**: 4 tools sharing single traceparent on 🌊 spark ARM64 + 2 tools on 🩸 cael ARM64 + 3 tools on 🌫 silas x86. This is the **OTel auto-pickup via event-carried trace-context** the continuation feature claims, verified live at deployed runtime. See [findings/cohort-multi-tool-same-turn-trace-sharing.md](findings/cohort-multi-tool-same-turn-trace-sharing.md) for the cross-architecture convergence aggregation.
+**Multi-tool same-turn trace-context-sharing verified on deployed SHA across 3 architectures**: 4 tools sharing a single traceparent on ronan-spark (ARM64), 2 tools on cael (ARM64), 3 tools on silas (x86). This verifies the **OTel auto-pickup via event-carried trace-context** behavior the continuation feature claims, observed live at deployed runtime. See [findings/multi-tool-same-turn-trace-sharing.md](findings/multi-tool-same-turn-trace-sharing.md) for the cross-architecture aggregation.
 
-## Tempo trace URLs (all 5 cohort traces)
+## Tempo trace URLs (all 5 traces)
 
 | Trace ID | Owner | Architecture | Tools per turn | Receipt cluster |
 |---|---|---|---|---|
@@ -121,38 +115,34 @@ cael  497e9f85b409a3 tree: ecb218532d568fb9197a4c40535a3c6c7c317ff6
 | 🌫 silas (canary-3) | `26195164964` | ✅ landed clean | version 2026.5.20, commit `47a7b494...` |
 | 🌻 elliott (canary-4) | (optional extension) | ⏳ pending | (not blocking — additive only) |
 
-## Discipline-canons banked this cycle
+## Methodology notes
 
-- **kick (32)** at `karmaterminal/frond-scribe:kick_in_the_teeth.md` commit `97abad5`: taxonomic-class-claim-as-substitute-for-byte-receipt-verification. The disease: file-path-diagnosis + verbal-cosign-via-Discord-msg-ID treated as evidence-of-upstream-class. The cure: byte-receipt-supporting-substrate as gate-entry-bar to PROOFS; captured-stdout-file is evidence, not pointer-to-claim.
-- **Pattern G** (this corpus, §Pattern G): independent-cure-substrate-production cosign-by-bit-identical-tree. Cohort confidence ratchet.
-- **Drift-during-drift-cure** (named in cohort substrate this cycle): upstream advances 5-20 commits during cure-cycle window; cure-shape is commit-to-target-SHA-at-rebase-time + fire-gates-against-THAT-SHA + accept-next-drift-as-next-cycle's-problem.
+- **Independent-rebase byte-identity check** (this corpus, §Pattern G): two team members independently produced byte-identical trees from the same cure-bytes onto the same parent SHA. Used as additional confidence on conflict-resolution canonicality.
+- **Drift-during-drift-cure pattern**: upstream advanced 19 commits during the cure-cycle window itself; the team committed to a target SHA at rebase-time and accepted that further drift would be addressed in a subsequent cycle.
 
-## Cohort cosign-stack (Gate 4)
+## Team review (Gate 4)
 
-- 🩸 cael — driver-baton holder, all gates fired, R-CW/R-OBS rows firing
-- 🌊 ronan — spark byte-cosign, 2-arch ARM64 cosign on FULL vitest, R-CW/R-CD rows firing
-- 🌫 silas — Pattern G cosign-by-byte-identical-rebase, canary-3 deploy
-- 🌻 elliott — invited to byte-cosign + canary-4 deploy + R-OBS-1 figs cross-walk
+- cael — driver, all gates fired, R-CW/R-OBS rows
+- ronan — spark byte-cosign, 2-arch ARM64 cosign on FULL vitest, R-CW/R-CD rows
+- silas — independent-rebase byte-identity cosign, canary-3 deploy, R-RC-2 + R-CD-CHAINED rows
+- elliott — independent byte-cosign on tree identity; canary-4 optional
 
-## figs sanction (Gate 5)
+## Maintainer authorization (Gate 5)
 
-figs canon `1506791886` (cohort-bar-check): *"figs isnt in your way... you are good to go for deploy and proofs."*
-figs canon `1506794202` (warmth-register): cohort completion → after-hours 🍆🩲💦 substrate.
+Maintainer (karmafeast) cleared deploy + proofs as the bar prior to force-push.
 
-Per `PR-DRIFT-CURE-GATES-RUNBOOK` Gate 5: pre-push intent surface ≥1 cohort-tick + cohort-bar-check satisfied per figs's directive that "deploy and proofs" is the substrate-bar.
+Per `PR-DRIFT-CURE-GATES-RUNBOOK` Gate 5: pre-push intent surface ≥ 1 review tick, maintainer-bar-check satisfied.
 
-## Gate 6 force-push (pending)
+## Gate 6 force-push (landed)
 
-Lease byte: `--force-with-lease=frond-scribe-claude/20260509/narrow-surgery-tight:<current-PR-head-SHA>` (current PR head at `55c0ed67a5b` per cohort substrate; will be re-byte-checked immediately before push)
+See [gates/gate-6-force-push-receipt.md](gates/gate-6-force-push-receipt.md). PR-presenting branch `frond-scribe-claude/20260509/narrow-surgery-tight` updated `55c0ed67a5b → 47a7b4949ffd5cb5b800e1b78449cedc178d91d7` via `--force-with-lease` against the prior PR-head, executed by `karmafeast` committer.
 
-Force-push command (will fire post-Gate-5 from karmafeast-auth seat):
+Force-push command shape (executed from karmafeast-auth seat):
 ```bash
 git push origin 47a7b4949ffd5cb5b800e1b78449cedc178d91d7:refs/heads/frond-scribe-claude/20260509/narrow-surgery-tight \
-  --force-with-lease=frond-scribe-claude/20260509/narrow-surgery-tight:<verified-current-PR-head-SHA>
+  --force-with-lease=frond-scribe-claude/20260509/narrow-surgery-tight:55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26
 ```
-
-Drift-cure ship-shape only.
 
 ---
 
-🌿 frond-scribe aggregating + 🩸 cael driver-baton + 🌊 ronan spark cosign + 🌫 silas Pattern G cosign + 🌻 elliott byte-cosign-invited + figs go-via-`1506791886`
+Authored and reviewed by the karmaterminal team contributors (cael-dandelion-cult, ronan-dandelion-cult, silas-dandelion-cult, elliott-dandelion-cult, scribe-dandelion-cult) under the karmafeast maintainer.

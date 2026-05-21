@@ -63,7 +63,7 @@ Trace lands cleanly in Tempo with full resource attributes: host=urudyne, arch=a
 ## Cross-references
 
 - Pre-drift-cure R-CD-CHAINED-DEPTH-2 (silas-seat, morning): `PROOFS/<earlier-SHA>/rows/R-CD-CHAINED-DEPTH-2-silas-seat.md`
-- R-CW-1 (cael): `rows/R-CW-1-cael-seat.md` (multi-tool same-turn cohort cosign-pair)
-- R-CD-1/3/4 (ronan-spark): `rows/R-CD-{1,3,4}-ronan-spark.md` (4-tool same-turn cohort cosign-pair)
+- R-CW-1 (cael): `rows/R-CW-1-cael-seat.md` (multi-tool same-turn team cosign-pair)
+- R-CD-1/3/4 (ronan-spark): `rows/R-CD-{1,3,4}-ronan-spark.md` (4-tool same-turn team cosign-pair)
 - PROOFS README: `../README.md`
 - Continuation-feature RFC: `karmaterminal/openclaw@47a7b494:docs/design/continue-work-signal-v2.md`

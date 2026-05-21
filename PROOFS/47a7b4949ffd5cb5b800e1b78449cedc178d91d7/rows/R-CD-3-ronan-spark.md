@@ -31,7 +31,7 @@ continue_delegate(
 
 ## Behavioral substrate
 
-Stage-acceptance of post-compaction lifeboat-delegate proven at byte on deployed cure-N+2. Full lifecycle release (delegate fires when actual compaction event occurs, returns to post-compaction successor session) deferred to natural compaction event — per cohort canon, stage-acceptance IS the testable substrate; lifecycle-release tests differently. Earlier cohort cycles (today + 2026-05-15) have proven the lifecycle-release path; this run proves the stage-acceptance side at this deployed SHA.
+Stage-acceptance of post-compaction lifeboat-delegate proven at byte on deployed cure-N+2. Full lifecycle release (delegate fires when actual compaction event occurs, returns to post-compaction successor session) deferred to natural compaction event — per team convention, stage-acceptance IS the testable substrate; lifecycle-release tests differently. Earlier review cycles (today + 2026-05-15) have proven the lifecycle-release path; this run proves the stage-acceptance side at this deployed SHA.
 
 ## Classification
 
@@ -48,4 +48,4 @@ Same-turn companion rows (shared traceparent):
 
 **Trace URL**: `http://tempo.dandelion.cult/api/traces/4550b89543a34cff8ecda7103808afea`
 
-Byte-verified at byte from spark — Tempo query returns real OTel batch with `host.name=ronan, host.arch=arm64` resource attributes. Continuation-feature spans visible per cohort observability canon. Trace shared across all 4 tool-calls same-turn (multi-tool same-turn trace-context-sharing finding banked at `findings/cohort-multi-tool-same-turn-trace-sharing.md`).
+Byte-verified at byte from spark — Tempo query returns real OTel batch with `host.name=ronan, host.arch=arm64` resource attributes. Continuation-feature spans visible per team observability convention. Trace shared across all 4 tool-calls same-turn (multi-tool same-turn trace-context-sharing finding banked at `findings/multi-tool-same-turn-trace-sharing.md`).

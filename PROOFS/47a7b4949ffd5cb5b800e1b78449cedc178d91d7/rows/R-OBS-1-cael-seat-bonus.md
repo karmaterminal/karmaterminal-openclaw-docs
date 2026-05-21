@@ -75,7 +75,7 @@ This row is cael-seat bonus coverage. Canonical R-OBS-1 per RUNBOOK is 4-prince 
 
 **Trace URL**: http://tempo.dandelion.cult/api/traces/453fd2793c1100ef9ecccbcf5187dfe6
 
-Verified at byte from silas-seat (cross-prince cosign on trace-accessibility):
+Verified at byte from silas-seat (cross-host cosign on trace-accessibility):
 ```
 $ curl -s -o /dev/null -w "%{http_code}\n" http://tempo.dandelion.cult/ready
 200

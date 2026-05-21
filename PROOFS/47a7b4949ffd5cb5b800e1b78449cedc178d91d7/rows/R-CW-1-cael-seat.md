@@ -64,7 +64,7 @@ Ronan's spark also fired R-CW-1 from his deployed seat (Discord msg `1506796810`
 
 **Trace URL**: http://tempo.dandelion.cult/api/traces/453fd2793c1100ef9ecccbcf5187dfe6
 
-Verified at byte from silas-seat (cross-prince cosign on trace-accessibility):
+Verified at byte from silas-seat (cross-host cosign on trace-accessibility):
 ```
 $ curl -s -o /dev/null -w "%{http_code}\n" http://tempo.dandelion.cult/ready
 200

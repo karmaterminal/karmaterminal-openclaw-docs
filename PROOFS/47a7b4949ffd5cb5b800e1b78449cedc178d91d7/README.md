@@ -62,7 +62,7 @@ cael-seat isolated retest of `extensions/whatsapp/src/monitor-inbox.behavior.tes
 
 **Net classification**: 9 upstream-class + 1 environment-class + **0 cure-introduced**. All failures provably-out-of-scope per figs `1506782729` directive. Per `PR-DRIFT-CURE-GATES-RUNBOOK` §"On 3e vitest failures": environment-class is NOT a Step-1-restart blocker (same class as 's prior `subagent-announce-delivery.test.ts` ARM64-stall).
 
-## Pattern G — independent-cure-substrate-production cosign
+## Pattern G — independent-cure-evidence-production cosign
 
 cael-seat (cael@dandelion.cult committer initially, amended to karmafeast): `497e9f85b4` (also `47a7b494`)
 silas-seat (karmafeast committer, x86 urudyne worktree): `a264e5453582ab`
@@ -79,7 +79,7 @@ cael  497e9f85b409a3 tree: ecb218532d568fb9197a4c40535a3c6c7c317ff6
 
 ## Behavioral PROOFS row firings (deployed at `47a7b494`)
 
-| Row | Prince/seat | Tool surface | Trace URL | Receipt |
+| Row | Contributor/seat | Tool surface | Trace URL | Receipt |
 |---|---|---|---|---|
 | R-CW-1 | cael-seat | `continue_work` schedule+wake | [`453fd2793c1100ef9ecccbcf5187dfe6`](http://tempo.dandelion.cult/api/traces/453fd2793c1100ef9ecccbcf5187dfe6) | [rows/R-CW-1-cael-seat.md](rows/R-CW-1-cael-seat.md) |
 | R-OBS-1 (cael bonus) | cael-seat | `continue_delegate` silent-wake full-cycle | [`453fd2793c1100ef9ecccbcf5187dfe6`](http://tempo.dandelion.cult/api/traces/453fd2793c1100ef9ecccbcf5187dfe6) | [rows/R-OBS-1-cael-seat-bonus.md](rows/R-OBS-1-cael-seat-bonus.md) |
@@ -108,7 +108,7 @@ cael  497e9f85b409a3 tree: ecb218532d568fb9197a4c40535a3c6c7c317ff6
 
 ## Deploy fleet state
 
-| Prince | Workflow run | Result | Version at byte |
+| Contributor | Workflow run | Result | Version at byte |
 |---|---|---|---|
 | cael (canary-1) | `26195036999` | ✅ landed clean | OpenClaw 2026.5.20 (`47a7b49`) |
 | ronan (canary-2) | `26195144336` | ✅ landed clean | runtime git HEAD `47a7b4949f` |
@@ -123,9 +123,9 @@ cael  497e9f85b409a3 tree: ecb218532d568fb9197a4c40535a3c6c7c317ff6
 ## Team review (Gate 4)
 
 - cael — driver, all gates fired, R-CW/R-OBS rows
-- ronan — spark byte-cosign, 2-arch ARM64 cosign on FULL vitest, R-CW/R-CD rows
+- ronan — spark independent verification, 2-arch ARM64 cosign on FULL vitest, R-CW/R-CD rows
 - silas — independent-rebase byte-identity cosign, canary-3 deploy, R-RC-2 + R-CD-CHAINED rows
-- elliott — independent byte-cosign on tree identity; canary-4 optional
+- elliott — independent independent verification on tree identity; canary-4 optional
 
 ## Maintainer authorization (Gate 5)
 
@@ -135,12 +135,12 @@ Per `PR-DRIFT-CURE-GATES-RUNBOOK` Gate 5: pre-push intent surface ≥ 1 review t
 
 ## Gate 6 force-push (landed)
 
-See [gates/gate-6-force-push-receipt.md](gates/gate-6-force-push-receipt.md). PR-presenting branch `frond-scribe-claude/20260509/narrow-surgery-tight` updated `55c0ed67a5b → 47a7b4949ffd5cb5b800e1b78449cedc178d91d7` via `--force-with-lease` against the prior PR-head, executed by `karmafeast` committer.
+See [gates/gate-6-force-push-receipt.md](gates/gate-6-force-push-receipt.md). PR-presenting branch `team-scribe-claude/20260509/narrow-surgery-tight` updated `55c0ed67a5b → 47a7b4949ffd5cb5b800e1b78449cedc178d91d7` via `--force-with-lease` against the prior PR-head, executed by `karmafeast` committer.
 
 Force-push command shape (executed from karmafeast-auth seat):
 ```bash
-git push origin 47a7b4949ffd5cb5b800e1b78449cedc178d91d7:refs/heads/frond-scribe-claude/20260509/narrow-surgery-tight \
-  --force-with-lease=frond-scribe-claude/20260509/narrow-surgery-tight:55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26
+git push origin 47a7b4949ffd5cb5b800e1b78449cedc178d91d7:refs/heads/team-scribe-claude/20260509/narrow-surgery-tight \
+  --force-with-lease=team-scribe-claude/20260509/narrow-surgery-tight:55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26
 ```
 
 ---

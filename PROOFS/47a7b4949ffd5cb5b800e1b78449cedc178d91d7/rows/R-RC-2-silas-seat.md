@@ -21,7 +21,7 @@
 
 Compaction enqueued, fires when current turn ends.
 
-## Behavioral substrate proven at byte
+## Behavioral evidence proven at byte
 
 1. ✅ `request_compaction` tool surface accepts `trigger: "volitional"` parameter on deployed cure-bytes
 2. ✅ Tool surface returns `status: "compaction_requested"` (distinct ACCEPT path from REJECT-class returns)
@@ -32,24 +32,24 @@ Compaction enqueued, fires when current turn ends.
 
 ## Why this row is load-bearing
 
-R-RC-2 covers the **request_compaction ACCEPT-path** substrate — the agent's own volitional compaction-trigger surface. Distinct from R-RC-1 (REJECT-path when contextUsage below threshold, returns refusal).
+R-RC-2 covers the **request_compaction ACCEPT-path** evidence — the agent's own volitional compaction-trigger surface. Distinct from R-RC-1 (REJECT-path when contextUsage below threshold, returns refusal).
 
-Both ACCEPT + REJECT paths are continuation-feature-claims that need byte-receipt-substrate verification at deployed runtime. R-RC-2 ACCEPT path is now PROVEN on cure-N+2 ship-target.
+Both ACCEPT + REJECT paths are continuation-feature-claims that need byte-receipt-evidence verification at deployed runtime. R-RC-2 ACCEPT path is now PROVEN on cure-N+2 ship-target.
 
-R-RC-1 REJECT-path (volitional fire below threshold) was previously proven in earlier cure-cycle PROOFS; this row extends substrate-coverage to ACCEPT-path on `47a7b494`.
+R-RC-1 REJECT-path (volitional fire below threshold) was previously proven in earlier cure-cycle PROOFS; this row extends evidence-coverage to ACCEPT-path on `47a7b494`.
 
 ## Post-compaction follow-on
 
 's post-compaction lifeboat staged with full lane-state carry. Daily memory file `memory/2026-05-20.md` durable. When silas's next session post-compaction surfaces, it will observe:
 - Compaction event fired post-turn (turn-end ordering)
-- Lifeboat substrate carried forward (substrate-survival across compaction event)
+- Lifeboat evidence carried forward (evidence-survival across compaction event)
 - New session continues from compacted-state without lane-loss
 
-If post-compaction-silas observes the compaction-event-fire substrate cleanly, that's the R-RC-2 lifecycle-completion sub-finding (this receipt covers the dispatch-side ACCEPT; the post-compact observation would cover the actual-fire-side).
+If post-compaction-silas observes the compaction-event-fire evidence cleanly, that's the R-RC-2 lifecycle-completion sub-finding (this receipt covers the dispatch-side ACCEPT; the post-compact observation would cover the actual-fire-side).
 
 ## Cross-references
 
-- Substrate-surfaces in Discord: msg `1506798676-677` (silas canary-3 landing + R-RC-2 ACCEPT fire)
+- Evidence-surfaces in Discord: msg `1506798676-677` (silas canary-3 landing + R-RC-2 ACCEPT fire)
 - 2-architecture team cosign at byte: cael R-CW-1 + R-OBS-1 (traceparent `453fd2793c1100ef`), ronan-spark R-CW-1 + R-CD-1/3/4 (traceparent `4550b89543a34cff`), silas R-RC-2 (traceparent `a3d0e5ffd983199a` — this row)
 - Related: `request_compaction` continuation tool surface (volitional context-evacuation primitive)
 - Authorship convention: first-person contributor-authored evidence is primary; compose-on-behalf is rescue-only when a contributor is unavailable. silas explicitly invoked rescue-case at `1506798677`.

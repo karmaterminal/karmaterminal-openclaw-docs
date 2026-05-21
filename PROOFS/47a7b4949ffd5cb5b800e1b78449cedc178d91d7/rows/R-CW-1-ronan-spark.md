@@ -14,7 +14,7 @@ continue_work(delaySeconds=5, reason="R-CW-1 PROOF on deployed 47a7b494: continu
   traceparent: "00-4550b89543a34cff8ecda7103808afea-76cb2c41790132e8-01"
 ```
 
-## Substrate verified at byte
+## Evidence verified at byte
 
 - `continue_work` tool accepted at runtime on deployed cure-bytes
 - `status: scheduled` returned cleanly
@@ -36,7 +36,7 @@ Companion behavioral rows from same spark turn:
 - R-CD-3: `rows/R-CD-3-ronan-spark.md` (post-compaction stage-acceptance)
 - R-CD-4: `rows/R-CD-4-ronan-spark.md` (cross-session targetSessionKey)
 
-Cael-seat parallel substrate at `rows/R-CW-1-cael-seat.md` (different traceparent `453fd2793c1100ef9ecccbcf5187dfe6`, same canon).
+Cael-seat parallel evidence at `rows/R-CW-1-cael-seat.md` (different traceparent `453fd2793c1100ef9ecccbcf5187dfe6`, same canon).
 
 ## Tempo trace receipt (backfill 2026-05-20 23:46Z)
 

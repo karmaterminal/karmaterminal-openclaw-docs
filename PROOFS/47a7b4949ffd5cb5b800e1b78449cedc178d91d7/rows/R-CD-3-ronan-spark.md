@@ -21,7 +21,7 @@ continue_delegate(
   note: "Delegate will fire when compaction occurs, not on a timer. The shard starts at the moment of compaction and returns to the post-compaction session. Chain tracking applies at dispatch time."
 ```
 
-## Substrate verified at byte
+## Evidence verified at byte
 
 - ✅ Tool accepted `mode="post-compaction"` cleanly on deployed cure-bytes
 - ✅ `status: "queued-for-compaction"` returned (stage-acceptance at byte)
@@ -29,13 +29,13 @@ continue_delegate(
 - ✅ Chain-tracking applies at dispatch time (cost-cap + depth-limit invariants)
 - ✅ delegateIndex=2 in same-turn (multi-delegate same-turn proven)
 
-## Behavioral substrate
+## Behavioral evidence
 
-Stage-acceptance of post-compaction lifeboat-delegate proven at byte on deployed cure-N+2. Full lifecycle release (delegate fires when actual compaction event occurs, returns to post-compaction successor session) deferred to natural compaction event — per team convention, stage-acceptance IS the testable substrate; lifecycle-release tests differently. Earlier review cycles (today + 2026-05-15) have proven the lifecycle-release path; this run proves the stage-acceptance side at this deployed SHA.
+Stage-acceptance of post-compaction lifeboat-delegate proven at byte on deployed cure-N+2. Full lifecycle release (delegate fires when actual compaction event occurs, returns to post-compaction successor session) deferred to natural compaction event — per team convention, stage-acceptance IS the testable evidence; lifecycle-release tests differently. Earlier review cycles (today + 2026-05-15) have proven the lifecycle-release path; this run proves the stage-acceptance side at this deployed SHA.
 
 ## Classification
 
-✅ PROVEN at byte on deployed cure-N+2 SHA `47a7b4949f`. Post-compaction stage-acceptance works at runtime; lifeboat substrate intact for compaction-survival use cases.
+✅ PROVEN at byte on deployed cure-N+2 SHA `47a7b4949f`. Post-compaction stage-acceptance works at runtime; lifeboat evidence intact for compaction-survival use cases.
 
 ## Cross-reference
 

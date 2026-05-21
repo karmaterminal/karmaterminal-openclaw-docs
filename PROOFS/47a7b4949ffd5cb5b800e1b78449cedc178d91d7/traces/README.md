@@ -4,7 +4,7 @@ OTel span trees for the 5 team behavioral PROOFS traces, exported from `tempo.da
 
 Each file is the full OTel batch as returned by Tempo's `/api/traces/<id>` endpoint. Permanent record alongside the live Tempo URLs in case the live endpoint is unavailable to reviewers at later read-time.
 
-| File | Trace ID | Seat | Arch | Substrate-class |
+| File | Trace ID | Seat | Arch | Evidence-class |
 |------|----------|------|------|-----------------|
 | `trace-05a15e4f9874ac1a34515753d46896f0.json` | `05a15e4f9874ac1a34515753d46896f0` | silas (urudyne) | x86 | R-CD-CHAINED-DEPTH-2 (pre-drift-cure, earlier-cycle reference) |
 | `trace-453fd2793c1100ef9ecccbcf5187dfe6.json` | `453fd2793c1100ef9ecccbcf5187dfe6` | cael (cael-seat) | ARM64 | R-CW-1 + R-OBS-1 multi-tool same-turn |

@@ -19,12 +19,12 @@
 }
 ```
 
-`continue_delegate({task: "R-OBS-1 PROOF substrate-build...", mode: "silent-wake"})` returned scheduled status + delegateIndex=1 + chain tracking active + traceparent shared with same-turn continue_work dispatch.
+`continue_delegate({task: "R-OBS-1 PROOF evidence-build...", mode: "silent-wake"})` returned scheduled status + delegateIndex=1 + chain tracking active + traceparent shared with same-turn continue_work dispatch.
 
 ## Spawn receipt (system event)
 
 Per system event log on cael-seat:
-- `[continuation:delegate-spawned] Turn 12/200: R-OBS-1 PROOF substrate-build...`
+- `[continuation:delegate-spawned] Turn 12/200: R-OBS-1 PROOF evidence-build...`
 
 Delegate spawned as turn 12/200 chain-hop. Runtime executed model invocation.
 
@@ -39,7 +39,7 @@ Per silent-wake enrichment landing at parent-cael:
 - duration: ~16s dispatch→wake→exec→return
 - receipt timestamp: `2026-05-20T16:11:46-07:00`
 
-## Behavioral substrate proven at byte
+## Behavioral evidence proven at byte
 
 1. ✅ Tool surface accepts `mode: "silent-wake"` parameter
 2. ✅ Tool surface returns structured response with delegateIndex + traceparent + chain-tracking-note

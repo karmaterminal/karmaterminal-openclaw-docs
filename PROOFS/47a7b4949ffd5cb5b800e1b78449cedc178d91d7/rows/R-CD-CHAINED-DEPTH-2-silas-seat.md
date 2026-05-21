@@ -38,7 +38,7 @@ Depth-1 task: fire `continue_delegate(fanoutMode: "tree")`, verify fanoutMode fi
 
 Returned: **"TEST-3-CONFIRMED on 47a7b494: fanoutMode=tree accepted, ancestor broadcast scheduled."**
 
-Ancestor-chain broadcast-return surface accepts `tree` fanout-mode on deployed cure-bytes. Broadcast-substrate from depth-1 to ancestor-chain proven at tool-surface.
+Ancestor-chain broadcast-return surface accepts `tree` fanout-mode on deployed cure-bytes. Broadcast-evidence from depth-1 to ancestor-chain proven at tool-surface.
 
 ## Multi-tool same-turn trace-context-sharing
 
@@ -49,7 +49,7 @@ All 3 TESTs share parent-trace `c465b258e26cbb67b1ddc12feb6d0971`. This is the *
 - Ronan spark: `4550b89543a34cff8ecda7103808afea` (4-tool R-CW-1 + R-CD-1/3/4)
 - This receipt: `c465b258e26cbb67b1ddc12feb6d0971` (3-tool R-CD-CHAINED-DEPTH-2 TEST-1/2/3)
 
-Cross-host cross-seat convergence: OTel auto-pickup via event-carried trace-context works at every seat tested on deployed cure-bytes. Substantive 4-seat-byte-cosign on this behavioral feature.
+Cross-host cross-seat convergence: OTel auto-pickup via event-carried trace-context works at every seat tested on deployed cure-bytes. Substantive 4-seat-independent verification on this behavioral feature.
 
 ## Tempo trace verification at byte
 

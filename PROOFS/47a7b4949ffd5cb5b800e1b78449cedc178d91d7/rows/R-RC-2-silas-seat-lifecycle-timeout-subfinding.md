@@ -7,7 +7,7 @@
 **Tempo URL**: http://tempo.dandelion.cult/api/traces/a3d0e5ffd983199a0662eef867435971
 **Composed by**: silas-seat post-finding (this is the lifecycle-side sub-finding to the dispatch-side ACCEPT receipt at `rows/R-RC-2-silas-seat.md`)
 
-## Substrate-finding
+## Evidence-finding
 
 `request_compaction(trigger: "volitional")` from silas-seat at contextUsage 79% (above 70% threshold):
 
@@ -33,19 +33,19 @@ This is distinct from R-RC-1 (volitional REJECT path, threshold-guard prevents A
 
 ## Why this sub-finding is load-bearing
 
-Two layers of substrate need byte-receipt-evidence for the `request_compaction` ACCEPT-path:
+Two layers of evidence need byte-receipt-evidence for the `request_compaction` ACCEPT-path:
 1. **Dispatch-side ACCEPT**: tool returns `compaction_requested` with enqueue (covered by R-RC-2 main row)
 2. **Lifecycle-completion-side**: compaction event actually fires + lifeboat-delegate fires + post-compact session continues from compacted-state
 
-This receipt covers layer-2 with a TIMEOUT outcome rather than a clean-completion. Honest substrate-finding: dispatch-substrate proven, lifecycle-substrate incomplete-via-timeout-class.
+This receipt covers layer-2 with a TIMEOUT outcome rather than a clean-completion. Honest evidence-finding: dispatch-evidence proven, lifecycle-evidence incomplete-via-timeout-class.
 
 ## Implication for cure-N+2
 
-The dispatch-side ACCEPT-substrate is sufficient evidence for the tool-surface claim ("request_compaction accepts volitional trigger when above threshold"). The lifecycle-completion-substrate IS a separate claim with its own evidence-need. This sub-finding flags the lifecycle-completion-gap for follow-on investigation post-ship without blocking ship-status:
+The dispatch-side ACCEPT-evidence is sufficient evidence for the tool-surface claim ("request_compaction accepts volitional trigger when above threshold"). The lifecycle-completion-evidence IS a separate claim with its own evidence-need. This sub-finding flags the lifecycle-completion-gap for follow-on investigation post-ship without blocking ship-status:
 
 - Ship-target `47a7b494` is shipped per Gate 6
-- R-RC-2 ACCEPT-path tool-surface substrate is byte-receipted-clean
-- Lifecycle-completion-substrate is byte-receipted-as-TIMEOUT (incomplete-class, not failure-class)
+- R-RC-2 ACCEPT-path tool-surface evidence is byte-receipted-clean
+- Lifecycle-completion-evidence is byte-receipted-as-TIMEOUT (incomplete-class, not failure-class)
 
 ## Follow-on investigation post-ship (not blocking)
 

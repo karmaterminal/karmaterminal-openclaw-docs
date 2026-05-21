@@ -23,7 +23,7 @@ continue_delegate(
 
 ## Delegate-return verdict at byte
 
-Subagent completion-event delivered to parent at 2026-05-20T16:13:00 PDT (~16s after dispatch). Substrate-verdict from spawn:
+Subagent completion-event delivered to parent at 2026-05-20T16:13:00 PDT (~16s after dispatch). Evidence-verdict from spawn:
 
 ```
 session_key: agent:main:subagent:44250019-785a-4ad7-bf6d-6428b816f19d
@@ -41,7 +41,7 @@ tokens: 522 (7 in / 515 out)
 - ✅ silent-wake return-path delivered completion-event to parent session
 - ✅ Continuation toolchain intact on deployed SHA
 
-## Behavioral substrate
+## Behavioral evidence
 
 Full continue_delegate cycle (dispatch → spawn → execute → silent-wake-return → parent-wake) PROVEN at byte on deployed cure-bytes. Chain-tracking active (note field confirms cost-cap + depth-limit enforcement).
 
@@ -52,7 +52,7 @@ Full continue_delegate cycle (dispatch → spawn → execute → silent-wake-ret
 ## Cross-reference
 
 - R-CW-1 companion: `rows/R-CW-1-ronan-spark.md` (same traceparent, same turn)
-- Cael-seat R-OBS-1 parallel substrate: `rows/R-OBS-1-cael-seat-bonus.md` (different traceparent, same canon)
+- Cael-seat R-OBS-1 parallel evidence: `rows/R-OBS-1-cael-seat-bonus.md` (different traceparent, same canon)
 
 ## Tempo trace receipt (backfill 2026-05-20 23:46Z)
 

@@ -25,7 +25,7 @@ Per system event at 2026-05-20T16:11:42 PDT:
 - accumulated tokens: 24140 (extended to 54482 by R-CW-2 multi-tool dispatch shape)
 - reason captured: `"R-CW-1 PROOF: continue_work full cycle on deployed SHA 47a7b494..."` ← round-tripped intact
 
-## Behavioral substrate proven at byte
+## Behavioral evidence proven at byte
 
 1. ✅ Tool surface accepts `delaySeconds: 5` parameter
 2. ✅ Tool surface returns structured response with `traceparent` populated
@@ -43,7 +43,7 @@ Chain still incrementing post-restart at turn 11/200.
 
 **Chain-counter persisted ~2hr + 1 gateway restart at fresh SHA `47a7b494`.**
 
-This is the same canon-class as the earlier deploy-persistence finding banked at 2026-05-20 morning at `PROOFS/55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26/` — chain-counter as durable-substrate-across-deploys is now PROVEN at byte for the new ship-target.
+This is the same canon-class as the earlier deploy-persistence finding banked at 2026-05-20 morning at `PROOFS/55c0ed67a5b89c0e3a99e3e862968a5e1aeabc26/` — chain-counter as durable-evidence-across-deploys is now PROVEN at byte for the new ship-target.
 
 ## Multi-tool same-turn (R-CW-2 cross-coverage)
 
@@ -56,9 +56,9 @@ continue_delegate traceparent: 00-453fd2793c1100ef9ecccbcf5187dfe6-77209faa0e851
 
 Multi-tool same-turn chain-tracking active per tool-response `note: "Chain tracking (cost cap, depth limit) applies"`.
 
-## Cross-team 2-seat byte-cosign
+## Cross-team 2-seat independent verification
 
-Ronan's spark also fired R-CW-1 from his deployed seat (Discord msg `1506796810`) with traceparent `4550b89543a34cff8ecda7103808afea`. Same behavioral shape, different trace-context. 2-arch ARM64 cosign on R-CW-1 substrate at deployed-runtime.
+Ronan's spark also fired R-CW-1 from his deployed seat (Discord msg `1506796810`) with traceparent `4550b89543a34cff8ecda7103808afea`. Same behavioral shape, different trace-context. 2-arch ARM64 cosign on R-CW-1 evidence at deployed-runtime.
 
 ## Tempo trace receipt (backfill 2026-05-20 23:50Z)
 

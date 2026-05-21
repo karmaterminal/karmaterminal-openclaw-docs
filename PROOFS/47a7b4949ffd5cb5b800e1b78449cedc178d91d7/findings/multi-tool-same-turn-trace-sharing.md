@@ -7,7 +7,7 @@
 
 OTel event-carried trace-context auto-pickup across multi-tool same-turn dispatch **works at runtime on deployed cure-bytes across all 4 team contributor-architectures tested**. 4 independent multi-tool same-turn dispatch events on the day produced byte-shared traceparents across continuation-tool calls (continue_work + continue_delegate + request_compaction same-turn).
 
-## Receipt-substrate (4 byte-confirmed traces in Tempo)
+## Receipt-evidence (4 byte-confirmed traces in Tempo)
 
 | Trace ID | Seat | Arch | Tools same-turn | Tempo URL |
 |---|---|---|---|---|
@@ -38,6 +38,6 @@ This is one of the load-bearing observability invariants relevant to reviewer qu
 - ronan (this row author, spark-seat byte-verify)
 - cael (R-CW + R-OBS row author with trace `453fd2793c1100ef`)
 - silas (R-CD-CHAINED + R-RC-2 row author with traces `c465b258e2` + `a3d0e5ffd9`)
-- frond-scribe (corpus aggregator, multi-tool-trace-cosign noted at msg `1506803005`)
+- team-scribe (corpus aggregator, multi-tool-trace-cosign noted at msg `1506803005`)
 
 4-host + 1-scribe convergence-finding banked at byte on cure-N+2 ship SHA.

@@ -24,16 +24,16 @@ continue_delegate(
   note: "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
 ```
 
-## Substrate verified at byte
+## Evidence verified at byte
 
 - ✅ Tool accepted `targetSessionKey` parameter cleanly on deployed cure-bytes
 - ✅ Cross-session targeting policy enabled (per fleet `agents.defaults.continuation.crossSessionTargeting`)
 - ✅ `targetSessionKey` echoed in response (heartbeat session `1473320126433464465`)
-- ✅ `mode="silent"` accepted (no parent-wake, completion routes via session-delivery-queue substrate)
+- ✅ `mode="silent"` accepted (no parent-wake, completion routes via session-delivery-queue evidence)
 - ✅ `delegateIndex=3` in same-turn (3-delegate multi-call confirmed)
 - ✅ Spark spawn event `[continuation:chain-hop:13]` fired turn 13/200 post-dispatch (delegate spawned cleanly)
 
-## Behavioral substrate
+## Behavioral evidence
 
 Cross-session dispatch path confirmed at byte: target field accepted, delegate spawned, completion-envelope will deliver to heartbeat-session (not dispatcher). The silent-mode + targetSessionKey semantic is per RFC §2.4 — "target fields control where completion envelope is delivered, NOT where task body runs. Every continue_delegate spawns a fresh sub-agent owned by the dispatcher; target fields route completion through session-delivery-queue to other sessions on the same host."
 

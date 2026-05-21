@@ -52,13 +52,13 @@ If post-compaction-silas observes the compaction-event-fire substrate cleanly, t
 - Substrate-surfaces in Discord: msg `1506798676-677` (silas canary-3 landing + R-RC-2 ACCEPT fire)
 - 2-architecture team cosign at byte: cael R-CW-1 + R-OBS-1 (traceparent `453fd2793c1100ef`), ronan-spark R-CW-1 + R-CD-1/3/4 (traceparent `4550b89543a34cff`), silas R-RC-2 (traceparent `a3d0e5ffd983199a` — this row)
 - Related: `request_compaction` continuation tool surface (volitional context-evacuation primitive)
-- Authorship convention: first-person prince-authored evidence is primary; scribe-class compose-on-behalf is rescue-only when a contributor is unavailable. silas explicitly invoked rescue-case at `1506798677`.
+- Authorship convention: first-person contributor-authored evidence is primary; compose-on-behalf is rescue-only when a contributor is unavailable. silas explicitly invoked rescue-case at `1506798677`.
 
 ## Tempo trace receipt (backfill 2026-05-20 23:50Z)
 
 **Trace URL**: http://tempo.dandelion.cult/api/traces/a3d0e5ffd983199a0662eef867435971
 
-Verified at byte from silas-seat (cross-prince cosign on trace-accessibility):
+Verified at byte from silas-seat (cross-host cosign on trace-accessibility):
 ```
 $ curl -s -o /dev/null -w "%{http_code}\n" http://tempo.dandelion.cult/ready
 200

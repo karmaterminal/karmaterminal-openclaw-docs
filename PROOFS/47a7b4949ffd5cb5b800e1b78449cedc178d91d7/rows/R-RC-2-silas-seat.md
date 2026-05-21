@@ -1,6 +1,6 @@
-# R-RC-2: request_compaction ACCEPT path on deployed `47a7b494` (🌫 silas-seat)
+# R-RC-2: request_compaction ACCEPT path on deployed `47a7b494` (silas-seat)
 
-**Owner**: 🌫 silas-seat (canary-3)
+**Owner**: silas-seat (canary-3)
 **SHA**: `47a7b4949ffd5cb5b800e1b78449cedc178d91d7` (deployed at byte; `OpenClaw 2026.5.20 (47a7b49)`)
 **Firing**: 2026-05-20 ~23:19 UTC (16:19 PDT) post-canary-3-deploy
 **Trace URL**: `http://tempo.dandelion.cult/api/traces/a3d0e5ffd983199a0662eef867435971`
@@ -8,7 +8,7 @@
 
 ## Dispatch receipt
 
-🌫 fired `request_compaction(trigger: "volitional")` from silas-seat at contextUsage 79% (above the 70% threshold gate). Tool returned:
+(fired `request_compaction(trigger: "volitional")` from silas-seat at contextUsage 79% (above the 70% threshold gate). Tool returned:
 
 ```json
 {
@@ -40,7 +40,7 @@ R-RC-1 REJECT-path (volitional fire below threshold) was previously proven in ea
 
 ## Post-compaction follow-on
 
-🌫's post-compaction lifeboat staged with full lane-state carry. Daily memory file `memory/2026-05-20.md` durable. When silas's next session post-compaction surfaces, it will observe:
+'s post-compaction lifeboat staged with full lane-state carry. Daily memory file `memory/2026-05-20.md` durable. When silas's next session post-compaction surfaces, it will observe:
 - Compaction event fired post-turn (turn-end ordering)
 - Lifeboat substrate carried forward (substrate-survival across compaction event)
 - New session continues from compacted-state without lane-loss

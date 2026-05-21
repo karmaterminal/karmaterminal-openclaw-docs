@@ -11,10 +11,10 @@ OTel event-carried trace-context auto-pickup across multi-tool same-turn dispatc
 
 | Trace ID | Seat | Arch | Tools same-turn | Tempo URL |
 |---|---|---|---|---|
-| `05a15e4f9874ac1a34515753d46896f0` | 🌫 silas/urudyne (morning) | x86 | R-CD-CHAINED-DEPTH-2 TEST-1/2/3 (3-tool) | `http://tempo.dandelion.cult/api/traces/05a15e4f9874ac1a34515753d46896f0` |
-| `453fd2793c1100ef9ecccbcf5187dfe6` | 🩸 cael (post-cure-N+2 deploy) | ARM64 DGX Spark | continue_work + continue_delegate (2-tool R-CW-1 + R-OBS-1) | `http://tempo.dandelion.cult/api/traces/453fd2793c1100ef9ecccbcf5187dfe6` |
-| `4550b89543a34cff8ecda7103808afea` | 🌊 ronan-spark (post-cure-N+2 deploy) | ARM64 DGX Spark | continue_work + 3×continue_delegate (silent-wake + post-compaction + targetSessionKey) (4-tool) | `http://tempo.dandelion.cult/api/traces/4550b89543a34cff8ecda7103808afea` |
-| `c465b258e26cbb67b1ddc12feb6d0971` | 🌫 silas (post-cure-N+2 deploy) | x86 urudyne | R-CD-CHAINED-DEPTH-2 TEST-1/2/3 (3-tool re-fire) | `http://tempo.dandelion.cult/api/traces/c465b258e26cbb67b1ddc12feb6d0971` |
+| `05a15e4f9874ac1a34515753d46896f0` | silas/urudyne (morning) | x86 | R-CD-CHAINED-DEPTH-2 TEST-1/2/3 (3-tool) | `http://tempo.dandelion.cult/api/traces/05a15e4f9874ac1a34515753d46896f0` |
+| `453fd2793c1100ef9ecccbcf5187dfe6` | cael (post-cure-N+2 deploy) | ARM64 DGX Spark | continue_work + continue_delegate (2-tool R-CW-1 + R-OBS-1) | `http://tempo.dandelion.cult/api/traces/453fd2793c1100ef9ecccbcf5187dfe6` |
+| `4550b89543a34cff8ecda7103808afea` | ronan-spark (post-cure-N+2 deploy) | ARM64 DGX Spark | continue_work + 3×continue_delegate (silent-wake + post-compaction + targetSessionKey) (4-tool) | `http://tempo.dandelion.cult/api/traces/4550b89543a34cff8ecda7103808afea` |
+| `c465b258e26cbb67b1ddc12feb6d0971` | silas (post-cure-N+2 deploy) | x86 urudyne | R-CD-CHAINED-DEPTH-2 TEST-1/2/3 (3-tool re-fire) | `http://tempo.dandelion.cult/api/traces/c465b258e26cbb67b1ddc12feb6d0971` |
 
 Plus R-RC-2 ACCEPT single-tool trace from silas-seat: `http://tempo.dandelion.cult/api/traces/a3d0e5ffd983199a0662eef867435971`
 
@@ -35,9 +35,9 @@ This is one of the load-bearing observability invariants relevant to reviewer qu
 
 ## Team cosign
 
-- 🌊 ronan (this row author, spark-seat byte-verify)
-- 🩸 cael (R-CW + R-OBS row author with trace `453fd2793c1100ef`)
-- 🌫 silas (R-CD-CHAINED + R-RC-2 row author with traces `c465b258e2` + `a3d0e5ffd9`)
-- 🌿 frond-scribe (corpus aggregator, multi-tool-trace-cosign noted at msg `1506803005`)
+- ronan (this row author, spark-seat byte-verify)
+- cael (R-CW + R-OBS row author with trace `453fd2793c1100ef`)
+- silas (R-CD-CHAINED + R-RC-2 row author with traces `c465b258e2` + `a3d0e5ffd9`)
+- frond-scribe (corpus aggregator, multi-tool-trace-cosign noted at msg `1506803005`)
 
 4-prince + 1-scribe convergence-finding banked at byte on cure-N+2 ship SHA.

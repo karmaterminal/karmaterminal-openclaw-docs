@@ -1,6 +1,6 @@
-# R-CD-CHAINED-DEPTH-2: depth-2 chain proofs on deployed `47a7b494` (🌫 silas-seat)
+# R-CD-CHAINED-DEPTH-2: depth-2 chain proofs on deployed `47a7b494` (silas-seat)
 
-**Owner**: 🌫 silas-seat (canary-3, x86 urudyne)
+**Owner**: silas-seat (canary-3, x86 urudyne)
 **SHA**: `47a7b4949ffd5cb5b800e1b78449cedc178d91d7` (deployed at byte; `OpenClaw 2026.5.20 (47a7b49)`)
 **Firing**: 2026-05-20 23:36 UTC (16:36 PDT) post-Gate-6-ship
 **Shared traceparent**: `c465b258e26cbb67b1ddc12feb6d0971` (3-tool same-turn = multi-tool same-turn trace-context-sharing also proven at byte)
@@ -8,7 +8,7 @@
 
 ## Dispatch receipts
 
-🌫 fired 3 `continue_delegate(mode: "silent-wake")` tools same-turn from silas-seat on deployed cure-bytes. All 3 returned `status: scheduled` with shared parent-trace:
+(fired 3 `continue_delegate(mode: "silent-wake")` tools same-turn from silas-seat on deployed cure-bytes. All 3 returned `status: scheduled` with shared parent-trace:
 
 ```json
 TEST-1: {"status": "scheduled", "mode": "silent-wake", "delegateIndex": 1, "traceparent": "00-c465b258e26cbb67b1ddc12feb6d0971-7dc92b3295923721-01"}

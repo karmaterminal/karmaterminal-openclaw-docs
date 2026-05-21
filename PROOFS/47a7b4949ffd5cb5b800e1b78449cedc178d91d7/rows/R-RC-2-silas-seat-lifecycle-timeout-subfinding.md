@@ -1,11 +1,11 @@
-# R-RC-2 sub-finding: ACCEPT-then-compaction-TIMEOUT (🌫 silas-seat)
+# R-RC-2 sub-finding: ACCEPT-then-compaction-TIMEOUT (silas-seat)
 
-**Owner**: 🌫 silas-seat (canary-3, x86 urudyne)
+**Owner**: silas-seat (canary-3, x86 urudyne)
 **SHA**: `47a7b4949ffd5cb5b800e1b78449cedc178d91d7` (deployed at byte; `OpenClaw 2026.5.20 (47a7b49)`)
 **Firing**: 2026-05-20 23:19 UTC (16:19 PDT)
 **Traceparent**: `a3d0e5ffd983199a0662eef867435971`
 **Tempo URL**: http://tempo.dandelion.cult/api/traces/a3d0e5ffd983199a0662eef867435971
-**Composed by**: 🌫 silas-seat post-finding (this is the lifecycle-side sub-finding to the dispatch-side ACCEPT receipt at `rows/R-RC-2-silas-seat.md`)
+**Composed by**: silas-seat post-finding (this is the lifecycle-side sub-finding to the dispatch-side ACCEPT receipt at `rows/R-RC-2-silas-seat.md`)
 
 ## Substrate-finding
 

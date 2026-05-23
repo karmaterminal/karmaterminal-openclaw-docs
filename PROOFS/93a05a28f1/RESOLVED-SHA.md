@@ -15,7 +15,19 @@
 | `a633074d57` | CI fix amend 1 | shrinkwrap regen + 3 braceless-if + traceparent + continuationTrigger + drainsContinuationDelegateQueue threading |
 | `69d796a5c2` | CI fix amend 2 | `continuationTraceparent: undefined` clear-after-consume (preservation-of-intent from old PR-head `642a33df`) |
 | `b361859213` | CI fix amend 3 | 3 lint errors (Type param T + unnecessary assertion + missing compare in `manifest-metadata-scan.cache.test.ts`) |
-| **`93a05a28f1`** | **FINAL** | capture sessionContinuationTraceparent BEFORE store-update clears; use captured value at dispatch-resolution (fixes cross-process gateway-methods test execution-order bug) |
+| `93a05a28f1` | proofs fired on this SHA (this corpus) | capture sessionContinuationTraceparent BEFORE store-update clears; use captured value at dispatch-resolution (fixes cross-process gateway-methods test execution-order bug) |
+| **`6a23864d12`** | **CURRENT PR-HEAD** (lint fix only) | removed one unnecessary type assertion `p as fs.PathOrFileDescriptor` → `p` (1 character) in `src/plugins/manifest-metadata-scan.cache.test.ts` — `p` was already typed by the function parameter. **Zero feature-code delta** vs `93a05a28f1`. Proofs against `93a05a28f1` are valid for `6a23864d12`. |
+
+## Proofs-SHA vs PR-Head-SHA Reconciliation
+
+**Proofs corpus**: `PROOFS/93a05a28f1/` (this directory)
+**PR-head**: `6a23864d12ef5845b340923d3d3f1d0978751429`
+
+**Delta**: 1 character (`p as fs.PathOrFileDescriptor` cast removed in test file `src/plugins/manifest-metadata-scan.cache.test.ts`). Zero change to feature code, zero change to runtime behavior, zero change to trace propagation. The lint correction is `as` cast → no-cast; the parameter `p` was already typed as `fs.PathOrFileDescriptor` from the function signature, so the assertion was redundant.
+
+**Verifiability**: `git diff 93a05a28f1..6a23864d12 -- src/` should show exactly one file with one character removed in a test mock setup; no production source touched.
+
+**Implication for reviewers**: The behavioral proofs in this corpus (R-CW-* / R-CD-* / R-RC-* / R-OBS-* rows with Tempo trace IDs) ran against `93a05a28f1`. Since `6a23864d12` adds only a test-mock-file lint correction with zero production-code change, the behavioral evidence holds identically for the PR-head SHA. No re-run required.
 
 ## Gate Verdicts
 

@@ -44,3 +44,16 @@ The trace JSON proves the tree did NOT have a gap. Depth-1 and depth-2 spans are
 ## Verdict
 
 **✅ PASS** on `6a23864d12` (the canonical PR-head SHA). Recursive delegation + trace-stitching both preserved.
+
+## Dual-seat verification
+
+In addition to Ronan's trace `73156fd1`, Cael independently fired R-CD-CHAINED-DEPTH-2 from cael-seat on the same SHA `6a23864d12`:
+
+- **Cael-seat trace**: [`f774902b6a9a5b90cf8276a43fcd6535`](http://tempo.dandelion.cult/api/traces/f774902b6a9a5b90cf8276a43fcd6535)
+- Both depth-1 and depth-2 announced from cael-seat (Discord messages `1507579033` + `1507579078`)
+- Two independent prince-seats proving the same recursive-delegation behavior on the same SHA
+
+## Tempo URLs
+
+- **Ronan-seat**: <http://tempo.dandelion.cult/api/traces/73156fd15655fcd012aa006f4914241b>
+- **Cael-seat**: <http://tempo.dandelion.cult/api/traces/f774902b6a9a5b90cf8276a43fcd6535>

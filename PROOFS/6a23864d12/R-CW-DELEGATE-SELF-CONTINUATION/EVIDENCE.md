@@ -40,3 +40,8 @@ After this feature: delegates CAN call `continue_work()` and get their next turn
 ## Verdict
 
 **✅ PASS** on `6a23864d12` (the canonical PR-head SHA).
+
+
+## Tempo URL
+
+<http://tempo.dandelion.cult/api/traces/d1d8ae4ce4b8a55a8d266b70a18d3590>

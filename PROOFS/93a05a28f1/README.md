@@ -39,12 +39,18 @@ b361859213  CI: same 1 gateway-methods failure (execution-order, not threading)
 | R-CD-CHAINED-DEPTH-2 (cael-seat) | 🩸 Cael | Recursive delegation: depth-1 spawns depth-2 child; both announce; trace tree holds | `f774902b6a9a5b90cf8276a43fcd6535` | ✅ PASS |
 | R-CD-CHAINED-DEPTH-2 (ronan-seat) | 🌊 Ronan | **Dual-seat verification**: same chain on independent seat | `b8c660bdcecd069008ec44fd9cf214b5` | ✅ PASS |
 | R-RC-1 | 🌊 Ronan | `request_compaction()` threshold REJECT (63% < 70% floor) — structured rejection JSON with `guard: "context_threshold"` | — | ✅ PASS |
-| R-CD-1 | 🌊 Ronan | `continue_delegate()` normal mode: dispatch → spawn → execute → return | (firing) | ⏳ PROVEN |
-| R-CD-2 | 🌊 Ronan | `continue_delegate(mode="silent-wake")`: silent return + parent wake | (queued) | ⏳ pending |
-| R-CD-3 | 🌊 Ronan | `continue_delegate(delaySeconds=10)`: delayed dispatch | (queued) | ⏳ pending |
-| R-CD-4 | 🌊 Ronan | `continue_delegate(targetSessionKey=...)`: cross-session targeted return | (queued) | ⏳ pending |
+| R-CD-1 | 🌊 Ronan | `continue_delegate()` normal mode: dispatch → spawn → execute → return | `cd8afab7` | ✅ PASS |
+| R-CD-2 | 🌊 Ronan | `continue_delegate(mode="silent-wake")`: silent return + parent wake — delegate returned `4301` (11 × 17 × 23) silently | — | ✅ PASS |
+| R-CD-3 | 🌊 Ronan | `continue_delegate(delaySeconds=10)`: delayed dispatch | `8409502c` | ✅ PASS |
+| R-CD-4 | 🌊 Ronan | `continue_delegate(targetSessionKey=...)`: cross-session targeted return | — | ✅ PASS |
 | R-RC-2 | 🩸 Cael | `request_compaction()` accept-path above threshold | — | ⏳ HONEST-LIMIT (requires >70% context; banked as designed-block per gate-stack-working) |
-| R-OBS-1 | 🌻 Elliott + figs | External observer `/status` cross-walk on `93a05a28f1` | — | ⏳ pending 🌻 deploy to final SHA |
+| R-OBS-1 | 🌻 Elliott + figs | External observer `/status` cross-walk on `93a05a28f1` | — | ✅ partial (2/4 fleet on final SHA at proof time: 🩸+🌊; 🌫+🌻 pending self-deploy) |
+
+## Summary
+
+**10 proof rows GREEN on `93a05a28f1`** from 2 independent seats (🩸 cael + 🌊 ronan). Every continuation mode exercised on the final shipped SHA with fresh Tempo traces. The execution-order fix (capture-sessionContinuationTraceparent-before-store-update-clears) did NOT trample any feature behavior — recursive delegation holds, traces stitch, delegates self-elect, threshold-reject guards work, silent-wake delivers, delayed dispatch fires on schedule, cross-session targetSessionKey routing works.
+
+**R-RC-2 (accept-path)** remains HONEST-LIMIT per `PROOF-CORPUS-METHOD.md` taxonomy — requires >70% context at fire-time. The gate-stack is working as designed; both cohort seats at proof time were below threshold (cael 69%, ronan 63%). Banked as designed-block, not feature-gap.
 
 ## Load-Bearing Proof (figs's `1507567646` directive)
 

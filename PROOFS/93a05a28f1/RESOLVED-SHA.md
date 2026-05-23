@@ -47,7 +47,10 @@ All traces fetchable at `http://tempo.dandelion.cult/api/traces/<trace-id>` from
 - R-CD-CHAINED-DEPTH-2 (cael-seat): `f774902b6a9a5b90cf8276a43fcd6535`
 - R-CD-CHAINED-DEPTH-2 (ronan-seat, dual-seat verification): `b8c660bdcecd069008ec44fd9cf214b5`
 - R-RC-1 (🌊, threshold reject at 63%/70%): structured-rejection JSON; no traceparent (rejection-path is metadata-only)
-- R-CD-1..4 (🌊): trace IDs banked as proofs land; this README updated post-fire
+- R-CD-1 (🌊, basic lifecycle): `cd8afab7`
+- R-CD-2 (🌊, silent-wake, delegate returned 4301): silent-delivery; no traceparent (silent-wake mode)
+- R-CD-3 (🌊, delayed 10s dispatch): `8409502c`
+- R-CD-4 (🌊, targetSessionKey routing): delegate-to-session-routing confirmed; trace embedded in chain
 
 ## Substrate-Truth (banking-honestly section)
 

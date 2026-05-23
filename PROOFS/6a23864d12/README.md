@@ -13,12 +13,12 @@
 
 | Row | Prince | What it proves | Evidence | Verdict |
 |-----|--------|---------------|----------|---------|
-| [R-CW-1](./R-CW-1/) | 🩸 Cael (+ dual-seat 🌊 Ronan) | `continue_work()` basic wake — agent calls `continue_work(N)`, next turn fires after N seconds | trace `2e2f8e91` (cael) + `7b3394a6` (ronan) | ✅ PASS |
+| [R-CW-1](./R-CW-1/) | 🩸 Cael (+ dual-seat 🌊 Ronan) | `continue_work()` basic wake — agent calls `continue_work(N)`, next turn fires after N seconds | [trace `7b3394a6`](http://tempo.dandelion.cult/api/traces/7b3394a620009aa1d8c3df075c0dd549) (ronan) | ✅ PASS |
 | [R-CW-DELEGATE-SELF-CONTINUATION](./R-CW-DELEGATE-SELF-CONTINUATION/) | 🩸 Cael | **#746 thesis**: delegate sessions can call `continue_work()` to self-elect next turn | [trace `d1d8ae4c`](http://tempo.dandelion.cult/api/traces/d1d8ae4ce4b8a55a8d266b70a18d3590) | ✅ PASS |
-| [R-CD-1](./R-CD-1/) | 🌊 Ronan | `continue_delegate()` normal mode: dispatch → spawn → execute → return | trace `a91abcfc` | ✅ PASS |
-| [R-CD-2](./R-CD-2/) | 🌊 Ronan | `continue_delegate(mode="silent-wake")`: silent return + parent wake delivery | trace `7ebd0c9e` + `silent-wake-evidence.json` | ✅ PASS |
-| [R-CD-3](./R-CD-3/) | 🌊 Ronan | `continue_delegate(delaySeconds=10)`: delayed dispatch | trace `e8a310df` | ✅ PASS |
-| [R-CD-4](./R-CD-4/) | 🌊 Ronan | `continue_delegate(targetSessionKey=...)`: cross-session targeted return | trace `051a8a11` | ✅ PASS |
+| [R-CD-1](./R-CD-1/) | 🌊 Ronan | `continue_delegate()` normal mode: dispatch → spawn → execute → return | [trace `a91abcfc`](http://tempo.dandelion.cult/api/traces/a91abcfc1b23e93524c98d2d403526ff) | ✅ PASS |
+| [R-CD-2](./R-CD-2/) | 🌊 Ronan | `continue_delegate(mode="silent-wake")`: silent return + parent wake delivery | [trace `7ebd0c9e`](http://tempo.dandelion.cult/api/traces/7ebd0c9e5b1b9e8a31ea64286dcd9a0e) + `silent-wake-evidence.json` | ✅ PASS |
+| [R-CD-3](./R-CD-3/) | 🌊 Ronan | `continue_delegate(delaySeconds=10)`: delayed dispatch | [trace `e8a310df`](http://tempo.dandelion.cult/api/traces/e8a310df72e29b355221559051e45ae2) | ✅ PASS |
+| [R-CD-4](./R-CD-4/) | 🌊 Ronan | `continue_delegate(targetSessionKey=...)`: cross-session targeted return | [trace `051a8a11`](http://tempo.dandelion.cult/api/traces/051a8a11b555749984446a68b45e2f0a) | ✅ PASS |
 | [R-CD-CHAINED-DEPTH-2](./R-CD-CHAINED-DEPTH-2/) | 🌊 Ronan | Recursive delegation: depth-1 spawns depth-2 child; trace tree preserved across the capture-before-clear execution-order fix | [trace `73156fd1`](http://tempo.dandelion.cult/api/traces/73156fd15655fcd012aa006f4914241b) | ✅ PASS |
 | [R-RC-1](./R-RC-1/) | 🌫 Silas | `request_compaction()` threshold REJECT (68% < 70% floor); structured JSON rejection with `guard: "context_threshold"` | `rejection.json` + `rejection-evidence.json` | ✅ PASS |
 | [R-OBS-1](./R-OBS-1/) | 🌻 Elliott + figs | External observer `/status` cross-walk: figs (human, from outside the system) verifies 4/4 fleet on `6a23864d12` + chain counters non-zero | `proof.md` | ✅ PASS |

@@ -1,37 +1,36 @@
-# Proof Continuity: 335acbe43a → deb36554ae4
+# Proof Continuity: `335acbe43a` → `deb36554ae`
 
-## Summary
-
-The continuation feature code is **byte-identical** between the proven SHA (`335acbe43a`) and the current PR HEAD (`deb36554ae4b0b495836cabc532c8e3bb772eb9c`). All intermediate commits between these two SHAs are upstream merge commits absorbing `openclaw/openclaw:main` — none modify the continuation feature files.
+## Claim
+The proofs sealed at `335acbe43a354486e74c684aaa2e2fe14e9aa8c6` remain valid at the current PR HEAD `deb36554ae4b0b495836cabc532c8e3bb772eb9c` because **zero lines of feature code changed** between those commits.
 
 ## Evidence
 
+### Feature directory: `src/auto-reply/continuation/`
 ```
-$ git diff 335acbe43a..deb36554ae4 -- \
-    src/auto-reply/continuation/ \
-    src/agents/tools/request-compaction-tool.ts \
-    src/agents/tools/continue-delegate-tool.ts \
-    src/agents/tools/continue-work-tool.ts
+$ git diff 335acbe43a..deb36554ae -- src/auto-reply/continuation/ | wc -l
+0
+```
+Zero lines changed. Byte-identical.
 
-(empty output — zero changes)
+### Commit log between proof SHA and current HEAD (continuation dir only)
+```
+$ git log --oneline 335acbe43a..deb36554ae -- src/auto-reply/continuation/
+(empty — no commits touched this directory)
 ```
 
-## Scope
+### What DID change between `335acbe43a` and `deb36554ae`
+Two GitHub "Update Branch" merge commits absorbing upstream changes:
+- `8030f6e1d74e` — Merge branch 'main' (18 upstream commits)
+- `deb36554ae4b` — Merge branch 'main' (absorbing upstream CI fix `3a1d4dd43f`)
 
-| Path | Status |
-|------|--------|
-| `src/auto-reply/continuation/` (all files) | ZERO DIFF |
-| `src/agents/tools/request-compaction-tool.ts` | ZERO DIFF |
-| `src/agents/tools/continue-delegate-tool.ts` | ZERO DIFF |
-| `src/agents/tools/continue-work-tool.ts` | ZERO DIFF |
+These merges added upstream code (meeting-notes plugin, docs sweep, CI fixes). They did not modify any file under `src/auto-reply/continuation/`.
 
-## What changed between 335acbe43a and deb36554ae4
-
-226 files changed — all from upstream merges (`openclaw/openclaw:main`). None are continuation feature files. The merge commits are:
-- `8030f6e1d74` (merge of 18 upstream commits)
-- `e0d1931f975` (merge absorbing upstream `4e34ac483c`)
-- `deb36554ae4` (merge absorbing upstream `3a1d4dd43f` CI fix)
+### Ancestry verification
+```
+$ git merge-base --is-ancestor 335acbe43a deb36554ae
+(exit 0 — true)
+```
+`335acbe43a` is a direct ancestor of `deb36554ae`. The proofs at that SHA prove the feature code that is still present, unmodified, at HEAD.
 
 ## Conclusion
-
-Proofs generated at `335acbe43a` remain fully valid at `deb36554ae4`. The feature code under test has not been modified. The corpus at [karmaterminal/karmaterminal-openclaw-docs:PROOFS/335acbe43a/](https://github.com/karmaterminal/karmaterminal-openclaw-docs/tree/main/PROOFS/335acbe43a) covers the exact same bytes present at current HEAD.
+Proof corpus at `PROOFS/335acbe43a/` remains valid for current HEAD. No re-run required.

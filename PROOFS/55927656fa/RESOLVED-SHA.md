@@ -1,8 +1,11 @@
 # RESOLVED-SHA
 
-**CANDIDATE_SHA**: `55927656fac7c4e765402b77055870daaf915c54`
+**CANDIDATE_SHA (proofs fired on)**: `55927656fac7c4e765402b77055870daaf915c54`
+**FINAL PUSH SHA (rebased for 0-behind)**: `c35e9ac29aac6bc8d990d6891e64904cf85b65bb`
 **Branch**: `cael/candidate-9a5be09893` on `karmaterminal/openclaw`
-**Parent commit**: `d69bcfd933aa1e58f6792c3a78b0dadb48ad6713` (upstream/main)
+**Parent commit (proofs)**: `d69bcfd933aa1e58f6792c3a78b0dadb48ad6713` (upstream/main at rebase time)
+**Parent commit (final push)**: `f2365053d330b100c024bdbe9159ea824b1d6243` (upstream/main current)
+**Note**: Feature code is byte-identical between `55927656fa` and `c35e9ac29a` — only the parent commit changed (+7 upstream commits: codex API key fix, video test, docs, sparse checkouts). Behavioral proofs remain valid.
 **Commit message**: `feat(continuation): context-pressure-aware continuation (continue_work / continue_delegate / request_compaction)`
 
 ## Gate Verdicts

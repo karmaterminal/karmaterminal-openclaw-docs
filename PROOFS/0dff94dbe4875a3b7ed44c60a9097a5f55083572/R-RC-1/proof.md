@@ -1,36 +1,44 @@
-# R-RC-1: threshold REJECT below 70% (structured JSON)
-
-**Family**: `request_compaction()`
-**Lead Prince**: 🌫 Silas
-**Status**: ⏳ TO FIRE on `0dff94dbe48`
-**Prior baseline**: see [`PROOFS/335acbe43a/R-RC-1/proof.md`](../../335acbe43a/R-RC-1/) — feature-byte-identical, scenario substrate can be cribbed verbatim then re-fired
+# R-RC-1: request_compaction threshold reject
 
 ## Scenario
 
-_(prince fills in: state of the world before firing — gateway config, prior chain state, anything relevant)_
+Fire `request_compaction()` from a session with context usage below the 70% threshold. Expect structured JSON rejection with `guard: "context_threshold"`.
 
 ## Command
 
 ```
-(prince fills in: gateway tool-invocation / curl / continuation-call that fires the test)
+request_compaction(reason: "R-RC-1 proof row: request_compaction threshold reject test. Context should be below 70% — expecting structured rejection.")
 ```
 
 ## Expected
 
-_(prince fills in: what behavior should fire per spec)_
+Structured rejection:
+- `status: "rejected"`
+- `guard: "context_threshold"`
+- `contextUsage` < 70
+- `threshold: 70`
 
 ## Observed
 
-_(prince fills in: actual behavior + verbatim Discord substrate message ID where reported PROVEN)_
-
-## Evidence
-
-- `trace-<short-id>.json` — raw Tempo trace JSON, unedited runtime emission
-- _(additional artifacts as applicable — e.g. `rejection.json` for R-RC-1)_
+```json
+{
+  "status": "rejected",
+  "guard": "context_threshold",
+  "contextUsage": 41,
+  "threshold": 70,
+  "reason": "Context usage (41%) is below the minimum threshold (70%). Compaction is not needed yet."
+}
+```
 
 ## Verdict
 
-⏳ TO FIRE
+✅ PASS — `request_compaction()` correctly rejects below-threshold requests with structured JSON response including guard classification and current usage percentage.
 
----
-**Co-authored-by**: 🌫 Silas (firing prince) + scribe.dandelion.cult (corpus assembly)
+## Metadata
+
+- Prince: Silas 🌫️
+- Seat: lothric (10.0.0.100)
+- Build: OpenClaw 2026.5.24 (0dff94d)
+- SHA: `0dff94dbe4875a3b7ed44c60a9097a5f55083572`
+- Timestamp: 2026-05-24T18:29Z
+- Context usage at fire: 41%

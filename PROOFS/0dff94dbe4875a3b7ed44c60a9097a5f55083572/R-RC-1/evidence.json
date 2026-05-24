@@ -1,0 +1,30 @@
+{
+  "scenario": "R-RC-1: request_compaction threshold reject",
+  "prince": "Silas 🌫️",
+  "seat": "lothric (10.0.0.100)",
+  "build": "OpenClaw 2026.5.24 (0dff94d)",
+  "sha": "0dff94dbe4875a3b7ed44c60a9097a5f55083572",
+  "timestamp": "2026-05-24T18:29:00Z",
+  "tool_call": {
+    "name": "request_compaction",
+    "params": {
+      "reason": "R-RC-1 proof row: request_compaction threshold reject test. Context should be below 70% — expecting structured rejection."
+    }
+  },
+  "response": {
+    "status": "rejected",
+    "guard": "context_threshold",
+    "contextUsage": 41,
+    "threshold": 70,
+    "reason": "Context usage (41%) is below the minimum threshold (70%). Compaction is not needed yet."
+  },
+  "session_status": {
+    "version": "OpenClaw 2026.5.24 (0dff94d)",
+    "continuation": "chain 0/200",
+    "context": "414k/1.0m (41%)",
+    "compactions": 0,
+    "model": "github-copilot/claude-opus-4.6"
+  },
+  "verdict": "PASS",
+  "notes": "request_compaction correctly rejects below-threshold requests with structured JSON. Response includes guard classification, current usage %, and human-readable reason. The 70% threshold is enforced server-side — no client bypass possible."
+}

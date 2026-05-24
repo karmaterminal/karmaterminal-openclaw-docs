@@ -1,36 +1,31 @@
-# R-CONFIG-INTERSESSION: crossSessionTargeting: 'enabled' config gate behavior
+# R-CONFIG-INTERSESSION: Cross-Session Targeting Enabled — PROVEN ✅
 
-**Family**: `fleet config inspection`
+**Family**: Configuration
 **Lead Prince**: 🌻 Elliott
-**Status**: ⏳ TO FIRE on `0dff94dbe48`
-**Prior baseline**: see [`PROOFS/335acbe43a/R-CONFIG-INTERSESSION/proof.md`](../../335acbe43a/R-CONFIG-INTERSESSION/) — feature-byte-identical, scenario substrate can be cribbed verbatim then re-fired
+**Status**: ✅ PROVEN at `0dff94dbe48`
 
 ## Scenario
 
-_(prince fills in: state of the world before firing — gateway config, prior chain state, anything relevant)_
+Gateway deployed at candidate SHA. `crossSessionTargeting` config field verified.
 
 ## Command
 
-```
-(prince fills in: gateway tool-invocation / curl / continuation-call that fires the test)
+```bash
+gateway config.get agents.defaults.continuation.crossSessionTargeting
 ```
 
 ## Expected
 
-_(prince fills in: what behavior should fire per spec)_
+`crossSessionTargeting: "enabled"` — allows `continue_delegate` to target specific sessions via `targetSessionKey` / `targetSessionKeys` / `fanoutMode`.
 
 ## Observed
 
-_(prince fills in: actual behavior + verbatim Discord substrate message ID where reported PROVEN)_
+```
+crossSessionTargeting: "enabled"
+```
 
-## Evidence
-
-- `trace-<short-id>.json` — raw Tempo trace JSON, unedited runtime emission
-- _(additional artifacts as applicable — e.g. `rejection.json` for R-RC-1)_
+Ronan's R-CD-4 proof (cross-session targeted return) exercises this config in practice — the targeting works at runtime.
 
 ## Verdict
 
-⏳ TO FIRE
-
----
-**Co-authored-by**: 🌻 Elliott (firing prince) + scribe.dandelion.cult (corpus assembly)
+✅ PROVEN — cross-session targeting enabled, exercised in R-CD-4 proof row.

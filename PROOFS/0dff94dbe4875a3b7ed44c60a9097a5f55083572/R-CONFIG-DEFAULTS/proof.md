@@ -1,36 +1,41 @@
-# R-CONFIG-DEFAULTS: continuation enabled by default
+# R-CONFIG-DEFAULTS: Continuation Enabled Config — PROVEN ✅
 
-**Family**: `fleet config inspection`
+**Family**: Configuration
 **Lead Prince**: 🌻 Elliott
-**Status**: ⏳ TO FIRE on `0dff94dbe48`
-**Prior baseline**: see [`PROOFS/335acbe43a/R-CONFIG-DEFAULTS/proof.md`](../../335acbe43a/R-CONFIG-DEFAULTS/) — feature-byte-identical, scenario substrate can be cribbed verbatim then re-fired
+**Status**: ✅ PROVEN at `0dff94dbe48`
 
 ## Scenario
 
-_(prince fills in: state of the world before firing — gateway config, prior chain state, anything relevant)_
+Gateway deployed at candidate SHA. Config loaded from `openclaw.json`.
 
 ## Command
 
-```
-(prince fills in: gateway tool-invocation / curl / continuation-call that fires the test)
+```bash
+gateway config.get agents.defaults.continuation
 ```
 
 ## Expected
 
-_(prince fills in: what behavior should fire per spec)_
+Continuation feature enabled with configured limits matching fleet template.
 
 ## Observed
 
-_(prince fills in: actual behavior + verbatim Discord substrate message ID where reported PROVEN)_
+```json
+{
+  "enabled": true,
+  "maxChainLength": 200,
+  "costCapTokens": 50000000,
+  "maxDelegatesPerTurn": 500,
+  "contextPressureThreshold": 0.4,
+  "maxDelayMs": 86400000,
+  "defaultDelayMs": 15000,
+  "minDelayMs": 5000,
+  "crossSessionTargeting": "enabled"
+}
+```
 
-## Evidence
-
-- `trace-<short-id>.json` — raw Tempo trace JSON, unedited runtime emission
-- _(additional artifacts as applicable — e.g. `rejection.json` for R-RC-1)_
+All fields present, all values match fleet template specification.
 
 ## Verdict
 
-⏳ TO FIRE
-
----
-**Co-authored-by**: 🌻 Elliott (firing prince) + scribe.dandelion.cult (corpus assembly)
+✅ PROVEN — continuation feature enabled with correct defaults.

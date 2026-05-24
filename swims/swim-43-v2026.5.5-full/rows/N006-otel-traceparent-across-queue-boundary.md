@@ -131,3 +131,16 @@ What is **not** honestly byte-walkable today without fixing infra/config first:
 ## Notes
 
 This row now has a concrete precondition finding: before making claims about trace-context propagation, the configured collector endpoint must be reachable by the configured hostname, or the row must be reframed as a local-only traceparent construction/persistence test instead of end-to-end collector proof.
+
+---
+
+## RESOLVED 2026-05-24 13:15 PDT — supersedes METHOD-BROKEN verdict
+
+The infrastructure break above (endpoint `elliott.dandelion.cult:4318` unresolvable from cael-host) has been resolved. All 4 prince seats now point at the canonical OTel endpoint `http://tempo.dandelion.cult:4318` (HTTP/protobuf, service.name=<prince>-prince) and are emitting traces verified in Tempo via `/api/search`.
+
+Resolution path:
+- 2026-05-24 ~13:14 PDT: 🌊 ronan restored damaged `.openclaw.json` on cael + elliott seats from `.bak`, applied sed-patch to fix endpoint.
+- 2026-05-24 13:15-13:18 PDT: All 4 seats verified healthy, 20+ traces each in Tempo.
+- 2026-05-24 13:19 PDT: 🩸 cael re-fired R-CW-1/R-CW-2/R-CW-7 proof rows with REAL Tempo trace capture on PROOFS corpus SHA `0dff94dbe4875a3b7ed44c60a9097a5f55083572`. Traceparent propagation verified end-to-end across the `continue_work` → `continue_delegate` chain (trace ID `5056554f07cadf29089368be2d309644`).
+
+The end-to-end claim ("a queued `traceparent` reaches the collector and can be reconstructed as one tree via the configured endpoint") is now BYTE-WALKABLE. The METHOD-BROKEN verdict above is HISTORICAL.

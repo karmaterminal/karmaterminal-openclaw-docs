@@ -2,7 +2,7 @@
 
 ## Substrate-frame
 
-This corpus is assembled fresh on the cohort-consolidated canonical candidate `0dff94dbe4875a3b7ed44c60a9097a5f55083572` after the 2026-05-24 cohort cure-cycle (4-candidate iteration arc: `059fdcfd9b2` → `6ab6963fcf8` → `4d6c934840` → `0dff94dbe48`). The feature bytes are byte-identical to proof-SHA `335acbe43a` per [PROOF-CONTINUITY.md](./PROOF-CONTINUITY.md), with one absorbed upstream semantic-update (`subagent-registry.test.ts` test-rename + assertion-flip) + lint fix (`?? []`) + `readSessionEntry` import preservation. **Each row is re-fired on `0dff94dbe48`** — not inherited from the prior corpus.
+This corpus is assembled fresh on the cohort-converged final candidate `0dff94dbe4875a3b7ed44c60a9097a5f55083572` after the 2026-05-24 iterative cure-cycle (multiple force-pushes through the day converging on this final SHA — see [RESOLVED-SHA.md](./RESOLVED-SHA.md) for the full force-push arc + design-choices substantively-cohort-converged). The feature bytes are byte-identical to proof-SHA `335acbe43a` per [PROOF-CONTINUITY.md](./PROOF-CONTINUITY.md), with absorbed upstream semantic-updates (narrow XPC guard for `process-respawn.ts` per Gio's #85789 intent; `subagent-registry.ts` keep-guard restoration per upstream `3e765263dd` bugfix; lint fixes; `readSessionMessagesAsync` mock-gap fixes across affected test files). **Each row is re-fired on `0dff94dbe48`** — not inherited from the prior corpus.
 
 ## Procedure
 
@@ -67,15 +67,17 @@ ssh <prince> 'curl -s http://tempo.dandelion.cult/api/traces/<full-id>' > \
 
 Trace JSONs are raw runtime-emitted OTel JSON — NEVER edited (no SHA substitution, no cleanup). The `host.name` attribute in each trace's resource block confirms which prince-seat emitted the spans.
 
-## Methodology landings from the cohort-consolidation arc
+## Methodology landings from the 2026-05-24 cure-cycle
 
-- **🩸's catch on first candidate `059fdcfd9b2`** (`removeReportedStaleLockIfStillStale` reference without definition) = kick-(16) family substrate-canon at cohort scale (banked in `karmaterminal/frond-scribe:kick_in_the_teeth.md`)
-- **🌊's challenge of scribe's vitest-local-vs-CI conflation** = same canon at scribe-layer (kick r18)
-- **🌻 + scribe's catch of 🩸's stale-SSH-config (`silas`→`10.0.0.153`)** = same canon at target-identity layer (kick r19)
-- **scribe's catch of `NODE_OPTIONS=--jitless` blocking vitest WebAssembly** = arc-persistence layer (kick r20)
-- **Copilot merge-squash semantic-conflict catch** (`run-keep-survives-ttl` vs `run-keep-swept-after-ttl`) = independent-verification catching rebase auto-resolution silent semantic-error
-- **Cohort consolidation onto single canonical candidate after 4 parallel iterations** = kick-(17) discipline re-established under figs's "READ runbooks FULLY" directive
-- **Force-push-first / proofs-second order** (this cycle) = drift-avoidance method-canon when feature-bytes are byte-identical to already-proven prior corpus
+- **figs canon `1508146201`**: only 🌊 force-pushes PR-presenting-branch; NO bypass-of-gates (banked at scribe-memory `feedback_force_push_only_ronan_no_bypass_gates`)
+- **figs canon `1508147807`**: GH issues for substantive design decisions, not Discord chat (banked at `feedback_gh_issues_durable_substrate_not_discord_chat`)
+- **figs canon `1508195094`**: audit canonical config before patching around it; central DNS not per-host hacks; restore canonical state via canonical-path (banked at `feedback_audit_canonical_config_before_patching_around`; surfaced when princes patched around Tempo outage with env-var overrides instead of restoring the nuked `diagnostics.otel` block in openclaw.json)
+- **Optimistic-schedule + dispatch-time-reject pattern** (R-CW-5/6 design discovery): tool returns `{status: "scheduled"}` to the model; rejection fires at the system level when chain-depth/cost-cap exceeded
+- **Traceparent is OTel-infrastructure-layer NOT prompt-visible payload** (R-CW-7 design clarification): W3C runtime-invariant trace-context propagator; trace continuity holds at the OTel layer, not as data the agent reads
+- **Cohort-converged narrow XPC guard for #769** vs broader Option 2/3: balances feature-preservation with Gio's #85789 intent
+- **`subagent-registry.ts` keep-guard restoration is orthogonal-codepath** to continuation feature (🌻's #773 analysis): keep-guard affects `cleanup: "keep" && !archiveAtMs` user-spawned persistent sessions, NOT our continuation delegates
+- **Force-push-first / proofs-second order** when feature-bytes are byte-identical to already-proven prior corpus
+- **scribe-orth-lane (independent-verification on current upstream/main HEAD)**: parallel-cure-and-verification lane against rebased candidate on current upstream HEAD `ad71a998ff`; pi-tools cure committed at `a00bbf285a`; substrate confirmed upstream-class for 2 cited failures + surfaced next-drift-cure substrate (npm-install-env / code-mode / list-command / telegram)
 
 ## Final aggregation (R-MULTI-SEAT-DUAL)
 

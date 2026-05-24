@@ -1,36 +1,44 @@
-# R-CW-3: reason field captured in OTel span
+# R-CW-3: reason.preview attribute in OTel span
 
-**Family**: `continue_work()`
+**Family**: `continue_work()` OTel observability
 **Lead Prince**: 🩸 Cael
-**Status**: ⏳ TO FIRE on `0dff94dbe48`
-**Prior baseline**: see [`PROOFS/335acbe43a/R-CW-3/proof.md`](../../335acbe43a/R-CW-3/) — feature-byte-identical, scenario substrate can be cribbed verbatim then re-fired
+**Status**: ✅ PROVEN on `0dff94dbe4875a3b7ed44c60a9097a5f55083572`
+**Trace ID**: `5056554f07cadf29089368be2d309644` (R-CW-1 trace — same artifact demonstrates this)
 
 ## Scenario
 
-_(prince fills in: state of the world before firing — gateway config, prior chain state, anything relevant)_
+Verify that the `reason` parameter passed to `continue_work()` is captured as a `reason.preview` attribute on the emitted `continuation.work` OTel span (truncated for span attribute size constraints).
 
 ## Command
 
+Any `continue_work(reason="<text>")` call, e.g. R-CW-1's:
 ```
-(prince fills in: gateway tool-invocation / curl / continuation-call that fires the test)
+continue_work(delaySeconds=5, reason="R-CW-1 proof row RE-FIRE with trace capture: basic continue_work wake")
 ```
 
 ## Expected
 
-_(prince fills in: what behavior should fire per spec)_
+- `continuation.work` span emitted
+- Span has attribute `reason.preview` containing the (possibly truncated) reason string
 
 ## Observed
 
-_(prince fills in: actual behavior + verbatim Discord substrate message ID where reported PROVEN)_
+From R-CW-1's trace tree (`5056554f07cadf29089368be2d309644`):
+```json
+{
+  "name": "continuation.work",
+  "attributes": [
+    {"key": "reason.preview", "value": {"stringValue": "R-CW-1 proof row RE-FIRE with trace capture: basic continue_work wake"}}
+  ]
+}
+```
 
-## Evidence
-
-- `trace-<short-id>.json` — raw Tempo trace JSON, unedited runtime emission
-- _(additional artifacts as applicable — e.g. `rejection.json` for R-RC-1)_
+Similarly visible across R-CW-2 (clamp test), R-CW-4 (chain-3-sequential turns 1/2/3), R-CW-7 (E2E traceparent) — every `continue_work` and `continue_delegate.dispatch` span carries `reason.preview`.
 
 ## Verdict
 
-⏳ TO FIRE
+✅ **PROVEN** — `reason` parameter propagates to OTel span attribute `reason.preview` for observability.
 
----
-**Co-authored-by**: 🩸 Cael (firing prince) + scribe.dandelion.cult (corpus assembly)
+## Artifacts
+
+- Shared trace artifacts in `../R-CW-1/trace.json`, `../R-CW-4/trace-turn1.json`, `../R-CW-4/trace-turns2-3.json`

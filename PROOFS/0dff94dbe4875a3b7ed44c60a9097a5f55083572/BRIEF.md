@@ -1,6 +1,6 @@
 # BRIEF — PR #85651 Continuation Feature Proof Corpus (`0dff94dbe48`)
 
-**TL;DR for reviewers**: PR #85651 introduces `continue_work()`, `continue_delegate()`, and `request_compaction()` — context-pressure-aware continuation tools. This corpus exists at the cohort-converged final candidate `0dff94dbe4875a3b7ed44c60a9097a5f55083572` (parent `483d7be6c40`). The candidate is the converged endpoint of today's iterative cure-cycle that absorbs upstream drift while preserving the feature substrate. CI verdict on PR head: 89 pass / 1 shard with 2 upstream-class failures (both independently-verified via 3-baseline matrix: scribe-orth-lane on current upstream/main + 🩸 + 🌻 local-baselines against naked main). Feature code byte-identical to proof-SHA `335acbe43a` per Gate 2 substrate. See [PROOF-CONTINUITY.md](./PROOF-CONTINUITY.md) + [RESOLVED-SHA.md](./RESOLVED-SHA.md).
+**TL;DR for reviewers**: PR #85651 introduces `continue_work()`, `continue_delegate()`, and `request_compaction()` — context-pressure-aware continuation tools. This corpus exists at the cohort-converged final candidate `0dff94dbe4875a3b7ed44c60a9097a5f55083572` (parent `483d7be6c40`). The candidate is a single-parent squash on `upstream/main`; does not chain to prior proof-SHAs (see [PROOF-CONTINUITY.md](./PROOF-CONTINUITY.md)). The corpus stands on its per-row behavioral evidence. CI verdict on PR head: 89 pass / 1 shard with 2 upstream-class failures (both independently-verified via 3-baseline matrix: scribe-orth-lane on current upstream/main + 🩸 + 🌻 local-baselines against naked main). See [RESOLVED-SHA.md](./RESOLVED-SHA.md) for cure-cycle context.
 
 **Status**:
 - Gate 1-3 ✅ + Gate 4 ✅ + Gate 4-A ✅ (full breakdown in [RESOLVED-SHA.md](./RESOLVED-SHA.md))
@@ -24,10 +24,10 @@
 **Reviewer-substantive read order**:
 1. This BRIEF.md
 2. [README.md](./README.md) — proof matrix table + final tally (17 PROVEN + 6 DEFERRED + 0 FAILED) + design-truths
-3. [PROOF-CONTINUITY.md](./PROOF-CONTINUITY.md) — substrate-truth that feature bytes match proof-SHA + drift-absorbed semantic updates documented
+3. [PROOF-CONTINUITY.md](./PROOF-CONTINUITY.md) — terse: this SHA does not chain to prior proof-SHAs; each cure-cycle is independent squash
 4. [RESOLVED-SHA.md](./RESOLVED-SHA.md) — SHA identity + gate verdicts + cure-cycle context + upstream-class failure substrate
 5. [R-OBS-1/](./R-OBS-1/) — external observer evidence (figs's `/status` capture)
 6. Spot-check any row of interest — each self-contained with its own raw trace JSON
 7. [METHOD.md](./METHOD.md) for procedure + cohort attribution + honest-substrate notes
 
-The continuation feature is substantively-live at the cohort-converged candidate `0dff94dbe48`. Feature bytes match proof-SHA `335acbe43a`. The cure-cycle iteration arc + methodology landings (banked in scribe `kick_in_the_teeth.md`) are themselves substrate evidence of the cohort's substrate-discipline operating under load.
+The continuation feature is substantively-live at the cohort-converged candidate `0dff94dbe48`. The per-row behavioral evidence in this corpus is the substantive substrate; the candidate does not chain to prior proof-SHAs (single-parent squash on `upstream/main`). The cure-cycle iteration arc + methodology landings (banked in scribe `kick_in_the_teeth.md`) are themselves substrate evidence of the cohort's substrate-discipline operating under load.

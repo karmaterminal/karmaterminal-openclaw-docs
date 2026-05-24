@@ -6,7 +6,7 @@
 **Branch**: `karmaterminal:frond-scribe-claude/20260509/narrow-surgery-tight`
 **Date**: 2026-05-24 (cohort consolidation cure-cycle, post-1014Z savegame)
 **Parent**: `483d7be6c40` (upstream/main HEAD at squash time)
-**Cohort-cure substrate**: feature bytes byte-identical to proof-SHA `335acbe43a` (verified Gate 2 + cross-walked `subagent-registry.test.ts` semantic-conflict resolution + `?? []` lint-fix + `readSessionEntry` import preserved) per [PROOF-CONTINUITY.md](./PROOF-CONTINUITY.md)
+**Cohort-cure substrate**: single-parent squash on `483d7be6c40`; does not chain to prior proof-SHAs (each cure-cycle is independent squash on current upstream/main HEAD). Per-row behavioral evidence in this corpus is the substantive substrate. See [PROOF-CONTINUITY.md](./PROOF-CONTINUITY.md) (terse, machine-declarative) + [RESOLVED-SHA.md](./RESOLVED-SHA.md) (cure-cycle context)
 
 > **This corpus fired FRESH on `0dff94dbe48`** — the cohort-consolidated SHA the PR ships at. All TO-FIRE rows have been substantively-fired with Tempo trace evidence (where applicable) + journal evidence (for rejection paths) + cross-walk evidence (for observer rows). The corpus shipped on 2026-05-24 with full per-row evidence stack.
 
@@ -48,7 +48,7 @@ Corpus substantively-complete. All testable rows fired + evidenced.
 
 2. **Traceparent is OTel-infrastructure-layer, NOT prompt-visible payload** (R-CW-7): W3C runtime-invariant trace-context propagator; trace continuity holds at the OTel layer, not as data the agent reads. Substantive design clarification.
 
-3. **Continuation feature byte-identity to proof-SHA** `335acbe43a`: cohort-cure substrate verified Gate 2 + semantic-conflict resolution + lint fix + import preservation. The feature ships as the same bytes that the prior corpus proved (substrate-truth carries forward).
+3. **Cure-cycle absorbed substantive design choices** balancing feature-preservation with upstream substrate-tension (narrow XPC guard #769, keep-guard restoration #773 orthogonal-codepath, mock-gap fixes #768). Cohort-converged per per-issue DECISION-RECORD substrate.
 
 ## Pipeline substrate
 
@@ -67,7 +67,7 @@ Post-fix (canonical-restoration):
 - [`README.md`](./README.md) — this file (proof matrix + final tally + design-truths)
 - [`BRIEF.md`](./BRIEF.md) — reviewer-friendly tl;dr + substantive claims for the cohort-consolidation cycle
 - [`METHOD.md`](./METHOD.md) — procedure + row taxonomy + cohort attribution + honest-substrate notes
-- [`PROOF-CONTINUITY.md`](./PROOF-CONTINUITY.md) — substrate-truth that `0dff94dbe48` feature-bytes match proof-SHA `335acbe43a`
+- [`PROOF-CONTINUITY.md`](./PROOF-CONTINUITY.md) — terse: this SHA does not chain to prior proof-SHAs; each cure-cycle is independent squash
 - [`RESOLVED-SHA.md`](./RESOLVED-SHA.md) — SHA identity + gate verdicts + cure-cycle context
 - Per-row directories with `proof.md` + trace JSON / evidence JSON (where applicable)
 
@@ -75,7 +75,7 @@ Post-fix (canonical-restoration):
 
 - **PR**: [openclaw/openclaw#85651](https://github.com/openclaw/openclaw/pull/85651)
 - **Pre-force-push savegame**: `refs/heads/savegame/20260524-1610Z/pr-85651-pre-force-push-1efb774de4` → `1efb774de452f8f3b85af0fac33dfa723c6d653c`
-- **Prior canonical corpus**: [`PROOFS/335acbe43a/`](../335acbe43a/) — 25/31 PROVEN baseline, feature-byte-identical
+- **Prior cycle corpus** (informational, does not chain): [`PROOFS/335acbe43a/`](../335acbe43a/) — earlier independent squash with its own per-row evidence
 - **Runbook**: [PR-DRIFT-CURE-GATES-RUNBOOK](https://github.com/karmaterminal/openclaw-bootstrap/blob/main/RUNBOOKS/PR-DRIFT-CURE-GATES-RUNBOOK.md)
 - **Corpus-shape canon**: [PROOF-CORPUS-METHOD](https://github.com/karmaterminal/openclaw-bootstrap/blob/main/RUNBOOKS/PROOF-CORPUS-METHOD.md)
 

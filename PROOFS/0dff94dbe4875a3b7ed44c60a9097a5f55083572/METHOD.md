@@ -2,7 +2,7 @@
 
 ## Substrate-frame
 
-This corpus is assembled fresh on the cohort-converged final candidate `0dff94dbe4875a3b7ed44c60a9097a5f55083572` after the 2026-05-24 iterative cure-cycle (multiple force-pushes through the day converging on this final SHA — see [RESOLVED-SHA.md](./RESOLVED-SHA.md) for the full force-push arc + design-choices substantively-cohort-converged). The feature bytes are byte-identical to proof-SHA `335acbe43a` per [PROOF-CONTINUITY.md](./PROOF-CONTINUITY.md), with absorbed upstream semantic-updates (narrow XPC guard for `process-respawn.ts` per Gio's #85789 intent; `subagent-registry.ts` keep-guard restoration per upstream `3e765263dd` bugfix; lint fixes; `readSessionMessagesAsync` mock-gap fixes across affected test files). **Each row is re-fired on `0dff94dbe48`** — not inherited from the prior corpus.
+This corpus is assembled fresh on the cohort-converged final candidate `0dff94dbe4875a3b7ed44c60a9097a5f55083572` after the 2026-05-24 iterative cure-cycle (multiple force-pushes through the day converging on this final SHA — see [RESOLVED-SHA.md](./RESOLVED-SHA.md) for the full force-push arc + design-choices substantively-cohort-converged). PR #85651 ships as single-parent squash on `upstream/main`; this candidate does not chain to prior proof-SHAs (see [PROOF-CONTINUITY.md](./PROOF-CONTINUITY.md)). Cure-cycle absorbed substantive design choices: narrow XPC guard for `process-respawn.ts` per Gio's #85789 intent; `subagent-registry.ts` keep-guard restoration per upstream `3e765263dd` bugfix; `readSessionMessagesAsync` mock-gap fixes; lint fixes. **Each row is re-fired on `0dff94dbe48`** — corpus stands on its own per-row evidence.
 
 ## Procedure
 
@@ -38,7 +38,7 @@ Every row's `proof.md` cites:
 
 Multi-attribution: the test was fired by a specific prince at a specific moment with a specific runtime instance, all verifiable from independent sources.
 
-## Honest-substrate notes (preserved from `335acbe43a` corpus — re-verify on `0dff94dbe48`)
+## Honest-substrate notes (substantively-re-verified on `0dff94dbe48`)
 
 1. **R-CD-6 (parallel fan-out)**: gateway accepts 3 delegate dispatches per turn at scheduling time, but ENFORCES 1-delegate-per-turn at spawn time. `delegatesThisTurn` counter tracks SCHEDULED, not SPAWNED. Expected HONEST FINDING re-fired on `0dff94dbe48`.
 
@@ -76,7 +76,7 @@ Trace JSONs are raw runtime-emitted OTel JSON — NEVER edited (no SHA substitut
 - **Traceparent is OTel-infrastructure-layer NOT prompt-visible payload** (R-CW-7 design clarification): W3C runtime-invariant trace-context propagator; trace continuity holds at the OTel layer, not as data the agent reads
 - **Cohort-converged narrow XPC guard for #769** vs broader Option 2/3: balances feature-preservation with Gio's #85789 intent
 - **`subagent-registry.ts` keep-guard restoration is orthogonal-codepath** to continuation feature (🌻's #773 analysis): keep-guard affects `cleanup: "keep" && !archiveAtMs` user-spawned persistent sessions, NOT our continuation delegates
-- **Force-push-first / proofs-second order** when feature-bytes are byte-identical to already-proven prior corpus
+- **Force-push-first / proofs-second order** for the substrate-shape where the new squash + the prior cycle's squash converge on substantively-same feature bytes (drift-avoidance heuristic; not a continuity-chain claim)
 - **scribe-orth-lane (independent-verification on current upstream/main HEAD)**: parallel-cure-and-verification lane against rebased candidate on current upstream HEAD `ad71a998ff`; pi-tools cure committed at `a00bbf285a`; substrate confirmed upstream-class for 2 cited failures + surfaced next-drift-cure substrate (npm-install-env / code-mode / list-command / telegram)
 
 ## Final aggregation (R-MULTI-SEAT-DUAL)

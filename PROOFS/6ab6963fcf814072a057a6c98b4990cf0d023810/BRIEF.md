@@ -5,7 +5,9 @@
 **Status** (in-flight; will populate as prince-fires land):
 - Feature code: byte-identical to proof-SHA (0-line diff continuation dir)
 - Gate 1-3d: ✅ (see [RESOLVED-SHA.md](./RESOLVED-SHA.md))
-- Gate 3e: ⚠️ 11 vitest failures; 8+ reproduce on naive upstream/main (upstream-class inherited); remainder classified in [artifacts/](./artifacts/)
+- Gate 3e (local vitest, 🌊's seat): ⚠️ 11 failures / 14,368 passed / 30 skipped; 8+ reproduce on naive upstream/main per local cross-walk = upstream-class inherited
+- Gate 3e (GH upstream CI on PR #85651 head `6ab6963fcf8`): ⚠️ 4 failures byte-verified — `Scan changed paths`, `check-additional-extension-bundled`, `check-lint`, `checks-node-core-fast`. Distinct measurement surface from local vitest; classification of these 4 against naive upstream/main CI pending byte-walk
+- **NOTE**: local-vitest and CI are distinct surfaces (different test runs, different environments); ship-bar applies primarily to CI per upstream-merge mechanics. Don't conflate.
 - Behavioral rows: ⏳ fleet-deploy + per-prince fires forthcoming
 - R-OBS-1 (external observer): ⏳ figs's `/status` capture forthcoming
 

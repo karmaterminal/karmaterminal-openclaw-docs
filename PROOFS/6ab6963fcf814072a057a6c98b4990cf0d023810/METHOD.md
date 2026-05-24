@@ -49,7 +49,9 @@ Multi-attribution: the test was fired by a specific prince at a specific moment 
 4. R-RC-2..5: `MIN_CONTEXT_THRESHOLD = 0.7` hardcoded; compaction-related proofs fire on natural ≥70% context pressure. DEFERRED.
 
 **This-cycle additions** (post-drift):
-5. Gate 3e: 11 vitest failures total. 8+ reproduce on naive upstream/main = upstream-class inherited per runbook line 145, ship-with-annotation. Remainder (≤3) classified in `artifacts/gate-3e-failure-classification.md`.
+5. Gate 3e — local vitest (driver-seat): 11 failures total of 14,368. 8+ reproduce on naive upstream/main = upstream-class inherited per runbook line 145.
+6. Gate 3e — GH upstream CI: 4 failures byte-verified at PR head. Classification pending. Ship-bar applies to CI surface.
+7. **Measurement-surface distinction** banked as substrate-canon: local-vitest ≠ CI; conflating the two leads to durable-surface errors (caught by 🌊 at byte during scribe Gate 3 cosign; scribe own-the-error'd; same kick-(16)/(17) family pattern, banked extension in `kick_in_the_teeth.md` r18-pending).
 6. Methodology landing: 🩸's independent Gate 3 catch of `removeReportedStaleLockIfStillStale` defect on first candidate. Banked in `karmaterminal/frond-scribe:kick_in_the_teeth.md` r17.
 
 ## When scribe writes vs when princes write

@@ -19,7 +19,8 @@
 | 3b. tsgo | ✅ | `pnpm tsgo` |
 | 3c. tsgo:test | ✅ | `pnpm tsgo:test` |
 | 3d. check | ✅ | `pnpm check` (tsgo + oxlint + policy) |
-| 3e. vitest | ⚠️ | 14,368 passed / 30 skipped / 11 failed; 8+ failures reproduce on naive upstream/main (upstream-class inherited per `PR-DRIFT-CURE-GATES-RUNBOOK` line 145); remaining ≤3 classified in artifacts/ |
+| 3e. vitest LOCAL (driver-seat) | ⚠️ | 14,368 passed / 30 skipped / 11 failed (per 🌊's seat); 8+ failures reproduce on naive upstream/main per local cross-walk = upstream-class inherited; remainder ≤3 pending byte-walk classification |
+| 3e. vitest CI (GH upstream on PR #85651 head `6ab6963fcf8`) | ⚠️ | 4 failures byte-verified via `gh pr checks 85651 --repo openclaw/openclaw`: `Scan changed paths (precise)`, `check-additional-extension-bundled`, `check-lint`, `checks-node-core-fast`. Classification (cure-introduced vs upstream-pre-existing) pending substrate-byte-walk against naive upstream/main CI |
 | 4. PROOFS corpus | ⏳ | This corpus + per-prince behavioral-row fires (in progress) |
 | 5. Pre-push-intent | ⏳ | cohort cosign + figs go-signal pending |
 | 6. Force-push | ⏳ | scribe-class force-push as `karmafeast` post-Gate-5 |

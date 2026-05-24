@@ -34,9 +34,12 @@ continue_work(delaySeconds=5, reason="R-CW-6 proof row: chain-depth rejection te
 
 ## Observed
 
-- Pre-fire `/status` confirmed `🔄 Continuation: chain 17/2` ✅
-- Tool response: `{"status":"scheduled","delaySeconds":5,"traceparent":"00-132a4e947907ea84b23661b074250b7e-716810462873c0e4-01"}` ✅
-- Gateway journal capture (system event):
+- Pre-fire `/status` confirmed `🔄 Continuation: chain 23/2` ✅ (over limit)
+- Tool response: `{"status":"scheduled","delaySeconds":5,"traceparent":"00-503a46986674ff485db220d7911edd55-..."}` ✅
+- **Tempo trace `503a46986674ff485db220d7911edd55`** captured at 13:42:35 PDT (cael-prince, post-OTel-pipeline-fix):
+  - `openclaw.tool.execution` span for `continue_work` invocation present ✅
+  - No `continuation.work` span (dispatch was rejected, span only fires when wake actually dispatches)
+- **Gateway journal capture** (system event at 13:43:35 PDT):
   ```
   [continuation] Bracket continuation rejected: chain length 2 reached.
   ```
@@ -52,4 +55,6 @@ Same as R-CW-5: optimistic scheduling, enforcement at dispatch. The "Bracket con
 
 ## Artifacts
 
-- Journal log captured in Discord channel `1466192485440164011` at 2026-05-24 11:51 PDT
+- `trace.json` — Tempo span tree (18.7KB, shared with R-CW-5) showing the `openclaw.tool.execution` span for the `continue_work` call that was scheduled-then-rejected
+- Journal log captured in Discord channel `1466192485440164011` at 2026-05-24 13:43:35 PDT
+- v2 config-cycle (post-OTel-pipeline-fix) trace is the canonical evidence. v1 at 11:50 PDT was journal-only.

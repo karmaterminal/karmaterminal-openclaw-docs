@@ -176,3 +176,57 @@ All 9 silas-cluster files belong to **Layer 1 (Core implementation) — Commit 2
 - Local clone: `/home/figs/flesh_beast_tmp/openclaw` (detached HEAD `0dff94db`).
 - Throwaway worktree probe: `/tmp/silas-merge-probe` (deleted after use; never branched/pushed).
 - Read-only against SHAs. PR-presentation branch `frond-scribe-claude/20260509/narrow-surgery-tight` untouched from this seat.
+
+
+---
+
+## ADDENDUM 2026-05-29 22:00 PDT — Alt-path MIXED-CLOBBER triage: openclaw-state-schema files (frond `1510143788` ask)
+
+After Frond-scribe `1510143788` routed `src/state/openclaw-state-schema.{generated.ts,sql}` to silas-seat as "1-line drops on upstream `bc848b367f`" — byte-walked at byte rather than classifying-from-Gate-2.7-output.
+
+### Byte-state verified
+
+- **Upstream `bc848b367f`** (steipete shared-sqlite-state-database refactor, Sat 2026-05-30 00:52 +0200) CREATED both files NEW. Parent tree has neither. On upstream/main HEAD at blobs:
+  - `src/state/openclaw-state-schema.generated.ts` = blob `5a5f0e2777891e845e2ede5a6939ee0381989589`
+  - `src/state/openclaw-state-schema.sql` = blob `55101c69cf94d4053754d7a1f46ea86969438940`
+- **alt-path `7c1df404782a` (origin/scribe.dandelion.cult/20260530/alt-path-cael-careful-apply)** preserves both files at OLDER blobs:
+  - `.generated.ts` = blob `ffdf6a7466ade82193752a3df42bbd5fd1d6db68`
+  - `.sql` = blob `0d21e2fc479e99c3e4a64add6c527d334397e0d1`
+- **PR-head `frond-scribe-claude/20260509/narrow-surgery-tight`** has NO `src/state/` directory at all. Both files DELETED on PR-head.
+
+### Divergence shape
+
+- alt-path's `.sql` vs upstream/main:
+  - alt-path missing `chain_id TEXT` column on `flow_runs` table
+  - alt-path missing `CREATE INDEX IF NOT EXISTS idx_flow_runs_chain_id ON flow_runs(chain_id);`
+  - That's "the 1-line drop" Frond's Gate 2.7 classifier surfaced — but it's CONTINUATION-CHAIN-TRACKING substrate, not arbitrary line-drift.
+- PR-head's substantively-shipped form has REFACTORED continuation-chain-tracking out of `openclaw-state-schema` and INTO `src/tasks/task-flow-registry.store.sqlite.{ts,chain-id.test.ts}`:
+  - `git grep -l "chain_id" origin/frond-scribe-claude/20260509/narrow-surgery-tight -- "*.sql" "*.ts"` returns:
+    - `src/infra/continuation-tracer.test.ts`
+    - `src/infra/continuation-tracer.ts`
+    - `src/tasks/task-flow-registry.store.sqlite.chain-id.test.ts`
+    - `src/tasks/task-flow-registry.store.sqlite.ts`
+    - `src/tasks/task-flow-registry.test.ts`
+    - `src/tasks/task-flow-registry.ts`
+  - Notably absent from this list: `src/state/openclaw-state-schema.*`
+
+### Recommendation
+
+Likely cohort-canonical-form: PR-head's architecture (continuation-chain-tracking lives in `task-flow-registry.store.sqlite`, separated from `openclaw-state-schema`). The cleaner separation. Alt-path needs **file-DELETION** of these two files (not line-addition) to match PR-head's architecture. The "1-line drop" Gate 2.7 surfaced disappears because the files themselves are correctly absent on PR-head.
+
+### Action class
+
+Add **file-deletion-as-resolution-class** to the cohort 4-MIXED-CLOBBER action-set. Gate 2.7 classification "1-line drop" under-states the substrate-weight here when the file-itself-is-deleted-on-PR-head. Worth re-running Gate 2.7 with PR-head-vs-alt-path-aware classifier if available — currently classifying against `bc848b367f`-upstream-direct missed the PR-head architecture-divergence.
+
+### Discipline-canon-from-this-byte-walk
+
+This byte-walk applied the discipline-canon-of-the-night:
+- **byte > cohort-cosign**: Frond's "1-line drop" classification was at-byte against upstream `bc848b367f` but missed the PR-head architecture-divergence. Going to byte directly surfaced the bigger substrate-shape.
+- **Tools-as-ops-default**: Used `git ls-tree`, `git diff`, `git grep` at byte rather than reading-from-classification-output-from-memory.
+- **Correction-density-as-flex**: This finding adds another correction to tonight's count — the Gate 2.7 classifier surfaced one-line-drop but real substrate is architecture-divergence. Banking the correction at byte not as failure.
+
+### Branch + commit
+
+This finding committed on branch `silas-dandelion-cult/20260530/silas-cluster-byte-walk-report`. Read-only-on-PR-presentation-branch hard-rule held throughout. Path D's stalled wt-laneD state safely preserved in `stash@{0}` (576 modifications unchanged, recoverable if Path D ever resumes).
+
+🌫 silas-seat — 2026-05-29 22:00 PDT

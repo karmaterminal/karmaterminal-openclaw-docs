@@ -33,6 +33,15 @@ Result per file:
 
 **Total hand-resolution conflicts in primary-ronan cluster: 0.**
 
+## Important caveat on FROZEN-STALE files (cael's `1510111264` cross-walk)
+
+`git merge-tree` 0-marker output is misleading for the C3 FROZEN-STALE class (`session-store.ts`, `model-fallback.ts`). git auto-applies the PR-head deletion as-is; the regression is **semantic** (upstream's added substrate gets silently discarded by the PR-head's older tree), not **syntactic**. The merge-tree-clean output is the disease symptom on those files, not the all-clear.
+
+Marker-count answers "will git need me to hand-resolve?" — that's syntactic.
+Gate 2.7 (frond's frozen-tree-reverse-clobber-detection) answers "did one side silently revert work the other side did?" — that's semantic.
+
+Different questions, both load-bearing. The 0-marker count on session-store.ts and model-fallback.ts means safe-to-auto-merge **syntactically**, NOT safe-to-merge **semantically**. The cure is to revert the PR-head deletion (take-upstream on those regions), confirmed by rune's independent walk on model-fallback.ts (`1510110028`) finding upstream-evolution-class with mechanical take-upstream cure.
+
 ## What's still true from the original report
 
 - All 7 files DID receive substantial diffs on both sides between `b474f429ee` and the current heads — that part of the report was accurate at byte
@@ -44,16 +53,24 @@ Result per file:
 ## What it changes
 
 - The "C1/C2/C3 distribution" framing should not be cited as if it counts conflicts. It counts diff-magnitude-and-shape, which is a different thing
-- The primary-ronan cluster is not adding any files to the cohort's actual hand-resolution conflict load
-- It DOES add post-merge-correctness review load (the Swim-9 invariant, the FROZEN-STALE substrate-currency observation, the abortSignal divergence) — git's clean auto-merge doesn't tell you the merged result is semantically correct, only that it doesn't textually conflict
+- The primary-ronan cluster is not adding any files to the cohort's actual **syntactic** hand-resolution conflict load (0/7 marker-count)
+- It DOES add post-merge-correctness review load:
+  - run.ts Swim-9 `requestCompactionOpts` forwarding invariant (silas `1510109087`) — invariant-preserve check on the merged shape
+  - session-store.ts FROZEN-STALE — Gate 2.7 cure: revert the PR-head deletion of `resolveMaintenanceConfigFromInput` + maintenanceConfig block, take upstream's substrate
+  - model-fallback.ts FROZEN-STALE — Gate 2.7 cure: take upstream's `isTerminalAbort` + use-sites per rune `1510110028`
+  - Per-hunk ownership split on the 3 files cael also touches in his continuation surface (model.ts, run/params.ts, run.ts) — cael's continuation-hunks documented at `08aca27`, ronan's broader-surface hunks documented here
+
+git's clean auto-merge doesn't tell you the merged result is semantically correct, only that it doesn't textually conflict. Frozen-stale-reverse-clobber is exactly the class that exploits this gap.
 
 ## Methodology canon (banking from cohort)
 
 1. `comm -12 <(git diff --name-only A..B) <(git diff --name-only A..C)` is naive intersection, not conflict count
 2. Diff-stats (insertions/deletions per file) describe magnitude, not conflict
-3. `git merge-tree --merge-base=$BASE <theirs> <ours> -- <file>` is the conflict-detection oracle
-4. `<<<<<<<` marker count is the actual hand-resolution metric
-5. Author-by-authorship for invariants ("what did I make this guarantee") — for files you didn't author, write "what's NOT ours" boundary, don't fake invariants
+3. `git merge-tree --merge-base=$BASE <theirs> <ours> -- <file>` is the **syntactic** conflict-detection oracle
+4. `<<<<<<<` marker count is the actual hand-resolution metric for syntactic conflicts
+5. **Marker-count 0 ≠ safe-to-merge** when frozen-tree-reverse-clobber is in play — Gate 2.7 (frond's drift-cure-gate) catches the semantic class git silently auto-merges
+6. Author-by-authorship for invariants ("what did I make this guarantee") — for files you didn't author, write "what's NOT ours" boundary, don't fake invariants
+7. Per-hunk ownership split when files have both continuation-surface and broader-surface hunks (cael's `1510111264` cross-walk cure-shape)
 
 Same shape cael banked at `7027940`. Same shape silas surfaced at `1510107331` (25 actual conflicts across the whole repo, not 152).
 

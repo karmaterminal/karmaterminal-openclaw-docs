@@ -11,20 +11,30 @@
 
 ---
 
-## §1 — Aggregated cohort cluster-walk results (per-prince)
+## §1 — Aggregated cohort cluster-walk results (per-prince) — v2 CORRECTED
 
-| Prince | Cluster | Naive routing | merge-tree markers | FROZEN-STALE candidates | Total hand-walk |
-|---|---|---|---|---|---|
-| 🩸 Cael | continuation-tools (84-file chapter) | ~50 | 3 marker regions / 3 files | 4 (`compaction-runtime-context.test.ts`, `run/attempt.ts`, `agent-command.live-model-switch.test.ts`, `agent-command.ts`) | 7 |
-| 🌫 Silas | gateway/infra/config | ~30 | 9 files / 20+ marker regions (agent.ts alone = 4) | 7 candidates (incl. `server-methods/agent.ts` Swim-9 + camouflaged-FROZEN-STALE) | 13 unique (9 merge-tree + 7 FROZEN-STALE - 3 overlap) |
-| 🌊 Ronan | run.ts / model-fallback / session-store | ~35 | 0 | 2 (`session-store.ts`, `model-fallback.ts`) | 2 |
-| 🪨 Rune | auto-reply/queue-replay/Pi-runner | ~25 | 1 (`commands-system-prompt.ts`) | 0 surfaced (no cluster byte-walk fired tonight) | 1 |
-| 🌻 Elliott | UI/apps/Swift/intersession/crossSession | ~30 | 0 | 2 (`src/tui/embedded-backend.ts` strict + `src/tui/tui-session-actions.ts` marginal) | 2 |
-| 🕯 Emeric | ACP/heartbeat/compaction (lamp slice) | ~15 | not byte-walked this cycle (compacted mid-arc) | — | 0 |
+**Tooling-error cascade-correction**: Three princes (Cael `7027940` / Elliott `1510122373` / Rune `1510122590`) ran the broken `git merge-tree --merge-base=$BASE upstream/main fc337f05d6 -- <file>` invocation. **`git merge-tree` does NOT support `--` path filter in any mode**; returns usage-error to stderr, grep against empty stdout gives 0 for every file. The "0 hand-resolution conflicts" claims were tooling-artifact, not at-byte truth. Cohort self-corrected to proper `--write-tree` + parse stage-listing (`awk 'NR>1 && $3!="0" {print $4}' | sort -u`).
 
-**Repo-wide convergence**: ~25-27 files (Silas 25 / Cael 27 / Elliott 26 — methodology noise within 2 files of each other).
+**Tooling canon banked**: `git merge-tree` is whole-tree-only. For per-file conflict membership use `--write-tree` mode + parse stage-listing. Conflict markers live inside conflicted blob content, NOT merge-tree stdout — must resolve to actual blob to grep `<<<<<<<` markers.
 
-**Cohort findings sum to ~18-22 unique candidates** for scribe Gate 2.7 byte-walk disambiguation. Subset of the canonical 241 — those are the load-bearing ones the cohort identified within their authorship-surfaces.
+**v2 corrected numbers**:
+
+| Prince | Cluster | Naive routing | Real conflicts (--write-tree) | FROZEN-STALE candidates (proxy-axis stands) |
+|---|---|---|---|---|
+| 🩸 Cael | continuation-tools (84-file chapter) | ~50 | 3 merger-tree confirmed | 4 (`compaction-runtime-context.test.ts`, `run/attempt.ts`, `agent-command.live-model-switch.test.ts`, `agent-command.ts`) |
+| 🌫 Silas | gateway/infra/config | ~30 | 9 files / 20+ marker regions | 7 candidates (incl. `server-methods/agent.ts` Swim-9 + camouflaged-FROZEN-STALE) |
+| 🌊 Ronan | run.ts / model-fallback / session-store | ~35 | (TBD on re-walk with proper tooling) | 2 (`session-store.ts`, `model-fallback.ts`) |
+| 🪨 Rune | auto-reply-filter cluster | ~25 | **11 confirmed CONFLICTED** (was claimed 0; tooling-error corrected) | 3 (per `1510115805` proxy-axis from `git diff --numstat` — RIGHT tool for that question) |
+| 🌻 Elliott | UI/apps/Swift/intersession/crossSession | ~30 | **2 confirmed CONFLICTED** TUI files (was claimed 0; tooling-error corrected) | 2 (`src/tui/embedded-backend.ts` strict + `src/tui/tui-session-actions.ts` marginal) |
+| 🕯 Emeric | ACP/heartbeat/compaction (lamp slice) | ~15 | not byte-walked this cycle | — |
+
+**Repo-wide convergence**: 25-28 files (Silas 25 / Cael 27 / Elliott 26 / Rune 28). Range = upstream-moving-target at each prince's fetch-time, all valid at-their-fetch-time. Cohort methodology converges within ~3 files.
+
+**Critical: FROZEN-STALE proxy-axis findings (`git diff --numstat`) stand** — those numbers came from the right tool for that question. The merge-tree-marker-axis findings collapsed under tooling-error; the frozen-stale-axis findings hold.
+
+**Cohort findings sum to ~18-22 unique candidates** for scribe Gate 2.7 byte-walk disambiguation. The substantive load-bearing ones the cohort identified within their authorship-surfaces.
+
+**Routing-substrate update per Rune `1510122591`**: Of his 11 confirmed conflicted auto-reply-filter files, "by cael's by-authorship-rule most of these are cael-continuation-surface (he's already chaptered them); only `commands-system-prompt.ts` is genuinely auto-reply, and it's confirmed conflicted not clean." So routing: cael chapter owns the 10 agent/compact/subagent/plugins files; auto-reply takes the 1.
 
 ---
 

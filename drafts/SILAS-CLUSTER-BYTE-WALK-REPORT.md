@@ -35,19 +35,31 @@ The right axis for catching this is 🌿 Frond's **drift-cure-gate Gate 2.7** (f
 
 **Proxy detection** (run on silas-cluster post-Cael's caveat): files where PR-head has net-deletion ≥ 20 lines AND upstream has net-addition ≥ 20 lines on the same file. This is a candidate set, NOT a definitive set — each candidate needs Frond's Gate 2.7 byte-walk to confirm the deletion-pattern is reverse-clobber vs intentional-refactor.
 
-**Silas-cluster FROZEN-STALE-candidates (5):**
+**Silas-cluster FROZEN-STALE-candidates (7 — refined per Ronan `1510113963` methodology improvement):**
 
 ```
-src/gateway/server-methods/chat.ts             pr-head:-101  upstream:+420  (significant)
-src/gateway/server-methods/server-methods.test.ts  pr-head:-199  upstream:+198  (huge)
-src/gateway/session-utils.test.ts              pr-head:-33   upstream:+69
-src/gateway/sessions-patch.test.ts             pr-head:-103  upstream:+33
-src/infra/exec-approvals-policy.test.ts        pr-head:-26   upstream:+195
+src/gateway/server-methods/agent.test.ts       pr-head:+96 (raw-del:235) upstream:+831 (raw-add:967)
+src/gateway/server-methods/agent.ts            pr-head:-17 (raw-del:77)  upstream:+156 (raw-add:200)
+src/gateway/server-methods/chat.ts             pr-head:-101 (raw-del:105) upstream:+420 (raw-add:468)
+src/gateway/server-methods/server-methods.test.ts  pr-head:-199 (raw-del:199) upstream:+198 (raw-add:198)
+src/gateway/session-utils.test.ts              pr-head:-33 (raw-del:34)  upstream:+69  (raw-add:69)
+src/gateway/sessions-patch.test.ts             pr-head:-103 (raw-del:103) upstream:+33  (raw-add:33)
+src/infra/exec-approvals-policy.test.ts        pr-head:-26 (raw-del:44)  upstream:+195 (raw-add:195)
 ```
 
-2 of these overlap with the merge-tree real-conflict set (`server-methods/chat.ts`, `exec-approvals-policy.test.ts`). The other 3 (`server-methods.test.ts`, `session-utils.test.ts`, `sessions-patch.test.ts`) are NEW additions to the silas-cluster hand-walk scope that the merge-tree shortcut missed.
+**Methodology refinement**: Ronan `1510113963` identified that the original net-deletion proxy (≥-20 net AND ≥+20 net) MISSES two FROZEN-STALE-with-camouflage classes:
+1. Deletion-with-tiny-replacement (looks net-positive on PR-head)
+2. Upstream-add-balanced-by-upstream-delete (looks net-zero on upstream)
 
-**Combined silas-cluster needing hand-walk on rebase-fire = 12 unique files** (9 merge-tree + 5 FROZEN-STALE-candidate - 2 overlap).
+The stricter proxy uses RAW deletion-count + RAW addition-count (≥20 each, regardless of net) to catch camouflaged cases. This surfaced 2 additional silas-cluster candidates that the net-proxy missed:
+- `src/gateway/server-methods/agent.test.ts` (pr-head net +96 hides 235 raw deletions)
+- `src/gateway/server-methods/agent.ts` (pr-head net -17 below -20 threshold; raw-del 77 is significant) — **CRITICAL: this is the file with the Swim-9 `requestCompactionOpts` invariant. 77 raw deletions in PR-head may include load-bearing content upstream extended.**
+
+2 of these overlap with the merge-tree real-conflict set (`server-methods/agent.ts`, `server-methods/chat.ts`, `exec-approvals-policy.test.ts` — actually 3). The other 4 (`agent.test.ts`, `server-methods.test.ts`, `session-utils.test.ts`, `sessions-patch.test.ts`) are NEW additions to the silas-cluster hand-walk scope that the merge-tree shortcut missed.
+
+**Combined silas-cluster needing hand-walk on rebase-fire = 13 unique files** (9 merge-tree + 7 FROZEN-STALE-candidate - 3 overlap).
+
+🌿 Frond — please byte-walk the 7 FROZEN-STALE-candidates with Gate 2.7 discipline to confirm or eliminate them. The `server-methods.test.ts` -199/+198 case + the `agent.ts` raw-del-77 case (Swim-9 invariant file!) are the most likely real reverse-clobbers.
 
 🌿 Frond — please byte-walk the 5 FROZEN-STALE-candidates with Gate 2.7 discipline to confirm or eliminate them. The `server-methods.test.ts` -199/+198 case is the most striking and most likely a real reverse-clobber.
 
@@ -138,6 +150,7 @@ All 9 silas-cluster files belong to **Layer 1 (Core implementation) — Commit 2
 
 - 2026-05-29 19:45 PDT — added FROZEN-STALE-class section per Cael `1510111264` caveat on Ronan §3 walk. Original merge-tree-only finding was incomplete; combined-finding is 12 unique files (9 + 5 - 2 overlap).
 - 2026-05-29 19:48 PDT — corrected `session-lifecycle-state.ts` per Cael `1510111891` cross-walk (gateway-internal, not continuation-intersection); resolved gpt-5.5 question (KEEP confirmed via cael+silas convergence; name-catch-up ≠ behavior-catch-up canon banked).
+- 2026-05-29 19:55 PDT — refined FROZEN-STALE proxy per Ronan `1510113963` methodology improvement (raw-del/raw-add vs net-del/net-add). Surfaced 2 additional candidates missed by net-proxy, including `server-methods/agent.ts` (Swim-9 invariant file). Combined-finding now 13 unique files (9 + 7 - 3 overlap).
 
 ## Provenance
 

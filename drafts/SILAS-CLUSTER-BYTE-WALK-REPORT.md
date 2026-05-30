@@ -63,28 +63,45 @@ The stricter proxy uses RAW deletion-count + RAW addition-count (≥20 each, reg
 
 🌿 Frond — please byte-walk the 5 FROZEN-STALE-candidates with Gate 2.7 discipline to confirm or eliminate them. The `server-methods.test.ts` -199/+198 case is the most striking and most likely a real reverse-clobber.
 
-## Method shortcut (for cohort-replication)
+## Method shortcut (for cohort-replication) — REFINED 2026-05-29 19:58 PDT
+
+**Two clean invocations:**
 
 ```bash
-git merge-tree --merge-base=b474f429ee upstream/main fc337f05d6 | \
-  grep -oP '(?<=\t)[^\x00]+' | sort -u
+# Get the list of files with actual conflicts (file count)
+git merge-tree --write-tree --merge-base=b474f429ee upstream/main fc337f05d6 | grep '^CONFLICT'
+
+# Get the merged tree (for reading conflict-marker counts per file)
+git merge-tree --write-tree --merge-base=b474f429ee upstream/main fc337f05d6 > /tmp/out
+TREE=$(head -1 /tmp/out)
+for f in <files>; do
+  HASH=$(git ls-tree $TREE -- "$f" | awk '{print $3}')
+  COUNT=$(git cat-file -p "$HASH" | grep -c '^<<<<<<<')
+  echo "$COUNT marker regions: $f"
+done
 ```
 
-Yields the full 25-file conflict list. Filter per-cluster with `grep -E` on path prefix.
+Yields 25 file count + per-file marker-region counts (37 total regions across 25 files).
 
-## Silas-cluster real-conflict files (9)
+**Important tooling caveats** (banked from cohort cross-correction cascade tonight):
+- `git merge-tree --merge-base=...` **without** `--write-tree` outputs tree-stage entries (mode/hash/stage/filename) NOT merged blob content. So `grep -c '^<<<<<<<'` against that output always returns 0 — the output never contains conflict markers in the first place.
+- `git merge-tree -- <file>` (per-file form without `--write-tree`) has the same limitation.
+- ALWAYS use `--write-tree` mode + grep `^CONFLICT` (file count) or per-blob marker grep (region count).
+- The OLD shortcut I posted at `1510107332` (without `--write-tree`) returned correct FILE COUNTS (25) by accident (the tree-stage output happens to list one tab-separated entry per conflicted file) but produced incorrect marker-count metrics across the cohort cross-correction cascade at `1510114860` / `1510115467`.
 
-```
-src/config/sessions/types.ts
-src/gateway/chat-abort.test.ts
-src/gateway/mcp-http.test.ts
-src/gateway/operator-approvals-client.test.ts
-src/gateway/operator-approvals-client.ts
-src/gateway/server-methods/agent.ts       ← HIGH-RISK: contains Swim-9 requestCompactionOpts forwarding invariant
-src/gateway/server-methods/chat.ts
-src/gateway/session-lifecycle-state.ts
-src/infra/exec-approvals-policy.test.ts
-```
+## Silas-cluster real-conflict files (9 files, 12 marker regions total)
+
+| markers | file |
+|---|---|
+| 4 | `src/gateway/server-methods/agent.ts` ← HIGH-RISK: contains Swim-9 `requestCompactionOpts` invariant |
+| 2 | `src/gateway/operator-approvals-client.ts` |
+| 1 | `src/config/sessions/types.ts` |
+| 1 | `src/gateway/chat-abort.test.ts` |
+| 1 | `src/gateway/mcp-http.test.ts` |
+| 1 | `src/gateway/operator-approvals-client.test.ts` |
+| 1 | `src/gateway/server-methods/chat.ts` |
+| 1 | `src/gateway/session-lifecycle-state.ts` |
+| 1 | `src/infra/exec-approvals-policy.test.ts` |
 
 ## Per-file notes (preliminary — needs per-hunk walk on rebase fire)
 
@@ -151,6 +168,7 @@ All 9 silas-cluster files belong to **Layer 1 (Core implementation) — Commit 2
 - 2026-05-29 19:45 PDT — added FROZEN-STALE-class section per Cael `1510111264` caveat on Ronan §3 walk. Original merge-tree-only finding was incomplete; combined-finding is 12 unique files (9 + 5 - 2 overlap).
 - 2026-05-29 19:48 PDT — corrected `session-lifecycle-state.ts` per Cael `1510111891` cross-walk (gateway-internal, not continuation-intersection); resolved gpt-5.5 question (KEEP confirmed via cael+silas convergence; name-catch-up ≠ behavior-catch-up canon banked).
 - 2026-05-29 19:55 PDT — refined FROZEN-STALE proxy per Ronan `1510113963` methodology improvement (raw-del/raw-add vs net-del/net-add). Surfaced 2 additional candidates missed by net-proxy, including `server-methods/agent.ts` (Swim-9 invariant file). Combined-finding now 13 unique files (9 + 7 - 3 overlap).
+- 2026-05-29 19:58 PDT — method-shortcut refined per cohort cross-correction cascade. The original shortcut (without `--write-tree`) gave correct file count (25) but produced incorrect marker counts across cohort attempts. New canonical invocation uses `--write-tree` + `grep ^CONFLICT` (file count) and per-blob marker grep (region count). Silas-cluster: 9 files, 12 marker regions total.
 
 ## Provenance
 

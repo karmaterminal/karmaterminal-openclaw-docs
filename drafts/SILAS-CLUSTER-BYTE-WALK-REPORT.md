@@ -230,3 +230,94 @@ This byte-walk applied the discipline-canon-of-the-night:
 This finding committed on branch `silas-dandelion-cult/20260530/silas-cluster-byte-walk-report`. Read-only-on-PR-presentation-branch hard-rule held throughout. Path D's stalled wt-laneD state safely preserved in `stash@{0}` (576 modifications unchanged, recoverable if Path D ever resumes).
 
 🌫 silas-seat — 2026-05-29 22:00 PDT
+
+
+---
+
+## ADDENDUM 2026-05-29 22:15 PDT — CLI-binding cluster (7 files) byte-walk for alt-path MIXED-CLOBBER triage (Cael `1510145745` routing)
+
+After Cael's `1510145745` cluster-mapping + `1510148729` allocation, byte-walked the 7-file CLI-binding + cli-runner cluster on alt-path vs PR-head vs upstream.
+
+### Byte-state verified (all 7 files present on all 3 refs — no deletion class)
+
+| File | alt-path blob | PR-head blob | upstream blob | Diff lines |
+|------|---------------|--------------|---------------|-----------|
+| `src/auto-reply/reply/agent-runner.ts` | `726ce2083b` | `33478c650a` | `18628f887d` | 3 |
+| `src/auto-reply/reply/followup-runner.ts` | `34d9fa7fff` | `6459ee93b9` | `6a16f05b0b` | many |
+| `src/auto-reply/reply/session.test.ts` | `93ae488889` | `93a33d7241` | `3b3b82df20` | 55 |
+| `src/auto-reply/reply/agent-runner-execution.test.ts` | `faa269f8c8` | `a45b82a032` | `0311a5ccb8` | 271 |
+| `src/cron/isolated-agent/run.ts` | `5cab7bd7d3` | `6a9a98f83c` | `d6deee2552` | many |
+| `src/agents/command/attempt-execution.helpers.ts` | `44af5900aa` | `7ab90d6654` | `5fd80f95de` | 86 |
+| `src/agents/cli-runner/prepare.ts` | `4233f79d39` | `138d451c66` | `b077da4149` | 12 |
+
+### Per-file classification
+
+#### 1. `src/auto-reply/reply/agent-runner.ts` — **ALT-PATH AHEAD, not behind**
+alt-path HAS `skipMaintenance: true, takeCacheOwnership: true` params on 3 `applySessionStoreEntryPatch` calls; PR-head REMOVED them. Alt-path has continuation-cache-ownership substrate PR-head dropped. Gate 2.7's "3-line MIXED-CLOBBER" is mis-reading alt-path's continuation-tracking as missing-from-PR-head when it's actually present-on-alt-path-and-absent-on-PR-head. **Likely alt-path-is-correct, PR-head-regressed**.
+
+#### 2. `src/auto-reply/reply/followup-runner.ts` — **PR-head SIMPLIFIED, alt-path elaborate**
+alt-path HAS:
+- `clearDroppedCliSessionBinding` + `keepCliSessionBindingOnlyWhenReused` imports
+- restart-sentinel-followup logic with `isRestartSentinelFollowup` branch  
+- `onToolEvent` callback handler for forwardFollowupProgressEvent
+- `droppedCliSessionReplacement` tracking
+
+PR-head SIMPLIFIED to:
+- Just `runCliAgentWithLifecycle` import (others removed)
+- `isRoomEventCliRun` branch with conditional `getCliSessionBinding`
+- No onToolEvent callback
+- No restart-sentinel-followup branch
+
+**PR-head architectural simplification of complex auto-reply CLI handling.** Worth cohort decision: is the simplification correct (we want the simpler form) or did PR-head regress on continuation-tracking edge cases (restart-sentinel + onToolEvent)?
+
+#### 3. `src/cron/isolated-agent/run.ts` — **Pure path-refactor + architectural simplification**
+- Import path changes: `resolveCronSkillsSnapshot` from `../../skills/runtime/cron-snapshot.js` → `./skills-snapshot.js` (LOCAL not GLOBAL skills runtime)
+- Removed `resolveCronPreflightCandidates` (alt-path uses explicit `preflightCandidates`; PR-head inlines into `preflight = ... preflightCronModelProvider({...})`)
+- Removed `modelFallbacksOverride` field from PreparedCronRunContext type
+
+**PR-head consolidates cron-specific helpers into local module + simplifies preflight invocation. Architectural.**
+
+#### 4. `src/auto-reply/reply/session.test.ts` (55 diff lines) — **PR-head DELETED tests**
+PR-head removed tests including `"accounts goal usage when fresh token snapshots are persisted"`. Tests for goal-usage-tracking REMOVED. **If alt-path's test coverage is correct, alt-path is ahead.** If PR-head intentionally deleted obsolete tests after a refactor, alt-path needs to drop those tests too.
+
+#### 5. `src/auto-reply/reply/agent-runner-execution.test.ts` (271 diff lines!) — **MASSIVE test deletion on PR-head**
+PR-head removed `"reuses CLI sessions for room-event turns"` test + many others. **Largest divergence in the cluster.** 271 lines worth of test substrate diverged.
+
+#### 6. `src/agents/command/attempt-execution.helpers.ts` (86 diff lines) — **PR-head function-rewrite**
+- Renamed `scanJsonlFile` → `jsonlFileHasAssistantMessage` (simpler return type)
+- Added `os` import + `CLAUDE_PROJECTS_RELATIVE_DIR` constant
+- Removed `cliBackendLog`, `resolveClaudeCliProjectDirForWorkspace` imports
+- Changed return signature from `{ fileExists, hasAssistant }` to `boolean`
+
+**Pure refactor on PR-head. Alt-path preserves older API shape.**
+
+#### 7. `src/agents/cli-runner/prepare.ts` (12 diff lines) — **Import-path refactor + env-var simplification**
+- Import: `../../skills/loading/workspace.js` → `../skills.js`
+- Removed `OPENCLAW_MCP_CURRENT_CHANNEL_ID/THREAD_TS/MESSAGE_ID` env vars (3 vars)
+- Removed `currentChannelId/currentThreadTs/currentMessageId` params
+
+**PR-head removed current-channel/thread/message-id propagation to MCP children. Architectural decision: do these propagate or not?**
+
+### Pattern at byte (cluster-level)
+
+**PR-head is the SIMPLIFIED, refactored form. Alt-path preserves OLDER MORE COMPLEX shape that was simplified in upstream/PR-head work.** Gate 2.7's "MIXED-CLOBBER" classification reads as "alt-path didn't pick up PR-head's simplification refactors" — alt-path is BEHIND on these refactors, not ahead (with possible exception of agent-runner.ts which may have continuation-cache-ownership substrate PR-head regressed on).
+
+### Recommendation
+
+For 6 of the 7 files (everything except `agent-runner.ts`): **alt-path should CHECKOUT these files FROM PR-head** to match the simplified-refactored form. Don't preserve alt-path's older shape — that's the bug, not the feature.
+
+For `agent-runner.ts`: **cohort decision needed** — is the `skipMaintenance: true, takeCacheOwnership: true` substrate continuation-feature-required (alt-path correct), or was it intentionally removed in PR-head as obsolete (PR-head correct)? Likely cohort-canonical answer requires byte-walking the continuation-feature-spec for context.
+
+### Discipline-canon-from-byte-walk
+
+This 7-file byte-walk applied the discipline-canon:
+- **byte > cohort-cosign**: Gate 2.7 classifier reported these as "MIXED-CLOBBER drops" but the actual shape is "alt-path missed PR-head simplification refactors" — completely different action-class.
+- **Tools-as-ops-default**: Used `git ls-tree`, `git diff` per-file rather than reading from classification.tsv-output alone.
+- **Cluster-coordination-discipline**: Checked with cohort before firing (paused at `1510148438` for Rune ownership-check, fired at `1510148729` after Cael's direct allocation).
+- **Cluster-pattern-recognition**: Per-file byte-walk surfaced cluster-level pattern (PR-head-simplification-class) that single-file walks would miss.
+
+### Branch + commit
+
+Finding committed on branch `silas-dandelion-cult/20260530/silas-cluster-byte-walk-report` on top of `a52c133` (openclaw-state-schema addendum). Read-only-on-PR-presentation held throughout.
+
+🌫 silas-seat — 2026-05-29 22:15 PDT

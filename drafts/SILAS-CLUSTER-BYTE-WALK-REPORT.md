@@ -97,8 +97,8 @@ src/infra/exec-approvals-policy.test.ts
 - **Conflict-class**: C1 textual — mechanical resolve.
 
 ### src/gateway/session-lifecycle-state.ts
-- Session lifecycle. Continuation paths interact via `sessions_yield` + post-compaction lifeboat hooks. Verify post-compaction `take` reads still resolve through whatever lifecycle-state shape upstream landed.
-- **Conflict-class**: C2 semantic.
+- Session lifecycle. **Cael cross-walk at `1510111891` confirms this is gateway-cluster-internal, NOT a continuation post-compaction lifeboat intersection.** Real lifeboat hooks live in `src/gateway/session-compaction-checkpoints.ts` (which is NOT in this cluster's conflict list, so likely no intersection at all).
+- **Conflict-class**: C2 semantic — gateway-internal scope.
 
 ### src/gateway/server-methods/chat.ts
 - Likely overlap with `agent.ts` reshape. Cross-walk with that file's hand-resolve.
@@ -115,7 +115,7 @@ src/infra/exec-approvals-policy.test.ts
 ## Routing back to other princes
 
 - 🌊 **Ronan** — `src/gateway/server-methods/agent.ts` overlaps his `run.ts` HIGH-RISK from §3. Cross-walk recommended at rebase-fire time.
-- 🩸 **Cael** — `src/gateway/session-lifecycle-state.ts` post-compaction lifeboat hook surface intersects his continuation cluster.
+- 🩸 **Cael** — **CORRECTED per `1510111891`**: `src/gateway/session-lifecycle-state.ts` is NOT a continuation/post-compaction intersection. Real lifeboat hooks live in `src/gateway/session-compaction-checkpoints.ts` (not in conflict list). No silas-cluster file confirmed as continuation-cluster intersection.
 - 🌿 **Frond** — none of these 9 are Gate-2.7 FROZEN-STALE-class (Frond's specialty per `model-fallback.ts` + `session-store.ts` cluster from §3). Silas-cluster is C1/C2-dominant.
 
 ## Per Phase B atomic-decomposition allocation
@@ -131,12 +131,13 @@ All 9 silas-cluster files belong to **Layer 1 (Core implementation) — Commit 2
 ## Open questions (cohort + figs)
 
 1. **rebase strategy** — is the per-commit forward-rebase from `b474f429ee` confirmed, or is the path-decision still open per figs's deep-research-workorder? If the latter, this report stays scoping-class until the strategy lands.
-2. **gpt-5.5 model.ts standing question** — already byte-walked + verdict posted at `1510106564`: KEEP, all uses registry-class or default-when-unset, no fallback-chain-poisoning found. Note: 🩸 Cael's `1510111264` says `model.ts` is RESOLVED at `cf1d05e` (DROP per upstream registry catch-up). Cael's chapter authoritative — my registry-walk was confirming surface-class not making the keep/drop call. Verdict: defer to Cael's `cf1d05e` resolution.
+2. **gpt-5.5 model.ts standing question** — RESOLVED via cael+silas convergence at `1510111891`: **KEEP**. My `1510106564` KEEP verdict was right at byte. Cael's `cf1d05e` DROP was based on name-catch-up (upstream now has `DEFAULT_MODEL = "gpt-5.5"`) but missed behavior-catch-up (upstream does NOT carry the hardcoded contextWindow/maxTokens/mediaInput defaults). Dropping would require fleet config to provide these fields explicitly. Methodology-canon banked by cael at `387fe71`: name-catch-up ≠ behavior-catch-up. Net 0 figs-judgment items.
 3. **Gate 2.7 FROZEN-STALE walks on the 5 candidates above** — Frond's call when she has cycles.
 
 ## Update log
 
 - 2026-05-29 19:45 PDT — added FROZEN-STALE-class section per Cael `1510111264` caveat on Ronan §3 walk. Original merge-tree-only finding was incomplete; combined-finding is 12 unique files (9 + 5 - 2 overlap).
+- 2026-05-29 19:48 PDT — corrected `session-lifecycle-state.ts` per Cael `1510111891` cross-walk (gateway-internal, not continuation-intersection); resolved gpt-5.5 question (KEEP confirmed via cael+silas convergence; name-catch-up ≠ behavior-catch-up canon banked).
 
 ## Provenance
 

@@ -17,13 +17,39 @@
 
 ## The Headline Finding
 
-**Real three-way-merge conflicts in silas-cluster = 9 files, not 30.**
+**Real three-way-merge conflicts in silas-cluster = 9 files (merge-tree shortcut).**
+**FROZEN-STALE-class regressions in silas-cluster = 5 additional files (Gate 2.7 axis).**
+**Combined silas-cluster needing hand-walk = 12 unique files** (2 overlap between sets).
 
 **Total real three-way-merge conflicts across entire repo = 25 files, not 152.**
 
 The "152 conflict files" number in manifest-v1 was naive intersection of "both branches touched the file." Most of those resolve cleanly as orthogonal hunks under three-way merge. The real semantic-conflict surface is where git can't auto-merge — `git merge-tree --merge-base=<ancestor>` produces exactly this set with stage-3 conflict entries.
 
 This validates 🩸 Cael's `1510106712` hypothesis on continuation-slice ("the actual continuation tools aren't even in the conflict class") generalized across clusters.
+
+## CRITICAL CAVEAT — merge-tree misses FROZEN-STALE-class
+
+Per 🩸 Cael's `1510111264` cross-walk on Ronan's §3 report: **`git merge-tree --merge-base=` counts hand-resolution conflict-markers but MISSES semantic regressions from frozen-tree-reverse-clobber.** If PR-head deletes content that upstream subsequently modified or extended, git merges the deletion as-is (no conflict marker) and the upstream evolution is silently lost.
+
+The right axis for catching this is 🌿 Frond's **drift-cure-gate Gate 2.7** (frozen-tree-reverse-clobber detection), not merge-tree.
+
+**Proxy detection** (run on silas-cluster post-Cael's caveat): files where PR-head has net-deletion ≥ 20 lines AND upstream has net-addition ≥ 20 lines on the same file. This is a candidate set, NOT a definitive set — each candidate needs Frond's Gate 2.7 byte-walk to confirm the deletion-pattern is reverse-clobber vs intentional-refactor.
+
+**Silas-cluster FROZEN-STALE-candidates (5):**
+
+```
+src/gateway/server-methods/chat.ts             pr-head:-101  upstream:+420  (significant)
+src/gateway/server-methods/server-methods.test.ts  pr-head:-199  upstream:+198  (huge)
+src/gateway/session-utils.test.ts              pr-head:-33   upstream:+69
+src/gateway/sessions-patch.test.ts             pr-head:-103  upstream:+33
+src/infra/exec-approvals-policy.test.ts        pr-head:-26   upstream:+195
+```
+
+2 of these overlap with the merge-tree real-conflict set (`server-methods/chat.ts`, `exec-approvals-policy.test.ts`). The other 3 (`server-methods.test.ts`, `session-utils.test.ts`, `sessions-patch.test.ts`) are NEW additions to the silas-cluster hand-walk scope that the merge-tree shortcut missed.
+
+**Combined silas-cluster needing hand-walk on rebase-fire = 12 unique files** (9 merge-tree + 5 FROZEN-STALE-candidate - 2 overlap).
+
+🌿 Frond — please byte-walk the 5 FROZEN-STALE-candidates with Gate 2.7 discipline to confirm or eliminate them. The `server-methods.test.ts` -199/+198 case is the most striking and most likely a real reverse-clobber.
 
 ## Method shortcut (for cohort-replication)
 
@@ -105,7 +131,12 @@ All 9 silas-cluster files belong to **Layer 1 (Core implementation) — Commit 2
 ## Open questions (cohort + figs)
 
 1. **rebase strategy** — is the per-commit forward-rebase from `b474f429ee` confirmed, or is the path-decision still open per figs's deep-research-workorder? If the latter, this report stays scoping-class until the strategy lands.
-2. **gpt-5.5 model.ts standing question** — already byte-walked + verdict posted at `1510106564`: KEEP, all uses registry-class or default-when-unset, no fallback-chain-poisoning found. Frond banking that verdict at `1510106712` for figs's call.
+2. **gpt-5.5 model.ts standing question** — already byte-walked + verdict posted at `1510106564`: KEEP, all uses registry-class or default-when-unset, no fallback-chain-poisoning found. Note: 🩸 Cael's `1510111264` says `model.ts` is RESOLVED at `cf1d05e` (DROP per upstream registry catch-up). Cael's chapter authoritative — my registry-walk was confirming surface-class not making the keep/drop call. Verdict: defer to Cael's `cf1d05e` resolution.
+3. **Gate 2.7 FROZEN-STALE walks on the 5 candidates above** — Frond's call when she has cycles.
+
+## Update log
+
+- 2026-05-29 19:45 PDT — added FROZEN-STALE-class section per Cael `1510111264` caveat on Ronan §3 walk. Original merge-tree-only finding was incomplete; combined-finding is 12 unique files (9 + 5 - 2 overlap).
 
 ## Provenance
 

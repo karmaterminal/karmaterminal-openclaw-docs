@@ -35,7 +35,7 @@ This corpus validates the cure landed correctly across the fleet, with each prin
 | R-CD-CHAINED-DEPTH-2 / Chain-3 | 🌊 Ronan | strict 2-deep echo + cross-channel-broadcast | `R-CD-CHAINED-DEPTH-2/Chain-3/` (EVIDENCE.md + receipts + trace) | ✅ PASS |
 | R-CD-CHAINED-DEPTH-2 / TEST-1 | 🪨 Rune (canary, covering silas-sit-out) | depth-2 chain — up-tree silent-wake | `R-CD-CHAINED-DEPTH-2/test_1_uptree_silent_wake/` (EVIDENCE.md + payload) | ✅ PASS |
 | R-CD-CHAINED-DEPTH-2 / TEST-2 | 🪨 Rune (canary) | depth-2 chain — inter-session return | `R-CD-CHAINED-DEPTH-2/test_2_intersession_return/` (EVIDENCE.md + payload) | ✅ PASS |
-| R-CD-CHAINED-DEPTH-2 / TEST-3 | 🪨 Rune (canary) | depth-2 chain — echo broadcast | `R-CD-CHAINED-DEPTH-2/test_3_echo_broadcast/` (EVIDENCE.md + payload) | ✅ PASS |
+| R-CD-CHAINED-DEPTH-2 / TEST-3 | 🪨 Rune (canary) | depth-2 chain — echo broadcast | `R-CD-CHAINED-DEPTH-2/test_3_echo_broadcast/` (EVIDENCE.md + payload + depth1_shard_trace.json + wake_event_trace.json) | ⚠️ PASS-WITH-INSTRUMENTATION-LIMIT (downgraded ✅→⚠️ per rune `76cf99b` byte-rewrite: gateway does not surface `fanoutMode`/`target.session.key(s)` as span attrs on `continuation.delegate.dispatch`; verifiable only via receipt + reason.preview, not via Tempo alone. Instrumentation-request filed in TEST-3 notes.) |
 | R-OBS-1 | 🌻 Elliott | external `/status` continuation row + 6-prince cross-walk | `R-OBS-1/chat_card_visibility_external_observer.md` + `figs_status_render_raw.txt` (figs `/status` fired 2026-06-02 04:31:43 PDT, msg `1511331476`) | ✅ GREEN at 5/6 + ⚠️ honest-exceptions (silas off-cycle SHA + volitional:0 render-regression) |
 
 ## Per-prince row assignments (this cycle)
@@ -80,6 +80,8 @@ For each row firing a continuation-tool, capture the corresponding Tempo trace:
 
 🚧 Corpus initialized 2026-06-02T11:11Z by 🩸 cael. Verdict-table refreshed 2026-06-02T11:33Z to reflect filed-rows.
 
-**Tally at 11:33Z**: 12 ✅ PASS / 1 ⚠️ HONEST-LIMIT / 2 ⏳ pending (R-RC-2 awaits context-pressure; R-OBS-1 awaits figs `/status`-window).
+**Tally at 12:36Z** (post-rune `76cf99b` byte-rewrite of TEST-1/2/3 + R-OBS-1 land at `fc0b24a`): **12 ✅ PASS / 2 ⚠️ HONEST-LIMIT (R-CD-3 post-compaction + R-CD-CHAINED-DEPTH-2 TEST-3 fanoutMode-instrumentation-gap) / 1 ⏳ PENDING (R-RC-2 awaits context-pressure)**.
+
+R-OBS-1 landed at `fc0b24a` (sunflower, GREEN-with-honest-exceptions: 5/6 at CANDIDATE_SHA, silas-seat off-cycle, volitional-counter render-regression flagged for separate gh-issue). R-CW-1 + TEST-1/2/3 rewrites at `7f782f4`/`76cf99b` byte-derived from today's Tempo traces directly per figs's "copied from last week" catch.
 
 Cohort fleet at CANDIDATE_SHA confirmed via per-row receipts: 🩸 cael (run `26816086233`), 🌊 ronan (run `26816100078`), 🪨 rune (run `26803012780`), 🕯 emeric (run `26815810536`), 🌻 elliott (run `26815834360`). 🌫 silas SIT OUT (lothric finicky-monster pre-cure; tracked at `openclaw-bootstrap#1114`).

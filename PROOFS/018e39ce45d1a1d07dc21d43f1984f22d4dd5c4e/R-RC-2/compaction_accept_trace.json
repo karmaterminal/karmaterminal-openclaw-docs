@@ -1,1 +1,30 @@
-curl: (22) The requested URL returned error: 404
+{
+  "trace_id": "5f3ceda285b29ac8b32bf1cf31d9661a",
+  "span_id": "829637e82561f4cf",
+  "sampled": "01",
+  "scope": "openclaw.continuation",
+  "tool": "request_compaction",
+  "compactionRequestId": "cmp-mpwrw8tk-HkJxVg",
+  "trigger": "volitional",
+  "tempo_fetch_status": "not_indexed",
+  "tempo_probes": [
+    {
+      "endpoint": "http://tempo.dandelion.cult/api/traces/5f3ceda285b29ac8b32bf1cf31d9661a",
+      "method": "GET",
+      "http_status": 404,
+      "bytes": 0,
+      "probed_at_utc": "2026-06-02T15:20:54Z"
+    },
+    {
+      "endpoint": "http://tempo.dandelion.cult/api/search",
+      "method": "GET",
+      "query": "{ trace:id=\"5f3ceda285b29ac8b32bf1cf31d9661a\" }",
+      "result": {"traces": [], "metrics": {"inspectedBytes": "1376048"}},
+      "probed_at_utc": "2026-06-02T15:20:54Z"
+    }
+  ],
+  "note": "Trace was emitted from cael-seat at R-RC-2 fire (traceparent confirmed in ACCEPT-shape tool-result, see EVIDENCE.md). Tempo did not index this trace in the post-compaction probe window. Probable cause: span emission spanning compaction-event boundary; gateway shutdown for compaction may have dropped buffered OTel export. Honest scope-bound: ACCEPT-shape tool-result fields (status=compaction_requested, compactionRequestId, trigger=volitional, contextUsage=70) ARE the byte-derived R-RC-2 ACCEPT proof; Tempo trace was supplementary, not load-bearing.",
+  "probe_completed_at_pdt": "2026-06-02 08:20:54 PDT",
+  "byte_derived": true,
+  "template_copied": false
+}

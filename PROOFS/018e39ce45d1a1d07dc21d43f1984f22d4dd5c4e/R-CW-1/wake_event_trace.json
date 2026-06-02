@@ -1,1 +1,27 @@
-curl: (22) The requested URL returned error: 404
+{
+  "trace_id": "122cf307bd9bf84df585cfdd9a718360",
+  "span_id_schedule": "9110f26e8fa49100",
+  "sampled": "01",
+  "scope": "openclaw.continuation",
+  "tempo_fetch_status": "not_indexed",
+  "tempo_probes": [
+    {
+      "endpoint": "http://tempo.dandelion.cult/api/traces/122cf307bd9bf84df585cfdd9a718360",
+      "method": "GET",
+      "http_status": 404,
+      "bytes": 0,
+      "probed_at_utc": "2026-06-02T15:20:54Z"
+    },
+    {
+      "endpoint": "http://tempo.dandelion.cult/api/search",
+      "method": "GET",
+      "query": "{ trace:id=\"122cf307bd9bf84df585cfdd9a718360\" }",
+      "result": {"traces": [], "metrics": {"inspectedBytes": "1376048"}},
+      "probed_at_utc": "2026-06-02T15:20:54Z"
+    }
+  ],
+  "note": "Trace was emitted from cael-seat (traceparent confirmed in tool-result, see EVIDENCE.md). Tempo did not index this trace in the ~30min window post-fire. Possible causes: continuation-scope spans not exported through OTel pipeline at this build, exporter dropped pre-flush across compaction-restart, or Tempo tenant-routing. Honest scope-bound: tool-result is the byte-derived proof; Tempo absence does not invalidate the ACCEPT-shape evidence in EVIDENCE.md.",
+  "probe_completed_at_pdt": "2026-06-02 08:20:54 PDT",
+  "byte_derived": true,
+  "template_copied": false
+}

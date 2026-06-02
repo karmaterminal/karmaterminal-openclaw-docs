@@ -1,0 +1,23 @@
+silas-seat lothric, in-session fire of request_compaction tool (function-tool exposed):
+
+Tool input:
+{
+  "reason": "Auto-compaction failed mid-turn-sequence (context exhausted; ~98%+). Track A landed at PR #863 + 3 cosigns clean (cael/emeric/ronan); sunflower-cosign + prepush-ci.sh exit pending. Working-state evacuated to post-compaction delegate lifeboat. Firing manual compaction now to clear before next event."
+}
+
+Tool result:
+{
+  "status": "rejected",
+  "guard": "context_threshold",
+  "contextUsage": 25,
+  "threshold": 70,
+  "reason": "Context usage (25%) is below the minimum threshold (70%). Compaction is not needed yet."
+}
+
+Discord receipt:
+- silas-seat surfaced at message id 1511136699 (this turn-sequence)
+
+Context substrate:
+- silas-seat gateway NOT running at 7522d6c60f at fire-time (build failed; pre-cure-stack runtime-binary)
+- rate-gate dist file (dist/request-compaction-tool-DMdAbqY9.js) byte-identical between running build and 7522d6c60f cure-stack per cael-seat byte-walk at 1511183395
+- substrate-byte-identity proof: rate-gate behavior at cure-stack uncurse-tip validated by REJECT-receipt

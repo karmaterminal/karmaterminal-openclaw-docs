@@ -1,0 +1,8 @@
+{
+  "status": "scheduled",
+  "mode": "normal",
+  "delaySeconds": 0,
+  "delegateIndex": 6,
+  "delegatesThisTurn": 6,
+  "traceparent": "00-a9ee3e3adbbd6a37996e2b8d07f320fa-29409e3be7b9464c-01"
+}

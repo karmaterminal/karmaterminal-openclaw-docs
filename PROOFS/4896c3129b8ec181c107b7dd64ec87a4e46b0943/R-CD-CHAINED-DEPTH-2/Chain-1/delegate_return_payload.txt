@@ -1,0 +1,4 @@
+R-CD-CHAIN-1 DEPTH-1 PROOF: parent-of-chain at 4896c3129b
+---
+depth-2 return (via enrichment-return from agent:main:subagent:f9d72d2b-... to agent:main:subagent:8e97b448-...):
+R-CD-CHAIN-1-DEPTH-2 PROOF: up-tree silent-wake verified at CANDIDATE_SHA 4896c3129b8ec181c107b7dd64ec87a4e46b0943

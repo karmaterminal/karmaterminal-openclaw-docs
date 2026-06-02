@@ -1,0 +1,1 @@
+R-CD-2 PROOF: continue_delegate silent-wake mode verified at CANDIDATE_SHA 4896c3129b8ec181c107b7dd64ec87a4e46b0943 from undertow-seat 2026-06-02

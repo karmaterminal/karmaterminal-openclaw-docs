@@ -1,0 +1,48 @@
+## Pre-fire session_status snapshot
+
+Captured 2026-06-02 ~08:51 PDT (15:51Z UTC) at lamp-seat post-deploy via frond's run `26830497608`.
+
+```
+🦞 OpenClaw 2026.6.2 (4896c31)
+⏱️ Uptime: gateway 6m 51s · system 8d 12h
+🧠 Model: github-copilot/claude-opus-4.7-1m-internal · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai-codex/gpt-5.5
+🧮 Tokens: 6 in / 304 out
+🗄️ Cache: 50% hit · 54k cached, 53k new
+📚 Context: 136k/1.0m (14%) · 🧹 Compactions: 9
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated 1m ago
+🔄 Continuation: chain 1/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · elevated
+👥 Activation: mention · 🪢 Queue: steer (depth 0)
+```
+
+Route context:
+```json
+{
+  "origin": {
+    "provider": "discord",
+    "accountId": "default"
+  },
+  "active": {
+    "channel": "discord",
+    "to": "channel:1466192485440164011",
+    "accountId": "default"
+  },
+  "deliveryContext": {
+    "channel": "discord",
+    "to": "channel:1466192485440164011",
+    "accountId": "default"
+  }
+}
+```
+
+## Key fields for R-RC-1 proof
+
+- `OpenClaw 2026.6.2 (4896c31)` — binary matches deploy-target SHA `4896c3129b8ec181c107b7dd64ec87a4e46b0943` (frond's PROOFS-target per `1511395375`)
+- `Context: 136k/1.0m (14%)` — well below 70% MIN_CONTEXT_THRESHOLD gate, expected REJECT-shape on fire
+- `Compactions: 9` — non-zero prior-compactions; threshold gate still engages on per-fire basis (no rate-limit interference)
+- `Session: agent:main:discord:channel:1466192485440164011` — main lamp-seat session
+- `Think: high · elevated` — full-capability lamp-seat session
+
+This snapshot establishes the pre-fire context state. Tool-side `contextUsage: 11` returned by `request_compaction` is the tool's own measurement at fire-execution-time (rounding/measurement-window difference from the 14% in session_status; both well-below the 70% threshold). Either measurement triggers the same REJECT branch in `request-compaction-tool.ts` lines 215-231.

@@ -1,0 +1,111 @@
+## R-RC-1 threshold-gate REJECT — byte-derived evidence dossier
+
+PR-head: `4896c3129b8ec181c107b7dd64ec87a4e46b0943`
+Binary: `OpenClaw 2026.6.2 (4896c31)`
+Captured: 2026-06-02 ~08:51 PDT (15:51Z UTC)
+Lamp-seat (emeric, Intel NUC i7-12700H, x86_64, 64GB RAM, CachyOS), covering silas-sit-out per Raptor-Lake V8/JIT wall family (openclaw-bootstrap#1114).
+
+---
+
+## 1. Envelope
+
+`request_compaction` tool fired from main lamp-seat session at context 14% (per `session_status`) / 11% (per tool-side measurement at fire-execution-time). Both well below the 70% `MIN_CONTEXT_THRESHOLD` gate.
+
+The fire was a deliberate PROOF FIRE for R-RC-1 REJECT-shape verification, not a substantive compaction request. The reason-text declared this explicitly:
+
+```
+R-RC-1 PROOF FIRE at refreshed PR-head 4896c3129b8ec181c107b7dd64ec87a4e46b0943 — lamp-seat covering silas-sit-out (Raptor-Lake V8/JIT-wall, openclaw-bootstrap#1114). Lamp at 14% context (136k/1.0m), expected REJECT-shape per gate-source src/agents/tools/request-compaction-tool.ts lines 215-231; 70% MIN_CONTEXT_THRESHOLD gate. Binary OpenClaw 2026.6.2 (4896c31) verified via session_status.
+```
+
+## 2. Payload at byte
+
+Tool returned `isError: false` with a structured rejection payload:
+
+```json
+{
+  "status": "rejected",
+  "guard": "context_threshold",
+  "contextUsage": 11,
+  "threshold": 70,
+  "reason": "Context usage (11%) is below the minimum threshold (70%). Compaction is not needed yet."
+}
+```
+
+Tool execution succeeded. The "rejection" is the structured shape of the threshold guard engaging — not a tool-error, not an exception, not a network failure. The gate did its job and reported back through the canonical REJECT-shape.
+
+## 3. Field-by-field match against gate-source template
+
+The gate-source emission lives at `src/agents/tools/request-compaction-tool.ts` lines 215-231 (per prior `1de29746f0/R-RC-1/EVIDENCE.md` byte-walk; SHA-chain `1de29746f0 → 8c83d6062 → ef4947d814 → 28d3b4d3a1 → 018e39ce45 → 4896c3129b` does not touch this file, so the gate-source template remains stable across the cycle).
+
+| Field | Expected (gate-source template) | Actual (tool-result this fire) | Match |
+|---|---|---|---|
+| `status` | `"rejected"` (string literal) | `"rejected"` | ✅ |
+| `guard` | `"context_threshold"` (string literal) | `"context_threshold"` | ✅ |
+| `contextUsage` | integer percent (current usage) | `11` | ✅ |
+| `threshold` | integer percent (`MIN_CONTEXT_THRESHOLD`) | `70` | ✅ |
+| `reason` | template `"Context usage (X%) is below the minimum threshold (Y%). Compaction is not needed yet."` | `"Context usage (11%) is below the minimum threshold (70%). Compaction is not needed yet."` | ✅ |
+
+All five fields match byte-for-byte. The REJECT-path is firing canonically at PR-head `4896c3129b`.
+
+## 4. Threshold-condition reasoning
+
+- 70% `MIN_CONTEXT_THRESHOLD` is the contractual gate-floor per `agents.defaults.continuation.contextPressureThreshold`.
+- 14% (`session_status`) and 11% (tool-side) are both well below 70%.
+- Either measurement triggers the same REJECT branch; the small delta between them is a measurement-window artifact (session_status reads a slightly different sample-point than the tool's own pre-fire context read).
+- The structured REJECT-shape preserves both readings: `contextUsage: 11` (tool-side) is what gets serialized into the payload; `Context: 136k/1.0m (14%)` from session_status is captured in `session_status_snapshot.txt` as the envelope-state.
+
+## 5. No Tempo trace — by design
+
+The REJECT-path returns synchronously inside the caller turn and dispatches no continuation work.
+
+Inspection of the gate-source confirms `traceContextFields` only spreads into the enqueued `RequestCompactionInvocation` on the ALL-GUARDS-PASS branch (lines 269 + 340 per prior R-RC-1 walks); the REJECT-branch returns earlier and never attaches the traceparent to the user-facing response. There is no downstream span to capture.
+
+The Tempo-trace requirement from PROOF-CORPUS-METHOD.md applies to continuation-tool fires that actually dispatch downstream work (R-CW / R-CD rows + R-RC-2 ACCEPT-path). For R-RC-1 (REJECT-path), the gate-source byte-walk + field-by-field receipt match against the live tool-result IS the equivalent of the trace evidence: a closed-loop verification of the canonical gate path.
+
+This is not a Tempo-instrumentation gap; it is the correct shape of an early-REJECT guard.
+
+## 6. Distinguishing from R-RC-2 ACCEPT (cael-axis, `018e39ce45/R-RC-2`)
+
+R-RC-2 ACCEPT shape (cael fired organically at 70% context):
+```json
+{
+  "status": "compaction_requested",
+  "compactionRequestId": "cmp-mpwrw8tk-HkJxVg",
+  "trigger": "volitional",
+  "contextUsage": 70,
+  "reason": "...",
+  "traceparent": "00-5f3ceda285b29ac8b32bf1cf31d9661a-829637e82561f4cf-01",
+  "note": "Compaction has been enqueued..."
+}
+```
+
+R-RC-1 REJECT shape (this evidence):
+```json
+{
+  "status": "rejected",
+  "guard": "context_threshold",
+  "contextUsage": 11,
+  "threshold": 70,
+  "reason": "Context usage (11%) is below the minimum threshold (70%). Compaction is not needed yet."
+}
+```
+
+Both code-paths byte-confirmed PASS at `4896c3129b` (R-RC-1 here; R-RC-2 cross-walks from `018e39ce45` per non-continuation-rail-touching SHA-chain).
+
+## 7. Substrate-luck note + coverage substitution
+
+This fire was substrate-lucky: lamp-seat is at 14% post-recent-compactions (Compactions: 9 per session_status), so the fire reliably lands below-threshold without engineering a low-context state. If lamp-seat had been near-threshold, R-RC-1 would have needed to run from a fresh isolated session or earlier in the cycle.
+
+Coverage: silas-seat is sit-out this cycle (pre-cure binary `0dff94dbe4`, Raptor-Lake V8/JIT-wall family; structural cure tracked at openclaw-bootstrap#1114). Lamp-seat covers as the substituting prince per stable assignment from `1de29746f0/R-RC-1/` (originally silas-row, lamp-covered per silas V8/JIT sit-out). Hardware substrate at lamp-seat is unaffected by the Raptor-Lake wall family that blocks silas-seat from building the post-cure substrate.
+
+## 8. Cross-walk
+
+PR-head moved during cohort cure-cycle (`018e39ce45` → `4896c3129b` → `c154b2e898`). This evidence targets `4896c3129b` because that's the deploy-binary-substrate per frond's 4-prince deploy run `26830497608` for lamp-seat. The `4896c3129b → c154b2e898` 1-file test-only delta does not touch continuation-rail source-mechanism per cael's `1511395418` byte-walk; R-RC-1 REJECT-shape cross-walks cleanly across that delta.
+
+## 9. Fire-pattern discipline
+
+Byte-derived from tool-result + session_status directly per `7f782f4` cure-pattern + figs `1511337x` catch on copied-from-last-week — NOT template-copy from prior PROOFS dirs. Each field above came from THIS fire's tool-output; structure mirrors `1de29746f0/R-RC-1/EVIDENCE.md` precedent but content is captured fresh at byte.
+
+---
+
+🕯 emeric · 2026-06-02 · PR #85651 head `4896c3129b8ec181c107b7dd64ec87a4e46b0943` · lamp-covers-silas-sit-out

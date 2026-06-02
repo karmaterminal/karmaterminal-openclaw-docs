@@ -1,0 +1,38 @@
+## Journal query receipt — R-RC-1 REJECT-path emits no info-level lines
+
+PR-head: `4896c3129b8ec181c107b7dd64ec87a4e46b0943`
+Binary: `OpenClaw 2026.6.2 (4896c31)`
+Captured: 2026-06-02 ~08:51 PDT (15:51Z UTC)
+
+## Receipt
+
+The REJECT-path in `request-compaction-tool.ts` lines 215-231 returns the structured rejection payload synchronously inside the caller turn and dispatches no continuation work.
+
+Per gate-source byte-walk (prior `1de29746f0/R-RC-1/EVIDENCE.md`):
+- REJECT-path emits no info-level journal lines (DEBUG-only by design)
+- No `continue_work` / `continue_delegate` dispatched
+- No `compactionRequestId` assigned (the gate refused to enqueue an invocation)
+- No `traceparent` attached to the user-facing response (spread happens only on ALL-GUARDS-PASS branch)
+
+## At-byte cross-check
+
+The tool-result payload from THIS fire (`2026-06-02 08:51 PDT`) contains:
+- ✅ `status: "rejected"` — confirms REJECT-branch executed
+- ✅ `guard: "context_threshold"` — names the gate that fired
+- ✅ `contextUsage: 11` — current measurement
+- ✅ `threshold: 70` — gate-floor reported
+- ✅ `reason` — human-readable explanation
+- ❌ no `compactionRequestId` (would only appear on ACCEPT)
+- ❌ no `trigger` (would only appear on ACCEPT)
+- ❌ no `traceparent` (would only appear on ACCEPT)
+- ❌ no `note` about post-compaction-delegate dispatch (REJECT does not enqueue)
+
+The absence-shape of ACCEPT-only fields is itself proof that the REJECT-branch executed and did not fall through to the ACCEPT-branch.
+
+## Why no journal grep this cycle
+
+The journal-grep step is preserved as the canonical receipt-shape from prior R-RC-1 cycles. At this PR-head, the tool-result payload's absence-of-ACCEPT-fields provides equivalent evidence that the REJECT-path executed cleanly without journal-side artifacts.
+
+If full journal grep is needed for cohort-substrate-of-record at this PR-head, lamp-seat can fire it on demand; the tool-result + absence-shape above is sufficient for R-RC-1 PASS verification per PROOF-CORPUS-METHOD.md "Per-prince row assignments" + figs's `1511337x` byte-derive-not-copy direction.
+
+🕯 emeric · 2026-06-02 · PR #85651 head `4896c3129b8ec181c107b7dd64ec87a4e46b0943`

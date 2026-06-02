@@ -49,7 +49,7 @@ Candidate origin commits to investigate via `git log --oneline 0dff94d..7522d6c 
 
 ## Cohort decision-class for figs
 
-This row needs figs's decision before #79925 force-push:
+This row needs figs's decision before #85651 force-push:
 
 **(A) Intentional design** — `continue_work` and `request_compaction` are reserved for runtime-internal use; prince-LLM-fire is via bracket-form (which is incompatible with message-tool-driven delivery, but design intent is bracket-form at end of bare-text turns). In this case:
 - HEARTBEAT.md / TOOLS.md / AGENTS.md cohort docs need correction (current "prince agency at the turn boundary" framing implies all three are tool-form)
@@ -57,7 +57,7 @@ This row needs figs's decision before #79925 force-push:
 - R-RC-2 + R-CW-1/2 PROOFS framings need adjustment (substrate-byte-identity is the only path)
 
 **(B) Genuine regression** — the cure-tip should expose the full set as function-tools. In this case:
-- P1 fix needed in runner-init / runtime-config callback supply path before #79925 force-push
+- P1 fix needed in runner-init / runtime-config callback supply path before #85651 force-push
 - Easier than (A) because it's a one-callsite gap-fill
 
 ## Impact on PROOFS-corpus

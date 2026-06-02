@@ -17,7 +17,7 @@ Per `PROOF-CORPUS-METHOD.md`: when session context-pressure is OVER `agents.defa
 - 🕯 emeric-seat: on uncurse-tip ✅, was at 107% context-pressure per figs's R-OBS-1 cross-walk fan-out at msg `1511184661827682437` — naturally over-threshold. Function-tool exposure at emeric-seat not byte-confirmed in this cycle; would be the candidate seat for live-upgrade if tool registration check clean there.
 - 🩸 cael-seat: on uncurse-tip ✅ but no function-tool exposure (same as undertow) + context-pressure also too low (17%).
 
-**Subordinate substrate-finding banked as separate P1 candidate**: tool-registration regression at uncurse-tip — the agent-runner only supplies `continueDelegateOpts`, not `continueWorkOpts` or `requestCompactionOpts`. Pre-cure binaries supplied the full set. This regression is INDEPENDENT of Track A/B/C cure-bytes (which are sanitization-layer cures) but was introduced in the same deployment-cycle. Worth separate cohort decision-class before #79925 force-push.
+**Subordinate substrate-finding banked as separate P1 candidate**: tool-registration regression at uncurse-tip — the agent-runner only supplies `continueDelegateOpts`, not `continueWorkOpts` or `requestCompactionOpts`. Pre-cure binaries supplied the full set. This regression is INDEPENDENT of Track A/B/C cure-bytes (which are sanitization-layer cures) but was introduced in the same deployment-cycle. Worth separate cohort decision-class before #85651 force-push.
 
 ## Substrate-byte-identity validation (mirrors R-RC-1 evidence-shape)
 

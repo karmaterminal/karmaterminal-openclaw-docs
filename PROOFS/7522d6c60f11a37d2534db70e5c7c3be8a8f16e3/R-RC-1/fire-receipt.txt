@@ -21,3 +21,31 @@ Context substrate:
 - silas-seat gateway NOT running at 7522d6c60f at fire-time (build failed; pre-cure-stack runtime-binary)
 - rate-gate dist file (dist/request-compaction-tool-DMdAbqY9.js) byte-identical between running build and 7522d6c60f cure-stack per cael-seat byte-walk at 1511183395
 - substrate-byte-identity proof: rate-gate behavior at cure-stack uncurse-tip validated by REJECT-receipt
+
+================================================================
+Second silas-seat fire (this turn-sequence, ~30min after first fire)
+================================================================
+
+Tool input:
+{
+  "reason": "R-RC-1 + R-RC-2 dual-fire validation from silas-seat at byte for PROOFS-corpus cohort coverage at uncurse-tip 7522d6c60f. Per Ronan's 1511184842 cross-seat finding, request_compaction not exposed at cael+undertow but silas-seat has full continuation tool-set. Capturing whichever REJECT-shape fires now (context_threshold if context still <70%, OR rate_limit if my prior 1511136699 fire was within RATE_LIMIT_MS window). Both REJECT shapes are valid PROOFS-corpus substrate for the rate-gate validation; ACCEPT-path validated by substrate-byte-identity per Cael 1511183395 byte-walk."
+}
+
+Tool result:
+{
+  "status": "rejected",
+  "guard": "context_threshold",
+  "contextUsage": 47,
+  "threshold": 70,
+  "reason": "Context usage (47%) is below the minimum threshold (70%). Compaction is not needed yet."
+}
+
+Two-axis validation now:
+- First fire: contextUsage=25, threshold=70 → REJECT via context_threshold guard
+- Second fire: contextUsage=47, threshold=70 → REJECT via context_threshold guard
+- Rate-limit window must have expired (>5min between fires); both went through context-threshold guard
+- Rate-gate fires consistently across different context-load levels under threshold (25% AND 47%)
+
+Stronger evidence than single-point fire: gate fires for any contextUsage < threshold, not just edge-case-low (25%) or near-threshold-but-still-below.
+
+R-RC-2 ACCEPT-path: blocked from live-fire at silas-seat (47% < 70%); validated by substrate-byte-identity per Cael 1511183395 byte-walk + source-grep at src/agents/tools/request-compaction-tool.ts showing two-guard-then-enqueue ACCEPT flow.

@@ -1,0 +1,35 @@
+📊 session_status — sunflower-axis (Elliott 🌻), captured 2026-06-02T15:49:33Z (08:49 PDT) via assistant tool-call
+
+🦞 OpenClaw 2026.6.2 (4896c31)
+⏱️ Uptime: gateway 8m 52s · system 9d 15h
+🧠 Model: github-copilot/claude-opus-4.7-1m-internal · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai-codex/gpt-5.5
+🧮 Tokens: 6 in / 1.4k out
+🗄️ Cache: 32% hit · 60k cached, 129k new
+📚 Context: 233k/1.0m (23%) · 🧹 Compactions: 12
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated 1m ago
+🔄 Continuation: chain 1/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · elevated
+👥 Activation: mention · 🪢 Queue: steer (depth 0)
+
+Route context:
+{
+  "origin": {
+    "provider": "discord",
+    "accountId": "default"
+  },
+  "active": {
+    "channel": "discord",
+    "to": "channel:1466192485440164011",
+    "accountId": "default"
+  },
+  "deliveryContext": {
+    "channel": "discord",
+    "to": "channel:1466192485440164011",
+    "accountId": "default"
+  }
+}
+
+---
+Source-derived: assistant session_status tool-call return-value (not screenshot, not template-copy). Captured at the moment of R-OBS-1 fire on sunflower-seat (elliott / 10.0.0.153, CachyOS 7.0.9, Ryzen 9 5900HX + 64GB RAM + RTX 3080).

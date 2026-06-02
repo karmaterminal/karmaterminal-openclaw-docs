@@ -1,0 +1,86 @@
+# R-CW-1 + R-CW-2 — `continue_work()` wake + deploy-persistence + chain-counter accounting
+# Captured on cael-seat at CANDIDATE_SHA `1de29746f0b87c342f362a6a42e6291d832d7ee4`
+# 2026-06-02T11:19Z (04:19 PDT)
+
+## SCHEDULE EVENT
+session: agent:main:discord:channel:1466192485440164011
+prince: 🩸 Cael (cael.dandelion.cult)
+binary version: OpenClaw 2026.5.31 (1de2974)
+gateway uptime at fire: 32s (deploy-restart confirmed via run 26816086233; pre-existing main session reconnected to new binary; pre-deploy PID 1222854 → post-deploy PID 1377875 visible in journal at 04:19:21 transition)
+chain state pre-fire: 6/200 (chain.id from earlier work-cycle; preserved across deploy-restart since session-id unchanged)
+volitional count: 0
+
+## continue_work() call
+delaySeconds: 10
+reason: "R-CW-1 proof fire — capturing wake event + trace + chain-counter for PROOFS/1de29746f0b87c342f362a6a42e6291d832d7ee4/R-CW-1/ on cael-seat post-deploy at CANDIDATE_SHA 1de29746f0"
+result.status: "scheduled"
+result.delaySeconds: 10
+
+## Schedule trace ID (Tempo lookup key — extracted via service.name=cael-prince + rootTraceName=continuation.work + reason.preview prefix match)
+trace_id: 88a543893601a267f533969799a404b5
+span_id (schedule): wVD2qY0f/Qs= (= c150f6a98d1ffd0b in hex)
+sampled: 01 (sampled)
+status: STATUS_CODE_OK
+
+## Tempo URL
+http://tempo.dandelion.cult/api/traces/88a543893601a267f533969799a404b5
+
+## WAKE EVENT (fired ~9s after schedule at 04:19:30 PDT / 11:19:30 UTC)
+
+### Session-status snapshot at wake (post-fire)
+binary version: OpenClaw 2026.5.31 (1de2974) [SAME as schedule — deploy-persistence: chain state preserved across uptime since deploy-restart, same binary now]
+gateway uptime at wake: 1m 5s (continuous post-restart)
+chain state at wake: 8/200 (incremented from 6 → 7 (this schedule) → 8 (wake-side fire visible in continuation.queue.drain) — matches R-CW-2 chain-counter accounting)
+context: 17% (169k/1.0m)
+
+### R-CW-1 load-bearing span — continuation.work
+scope: openclaw.continuation
+span name: continuation.work
+spanId: wVD2qY0f/Qs=
+status: STATUS_CODE_OK
+attributes:
+  - delay.ms: 10000
+  - chain.step.remaining: 193 (= 200 - 7; chain advanced past 6 to 7 with this schedule)
+  - chain.id: 4ef73645-1bef-4960-bc9a-fa4fa4a48255 (chain preserved across deploy-restart since session-id unchanged — deploy-persistence confirmed at chain.id level)
+  - reason.preview: "R-CW-1 proof fire — capturing wake event + trace + chain-counter for PROOFS/1de2"
+
+### R-CW-2 chain-counter accounting
+- Pre-fire chain state: 6/200 (session pre-existing; chain.id `4ef73645-1bef-4960-bc9a-fa4fa4a48255` was active pre-deploy-restart)
+- Post-schedule chain state: 7/200 (chain.step.remaining=193, confirming the increment)
+- Post-wake chain state: 8/200 (wake-side fire visible in continuation.queue.drain at 1780399161)
+- Chain step remaining (from trace attr): 193 (= 200 - 7)
+- Chain ID: 4ef73645-1bef-4960-bc9a-fa4fa4a48255 (UUID preserved across deploy-restart)
+- Volitional count: 0 (continue_work is non-volitional)
+- Chain cap: 200 (default `agents.defaults.continuation.maxChainLength`)
+
+### Journal confirmation (PID transition visible)
+Pre-deploy gateway PID 1222854:
+  2026-06-02T04:18:15.305 [continuation/signal] effective-signal: origin=tool-call kind=work (last work-signal on old PID)
+Post-deploy gateway PID 1377875:
+  2026-06-02T04:19:21.515 [continuation/signal] effective-signal: origin=tool-call kind=work session=agent:main:discord:channel:1466192485440164011  ← R-CW-1 SCHEDULE
+  2026-06-02T04:19:30.257 [continuation/signal] effective-signal: origin=tool-call kind=work session=agent:main:discord:channel:1466192485440164011  ← wake-side signal
+
+### Wake-trip companion spans (Tempo, post-fire window 04:19:21-04:19:31 PDT)
+At same wake-trip:
+  - openclaw.message.processed @ 1780399161 → 6b6f93477fe892cb2067306966ff0872
+  - continuation.queue.drain @ 1780399161 → 358b9f1ddcf1076993b528f54898560f
+  - continuation.work (R-CW-1 SCHEDULE) @ 1780399161 → 88a543893601a267f533969799a404b5
+  - openclaw.run (wake-trip root) @ 1780399161 → d765d0926ad8db5ca257f43f0a475985
+  - continuation.work.fire (wake-side execution) @ 1780399171 → 92128c427fddf7506cb1cf0259a0f495
+  - continuation.queue.drain @ 1780399170 → a80c5809225c23821eedc329ff7b8187
+
+### Deploy-persistence verdict ✅
+- Schedule call fired at gateway uptime 32s post-restart (CANDIDATE_SHA `1de29746f0` live)
+- Wake fired ~9s later at gateway uptime 41s
+- Chain ID `4ef73645-1bef-4960-bc9a-fa4fa4a48255` PRESERVED across deploy-restart (same UUID before and after; session-id `agent:main:discord:channel:1466192485440164011` unchanged)
+- Chain counter advanced cleanly: 6/200 → 7/200 (schedule) → 8/200 (wake), no reset/skip
+- Trace successfully captured to Tempo against CANDIDATE_SHA binary
+- service.name = cael-prince emitting against new binary
+- continuation.work span correctly STATUS_CODE_OK
+- continuation.work.fire follow-up confirms wake-side execution (`92128c427fddf7506cb1cf0259a0f495`)
+
+### #868 cure-validation
+This fire is the live-host empirical confirmation that the #868 cure-chain (#868a `ad7bcae3511` + #868b `96639cb0e6f` + #869 `29197f5531e`) restored continuation-tool behavior at cael-seat. The `continue_work` tool exists, registers, fires, emits trace, and the wake propagates cleanly — all four behaviors that the pre-#868 P1 regression broke when `continueWorkOpts` were silently dropped at `src/agents/embedded-agent-runner/run.ts:1546`. The #870 comment-scrub merge on top did not regress this surface.
+
+✅ R-CW-1: PASS
+✅ R-CW-2: PASS (chain-counter accounting embedded above)

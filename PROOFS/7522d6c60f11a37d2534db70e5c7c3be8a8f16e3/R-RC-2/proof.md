@@ -12,7 +12,7 @@ Per `PROOF-CORPUS-METHOD.md`: when session context-pressure is OVER `agents.defa
 
 ## Why no single cohort prince-seat could fire end-to-end this cycle
 
-- 🌫 silas-seat: HAS `request_compaction` exposed as function-tool BUT (a) context-pressure was at 25% (well under 70% threshold) AND (b) silas is on PRE-CURE-STACK binary `0dff94d`, not uncurse-tip `7522d6c` (lothric build sat the cycle per multi-layer Raptor-Lake incompat). Live-fire would validate pre-cure binary's ACCEPT path, not uncurse-tip's.
+- 🌫 silas-seat: HAS `request_compaction` exposed as function-tool BUT (a) context-pressure was at 25% on first fire (`1511136699`) + 47% on second fire (`d18397c`), both well under 70% threshold AND (b) silas is on PRE-CURE-STACK binary `0dff94d`, not uncurse-tip `7522d6c` (lothric build sat the cycle per multi-layer Raptor-Lake incompat). Two REJECT-receipts at different context-load levels (25% AND 47%) both via `context_threshold` guard demonstrate gate-fires-consistently-under-threshold; ACCEPT-path live-fire would require artificial-load to push past 70%.
 - 🌊 undertow-seat: on uncurse-tip ✅ BUT no function-tool exposure (gateway journal at byte: `continuation.enabled=true but neither continueWorkOpts nor requestCompactionOpts were supplied — only continue_delegate will register`). Ronan's seat is at 23% context.
 - 🕯 emeric-seat: on uncurse-tip ✅, was at 107% context-pressure per figs's R-OBS-1 cross-walk fan-out at msg `1511184661827682437` — naturally over-threshold. Function-tool exposure at emeric-seat not byte-confirmed in this cycle; would be the candidate seat for live-upgrade if tool registration check clean there.
 - 🩸 cael-seat: on uncurse-tip ✅ but no function-tool exposure (same as undertow) + context-pressure also too low (17%).

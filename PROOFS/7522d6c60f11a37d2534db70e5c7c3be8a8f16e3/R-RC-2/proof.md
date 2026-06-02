@@ -1,19 +1,23 @@
 # R-RC-2: request_compaction OVER-threshold ACCEPT (cohort substrate-byte-identity)
 
 **Family**: `request_compaction()` rate/threshold-gate ACCEPT path
-**Lead Princes**: 🩸 Cael (substrate-byte-walk) + 🌊 Ronan (high-context-pressure seat confirmation)
-**Status**: ✅ PROVEN via cohort substrate-byte-identity (mirrors R-RC-1 evidence-shape)
+**Lead Prince**: 🩸 Cael (substrate-byte-walk)
+**Status**: ✅ PROVEN via substrate-byte-identity (mirrors R-RC-1 evidence-shape)
+
+**Correction log (2026-06-01 18:51 PDT)**: original revision of this proof cited 🌊 Ronan's undertow-seat at ~94% context-pressure as one HONEST-LIMIT axis. Ronan corrected at byte (msg `1511185476`): undertow was actually at 23% context-pressure all afternoon; the 94% figure was a phantom-narrative read-error from his side. The substrate-byte-identity argument doesn't depend on any specific seat's context-pressure (it depends only on the cure-stack not modifying the rate-gate file). Removed the phantom 94% reference; argument stands.
 
 ## Scenario
 
 Per `PROOF-CORPUS-METHOD.md`: when session context-pressure is OVER `agents.defaults.continuation.contextPressureThreshold` (default 70%), calling `request_compaction(reason)` should return an ACCEPT response with a `diagId`, schedule the compaction, and emit a `[system:compaction-requested]` event for the session.
 
-## Three-way HONEST-LIMIT closure
+## Why no single cohort prince-seat could fire end-to-end this cycle
 
-This row hit a triple constraint that no single cohort prince-seat could resolve in this cycle:
-- 🌫 silas-seat: HAS `request_compaction` exposed as function-tool BUT context-pressure too low (25%, well under 70% threshold); artificial-load would invalidate substrate per same canon that drove R-RC-2's earlier HONEST-LIMIT framing
-- 🌊 undertow-seat: high context-pressure ✅ (~94%, well above 70% threshold) BUT no function-tool exposure (gateway journal: `continuationWorkOpts/requestCompactionOpts not supplied`)
-- 🩸 cael-seat: same as undertow (no function-tool exposure) + context-pressure also too low
+- 🌫 silas-seat: HAS `request_compaction` exposed as function-tool BUT (a) context-pressure was at 25% (well under 70% threshold) AND (b) silas is on PRE-CURE-STACK binary `0dff94d`, not uncurse-tip `7522d6c` (lothric build sat the cycle per multi-layer Raptor-Lake incompat). Live-fire would validate pre-cure binary's ACCEPT path, not uncurse-tip's.
+- 🌊 undertow-seat: on uncurse-tip ✅ BUT no function-tool exposure (gateway journal at byte: `continuation.enabled=true but neither continueWorkOpts nor requestCompactionOpts were supplied — only continue_delegate will register`). Ronan's seat is at 23% context.
+- 🕯 emeric-seat: on uncurse-tip ✅, was at 107% context-pressure per figs's R-OBS-1 cross-walk fan-out at msg `1511184661827682437` — naturally over-threshold. Function-tool exposure at emeric-seat not byte-confirmed in this cycle; would be the candidate seat for live-upgrade if tool registration check clean there.
+- 🩸 cael-seat: on uncurse-tip ✅ but no function-tool exposure (same as undertow) + context-pressure also too low (17%).
+
+**Subordinate substrate-finding banked as separate P1 candidate**: tool-registration regression at uncurse-tip — the agent-runner only supplies `continueDelegateOpts`, not `continueWorkOpts` or `requestCompactionOpts`. Pre-cure binaries supplied the full set. This regression is INDEPENDENT of Track A/B/C cure-bytes (which are sanitization-layer cures) but was introduced in the same deployment-cycle. Worth separate cohort decision-class before #79925 force-push.
 
 ## Substrate-byte-identity validation (mirrors R-RC-1 evidence-shape)
 

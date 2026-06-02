@@ -1,0 +1,68 @@
+# R-CD-CHAINED-DEPTH-2 TEST-2 — inter-session targeted return (re-fire at 4896c3129b)
+
+**Owner**: 🪨 Rune (canary-seat dual-coverage per silas pre-cure sit-out, openclaw-bootstrap#1114)
+**CANDIDATE_SHA**: `4896c3129b8ec181c107b7dd64ec87a4e46b0943` (PR-head at deploy `26830502539`; cures landed locally at `c154b2e898` post-deploy per cael `1511395418`; binary-substrate-cross-walks because `4896c3129b → c154b2e898` is 1-file test-only delta not touching continuation-rail source-mechanism)
+**Verdict**: ✅ PASS — depth-1 shard dispatched depth-2 `continue_delegate(mode="normal", targetSessionKey=<parent main>)` with cross-session-targeted return + tool-result-instrumentation-advance vs prior `1de29746f0` cycle (`targetSessionKey` now exposed in scheduled-response JSON).
+
+## Shape under test
+
+Depth-2 chain: parent (rune main) → depth-1 delegate → depth-2 `continue_delegate(targetSessionKey=<parent>)` with normal-mode payload. Verifies (a)-shape explicit recipient-addressing via session-delivery-queue across two hops, where depth-2 delivery targets original parent rather than depth-1 dispatcher.
+
+## Byte-derived fire-evidence (rune-prince service, host `rune`)
+
+### Depth-0 → depth-1 dispatch (parent main scheduling TEST-2 shard)
+
+- **cohort traceparent**: `00-9d0fb000a9dab72aec1721b28e60f12e-d3ce368cb0ae65b1-01`
+- **trace_id**: `9d0fb000a9dab72aec1721b28e60f12e`
+- **parent span**: `d3ce368cb0ae65b1`
+- **Note**: TEST-1/2/3 depth-0 → depth-1 dispatches share single cohort traceparent (single-turn-3-parallel-fires from parent main)
+
+### Depth-1 → depth-2 dispatch (TEST-2 shard scheduling cross-session-targeted return)
+
+- **depth-1 session_id**: `agent:main:subagent:dcb2a6ad-1552-433a-a20b-0bdf26b52b03`
+- **depth-1 → depth-2 continue_delegate tool-result**:
+```json
+{
+  "status": "scheduled",
+  "mode": "normal",
+  "delaySeconds": 0,
+  "delegateIndex": 1,
+  "delegatesThisTurn": 1,
+  "targetSessionKey": "agent:main:discord:channel:1466192485440164011",
+  "traceparent": "00-9d0fb000a9dab72aec1721b28e60f12e-d3ce368cb0ae65b1-01",
+  "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+}
+```
+- **Verified at byte**: `mode="normal"` ✅ + `targetSessionKey="agent:main:discord:channel:1466192485440164011"` ✅ (parent main session, cross-session targeted)
+- **depth-2 spawn-id**: not visible at schedule-time (status=scheduled; spawn happens post-depth-1-response per gateway runtime design)
+
+## Instrumentation-advance vs prior `1de29746f0/test_2_intersession_return`
+
+Prior cycle EVIDENCE.md noted: "❌ NOT independently confirmed in Tempo from these two traces: explicit `target.session.key` attribute on the dispatch span (gateway instrumentation does not surface targetSessionKey as a separate span attr in this run)." At `4896c3129b` build the tool-result directly exposes `targetSessionKey` in the scheduled-response JSON (line above), closing the instrumentation-gap at the depth-1-tool-result layer. Tempo span attributes-walk pending fleet observability recovery per cael `1511395767` HONEST-LIMIT.
+
+## Session topology
+
+- Parent main session: `agent:main:discord:channel:1466192485440164011`
+- Depth-1 session: `agent:main:subagent:dcb2a6ad-1552-433a-a20b-0bdf26b52b03`
+- Depth-2 target: parent main session (cross-session normal-mode return, channel-visible per delivery context)
+
+## Honest scope of PASS
+
+- ✅ Cohort traceparent recorded for depth-0 → depth-1 dispatch (single trace_id shared with TEST-1/3).
+- ✅ Depth-1 successfully scheduled depth-2 with `mode=normal` + `targetSessionKey=<parent>` exposed in tool-result.
+- ✅ Instrumentation-advance vs prior cycle: `targetSessionKey` now exposed in scheduled-response JSON (was Tempo-only-instrumentation-gap previously).
+- ❌ NOT captured: depth-2 cross-session-targeted delivery arrival at parent main (would emit under depth-2 trace post-dispatch).
+- ❌ NOT captured: Tempo span attribute walk (fleet observability 404 per cael `1511395767` HONEST-LIMIT; will re-fetch when observability recovers).
+
+## Reproducer
+
+```
+continue_delegate(
+  task="[depth-1] fire continue_delegate(targetSessionKey=<parent main session>) at depth-2; return receipt",
+)
+```
+
+## Notes
+
+- Cross-session targeting is (a)-shape canon per continuation-tools section of OpenClaw runtime docs.
+- Tempo URL when fleet observability recovers: http://tempo.dandelion.cult/api/traces/9d0fb000a9dab72aec1721b28e60f12e

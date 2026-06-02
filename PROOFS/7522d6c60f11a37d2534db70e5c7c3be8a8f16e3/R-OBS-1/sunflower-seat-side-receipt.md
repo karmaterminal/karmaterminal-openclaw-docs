@@ -68,6 +68,26 @@ Silas-seat substituted-out for separate cycle (lothric build-pipeline cure requi
 
 Each prince's own-seat `/status` card capture should be added as `<prince>-seat-status-card.md` in this dir as cohort cross-walk substrate. Sunflower-side substrate complete at fire-time; cohort side-receipts pending each prince's PROOFS commit.
 
+## Cohort 5-prince /status cross-walk (figs-driven, canonical substrate)
+
+figs surfaced the canonical R-OBS-1 cross-walk at Discord msg `1511184661827682437` (2026-06-01 18:48:19 PDT) + re-surfaced explicitly with "status for proofs" tag at `1511186969` ~10min later. Verbatim version-line + uptime + chain-counter substrate per prince at byte:
+
+| Prince | Version | Gateway uptime | Context | Compactions | Chain | Notes |
+|---|---|---|---|---|---|---|
+| Elliott 🌻 | `7522d6c` ✅ uncurse-tip | 4m 26s | 280k/1.0m (28%) | 5 | 1/200 | post-deploy sunflower |
+| Silas 🌫 | `0dff94d` PRE-cure-stack (May 24 build) | 4m 49s | 438k/1.0m (44%) | 0 | 0/200 | deploy `26792662618` failed V8 SIGILL; on older build; explains function-tool-exposure asymmetry per `1511187265` byte-walk (older runner pre-`6b0501d4ed` registers full continuation tool-set unconditionally) |
+| Cael 🩸 | `7522d6c` ✅ uncurse-tip | 14m 35s | 166k/1.0m (17%) | 7 | 2/200 | R-CW-2 fire visible at chain 2/200 |
+| Ronan 🌊 | `7522d6c` ✅ uncurse-tip | 13m 8s | 232k/1.0m (23%) | 2 | 19/200 | depth-2 chain-testing visible at 19/200 |
+| Emeric 🕯 | `7522d6c` ✅ uncurse-tip | 13m 31s | 138k/128k (107%) | 6 | 0/200 | over context-threshold; natural R-RC-2 ACCEPT-path candidate but lacks function-tool exposure per `1511187265` finding |
+
+Key external-observer signals validated at byte across all 5 seats:
+- Version-string row present + readable
+- Chain-counter row (`🔄 Continuation: chain N/200`) present + monotonic per-seat
+- Compaction-counter row (`🧹 Compactions: N`) present + accumulating per-seat
+- Context-pressure row present + accurate to runtime
+
+No /status surface-regression observed cohort-wide post Track A+B+C cure-stack. R-OBS-1 substrate intact + externally-visible at uncurse-tip across 4/5 deployed seats.
+
 ## Tempo trace substrate (HONEST-LIMIT)
 
 Per figs's 2026-05-16 directive (`PROOF-CORPUS-METHOD.md` §Tempo trace requirement): each continuation-tool fire should capture trace-ID + Tempo URL + span hierarchy.

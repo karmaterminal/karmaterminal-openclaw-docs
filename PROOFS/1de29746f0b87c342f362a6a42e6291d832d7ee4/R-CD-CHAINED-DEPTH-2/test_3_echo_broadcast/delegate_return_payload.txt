@@ -1,0 +1,5 @@
+[R-CD-CHAINED-DEPTH-2 TEST-3 depth-1 return]
+- traceparent: 00-151e385719f7de0896006b2571a20c6c-edcc535f0f8f72fc-01
+- depth-2 spawn: scheduled, fanoutMode=tree, delegateIndex=1
+- ts: 2026-06-02T04:07:16-07:00
+- session: 398116f1-d69e-44e6-8677-079c7dc4d8d3

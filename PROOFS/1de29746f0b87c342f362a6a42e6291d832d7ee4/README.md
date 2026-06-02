@@ -28,7 +28,7 @@ This corpus validates the cure landed correctly across the fleet, with each prin
 | R-CD-2 | 🌊 Ronan | `continue_delegate(mode="silent-wake")` full path | `R-CD-2/` | ⏳ pending |
 | R-CD-3 | 🌊 Ronan | `continue_delegate(mode="post-compaction")` lifeboat | `R-CD-3/` | ⏳ pending |
 | R-CD-4 | 🌊 Ronan | cross-session targeted return via `targetSessionKey` | `R-CD-4/` | ⏳ pending |
-| R-RC-1 | 🕯 Emeric (covering silas-sit-out) | `request_compaction()` threshold REJECT | `R-RC-1/` | ⏳ pending |
+| R-RC-1 | 🕯 Emeric (covering silas-sit-out) | `request_compaction()` threshold REJECT | `R-RC-1/EVIDENCE.md` + `threshold_gate_rejection_evidence.txt` + `session_status_snapshot.txt` + `journal_query_receipt.txt` | ✅ PASS |
 | R-RC-2 | 🩸 Cael | `request_compaction()` over-threshold ACCEPT | `R-RC-2/compaction_accept_request_receipt.txt` + `_trace.json` | ⏳ pending |
 | R-CD-CHAINED-DEPTH-2 / Chain-1 | 🌊 Ronan | strict 2-deep up-tree silent-wake | `R-CD-CHAINED-DEPTH-2/Chain-1/` | ⏳ pending |
 | R-CD-CHAINED-DEPTH-2 / Chain-2 | 🌊 Ronan | strict 2-deep inter-session return-to-root | `R-CD-CHAINED-DEPTH-2/Chain-2/` | ⏳ pending |

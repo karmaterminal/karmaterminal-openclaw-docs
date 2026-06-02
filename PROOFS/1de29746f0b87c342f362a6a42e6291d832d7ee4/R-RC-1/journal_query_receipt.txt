@@ -1,0 +1,27 @@
+Journal-query receipt around R-RC-1 fire-window
+================================================================================
+Query: journalctl --user -u openclaw-gateway.service \
+         --since "2026-06-02 04:13:55" \
+         --until "2026-06-02 04:14:25"
+
+Fire-time: 2026-06-02T11:14:09.132Z UTC = 2026-06-02 04:14:09.132 PDT
+
+Result: 1 matching line (filtered list below)
+
+Jun 02 04:14:03 emeric node[791145]: 2026-06-02T04:14:03.760-07:00 [ws] ⇄ res ✓ sessions.list 57ms conn=679575f7…8d4c id=78a334d7…079b
+
+That single line is an unrelated WS RPC response (`sessions.list`) from the
+control-plane, ~5s before the request_compaction fire. No `[request_compaction:…]`
+journal lines.
+
+Re-query, broader window for additional confirmation:
+  journalctl --user -u openclaw-gateway.service --since "2 minutes ago" 2>&1 \
+    | grep -iE "(request.?compact|context_threshold|trace|R-RC-1|compaction)"
+  → 0 matches.
+
+This confirms expectations from the gate-source byte-walk: REJECT-path emits
+log.debug only (gateway runs at log-level=info), and dispatches no
+continuation work that would emit info-level continuation/Tempo lines.
+
+The structured tool-result payload (threshold_gate_rejection_evidence.txt §2)
+is the canonical receipt for this row.

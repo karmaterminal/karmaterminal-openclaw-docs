@@ -1,0 +1,128 @@
+R-RC-1: request_compaction() threshold REJECT — canonical PASS-shape evidence
+================================================================================
+
+Lamp-seat (emeric) firing from main-session at CANDIDATE_SHA 1de29746f0.
+Original silas-row; covering silas-sit-out (Raptor-Lake V8/JIT-wall family,
+openclaw-bootstrap#1114).
+
+VERDICT: ✅ PASS — canonical REJECT-shape fired clean.
+
+--------------------------------------------------------------------------------
+1. Tool fire — request_compaction call envelope
+--------------------------------------------------------------------------------
+Tool call id      : toolu_vrtx_01ViNKZg2Yt3uYZcfYtyHDCw
+Fire timestamp    : 2026-06-02T11:14:09.132Z (UTC)
+Local timestamp   : 2026-06-02 04:14:09 PDT
+Gateway SHA       : 1de29746f0b87c342f362a6a42e6291d832d7ee4 (CANDIDATE_SHA)
+Gateway version   : app 2026.5.31 linux 7.0.10-1-cachyos
+Session ID        : 1c3827f3-82da-439f-a773-58e5e3c56a2c
+Run ID            : cd2b1119-31ec-4a20-8c76-65bebf7c0da7
+Session lane      : agent:main:discord:channel:1466192485440164011
+
+Arguments (verbatim from session jsonl):
+{
+  "reason": "R-RC-1 PROOFS fire at CANDIDATE_SHA 1de29746f0 — testing threshold gate REJECT-shape from low-context main-session (65%, under 70% gate). Lamp-seat covering silas's original row per frond wake 2026-06-02; silas SIT-OUT per Raptor-Lake V8 wall."
+}
+
+--------------------------------------------------------------------------------
+2. Tool result — structured REJECT payload (canonical PASS-shape)
+--------------------------------------------------------------------------------
+Tool result id    : toolu_vrtx_01ViNKZg2Yt3uYZcfYtyHDCw (paired)
+Result timestamp  : 2026-06-02T11:14:09.132Z (UTC)
+isError           : false
+status            : rejected
+guard             : context_threshold
+contextUsage      : 60
+threshold         : 70
+reason            : "Context usage (60%) is below the minimum threshold (70%). Compaction is not needed yet."
+
+Raw text-block content (verbatim):
+{
+  "status": "rejected",
+  "guard": "context_threshold",
+  "contextUsage": 60,
+  "threshold": 70,
+  "reason": "Context usage (60%) is below the minimum threshold (70%). Compaction is not needed yet."
+}
+
+--------------------------------------------------------------------------------
+3. Gate-source byte-walk (cure-not-regression confirmation)
+--------------------------------------------------------------------------------
+File              : src/agents/tools/request-compaction-tool.ts
+Range             : lines 215-231 (Guard 1: Context threshold)
+At CANDIDATE_SHA  : 1de29746f0b87c342f362a6a42e6291d832d7ee4
+
+Canonical REJECT-branch (verbatim from gate-source at CANDIDATE_SHA):
+
+      if (contextUsage < MIN_CONTEXT_THRESHOLD) {
+        log.debug(
+          `[request_compaction:below-threshold] session=${sessionKey} usage=${(contextUsage * 100).toFixed(1)}%`,
+        );
+        return jsonResult({
+          status: "rejected",
+          guard: "context_threshold",
+          contextUsage: Math.round(contextUsage * 100),
+          threshold: Math.round(MIN_CONTEXT_THRESHOLD * 100),
+          reason: `Context usage (${Math.round(contextUsage * 100)}%) is below the minimum threshold (${Math.round(MIN_CONTEXT_THRESHOLD * 100)}%). Compaction is not needed yet.`,
+        });
+      }
+
+Field-by-field match between live tool-result and gate-source emission:
+  ✓ status              "rejected"             — gate emits "rejected"           — MATCH
+  ✓ guard               "context_threshold"    — gate emits "context_threshold"  — MATCH
+  ✓ contextUsage        60                     — gate emits round(0.60*100)=60   — MATCH
+  ✓ threshold           70                     — gate emits round(MIN*100)=70    — MATCH
+  ✓ reason text         "Context usage (60%)…" — exact format-string match       — MATCH
+
+Verdict: live REJECT-shape is byte-identical to the gate-source contract at
+CANDIDATE_SHA. The threshold gate is engaging as-designed under low-context
+substrate condition. PASS.
+
+--------------------------------------------------------------------------------
+4. Tempo trace coverage — honest substrate-note
+--------------------------------------------------------------------------------
+For the REJECT-path specifically, gate-source emission is:
+  1. log.debug(`[request_compaction:below-threshold] …`) — DEBUG level only
+  2. return jsonResult({status:"rejected", …}) — IMMEDIATE return, no continuation
+     work dispatched
+
+Consequences for trace coverage on the REJECT-shape:
+  (a) No journal line at default gateway log-level (info). The `--since` window
+      around the fire-time was queried and contained no `[request_compaction:…]`
+      lines (see `journal_query_receipt.txt`).
+  (b) No `traceparent` field on the REJECT tool-result payload. Inspection of
+      the gate-source confirms `traceContextFields` is only spread into the
+      enqueued `RequestCompactionInvocation` envelope on the ALL-GUARDS-PASS
+      branch (lines 269 + 340). The REJECT-branch returns earlier and does not
+      carry the traceparent into the user-facing response.
+  (c) No backend Tempo span emitted, because there is no continuation work to
+      span — the gate engaged and the tool returned synchronously inside the
+      caller turn.
+
+This is NOT a Tempo-instrumentation gap. It is the correct shape of an
+early-REJECT guard: the gate engaging IS the proof, and the receipt lives in
+the tool-result payload + the gate-source byte-walk above.
+
+The Tempo-trace requirement from PROOF-CORPUS-METHOD.md lines 89-99 applies to
+continuation-tool fires that actually dispatch downstream work (R-CW / R-CD
+rows + R-RC-2 ACCEPT-path). For R-RC-1 (REJECT-path), the gate-source byte-walk
++ field-by-field receipt match against the live tool-result IS the equivalent
+of the trace evidence: a closed-loop verification of the canonical gate path.
+
+--------------------------------------------------------------------------------
+5. Substrate-luck note
+--------------------------------------------------------------------------------
+This cycle, the lamp-seat happened to hold context-usage in the 47-65% window
+across the R-RC-1 fire — well below the 70% threshold. Past corpora at
+0831fb5e80 and e90a87015 had to invoke option (g) substrate-finding-of-
+structural-difficulty because all seats were over-threshold at submission time.
+This cycle the PASS-shape was structurally available. The 60% (tool-side
+reading) provided clean margin against the 70% gate.
+
+Original silas-seat would have produced the same PASS-shape if not for the
+Raptor-Lake V8/JIT-wall sit-out. Lamp-seat (emeric, x86_64 i7-12700H, CachyOS)
+substrate is unaffected by that hardware-class wall.
+
+================================================================================
+END OF R-RC-1 EVIDENCE
+================================================================================

@@ -1,0 +1,26 @@
+Pre-fire session_status snapshot (lamp-seat, emeric, 2026-06-02 04:14 PDT)
+================================================================================
+🦞 OpenClaw 2026.5.31 (1de2974)
+⏱️ Uptime: gateway 49s · system 8d 7h
+🧠 Model: github-copilot/claude-opus-4.7-1m-internal · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai-codex/gpt-5.5
+🧮 Tokens: 19 in / 5.6k out
+🗄️ Cache: 98% hit · 75k cached, 1.4k new
+📚 Context: 83k/128k (65%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 · updated just now
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · elevated
+👥 Activation: mention · 🪢 Queue: steer (depth 0)
+
+Key fields for R-RC-1:
+  - Gateway git SHA: 1de2974 (full: 1de29746f0b87c342f362a6a42e6291d832d7ee4, CANDIDATE_SHA)
+  - Gateway version: app 2026.5.31
+  - Context window reported by /status: 65% (83k/128k tokens)
+  - Compactions completed this session: 0
+  - Session ID: 1c3827f3-82da-439f-a773-58e5e3c56a2c
+
+At fire-time (toolu_vrtx_01ViNKZg2Yt3uYZcfYtyHDCw, 2026-06-02T11:14:09.132Z UTC):
+  - Tool-call payload reported contextUsage=60 (snapshot from inside the runner;
+    /status reports the steer-queue-inclusive figure, which differs by ~5pp).
+  - Both readings are firmly below the 70% MIN_CONTEXT_THRESHOLD gate.

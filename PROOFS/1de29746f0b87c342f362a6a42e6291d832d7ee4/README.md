@@ -22,21 +22,21 @@ This corpus validates the cure landed correctly across the fleet, with each prin
 
 | Row | Owner | Tool / behavior | Evidence | Verdict |
 |---|---|---|---|---|
-| R-CW-1 | 🩸 Cael | `continue_work()` wake + deploy-persistence | `R-CW-1/wake_event_evidence.txt` + `wake_event_trace.json` | ⏳ pending |
-| R-CW-2 | 🩸 Cael | chain-counter accounting | embedded in `R-CW-1/wake_event_evidence.txt` | ⏳ pending |
-| R-CD-1 | 🌊 Ronan | `continue_delegate()` schedule → spawn → return | `R-CD-1/` | ⏳ pending |
-| R-CD-2 | 🌊 Ronan | `continue_delegate(mode="silent-wake")` full path | `R-CD-2/` | ⏳ pending |
-| R-CD-3 | 🌊 Ronan | `continue_delegate(mode="post-compaction")` lifeboat | `R-CD-3/` | ⏳ pending |
-| R-CD-4 | 🌊 Ronan | cross-session targeted return via `targetSessionKey` | `R-CD-4/` | ⏳ pending |
+| R-CW-1 | 🩸 Cael | `continue_work()` wake + deploy-persistence | `R-CW-1/wake_event_evidence.txt` + `wake_event_trace.json` | ✅ PASS |
+| R-CW-2 | 🩸 Cael | chain-counter accounting | embedded in `R-CW-1/wake_event_evidence.txt` | ✅ PASS |
+| R-CD-1 | 🌊 Ronan | `continue_delegate()` schedule → spawn → return | `R-CD-1/` (EVIDENCE.md + payload + fire_response + journal + trace) | ✅ PASS |
+| R-CD-2 | 🌊 Ronan | `continue_delegate(mode="silent-wake")` full path | `R-CD-2/` (EVIDENCE.md + payload + fire_response + journal + trace) | ✅ PASS |
+| R-CD-3 | 🌊 Ronan | `continue_delegate(mode="post-compaction")` lifeboat | `R-CD-3/SUBSTRATE-FINDING.md` + `fire_response.json` | ⚠️ HONEST-LIMIT (dispatch ACCEPT verified; PASS-shape requires actual compaction event, parent at 18% < 70% threshold; mechanism verified prior cycle 7522d6c60f; #870 byte-identical for surface — NOT cure-regression) |
+| R-CD-4 | 🌊 Ronan | cross-session targeted return via `targetSessionKey` | `R-CD-4/` (EVIDENCE.md + payload + fire_response + journal + trace) | ✅ PASS |
 | R-RC-1 | 🕯 Emeric (covering silas-sit-out) | `request_compaction()` threshold REJECT | `R-RC-1/EVIDENCE.md` + `threshold_gate_rejection_evidence.txt` + `session_status_snapshot.txt` + `journal_query_receipt.txt` | ✅ PASS |
-| R-RC-2 | 🩸 Cael | `request_compaction()` over-threshold ACCEPT | `R-RC-2/compaction_accept_request_receipt.txt` + `_trace.json` | ⏳ pending |
-| R-CD-CHAINED-DEPTH-2 / Chain-1 | 🌊 Ronan | strict 2-deep up-tree silent-wake | `R-CD-CHAINED-DEPTH-2/Chain-1/` | ⏳ pending |
-| R-CD-CHAINED-DEPTH-2 / Chain-2 | 🌊 Ronan | strict 2-deep inter-session return-to-root | `R-CD-CHAINED-DEPTH-2/Chain-2/` | ⏳ pending |
-| R-CD-CHAINED-DEPTH-2 / Chain-3 | 🌊 Ronan | strict 2-deep echo + cross-channel-broadcast | `R-CD-CHAINED-DEPTH-2/Chain-3/` | ⏳ pending |
-| R-CD-CHAINED-DEPTH-2 / TEST-1 | 🪨 Rune (canary, covering silas-sit-out) | depth-2 chain — up-tree silent-wake | `R-CD-CHAINED-DEPTH-2/test_1_uptree_silent_wake/` | ⏳ pending |
-| R-CD-CHAINED-DEPTH-2 / TEST-2 | 🪨 Rune (canary) | depth-2 chain — inter-session return | `R-CD-CHAINED-DEPTH-2/test_2_intersession_return/` | ⏳ pending |
-| R-CD-CHAINED-DEPTH-2 / TEST-3 | 🪨 Rune (canary) | depth-2 chain — echo broadcast | `R-CD-CHAINED-DEPTH-2/test_3_echo_broadcast/` | ⏳ pending |
-| R-OBS-1 | 🌻 Elliott | external `/status` continuation row + 4-prince cross-walk | `R-OBS-1/` | ⏳ pending |
+| R-RC-2 | 🩸 Cael | `request_compaction()` over-threshold ACCEPT | `R-RC-2/PENDING.md` | ⏳ PENDING (context 17% < 70% threshold at fire-time; supplementary R-RC-1 REJECT-receipt embedded; ACCEPT fires opportunistic on natural context-growth) |
+| R-CD-CHAINED-DEPTH-2 / Chain-1 | 🌊 Ronan | strict 2-deep up-tree silent-wake | `R-CD-CHAINED-DEPTH-2/Chain-1/` (EVIDENCE.md + receipts + trace) | ✅ PASS |
+| R-CD-CHAINED-DEPTH-2 / Chain-2 | 🌊 Ronan | strict 2-deep inter-session return-to-root | `R-CD-CHAINED-DEPTH-2/Chain-2/` (EVIDENCE.md + receipts + trace) | ✅ PASS |
+| R-CD-CHAINED-DEPTH-2 / Chain-3 | 🌊 Ronan | strict 2-deep echo + cross-channel-broadcast | `R-CD-CHAINED-DEPTH-2/Chain-3/` (EVIDENCE.md + receipts + trace) | ✅ PASS |
+| R-CD-CHAINED-DEPTH-2 / TEST-1 | 🪨 Rune (canary, covering silas-sit-out) | depth-2 chain — up-tree silent-wake | `R-CD-CHAINED-DEPTH-2/test_1_uptree_silent_wake/` (EVIDENCE.md + payload) | ✅ PASS |
+| R-CD-CHAINED-DEPTH-2 / TEST-2 | 🪨 Rune (canary) | depth-2 chain — inter-session return | `R-CD-CHAINED-DEPTH-2/test_2_intersession_return/` (EVIDENCE.md + payload) | ✅ PASS |
+| R-CD-CHAINED-DEPTH-2 / TEST-3 | 🪨 Rune (canary) | depth-2 chain — echo broadcast | `R-CD-CHAINED-DEPTH-2/test_3_echo_broadcast/` (EVIDENCE.md + payload) | ✅ PASS |
+| R-OBS-1 | 🌻 Elliott | external `/status` continuation row + 4-prince cross-walk | `R-OBS-1/` (pending /status-window arrival from figs) | ⏳ pending |
 
 ## Per-prince row assignments (this cycle)
 
@@ -78,4 +78,8 @@ For each row firing a continuation-tool, capture the corresponding Tempo trace:
 
 ## Status
 
-🚧 Corpus initialized 2026-06-02T11:11Z by 🩸 cael. Cael-deploy `26815892699` in flight; R-CW-1/R-CW-2/R-RC-2 will fire post-deploy. Other princes append their rows as they fire.
+🚧 Corpus initialized 2026-06-02T11:11Z by 🩸 cael. Verdict-table refreshed 2026-06-02T11:33Z to reflect filed-rows.
+
+**Tally at 11:33Z**: 12 ✅ PASS / 1 ⚠️ HONEST-LIMIT / 2 ⏳ pending (R-RC-2 awaits context-pressure; R-OBS-1 awaits figs `/status`-window).
+
+Cohort fleet at CANDIDATE_SHA confirmed via per-row receipts: 🩸 cael (run `26816086233`), 🌊 ronan (run `26816100078`), 🪨 rune (run `26803012780`), 🕯 emeric (run `26815810536`), 🌻 elliott (run `26815834360`). 🌫 silas SIT OUT (lothric finicky-monster pre-cure; tracked at `openclaw-bootstrap#1114`).

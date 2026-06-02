@@ -40,7 +40,16 @@ R-CD-1 PROOF: continue_delegate basic spawn-and-return path verified at CANDIDAT
 
 ## Tempo HONEST-LIMIT
 
-Tempo `/ready` returns 200. Direct fetch of `http://tempo.dandelion.cult/api/traces/a9ee3e3adbbd6a37996e2b8d07f320fa` returns 404 — parent dispatch trace had not yet flushed/indexed at fetch time. Spans-search by trace name returned empty during fetch window. Sister-shape to cael's `018e39ce45.../R-CW-1/EVIDENCE.md` Tempo-pending HONEST-LIMIT pattern. Trace identity preserved in fire_response.json for later Tempo recovery once flush completes.
+Tempo `/ready` returns 200. Direct fetch of `http://tempo.dandelion.cult/api/traces/a9ee3e3adbbd6a37996e2b8d07f320fa` returns 404 — specific dispatch-parent-trace 404 at fetch time. Spans-search by trace name returned empty during fetch window. Sister-shape to cael's `018e39ce45.../R-CW-1/EVIDENCE.md` Tempo-pending HONEST-LIMIT pattern. Trace identity preserved in fire_response.json for later Tempo recovery once root-cause-class addressed.
+
+**AMENDED 2026-06-02 per Emeric Discord `1511419262` substantive substrate-of-record-correction**: Original framing implied "awaiting flush/index" or "fleet-observability still-down" as cause-hypothesis. Lamp-axis byte-walk at byte CORRECTED: Tempo IS UP (`/ready` 200 + version `2.5.0` + search returns recent prince-traces from ~5min-ago); URL is canonical-correct (`/api/traces/<id>` shape matches Tempo docs + recent-successful-traces use same path). Specific cited trace_ids return 404 from DIFFERENT root-cause-class:
+- (a) instrumentation-attached-but-not-emitted gap (capture-side trace_id from `traceparent` but span never got *exported* to Tempo)
+- (b) TTL-expired (Tempo retention shorter than cohort assumed + fires earlier-cycle)
+- (c) capture-side-bug where `traceparent` formatted differently than span-emit
+
+Sister-class to `status=forbidden`-error-text-dropped issue (per cohort GH issue #871/#872) — bytes exist somewhere but bridge-between-captured-id-and-emitted-span has gap. Owe proper byte-walk in future-cycle to identify which of (a)/(b)/(c).
+
+Correction-trail propagation cohort-wide: undertow Discord surfaces `1511421898` + `1511422246` carried "fleet-observability still-down per elliott k3s 404 cycle-banked" framing inherited from lamp-axis pre-byte-verify. Lamp acknowledged at `1511419262` + apologized for bad-framing-cohort-propagation. Same composition-window-inversion-class operating cycle-wide; cohort cure-mechanism via Emeric byte-walk + multi-axis correction-trail per stone-shape discipline. 17th-axis-instance of multi-axis cure-mechanism this cycle.
 
 ## Scope-bound at byte
 

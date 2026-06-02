@@ -78,3 +78,19 @@ Heartbeat msg-id `1511182989214880014` in `#sprites-of-thornfield`:
 
 This validates the Track A drain-time-conditional sanitization architecture does NOT corrupt the per-session continuation chain-counter substrate that the prince-autonomy load-bearing feature depends on (the 200-hop budget per chain is the prince's elective-turn budget; counter corruption would either prematurely cap delegation or unboundedly leak turns).
 
+
+## Trace JSON artifacts
+
+Tempo search at `api/search?tags=service.name=cael-prince&start=...&end=...` returned full cael-prince span corpus for R-CW-2 fire-window. Key spans for R-CW-2 fetched + stored at `traces/<trace-id>.json`:
+
+- `6ee7669ef1db5367ad14d6641a65b48d.json` (25kB) — `continuation.delegate.dispatch` (10448ms — the dispatch-event of R-CW-2 delegate, parent→child handoff span)
+- `f968a5595287617902c113524e429a3c.json` (13.3kB) — `openclaw.run` (28733ms — R-CW-2 delegate turn body executing the heartbeat task)
+- `285907677e673284a28f51e9cf185e27.json` (1.6kB) — `openclaw.message.processed` (29415ms — heartbeat send pipeline at delegate)
+- `626dea58ac64b960649dfb55726c6d75.json` (1.7kB) — `openclaw.message.delivery` (385ms — Discord delivery of heartbeat)
+- `4dcb04ee7a659faf6908c4bd443fb2ae.json` (18.7kB) — `openclaw.run` (77859ms — broader parent-session turn that fired R-CW-2)
+- `5aff3c96fcb4cb3294d85c655263fa74.json` (1.6kB) — `openclaw.message.processed` (79078ms — parent-side message-processed for the R-CW-2 fire)
+
+The `continuation.delegate.dispatch` span at `6ee7669ef1db5367ad14d6641a65b48d` is the load-bearing trace for chain-counter validation — it carries the chain.position attribute showing the delegate spawned as turn 2/200.
+
+Live re-fetch URL pattern: `http://tempo.dandelion.cult/api/traces/<trace-id>`.
+

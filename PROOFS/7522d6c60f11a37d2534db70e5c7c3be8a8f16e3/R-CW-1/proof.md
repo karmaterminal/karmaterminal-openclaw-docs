@@ -79,3 +79,16 @@ Heartbeat msg-id `1511181165527171213` in `#sprites-of-thornfield`:
 
 ✅ **R-CW-1 PROOF green on `7522d6c60f11a37d2534db70e5c7c3be8a8f16e3`** — continuation-protocol substrate intact post-#858 cure-stack. Track A drain-time bifurcation + Track B caller-side opt-ins + Track C regression-anchor did NOT break the load-bearing delegate-wake + Tempo-trace + Discord-delivery pipeline. Architectural-preserve substrate validated end-to-end at live-host runtime.
 
+
+## Trace JSON artifacts
+
+All 6 trace IDs fetched + stored at `traces/<trace-id>.json`:
+- `e1dc8ca59b8ce349a511c5be1bf4084a.json` (1.6kB) — `continuation.queue.drain` (delegate-wake substrate)
+- `6df7e29a67a93f97afe6e34b65ce295b.json` (1.6kB) — `continuation.queue.drain` (second drain pass)
+- `9eb73735ccf9975e1447908cf39a3056.json` (7.3kB) — `openclaw.run` (delegate turn body, 5178ms)
+- `84eee8bd88179e7990bc6f3889a7d522.json` (1.6kB) — `openclaw.message.processed` (5286ms)
+- `2d6ddebf3258cb0e8bcbe329dfb172cc.json` (1.7kB) — `openclaw.message.delivery` (285ms)
+- `580c987ddd01e49da31e5e4c59ea2a4f.json` (10.6kB) — root span
+
+Live re-fetch URL pattern: `http://tempo.dandelion.cult/api/traces/<trace-id>` (no auth needed for haproxy route from princes' seats; cael-seat verified at 18:46 PDT).
+

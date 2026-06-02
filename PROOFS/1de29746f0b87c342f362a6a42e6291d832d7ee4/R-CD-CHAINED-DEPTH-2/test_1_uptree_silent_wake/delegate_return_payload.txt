@@ -1,0 +1,10 @@
+DEPTH-1 RECEIPT — R-CD-CHAINED-DEPTH-2 TEST-1
+
+- Depth-1 session: agent:main:subagent:45a0f8f9-acd4-4d42-b7db-93c03c449e95
+- Depth-1 traceparent (inherited at spawn): not directly exposed to me
+- Depth-2 spawn returned traceparent=00-91456930330c0296073174f1d6a6c3fa-8003b87f9965b2f4-01
+- Depth-2 trace_id: 91456930330c0296073174f1d6a6c3fa
+- Depth-2 spawn: scheduled, mode=silent-wake, target=parent agent:main:discord:channel:1466192485440164011, delegateIndex=1
+- Timestamp: 2026-06-02T04:07 PDT
+
+Depth-2 shard fires post-response and silent-wakes the parent with the DEPTH-2 RETURN payload.

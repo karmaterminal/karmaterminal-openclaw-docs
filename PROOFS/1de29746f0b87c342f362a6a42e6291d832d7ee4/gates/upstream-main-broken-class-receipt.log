@@ -1,0 +1,60 @@
+=== Upstream-class comparison (start 11:43:29Z) ===
+upstream/main SHA: e7aac172d5a18142d53d051f6adface6b03e52ee
+. prepare$ node scripts/prepare-git-hooks.mjs
+. prepare: Done
+Done in 3.9s using pnpm v11.2.2
+--- pnpm check on upstream/main ---
+[dup:check] target coverage ok
+OK apps/macos/Sources/OpenClaw/HostEnvSecurityPolicy.generated.swift
+No guarded extension wildcard re-exports found.
+No plugin-sdk wildcard re-exports found in extension API barrels.
+check-opengrep-rule-metadata: /tmp/oc-upstream-main/security/opengrep/precise.yml ok
+tool-display snapshot is up to date
+PASS package patch guard: no new pnpm patches; 4 legacy patches allowlisted.
+OK: bundled plugin production code avoids deprecated channel access seams.
+.: npm-shrinkwrap.json is current.
+extensions/acpx: npm-shrinkwrap.json is current.
+runtime-sidecar-loaders: local runtime sidecar loaders look OK.
+extensions/amazon-bedrock: npm-shrinkwrap.json is current.
+extensions/amazon-bedrock-mantle: npm-shrinkwrap.json is current.
+extensions/anthropic-vertex: npm-shrinkwrap.json is current.
+extensions/brave: npm-shrinkwrap.json is current.
+extensions/codex: npm-shrinkwrap.json is current.
+extensions/copilot: npm-shrinkwrap.json is current.
+extensions/diagnostics-otel: npm-shrinkwrap.json is current.
+extensions/diagnostics-prometheus: npm-shrinkwrap.json is current.
+extensions/diffs: npm-shrinkwrap.json is current.
+extensions/diffs-language-pack: npm-shrinkwrap.json is current.
+extensions/discord: npm-shrinkwrap.json is current.
+extensions/feishu: npm-shrinkwrap.json is current.
+extensions/google-meet: npm-shrinkwrap.json is current.
+extensions/googlechat: npm-shrinkwrap.json is current.
+extensions/line: npm-shrinkwrap.json is current.
+extensions/lobster: npm-shrinkwrap.json is current.
+extensions/matrix: npm-shrinkwrap.json is current.
+extensions/memory-lancedb: npm-shrinkwrap.json is current.
+extensions/msteams: npm-shrinkwrap.json is current.
+extensions/nextcloud-talk: npm-shrinkwrap.json is current.
+extensions/nostr: npm-shrinkwrap.json is current.
+extensions/openshell: npm-shrinkwrap.json is current.
+extensions/pixverse: npm-shrinkwrap.json is current.
+extensions/qqbot: npm-shrinkwrap.json is current.
+extensions/slack: npm-shrinkwrap.json is current.
+extensions/synology-chat: npm-shrinkwrap.json is current.
+extensions/tlon: npm-shrinkwrap.json is current.
+extensions/tokenjuice: npm-shrinkwrap.json is current.
+extensions/twitch: npm-shrinkwrap.json is current.
+extensions/voice-call: npm-shrinkwrap.json is current.
+extensions/whatsapp: npm-shrinkwrap.json is current.
+extensions/zalo: npm-shrinkwrap.json is current.
+extensions/zalouser: npm-shrinkwrap.json is current.
+Found 0 warnings and 0 errors.
+Finished in 2.1s on 520 files with 242 rules using 1 threads.
+Found 0 warnings and 0 errors.
+Finished in 43.9s on 9540 files with 242 rules using 1 threads.
+Found 0 warnings and 0 errors.
+Finished in 53.5s on 5810 files with 242 rules using 1 threads.
+deprecated API usage guard passed
+Import cycle check: 0 runtime value cycle(s).
+exit_code=0
+=== END 11:46:05Z ===

@@ -1,0 +1,64 @@
+=== Gate 3f: pnpm build (start 11:40:21Z) ===
+[canvas] build: node scripts/bundle-a2ui.mjs
+<DIR>/a2ui.bundle.js  chunk │ size: 394.38 kB
+
+✔ rolldown v1.0.3 Finished in 47.56 ms
+[diffs] build: node ../../scripts/build-diffs-viewer-runtime.mjs curated
+[diffs-language-pack] build: node ../../scripts/build-diffs-viewer-runtime.mjs full
+CLI bootstrap import guard passed.
+OK: All 4 required plugin-sdk exports verified.
+[canvas] copy: node scripts/copy-a2ui.mjs
+[copy-hook-metadata] Copied 5 hook metadata files.
+[copy-export-html-templates] Copied 5 export-html assets.
+vite v8.0.14 building client environment for production...
+[2Ktransforming...✓ 918 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/control-ui/index.html                                   10.31 kB │ gzip:   3.04 kB
+../dist/control-ui/assets/index-vkzYID7-.css                   393.42 kB │ gzip:  62.57 kB
+../dist/control-ui/assets/preview-BBw3vauN.js                    0.18 kB │ gzip:   0.17 kB │ map:     0.37 kB
+../dist/control-ui/assets/channel-config-extras-BJhthDuJ.js      0.57 kB │ gzip:   0.36 kB │ map:     2.27 kB
+../dist/control-ui/assets/rolldown-runtime-QTnfLwEv.js           0.69 kB │ gzip:   0.42 kB
+../dist/control-ui/assets/push-subscription-BB--F2Xo.js          1.51 kB │ gzip:   0.76 kB │ map:     6.22 kB
+../dist/control-ui/assets/skills-shared-C7knQOMX.js              1.51 kB │ gzip:   0.70 kB │ map:     4.52 kB
+../dist/control-ui/assets/instances-DCuAZCfR.js                  2.95 kB │ gzip:   1.07 kB │ map:     5.98 kB
+../dist/control-ui/assets/logs-B3uylFZP.js                       3.19 kB │ gzip:   1.19 kB │ map:     6.66 kB
+../dist/control-ui/assets/debug-fl9_iQQg.js                      4.62 kB │ gzip:   1.28 kB │ map:     8.36 kB
+../dist/control-ui/assets/activity-Mdf-zFIa.js                   5.97 kB │ gzip:   1.82 kB │ map:    12.99 kB
+../dist/control-ui/assets/skills-DZtH5kmr.js                    17.24 kB │ gzip:   4.36 kB │ map:    34.87 kB
+../dist/control-ui/assets/gateway-runtime-CMyVbEq5.js           19.37 kB │ gzip:   7.33 kB │ map:   106.07 kB
+../dist/control-ui/assets/lit-runtime-wq4Na5Do.js               23.35 kB │ gzip:   8.74 kB │ map:    61.31 kB
+../dist/control-ui/assets/nodes-fKTDuNMQ.js                     23.60 kB │ gzip:   5.59 kB │ map:    59.39 kB
+../dist/control-ui/assets/channels-DlhELJez.js                  24.80 kB │ gzip:   5.18 kB │ map:    66.47 kB
+../dist/control-ui/assets/sessions-DDrjqAVE.js                  26.53 kB │ gzip:   6.41 kB │ map:    62.88 kB
+../dist/control-ui/assets/workboard-Dr-19KYk.js                 31.57 kB │ gzip:   8.11 kB │ map:    76.27 kB
+../dist/control-ui/assets/skill-workshop-BGnldr9M.js            34.73 kB │ gzip:   9.39 kB │ map:    70.31 kB
+../dist/control-ui/assets/zh-CN-Dg8-3eRB.js                     44.94 kB │ gzip:  18.47 kB │ map:    76.50 kB
+../dist/control-ui/assets/zh-TW-CiJY1xN1.js                     45.93 kB │ gzip:  18.87 kB │ map:    77.57 kB
+../dist/control-ui/assets/id-D0JwRl3c.js                        47.43 kB │ gzip:  17.42 kB │ map:    79.86 kB
+../dist/control-ui/assets/nl-BsmDGLxt.js                        48.42 kB │ gzip:  17.91 kB │ map:    80.91 kB
+../dist/control-ui/assets/pt-BR-B0HVsr5m.js                     49.94 kB │ gzip:  18.24 kB │ map:    82.44 kB
+../dist/control-ui/assets/string-coerce-ri7ThD1k.js             50.04 kB │ gzip:  18.55 kB │ map:    94.99 kB
+../dist/control-ui/assets/it-uLQ2_hCd.js                        50.21 kB │ gzip:  18.02 kB │ map:    82.82 kB
+../dist/control-ui/assets/pl-DchnuF3O.js                        50.29 kB │ gzip:  19.09 kB │ map:    82.84 kB
+../dist/control-ui/assets/tr-29qVakRa.js                        50.55 kB │ gzip:  18.64 kB │ map:    83.07 kB
+../dist/control-ui/assets/de-DO81PiZx.js                        50.90 kB │ gzip:  18.78 kB │ map:    83.54 kB
+../dist/control-ui/assets/ko-BYqpiHmS.js                        51.31 kB │ gzip:  18.96 kB │ map:    83.32 kB
+../dist/control-ui/assets/es-CJ_G5ZRj.js                        51.34 kB │ gzip:  18.56 kB │ map:    83.93 kB
+../dist/control-ui/assets/fr-sao1_VY_.js                        52.43 kB │ gzip:  18.67 kB │ map:    85.10 kB
+../dist/control-ui/assets/cron-C_tHvckn.js                      55.78 kB │ gzip:   9.32 kB │ map:   106.76 kB
+../dist/control-ui/assets/vi-D-IVjYxk.js                        55.79 kB │ gzip:  18.55 kB │ map:    88.15 kB
+../dist/control-ui/assets/ja-JP-Dp_XLf6n.js                     58.40 kB │ gzip:  19.92 kB │ map:    90.61 kB
+../dist/control-ui/assets/ar-CRjZtJcy.js                        63.19 kB │ gzip:  19.70 kB │ map:    95.41 kB
+../dist/control-ui/assets/fa-CZ9MliZA.js                        66.36 kB │ gzip:  19.83 kB │ map:    98.73 kB
+../dist/control-ui/assets/uk-Zf36bIaD.js                        70.21 kB │ gzip:  21.32 kB │ map:   102.72 kB
+../dist/control-ui/assets/th-By-uzn4i.js                        83.02 kB │ gzip:  20.42 kB │ map:   115.10 kB
+../dist/control-ui/assets/config-runtime-CCw2hptH.js            85.81 kB │ gzip:  24.10 kB │ map:   426.25 kB
+../dist/control-ui/assets/agents-5a31MfF6.js                   100.02 kB │ gzip:  26.26 kB │ map:   241.45 kB
+../dist/control-ui/assets/markdown-runtime-CUzFp-dW.js         200.11 kB │ gzip:  78.86 kB │ map:   788.37 kB
+../dist/control-ui/assets/three.module-CbbBeXoY.js             722.78 kB │ gzip: 184.46 kB │ map: 2,931.16 kB
+../dist/control-ui/assets/index-DsduFYTP.js                  1,023.12 kB │ gzip: 267.72 kB │ map: 3,252.69 kB
+
+✓ built in 621ms
+exit_code=0
+=== END 11:42:47Z ===

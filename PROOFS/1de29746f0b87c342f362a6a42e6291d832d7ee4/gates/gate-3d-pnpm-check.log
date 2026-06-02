@@ -1,0 +1,159 @@
+=== Gate 3d: pnpm check (start 11:38:04Z) ===
+OK apps/macos/Sources/OpenClaw/HostEnvSecurityPolicy.generated.swift
+No plugin-sdk wildcard re-exports found in extension API barrels.
+[dup:check] target coverage ok
+No guarded extension wildcard re-exports found.
+check-opengrep-rule-metadata: /tmp/oc-gates-1de2974/security/opengrep/precise.yml ok
+PASS package patch guard: no new pnpm patches; 4 legacy patches allowlisted.
+tool-display snapshot is up to date
+OK: bundled plugin production code avoids deprecated channel access seams.
+.: npm-shrinkwrap.json is current.
+runtime-sidecar-loaders: local runtime sidecar loaders look OK.
+extensions/acpx: npm-shrinkwrap.json is current.
+extensions/amazon-bedrock: npm-shrinkwrap.json is current.
+extensions/amazon-bedrock-mantle: npm-shrinkwrap.json is current.
+extensions/anthropic-vertex: npm-shrinkwrap.json is current.
+extensions/brave: npm-shrinkwrap.json is current.
+extensions/codex: npm-shrinkwrap.json is current.
+extensions/copilot: npm-shrinkwrap.json is current.
+extensions/diagnostics-otel: npm-shrinkwrap.json is current.
+extensions/diagnostics-prometheus: npm-shrinkwrap.json is current.
+extensions/diffs: npm-shrinkwrap.json is current.
+extensions/diffs-language-pack: npm-shrinkwrap.json is current.
+extensions/discord: npm-shrinkwrap.json is current.
+extensions/feishu: npm-shrinkwrap.json is current.
+extensions/google-meet: npm-shrinkwrap.json is current.
+extensions/googlechat: npm-shrinkwrap.json is current.
+extensions/line: npm-shrinkwrap.json is current.
+extensions/lobster: npm-shrinkwrap.json is current.
+extensions/matrix: npm-shrinkwrap.json is current.
+extensions/memory-lancedb: npm-shrinkwrap.json is current.
+extensions/msteams: npm-shrinkwrap.json is current.
+extensions/nextcloud-talk: npm-shrinkwrap.json is current.
+extensions/nostr: npm-shrinkwrap.json is current.
+extensions/openshell: npm-shrinkwrap.json is current.
+extensions/pixverse: npm-shrinkwrap.json is current.
+extensions/qqbot: npm-shrinkwrap.json is current.
+extensions/slack: npm-shrinkwrap.json is current.
+extensions/synology-chat: npm-shrinkwrap.json is current.
+extensions/tlon: npm-shrinkwrap.json is current.
+extensions/tokenjuice: npm-shrinkwrap.json is current.
+extensions/twitch: npm-shrinkwrap.json is current.
+extensions/voice-call: npm-shrinkwrap.json is current.
+extensions/whatsapp: npm-shrinkwrap.json is current.
+extensions/zalo: npm-shrinkwrap.json is current.
+extensions/zalouser: npm-shrinkwrap.json is current.
+Found 0 warnings and 0 errors.
+Finished in 2.1s on 515 files with 237 rules using 1 threads.
+
+  x eslint(no-useless-assignment): This assigned value is not used in subsequent statements.
+      ,-[src/auto-reply/reply/agent-runner-execution.ts:3104:9]
+ 3103 |           (await params.resetSessionAfterCompactionFailure?.(message)) ?? false;
+ 3104 |         didResetAfterCompactionFailure = didResetAfterCompactionFailureNow;
+      :         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 3105 |         params.replyOperation?.fail("run_failed", err);
+      `----
+  help: Consider removing or reusing the assigned value.
+
+  x Expected `}` but found `EOF`
+    ,-[src/agents/subagent-spawn.test.ts:66:49]
+ 65 | 
+ 66 | describe("spawnSubagentDirect seam flow", () => {
+    :                                                 |
+    :                                                 `-- Opened here
+ 67 |   beforeAll(async () => {
+    `----
+      ,-[src/agents/subagent-spawn.test.ts:1044:1]
+ 1043 | });
+      `----
+
+  x typescript(no-misused-promises): Promise returned in function argument where a void return was expected.
+     ,-[src/infra/heartbeat-wake.ts:216:22]
+ 215 |       timerKind = kind;
+ 216 | ,->   timer = setTimeout(async () => {
+ 217 | |       timer = null;
+ 218 | |       timerDueAt = null;
+ 219 | |       timerKind = null;
+ 220 | |       scheduled = false;
+ 221 | |       const active = handler;
+ 222 | |       if (!active) {
+ 223 | |         return;
+ 224 | |       }
+ 225 | |       if (running) {
+ 226 | |         scheduled = true;
+ 227 | |         schedule(delay, kind);
+ 228 | |         return;
+ 229 | |       }
+ 230 | |   
+ 231 | |       const pendingBatch = Array.from(pendingWakes.values());
+ 232 | |       pendingWakes.clear();
+ 233 | |       running = true;
+ 234 | |       try {
+ 235 | |         for (const pendingWake of pendingBatch) {
+ 236 | |           const wakeOpts = {
+ 237 | |             source: pendingWake.source,
+ 238 | |             intent: pendingWake.intent,
+ 239 | |             reason: pendingWake.reason ?? undefined,
+ 240 | |             ...(pendingWake.agentId ? { agentId: pendingWake.agentId } : {}),
+ 241 | |             ...(pendingWake.sessionKey ? { sessionKey: pendingWake.sessionKey } : {}),
+ 242 | |             ...(pendingWake.parentRunId ? { parentRunId: pendingWake.parentRunId } : {}),
+ 243 | |             ...(pendingWake.heartbeat ? { heartbeat: pendingWake.heartbeat } : {}),
+ 244 | |           };
+ 245 | |           const res = await active(wakeOpts);
+ 246 | |           if (res.status === "skipped" && isRetryableHeartbeatBusySkipReason(res.reason)) {
+ 247 | |             // The target runtime is busy; retry this wake target soon.
+ 248 | |             queuePendingWakeReason({
+ 249 | |               source: pendingWake.source,
+ 250 | |               intent: pendingWake.intent,
+ 251 | |               reason: pendingWake.reason ?? "retry",
+ 252 | |               agentId: pendingWake.agentId,
+ 253 | |               sessionKey: pendingWake.sessionKey,
+ 254 | |               parentRunId: pendingWake.parentRunId,
+ 255 | |               heartbeat: pendingWake.heartbeat,
+ 256 | |             });
+ 257 | |             schedule(DEFAULT_RETRY_MS, "retry");
+ 258 | |           }
+ 259 | |         }
+ 260 | |       } catch {
+ 261 | |         // Error is already logged by the heartbeat runner; schedule a retry.
+ 262 | |         for (const pendingWake of pendingBatch) {
+ 263 | |           queuePendingWakeReason({
+ 264 | |             source: pendingWake.source,
+ 265 | |             intent: pendingWake.intent,
+ 266 | |             reason: pendingWake.reason ?? "retry",
+ 267 | |             agentId: pendingWake.agentId,
+ 268 | |             sessionKey: pendingWake.sessionKey,
+ 269 | |             parentRunId: pendingWake.parentRunId,
+ 270 | |             heartbeat: pendingWake.heartbeat,
+ 271 | |           });
+ 272 | |         }
+ 273 | |         schedule(DEFAULT_RETRY_MS, "retry");
+ 274 | |       } finally {
+ 275 | |         running = false;
+ 276 | |         if (pendingWakes.size > 0 || scheduled) {
+ 277 | |           schedule(delay, "normal");
+ 278 | |         }
+ 279 | |       }
+ 280 | `->   }, delay);
+ 281 |       timer.unref?.();
+     `----
+
+Found 0 warnings and 3 errors.
+Finished in 42.0s on 9621 files with 237 rules using 1 threads.
+
+  x typescript(unbound-method): Avoid referencing unbound methods which may cause unintentional scoping of `this`.
+    ,-[extensions/diagnostics-otel/src/continuation-tracer-adapter.test.ts:88:12]
+ 87 |     createContinuationOtelTracerAdapter();
+ 88 |     expect(trace.getTracer).toHaveBeenCalledWith(CONTINUATION_OTEL_TRACER_NAME);
+    :            ^^^^^^^^^^^^^^^|
+    :                   |       `-- This reference may be unbound and lose `this` context
+ 89 |     expect(CONTINUATION_OTEL_TRACER_NAME).toBe("openclaw.continuation");
+    `----
+  help: If your function does not access `this`, you can annotate it with `this: void`, or consider using an arrow function instead.
+
+Found 0 warnings and 1 error.
+Finished in 49.0s on 5819 files with 237 rules using 1 threads.
+[ELIFECYCLE] Command failed with exit code 1.
+[ELIFECYCLE] Command failed with exit code 1.
+exit_code=1
+=== END 11:40:21Z ===

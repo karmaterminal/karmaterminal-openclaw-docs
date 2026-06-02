@@ -43,3 +43,6 @@ PR #870 changed only source/test code comments; zero behavioral edits to `contin
 
 ## Frame for cohort-PR-comment
 > R-CD-3 (`continue_delegate(mode="post-compaction")`) dispatch+queue path verified at CANDIDATE_SHA `1de29746f0` via gateway-accepted `status: "queued-for-compaction"` return-shape; full PASS-shape (fire-event) requires a natural compaction event which is not triggerable at submission-time from the proof-firing seat at 18% context. Mechanism empirically verified at prior cycle CANDIDATE_SHA `7522d6c60f` from same seat. PR #870 (comment-scrub-only) does not touch post-compaction dispatch surface; gate-source byte-identical.
+
+## Tempo trace
+**Status**: NOT APPLICABLE for dispatch-only — post-compaction delegates are queued, not dispatched at submission-time. No `continuation.delegate.dispatch` Tempo span fires until the compaction event triggers the queued shard. Will be captured naturally when the lifeboat fires.

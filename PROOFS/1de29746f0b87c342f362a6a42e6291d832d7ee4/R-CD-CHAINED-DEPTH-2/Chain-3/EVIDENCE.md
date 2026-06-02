@@ -40,3 +40,13 @@ parent (channel session)
 
 ## Verdict
 ✅ **PASS** — depth-2 child with `fanoutMode="tree"` produces literal-string return at byte. Chain-cost accumulates from BOTH depth-2 (93 tokens) AND depth-1 (249 tokens) to the root parent's chain budget. The fanoutMode=tree shape distributes the return payload to ancestor sessions; this fire targeted the in-flight chain back to the root channel session.
+
+## Tempo trace (fold-in)
+**Trace ID**: `e75c0dfe86bbd95529818c908e2bb442`
+**Tempo URL**: http://tempo.dandelion.cult/api/traces/e75c0dfe86bbd95529818c908e2bb442
+**Span JSON**: `turn_trace.json` (this dir)
+
+Root span: `continuation.delegate.dispatch` (depth-1 fire from parent channel session).
+Chain-id `5cc7982c-42a7-410d-9046-62c6fa3d231b` shared with R-CD-4 + sibling chain rows in the batch fire.
+
+Note: depth-2 dispatch spans (subagent fires its child) live under separate trace-IDs in the subagent's session jsonl traceparent context. Up-tree stitching evidence already captured via `[continuation:enrichment-return]` journal lines (see `journal_chain.log` for Chain-1's two-hop propagation receipt).

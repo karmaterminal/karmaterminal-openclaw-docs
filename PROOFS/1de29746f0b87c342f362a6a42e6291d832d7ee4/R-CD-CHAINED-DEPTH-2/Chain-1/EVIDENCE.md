@@ -54,3 +54,13 @@ R-CD-CHAIN-1 DEPTH-1 PROOF: parent-of-chain at 1de29746f0
 
 ## Verdict
 ✅ **PASS** — depth-2 up-tree silent-wake propagation works end-to-end. Depth-2 child returns silently to depth-1 parent (via `enrichment-return`), depth-1 parent wakes + processes + returns silently to root session. Two-hop chain completed within 14 seconds (fire to root-arrival).
+
+## Tempo trace (fold-in)
+**Trace ID**: `7053bfb89bd060cc55bcab7cd187ca3f`
+**Tempo URL**: http://tempo.dandelion.cult/api/traces/7053bfb89bd060cc55bcab7cd187ca3f
+**Span JSON**: `turn_trace.json` (this dir)
+
+Root span: `continuation.delegate.dispatch` (depth-1 fire from parent channel session).
+Chain-id `5cc7982c-42a7-410d-9046-62c6fa3d231b` shared with R-CD-4 + sibling chain rows in the batch fire.
+
+Note: depth-2 dispatch spans (subagent fires its child) live under separate trace-IDs in the subagent's session jsonl traceparent context. Up-tree stitching evidence already captured via `[continuation:enrichment-return]` journal lines (see `journal_chain.log` for Chain-1's two-hop propagation receipt).

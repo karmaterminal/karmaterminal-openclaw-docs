@@ -48,3 +48,14 @@ Chain depth: `hop=8/200`. Chain-cost still accrues to dispatching parent regardl
 
 ## Verdict
 ✅ **PASS** — `continue_delegate(targetSessionKey="agent:main:main")` from undertow-seat at CANDIDATE_SHA `1de29746f0` schedules + spawns + routes return to the named cross-session target. Chain-cost still routes upstream to dispatching parent. Behavior matches prior cycle baseline.
+
+## Tempo trace (fold-in)
+**Trace ID**: `e8fceead4ac39b10b512c22e12ef99da`
+**Tempo URL**: http://tempo.dandelion.cult/api/traces/e8fceead4ac39b10b512c22e12ef99da
+**Span JSON**: `turn_trace.json` (this dir)
+
+Root span: `continuation.delegate.dispatch` with attrs:
+- `chain.id`: `5cc7982c-42a7-410d-9046-62c6fa3d231b` (for batch-fire rows R-CD-4/Chain-1/2/3) or independent chain (R-CD-1/R-CD-2)
+- `delegate.mode`: matches fire_response mode
+- `reason.preview`: matches the task-string prefix
+- `chain.step.remaining`: visible counter

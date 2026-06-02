@@ -41,3 +41,13 @@ The depth-2 b809bb46 fired the literal-string. Chain-cost accumulated 85 tokens 
 
 ## Verdict
 ✅ **PASS** — depth-2 inter-session targeted return works. depth-1 fires depth-2 with `targetSessionKey="agent:main:main"`, depth-1 returns to its caller immediately (fire-and-forget), depth-2 routes its payload to the targetSessionKey rather than back up the spawn chain. Chain-cost still accrues to the dispatching root parent regardless of routing.
+
+## Tempo trace (fold-in)
+**Trace ID**: `9129ce27a27eeb11f2c9ff83b83e7fd1`
+**Tempo URL**: http://tempo.dandelion.cult/api/traces/9129ce27a27eeb11f2c9ff83b83e7fd1
+**Span JSON**: `turn_trace.json` (this dir)
+
+Root span: `continuation.delegate.dispatch` (depth-1 fire from parent channel session).
+Chain-id `5cc7982c-42a7-410d-9046-62c6fa3d231b` shared with R-CD-4 + sibling chain rows in the batch fire.
+
+Note: depth-2 dispatch spans (subagent fires its child) live under separate trace-IDs in the subagent's session jsonl traceparent context. Up-tree stitching evidence already captured via `[continuation:enrichment-return]` journal lines (see `journal_chain.log` for Chain-1's two-hop propagation receipt).

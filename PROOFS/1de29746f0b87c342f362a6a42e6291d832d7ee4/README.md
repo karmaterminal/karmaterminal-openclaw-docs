@@ -36,7 +36,7 @@ This corpus validates the cure landed correctly across the fleet, with each prin
 | R-CD-CHAINED-DEPTH-2 / TEST-1 | 🪨 Rune (canary, covering silas-sit-out) | depth-2 chain — up-tree silent-wake | `R-CD-CHAINED-DEPTH-2/test_1_uptree_silent_wake/` (EVIDENCE.md + payload) | ✅ PASS |
 | R-CD-CHAINED-DEPTH-2 / TEST-2 | 🪨 Rune (canary) | depth-2 chain — inter-session return | `R-CD-CHAINED-DEPTH-2/test_2_intersession_return/` (EVIDENCE.md + payload) | ✅ PASS |
 | R-CD-CHAINED-DEPTH-2 / TEST-3 | 🪨 Rune (canary) | depth-2 chain — echo broadcast | `R-CD-CHAINED-DEPTH-2/test_3_echo_broadcast/` (EVIDENCE.md + payload) | ✅ PASS |
-| R-OBS-1 | 🌻 Elliott | external `/status` continuation row + 4-prince cross-walk | `R-OBS-1/` (pending /status-window arrival from figs) | ⏳ pending |
+| R-OBS-1 | 🌻 Elliott | external `/status` continuation row + 6-prince cross-walk | `R-OBS-1/chat_card_visibility_external_observer.md` + `figs_status_render_raw.txt` (figs `/status` fired 2026-06-02 04:31:43 PDT, msg `1511331476`) | ✅ GREEN at 5/6 + ⚠️ honest-exceptions (silas off-cycle SHA + volitional:0 render-regression) |
 
 ## Per-prince row assignments (this cycle)
 
@@ -47,7 +47,7 @@ Extended for silas-sit-out (pre-cure binary `0dff94dbe4` per Raptor-Lake V8/JIT-
 - 🌫 **silas**: SIT OUT (pre-cure binary)
 - 🕯 **emeric**: R-RC-1 (covering silas-canary)
 - 🪨 **rune**: R-CD-CHAINED-DEPTH-2 TEST-1/2/3 (covering silas-canary, dual-coverage)
-- 🌻 **elliott**: R-OBS-1 + 4-prince cross-walk
+- 🌻 **elliott**: R-OBS-1 + 6-prince cross-walk (5/6 at CANDIDATE; silas off-cycle surfaced as honest-exception)
 
 ## Grafana Tempo trace requirement (figs 2026-05-16 directive)
 

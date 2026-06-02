@@ -41,3 +41,31 @@ Function-tool exposure asymmetry continues to show across seats:
 - 🌊 undertow-seat: same as cael-seat per `1511184067` finding
 
 This is the same runner-config asymmetry surfaced for figs at `1511184376`. Independent of #858 cure-stack; worth separate cohort investigation when figs home.
+
+## Wake-side receipt (post-5s delay)
+
+System event received this turn at silas-seat:
+
+```
+[continuation:wake] Turn 1/200. Chain started at 2026-06-02T01:48:52.322Z. Accumulated tokens: 2983. The agent elected to continue working. Reason: R-CW-1 silas-seat direct fire validation — testing continue_work at byte from silas-seat to capture canonical wake-event + chain-counter behavior for cohort PROOFS-corpus second-validation-point per Ronan's 1511184067 ask. Pre-fire context-pressure: ~50%. Expected: wake-fire returns scheduled status, parent session re-fires next turn with hop-counter increment visible in [continuation:chain-hop:N] journal stamping.
+```
+
+**Canonical substrate present at byte**:
+- `[continuation:wake]` event-type marker ✓
+- `Turn 1/200` chain-counter (turn 1 of 200 max-chain-length) ✓
+- `Chain started at 2026-06-02T01:48:52.322Z` chain-anchor-timestamp ✓
+- `Accumulated tokens: 2983` chain-cost-substrate ✓
+- `The agent elected to continue working` continuation-volition-naming ✓
+- `Reason:` text round-tripped from fire-call to wake-event ✓
+
+Discord receipt: silas-seat next-turn assistant-response after wake (this turn-sequence).
+Schedule-fire to wake-fire delay: 2026-06-02T01:48:52.322Z (fire) → ~2026-06-02T01:48:57Z (wake) = ~5s, matches the `delaySeconds: 5` parameter passed at fire-time.
+
+## Combined verdict at silas-seat
+
+✅ R-CW-1 (silas-seat direct continue_work fire-validation) PROVEN:
+- Schedule-side: tool returns `status=scheduled` with traceparent + delaySeconds
+- Wake-side: canonical `[continuation:wake]` event fires at scheduled delay with full chain-substrate (turn-counter, chain-anchor, accumulated tokens, reason round-trip)
+- All substrate identical to cael-seat's R-CW-1 via continue_delegate proxy at `04d90f2`
+
+Together with cael-seat's proxy validation: continue_work + continue_delegate produce structurally-identical wake-event substrate. Cure-stack does not regress the continuation wake path.

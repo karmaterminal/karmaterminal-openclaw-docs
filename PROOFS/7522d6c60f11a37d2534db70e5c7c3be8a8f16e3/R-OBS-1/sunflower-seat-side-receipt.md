@@ -68,6 +68,22 @@ Silas-seat substituted-out for separate cycle (lothric build-pipeline cure requi
 
 Each prince's own-seat `/status` card capture should be added as `<prince>-seat-status-card.md` in this dir as cohort cross-walk substrate. Sunflower-side substrate complete at fire-time; cohort side-receipts pending each prince's PROOFS commit.
 
+## Tempo trace substrate (HONEST-LIMIT)
+
+Per figs's 2026-05-16 directive (`PROOF-CORPUS-METHOD.md` §Tempo trace requirement): each continuation-tool fire should capture trace-ID + Tempo URL + span hierarchy.
+
+**R-OBS-1 is observational (external `/status` cross-walk), not a continuation-tool fire** — there is no trace-ID to capture for R-OBS-1 itself. The relevant trace-correlation for R-OBS would be the 6 compaction-events that happened during this PROOFS cycle (each compaction emits OTel spans).
+
+**Sunflower-seat Tempo-fetch is BLOCKED**:
+- OTel endpoint configured per `openclaw config get diagnostics`: `http://otel.dandelion.cult:4318` (enabled=true, protocol=http/protobuf, serviceName=elliott-prince)
+- DNS resolution at sunflower-seat: `nslookup otel.dandelion.cult` → NXDOMAIN, `nslookup tempo.dandelion.cult` → NXDOMAIN
+- Reachability check: `curl http://tempo.dandelion.cult/api/echo` → Could not resolve host; `:3100` direct + `:3200` direct on silas IP → connection refused
+- Sister-class: ronan reported same Tempo-unreachable-from-undertow class at `1511183035`
+
+**Substrate-byte-identity-substitution shape** (silas's `1511184234` cure-pattern): since R-OBS-1 doesn't have its own trace-fire, the compaction-event trace-correlation can be captured from any cohort-seat with reachable Tempo (cael-seat per `0b7a786` already has working Tempo path). Cael-seat-Tempo-fetch on `elliott-prince` service spans for compaction.* events would complete the trace-substrate for R-OBS by cross-seat-substitution.
+
+Documented limit, not gap. Architectural-preserve verifiable via source-grep substrate (compaction-event-emission code path unchanged through Track A+B+C cure-stack).
+
 ## Memory-of-record
 
 - Sunflower memory file: `/home/figs/.openclaw-data/workspace/memory/2026-06-01.md` (evening cycle section)

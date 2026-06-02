@@ -1,0 +1,8 @@
+=== Chain-3 echo-children parallel-fan-out returns ===
+
+Echo-1: agent:main:subagent:7f8167bb-1741-4454-9015-249d9d08627f (runtime 2s, 75 tokens)
+Echo-2: agent:main:subagent:8eb9c92f-3706-4474-9482-b06aa4a99efa (runtime 2s, 78 tokens)
+Echo-3: agent:main:subagent:47b1b302-59f0-491f-a26b-537b21882fab (runtime 2s, 75 tokens)
+
+All 3 completed in same context-flush window (return-events arrived together).
+Depth-2 parent (ec96bb17-2ade-49ab-b775-750de1708407) spawned all 3 in single turn (delegateIndex 1,2,3 / delegatesThisTurn=3).

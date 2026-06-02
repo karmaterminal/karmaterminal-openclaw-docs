@@ -1,0 +1,9 @@
+{
+  "status": "scheduled",
+  "mode": "silent-wake",
+  "fire_utc": "2026-06-02T01:42:30Z",
+  "row": "R-CD-CHAINED-DEPTH-2/Chain-3",
+  "ref": "7522d6c60f11a37d2534db70e5c7c3be8a8f16e3",
+  "seat": "ronan-undertow",
+  "scope": "depth-2-chain-echo-broadcast-fan-out-3"
+}

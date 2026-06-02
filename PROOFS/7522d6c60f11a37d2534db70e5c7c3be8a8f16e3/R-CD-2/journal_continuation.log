@@ -1,0 +1,6 @@
+Jun 01 18:33:46 ronan node[3300448]: 2026-06-01T18:33:46.000-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=9/200 mode=normal session=agent:main:discord:channel:1466192485440164011 task=R-CD-1 PROOF FIRE at uncurse-tip `7522d6c60f` from ronan-undertow seat.
+Jun 01 18:33:50 ronan node[3300448]: 2026-06-01T18:33:50.079-07:00 [subagent-chain-hop] Accumulated 126 tokens from agent:main:subagent:29b714aa-2846-4d48-a1be-e30c90f39729 to parent chain cost
+Jun 01 18:35:32 ronan node[3300448]: 2026-06-01T18:35:32.825-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=10/200 mode=silent-wake session=agent:main:discord:channel:1466192485440164011 task=R-CD-2 PROOF FIRE at uncurse-tip `7522d6c60f` from ronan-undertow seat. Mode = s
+Jun 01 18:35:38 ronan node[3300448]: 2026-06-01T18:35:38.601-07:00 R-CD-2 PROOF EVIDENCE: continue_delegate silent-wake mode round-trip OK from ronan-undertow at 7522d6c60f
+Jun 01 18:35:38 ronan node[3300448]: 2026-06-01T18:35:38.718-07:00 [subagent-chain-hop] Accumulated 132 tokens from agent:main:subagent:2c20d9e5-2798-42c6-9e5f-662a8ae334c8 to parent chain cost
+Jun 01 18:35:38 ronan node[3300448]: 2026-06-01T18:35:38.723-07:00 [continuation/announce] [continuation/silent-wake] wakeOnReturn=true target=agent:main:discord:channel:1466192485440164011 silentAnnounce=true

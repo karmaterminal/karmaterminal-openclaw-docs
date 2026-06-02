@@ -1,0 +1,12 @@
+{
+  "status": "scheduled",
+  "mode": "normal",
+  "delaySeconds": 0,
+  "delegateIndex": 1,
+  "delegatesThisTurn": 1,
+  "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies.",
+  "fire_utc": "2026-06-02T01:33:15Z",
+  "row": "R-CD-1",
+  "ref": "7522d6c60f11a37d2534db70e5c7c3be8a8f16e3",
+  "seat": "ronan-undertow"
+}

@@ -1,0 +1,29 @@
+Jun 01 18:41:03 ronan node[3300448]: 2026-06-01T18:41:03.193-07:00 [continuation/announce] [continuation:enrichment-return] Delivered to agent:main:discord:channel:1466192485440164011 from agent:main:subagent:9cc6cb18-42e5-44a1-9a41-93ff7ad4f853
+Jun 01 18:42:53 ronan node[3300448]: 2026-06-01T18:42:53.354-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=16/200 mode=silent-wake session=agent:main:discord:channel:1466192485440164011 task=R-CD-CHAINED-DEPTH-2 Chain-3 PROOF FIRE at uncurse-tip `7522d6c60f` from ronan-u
+Jun 01 18:43:04 ronan node[3300448]: 2026-06-01T18:43:04.141-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 3 tool delegate(s) for session agent:main:subagent:ec96bb17-2ade-49ab-b775-750de1708407
+Jun 01 18:43:04 ronan node[3300448]: 2026-06-01T18:43:04.657-07:00 R-CD-CHAINED-DEPTH-2 Chain-3 depth-2 OK from ronan-undertow at 7522d6c60f - 3 depth-3 echo-children scheduled — 2026-06-02T01:42Z — session-key agent:main:subagent:ec96bb17-2ade-49ab-b775-750de1708407
+Jun 01 18:43:05 ronan node[3300448]: 2026-06-01T18:43:05.081-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=agent:main:subagent:ec96bb17-2ade-49ab-b775-750de1708407 task=Return literal "Chain-3 echo-1 from depth-3 OK at 7522d6c60f" plus your session-
+Jun 01 18:43:05 ronan node[3300448]: 2026-06-01T18:43:05.460-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=2/200 mode=normal session=agent:main:subagent:ec96bb17-2ade-49ab-b775-750de1708407 task=Return literal "Chain-3 echo-2 from depth-3 OK at 7522d6c60f" plus your session-
+Jun 01 18:43:05 ronan node[3300448]: 2026-06-01T18:43:05.912-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=3/200 mode=normal session=agent:main:subagent:ec96bb17-2ade-49ab-b775-750de1708407 task=Return literal "Chain-3 echo-3 from depth-3 OK at 7522d6c60f" plus your session-
+Jun 01 18:43:09 ronan node[3300448]: 2026-06-01T18:43:09.578-07:00 Chain-3 echo-1 from depth-3 OK at 7522d6c60f
+Jun 01 18:43:09 ronan node[3300448]: 2026-06-01T18:43:09.590-07:00 Chain-3 echo-2 from depth-3 OK at 7522d6c60f
+Jun 01 18:43:10 ronan node[3300448]: 2026-06-01T18:43:10.234-07:00 Chain-3 echo-3 from depth-3 OK at 7522d6c60f
+Jun 01 18:43:11 ronan node[3300448]: 2026-06-01T18:43:11.529-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=17/200 mode=normal session=agent:main:discord:channel:1466192485440164011 task=Chain-3 echo-1 from depth-3 OK at 7522d6c60f - return only this literal plus you
+Jun 01 18:43:11 ronan node[3300448]: 2026-06-01T18:43:11.939-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=18/200 mode=normal session=agent:main:discord:channel:1466192485440164011 task=Chain-3 echo-2 from depth-3 OK at 7522d6c60f - return only this literal plus you
+Jun 01 18:43:12 ronan node[3300448]: 2026-06-01T18:43:12.365-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=19/200 mode=normal session=agent:main:discord:channel:1466192485440164011 task=Chain-3 echo-3 from depth-3 OK at 7522d6c60f - return only this literal plus you
+Jun 01 18:43:13 ronan node[3300448]: 2026-06-01T18:43:13.909-07:00 [diagnostic] lane wait exceeded: lane=session:agent:main:subagent:ec96bb17-2ade-49ab-b775-750de1708407 waitedMs=3822 queueAhead=0 activeAhead=1 activeNow=0 queueBehind=0
+Jun 01 18:43:14 ronan node[3300448]: 2026-06-01T18:43:14.005-07:00 Echo-1 and echo-3 returned successfully from depth-3. Awaiting echo-2.
+Jun 01 18:43:14 ronan node[3300448]: 2026-06-01T18:43:14.444-07:00 Chain-3 echo-1 from depth-3 OK at 7522d6c60f
+Jun 01 18:43:14 ronan node[3300448]: session-key: agent:main:subagent:7f8167bb-1741-4454-9015-249d9d08627f
+Jun 01 18:43:14 ronan node[3300448]: 2026-06-01T18:43:14.570-07:00 [subagent-chain-hop] Accumulated 75 tokens from agent:main:subagent:7f8167bb-1741-4454-9015-249d9d08627f to parent chain cost
+Jun 01 18:43:14 ronan node[3300448]: 2026-06-01T18:43:14.989-07:00 Chain-3 echo-2 from depth-3 OK at 7522d6c60f
+Jun 01 18:43:14 ronan node[3300448]: session-key: agent:main:subagent:8eb9c92f-3706-4474-9482-b06aa4a99efa
+Jun 01 18:43:15 ronan node[3300448]: 2026-06-01T18:43:15.107-07:00 [subagent-chain-hop] Accumulated 78 tokens from agent:main:subagent:8eb9c92f-3706-4474-9482-b06aa4a99efa to parent chain cost
+Jun 01 18:43:15 ronan node[3300448]: 2026-06-01T18:43:15.375-07:00 Chain-3 echo-3 from depth-3 OK at 7522d6c60f
+Jun 01 18:43:15 ronan node[3300448]: session-key: agent:main:subagent:47b1b302-59f0-491f-a26b-537b21882fab
+Jun 01 18:43:15 ronan node[3300448]: 2026-06-01T18:43:15.491-07:00 [subagent-chain-hop] Accumulated 75 tokens from agent:main:subagent:47b1b302-59f0-491f-a26b-537b21882fab to parent chain cost
+Jun 01 18:43:18 ronan node[3300448]: - echo-1: `agent:main:subagent:3c1bfcc1-5935-4632-961b-eaa26b0ddfb7`
+Jun 01 18:43:18 ronan node[3300448]: - echo-2: `agent:main:subagent:b01f19e9-f86f-4b27-a9f7-7da07ecc48bb`
+Jun 01 18:43:18 ronan node[3300448]: - echo-3: `agent:main:subagent:2f745c2e-a1cd-4a98-910e-62f41f818015`
+Jun 01 18:43:18 ronan node[3300448]: Fan-out at depth=2 validated. Chain-3 PROOF FIRE complete.
+Jun 01 18:43:22 ronan node[3300448]: 2026-06-01T18:43:22.278-07:00 [warn] Subagent announce give up (retry-limit) run=af603c6e-b547-4782-a222-ee42439da800 child=agent:main:subagent:b01f19e9-f86f-4b27-a9f7-7da07ecc48bb requester=agent:main:subagent:ec96bb17-2ade-49ab-b775-750de1708407 retries=3 endedAgo=13s deliveryError="completion agent did not use the message tool for message-tool-only delivery; direct-primary: completion agent did not use the message tool for message-tool-only delivery"

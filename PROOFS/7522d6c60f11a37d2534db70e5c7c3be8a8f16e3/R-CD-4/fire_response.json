@@ -1,0 +1,12 @@
+{
+  "status": "scheduled",
+  "mode": "normal",
+  "delaySeconds": 0,
+  "delegateIndex": 1,
+  "delegatesThisTurn": 1,
+  "targetSessionKey": "agent:main:discord:channel:1466192485440164011",
+  "fire_utc": "2026-06-02T01:37:00Z",
+  "row": "R-CD-4",
+  "ref": "7522d6c60f11a37d2534db70e5c7c3be8a8f16e3",
+  "seat": "ronan-undertow"
+}

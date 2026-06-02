@@ -1,0 +1,12 @@
+=== R-CD-1 FIRE EVIDENCE ===
+row: R-CD-1
+ref: 7522d6c60f11a37d2534db70e5c7c3be8a8f16e3
+seat: ronan-undertow (spark-ecdf, 10.0.0.246)
+openclaw_version: OpenClaw 2026.5.31 (7522d6c)
+fire_utc: 2026-06-02T01:33:15Z
+fire_session_id: agent:main:discord:channel:1466192485440164011
+scope: continue_delegate() normal-mode round-trip
+fire_response: scheduled, mode=normal, delaySeconds=0, delegateIndex=1, delegatesThisTurn=1
+
+NEXT: delegate dispatches after this response completes.
+Capture pending: delegate return payload + Tempo trace + journal continuation-line.

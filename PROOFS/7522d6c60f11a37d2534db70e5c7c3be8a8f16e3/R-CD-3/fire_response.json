@@ -1,0 +1,12 @@
+{
+  "status": "queued-for-compaction",
+  "mode": "post-compaction",
+  "delegateIndex": 1,
+  "delegatesThisTurn": 1,
+  "note": "Delegate will fire when compaction occurs, not on a timer. The shard starts at the moment of compaction and returns to the post-compaction session. Chain tracking applies at dispatch time.",
+  "fire_utc": "2026-06-02T01:36:30Z",
+  "row": "R-CD-3",
+  "ref": "7522d6c60f11a37d2534db70e5c7c3be8a8f16e3",
+  "seat": "ronan-undertow",
+  "parent_session_key": "agent:main:discord:channel:1466192485440164011"
+}

@@ -1,0 +1,6 @@
+Jun 01 18:37:42 ronan node[3300448]: 2026-06-01T18:37:42.257-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=11/200 mode=normal session=agent:main:discord:channel:1466192485440164011 task=R-CD-4 PROOF FIRE at uncurse-tip `7522d6c60f` from ronan-undertow seat. Cross-se
+Jun 01 18:37:47 ronan node[3300448]: 2026-06-01T18:37:47.534-07:00 R-CD-4 PROOF EVIDENCE: continue_delegate cross-session targetSessionKey-routed return OK from ronan-undertow at 7522d6c60f
+Jun 01 18:37:47 ronan node[3300448]: delegate session-key: agent:main:subagent:9a9c161d-0501-41ca-891b-d39e9f198a33
+Jun 01 18:37:47 ronan node[3300448]: targetSessionKey: agent:main:discord:channel:1466192485440164011
+Jun 01 18:37:47 ronan node[3300448]: 2026-06-01T18:37:47.635-07:00 [subagent-chain-hop] Accumulated 160 tokens from agent:main:subagent:9a9c161d-0501-41ca-891b-d39e9f198a33 to parent chain cost
+Jun 01 18:37:47 ronan node[3300448]: 2026-06-01T18:37:47.638-07:00 [continuation:targeted-return] Delivered to agent:main:discord:channel:1466192485440164011 from agent:main:subagent:9a9c161d-0501-41ca-891b-d39e9f198a33

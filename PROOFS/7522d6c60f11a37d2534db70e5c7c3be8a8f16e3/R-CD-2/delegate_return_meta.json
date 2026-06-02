@@ -1,0 +1,17 @@
+{
+  "row": "R-CD-2",
+  "mode": "silent-wake",
+  "hop": "10/200",
+  "parent_session_key": "agent:main:discord:channel:1466192485440164011",
+  "delegate_session_key": "agent:main:subagent:2c20d9e5-2798-42c6-9e5f-662a8ae334c8",
+  "fire_utc": "2026-06-02T01:34:30Z",
+  "spawn_utc": "2026-06-02T01:35:32Z",
+  "return_utc": "2026-06-02T01:35:38Z",
+  "spawn_runtime_seconds": 6,
+  "chain_cost_tokens": 132,
+  "wake_on_return": true,
+  "silent_announce": true,
+  "ref": "7522d6c60f11a37d2534db70e5c7c3be8a8f16e3",
+  "seat": "ronan-undertow",
+  "openclaw_version": "OpenClaw 2026.5.31 (7522d6c)"
+}

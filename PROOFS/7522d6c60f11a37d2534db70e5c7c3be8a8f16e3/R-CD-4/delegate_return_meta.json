@@ -1,0 +1,16 @@
+{
+  "row": "R-CD-4",
+  "mode": "normal-with-targetSessionKey",
+  "hop": "11/200",
+  "parent_session_key": "agent:main:discord:channel:1466192485440164011",
+  "delegate_session_key": "agent:main:subagent:9a9c161d-0501-41ca-891b-d39e9f198a33",
+  "delegate_session_id": "b3831fe6-2eaa-4f18-8bfc-e2da963fb80e",
+  "targetSessionKey": "agent:main:discord:channel:1466192485440164011",
+  "fire_utc": "2026-06-02T01:37:00Z",
+  "return_utc": "2026-06-02T01:37:47Z",
+  "runtime_seconds": 5,
+  "tokens": {"in": 6, "out": 154},
+  "ref": "7522d6c60f11a37d2534db70e5c7c3be8a8f16e3",
+  "seat": "ronan-undertow",
+  "openclaw_version": "OpenClaw 2026.5.31 (7522d6c)"
+}

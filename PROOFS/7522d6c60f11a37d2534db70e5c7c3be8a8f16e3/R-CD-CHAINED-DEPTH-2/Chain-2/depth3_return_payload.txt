@@ -1,0 +1,4 @@
+R-CD-CHAINED-DEPTH-2 Chain-2 depth-3 inter-session OK from ronan-undertow at 7522d6c60f
+turn-time UTC: 2026-06-02T01:40Z
+session-key: agent:main:subagent:81b8f2a0-5dbe-4246-8961-5e7e314532e4
+targetSessionKey: agent:main:subagent:9cc6cb18-42e5-44a1-9a41-93ff7ad4f853

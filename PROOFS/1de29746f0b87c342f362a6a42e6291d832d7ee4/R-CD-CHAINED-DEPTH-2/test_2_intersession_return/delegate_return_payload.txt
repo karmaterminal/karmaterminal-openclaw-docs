@@ -1,0 +1,6 @@
+Receipt — R-CD-CHAINED-DEPTH-2 TEST-2 depth-1:
+
+- traceparent: 00-0fa11de4632d9d0b98ade2e961449647-092108f226aaa854-01
+- depth-2 spawn: scheduled, targetSessionKey=agent:main:discord:channel:1466192485440164011 (cross-session return to rune main)
+- ts: 2026-06-02T11:07:16Z
+- env TRACEPARENT was unset at shard entry; trace context derived by gateway from active scope

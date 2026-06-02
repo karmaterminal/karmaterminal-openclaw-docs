@@ -1,0 +1,1 @@
+R-CD-2 PROOF: continue_delegate silent-wake path verified at CANDIDATE_SHA 1de29746f0b87c342f362a6a42e6291d832d7ee4 from undertow-seat 2026-06-02

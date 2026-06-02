@@ -1,0 +1,8 @@
+{
+  "status": "scheduled",
+  "mode": "silent-wake",
+  "delaySeconds": 8,
+  "delegateIndex": 2,
+  "delegatesThisTurn": 2,
+  "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+}

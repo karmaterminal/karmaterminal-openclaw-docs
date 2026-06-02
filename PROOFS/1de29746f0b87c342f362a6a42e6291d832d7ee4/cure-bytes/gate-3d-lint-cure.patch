@@ -1,0 +1,79 @@
+diff --git a/extensions/diagnostics-otel/src/continuation-tracer-adapter.test.ts b/extensions/diagnostics-otel/src/continuation-tracer-adapter.test.ts
+index a9ab38cbd9e..0aa44358ed1 100644
+--- a/extensions/diagnostics-otel/src/continuation-tracer-adapter.test.ts
++++ b/extensions/diagnostics-otel/src/continuation-tracer-adapter.test.ts
+@@ -85,7 +85,8 @@ afterEach(() => {
+ describe("continuation-tracer adapter :: tracer acquisition", () => {
+   it("uses the dedicated 'openclaw.continuation' tracer scope", () => {
+     createContinuationOtelTracerAdapter();
+-    expect(trace.getTracer).toHaveBeenCalledWith(CONTINUATION_OTEL_TRACER_NAME);
++    // oxlint-disable-next-line typescript/unbound-method -- vi.mock assertion pattern, no `this` access
++    expect(vi.mocked(trace.getTracer)).toHaveBeenCalledWith(CONTINUATION_OTEL_TRACER_NAME);
+     expect(CONTINUATION_OTEL_TRACER_NAME).toBe("openclaw.continuation");
+   });
+ });
+diff --git a/src/agents/subagent-spawn.test.ts b/src/agents/subagent-spawn.test.ts
+index 9049dddaf37..c8c75a5f8a0 100644
+--- a/src/agents/subagent-spawn.test.ts
++++ b/src/agents/subagent-spawn.test.ts
+@@ -919,6 +919,8 @@ describe("spawnSubagentDirect seam flow", () => {
+     const agentCall = calls.find((call) => call.method === "agent");
+     const params = requireRecord(agentCall?.params);
+     expect(params.thinking).toBeUndefined();
++  });
++
+   it("forwards inherited traceparent to the child agent run", async () => {
+     const traceparent = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01";
+     const calls: Array<{ method?: string; params?: unknown }> = [];
+diff --git a/src/auto-reply/reply/agent-runner-execution.ts b/src/auto-reply/reply/agent-runner-execution.ts
+index c4cb5405930..d64354f14dd 100644
+--- a/src/auto-reply/reply/agent-runner-execution.ts
++++ b/src/auto-reply/reply/agent-runner-execution.ts
+@@ -3101,7 +3101,6 @@ export async function runAgentTurnWithFallback(params: {
+       if (isCompactionFailure && !didResetAfterCompactionFailure) {
+         const didResetAfterCompactionFailureNow =
+           (await params.resetSessionAfterCompactionFailure?.(message)) ?? false;
+-        didResetAfterCompactionFailure = didResetAfterCompactionFailureNow;
+         params.replyOperation?.fail("run_failed", err);
+         return {
+           kind: "final",
+diff --git a/src/infra/heartbeat-wake.ts b/src/infra/heartbeat-wake.ts
+index 1b7b2911cc4..61ea7735011 100644
+--- a/src/infra/heartbeat-wake.ts
++++ b/src/infra/heartbeat-wake.ts
+@@ -213,16 +213,17 @@ function schedule(coalesceMs: number, kind: WakeTimerKind = "normal") {
+   }
+   timerDueAt = dueAt;
+   timerKind = kind;
+-  timer = setTimeout(async () => {
+-    timer = null;
+-    timerDueAt = null;
+-    timerKind = null;
+-    scheduled = false;
+-    const active = handler;
+-    if (!active) {
+-      return;
+-    }
+-    if (running) {
++  timer = setTimeout(() => {
++    void (async () => {
++      timer = null;
++      timerDueAt = null;
++      timerKind = null;
++      scheduled = false;
++      const active = handler;
++      if (!active) {
++        return;
++      }
++      if (running) {
+       scheduled = true;
+       schedule(delay, kind);
+       return;
+@@ -277,6 +278,7 @@ function schedule(coalesceMs: number, kind: WakeTimerKind = "normal") {
+         schedule(delay, "normal");
+       }
+     }
++    })();
+   }, delay);
+   timer.unref?.();
+ }

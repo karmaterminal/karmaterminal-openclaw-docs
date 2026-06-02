@@ -1,0 +1,25 @@
+[oxlint:core] starting
+[oxlint:extensions] starting
+[oxlint:scripts] starting
+Found 0 warnings and 0 errors.
+Finished in 2.4s on 515 files with 237 rules using 1 threads.
+[oxlint:scripts] finished
+[oxlint:core] still running after 30s
+[oxlint:extensions] still running after 30s
+Found 0 warnings and 0 errors.
+Finished in 43.0s on 5819 files with 237 rules using 1 threads.
+[oxlint:extensions] finished
+Found 0 warnings and 0 errors.
+Finished in 43.5s on 9621 files with 237 rules using 1 threads.
+[oxlint:core] finished
+
+[check] policy guards
+$ node scripts/check-no-pairing-store-group-auth.mjs
+$ node --import tsx scripts/check-temp-path-guardrails.ts
+$ node scripts/check-webhook-auth-body-order.mjs
+$ node scripts/check-pairing-account-scope.mjs
+$ node scripts/check-deprecated-api-usage.mjs
+$ node --import tsx scripts/check-import-cycles.ts
+$ node scripts/check-no-runtime-action-load-config.mjs
+deprecated API usage guard passed
+Import cycle check: 0 runtime value cycle(s).

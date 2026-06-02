@@ -1,0 +1,4 @@
+R-CD-CHAIN-2 DEPTH-1 PROOF: dispatched inter-session targeted depth-2 at 1de29746f0
+---
+depth-2 return (routed to targetSessionKey, not back to depth-1):
+R-CD-CHAIN-2-DEPTH-2 PROOF: inter-session targeted return verified at CANDIDATE_SHA 1de29746f0b87c342f362a6a42e6291d832d7ee4

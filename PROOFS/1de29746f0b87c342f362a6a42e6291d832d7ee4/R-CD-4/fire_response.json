@@ -1,0 +1,9 @@
+{
+  "status": "scheduled",
+  "mode": "normal",
+  "delaySeconds": 3,
+  "delegateIndex": 2,
+  "delegatesThisTurn": 2,
+  "targetSessionKey": "agent:main:main",
+  "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+}

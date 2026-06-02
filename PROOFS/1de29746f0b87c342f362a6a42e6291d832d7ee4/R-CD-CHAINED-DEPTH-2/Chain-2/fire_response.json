@@ -1,0 +1,7 @@
+{
+  "status": "scheduled",
+  "mode": "normal",
+  "delaySeconds": 7,
+  "delegateIndex": 4,
+  "delegatesThisTurn": 4
+}

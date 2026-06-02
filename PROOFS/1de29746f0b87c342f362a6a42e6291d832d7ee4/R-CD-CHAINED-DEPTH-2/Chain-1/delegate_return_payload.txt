@@ -1,0 +1,4 @@
+R-CD-CHAIN-1 DEPTH-1 PROOF: parent-of-chain at 1de29746f0
+---
+depth-2 return (via enrichment-return from agent:main:subagent:94b800f0-... to agent:main:subagent:60f867ba-...):
+R-CD-CHAIN-1-DEPTH-2 PROOF: up-tree silent-wake verified at CANDIDATE_SHA 1de29746f0b87c342f362a6a42e6291d832d7ee4

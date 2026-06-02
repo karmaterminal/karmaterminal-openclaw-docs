@@ -1,0 +1,4 @@
+R-CD-CHAIN-3 DEPTH-1 PROOF: dispatched fanoutMode=tree depth-2 at 1de29746f0
+---
+depth-2 return (fanoutMode=tree distributes to all ancestors in chain):
+R-CD-CHAIN-3-DEPTH-2 PROOF: fanoutMode=tree echo-broadcast verified at CANDIDATE_SHA 1de29746f0b87c342f362a6a42e6291d832d7ee4

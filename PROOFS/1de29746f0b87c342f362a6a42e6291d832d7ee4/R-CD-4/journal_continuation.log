@@ -1,0 +1,5 @@
+Jun 02 04:24:27 ronan node[942990]: 2026-06-02T04:24:27.759-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 4 tool delegate(s) for session agent:main:discord:channel:1466192485440164011
+Jun 02 04:24:27 ronan node[942990]: 2026-06-02T04:24:27.904-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=8/200 mode=normal session=agent:main:discord:channel:1466192485440164011 task=[PROOF R-CD-4 / 1de29746f0] You are a delegate dispatched by Ronan (🌊) for PROO
+Jun 02 04:24:30 ronan node[942990]: 2026-06-02T04:24:30.649-07:00 R-CD-4 PROOF: continue_delegate cross-session targetSessionKey-routing verified at CANDIDATE_SHA 1de29746f0b87c342f362a6a42e6291d832d7ee4 from undertow-seat 2026-06-02; return targeted to agent:main:main
+Jun 02 04:24:30 ronan node[942990]: 2026-06-02T04:24:30.772-07:00 [subagent-chain-hop] Accumulated 110 tokens from agent:main:subagent:1eea2d85-51fb-40f7-ac58-68ea425f1f08 to parent chain cost
+Jun 02 04:24:30 ronan node[942990]: 2026-06-02T04:24:30.777-07:00 [continuation:targeted-return] Delivered to agent:main:main from agent:main:subagent:1eea2d85-51fb-40f7-ac58-68ea425f1f08

@@ -1,0 +1,7 @@
+{
+  "status": "scheduled",
+  "mode": "silent-wake",
+  "delaySeconds": 5,
+  "delegateIndex": 3,
+  "delegatesThisTurn": 3
+}

@@ -1,0 +1,92 @@
+```
+Elliott🌻
+🦞 OpenClaw 2026.5.31 (1de2974)
+⏱️ Uptime: gateway 9m 46s · system 9d 10h
+🧠 Model: github-copilot/claude-opus-4.7-1m-internal · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai-codex/gpt-5.5
+🧮 Tokens: 12 in / 936 out
+🗄️ Cache: 38% hit · 60k cached, 98k new
+📚 Context: 158k/128k (123%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated just now
+📌 Tasks: 0 active · 1 total · agent-local
+🔄 Continuation: chain 1/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · elevated
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+
+Silas🌫️
+🦞 OpenClaw 2026.5.24 (0dff94d)
+⏱️ Uptime: gateway 7h 46m · system 1d 8h
+🧠 Model: github-copilot/claude-opus-4.7-1m-internal · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai-codex/gpt-5.5
+🧮 Tokens: 6 in / 1.8k out
+🗄️ Cache: 36% hit · 68k cached, 122k new
+📚 Context: 189k/1.0m (19%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated just now
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Pi Default · Think: high · elevated
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+
+Cael🩸
+🦞 OpenClaw 2026.5.31 (1de2974)
+⏱️ Uptime: gateway 6m 22s · system 9d 15h
+🧠 Model: github-copilot/claude-opus-4.7-1m-internal · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai-codex/gpt-5.5
+🧮 Tokens: 7 in / 169 out
+🗄️ Cache: 100% hit · 168k cached, 209 new
+📚 Context: 191k/1.0m (19%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated 5m ago
+🤖 Subagents: 2 active · 68 done
+  • [continuation:chain-hop:9] Delegated task (turn 9/200):… · 4h 52m · 4 children active
+  • [continuation:chain-hop:8] Delegated task (turn 8/200):… · 5h 3m · 1 child active
+🔄 Continuation: chain 8/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · elevated
+🔊 Voice: inbound · provider=microsoft · limit=1500 · summary=on
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+
+Ronan🌊
+🦞 OpenClaw 2026.5.31 (1de2974)
+⏱️ Uptime: gateway 6m · system 9d 16h
+🧠 Model: github-copilot/claude-opus-4.7-1m-internal · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai/gpt-5.5
+🧮 Tokens: 31 in / 13k out · 💵 Cost: $0.0000
+🗄️ Cache: 99% hit · 185k cached, 1.7k new
+📚 Context: 194k/1.0m (19%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated just now
+📌 Tasks: recently finished · subagent · [continuation:chain-hop:11] Delegated task (turn 11/200): [PROOF R-CD-CHAINED-D…
+🔄 Continuation: chain 11/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · elevated
+🔊 Voice: inbound · provider=microsoft · limit=1500 · summary=on
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+
+Emeric🕯️
+🦞 OpenClaw 2026.5.31 (1de2974)
+⏱️ Uptime: gateway 11m 50s · system 8d 8h
+🧠 Model: github-copilot/claude-opus-4.7-1m-internal · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai-codex/gpt-5.5
+🧮 Tokens: 11 in / 3.6k out
+🗄️ Cache: 98% hit · 145k cached, 2.5k new
+📚 Context: 150k/128k (117%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated 1m ago
+🔄 Continuation: chain 1/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · elevated
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+
+Rune🪨
+🦞 OpenClaw 2026.5.31 (1de2974)
+⏱️ Uptime: gateway 4h 43m · system 8h 8m
+🧠 Model: github-copilot/claude-opus-4.7-1m-internal · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai-codex/gpt-5.5
+🧮 Tokens: 6 in / 763 out
+🗄️ Cache: 30% hit · 50k cached, 116k new
+📚 Context: 166k/128k (130%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated just now
+🔄 Continuation: chain 3/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · elevated
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+```

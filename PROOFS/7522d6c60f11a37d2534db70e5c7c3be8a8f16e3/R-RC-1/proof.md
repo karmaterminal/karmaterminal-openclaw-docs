@@ -1,16 +1,15 @@
-# R-RC-1: request_compaction UNDER-threshold REJECT (cael-seat + silas-seat cohort-cross-walk)
+# R-RC-1: request_compaction UNDER-threshold REJECT (uncurse-tip evidence)
 
 **Family**: `request_compaction()` rate/threshold-gate REJECT path
-**Lead Princes**: 🩸 Cael (substrate-byte-walk) + 🌫 Silas (live-tool fire-receipt)
-**Status**: ✅ PROVEN via cohort-cross-prince-substrate-byte-identity
+**Lead Prince**: 🩸 Cael (substrate-byte-walk)
+**Status**: ✅ PROVEN at uncurse-tip via substrate-byte-walk (single at-SHA axis) + 🟨 BRIDGE-AXIS from pre-cure binary substrate (see `SUBSTRATE-BYTE-IDENTITY-BRIDGE.md`)
+**⚠️ Limitation**: NO live at-SHA fire-receipt captured this cycle — blocked by agent-runner tool-registration regression at uncurse-tip (see `FINDINGS/agent-runner-continuation-tool-regression.md`).
 
 ## Scenario
 
 Per `PROOF-CORPUS-METHOD.md`: when session context-pressure is UNDER `agents.defaults.continuation.contextPressureThreshold` (default 70%), calling `request_compaction(reason)` should return a clean REJECT response with the threshold info, leaving session state untouched.
 
-## Two-axis proof
-
-### Axis 1: substrate-byte-walk at cure-tip (cael-seat)
+## At-SHA evidence axis: substrate-byte-walk (cael-seat)
 
 Cure-stack (Track A + Track B + Track C) touched ONLY outbound channel-monitor sanitization paths:
 - `src/auto-reply/reply/session-system-events.ts` (drain-layer gate)
@@ -18,50 +17,21 @@ Cure-stack (Track A + Track B + Track C) touched ONLY outbound channel-monitor s
 - `src/infra/system-events.test.ts` (regression-anchors)
 - 21 files under `extensions/*/monitor/*` (Track B caller-side opt-ins)
 
-The `request_compaction` rate-gate substrate at `dist/request-compaction-tool-DMdAbqY9.js` (and originating source `src/auto-reply/continuation/request-compaction-tool.ts`) is byte-identical pre/post cure-stack. Cure-stack does not reach the rate-gate predicate or threshold path.
+The `request_compaction` rate-gate substrate at `src/auto-reply/continuation/request-compaction-tool.ts` (and built artifact `dist/request-compaction-tool-DMdAbqY9.js`) is byte-identical pre-cure vs uncurse-tip. Cure-stack does not reach the rate-gate predicate or threshold path.
 
 Cael-seat byte-walk Discord receipt: `1511183395`.
 
-### Axis 2: live-tool fire-receipt (silas-seat)
+## Cross-SHA bridge axis (substrate-byte-identity)
 
-silas-seat has `request_compaction` exposed as function-tool (cael-seat does not — function-tool-exposure asymmetry worth separate investigation; not blocking this row).
+See `SUBSTRATE-BYTE-IDENTITY-BRIDGE.md` in this row directory. Silas-seat fired live `request_compaction` REJECT receipts on pre-cure binary `0dff94d` at two context-load levels (25% + 47%); those receipts validate the rate-gate semantics that uncurse-tip inherits unchanged via the byte-identity argument. The fires are located at `PROOFS/0dff94dbe4875a3b7ed44c60a9097a5f55083572/2026-06-01-cohort-cycle-bridge-fires/R-RC-1-silas-direct-fire/`.
 
-Fired in silas-seat main-session this turn-sequence (Discord receipt: `1511136699`):
+## Why no live at-SHA fire-receipt
 
-```json
-{
-  "status": "rejected",
-  "guard": "context_threshold",
-  "contextUsage": 25,
-  "threshold": 70,
-  "reason": "Context usage (25%) is below the minimum threshold (70%). Compaction is not needed yet."
-}
-```
+The agent-runner tool-registration regression at uncurse-tip means `request_compaction` is not exposed as a function-tool from main-session at any prince-seat deployed at `7522d6c60f`. See `FINDINGS/agent-runner-continuation-tool-regression.md`. Closing this gap requires the regression-cure to land + re-fire from a seat at `7522d6c+regression-cure`.
 
-Structured rejection shape matches PROOF-CORPUS-METHOD.md spec exactly:
-- `status: "rejected"` ✓
-- Guard-name + contextUsage + threshold + reason text all present ✓
-- Session state untouched (no compaction fired) ✓
+## Verdict (honest at byte)
 
-## Combined verdict
+- **Source-file-semantics**: ✅ PROVEN at uncurse-tip via byte-walk that cure-stack does not modify the rate-gate path.
+- **Runtime-fire-equivalence**: 🟨 INFERRED via byte-identity bridge from pre-cure binary live-fire — not directly observed at uncurse-tip.
+- **Verdict-class**: PROVEN-by-construction-not-by-observation at uncurse-tip. Live at-SHA observation blocked by separate regression.
 
-✅ **R-RC-1 REJECT-path PROVEN** by cohort-cross-prince substrate-byte-identity:
-- Cael-seat byte-walk: rate-gate substrate unchanged through cure-stack
-- Silas-seat fire-receipt: rate-gate fires canonical REJECT shape at contextUsage=25 / threshold=70
-
-The fire-receipt was captured from silas-seat's running gateway (NOT at 7522d6c60f — silas-canary deploy at 7522d6c60f failed at build-stage with V8-maglev SIGILL + Go-tsgo SIGSEGV multi-layer Raptor-Lake-incompatibility; lothric sits out this PROOFS cycle for live-binary-fire). BUT because cael-seat confirms the rate-gate dist-file is byte-identical pre/post cure-stack, the REJECT-receipt validates the rate-gate behavior at uncurse-tip by substrate-byte-identity even though not at runtime-binary-identity.
-
-## Function-tool exposure asymmetry (substrate-finding)
-
-silas-seat: `request_compaction` exposed as function-tool ✓ (live-fire works)
-cael-seat: `request_compaction` NOT exposed as function-tool ✗ (bracket-only-fire; brackets swallowed by message-tool delivery)
-
-Same constraint applies to `continue_work` at cael-seat (silas-seat also has continue_work exposed). Cause: model-driver-difference (different copilot tier / runtime-config) OR seat-config-difference. Worth separate investigation as observability-gap; INDEPENDENT of #858 cure-stack architectural-preserve.
-
-## Cross-references
-
-- `SUBSTRATE-FINDING.md` (silas-seat fire-receipt + byte-identity argumentation)
-- `fire-receipt.txt` (raw tool-call I/O at silas-seat)
-- Cael-seat byte-walk Discord: `1511183395`
-- Silas-seat fire-receipt Discord: `1511136699`
-- Cohort-cross-prince-cosign Discord: `1511183689` (Cael) + `1511183861` (Silas)

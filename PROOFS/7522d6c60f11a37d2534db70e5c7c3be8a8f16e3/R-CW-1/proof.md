@@ -92,3 +92,18 @@ All 6 trace IDs fetched + stored at `traces/<trace-id>.json`:
 
 Live re-fetch URL pattern: `http://tempo.dandelion.cult/api/traces/<trace-id>` (no auth needed for haproxy route from princes' seats; cael-seat verified at 18:46 PDT).
 
+
+## Substrate-bridge axis (cross-SHA)
+
+🌫 Silas fired live `continue_work` directly on pre-cure binary `0dff94d` at silas-seat during this PROOFS-cycle window. The receipt is located at `PROOFS/0dff94dbe4875a3b7ed44c60a9097a5f55083572/2026-06-01-cohort-cycle-bridge-fires/R-CW-1-silas-direct-fire/`. See `SUBSTRATE-BYTE-IDENTITY-BRIDGE.md` in this row directory for the byte-identity argument that extends the pre-cure semantics to uncurse-tip.
+
+The silas pre-cure fire is **not** a live at-SHA fire at uncurse-tip — it validates the source-file-semantics at the rate-gate-equivalent path for `continue_work`, which the cure-stack does not modify (byte-identity bridge).
+
+## At-SHA live-fire evidence at uncurse-tip
+
+The primary at-SHA evidence for R-CW-1 at uncurse-tip is the cael-seat `continue_delegate(normal-mode)` functional-proxy + Tempo traces documented above. This validates the continuation-protocol substrate that IS exposed as function-tool at uncurse-tip; the `continue_work` direct-fire surface is blocked by the agent-runner tool-registration regression (see `FINDINGS/agent-runner-continuation-tool-regression.md`).
+
+## Verdict (honest at byte)
+
+- **Continuation-protocol substrate at uncurse-tip**: ✅ PROVEN via cael continue_delegate proxy + traces (live at-SHA).
+- **continue_work direct-fire surface at uncurse-tip**: ⚠️ NOT-DIRECTLY-OBSERVED — blocked by separate regression. Substrate-byte-identity bridge from pre-cure binary live-fire is the inferential path.

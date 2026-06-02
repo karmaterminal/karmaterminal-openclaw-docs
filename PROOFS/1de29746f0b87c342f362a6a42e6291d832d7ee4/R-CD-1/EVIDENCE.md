@@ -1,59 +1,63 @@
-# R-CD-1 EVIDENCE — `continue_delegate(normal-mode)` round-trip
+# R-CD-1 — undertow-seat, CANDIDATE_SHA `1de29746f0b87c342f362a6a42e6291d832d7ee4`
 
-**Row**: R-CD-1 — `continue_delegate()` schedule → spawn → return (normal mode, channel-announce)
-**Owner**: 🌊 Ronan (undertow-seat)
-**CANDIDATE_SHA**: `1de29746f0b87c342f362a6a42e6291d832d7ee4` (uncurse-tip post-PR #870 comment-scrub merge)
-**Seat**: ronan-undertow (spark-ecdf, 10.0.0.246, DGX Spark, 128GB unified)
-**Gateway version**: `OpenClaw 2026.5.31 (1de2974)` (confirmed `openclaw --version` post-deploy 26816100078)
+Captured 2026-06-02T11:20:32Z → 11:20:35Z UTC (04:20 PDT). Binary: `OpenClaw 2026.5.31 (1de2974)`. Self-deploy via `gh workflow run deploy-gateway.yml` run `26816100078` completed 11:13:50Z with `bypass_validation=true` (COHORT_TARGET_TAG `v2026.5.28` lags uncurse-tip by merge-train #862→#870).
 
-## Fire
-- **fire_utc**: 2026-06-02T11:20:27Z (parent turn dispatch)
-- **mode**: normal
-- **delaySeconds**: 5
-- **delegateIndex**: 1, delegatesThisTurn: 1
-- **parent_session_key**: `agent:main:discord:channel:1466192485440164011`
-- **fire_response**: see `fire_response.json`
+## Proof-scope
 
-## Spawn (journal evidence — `journal_continuation.log`)
+`continue_delegate(mode="normal")` schedule → spawn → return path at byte. Tested:
+- delegate-dispatch fires `continuation.delegate.dispatch` span with chain.id + chain.step + delegate.mode attrs
+- subagent spawns into `openclaw.harness.run` under SAME service.name (`ronan-prince`) + same gateway-pid (`942990`)
+- subagent runs to completion (`openclaw.outcome: completed`)
+- literal-string payload returns to parent channel
+
+## Byte-evidence
+
+### Fire trace (`delegate_fire_continuation_trace.json`)
+- Trace ID: `61f4be03f28585f1c0adbea754a614cd`
+- Tempo: http://tempo.dandelion.cult/api/traces/61f4be03f28585f1c0adbea754a614cd
+- 4 spans on trace-id: `continuation.delegate.dispatch` (315ms), `openclaw.run` (2166ms), `openclaw.model.call` (1848ms), `openclaw.context.assembled` (0ms — context-prep)
+- `continuation.delegate.dispatch` attrs at byte:
+  - `chain.id`: `5cc7982c-42a7-410d-9046-62c6fa3d231b`
+  - `chain.step.remaining`: `192`
+  - `delay.ms`: `0`
+  - `delegate.delivery`: `immediate`
+  - `delegate.mode`: `normal`
+  - `reason.preview`: `[PROOF R-CD-1 / 1de29746f0] You are a delegate dispatched by Ronan (🌊) for PROO...`
+
+### Spawn trace (`delegate_spawn_subagent_run_trace.json`)
+- Trace ID: `8b6340225f4fe631f38d9c4f93d4587e`
+- Tempo: http://tempo.dandelion.cult/api/traces/8b6340225f4fe631f38d9c4f93d4587e
+- 1 span: `openclaw.harness.run` 2169ms wall
+- Attrs at byte:
+  - `openclaw.harness.id`: `openclaw`
+  - `openclaw.provider`: `github-copilot`
+  - `openclaw.model`: `claude-opus-4.7-1m-internal`
+  - `openclaw.outcome`: `completed`
+  - `openclaw.harness.items.completed`: `0` (delegate task elected single-string-return, no tool-calls)
+
+### Delegate return (`delegate_return_payload.txt`)
 ```
-04:20:32.354 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s)
-04:20:32.669 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=8/200 mode=normal task=[PROOF R-CD-1 / 1de29746f0] ...
+R-CD-1 PROOF: continue_delegate basic spawn-and-return path verified at CANDIDATE_SHA 1de29746f0b87c342f362a6a42e6291d832d7ee4 from undertow-seat 2026-06-02
 ```
 
-## Return
-- **return_utc**: 2026-06-02T11:20:35Z
-- **delegate_session_key**: `agent:main:subagent:a6eb7a48-4441-4d63-a707-54d65800a7e8`
-- **delegate_session_id / traceId**: `b928374b-e103-4091-b4cf-ecaddbd947b1`
-- **runId**: `29687b98-29b2-4548-9e63-d8a298739604`
-- **runtime**: 2s (1620ms wall)
-- **tokens**: in=6, out=88, total=94 / prompt_cache=34.4k
-- **round_trip_total**: ~8s (fire-to-return-event)
-- **payload** (see `delegate_return_payload.txt`):
-  ```
-  R-CD-1 PROOF: continue_delegate basic spawn-and-return path verified at CANDIDATE_SHA 1de29746f0b87c342f362a6a42e6291d832d7ee4 from undertow-seat 2026-06-02
-  ```
-
-## Chain-cost accounting (journal evidence)
+### Fire-side dispatch-response (`fire_response.json`)
+Captured at parent-turn time when `continue_delegate(...)` returned its scheduling-acknowledgment:
 ```
-04:20:35.275 [subagent-chain-hop] Accumulated 94 tokens from agent:main:subagent:a6eb7a48-... to parent chain cost
+{"status":"scheduled","mode":"normal","delaySeconds":5,"delegateIndex":1,"delegatesThisTurn":1,
+ "note":"Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."}
 ```
-Chain depth from spawn: `hop=8/200` (within 200-hop chain-tracking limit per gateway config).
 
-## Tempo trace
-**Status**: ⚠️ NOT YET CAPTURED in this evidence-pass — fetching via `http://tempo.dandelion.cult/api/traces/b928374b-e103-4091-b4cf-ecaddbd947b1` will be filed as `turn_trace.json` in a follow-up commit. Trace-ID derived from the openclaw-trajectory header on the subagent jsonl (`traceId: b928374b-e103-4091-b4cf-ecaddbd947b1`).
+### Journal evidence (`journal_continuation.log`)
+Excerpts from `journalctl --user -u openclaw-gateway` window 11:20:32Z:
+- `[continuation:delegate-hedge-armed]` fireAt=1780399232345 (sub-100ms hedge-fire window)
+- `[continuation:delegate-hedge-fired]` at 11:20:32.349Z
+- `[continue_delegate] Consuming 1 tool delegate(s)` at 11:20:32.354Z
+- `[continuation:delegate-spawned] hop=8/200 mode=normal task=[PROOF R-CD-1 / 1de29746f0]...` at 11:20:32.669Z
 
-**Substitution-pending**: journal `[continuation:delegate-spawned]` + `[subagent-chain-hop]` lines provide functionally-equivalent parent-child-stitching evidence (session-key matches between spawn + return, chain-cost accounting confirms parent received child tokens). Trace fold-in pending observability fetch.
+## Scope-bound at byte
 
-## Verdict
-✅ **PASS** — `continue_delegate(mode=normal)` from undertow-seat at CANDIDATE_SHA `1de29746f0` schedules + spawns + returns clean. Behavior matches prior cycle baseline (7522d6c60f). PR #870 comment-scrub delta does not regress the continuation-tool surface.
+Proves `continue_delegate(mode="normal")` lane only: dispatch-span fired, subagent spawned + completed, literal-string returned. Does NOT exercise: silent-wake mode (R-CD-2), post-compaction lifeboat (R-CD-3), targetSessionKey routing (R-CD-4), or depth-2 chaining (R-CD-CHAINED-DEPTH-2). Same parent-session-key, same service.name (`ronan-prince`), same gateway-pid (`942990`) — single-process trace-stitching coherent.
 
-## Tempo trace (fold-in)
-**Trace ID**: `61f4be03f28585f1c0adbea754a614cd`
-**Tempo URL**: http://tempo.dandelion.cult/api/traces/61f4be03f28585f1c0adbea754a614cd
-**Span JSON**: `turn_trace.json` (this dir)
+## #868-cure byte-evidence
 
-Root span: `continuation.delegate.dispatch` with attrs:
-- `chain.id`: `5cc7982c-42a7-410d-9046-62c6fa3d231b` (for batch-fire rows R-CD-4/Chain-1/2/3) or independent chain (R-CD-1/R-CD-2)
-- `delegate.mode`: matches fire_response mode
-- `reason.preview`: matches the task-string prefix
-- `chain.step.remaining`: visible counter
+`chain.id=5cc7982c-42a7-410d-9046-62c6fa3d231b` is preserved across dispatch-side fire-span AND subagent harness.run span on linked trace-ids (`61f4be03f2...` + `8b6340225f...`). Tool-registration cure-bytes at `src/agents/embedded-agent-runner/run.ts:1560-1561` + `attempt.ts:1267-1268` (per `1511247935` byte-walk + figs's GATES-ask at `1511248773`) enable this round-trip; absent that forwarding, the schema would lack `continue_delegate` tool-presence and this dispatch couldn't have been authored. Round-trip 2169ms.

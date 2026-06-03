@@ -1,5 +1,6 @@
-# EVIDENCE — PR #746 Layer 2 Complementary Cure (spawn-init continueWorkOpts)
+# EVIDENCE — PR #898 (#746 Layer 2 Complementary Cure: spawn-init continueWorkOpts)
 
+**Cure PR:** karmaterminal/openclaw#898
 **Cure branch:** `emeric/20260603/746-followup-spawn-init-continueWorkOpts`
 **Base:** `uncurse/20260603/copilot-opus47-1m-from-presentation` (post-absorb head `c477b13c8c`)
 **Cure target:** `src/agents/command/attempt-execution.ts` (runAgentAttempt → runEmbeddedAgent at byte 649)
@@ -67,7 +68,7 @@ Per figs `1511789649` + Cael `1511790615`/`1511790113` discipline (RED → cure 
 ### Commit 1 — RED trap-test
 `src/agents/command/attempt-execution.continue-work-opts.test.ts`
 
-Asserts `runEmbeddedAgentMock.mock.calls[0][0].continueWorkOpts` is defined when `cfg.agents.defaults.continuation.enabled === true`, and undefined when disabled. **Verified RED on the pre-cure HEAD** (commit `faefc8a085`):
+Asserts `runEmbeddedAgentMock.mock.calls[0][0].continueWorkOpts` is defined when `cfg.agents.defaults.continuation.enabled === true`, and undefined when disabled. **Verified RED on the pre-cure HEAD** (commit `999aa59240`):
 
 ```
 × forwards continueWorkOpts to runEmbeddedAgent when continuation.enabled=true (spawn-init / turn-1) 13ms
@@ -80,7 +81,7 @@ AssertionError: expected undefined to be defined
 (Run across both vitest project shards `agents-core` + `agents-support`; both fail identically on the positive assertion.)
 
 ### Commit 2 — Cure
-`src/agents/command/attempt-execution.ts` plumbing per above. **Verified GREEN** at commit `aed00a5057`:
+`src/agents/command/attempt-execution.ts` plumbing per above. **Verified GREEN** at commit `3fed861ad8`:
 
 ```
 ✓ ../../src/agents/command/attempt-execution.continue-work-opts.test.ts  (2 tests)
@@ -101,7 +102,7 @@ Adds:
 - End-to-end closure-invocation test that drives `runEmbeddedAgentMock` with an implementation invoking the captured `requestContinuation(...)` closure, guarding against a future regression that forwards a stub closure rather than the real accumulator.
 - Cross-layer drift sentinel that explicitly cross-references both Layer 1 (`followup-runner.test.ts`) and Layer 2 (this file) cure-sites in the same test output so a maintainer searching for `#746` sees both at once. Defends against the false-empirical-proof class (Cael `1511789404`): fixing one layer in isolation must not silently reopen the other.
 
-GREEN at commit `63fcc16860`: 4 tests per shard × 2 shards = 8 passing.
+GREEN at commit `964c58b4b4`: 4 tests per shard × 2 shards = 8 passing.
 
 ## Post-cure verification protocol
 
@@ -128,6 +129,6 @@ To verify the cure on a built artifact:
 
 - gh auth verified `emeric-dandelion-cult` (`gh api user --jq .login`).
 - Continuation-feature scope only (per figs `1511746478`); no unrelated diffs.
-- Trap-test-first per figs `1511789649`: RED proof captured at commit `faefc8a085`, cure at `aed00a5057`, extended coverage at `63fcc16860`.
+- Trap-test-first per figs `1511789649`: RED proof captured at commit `999aa59240`, cure at `3fed861ad8`, extended coverage at `964c58b4b4`.
 - Cure-mechanism-distinction documented per Cael `1511789404`.
 - Absorbed/restructured prior `1511789480` delegate's working-tree WIP into the trap-test-first commit-sequence required by `1511789649`.

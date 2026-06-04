@@ -1,0 +1,52 @@
+
+/**
+ * Resolve the continuation runtime config from the gateway config.
+ *
+ * Called at each enforcement point (scheduling, chain check, cost check, etc.)
+ * so hot-reloaded config values take effect at the next decision.
+ */
+export function resolveContinuationRuntimeConfig(
+  cfg: OpenClawConfig = getRuntimeConfig(),
+): ContinuationRuntimeConfig {
+  const continuation = cfg.agents?.defaults?.continuation;
+
+  return {
+    enabled: continuation?.enabled === true,
+    defaultDelayMs: clampNonNegativeDelayMs(
+      continuation?.defaultDelayMs,
+      DEFAULT_CONTINUATION_DELAY_MS,
+    ),
+    minDelayMs: clampNonNegativeDelayMs(
+      continuation?.minDelayMs,
+      DEFAULT_CONTINUATION_MIN_DELAY_MS,
+    ),
+    maxDelayMs: clampNonNegativeDelayMs(
+      continuation?.maxDelayMs,
+      DEFAULT_CONTINUATION_MAX_DELAY_MS,
+    ),
+    maxChainLength: clampPositiveInt(
+      continuation?.maxChainLength,
+      DEFAULT_CONTINUATION_MAX_CHAIN_LENGTH,
+    ),
+    costCapTokens: clampNonNegativeInt(
+      continuation?.costCapTokens,
+      DEFAULT_CONTINUATION_COST_CAP_TOKENS,
+    ),
+    maxDelegatesPerTurn: clampPositiveInt(
+      continuation?.maxDelegatesPerTurn,
+      DEFAULT_CONTINUATION_MAX_DELEGATES_PER_TURN,
+    ),
+    contextPressureThreshold: clampOptionalUnitInterval(continuation?.contextPressureThreshold),
+    earlyWarningBand: clampEarlyWarningBand(continuation?.earlyWarningBand),
+    crossSessionTargeting:
+      continuation?.crossSessionTargeting === "enabled" ? "enabled" : "disabled",
+  };
+}
+
+/**
+ * Resolve continuation runtime config preferring the active runtime snapshot.
+ *
+ * `resolveContinuationRuntimeConfig` accepts whatever cfg the caller passes,
+ * which is usually a snapshot captured at run construction. That captured
+ * snapshot is stale across hot-reloads: a `gateway/reload config change applied`
+ * will update the runtime snapshot but the followup-turn already holds the old

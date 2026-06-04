@@ -1,0 +1,1 @@
+R-CD-2 PROOF: continue_delegate(mode=silent-wake) enrichment-return path verified at CANDIDATE_SHA 2f71e4378b70ea43fb185edff1af14571eca826f from undertow-seat 2026-06-04 — payload returns as internal context-injection NOT channel-message

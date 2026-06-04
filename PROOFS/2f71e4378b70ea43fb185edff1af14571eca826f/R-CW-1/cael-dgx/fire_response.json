@@ -1,0 +1,19 @@
+{
+  "tool": "continue_work",
+  "params": {
+    "delaySeconds": 5,
+    "reason": "R-CW-1 substrate-fire from cael-DGX main-session"
+  },
+  "result": {
+    "status": "scheduled",
+    "delaySeconds": 5,
+    "traceparent": "00-69cf720e89d9ba0255c08c157f44b9bf-8fa9195be13ac546-01"
+  },
+  "fired_at": "2026-06-04T06:11:05Z",
+  "wake_fired_at": "2026-06-04T06:11:12.379Z",
+  "delay_observed_ms": 5093,
+  "delay_requested_ms": 5000,
+  "jitter_ms": 93,
+  "session": "agent:main:discord:channel:1466192485440164011",
+  "discord_msg_id": "1511975564"
+}

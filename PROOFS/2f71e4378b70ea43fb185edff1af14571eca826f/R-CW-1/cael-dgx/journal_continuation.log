@@ -1,0 +1,7 @@
+Jun 03 23:11:07 cael node[3770015]: 2026-06-03T23:11:07.286-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jun 03 23:11:07 cael node[3770015]: 2026-06-03T23:11:07.286-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=agent:main:discord:channel:1466192485440164011
+Jun 03 23:11:12 cael node[3770015]: 2026-06-03T23:11:12.379-07:00 WORK timer fired for session agent:main:discord:channel:1466192485440164011
+Jun 03 23:11:26 cael node[3770015]: 2026-06-03T23:11:26.931-07:00 [agent/embedded] [prompt-cache] cache read dropped 1023772 -> 71042 for github-copilot/claude-opus-4.7-1m-internal via session-custom; no tracked cache input change
+Jun 03 23:11:27 cael node[3770015]: 2026-06-03T23:11:27.064-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jun 03 23:11:27 cael node[3770015]: 2026-06-03T23:11:27.064-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 03 23:11:27 cael node[3770015]: 2026-06-03T23:11:27.105-07:00 [source-reply/private-final] agent produced a long private final reply without calling the configured delivery tool (message_tool_only); response kept private and not delivered to the source channel

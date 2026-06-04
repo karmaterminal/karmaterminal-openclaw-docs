@@ -1,0 +1,2 @@
+Jun 03 19:42:36 ronan node[2759680]: 2026-06-03T19:42:36.884-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jun 03 19:42:36 ronan node[2759680]: 2026-06-03T19:42:36.884-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011

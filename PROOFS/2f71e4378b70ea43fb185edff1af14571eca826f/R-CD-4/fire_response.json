@@ -1,0 +1,10 @@
+{
+  "status": "scheduled",
+  "mode": "normal",
+  "delaySeconds": 0,
+  "delegateIndex": 2,
+  "delegatesThisTurn": 2,
+  "targetSessionKey": "agent:main:discord:channel:1466192485440164011",
+  "traceparent": "00-76ee4ef04911a6723b505a090daa16ff-0807db5606803040-01",
+  "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+}

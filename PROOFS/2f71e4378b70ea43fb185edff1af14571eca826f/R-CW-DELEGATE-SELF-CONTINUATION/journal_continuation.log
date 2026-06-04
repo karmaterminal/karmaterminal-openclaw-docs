@@ -1,0 +1,8 @@
+Jun 03 17:46:37 rune node[149010]: 2026-06-03T17:46:37.846-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session agent:main:discord:channel:1466192485440164011
+Jun 03 17:46:38 rune node[149010]: 2026-06-03T17:46:38.058-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=3/200 mode=normal session=agent:main:discord:channel:1466192485440164011 task=[Rune-seat #746 cure-verification PROOFS test]
+Jun 03 17:46:53 rune node[149010]: 2026-06-03T17:46:53.705-07:00 continue_work returned `status: "scheduled"` with delaySeconds=30 and a traceparent. Cure verified at byte.
+Jun 03 17:46:53 rune node[149010]: - continue_work in tool-list at turn-1: YES
+Jun 03 17:46:53 rune node[149010]: - continue_work call result: scheduled (delaySeconds=30, traceparent=00-5038ad889b3520f76110d82bea7c203a-aca4b2093928efeb-01)
+Jun 03 17:46:53 rune node[149010]: - tool-list at turn-1: continue_work, continue_delegate, sessions_yield, sessions_spawn (present); request_compaction, message (absent)
+Jun 03 17:46:53 rune node[149010]: 2026-06-03T17:46:53.811-07:00 [subagent-chain-hop] Accumulated 976 tokens from agent:main:subagent:57770dc2-8a22-4e98-b549-9b3d08c1fd90 to parent chain cost
+Jun 03 17:47:23 rune node[149010]: 2026-06-03T17:47:23.679-07:00 [agents/agent-command] [attempt-execution] continue_work timer fired for session agent:main:subagent:57770dc2-8a22-4e98-b549-9b3d08c1fd90

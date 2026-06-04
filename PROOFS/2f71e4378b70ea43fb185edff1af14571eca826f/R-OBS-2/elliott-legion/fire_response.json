@@ -1,0 +1,9 @@
+{
+  "status": "scheduled",
+  "mode": "silent",
+  "delaySeconds": 0,
+  "delegateIndex": 1,
+  "delegatesThisTurn": 1,
+  "traceparent": "00-b04fb77e0bd6c12f749cb79e658a4c35-23496b782c6975da-01",
+  "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+}

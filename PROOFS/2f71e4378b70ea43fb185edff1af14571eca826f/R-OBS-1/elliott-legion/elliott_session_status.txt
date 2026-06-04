@@ -1,0 +1,11 @@
+🦞 OpenClaw 2026.6.2 (2f71e43)
+⏱️ Uptime: gateway 10h 21m · system 11d 10h
+🧠 Model: github-copilot/claude-opus-4.7-1m-internal · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai-codex/gpt-5.5
+🧮 Tokens: 11 in / 3.0k out
+🗄️ Cache: 99% hit · 87k cached, 844 new
+📚 Context: 100k/1.0m (10%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated 1m ago
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · elevated

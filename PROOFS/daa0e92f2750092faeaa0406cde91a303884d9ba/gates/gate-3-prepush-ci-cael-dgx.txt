@@ -1,0 +1,100 @@
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/routes/permissions.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/cli/browser-cli-inspect.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/pw-session.dialogs.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/server-context.loopback-direct-ws.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/pw-tools-core.snapshot.navigate-guard.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/chrome.default-browser.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/pw-tools-core.last-file-chooser-arm-wins.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/routes/agent.snapshot.timeout.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/session-tab-registry.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/pw-tools-core.screenshots-element-selector.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 112[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/vision.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/routes/agent.snapshot.local-managed.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/routes/agent.shared.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/gateway/browser-request.profile-from-body.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/gateway/browser-request.shared-control-state.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/server.evaluate-disabled-does-not-block-storage.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/runtime-lifecycle.unhandled-rejections.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/server.auth-fail-closed.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/cli/browser-cli-actions-input/register.form-wait-eval.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/routes/agent.storage.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/doctor.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/pw-session.assert-navigation-safety.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/pw-session.page-cdp.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/pw-role-snapshot.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/plugin-service.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/server-context.reset.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/routes/agent.snapshot.plan.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/cli/browser-cli-actions-input/register.files-downloads.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/bridge-server.auth.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/pw-tools-core.interactions.evaluate.abort.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/routes/agent.snapshot.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/cli/browser-cli-actions-input/register.element.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/routes/dispatcher.abort.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/server-lifecycle.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/pw-tools-core.clamps-timeoutms-scrollintoview.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/server.auth-token-gates-http.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/gateway/browser-request.timeout.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/cli/browser-cli-manage.timeout-option.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/pw-tools-core.interactions.set-input-files.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/server-context.list-profiles.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/pw-tools-core.interactions.batch.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/cli/browser-cli-actions-observe.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/request-policy.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/routes/tabs.attach-only.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/cli/browser-cli-shared.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/server-context.stop-running-browser.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/chrome.version.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/pw-tools-core.upload-paths.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/cli/browser-cli-actions-input/register.navigation.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/security-audit.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/control-auth.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/routes/agent.act.normalize.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/chrome.loopback-ssrf.integration.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/session-tab-cleanup.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/control-service.plugin-disabled.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/cli/browser-cli.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/browser-proxy-mode.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/proxy-files.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/output-directories.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/chrome-mcp.snapshot.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser-tool.schema.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/screenshot.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 760[2mms[22m[39m
+     [33m[2m✓[22m[39m shrinks oversized images to <=2000x2000 and <=5MB [33m 758[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/target-id.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/server-context.lifecycle.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/cli/browser-cli-actions-input/shared.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/routes/route-numeric.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/sdk-node-runtime.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/pw-tools-core.shared.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/timer-delay.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-browser [49m[39m ../../extensions/browser/src/browser/errors.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/auth-bridge.test.ts [2m([22m[2m43 tests[22m[2m)[22m[33m 2597[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/config.test.ts [2m([22m[2m86 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/thread-lifecycle.binding.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 178[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/thread-lifecycle.test.ts [2m([22m[2m52 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/shared-client.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 2462[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/compact.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/client.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 163[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/startup-binding.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/thread-lifecycle.user-mcp-servers.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/session-binding.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 100[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/models.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 389[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/auth-profile-runtime-contract.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 309[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/managed-binary.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/transport-stdio.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/app-server-policy.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-codex-app-server-runtime [49m[39m ../../extensions/codex/src/app-server/transport-websocket.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-app-server-attempt [49m[39m ../../extensions/codex/src/app-server/run-attempt.test.ts [2m([22m[2m86 tests[22m[2m)[22m[33m 7354[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-app-server-attempt-light [49m[39m ../../extensions/codex/src/app-server/attempt-steering.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-app-server-attempt-light [49m[39m ../../extensions/codex/src/app-server/attempt-diagnostics.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-app-server-attempt-light [49m[39m ../../extensions/codex/src/app-server/attempt-client-cleanup.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1980 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (1981)[39m
+[2m      Tests [22m [1m[32m23220 passed[39m[22m[2m | [22m[33m2 skipped[39m[90m (23222)[39m
+[2m   Start at [22m 11:21:03
+[2m   Duration [22m 743.51s[2m (transform 243.19s, setup 30.18s, import 488.14s, tests 196.52s, environment 237ms)[22m
+
+[test] passed 12 Vitest shards in 1729.65s
+
+==> Skipping macOS mirror on non-Darwin host

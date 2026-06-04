@@ -1,0 +1,1 @@
+R-CD-CHAIN-1-DEPTH-1 PROOF: depth-1 silent-wake parent received depth-2 enrichment-return at CANDIDATE_SHA 2f71e4378b70ea43fb185edff1af14571eca826f — payload-chain: depth-2 → depth-1 → root parent

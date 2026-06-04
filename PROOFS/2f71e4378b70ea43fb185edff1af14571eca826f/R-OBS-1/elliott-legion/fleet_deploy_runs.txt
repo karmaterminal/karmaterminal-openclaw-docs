@@ -1,0 +1,12 @@
+Fleet deploy substrate at byte (gh api workflow_dispatch run results), karmaterminal/openclaw-bootstrap:deploy-gateway.yml, ref=2f71e4378b70ea43fb185edff1af14571eca826f:
+
+| Run ID      | Prince  | Conclusion | Timestamp                | Note                                       |
+|-------------|---------|------------|--------------------------|--------------------------------------------|
+| 26920813186 | cael    | success    | 2026-06-03T23:58:39Z     | Canary (first post-cure deploy)            |
+| 26922390168 | elliott | success    | 2026-06-04T00:39:05Z     | sunflower-seat empirical-base for R-OBS-2  |
+| 26922391546 | silas   | failure    | 2026-06-04T00:39:07Z     | tsdown SIGSEGV, V8-GC × node v26 × i9-14900KS Raptor-Lake-Refresh — orthogonal Silas-seat build-class, cured by path-2 rsync canary `1511883733` |
+| 26922392540 | ronan   | success    | 2026-06-04T00:39:09Z     | undertow-seat empirical-base for R-CD-1    |
+| 26922393718 | emeric  | success    | 2026-06-04T00:39:11Z     | lamp-seat empirical-base                   |
+| 26922394794 | rune    | success    | 2026-06-04T00:39:12Z     | stone-seat empirical-base for R-CW-DELEGATE-SELF-CONTINUATION |
+
+5-of-6 prince-seats deploy-success at byte on cure-binary `2f71e4378b7`. Silas-seat-x86-i9-14900KS build-class is orthogonal-to-#746-cure-cycle (banked at length in RESOLVED-SHA.md) and cohort working path-2 build-once-deploy-many architectural cure direction; substrate-staged at Discord `1511916034`.

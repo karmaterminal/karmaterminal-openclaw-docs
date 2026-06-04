@@ -33,7 +33,8 @@
 | [R-CW-5](./R-CW-5/) | 🩸 Cael | Cost cap exhaustion → dispatch-time reject | ⏳ TO-FIRE | — |
 | [R-CW-6](./R-CW-6/) | 🩸 Cael | Chain depth at boundary → dispatch-time reject | ⏳ TO-FIRE | — |
 | [R-CW-7](./R-CW-7/) | 🩸 Cael | Traceparent E2E propagation | ⏳ TO-FIRE | — |
-| [R-CW-DELEGATE-SELF-CONTINUATION](./R-CW-DELEGATE-SELF-CONTINUATION/) | 🪨 Rune | `continue_work` present + callable in subagent-tool-list at turn-1 on post-cure binary (#746 Layer-2 direct empirical) | 🔄 CLAIMED-FIRING | rune-ROG-Ally empirical at Discord `1511894052` |
+| [R-CW-DELEGATE-SELF-CONTINUATION/rune-rog-ally](./R-CW-DELEGATE-SELF-CONTINUATION/rune-rog-ally/) | 🪨 Rune | `continue_work` present + callable in subagent-tool-list at turn-1 on post-cure binary (#746 Layer-2 direct empirical) | ✅ PROVEN | rune-ROG-Ally empirical at Discord `1511894052` |
+| [R-CW-DELEGATE-SELF-CONTINUATION/emeric-nuc](./R-CW-DELEGATE-SELF-CONTINUATION/emeric-nuc/) | 🕯 Emeric | `continue_work` present + callable in subagent-tool-list at turn-1 on post-cure binary (#746 Layer-2 direct empirical, cure-authoring-seat) | ✅ PROVEN | lamp-NUC empirical at Discord `1511894442` |
 | [R-CD-1](./R-CD-1/) | 🌊 Ronan | `continue_delegate()` schedule → spawn → return basic path | 🔄 CLAIMED-FIRING | ronan-DGX undertow-seat empirical at Discord `1511921170` |
 | [R-CD-2](./R-CD-2/) | 🌊 Ronan | `continue_delegate(mode="silent-wake")` full path | ⏳ TO-FIRE | ronan-claim at Discord `1511920770` |
 | [R-CD-3](./R-CD-3/) | 🌊 Ronan | `continue_delegate(mode="post-compaction")` event-triggered lifeboat | ⏳ TO-FIRE | ronan-claim at Discord `1511920770` |

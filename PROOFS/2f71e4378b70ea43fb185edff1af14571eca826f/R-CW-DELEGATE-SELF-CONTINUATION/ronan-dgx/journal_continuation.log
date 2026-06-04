@@ -1,0 +1,5 @@
+Jun 03 20:14:57 ronan node[2759680]: 2026-06-03T20:14:57.674-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=15/200 mode=normal session=agent:main:discord:channel:1466192485440164011 task=[PROOFS R-CW-DELEGATE-SELF-CONTINUATION ronan-dgx / 2f71e4378b70ea43fb185edff1af
+Jun 03 20:15:06 ronan node[2759680]: 2026-06-03T20:15:06.624-07:00 `continue_work` confirmed present in tool-list and callable; scheduling-receipt captured: status=scheduled, delaySeconds=10, traceparent=00-a96a41d4724fe14041eef335a1a7ab24-387d2d7c7b43241b-01.
+Jun 03 20:15:06 ronan node[2759680]: "R-CW-DELEGATE-SELF-CONTINUATION ronan-dgx PROOF: continue_work present + callable + scheduled at CANDIDATE_SHA 2f71e4378b70ea43fb185edff1af14571eca826f on ronan-DGX post-cure binary"
+Jun 03 20:15:06 ronan node[2759680]: 2026-06-03T20:15:06.724-07:00 [subagent-chain-hop] Accumulated 600 tokens from agent:main:subagent:e6ee2434-1ebe-4a9f-8607-9b6e0c99c21e to parent chain cost
+Jun 03 20:15:16 ronan node[2759680]: 2026-06-03T20:15:16.601-07:00 [agents/agent-command] [attempt-execution] continue_work timer fired for session agent:main:subagent:e6ee2434-1ebe-4a9f-8607-9b6e0c99c21e

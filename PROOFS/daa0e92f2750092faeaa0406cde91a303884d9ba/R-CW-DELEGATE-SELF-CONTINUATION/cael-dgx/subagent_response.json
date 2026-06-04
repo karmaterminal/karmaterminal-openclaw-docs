@@ -1,0 +1,25 @@
+{
+  "candidate_sha": "daa0e92f2750092faeaa0406cde91a303884d9ba",
+  "seat": "cael-dgx",
+  "captured_at": "2026-06-04T17:55:00Z",
+  "subagent_runtime_seconds": 17,
+  "tools_present_at_turn_1": ["continue_work", "continue_delegate", "request_compaction"],
+  "binary_version_in_subagent_context": "OpenClaw 2026.6.2 (daa0e92)",
+  "continue_work_fire": {
+    "tool": "continue_work",
+    "args": {
+      "delaySeconds": 30,
+      "reason": "R-CW PROOFS fire-canary on daa0e92f, will record chain.id + chain.step.remaining + scheduling receipt"
+    },
+    "response": {
+      "status": "scheduled",
+      "delaySeconds": 30,
+      "traceparent": "00-76543ad4c1f9efee05a17cc784940e64-a3a70c3c66213315-01"
+    }
+  },
+  "subagent_session_id": "8ce523f5-5a91-4370-90cd-0166756ba49c",
+  "subagent_session_key": "agent:main:subagent:3752bf62-3c8a-4be4-ae22-fced3df74f83",
+  "subagent_task_name": "cael-r-cw-proof-daa0e92f",
+  "subagent_run_id": "a64e6943-0692-4a53-a051-f573ac6fa709",
+  "note_chain_id_not_in_response": "this build returns status/delaySeconds/traceparent; chain.id + chain.step.remaining live in server-side trace-context under traceparent. Cross-walk via tempo.dandelion.cult/api/traces/<trace-id> if needed (trace-id 76543ad4c1f9efee05a17cc784940e64)."
+}

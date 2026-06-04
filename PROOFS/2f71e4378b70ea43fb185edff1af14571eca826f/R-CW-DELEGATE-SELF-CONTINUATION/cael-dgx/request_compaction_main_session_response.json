@@ -1,0 +1,14 @@
+{
+  "_comment": "request_compaction empirical-confirmation from cael-DGX main-session 2026-06-03 ~20:17 PDT per figs 1511931705 direct empirical substrate-test ask. Confirms tool registered + callable + correctly-denied below 70% threshold. Substrate-truth differential: tool registered in MAIN session, MISSING from SUBAGENT (sister-of-#746 substrate-class — see EVIDENCE.md substrate-finding-note).",
+  "tool": "request_compaction",
+  "params": {
+    "reason": "figs 1511931705 direct substantive empirical substrate-test at byte — fire request_compaction NOW from cael-main-session on post-cure binary 2f71e4378b7..."
+  },
+  "response": {
+    "status": "rejected",
+    "guard": "context_threshold",
+    "contextUsage": 41,
+    "threshold": 70,
+    "reason": "Context usage (41%) is below the minimum threshold (70%). Compaction is not needed yet."
+  }
+}

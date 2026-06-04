@@ -1,0 +1,11 @@
+{
+  "_comment": "continue_work hop-1 fire receipt from cael-DGX main-session 2026-06-03 19:51:39 PDT per Discord 1511925373. First of 3-hop chain demonstrating chain.step.remaining decrement on post-cure binary 2f71e43.",
+  "status": "scheduled",
+  "delaySeconds": 30,
+  "traceparent": "00-360da78b7c1dbf380e84f689da530f51-25d4e304d61cbd6f-01",
+  "chain_id_from_trace": "fa7afd1e-513a-42c2-a94b-8c85a2316562",
+  "chain_step_remaining": 186,
+  "reason_preview": "figs direct-asked at 1511925231 to see cael-axis continuation trace shape — firing chain now so figs can validate manually in tempo. Next-turn fire continue_work AGAIN to substantively-chain so chain.step.remaining decrement visible across hops.",
+  "wake_time_pdt": "2026-06-03T19:52:11.000-07:00",
+  "wake_journal_log": "Jun 03 19:52:11 cael node[3483553]: 2026-06-03T19:52:11.000-07:00 WORK timer fired for session agent:main:discord:channel:1466192485440164011"
+}

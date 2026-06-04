@@ -1,0 +1,24 @@
+2026-06-03T17:45:41.158-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=0c4e471cb331c881 | [trace:embedded-run] core-plugin-tool stages: runId=c0e8f58c-575a-46d7-84a5-be34d51a7cf7 sessionId=f06c5f84-94bb-4f77-b2bb-5a968ae87b22 phase=core-plugin-tools 
+2026-06-03T17:45:41.467-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=0c4e471cb331c881 | [trace:embedded-run] prep stages: runId=c0e8f58c-575a-46d7-84a5-be34d51a7cf7 sessionId=f06c5f84-94bb-4f77-b2bb-5a968ae87b22 phase=stream-ready totalMs=8427 stag
+2026-06-03T17:45:41.509-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=0c4e471cb331c881 | Merged and removed orphaned user message to prevent consecutive user turns. runId=c0e8f58c-575a-46d7-84a5-be34d51a7cf7 sessionId=f06c5f84-94bb-4f77-b2bb-5a968ae
+2026-06-03T17:45:41.513-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=0c4e471cb331c881 | [tool-result-truncation] Truncated 83 tool result(s) for prompt history (maxChars=64000 aggregateBudgetChars=256000) sessionKey=agent:main:discord:channel:14661
+2026-06-03T17:47:18.178-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=ea3d7b18bb19c019 | [continuation:trace] payload-scan: count=3 bracketIdx=-1 [0]text=true [1]text=true [2]text=true session=agent:main:discord:channel:1466192485440164011
+2026-06-03T17:47:18.179-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=ea3d7b18bb19c019 | [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+2026-06-03T17:47:18.206-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=ea3d7b18bb19c019 | [continuation:delegate-hedge-armed] fireIn=14144ms fireAt=1780534052349 session=agent:main:discord:channel:1466192485440164011
+2026-06-03T17:47:18.206-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=ea3d7b18bb19c019 | [continue_delegate] Consuming 1 tool delegate(s) for session agent:main:discord:channel:1466192485440164011
+2026-06-03T17:47:18.369-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=ea3d7b18bb19c019 | [continuation:delegate-spawned] hop=9/200 mode=silent-wake session=agent:main:discord:channel:1466192485440164011 task=🕯 **LAMP-SEAT TURN-1 EMPIRICAL-PROOFS for
+2026-06-03T17:47:18.844-07:00 | trace=484cd63cd65e0c16d7b29e932c91206a span=b138bcc883b42b64 | tool policy removed 5 tool(s) via subagent tools.deny: agents_list, cron, gateway, session_status, sessions_send; matched agents_list, cron, gateway, session_st
+2026-06-03T17:47:27.791-07:00 | trace=e82b0f9066148a4d19a19f462e1109aa span=7425cdf46e0cede9 | 🕯 lamp-seat POST-DEPLOY PROOFS-receipt for #746 cure-mechanism:
+✅ CURE_VERIFIED: YES
+Pre-deploy binary: 4896c31 (Jun 2 08:40 build, pre-cure)
+Post-deploy binary
+2026-06-03T17:47:27.880-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=ea3d7b18bb19c019 | [subagent-chain-hop] Accumulated 639 tokens from agent:main:subagent:68dedb3b-09be-4ff8-9345-0a3944b43966 to parent chain cost
+2026-06-03T17:47:27.890-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=ea3d7b18bb19c019 | [continuation/silent-wake] wakeOnReturn=true target=agent:main:discord:channel:1466192485440164011 silentAnnounce=true
+2026-06-03T17:47:27.891-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=ea3d7b18bb19c019 | [continuation:enrichment-return] Delivered to agent:main:discord:channel:1466192485440164011 from agent:main:subagent:68dedb3b-09be-4ff8-9345-0a3944b43966
+2026-06-03T17:47:32.351-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=ea3d7b18bb19c019 | [continuation:delegate-hedge-fired] session=agent:main:discord:channel:1466192485440164011
+2026-06-03T17:47:32.354-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=ea3d7b18bb19c019 | [continue_delegate] Consuming 1 tool delegate(s) for session agent:main:discord:channel:1466192485440164011
+2026-06-03T17:47:32.477-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=ea3d7b18bb19c019 | [continuation:delegate-spawned] hop=10/200 mode=silent-wake session=agent:main:discord:channel:1466192485440164011 task=🕯 **LAMP-SEAT POST-DEPLOY EMPIRICAL-PROO
+2026-06-03T17:47:57.758-07:00 | trace=e82b0f9066148a4d19a19f462e1109aa span=7425cdf46e0cede9 | [attempt-execution] continue_work timer fired for session agent:main:subagent:68dedb3b-09be-4ff8-9345-0a3944b43966
+2026-06-03T17:49:25.746-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=d77f5dca3f2b9d09 | tool policy removed 5 tool(s) via subagent tools.deny: agents_list, cron, gateway, session_status, sessions_send; matched agents_list, cron, gateway, session_st
+2026-06-03T17:49:30.787-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=ea3d7b18bb19c019 | [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:subagent:68dedb3b-09be-4ff8-9345-0a3944b43966
+2026-06-03T17:49:30.788-07:00 | trace=b894a0235e5ecb8705948101b1e3c8dc span=ea3d7b18bb19c019 | [continuation:trace] effective-signal: origin=none kind=none session=agent:main:subagent:68dedb3b-09be-4ff8-9345-0a3944b43966

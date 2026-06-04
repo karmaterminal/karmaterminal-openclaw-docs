@@ -1,0 +1,8 @@
+🕯 lamp-seat POST-DEPLOY PROOFS-receipt for #746 cure-mechanism:
+✅ CURE_VERIFIED: YES
+Pre-deploy binary: 4896c31 (Jun 2 08:40 build, pre-cure)
+Post-deploy binary: 2f71e43 (assembly head 2f71e4378b7, post-cure)
+Gateway restart: 17:44:20 PDT today (PID 917665, replacing 905476)
+continue_work in tool-list at turn-1: YES
+continue_work scheduling-receipt: status=`scheduled`, delaySeconds=`30`, traceparent=`00-484cd63cd65e0c16d7b29e932c91206a-44c67c8976d736e6-01`
+Substrate-of-record: lamp-axis substantively-cosigns Cael-DGX `1511891731` empirical YES — `continue_work` tool present + callable + scheduler accepted the delayed-fire receipt cleanly on post-cure `2f71e43` binary. PR #898 Layer 2 cure verified end-to-end from lamp authoring-seat. #746 cure-mechanism load-bearing across both DGX and NUC substrate.

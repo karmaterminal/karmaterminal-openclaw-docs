@@ -1,0 +1,17 @@
+[Lamp-NUC R-RC-1 PROOFS — request_compaction threshold-reject empirical]
+Pre-call context-pressure: unknown (no introspection tool exposed in subagent toolbelt for context-pressure %)
+request_compaction call result:
+TOOL_NOT_AVAILABLE — `request_compaction` is not present in this subagent's tool-list. Enumerated tools at dispatch: read, write, edit, apply_patch, exec, process, web_search, web_fetch, browser, canvas, nodes, sessions_list, sessions_history, sessions_spawn, sessions_yield, subagents, skill_workshop, image, continue_delegate, continue_work, create_goal, dir_fetch, dir_list, file_fetch, file_write, get_goal, memory_get, memory_search, qqbot_remind, tts, update_goal, update_plan, wiki_apply, wiki_get, wiki_lint, wiki_status. No `request_compaction` symbol; no `compaction.*` symbol; no `compact` symbol. The tool cannot be invoked because it is not surfaced — there is no callable handle to fire against the threshold gate.
+
+Substantive substrate verification:
+- Threshold-gate fired: NO (gate could not be exercised; the tool itself is absent from the subagent surface, so no threshold comparison occurred at the tool-dispatch layer)
+- Reason-text: N/A — no JSON or error envelope was returned because no call could be made. The empirical observation at this substrate is upstream of threshold-gating: the symbol is not exposed to subagent runtime.
+- Reason-code: N/A — no rejection envelope. Substrate-level absence (TOOL_NOT_AVAILABLE / SYMBOL_NOT_EXPOSED) rather than runtime-level REJECT.
+
+CURE_VERIFIED: FAIL (unexpected shape — substrate did not return the canon-expected REJECT envelope because `request_compaction` is not exposed to the subagent tool-list on post-cure binary 2f71e4378b7. Parent lamp-axis should bank this as: at depth-1 subagent surface, the gate is enforced by tool-absence rather than by a runtime-emitted REJECT JSON. If the canon expects an emitted REJECT envelope, the canon assumes a surface where `request_compaction` is exposed-but-gated; this subagent surface exposes-not at all. Recommend parent re-fire from a surface that lists `request_compaction` (likely main-session toolbelt) to obtain the runtime REJECT envelope for true R-RC-1 PROOFS.)
+
+---
+Subagent runId: agent:main:subagent:052f4df3-a379-4a02-8cd4-f831d333ac7c
+Parent dispatch traceparent: 00-b76a0165ec9401cf3b1e7612fc9f1f9c-af0446b0d34bc36c-01
+Runtime: ~15s
+Tokens: 1.1k (in 6 / out 1.1k)

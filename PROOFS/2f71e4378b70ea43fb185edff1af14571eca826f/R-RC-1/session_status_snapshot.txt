@@ -1,0 +1,17 @@
+🦞 OpenClaw 2026.6.2 (2f71e43)
+⏱️ Uptime: gateway 2h 15m · system 9d 23h
+🧠 Model: github-copilot/claude-opus-4.7-1m-internal · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai-codex/gpt-5.5
+🧮 Tokens: 7 in / 3.1k out
+🗄️ Cache: 7% hit · 51k cached, 654k new
+📚 Context: 709k/1.0m (71%) · 🧹 Compactions: 4
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated 1m ago
+📌 Tasks: latest succeeded · subagent · [continuation:chain-hop:11] Delegated task (turn 11/200): [Lamp-NUC R-RC-1 PROOFS...
+🔄 Continuation: chain 11/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · elevated
+👥 Activation: mention · 🪢 Queue: steer (depth 0)
+
+Captured: 2026-06-03T19:54 PDT (post-R-RC-1 subagent-fire substrate)
+Session: agent:main:discord:channel:1466192485440164011 (lamp-axis main-session)
+Context: 71% (above 70% threshold, would substantively-ACCEPT not REJECT if request_compaction fired from this session)

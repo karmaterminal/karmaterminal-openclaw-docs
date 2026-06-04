@@ -1,0 +1,1 @@
+R-CD-1 PROOF: continue_delegate basic spawn-and-return path verified at CANDIDATE_SHA 2f71e4378b70ea43fb185edff1af14571eca826f from undertow-seat 2026-06-04

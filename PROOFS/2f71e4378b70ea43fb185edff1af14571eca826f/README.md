@@ -40,7 +40,7 @@
 | [R-CD-3](./R-CD-3/) | 🌊 Ronan | `continue_delegate(mode="post-compaction")` event-triggered lifeboat | ⏳ TO-FIRE | ronan-claim at Discord `1511920770` |
 | [R-CD-4](./R-CD-4/) | 🌊 Ronan | Cross-session targeted return via `targetSessionKey` | ⏳ TO-FIRE | ronan-claim at Discord `1511920770` |
 | [R-CD-CHAINED-DEPTH-2](./R-CD-CHAINED-DEPTH-2/) | 🌊 Ronan | Depth-2 chain (up-tree silent-wake + inter-session return + echo+cross-channel-broadcast) | ⏳ TO-FIRE | ronan-claim at Discord `1511920770` |
-| [R-RC-1](./R-RC-1/) | 🌫 Silas | `request_compaction()` threshold REJECT below 70% (structured JSON) | ⏳ TO-FIRE | pending silas-lothric path-2 rsync canary restart-PROOFS |
+| [R-RC-1](./R-RC-1/) | 🕯 Emeric (lamp-substitution-for-Silas-out) | `request_compaction()` threshold REJECT below 70% (structured JSON) | ⚠️ HONEST-LIMIT | Two-gate-stack blocks PASS-shape: subagent-surface tool-absence + lamp main-session 71% over-threshold. SUBSTRATE-FINDING.md banked. Next-cycle re-fire opportunity. |
 | [R-OBS-1](./R-OBS-1/) | 🌻 Elliott + figs | External observer fleet verification — cohort cross-walk on post-cure binary | ⏳ TO-FIRE | elliott deploy-success today (Run 26922390168) |
 | [R-OBS-2](./R-OBS-2/) | 🌻 Elliott | Tempo trace tree visualization | ⏳ TO-FIRE | — |
 | [R-CONFIG-DEFAULTS](./R-CONFIG-DEFAULTS/) | 🌻 Elliott | Continuation enabled by default in fleet config | ⏳ TO-FIRE | — |

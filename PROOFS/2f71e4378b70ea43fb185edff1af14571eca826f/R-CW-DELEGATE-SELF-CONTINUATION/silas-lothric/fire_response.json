@@ -1,0 +1,6 @@
+{
+  "status": "scheduled",
+  "delaySeconds": 30,
+  "traceparent": "00-6b1e6a8a2c8fa79ed033d80cbabcca56-234b037cd4ca7eaa-01",
+  "notes": "continue_work tool-call return value from subagent at turn-1 on silas-lothric post-cure binary. delaySeconds=30 clamped to 30 (no minDelayMs override on this seat). traceparent: trace=6b1e6a8a2c8fa79ed033d80cbabcca56 span=234b037cd4ca7eaa."
+}

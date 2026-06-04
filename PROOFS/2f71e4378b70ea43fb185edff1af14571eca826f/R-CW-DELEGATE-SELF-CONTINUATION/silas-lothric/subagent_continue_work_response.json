@@ -1,0 +1,10 @@
+SILAS_LOTHRIC_PROOFS_PAYLOAD:
+tool_list:
+  continue_work: YES
+  continue_delegate: YES
+  request_compaction: NO
+  sessions_yield: YES
+  sessions_spawn: YES
+  message: NO
+continue_work_call_result: {"status":"scheduled","delaySeconds":30,"traceparent":"00-6b1e6a8a2c8fa79ed033d80cbabcca56-234b037cd4ca7eaa-01"}
+verdict: CURE_VERIFIED YES

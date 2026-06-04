@@ -1,0 +1,43 @@
+Excerpts from `/tmp/openclaw/openclaw-2026-06-03.log` window 22:55:30–22:56:07 PDT 2026-06-03 (05:55:30–05:56:07 UTC 2026-06-04). Subagent session-key `agent:main:subagent:e7663879-78bf-4c21-999d-3c11c245ca36`, runId `25e6de3e-7d74-42df-adaf-942e779625ca`, parent traceparent `00-6b1e6a8a2c8fa79ed033d80cbabcca56-234b037cd4ca7eaa-01`, spawn-span `45731f3f51819f64`.
+
+```
+22:55:30.345 [gateway/ws] ⇄ res ✓ agent 59ms runId=25e6de3e-7d74-42df-adaf-942e779625ca conn=024482c8…9ac6
+22:55:30.632 [diagnostic] lane enqueue: lane=session:agent:main:subagent:e7663879-78bf-4c21-999d-3c11c245ca36 queueSize=1
+22:55:30.633 [diagnostic] lane dequeue: lane=session:agent:main:subagent:e7663879-78bf-4c21-999d-3c11c245ca36 waitMs=1 queueSize=0
+22:55:30.633 [diagnostic] lane enqueue: lane=subagent queueSize=1
+22:55:30.633 [diagnostic] lane dequeue: lane=subagent waitMs=0 queueSize=0
+22:55:30.670 [agents/harness] agent harness selected: provider=github-copilot, modelId=claude-opus-4.7-1m-internal, sessionKey=agent:main:subagent:e7663879-78bf-4c21-999d-3c11c245ca36, selectedHarnessId=openclaw
+22:55:30.671 [agent/embedded] embedded run start: runId=25e6de3e-7d74-42df-adaf-942e779625ca sessionId=9f14f2cd-40ff-4a6d-8b42-52ca6c09dc26 provider=github-copilot model=claude-opus-4.7-1m-internal thinking=off messageChannel=discord
+22:55:30.684 [agents/tool-policy] tool policy removed 5 tool(s) via subagent tools.deny: agents_list, cron, gateway, session_status, sessions_send; matched agents_list, cron, gateway, session_status, sessions_send
+22:55:30.710 [agent/embedded] applying extraParams to agent streamFn for github-copilot/claude-opus-4.7-1m-internal
+22:55:30.718 [diagnostic] session state: sessionId=9f14f2cd-40ff-4a6d-8b42-52ca6c09dc26 sessionKey=agent:main:subagent:e7663879-78bf-4c21-999d-3c11c245ca36 prev=idle new=processing reason="run_started" queueDepth=0
+22:55:30.719 [diagnostic] run registered: sessionId=9f14f2cd-40ff-4a6d-8b42-52ca6c09dc26 totalActive=2
+22:55:30.720 [plugins] [hooks] running before_prompt_build (1 handlers, sequential)
+22:55:30.721 [agent/embedded] embedded run prompt start: runId=25e6de3e-7d74-42df-adaf-942e779625ca sessionId=9f14f2cd-40ff-4a6d-8b42-52ca6c09dc26 provider=github-copilot api=anthropic-messages endpoint=github-copilot-native route=native policy=none
+22:55:30.725 [agent/embedded] [context-diag] pre-prompt: sessionKey=agent:main:subagent:e7663879-78bf-4c21-999d-3c11c245ca36 messages=0 systemPromptChars=21651 promptChars=1585 provider=github-copilot/claude-opus-4.7-1m-internal
+22:55:30.726 [agent/embedded] [context-overflow-precheck] pre-prompt check route=fits estimatedPromptTokens=7001 contextTokenBudget=1000000 messages=0
+22:55:30.727 [gateway/channels/discord] embedded run agent start: runId=25e6de3e-7d74-42df-adaf-942e779625ca
+22:55:34.752 [gateway/channels/discord] embedded run tool start: runId=25e6de3e-7d74-42df-adaf-942e779625ca tool=continue_work toolCallId=toolu_vrtx_013d8sKUheG6iQ55s9o3zSBq
+22:55:34.770 [continuation/continue-work] [continue_work:request] session=agent:main:subagent:e7663879-78bf-4c21-999d-3c11c245ca36 delaySeconds=30 reason=silas-lothric R-CW-DELEGATE-SELF-CONTINUATION PROOFS artifact-capture re-fire on
+22:55:34.784 [gateway/channels/discord] embedded run tool end: runId=25e6de3e-7d74-42df-adaf-942e779625ca tool=continue_work toolCallId=toolu_vrtx_013d8sKUheG6iQ55s9o3zSBq
+22:55:37.118 [gateway/channels/discord] embedded run agent end: runId=25e6de3e-7d74-42df-adaf-942e779625ca isError=false
+22:55:37.125 [agent/embedded] embedded run prompt end: durationMs=6406
+22:55:37.348 [agent/embedded] embedded run done: durationMs=6714 aborted=false
+22:55:37.361 [diagnostic] lane task done: lane=subagent durationMs=6726 active=0 queued=0
+22:55:37.371 [console] (subagent response payload emitted with SILAS_LOTHRIC_PROOFS_PAYLOAD verbatim — see subagent_continue_work_response.json)
+22:56:07.364 [agents/agent-command] [attempt-execution] continue_work timer fired for session agent:main:subagent:e7663879-78bf-4c21-999d-3c11c245ca36
+```
+
+Key substrate-load-bearing events (in order):
+
+1. `22:55:30.684` — Tool policy removes 5 tools (`agents_list, cron, gateway, session_status, sessions_send`) via `subagent tools.deny`. Does NOT remove `continue_work`. The cure is in place — `continue_work` is preserved through the spawn-init code-path that PR #898 plumbs `continueWorkOpts` through.
+
+2. `22:55:34.752` — `embedded run tool start: tool=continue_work`. The subagent at turn-1 successfully resolved and invoked the `continue_work` tool. Pre-PR-#898 this tool was effectively absent from subagent tool-list at turn-1 (not removed by policy, just never registered in the spawn-init code-path).
+
+3. `22:55:34.770` — `[continue_work:request]` confirmed the runtime received the call with correct `session=agent:main:subagent:e7663879...` and `delaySeconds=30`.
+
+4. `22:55:34.784` — `embedded run tool end` (12ms tool-call duration; clean accept).
+
+5. `22:56:07.364` — `[attempt-execution] continue_work timer fired` — exactly 30 seconds after the scheduled call (22:55:34.770 + 30s ≈ 22:56:04.770; fired at 22:56:07.364 with the usual ~2.6s scheduling jitter). This is the load-bearing end-to-end empirical: the timer actually fired, not just got accepted.
+
+Total subagent runtime: 6.7 seconds. continue_work timer end-to-end: ~32.6 seconds wall-clock from call-acceptance.

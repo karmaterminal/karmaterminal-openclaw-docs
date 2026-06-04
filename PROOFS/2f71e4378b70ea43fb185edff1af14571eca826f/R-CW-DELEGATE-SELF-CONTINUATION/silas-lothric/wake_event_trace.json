@@ -1,0 +1,16 @@
+{
+  "wake_event_kind": "continue_work_timer_fired",
+  "session": "agent:main:subagent:e7663879-78bf-4c21-999d-3c11c245ca36",
+  "subsystem": "agents/agent-command",
+  "message": "[attempt-execution] continue_work timer fired for session agent:main:subagent:e7663879-78bf-4c21-999d-3c11c245ca36",
+  "wall_clock_iso": "2026-06-04T05:56:07.364Z",
+  "wall_clock_pdt": "2026-06-03T22:56:07.364-07:00",
+  "schedule_call_iso": "2026-06-04T05:55:34.770Z",
+  "scheduled_delay_seconds": 30,
+  "actual_elapsed_seconds_from_call_accept_to_timer_fire": 32.594,
+  "scheduling_jitter_seconds": 2.594,
+  "traceparent": "00-6b1e6a8a2c8fa79ed033d80cbabcca56-234b037cd4ca7eaa-01",
+  "trace_id": "6b1e6a8a2c8fa79ed033d80cbabcca56",
+  "parent_span": "234b037cd4ca7eaa",
+  "notes": "End-to-end wake confirmation: continue_work scheduled at 22:55:34.770 PDT with delaySeconds=30; timer fired at 22:56:07.364 PDT. Confirms not just tool-call-accept but actual delayed-wake-fire end-to-end on silas-lothric post-cure binary."
+}

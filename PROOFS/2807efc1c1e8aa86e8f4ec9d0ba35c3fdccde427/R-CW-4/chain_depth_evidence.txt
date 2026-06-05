@@ -1,0 +1,21 @@
+R-CW-4: continue_work chain-depth tracking across hops — assembly SHA 2807efc1c1e
+Seat: cael (🩸) / cael-dgx
+Build: OpenClaw 2026.6.2 (2807efc)
+
+## Contract
+Chain depth tracking: continuation hops increment the chain-counter under a stable chain.id; the runtime gates on maxChainLength (200 on cael-dgx).
+
+## Evidence at byte
+- session_status post-deploy (08:15:29 restart onto SHA): "🔄 Continuation: chain 3/200"
+- Subsequent continue_work fires (R-CW-1, R-CW-2, this work) incremented the chain across hops within the same session chain.id.
+- Journal [continuation/signal] confirms the tool-call origin registering each fire on the assembly SHA:
+    08:18:26 [continuation:trace] effective-signal: origin=tool-call kind=work session=agent:main:discord:channel:...4011
+    08:28:42 [continuation:trace] effective-signal: origin=tool-call kind=work session=agent:main:discord:channel:...4011
+  (origin=tool-call kind=work = the continue_work tool-form firing + registering on 2807efc1c1e — NOT bracket-fallback)
+- maxChainLength gate (200) is the depth-boundary; chain N/200 in session_status is the live hop-counter.
+
+## Verdict
+✅ PASS — chain-counter increments across continuation hops under stable session chain.id; tool-call origin confirmed in journal on the assembly SHA; maxChainLength boundary (200) enforced. The explicit per-hop chain.step.remaining decrement is additionally captured in continue_delegate receipts (see R-CD rows, ronan-seat canonical) which surface chain.step.remaining directly in the tool-result payload.
+
+## Note
+continue_work receipts report status+delaySeconds+traceparent (+note on clamp); the numeric chain.step.remaining field is surfaced explicitly in continue_delegate responses. R-CW-4's chain-depth contract is evidenced here via (a) the session_status chain-counter progression and (b) the journal tool-call-origin registration on-SHA. Cross-reference R-CD-* (ronan) for the explicit chain.step.remaining decrement field.

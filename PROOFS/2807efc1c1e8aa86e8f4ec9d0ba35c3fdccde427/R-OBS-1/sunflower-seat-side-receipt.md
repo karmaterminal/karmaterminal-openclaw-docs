@@ -2,7 +2,7 @@
 
 **Family**: external-observer cross-walk of `/status` chat-card continuation-row + version-string + chain-counter across multiple prince-seats deployed at the same CANDIDATE_SHA `2807efc1c1e8aa86e8f4ec9d0ba35c3fdccde427`
 **Lead Prince**: 🌻 Elliott (elliott-legion, x86_64 AMD Ryzen 9 5900HX + RTX 3080, CachyOS Linux 7.0.9-1-cachyos)
-**Status**: 🟢 sunflower-seat row CAPTURED on `2807efc1c1e`; full cohort cross-walk assembling as the fleet settles (3/6 deployed at capture-time)
+**Status**: 🟢 PASS — operator-driven (figs) /status fan-out confirms ALL 4 deployed seats render FULL continuation-substrate on `2807efc1c1e` (4/4 deployed full); emeric/rune genuinely-on-prior-SHA HONEST-LIMIT (held-dreaming); + Path-B version-string-lag finding. Sunflower-seat capture 08:30 + cohort folds + figs operator fan-out 09:05
 **Fired at**: 2026-06-05 ~08:30 PDT (sunflower-prince)
 **Deploy persistence verified**: gateway restarted 08:18:43 PDT on the candidate SHA; `openclaw --version` → `OpenClaw 2026.6.2 (2807efc)`; build-info `gitSha: 2807efc1c1e8aa86e8f4ec9d0ba35c3fdccde427`
 **Discord channel**: `#sprites-of-thornfield` (`1466192485440164011`)
@@ -34,6 +34,27 @@ This seat independently byte-verified figs's second GATES criterion on the candi
 - `[continuation:trace]` firing live post-restart (signal-tracing active on the new SHA).
 
 So the `/status`-rendered continuation substrate is NOT just present — it's the cured continuation surface (the #923 inventory-warn no longer fires on the build behind this `/status`).
+
+## 🎖️ Operator-driven `/status` fan-out (figs, 2026-06-05 09:05 PDT) — the canonical R-OBS-1 cross-walk surface
+
+**figs ran the 6-seat `/status` fan-out from Discord** (msg `1512487670`-area, attached status file) — the operator-surface R-OBS-1 exists to validate (same shape as the prior `7522d6c` corpus's figs-driven fan-out). Strongest cross-walk evidence: the operator verifying prince-fleet continuation-protocol state on the candidate SHA.
+
+| Prince | Host (arch) | Chain | Compactions | Context | `/status` header | Running dist (byte-verified) | Uptime |
+|---|---|---|---|---|---|---|---|
+| 🌻 Elliott | elliott-legion (x86_64) | 0/200 | 0 | 44% | `(2807efc)` ✅ | `2807efc1c1e` (build-from-source) | 41m |
+| 🌫 Silas | silas-lothric (x86_64) | 5/200 | 0 | 44% | `9d07233` ⚠️ stale-CLI | **`2807efc1c1e`** (Path-B; build-info `commit` + inventoryOnly + 0-warns) | 23m |
+| 🩸 Cael | cael-dgx (aarch64) | 6/200 | 1 | 52% | `(2807efc)` ✅ | `2807efc1c1e` (build-from-source) | 44m |
+| 🌊 Ronan | ronan-dgx (aarch64) | 8/200 | 1 | 50% | `(2807efc)` ✅ | `2807efc1c1e` (build-from-source; 2 subagents active — depth-2 chains) | 53m |
+| 🕯 Emeric | emeric-nuc (x86_64) | 0/200 | 1 | 48% | `9d07233` | **`9d07233`** (genuinely on prior SHA — held-dreaming, hands-off, NOT deployed) | 10h52m |
+| 🪨 Rune | rune-rog-ally (x86_64) | 0/200 | 1 | 51% | `9d07233` | **`9d07233`** (genuinely on prior SHA — held-dreaming, hands-off, NOT deployed) | 11h55m |
+
+**✅ ALL 4 deployed seats render FULL continuation-protocol substrate on `2807efc1c1e`** (operator-verified): chain-counter (elliott 0 / silas 5 / cael 6 / ronan 8), compactions (0/0/1/1), ctx-pressure (44/44/52/50%) — all rendered. **4/4 deployed seats FULL** in the operator fan-out — ronan's compactions-field=1 confirmed from figs's surface, closing the last enrich-gap.
+
+**⚠️ The two `9d07233` seats split into two distinct classes** (figs operator-flagged "Silas SHA different, may not have deployed" — byte-resolved):
+- **🌫 Silas — DEPLOYED, card-stale.** Header reads `9d07233` but running dist is `2807efc1c1e` (build-info `commit` + inventoryOnly-in-dist + 0 L627 warns). Path-B rsync copies `dist/` but doesn't regen the CLI version-string — the documented Path-B `--version`-lag gotcha. **Silas achieved deploy; his card lies.**
+- **🕯 Emeric + 🪨 Rune — GENUINELY on prior SHA.** `9d07233` is their real running dist (uptime 10-11h, no Path-B restart) — held-dreaming (hands-off per do-not-restart-a-self-recovering-prince), not yet deployed. HONEST-LIMIT, fire on wake.
+
+**Operator-surface verify-rule (cohort-canon, proven by this fan-out):** on Path-B seats the `/status`/`--version` version-string is unreliable (stale) — verify deploy via **`build-info.json commit` + `inventoryOnly`-presence in running dist + 0 L627 warns + `[continuation:trace]`** (version-string-agnostic, seat-independent). frond-scribe's PR #1127 wires the `--version`-regen so future Path-B seats don't show this.
 
 ## Cross-walk — 4-seat deployment verified (4/6 on `2807efc1c1e`), continuation-substrate fields enriching
 

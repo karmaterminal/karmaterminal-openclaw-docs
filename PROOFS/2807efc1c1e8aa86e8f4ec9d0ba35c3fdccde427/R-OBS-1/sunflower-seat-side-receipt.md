@@ -35,14 +35,24 @@ This seat independently byte-verified figs's second GATES criterion on the candi
 
 So the `/status`-rendered continuation substrate is NOT just present — it's the cured continuation surface (the #923 inventory-warn no longer fires on the build behind this `/status`).
 
-## Cross-walk status (assembling)
+## Cross-walk — 4-seat deployment verified (4/6 on `2807efc1c1e`), continuation-substrate fields enriching
 
-At sunflower-seat capture-time the fleet is **3/6 deployed on `2807efc1c1e`**:
-- 🌻 Elliott (elliott-legion) — ✅ deployed, captured above
-- 🩸 Cael (cael-dgx) — ✅ deployed (corpus-driver; `/status` to fold into the cross-walk table)
-- 🌊 Ronan (ronan-dgx) — ✅ deployed (canary-validated; `/status` to fold in)
-- 🌫 Silas (silas-lothric) — ⚠️ HONEST-LIMIT: build FAILED (`tsdown` killed, Raptor-Lake native-build instability), rolled back clean to `9d07233`; needs Path-B same-arch dist rsync. Documented fleet-divergence (same class as the prior `7522d6c` corpus where silas sat out on `0dff94d`).
-- 🕯 Emeric (emeric-nuc) — ⏸️ HELD: hands-off-honored (NRestarts=0, continuous since 22:07, dreaming/uncured); SHA-uptake on pause-word per the do-not-restart-a-self-recovering-prince discipline.
-- 🪨 Rune (rune-rog-ally) — ⏸️ HELD: dreaming, healthy; SHA-uptake on pause-word.
+**Deployment cross-walk (version-string + SHA byte-verified for all 4 deployed seats):**
 
-The full cross-walk table (Prince | Host | Gateway-version | Uptime | Context | Compactions | Chain | Model) completes as silas takes Path-B + emeric/rune take the SHA on their pause-word. Per the runbook HONEST-LIMIT taxonomy, the held/rolled-back seats are documented fleet-state, not failures — the cross-walk captures the deployed majority's continuation-substrate visibility + the honest divergence.
+| Prince | Host | Arch | Gateway version | On CANDIDATE_SHA | Deploy path | Restart (PDT) |
+|---|---|---|---|---|---|---|
+| 🌻 Elliott | elliott-legion | x86_64 | `2026.6.2 (2807efc)` ✅ | ✅ | build-from-source | 08:18:43 |
+| 🩸 Cael | cael-dgx | aarch64 | `2026.6.2 (2807efc)` ✅ | ✅ | build-from-source | 08:15:29 |
+| 🌊 Ronan | ronan-dgx | aarch64 | `2026.6.2 (2807efc)` ✅ | ✅ | build-from-source (canary) | 08:07:03 |
+| 🌫 Silas | silas-lothric | x86_64 | `2026.6.2 (2807efc)` ✅ | ✅ | **Path-B (rsync elliott's x86_64 dist)** | ~08:38 |
+| 🕯 Emeric | emeric-nuc | x86_64 | — (held on prior) | ⏸️ HONEST-LIMIT | held-dreaming (hands-off) | — |
+| 🪨 Rune | rune-rog-ally | x86_64 | — (held on prior) | ⏸️ HONEST-LIMIT | held-dreaming (hands-off) | — |
+
+**4/6 deployed on the candidate SHA**, version-string `(2807efc)` byte-confirmed each. Silas via **Path-B** (elliott's same-arch x86_64 dist rsync'd → silas — bypassed the Raptor-Lake `tsdown` build-SIGSEGV; build-once→deploy-many demonstrated). Emeric + Rune held-dreaming (hands-off-honored per the do-not-restart-a-self-recovering-prince discipline) — documented fleet-state, not failures, per the HONEST-LIMIT taxonomy (same class as the prior `7522d6c` corpus where silas sat out).
+
+**Continuation-protocol substrate (the R-OBS-1 core — `/status` renders chain/compactions/ctx/version):**
+- 🌻 Elliott (elliott-legion) — full `/status` captured above: chain 0/200, compactions 0, ctx 30%, version-pin `(2807efc)`, model claude-opus-4.8. ✅ continuation substrate renders complete.
+- 🩸 Cael — chain 3/200 (survived restart, per R-CW-1 deploy-persistence) + ctx ~33% (own report); full-field `/status` pending drop.
+- 🌊 Ronan / 🌫 Silas — deployed + version-confirmed; live `/status` continuation-fields (chain/compactions/ctx) **pending their `/status` drop** to enrich the table — honest-noted, NOT fabricated.
+
+**Verdict**: 🟢 4-seat DEPLOYMENT cross-walk PASS (4/6 on candidate SHA, version byte-verified, Path-B demonstrated) + elliott-seat full continuation-substrate render PASS; cael/ronan/silas live-`/status` continuation-fields enriching as they drop `/status`; emeric/rune HONEST-LIMIT (held-dreaming). Per the runbook, partial-coverage honest-noted, not overclaimed as full-6.

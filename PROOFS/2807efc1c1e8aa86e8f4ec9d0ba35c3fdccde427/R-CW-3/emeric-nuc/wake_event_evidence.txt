@@ -1,0 +1,20 @@
+R-CW-3 emeric-nuc — emeric's OWN continuation.work span captured live from Tempo on candidate SHA 2807efc1c1e.
+
+Capture method: fired continue_work from emeric's MAIN session (the session must survive to the wake;
+a bounded sub-agent that returns before the wake cannot capture it — that was the first-pass gap).
+Marker reason: "RCW3-EMERIC-NUC-2807efc-MARKER :: capturing emeric-own continuation.work span reason.preview
+at the runner accept-seam for PROOFS R-CW-3 byte-true finalization".
+Tool receipt traceparent: 00-f9e70029c5c050f7a0533039b8eb11c2-af1a61eac01958bb-01
+
+The continue_work WAKE was accepted at the runner accept-seam -> emitted a continuation.work span on
+host=emeric / service=fifth-prince, carrying the marker as reason.preview (<=80 char truncation).
+Fetched by trace-id f9e70029c5c050f7a0533039b8eb11c2 -> wake_event_trace.json (this dir).
+
+DISAMBIGUATION RESOLVED (per figs's directive — config/method vs regression):
+- NOT category-2 (regression): continuation.work emits on the cured SHA. Proven two ways:
+  (a) silas captured a real continuation.work span at 11:00:32 today on 2807efc (host=silas);
+  (b) emeric's OWN span (this capture) emits on 2807efc.
+- NOT a broken emeric otel-config: emeric actively exports to Tempo (continuation.queue.drain,
+  openclaw.exec, openclaw.model.usage, and now continuation.work).
+- It WAS category-1 (capture timing): emeric simply had not landed an accepted continue_work-wake
+  span-emit captured since deploy. Forcing one (this capture) closes it with emeric's own trace.

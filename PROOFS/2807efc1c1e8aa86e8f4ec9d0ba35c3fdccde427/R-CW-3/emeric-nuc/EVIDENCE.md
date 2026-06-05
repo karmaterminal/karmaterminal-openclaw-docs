@@ -54,9 +54,27 @@ this dir) shows the exact reason-bearing shape:
 ]
 ```
 This confirms the `reason` → `reason.preview` (≤80-char) span-attribute capture is live in the
-Tempo export, not just compiled/tested. (Exemplar is a fleet `continuation.work` span; emeric's own
-seat exports under `service.name=fifth-prince` / `host.name=emeric` — its `continuation.*` span
-family is confirmed present in Tempo, e.g. `continuation.queue.drain` root traces in the last hour.)
+Tempo export, not just compiled/tested. (This exemplar is a *fleet* `continuation.work` span on
+`host.name=silas` captured 11:00:32 today on the same candidate SHA — cross-seat confirmation that
+the span emits on-SHA fleet-wide. **Emeric's OWN first-party `continuation.work` span is captured
+below** (`wake_event_trace.json`).)
+
+### ⭐ Emeric's OWN `continuation.work` span — captured first-party from Tempo on-SHA
+Forced + captured the direct proof: fired `continue_work` from emeric's **MAIN session** (reply-runner
+path, see path-distinction below) with a distinctive marker, and the accepted wake emitted emeric's
+own `continuation.work` span to Tempo — fetched by trace-id `f9e70029c5c050f7a0533039b8eb11c2`
+(`wake_event_trace.json` + `wake_event_evidence.txt`, this dir):
+```
+host.name        = emeric
+service.name     = fifth-prince
+name             = continuation.work
+chain.id         = 776a7d79-ef28-4ac5-81a8-2bf497d98761
+reason.preview   = "RCW3-EMERIC-NUC-2807efc-MARKER :: capturing emeric-own continuation.work span re…"  (≤80-char truncation, live)
+delay.ms         = 25000
+chain.step.remaining = 198
+```
+This is the reason→`reason.preview` capture proven on **emeric's own seat, on the candidate SHA**,
+from Tempo — the cael-dgx canonical bar met first-party, not by fleet-exemplar.
 
 ## emeric-nuc fire (this seat, this SHA) + byte-honest path-distinction finding
 Fired `continue_work` on emeric's seat with a distinctive reason marker:
@@ -79,11 +97,16 @@ and `openclaw.harness.run`/`openclaw.exec` spans on the wake-turn, but NOT a `co
 This is architecturally correct (which code path a subagent's continue_work traverses), NOT a
 regression — the #923 cure touches neither path's span instrumentation.
 
-The reason-field-in-`continuation.work`-span behavior is therefore proven on the channel
-reply-runner path it is wired to, via the live Tempo exemplar above (the captured span carries
-`reason.preview`) + the on-SHA compiled instrumentation + the 5/5 test-pin — exactly the
-cael-dgx canonical bar. The emeric-nuc cross-walk additionally byte-walks the
-channel-path-vs-subagent-path distinction so the cohort knows the work-span seam is reply-runner-only.
+**Path-distinction completed (both arms now byte-captured on emeric's seat):**
+- SUBAGENT-path fire (first attempt) → emitted `continuation.queue.drain` + `openclaw.exec`, NOT
+  `continuation.work` (the agent-command path does not emit the work-span by design;
+  `rg emitContinuationWorkSpan src/agents/` is empty). Captured: `emeric_continuation_queue_drain_trace.json`.
+- MAIN/REPLY-RUNNER-path fire (this finalization) → emitted emeric's own `continuation.work` span
+  with `reason.preview`, captured above (`wake_event_trace.json`). This is the seam at
+  `agent-runner.ts:2950`.
+So the reason-field-in-`continuation.work`-span behavior is proven **first-party on emeric's own
+seat** via the captured span, AND the path-distinction is fully byte-walked (which code path a
+continue_work traverses determines whether the work-span emits) — architectural, not a #923 regression.
 
 ### Bonus: live #923-cure surface cross-walk (same journal)
 The same wake-turn journal shows the running gateway emitting the L627 partial-registration warn
@@ -101,11 +124,17 @@ This is the live runtime counterpart to R-REGRESSION-TRAP-TESTS: the #923-aware 
 (1) byte-confirmed compiled into emeric's running dist at the candidate SHA
 (`dist/continuation-tracer-6cQSzFX5.js`), (2) test-pinned 5/5 on emeric's seat
 (`agent-runner.continuation-work-span.test.ts` + `trace-context-propagation.integration.test.ts`),
-and (3) confirmed LIVE in the Tempo export — a captured `continuation.work` span carries
-`reason.preview` (`continuation_work_span_exemplar_trace.json`). emeric fired `continue_work` on its
-seat (wake journal-confirmed); the byte-honest finding is that a *subagent* fire runs the
-agent-command path (`attempt-execution.ts:972`), which by design does not emit the `continuation.work`
-span — that seam is reply-runner-only (`agent-runner.ts:2950`). The reason-field-in-span behavior is
-fully proven on the path it is wired to; the path-distinction is architectural, not a #923 regression
-(the cure touches only the L627 inventory-warn suppression, byte-disjoint from the continuation-tracer
-span instrumentation).
+and (3) confirmed LIVE in the Tempo export with **emeric's OWN first-party `continuation.work` span**
+— `host.name=emeric`, `service.name=fifth-prince`, carrying the distinctive marker as `reason.preview`,
+captured by trace-id `f9e70029c5c050f7a0533039b8eb11c2` (`wake_event_trace.json`). emeric's main-session
+continue_work wake was accepted at the reply-runner seam (`agent-runner.ts:2950`) → emitted the span.
+
+**figs's config/method-vs-regression ambiguity — RESOLVED to category-1 (NOT a regression):**
+- NOT category-2 (regression): `continuation.work` emits on the cured SHA, proven two ways — silas's
+  fleet span at 11:00:32 today (`host=silas`) AND emeric's own span (this capture, `host=emeric`).
+- NOT a broken emeric otel-config: emeric actively exports `continuation.queue.drain`, `openclaw.exec`,
+  `openclaw.model.usage`, and now `continuation.work` to Tempo.
+- It WAS category-1 (capture timing + path): the first fire ran the subagent path (no work-span by
+  design) and ended before the wake; the main-session fire runs the reply-runner path and emitted +
+  was captured. The path-distinction is architectural; the #923 cure (L627 inventory-warn suppression)
+  is byte-disjoint from the continuation-tracer span instrumentation — no regression.

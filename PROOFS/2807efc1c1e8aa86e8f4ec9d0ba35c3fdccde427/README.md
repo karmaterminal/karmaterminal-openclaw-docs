@@ -19,7 +19,7 @@ Behavioral proof corpus for the **2026-06-05 GATES-cycle assembly SHA** — the 
 | R-CW-DELEGATE-SELF-CONTINUATION | 🪨 rune + x-walk | ⚠️ HONEST-LIMIT (held-dreaming) | owner held-dreaming; fires on rune wake |
 | R-CD-1 | 🌊 ronan | ✅ PASS | schedule→spawn→return: status=scheduled + spawn hop=4 + return-receipt `1512484438` + Tempo trace `da5cc910` |
 | R-CD-2 | 🌊 ronan | ✅ PASS | silent-wake full path: `wakeOnReturn=true silentAnnounce=true` journal-proven + trace `8fb66cf1` |
-| R-CD-3 | 🌊 ronan | 🟡 STAGED | post-compaction lifeboat: `status=queued-for-compaction` confirmed (event-triggered, not timer); fires on natural compaction (at ~51% climbing, no force-compact) |
+| R-CD-3 | 🌊 ronan | ✅ PASS | post-compaction lifeboat FIRED at genuine 84%-ctx volitional compaction (10:20:29 compact → 10:20:34 fire, ~5s — event-triggered, not timer); `trigger=volitional outcome=compacted` diag=`cmp-mq16jps9-namnsg`; proof line returned, post-compaction path live |
 | R-CD-4 | 🌊 ronan | ✅ PASS | targetSessionKey cross-session return: key echoed + targeted-return journal + trace `4dbd9fbf` |
 | R-CD-CHAINED-DEPTH-2 Chain-1 | 🌊 ronan | ✅ PASS | depth-2 up-tree silent-wake: depth-1 hop=8 → depth-2 child hop=1 subagent-chain `b53ed2a8` → up-tree return |
 | R-CD-CHAINED-DEPTH-2 Chain-2 | 🌊 ronan | ✅ PASS | depth-2 inter-session: depth-2 child `09e19282` + inter-session targetSessionKey |

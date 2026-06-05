@@ -12,7 +12,7 @@ Behavioral proof corpus for the **2026-06-05 GATES-cycle assembly SHA** — the 
 |---|---|---|---|
 | R-CW-1 | 🩸 cael | ✅ PASS | receipt + deploy-persistence (chain 3/200 survived restart) + Tempo trace `4fee24c8` |
 | R-CW-2 | 🩸 cael | ✅ PASS | clamp-changed receipt (0s→5s + note field) |
-| R-CW-3 | 🩸 cael + 🕯 emeric x-walk | ✅ PASS (cael) | reason-field in `continuation.work` span — instrumentation confirmed on-SHA + test-pinned; emeric `emeric-nuc/` cross-walk HONEST-LIMIT-dreaming |
+| R-CW-3 | 🩸 cael + 🕯 emeric x-walk | ✅ PASS (cael + emeric-nuc) | reason-field in `continuation.work` span — instrumentation confirmed on-SHA + test-pinned (cael canonical). 🕯 emeric-nuc cross-walk ✅ PASS: span+`reason.preview` byte-confirmed in emeric's running dist (`continuation-tracer-6cQSzFX5.js`), test-pinned 5/5 on-seat, live Tempo exemplar `continuation.work` span carries `reason.preview` captured; emeric fired continue_work (wake journal-confirmed) + byte-honest path-finding: subagent fire runs agent-command path (`attempt-execution.ts:972`), work-span seam is reply-runner-only (`agent-runner.ts:2950`) — architectural, not #923 regression — `R-CW-3/emeric-nuc/EVIDENCE.md` |
 | R-CW-4 | 🩸 cael | ✅ PASS | chain-counter progression under stable chain.id + tool-call-origin journal confirm on-SHA |
 | R-CW-5 | 🩸 cael | ⚠️ HONEST-LIMIT | cost-cap gate exists+enforced; PASS-shape blocked (forcing 500k chain-cost wasteful); gate byte-identical vs presentation-head → not regression (SUBSTRATE-FINDING.md) |
 | R-CW-6 / R-CW-7 | 🪨 rune | ⚠️ HONEST-LIMIT (held-dreaming) | chain-depth-boundary-reject / traceparent-E2E: owner held-dreaming (hands-off); fires on rune wake |

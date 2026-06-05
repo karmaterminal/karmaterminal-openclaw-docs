@@ -1,0 +1,21 @@
+R-CW-2: continue_work() clamp-changed path — assembly SHA 2807efc1c1e8aa86e8f4ec9d0ba35c3fdccde427
+Seat: cael (🩸) / cael-dgx
+Build: OpenClaw 2026.6.2 (2807efc)
+
+## Tool invocation
+continue_work(delaySeconds=0, reason="R-CW-2 PROOFS fire ... clamp-changed path")
+
+## Result at byte (verbatim gateway response)
+{
+  "status": "scheduled",
+  "delaySeconds": 5,
+  "note": "Requested 0s, clamped to 5s by continuation config.",
+  "traceparent": "00-4fee24c8e522495ce29c7e90f9fd4bfc-2f1ac48d04e0b48f-01"
+}
+
+## Verdict
+✅ PASS — clamp-changed path: requested 0s (below minDelayMs floor), gateway clamped to 5s AND emitted explicit 'note' field reporting the clamp ("Requested 0s, clamped to 5s by continuation config.").
+Contrast with R-CW-1 (no-clamp baseline): 5s requested → no note. The presence/absence of 'note' is the resolved-delay-reporting byte-contract.
+
+## Note on traceparent
+Same traceparent as R-CW-1 — both fires share the same active trace-scope (same-turn fires). The note-field presence/absence is the row's byte-source-of-truth, not the traceparent (per R-CW-1.md precedent in 581678f4 corpus: "receipt-class does not depend on traceparent").

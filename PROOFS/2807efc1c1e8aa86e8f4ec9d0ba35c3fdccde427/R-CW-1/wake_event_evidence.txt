@@ -1,0 +1,28 @@
+R-CW-1: continue_work() nominal wake + deploy-persistence — assembly SHA 2807efc1c1e8aa86e8f4ec9d0ba35c3fdccde427
+Seat: cael (🩸) / cael-dgx
+Build: OpenClaw 2026.6.2 (2807efc) — verified via session_status + openclaw --version
+Gateway: PID 2537135, restarted 2026-06-05 08:15:29 PDT onto the assembly SHA (deploy-as-wedge-cure landed)
+Fired at: 2026-06-05T08:25:55-0700 (cael-seat)
+
+## Tool invocation
+continue_work(delaySeconds=5, reason="R-CW-1 PROOFS fire for assembly SHA 2807efc1c1e8aa86e8f4ec9d0ba35c3fdccde427: nominal continue_work tool call (no-clamp baseline, 5s delay above floor)")
+
+## Result at byte (verbatim gateway response)
+{
+  "status": "scheduled",
+  "delaySeconds": 5,
+  "traceparent": "00-4fee24c8e522495ce29c7e90f9fd4bfc-2f1ac48d04e0b48f-01"
+}
+
+## Verdict
+✅ PASS — nominal delay (5s) above clamp floor; NO 'note' field present (clamp did not change value = no-clamp baseline); traceparent emitted.
+
+## Deploy-persistence (the R-CW-1 second contract)
+- Continuation chain-counter PERSISTED across the 08:15:29 deploy-restart onto 2807efc1c1e8aa86e8f4ec9d0ba35c3fdccde427.
+- session_status post-restart: "🔄 Continuation: chain 3/200" — the chain survived the gateway restart that put me on the assembly SHA (I was mid-session; deploy rotated the gateway; chain-counter intact + incrementing).
+- This is the deploy-persistence proof: continue_work state survives the deploy that lands CANDIDATE_SHA.
+
+## Trace
+- Trace ID: 4fee24c8e522495ce29c7e90f9fd4bfc
+- Tempo URL: http://tempo.dandelion.cult/api/traces/4fee24c8e522495ce29c7e90f9fd4bfc
+- Span export: see wake_event_trace.json (fetched below)

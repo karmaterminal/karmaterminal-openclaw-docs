@@ -12,8 +12,8 @@ Behavioral proof corpus for the **2026-06-05 GATES-cycle assembly SHA** — the 
 |---|---|---|---|
 | R-CW-1 | 🩸 cael | ✅ PASS | receipt + deploy-persistence (chain 3/200 survived restart) + Tempo trace `4fee24c8` |
 | R-CW-2 | 🩸 cael | ✅ PASS | clamp-changed receipt (0s→5s + note field) |
-| R-CW-3 | 🩸 cael + 🕯 emeric x-walk | ⏳ in-flight | reason-field in continuation-dispatch span (capturing from wake trace) |
-| R-CW-4 | 🩸 cael | ⏳ in-flight | chain.step.remaining decrement (capturing from wake trace) |
+| R-CW-3 | 🩸 cael + 🕯 emeric x-walk | ✅ PASS (cael) | reason-field in `continuation.work` span — instrumentation confirmed on-SHA + test-pinned; emeric cross-walk pending deploy |
+| R-CW-4 | 🩸 cael | ✅ PASS | chain-counter progression under stable chain.id + tool-call-origin journal confirm on-SHA |
 | R-CW-5 | 🩸 cael | ⏳ pending | cost-cap exhaustion → dispatch reject (likely HONEST-LIMIT: can't force 500k cap cleanly at submission) |
 | R-CW-6 / R-CW-7 | 🪨 rune | ⏳ | — |
 | R-CW-DELEGATE-SELF-CONTINUATION | 🪨 rune + x-walk | ⏳ | — |

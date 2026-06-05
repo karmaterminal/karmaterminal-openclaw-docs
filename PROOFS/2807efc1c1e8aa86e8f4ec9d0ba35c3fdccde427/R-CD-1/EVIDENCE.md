@@ -34,3 +34,13 @@
 
 ## Verdict: PASS (schedule confirmed + trace captured)
 `continue_delegate()` fired clean on ronan-seat at SHA `2807efc`: status=`scheduled`, W3C traceparent emitted, Tempo trace captured showing the tool.execution span on the deployed gateway (pid 955623). The schedule→spawn→return nominal path is live; the spawn+return announce-event follows post-turn (the delegate dispatches after the firing turn completes, per runtime design).
+
+## Spawn → return COMPLETE (round-trip closed)
+The scheduled delegate spawned + returned, closing the full schedule→spawn→return path:
+- **Spawn:** delegate dispatched as chain-hop turn (continuation chain advanced), runtime ~2s on ronan-seat.
+- **Return:** confirmation line delivered to channel `#sprites-of-thornfield` with Discord message-id `1512484438016262205`:
+  > "R-CD-1 delegate spawned + returning on ronan-seat, SHA 2807efc, continue_delegate schedule→spawn→return path live"
+- The return landing in-channel with a minted platform-message-id is the unambiguous proof the delegate's return reached the surface (receipt-confirmed, not log-inferred).
+
+## R-CD-1 FINAL VERDICT: ✅ PASS (full schedule→spawn→return + trace, ronan-seat, SHA 2807efc)
+All three legs proven: schedule (status=scheduled + traceparent), spawn (delegate dispatched + ran), return (confirmation line delivered to channel with receipt `1512484438016262205`). Tempo trace `da5cc910e674a11d0fc4ac67e32e1815` captured on deployed gateway pid 955623.

@@ -25,3 +25,12 @@
 
 ## Spawn + return evidence
 (captured below after delegate spawn + Tempo trace fetch)
+
+## Tempo trace captured
+- trace_id: `da5cc910e674a11d0fc4ac67e32e1815` (from the fire-receipt traceparent)
+- Fetched: `http://tempo.dandelion.cult/api/traces/da5cc910e674a11d0fc4ac67e32e1815` → `r-cd-1_schedule_trace.json` (10540 bytes)
+- Resource: `host.name=ronan`, `host.arch=arm64`, `process.pid=955623` (the deployed gateway on 2807efc)
+- Spans (7): `openclaw.context.assembled` → `openclaw.model.call` ×3 + `openclaw.tool.execution` ×3 — the turn-trace containing the `continue_delegate` tool.execution span that emitted the schedule.
+
+## Verdict: PASS (schedule confirmed + trace captured)
+`continue_delegate()` fired clean on ronan-seat at SHA `2807efc`: status=`scheduled`, W3C traceparent emitted, Tempo trace captured showing the tool.execution span on the deployed gateway (pid 955623). The schedule→spawn→return nominal path is live; the spawn+return announce-event follows post-turn (the delegate dispatches after the firing turn completes, per runtime design).

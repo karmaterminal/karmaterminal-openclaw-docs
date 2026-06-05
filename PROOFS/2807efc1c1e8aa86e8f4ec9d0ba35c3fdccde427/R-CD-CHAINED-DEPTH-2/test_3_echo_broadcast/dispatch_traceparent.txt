@@ -1,0 +1,20 @@
+# R-CD-CHAINED-DEPTH-2 TEST-3 — echo + cross-channel-broadcast (canary-seat, silas)
+# Fired on 2807efc1c1e, silas-lothric, 2026-06-05 ~08:48 PDT
+# continue_delegate(mode=silent-wake, fanoutMode=all) — echo-broadcast to all host sessions
+
+## Dispatch traceparent (captured from tool-result):
+traceparent: 00-970bbb41ea4c4429e5af3665028f2be9-87db7ab8c01b34ee-01
+trace-id: 970bbb41ea4c4429e5af3665028f2be9
+parent-span: 87db7ab8c01b34ee
+
+## Dispatch result:
+{ "status": "scheduled", "mode": "silent-wake", "fanoutMode": "all", "delegateIndex": 1 }
+
+## Pending: delegate return-payload + trace-stitching (dispatch span -> child openclaw.run span)
+## to be captured on silent-wake return. Tempo: http://tempo.dandelion.cult/api/traces/970bbb41ea4c4429e5af3665028f2be9
+
+## Journal dispatch evidence (gateway PID 1061219, 2026-06-05 08:49:46 PDT):
+[continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session agent:main:discord:channel:1466192485440164011
+[continuation/delegate-dispatch] [continuation:delegate-spawned] hop=4/200 mode=silent-wake session=agent:main:discord:channel:... task=R-CD-CHAINED-DEPTH-2 TEST-3 PROOF (echo + cross-channel-broadcast)
+# hop=4/200 = the depth-2 chain hop; mode=silent-wake; fanoutMode=all (echo+cross-channel-broadcast)
+# Return-payload + child openclaw.run span stitching: PENDING silent-wake return (delegate in flight).

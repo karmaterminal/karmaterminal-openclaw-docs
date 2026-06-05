@@ -1,0 +1,24 @@
+# R-RC-1 — request_compaction() threshold REJECT
+# Fired on CANDIDATE_SHA 2807efc1c1e8aa86e8f4ec9d0ba35c3fdccde427 (silas-lothric, Path-B dist)
+# Seat: silas, ctx ~37% (below 70% threshold) — clean REJECT-path PASS (NOT the over-threshold HONEST-LIMIT of past cycles)
+# Fired: 2026-06-05 ~08:48 PDT, gateway PID 1061219
+
+## Verbatim tool-result (request_compaction):
+{
+  "status": "rejected",
+  "guard": "context_threshold",
+  "contextUsage": 37,
+  "threshold": 70,
+  "reason": "Context usage (37%) is below the minimum threshold (70%). Compaction is not needed yet."
+}
+
+## VERDICT: ✅ PASS
+# The context_threshold guard REJECTED the request_compaction call at 37% < 70%.
+# The gate firing as-designed IS the proof — the safety surface correctly refuses
+# compaction below threshold. This is the canonical REJECT-path PASS-shape.
+
+## Trace note (honest):
+# The REJECT happens at the threshold-guard, BEFORE the compaction/continuation machinery
+# that emits Tempo spans engages — so no compaction-span trace is expected for the REJECT
+# path (the rejection is pre-trace by design). The receipt above is the proof; trace-absence
+# on a gate-rejected call is correct, not a gap. (Contrast: the ACCEPT path >70% WOULD emit a trace.)

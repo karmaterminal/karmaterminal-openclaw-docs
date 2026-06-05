@@ -1,0 +1,7 @@
+# R-CD-2 silent-wake journal evidence (ronan-seat, gateway pid 955623, SHA 2807efc)
+
+[continuation:delegate-spawned] hop=5/200 mode=silent-wake session=agent:main:discord:channel:1466192485440164011 task=R-CD-2 PROOF FIRE (continue_delegate mode="silent-wake" full path)
+
+R-CD-2 silent-wake delegate returning on ronan-seat, SHA 2807efc, silent-wake path live (silent return + parent wake)
+
+[continuation/announce] [continuation/silent-wake] wakeOnReturn=true target=agent:main:discord:channel:1466192485440164011 silentAnnounce=true

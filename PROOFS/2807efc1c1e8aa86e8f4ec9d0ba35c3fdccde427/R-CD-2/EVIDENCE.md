@@ -23,3 +23,12 @@
 
 ## Spawn + silent-wake evidence
 (captured below after delegate runs — the silent return + parent-wake is the proof)
+
+## Silent-wake PROVEN (journal byte) — see silent_wake_journal.txt
+The journal on ronan-seat (gateway pid 955623) shows the full silent-wake path:
+1. **Spawn:** `[continuation:delegate-spawned] hop=5/200 mode=silent-wake` — delegate dispatched in silent-wake mode.
+2. **Silent return:** the delegate returned its line (silent enrichment, not a normal channel-announce).
+3. **Parent wake + silent-announce:** `[continuation/silent-wake] wakeOnReturn=true silentAnnounce=true` — the defining proof: the return triggers a parent-turn wake (wakeOnReturn=true) AND the announce is silent (silentAnnounce=true). Silent enrichment + parent wake, exactly the silent-wake contract.
+
+## R-CD-2 FINAL VERDICT: ✅ PASS (silent-wake full path, ronan-seat, SHA 2807efc)
+schedule (status=scheduled mode=silent-wake) + spawn (hop=5/200) + silent return + parent wake (wakeOnReturn=true silentAnnounce=true) + Tempo trace `8fb66cf1ea56ccf61f4b42f571bf0f09`. The silent-wake mechanism fires clean on the assembly SHA.

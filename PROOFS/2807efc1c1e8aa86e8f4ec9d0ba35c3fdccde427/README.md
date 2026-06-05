@@ -30,7 +30,9 @@ Behavioral proof corpus for the **2026-06-05 GATES-cycle assembly SHA** — the 
 | R-RC-2 (ACCEPT >70%) | 🩸 cael | ⚠️ HONEST-LIMIT (held-pending) | no deployed seat >70% ctx on a main turn (cael ~56%, silas ~37%, all REJECT-side); held until a seat crosses 70% — no overclaim (cure-12 R-RC-1-addendum precedent) |
 | R-OBS-1 (/status cross-walk) | 🌻 elliott + cohort + 🍖 figs (operator fan-out) | ✅ PASS (4/4 deployed FULL) | figs-driven operator /status fan-out (09:05 PDT) confirms all 4 deployed seats render FULL continuation-substrate (chain/compactions/ctx) on candidate SHA; 9d07233-seats split: silas deployed-card-stale (Path-B --version-lag) vs emeric/rune genuinely-prior-SHA-dreaming HONEST-LIMIT; + Path-B version-string-lag finding + operator-surface verify-rule (`7c52446`) |
 | R-OBS-2 (Tempo tree export) | 🪨 rune | ⚠️ HONEST-LIMIT (held-dreaming) | owner held-dreaming; fires on rune wake |
-| R-CONFIG-DEFAULTS / R-CONFIG-INTERSESSION / R-REGRESSION-TRAP-TESTS | 🕯 emeric | ⚠️ HONEST-LIMIT (held-dreaming) | owner held-dreaming (hands-off-honored); fire on emeric wake |
+| R-CONFIG-DEFAULTS | 🕯 emeric | ⚠️ HONEST-LIMIT (held-dreaming) | owner held-dreaming (hands-off-honored); fires on emeric wake |
+| R-CONFIG-INTERSESSION | 🕯 emeric | ⚠️ HONEST-LIMIT (held-dreaming) | owner held-dreaming (hands-off-honored); fires on emeric wake |
+| R-REGRESSION-TRAP-TESTS | 🕯 emeric | ✅ PASS | #923 sister-trap suite re-run on-SHA (emeric-nuc): `12 passed (2 projects × 6 cases)`, exit 0, 6.79s; locks #619 partial-registration guard + #923 `inventoryOnly:true` inventory-callsite suppression + preserved-prior-behavior arm; closes half-symmetric-cure-class (continueWorkOpts+requestCompactionOpts) — `vitest-pass.log`+`EVIDENCE.md` |
 
 ## Tempo trace requirement
 Every continuation-tool fire captures the Grafana Tempo trace (`http://tempo.dandelion.cult/api/traces/<id>`) + span export, per figs's 2026-05-16 directive.

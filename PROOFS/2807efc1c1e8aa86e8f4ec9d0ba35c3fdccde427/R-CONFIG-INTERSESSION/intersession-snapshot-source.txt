@@ -1,0 +1,22 @@
+### src/config/runtime-snapshot.ts (candidate SHA 2807efc1c1e) — module-scope singleton snapshot
+# All sessions (main / subagent / new) read the SAME process-global snapshot via getRuntimeConfigSnapshot().
+
+};
+
+let runtimeConfigSnapshot: OpenClawConfig | null = null;
+let runtimeConfigSourceSnapshot: OpenClawConfig | null = null;
+let runtimeConfigSnapshotMetadata: RuntimeConfigSnapshotMetadata | null = null;
+let runtimeConfigSnapshotRevision = 0;
+let runtimeConfigSnapshotRefreshHandler: RuntimeConfigSnapshotRefreshHandler | null = null;
+const runtimeConfigWriteListeners = new Set<(event: RuntimeConfigWriteNotification) => void>();
+...
+export function getRuntimeConfigSnapshot(): OpenClawConfig | null {
+  return runtimeConfigSnapshot;
+}
+
+### src/auto-reply/continuation/config.ts — resolveLiveContinuationRuntimeConfig prefers the shared snapshot
+export function resolveLiveContinuationRuntimeConfig(
+  fallbackCfg: OpenClawConfig,
+): ContinuationRuntimeConfig {
+  return resolveContinuationRuntimeConfig(getRuntimeConfigSnapshot() ?? fallbackCfg);
+}

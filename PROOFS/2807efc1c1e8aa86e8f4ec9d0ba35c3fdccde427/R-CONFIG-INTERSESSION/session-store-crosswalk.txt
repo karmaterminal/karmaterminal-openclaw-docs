@@ -1,0 +1,23 @@
+# Session store (single, shared): /home/figs/.openclaw/agents/main/sessions/sessions.json
+# Total sessions co-resident in ONE shared store: 104
+# All sessions resolve continuation config from the SAME process-global runtime snapshot
+# (src/config/runtime-snapshot.ts:90 `let runtimeConfigSnapshot` module singleton).
+# Continuation chain-STATE persists per-session in the shared on-disk store, surviving
+# session boundaries (new turn / new session reads the persisted chain fields).
+
+## Requester main session (the session that spawned this emeric proof-run):
+  agent:main:discord:channel:1466192485440164011
+    continuationChainCount = 1
+    continuationChainId    = 776a7d79-ef28-4ac5-81a8-2bf497d98761
+    continuationChainTokens= 62
+    continuationChainStartedAt = 1780680252617
+
+## This emeric-fired subagent session (distinct session, same gateway/config):
+  agent:main:subagent:7d95ca0a-52ad-425b-b591-6df08bca7e43  chainCount=None
+
+## All sessions with persisted continuationChainCount>0 (5 of 104):
+  agent:main:subagent:68dedb3b-09be-4ff8-9345-0a3944b43966  count=1 id=None tokens=639
+  agent:main:subagent:1b515616-4120-499b-9e5a-1c48ee7f61e9  count=1 id=None tokens=420
+  agent:main:subagent:6359fcd4-e2f0-4dca-aada-81e02f6e5955  count=1 id=None tokens=745
+  agent:main:discord:channel:1466192485440164011  count=1 id=776a7d79-ef28-4ac5-81a8-2bf497d98761 tokens=62
+  agent:main:subagent:84194799-7240-48b2-b23a-f779a47efb9d  count=1 id=None tokens=103791

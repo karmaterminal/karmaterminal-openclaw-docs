@@ -1,0 +1,5 @@
+# Chain-2 depth-2 inter-session journal (ronan-seat, pid 955623, SHA 2807efc)
+[continuation:delegate-spawned] hop=10/200 mode=silent-wake session=...channel:1466192485440164011 task=Chain-2 PROOF (inter-session return at depth-2)
+R-CD Chain-2 depth-2 inter-session return fired on ronan-seat SHA 2807efc — child-traceparent=00-9b6c98e4...-01 targetSessionKey=agent:main:discord:channel:1466192485440164011
+# DEPTH-2 child (subagent-of-subagent, inter-session targetSessionKey):
+[continuation:delegate-spawned] hop=1/200 mode=silent session=agent:main:subagent:09e19282-ffe6-4a67-a1d7-07fead7e56f4 task=R-CD Chain-2 DEPTH-2 inter-session child

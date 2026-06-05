@@ -1,0 +1,15 @@
+# R-CD-CHAINED-DEPTH-2 TEST-1 — up-tree silent-wake (canary-seat: silas, dual-coverage w/ Ronan Chain-1)
+# CANDIDATE_SHA: 2807efc1c1e8aa86e8f4ec9d0ba35c3fdccde427
+# Seat: silas-lothric, gateway PID 1061219, 2026-06-05 ~09:38 PDT
+# Driver-authorized OVERRIDE (Cael 1512495833): silas-canary fires full TEST set; emeric/rune released from TEST-1/2.
+# Tool: continue_delegate(mode=silent-wake) — up-tree silent-wake depth-2 mode
+
+## Dispatch traceparent (continuation.delegate.dispatch span):
+traceparent: 00-f29915f835ef17b7c5d7d11234d223cd-5a85250918c69f22-01
+trace-id: f29915f835ef17b7c5d7d11234d223cd
+dispatch-span: 5a85250918c69f22
+delegateIndex: 1, mode: silent-wake
+
+## Pending: return-payload + echo-token (R-CD-CHAINED-DEPTH-2-TEST-1-2807efc1c1e-OK) + up-tree trace-stitching
+## (dispatch span -> child openclaw.run span, up-tree return) on silent-wake return.
+## Tempo: http://tempo.dandelion.cult/api/traces/f29915f835ef17b7c5d7d11234d223cd

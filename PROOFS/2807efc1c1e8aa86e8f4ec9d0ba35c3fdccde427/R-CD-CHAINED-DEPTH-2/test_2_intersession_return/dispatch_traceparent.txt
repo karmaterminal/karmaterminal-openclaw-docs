@@ -1,0 +1,12 @@
+# R-CD-CHAINED-DEPTH-2 TEST-2 — inter-session return via targetSessionKey (canary-seat: silas, dual-coverage w/ Ronan Chain-2)
+# CANDIDATE_SHA: 2807efc1c1e8aa86e8f4ec9d0ba35c3fdccde427
+# Seat: silas-lothric, gateway PID 1061219, 2026-06-05 ~09:38 PDT
+# Driver-authorized OVERRIDE (Cael 1512495833): silas-canary fires full TEST set.
+# Tool: continue_delegate(mode=silent-wake, targetSessionKey=agent:main:discord:channel:1466192485440164011) — inter-session targeted-return depth-2 mode
+
+## Dispatch:
+targetSessionKey: agent:main:discord:channel:1466192485440164011
+delegateIndex: 2, mode: silent-wake
+## (traceparent captured at dispatch; targetSessionKey routes the return via the session-delivery-queue substrate)
+
+## Pending: return-payload + echo-token (R-CD-CHAINED-DEPTH-2-TEST-2-2807efc1c1e-OK) + targetSessionKey routing evidence + trace-stitching on return.

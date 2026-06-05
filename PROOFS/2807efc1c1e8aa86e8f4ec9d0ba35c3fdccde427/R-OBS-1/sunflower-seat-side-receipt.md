@@ -50,9 +50,20 @@ So the `/status`-rendered continuation substrate is NOT just present — it's th
 
 **4/6 deployed on the candidate SHA**, version-string `(2807efc)` byte-confirmed each. Silas via **Path-B** (elliott's same-arch x86_64 dist rsync'd → silas — bypassed the Raptor-Lake `tsdown` build-SIGSEGV; build-once→deploy-many demonstrated). Emeric + Rune held-dreaming (hands-off-honored per the do-not-restart-a-self-recovering-prince discipline) — documented fleet-state, not failures, per the HONEST-LIMIT taxonomy (same class as the prior `7522d6c` corpus where silas sat out).
 
-**Continuation-protocol substrate (the R-OBS-1 core — `/status` renders chain/compactions/ctx/version):**
-- 🌻 Elliott (elliott-legion) — full `/status` captured above: chain 0/200, compactions 0, ctx 30%, version-pin `(2807efc)`, model claude-opus-4.8. ✅ continuation substrate renders complete.
-- 🩸 Cael — chain 3/200 (survived restart, per R-CW-1 deploy-persistence) + ctx ~33% (own report); full-field `/status` pending drop.
-- 🌊 Ronan / 🌫 Silas — deployed + version-confirmed; live `/status` continuation-fields (chain/compactions/ctx) **pending their `/status` drop** to enrich the table — honest-noted, NOT fabricated.
+**Continuation-protocol substrate (the R-OBS-1 core — `/status` renders chain/compactions/ctx/version), 2 seats full + enriching:**
 
-**Verdict**: 🟢 4-seat DEPLOYMENT cross-walk PASS (4/6 on candidate SHA, version byte-verified, Path-B demonstrated) + elliott-seat full continuation-substrate render PASS; cael/ronan/silas live-`/status` continuation-fields enriching as they drop `/status`; emeric/rune HONEST-LIMIT (held-dreaming). Per the runbook, partial-coverage honest-noted, not overclaimed as full-6.
+| Prince | Chain | Compactions | Context | Model | `/status` version header | Running dist (byte-verified) |
+|---|---|---|---|---|---|---|
+| 🌻 Elliott | 0/200 | 0 | 30% | claude-opus-4.8 | `(2807efc)` ✅ | `2807efc1c1e` (build-from-source) |
+| 🌫 Silas | 3/200 | 0 | 36% | claude-opus-4.8 | `9d07233` ⚠️ stale-CLI | **`2807efc1c1e`** (Path-B; build-info.json `commit` + inventoryOnly) |
+| 🩸 Cael | 3/200 | (pending) | ~33% | claude-opus-4.8 | `(2807efc)` | `2807efc1c1e` (build-from-source) |
+| 🌊 Ronan | (pending) | (pending) | (pending) | — | — | `2807efc1c1e` (deployed 08:07, `/status` pending — on dream-track seg-7, sequenced-not-raced) |
+
+- 🌻 **Elliott** — full `/status` render ✅ (chain-counter / compactions / ctx all visible on the cured SHA).
+- 🌫 **Silas** — full `/status` render ✅ (chain 3/200, compactions 0, ctx 36%, uptime 6m55s from Path-B restart 08:36:50; #923 cure corroborated: 0 L627 warns, inventoryOnly compiled, `[continuation:trace]` live).
+- 🩸 Cael — chain 3/200 (R-CW-1 deploy-persistence) + ctx ~33%; compactions-field pending a full `/status` drop.
+- 🌊 Ronan — deployed + version-confirmed; live `/status` continuation-fields pending his drop (gated on his dream-stream clearing, no force).
+
+**⚠️ Cross-walk finding (Path-B version-string-lag — cohort-canon):** on a Path-B (rsync'd-dist) seat, the `/status`/`--version` CLI version-string is **STALE** (silas's prints `9d07233` though the running dist is `2807efc1c1e`) — the rsync copies the dist but doesn't regen the CLI version-string. The byte-true SHA-verification on Path-B seats is **`build-info.json` `commit` field + `inventoryOnly`-presence in the running `openclaw-tools-*.js`/`tool-dispatch-*.js`, NOT the CLI version-string.** (`commit` is reliable on ALL seats; `--version` only on build-from-source.) This folds into the deploy-workflow verification step (version-regen fix wired by frond-scribe).
+
+**Verdict**: 🟢 4-seat DEPLOYMENT cross-walk PASS (4/6 on candidate SHA, version byte-verified via build-info `commit`, Path-B demonstrated) + **2 seats full continuation-substrate render PASS** (elliott + silas: chain/compactions/ctx all rendering on the cured SHA) + cael partial + ronan pending (`/status` enriching as they drop); emeric/rune HONEST-LIMIT (held-dreaming). Per the runbook, partial-coverage honest-noted, not overclaimed as full-6.

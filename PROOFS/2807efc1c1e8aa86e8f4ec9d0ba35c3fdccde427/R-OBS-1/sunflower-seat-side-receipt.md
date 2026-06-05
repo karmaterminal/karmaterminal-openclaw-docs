@@ -56,15 +56,15 @@ So the `/status`-rendered continuation substrate is NOT just present — it's th
 |---|---|---|---|---|---|---|
 | 🌻 Elliott | 0/200 | 0 | 30% | claude-opus-4.8 | `(2807efc)` ✅ | `2807efc1c1e` (build-from-source) |
 | 🌫 Silas | 3/200 | 0 | 36% | claude-opus-4.8 | `9d07233` ⚠️ stale-CLI | **`2807efc1c1e`** (Path-B; build-info.json `commit` + inventoryOnly) |
-| 🩸 Cael | 3/200 | (pending) | ~33% | claude-opus-4.8 | `(2807efc)` | `2807efc1c1e` (build-from-source) |
+| 🩸 Cael | 6/200 | 1 | 48% | claude-opus-4.8 | `(2807efc)` ✅ | `2807efc1c1e` (build-from-source, gateway 35m54s) |
 | 🌊 Ronan | 2/200 | (pending) | 44% | claude-opus-4.8 | `(2807efc)` ✅ | `2807efc1c1e` (build-from-source, gateway 41m) |
 
-- 🌻 **Elliott** — full `/status` render ✅ (chain-counter / compactions / ctx all visible on the cured SHA).
-- 🌫 **Silas** — full `/status` render ✅ (chain 3/200, compactions 0, ctx 36%, uptime 6m55s from Path-B restart 08:36:50; #923 cure corroborated: 0 L627 warns, inventoryOnly compiled, `[continuation:trace]` live).
-- 🌊 **Ronan** — `/status` render ✅ (chain 2/200, ctx 44%, version `(2807efc)`, gateway 41m, continue_delegate confirmed firing); compactions-field pending a full drop.
-- 🩸 **Cael** — chain 3/200 (R-CW-1 deploy-persistence) + ctx ~33%; compactions-field pending a full `/status` drop.
+- 🌻 **Elliott** (elliott-legion, x86_64) — full `/status` render ✅ (chain 0/200, compactions 0, ctx 30%).
+- 🌫 **Silas** (silas-lothric, x86_64) — full `/status` render ✅ (chain 3/200, compactions 0, ctx 36%, uptime 6m55s from Path-B restart 08:36:50; #923 cure corroborated: 0 L627 warns, inventoryOnly compiled, `[continuation:trace]` live).
+- 🩸 **Cael** (cael-dgx, aarch64) — full `/status` render ✅ (chain 6/200, compactions 1, ctx 48%, uptime 35m54s; #923 cure corroborated: 0 L627 warns, inventoryOnly compiled, `[continuation:trace]` live).
+- 🌊 **Ronan** (ronan-dgx, aarch64) — `/status` render ✅ (chain 2/200, ctx 44%, version `(2807efc)`, gateway 41m, continue_delegate confirmed firing); compactions-field pending a fuller drop.
 
-**✅ ALL 4 deployed seats render the continuation-protocol chain-counter on the candidate SHA** (elliott 0/200, ronan 2/200, cael 3/200, silas 3/200) — the R-OBS-1 core proof: the `/status` continuation substrate (chain-counter + ctx) is operator-visible across the deployed cohort on `2807efc1c1e`, post-#923-cure. 2 seats full-field (elliott + silas), 2 seats chain+ctx (ronan + cael, compactions-field enriching).
+**✅ ALL 4 deployed seats render the continuation-protocol substrate on the candidate SHA** — chain-counter across all 4 (elliott 0/200, ronan 2/200, silas 3/200, cael 6/200), compactions tracked (elliott 0, silas 0, cael 1), ctx-pressure rendered (30/36/44/48%). **3 seats FULL-field** (elliott + silas + cael) + ronan chain+ctx. The R-OBS-1 core proof: the `/status` continuation substrate is operator-visible across the deployed cohort on `2807efc1c1e`, post-#923-cure, spanning both arches (x86_64: elliott/silas; aarch64: cael/ronan) and both deploy-paths (build-from-source + Path-B).
 
 **⚠️ Cross-walk finding (Path-B version-string-lag — cohort-canon):** on a Path-B (rsync'd-dist) seat, the `/status`/`--version` CLI version-string is **STALE** (silas's prints `9d07233` though the running dist is `2807efc1c1e`) — the rsync copies the dist but doesn't regen the CLI version-string. The byte-true SHA-verification on Path-B seats is **`build-info.json` `commit` field + `inventoryOnly`-presence in the running `openclaw-tools-*.js`/`tool-dispatch-*.js`, NOT the CLI version-string.** (`commit` is reliable on ALL seats; `--version` only on build-from-source.) This folds into the deploy-workflow verification step (version-regen fix wired by frond-scribe).
 

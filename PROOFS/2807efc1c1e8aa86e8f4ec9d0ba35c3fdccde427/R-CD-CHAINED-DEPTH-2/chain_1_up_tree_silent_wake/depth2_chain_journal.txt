@@ -1,0 +1,7 @@
+# R-CD-CHAINED-DEPTH-2 Chain-1 depth-2 journal (ronan-seat, pid 955623, SHA 2807efc)
+# DEPTH-1 delegate:
+[continuation:delegate-spawned] hop=8/200 mode=silent-wake session=agent:main:discord:channel:1466192485440164011 task=R-CD-CHAINED-DEPTH-2 Chain-1 PROOF (up-tree silent-wake at depth-2)
+R-CD Chain-1 depth-2 up-tree silent-wake fired on ronan-seat SHA 2807efc — child-traceparent=00-4dbd9fbf2071f4a672e7fe3eb5178fcf-acb7e48d3ec61143-01
+# DEPTH-2 child (spawned BY the depth-1 delegate — note session=...subagent:b53ed2a8, a subagent-of-subagent chain):
+[continuation:delegate-spawned] hop=1/200 mode=silent-wake session=agent:main:subagent:b53ed2a8-ee98-4677-82ae-8ab08a161f7e task=R-CD Chain-1 DEPTH-2 child
+depth-2 child returning up-tree via silent-wake on ronan-seat SHA 2807efc

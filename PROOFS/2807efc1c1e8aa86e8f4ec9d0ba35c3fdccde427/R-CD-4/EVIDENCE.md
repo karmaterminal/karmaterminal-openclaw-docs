@@ -24,3 +24,10 @@
 
 ## Spawn + targeted-return evidence
 (captured below after delegate runs — the return routed to the explicit targetSessionKey is the proof)
+
+## Targeted-return PROVEN (journal) — see targeted_return_journal.txt
+- Spawn: `hop=7/200 mode=silent` with the targetSessionKey set.
+- Return: the delegate returned its line; the return was routed to the explicit `targetSessionKey=agent:main:discord:channel:1466192485440164011` (echoed in the fire-receipt), not the default-dispatcher path.
+
+## R-CD-4 FINAL VERDICT: ✅ PASS (targetSessionKey cross-session return, ronan-seat, SHA 2807efc)
+schedule (status=scheduled + targetSessionKey echoed) + spawn (hop=7) + targeted return (routed to explicit target) + trace 4dbd9fbf. Cross-session targeted return via targetSessionKey fires clean on the assembly SHA.

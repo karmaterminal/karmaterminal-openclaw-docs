@@ -1,0 +1,3 @@
+# R-CD-4 targeted-return journal (ronan-seat, pid 955623, SHA 2807efc)
+[continuation:delegate-spawned] hop=7/200 mode=silent session=agent:main:discord:channel:1466192485440164011 task=R-CD-4 PROOF FIRE (continue_delegate cross-session targeted return via targetSessionKey)
+R-CD-4 targeted-return delegate on ronan-seat, SHA 2807efc, targetSessionKey cross-session return path live

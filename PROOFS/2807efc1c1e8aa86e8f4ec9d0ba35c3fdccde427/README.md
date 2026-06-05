@@ -17,7 +17,13 @@ Behavioral proof corpus for the **2026-06-05 GATES-cycle assembly SHA** — the 
 | R-CW-5 | 🩸 cael | ⏳ pending | cost-cap exhaustion → dispatch reject (likely HONEST-LIMIT: can't force 500k cap cleanly at submission) |
 | R-CW-6 / R-CW-7 | 🪨 rune | ⏳ | — |
 | R-CW-DELEGATE-SELF-CONTINUATION | 🪨 rune + x-walk | ⏳ | — |
-| R-CD-1/2/3/4 + R-CD-CHAINED-DEPTH-2 | 🌊 ronan | ⏳ | — |
+| R-CD-1 | 🌊 ronan | ✅ PASS | schedule→spawn→return: status=scheduled + spawn hop=4 + return-receipt `1512484438` + Tempo trace `da5cc910` |
+| R-CD-2 | 🌊 ronan | ✅ PASS | silent-wake full path: `wakeOnReturn=true silentAnnounce=true` journal-proven + trace `8fb66cf1` |
+| R-CD-3 | 🌊 ronan | 🟡 STAGED | post-compaction lifeboat: `status=queued-for-compaction` confirmed (event-triggered, not timer); fires on natural compaction (at ~51% climbing, no force-compact) |
+| R-CD-4 | 🌊 ronan | ✅ PASS | targetSessionKey cross-session return: key echoed + targeted-return journal + trace `4dbd9fbf` |
+| R-CD-CHAINED-DEPTH-2 Chain-1 | 🌊 ronan | ✅ PASS | depth-2 up-tree silent-wake: depth-1 hop=8 → depth-2 child hop=1 subagent-chain `b53ed2a8` → up-tree return |
+| R-CD-CHAINED-DEPTH-2 Chain-2 | 🌊 ronan | ✅ PASS | depth-2 inter-session: depth-2 child `09e19282` + inter-session targetSessionKey |
+| R-CD-CHAINED-DEPTH-2 Chain-3 | 🌊 ronan | ✅ PASS | depth-2 echo+broadcast: depth-2 child `9c6b9988` + `fanoutMode=tree` broadcast-to-ancestors |
 | R-CD-CHAINED-DEPTH-2 TEST-1/2/3 | 🕯 emeric / 🪨 rune / 🌫 silas | ⏳ | — |
 | R-RC-1 (REJECT) | 🌫 silas | ⏳ | — |
 | R-RC-2 (ACCEPT >70%) | 🩸 cael | ⚠️ HONEST-LIMIT pending | cael-seat at 33% ctx < 70% ACCEPT threshold; held until a seat >70% (no overclaim) |

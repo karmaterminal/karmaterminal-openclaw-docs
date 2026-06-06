@@ -40,3 +40,23 @@ The METHOD above ("set costCapTokens to a tiny value → fire 2-3 → reject") i
 **Banked canon (`PROOFS/335acbe43a/METHOD.md`):** *"continuation cap enforcement (cost-cap, chain-depth) is read at chain-start, not per-call. Mid-flight config patches do NOT propagate to running chains. Correct methodology: restart gateway with low values from boot."*
 
 **Operational note for the owner (🩸 cael):** because this needs a gateway RESTART with the low cap, it's a per-seat coordinated op (not a self-restart for seats under the never-restart-own-gateway rule). Whoever fires it: restart-with-low-cap-from-boot is the proven path; the bare config-patch will silently fail to trip. The 335acbe43a precedent is the reference implementation.
+
+---
+
+## ⚠️⚠️ CRITICAL SAFETY CORRECTION — the restore-value is SEAT-SPECIFIC, NOT a hardcoded 500000 (rune 1512625115)
+
+The restore steps above say "restore to 500000" — **that value is cael-dgx-specific (and happens to match the default). It is WRONG on other seats.** Following "restore to 500000" blindly will MISCONFIG any seat whose real cap isn't 500k.
+
+**Byte-verified per-seat caps (do NOT assume):**
+- **rune-seat (ROG Ally): `agents.defaults.continuation.costCapTokens = 50000000` (50 MILLION)** — NOT 500k. Restoring rune to 500000 leaves the cap **100× too low** (50M→500k) = a real misconfig.
+- cael-dgx: `500000` (per the steps above).
+- Other seats: **UNKNOWN — must be read before touching.**
+
+**The correct, mandatory procedure:**
+1. **RECORD the actual current `costCapTokens` on THIS seat first** (`jq '.agents.defaults.continuation.costCapTokens' ~/.openclaw/openclaw.json` or equivalent). Write it down.
+2. Lower → restart → trip → capture.
+3. **RESTORE to the EXACT recorded value from step 1** — never a hardcoded 500000. Verify the restore with a re-read before declaring done.
+
+So the universal rule: **record-the-per-seat-value-first, restore-to-that-exact-value, verify.** The "500000" in the steps above is an example for one seat, not a constant.
+
+**Also (rune-seat specifically): `gateway config.patch` REFUSES `agents.defaults.continuation.costCapTokens` as a protected path** — so on rune the lower step must be a direct `~/.openclaw/openclaw.json` edit + gateway restart, not a config.patch. (Aligns with the restart-required finding above — restart-from-boot is mandatory anyway.)

@@ -120,3 +120,26 @@ The `Delivered to <explicit-target> from <my-subagent-session>` line is emitted 
 
 ## R-CD-4 FINAL (upgraded): ✅ PASS — GENUINE cross-session RETURN-routing
 Earlier scope was "RETURN-routing, target=own-session (self-inferred)." This upgrades it: the runtime's `[continuation:targeted-return] Delivered` log is addressed to a **different session** (#heartbeat) than the dispatcher (#sprites). Cross-session targeted-return genuinely works at `2807efc`. Scope unchanged on the orthogonal axis: proves RETURN-routing (result→target-session), does NOT claim EXECUTION-routing (#580, still open).
+
+---
+
+## ⚖️ SCOPE-BOUNDARY (stated verbatim per cael `1512627354`, the integrity of the scoped-PASS)
+
+**What R-CD-4 proves, exactly:** *"proves enqueue-to-target-session-queue + targeting-took-effect (routing), NOT a strict recipient-side-PROCESSED receipt (target dequeued+woke+ran)."*
+
+This boundary is the integrity of the row — it stops anyone reading "RETURN-routing PASS" as "recipient-processed proven." The scoped PASS is clean precisely because the boundary is stated.
+
+### The byte-anchor for the boundary (rune `1512626635`, ronan-verified)
+- The recipient-side receipt mechanism EXISTS: `enqueueContinuationReturnDeliveries` (`targeting.ts:80`) sets `sessionDeliveryAckId: deliveryId` (`:118`); the comment (`:119-121`) states *"the prompt-drain path acknowledges it only after recipient consumption."* So the recipient-PROCESSED byte is the `sessionDeliveryAckId` consumed via `drainPendingSessionDeliveries` (`session-delivery-queue-recovery.ts:192`, which logs `opts.log.info(logLabel...)`).
+- **RONAN CHECKED the re-proof journal**: NO drain/ack-consumption log fired for #1473 across the whole evening (17:00+); #1473 (#heartbeat) has no active draining session. So `sessionDeliveryAckId` was SET on the enqueue but never CONSUMED → recipient-processed is empirically **NOT captured** → correctly **NOT claimed**.
+- The ack-byte CONFIRMS the routing scope: no upgrade to full-PASS (consumption absent), no downgrade to HONEST-LIMIT (routing IS proven via the `hasContinuationTargeting`-gated Delivered log + the genuine separate-session #1473 fire).
+
+### Three-byte integration (terminal — the row settled after flip-flopping PASS→#580-repro→HONEST-LIMIT→PASS-scoped as each byte landed)
+1. **Cael's GATE byte** (`subagent-announce.ts:1326`/`:1359`): `[continuation:targeted-return] Delivered` is structurally inside `if (hasContinuationTargeting)` — cannot fire in the #580 fall-through (`enrichment-return` fires there, `:1408`). Presence ⟺ targeting-took-effect.
+2. **Ronan's FIRE**: the log fired to #1473 (#heartbeat), a genuinely separate session from #1466 (#sprites) dispatcher, via real `targetSessionKey`.
+3. **Rune's FUNCTION byte** (`targeting.ts:80`/`:129`): the log fires after enqueue+wake; "Delivered" = ENQUEUE-to-target, not recipient-consumption.
+
+### Future-row note (NOT a gap in THIS row)
+A strict recipient-PROCESSED proof (target dequeues + wakes + runs, with the `sessionDeliveryAckId` consumption captured) is a **separate, tighter future-row** if figs or the upstream PR ever wants it — NOT an open gap in R-CD-4, which is scoped to return-ROUTING (enqueue-to-target + targeting-took-effect). #580 (EXECUTION/spawn-routing) remains the orthogonal OPEN layer.
+
+**R-CD-4 = ✅ PASS (RETURN-routing, scoped to enqueue-to-target + targeting-took-effect), boundary stated, terminal.**

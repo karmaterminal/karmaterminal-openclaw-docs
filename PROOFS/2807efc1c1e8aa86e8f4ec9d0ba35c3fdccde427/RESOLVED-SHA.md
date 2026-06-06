@@ -23,10 +23,11 @@
 
 ## Gate state at byte
 - ✅ Gate 1 (CI) — run 27020945380 completed/success on 2807efc1c1e8aa86e8f4ec9d0ba35c3fdccde427, 117 jobs green / 0 failures
-- ⏳ Gate 2 (cure-bytes byte-identical) — pending (cure-bytes/ verification)
+- ✅ Gate 2 (cure-bytes byte-identical) — VERIFIED by cael 2026-06-05 ~17:18 PDT: the delta `9d07233faa..2807efc` is **exactly 1 commit / 4 files** (`openclaw-tools.ts` +23, `tool-resolution.ts` +6, `tool-dispatch.ts` +7, + the misconfig-warn test +38 = +72/-2 total) — precisely and only the #923 cure, zero extra drift snuck into the assembly tip vs presentation-head. [gate-runner: cael]
 - ✅ Gate 3 (full prepush-ci local) — GREEN as of 2026-06-05 ~16:15 PDT: ronan's `systemd-run --user --scope` local full-suite run completed **rc=0, 88/88 project-summaries, 0 assertion failures** (survived a mid-run gateway-restart via isolated-cgroup escape); corroborated by CI both-arch (x86 `ci-check-testbox` + ARM `ci-check-arm-testbox`, real suites). NOTE: plain-setsid local attempts (ronan ×3, elliott cross-host) died to gateway-restart scope-teardown — environmental-not-code (57,695+ tests passed / 0 assertion-fails across completed shards before each kill); the scope-run is the genuine completed local pass. [gate-runners: ronan + cael; reflected in corpus by steward rune]
 - ⏳ Gate 4 (cohort cosign-pair) — pending
-- ⏳ Gates 5/6 (force-push / post-push) — pending PROOFS-corpus completion + figs go-signal
+- ✅ Gate 5 (force-push) — LANDED 2026-06-05 ~16:52 PDT: cael pushed `2807efc` onto `frond-scribe-claude/20260509/narrow-surgery-tight` as `cael-dandelion-cult` (direct `push:true`) on figs's conditional-go ("iff no detritus", byte-verified met). Was a **clean fast-forward (9d07233faa ancestor of 2807efc), NOT a force-push** — branch head confirmed `2807efc1c1e` via GitHub refs API. [gate-runner: cael]
+- ✅ Gate 6 (post-push) — GREEN: CI on the pushed head `2807efc` = **20 check-runs all success, 0 failures**; branch head stable at `2807efc1c1e`. [gate-runner: cael]
 
 ## Per-seat deploy status (08:18 PDT)
 - 🩸 cael-dgx: ✅ on 2807efc1c1e8aa86e8f4ec9d0ba35c3fdccde427 (restarted 08:15:29)

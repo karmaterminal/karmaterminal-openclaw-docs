@@ -1,0 +1,8 @@
+===Full causal block (my fe11c438 child), untruncated===
+Jun 05 17:25:09 ronan node[2381125]: 2026-06-05T17:25:09.041-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session agent:main:subagent:fe11c438-c8f3-4cfb-a5d8-7c9c7e15b0e8
+Jun 05 17:25:09 ronan node[2381125]: 2026-06-05T17:25:09.465-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=silent session=agent:main:subagent:fe11c438-c8f3-4cfb-a5d8-7c9c7e15b0e8 task=[R-CD-4 RETURN-ROUTING re-proof child | echo-token: RCD4-REPROOF-2807efc] You ar
+Jun 05 17:25:13 ronan node[2381125]: 2026-06-05T17:25:13.190-07:00 RCD4-REPROOF-RETURN echo=RCD4-REPROOF-2807efc child→target routed
+Jun 05 17:25:13 ronan node[2381125]: 2026-06-05T17:25:13.836-07:00 [subagent-chain-hop] Accumulated 6217 tokens from agent:main:subagent:fe11c438-c8f3-4cfb-a5d8-7c9c7e15b0e8 to parent chain cost
+Jun 05 17:25:13 ronan node[2381125]: 2026-06-05T17:25:13.837-07:00 [continuation:targeted-return] Delivered to agent:main:discord:channel:1466192485440164011 from agent:main:subagent:fe11c438-c8f3-4cfb-a5d8-7c9c7e15b0e8
+Jun 05 17:25:39 ronan node[2381125]: 2026-06-05T17:25:39.165-07:00 [agents/agent-command] [attempt-execution] continue_work timer fired for session agent:main:subagent:fe11c438-c8f3-4cfb-a5d8-7c9c7e15b0e8
+===END===

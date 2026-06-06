@@ -25,7 +25,7 @@
 ## Spawn + targeted-return evidence
 (captured below after delegate runs — the return routed to the explicit targetSessionKey is the proof)
 
-## Targeted-return PROVEN (journal) — see targeted_return_journal.txt
+## Targeted-return PROVEN (journal) — see targeted_return_journal.txt (original, spawn-only) + targeted_return_delivery_journal.txt (re-proof, FULL causal chain incl. the Delivered line)
 - Spawn: `hop=7/200 mode=silent` with the targetSessionKey set.
 - Return: the delegate returned its line; the return was routed to the explicit `targetSessionKey=agent:main:discord:channel:1466192485440164011` (echoed in the fire-receipt), not the default-dispatcher path.
 
@@ -65,3 +65,34 @@ The return routed to the **explicit targetSessionKey** I set (the `Delivered to 
 
 ## HONEST FINAL VERDICT: ✅ PASS — RETURN-routing (scoped)
 `continue_delegate(targetSessionKey)` **return-routing** works at `2807efc`: the return delivered to the explicit target via the real gateway `[continuation:targeted-return] Delivered to <target>` log. Scope is precise: **proves RETURN-routing (result→target); does NOT prove EXECUTION-routing** (delegate executing ON the target). **#580** is about EXECUTION/spawn-routing — a SEPARATE layer — and its flow_run premise predates the flows-registry migration; #580 needs re-eval against the migrated architecture (flagged, not asserted-closed).
+
+---
+
+## 🔁 INDEPENDENT RE-CAPTURE 2026-06-05 17:25 PDT (chain-hop 17, gateway pid 2381125) — closes the delivery-log gap the ORIGINAL 08:35 evidence lacked
+
+The original 08:35 fire banked only the **spawn** line (`targeted_return_journal.txt`, `hop=7`) and a self-asserted "routed to target" — it never captured the gateway's own delivery-confirmation line. This re-capture closes exactly that gap, fired fresh from ronan-seat on the **same SHA `2807efc`** (runtime byte-verified: `git rev-parse HEAD`=2807efc, `dist/build-info.json` commit=2807efc, version 2026.6.2).
+
+**(1) Fire-receipt — `targetSessionKey` echoed** (trace `2ff712d302e4d110e9d83f895f459168`):
+```json
+{ "status": "scheduled", "mode": "silent",
+  "targetSessionKey": "agent:main:discord:channel:1466192485440164011",
+  "traceparent": "00-2ff712d302e4d110e9d83f895f459168-e326d50ea5266eb6-01" }
+```
+
+**(2) Delivery-confirmation journal — the line the original lacked** (`journalctl --user -u openclaw-gateway.service`, full untruncated causal chain in `targeted_return_delivery_journal.txt`):
+```
+17:25:09.465 [continuation:delegate-spawned] hop=1/200 mode=silent session=…subagent:fe11c438… task=[R-CD-4 …RCD4-REPROOF-2807efc]
+17:25:13.190 RCD4-REPROOF-RETURN echo=RCD4-REPROOF-2807efc child→target routed   ← leaf's parroted echo (NOT the evidence)
+17:25:13.836 [subagent-chain-hop] Accumulated 6217 tokens … to parent chain cost
+17:25:13.837 [continuation:targeted-return] Delivered to agent:main:discord:channel:1466192485440164011 from agent:main:subagent:fe11c438-c8f3-4cfb-a5d8-7c9c7e15b0e8   ← THE PROOF (subagent-announce.ts:1359, defaultRuntime.log)
+```
+The `Delivered to <explicit-target> from <my-subagent-session>` line is emitted by the runtime **independent of the delegate's text**. The `to` is the explicit cross-session `targetSessionKey`; the `from` is my own subagent session `fe11c438` — distinct sessions, which is what makes it a genuine cross-session RETURN. (The leaf's `RCD4-REPROOF-RETURN…` echo is the delegate parroting my instruction and is **deliberately NOT** the evidence — heeding cael's hollow-TEST-2 coverage-faking trap.)
+
+**(3) Tempo trace** `2ff712d302e4d110e9d83f895f459168` (`r-cd-4-reproof_trace.json`, HTTP 200, 67449 bytes, 56 spans, `process.pid 2381125` = current on-SHA gateway, model claude-opus-4.8). Two `continuation.delegate.dispatch` spans share this trace_id: the parent (`reason.preview = R-CD-4 RETURN-ROUTING re-proof (capturing the delivery-confirmation log…`) and the child re-proof (`reason.preview = [R-CD-4 …RCD4-REPROOF-2807efc]…`, chain.id `f9f55d18`, `delegate.mode=silent`, `delegate.delivery=immediate`) — the echo-token in-band confirms the trace corresponds to exactly this fire.
+
+**Flows-migration scoping — independently re-verified this turn** (load-bearing for the #580 layer-distinction):
+- `~/.openclaw/flows/registry.sqlite.migrated` (+ `-shm`/`-wal` `.migrated`) — flows registry renamed-dormant (May 31), no active `registry.sqlite`.
+- `grep -rn 'owner_key|flows/registry|flowRun|flow_run' src/auto-reply/continuation/ src/agents/subagent-announce.ts` → **zero hits**. The active return-routing path uses subagent-registry + delivery-queue (`subagent-announce.ts:1335` `resolveContinuationReturnTargetSessionKeys` → `1347` `enqueueContinuationReturnDeliveries` → `1359` Delivered-log), NOT the flows registry.
+- ∴ #580's "recipient-owned flow_run" premise probes a migrated-away mechanism; it is moot for the *active* RETURN-routing path, and orthogonal to the EXECUTION/spawn-routing layer #580 actually concerns. #580 stays correctly **OPEN + separate-layer** (flagged for re-eval vs migrated arch, NOT asserted-closed by this row).
+
+**Layer settlement (Rune↔Elliott dispute):** R-CD-4 tests the **RETURN-routing layer** (where does the delegate's *result* land) — code at `subagent-announce.ts:1325-1361`, proof = the `[continuation:targeted-return] Delivered` log. #580 tests the **EXECUTION/spawn-routing layer** (which session *runs* the child) — a DISTINCT layer, still OPEN. This re-capture proves the former; it makes no claim about the latter.

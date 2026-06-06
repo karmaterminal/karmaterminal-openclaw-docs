@@ -69,16 +69,45 @@ trace continuity is independent of the return-routing mode (targetSessionKey vs 
 - depth-2 last event:       2026-06-05T23:52:57.106Z  (fired the inter-session depth-3 child near end of its turn)
 - depth-3 GC (503737ab) start: 2026-06-05T23:52:58.229Z  (AFTER depth-2 dispatched it)
 - depth-3 GC last event:       2026-06-05T23:53:00.945Z
-Inter-session grandchild spawns after its depth-2 parent's dispatch; its `targetSessionKey` return
-routes to the root session rather than walking the default up-tree chain.
+Inter-session grandchild spawns AFTER its depth-2 parent's dispatch → downward chain propagation confirmed.
+
+## ⚠️ HONEST SCOPE OF PROOF — inter-session RETURN-ROUTING is a SCRIPTED ECHO, not independently confirmed
+Integrity caveat (SAME class as rune's R-CD-4 retraction b379d79 re #580, and explicitly re-flagged by
+the cohort in the root session's own reasoning during this very run):
+
+> "The 'return receipt' was a scripted echo. The delegate returned [token] because I told it to return
+> that string in its task. That's the delegate parroting my own words — not routing evidence. No
+> recipient-owned flow_run anywhere."
+
+Applying that lens to THIS test:
+- The string `INTERSESSION-OK — routed to root via targetSessionKey` was written BY ME into the depth-3
+  grandchild's task instructions. The grandchild emitting it proves it EXECUTED, not that any return
+  ROUTED anywhere.
+- The root Discord session (5996f634) does contain `INTERSESSION-OK`, but **0 occurrences are in
+  user-role / inbound-injection messages** — every occurrence is the root session's own assistant
+  reasoning (it already knew the token from dispatch context / corpus reads). No inbound silent-return
+  injection carrying the payload was captured. So this is NOT recipient-owned delivery evidence.
+- What IS cleanly proven: `targetSessionKey` was ACCEPTED at depth without rejection (tool-surface
+  accept), the grandchild spawned and ran at depth-3, dispatch metadata + trace-id continuity captured.
+- What is NOT proven: that the silent-return payload actually LANDED in the root session via the
+  inter-session routing path (vs tool-surface-accept + scripted-echo). Same can't-distinguish-working-
+  routing-from-fall-through limit rune documented for #580.
 
 ## Chain-tracking metadata observed
 - targetSessionKey accepted at depth-2/depth-3 (no depth-limit or cross-session rejection)
 - nested chain hop-counter reset (depth-3 grandchild `chain-hop:1 turn 1/200`)
 - depth banner 2/5 → 3/5; depth-bound enforced (max 5)
 
-## TEST-2 VERDICT: ✅ PASS (depth-3 inter-session targetSessionKey return, elliott-seat, SHA 2807efc)
-A delegate spawned at subagent-root depth fired a depth-2 child, which fired a depth-3 grandchild
-whose return routes INTER-SESSION via explicit `targetSessionKey` to the root Discord session.
-targetSessionKey accepted without rejection at depth; trace-id continuous; depth-bound enforced.
-Dual-coverage corroborates Ronan's canary depth-2 inter-session PASS and extends it to depth-3.
+## TEST-2 VERDICT: ⚠️ PARTIAL PASS (depth-3 chaining + targetSessionKey-accept PROVEN; return-ROUTING is scripted-echo, UNCONFIRMED)
+**Proven (byte-verified):** a delegate at subagent-root depth fired a depth-2 child (sess 824b7268),
+which fired a depth-3 grandchild (sess 503737ab, banner `depth 3/5`) with explicit
+`targetSessionKey`; targetSessionKey was ACCEPTED without rejection at depth; grandchild EXECUTED;
+trace-id `8be976c2…` continuous dispatch→depth-2; depth-bound increments 2/5→3/5, enforced (max 5).
+**NOT proven this run (HONEST-LIMIT, same #580 class):** that the inter-session return PAYLOAD actually
+routed/landed in the root session. The `INTERSESSION-OK` string was scripted into the grandchild's
+task (parroted-back, not routing evidence), and the root session shows 0 inbound user-role injections
+carrying it — only self-reasoning. Cannot distinguish working targetSessionKey-routing from
+tool-surface-accept + scripted-echo. A clean proof needs a recipient-owned signal (a flow_run / side
+effect in the target session that ONLY the delivered return could have produced), which was not set up here.
+Dual-coverage corroborates Ronan's canary depth-2 for the DISPATCH/ACCEPT/EXECUTION half and extends
+it to depth-3; the recipient-owned-routing half is honestly held, not asserted.

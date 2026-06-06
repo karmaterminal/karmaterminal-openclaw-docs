@@ -64,20 +64,44 @@ Single trace-id propagated across every level dispatch→depth-2→depth-3:
 - W3C traceparent: `00-8be976c2dc2df9bea5429de554202e5a-624a617188e0a3db-01`
 Grep across session transcripts a05788d7 / d7d84e57 / 824b7268 all surface the identical traceparent → continuity confirmed.
 
-## Causal ordering (proves downward propagation + up-tree return ordering)
+## Causal ordering (proves downward propagation)
 From session-event timestamps:
 - depth-2 (d7d84e57) start: 2026-06-05T23:52:12.148Z
 - depth-3 GC (ea88a7de) start: 2026-06-05T23:52:28.685Z  (spawned AFTER depth-2's dispatch turn)
-- depth-3 GC last event:      2026-06-05T23:52:31.512Z  (≈3s leaf runtime; return then propagates up)
-Grandchild spawns strictly after its depth-2 parent dispatches it; the silent-wake return then walks back up the chain.
+- depth-3 GC last event:      2026-06-05T23:52:31.512Z  (≈3s leaf runtime)
+Grandchild spawns strictly AFTER its depth-2 parent dispatches it → downward chain propagation confirmed.
+
+## ⚠️ HONEST SCOPE OF PROOF — up-tree RETURN-WAKE not independently confirmed (scripted-echo contamination)
+Integrity caveat (same masked-regression class flagged in rune/cael retractions b379d79/78bfe1d re #580,
+and re-flagged by the cohort in the root session's own reasoning this run: "the 'return receipt' was a
+scripted echo — the delegate returned [token] because I told it to return that string — not routing evidence"):
+The return token `GRANDCHILD-OK` was written BY ME into the grandchild's task instructions, so the
+grandchild emitting it proves EXECUTION, not that any return propagated up. Grepping ancestor transcripts
+for it is contaminated (the depth-2 parent's task-text already contained the string). Distinguishing
+dispatch-echo from actual receipt:
+- depth-2 parent (d7d84e57) after dispatching the grandchild: its NEXT user-injection was
+  `[OpenClaw heartbeat poll]` → `HEARTBEAT_OK`. **No silent-wake return-injection re-woke it** — it had
+  already ended its subagent turn.
+- proof-runner root (a05788d7, this session) after `sessions_yield`: next user-injection was also
+  `[OpenClaw heartbeat poll]`, **not** a delegate-return wake carrying the grandchild payload.
+Conclusion: the grandchild EXECUTED at depth-3 (byte-verified, independent transcript) and the chain
+DISPATCHED correctly at every level, but a distinct up-tree silent-wake **return-wake landing** in an
+ancestor was NOT captured. Consistent with silent-wake semantics (return targets the dispatching session;
+once that subagent terminated, no live turn exists to inject into). Observability/timing limit of THIS
+run — NOT a demonstrated regression, but also NOT a proven up-tree return.
 
 ## Chain-tracking metadata observed
 - Every dispatch response carries: "Chain tracking (cost cap, depth limit) applies."
 - Per-chain hop counter RESETS on each nested chain (depth-2 banner shows `chain-hop:1 turn 1/200` for the NEW subagent chain it spawned; depth-3 grandchild likewise `chain-hop:1 turn 1/200`).
 - Depth banner increments 2/5 → 3/5 across the hop — depth-bound observable and enforced (max 5).
 
-## TEST-1 VERDICT: ✅ PASS (depth-3 up-tree silent-wake, elliott-seat, SHA 2807efc)
-Chained `continue_delegate(mode=silent-wake)` propagated from a subagent root through depth-2 to
-depth-3; the depth-3 grandchild executed (byte-verified transcript) and returned up-tree via
-silent-wake. Traceparent trace-id continuous across all levels; depth-bound increments and is
-enforced. Dual-coverage corroborates Ronan's canary depth-2 PASS and extends it one level deeper.
+## TEST-1 VERDICT: ⚠️ PARTIAL PASS (depth-3 chaining PROVEN; up-tree return-wake landing UNCONFIRMED)
+**Proven (byte-verified):** chained `continue_delegate(mode=silent-wake)` propagated from a subagent
+root through depth-2 to depth-3; the depth-3 grandchild EXECUTED (independent transcript ea88a7de,
+banner `depth 3/5`, echo + return-payload emitted); dispatch accepted at each hop; trace-id
+`8be976c2…` continuous dispatch→depth-2; depth-bound increments 2/5→3/5 and is enforced (max 5).
+**NOT confirmed this run:** a distinct up-tree silent-wake RETURN-WAKE re-injecting the grandchild
+payload into an ancestor (see HONEST SCOPE above — ancestors got heartbeat polls, not return-wakes,
+after their turns ended). Token-grep matches were dispatch-echo, not receipt.
+Dual-coverage extends Ronan's canary depth-2 to depth-3 for the DISPATCH/EXECUTION half; the
+return-wake-landing half remains as-yet-uncaptured here and would need a live-ancestor timing setup.

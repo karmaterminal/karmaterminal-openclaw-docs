@@ -1,0 +1,15 @@
+# TEST-2 depth-3 inter-session grandchild raw transcript journal (elliott-seat)
+# session: 503737ab-abb7-448e-b836-9acd5f367325  banner: depth 3/5  chain-hop:1 turn 1/200
+# returns INTER-SESSION via targetSessionKey=agent:main:discord:channel:1466192485440164011
+# Captured 2026-06-05 from /home/figs/.openclaw/agents/main/sessions/
+
+[user] [Fri 2026-06-05 16:52 PDT] [Subagent Context] You are running as a subagent (depth 3/5). Results auto-announce to your requester; do not busy-poll for status.
+
+[Subagent Task]
+
+[continuation:chain-hop:1] Delegated task (turn 1/200): [TEST-2/hop-B depth-3 INTER-SESSION return] This return is targeted at the root session via targetSessionKey. Echo "INTER-SESSION DEPTH-3 RETURN ROUTED". Report: INTERSESSION-OK — routed to root via targetSessionKey.
+
+Begin. Execute the assigned task to completion.
+[assistant] INTER-SESSION DEPTH-3 RETURN ROUTED
+
+INTERSESSION-OK — routed to root via targetSessionKey.

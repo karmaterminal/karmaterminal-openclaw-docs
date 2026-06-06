@@ -16,4 +16,7 @@ R-CD-TEST-1 up-tree-silent-wake FIRED: hop=2 depth=1 mode=silent-wake returning-
 ```
 mode=silent-wake ✓ · hop=2 depth=1 ✓ · returned up-tree to dispatching cael ✓ · wake-on-return fired the capturing turn ✓
 
+## Corroboration note
+cael-seat second-fire of the up-tree-silent-wake behavior already proven in silas's `R-CD-CHAINED-DEPTH-2/test_1_uptree_silent_wake/` (same behavior, independent seat). Not an independent row — kept as cross-walk corroboration (non-destructive, per steward call). The PASS rests on the genuinely-observable wake-on-return (turn actually woken on the delegate's return; hop=2/depth=1 real runtime chain values), not a scripted string.
+
 ## VERDICT: ✅ PASS (up-tree silent-wake, cael-seat, SHA 2807efc1c1e8aa86e8f4ec9d0ba35c3fdccde427)

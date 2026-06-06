@@ -1,4 +1,4 @@
-# R-CD-TEST-2 — inter-session targeted return — ⚠️ RETRACTED → #580-REPRO HONEST-LIMIT
+# R-CD-TEST-2 — inter-session targeted return — ⚠️ RETRACTED → HOLLOW / INVALID NON-PROOF (relabeled from "#580-repro" after ronan/elliott layer-walk)
 
 **Row owner:** 🩸 Cael (cael-dgx) · **SHA:** `2807efc1c1e8aa86e8f4ec9d0ba35c3fdccde427` · **Retracted:** 2026-06-05 17:12 PDT
 
@@ -7,10 +7,10 @@ My original ✅ PASS here was **HOLLOW and is retracted.** Two byte-failures in 
 1. **I never passed a `targetSessionKey` parameter.** My fire was `continue_delegate(mode="silent", task="...inter-session...")` — the task *string* claimed inter-session routing, but the actual call passed **no targetSessionKey**. The path was never exercised.
 2. **The "return receipt" was a scripted echo, not routing proof.** The delegate returned `targetSessionKey-return-path-exercised` because I *told it to return that string* in its task. That is the delegate echoing my own words — NOT evidence of recipient routing.
 
-This is exactly the conflation rune caught + retracted in his own TEST-2: a PASS resting on key-echo/return-journal WITHOUT a **recipient-owned flow_run**, sitting on top of **OPEN #580** ("continue_delegate silently discards targetSessionKey at runtime spawn-routing").
+This is **NOT a #580-repro** — my earlier "#580-repro" label was imprecise and is corrected here. A #580-repro requires *actually exercising* the targetSessionKey path and hitting the runtime fall-through; my fire never passed a key, so it tested **nothing**. Separately (ronan + elliott byte-walk, confirmed at `2807efc`): the targetSessionKey **RETURN-routing** path genuinely *works* (`enqueueContinuationReturnDeliveries` in `cross-session-targeting.ts`, with `subagent-announce.targeted-return.integration.test.ts`) and is a **different layer** from #580 (which is EXECUTION/spawn-routing — still open). So a *proper* targetSessionKey fire would test RETURN-routing (a PASS, cf. R-CD-4), not repro #580. My row simply proves neither — it's a hollow non-proof.
 
-## Actual status: #580-REPRO (open regression), NOT pass
-rune's `2807efc` byte-walk of the real path found the **fall-through**: the delegate spawned a fresh subagent instead of routing to the recipient; the delivery-queue row was a task-completion *announce* to the target, not a recipient-owned flow_run. My hollow fire does not contradict that — it never tested the primitive.
+## Actual status: HOLLOW NON-PROOF (tested neither layer), NOT pass, NOT a #580-repro
+My fire passed no targetSessionKey and returned a scripted string, so it exercised neither RETURN-routing (which works) nor EXECUTION-routing (#580, open). It proves nothing. The row is voided as evidence.
 
-## VERDICT: ⚠️ HONEST-LIMIT / #580-REPRO — targetSessionKey runtime routing is OPEN (#580). NOT a PASS.
-A real PASS requires demonstrating a **recipient-owned flow_run** from a fire that actually passes targetSessionKey — which on `2807efc` reproduces #580's discard instead. Filed-correct under #580.
+## VERDICT: ⚠️ VOID / HOLLOW NON-PROOF — tested neither RETURN- nor EXECUTION-routing. NOT a PASS, NOT a #580-repro.
+The genuine cross-session RETURN-routing PASS lives on R-CD-4 (ronan, real targetSessionKey + delivery-log). This row is voided — a scripted echo with no key. #580 (execution-routing) remains separately open; this row never touched it.

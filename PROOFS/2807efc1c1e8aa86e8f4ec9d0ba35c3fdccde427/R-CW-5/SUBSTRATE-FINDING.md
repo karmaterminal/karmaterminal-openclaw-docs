@@ -23,3 +23,20 @@ R-CW-5 is re-classed from "genuine honest-limit" to **"provable via the lower-th
 
 ## Maintainer framing (corrected)
 "R-CW-5 (cost-cap dispatch-reject): gate exists + enforced, byte-identical vs presentation-head (NOT cure-regression). PROVABLE via temporarily lowering `costCapTokens` to trip in 2-3 dispatches then restoring (figs method `1512615687`) — re-classed from honest-limit to capturable-pending-stable-window. The prior 'forcing 500k is wasteful' framing was a methodological oversight: you lower the CAP, you don't accumulate the cost."
+
+## ⚠️ STEWARD ADDITION (🌊 ronan, lead-steward, 2026-06-05): CRITICAL methodology nuance from the proven precedent — mid-flight config-patch FAILS, you must RESTART.
+
+The METHOD above ("set costCapTokens to a tiny value → fire 2-3 → reject") is correct in INTENT but **omits the one nuance that makes it actually work** — surfaced from the prior proven R-CW-5 capture (`PROOFS/335acbe43a/R-CW-5/proof.md`, Cael, ✅ PASS, Discord `1507663279`):
+
+**You CANNOT just patch the cap low mid-chain — the running chain won't see it. You must RESTART the gateway with the low cap from boot.**
+- ❌ **FAILED path (335acbe43a's first attempt):** lower `costCapTokens` mid-chain via config patch → fire `continue_work` → **did NOT reject.** The running chain captured `costCapTokens=500000` at **chain-START**; mid-flight config changes do not propagate (config snapshot is chain-start-bound).
+- ✅ **WORKING path (proven):**
+  1. Patch fleet config: `continuation.costCapTokens: 1000` (low) + `continuation.maxChainLength: 200` (room so cost-cap fires before chain-depth).
+  2. **RESTART the gateway** → the FRESH chain reads `costCapTokens=1000` at startup.
+  3. Fire `continue_work({ delaySeconds: 5 })` repeatedly across hops.
+  4. Accumulated tokens cross 1000 → next call rejects: `[continuation] ... cost cap exceeded (<N> > 1000)`. (335acbe43a tripped at `22879 > 1000`.)
+  5. **RESTORE `costCapTokens: 500000`** + restart back.
+
+**Banked canon (`PROOFS/335acbe43a/METHOD.md`):** *"continuation cap enforcement (cost-cap, chain-depth) is read at chain-start, not per-call. Mid-flight config patches do NOT propagate to running chains. Correct methodology: restart gateway with low values from boot."*
+
+**Operational note for the owner (🩸 cael):** because this needs a gateway RESTART with the low cap, it's a per-seat coordinated op (not a self-restart for seats under the never-restart-own-gateway rule). Whoever fires it: restart-with-low-cap-from-boot is the proven path; the bare config-patch will silently fail to trip. The 335acbe43a precedent is the reference implementation.

@@ -1,0 +1,7 @@
+# Rune-axis clean cross-session R-CD TEST-2 re-fire — gateway journalctl, host=rune PID 290351
+# figs-directed 1512620974. Dispatched from #sprites (1466192485440164011), targetSessionKey=#heartbeat (1473320126433464465).
+18:57:06.755 [continuation:delegate-spawned] hop=7/200 mode=silent session=agent:main:discord:channel:1466192485440164011 task=[R-CD-CHAINED-DEPTH-2 TEST-2 — clean cross-session inter-session-return proof]
+18:57:20.691 [continue_delegate] Consuming 1 tool delegate(s) for session agent:main:subagent:16decb28-2d82-42c8-b41b-c6429a322f77
+18:57:20.697 [continuation:delegate-spawn-rejected] status=forbidden session=agent:main:subagent:16decb28-... reason=sessions_spawn is not allowed at this depth (current depth: 1, max: 1)  [<- the leaf's OWN further-spawn attempt, capped; NOT the targeted-return]
+18:57:20.868 [subagent-chain-hop] Accumulated 897 tokens from agent:main:subagent:16decb28-... to parent chain cost
+18:57:20.875 [continuation:targeted-return] Delivered to agent:main:discord:channel:1473320126433464465 from agent:main:subagent:16decb28-2d82-42c8-b41b-c6429a322f77   [<- THE PROOF: cross-session targeted-return to #heartbeat, recipient != dispatcher]

@@ -96,3 +96,27 @@ The `Delivered to <explicit-target> from <my-subagent-session>` line is emitted 
 - ∴ #580's "recipient-owned flow_run" premise probes a migrated-away mechanism; it is moot for the *active* RETURN-routing path, and orthogonal to the EXECUTION/spawn-routing layer #580 actually concerns. #580 stays correctly **OPEN + separate-layer** (flagged for re-eval vs migrated arch, NOT asserted-closed by this row).
 
 **Layer settlement (Rune↔Elliott dispute):** R-CD-4 tests the **RETURN-routing layer** (where does the delegate's *result* land) — code at `subagent-announce.ts:1325-1361`, proof = the `[continuation:targeted-return] Delivered` log. #580 tests the **EXECUTION/spawn-routing layer** (which session *runs* the child) — a DISTINCT layer, still OPEN. This re-capture proves the former; it makes no claim about the latter.
+
+---
+
+## ⬆️ UPGRADE: GENUINE cross-session proof (figs-suggested test, 2026-06-05 ~18:29 PDT)
+
+**The gap this closes:** the earlier captures targeted the dispatcher's OWN session — so "recipient received it" was self-inferred (my own session got the enrichment). figs suggested the decisive test: fire from one session (#sprites) targeting a **DIFFERENT** session (#heartbeat), so the targeted-return delivers to a session that is NOT the dispatcher. That removes the self-inference.
+
+**Fired** (cael-seat, SHA `2807efc`, from #sprites `agent:main:discord:channel:1466192485440164011`):
+`continue_delegate(mode="silent", targetSessionKey="agent:main:discord:channel:1473320126433464465")` — the **#heartbeat** session (verified a real, separate session: `displayName=discord:...#heartbeat`, sessionId `af57cc3b-...`).
+- Tool-return echoed the real param: `"targetSessionKey": "agent:main:discord:channel:1473320126433464465"` ✓ (the param was actually passed, not just described in the task — see discipline note).
+
+**THE PROOF (runtime gateway log, journalctl, NOT delegate text):**
+```
+2026-06-05T18:29:03.808-07:00 [continuation:targeted-return] Delivered to
+  agent:main:discord:channel:1473320126433464465        ← #heartbeat (the explicit TARGET)
+  from agent:main:subagent:2756c94c-1814-4487-b161-19007d96e1e9
+```
+- Delivered to **`...1473...` (#heartbeat)** — a DIFFERENT session than the dispatcher **`...1466...` (#sprites)**. Genuine cross-session: the result delivered to a session that did NOT dispatch the delegate.
+- Emitted by the runtime (gateway), gated on `hasContinuationTargeting`, distinct from the plain `[continuation:enrichment-return]`-to-dispatcher path → can only fire if targeting to the OTHER session took effect.
+
+**⚠️ Discipline note (heeding the hollow-TEST-2 trap — which nearly recurred):** the FIRST fire put the cross-session intent in the *task string* but omitted the actual `targetSessionKey` PARAM (the identical hollow-mistake R-CD-TEST-2 was retracted for — `delegateIndex:1` returned no targetSessionKey). Caught it via the structured return surfacing the (missing) param; re-fired correctly as v2 with the real param. The delegate's scripted return-string ("genuine cross-session") is NOT the evidence — it's parroting. The PROOF is ONLY the runtime's Delivered-to-other-session log.
+
+## R-CD-4 FINAL (upgraded): ✅ PASS — GENUINE cross-session RETURN-routing
+Earlier scope was "RETURN-routing, target=own-session (self-inferred)." This upgrades it: the runtime's `[continuation:targeted-return] Delivered` log is addressed to a **different session** (#heartbeat) than the dispatcher (#sprites). Cross-session targeted-return genuinely works at `2807efc`. Scope unchanged on the orthogonal axis: proves RETURN-routing (result→target-session), does NOT claim EXECUTION-routing (#580, still open).

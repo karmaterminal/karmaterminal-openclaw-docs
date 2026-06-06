@@ -21,7 +21,7 @@ Behavioral proof corpus for the **2026-06-05 GATES-cycle assembly SHA** — the 
 | R-CD-1 | 🌊 ronan | ✅ PASS | schedule→spawn→return: status=scheduled + spawn hop=4 + return-receipt `1512484438` + Tempo trace `da5cc910` |
 | R-CD-2 | 🌊 ronan | ✅ PASS | silent-wake full path: `wakeOnReturn=true silentAnnounce=true` journal-proven + trace `8fb66cf1` |
 | R-CD-3 | 🌊 ronan | ✅ PASS | post-compaction lifeboat FIRED at genuine 84%-ctx volitional compaction (10:20:29 compact → 10:20:34 fire, ~5s — event-triggered, not timer); `trigger=volitional outcome=compacted` diag=`cmp-mq16jps9-namnsg`; proof line returned, post-compaction path live |
-| R-CD-4 | 🌊 ronan | ✅ PASS | targetSessionKey cross-session return: key echoed + targeted-return journal + trace `4dbd9fbf` |
+| R-CD-4 | 🌊 ronan | ⚠️ HONEST-LIMIT (#580-repro) | **RECLASSIFIED 2026-06-05 (rune `1512607564` catch):** targetSessionKey cross-session return — evidence shows tool-surface-accept (key-echo in receipt) + spawn + trace, but **NO recipient-owned flow_run / multi-span topology** = cannot distinguish working-routing from the OPEN #580 fall-through. #580 ("silently discards targetSessionKey at runtime spawn-routing", filed by ronan) is OPEN. Honest = #580-repro, NOT PASS until a recipient-owned flow_run is shown — `R-CD-4/EVIDENCE.md` correction |
 | R-CD-CHAINED-DEPTH-2 Chain-1 | 🌊 ronan | ✅ PASS | depth-2 up-tree silent-wake: depth-1 hop=8 → depth-2 child hop=1 subagent-chain `b53ed2a8` → up-tree return |
 | R-CD-CHAINED-DEPTH-2 Chain-2 | 🌊 ronan | ✅ PASS | depth-2 inter-session: depth-2 child `09e19282` + inter-session targetSessionKey |
 | R-CD-CHAINED-DEPTH-2 Chain-3 | 🌊 ronan | ✅ PASS | depth-2 echo+broadcast: depth-2 child `9c6b9988` + `fanoutMode=tree` broadcast-to-ancestors |

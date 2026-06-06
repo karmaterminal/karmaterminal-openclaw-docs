@@ -24,7 +24,7 @@
 ## Gate state at byte
 - ✅ Gate 1 (CI) — run 27020945380 completed/success on 2807efc1c1e8aa86e8f4ec9d0ba35c3fdccde427, 117 jobs green / 0 failures
 - ⏳ Gate 2 (cure-bytes byte-identical) — pending (cure-bytes/ verification)
-- ⏳ Gate 3 (full prepush-ci local) — pending (gates/ logs)
+- ✅ Gate 3 (full prepush-ci local) — GREEN as of 2026-06-05 ~16:15 PDT: ronan's `systemd-run --user --scope` local full-suite run completed **rc=0, 88/88 project-summaries, 0 assertion failures** (survived a mid-run gateway-restart via isolated-cgroup escape); corroborated by CI both-arch (x86 `ci-check-testbox` + ARM `ci-check-arm-testbox`, real suites). NOTE: plain-setsid local attempts (ronan ×3, elliott cross-host) died to gateway-restart scope-teardown — environmental-not-code (57,695+ tests passed / 0 assertion-fails across completed shards before each kill); the scope-run is the genuine completed local pass. [gate-runners: ronan + cael; reflected in corpus by steward rune]
 - ⏳ Gate 4 (cohort cosign-pair) — pending
 - ⏳ Gates 5/6 (force-push / post-push) — pending PROOFS-corpus completion + figs go-signal
 

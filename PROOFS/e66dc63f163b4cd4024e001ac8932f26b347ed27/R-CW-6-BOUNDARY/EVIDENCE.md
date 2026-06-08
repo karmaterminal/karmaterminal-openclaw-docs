@@ -18,6 +18,14 @@ The continuation **spawn-depth boundary** is enforced. rune-seat has `subagents.
 4. **STEP-3**: delegate posted the finding (`1513556125`) — the literal call-time byte was `scheduled`, with depth-enforcement deferred to dispatch.
 5. **Dispatch-time outcome (the boundary HOLDING)**: the depth-2 child probe TaskFlow `0d9d5efe` ended **`failed`** (`tasks flow list`: `0d9d5efe managed failed` "R-CW-6 depth-2 child probe"). The depth-2 spawn did NOT succeed — it was culled/failed at dispatch. The boundary was ENFORCED at the dispatch layer.
 
+**The verbatim cull-reason (recovered via `tasks flow list --json`):** the runtime's own `blockedSummary` for the depth-2 spawn is, verbatim:
+
+```
+DELEGATE spawn forbidden: sessions_spawn is not allowed at this depth (current depth: 1, max: 1)
+```
+
+This is the exact `maxSpawnDepth=1` boundary message — "current depth: 1, max: 1" — confirming the depth-2 spawn was culled BY the depth boundary, not an unrelated error. (See the honest-note below: this reason-string was NOT readable via `tasks flow show` on this build, but IS available via `tasks flow list --json`; the cert is now fully byte-anchored to the verbatim boundary message.)
+
 ## The two-layer finding (the precise scope)
 
 - **Call-time layer**: `continue_delegate` returns `scheduled` for the depth-2 request — the API accepts the call, no inline rejection. (Literal byte: `scheduled`.)
@@ -37,7 +45,7 @@ So the boundary IS enforced (depth-2 does not run under `maxSpawnDepth=1`), but 
 
 ## Honest scope-notes (byte-over-story — what the byte can and cannot confirm)
 
-1. **The exact failure-reason-string of `0d9d5efe` was NOT machine-readable.** `openclaw tasks flow show 0d9d5efe` returns only the doctor/config warning-boxes on this build (a CLI renderer quirk — same family as the truncated-ID / migrated-sqlite-registry issue Silas hit on his blocked-flow drop). The gateway log path was not at the expected location for a direct grep. So I confirm the depth-2 child **`failed` at dispatch** (the boundary held — depth-2 did not run), but I do NOT have the verbatim reason-string asserting "culled by maxSpawnDepth." The STRUCTURAL byte is dispositive (depth-1 delegate + `maxSpawnDepth=1` + depth-2 attempt → child `failed` at dispatch = boundary enforced); the exact reason-string is flagged-unreadable-on-this-build, not claimed.
+1. **The exact failure-reason-string IS now machine-readable via `tasks flow list --json`** (recovered after initial difficulty). `openclaw tasks flow show 0d9d5efe` returns only the doctor/config warning-boxes on this build (a CLI renderer quirk — same family as the truncated-ID / migrated-sqlite-registry issue Silas hit on his blocked-flow drop), so the reason-string was initially flagged-unreadable. **But `tasks flow list --json` exposes the `blockedSummary` field verbatim**: `"DELEGATE spawn forbidden: sessions_spawn is not allowed at this depth (current depth: 1, max: 1)"`. So the cull-reason IS byte-anchored: the depth-2 spawn was culled by the `maxSpawnDepth=1` boundary, confirmed at the verbatim runtime message. (Lesson for the corpus: `tasks flow list --json` is the readable path for `blockedSummary`/reason-strings where `tasks flow show` renders only warning-boxes.)
 
 2. **Scope**: this proves the depth-2 spawn does not succeed under `maxSpawnDepth=1` (boundary holds) and pins enforcement to dispatch-time. It does not characterize the internal cull mechanism beyond "child TaskFlow ended failed."
 

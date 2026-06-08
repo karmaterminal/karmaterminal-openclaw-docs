@@ -61,6 +61,16 @@ Tempo trace `2b244994f0c2b5bbf6ba2b4227eeca43` (host.name=cael):
 
 Rejection is **optimistic at scheduling, enforced at dispatch** (correct design): the model's tool call returns cleanly (`scheduled`) without surfacing the limit at the LLM layer; enforcement happens at the scheduler when the wake would fire; the delegate is suppressed and the journal records `cost-capped`. Dispatch is gated on the session being idle (in-flight sessions defer the dispatch-evaluation — observed via `continuationQueueRunnable=1` until idle).
 
+## Budget-check taxonomy (byte-walked, Ronan-surfaced + cael-verified at source)
+
+The `budgetCheck` value this row captured (`cost-capped`) is one arm of a two-arm scheduler taxonomy — verified at `src/auto-reply/continuation/scheduler.ts`:
+- **`scheduler.ts:38` returns `"cost-capped"`** = "over budget" (`accumulatedChainTokens > costCapTokens`) → maps to `cap.cost` (the post-compaction `disabledReason` at `delegate-dispatch.ts:654`). **← THIS ROW.**
+- **`scheduler.ts:31` returns `"chain-capped"`** = "at max depth" per `scheduler.test.ts:27`, i.e. the continuation-**chain-LENGTH** limit (`maxChainLength`) → maps to `cap.chain`.
+
+My R-CW-5 journal line came from the **non-post-compaction dispatch emit at `delegate-dispatch.ts:334`** (`[continuation:delegate-rejected] ${budgetCheck}` = raw `cost-capped`); the post-compaction path at `:654` maps the same `budgetCheck` to `cap.cost`/`cap.chain`. Both are byte-faces of the same cost-vs-chain distinction.
+
+**Precision flag for GATES (distinct mechanisms, do NOT conflate):** the `chain-capped`/`cap.chain` budget-check (continuation-chain-LENGTH, `maxChainLength`, `delegate-dispatch.ts`/`scheduler.ts`) is a SEPARATE mechanism from the **subagent-spawn-depth** cull (`maxSpawnDepth`, emitted by `acp-spawn`/`subagent-announce` as `"sessions_spawn is not allowed at this depth (current depth: N, max: M)"`). Both involve a notion of "depth," but they are different limits with different emit-sites and different verbatim strings. R-CW-5 (this row) is unambiguously the `cost-capped`/`cap.cost` arm (`costCapTokens`), neither of the two depth mechanisms.
+
 ## Verdict
 
 ✅ **PASS** — chain-budget cost-cap enforcement fires at dispatch time on cael-seat at `e66dc63f`: tool returns `scheduled` (optimistic), dispatch emits `[continuation:delegate-rejected] cost-capped`, no `continuation.delegate.dispatch` span, no wake delivered, task body suppressed. Cost-cap certified against the seat-specific cap (forced 100; baseline 500000 restored post-row).

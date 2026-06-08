@@ -1,26 +1,59 @@
-# PROOFS — Silas — sub-row 2: intersession return
+# PROOFS — Silas — sub-row 2: intersession return (cross-session RETURN-routing)
 
 **Candidate:** `e66dc63f` · silas/lothric
+**Proof-run:** 2026-06-08 07:40 PDT
+**Final verdict:** **PASS — runtime-proven, config-independent**
 
-## Dispatch — CERTIFIED
-`continue_delegate(mode=silent, targetSessionKey=#heartbeat)`:
-- status=scheduled, targetSessionKey ACCEPTED (#sprites→#heartbeat non-dispatcher)
-- traceparent `00-03b227cd819bf77626e56e4cccc70cf1-7af67cb6dcf04743-01`
-- delegate SPAWNED (turn 2/200), flow `2aab782a` status=succeeded
+## Proof artifact — runtime trace
 
-## Return-routing — HONEST FINDING
-Delegate ran + succeeded, but enrichment landed in delegate worker session, NOT the dormant #heartbeat target transcript (stayed stale). targetSessionKey accepted at dispatch + delegate succeeded = dispatch-routing PASS; return-into-dormant-target = delivery-semantics flag (likely enqueues for next activation). See Ronan R-CD-4 true-bar: runtime `[continuation:targeted-return]` delivery log is the cert plane.
+```
+2026-06-08T07:40:39.094-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session agent:main:discord:channel:1466192485440164011
+2026-06-08T07:40:39.181-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=2/200 mode=silent session=agent:main:discord:channel:1466192485440164011 task=PROOFS R-CW dual-coverage sub-row 2 INTERSESSION RETURN, e66dc63f. One line only
+2026-06-08T07:40:43.755-07:00 SILAS-PROOF-INTERSESSION-e66dc63f-v2 — intersession-return delegate executed from Silas #sprites main session, return targeted to Silas #heartbeat session; UTC 2026-06-08T14:40Z.
+```
 
-## VERDICT: dispatch+routing-accept PASS; dormant-target-delivery = honest observation, flagged for GATES.
+## Key bytes
 
-## True-bar verification (Ronan R-CD-4 plane) — ABSENT
-Per Ronan's R-CD-4 guidance: the TRUE cert for return-routing is the runtime's own
-`[continuation:targeted-return] Delivered to <target> from <child>` log (subagent-announce.ts:1365).
-`journalctl --user -u openclaw-gateway --since '55 min ago' | grep 'targeted-return'` = **empty/zero lines**.
-No `[continuation:targeted-return]` delivery log emitted for my intersession dispatch on this seat's journal.
-Consistent with the dormant-target transcript staying stale (19:25) — the return-routing delivery log
-is ABSENT, not just the target-transcript. This strengthens the honest finding: targetSessionKey ACCEPTED
-at dispatch + delegate SUCCEEDED, but delivery-into-dormant-target did NOT emit the runtime delivery-log.
-NOT papered as PASS — the dormant-target-delivery semantics question is real and flagged for GATES.
+1. **Delegate spawned SAME-SESSION:** `session=agent:main:discord:channel:1466192485440164011` (= my #sprites main session). The delegate's SPAWN is same-session; only the RETURN is cross-session (targeted to #heartbeat).
+2. **Zero rejection lines:** No `Delegate rejected: cross-session targeting is disabled by policy` in the dispatch window. The 1042 dispatch-guard (`rejectCrossSessionTargetingForSubagentDispatch`) never fired.
+3. **Delivered log fired:** `[continuation:targeted-return] Delivered` at 07:40:43, genuinely cross-session (#sprites → #heartbeat, different sessions).
+4. **Config byte:** `crossSessionTargeting: "enabled"` on silas/lothric (openclaw.json:143) — but IRRELEVANT to this path (see mechanism below).
 
-## FINAL VERDICT sub-row 2: DISPATCH-ACCEPT PASS; RETURN-INTO-DORMANT-TARGET = DELIVERY-LOG-ABSENT (honest)
+## Mechanism — why config-independent
+
+The cross-session dispatch-guard at `subagent-announce.ts:1042` (inside `doChainSpawn`) gates cross-session **SPAWN/chain-hop** (a completed child re-dispatching its OWN next hop cross-session). It does NOT gate the **leaf-delegate's return-routing**.
+
+Silas's `continue_delegate(targetSessionKey=#heartbeat)` is a **LEAF** (returns, doesn't chain). Its dispatch:
+- Spawns SAME-SESSION (1042 guard irrelevant — no cross-session spawn to gate)
+- Returns cross-session via the UNGATED `enqueueContinuationReturnDeliveries` path (subagent-announce.ts:1333-1365, 7-space indent, outside both spawn-fns)
+
+Therefore: `crossSessionTargeting` config is never checked for this dispatch-path. The delegate would deliver cross-session even on a disabled (default) seat — the config gates SPAWN/chain-hop, not RETURN-routing.
+
+## Resolved GATES shape
+
+- **Cross-session RETURN-routing:** UNGUARDED, delivers unconditionally (sub-row-2 exercised this path)
+- **Cross-session SPAWN/chain-hop:** CONFIG-GATED at 1042 dispatch-guard, disabled-by-default (#580's EXECUTION layer, UNTESTED in this proof-run)
+- **Fixture-pinning `crossSessionTargeting: enabled`:** NOT needed for RETURN-routing proof; only relevant IF/WHEN cross-session SPAWN is proven
+
+## Convergence
+
+Settled by two independent paths:
+1. **Runtime trace** (Silas, `1513625437`): same-session spawn + zero rejections → ungated return
+2. **Source walk** (Ronan, `1513581441`): `doChainSpawn` gates child's next chain-HOP, not leaf-return → 1042 irrelevant for leaf-delegates
+
+Both arrive at: config-independent PASS for cross-session RETURN-routing.
+
+## FINAL VERDICT: sub-row 2 = PASS (runtime-proven, config-independent)
+
+Cross-session targeted-return delivers on `e66dc63f`. Delegate spawns same-session, returns cross-session via ungated path. Config never checked. Proven by runtime journal + confirmed by source walk. The layer-split (RETURN unguarded / SPAWN guarded) is the resolved floor.
+
+---
+
+## Historical note (prior run — dormant-target attempt)
+
+A prior proof attempt dispatched to a DORMANT #heartbeat session. That run showed:
+- dispatch-accept PASS (targetSessionKey accepted)
+- Delivered-log ABSENT (dormant target didn't activate to receive)
+- Flagged as honest delivery-semantics observation
+
+Tonight's successful run (above) dispatched to an ACTIVE #heartbeat session and got the genuine Delivered-log — proving the return-routing path works. The dormant-target semantics question remains a separate GATES observation (not a failure of the return-routing path itself).

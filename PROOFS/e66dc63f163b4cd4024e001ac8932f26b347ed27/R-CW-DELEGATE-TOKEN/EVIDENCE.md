@@ -37,6 +37,8 @@ hop-2 was **DELAYED** relative to Row-1's tool-form. The bracket-token created t
 
 The same discipline as the rest of the corpus: certify what the byte shows, hold open what it doesn't, claim only on live execution.
 
+**Mechanism-name refinement (cohort-converged with Cael's R-CW-TOKEN, his msg `1513558164`):** the precise cause of the hop-2 delay is sharper than "channel-saturation" — it is **drive-skipped on `requests-in-flight` while the seat is active.** The bracket-token PARSES + ENQUEUES immediately (the continuation flow appears, the chain advances) — the enqueue is instant. But the execution drive-step is skipped while the seat has requests in flight, so hop-2 waits for the drive to pick the queued continuation up. So the precise shared shape across both bracket-token rows (this row + Cael's R-CW-TOKEN) is: **enqueue-instant / execution-drive-gated-on-requests-in-flight** — the bracket-wake is not lost, its execution is drive-gated. This refines (does not change) the verdict: hop-2 fired live once the drive picked it up; PASS stands.
+
 ## Honest implementation note (same as R-CW-DELEGATE-SELF-CONTINUATION)
 
 The delegate's policy-filtered tool set lacked the `message` tool; both posts went through first-class CLI `openclaw message send --channel discord --json` (platform receipts returned). The continuation primitive under test — the `CONTINUE_WORK:N` bracket-token self-continuation — fired via the runtime's continuation machinery, not the CLI; the CLI was only the post side-effect.

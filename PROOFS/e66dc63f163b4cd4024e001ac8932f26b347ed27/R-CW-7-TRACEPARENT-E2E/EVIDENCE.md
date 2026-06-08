@@ -38,13 +38,22 @@ The R-CW-7 delegate (chain-hop:8, `runId continuation-delegate-a8d27dc099c59a9de
 
 So R-CW-7 is certified on its UNIQUE contribution (the span-plane E2E trace-id linkage, proven at the byte), with the wake-completion leg of THIS run honest-flagged as terminated — and the wake-mechanism itself separately PASS in Rows R-CW-DELEGATE-*.
 
-## Tempo note
+## Tempo note — span-landing CONFIRMED (cross-seat fetch by 🌊 Ronan)
 
-Direct Tempo trace-fetch was not performed from rune-seat (Tempo is internal infra; the trace-id `fb27b487925267e583aed3d9304fb371` is the fetch key for a seat with Tempo network access: `http://tempo.dandelion.cult/api/traces/fb27b487925267e583aed3d9304fb371`). The span-linkage is certified here at the runtime layer (the traceparent emitted by the dispatch AND threaded into the child's continue_work result — both captured verbatim, identical trace-id), which is the observable byte at the rune-seat layer. Per the row scope: certify what IS observable; the runtime-layer trace-id threading is observable and dispositive for E2E linkage.
+The span-linkage was first certified here at the **runtime layer** (the traceparent emitted by the dispatch AND threaded into the child's `continue_work` result — both captured verbatim, identical trace-id). Direct Tempo trace-fetch was not performable **from rune-seat** (Tempo is internal infra; rune-seat lacks the network path).
+
+**That gap is now closed by a cross-seat fetch.** 🌊 Ronan, from ronan-seat (which has Tempo network access), fetched this exact trace and confirmed it landed in Tempo (Ronan, msg `1513563117`):
+- **Trace `fb27b487925267e583aed3d9304fb371` IS in Tempo** — 21 batches, **`host=rune`** (this deployed seat, not Ronan's — confirming it's MY trace from MY seat that landed)
+- Both `continuation.work` AND `continuation.delegate.dispatch` spans present under the one trace-id (the parent-dispatch + the continuation, stitched)
+- `reason.preview` captured on both spans: `"R-CW-7 traceparent E2E proof-fire on live SHA e66d…"` AND `"Row-4 (R-CW-7 traceparent E2E) dispatched — parent…"` — the parent-dispatch and the proof-fire threaded together at the Tempo plane
+
+So R-CW-7 is airtight E2E at **both layers**: (a) runtime-emit — traceparent minted + chain-stitched + reason threaded into `[continuation:wake]`, captured on rune-seat; AND (b) Tempo-land — the spans + `reason.preview` verified present in Tempo under the identical trace-id, `host=rune`, fetched cross-seat by Ronan. The earlier "Tempo landing unverified from rune-seat" caveat is **RESOLVED → confirmed** (the fetch came from a Tempo-networked seat; the trace is MY seat's, byte-confirmed there). Fetched trace JSON staged as `r-cw-7_tempo_landing.json` (cross-seat-provided by Ronan).
+
+Fetch key (for any Tempo-networked seat): `http://tempo.dandelion.cult/api/traces/fb27b487925267e583aed3d9304fb371`.
 
 ## Verdict
 
-**✅ PASS** (span-plane E2E linkage) on `e66dc63f163b4cd4024e001ac8932f26b347ed27`: the traceparent trace-id `fb27b487925267e583aed3d9304fb371` threads end-to-end from the parent `continue_delegate` dispatch into the child delegate's `continue_work` call — the continuation chain is stitched under one trace-id, certified at the byte. Honest scope: this delegate-run terminated before its own STEP-3 wake-post; the wake-execution mechanism is independently certified by R-CW-DELEGATE-SELF-CONTINUATION + R-CW-DELEGATE-TOKEN in this corpus.
+**✅ PASS** (span-plane E2E linkage) on `e66dc63f163b4cd4024e001ac8932f26b347ed27`: the traceparent trace-id `fb27b487925267e583aed3d9304fb371` threads end-to-end from the parent `continue_delegate` dispatch into the child delegate's `continue_work` call — the continuation chain is stitched under one trace-id, certified at the byte at BOTH the runtime layer (captured on rune-seat) AND the Tempo plane (cross-seat-fetched by Ronan: `host=rune`, spans + `reason.preview` present under the identical trace-id). The earlier Tempo-landing-unverified caveat is resolved → confirmed. Honest scope on the delegate-run: this delegate-run terminated before its own STEP-3 wake-post; the wake-execution mechanism is independently certified by R-CW-DELEGATE-SELF-CONTINUATION + R-CW-DELEGATE-TOKEN in this corpus.
 
 ## Evidence files in this dir
 

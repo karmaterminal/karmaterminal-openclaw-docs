@@ -4,6 +4,8 @@
 **Captured:** 2026-06-08 ~08:06 PDT, sent by figs ("Status for proofs") — raw in `fleet-status-fanout.txt`
 **SHA:** `e66dc63f163b4cd4024e001ac8932f26b347ed27` (`OpenClaw 2026.6.2 (e66dc63)`)
 
+> **Cross-reference (one source, two framings — dual independent capture):** Rune 🪨 independently captured the same figs `/status` fan-out as `../R-OBS-fleet-status-e66dc63f.md` (external-observer framing). This file (R-OBS-1) is the operator-/status-fan-out framing + the raw `fleet-status-fanout.txt`; Rune's is the external-observer-verification framing. NOT redundant — two legitimate lenses on the same byte, and the **independent dual-capture is itself robustness-evidence** (two princes captured figs's same external status independently, both cross-confirming the same signals: Rune's R-CW-7 abort + the #945 false-positive). Preserve-by-default, cross-referenced both sides (Rune↔Ronan). Frond may fold further at GATES; the byte's clean either way, nothing lost.
+
 ## Behavior proven
 figs-driven operator `/status` fan-out across all six deployed seats confirms each renders the **FULL continuation-substrate** (chain N/200, compactions, context %, deployed SHA) on the live candidate `e66dc63f` — the operator-surface verification that the deployed fleet is on the candidate bytes and the continuation banner renders correctly post-deploy.
 

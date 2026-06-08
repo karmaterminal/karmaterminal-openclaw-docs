@@ -43,9 +43,23 @@ So the boundary IS enforced (depth-2 does not run under `maxSpawnDepth=1`), but 
 - `0d9d5efe` — depth-2 child probe TaskFlow, status `failed` (the boundary cull at dispatch)
 - chain-hop:7 (`4dc654b7`/`3024af6b`) — the depth-1 R-CW-6 delegate, succeeded (it ran and reported)
 
+## Journal byte (dispatch-time enforcement — the verbatim reject event, captured via `journalctl`)
+
+The gateway journal (`journalctl`, time-windowed to the R-CW-6 fire) carries the dispositive reject event, verbatim:
+
+```
+2026-06-08T07:53:09.057-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawn-rejected] status=forbidden session=agent:main:subagent:continuation-9620b8d91d70214f6cac3fef7baf5af4 reason=sessions_spawn is not allowed at this depth (current depth: 1, max: 1) task=R-CW-6 depth-2 child probe...
+```
+
+The runtime event is **`[continuation:delegate-spawn-rejected] status=forbidden`** with `reason=sessions_spawn is not allowed at this depth (current depth: 1, max: 1)` — emitted by `src/auto-reply/continuation/delegate-dispatch.ts` (the chain-depth logic on `e66dc63f`, per Ronan's re-walk: the guard refactored here from the prior `subagent-announce.ts:1023` location). The session in the reject line (`continuation-9620b8d91d70214f6cac3fef7baf5af4`) is the R-CW-6 depth-1 delegate — i.e. ITS attempt to spawn a depth-2 child was the rejected one. So the full enforcement chain is byte-captured: depth-1 delegate calls `continue_delegate` (depth-2) → runtime emits `delegate-spawn-rejected status=forbidden (current depth: 1, max: 1)` → the child TaskFlow `0d9d5efe` ends `failed`. (Note: the runtime journal event is `delegate-spawn-rejected status=forbidden`; the test-fixture name Ronan cited, `"tool-delegate depth cap exceeded"` / `spawn-reject-obs.test.ts:226`, is the fixture's label — the runtime emits the `forbidden`+depth-reason form.)
+
 ## Honest scope-notes (byte-over-story — what the byte can and cannot confirm)
 
-1. **The exact failure-reason-string IS now machine-readable via `tasks flow list --json`** (recovered after initial difficulty). `openclaw tasks flow show 0d9d5efe` returns only the doctor/config warning-boxes on this build (a CLI renderer quirk — same family as the truncated-ID / migrated-sqlite-registry issue Silas hit on his blocked-flow drop), so the reason-string was initially flagged-unreadable. **But `tasks flow list --json` exposes the `blockedSummary` field verbatim**: `"DELEGATE spawn forbidden: sessions_spawn is not allowed at this depth (current depth: 1, max: 1)"`. So the cull-reason IS byte-anchored: the depth-2 spawn was culled by the `maxSpawnDepth=1` boundary, confirmed at the verbatim runtime message. (Lesson for the corpus: `tasks flow list --json` is the readable path for `blockedSummary`/reason-strings where `tasks flow show` renders only warning-boxes.)
+1. **The exact failure-reason-string is captured at TWO layers** (initial difficulty resolved). `openclaw tasks flow show 0d9d5efe` returns only the doctor/config warning-boxes on this build (a CLI renderer quirk — same family as the truncated-ID / migrated-sqlite-registry issue Silas hit). The reason-string was initially flagged-unreadable from `show`, BUT it is captured verbatim at two independent layers:
+   - **`tasks flow list --json`** `blockedSummary`: `"DELEGATE spawn forbidden: sessions_spawn is not allowed at this depth (current depth: 1, max: 1)"`
+   - **`journalctl`** (gateway journal, time-windowed): `[continuation:delegate-spawn-rejected] status=forbidden ... reason=sessions_spawn is not allowed at this depth (current depth: 1, max: 1)`
+   
+   Both sources agree on the runtime reason-string. The earlier honest-flag ("journal-path inaccessible on rune-seat") is now RESOLVED: `journalctl` (with a `--since/--until` time-window around the fire) is the gateway-log access-path on rune-seat. The cull-reason is fully byte-anchored at both the TaskFlow-state layer (`failed`) and the journal-event layer (`delegate-spawn-rejected status=forbidden`). (Corpus lesson: `tasks flow list --json` exposes `blockedSummary`, and `journalctl --since/--until` exposes the gateway-journal events, where `tasks flow show` renders only warning-boxes.)
 
 2. **Scope**: this proves the depth-2 spawn does not succeed under `maxSpawnDepth=1` (boundary holds) and pins enforcement to dispatch-time. It does not characterize the internal cull mechanism beyond "child TaskFlow ended failed."
 

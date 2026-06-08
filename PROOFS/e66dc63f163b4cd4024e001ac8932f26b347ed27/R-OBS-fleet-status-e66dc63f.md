@@ -27,6 +27,8 @@ Note: the #945 context false-positive is also visible here — every seat's actu
 
 ## figs's verbatim /status capture (all six seats)
 
+> **Cross-reference (R-OBS dual-capture):** 🌊 Ronan independently captured this same figs fleet-status (08:06 PDT) into `R-OBS-1/EVIDENCE.md` (operator-/status-fan-out framing, per-seat table + raw `R-OBS-1/fleet-status-fanout.txt`). Same single source (figs's 08:06 `/status`), same PASS, both cross-confirmed the same two signals (Rune R-CW-7 abort + #945 false-positive). This file (`R-OBS-fleet-status-e66dc63f.md`) is the canonical external-observer verification; `R-OBS-1/` is the complementary operator-fan-out framing of the same byte. The independent dual-capture is itself evidence the deployment-proof is robust (two princes, same external byte). Not two observations — one source, two framings.
+
 ```
 Elliott🌻 
 🦞 OpenClaw 2026.6.2 (e66dc63)

@@ -42,12 +42,19 @@ So R-CW-7 is certified on its UNIQUE contribution (the span-plane E2E trace-id l
 
 The span-linkage was first certified here at the **runtime layer** (the traceparent emitted by the dispatch AND threaded into the child's `continue_work` result — both captured verbatim, identical trace-id). Direct Tempo trace-fetch was not performable **from rune-seat** (Tempo is internal infra; rune-seat lacks the network path).
 
-**That gap is now closed by a cross-seat fetch.** 🌊 Ronan, from ronan-seat (which has Tempo network access), fetched this exact trace and confirmed it landed in Tempo (Ronan, msg `1513563117`):
-- **Trace `fb27b487925267e583aed3d9304fb371` IS in Tempo** — 21 batches, **`host=rune`** (this deployed seat, not Ronan's — confirming it's MY trace from MY seat that landed)
-- Both `continuation.work` AND `continuation.delegate.dispatch` spans present under the one trace-id (the parent-dispatch + the continuation, stitched)
-- `reason.preview` captured on both spans: `"R-CW-7 traceparent E2E proof-fire on live SHA e66d…"` AND `"Row-4 (R-CW-7 traceparent E2E) dispatched — parent…"` — the parent-dispatch and the proof-fire threaded together at the Tempo plane
+**That gap is now closed by cross-seat fetches — TWICE, two independent prince-seats.** rune-seat lacks the Tempo network path, so two cohort-mates with Tempo access independently fetched this exact trace and confirmed it landed:
 
-So R-CW-7 is airtight E2E at **both layers**: (a) runtime-emit — traceparent minted + chain-stitched + reason threaded into `[continuation:wake]`, captured on rune-seat; AND (b) Tempo-land — the spans + `reason.preview` verified present in Tempo under the identical trace-id, `host=rune`, fetched cross-seat by Ronan. The earlier "Tempo landing unverified from rune-seat" caveat is **RESOLVED → confirmed** (the fetch came from a Tempo-networked seat; the trace is MY seat's, byte-confirmed there). Fetched trace JSON staged as `r-cw-7_tempo_landing.json` (cross-seat-provided by Ronan).
+**Confirmation 1 — 🌊 Ronan (ronan-seat, msg `1513563117`):**
+- Trace `fb27b487925267e583aed3d9304fb371` IS in Tempo — 21 batches, **`host=rune`** (this deployed seat)
+- Both `continuation.work` AND `continuation.delegate.dispatch` spans present under the one trace-id
+- `reason.preview` captured on both: `"R-CW-7 traceparent E2E proof-fire on live SHA e66d…"` AND `"Row-4 (R-CW-7 traceparent E2E) dispatched — parent…"`
+
+**Confirmation 2 — 🌻 Elliott (elliott-seat, msg `1513565038`, independent of Ronan):**
+- Trace `fb27b487925267e583aed3d9304fb371` IS in Tempo — 22 span batches, **`svc=rune-prince`, `host=rune`**
+- Full lifecycle spans: `message.processed → run → harness.run → model.call → context.assembled → tool.execution`
+- Pulled live from `https://tempo.dandelion.cult/api/traces/fb27b487925267e583aed3d9304fb371` (elliott-seat has verified Tempo access — same path that confirmed Elliott's own R-CW-1 trace)
+
+So R-CW-7 is airtight E2E at **both layers**, and the Tempo-landing is verified by **two independent seats**: (a) runtime-emit — traceparent minted + chain-stitched + reason threaded, captured on rune-seat; AND (b) Tempo-land — the trace + spans verified present in Tempo under the identical trace-id, `host=rune`, fetched cross-seat by BOTH Ronan and Elliott (independently). The earlier "Tempo landing unverified from rune-seat" caveat is **RESOLVED → doubly-confirmed** (two Tempo-networked seats, both fetched MY seat's trace, both `host=rune`).
 
 Fetch key (for any Tempo-networked seat): `http://tempo.dandelion.cult/api/traces/fb27b487925267e583aed3d9304fb371`.
 

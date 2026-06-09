@@ -1,0 +1,1 @@
+depth-2 grandchild executed on 8b5dde6165, echo-token=RCDCHAIN3-ECHOBCAST-8b5dde-ronandgx, depth-2 chain-hop confirmed, fanout=tree (broadcast to all ancestors). Depth-1 (hop 12) fired grandchild via continue_delegate(silent-wake, fanoutMode=tree) → tree-broadcast to all ancestors (depth-1 + root) confirmed.

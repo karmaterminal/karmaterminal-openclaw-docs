@@ -1,0 +1,33 @@
+{
+  "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+  "prince": "rune",
+  "host": "rune",
+  "sha": "e66dc63f163b4cd4024e001ac8932f26b347ed27",
+  "runtime_build": "OpenClaw 2026.6.2 (e66dc63)",
+  "verdict": "PASS",
+  "thesis": "#746 — delegate self-elects its next turn via continue_work()",
+  "delegate_runId": "continuation-delegate-d83d1f438c7013c0dfc75bd4821f94a9",
+  "delegate_sessionKey": "agent:main:subagent:continuation-d83d1f438c7013c0dfc75bd4821f94a9",
+  "continue_work_dispatch_result": {
+    "status": "scheduled",
+    "delaySeconds": 7,
+    "traceparent": "00-c6e4d2e79b8d2802f764e70450fb6ff0-2fe3a8e77a3062d9-01"
+  },
+  "wake_event": {
+    "label": "[continuation:wake] Turn 1/200",
+    "chain_started": "2026-06-08T14:34:54.795Z"
+  },
+  "receipts": {
+    "step1_spawn_announce": {
+      "messageId": "1513551819350085722",
+      "sentAt": 1780929274410
+    },
+    "step3_woke_pass": {
+      "messageId": "1513552266609561731",
+      "sentAt": 1780929380935
+    },
+    "delta_wall_ms_approx": 106525
+  },
+  "honest_note": "delegate's policy-filtered tool set lacked the message tool; both posts went through first-class CLI `openclaw message send --channel discord --json` (platform receipts returned). The continue_work self-continuation primitive WAS available to the delegate and fired clean end-to-end.",
+  "trace_id": "c6e4d2e79b8d2802f764e70450fb6ff0"
+}

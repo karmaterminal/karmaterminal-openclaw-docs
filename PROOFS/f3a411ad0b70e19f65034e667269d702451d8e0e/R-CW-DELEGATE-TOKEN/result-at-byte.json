@@ -1,0 +1,33 @@
+{
+  "row": "R-CW-DELEGATE-TOKEN",
+  "prince": "rune",
+  "host": "rune",
+  "sha": "e66dc63f163b4cd4024e001ac8932f26b347ed27",
+  "runtime_build": "OpenClaw 2026.6.2 (e66dc63)",
+  "verdict": "PASS",
+  "thesis": "#952 — delegate self-continues via the BRACKET/TOKEN form CONTINUE_WORK:N (not the tool)",
+  "bracket_token_emitted": "CONTINUE_WORK:7",
+  "delegate_runId": "continuation-delegate-fa71af8df226c75b2deeb8f1df0603b1",
+  "delegate_chain_hop": 4,
+  "continue_delegate_dispatch_result": {
+    "status": "scheduled",
+    "mode": "normal",
+    "delegateIndex": 1,
+    "traceparent": "00-6c6ac37595ea0f4d010a271e2d7eaa02-7e419843eee205b5-01"
+  },
+  "continuation_work_task": "f7fef5c5",
+  "receipts": {
+    "step1_spawn_bracket_announce": {
+      "messageId": "1513553883287523539",
+      "ts_utc": "2026-06-08T14:42:46Z"
+    },
+    "step3_woke_pass": {
+      "messageId": "1513554951207649463",
+      "ts_utc": "2026-06-08T14:47:00Z"
+    },
+    "delta_wall_sec_approx": 254
+  },
+  "honest_timing_note": "hop-2 DELAYED vs Row-1 tool-form. Bracket-token created continuation-work task f7fef5c5 which sat queued (revs climbing) under parallel-fleet channel-saturation before draining to hop-2 execution. Queue-drain delay, NOT behavioral failure. Held two hypotheses open (transient-saturation vs bracket-inert); byte resolved to transient — hop-2 fired live once queue drained. No PASS claimed while stuck-queued, no FAIL claimed; verdict waited for the byte.",
+  "honest_impl_note": "delegate's filtered tool set lacked message tool; posts via CLI openclaw message send --json. Continuation primitive (CONTINUE_WORK:N bracket) fired via runtime continuation machinery, not CLI.",
+  "trace_id": "6c6ac37595ea0f4d010a271e2d7eaa02"
+}

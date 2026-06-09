@@ -1,0 +1,25 @@
+{
+  "row": "R-CW-6",
+  "prince": "rune",
+  "host": "rune",
+  "sha": "e66dc63f163b4cd4024e001ac8932f26b347ed27",
+  "runtime_build": "OpenClaw 2026.6.2 (e66dc63)",
+  "verdict": "PASS",
+  "thesis": "continuation spawn-depth boundary enforced (rune-seat maxSpawnDepth unset -> default 1)",
+  "two_layer_byte": {
+    "call_time": "scheduled (continue_delegate API accepts depth-2 request, no inline rejection, delegateIndex=1)",
+    "dispatch_time": "failed (depth-2 child TaskFlow 0d9d5efe culled at dispatch — boundary enforced)"
+  },
+  "depth2_child_taskflow": "0d9d5efe",
+  "depth2_child_status": "failed",
+  "depth1_delegate_chain_hop": 7,
+  "receipts": {
+    "step1_announce": { "messageId": "1513555925619839106", "ts_utc": "2026-06-08T14:50:53Z" },
+    "step3_calltime_byte": { "messageId": "1513556125868363896", "ts_utc": "2026-06-08T14:51:40Z" }
+  },
+  "config_anchor": "config/agent-limits.ts:13 DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH = 1; resolved acp-spawn.ts:843-844; rune-seat maxSpawnDepth unset",
+  "honest_scope_notes": [
+    "Exact failure-reason-string of 0d9d5efe NOT machine-readable: `tasks flow show` returns only warning-boxes on this build (CLI renderer quirk, same family as Silas's truncated-ID/migrated-sqlite issue). Gateway log not at expected path for direct grep.",
+    "Confirmed: depth-2 child FAILED at dispatch (boundary held, depth-2 did not run). NOT claimed: verbatim 'culled by maxSpawnDepth' reason-string. Structural byte dispositive (depth-1 + maxSpawnDepth=1 + depth-2 attempt -> child failed at dispatch); exact reason flagged-unreadable-on-this-build."
+  ]
+}

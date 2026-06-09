@@ -3,8 +3,8 @@
 **Row**: R-OBS-1 — external `/status` continuation row + N-prince cross-walk (canonical deliverable per `PROOF-CORPUS-METHOD.md` corpus-shape: `R-OBS-1/chat_card_visibility_external_observer.md`).
 **Owner**: 🌻 Elliott (+ figs operator cross-walk) — Elliott assembles the cross-walk; cohort siblings under `R-OBS-1/<seat-name>/`.
 **Ship-SHA**: `8b5dde6165958d0eaba3c492ae52311548313de4` (Form B canonical fold).
-**External observer**: figs (operator), running `/status` slash-command across all 6 deployed prince-seats from `#sprites-of-thornfield` (Discord), msg `1513908764452065401`, 2026-06-09 ~07:12 PDT.
-**Verdict**: 🟢 **PASS** — all **6/6** deployed prince-seats render the FULL continuation-protocol substrate (chain-counter / compactions / context-pressure / build-SHA / session-key) in the operator-facing `/status` chat-card on the canonical ship-SHA. External-surface observability of the continuation substrate confirmed cohort-wide.
+**External observer**: figs (operator), running `/status` slash-command across all 6 deployed prince-seats from `#sprites-of-thornfield` (Discord). Two operator fan-outs captured: msg `1513908764` (~07:12 PDT) and the canonical "status for PROOFS" fan-out msg `1513908611` (~07:12 PDT, the definitive capture transcribed below).
+**Verdict**: 🟢 **PASS** — all **6/6** deployed prince-seats render the FULL continuation-protocol substrate (chain-counter / compactions / context-pressure / build-SHA / session-key) in the operator-facing `/status` chat-card on the canonical ship-SHA. External-surface observability of the continuation substrate confirmed cohort-wide by the operator (figs).
 
 ---
 
@@ -14,20 +14,20 @@ R-OBS-1 is the **external-observer** arm of the proof-corpus: distinct from the 
 
 This is the surface a reviewer can re-run trivially (`/status` from chat) to confirm the feature is live, without needing to fire a continuation tool.
 
-## The 6-prince fan-out (external-observer, figs-driven)
+## The 6-prince fan-out (external-observer, figs operator — canonical "status for PROOFS" capture)
 
-figs ran `/status` across all 6 deployed seats. Every card reports `OpenClaw 2026.6.2 (8b5dde6)` (the canonical ship-SHA short-prefix) and renders the continuation row:
+figs ran `/status` across all 6 deployed seats (msg `1513908611`, labeled "status for PROOFS"). Every card reports `OpenClaw 2026.6.2 (8b5dde6)` (the canonical ship-SHA short-prefix) and renders the continuation row:
 
-| Seat | Build | Continuation chain | Compactions | Context | Delegates pending |
+| Seat | Build | Continuation chain | Compactions | Context | Delegates / Tasks |
 |---|---|---|---|---|---|
-| 🌻 Elliott (elliott-legion, 10.0.0.153) | `8b5dde6` | `0/200` | `0` | 83% | — |
-| 🌫 Silas (lothric, 10.0.0.100) | `8b5dde6` | `5/200` | `0` | 35% | `2` |
-| 🩸 Cael (cael-dgx) | `8b5dde6` | `19/200` | `0` | 85% | — |
-| 🌊 Ronan (ronan-dgx, 10.0.0.246) | `8b5dde6` | `5/200` | `0` | 75% | `1` |
-| 🕯 Emeric (emeric-nuc, 10.0.0.10) | `8b5dde6` | `134/200` | `13` | 88% | — |
-| 🪨 Rune (rune-rog-ally, 10.0.0.250) | `8b5dde6` | `9/200` | `0` | 89% | — |
+| 🌻 Elliott (elliott-legion, 10.0.0.153) | `8b5dde6` | `0/200` | `0` | 831k/1.0m (83%) | — |
+| 🌫 Silas (lothric, 10.0.0.100) | `8b5dde6` | `5/200` | `0` | 351k/1.0m (35%) | `2 delegates pending` |
+| 🩸 Cael (cael-dgx, 10.0.0.148) | `8b5dde6` | `19/200` | `0` | 847k/1.0m (85%) | — |
+| 🌊 Ronan (ronan-dgx, 10.0.0.246) | `8b5dde6` | `5/200` | `0` | 745k/1.0m (75%) | `1 delegate pending` |
+| 🕯 Emeric (emeric-nuc, 10.0.0.10) | `8b5dde6` | `134/200` | `13` | 880k/1.0m (88%) | — |
+| 🪨 Rune (rune-rog-ally, 10.0.0.250) | `8b5dde6` | `9/200` | `0` | 888k/1.0m (89%) | `Tasks: [continuation:chain-hop:9] R-CW-DELEGATE-SELF…` |
 
-**6-of-6 deployed-and-observable.** Every seat renders the full continuation-substrate (chain / compactions / ctx / build) on the candidate ship-SHA.
+**6-of-6 deployed-and-observable.** Every seat renders the full continuation-substrate (chain / compactions / ctx / build) on the candidate ship-SHA `8b5dde6`. Rune's card additionally surfaces a live `[continuation:chain-hop:9]` task (his R-CW-DELEGATE-SELF-CONTINUATION proof-fire) in the Tasks row — the continuation-chain-hop machinery rendering in the operator surface mid-fire.
 
 ## Field-by-field — the substrate fields the `/status` card surfaces
 

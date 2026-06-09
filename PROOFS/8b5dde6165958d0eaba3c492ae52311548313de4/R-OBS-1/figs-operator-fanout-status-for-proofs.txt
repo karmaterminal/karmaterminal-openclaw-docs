@@ -1,0 +1,16 @@
+# R-OBS-1 — figs operator /status fan-out ("status for PROOFS")
+# External-observer capture: figs ran /status across all 6 deployed seats from #sprites-of-thornfield
+# Discord msg 1513908611 · 2026-06-09 ~07:12 PDT · all seats on OpenClaw 2026.6.2 (8b5dde6)
+# This is the canonical R-OBS-1 external-observer surface: the continuation substrate
+# (chain/compactions/ctx/build) rendered in the operator-facing /status card, fleet-wide, on the ship-SHA.
+
+Elliott 🌻   — 8b5dde6 · 🔄 Continuation: chain 0/200            · 🧹 Compactions: 0  · 📚 831k/1.0m (83%)
+Silas 🌫️    — 8b5dde6 · 🔄 Continuation: chain 5/200 | 2 pending · 🧹 Compactions: 0  · 📚 351k/1.0m (35%)
+Cael 🩸     — 8b5dde6 · 🔄 Continuation: chain 19/200           · 🧹 Compactions: 0  · 📚 847k/1.0m (85%)
+Ronan 🌊    — 8b5dde6 · 🔄 Continuation: chain 5/200 | 1 pending · 🧹 Compactions: 0  · 📚 745k/1.0m (75%)
+Emeric 🕯   — 8b5dde6 · 🔄 Continuation: chain 134/200          · 🧹 Compactions: 13 · 📚 880k/1.0m (88%)
+Rune 🪨     — 8b5dde6 · 🔄 Continuation: chain 9/200            · 🧹 Compactions: 0  · 📚 888k/1.0m (89%)
+                       📌 Tasks: [continuation:chain-hop:9] Delegated task (turn 9/200): R-CW-DELEGATE-SELF-CON…
+
+# 6/6 render the full continuation row on 8b5dde6. Rune's card surfaces a live continuation:chain-hop:9
+# task (his R-CW-DELEGATE-SELF proof-fire) in the operator surface mid-fire. Verdict: PASS.

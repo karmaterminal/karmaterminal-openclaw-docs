@@ -1,0 +1,13 @@
+[test] starting test/vitest/vitest.agents.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.7 [39m[90m/tmp/emeric-proofs-8b5dde6165-1781012884[39m
+
+ [32m✓[39m [30m[46m agents [49m[39m src/agents/subagent-announce.chain-guard.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 4372[2mms[22m[39m
+     [33m[2m✓[22m[39m respects custom maxChainLength for tool delegates [33m 407[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m22 passed[39m[22m[90m (22)[39m
+[2m   Start at [22m 07:08:40
+[2m   Duration [22m 6.72s[2m (transform 1.29s, setup 109ms, import 2.14s, tests 4.37s, environment 0ms)[22m
+
+[test] passed 1 Vitest shard in 10.32s

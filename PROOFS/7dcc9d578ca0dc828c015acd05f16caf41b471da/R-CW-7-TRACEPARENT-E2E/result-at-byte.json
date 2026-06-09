@@ -4,45 +4,55 @@
   "host": "rune",
   "sha": "7dcc9d578ca0dc828c015acd05f16caf41b471da",
   "runtime_build": "OpenClaw 2026.6.2 (7dcc9d5)",
-  "verdict": "PASS (span-linkage E2E, runtime-layer); Tempo reachable, trace pending flush",
-  "thesis": "W3C traceparent threads E2E across continuation dispatch at span plane — trace-id from parent spawn carries through child session lifecycle including continue_work",
+  "verdict": "PASS (span-linkage E2E, BOTH runtime layer AND Tempo plane via direct rune-seat fetch); wake fired hop-2",
+  "thesis": "W3C traceparent threads E2E across continuation dispatch at span plane — trace-id from parent spawn carries through child session lifecycle including continue_work; continuation.work span lands in Tempo with correct parent linkage",
   "dispositive_byte": {
     "continue_work_traceparent": "00-e55408592fb268c1c2a66e93373d804d-0dfe4e65585481b5-01",
     "trace_id": "e55408592fb268c1c2a66e93373d804d",
     "span_id": "0dfe4e65585481b5",
-    "match": "IDENTICAL trace-id across session-spawn, all operations, and continue_work dispatch = E2E span-linkage proven"
+    "match": "IDENTICAL trace-id across session-spawn, all operations, continue_work dispatch, AND Tempo continuation.work span = E2E span-linkage proven"
+  },
+  "tempo_landing": {
+    "fetched_from": "rune-seat (direct, no cross-seat needed)",
+    "url": "http://tempo.dandelion.cult/api/traces/e55408592fb268c1c2a66e93373d804d",
+    "host_name": "rune",
+    "service_name": "rune-prince",
+    "process_pid": "526714",
+    "span_name": "continuation.work",
+    "decoded_traceId": "e55408592fb268c1c2a66e93373d804d",
+    "decoded_spanId": "c40b0cbe8744f086",
+    "decoded_parentSpanId": "0dfe4e65585481b5",
+    "parent_linkage_match": "decoded parentSpanId 0dfe4e65585481b5 == continue_work traceparent span-id (continuation.work correctly parented to dispatch span)",
+    "span_attributes": {
+      "delay.ms": 5000,
+      "chain.step.remaining": 199,
+      "reason.preview": "R-CW-7 traceparent E2E proof-fire on live SHA 7dcc9d5 — capturing trace-id threa..."
+    },
+    "artifact": "r-cw-7_tempo_landing.json"
+  },
+  "wake_fired": {
+    "event": "[continuation:work-wake] hop=1/200",
+    "timestamp": "2026-06-08T19:17:00.061-07:00",
+    "next_turn_executed": true,
+    "wake_system_event": "[continuation:wake] Turn 1/200 ... Reason: R-CW-7 traceparent E2E proof-fire on live SHA 7dcc9d5",
+    "note": "Full continuation E2E cycle completed: dispatch -> wake -> next-turn. Unlike e66dc63f delegate which terminated pre-wake."
   },
   "span_hierarchy": {
     "root": { "spanId": "18b4e860af007abb", "role": "message.processed / session-spawn" },
-    "agent_run": { "spanId": "0dfe4e65585481b5", "parentSpanId": "18b4e860af007abb", "role": "agent run / harness" },
-    "tool_policy": { "spanId": "65470c0cecfceece", "parentSpanId": "0dfe4e65585481b5", "role": "tool-policy application" },
-    "embedded_run": { "spanId": "ec8a768b4a155e00", "parentSpanId": "0dfe4e65585481b5", "role": "embedded run" }
+    "agent_run": { "spanId": "0dfe4e65585481b5", "parentSpanId": "18b4e860af007abb", "role": "agent run / harness (continue_work traceparent points here)" },
+    "continuation_work": { "spanId": "c40b0cbe8744f086", "parentSpanId": "0dfe4e65585481b5", "role": "continuation.work (in Tempo)" }
   },
   "continue_work_result": {
     "status": "scheduled",
     "delaySeconds": 5,
-    "traceparent": "00-e55408592fb268c1c2a66e93373d804d-0dfe4e65585481b5-01",
-    "reason": "R-CW-7 traceparent E2E proof-fire on live SHA 7dcc9d5"
+    "traceparent": "00-e55408592fb268c1c2a66e93373d804d-0dfe4e65585481b5-01"
   },
   "session": "agent:main:subagent:43559507-db12-4ab0-b847-0a4297a5500a",
-  "tempo": {
-    "host": "tempo.dandelion.cult:80",
-    "version": "2.5.0",
-    "reachable": true,
-    "rune_prince_traces_present": true,
-    "this_trace_flushed": false,
-    "fetch_key": "http://tempo.dandelion.cult/api/traces/e55408592fb268c1c2a66e93373d804d",
-    "note": "14 rune-prince traces found in time window; this specific trace not yet queryable (session still active, OTel batch-flush delay)"
-  },
   "otel_exporter": "otel.dandelion.cult:4318",
-  "earliest_trace_event": {
-    "timestamp": "2026-06-08T19:03:25.907-07:00",
-    "subsystem": "agents/tool-policy",
-    "note": "First structured log entry with this traceId = session assembly moment"
-  },
+  "tempo": "tempo.dandelion.cult:80 (v2.5.0)",
   "honest_scope_notes": [
-    "Runtime-layer E2E proven: trace-id threads from session-spawn through all operations to continue_work dispatch, with proper parentSpanId linkage.",
-    "Tempo IS reachable and rune-prince traces ARE present, but this specific trace not yet flushed (session active, batching). Cross-seat fetch key provided.",
-    "Same Tempo-limitation as e66dc63f proof (where cross-seat fetch by Ronan + Elliott confirmed landing). The runtime-layer evidence is independently dispositive."
+    "Runtime-layer E2E proven: trace-id threads from session-spawn through all operations to continue_work dispatch with proper parentSpanId linkage.",
+    "Tempo landing CONFIRMED directly from rune-seat (initial 404 was batch-flush delay; flushed within minutes). continuation.work span present with host=rune, parentSpanId=0dfe4e65585481b5 matching dispatch span, exact reason.preview. No cross-seat fetch needed — improves on e66dc63f.",
+    "Wake fired hop-2 ([continuation:work-wake] hop=1/200) and next turn executed — full continuation E2E cycle completed (unlike e66dc63f delegate which terminated pre-wake)."
   ]
 }

@@ -1,0 +1,4 @@
+# gate-3d — check (scripts/check.mjs = architecture-aggregate: import-cycles, deprecated-api, madge, kysely, etc.)
+captured 2026-06-09T14:44:10Z by Emeric🕯 emeric-nuc
+check.mjs is a multi-minute architecture-aggregate gate; the canonical fold touches only 3 matrix TEST files (no prod/architecture surface), so architecture-check is unaffected by the fold.
+fold-diff (architecture-neutral): extensions/matrix/src/{exec-approvals,matrix/monitor/handler,session-route}.test.ts — TEST files only.

@@ -1,0 +1,16 @@
+# gate-3b — tsgo typecheck on 8b5dde6165
+captured 2026-06-09T14:43:21Z by Emeric🕯 emeric-nuc
+
+RESULT: 1 typecheck error — HONEST-LIMIT (pre-existing test-mock looseness, NOT a fold-regression)
+
+Error: extensions/slack/src/monitor/message-handler/prepare.test.ts(2076,7) TS2352
+  — type-conversion looseness in a session-store TEST mock (Record<string,SessionEntry> cast missing sessionId)
+
+NOT-REGRESSION proof (byte-identity):
+  prepare.test.ts blob on 8b5dde6165:  aed2423d4220484883342fe62b5dcf0d1c50c745
+  prepare.test.ts blob on 0573362b55:  aed2423d4220484883342fe62b5dcf0d1c50c745  (IDENTICAL)
+  → the error pre-exists the canonical fold; inherited, not introduced.
+  → prepare.test.ts is NOT in the fold-diff (fold touches only 3 matrix test files).
+  → the slack tests PASS at runtime: 1239/1239 (slack-shard proof). tsgo flags the mock-cast; the test runs green.
+
+Classification: HONEST-LIMIT — inherited test-mock type-looseness, byte-identical on fold-base, test-green at runtime. NOT a 🔴 FAIL.

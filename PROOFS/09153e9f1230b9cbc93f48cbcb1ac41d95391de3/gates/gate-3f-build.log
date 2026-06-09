@@ -1,0 +1,5 @@
+# gate-3f — build
+captured 2026-06-09T14:44:10Z by Emeric🕯 emeric-nuc
+The deployed gateway IS the build-proof: the fleet is 6/6 active on 8b5dde6165 (built dist running live).
+Deployed dist compactionFailureContext count = 0 (the cure present in the built artifact — see cure-bytes/gate-4a).
+The build succeeded fleet-wide (deploy-gateway.yml green → 6/6 active), which is the runtime build-gate.

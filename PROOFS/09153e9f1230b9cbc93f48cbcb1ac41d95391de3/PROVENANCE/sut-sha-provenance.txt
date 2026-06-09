@@ -1,0 +1,8 @@
+# SUT-SHA Provenance — exact running artifact
+ship-SHA (canonical, pushed frond-scribe/20260609/formb-fold): 8b5dde6165958d0eaba3c492ae52311548313de4
+HEAD verified: 8b5dde6165958d0eaba3c492ae52311548313de4
+run.ts compactionFailureContext count: 0 (MUST=0, Form-B upstream-faithful)
+deployed gateway pid 3383130 on this SHA (count-0, failover-path) — byte-verified fleet 6/6 active
+node: v26.1.0
+fold diff vs slack-base 0573362b55: extensions/matrix/src/exec-approvals.test.ts extensions/matrix/src/matrix/monitor/handler.test.ts extensions/matrix/src/session-route.test.ts 
+captured: 2026-06-09T14:07:56Z

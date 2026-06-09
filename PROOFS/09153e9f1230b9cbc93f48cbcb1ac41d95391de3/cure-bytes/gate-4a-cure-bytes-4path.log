@@ -1,0 +1,38 @@
+# Gate-4a cure-bytes — count-0 Form-B byte-identical verification
+# SHA: 8b5dde6165958d0eaba3c492ae52311548313de4 (deployed canonical fold)
+# The cure = compactionFailureContext sentinel REMOVED → count MUST be 0 (Form B upstream-faithful)
+
+## Path 1 — ship-SHA run.ts compactionFailureContext count
+count = 0  (MUST=0)
+
+## Path 2 — the failover-rotation path present (upstream-faithful, no sentinel-halt)
+run.ts timeout-compaction region (auth-rotation falls-through to normal handling):
+138:} from "./run/attempt-stage-timing.js";
+139:import { forgetPromptBuildDrainCacheForRun } from "./run/attempt.prompt-helpers.js";
+216:  "The previous attempt compacted the conversation context before producing a final user-visible answer. Continue from the compacted transcript and produce the final answer now. Do not restart from scratch, do not repeat completed work, and do not rerun tools unless the transcript clearly lacks required evidence.";
+343:  attempt: EmbeddedRunAttemptForRunner,
+345:  const raw = attempt as EmbeddedRunAttemptForRunner & {
+360:    ...attempt,
+379:function hasCompletedModelProgressForIdleBreaker(attempt: EmbeddedRunAttemptForRunner): boolean {
+381:    attempt.assistantTexts.some((text) => text.trim().length > 0) ||
+382:    attempt.toolMetas.length > 0 ||
+383:    (attempt.clientToolCalls?.length ?? 0) > 0 ||
+384:    hasOutboundDeliveryEvidence(attempt) ||
+385:    attempt.itemLifecycle.completedCount > 0
+887:      const attemptAuthProfileStore =
+901:        const credential = attemptAuthProfileStore.profiles?.[profileId];
+938:          store: attemptAuthProfileStore,
+1057:      const profileFailureStore = pluginHarnessOwnsTransport ? attemptAuthProfileStore : authStore;
+1069:      const attemptedThinking = new Set<ThinkLevel>();
+1088:        attemptedThinking,
+1137:          if (isProfileInCooldown(attemptAuthProfileStore, candidate, undefined, modelId)) {
+1144:          attemptedThinking.clear();
+
+## Path 3 — deployed dist matches source (the running gateway's dist)
+dist compactionFailureContext count = 0 (dist is bundled; sentinel-string absent = cure present)
+
+## Path 4 — blob hash of run.ts on ship-SHA (immutable identity)
+run.ts blob: 3de093995ce45816beb9b3e4250cab7af8b0f5c3
+run.ts on canonical tree 4f06c6cd3234: 100644 blob 3de093995ce45816beb9b3e4250cab7af8b0f5c3	src/agents/embedded-agent-runner/run.ts
+
+captured: 2026-06-09T14:41:53Z by Emeric🕯 emeric-nuc

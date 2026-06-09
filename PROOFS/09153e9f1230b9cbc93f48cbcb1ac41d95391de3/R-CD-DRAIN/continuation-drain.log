@@ -1,0 +1,20 @@
+[test] starting test/vitest/vitest.agents.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.7 [39m[90m/tmp/emeric-proofs-8b5dde6165-1781012884[39m
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mdoes not fail the announce when dispatch throws
+[22m[39mSubagent continuation delegate drain failed for agent:main:subagent:test: Error: spawn failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mpersists advanced child chain state after delegates dispatched
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:test error=[vitest] No "normalizeSessionStore" export is defined on the "../config/sessions/store-load.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+
+ [32m✓[39m [30m[46m agents [49m[39m src/agents/subagent-announce.continuation-drain.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 653[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m10 passed[39m[22m[90m (10)[39m
+[2m   Start at [22m 07:09:36
+[2m   Duration [22m 1.85s[2m (transform 578ms, setup 121ms, import 970ms, tests 653ms, environment 0ms)[22m
+
+[test] passed 1 Vitest shard in 5.35s

@@ -1,0 +1,13 @@
+# direction-check — the cure goes the RIGHT direction (Form B, not the count-4 catastrophe)
+captured 2026-06-09T14:44:35Z by Emeric🕯 emeric-nuc
+
+SAFETY-BYTE (count-tell): compactionFailureContext count on the ship-SHA MUST be 0 (Form B) or 5 (Form A), NEVER 4 (=the 2807efc1c1e8 1x-rotation catastrophe → STOP).
+
+ship-SHA 8b5dde6165 count = 0  → Form B (count-0, sentinel REMOVED, upstream-faithful 2x rotation restored) ✓
+
+Direction confirmed: the cure REMOVES the sentinel (count 4→0), restoring upstream's 2x auth-rotation failover.
+  - count-0 = the sentinel-halt is gone; timeout-compaction falls through to normal handling (upstream failover, 2x rotation).
+  - This is the OPPOSITE of count-4 (2807efc1c1e8), which kept the 1x-rotation lease-guard catastrophe.
+  - 8b5dde6165 descends from 7992640e60 (the count-0 Form-B base), NOT from the count-4 1x form. Catastrophe-guard holds.
+
+Cross-ref: PR head narrow-surgery-tight STILL 2807efc1c1e8 (the HARD-held pre-push state); force-push lands 8b5dde6165 (count-0) ON figs's GO. The 2807 count-4 is the lease-guard-only HOLD-state, never the ship-content.

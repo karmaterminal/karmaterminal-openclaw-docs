@@ -1,0 +1,1 @@
+Bracket-form continue_delegate spawned+ran on ship-SHA 8b5dde6165 (ronan-dgx), echo-token RCDTOKEN-BRACKET-8b5dde-ronandgx — parity with R-CD-1 tool path confirmed. [grandchild return, turn 11/200; bracket parsed turn 10/200 per runtime delegate-spawned log]

@@ -1,0 +1,14 @@
+# gate-3e — vitest (the FULL behavioral evidence is the published shard-proofs on this exact SHA)
+captured 2026-06-09T14:44:10Z by Emeric🕯 emeric-nuc
+
+The vitest-gate on 8b5dde6165 is covered by the published per-row + shard proofs (all GREEN on this exact SHA):
+  matrix shard      1385/1385   (the 11 migrated reds cleared; saveSessionStore=3)
+  slack shard       1239/1239   (the 3 migrated reds cleared; prepare saveSessionStore=4)
+  continuation-suite   83        (R-CW-1 7 + chain-guard 22 + post-comp 30 + continuation 8 + store-merge 3 + drain 10 + R-CD-3 16 ...)
+  R-CONFIG-INTERSESSION 38/38 + R-REGRESSION-TRAP-TESTS 31/31
+  R-CD-3 timeout-compaction 16/16 @ 2x rotation
+
+Carveout-set (documented, accept-as-known, NOT-our-divergence — see RESOLVED-SHA.md):
+  chutes (pre-existing, red on base too) · Cluster-A (full-suite pollution / SIGSEGV-resource-flake, green-isolated-both-refs) · continuation-drain (mock-contract-drift, green-isolated)
+
+gate-3b typecheck: 1 inherited test-mock looseness (HONEST-LIMIT, byte-identical on fold-base, NOT regression — see gate-3b-tsgo.log)

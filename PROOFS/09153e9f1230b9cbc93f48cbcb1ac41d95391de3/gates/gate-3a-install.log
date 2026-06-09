@@ -1,0 +1,7 @@
+# gate-3a — install (node_modules resolved)
+node: v26.1.0 | pnpm: 11.2.2
+node_modules: /home/figs/flesh_beast_tmp/openclaw/node_modules
+vitest present: node_modules/.bin/vitest
+yes
+package.json name: openclaw
+captured 2026-06-09T14:42:13Z

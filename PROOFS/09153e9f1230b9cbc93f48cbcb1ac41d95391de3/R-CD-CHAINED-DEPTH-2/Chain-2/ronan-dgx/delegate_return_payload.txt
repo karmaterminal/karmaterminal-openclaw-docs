@@ -1,0 +1,1 @@
+PROOF R-CD-CHAINED-DEPTH-2 Chain-2 grandchild executed on ship-SHA 8b5dde6165 (ronan-dgx), depth-2 chain-hop 1/200, echo-token RCDCHAIN2-INTERSESSION-8b5dde-ronandgx. Depth-1 (hop 11) fired the grandchild via continue_delegate(silent-wake, targetSessionKey=main-channel) → inter-session return (recipient≠sender) confirmed.

@@ -26,3 +26,12 @@ Every R-CW-* / R-CD-* row MUST fire BOTH forms (tool + token); token-cells MUST 
 - **#974** (continue_delegate token unreachable in light-context) → confirmed-deviation, 🪨/🌻/🌊 walked
 - **#952/#958** (continue_work token chain-hop direct-drive) → open, heartbeat-substrate forward-fix
 - cael: awaiting frond arbiter-call on canonical-issue + assembly-target + lane-division
+
+## SCOPE CORRECTION (byte over my own story — 2026-06-09 ~12:18, Elliott's refinement byte-verified)
+My reachability-gap claim above ("continue_delegate token NON-FUNCTIONAL in light-context / dispatch unreachable from the subagent path") was **TOO BROAD** — same scope-over-claim 🌻 Elliott owned (`1513985677`). Byte-walked it end-to-end on `9b1f42a694`:
+- `attempt-execution.ts:910` (own-turn/spawn-init path) only handles `kind==="work"`; `kind==="delegate"` is NOT dispatched there AND NOT stripped (the strip at :917 is inside the `kind==="work"` branch).
+- So the delegate-bracket survives unstripped in the findings → flows to `runSubagentAnnounceFlow` → **`subagent-announce.ts:976-977` `stripContinuationSignal(findings)` → `kind==="delegate"` → `bracketDelegateConsumed=true` → `spawnSubagentDirect` (`:1063`)**. The gate is `continuationEnabled && findings-non-empty`, NOT `isContinuationChainDelegate` — so it fires for ANY completing subagent (plain or chain-hop).
+- **So `[[CONTINUE_DELEGATE:]]` from a plain light-context subagent IS dispatched end-to-end — via the COMPLETION/announce path, not the own-turn path.** It is NOT non-functional. The real gap is an **own-turn-path-asymmetry**: the own-turn path (runAgentAttempt) drops `kind==="delegate"` while the completion path catches it; AND `kind==="work"` is the inverse (own-turn handles it, completion explicitly ignores it `:974`).
+- **CORRECTED finding**: the deviation is a path-asymmetry (own-turn vs completion), NOT "delegate-token non-functional in light-context." Whether it's a user-visible bug depends on whether an agent needs delegate-dispatch on its OWN turn (vs on completion) — narrower than my original claim. (Silas's R-CD-TOKEN PASS `6ebcf32` empirically confirms the bracket-delegate DOES dispatch + spawn turn 13/200 — consistent with the completion-path catching it.) The parse-gap (#975 post-compaction-can't-express) is unaffected + stands.
+
+My earlier matrix + #976-comment propagated the too-broad scope; this corrects it. Byte over my own conclusion, again.

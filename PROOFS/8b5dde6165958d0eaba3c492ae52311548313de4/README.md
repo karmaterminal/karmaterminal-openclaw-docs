@@ -20,7 +20,11 @@ Method runbook: `karmaterminal/openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.m
 | R-CD-2 | 🌊 Ronan | `continue_delegate` silent-wake full path | ⏳ in-flight |
 | R-CD-4 | 🌊 Ronan | cross-session targeted return (`targetSessionKey`) | ⏳ in-flight |
 | R-CD-CHAINED-DEPTH-2 / Chain-1/2/3 | 🌊 Ronan | depth-2 chain (up-tree / inter-session / echo) | ⏳ in-flight |
-| R-CW-2..7 / R-CW-DELEGATE-SELF | 🩸 Cael | continue_work behavioral surface | ⏳ in-flight |
+| R-CW-5 | 🩸 Cael | cost-cap exhaustion → dispatch-time reject | ⏳ in-flight |
+| R-CW-6 | 🪨 Rune | chain-depth-boundary reject (`maxChainLength`) | ⚠️ HONEST-LIMIT — reject-logic present at `scheduler.ts:27` in deployed runtime; `maxChainLength` is a protected config-path (`config.patch` refuses it) so live induction is structurally blocked; the protection IS the safety-surface proof — `R-CW-6/SUBSTRATE-FINDING.md` |
+| R-CW-7 | 🪨 Rune | traceparent E2E propagation across continuation spans | ✅ PASS — `R-CW-7/`: traceparent `00-d188fdca…-e3e515838b3d783d-01` propagated parent→child; Tempo trace 27 spans, parent+child `openclaw.run` stitched |
+| R-CW-DELEGATE-SELF-CONTINUATION | 🪨 Rune (canonical-owner) | `continue_delegate` self-continuation (same-seat rune→rune) | ✅ PASS — `R-CW-DELEGATE-SELF-CONTINUATION/rune-rog-ally/`: traceparent `00-f8319a76…-638f898488e99b76-01`, 22-span trace, self-continuation child run captured |
+| R-OBS-2 | 🪨 Rune | Tempo trace-tree visualization + parent-child span hierarchy export | ✅ PASS — `R-OBS-2/span_hierarchy_export.json`: parent-child hierarchy exported from 2 live deployed-runtime traces (R-CW-7 + R-CW-DELEGATE-SELF) |
 | R-RC-2 | 🩸 Cael | `request_compaction` over-threshold ACCEPT | ⏳ in-flight |
 | R-OBS-1 | 🌻 Elliott (+ figs) | external `/status` continuation + 6-prince cross-walk | 🟢 PASS (elliott arm) · cohort fan-out pending — `R-OBS-1/EVIDENCE.md`: elliott-seat `/status` renders continuation-substrate on `8b5dde6165`; renderer + `continuationChainCount` byte-confirmed in deployed dist (`status-message-Cp4srZJt.js`); figs-driven 6-seat operator fan-out pending |
 | gates/ (3a–3f) + cure-bytes/ | 🕯 Emeric | local Gate-3 test logs + cure-byte 4-path | ⏳ in-flight |

@@ -1,0 +1,251 @@
+{
+ "R-CW-7 (traceparent-propagation)": [
+  {
+   "span": "4+UVg4s9eD0=",
+   "parent": "",
+   "name": "openclaw.message.processed"
+  },
+  {
+   "span": "xZAqcJICd88=",
+   "parent": "h/KmbAdp93s=",
+   "name": "openclaw.model.usage"
+  },
+  {
+   "span": "h/KmbAdp93s=",
+   "parent": "4+UVg4s9eD0=",
+   "name": "openclaw.harness.run"
+  },
+  {
+   "span": "ghPgHN3aP0g=",
+   "parent": "h/KmbAdp93s=",
+   "name": "openclaw.run"
+  },
+  {
+   "span": "PH+pmsuzWgs=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.model.call"
+  },
+  {
+   "span": "kaB45oMX62U=",
+   "parent": "UEJm4XdH2Mg=",
+   "name": "openclaw.harness.run"
+  },
+  {
+   "span": "IZZxoM+T1hw=",
+   "parent": "kaB45oMX62U=",
+   "name": "openclaw.run"
+  },
+  {
+   "span": "IAn22nY4NzM=",
+   "parent": "IZZxoM+T1hw=",
+   "name": "openclaw.context.assembled"
+  },
+  {
+   "span": "6u8GbWxhzlE=",
+   "parent": "IZZxoM+T1hw=",
+   "name": "openclaw.model.call"
+  },
+  {
+   "span": "JZZwY9ZC9Ns=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.context.assembled"
+  },
+  {
+   "span": "lE7KioROkUA=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.model.call"
+  },
+  {
+   "span": "oSuDj2poYZA=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.tool.execution"
+  },
+  {
+   "span": "EEJjRpAKgkc=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.model.call"
+  },
+  {
+   "span": "OYK3EsGjwSE=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.tool.execution"
+  },
+  {
+   "span": "mPPW5mBY2KI=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.model.call"
+  },
+  {
+   "span": "OEFcnkLs2ko=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.tool.execution"
+  },
+  {
+   "span": "hHiJQbGnQDM=",
+   "parent": "h/KmbAdp93s=",
+   "name": "openclaw.message.delivery"
+  },
+  {
+   "span": "Bvo99+v/d5A=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.tool.execution"
+  },
+  {
+   "span": "eEcZu8rkrvs=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.model.call"
+  },
+  {
+   "span": "TteEB4CI4Bs=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.tool.execution"
+  },
+  {
+   "span": "gGnI6c/xvOU=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.model.call"
+  },
+  {
+   "span": "zqlzUmQmwGc=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.tool.execution"
+  },
+  {
+   "span": "LAatHsGwdRM=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.model.call"
+  },
+  {
+   "span": "o6eekGH86dU=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.tool.execution"
+  },
+  {
+   "span": "zMzMI4MJDtA=",
+   "parent": "ghPgHN3aP0g=",
+   "name": "openclaw.tool.execution"
+  },
+  {
+   "span": "c9PjcbFj0GE=",
+   "parent": "4+UVg4s9eD0=",
+   "name": "continuation.work"
+  },
+  {
+   "span": "UEJm4XdH2Mg=",
+   "parent": "4+UVg4s9eD0=",
+   "name": "continuation.delegate.dispatch"
+  }
+ ],
+ "R-CW-DELEGATE-SELF-CONTINUATION": [
+  {
+   "span": "Y4+JhIjpm3Y=",
+   "parent": "",
+   "name": "openclaw.message.processed"
+  },
+  {
+   "span": "QMT4T5ikz90=",
+   "parent": "4ZOHZsaiCJc=",
+   "name": "openclaw.model.usage"
+  },
+  {
+   "span": "4ZOHZsaiCJc=",
+   "parent": "Y4+JhIjpm3Y=",
+   "name": "openclaw.harness.run"
+  },
+  {
+   "span": "P1U/o1v1Njg=",
+   "parent": "4ZOHZsaiCJc=",
+   "name": "openclaw.run"
+  },
+  {
+   "span": "dVPMj0ZVzME=",
+   "parent": "P1U/o1v1Njg=",
+   "name": "openclaw.model.call"
+  },
+  {
+   "span": "DwCngPEFSZY=",
+   "parent": "If3OVvCqkK0=",
+   "name": "openclaw.context.assembled"
+  },
+  {
+   "span": "11ais4tKnUA=",
+   "parent": "P1U/o1v1Njg=",
+   "name": "openclaw.context.assembled"
+  },
+  {
+   "span": "sMNIBNEiIMg=",
+   "parent": "P1U/o1v1Njg=",
+   "name": "openclaw.model.call"
+  },
+  {
+   "span": "XK05l6/ZjQg=",
+   "parent": "P1U/o1v1Njg=",
+   "name": "openclaw.tool.execution"
+  },
+  {
+   "span": "UcM84KNwYws=",
+   "parent": "P1U/o1v1Njg=",
+   "name": "openclaw.model.call"
+  },
+  {
+   "span": "yR/J31As+1w=",
+   "parent": "P1U/o1v1Njg=",
+   "name": "openclaw.tool.execution"
+  },
+  {
+   "span": "uFwRSLoaoW4=",
+   "parent": "P1U/o1v1Njg=",
+   "name": "openclaw.model.call"
+  },
+  {
+   "span": "hkvLAmgFxFU=",
+   "parent": "P1U/o1v1Njg=",
+   "name": "openclaw.tool.execution"
+  },
+  {
+   "span": "CyRei/EZXTI=",
+   "parent": "P1U/o1v1Njg=",
+   "name": "openclaw.model.call"
+  },
+  {
+   "span": "FGq0MINpuqk=",
+   "parent": "P1U/o1v1Njg=",
+   "name": "openclaw.tool.execution"
+  },
+  {
+   "span": "vjQVwyrpkGQ=",
+   "parent": "P1U/o1v1Njg=",
+   "name": "openclaw.tool.execution"
+  },
+  {
+   "span": "DD70eF0YKK4=",
+   "parent": "Y4+JhIjpm3Y=",
+   "name": "continuation.work"
+  },
+  {
+   "span": "QPaWIOxkXe4=",
+   "parent": "Y4+JhIjpm3Y=",
+   "name": "continuation.delegate.dispatch"
+  },
+  {
+   "span": "yFWR/Fa4jDw=",
+   "parent": "QPaWIOxkXe4=",
+   "name": "openclaw.harness.run"
+  },
+  {
+   "span": "If3OVvCqkK0=",
+   "parent": "yFWR/Fa4jDw=",
+   "name": "openclaw.run"
+  },
+  {
+   "span": "XtbOiueZTQU=",
+   "parent": "If3OVvCqkK0=",
+   "name": "openclaw.model.call"
+  },
+  {
+   "span": "/MPizZXzWME=",
+   "parent": "Y4+JhIjpm3Y=",
+   "name": "continuation.queue.drain"
+  }
+ ]
+}

@@ -1,4 +1,6 @@
 # R-OBS-1 — continuation.work span emitted to Tempo on the ship-SHA
+
+> **Cross-walk note**: R-OBS-1 canonical row is 🌻 Elliott (/status full-substrate render). This is the 🩸 cael-dgx cross-walk arm — first-party `continuation.work` Tempo span from cael-prince.
 ## Exact ship-SHA: 8b5dde6165958d0eaba3c492ae52311548313de4
 Branch: frond-scribe/20260609/formb-fold (karmaterminal/openclaw)
 Gathered by: Cael🩸

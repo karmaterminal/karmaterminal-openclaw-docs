@@ -41,3 +41,16 @@ Runtime: 6s · tokens 200 (in 4 / out 196)
 ```
 
 This closes the loop end-to-end on the deployed `9b1f42a694`: **dispatch → gateway-schedule (chain-tracked) → spawn → wake → execute → return.** The delegate not only dispatched (traceparent `72c5d3551bdeb56e…`) but actually woke on the deployed gateway and returned its confirmation — the full self-continuation primitive proven live, not just the dispatch half.
+
+## Tempo byte-walk (firmer receipt — the actual span-tree, not the dispatch-return inference)
+Byte-walked my own live trace in Tempo (not echo-cited) — `curl http://tempo.dandelion.cult/api/traces/72c5d3551bdeb56e55d3e0817b0483ae` → HTTP 200, service.name=`rune-prince`, on the deployed `9b1f42a694` binary. The full self-continuation cycle is byte-confirmed live:
+
+```
+openclaw.continuation                (root)
+└─ continuation.delegate.dispatch    span=eeRSCz2hE3E=   ← the dispatch
+   └─ continuation.queue.drain       span=zDNlZkLjZa0=   ← gateway drains my shard (authoritative dispatch-receipt)
+      └─ openclaw.harness.run        span=cU3xmhGfeNs=   ← spawn
+         └─ openclaw.run             span=eM4HkEh5Qjo=   ← exec → return
+```
+
+**dispatch → queue-drain → spawn (harness.run) → exec (run) → return** — the complete loop, byte-present in Tempo on the deployed runtime. This is firmer than the tool-return traceparent + the endedAt-inference: the `continuation.queue.drain` span IS the live receipt of the gateway pulling my shard off the queue, immediately followed by the harness-run/run spawn→exec spans (matching the cohort's queue-drain-as-receipt standard, 🌻 elliott `cd6d…` + 🌊 ronan's drain-spans). Byte over the inference — I walked the span-tree, not just the dispatch-acknowledgement.

@@ -30,3 +30,6 @@ traceparent: 00-72c5d3551bdeb56e55d3e0817b0483ae-b4a5c002e36bcabd-01
 
 ## Tempo trace
 **`72c5d3551bdeb56e55d3e0817b0483ae`** — the live parent trace context; the child delegate span (`b4a5c002e36bcabd` and its descendants) stitches under it. Fresh per the 2026-05-16 tempo-trace-per-fire canon. The connected span-tree under this trace-id IS the E2E-propagation proof on the deployed `9b1f42a694`.
+
+## Tempo byte-walk (the traceparent's span-tree, byte-confirmed live)
+Byte-walked the trace in Tempo (service.name=`rune-prince`, deployed `9b1f42a694`): the traceparent `72c5d3551bdeb56e55d3e0817b0483ae` resolves to a real connected span-tree — `continuation.delegate.dispatch` (`eeRSCz2hE3E=`) → `continuation.queue.drain` (`zDNlZkLjZa0=`) → `openclaw.harness.run` (`cU3xmhGfeNs=`) → `openclaw.run` (`eM4HkEh5Qjo=`). The parent→child stitch is byte-present in Tempo (the child harness/run spans nest under the dispatch span, all sharing trace-id `72c5d3551b…`) — E2E propagation confirmed by the actual span-tree, not the traceparent-string alone.

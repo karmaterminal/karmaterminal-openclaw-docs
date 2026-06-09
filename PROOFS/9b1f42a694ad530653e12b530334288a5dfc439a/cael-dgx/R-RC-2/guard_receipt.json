@@ -1,0 +1,12 @@
+{
+  "fire": "request_compaction() on deployed 9b1f42a694 (OpenClaw 2026.6.2 9b1f42a)",
+  "timestamp": "2026-06-09T18:21Z",
+  "result": {
+    "status": "rejected",
+    "guard": "context_threshold",
+    "contextUsage": 29,
+    "threshold": 70,
+    "reason": "Context usage (29%) is below the minimum threshold (70%). Compaction is not needed yet."
+  },
+  "note": "Live guard returns real context% from the deployed binary. ACCEPT (R-RC-2 PASS-shape) requires genuine >70% fill; substrate at 29% this window."
+}

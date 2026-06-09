@@ -1,0 +1,7 @@
+R-CD-2 silent-wake on-SHA c4f15321 (runtime byte-identical to 7dcc9d578c, src f6ebf9b5)
+Dispatched: continue_delegate(mode=silent-wake) from ronan main session
+traceparent: 00-4eda0e13af7164f25e5c2d55eb1f6234-bfebca3cf8a6722a-01
+trace-id (Tempo): 4eda0e13af7164f25e5c2d55eb1f6234
+Tempo: http://tempo.dandelion.cult/api/traces/4eda0e13af7164f25e5c2d55eb1f6234
+Proves: silent-wake full path (wakeOnReturn=true silentAnnounce=true) — the verdict-turn woken by the silent return.
+Capture: trace + the [continuation/silent-wake] journal byte on the silent-wake return.

@@ -1,0 +1,7 @@
+R-CD-1 — schedule→spawn→return on-SHA 7dcc9d578ca0dc828c015acd05f16caf41b471da
+Dispatched: continue_delegate(mode=silent, delaySeconds=5) from ronan main session
+Runtime returned: status=scheduled, mode=silent, delaySeconds=5 (PROVES the schedule path)
+traceparent: 00-44f9d5f149eb6efd783910eaa7ebdf2c-cfaf4e1273deae1e-01
+trace-id (Tempo): 44f9d5f149eb6efd783910eaa7ebdf2c
+Tempo pull: http://tempo.dandelion.cult/api/traces/44f9d5f149eb6efd783910eaa7ebdf2c
+Capture: trace + spawn-journal hop pending flush (~30-60s); EVIDENCE.md on next capture-turn.

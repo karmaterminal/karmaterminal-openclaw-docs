@@ -1,0 +1,16 @@
+R-CD-CHAINED-DEPTH-2 dispatch receipt — ship-SHA c4f15321fb, ronan seat, 2026-06-08 21:42 PDT
+continue_delegate(fanoutMode="tree", mode="silent") → depth-1 shard instructed to fire a depth-2 child (fanoutMode=tree).
+Tool-surface receipt (necessary-not-sufficient; runtime Delivered log + Tempo is the real proof):
+{
+  "status": "scheduled",
+  "mode": "silent",
+  "delaySeconds": 0,
+  "delegateIndex": 1,
+  "delegatesThisTurn": 1,
+  "fanoutMode": "tree",
+  "traceparent": "00-a00118d68efa6335cb29cbcb03dcdc8c-7f4a88dfb45b703a-01",
+  "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+}
+KEY BYTE: fanoutMode="tree" echoed in receipt → tree-broadcast return-targeting accepted at dispatch.
+trace_id: a00118d68efa6335cb29cbcb03dcdc8c
+Markers: PROOF-MARKER-RONAN-RCD-CHAINED-DEPTH-2-c4f15321 (depth-1), PROOF-MARKER-RONAN-RCD-DEPTH2-LEAF-c4f15321 (depth-2 leaf).

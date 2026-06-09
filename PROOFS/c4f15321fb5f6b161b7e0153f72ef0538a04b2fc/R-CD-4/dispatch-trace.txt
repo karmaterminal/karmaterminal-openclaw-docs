@@ -1,0 +1,18 @@
+R-CD-4 targeted-return (targetSessionKey) dispatch receipt — ship-SHA c4f15321fb, ronan seat, 2026-06-08 21:42 PDT
+continue_delegate(targetSessionKey=<this session>, mode="silent") → SAME-SESSION targeted-return scope (target == dispatcher).
+Tool-surface receipt (necessary-not-sufficient; runtime [continuation:targeted-return] Delivered log is the real proof):
+{
+  "status": "scheduled",
+  "mode": "silent",
+  "delegateIndex": 2,
+  "delegatesThisTurn": 2,
+  "targetSessionKey": "agent:main:subagent:0166e10f-2018-4fa8-a670-bc5933f1453c",
+  "traceparent": "00-a00118d68efa6335cb29cbcb03dcdc8c-7f4a88dfb45b703a-01",
+  "note": "Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."
+}
+KEY BYTE: targetSessionKey echoed → targeted-RETURN-routing accepted at dispatch.
+SCOPE (carried from e66dc63f R-CD-4 correction): this is SAME-SESSION targeted-return (target==dispatcher);
+hasCrossSessionDelegateTargeting returns FALSE when target==dispatcher → non-policy-gated same-session path.
+Genuinely-cross-session routing is a SEPARATE policy-gated path (Silas's sub-row-2 covers that).
+trace_id: a00118d68efa6335cb29cbcb03dcdc8c
+Marker: PROOF-MARKER-RONAN-RCD4-RETURN-c4f15321.

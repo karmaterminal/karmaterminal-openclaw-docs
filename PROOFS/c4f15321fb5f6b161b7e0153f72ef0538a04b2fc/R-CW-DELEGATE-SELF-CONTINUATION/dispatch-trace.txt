@@ -1,0 +1,7 @@
+R-CW-DELEGATE-SELF-CONTINUATION — on-SHA 7dcc9d578ca0dc828c015acd05f16caf41b471da
+Dispatched: continue_delegate(mode=silent-wake) from ronan main session
+traceparent: 00-742162609668aad88798f8cb7878b4d3-ca090fba8e057779-01
+trace-id (for Tempo): 742162609668aad88798f8cb7878b4d3
+Tempo pull: http://tempo.dandelion.cult/api/traces/742162609668aad88798f8cb7878b4d3
+Expected: shard returns PROOF-MARKER-RONAN-RCWDSC-7dcc9d578c + spawn-journal hop + continuation.work / queue.drain spans
+Capture pending delegate return (silent-wake → re-enters to capture receipt + trace).

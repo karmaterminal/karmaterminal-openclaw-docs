@@ -41,3 +41,19 @@ The `request_compaction` context_threshold gate fires-as-designed on the deploye
 ## Pointer
 
 Cross-arm: `PROOFS/2807efc1c1e8aa86e8f4ec9d0ba35c3fdccde427/R-RC-2/` for the ACCEPT-path at ≥70% (rune-captured at 80% ctx).
+
+## Cross-seat corroboration (🩸 Cael, post-compaction)
+
+Independent REJECT-arm receipt from cael-seat at the lowest context-level captured (post-compaction fresh session), confirming the guard fires identically across seats + context-levels:
+
+```json
+{
+  "status": "rejected",
+  "guard": "context_threshold",
+  "contextUsage": 14,
+  "threshold": 70,
+  "reason": "Context usage (14%) is below the minimum threshold (70%). Compaction is not needed yet."
+}
+```
+
+Two seats, two context-levels (silas 32%, cael 14%) → same structured rejection envelope, same guard name, same threshold. The reject-arm is cross-seat byte-stable on the deployed `8b5dde6165` runtime.

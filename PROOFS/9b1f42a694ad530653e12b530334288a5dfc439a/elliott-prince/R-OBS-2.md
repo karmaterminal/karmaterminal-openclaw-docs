@@ -23,7 +23,7 @@ The tracer shim keeps span emission additive (callers without a configured expor
 
 ## Live evidence (on the deployed gateway)
 1. **Trace-export live**: the `continue_delegate` fired this session on the deployed gateway produced a real, well-formed W3C traceparent (`00-c9ec309f75132077e8f144a8bb2a3a4d-015d088f874ac070-01`) — the tracer + `formatContinuationTraceparent` ARE exporting on the deployed binary.
-2. **Compiled in the deployed dist**: `continuation-tracer-CKtwwREW.js` + `continuation-tracer-gq6L9QZP.js` present in `dist/`; plugin-sdk type-decl `dist/plugin-sdk/src/infra/continuation-tracer.d.ts` confirms the reorg'd path shipped.
+2. **Compiled in the deployed dist**: `continuation-tracer-CKtwwREW.js` + `continuation-tracer-gq6L9QZP.js` (18215 bytes, built Jun 9 10:55) present in `dist/`; plugin-sdk type-decl `dist/plugin-sdk/src/infra/continuation-tracer.d.ts` confirms the reorg'd path shipped. **All 8 continuation span-emitters present in the built artifact** (byte-walked in dist, not echo-cited): `emitContinuationQueueDrainSpan`, `emitContinuationDelegateFireSpan`, `emitContinuationDelegateSpan`, `emitContinuationWorkFireSpan`, `emitContinuationWorkSpan`, `emitContinuationFanoutSpan`, `emitContinuationCompactionReleasedSpan`, `emitContinuationDisabledSpan`.
 3. **/status continuation-substrate renders**: deployed dist has `status-message.runtime.js` / `status-message-DWwCMo4t.js` (the /status renderer) + chain-render logic in `dist/auto-reply/reply/agent-runner.runtime.js`. Confirmed live: this seat's own `session_status` on the deployed SHA renders `🔄 Continuation: chain 0/200` — the chain-count substrate is operator-visible on the deployed `9b1f42a694`.
 
 ## Evidence summary
@@ -33,5 +33,8 @@ The tracer shim keeps span emission additive (callers without a configured expor
 
 Both halves of the observability surface (trace-export + /status-render) are live + confirmed on the deployed ship-SHA.
 
-## Tempo trace
-**`c9ec309f75132077e8f144a8bb2a3a4d`** — the live traceparent the deployed tracer exported (proving the export path functions). Fresh per the 2026-05-16 tempo-trace-per-fire canon.
+## Tempo traces (both live in `elliott-prince` export, parent-verified)
+- **`cd6d1166f70b0f2a0338988b3f478f`** — live `continuation.queue.drain` root span (the deployed tracer exporting a real continuation span to Tempo).
+- **`c9ec309f75132077e8f144a8bb2a3a4d`** — the W3C traceparent the deployed tracer/tool allocated + exported (proving `formatContinuationTraceparent` functions).
+
+Fresh per the 2026-05-16 tempo-trace-per-fire canon.

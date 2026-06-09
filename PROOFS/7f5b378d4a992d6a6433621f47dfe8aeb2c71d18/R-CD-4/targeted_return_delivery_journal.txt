@@ -1,2 +1,0 @@
-Jun 08 07:43:13 ronan node[1581565]: 2026-06-08T07:43:13.742-07:00 RCD4-RETURN echo=RCD4-e66dc63f child→target routed
-Jun 08 07:43:13 ronan node[1581565]: 2026-06-08T07:43:13.843-07:00 [continuation:targeted-return] Delivered to agent:main:discord:channel:1466192485440164011 from agent:main:subagent:continuation-f0e624b208780c018c1900d8d432221a

@@ -1,1 +1,0 @@
-Jun 08 07:49:01 cael node[3286181]: 2026-06-08T07:49:01.791-07:00 [continuation/delegate-dispatch] [continuation:delegate-rejected] cost-capped task=R-CW-5 cost-cap rejection PROOF at e66dc63f (cael-seat, costCapTokens=100): this session=agent:main:discord:channel:1466192485440164011

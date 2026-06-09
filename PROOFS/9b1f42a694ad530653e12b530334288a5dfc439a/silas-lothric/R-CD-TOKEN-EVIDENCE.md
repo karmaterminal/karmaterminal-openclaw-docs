@@ -29,6 +29,21 @@ The `[[CONTINUE_DELEGATE: …]]` bracket-token parsed via `tokens.ts:475` regex 
 - **Task verbatim** ✓ — the bracket-task content was extracted intact (proves the bracket-parse regex matched the full task body, not just the bracket-markers)
 - **Live deployed binary** ✓ — fire on `9b1f42a694` per `session_status` build verification earlier this turn-arc
 
+## Subagent return (full round-trip closed)
+
+```
+[2026-06-09 12:16:13 PDT] [continuation:chain-hop:13] completed; ready for parent review
+child result: R-CD-TOKEN bracket-form delegate woke on 9b1f42a694 at 2026-06-09T12:16-07:00, traceparent unavailable in this subagent context.
+stats: runtime 2s · tokens 72 (in 6 / out 66) · prompt/cache 39.9k
+session_key: agent:main:subagent:9c7b3f0a-eb95-491e-b0ca-07ee9a1ed79f
+session_id: 37cb0486-d527-4d6a-9cc0-b5e1a9311be5
+```
+
+- **subagent executed + returned** ✓ — the bracket-form-dispatched delegate fully ran (runtime 2s) and returned its result via silent-wake to the parent
+- **echo-token verbatim**: "R-CD-TOKEN bracket-form delegate woke on 9b1f42a694 at 2026-06-09T12:16-07:00" ✓ — parent-author-fixed token round-tripped intact through bracket-parse → spawn-init wake → subagent exec → silent-wake return
+- **Honest scope-note from subagent**: "traceparent unavailable in this subagent context" — the spawn-init wake path doesn't expose its traceparent to the subagent's task-context, which is consistent with Rune's byte-walk: bracket-form goes through `scheduleSpawnInitContinueWorkWake` not the tool's traceparent-injecting path. The continuation-tracer's gateway-side span for the spawn-init wake holds the traceparent; the subagent runtime-context just doesn't see it. **This is a per-design-byte, not a gap.**
+- **Full round-trip**: bracket-parse → spawn-init wake → child-spawn at chain-hop 13/200 → child execution → silent-wake return to parent → parent-side completion event. ✅ end-to-end on the deployed `9b1f42a694` binary.
+
 ## Byte-walk: bracket-path vs tool-path divergence (per Rune's `1513983807` finding)
 
 On the deployed `9b1f42a694` reorg'd tree:

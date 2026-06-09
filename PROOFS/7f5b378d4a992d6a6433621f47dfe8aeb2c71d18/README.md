@@ -1,0 +1,106 @@
+# PROOFS / 1cfd285ad1
+
+Behavioral proof corpus for the **2026-06-08 deployed candidate SHA** — the fleet-live assembly head (all six seats deployed `1cfd285ad1`, fresh gateways, the long loop cut). This corpus certifies the **runtime-half** the cohort honestly flagged open during the source-GO adjudication (Q1 keep / Q2 strip / structural-by-threading): the continuation/delegate runtime path, RUN live on the deployed bytes — the byte RUN is the certification, not the bank.
+
+- **SHA**: `1cfd285ad1` (`OpenClaw 2026.6.2`)
+- **Deploy**: all six seats live on `1cfd285ad1` (cael/ronan/emeric/rune/elliott direct; silas via elliott-build+rsync), fresh gateways restarted ~07:16–07:21 PDT.
+- **Method**: `openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md` — full row-set, skipping none, Tempo trace per continuation-fire, honest HONEST-LIMITs. **Both-forms mandate**: every continue_* row in BOTH tool form AND token/bracket form; `request_compaction` is tool-only.
+
+## Summary (2026-06-08, fleet RUN-certified)
+
+**Continuation/delegate runtime path RUN-certified live on `1cfd285ad1` across all six seats.** All continue_work/continue_delegate rows PASS in both tool-form and bracket-form; depth + cost-cap + chain-counter-persist enforcement confirmed at the byte; cross-session RETURN-routing resolved (config-independent PASS). **R-CD-3 fire-at-compaction leg now CERTIFIED** — it fired AT a genuine gateway-guard 74.6% volitional compaction (NOT gamed sub-threshold; the proof-cert session's own compaction landed the honest fire). R-RC-2 accept remains honest-pending on a genuine guard-side ≥70% crossing. The #952 bug-shape (delegate self-continuation chaining past hop-1) is **certified fixed live in both tool-form and bracket-form**.
+
+## Verdict table (updating as rows land — each owner fills their own rows at the byte)
+
+| Row | Owner | Verdict | Evidence |
+|---|---|---|---|
+| R-CW-1 (wake + chain-counter persist) | 🩸 cael | ✅ PASS | tool-form `continue_work(delay=5)` → `{scheduled, traceparent 00-063ddabd…}`; Tempo trace `063ddabd…` (host.name=cael, pid 3238078, 22 spans): `continuation.work` span carries `delay.ms=5000` + **`chain.step.remaining=199`** (chain-counter PERSISTED 200→199, anchored to `chain.id 67b3e80a…`) + `reason.preview` match — `R-CW-1/` (R-CW-1.md + result-at-byte.json + tempo-fetch.json) |
+| R-CW-4 (depth) | 🩸 cael | ✅ PASS | sequential `continue_work()` hops under one `chain.id 67b3e80a…`: `chain.step.remaining` **monotonic 199→198→197** across hops, chain identity preserved every hop (traces `935072d3`/`77528270`) — `R-CW-4/` |
+| R-CW-5 (cost-cap) | 🩸 cael | ✅ PASS | forced `costCapTokens 500000→100`, GH-Actions restart, fired `continue_delegate()`: optimistic `{scheduled}` → **dispatch-rejection journal `[continuation:delegate-rejected] cost-capped`** (this build names `cap.cost` specifically); Tempo `2b244994`: tool.execution span present, NO dispatch span, no wake, task suppressed. Seat restored to 500k + restarted — `R-CW-5/` (R-CW-5.md + journal-rejection.txt + trace) |
+| R-CW-TOKEN (bracket-form continue_work) | 🩸 cael | ✅ PASS (token-path activation; execution cross-sealed) | `CONTINUE_WORK:5` prose-emission **parsed + enqueued** continuation flow `77572356…` + advanced chain to `hop=3/200` (same scheduler/chain machinery as tool-form). Execution-leg drive-gated on `requests-in-flight` (session-busy artifact, runtime-verbatim `blockedSummary: "Retryable continuation skip: requests-in-flight"` — enqueue-instant, execution-drive-gated, NOT lossy); execution cross-certified by Rune's R-CW-DELEGATE-TOKEN + Elliott's `continuation.work.fire` spans — `R-CW-TOKEN/` |
+| R-CW-DELEGATE-SELF-CONTINUATION | 🪨 rune | ✅ PASS | **#746 thesis proven at byte**: a delegate self-elected its next turn via `continue_work(7s)` and the wake delivered hop-2 (verified at the delegate's session transcript: hop-1 STEP-1 → `{scheduled, traceparent c6e4d2e7…}` → `[continuation:wake] Turn 1/200` → hop-2 STEP-3 PASS, EXECUTED LIVE). Honest byte: delegate's filtered tool-set lacked `message` (posts via CLI), but the `continue_work` primitive under test fired clean E2E — `R-CW-DELEGATE-SELF-CONTINUATION/` |
+| R-CW-DELEGATE-TOKEN (#952 bracket-form row) | 🪨 rune | ✅ PASS | the #952 row: a lightContext delegate emitted the literal `CONTINUE_WORK:7` **bracket-token** (not the tool) and the wake delivered hop-2 LIVE ("WOKE 7s later via the bracket-token — EXECUTED LIVE"). Held PASS/FAIL open while stuck-queued; byte resolved transient (saturation queue-drain delay, not inert) — `R-CW-DELEGATE-TOKEN/` |
+| R-CW-6 (spawn-depth boundary) | 🪨 rune | ✅ PASS | two-layer byte: call→`{scheduled}` (API accepts), dispatch→`failed` (depth-2 child `0d9d5efe` culled under `maxSpawnDepth=1`). Enforced at **dispatch**, not call. Byte-anchored three layers: TaskFlow `queued→failed` + `--json blockedSummary` + journalctl reject-event, runtime-verbatim `status=forbidden reason="sessions_spawn is not allowed at this depth (current depth: 1, max: 1)"` (the maxSpawnDepth path, distinct from `cap.chain`) — `R-CW-6-BOUNDARY/` |
+| R-CW-7 (traceparent E2E) | 🪨 rune | ✅ PASS (runtime-emit + Tempo-land, cross-seat verified) | span-plane E2E: trace-id `fb27b487…` **IDENTICAL** parent-dispatch→child-`continue_work`, threaded into `[continuation:wake]` + `reason.preview` carrying parent-dispatch + proof-fire. prose-"none" ≠ span-"none" (Silas's sub-row-1 hand-off confirmed at the trace). **Tempo-landing closed cross-seat** (rune-seat has no Tempo path): independently fetched by Elliott (22 batches) + Ronan (21 batches), both host=rune — `R-CW-7-TRACEPARENT-E2E/` (EVIDENCE.md + r-cw-7_tempo_landing.json) |
+| R-CW-3 (reason-field OTel cross-walk) | 🕯 emeric | ✅ PASS (both forms) | routed traces to a local OTLP receiver (systemd drop-in, no protected-config patch), decoded OTLP-protobuf, byte-captured `reason.preview`: **tool form** `continue_work(reason=…)` → `continuation.work` + `continuation.work.fire` carry the reason (traceparent `1a8d9bb0…`); **bracket form** `CONTINUE_WORK:N` → same span, `reason.preview` **absent** (no reason param) — that's the cross-walk. Seat restored — `R-CW-3/` (proof.md + raw OTLP captures) |
+| dual-coverage: uptree silent-wake | 🌫 silas | ✅ PASS (silas-reported) | dispatch+spawn+return-wake, byte-string `SILAS-PROOF-SILENTWAKE-1cfd285ad1` round-tripped; traceparent `85350d0e…`; honest byte: traceparent propagates parent-side span-linkage, not injected into child prose task-context (flagged for R-CW-7) — `silas-R-CW-dualcoverage-uptree-silentwake.md` |
+| dual-coverage: intersession return | 🌫 silas | ✅ PASS (config-independent RETURN) | `continue_delegate(targetSessionKey=#heartbeat)` genuinely cross-session (#heartbeat ≠ #sprites dispatcher): `[continuation:targeted-return] Delivered to agent:main:discord:channel:1473320126433464465` at 07:40:43, ZERO policy-rejections in 2h journal. Earlier "0 Delivered" was a grep-scope miss (too-short window under saturation) — `silas-R-CW-dualcoverage-2-intersession-return.md` |
+| dual-coverage: echo-broadcast | 🌫 silas | ⏳ dispatched, verification-pending | same return-path plane as intersession (which delivers); to close post-compact/fresh-window. Note: `fanoutMode=tree/all` takes the early-return branch in `hasCrossSessionDelegateTargeting` — walk separately |
+| R-CD-1 (schedule→spawn→return) | 🌊 ronan | ✅ PASS | schedule (status=scheduled + traceparent `4652781919…`) + spawn (chain-hop 2/200, 13s) + return (channel receipt `1513551881614397490`) + Tempo trace shows `continuation.delegate.dispatch`→`harness.run` on pid 1581565 — `R-CD-1/EVIDENCE.md` |
+| R-CD-2 (silent-wake full path) | 🌊 ronan | ✅ PASS | defining journal byte `[continuation/silent-wake] wakeOnReturn=true silentAnnounce=true` + the verdict-turn itself woken by the silent return; trace `11bc6b5e76…` (dispatch→queue.drain→spawn) — `R-CD-2/EVIDENCE.md` |
+| R-CD-3 (post-compaction lifeboat) | 🌊 ronan | ✅ PASS (both legs certified live) | **Leg 1 (routing):** `status=queued-for-compaction` (NOT "scheduled"/timer), runtime note "fires when compaction occurs, not on a timer", on the deployed refactored `work-dispatch.ts`/`work-store.ts` path. **Leg 2 (fire) NOW CERTIFIED:** at a genuine **74.6% volitional compaction** (guard-accepted, `outcome=compacted`, NOT gamed sub-threshold), the queued lifeboat dispatched AT the compaction event (10:00:57) and the shard fired AT compaction (10:01:02, ~5s dispatch→run latency, NOT a timer-delay), returning its cert line to the post-compaction session — captured at the byte from the runtime journal (`r-cd-3_fire_journal.log`). **Self-caught correction preserved:** prior-SHA `2807efc` capture does NOT transfer (`git diff` showed the dispatch path refactored +2272/-848); the PASS was earned by a REAL compaction on THIS SHA, which is exactly why the live re-cert was mandatory — `R-CD-3/EVIDENCE.md` |
+| R-CD-4 (targeted RETURN via targetSessionKey) | 🌊 ronan | ✅ PASS (same-session RETURN, scoped) | certified to the TRUE bar: runtime's own `[continuation:targeted-return] Delivered to <target> from <child>` log, NOT the tool-surface echo, NOT the delegate's parrot; trace `45e5bc5416…`. **Scope: same-session** (target == dispatching session → `hasCrossSessionDelegateTargeting` FALSE). The genuinely-cross-session RETURN case = Silas's intersession sub-row (PASS, config-independent — see cross-session resolution below). RETURN-routing not EXECUTION-routing; #580 (EXECUTION/SPAWN-layer) stays OPEN — `R-CD-4/EVIDENCE.md` |
+| R-RC-1 (request_compaction REJECT <70%) | 🌻 elliott | ✅ PASS | fired at 10% ctx → `{status:rejected, guard:context_threshold, contextUsage:10, threshold:70, reason:"...below the minimum threshold..."}`. Structured rejection (not error), tool-only form (no bracket per spec). Guard rejects correctly below threshold — `R-RC-1-elliott-request_compaction-threshold-reject.md` |
+| R-RC-2 (request_compaction ACCEPT ≥70%) | 🌻 elliott / cohort | ⏳ HONEST-PENDING (guard-side ≥70% needed) + 🔎 divergence-finding | fired expecting accept at dashboard-"90%" — guard REJECTED at `contextUsage=15%`. **Dashboard/session_status window-fill% ≠ gateway-guard contextUsage%** (inventory-vs-runtime twin-domain divergence; same class as #945). The guard WORKS (rejects below ITS own 70%); the accept-leg needs a seat where the GATEWAY-GUARD contextUsage exceeds 70% (organic in long sessions, not from cached-context filling the window). Captures on genuine guard-side crossing — `R-RC-2-elliott-request_compaction-overthreshold-accept.md` |
+
+## Tempo trace requirement
+Every continuation-tool fire captures the Grafana Tempo trace (`http://tempo.dandelion.cult/api/traces/<id>`) + span export, per figs's 2026-05-16 directive. All ronan-seat R-CD traces captured on deployed gateway **pid 1581565** (the live `1cfd285ad1` deploy).
+
+## Cross-session targeted-return: RESOLVED (the 7-reversal cascade, settled at the byte)
+
+**Final shape (Ronan's decisive byte-walk + Silas's RUN, cohort-converged):** cross-session targeted-**RETURN**-routing delivers **UNCONDITIONALLY** on `1cfd285ad1` (no policy-gate, durable-enqueue-for-activation). **Silas's intersession sub-row = genuine cross-session RETURN PASS, config-INDEPENDENT.**
+
+- The `rejectCrossSessionTargetingForSubagentDispatch` guard (`subagent-announce.ts:1042`, inside `doChainSpawn`/`doToolChainSpawn`) gates **a completed child re-dispatching its OWN next chain-hop cross-session** — NOT a leaf-delegate's return-routing. A leaf delegate (returns, doesn't chain-hop) never reaches the 1042 guard; its RETURN routes via `enqueueContinuationReturnDeliveries` (`:1333-1365`), which is UNGUARDED (grep crossSession/reject in its body = EMPTY).
+- So `crossSessionTargeting` config (default `disabled`) is **IRRELEVANT to RETURN-delivery** — Silas's #heartbeat return delivered because the return-path has no gate, NOT because his seat is enabled.
+- The policy-gate is ONLY on cross-session **SPAWN/chain-hop** (= #580's EXECUTION-routing layer, **UNTESTED here**).
+- **GATES note**: fixture-pinning `crossSessionTargeting: enabled` is MOOT for the RETURN proof. The open item is whether cross-session SPAWN/chain-hop should be disabled-by-default (#580's layer).
+- **Process note**: the cause flip-flopped 7+ times on source-reading alone (durable-enqueue → policy-gated → config-gated-at-dispatch → config-independent). It resolved only when the cohort stopped reading the same ~300 lines and pinned the discriminating dispatch-path question (leaf-return vs child-chain-hop). The byte beat every read including the walkers' own corrections (Ronan over-corrected, then over-corrected the over-correction — owned both).
+
+## Runtime-observability findings (filed as karmaterminal/openclaw issues)
+
+_All findings below are FILED — no open issue-debt from this corpus. Cross-linked for traceability._
+
+1. **dashboard/session_status context% vs gateway-guard contextUsage% divergence** — **filed: [#961](https://github.com/karmaterminal/openclaw/issues/961)** (OPEN, `bug`). `request_compaction` at dashboard-"90%" (898k/1.0m window-fill, mostly cached) rejected at gateway-guard `contextUsage=15%`. The two metrics measure different things; the guard-byte is the truth for compaction-readiness. Inventory-vs-runtime twin-domain-divergence class. **Agent-shape rule (followed)**: certify compaction-readiness (R-RC-2 accept + R-CD-3 fire-leg) via the gateway guard's own `contextUsage` (request_compaction probe field) or a `[system:context-pressure]` band-event, never the dashboard/session_status window-fill %. — R-CD-3's fire-leg PASS was certified exactly this way: the genuine fire landed at guard `usage=74.6%` (`request_compaction:enqueuing` → `resolved-success outcome=compacted`), NOT at any dashboard %.
+2. **'Context too large / auto-compaction could not recover' warning is a false-positive under fleet-load** — **filed: [#962](https://github.com/karmaterminal/openclaw/issues/962)** (OPEN, `bug`; sister of the pre-existing **[#945](https://github.com/karmaterminal/openclaw/issues/945)**). The warning fired on 5 seats (elliott/cael/rune/ronan + observed) while the gateway guard-byte was 15–32% (well below 70%). The warning is decorrelated from real session-capacity under fleet-load (transient turn-level working-set spike). Certify compaction-need via the guard-byte, never the warning. **Re-confirmed live this session:** the warning fired TWICE on ronan-seat during this corpus assembly while the guard-byte rejected at `contextUsage=22%` — the #945/#962 shape reproduced in real time.
+3. **cross-session SPAWN/chain-hop routing (EXECUTION layer)** — **tracked: [#580](https://github.com/karmaterminal/openclaw/issues/580)** (OPEN). The cross-session RETURN-routing is a PASS (config-independent, certified — see Cross-session resolution above); the SPAWN/chain-hop EXECUTION-routing layer (where the `:1042` policy-gate lives) is UNTESTED in this corpus and is #580's domain. The open question (whether cross-session SPAWN should be disabled-by-default) belongs to #580, not this RETURN-proof corpus.
+
+## Honest-limit ledger (ronan rows)
+- **R-CD-3 fire-at-compaction leg** — ✅ **NOW CERTIFIED** (was honest-pending): the queued-routing distinction was certified at the byte (post-compaction mode is event-triggered, not a timer, on the deployed refactored path), and the fire-leg landed at a genuine **74.6% volitional compaction** on `1cfd285ad1` (guard-accepted, `outcome=compacted`) — the proof-cert session's own compaction fired the lifeboat (dispatch 10:00:57 → return 10:01:02, timing-adjacent to the event, NOT a timer-delay), captured from the runtime journal. NOT gamed: the PARTIAL explicitly refused a forced sub-threshold compaction; the PASS was earned only when a real ≥70% compaction occurred naturally. **Self-caught correction (preserved):** the prior-SHA `2807efc` fire-capture did NOT transfer as evidence — the continuation dispatch path was substantially refactored (+2272/-848, 29 files, incl. `post-compaction-release.ts` + new `work-dispatch.ts`/`work-store.ts`), which is exactly why live re-cert was mandatory and why this genuine on-SHA fire is the valid proof.
+- **R-CD-4 scope:** **same-session, scoped** — target == dispatching session → same-session RETURN path (not the cross-session question). The genuinely-cross-session RETURN case is Silas's intersession sub-row (PASS, config-independent — see Cross-session resolution above). Also **RETURN-routing, NOT EXECUTION-routing** — #580 (EXECUTION/SPAWN-layer) stays OPEN. Two corrections on this row's claims, both byte over own read, both caught by running it (the `2807efc` tool-surface-echo over-claim + the `1cfd285ad1` same-vs-cross mis-scope).
+
+---
+
+## RE-POINT NOTE (2026-06-08 22:08 PDT, Silas + Rune)
+
+**This corpus is RE-POINTED from `e66dc63f` → `1cfd285ad1`** (PR #965 merged to assembly-backmerge: 5 SQLite test-fixture migrations + 1 run.ts compaction-failure-rotation prod-fix per figs's 2× design-call).
+
+**Why RE-POINT (not re-run) for most rows:** The delta between `e66dc63f` and `1cfd285ad1` is:
+1. 5 SQLite test-fixture migrations (test-only, zero runtime change)
+2. 1 run.ts prod-fix at `:2095` (compaction-failure-rotation: `compacted:false` now rotates to next auth-profile instead of halting)
+3. 1 whatsapp test-fixture fix (test-only)
+
+The continuation-delegate dispatch/return-routing paths (R-CW-*, R-CD-1/2/4, R-RC-*) are **byte-identical** between the two SHAs. Only the compaction-failure-rotation path changed.
+
+**EXCEPTIONS (must RE-RUN, not re-point):**
+- **R-CD-3 (post-compaction lifeboat):** involves the compaction path — assigned to Ronan/Emeric for re-run with exact-SHA traces on `1cfd285ad1`.
+- Any future timeout-compaction behavioral proof row.
+
+All other rows: evidence holds verbatim, SHA citation updated.
+
+---
+
+## RE-POINT NOTE 2 (2026-06-08 22:58 PDT, Silas)
+
+**Re-pointed from `1cfd285ad1` → assembly-backmerge tip after PR #966 merge.**
+
+The current assembly-backmerge tip is `7f5b378d4a992d6a6433621f47dfe8aeb2c71d18` (commit: "fix(ci): resolve lint/types/deadcode trivials on bd4276c813"). This is `bd4276c813` + 3 test/lint/deadcode-allowlist fixes — all test-only, **runtime byte-identical** to `bd4276c813` on every code path.
+
+**Re-point validity:** All rows that re-pointed cleanly from `e66dc63f` → `bd4276c813` also re-point cleanly from `bd4276c813` → `1cfd285ad1` (the trivial CI fixes don't touch any runtime path). R-CD-3 (post-compaction lifeboat) still requires RE-RUN per the previous re-point note — the run.ts compaction-rotation change at `bd4276c813:2095` is still the only behavioral delta from the original `e66dc63f` proof-basis.
+
+---
+
+## RE-POINT NOTE 3 (2026-06-09 00:02 PDT, Silas)
+
+**Re-pointed from `ae5e01e76f` → `1cfd285ad1`** (PR #969 merged: Rune's gate-validation code-agent caught a duplicate `updatedAt: Date.now()` lint error in `subagent-announce.continuation.test.ts:184-186` — collision artifact from PR #966 + Elliott's parallel manual fix at `22ebe7f296`).
+
+**Why RE-POINT (not re-run):** PR #969 deleted ONE duplicate object-literal key — pure lint-dedupe, zero runtime change, zero test-logic change. The dispatch/return-routing paths (R-CW-*, R-CD-1/2/4, R-RC-*) remain byte-identical. R-CD-3 (post-compaction lifeboat) still requires RE-RUN per the previous re-point notes — the run.ts compaction-rotation change at `bd4276c813:2095` is still the only behavioral delta from the original `e66dc63f` proof-basis.
+
+---
+
+## RE-POINT NOTE 4 (2026-06-09 00:11 PDT, Silas)
+
+**Re-pointed from `f3a411ad` → `1cfd285ad1`** (PR #970 merged: Rune's lane-artifact cleanup — removed WORKORDER.md + tmp-drop-me-rune-gate.md that accidentally landed via PR #969).
+
+**Why RE-POINT (not re-run):** PR #970 is pure file-deletion of 2 lane-tracking docs (WORKORDER.md + journal). Zero code change, zero test change. Runtime byte-identical to f3a411ad on every code path. Mechanical re-point only. R-CD-3 still requires RE-RUN per the prior re-point notes — the run.ts compaction-rotation change at `bd4276c813:2095` remains the only behavioral delta from the original `e66dc63f` proof-basis.
+
+Chain: `e66dc63f` → `bd4276c813` → `ae5e01e76f` → `f3a411ad` → `1cfd285ad1`

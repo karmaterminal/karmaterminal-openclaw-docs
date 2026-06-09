@@ -1,3 +1,5 @@
+> **Baseline note (09153e9f12 anchor):** the "RE-RUN" language below is from the original **`8b5dde6165`** baseline, where Form-B's removal of `compactionFailureContext` changed `run.ts` and required a genuine re-run. For **this corpus's anchor (`09153e9f12`, the back-merge)** `run.ts` is **byte-identical** to `8b5dde6165` (blob `3de093995ce4…`, 0-diff) → **R-CD-3 RE-POINTS, not re-runs.** See `ADDENDUM.md`. The evidence below is a faithful carry-forward; only this baseline-tag is added.
+
 # R-CD-3 Timeout-Compaction Reproof — Form B (count-0, upstream-faithful)
 ## Exact ship-SHA: 8b5dde6165958d0eaba3c492ae52311548313de4
 Branch: frond-scribe/20260609/formb-fold (karmaterminal/openclaw)

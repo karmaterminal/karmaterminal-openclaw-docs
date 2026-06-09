@@ -8,8 +8,8 @@
 
 ```
 2026-06-08T07:40:39.094-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session agent:main:discord:channel:1466192485440164011
-2026-06-08T07:40:39.181-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=2/200 mode=silent session=agent:main:discord:channel:1466192485440164011 task=PROOFS R-CW dual-coverage sub-row 2 INTERSESSION RETURN, e66dc63f. One line only
-2026-06-08T07:40:43.755-07:00 SILAS-PROOF-INTERSESSION-e66dc63f-v2 — intersession-return delegate executed from Silas #sprites main session, return targeted to Silas #heartbeat session; UTC 2026-06-08T14:40Z.
+2026-06-08T07:40:39.181-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=2/200 mode=silent session=agent:main:discord:channel:1466192485440164011 task=PROOFS R-CW dual-coverage sub-row 2 INTERSESSION RETURN, bd4276c813. One line only
+2026-06-08T07:40:43.755-07:00 SILAS-PROOF-INTERSESSION-bd4276c813-v2 — intersession-return delegate executed from Silas #sprites main session, return targeted to Silas #heartbeat session; UTC 2026-06-08T14:40Z.
 ```
 
 ## Key bytes
@@ -45,7 +45,7 @@ Both arrive at: config-independent PASS for cross-session RETURN-routing.
 
 ## FINAL VERDICT: sub-row 2 = PASS (runtime-proven, config-independent)
 
-Cross-session targeted-return delivers on `e66dc63f`. Delegate spawns same-session, returns cross-session via ungated path. Config never checked. Proven by runtime journal + confirmed by source walk. The layer-split (RETURN unguarded / SPAWN guarded) is the resolved floor.
+Cross-session targeted-return delivers on `bd4276c813`. Delegate spawns same-session, returns cross-session via ungated path. Config never checked. Proven by runtime journal + confirmed by source walk. The layer-split (RETURN unguarded / SPAWN guarded) is the resolved floor.
 
 ---
 
@@ -57,16 +57,3 @@ A prior proof attempt dispatched to a DORMANT #heartbeat session. That run showe
 - Flagged as honest delivery-semantics observation
 
 Tonight's successful run (above) dispatched to an ACTIVE #heartbeat session and got the genuine Delivered-log — proving the return-routing path works. The dormant-target semantics question remains a separate GATES observation (not a failure of the return-routing path itself).
-
----
-
-## Re-point note (2026-06-08 22:06 PDT)
-
-**Re-pointed from `e66dc63f` → `bd4276c813`** (PR #965 merged to assembly-backmerge).
-
-**Why RE-POINT (not re-run):** The delta between `e66dc63f` and `bd4276c813` is:
-1. 5 SQLite test-fixture migrations (test-only, zero runtime change)
-2. 1 run.ts prod-fix at `:2095` (compaction-failure-rotation path — makes `compacted:false` rotate to next auth-profile instead of halting)
-3. 1 whatsapp test-fixture fix (test-only)
-
-None of these touch the **continuation-delegate dispatch/return-routing path** this proof tests (`continue_delegate` → `enqueueContinuationReturnDeliveries` → `[continuation:targeted-return] Delivered`). The dispatch machinery, return-routing, and cross-session delivery are byte-identical between the two SHAs. The proof evidence holds verbatim.

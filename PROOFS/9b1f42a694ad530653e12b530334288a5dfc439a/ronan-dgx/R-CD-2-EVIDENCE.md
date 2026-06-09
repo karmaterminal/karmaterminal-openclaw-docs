@@ -15,3 +15,10 @@ Surface: `src/agents/tools/continue-delegate-tool.ts` (285L). silent-wake mode h
 
 ## Tempo trace
 **`e75683acb974543e03ebc0bbb81f0c05`** — http://tempo.dandelion.cult/api/traces/e75683acb974543e03ebc0bbb81f0c05
+
+## Delegate return payload (proof-loop closed)
+The silent-wake delegate **executed, returned, AND woke a fresh turn** on the deployed binary:
+```
+R-CD-2 silent-wake delegate executed on 9b1f42a694 ronan-dgx — 2026-06-09T18:05:43Z
+```
+Confirmed the silent-wake distinction from plain silent: the return triggered a fresh turn (wake), exactly per spec, on `9b1f42a694`.

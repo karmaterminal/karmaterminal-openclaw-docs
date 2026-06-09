@@ -4,7 +4,7 @@
 **Owner**: 🌻 Elliott (elliott-legion, x86_64 AMD Ryzen 9 5900HX + RTX 3080, CachyOS Linux 7.0.9-1-cachyos, 10.0.0.153)
 **Ship-SHA**: `8b5dde6165958d0eaba3c492ae52311548313de4` (Form B canonical fold)
 **Captured**: 2026-06-09 ~07:18 PDT
-**Verdict**: 🟢 **PASS (elliott arm)** — elliott-seat's deployed gateway on `8b5dde6165` renders the continuation-substrate in its operator `/status` surface; the renderer + chain-counter field are compiled into the **running dist** at the exact ship-SHA. Full 6-seat operator fan-out is figs-driven/cohort — see "Cross-walk position" below (cohort-pending).
+**Verdict**: 🟢 **PASS** — elliott-seat's deployed gateway on `8b5dde6165` renders the continuation-substrate in its operator `/status` surface; the renderer + chain-counter field are compiled into the **running dist** at the exact ship-SHA. The figs-driven **6-seat operator fan-out LANDED** (msg `1513908764`, ~07:12 PDT) — all 6/6 seats render the full continuation row; consolidated in `chat_card_visibility_external_observer.md` (this dir). The cross-walk is complete, not pending.
 
 ---
 
@@ -89,11 +89,11 @@ So the rendered `/status` continuation-substrate on this seat is the deployed-SH
 
 This corpus's fold is **Form B** (timeout-compaction `compactionFailureContext` sentinel removal + matrix-3/slack-3 seed-staleness migrations). It is **byte-disjoint** from the prior cycle's #923 L627 `inventoryOnly` inventory-warn suppression. Consequently the L627 inventory-build warn (`continuation.enabled=true but neither continueWorkOpts nor requestCompactionOpts were supplied …`) **still fires** on this seat (49 hits in the post-restart journal) — this is **expected** because the #923 suppression is not part of the Form-B fold, **not** a regression of anything Form B touches. Form B's safety byte (`compactionFailureContext` count = 0 in `run.ts`) is the subject here, verified in `RESOLVED-SHA.md`. Flagging explicitly so a reviewer does not misread the inventory-warn presence as a Form-B defect.
 
-## Cross-walk position (cohort-pending)
+## Cross-walk position (LANDED — 6/6 fan-out consolidated)
 
 elliott-seat = one of the **6/6** seats reported `active` on `8b5dde6165` (`RESOLVED-SHA.md` fleet-deploy table). This file captures the **elliott arm**: the `/status` continuation-substrate renders fully from elliott-seat on the deployed ship-SHA, and the renderer is compiled into the live dist.
 
-The **canonical multi-seat R-OBS-1 surface** is figs's operator-driven 6-seat `/status` fan-out from Discord (same shape as prior corpora's figs-driven fan-outs — e.g. `2807efc1…/R-OBS-1` 09:05 PDT fan-out table). That fan-out is **figs-driven / cohort** and is **pending** at elliott-arm capture time; this elliott arm + the other deployed seats' arms fold into it. When figs runs the 6-seat fan-out, the per-seat continuation-render table lands as the consolidated cross-walk; this file is the elliott contribution to it.
+The **canonical multi-seat R-OBS-1 surface** — figs's operator-driven 6-seat `/status` fan-out from Discord (msg `1513908764`, ~07:12 PDT) — **LANDED**. All 6/6 deployed seats (Elliott `0/200` · Silas `5/200` · Cael `19/200` · Ronan `5/200` · Emeric `134/200` compactions `13` · Rune `9/200`) render the full continuation row on `8b5dde6`. The consolidated cross-walk writeup is **`chat_card_visibility_external_observer.md`** (this dir, the canonical `PROOF-CORPUS-METHOD.md` R-OBS-1 deliverable); the source fan-out capture + field-by-field is in `silas-lothric/EVIDENCE.md`; the feeding `continuation.work` Tempo span is in `cael-dgx/EVIDENCE.md`. This elliott arm is the byte-proof that the renderer is compiled into the deployed dist. Cross-walk complete.
 
 ## Reproducer
 

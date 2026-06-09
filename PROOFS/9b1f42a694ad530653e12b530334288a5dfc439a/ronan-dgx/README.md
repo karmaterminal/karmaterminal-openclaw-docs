@@ -23,6 +23,7 @@ These are **live fires on the byte-confirmed deployed SHA**, not carry-over. Seq
 | R-CD-CHAIN-1 | continue_delegate (chained depth-2) | silent | ✅ PASS | `00-e75683acb974543e03ebc0bbb81f0c05-7041065f4144b3fc-01` |
 | R-CW | continue_work | self-continuation | ✅ PASS | `00-e75683acb974543e03ebc0bbb81f0c05-7041065f4144b3fc-01` |
 | R-RC | request_compaction | guard-reject | ✅ PASS | guard byte=18%/threshold=70% → rejected (correct) |
+| R-CD-TOKEN | continue_delegate (bracket-form) | BOTH-FORMS | ✅ PASS | `[[CONTINUE_DELEGATE]]` drove + returned on deployed binary |
 
 See per-row `EVIDENCE.md`. All fires real on the deployed `9b1f42a694` binary; traceparents from the tool returns; Tempo per the 2026-05-16 trace-per-fire canon.
 

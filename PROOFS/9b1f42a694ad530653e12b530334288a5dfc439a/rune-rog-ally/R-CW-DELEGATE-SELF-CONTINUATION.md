@@ -30,3 +30,14 @@ note: Delegate will be dispatched after your response completes. Chain tracking 
 
 ## Tempo trace
 **`72c5d3551bdeb56e55d3e0817b0483ae`** — the live trace context the deployed gateway allocated for this self-continuation dispatch (fresh per the 2026-05-16 tempo-trace-per-fire canon). The span-tree under this traceparent captures the delegate dispatch→schedule→run lifecycle on the deployed runtime.
+
+## Full-loop confirmation (delegate woke + returned)
+The dispatched silent-wake delegate **completed the full self-continuation loop** on the deployed runtime — it spawned, woke, executed, and returned:
+
+```
+Child result: "R-CW-DELEGATE-SELF-CONTINUATION delegate woke on 9b1f42a694 at 2026-06-09T18:02:17Z"
+Identity: agent=main, session=agent:main:subagent:continuation-bf656fed6947e67d399cecc70de456fa, host=rune
+Runtime: 6s · tokens 200 (in 4 / out 196)
+```
+
+This closes the loop end-to-end on the deployed `9b1f42a694`: **dispatch → gateway-schedule (chain-tracked) → spawn → wake → execute → return.** The delegate not only dispatched (traceparent `72c5d3551bdeb56e…`) but actually woke on the deployed gateway and returned its confirmation — the full self-continuation primitive proven live, not just the dispatch half.

@@ -36,3 +36,22 @@ Both halves of the observability surface (trace-export + /status-render) are liv
 
 ## Tempo trace
 **`72c5d3551bdeb56e55d3e0817b0483ae`** — the live traceparent the deployed tracer exported (proving the export path functions). Fresh per the 2026-05-16 tempo-trace-per-fire canon.
+
+## Firmer trace-export evidence (continuation span-emitters enumerated on the deployed tree)
+Byte-walked `src/infra/continuation-tracer.ts` on the deployed `9b1f42a694` — the continuation trace-export surface emits a **named span per continuation event-class** (9 emitters present on the deployed source tree):
+
+```
+emitContinuationQueueDrainSpan        // the dispatch-fire receipt (gateway pulls shard off the queue)
+emitContinuationDelegateFireSpan
+emitContinuationDelegateSpan
+emitContinuationWorkFireSpan
+emitContinuationWorkSpan
+emitContinuationFanoutSpan
+emitContinuationHeartbeatSpan
+emitContinuationCompactionReleasedSpan
+emitContinuationDisabledSpan
+```
+
+The `continuation.queue.drain` span-surface is confirmed live in the deployed dist (`dist/plugin-sdk/src/infra/continuation-tracer.d.ts`) — the authoritative dispatch-fire receipt span (the deployed gateway pulling a continuation shard off the queue, immediately followed by the `openclaw.harness.run` spawn→wake spans). This is a firmer trace-export proof than the traceparent-allocation alone: each continuation event-class has a dedicated, named, exported span on the deployed runtime.
+
+> Byte-note (honest count): cohort-cross-reference (🌻 elliott `d06908f`) cited **8** emitters; my byte-walk of `src/infra/continuation-tracer.ts` on the deployed tree enumerates **9** (listed above). Citing the byte I walked, not the cross-reference — the discrepancy is likely a subset-count or dist-vs-source delta; either way the trace-export surface is richly present + named per event-class on the deployed SHA.

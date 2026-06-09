@@ -1,0 +1,2 @@
+Jun 08 21:47:39 ronan node[4127570]: 2026-06-08T21:47:39.465-07:00 PROOF-MARKER-RONAN-RCD4-RETURN-c4f15321: targeted-return via targetSessionKey landed on c4f15321fb at 2026-06-08 21:42 PDT (same-session scope: target==dispatcher).
+Jun 08 21:47:39 ronan node[4127570]: 2026-06-08T21:47:39.522-07:00 [continuation:targeted-return] Delivered to agent:main:subagent:0166e10f-2018-4fa8-a670-bc5933f1453c from agent:main:subagent:continuation-09f68dc5d1f5ec0020a710adc4a3d2f1

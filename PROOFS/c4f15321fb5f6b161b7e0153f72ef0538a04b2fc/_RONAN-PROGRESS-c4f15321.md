@@ -11,13 +11,13 @@
 - ✅ R-CD-3 — post-compaction lifeboat FRESH exact-SHA: fired AT genuine 89.3% in-window compaction (diagId cmp-mq656ywv, runId a5627e72) on live c4f15321fb. compaction-fire-journal.txt + EVIDENCE. THIS subagent IS the fired lifeboat. (NO force-compact — opportunistic genuine session-fill capture.)
 - ✅ README.md — canonical verdict-table built (all cohort rows: my R-CD suite + Rune R-CW-6/7 + Silas dualcoverage). First README on c4f dir (no collision, verified vs origin).
 
-## DISPATCHED (receipt recorded; EVIDENCE verdict-upgrade pending follow-up turn)
-- ⏳ R-CD-4 — targeted-return targetSessionKey (same-session scope). dispatch-trace.txt has receipt (status=scheduled, targetSessionKey echoed, trace a00118d68efa6335cb29cbcb03dcdc8c). Runtime [continuation:targeted-return] Delivered-log capture = NEXT turn.
-- ⏳ R-CD-CHAINED-DEPTH-2 — fanoutMode=tree depth-2. dispatch-trace.txt has receipt (status=scheduled, fanoutMode=tree echoed, same trace). depth-2 leaf-return capture = NEXT turn.
+## DISPATCHED → NOW ✅ COMPLETE (runtime Delivered-log + Tempo captured 21:50)
+- ✅ R-CD-4 — targeted-return targetSessionKey (same-session scope). RUNTIME PROOF: `[continuation:targeted-return] Delivered to <0166e10f> from <continuation-09f68dc5>` (target==dispatcher → same-session path). Tempo a00118d68efa6335cb29cbcb03dcdc8c. EVIDENCE.md + targeted-return-journal.txt + dispatch-trace.txt.
+- ✅ R-CD-CHAINED-DEPTH-2 — fanoutMode=tree depth-2. RUNTIME PROOF: depth-2 leaf (continuation-69f53500) Delivered to 3 ANCESTORS (depth-1 parent continuation-28e3fe55 + me 0166e10f + channel root) = the tree-broadcast byte; chain-hop token accumulation propagated up; Tempo spans continuation.queue.fanout + continuation.delegate.dispatch. EVIDENCE.md + tree-broadcast-journal.txt + dispatch-trace.txt.
+- ALL 3 MARKERS returned verbatim. ALL 6 of my rows now ✅ PASS in README.
 
 ## NEXT (follow-up turn)
-1. Capture runtime Delivered-log + Tempo for R-CD-4 + R-CD-CHAINED-DEPTH-2 → write their EVIDENCE.md, flip ⏳→✅ in README.
-2. Verify markers returned: PROOF-MARKER-RONAN-RCD4-RETURN-c4f15321, PROOF-MARKER-RONAN-RCD-CHAINED-DEPTH-2-c4f15321, PROOF-MARKER-RONAN-RCD-DEPTH2-LEAF-c4f15321.
+DONE — all 6 rows captured + committed. Remaining: 2nd commit (R-CD-4 + R-CD-CHAINED-DEPTH-2 EVIDENCE/Tempo + README flip), then report final + HOLD.
 
 ## COMMIT DISCIPLINE (followed)
 - Pulled origin first (Rune+Silas rows landed: R-CW-6/7, dualcoverage, METHOD/RE-POINT/BRIEF-rune).

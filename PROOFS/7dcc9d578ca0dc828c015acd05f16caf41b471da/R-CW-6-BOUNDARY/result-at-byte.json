@@ -1,0 +1,37 @@
+{
+  "row": "R-CW-6",
+  "prince": "rune",
+  "host": "rune",
+  "sha": "7dcc9d578ca0dc828c015acd05f16caf41b471da",
+  "runtime_build": "OpenClaw 2026.6.2 (7dcc9d5)",
+  "verdict": "PASS",
+  "thesis": "continuation spawn-depth boundary enforced at tool-policy layer (rune-seat maxSpawnDepth unset -> default 1; role=leaf -> tools.deny strips continue_delegate + sessions_spawn)",
+  "enforcement_layer": "tool-policy (stricter than e66dc63f dispatch-time-reject)",
+  "tool_policy_byte": {
+    "rule": "subagent tools.deny",
+    "removedTools": ["agents_list", "continue_delegate", "cron", "gateway", "session_status", "sessions_history", "sessions_list", "sessions_send", "sessions_spawn", "subagents"],
+    "removedToolCount": 10,
+    "timestamp": "2026-06-08T19:07:48.396-07:00"
+  },
+  "role_resolution": {
+    "formula": "depth < maxSpawnDepth ? orchestrator : leaf",
+    "depth": 1,
+    "maxSpawnDepth": 1,
+    "result": "leaf (1 < 1 = false)"
+  },
+  "session": "agent:main:subagent:43559507-db12-4ab0-b847-0a4297a5500a",
+  "traceId": "e55408592fb268c1c2a66e93373d804d",
+  "code_anchors": {
+    "depth_guard": "subagent-spawn-BazZsMM5.js + acp-spawn-B0M97ZhH.js: callerDepth >= maxSpawnDepth -> forbidden",
+    "role_resolution": "subagent-capabilities-zBNDNERf.js: depth < maxSpawnDepth ? orchestrator : leaf",
+    "default": "plugin-sdk/src/config/agent-limits.d.ts:10 DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH = 1",
+    "delegate_dispatch_reject": "delegate-dispatch-C2WZgM-l.js: [continuation:delegate-spawn-rejected] (defense-in-depth, not primary enforcement on 7dcc9d5)"
+  },
+  "behavioral_delta_vs_e66dc63f": "e66dc63f: tools offered -> call accepted (scheduled) -> dispatch-time reject (failed). 7dcc9d5: tools STRIPPED at policy layer -> call cannot be made. Same semantic boundary, stricter enforcement.",
+  "continue_work_at_depth1": "WORKS (same-session continuation not blocked; only spawn/delegate tools stripped)",
+  "config_anchor": "rune-seat subagents.maxSpawnDepth UNSET -> code-default 1",
+  "honest_scope_notes": [
+    "Dispatch-time reject not independently exercised on this run (tool-policy prevents the attempt). Dispatch guard code IS present as defense-in-depth.",
+    "Tool-policy enforcement is a HARDER boundary (model cannot even attempt the call) vs dispatch-reject (model can attempt, gets rejected post-hoc)."
+  ]
+}

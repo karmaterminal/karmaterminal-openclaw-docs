@@ -1,0 +1,85 @@
+│
+◇  Doctor warnings ───────────────────────────────────────────────────────╮
+│                                                                         │
+│  - Left migrated plugin install index in place because archive already  │
+│    exists: /home/figs/.openclaw/plugins/installs.json.migrated          │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor warnings ───────────────────────────────────────────────────────╮
+│                                                                         │
+│  - Left migrated plugin install index in place because archive already  │
+│    exists: /home/figs/.openclaw/plugins/installs.json.migrated          │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────╯
+OpenClaw status
+
+Overview
+┌──────────────────────┬───────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Item                 │ Value                                                                                         │
+├──────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────┤
+│ OS                   │ linux 7.0.9-1-cachyos (x64) · node 22.22.2                                                    │
+│ Dashboard            │ http://127.0.0.1:18789/                                                                       │
+│ Tailscale exposure   │ off                                                                                           │
+│ Channel              │ dev (default)                                                                                 │
+│ Git                  │ git · @ 8b5dde61                                                                              │
+│ Update               │ git HEAD · dirty · deps ok                                                                    │
+│ Gateway              │ local · ws://127.0.0.1:18789 (local loopback) · reachable 70ms · auth token · elliott (10.0.  │
+│                      │ 0.153) app 2026.6.2 linux 7.0.9-1-cachyos                                                     │
+│ Gateway self         │ elliott (10.0.0.153) app 2026.6.2 linux 7.0.9-1-cachyos                                       │
+│ Gateway service      │ systemd user installed · enabled · running (pid 2408696, state active)                        │
+│ Node service         │ systemd user not installed                                                                    │
+│ Agents               │ 4 · 3 bootstrap files present · sessions 93 · default main active just now                    │
+│ Memory               │ enabled (plugin memory-core) · not checked                                                    │
+│ Plugin compatibility │ none                                                                                          │
+│ Probes               │ skipped (use --deep)                                                                          │
+│ Events               │ none                                                                                          │
+│ Tasks                │ 2 active · 0 queued · 2 running · 8 issues · audit clean · 74 tracked                         │
+│ Heartbeat            │ 30m (main), 30m (router-balanced), 30m (router-complex), 30m (router-quick)                   │
+│ Continuation         │ enabled · chain max 200 · fan-out max 500                                                     │
+│ Sessions             │ 93 active · default claude-opus-4.8 (1000k ctx) · 4 stores                                    │
+└──────────────────────┴───────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Security audit
+Skipped in fast status. Full report: openclaw security audit
+Deep probe: openclaw status --deep
+
+Channels
+┌──────────┬─────────┬────────┬────────────────────────────────────────────────────────────────────────────────────────┐
+│ Channel  │ Enabled │ State  │ Detail                                                                                 │
+├──────────┼─────────┼────────┼────────────────────────────────────────────────────────────────────────────────────────┤
+│ discord  │ ON      │ SETUP  │ configured; status unavailable in fast mode                                            │
+└──────────┴─────────┴────────┴────────────────────────────────────────────────────────────────────────────────────────┘
+
+Sessions
+┌─────────────────────┬─────────────┬──────────┬─────────────────┬──────────────────┬──────────────────────────────────┐
+│ Key                 │ Kind        │ Age      │ Model           │ Runtime          │ Tokens                           │
+├─────────────────────┼─────────────┼──────────┼─────────────────┼──────────────────┼──────────────────────────────────┤
+│ agent:main:discord: │ group       │ just now │ claude-opus-4.8 │ OpenClaw Default │ 883k/1000k (88%) · 🗄️ 9% cached  │
+│ channel:1466…       │             │          │                 │                  │                                  │
+│ agent:main:subagent │ spawn-child │ 2m ago   │ claude-opus-4.8 │ OpenClaw Default │ unknown/1000k (?%)               │
+│ :03268e20-6b…       │             │          │                 │                  │                                  │
+│ agent:router-       │ direct      │ 14m ago  │ claude-opus-4.8 │ OpenClaw Default │ 236k/272k (87%) · 🗄️ 100% cached │
+│ balanced:main       │             │          │                 │                  │                                  │
+│ agent:router-       │ direct      │ 37m ago  │ claude-opus-4.8 │ OpenClaw Default │ 33k/272k (12%) · 🗄️ 99% cached   │
+│ quick:main          │             │          │                 │                  │                                  │
+│ agent:router-       │ direct      │ 38m ago  │ claude-opus-4.8 │ OpenClaw Default │ 91k/400k (23%) · 🗄️ 99% cached   │
+│ complex:main        │             │          │                 │                  │                                  │
+│ agent:main:discord: │ group       │ 2h ago   │ claude-opus-4.8 │ OpenClaw Default │ 336k/1000k (34%) · 🗄️ 23% cached │
+│ channel:1473…       │             │          │                 │                  │                                  │
+│ agent:main:subagent │ spawn-child │ 4h ago   │ claude-opus-4.8 │ OpenClaw Default │ 87k/1000k (9%) · 🗄️ 79% cached   │
+│ :continuatio…       │             │          │                 │                  │                                  │
+│ agent:main:subagent │ spawn-child │ 11h ago  │ claude-opus-4.8 │ OpenClaw Default │ 66k/1000k (7%) · 🗄️ 99% cached   │
+│ :9aec60c2-fa…       │             │          │                 │                  │                                  │
+│ agent:main:subagent │ spawn-child │ 12h ago  │ claude-opus-4.8 │ OpenClaw Default │ 56k/1000k (6%) · 🗄️ 96% cached   │
+│ :9ed5ab88-c0…       │             │          │                 │                  │                                  │
+│ agent:main:subagent │ spawn-child │ 35h ago  │ claude-opus-4.8 │ OpenClaw Default │ 39k/1000k (4%) · 🗄️ 99% cached   │
+│ :continuatio…       │             │          │                 │                  │                                  │
+└─────────────────────┴─────────────┴──────────┴─────────────────┴──────────────────┴──────────────────────────────────┘
+
+FAQ: https://docs.openclaw.ai/faq
+Troubleshooting: https://docs.openclaw.ai/troubleshooting
+Next steps:
+  Need to share?      openclaw status --all
+  Need to debug live? openclaw logs --follow
+  Need to test channels? openclaw status --deep

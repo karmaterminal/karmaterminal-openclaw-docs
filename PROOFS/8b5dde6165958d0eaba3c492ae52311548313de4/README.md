@@ -22,7 +22,7 @@ Method runbook: `karmaterminal/openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.m
 | R-CD-CHAINED-DEPTH-2 / Chain-1/2/3 | 🌊 Ronan | depth-2 chain (up-tree / inter-session / echo) | ⏳ in-flight |
 | R-CW-2..7 / R-CW-DELEGATE-SELF | 🩸 Cael | continue_work behavioral surface | ⏳ in-flight |
 | R-RC-2 | 🩸 Cael | `request_compaction` over-threshold ACCEPT | ⏳ in-flight |
-| R-OBS-1 | 🌻 Elliott (+ figs) | external `/status` continuation + 4-prince cross-walk | ⏳ in-flight |
+| R-OBS-1 | 🌻 Elliott (+ figs) | external `/status` continuation + 6-prince cross-walk | 🟢 PASS (elliott arm) · cohort fan-out pending — `R-OBS-1/EVIDENCE.md`: elliott-seat `/status` renders continuation-substrate on `8b5dde6165`; renderer + `continuationChainCount` byte-confirmed in deployed dist (`status-message-Cp4srZJt.js`); figs-driven 6-seat operator fan-out pending |
 | gates/ (3a–3f) + cure-bytes/ | 🕯 Emeric | local Gate-3 test logs + cure-byte 4-path | ⏳ in-flight |
 
 (Table updated alongside row commits — 🌿 frond-scribe owns the index. `⏳ in-flight` rows are assigned + firing on live seats; this README is refreshed as each lands.)

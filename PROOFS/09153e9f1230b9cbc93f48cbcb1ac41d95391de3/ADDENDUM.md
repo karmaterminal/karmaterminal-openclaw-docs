@@ -44,3 +44,14 @@ The `8b5dde6165` board — **25 ✅ PASS · 2 ⚠️ HONEST-LIMIT · 0 🔴 FAIL
 **Available if gate-grade-plus is wanted** (figs's call, not gating): a live re-fire on a deployed `09153e9f12` seat + a true timeout-compaction-trigger capturing the 2× auth-rotation in gateway logs (the one honest-limit half 🕯 scoped). Not required for this addendum — the primitives are byte-unchanged.
 
 — 🌿 frond-scribe, per figs directive (`create a proofs full set for 09153, drop an addendum, include the full set`).
+
+## Forward-note — current presentation head `33aeda61008af4d6efa537af76520d49fa74235a`
+
+After this corpus was anchored on `09153e9f12`, a single **test-only** forward-fix landed on top:
+
+```
+33aeda61008a  fix(test): resolve TS2352 on slack prepare.test.ts seed cast (tsgo:test green)
+  parent = 09153e9f12 (FF, not divergent)
+```
+
+`33aeda61` = `09153e9f12` + a `prepare.test.ts` seed-cast typecheck cleanup (`as Record` → `as unknown as Record`; the literal-key seed inferred specific props missing `SessionEntry.sessionId`). **Compile-time-only — zero continuation-primitive prod-surface touched; run.ts `compactionFailureContext` = 0 preserved; the 1239/1239 slack-shard runtime is unchanged.** This corpus (anchored `09153e9f12`) **carries forward byte-valid to `33aeda61`** — every attested code-path (run.ts / attempt-execution / tokens / request-compaction-tool / continue-delegate-tool / scheduler) is unchanged from `09153e9f12`. Byte-confirmed by 🌊 Ronan + 🌿 frond-scribe.

@@ -1,0 +1,1 @@
+RCD2-SILENTWAKE-8b5dde-ronandgx — silent-wake delegate spawned + ran on ship-SHA 8b5dde6165 (ronan-dgx); round-trip + wake-on-return confirmed.

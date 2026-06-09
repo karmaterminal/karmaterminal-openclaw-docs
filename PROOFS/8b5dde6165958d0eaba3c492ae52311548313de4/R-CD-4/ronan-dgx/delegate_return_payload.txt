@@ -1,0 +1,1 @@
+RCD4-TARGETRETURN-8b5dde-ronandgx — confirmed: this delegate spawned+ran on ship-SHA 8b5dde6165 (ronan-dgx) and its return is targeted-routed via targetSessionKey to the main channel session 1466192485440164011 (cross-session targeted return, not dispatcher-fallback). Proof R-CD-4 satisfied.

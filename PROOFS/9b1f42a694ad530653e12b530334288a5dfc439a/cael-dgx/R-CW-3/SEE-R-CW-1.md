@@ -1,1 +1,0 @@
-R-CW-3 (reason-field in OTel span) evidence is consolidated in ../R-CW-1/wake_trace.json — the continuation.work span carries reason.preview = the R-CW-3 reason text ("R-CW-1/2/3 PROOF FIRE on deployed 9b1f42a694...").

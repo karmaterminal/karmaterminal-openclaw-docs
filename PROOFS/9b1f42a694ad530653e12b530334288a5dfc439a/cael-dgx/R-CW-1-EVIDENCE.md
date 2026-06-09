@@ -30,18 +30,18 @@ Tool call `continue_work(delaySeconds=0, reason=<R-CW-3 reason-string>)` on the 
 - **Trace ID:** `cce0fa55575943c98be504803d057c12`
 - **Parent span:** `06031a71d20f9eba`
 - Tempo: `http://tempo.dandelion.cult/api/traces/cce0fa55575943c98be504803d057c12`
-- Span-hierarchy JSON + journal wake-receipt captured on the wake-turn (the scheduled continuation fires next turn) → see `wake_trace.json` (this dir).
+- Span-hierarchy JSON + journal wake-receipt captured on the wake-turn (the scheduled continuation fires next turn) → see `R-CW-1-wake_trace.json` (this dir).
 
 ## R-CW-3: reason-field captured in OTel span
 The `reason` string passed to `continue_work` is carried into the continuation span attributes. Reason-string fired:
 > "R-CW-1/2/3 PROOF FIRE on deployed 9b1f42a694: continue_work() live-fire to generate wake-event + chain-counter + reason-field-in-OTel-span evidence for the gate-grade proof corpus... This reason-string is itself the R-CW-3 reason-field captured in the continuation span."
 
-Verification: the span at Trace ID `cce0fa55575943c98be504803d057c12` carries this reason text in its attributes (captured in `wake_trace.json`).
+Verification: the span at Trace ID `cce0fa55575943c98be504803d057c12` carries this reason text in its attributes (captured in `R-CW-1-wake_trace.json`).
 
 ## STATUS: fire registered; wake-turn evidence (Tempo span-tree JSON + journal receipt) appended on the scheduled wake.
 
 ## WAKE-TURN EVIDENCE CAPTURED (deployed binary)
-- **Tempo span-tree:** `wake_trace.json` — live `continuation.work` span, service `cael-prince`, host `cael`/arm64, STATUS_CODE_OK.
+- **Tempo span-tree:** `R-CW-1-wake_trace.json` — live `continuation.work` span, service `cael-prince`, host `cael`/arm64, STATUS_CODE_OK.
   - `chain.id: e82c675e-a850-4a31-9159-10e3e8c91eaf`, `chain.step.remaining: 176`, `delay.ms: 5000`, `reason.preview` = the R-CW-3 reason text ✓
-- **Journal:** `wake_journal.txt` — `[continuation:work-wake] hop=24/200`, `[continuation:work-hedge-fired]`, `[continuation:work-drive-skipped reason=requests-in-flight]` (wake fires live; drive-skips correctly while the current turn has requests in flight).
+- **Journal:** `R-CW-1-wake_journal.txt` — `[continuation:work-wake] hop=24/200`, `[continuation:work-hedge-fired]`, `[continuation:work-drive-skipped reason=requests-in-flight]` (wake fires live; drive-skips correctly while the current turn has requests in flight).
 - **VERDICT R-CW-1/2/3: ✅** wake fired + chain-counter (chain.id) + reason-field-in-span, all live on deployed 9b1f42a694.

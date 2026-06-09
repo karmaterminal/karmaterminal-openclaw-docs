@@ -8,7 +8,7 @@ From the R-CW-1 fire's Tempo span (Trace `cce0fa55575943c98be504803d057c12`, ser
 - **`chain.step.remaining: 176`** (of maxChainLength=200 — depth-accounting live)
 
 ## Journal: hop-counter increments on the deployed binary
-`journalctl --user -u openclaw-gateway` shows `[continuation:work-wake] hop=N/200` lines incrementing per wake on the live gateway (see `../R-CW-1/wake_journal.txt`):
+`journalctl --user -u openclaw-gateway` shows `[continuation:work-wake] hop=N/200` lines incrementing per wake on the live gateway (see `R-CW-1-wake_journal.txt`):
 - `[continuation:work-wake] hop=1/200 session=agent:main:cron:...` (cron-session chain)
 - `[continuation:work-wake] hop=24/200 session=agent:main:discord:channel:1466192485440164011` (this discord-session chain)
 

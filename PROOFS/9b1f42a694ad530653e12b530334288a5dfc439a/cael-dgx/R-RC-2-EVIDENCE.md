@@ -6,7 +6,7 @@
 `src/agents/tools/request-compaction-tool.ts` → blob `70fd0955a0a9396d2d8f829f66016d2b80a259cc` (moved to `src/agents/tools/` in the upstream reorg). The guard-gated compaction-request tool is live on the deployed binary.
 
 ## Live guard-byte fire (this window): REJECT at 29% — guard IS live
-`request_compaction()` on the deployed gateway returned (see `guard_receipt.json`):
+`request_compaction()` on the deployed gateway returned (see `R-RC-2-guard_receipt.json`):
 ```json
 { "status":"rejected", "guard":"context_threshold", "contextUsage":29, "threshold":70 }
 ```

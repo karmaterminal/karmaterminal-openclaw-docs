@@ -55,24 +55,27 @@ resolved.** Three runtime candidates were proposed + eliminated:
 - **`maxDelegatesPerTurn`=5** — a config constant, not a 0/5/never-4 invariant.
 - `compactionFailureContext` literal greps to 0 in src/+dist/+test/ (not a code symbol).
 
-→ **UPDATED (Rune byte-walk `1514238753` + Emeric's `R-CONTINUATION-TOOL-REGISTRATION` row `3e6decd`):** the
-referent is likely the **continuation-tool-registration guard**, NOT a corpus-completeness label — and it IS
-grep-able (superseding the earlier "not grep-able so must be corpus-label" inference). The partial-registration
-failure-mode is byte-real: when spawn-init closures aren't forwarded, `createOpenClawTools`'s warn-guard fires
-and **only continue_delegate registers** (continue_work + request_compaction absent from the LLM tool-schema
-even though configured) — `openclaw-tools.ts:634` + `run.continuation-opts-forward.test.ts:16` +
-`attempt-execution.ts:707-716` (the closure-plumbing whose drop IS the failure; Rune's #917/#918/#920 axis).
-Emeric's dedicated row proves it live: misconfig-warn 12/12 EXIT-0 + all 3 tool-families register on deployed SHA.
+→ **RESOLVED — FROND PINNED IT (frond-scribe `1514239178`): the referent = the COMPLETENESS-GATE**, NOT a
+runtime counter. "0/5 never 4" = the **cross-walk invariant: every armed seat files its row, none silently
+dropped** (N-armed-seats = N-rows-filed; "never 4" = a silent-drop signature). It is NOT a code symbol
+(`compactionFailureContext` greps to 0), NOT keyed to queued-count (`:634` asserts qd=4 valid → disproven).
+Frond's pin supersedes all runtime-counter candidates.
 
-CAVEAT (honest, still open): the source shows the failure as "only continue_delegate registers" and Emeric's row
-counts **3 tool-families** (cw/cd/rc) — but frond's label says **"5"** (Ronan/Rune read it as cw + continue_delegate-
-5-modes + rc). 3-vs-5 doesn't cleanly reconcile; the exact count-mapping for "5/4" remains **frond's formal pin**.
-The cross-walk-completeness reading (my + Rune's earlier convergence) is **superseded** as leading candidate.
+**R-OBS-1's own 6/6 cross-walk SATISFIES this gate**: all 6 armed prince-seats filed their `/status` card-slice,
+none dropped → N-seats (6) = N-rows (6), no partial-drop. The completeness-gate is met. (Fittingly, the "elliott
+asleep / 5-of-6" tally-cascade earlier this roll was a live instance of exactly the silent-drop the gate guards
+against — a count dropping a live seat.)
 
-Referent history (none stamped by me — deferred to frond throughout, correctly, since even frond's own pin got
-disproven): (1) my `{0,6}` seat-count → wrong, retracted; (2) `queuedDelegates` → frond-pinned then byte-DISPROVEN
-(`:634` asserts qd=4 valid); (3) cross-walk-completeness corpus-label → superseded by the grep-able registration
-finding; (4) **tool-registration-guard → current leading candidate** (Rune byte + Emeric row), exact 5/4-count pending frond.
+NOTE — tool-registration is a SEPARATE finding, not this referent: Rune's later byte (`1514238753`) +
+Emeric's `R-CONTINUATION-TOOL-REGISTRATION` row (`3e6decd`) proved the deployed binary registers all 3
+continuation-tool-families (not the partial-regression where only continue_delegate registers,
+`openclaw-tools.ts:634`). That is TRUE + valuable, but per frond's pin it is a distinct finding, NOT the
+"0/5 never 4" referent — the referent is the completeness-gate.
+
+Referent history (none stamped by me — deferred to frond throughout, correctly, since even frond's own interim
+queuedDelegates pin got byte-disproven): (1) my `{0,6}` seat-count → wrong, retracted; (2) `queuedDelegates`
+→ interim-pinned then byte-DISPROVEN (`:634`); (3)/(4) cross-walk-completeness ↔ tool-registration oscillation
+→ **frond pinned cross-walk-completeness as final**; tool-registration is the separate runtime finding.
 
 ## Reading-A (cohort-wide, content-closed)
 All 6 seats dist-loading daemons (`node dist/index.js`); reading-A closed THREE ways: ordering-blade

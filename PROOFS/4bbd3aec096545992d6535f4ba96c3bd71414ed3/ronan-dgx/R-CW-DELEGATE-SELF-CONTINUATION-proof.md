@@ -51,16 +51,23 @@ cli-startup-metadata.json       → "(4bbd3ae)" ×8, "(9b1f42a)" ×0  (no stale 
 | R-CD-5 | `continue_delegate mode=post-compaction` (mode-discriminator) | **DISTINCT** status=queued-for-compaction (not scheduled) | `status: queued-for-compaction, delegateIndex=5` | ✅ PASS |
 | R-CD-9 | `continue_delegate mode=silent` (silent enrichment) | status=scheduled | `status: scheduled, delegateIndex=4, delay=0` | ✅ PASS |
 
-## Tool-registration (per-seat) + `0/5 never 4` referent — frond's `queuedDelegates` pin DISPROVEN (Rune byte-walk, 05:01 PDT), referent OPEN
+## Tool-registration (per-seat) + `0/5 never 4` referent — RESOLVED by frond's pin = continuation-tool-registration count (05:11 PDT)
 
-**STATUS: cfc-referent NOT resolved.** Frond pinned `queuedDelegates` (`1514237988`), but **Rune byte-disproved it** (`0b8b290`-adjacent, verified on-host 05:56): `post-compaction-delegate-dispatch.test.ts:634` asserts `{queuedDelegates: 4, droppedDelegates: 1}` as a **VALID** outcome (test: *"reduces compaction budget by one when a bracket delegate was already spawned this turn"*). `queuedDelegates` takes values 0,1,2,3,4,5 across the file — **4 is explicitly valid** — so `queuedDelegates` **cannot** be a "0/5 never 4" invariant. Frond's pin (and my earlier filing of it as RESOLVED) was wrong; corrected here.
+**RESOLVED.** After an arc of candidates, frond pinned the referent (`1514240649`, accepting Rune's read + superseding her own earlier "completeness-gate" + disproven `queuedDelegates`): **"0/5 never 4" = the continuation-tool-registration count.** Byte-anchored (verified on-host `1514253772`):
+- `openclaw-tools.continuation-misconfig-warn.test.ts:98` → asserts warning `"only continue_delegate will register"`
+- `openclaw-tools.ts:629-633` → warn fires when `!continueWorkOpts && !requestCompactionOpts`
+- `attempt-execution.ts:707-720` → spawn-init closure plumbing for `continueWorkOpts` + `requestCompactionOpts` (Rune's half-symmetric-cure axis #917/#918/#920)
 
-**Candidate-elimination status (all three runtime candidates fail):**
-- `compactionFailureContext` literal symbol — 0 grep hits (phantom, confirmed by me `7053644` + cohort)
-- `queuedDelegates` (frond's pin) — **DISPROVEN**, `:634` asserts 4 valid (Rune)
-- `getVolitionalCompactionCount` — per-session accept-tally, not a {0,5} fleet-count
+**The candidate-arc (all resolved):**
+- `compactionFailureContext` literal symbol — phantom, 0 grep hits (my `7053644`; NOT the referent, it's a mis-named-symbol)
+- `queuedDelegates` (frond's first pin) — DISPROVEN (Rune: `:634` asserts `{queuedDelegates:4}` VALID; I retracted my premature filing of it)
+- `getVolitionalCompactionCount` — per-session event-count, not the referent
+- cross-walk-completeness (Rune's first read / frond's interim pin) — superseded; was a corpus-harness framing, not the runtime referent
+- **registration-count (Rune's later read / my original framing) — FROND'S FINAL PIN** ✅
 
-→ By elimination, "0/5 never 4" is most likely **NOT a grep-able runtime counter** but the **cross-walk corpus-completeness assertion** (Rune's reading): the PROOFS cross-walk must land all-armed-seats-or-clean-zero, never a partial that silently drops a seat — a harness/corpus-label, which is why grep returns nothing. **Pending frond's re-confirm** in light of the `queuedDelegates` disproof. NOT settled in this row.
+**Precision (my `1514253772`, holds):** "0 or 5 never 4" is NOT a literal source counter (`grep '0 or 5\|never 4\|{0,5}' src/` = zero) — it's the **conceptual full-vs-partial framing** of registration-completeness. "Full" = all continuation surfaces register (continue_work + continue_delegate + request_compaction); the partial-regression = "only continue_delegate will register" when the work/RC opts aren't wired (the `:629` guard, Foundational-Canon regression). The *guard* is grep-able + testable; the "5/4" numerics are the conceptual label, not a literal `=== 5` check.
+
+**THIS proof IS the per-seat referent-evidence (✅):** continue_work + continue_delegate (5 mode/param classes) + request_compaction ALL registered + functional on ronan-seat (R-CW-1 + R-CD-1,2,3,5,9 PASS) — the FULL tool-set on `4bbd3ae`, NOT the partial-registration regression. Now correctly the *referent-proof*, not a separate finding: ronan-seat shows full-registration (the PASS state of the now-pinned invariant).
 
 **What THIS proof establishes regardless (✅, a SEPARATE finding from the cfc-referent):** per-seat tool-registration is complete on ronan-seat — continue_work + continue_delegate (5 mode/param classes) + request_compaction all registered + functional (R-CW-1 + R-CD-1,2,3,5,9 PASS), NOT the partial-registration regression. TRUE + independent of however the cfc-referent resolves.
 
@@ -80,6 +87,6 @@ cli-startup-metadata.json       → "(4bbd3ae)" ×8, "(9b1f42a)" ×0  (no stale 
 
 ## Verdict
 
-**6/6 rows PASS** on deployed SHA `4bbd3aec096`. continue_work + continue_delegate (all 5 mode/param classes) + request_compaction all registered + functional on ronan-seat (per-seat tool-registration complete, NOT the partial-registration regression — a finding distinct from + independent of the cfc-referent). The `0/5 never 4` invariant is **NOT settled**: frond's `queuedDelegates` pin was **disproven** (Rune: `post-compaction-delegate-dispatch.test:634` asserts `queuedDelegates:4` VALID, so 4 is a valid queued-count — can't be the never-4 referent). All three runtime candidates eliminated; by elimination it's most likely the cross-walk corpus-completeness harness-assertion, **pending frond's re-confirm**. This row's 6/6 tool-fire verdict stands regardless of the cfc-referent resolution. PR-presentation untouched (figs's morning gate).
+**6/6 rows PASS** on deployed SHA `4bbd3aec096`. continue_work + continue_delegate (all 5 mode/param classes) + request_compaction all registered + functional on ronan-seat — the FULL continuation tool-set, NOT the partial-registration regression. The `0/5 never 4` invariant is **RESOLVED** (frond's final pin `1514240649`): referent = the **continuation-tool-registration count** (full-set vs the "only continue_delegate will register" partial-regression; byte-anchored `openclaw-tools.ts:629` + `attempt-execution.ts:707-720`; "5/4" is the conceptual full-vs-partial framing, not a literal counter). This proof's full-registration finding IS the per-seat referent-evidence (the PASS state of the pinned invariant). PR-presentation untouched (figs's morning gate).
 
 — ronan 🌊

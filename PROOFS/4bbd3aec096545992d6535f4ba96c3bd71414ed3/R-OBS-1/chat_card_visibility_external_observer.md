@@ -41,52 +41,56 @@ fallback this aggregate assembles — all 6 now in.
   segment present iff count>0"**; the `e90a870` exemplar rendering `volitional: 0` was the anomaly. Corroborated
   6/6. NOT a deploy display-removal — omit-at-zero by design.
 - ✅ **CROSS-WALK-COMPLETENESS (N=6):** all 6 prince-seats reporting — never a partial-drop. This invariant
-  is SATISFIED (6/6). NOTE: this cross-walk-completeness property is the **leading candidate referent for
-  frond's "0/5 never 4" `compactionFailureContext` label** (see below) — by elimination it is most likely a
-  harness/corpus-completeness assertion (all-armed-seats-report OR clean-zero, never a partial that silently
-  drops a seat), not a grep-able runtime counter.
+  is SATISFIED (6/6). This is THIS row's own corpus-completeness property (#3 below) — a SEPARATE invariant from
+  the cfc-referent (everyone agrees the seat-cross-walk is not cfc); it is the #3 green leg of the gate's all-candidates-green close.
 
-## `compactionFailureContext` "0/5 never 4" referent — OPEN (all runtime candidates eliminated)
+## `compactionFailureContext` "0/5 never 4" referent — REFERENT-LABEL UNPROVABLE, NON-BLOCKING (all candidates PASS)
 
-For the record, since this aggregate's N=6 was earlier conflated with this referent: **the referent is NOT
-resolved.** Three runtime candidates were proposed + eliminated:
-- **delegate-dispatch `queuedDelegates`** (frond pinned it `1514237988`) — **DISPROVEN** by Rune: `post-compaction-delegate-dispatch.test.ts:634` asserts `{queuedDelegates: 4}` VALID ("reduces budget by one when a bracket delegate already spawned"), so 4 is a legal value → can't be a "never 4" invariant.
-- **tool-registration count** (cw+cd-classes+rc) — a SEPARATE real finding, not this referent.
-- **`maxDelegatesPerTurn`=5** — a config constant, not a 0/5/never-4 invariant.
-- `compactionFailureContext` literal greps to 0 in src/+dist/+test/ (not a code symbol).
+For the record, since this aggregate's N=6 was earlier conflated with this referent: **the seat-cross-walk N=6 is NOT the
+referent** (it's #3, this row's own property). Frond's harness-shorthand maps to multiple candidate surfaces; she cannot byte-prove
+which, and it does NOT block — every candidate surface PASSES on `4bbd3ae` (detail below).
 
-→ **FROND'S FINAL PIN — RESOLVED (frond-scribe `1514244157`): cfc "0/5 never 4" = (a) the continuation-TOOL-REGISTRATION count.**
-Frond RETRACTED her interim (c)-delegate-staging pin: the byte disproved it — `post-compaction-delegate-dispatch.test.ts:634`
-asserts `{queuedDelegates: 4}` as a VALID expected outcome (the file freely takes 0,1,2,3,4,5), so a "never-4" invariant
-cannot live in a count the test sets to 4 by design. Frond's own words: "I reasoned (c) by name+domain-fit — that was a
-*story*; you byte-walked the test and the story loses. my 'absence-of-the-byte outranks the story' discipline, firing on me."
-(The `:634` byte-conflict was surfaced to frond per her explicit re-ping invitation at `1514267562` + 🪨's STOP — both drove the retraction.)
+→ **FROND'S HONEST CLOSE — REFERENT-LABEL UNPROVABLE, DOES NOT BLOCK (frond-scribe `1514248116`, retracting BOTH the interim (c) AND the later (a) pins).**
+Frond re-opened her own `1514244157` (a) pin and re-settled honestly: she **cannot byte-prove** which surface her
+"0/5 never 4" harness-shorthand names — it maps to (at least) TWO distinct code-grounded candidate surfaces, and Emeric's
+byte confirmed surface #1 *exists* as a `{0,5}` invariant but did NOT confirm the *label points at #1* vs #2 (same
+shape-matched story-pin that bit the (c) reading). Frond's words: "not (a), not (c) — 'all candidates green, referent-label
+is figs's.'" The label→referent map is **figs's harness-shorthand to confirm at his discretion; it does NOT block the gate.**
 
-**THE REFERENT (FINAL): "0/5 never 4" = the continuation-tool-registration count** — a FIXED tool-class invariant of the deployed
-binary, **seat-N-independent → `{0,5}` final, NOT `{0,6}`, not seat-count, not queued-count**:
-- **5** = continue_work + continue_delegate + request_compaction ALL register on the deployed binary
-- **4** = a sibling silently DROPS at spawn-init (#917/#918/#920 half-symmetric regression — the "only continue_delegate registers" partial)
-- **0** = clean Form-B
-- Canon-grounded: #868/#79925/#85651 tool-form-must-register-not-just-bracket lineage. Empirical confirm:
-  `vitest run openclaw-tools.continuation-misconfig-warn.test.ts` (asserts `"only continue_delegate will register"`) +
-  live-tool-registration spot-check (all 3 families, none drop). **Gate SATISFIED on `4bbd3ae`** — 🌊's R-CW-DELEGATE-SELF
-  6/6 full-tool-set registration IS the check passing (5, not 4). Emeric's `R-CONTINUATION-TOOL-REGISTRATION` row (`3e6decd`)
-  also confirms (misconfig-warn 12/12 + all 3 register).
+The two live candidate surfaces (the third, seat-cross-walk, is THIS row's R-OBS-1 N=6 — separate, everyone agrees it's not cfc):
+- **#1 continuation-tool-registration count** (`openclaw-tools.ts:634` "only continue_delegate will register") — `{0,5}`, seat-independent;
+  5 = cw+cd+rc all register, 4 = the half-symmetric partial-drop (#917/#918/#920), 0 = clean Form-B. Canon-grounded #868/#79925/#85651.
+- **#2 volitional-compaction surface** (`getVolitionalCompactionCount`, threaded in-dist at `:103`) — the surface this row's `| volitional`
+  display-delta (above) touches: omit-at-zero by design, reads 0 = clean.
+- (Earlier-eliminated, NOT the referent: delegate-dispatch `queuedDelegates` — DISPROVEN, `post-compaction-delegate-dispatch.test.ts:634`
+  asserts `{queuedDelegates: 4}` VALID, so 4 is legal → can't host a "never-4" invariant; `maxDelegatesPerTurn`=5 config-constant; `compactionFailureContext` literal greps to 0.)
 
-**R-OBS-1's cross-walk-completeness N=6 is the SEPARATE real invariant (frond-confirmed `1514244157`), NOT the cfc-referent.**
-The cfc is the per-binary tool-registration count ({0,5}); R-OBS-1's 6/6 (6 seats file /status cards, never a partial drop) is
-this row's own corpus-completeness property, distinct from cfc. Both real; different layers.
+**THE BYTE-DEFENSIBLE CLOSE — the gate clears under ALL readings; the deployed `4bbd3ae` binary carries NO continuation-regression on any candidate surface:**
+- **#1 tool-registration PASS** ✅ — 🌊's R-CW-DELEGATE-SELF 6/6 full-tool-set registration = the check passing (5, not 4); Emeric's
+  `R-CONTINUATION-TOOL-REGISTRATION` row (`3e6decd`) confirms (misconfig-warn 12/12 + all 3 families register, none drop).
+- **#2 volitional-surface PASS** ✅ — `getVolitionalCompactionCount` intact + threaded in-dist; omit-at-zero by design; reads 0 = clean
+  (this row's `| volitional` finding corroborates it: the `e90a870` `volitional: 0` render was the omit-at-zero anomaly, NOT a deploy removal; corroborated 6/6).
+- **#3 R-OBS-1 cross-walk PASS** ✅ — 6/6 prince-seats file /status cards, never a partial drop (THIS row's own corpus-completeness property).
 
-Referent history (frond's pin evolved ~5×; I deferred + never stamped any reading as my own claim, correctly — each interim was
-superseded, including frond's own): my `{0,6}` seat-count (retracted) → `queuedDelegates` (frond pin, byte-disproven `:634`) →
+**R-OBS-1's cross-walk-completeness N=6 is the SEPARATE invariant (#3 above), NOT the cfc-referent** — distinct layers, both real. The cfc
+label is figs's-to-pin and non-blocking; this row contributes the #3 green leg + the #2-corroborating display finding. Aligned to frond's honest
+close at `f2101d7` (emeric-nuc's parallel re-alignment).
+
+Referent history (frond's pin evolved ~6×; I deferred + never stamped any reading as my own claim, correctly — each interim was
+superseded, INCLUDING frond's own (a) FINAL): my `{0,6}` seat-count (retracted) → `queuedDelegates` (frond pin, byte-disproven `:634`) →
 cross-walk-completeness (frond interim) → tool-registration (frond `1514240649`) → (c) delegate-staging (frond `1514243060`,
-byte-disproven `:634` again) → **(a) tool-registration count (frond FINAL `1514244157`)** ✅. Lesson held: verify the LATEST
-authority message; surface byte-conflicts only per the authority's explicit invitation; never stamp; byte > pin > story.
+byte-disproven `:634`) → (a) tool-registration FINAL (frond `1514244157`) → **HONEST CLOSE: referent-unprovable, all-candidates-green, figs's-shorthand, non-blocking (frond `1514248116`)** ✅.
+Lesson held end-to-end: verify the LATEST authority message; surface byte-conflicts only per the authority's explicit invitation; never stamp; byte > pin > story — frond modeled it on her own pins, twice.
 
 ## Reading-A (cohort-wide, content-closed)
-All 6 seats dist-loading daemons (`node dist/index.js`); reading-A closed THREE ways: ordering-blade
-(restart postdates dist-build) + build-info content-provenance (`.buildstamp.head`=target, build-time-written)
-+ code-content-closure (target-only symbols in dist chunks, absent at `9b1f42a`). No tree-shape seat. Detail
-carried in prior aggregate revisions + per-seat EVIDENCE files.
+All 6 seats dist-loading daemons (`node dist/index.js`); reading-A closed via three strands, AIRTIGHT on the content leg:
+- **AIRTIGHT — code-content-closure** (the bytes-attestation): target-only symbols compiled INTO dist chunks, absent at source `9b1f42a`
+  → the compiled output contains target-only code = built-from-target (Emeric's symbol-in-chunk; my negative complement: zero `9b1f42a` bytes in dist).
+- **STRONG corroboration — build-stamp** (`.buildstamp.head`/`build-info.json.commit`): `scripts/write-build-info.ts` → `git rev-parse HEAD` at
+  build-time, frozen-in-dist. Records build-time-HEAD-**checkout** (rules out stale-dist; mtime < restart = build-time not runtime), NOT a
+  hash of the compiled bytes — so it is strong frozen-HEAD corroboration, NOT the airtight closer (a build at target compiling stale bytes would
+  still record target-HEAD). Cohort retracted the earlier "`.buildstamp` attests-own-build-commit airtight" overclaim; content-closure is the load-bearer.
+- **Circumstantial — ordering**: restart postdates dist-build.
+No tree-shape seat (uniform repo-tree dist, not node_modules). Detail carried in prior aggregate revisions + per-seat EVIDENCE files.
 
 **FINAL VERDICT: R-OBS-1 ✅ PASS, 6/6 cross-walk complete on deployed `4bbd3aec096`.**

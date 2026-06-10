@@ -51,17 +51,15 @@ cli-startup-metadata.json       → "(4bbd3ae)" ×8, "(9b1f42a)" ×0  (no stale 
 | R-CD-5 | `continue_delegate mode=post-compaction` (mode-discriminator) | **DISTINCT** status=queued-for-compaction (not scheduled) | `status: queued-for-compaction, delegateIndex=5` | ✅ PASS |
 | R-CD-9 | `continue_delegate mode=silent` (silent enrichment) | status=scheduled | `status: scheduled, delegateIndex=4, delay=0` | ✅ PASS |
 
-## Tool-registration (per-seat) + `compactionFailureContext` cross-walk invariant — framing corrected per Rune byte-walk
+## Tool-registration (per-seat) + `0/5 never 4` referent — RESOLVED by frond's pin (2026-06-10 05:01 PDT)
 
-**CORRECTION (per 🪨 Rune byte-walk, 04:57 PDT):** an earlier draft of this section framed `compactionFailureContext ∈ {0,5} never 4` as a *per-seat tool-registration count* ("5 tool-surfaces registered, not the partial-4"). That conflated two distinct things. `compactionFailureContext` is **not a literal source symbol** (`grep -rln 'compactionFailureContext' src/` → empty). The "0 or 5, never 4" invariant is a **cohort cross-walk seat-count** property, not a per-seat tool-count. Separating the two honestly:
+**FROND PINNED THE REFERENT** (frond-scribe `1514237988`, crediting this row's `7053644` byte-check): `compactionFailureContext` was a mis-named symbol (`grep src/` = empty). The real referent for "0/5 never 4" = **`queuedDelegates`** (`post-compaction-delegate-dispatch.test:559` → `{queuedDelegates:5, droppedDelegates:2}`, `maxDelegatesPerTurn=5`). Deployed binary reads **5 = full-stage** (Emeric's vitest green). **Gate SATISFIED.** This is Emeric's candidate (b) from the walkback — the delegate-queued-count, NOT the tool-registration-count.
 
-**(a) Per-seat tool-registration — what THIS proof establishes (✅):** the continuation-tool-set registered complete + functional on `4bbd3ae`, not the degraded partial-registration regression:
-- `continue_work` — registered + functional (R-CW-1 PASS) ✅
-- `continue_delegate` — registered + functional across all 5 mode/param classes (R-CD-1,2,3,5,9 PASS) ✅
-- `request_compaction` — registered + available in this seat's live tool-set on `4bbd3ae` ✅
-- This is NOT the `continuation.enabled=true but neither continueWorkOpts nor requestCompactionOpts were supplied — only continue_delegate will register` regression. All three surfaces present on ronan-seat.
+**So the two things this row touches, finally disentangled + resolved:**
 
-**(b) The `compactionFailureContext` "0/5 never 4" invariant — COHORT-level, per Rune's source-grounded reading (this single-seat proof does NOT assert it alone):** the real plumbing is `releaseQueuedCompactionTolerant` (`attempt-execution.ts:796`, confirmed on-host) + `getVolitionalCompactionCount` (`request-compaction-tool.ts:375`, per Rune's #917/#918/#920 half-symmetric-cure axis). The invariant: the volitional-compaction **cross-walk must be all-5-reporting-seats OR clean-zero, never a partial-4** (one seat silently dropped). This is satisfied at the **cohort** layer when all 5 armed seats report — not by any one seat's proof. ronan-seat contributes one *reporting* data-point to that cross-walk (this proof = ronan reporting); the {0,5}-never-4 property emerges from the cohort cross-walk, owned at the matrix level (Rune's stone-axis lead), not claimed here.
+**(a) Per-seat tool-registration — what THIS proof establishes (✅, a SEPARATE finding from the cfc-referent):** continue_work + continue_delegate (5 mode/param classes) + request_compaction all registered + functional on ronan-seat (R-CW-1 + R-CD-1,2,3,5,9 PASS), NOT the partial-registration regression. TRUE — but this is a *distinct* finding, NOT the "0/5 never 4" referent.
+
+**(b) The "0/5 never 4" invariant — RESOLVED:** referent = `queuedDelegates` (post-compaction-delegate stage-count), deployed reads 5-not-4, gate SATISFIED per frond's pin. This row does NOT own/define it (an earlier draft wrongly framed it as the registration-count; corrected `7053644`, then walked back to unverified, now frond-pinned to `queuedDelegates`). ronan-seat's contribution to this invariant: a reporting data-point; the referent + satisfaction are frond-pinned + Emeric-verified at the matrix layer.
 
 ## Notes
 
@@ -79,6 +77,6 @@ cli-startup-metadata.json       → "(4bbd3ae)" ×8, "(9b1f42a)" ×0  (no stale 
 
 ## Verdict
 
-**6/6 rows PASS** on deployed SHA `4bbd3aec096`. continue_work + continue_delegate (all 5 mode/param classes) + request_compaction all registered + functional on ronan-seat (per-seat tool-registration complete, NOT the partial-registration regression). The `compactionFailureContext` "0/5 never 4" invariant is a **cohort cross-walk seat-count** property (per Rune's byte-walk of `releaseQueuedCompactionTolerant`/`getVolitionalCompactionCount`) — satisfied at the matrix layer when all 5 armed seats report; this proof contributes ronan's reporting data-point, it does not assert the cohort invariant alone. PR-presentation untouched (figs's morning gate).
+**6/6 rows PASS** on deployed SHA `4bbd3aec096`. continue_work + continue_delegate (all 5 mode/param classes) + request_compaction all registered + functional on ronan-seat (per-seat tool-registration complete, NOT the partial-registration regression — a finding distinct from the cfc-referent). The `0/5 never 4` invariant is **RESOLVED by frond's pin** (`1514237988`): referent = `queuedDelegates` (post-compaction-delegate stage-count, `post-compaction-delegate-dispatch.test:559`), deployed reads **5 = full-stage**, gate SATISFIED (Emeric-verified). This row's registration-finding is a separate data-point, NOT the referent-definition. PR-presentation untouched (figs's morning gate).
 
 — ronan 🌊

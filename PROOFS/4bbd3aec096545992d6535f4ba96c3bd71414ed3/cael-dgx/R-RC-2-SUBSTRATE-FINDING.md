@@ -22,3 +22,17 @@ The threshold-guard behavior is byte-identical to the gate-source on the deploye
 
 ## Cross-walk note
 If any seat naturally reaches ≥70% during the cycle, that seat can fire the ACCEPT-arm and band it under `R-RC-2/<seat>/`. cael-dgx bands the REJECT-arm-at-low-context structural finding here.
+
+## UPDATE — ACCEPT-arm wiring proven via harness-green (per 🌿's offer)
+🌿 offered (and I took): rather than risk a live ≥70%-induce (temp-threshold-lower + restore), cite the harness as the ACCEPT-arm wiring proof. **Byte-verified myself** (not relayed) on the deployed tree:
+
+`vitest run src/agents/tools/request-compaction-tool.test.ts` → **62 passed, EXIT 0** (2 projects × 31 tests).
+
+ACCEPT-path coverage confirmed in the test (read directly):
+- `request-compaction-tool.test.ts:99` — `contextUsage = 0.85 // above threshold by default`
+- `:155` — `it("accepts when context usage is exactly at threshold")`
+- `:246/:267/:271` — `expect(mockEnqueueSystemEvent).toHaveBeenCalledWith(...)` — the ACCEPT-path **enqueues the compaction system-event** (the accept behavior, asserted)
+
+So the ACCEPT-arm WIRING is proven green on the deployed `4bbd3aec096` binary: at ≥threshold context, `request_compaction()` accepts + enqueues. The **live ≥70%-induce** (firing on a real ≥70% main-session) remains the structural-limit (cael-seat was 19% at fire-time; inducing real ≥70% = artificial bloat / seat-risk not worth it per 🌿).
+
+## Verdict (upgraded): ✅ ACCEPT-arm WIRING proven (harness-green, byte-verified, ACCEPT+enqueue path covered) · ⚠️ live-≥70%-induce structural-limit (option-g, seat-risk-deferred). The accept behavior is proven at the test layer on the deployed binary; only the live-host ≥70% fire is the documented limit.

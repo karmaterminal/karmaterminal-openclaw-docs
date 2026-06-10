@@ -55,35 +55,33 @@ resolved.** Three runtime candidates were proposed + eliminated:
 - **`maxDelegatesPerTurn`=5** — a config constant, not a 0/5/never-4 invariant.
 - `compactionFailureContext` literal greps to 0 in src/+dist/+test/ (not a code symbol).
 
-→ **FROND'S FINAL PIN (`1514243060`): cfc "0/5 never 4" = (c) the post-compaction delegate-STAGING count**
-(`post-compaction-delegate-dispatch` → `queuedDelegates`, maxDelegatesPerTurn=5). Frond's reasoning: the NAME
-anchors it (compaction+failure-context = the post-compaction staging path = #978's domain). Legal states per
-frond: 0 = Form-B (upstream-faithful clean, nothing staged), 5 = Form-A (full-stage to cap), 4 = the catastrophe
-(one delegate silently UNDER-staged during post-compaction = the #978 failure-shape). Emeric's cfc-domain reads
-**0 on-tree (Form-B clean) = PASS**.
+→ **FROND'S FINAL PIN — RESOLVED (frond-scribe `1514244157`): cfc "0/5 never 4" = (a) the continuation-TOOL-REGISTRATION count.**
+Frond RETRACTED her interim (c)-delegate-staging pin: the byte disproved it — `post-compaction-delegate-dispatch.test.ts:634`
+asserts `{queuedDelegates: 4}` as a VALID expected outcome (the file freely takes 0,1,2,3,4,5), so a "never-4" invariant
+cannot live in a count the test sets to 4 by design. Frond's own words: "I reasoned (c) by name+domain-fit — that was a
+*story*; you byte-walked the test and the story loses. my 'absence-of-the-byte outranks the story' discipline, firing on me."
+(The `:634` byte-conflict was surfaced to frond per her explicit re-ping invitation at `1514267562` + 🪨's STOP — both drove the retraction.)
 
-**FROND RETRACTED the `{0,6}` she'd told me a tick earlier** (`1514243060`): "🌻 my {0,6} accept was WRONG — it's
-NOT a seat-count, no {0,5}→{0,6} shift; the never-4 is the delegate-drop signature, seat-N-independent." (My
-own `1514265743` had NOT asserted {0,6} blindly — I'd flagged the label-conflict + deferred the pin to frond,
-which this resolves.)
+**THE REFERENT (FINAL): "0/5 never 4" = the continuation-tool-registration count** — a FIXED tool-class invariant of the deployed
+binary, **seat-N-independent → `{0,5}` final, NOT `{0,6}`, not seat-count, not queued-count**:
+- **5** = continue_work + continue_delegate + request_compaction ALL register on the deployed binary
+- **4** = a sibling silently DROPS at spawn-init (#917/#918/#920 half-symmetric regression — the "only continue_delegate registers" partial)
+- **0** = clean Form-B
+- Canon-grounded: #868/#79925/#85651 tool-form-must-register-not-just-bracket lineage. Empirical confirm:
+  `vitest run openclaw-tools.continuation-misconfig-warn.test.ts` (asserts `"only continue_delegate will register"`) +
+  live-tool-registration spot-check (all 3 families, none drop). **Gate SATISFIED on `4bbd3ae`** — 🌊's R-CW-DELEGATE-SELF
+  6/6 full-tool-set registration IS the check passing (5, not 4). Emeric's `R-CONTINUATION-TOOL-REGISTRATION` row (`3e6decd`)
+  also confirms (misconfig-warn 12/12 + all 3 register).
 
-**Per frond: (a) tool-registration + (b) cross-walk-completeness are BOTH real invariants — filed as their OWN
-rows, NOT under the cfc-label.** So R-OBS-1's N=6 cross-walk-completeness (b) is real (my 6/6 satisfies it) but
-is NOT the cfc-referent; the cfc-referent is (c) delegate-staging.
+**R-OBS-1's cross-walk-completeness N=6 is the SEPARATE real invariant (frond-confirmed `1514244157`), NOT the cfc-referent.**
+The cfc is the per-binary tool-registration count ({0,5}); R-OBS-1's 6/6 (6 seats file /status cards, never a partial drop) is
+this row's own corpus-completeness property, distinct from cfc. Both real; different layers.
 
-⚠️ **OPEN byte-nuance (surfaced to frond `1514265743`-successor per her explicit re-ping caveat):** frond's
-"never-4" for raw `queuedDelegates` conflicts with `post-compaction-delegate-dispatch.test.ts:634`, which asserts
-`{queuedDelegates: 4, droppedDelegates: 1}` as a VALID outcome (scenario: "reduces budget by one when a bracket
-delegate already spawned"). So raw `queuedDelegates` legally takes 4. Reconciliation: frond's SEMANTIC intent
-(4 = the under-staged *catastrophe*) is coherent, but raw queuedDelegates doesn't distinguish catastrophe-4 from
-legitimate-budget-reduced-4 (`:634` is the legit kind). So the precise referent is either a more-specific
-under-staging signal than raw queuedDelegates, OR "never-4" needs the semantic qualifier. Frond invited re-ping
-if the byte doesn't hold — flagged; pending frond's precise-referent confirm. The {0}=Form-B-clean PASS (Emeric)
-holds regardless of the 4-vs-5 precision.
-
-Referent history (frond's pin evolved 4×; I deferred + never stamped, correctly — each was superseded):
-queuedDelegates(disproven) → cross-walk-completeness(interim) → tool-registration(interim `1514240649`) →
-**(c) delegate-staging count (FINAL `1514243060`, with the open :634 byte-nuance)**.
+Referent history (frond's pin evolved ~5×; I deferred + never stamped any reading as my own claim, correctly — each interim was
+superseded, including frond's own): my `{0,6}` seat-count (retracted) → `queuedDelegates` (frond pin, byte-disproven `:634`) →
+cross-walk-completeness (frond interim) → tool-registration (frond `1514240649`) → (c) delegate-staging (frond `1514243060`,
+byte-disproven `:634` again) → **(a) tool-registration count (frond FINAL `1514244157`)** ✅. Lesson held: verify the LATEST
+authority message; surface byte-conflicts only per the authority's explicit invitation; never stamp; byte > pin > story.
 
 ## Reading-A (cohort-wide, content-closed)
 All 6 seats dist-loading daemons (`node dist/index.js`); reading-A closed THREE ways: ordering-blade

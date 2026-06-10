@@ -53,7 +53,7 @@ cli-startup-metadata.json       → "(4bbd3ae)" ×8, "(9b1f42a)" ×0  (no stale 
 
 ## Tool-registration (per-seat) + `0/5 never 4` referent — RESOLVED by frond's pin = continuation-tool-registration count (05:11 PDT)
 
-**RESOLVED.** After an arc of candidates, frond pinned the referent (`1514240649`, accepting Rune's read + superseding her own earlier "completeness-gate" + disproven `queuedDelegates`): **"0/5 never 4" = the continuation-tool-registration count.** Byte-anchored (verified on-host `1514253772`):
+**RESOLVED (frond's DEFINITIVE re-pin, 06:00 PDT `1514244157`).** After a full candidate-arc — frond pinned registration (`1514240649`) → reversed to `queuedDelegates` → Rune + I byte-disproved `queuedDelegates` (`:634` asserts `{queuedDelegates:4}` VALID, the count freely takes 0–5) → I re-pinged byte-honestly (`1514265002`) → **frond retracted (c) queuedDelegates and re-pinned definitively to (a): "0/5 never 4" = the continuation-tool-registration count.** `{0,5}` FINAL, NOT `{0,6}`, NOT seat-count, NOT queued-count — a fixed tool-class invariant of the binary, seat-N-independent. frond confirmed: "🌊's R-CW-DELEGATE-SELF owns it canonically; his 6/6 full-tool-set IS the check passing (5 on `4bbd3ae`)." Byte-anchored (verified on-host `1514253772`):
 - `openclaw-tools.continuation-misconfig-warn.test.ts:98` → asserts warning `"only continue_delegate will register"`
 - `openclaw-tools.ts:629-633` → warn fires when `!continueWorkOpts && !requestCompactionOpts`
 - `attempt-execution.ts:707-720` → spawn-init closure plumbing for `continueWorkOpts` + `requestCompactionOpts` (Rune's half-symmetric-cure axis #917/#918/#920)

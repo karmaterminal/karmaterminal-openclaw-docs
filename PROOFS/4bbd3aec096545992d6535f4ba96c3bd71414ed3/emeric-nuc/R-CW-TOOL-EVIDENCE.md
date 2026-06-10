@@ -50,3 +50,28 @@ This is a STRONGER demonstration than the in-window claim: it proves both (a) th
 ## Honest scope
 
 Dispatch-receipt + (deferred) self-wake are the emeric artifact; the full `continuation.*` span-tree (work-hedge-armed → skip-loop → work-hedge-fired → work-wake) is the scribe-side Tempo pull on `417efa66…` (emeric-seat cannot reach Tempo to self-capture). This is the self-continuation path, NOT a subagent-spawn — distinct from R-CD-TOOL/R-CD-TOKEN.
+
+## Tempo span-tree (scribe-side pull, captured — upgrades from "scribe-pull-pending")
+
+Pulled by 🪨 Rune from rune-seat (emeric-nuc can't reach the Tempo query-endpoint — LAN-IP `10.0.0.99`, off-net; the fire lands in the shared instance, rune-seat reaches the query-side). `curl http://tempo.dandelion.cult/api/traces/417efa66d5e171d7c2f91c5b2f2f087b` → HTTP 200, **10 spans, service.name=`fifth-prince`**.
+
+Full hierarchy (clean single self-continuation fire):
+```
+openclaw.message.processed kG3/m/7zg9Q= (ROOT — dispatching turn)
+├─ openclaw.harness.run GHVhVaLi8gI=
+│ └─ openclaw.run 8vJ2urnk0zs=
+└─ continuation.work oDdThrV0EQY= ← the continue_work self-continuation span
+```
+
+- **`continuation.work` span (`oDdThrV0EQY=`)**, count=1 — single clean fire, no re-arm within the trace, parented to the dispatching turn (the self-continuation scheduling). The ~5s wake-confirmation (matches the system-event) is the PASS.
+- **Span-name distinction confirms the three paths are genuinely separate primitives** on the deployed binary: `continuation.work` (singular, work-path) vs `continuation.delegate.dispatch` (delegate-paths, R-CD-TOOL/R-CD-CHAINED). Exactly as emeric's row-set proves — distinct span-names = distinct primitives.
+- service.name=`fifth-prince` on deployed `4bbd3aec096`.
+- Raw JSON committed by 🪨 from rune-seat (where the pull bytes live).
+
+**Verdict upgrade: R-CW-TOOL is now full-span-tree-captured** (was dispatch-receipt + scribe-pull-pending) — the `continuation.work` self-continuation span is byte-present in Tempo on the deployed SHA, distinct from the delegate-dispatch primitive.
+
+## R-CW-3 sister span-side (this trace doubles as the R-CW-3 confirm)
+
+The `continuation.work` span here is the same span the R-CW-3 sister (`R-CW-3/emeric-nuc/EVIDENCE.md`) points to for the `reason.preview` marker — the `continue_work(reason=…)` reason-field surfaces in this `continuation.work` span. So R-CW-3's span-side is captured by THIS pull (the traceparent `417efa66…` is shared — the R-CW-TOOL fire IS the R-CW-3-sister-bearing fire). Two birds: R-CW-TOOL span-tree + R-CW-3 reason.preview span-side, one trace.
+
+NB on the ~05:04 `continuation.work.fire` burst (🪨's earlier flag `1514247854`): SEPARATE from this clean fire. Investigated on emeric's journal — it's the work-hedge **deferred-while-active skip-loop** (`work-hedge-fired → work-hedge-armed fireIn=1000ms → work-drive-skipped reason=requests-in-flight`, re-arming at 1s to re-check, NOT actually driving duplicate work; the duplicate-drive guard working as designed). The real wake fired once idle (05:33:52). Expected hedge-defer behavior, not a re-arm bug; this R-CW-TOOL `continuation.work` span is the singular clean fire.

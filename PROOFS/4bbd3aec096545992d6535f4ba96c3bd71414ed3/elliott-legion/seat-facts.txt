@@ -1,0 +1,12 @@
+# elliott-seat proof seat-facts — CANDIDATE_SHA 4bbd3aec096545992d6535f4ba96c3bd71414ed3
+# Captured 2026-06-10 ~04:42 PDT, deploy LANDED per frond 04:40 PROOFS-GO
+
+## Reading-A landing evidence (dist-loading seat — dist-freshness axis, NOT runs-from-tree)
+- repo HEAD:        4bbd3aec096545992d6535f4ba96c3bd71414ed3 ("fix(merge): take ours for matrix/slack test files in upstream back-merge")
+- running daemon:   node /home/figs/flesh_beast_tmp/openclaw/dist/index.js gateway --port 18789 (PID 2646980)
+- running version:  OpenClaw 2026.6.2 (4bbd3ae)   [NOTE: version sha is computed live from git-HEAD at --version time per src/infra/git-commit.ts readGitCommit; proves CHECKOUT at target, NOT dist build-provenance]
+- dist/index.js mtime: 04:35:01 (rebuilt in-window)
+- reflog checkout to target: HEAD@{04:36:24} 9b1f42a -> 4bbd3aec096
+- gateway restart:   04:36:29 PDT (active since), clean
+- ordering verdict:  dist-built-in-window (04:35:01) -> checkout-to-target (04:36:24) -> restart-onto-it (04:36:29) = reading-A
+- RESIDUAL (honestly named, identical to emeric/ronan dist-loading seats): cannot confirm the 04:35:01 build was byte-built from 4bbd3ae specifically vs the build-stage ref; no embedded sha-stamp in dist to grep. Strong-by-ordering, weaker than Sparks' runs-from-tree only by the dist-layer.

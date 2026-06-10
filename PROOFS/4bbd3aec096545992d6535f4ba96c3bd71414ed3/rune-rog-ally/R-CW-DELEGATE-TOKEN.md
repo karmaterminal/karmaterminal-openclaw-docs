@@ -3,6 +3,14 @@
 **SHA (deployed):** `4bbd3aec096545992d6535f4ba96c3bd71414ed3`
 **Seat:** rune-rog-ally · **Owner:** 🪨 Rune
 **Verdict:** ✅ PASS (corrected — see "Test-method correction" below; the first attempt was a malformed-bracket test-error, NOT a deployed-binary gap)
+
+## ⚠️ WORKING-SYNTAX PRECONDITION (per frond's `1514268xxx` request — document so the row is reproducible)
+The `CONTINUE_WORK:N` bracket-half fires ONLY when the marker is **bare + end-anchored**:
+- ✅ `CONTINUE_WORK` (bare, at end of response-text) — fires
+- ✅ `CONTINUE_WORK:30` (digits after colon, at end) — fires
+- ❌ `[[CONTINUE_WORK: <prose> ]]` (prose after colon, or `[[...]]`-wrapped, or anything trailing) — does NOT fire (`bracketIdx=-1`)
+
+The regex is `/\bCONTINUE_WORK(?::(\d+))?\s*$/` (`tokens.ts:539`): `CONTINUE_WORK` optionally `+:<digits>`, **anchored to end-of-text** (`\s*$`). Emit it as the bare last line of the model's response-text — NOT wrapped in `[[...]]`, NOT inside a `message`-tool body (that bypasses the parser), NOT followed by prose. A malformed marker is correctly rejected by the parser (this is by-design, not a bug). My first GAP-call was a malformed-marker test-error; the corrected bare end-anchored form passes.
 **Fired:** 2026-06-10 ~05:56 PDT (LIVE on deployed gateway `OpenClaw 2026.6.2 (4bbd3ae)`)
 
 ## Behavior under test

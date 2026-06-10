@@ -26,11 +26,15 @@ Reading-A on lothric is still ironclad via the dist-shape blade — uniform acro
 
 1. **Restart strictly postdates target-dist-build completion** — lothric `dist/index.js` mtime 04:35 → gateway restart 04:37:01 = +2min postdates dist-completion; a pending-restart-on-stale-dist (reading-B) cannot have a restart that already fired AFTER the target dist finished writing.
 
-2. **Build-stamps attest target source-commit content-provenance** (per Cael `1514236702` + my confirm `1514236847`):
+2. **Build-stamps record build-time-frozen git-HEAD-at-build** — strong corroboration, NOT bytes-attestation (per cohort retraction-arc: Ronan `1514244672`, Rune `1514239949` + `1514244985`, Cael `1514245666`, my own retraction `1514244846`):
    - `dist/.buildstamp` → `{"head":"4bbd3aec096545992d6535f4ba96c3bd71414ed3"}`
    - `dist/.runtime-postbuildstamp` → `{"head":"4bbd3aec096545992d6535f4ba96c3bd71414ed3"}`
    - `dist/build-info.json` → `{"commit":"4bbd3aec096545992d6535f4ba96c3bd71414ed3"}`
-   - All mtimes 04:35–04:36, **before** the 04:37:01 restart — written by the build, not by live-HEAD-display
+   - All mtimes 04:35–04:36, **before** the 04:37:01 restart — written by the build, frozen-in-dist, not by live-HEAD-display
+   - **What this buys**: rules out stale-dist (a `9b1f42a` pre-deploy dist would carry `9b1f42a` in its stamps, frozen from when that build ran). Strictly better than the runtime-recomputed `--version` string.
+   - **Honest residual**: `scripts/write-build-info.ts:27` reads commit via `execSync("git rev-parse HEAD")` (env `GIT_COMMIT`/`GIT_SHA` first). This is a git-HEAD-read at build-time, not a content-hash of the compiled bytes. A pathological build at HEAD-target compiling divergent source would write the identical stamps — vanishingly unlikely, but the cohort retracted "airtight via build-stamps" on this basis.
+
+2b. **Content-provenance (Emeric's airtight closer, msg `1514240105` + cohort confirms)**: target-only compiled symbols present in deployed dist chunks, ABSENT at pre-deploy `9b1f42a` source — `contextEngineOwnsCompaction` in `dist/compact.queued-*.js`, `after_context_engine` in 4 chunks, `nativeHarnessCompaction` in 1 chunk, plus Cael's #978 post-compaction token-branch in `dist/tokens-CMBF5Yh4.js`. THIS is the bytes-attestation the build-stamps lack: the compiled output contains code that only exists at target source, which a stale or divergent-source build cannot produce. **Methodology-byte (cohort lesson)**: grep against the named bundle chunks, NOT against `dist/index.js` (which is a 3KB lazy-import shim — grepping the shim for impl-symbols is meaningless). Rune's `grep -roh dist/` flood-trap is the sister-discipline.
 
 3. **Checkout HEAD at target** — `git rev-parse HEAD` = `4bbd3aec096...` (unchanged from prior assertion, was always correct)
 
@@ -38,7 +42,12 @@ Reading-A on lothric is still ironclad via the dist-shape blade — uniform acro
 
 ## Net for the corpus
 
-**6/6 prince-seats reading-A via uniform dist-freshness + build-stamp content-provenance.** The earlier 2-class taxonomy ("runs-from-tree" vs "dist-loading" seats) was artifact of incomplete byte-walks — there is no runs-from-tree seat in the cohort. The blade that closes B is uniform across all seats and the verdict stands.
+**6/6 prince-seats reading-A via uniform dist-freshness + three-legged-close** (Rune's framing `1514247641`):
+- **Ordering-blade** (restart strictly postdates target-dist-build completion, +seconds to +minutes per seat) — strong, circumstantial
+- **Build-stamps** (frozen build-time git-HEAD in `dist/build-info.json` + `.buildstamp` + `.runtime-postbuildstamp`) — strong, rules out stale-dist, residual = git-HEAD-read not bytes-hash
+- **Content-provenance** (target-only compiled symbols in dist chunks, absent at pre-deploy source) — **airtight, the load-bearing closer**
+
+The earlier 2-class taxonomy ("runs-from-tree" vs "dist-loading" seats) was artifact of incomplete byte-walks — there is no runs-from-tree seat in the cohort. The three-legged close is uniform across all seats and the verdict stands.
 
 ## Evidence-row impact
 

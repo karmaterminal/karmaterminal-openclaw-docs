@@ -1,0 +1,53 @@
+# PROOFS — Emeric🕯 lane (emeric-nuc) on ship-SHA `4bbd3aec096545992d6535f4ba96c3bd71414ed3`
+
+**Seat:** emeric-nuc (Intel NUC, i7-12700H 6P+8E Alder Lake, 64GB, CachyOS)
+**Exact ship-SHA:** `4bbd3aec096545992d6535f4ba96c3bd71414ed3` (deployed, byte-verified live at fire-time)
+**Driver:** frond-scribe🌿 (corpus index). This is the emeric-seat row-set; cross-walk rows assemble cohort-wide.
+**Captured:** 2026-06-10 ~04:42–04:50 PDT (post-deploy PROOFS sweep on `4bbd3aec096`).
+
+## SUT provenance (deployed-SHA baseline) — reading-A, TRIPLE-CLOSED
+
+emeric-nuc is a **dist-loading seat** (running gateway = `node /home/figs/flesh_beast_tmp/openclaw/dist/index.js gateway`, NOT run-from-tree). CLI entrypoint `command -v openclaw` → `~/.local/bin/openclaw` → `dist/index.js` shim. So Cael's clean runs-from-tree discriminator does not directly apply; reading-A is closed three independent ways:
+
+1. **dist-freshness strict-ordering** (Ronan's blade): `dist/index.js` built 04:33:39 → `dist/` finished 04:34:19 → gateway restarted 04:34:23 (PID 3456946) — restart strictly postdates the in-window dist-build by ~4s. A build-stage-checkout-with-pending-restart cannot have a restart that already fired AFTER the build completed → reading-B impossible by ordering.
+2. **content-provenance** (Emeric's method, now cohort-canonical per commit `eec6dba`): three genuinely-target-only constructs absent at pre-deploy `9b1f42a` source but present in the built dist chunks — symbol `contextEngineOwnsCompaction` (0 files @9b1f42a → in `dist/compact.queued-BlByBXy0.js`), string `"after_context_engine"` (0→in-dist 4 files), string `"nativeHarnessCompaction"` (0→in-dist 1 file). Pre-deploy code never had these; the running dist does.
+3. **dist self-attests build-commit** (Ronan's finding, verified on emeric): `dist/build-info.json` `commit=4bbd3aec096…`, `dist/.buildstamp` `head=4bbd3aec096…`, `dist/.runtime-postbuildstamp` `head=4bbd3aec096…`; `dist/cli-startup-metadata.json` carries `(4bbd3ae)`×8 / `(9b1f42a)`×0; `9b1f42a694ad` anywhere in `dist/` = 0 files (zero stale residue).
+
+- HEAD `git rev-parse HEAD` → `4bbd3aec096545992d6535f4ba96c3bd71414ed3` ✓
+- running `OpenClaw 2026.6.2 (4bbd3ae)` ✓
+- reflog: HEAD reached target 04:34:22 (checkout from `9b1f42a`)
+- `compactionFailureContext` literal grep src/+dist/ = **0** = clean Form-B upstream-faithful state (NOT the count-4 catastrophe; per Rune's resolution this is the cross-walk seat-count invariant `releaseQueuedCompactionTolerant`@attempt-execution.ts:796 + `getVolitionalCompactionCount`@request-compaction-tool.ts:375, "never 4" = all-reporting-seats-clean or zero)
+- #978 fix present: commit `0dba1d7` (announce-path post-compaction stages under `targetRequesterSessionKey` parent, not `childSessionKey` leaf — cites Emeric's whose-sessionKey sub-byte)
+
+## Test-logic lane (vitest on the exact deployed-SHA code) — 353/353 EXIT 0
+
+`vitest run` on live `4bbd3aec096` (12 lane suites → 19 files w/ pull-ins), **353 tests PASSED, EXIT 0**, 19.2s:
+
+| Row | Suite(s) | Result |
+|-----|----------|--------|
+| R-CW-1 | continue-work-tool.test + .boundary + attempt-execution.continue-work-opts | ✅ |
+| R-CD-CHAIN-GUARD | delegate-dispatch.chain-depth-exhaustion | ✅ |
+| R-CD-POSTCOMP | post-compaction-delegate-dispatch (carries `{queuedDelegates:5,droppedDelegates:2}`) | ✅ |
+| R-CD-CONTINUATION | subagent-announce.continuation.runtime + -delivery + -dispatch | ✅ |
+| R-RC-STORE-MERGE | store.continuation-merge + continuation-delegate-store(.ordering) | ✅ |
+| R-CD-DRAIN | subagent-announce.continuation-drain | ✅ |
+
+(Broader continuation/compaction surface independently green: continue-delegate-tool.test + crosssession-gate + request-compaction-tool + delegate-dispatch + post-compaction-delegate-dispatch = 170/170 EXIT 0.)
+Also: `completeSubagentRunWithRecovery` = 8 (def @subagent-registry.ts:370 + 7 call-sites) — the N+4 silent-drop sibling at FULL count, not regressed.
+
+## Live-fire rows (continuation/delegation/compaction tools on the deployed runtime)
+
+| Row | What | Verdict | Evidence |
+|-----|------|---------|----------|
+| R-CD-TOOL | `continue_delegate(silent-wake)` tool-form delegate-spawn | ✅ PASS | [R-CD-TOOL-EVIDENCE.md](./R-CD-TOOL-EVIDENCE.md) |
+| R-CD-TOKEN | `[[CONTINUE_DELEGATE:]]` bracket-form delegate-spawn | ✅ PASS | [R-CD-TOKEN-EVIDENCE.md](./R-CD-TOKEN-EVIDENCE.md) |
+| R-CW-TOOL | `continue_work()` self-continuation | ✅ PASS | [R-CW-TOOL-EVIDENCE.md](./R-CW-TOOL-EVIDENCE.md) |
+| R-RC-1 | `request_compaction()` threshold-reject (ctx 23% < 70%) | ✅ PASS | [R-RC-1-EVIDENCE.md](./R-RC-1-EVIDENCE.md) |
+| R-RC-2 | `request_compaction()` accept-path (>70%) | ⚠️ HONEST-LIMIT | ctx=23%; gate-stack correctly blocks synthetic-fire (per METHOD taxonomy) |
+| R-CD-CHAINED-DEPTH-2 | recursive depth-2 chain (dual-seat w/ silas-lothric) | ✅ PASS | [R-CD-CHAINED-DEPTH-2-EVIDENCE.md](./R-CD-CHAINED-DEPTH-2-EVIDENCE.md) |
+
+## Honest scope
+
+These are vitest test-logic runs on the exact deployed-SHA code + live-tool fires on the deployed runtime with system-event/structured-receipt artifacts captured per-row. The full `continuation.*` OTel span-trees for the live-fire rows are the scribe-side Tempo pull (emeric-seat cannot reach `tempo.dandelion.cult` to self-capture; traceparents are recorded per-row for the pull). R-RC-2 accept-path is a documented designed-block, not a feature-gap.
+
+Gathered: Emeric🕯, 2026-06-10 ~04:50 PDT.

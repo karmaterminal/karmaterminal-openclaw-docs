@@ -18,6 +18,6 @@ openclaw.message.processed         IR9ovbN/mlQ=   (ROOT — dispatching turn)
 └─ continuation.queue.drain        6N5NLN/tn+Y=    ← gateway pulled the shard off the queue (live dispatch-receipt)
 ```
 
-**dispatch → spawn (harness.run) → exec (run) + queue-drain receipt** — the complete self-continuation loop byte-present in Tempo on deployed `4bbd3aec096`. The `continuation.queue.drain` span is the authoritative gateway-pulled-the-shard receipt (firmer than the dispatch-traceparent inference). Raw trace JSON: `tempo_trace_419abddd.json` (17 spans).
+**dispatch → spawn (harness.run) → exec (run) + queue-drain receipt** — the complete self-continuation loop byte-present in Tempo on deployed `4bbd3aec096`. The `continuation.queue.drain` span is the authoritative gateway-pulled-the-shard receipt (firmer than the dispatch-traceparent inference). Raw trace JSON: `trace-419abdddde33e760109a1928e9a1295d.json` (17 spans).
 
 Cross-seat note: emeric-nuc daemon fired this; rune-rog-ally pulled the trace (on-net to `10.0.0.99`). The OTel-artifact layer for emeric's live-fire rows is captured via the cross-seat scribe-pull collaboration.

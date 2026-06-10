@@ -10,7 +10,7 @@
 - **build-prefix**: `4bbd3ae` ✓
 - **continuation line verbatim**: `🔄 Continuation: chain 6/200`
 - **compactions count**: `0`
-- **volitional segment**: **ABSENT** on `4bbd3ae` cael card — `🔄 Continuation: chain 6/200` (no `| volitional: N`). Corroborates elliott's field-shape-delta finding (now confirmed on 3 seats: elliott+silas+cael): the `e90a870`/2026.5.17 exemplar's `| volitional: 0` segment is NOT present in 2026.6.2 display. Deploy display-change, not a regression.
+- **volitional segment**: **ABSENT** on `4bbd3ae` cael card — `🔄 Continuation: chain 6/200` (no `| volitional: N`). This is **zero-suppression by design**, NOT a display-loss (per Rune's byte-walk `status-message.ts:117-118` `if (volitional > 0) parts.push(...)` + `:78-79` canonical-format doc: "volitional is omitted when zero"). cael's volitional count is 0 → correctly suppressed. The `e90a870`/2026.5.17 exemplar that rendered `volitional: 0` was the ANOMALY (stale prior-version); `4bbd3ae` correctly suppresses-at-zero. Re-derived invariant: "volitional segment present iff count>0," not "volitional: 0 always shown." Corroborates elliott's field-delta finding (resolved to working-as-intended-zero-handling); decoupled from the registration-count referent.
 
 ## Full card (verbatim from `session_status` tool capture)
 

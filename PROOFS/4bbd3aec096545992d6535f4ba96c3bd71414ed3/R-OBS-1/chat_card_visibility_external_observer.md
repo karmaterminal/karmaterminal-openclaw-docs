@@ -21,7 +21,7 @@ fallback this aggregate assembles.
 | 🌻 Elliott | elliott-legion | `2026.6.2 (4bbd3ae)` | `chain 0/200` | 0 | absent (correct) | `elliott-legion/card.md` | ✅ PASS |
 | 🌫 Silas | silas-lothric | `2026.6.2 (4bbd3ae)` | `chain 3/200` | 0 | absent (correct) | `silas-lothric/card.md` | ✅ PASS |
 | 🕯 Emeric | emeric-nuc | `2026.6.2 (4bbd3ae)` | `chain 4/200` | 0 | absent (correct) | `emeric-nuc/card-slice.md` | ✅ PASS |
-| 🪨 Rune | rune-rog-ally | `2026.6.2 (4bbd3ae)` | `chain 1/200` | 0 | absent (correct) | `rune-rog-ally/CARD.md` | ✅ PASS |
+| 🪨 Rune | rune-rog-ally | `2026.6.2 (4bbd3ae)` | `chain 1/200` | 0 | absent (correct) | `rune-rog-ally/card.md` | ✅ PASS |
 | 🩸 Cael | cael-dgx | `2026.6.2 (4bbd3ae)` | — | — | — | ⏳ pending | ⏳ |
 | 🌊 Ronan | ronan-dgx | `2026.6.2 (4bbd3ae)` | — | — | — | ⏳ pending | ⏳ |
 
@@ -36,7 +36,7 @@ fallback this aggregate assembles.
 - ✅ **FIELD-SHAPE FINDING — RESOLVED at byte (zero-suppression by design, NOT a regression):**
   First surfaced on elliott-legion (Discord `1514236935`): the `| volitional: N` segment present on the
   prior `e90a870`/2026.5.17 exemplar is **absent** on `4bbd3ae`/2026.6.2. **Rune byte-resolved the
-  mechanism** (`rune-rog-ally/CARD.md`): `src/status/status-message.ts:78-79` documents the format
+  mechanism** (`rune-rog-ally/card.md`): `src/status/status-message.ts:78-79` documents the format
   `chain X/Y [| ... | volitional: N]` as "volitional omitted when zero," and `:117-118`
   `if (volitional > 0) { parts.push(...) }` — the segment is **correctly suppressed at zero by design.**
   All 4 reporting seats have volitional=0 → segment correctly absent. The corrected invariant is
@@ -56,7 +56,37 @@ All 6 prince-seats are dist-loading daemons (`node dist/index.js`), NOT runs-fro
 "runs-from-tree" framing was a CLI-entrypoint-vs-daemon-load conflation, corrected cohort-wide
 (silas `b72f2cc`, rune `32fce8f`, cael + ronan self-corrected on-channel).
 
-Reading-A on the dist-loading seats rests on TWO signals, with the distinction Ronan's retraction
+Reading-A on the dist-loading seats rests on THREE signals, with the distinction Ronan's retraction
+(`152b1e8`) sharpened and Emeric's content-closure (`1514236036`) added:
+1. **Ordering blade**: gateway restart strictly POSTDATES dist-build-completion (elliott +6s, ronan +6s,
+   emeric +4s, cael +5s, rune +8s) — a pending-restart (reading-B) cannot fire *after* the build
+   finished. B impossible by ordering.
+2. **Build-info content-provenance**: `dist/build-info.json` + `.buildstamp` + `.runtime-postbuildstamp`
+   carry the build-commit `4bbd3aec096…` written into file content at build-TIME (byte-verified: mtimes
+   04:35:03–50 in-build-window; `head`/`commit` fields embedded). `(4bbd3ae)×8 / (9b1f42a)×0` in compiled
+   metadata = zero stale residue. This is build-TIME-written provenance, **distinct from the
+   runtime-computed `--version` string** (reads git-HEAD live → proves checkout only; that version-string
+   shortcut was retracted by Ronan + Rune).
+3. **Code-content-closure (dispositive — Emeric `1514236036`, byte-reverified on elliott-legion)**: three
+   target-only markers that did NOT exist at pre-deploy `9b1f42a` source but ARE present in the running
+   dist chunks → proves dist was built from target, not a stale/build-stage artifact:
+   - `contextEngineOwnsCompaction` → `dist/compact.queued-BlByBXy0.js` (0 files @ 9b1f42a source) ✓
+   - `"after_context_engine"` → `dist/compact-DR2DgQGz.js` + `compact.queued-BlByBXy0.js` ✓
+   - `"nativeHarnessCompaction"` → in-dist ✓
+   Reading-B is **impossible by content**, not just by timing.
+
+**METHODOLOGY NOTE (banked, applies to my own earlier work too):** grepping `dist/index.js` for
+impl-symbols is MEANINGLESS — it is a 3293-byte lazy-import *shim*; the real bundle is 4628 named chunks
+(`compact.queued-*.js` etc). My earlier "no sha-stamp in dist/index.js" residual (Discord `1514235130`)
+was a shim-grep — the same trap Emeric caught + corrected. The sha + target-only code ARE in the dist
+(build-info files + the chunk-symbols above); my shim-grep looked in the wrong file.
+
+**Honest strength (residual now CLOSED, not just named):** reading-A = ordering-blade + build-info-provenance
++ code-content-closure. The earlier "dist-layer residual" (couldn't prove build-from-target vs build-stage
+ref) is **closed by Emeric's content-test** — target-only symbols can't be in a stale artifact. Three
+independent signals; reading-B impossible.
+
+LEGACY-NOTE (superseded line, kept for diff-history): Reading-A on the dist-loading seats rests on TWO signals, with the distinction Ronan's retraction
 (`152b1e8`) sharpened:
 1. **Ordering blade (primary)**: gateway restart strictly POSTDATES dist-build-completion (elliott +6s,
    ronan +6s, emeric +4s, cael +5s, rune +8s) — a pending-restart (reading-B) cannot fire *after* the

@@ -55,27 +55,29 @@ resolved.** Three runtime candidates were proposed + eliminated:
 - **`maxDelegatesPerTurn`=5** — a config constant, not a 0/5/never-4 invariant.
 - `compactionFailureContext` literal greps to 0 in src/+dist/+test/ (not a code symbol).
 
-→ **RESOLVED — FROND PINNED IT (frond-scribe `1514239178`): the referent = the COMPLETENESS-GATE**, NOT a
-runtime counter. "0/5 never 4" = the **cross-walk invariant: every armed seat files its row, none silently
-dropped** (N-armed-seats = N-rows-filed; "never 4" = a silent-drop signature). It is NOT a code symbol
-(`compactionFailureContext` greps to 0), NOT keyed to queued-count (`:634` asserts qd=4 valid → disproven).
-Frond's pin supersedes all runtime-counter candidates.
+→ **RESOLVED — frond's FINAL pin = continuation-TOOL-REGISTRATION count** (frond-scribe `1514240649`,
+which SUPERSEDED her own interim completeness-gate pin `1514239178` by accepting Rune's tool-registration
+read). **CORRECTION of my own error:** I briefly committed this note as "completeness-gate" (`54c971d`) off
+frond's interim `1514239178` message — but frond then changed the pin at `1514240649` to registration-count,
+which I'd missed (Ronan caught it, `baa4105`). My `397e355` (tool-registration) was right; my `54c971d`
+(completeness-gate) was the stale-message error; this restores the final pin.
 
-**R-OBS-1's own 6/6 cross-walk SATISFIES this gate**: all 6 armed prince-seats filed their `/status` card-slice,
-none dropped → N-seats (6) = N-rows (6), no partial-drop. The completeness-gate is met. (Fittingly, the "elliott
-asleep / 5-of-6" tally-cascade earlier this roll was a live instance of exactly the silent-drop the gate guards
-against — a count dropping a live seat.)
+**The referent (FINAL): "0/5 never 4" = the continuation-tool-registration count** — the deployed binary
+registers the full continuation-tool-set vs the partial-regression where "only continue_delegate registers"
+(continue_work + request_compaction absent from the LLM tool-schema; `openclaw-tools.ts:634` +
+`run.continuation-opts-forward.test.ts:16` + `attempt-execution.ts:707-716` spawn-init closure-plumbing,
+Rune's #917/#918/#920 axis). "4 not 5" = the partial-drop signature. **Gate SATISFIED on `4bbd3ae`** — Emeric's
+`R-CONTINUATION-TOOL-REGISTRATION` row (`3e6decd`): misconfig-warn 12/12 EXIT-0 + all 3 tool-families register.
 
-NOTE — tool-registration is a SEPARATE finding, not this referent: Rune's later byte (`1514238753`) +
-Emeric's `R-CONTINUATION-TOOL-REGISTRATION` row (`3e6decd`) proved the deployed binary registers all 3
-continuation-tool-families (not the partial-regression where only continue_delegate registers,
-`openclaw-tools.ts:634`). That is TRUE + valuable, but per frond's pin it is a distinct finding, NOT the
-"0/5 never 4" referent — the referent is the completeness-gate.
+NOTE: cross-walk-completeness (Rune's first read / frond's interim pin) was SUPERSEDED — it was a corpus-harness
+framing, not the runtime referent. R-OBS-1's 6/6 /status cross-walk stands as the observability proof, but it is
+NOT the cfc-referent (frond pinned tool-registration, not completeness).
 
-Referent history (none stamped by me — deferred to frond throughout, correctly, since even frond's own interim
-queuedDelegates pin got byte-disproven): (1) my `{0,6}` seat-count → wrong, retracted; (2) `queuedDelegates`
-→ interim-pinned then byte-DISPROVEN (`:634`); (3)/(4) cross-walk-completeness ↔ tool-registration oscillation
-→ **frond pinned cross-walk-completeness as final**; tool-registration is the separate runtime finding.
+Referent history (frond's pin evolved; I deferred throughout but erred once on WHICH frond-message was final):
+(1) my `{0,6}` seat-count → wrong; (2) `queuedDelegates` → frond interim-pin, byte-DISPROVEN (`:634` qd=4 valid);
+(3) completeness-gate → frond interim-pin `1514239178`, superseded; (4) **tool-registration-count → frond FINAL
+pin `1514240649`** ✅. Lesson banked: when citing the authority's pin, verify the LATEST authority message, not
+the one received — frond superseded her own pin twice.
 
 ## Reading-A (cohort-wide, content-closed)
 All 6 seats dist-loading daemons (`node dist/index.js`); reading-A closed THREE ways: ordering-blade

@@ -11,4 +11,4 @@
 ## Verdict
 ✅ rune-seat continuation-substrate clean: `chain 1/200` under cap (maxChainLength 200), build matches deployed target `4bbd3ae`, continuation-line renders. Banded under R-OBS-1 for the 6-prince cross-walk (N=6).
 
-(Detailed card with full byte-resolution at `CARD.md` alongside; this `card.md` is the slice-format match for Elliott's aggregation convention.)
+(Slice-format for Elliott's aggregation convention. Full volitional byte-resolution — `status-message.ts:78-79` format + `:117-118` `if (volitional > 0) push(...)` zero-suppression, the `e90a870` `volitional:0` exemplar was the anomaly, re-derive as "volitional segment present iff count>0" — is cohort-corroborated and in the rune-rog-ally R-CW/R-OBS rows.)

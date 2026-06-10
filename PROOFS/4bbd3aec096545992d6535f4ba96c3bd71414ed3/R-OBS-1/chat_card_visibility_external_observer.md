@@ -55,11 +55,24 @@ resolved.** Three runtime candidates were proposed + eliminated:
 - **`maxDelegatesPerTurn`=5** — a config constant, not a 0/5/never-4 invariant.
 - `compactionFailureContext` literal greps to 0 in src/+dist/+test/ (not a code symbol).
 
-→ By elimination, "0/5 never 4" is most likely the **cross-walk corpus-completeness assertion** (Rune's
-reading) — i.e., R-OBS-1's own N-of-N-seats-report-or-zero-never-partial property — which is **why it greps
-to nothing** (it's a harness/corpus-label, not runtime code). **Pending frond's re-confirm** after the
-`queuedDelegates` disproof. My own earlier `{0,6}`/`{0,5}` delegate-dispatch assertions were wrong and are
-retracted (Discord `1514242931` + this note); I did not re-litigate them after frond's pin was itself disproven.
+→ **UPDATED (Rune byte-walk `1514238753` + Emeric's `R-CONTINUATION-TOOL-REGISTRATION` row `3e6decd`):** the
+referent is likely the **continuation-tool-registration guard**, NOT a corpus-completeness label — and it IS
+grep-able (superseding the earlier "not grep-able so must be corpus-label" inference). The partial-registration
+failure-mode is byte-real: when spawn-init closures aren't forwarded, `createOpenClawTools`'s warn-guard fires
+and **only continue_delegate registers** (continue_work + request_compaction absent from the LLM tool-schema
+even though configured) — `openclaw-tools.ts:634` + `run.continuation-opts-forward.test.ts:16` +
+`attempt-execution.ts:707-716` (the closure-plumbing whose drop IS the failure; Rune's #917/#918/#920 axis).
+Emeric's dedicated row proves it live: misconfig-warn 12/12 EXIT-0 + all 3 tool-families register on deployed SHA.
+
+CAVEAT (honest, still open): the source shows the failure as "only continue_delegate registers" and Emeric's row
+counts **3 tool-families** (cw/cd/rc) — but frond's label says **"5"** (Ronan/Rune read it as cw + continue_delegate-
+5-modes + rc). 3-vs-5 doesn't cleanly reconcile; the exact count-mapping for "5/4" remains **frond's formal pin**.
+The cross-walk-completeness reading (my + Rune's earlier convergence) is **superseded** as leading candidate.
+
+Referent history (none stamped by me — deferred to frond throughout, correctly, since even frond's own pin got
+disproven): (1) my `{0,6}` seat-count → wrong, retracted; (2) `queuedDelegates` → frond-pinned then byte-DISPROVEN
+(`:634` asserts qd=4 valid); (3) cross-walk-completeness corpus-label → superseded by the grep-able registration
+finding; (4) **tool-registration-guard → current leading candidate** (Rune byte + Emeric row), exact 5/4-count pending frond.
 
 ## Reading-A (cohort-wide, content-closed)
 All 6 seats dist-loading daemons (`node dist/index.js`); reading-A closed THREE ways: ordering-blade

@@ -44,43 +44,34 @@ fallback this aggregate assembles — all 6 now in.
   is SATISFIED (6/6). This is THIS row's own corpus-completeness property (#3 below) — a SEPARATE invariant from
   the cfc-referent (everyone agrees the seat-cross-walk is not cfc); it is the #3 green leg of the gate's all-candidates-green close.
 
-## `compactionFailureContext` "0/5 never 4" referent — REFERENT-LABEL UNPROVABLE, NON-BLOCKING (all candidates PASS)
+## `compactionFailureContext` "0/5 never 4" referent — FINAL: (a) TOOL-REGISTRATION by byte-elimination (figs can override, non-blocking)
 
 For the record, since this aggregate's N=6 was earlier conflated with this referent: **the seat-cross-walk N=6 is NOT the
-referent** (it's #3, this row's own property). Frond's harness-shorthand maps to multiple candidate surfaces; she cannot byte-prove
-which, and it does NOT block — every candidate surface PASSES on `4bbd3ae` (detail below).
+referent** (it's R-OBS-1's own property, separate). The cohort byte-ELIMINATED every other candidate; tool-registration is the sole survivor fitting
+the literal "0/5 never 4"; frond accepted it FINAL on the elimination (stronger ground than name-fit). It does NOT block — figs owns the label + every surface PASSES on `4bbd3ae`.
 
-→ **FROND'S HONEST CLOSE — REFERENT-LABEL UNPROVABLE, DOES NOT BLOCK (frond-scribe `1514248116`, retracting BOTH the interim (c) AND the later (a) pins).**
-Frond re-opened her own `1514244157` (a) pin and re-settled honestly: she **cannot byte-prove** which surface her
-"0/5 never 4" harness-shorthand names — it maps to (at least) TWO distinct code-grounded candidate surfaces, and Emeric's
-byte confirmed surface #1 *exists* as a `{0,5}` invariant but did NOT confirm the *label points at #1* vs #2 (same
-shape-matched story-pin that bit the (c) reading). Frond's words: "not (a), not (c) — 'all candidates green, referent-label
-is figs's.'" The label→referent map is **figs's harness-shorthand to confirm at his discretion; it does NOT block the gate.**
+→ **FROND'S FINAL RULING — cfc = (a) TOOL-REGISTRATION, by BYTE-ELIMINATION (frond-scribe `1514253204`, superseding ALL prior cfc pins incl her `1514248116` unprovable-close).**
+Frond's pin evolved ~7× (queuedDelegates → cross-walk → tool-registration → (c) → (a)-FINAL → unprovable-close → **(a) by elimination**). The FINAL resolution
+landed by **byte-elimination** of every other candidate — not name-fit. Each runtime/source-symbol candidate falls at the byte EXCEPT one:
+- **queued-count ❌** — `post-compaction-delegate-dispatch.test.ts:634` asserts `{queuedDelegates: 4}` VALID (intentional accounted budget-cut, `droppedDelegates:1`), so a count the test sets to 4 by design cannot host a "never-4" invariant (Rune, 3×).
+- **seat-count ❌** — it is N=6 not 5 (🌻 awake); a seat-tally would read "0/6 never 5," not "0/5 never 4."
+- **volitional / `getVolitionalCompactionCount` ❌** — per-session accept-tally, not a fixed `{0,5}`.
+- **`compactionFailureContext`-the-literal ❌** — phantom (grep=0 in src/+dist/+test/), it is figs's harness-shorthand, not a code symbol.
+- **→ tool-registration ✅ SOLE SURVIVOR** — the ONLY candidate fitting the literal "0/5 never 4": exactly 5 continuation-tool-classes register or none,
+  never the partial-4 drop (`openclaw-tools.ts:634` "only continue_delegate will register"; #917/#918/#920 half-symmetric partial-regression). Seat-N-independent, FIXED.
 
-The two live candidate surfaces (the third, seat-cross-walk, is THIS row's R-OBS-1 N=6 — separate, everyone agrees it's not cfc):
-- **#1 continuation-tool-registration count** (`openclaw-tools.ts:634` "only continue_delegate will register") — `{0,5}`, seat-independent;
-  5 = cw+cd+rc all register, 4 = the half-symmetric partial-drop (#917/#918/#920), 0 = clean Form-B. Canon-grounded #868/#79925/#85651.
-- **#2 volitional-compaction surface** (`getVolitionalCompactionCount`, threaded in-dist at `:103`) — the surface this row's `| volitional`
-  display-delta (above) touches: omit-at-zero by design, reads 0 = clean.
-- (Earlier-eliminated, NOT the referent: delegate-dispatch `queuedDelegates` — DISPROVEN, `post-compaction-delegate-dispatch.test.ts:634`
-  asserts `{queuedDelegates: 4}` VALID, so 4 is legal → can't host a "never-4" invariant; `maxDelegatesPerTurn`=5 config-constant; `compactionFailureContext` literal greps to 0.)
+**THE REFERENT (FINAL): "0/5 never 4" = the continuation-tool-registration count** `{0=clean-Form-B, 5=full-stage-all-register, 4=silent-partial-drop}`, seat-independent.
+**Standing caveat (frond's own):** it is frond's harness-shorthand — **figs can override the label at his discretion; non-blocking either way (every surface green on `4bbd3ae`).**
+**Gate SATISFIED:** 🌊's R-CW-DELEGATE-SELF 6/6 full-tool-set registration = the check passing (5, not 4); Emeric's `R-CONTINUATION-TOOL-REGISTRATION` (`3e6decd`) misconfig-warn green + all 3 families register, none drop.
 
-**THE BYTE-DEFENSIBLE CLOSE — the gate clears under ALL readings; the deployed `4bbd3ae` binary carries NO continuation-regression on any candidate surface:**
-- **#1 tool-registration PASS** ✅ — 🌊's R-CW-DELEGATE-SELF 6/6 full-tool-set registration = the check passing (5, not 4); Emeric's
-  `R-CONTINUATION-TOOL-REGISTRATION` row (`3e6decd`) confirms (misconfig-warn 12/12 + all 3 families register, none drop).
-- **#2 volitional-surface PASS** ✅ — `getVolitionalCompactionCount` intact + threaded in-dist; omit-at-zero by design; reads 0 = clean
-  (this row's `| volitional` finding corroborates it: the `e90a870` `volitional: 0` render was the omit-at-zero anomaly, NOT a deploy removal; corroborated 6/6).
-- **#3 R-OBS-1 cross-walk PASS** ✅ — 6/6 prince-seats file /status cards, never a partial drop (THIS row's own corpus-completeness property).
+The two other invariants the cohort cycled through are REAL but file as their OWN rows, NOT under cfc:
+- **(b) R-OBS-1 cross-walk-completeness N=6** — THIS row's own property (all 6 seats file /status, never a partial drop); `{0,6}`, cohort-size-tracking; SEPARATE from cfc (frond-confirmed `1514251822` + Rune-confirmed; my aggregate spec'd it apart throughout).
+- **volitional omit-at-zero** — this row's display-finding (above); a render-behavior, not the cfc-invariant.
 
-**R-OBS-1's cross-walk-completeness N=6 is the SEPARATE invariant (#3 above), NOT the cfc-referent** — distinct layers, both real. The cfc
-label is figs's-to-pin and non-blocking; this row contributes the #3 green leg + the #2-corroborating display finding. Aligned to frond's honest
-close at `f2101d7` (emeric-nuc's parallel re-alignment).
+**R-OBS-1's cross-walk-completeness N=6 is the SEPARATE invariant, NOT the cfc-referent** — distinct layers, both real. cfc = the per-binary tool-registration count `{0,5}` (figs's label, figs can override, non-blocking); R-OBS-1's 6/6 is this row's corpus-completeness property. The cfc gates nothing; this row contributes the tool-registration-PASS leg + the volitional display-finding.
 
-Referent history (frond's pin evolved ~6×; I deferred + never stamped any reading as my own claim, correctly — each interim was
-superseded, INCLUDING frond's own (a) FINAL): my `{0,6}` seat-count (retracted) → `queuedDelegates` (frond pin, byte-disproven `:634`) →
-cross-walk-completeness (frond interim) → tool-registration (frond `1514240649`) → (c) delegate-staging (frond `1514243060`,
-byte-disproven `:634`) → (a) tool-registration FINAL (frond `1514244157`) → **HONEST CLOSE: referent-unprovable, all-candidates-green, figs's-shorthand, non-blocking (frond `1514248116`)** ✅.
-Lesson held end-to-end: verify the LATEST authority message; surface byte-conflicts only per the authority's explicit invitation; never stamp; byte > pin > story — frond modeled it on her own pins, twice.
+Referent history (frond's pin evolved ~7×; I deferred + never stamped any reading as my own claim, correctly — each interim superseded, INCLUDING frond's own): `{0,6}` seat-count (mine, retracted) → `queuedDelegates` (frond pin, byte-disproven `:634`) → cross-walk-completeness (frond interim) → tool-registration (frond `1514240649`) → (c) delegate-staging (frond `1514243060`, byte-disproven) → (a) FINAL (frond `1514244157`) → unprovable-close (frond `1514248116`) → **(a) TOOL-REGISTRATION by byte-elimination (frond FINAL `1514253204`, figs-can-override, non-blocking)** ✅.
+Lesson held end-to-end: verify the LATEST authority message; surface byte-conflicts only per the authority's explicit invitation; never stamp; the byte-elimination (not name-fit) closed it; byte > pin > story — frond modeled it on her own pins repeatedly, and accepted the cohort's byte-elimination as stronger ground than her original name-fit.
 
 ## Reading-A (cohort-wide, content-closed)
 All 6 seats dist-loading daemons (`node dist/index.js`); reading-A closed via three strands, AIRTIGHT on the content leg:

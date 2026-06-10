@@ -107,3 +107,23 @@ Bracket-form chained-delegate at depth-2 on the deployed `4bbd3aec096` runtime f
 - figs's both-forms-mandate directive: `1513978768`
 - Prior ship-SHA cross-walk: `PROOFS/9b1f42a694.../silas-lothric/R-CD-CHAINED-DEPTH-2-TEST-3-EVIDENCE.md`
 - Deploy-event flip tally (6/6 prince-seats on `4bbd3aec096`, reading-A): Elliott msg `1514233280008945724`
+
+## AMENDMENT 2026-06-10 05:11 PDT — TEST-3 routing-divergence mechanism (per Rune's byte-walk msg `1514240394`)
+
+The observation banked in this row's "Honest scope" section — that hop-2's child-result from bracket-form depth-2 surfaced to MAIN (not just to hop-1), unlike TEST-1's tool-form silent-wake which routes only to immediate-parent — has a byte-walked mechanism:
+
+**Source location:** `src/agents/subagent-announce.ts:613-702`
+
+**Mechanism (per Rune `1514240394`):** The return-routing resolves `targetRequesterSessionKey = requesterSessionKey` (immediate-parent) FIRST. But there's a **fallback re-resolution at `:695`** via `resolveRequesterForChildSession(...)`, which triggers when the immediate-parent can't receive:
+- `:685` `!isSubagentSessionRunActive(targetRequesterSessionKey)` — hop-1 not active when hop-2 returns
+- `:688` `shouldIgnorePostCompletionAnnounceForSession(...)`
+
+When hop-1 is NOT active-to-receive at hop-2's return-time, the announce falls back up the chain at `:699` `targetRequesterSessionKey = fallback.requesterSessionKey` — which can land at MAIN.
+
+**Why bracket vs tool differs (Rune's read):** Bracket-form spawn-init and tool-form silent-wake schedule their hop-1 wake differently, so hop-1's liveness-window at hop-2-return-time can differ → fallback-to-main fires for bracket but not tool. **This is a timing-conditional fallback, not an intentional route-split** — and not a hardcoded `source:"bracket"` route either, just an emergent shape from the wake-scheduling difference.
+
+**Honest scope (Rune's, preserved):** Not asserted as the whole story — needs deeper byte-walk to confirm whether `source:"bracket"` itself feeds into the liveness-check or wake-scheduling in a way that systematically keeps hop-1 down longer for bracket-form. If it does, then it's *effectively* form-conditional even if not hardcoded. That's the follow-up byte. The surfaced-to-main behavior captured in this row = the `:695` fallback firing, which is by-design for "parent can't receive," not a bracket-vs-tool design-split. The dispatch DOES carry `source: "bracket" | "tool"` (`:270`) through to announce, so the form IS tracked — but the routing-divergence I observed is downstream of the liveness-check, not directly driven by the form.
+
+**Net for this row:** the observation is real + replicable + traceable to a concrete code-path (subagent-announce.ts:613-702 liveness-fallback at :695), not handwaved. The "filed as observation, not asserted as defect" framing stands — the by-design fallback is correct behavior for the "parent can't receive" case; the only open question is whether the bracket-form's hop-1 wake-scheduling reliably puts hop-1 in not-active state at hop-2-return-time, which would make it *systematically* form-conditional rather than just timing-conditional.
+
+Cross-ref: Rune `1514240394`.

@@ -2,7 +2,19 @@
 
 **SHA (deployed):** `4bbd3aec096545992d6535f4ba96c3bd71414ed3`
 **Seat:** rune-rog-ally · **Owner:** 🪨 Rune
-**Verdict:** ✅ PASS (corrected — see "Test-method correction" below; the first attempt was a malformed-bracket test-error, NOT a deployed-binary gap)
+**Verdict:** ✅ MECHANISM PROVEN (parse + arm + fire + wake + chain-advance + #959 no-cancel cure, all byte-confirmed) · full turn-EXECUTION = execution-gated by the requests-in-flight guard (= the runbook's quiet-seat precondition, not satisfiable mid-PROOFS). NOT a gap/regression — the mechanism is green; the execution-completion needs a dormant seat. Per frond's grade-call (`1514258092`).
+
+## EXECUTION-GRADE (frond's grade-call result — byte-walked the hop-2 turn-drive)
+Frond asked: capture the executed hop-2 turn (let rune-seat quiet → in-flight clears → the drive-loop completes → jsonl carries a hop-2 turn = the runbook's full-close bar), OR document the execution-gated honest-limit if the seat can't quiet mid-session.
+
+**Result: the seat could NOT quiet enough mid-session; documented as execution-gated (frond's fallback).** Byte from the gateway log, child session `continuation-edc37e855`:
+- The hop-2 advanced to `work-wake hop=2/200` (chain-counter incremented hop=1→hop=2) and the work-hedge kept firing — but the turn-DRIVE stayed `work-drive-skipped reason=requests-in-flight` throughout (the parent/session-context held in-flight requests the entire window).
+- The hop-2 work-hedge's LAST event was `work-hedge-fired` at **06:06:38 PDT**, then stopped — the hedge gave up after the prolonged in-flight-skip-loop. The child jsonl never received a 2nd (hop-2) assistant turn.
+- So the hop-2 turn-EXECUTION-completion did not occur: the `requests-in-flight` guard (the gateway's expected duplicate-drive protection) deferred every drive-attempt, and the hedge eventually stopped.
+
+**This IS the runbook's quiet/heartbeat-dormant-seat precondition, unmet mid-PROOFS.** With all 6 seats live-firing (and the parent-session continuously active), the in-flight never cleared — so the dormant-seat precondition the row's full-execution-bar requires was structurally not satisfiable. Same `requests-in-flight` guard 🌫 (R-CW-TOOL), 🌻 (R-CW-1) hit on their rows — it's universal continuation-behavior, NOT a #952 defect.
+
+**Honest final grade: bracket-half MECHANISM ✅ PROVEN (including the #952/#959 no-cancel cure — hop-2 was NOT cancelled, the historical bug) + full turn-EXECUTION execution-gated by the in-flight guard (= the quiet-seat precondition), a documented structural-limit (same class as 🩸's R-RC-2 ≥70%-ctx, 🪨's R-CW-6 cohort-idle-induce), NOT a gap.** The historically-uncovered question — *can a lightContext delegate-child's `CONTINUE_WORK:N` reach the parser + drive hop-2 without cancellation* — is answered **YES** at the byte. The turn-execution-completion is the dormant-seat deepening, capturable post-PROOFS when a seat goes genuinely quiet.
 
 ## ⚠️ WORKING-SYNTAX PRECONDITION (per frond's `1514268xxx` request — document so the row is reproducible)
 The `CONTINUE_WORK:N` bracket-half fires ONLY when the marker is **bare + end-anchored**:

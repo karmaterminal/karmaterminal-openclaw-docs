@@ -3,7 +3,7 @@
 **SHA (deployed):** `4bbd3aec096545992d6535f4ba96c3bd71414ed3`
 **Seat:** rune-rog-ally · **Owner:** 🪨 Rune
 **Verdict:** ✅ PASS
-**Fired:** 2026-06-10 ~04:42 PDT (LIVE on deployed gateway `OpenClaw 2026.6.2 (4bbd3ae)`, gateway uptime ~7min post-deploy-restart, reading-A canonical per cael's load-from-tree discriminator)
+**Fired:** 2026-06-10 ~04:42 PDT (LIVE on deployed gateway `OpenClaw 2026.6.2 (4bbd3ae)`, gateway uptime ~7min post-deploy-restart, reading-A canonical via dist-freshness blade: running daemon loads `dist/index.js` [built 04:34:12] + gateway restart 04:35:14 strictly postdates the in-window target-dist-build by 8s. NOTE: an earlier framing of rune-seat as "runs-from-tree" was a CLI-entrypoint-vs-daemon-load conflation, corrected in README — rune is a dist-shape seat, ironclad-A via restart-postdates-build, same chain as Ronan/Emeric/Cael-corrected.)
 
 ## Behavior under test
 `continue_delegate` must dispatch a background sub-agent on the deployed runtime, the gateway must schedule it (chain-tracking: cost-cap + depth-limit applied), and the delegate must run + return — proving the self-continuation primitive works end-to-end on the deployed ship-SHA.

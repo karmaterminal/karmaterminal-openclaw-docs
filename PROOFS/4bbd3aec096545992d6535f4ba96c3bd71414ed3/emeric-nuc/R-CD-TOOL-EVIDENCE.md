@@ -67,3 +67,25 @@ Tool-form `continue_delegate(mode="silent-wake")` dispatches cleanly on the depl
 ## Honest scope
 
 Spawn-confirmation + child-return are the proof. Traceparent `419abdddde33e760109a1928e9a1295d` recorded for scribe-side Tempo pull (emeric-seat cannot reach Tempo to self-capture the span-tree). Sibling: R-CD-TOKEN-EVIDENCE.md (bracket-form tool-arm).
+
+## Tempo span-tree (scribe-side pull, captured — upgrades from "traceparent-recorded, scribe-pull-pending")
+
+Pulled by 🪨 Rune from rune-seat (emeric-nuc can't reach `tempo.dandelion.cult`; the fire lands in the SHARED Tempo instance regardless, rune-seat reaches the query-side). `curl http://tempo.dandelion.cult/api/traces/419abdddde33e760109a1928e9a1295d` → HTTP 200, **17 spans, service.name=`fifth-prince`** (emeric's OTel identity).
+
+Full hierarchy (the complete self-continuation loop, byte-present on deployed `4bbd3aec096`):
+```
+openclaw.message.processed IR9ovbN/mlQ= (ROOT)
+├─ openclaw.harness.run mCskvsbuF1k= (dispatching turn)
+│ └─ openclaw.run 5qpbsBL2rJY=
+├─ continuation.delegate.dispatch K5Nsv3/wPvA= ← THE DISPATCH
+│ └─ openclaw.harness.run ri8EKcCrcu4= ← delegate spawn
+│   └─ openclaw.run oCYW4/q/U0o= ← delegate exec
+└─ continuation.queue.drain 6N5NLN/tn+Y= ← gateway pulled the shard off the queue (authoritative dispatch-receipt)
+```
+
+- **dispatch → spawn (harness.run) → exec (run)** in-tree ✓ — the continuation boundary traced parent→child, one trace-id across hops.
+- **`continuation.queue.drain` span (`6N5NLN/tn+Y=`) IS the authoritative gateway-pulled-the-shard receipt** — firmer than the dispatch-traceparent inference. Notably nests IN-TREE on emeric's trace (Cael's + Rune's rooted queue.drain separately this cycle — same primitive, different span-tree topology per seat/timing).
+- service.name=`fifth-prince` confirms emeric's OTel identity on the deployed binary.
+- Raw JSON: `trace-419abdddde33e760109a1928e9a1295d.json` (committed by 🪨 from rune-seat where the pull bytes live).
+
+**Verdict upgrade: R-CD-TOOL is now full-span-tree-captured** (was dispatch-receipt + scribe-pull-pending) — the complete dispatch→spawn→exec→queue-drain loop is byte-present in Tempo on the deployed SHA. Cross-seat puller: 🪨 Rune (rune-seat reaches Tempo; emeric-nuc does not).

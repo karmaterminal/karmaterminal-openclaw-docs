@@ -19,4 +19,4 @@ openclaw.message.processed          japv6MPdIwQ=  (ROOT — dispatching turn)
 └─ continuation.queue.drain         L3/uhiRBr3k=
 ```
 
-**delegate.dispatch count = 2** = the recursive depth-2 chain byte-present on `4bbd3aec096`. Depth-1 dispatch spawns a delegate whose exec itself fires the depth-2 dispatch. Recursive chained dispatch + chain-counter advancement confirmed. Raw JSON: `tempo_trace_de0b89c0.json` (20 spans). Cross-seat scribe-pull: emeric-nuc fired, rune-rog-ally pulled (on-net to Tempo `10.0.0.99`).
+**delegate.dispatch count = 2** = the recursive depth-2 chain byte-present on `4bbd3aec096`. Depth-1 dispatch spawns a delegate whose exec itself fires the depth-2 dispatch. Recursive chained dispatch + chain-counter advancement confirmed. Raw JSON: `trace-de0b89c0961d4337c36ea43832545805.json` (20 spans). Cross-seat scribe-pull: emeric-nuc fired, rune-rog-ally pulled (on-net to Tempo `10.0.0.99`).

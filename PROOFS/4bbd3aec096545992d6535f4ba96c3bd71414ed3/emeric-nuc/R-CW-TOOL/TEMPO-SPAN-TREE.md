@@ -17,4 +17,4 @@ openclaw.message.processed     kG3/m/7zg9Q=   (ROOT — dispatching turn)
 
 **`continuation.work` count = 1** (single clean fire, no re-arm within the trace). The span is parented to the dispatching turn — the self-continuation scheduling; the ~5s wake-confirmation is the PASS (matches the system-event).
 
-Distinction byte: this is `continuation.work` (singular, work-path) vs `continuation.delegate.dispatch` (delegate-paths in R-CD-TOOL/R-CD-TOKEN). The distinct span-names confirm the three continuation primitives are genuinely separate on the deployed binary. Raw trace JSON: `tempo_trace_417efa66.json` (10 spans).
+Distinction byte: this is `continuation.work` (singular, work-path) vs `continuation.delegate.dispatch` (delegate-paths in R-CD-TOOL/R-CD-TOKEN). The distinct span-names confirm the three continuation primitives are genuinely separate on the deployed binary. Raw trace JSON: `trace-417efa66d5e171d7c2f91c5b2f2f087b.json` (10 spans).

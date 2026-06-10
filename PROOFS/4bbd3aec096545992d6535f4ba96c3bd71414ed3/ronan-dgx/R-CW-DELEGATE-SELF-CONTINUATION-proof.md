@@ -51,15 +51,18 @@ cli-startup-metadata.json       → "(4bbd3ae)" ×8, "(9b1f42a)" ×0  (no stale 
 | R-CD-5 | `continue_delegate mode=post-compaction` (mode-discriminator) | **DISTINCT** status=queued-for-compaction (not scheduled) | `status: queued-for-compaction, delegateIndex=5` | ✅ PASS |
 | R-CD-9 | `continue_delegate mode=silent` (silent enrichment) | status=scheduled | `status: scheduled, delegateIndex=4, delay=0` | ✅ PASS |
 
-## Tool-registration (per-seat) + `0/5 never 4` referent — RESOLVED by frond's pin (2026-06-10 05:01 PDT)
+## Tool-registration (per-seat) + `0/5 never 4` referent — frond's `queuedDelegates` pin DISPROVEN (Rune byte-walk, 05:01 PDT), referent OPEN
 
-**FROND PINNED THE REFERENT** (frond-scribe `1514237988`, crediting this row's `7053644` byte-check): `compactionFailureContext` was a mis-named symbol (`grep src/` = empty). The real referent for "0/5 never 4" = **`queuedDelegates`** (`post-compaction-delegate-dispatch.test:559` → `{queuedDelegates:5, droppedDelegates:2}`, `maxDelegatesPerTurn=5`). Deployed binary reads **5 = full-stage** (Emeric's vitest green). **Gate SATISFIED.** This is Emeric's candidate (b) from the walkback — the delegate-queued-count, NOT the tool-registration-count.
+**STATUS: cfc-referent NOT resolved.** Frond pinned `queuedDelegates` (`1514237988`), but **Rune byte-disproved it** (`0b8b290`-adjacent, verified on-host 05:56): `post-compaction-delegate-dispatch.test.ts:634` asserts `{queuedDelegates: 4, droppedDelegates: 1}` as a **VALID** outcome (test: *"reduces compaction budget by one when a bracket delegate was already spawned this turn"*). `queuedDelegates` takes values 0,1,2,3,4,5 across the file — **4 is explicitly valid** — so `queuedDelegates` **cannot** be a "0/5 never 4" invariant. Frond's pin (and my earlier filing of it as RESOLVED) was wrong; corrected here.
 
-**So the two things this row touches, finally disentangled + resolved:**
+**Candidate-elimination status (all three runtime candidates fail):**
+- `compactionFailureContext` literal symbol — 0 grep hits (phantom, confirmed by me `7053644` + cohort)
+- `queuedDelegates` (frond's pin) — **DISPROVEN**, `:634` asserts 4 valid (Rune)
+- `getVolitionalCompactionCount` — per-session accept-tally, not a {0,5} fleet-count
 
-**(a) Per-seat tool-registration — what THIS proof establishes (✅, a SEPARATE finding from the cfc-referent):** continue_work + continue_delegate (5 mode/param classes) + request_compaction all registered + functional on ronan-seat (R-CW-1 + R-CD-1,2,3,5,9 PASS), NOT the partial-registration regression. TRUE — but this is a *distinct* finding, NOT the "0/5 never 4" referent.
+→ By elimination, "0/5 never 4" is most likely **NOT a grep-able runtime counter** but the **cross-walk corpus-completeness assertion** (Rune's reading): the PROOFS cross-walk must land all-armed-seats-or-clean-zero, never a partial that silently drops a seat — a harness/corpus-label, which is why grep returns nothing. **Pending frond's re-confirm** in light of the `queuedDelegates` disproof. NOT settled in this row.
 
-**(b) The "0/5 never 4" invariant — RESOLVED:** referent = `queuedDelegates` (post-compaction-delegate stage-count), deployed reads 5-not-4, gate SATISFIED per frond's pin. This row does NOT own/define it (an earlier draft wrongly framed it as the registration-count; corrected `7053644`, then walked back to unverified, now frond-pinned to `queuedDelegates`). ronan-seat's contribution to this invariant: a reporting data-point; the referent + satisfaction are frond-pinned + Emeric-verified at the matrix layer.
+**What THIS proof establishes regardless (✅, a SEPARATE finding from the cfc-referent):** per-seat tool-registration is complete on ronan-seat — continue_work + continue_delegate (5 mode/param classes) + request_compaction all registered + functional (R-CW-1 + R-CD-1,2,3,5,9 PASS), NOT the partial-registration regression. TRUE + independent of however the cfc-referent resolves.
 
 ## Notes
 
@@ -77,6 +80,6 @@ cli-startup-metadata.json       → "(4bbd3ae)" ×8, "(9b1f42a)" ×0  (no stale 
 
 ## Verdict
 
-**6/6 rows PASS** on deployed SHA `4bbd3aec096`. continue_work + continue_delegate (all 5 mode/param classes) + request_compaction all registered + functional on ronan-seat (per-seat tool-registration complete, NOT the partial-registration regression — a finding distinct from the cfc-referent). The `0/5 never 4` invariant is **RESOLVED by frond's pin** (`1514237988`): referent = `queuedDelegates` (post-compaction-delegate stage-count, `post-compaction-delegate-dispatch.test:559`), deployed reads **5 = full-stage**, gate SATISFIED (Emeric-verified). This row's registration-finding is a separate data-point, NOT the referent-definition. PR-presentation untouched (figs's morning gate).
+**6/6 rows PASS** on deployed SHA `4bbd3aec096`. continue_work + continue_delegate (all 5 mode/param classes) + request_compaction all registered + functional on ronan-seat (per-seat tool-registration complete, NOT the partial-registration regression — a finding distinct from + independent of the cfc-referent). The `0/5 never 4` invariant is **NOT settled**: frond's `queuedDelegates` pin was **disproven** (Rune: `post-compaction-delegate-dispatch.test:634` asserts `queuedDelegates:4` VALID, so 4 is a valid queued-count — can't be the never-4 referent). All three runtime candidates eliminated; by elimination it's most likely the cross-walk corpus-completeness harness-assertion, **pending frond's re-confirm**. This row's 6/6 tool-fire verdict stands regardless of the cfc-referent resolution. PR-presentation untouched (figs's morning gate).
 
 — ronan 🌊

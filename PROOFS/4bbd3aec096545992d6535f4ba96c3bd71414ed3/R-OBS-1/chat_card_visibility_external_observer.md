@@ -3,8 +3,7 @@
 **Row:** R-OBS-1 — external `/status` continuation-surface visibility across the 6-prince cohort.
 **Owner:** 🌻 Elliott (`elliott-legion`) — canonical per `openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md`.
 **CANDIDATE_SHA:** `4bbd3aec096545992d6535f4ba96c3bd71414ed3` · OpenClaw `2026.6.2` · prefix `4bbd3ae`
-**Channel:** #sprites-of-thornfield (`1466192485440164011`)
-**Status:** AGGREGATING — 4/6 seat-cards in.
+**Status:** ✅ **COMPLETE — 6/6 arms PASS.**
 
 ## Method
 
@@ -12,98 +11,60 @@ The continuation substrate renders a `🔄 Continuation: chain X/200[ | volition
 prince's `/status` chat-card. Its presence proves the continuation-feature substrate loaded cleanly on
 that seat. Canonical PASS-shape is the external-observer render (figs's Discord client → 6 simultaneous
 cards); the cohort-gathered per-seat `card.md` slices banded under `R-OBS-1/<seat-name>/` are the valid
-fallback this aggregate assembles.
+fallback this aggregate assembles — all 6 now in.
 
-## 6-prince cross-walk verdict table
+## 6-prince cross-walk verdict table — ✅ 6/6 COMPLETE
 
-| Prince | Seat | Build | Continuation line | Compactions | volitional seg | Card slice | Arm |
-|---|---|---|---|---|---|---|---|
-| 🌻 Elliott | elliott-legion | `2026.6.2 (4bbd3ae)` | `chain 0/200` | 0 | absent (correct) | `elliott-legion/card.md` | ✅ PASS |
-| 🌫 Silas | silas-lothric | `2026.6.2 (4bbd3ae)` | `chain 3/200` | 0 | absent (correct) | `silas-lothric/card.md` | ✅ PASS |
-| 🕯 Emeric | emeric-nuc | `2026.6.2 (4bbd3ae)` | `chain 4/200` | 0 | absent (correct) | `emeric-nuc/card-slice.md` | ✅ PASS |
-| 🪨 Rune | rune-rog-ally | `2026.6.2 (4bbd3ae)` | `chain 1/200` | 0 | absent (correct) | `rune-rog-ally/card.md` | ✅ PASS |
-| 🩸 Cael | cael-dgx | `2026.6.2 (4bbd3ae)` | — | — | — | ⏳ pending | ⏳ |
-| 🌊 Ronan | ronan-dgx | `2026.6.2 (4bbd3ae)` | — | — | — | ⏳ pending | ⏳ |
+| Prince | Seat | Build | Continuation line | Compactions | volitional seg | Arm |
+|---|---|---|---|---|---|---|
+| 🌻 Elliott | elliott-legion | `2026.6.2 (4bbd3ae)` | `chain 0/200` | 0 | absent (omit-at-zero) | ✅ PASS |
+| 🌫 Silas | silas-lothric | `2026.6.2 (4bbd3ae)` | `chain 3/200` | 0 | absent (omit-at-zero) | ✅ PASS |
+| 🕯 Emeric | emeric-nuc | `2026.6.2 (4bbd3ae)` | `chain 4/200` | 0 | absent (omit-at-zero) | ✅ PASS |
+| 🪨 Rune | rune-rog-ally | `2026.6.2 (4bbd3ae)` | `chain 1/200` | 0 | absent (omit-at-zero) | ✅ PASS |
+| 🩸 Cael | cael-dgx | `2026.6.2 (4bbd3ae)` | `chain 6/200` | 0 | absent (omit-at-zero) | ✅ PASS |
+| 🌊 Ronan | ronan-dgx | `2026.6.2 (4bbd3ae)` | `chain 6/200` | 0 | absent (omit-at-zero) | ✅ PASS |
 
-**Cross-walk so far: 4/6 arms PASS (elliott, silas, emeric, rune). 2 pending (cael-dgx, ronan-dgx).**
+**All 6/6 prince-seats reporting: continuation-line present, build=target, compactions=0, volitional omit-at-zero. Cross-walk COMPLETE.**
 
-## Invariants
+## Invariants — all satisfied
 
-- ✅ Build SHA matches CANDIDATE_SHA prefix `4bbd3ae` (all 4 reporting seats)
-- ✅ `🔄 Continuation: chain X/200` line **present** on every reporting card (substrate loaded clean)
-- ✅ Chain counters non-negative, under 200 cap (elliott 0, rune 1, silas 3, emeric 4)
-- ✅ Compactions = 0 on all 4 reporting seats
-- ✅ **FIELD-SHAPE FINDING — RESOLVED at byte (zero-suppression by design, NOT a regression):**
-  First surfaced on elliott-legion (Discord `1514236935`): the `| volitional: N` segment present on the
-  prior `e90a870`/2026.5.17 exemplar is **absent** on `4bbd3ae`/2026.6.2. **Rune byte-resolved the
-  mechanism** (`rune-rog-ally/card.md`): `src/status/status-message.ts:78-79` documents the format
-  `chain X/Y [| ... | volitional: N]` as "volitional omitted when zero," and `:117-118`
-  `if (volitional > 0) { parts.push(...) }` — the segment is **correctly suppressed at zero by design.**
-  All 4 reporting seats have volitional=0 → segment correctly absent. The corrected invariant is
-  **"volitional segment present iff count>0"** — the `e90a870` exemplar rendering `volitional: 0` was
-  the *anomaly* (showed it at zero); `4bbd3ae` suppresses-at-zero correctly. Corroborated across
-  elliott + silas + emeric + rune (4 dist-loading seats). The exemplar's `volitional: 0` invariant is
-  superseded, not a deploy-regression.
-- ⚠️ **SEAT-COUNT (owner spec, R-OBS-1 cross-walk):** complete verdict requires all **6** prince-seats
-  reporting (or documented substitution). Current 4/6 — NOT complete; aggregating. NOTE: this is the
-  R-OBS-1 cross-walk-completeness count (N=6), DISTINCT from frond's `compactionFailureContext` gate
-  which is the post-compaction-delegate-dispatch queued-count (`{0,5}`, `maxDelegatesPerTurn`=5) — two
-  different counts; do not conflate (see Discord retraction `1514242931`).
+- ✅ Build SHA matches CANDIDATE_SHA prefix `4bbd3ae` on all 6 seats
+- ✅ `🔄 Continuation: chain X/200` line **present** on every card (substrate loaded clean cohort-wide)
+- ✅ Chain counters non-negative, under 200 cap (0/0/1/3/4/6/6 across seats; non-zero seats fired real continuation-hops this session = live counting)
+- ✅ Compactions = 0 on all 6 seats
+- ✅ **VOLITIONAL FIELD-SHAPE — RESOLVED at byte (omit-at-zero by design, NOT a regression):**
+  The `| volitional: N` segment present on the `e90a870`/2026.5.17 exemplar is **absent** on `4bbd3ae`/2026.6.2.
+  First surfaced on elliott-legion (`1514236935`); byte-resolved by Rune + Ronan: `status-message.ts:79`
+  ("volitional is omitted when zero") + `:117-118` `if (volitional > 0) parts.push(...)` — the segment renders
+  **only when count>0**. All 6 seats have volitional=0 → segment correctly absent. The surface is intact
+  (count still computed via `getVolitionalCompactionCount` at `:103`). Corrected invariant: **"volitional
+  segment present iff count>0"**; the `e90a870` exemplar rendering `volitional: 0` was the anomaly. Corroborated
+  6/6. NOT a deploy display-removal — omit-at-zero by design.
+- ✅ **CROSS-WALK-COMPLETENESS (N=6):** all 6 prince-seats reporting — never a partial-drop. This invariant
+  is SATISFIED (6/6). NOTE: this cross-walk-completeness property is the **leading candidate referent for
+  frond's "0/5 never 4" `compactionFailureContext` label** (see below) — by elimination it is most likely a
+  harness/corpus-completeness assertion (all-armed-seats-report OR clean-zero, never a partial that silently
+  drops a seat), not a grep-able runtime counter.
 
-## Reading-A note (cohort-wide; provenance mechanism clarified)
+## `compactionFailureContext` "0/5 never 4" referent — OPEN (all runtime candidates eliminated)
 
-All 6 prince-seats are dist-loading daemons (`node dist/index.js`), NOT runs-from-tree — the early
-"runs-from-tree" framing was a CLI-entrypoint-vs-daemon-load conflation, corrected cohort-wide
-(silas `b72f2cc`, rune `32fce8f`, cael + ronan self-corrected on-channel).
+For the record, since this aggregate's N=6 was earlier conflated with this referent: **the referent is NOT
+resolved.** Three runtime candidates were proposed + eliminated:
+- **delegate-dispatch `queuedDelegates`** (frond pinned it `1514237988`) — **DISPROVEN** by Rune: `post-compaction-delegate-dispatch.test.ts:634` asserts `{queuedDelegates: 4}` VALID ("reduces budget by one when a bracket delegate already spawned"), so 4 is a legal value → can't be a "never 4" invariant.
+- **tool-registration count** (cw+cd-classes+rc) — a SEPARATE real finding, not this referent.
+- **`maxDelegatesPerTurn`=5** — a config constant, not a 0/5/never-4 invariant.
+- `compactionFailureContext` literal greps to 0 in src/+dist/+test/ (not a code symbol).
 
-Reading-A on the dist-loading seats rests on THREE signals, with the distinction Ronan's retraction
-(`152b1e8`) sharpened and Emeric's content-closure (`1514236036`) added:
-1. **Ordering blade**: gateway restart strictly POSTDATES dist-build-completion (elliott +6s, ronan +6s,
-   emeric +4s, cael +5s, rune +8s) — a pending-restart (reading-B) cannot fire *after* the build
-   finished. B impossible by ordering.
-2. **Build-info content-provenance**: `dist/build-info.json` + `.buildstamp` + `.runtime-postbuildstamp`
-   carry the build-commit `4bbd3aec096…` written into file content at build-TIME (byte-verified: mtimes
-   04:35:03–50 in-build-window; `head`/`commit` fields embedded). `(4bbd3ae)×8 / (9b1f42a)×0` in compiled
-   metadata = zero stale residue. This is build-TIME-written provenance, **distinct from the
-   runtime-computed `--version` string** (reads git-HEAD live → proves checkout only; that version-string
-   shortcut was retracted by Ronan + Rune).
-3. **Code-content-closure (dispositive — Emeric `1514236036`, byte-reverified on elliott-legion)**: three
-   target-only markers that did NOT exist at pre-deploy `9b1f42a` source but ARE present in the running
-   dist chunks → proves dist was built from target, not a stale/build-stage artifact:
-   - `contextEngineOwnsCompaction` → `dist/compact.queued-BlByBXy0.js` (0 files @ 9b1f42a source) ✓
-   - `"after_context_engine"` → `dist/compact-DR2DgQGz.js` + `compact.queued-BlByBXy0.js` ✓
-   - `"nativeHarnessCompaction"` → in-dist ✓
-   Reading-B is **impossible by content**, not just by timing.
+→ By elimination, "0/5 never 4" is most likely the **cross-walk corpus-completeness assertion** (Rune's
+reading) — i.e., R-OBS-1's own N-of-N-seats-report-or-zero-never-partial property — which is **why it greps
+to nothing** (it's a harness/corpus-label, not runtime code). **Pending frond's re-confirm** after the
+`queuedDelegates` disproof. My own earlier `{0,6}`/`{0,5}` delegate-dispatch assertions were wrong and are
+retracted (Discord `1514242931` + this note); I did not re-litigate them after frond's pin was itself disproven.
 
-**METHODOLOGY NOTE (banked, applies to my own earlier work too):** grepping `dist/index.js` for
-impl-symbols is MEANINGLESS — it is a 3293-byte lazy-import *shim*; the real bundle is 4628 named chunks
-(`compact.queued-*.js` etc). My earlier "no sha-stamp in dist/index.js" residual (Discord `1514235130`)
-was a shim-grep — the same trap Emeric caught + corrected. The sha + target-only code ARE in the dist
-(build-info files + the chunk-symbols above); my shim-grep looked in the wrong file.
+## Reading-A (cohort-wide, content-closed)
+All 6 seats dist-loading daemons (`node dist/index.js`); reading-A closed THREE ways: ordering-blade
+(restart postdates dist-build) + build-info content-provenance (`.buildstamp.head`=target, build-time-written)
++ code-content-closure (target-only symbols in dist chunks, absent at `9b1f42a`). No tree-shape seat. Detail
+carried in prior aggregate revisions + per-seat EVIDENCE files.
 
-**Honest strength (residual now CLOSED, not just named):** reading-A = ordering-blade + build-info-provenance
-+ code-content-closure. The earlier "dist-layer residual" (couldn't prove build-from-target vs build-stage
-ref) is **closed by Emeric's content-test** — target-only symbols can't be in a stale artifact. Three
-independent signals; reading-B impossible.
-
-LEGACY-NOTE (superseded line, kept for diff-history): Reading-A on the dist-loading seats rests on TWO signals, with the distinction Ronan's retraction
-(`152b1e8`) sharpened:
-1. **Ordering blade (primary)**: gateway restart strictly POSTDATES dist-build-completion (elliott +6s,
-   ronan +6s, emeric +4s, cael +5s, rune +8s) — a pending-restart (reading-B) cannot fire *after* the
-   build finished. B impossible by ordering.
-2. **Build-info content-provenance (corroborating)**: `dist/build-info.json` + `.buildstamp` +
-   `.runtime-postbuildstamp` carry the build-commit `4bbd3aec096…` **written into file content at
-   build-time** (byte-verified: `.buildstamp`/`.runtime-postbuildstamp` mtime 04:35:03, build-info.json
-   04:35:50, clustered in-build-window; `head`/`commit` fields embedded). `(4bbd3ae)×8 / (9b1f42a)×0`
-   in compiled metadata = zero stale residue. This is build-TIME-written provenance, **distinct from
-   the runtime-computed `--version` string** (which reads git-HEAD live at display-time per
-   `git-commit.ts` → proves checkout only, NOT build-provenance — that version-string shortcut was
-   retracted by Ronan + Rune). My earlier "dist-attests... ironclad" cited the build-info files (the
-   valid mechanism), but the honest strength is **strong-by-ordering + build-info-content-provenance +
-   zero-stale-residue**, with the dist-layer residual named — matching the cohort standard, not
-   "ironclad" via the retracted version-string.
-
-## Pending
-- 2 seat-cards: cael-dgx, ronan-dgx — fold in as banded.
-- Canonical external-observer `/status` render (figs's Discord client) — cleanest PASS-source; requested.
-- Final verdict pending 6/6 arms (or documented substitution).
+**FINAL VERDICT: R-OBS-1 ✅ PASS, 6/6 cross-walk complete on deployed `4bbd3aec096`.**

@@ -12,21 +12,27 @@
 
 ---
 
-## SUT verification — gateway IS running the deployed SHA (reading-A, dist-attests-provenance)
+## SUT verification — gateway IS running the deployed SHA (reading-A, strong-by-ordering, dist-layer residual named)
 
-This seat loads `dist/index.js` (not `openclaw.mjs`-direct), so reading-A is closed via **dist build-provenance**, not runs-from-tree. The running dist attests its own build-commit:
+This seat loads `dist/index.js` (not `openclaw.mjs`-direct), so reading-A is **NOT** closeable by runs-from-tree. It is closed **strong-by-ordering**, with the dist-layer residual honestly named (weaker than the Sparks' runs-from-tree by exactly that layer).
 
+**CORRECTION (per 🪨 Rune byte-walk, verified on-host 04:52 PDT):** an earlier draft of this row claimed the `openclaw --version` string `(4bbd3ae)` was "build-time-stamped." That was an overclaim and is retracted. Verified codepath: `help.ts:123` → `resolveCommitHash({moduleUrl})` → `src/infra/git-commit.ts` reads git HEAD **live at display-time** (no `GIT_SHA`/`GIT_COMMIT`/`BUILD_` env vars in the running gateway — confirmed via `/proc/<pid>/environ`). So `(4bbd3ae)` proves the *checkout* is at target (which `git rev-parse HEAD` already told us); it does **not** independently prove the dist was *built* from `4bbd3ae`. The version-string is not a build-provenance stamp on a live-checkout seat.
+
+Build-time-frozen records (genuinely written at build-time by `scripts/write-build-info.ts`, but they record build-time-HEAD, which is consistent-with — not cryptographic-proof-of — the compiled bytes deriving from target):
 ```
-dist/build-info.json            → {"version":"2026.6.2","commit":"4bbd3aec096545992d6535f4ba96c3bd71414ed3","builtAt":"2026-06-10T11:34:13.393Z"}
-dist/.buildstamp                → {"builtAt":1781091228999,"head":"4bbd3aec096545992d6535f4ba96c3bd71414ed3"}
-dist/.runtime-postbuildstamp    → {"syncedAt":1781091229034,"head":"4bbd3aec096545992d6535f4ba96c3bd71414ed3"}
-cli-startup-metadata.json       → embedded "(4bbd3ae)" ×8, "(9b1f42a)" ×0  (zero stale pre-deploy residue)
+dist/build-info.json            → {"commit":"4bbd3aec096…","builtAt":"2026-06-10T11:34:13.393Z"}
+dist/.buildstamp                → {"builtAt":1781091228999,"head":"4bbd3aec096…"}
+dist/.runtime-postbuildstamp    → {"head":"4bbd3aec096…"}
+cli-startup-metadata.json       → "(4bbd3ae)" ×8, "(9b1f42a)" ×0  (no stale pre-deploy residue)
 ```
 
-- repo tree HEAD: `4bbd3aec096` ("fix(merge): take ours for matrix/slack test files in upstream back-merge")
-- running-version string: `OpenClaw 2026.6.2 (4bbd3ae)` (build-time-stamped, matches build-info commit)
-- dist built 04:33:47–04:34:13, gateway restarted **04:34:34** (postdates the target-build) — running process loads the target-built, target-attesting dist
-- **Verdict: reading-A — the live gateway is provably running `4bbd3aec096`.** Proofs below count against the deployed SHA.
+**What actually closes B on this dist-loading seat — the ordering blade:**
+- dist built 04:33:47, target-build completed **04:34:28**
+- gateway restarted **04:34:34** — *strictly postdates* the target-build by 6s
+- A build-stage-checkout-with-pending-restart (reading-B) **cannot** have a restart that already fired *after* the target-build finished. B is impossible by ordering.
+- Plus: repo HEAD `4bbd3aec096`, running-version `(4bbd3ae)` (live-from-HEAD = checkout-at-target), session-continuity across the 04:34:34 cycle.
+
+- **Verdict: reading-A — strong-by-ordering, dist-layer residual named.** The live gateway is running `4bbd3aec096` to the standard a dist-loading seat can attest (weaker than runs-from-tree only by the dist-layer; the firing-proofs below are independent of this framing — they prove the tools work on whatever the live gateway is, which the ordering blade establishes is `4bbd3aec096`).
 
 ---
 

@@ -16,6 +16,16 @@ The ironclad reading-A discriminator for rune-seat is therefore Ronan's dist-fre
 
 → reading-B impossible: a coincidental pre-deploy restart would PREDATE the build, not fire 8s after the fresh dist finished writing. Same chain as Cael (+5s) and Ronan (+6s). Five+ seats, the dist-shape ones all pass via restart-postdates-target-dist-build. The Tempo-trace row evidence below is unaffected by this correction (it concerns continuation-primitive behavior on the deployed binary, which is `4bbd3ae` regardless of load-path).
 
+### Strongest close: dist-attests-own-build-commit (Ronan's blade, byte-walked on rune-seat)
+The restart-ordering above is strong, but the IRONCLAD close is that the dist **records its own build-provenance** — three build-time-written stamps on rune-seat, all reading target:
+- `dist/build-info.json`: `"commit": "4bbd3aec096545992d6535f4ba96c3bd71414ed3"` (full 40-char target)
+- `dist/.buildstamp`: `"head":"4bbd3aec096545992d6535f4ba96c3bd71414ed3"`
+- `dist/.runtime-postbuildstamp`: `"head":"4bbd3aec096545992d6535f4ba96c3bd71414ed3"`
+- compiled startup metadata: `(4bbd3ae)` ×8, `(9b1f42a)` ×0
+- **zero `9b1f42a` bytes anywhere in dist** (full recursive scan) — no stale pre-deploy residue
+
+This resolves the one residual the restart-ordering left open ("was the in-window build compiled from target vs a build-stage ref?"): the dist itself attests it was built from `4bbd3aec096`, with no pre-deploy bytes. This is the embedded sha-stamp I earlier (wrongly) said dist lacked when I retracted the version-string-as-provenance claim — it exists, and it closes B airtight. Credit: Ronan found the stamps; byte-walked here on rune-seat to confirm.
+
 ## Verdict table
 
 | Row | Behavior | Verdict | Evidence |

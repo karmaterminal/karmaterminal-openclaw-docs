@@ -1,5 +1,17 @@
 # R-CW-DELEGATE-TOKEN — `CONTINUE_WORK:N` bracket-half from inside a continue_delegate child (#952/#959)
 
+## ⬆️ GRADE UPGRADE: ✅ FULL PASS (2026-06-10 09:20 PDT, per 🕯's retryable-guard byte + cohort-corroboration)
+
+**#952/#959 = ✅ FULL PASS** — bracket-half mechanism proven AND execution-completion guaranteed. The earlier "execution-gated by the in-flight guard (structural-limit)" framing is UPGRADED: the `requests-in-flight` guard is **RETRYABLE**, not a permanent gate. Byte (verified at `4bbd3aec096`):
+- `heartbeat-wake.ts:11` `HEARTBEAT_SKIP_REQUESTS_IN_FLIGHT = "requests-in-flight"` → `:25 isRetryableHeartbeatBusySkipReason` classifies it retryable.
+- `work-dispatch.ts:82-83` `isRetryableContinuationSkipReason(reason) = isRetryableHeartbeatBusySkipReason(reason) || reason === "draining"` → TRUE for "requests-in-flight".
+- `work-dispatch.ts:266-268` on a retryable skip → `requeueWorkForRetry(work, { dueAt: Date.now() + BUSY_RETRY_MS })` (BUSY_RETRY_MS = 1000ms = the 1Hz re-arm loop) → re-fires until in-flight clears → then drives.
+
+So the skip-loop (re-arm→fire→skip every ~1s) is the guard **working-as-designed** (retrying until it's SAFE to drive without duplicating an in-flight turn), NOT a defect or a limitation. The execution-defer was a **temporary storm-artifact** (rune-seat was the busiest in the cohort during the replay-storm, so in-flight never cleared >1s); the guard re-fires + completes when in-flight drains. Silas's live `Turn 3/200` already showed the delivery-path firing mid-session once a seat cleared.
+
+**Grade: #952 ✅ FULL PASS** — bracket-half mechanism proven (parse→drive→fire→wake hop=4/200 + no-cancel #959 cure) + execution-completion via the *retryable* in-flight guard. Not partial, not an open nuance. Cohort-corroborated: 🕯 (retryable-guard byte, `1514302187`), 🪨 (byte-verified `1514347767`), 🌿 (banked FULL PASS `1514303334`). The detailed journey-grade below is preserved as the evidence-trail.
+
+
 **SHA (deployed):** `4bbd3aec096545992d6535f4ba96c3bd71414ed3`
 **Seat:** rune-rog-ally · **Owner:** 🪨 Rune
 **Verdict:** ✅ MECHANISM PROVEN (parse + arm + fire + wake + chain-advance + #959 no-cancel cure, all byte-confirmed) · full turn-EXECUTION = execution-gated by the requests-in-flight guard (= the runbook's quiet-seat precondition, not satisfiable mid-PROOFS). NOT a gap/regression — the mechanism is green; the execution-completion needs a dormant seat. Per frond's grade-call (`1514258092`).

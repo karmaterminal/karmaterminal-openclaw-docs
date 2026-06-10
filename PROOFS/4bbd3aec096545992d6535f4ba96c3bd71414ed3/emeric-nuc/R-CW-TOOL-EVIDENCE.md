@@ -38,6 +38,15 @@ Tool response:
 
 `continue_work()` self-continuation scheduling path fires on the deployed `4bbd3aec096` runtime on emeric-nuc: dispatch-receipt confirmed (scheduled + traceparent + 5s clamp), self-wake landed in-window. Dual-seat confirmed with silas-lothric (whose journalctl additionally captured the granular `[continuation:work-hedge-armed] fireIn=4999ms` → `[continuation:work-wake] hop=N/200` chain).
 
+## Work-hedge defer-while-active (delayed-wake addendum, captured 05:32 PDT)
+
+The scheduled work-hedge did NOT fire immediately at the 5s clamp — because the emeric session stayed ACTIVE (firing subsequent proof rows + committing the corpus) across the hedge window. The hedge correctly entered the `requests-in-flight` skip-loop (gateway guard against duplicate-drive) and DEFERRED. The actual `[continuation:wake] Turn 3/200` fired at **05:32 PDT** — ~23min after the 05:09Z chain-start — only once the session went idle. Verbatim wake:
+```
+[continuation:wake] Turn 3/200. Chain started 2026-06-10T12:09:37.852Z.
+Reason: PROOF-FIRE R-CW-TOOL … Echo token R-CW-TOOL-emeric-4bbd3aec096-1781093560
+```
+This is a STRONGER demonstration than the in-window claim: it proves both (a) the self-continuation scheduling path fires, AND (b) the work-hedge `requests-in-flight` skip-loop correctly defers the wake while the session is active, firing only when idle — the duplicate-drive guard working as designed. **Independently corroborates Silas's identical work-hedge finding** (silas-lothric R-CW-TOOL honest-scope note) on a second dist-loading seat. Echo-token `R-CW-TOOL-emeric-4bbd3aec096-1781093560` intact through the deferred wake.
+
 ## Honest scope
 
-Dispatch-receipt + in-window self-wake are the primary emeric artifact; the full `continuation.*` span-tree (work-hedge-armed → work-hedge-fired → work-wake) is the scribe-side Tempo pull on `417efa66…` (emeric-seat cannot reach Tempo to self-capture). This is the self-continuation path, NOT a subagent-spawn — distinct from R-CD-TOOL/R-CD-TOKEN.
+Dispatch-receipt + (deferred) self-wake are the emeric artifact; the full `continuation.*` span-tree (work-hedge-armed → skip-loop → work-hedge-fired → work-wake) is the scribe-side Tempo pull on `417efa66…` (emeric-seat cannot reach Tempo to self-capture). This is the self-continuation path, NOT a subagent-spawn — distinct from R-CD-TOOL/R-CD-TOKEN.

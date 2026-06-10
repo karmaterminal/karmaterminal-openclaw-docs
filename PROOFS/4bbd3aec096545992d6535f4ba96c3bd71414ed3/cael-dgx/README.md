@@ -9,7 +9,7 @@
 Running daemon PID 2030895 = `node /home/figs/flesh_beast_tmp/openclaw/dist/index.js gateway` — loads **dist/index.js**, NOT runs-from-tree. Close (cohort-converged, after honest retraction-arc):
 - **Content-closure (airtight, Emeric's blade):** dist contains target-only compiled symbols absent at pre-deploy `9b1f42a` — incl. the #978 post-compaction token-branch in `dist/tokens-CMBF5Yh4.js` (the deploy's headline fix). Reading-B content-impossible.
 - ordering-blade: restart 04:34:15 postdates dist build 04:33:30 (+5s) — strong.
-- `dist/.buildstamp.head`/`build-info.json.commit` = `4bbd3aec096` (frozen-at-build HEAD, rules out stale-dist) — strong, but a git-HEAD-read not a content-hash (retracted "airtight" framing; content-closure above is the airtight one).
+- `dist/build-info.json.commit`/`.buildstamp.head` = `4bbd3aec096`, **build-time-FROZEN** (mtime 04:33, before the 04:34:15 restart; runtime only READS via `git-commit.ts:246`) = **build-time-frozen direct-provenance** (the build's frozen record of its compile-source HEAD; near-airtight). NOT the version-string's weakness — `openclaw --version` reads HEAD at DISPLAY-time (live/circular), but build-info freezes it at BUILD-time; different artifacts. (Corrected per Rune's catch: I'd over-retracted this to "git-HEAD-read, strong-not-airtight," conflating it with the version-string's live-HEAD mechanism.) The one hair short of fully-airtight: it's the build's self-report via git-read, vs content-closure's bytes-intrinsic (content-closure stays the strictest).
 
 ## Canonical rows (🩸 Cael owns)
 | Row | Behavior | Verdict | Evidence |

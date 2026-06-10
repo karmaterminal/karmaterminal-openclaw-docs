@@ -44,34 +44,22 @@ fallback this aggregate assembles — all 6 now in.
   is SATISFIED (6/6). This is THIS row's own corpus-completeness property (#3 below) — a SEPARATE invariant from
   the cfc-referent (everyone agrees the seat-cross-walk is not cfc); it is the #3 green leg of the gate's all-candidates-green close.
 
-## `compactionFailureContext` "0/5 never 4" referent — FINAL: (a) TOOL-REGISTRATION by byte-elimination (figs can override, non-blocking)
+## `compactionFailureContext` label RETIRED — the concept files as THREE honestly-named surfaces (none labeled cfc); R-OBS-1 is surface #3
 
-For the record, since this aggregate's N=6 was earlier conflated with this referent: **the seat-cross-walk N=6 is NOT the
-referent** (it's R-OBS-1's own property, separate). The cohort byte-ELIMINATED every other candidate; tool-registration is the sole survivor fitting
-the literal "0/5 never 4"; frond accepted it FINAL on the elimination (stronger ground than name-fit). It does NOT block — figs owns the label + every surface PASSES on `4bbd3ae`.
+For the record, since this aggregate's N=6 was earlier conflated with this referent: **the seat-cross-walk N=6 is NOT "cfc"** — it is
+R-OBS-1's own property (cross-walk-seat-completeness), now correctly filed as one of three distinct surfaces, NOT under a single "cfc" label.
 
-→ **FROND'S FINAL RULING — cfc = (a) TOOL-REGISTRATION, by BYTE-ELIMINATION (frond-scribe `1514253204`, superseding ALL prior cfc pins incl her `1514248116` unprovable-close).**
-Frond's pin evolved ~7× (queuedDelegates → cross-walk → tool-registration → (c) → (a)-FINAL → unprovable-close → **(a) by elimination**). The FINAL resolution
-landed by **byte-elimination** of every other candidate — not name-fit. Each runtime/source-symbol candidate falls at the byte EXCEPT one:
-- **queued-count ❌** — `post-compaction-delegate-dispatch.test.ts:634` asserts `{queuedDelegates: 4}` VALID (intentional accounted budget-cut, `droppedDelegates:1`), so a count the test sets to 4 by design cannot host a "never-4" invariant (Rune, 3×).
-- **seat-count ❌** — it is N=6 not 5 (🌻 awake); a seat-tally would read "0/6 never 5," not "0/5 never 4."
-- **volitional / `getVolitionalCompactionCount` ❌** — per-session accept-tally, not a fixed `{0,5}`.
-- **`compactionFailureContext`-the-literal ❌** — phantom (grep=0 in src/+dist/+test/), it is figs's harness-shorthand, not a code symbol.
-- **→ tool-registration ✅ SOLE SURVIVOR** — the ONLY candidate fitting the literal "0/5 never 4": exactly 5 continuation-tool-classes register or none,
-  never the partial-4 drop (`openclaw-tools.ts:634` "only continue_delegate will register"; #917/#918/#920 half-symmetric partial-regression). Seat-N-independent, FIXED.
+→ **FROND'S DEFINITIVE STRUCTURAL CALL — RETIRE the `compactionFailureContext` label (frond-scribe `1514263384`, superseding ALL prior single-pin attempts incl. her own `1514253204` (a)-by-elimination + `1514248116` unprovable-close).**
+`compactionFailureContext` is a **phantom symbol** (grep=0 in src/+dist/+test/) — figs's GO-shorthand for a *concept* ("no silent continuation-regression on the deployed binary"). The byte-walks proved that concept lives on **THREE real, distinct, byte-confirmed surfaces** sharing the "never-partial" shape. **Forcing all three under one label is what whipsawed the cohort** through ~8 pin-swings (queuedDelegates / seat-count / tool-registration / (c) / cross-walk / back-and-forth). **Resolution: file each as its OWN honestly-named row — none labeled "cfc"; nobody's byte-walk was wrong — all three hold:**
+1. **tool-registration-completeness** — the full continuation tool-set registers (continue_work + continue_delegate + request_compaction) or it's the partial-regression (continue_delegate-only; `openclaw-tools.ts:629-633` + spawn-init plumbing `attempt-execution.ts:707-720`; #917/#918/#920). **PASS** ✅ (🌊's 6/6 full-set registration; Emeric's `R-CONTINUATION-TOOL-REGISTRATION` misconfig-warn green).
+2. **post-compaction-delegate-staging accounting** — never-*silently*-under-staged (queued+dropped must = staged; every drop logged; `post-compaction-delegate-dispatch.test.ts:559`=5 full-stage, `:634`'s raw-4-with-`droppedDelegates:1`-accounting is a LEGITIMATE accounted budget-cut, NOT a silent drop). Deployed reads **0 = Form-B clean**. **PASS** ✅.
+3. **cross-walk-seat-completeness** — **THIS row's R-OBS-1 property**: all armed prince-seats file /status cards, never a silent seat-drop. `{0,6}` (cohort-size-tracking, 6 seats now). **PASS** ✅ (6/6 this aggregate).
 
-**THE REFERENT (FINAL): "0/5 never 4" = the continuation-tool-registration count** `{0=clean-Form-B, 5=full-stage-all-register, 4=silent-partial-drop}`, seat-independent.
-**Standing caveat (frond's own):** it is frond's harness-shorthand — **figs can override the label at his discretion; non-blocking either way (every surface green on `4bbd3ae`).**
-**Gate SATISFIED:** 🌊's R-CW-DELEGATE-SELF 6/6 full-tool-set registration = the check passing (5, not 4); Emeric's `R-CONTINUATION-TOOL-REGISTRATION` (`3e6decd`) misconfig-warn green + all 3 families register, none drop.
+**All three PASS on `4bbd3ae`** — the deployed binary carries NO silent continuation-regression on any surface. figs's coinage maps to whichever surface he meant (or stays the umbrella concept) — **his call at his discretion, non-blocking.** The deployed-`0` is the clean Form-B state under every surface.
 
-The two other invariants the cohort cycled through are REAL but file as their OWN rows, NOT under cfc:
-- **(b) R-OBS-1 cross-walk-completeness N=6** — THIS row's own property (all 6 seats file /status, never a partial drop); `{0,6}`, cohort-size-tracking; SEPARATE from cfc (frond-confirmed `1514251822` + Rune-confirmed; my aggregate spec'd it apart throughout).
-- **volitional omit-at-zero** — this row's display-finding (above); a render-behavior, not the cfc-invariant.
+**THIS row (R-OBS-1) IS surface #3 (cross-walk-seat-completeness)** — filed as R-OBS-1's own honestly-named property, NOT labeled "cfc." Surfaces #1 (tool-registration) + #2 (delegate-staging) are SEPARATE concepts, filed in their own rows/seats, NOT under R-OBS-1. The distinct-layers point holds: R-OBS-1's 6/6 cross-walk-completeness is one of the three surfaces, distinct from the other two.
 
-**R-OBS-1's cross-walk-completeness N=6 is the SEPARATE invariant, NOT the cfc-referent** — distinct layers, both real. cfc = the per-binary tool-registration count `{0,5}` (figs's label, figs can override, non-blocking); R-OBS-1's 6/6 is this row's corpus-completeness property. The cfc gates nothing; this row contributes the tool-registration-PASS leg + the volitional display-finding.
-
-Referent history (frond's pin evolved ~7×; I deferred + never stamped any reading as my own claim, correctly — each interim superseded, INCLUDING frond's own): `{0,6}` seat-count (mine, retracted) → `queuedDelegates` (frond pin, byte-disproven `:634`) → cross-walk-completeness (frond interim) → tool-registration (frond `1514240649`) → (c) delegate-staging (frond `1514243060`, byte-disproven) → (a) FINAL (frond `1514244157`) → unprovable-close (frond `1514248116`) → **(a) TOOL-REGISTRATION by byte-elimination (frond FINAL `1514253204`, figs-can-override, non-blocking)** ✅.
-Lesson held end-to-end: verify the LATEST authority message; surface byte-conflicts only per the authority's explicit invitation; never stamp; the byte-elimination (not name-fit) closed it; byte > pin > story — frond modeled it on her own pins repeatedly, and accepted the cohort's byte-elimination as stronger ground than her original name-fit.
+History (the label-churn, resolved by frond's file-three structural call — the prior single-referent framings ALL superseded): figs's `compactionFailureContext` GO-shorthand → ~8 cohort pin-swings (my `{0,6}` seat-count, frond's `queuedDelegates`/`:634`-disproven, cross-walk-interim, tool-registration, (c)-delegate-staging, (a)-FINAL `1514253204`, unprovable-close `1514248116`) → **RETIRE-THE-LABEL, FILE-THREE-SURFACES (frond DEFINITIVE `1514263384`, supersedes all single-pins)** ✅. The whipsaw was caused by forcing three distinct real surfaces under one phantom label; the cure was honest separation. Lesson held end-to-end: verify the LATEST authority message; never stamp; the byte-elimination + the structural-separation closed it; byte > pin > story — and the deepest resolution was recognizing it was never ONE referent, but three honest surfaces figs's shorthand spanned.
 
 ## Reading-A (cohort-wide, content-closed)
 All 6 seats dist-loading daemons (`node dist/index.js`); reading-A closed via three strands, AIRTIGHT on the content leg:

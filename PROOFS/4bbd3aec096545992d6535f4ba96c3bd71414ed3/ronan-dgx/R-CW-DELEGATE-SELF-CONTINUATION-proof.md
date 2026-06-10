@@ -32,7 +32,11 @@ cli-startup-metadata.json       → "(4bbd3ae)" ×8, "(9b1f42a)" ×0  (no stale 
 - A build-stage-checkout-with-pending-restart (reading-B) **cannot** have a restart that already fired *after* the target-build finished. B is impossible by ordering.
 - Plus: repo HEAD `4bbd3aec096`, running-version `(4bbd3ae)` (live-from-HEAD = checkout-at-target), session-continuity across the 04:34:34 cycle.
 
-- **Verdict: reading-A — strong-by-ordering, dist-layer residual named.** The live gateway is running `4bbd3aec096` to the standard a dist-loading seat can attest (weaker than runs-from-tree only by the dist-layer; the firing-proofs below are independent of this framing — they prove the tools work on whatever the live gateway is, which the ordering blade establishes is `4bbd3aec096`).
+- **Verdict: reading-A — CONTENT-CLOSED (upgraded 05:22 PDT, 🕯 Emeric's content-provenance method).** The earlier "strong-by-ordering, residual named (frozen-HEAD ≠ source-attestation)" standard is now upgraded: the residual is CLOSED by content. Emeric's dispositive test — find compiled code present in the running dist that did NOT exist at pre-deploy `9b1f42a` source — proves the dist was *built from target source*, not a stale/build-stage artifact. Verified on ronan-dgx (target-only markers, `9b1f42a` source=0 → present in my running dist chunks):
+  - `contextEngineOwnsCompaction`: 0 @ `9b1f42a` → in `dist/compact.queued-BlByBXy0.js` ✅
+  - `after_context_engine`: 0 @ `9b1f42a` → in 4 dist chunks (`compaction-uccY6tzz.js`, `compact.queued-BlByBXy0.js`, `plugin-sdk/.../compaction.d.ts`) ✅
+  - `nativeHarnessCompaction`: 0 @ `9b1f42a` → in `dist/compact.queued-BlByBXy0.js` ✅
+  My dist contains compiled symbols absent at pre-deploy → reading-B impossible by **content**, not just by ordering. So the dist-loading seats (🌊🕯) have content-closure, not just timing-closure. **(Methodology note, banked: grepping `dist/index.js` for impl-symbols is meaningless — it's a ~3KB lazy-import shim; the real bundle is hundreds of named chunks. The content-test greps the whole dist tree. Credit Emeric for finding this + catching the shim-grep + symbol-counting-move traps.)** The live gateway is running `4bbd3aec096`, content-attested.
 
 ---
 

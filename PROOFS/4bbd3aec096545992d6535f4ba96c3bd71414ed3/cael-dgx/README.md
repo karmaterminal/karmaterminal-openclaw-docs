@@ -19,9 +19,10 @@ Running daemon PID 2030895 = `node /home/figs/flesh_beast_tmp/openclaw/dist/inde
 | R-CW-3 | reason-field captured in OTel span (PR #759) | ✅ PASS | R-CW-3-EVIDENCE.md (Tempo span `reason.preview` = marker, verbatim) |
 | R-CW-4 | chain-depth tracking across hops | ✅ PASS | R-CW-4-EVIDENCE.md (depth-2 childSession spawned+completed) |
 | R-CW-TOKEN | bracket-form `CONTINUE_WORK:N` DRIVES hop-2 | ✅ PASS | R-CW-TOKEN-EVIDENCE.md (work-wake hop=1/200 from parsed token) |
-| R-RC-2 | `request_compaction()` over-threshold ACCEPT | ⚠️ HONEST-LIMIT | R-RC-2-SUBSTRATE-FINDING.md (PASS-shape blocked at 19% ctx; guard-reject-correct proven; option-g) |
+| R-RC-2 | `request_compaction()` over-threshold ACCEPT | ⚠️ HONEST-LIMIT | R-RC-2-SUBSTRATE-FINDING.md (blocked @19% ctx; guard-reject-correct proven; option-g) |
+| R-CW-5 | cost-cap exhaustion → dispatch reject | ⚠️ HONEST-LIMIT | R-CW-5-SUBSTRATE-FINDING.md (induce-deferred cohort-idle; code-path verified; same class as 🪨 R-CW-6) |
 
-**Still owed (canonical):** R-CW-5 (cost-cap → dispatch reject) — induce-required (config-patch on `costCapTokens` or massive delegate-burst, both risk cohort's live chains); HONEST-LIMIT, cohort-idle reproducer. **R-CW-3 now ✅** (reason-field OTel span, above).
+**R-CW-5** (cost-cap → dispatch reject) ⚠️ **HONEST-LIMIT** — induce-required, deferred to cohort-idle (config-patch/burst would risk other princes' live chains; same class as 🪨's R-CW-6). Code-path verified live; reproducer documented. See R-CW-5-SUBSTRATE-FINDING.md.
 
 ## Cross-walk fires (cael-dgx evidence for OTHER princes' canonical rows)
 Cael also fired these on cael-seat as per-seat cross-walk evidence (canonical owner in parens); they corroborate the binary's tool-registration breadth (the `compactionFailureContext` invariant = all continuation surfaces register, not just one — the #868/#79925/#85651 foundational-canon):

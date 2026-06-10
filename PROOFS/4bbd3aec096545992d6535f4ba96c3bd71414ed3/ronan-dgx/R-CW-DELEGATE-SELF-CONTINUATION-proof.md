@@ -64,6 +64,12 @@ The continuation-tool-set registered **complete** on `4bbd3ae`, not the degraded
 - R-CD-3 correctly accepted + echoed `delaySeconds: 10`.
 - R-CW-1 round-trip: `continue_work(15s)` → scheduled → wake fired → this turn resumed to write this proof-row. The resumption is the round-trip confirmation.
 - Proofs are self-fired from the live deployed gateway: the proof of "the continuation tools work on `4bbd3aec096`" is that this seat, running `4bbd3ae`, called them and the gateway accepted/scheduled each with correct status.
+- **Round-trip confirmation (stronger than scheduling-only):** the four R-CD silent proof-marker delegates did not merely schedule — they dispatched, executed on the live gateway, and returned their markers (chain-hops 3–6, 2–3s each):
+  - R-CD-1 → `R-CD-1 normal delegate executed on 4bbd3ae`
+  - R-CD-2 → `R-CD-2 silent-wake delegate executed on 4bbd3ae`
+  - R-CD-3 → `R-CD-3 delayed-10s delegate executed on 4bbd3ae`
+  - R-CD-9 → `R-CD-9 silent delegate executed on 4bbd3ae`
+  So the R-CD rows are confirmed at both layers: scheduling (status captured live) → dispatch → execution → marker-return. R-CD-5 (post-compaction) remains correctly `queued-for-compaction` (fires on the compaction-seam, not now). R-CW-1 round-trip confirmed by this turn resuming from its `continue_work(15s)` wake.
 
 ## Verdict
 

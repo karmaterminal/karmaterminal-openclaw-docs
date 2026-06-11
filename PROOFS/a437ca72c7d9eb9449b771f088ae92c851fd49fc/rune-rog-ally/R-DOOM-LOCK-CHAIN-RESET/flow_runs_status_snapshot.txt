@@ -1,0 +1,17 @@
+# rune-rog-ally durable registry: ~/.openclaw/state/openclaw.sqlite (4.87 MB) — 2026-06-10 ~21:55 PDT
+# Proves rune-rog-ally is DURABLE-SQLITE (the all-seats-durable canon; NO in-memory-vs-durable split).
+
+$ sqlite3 ~/.openclaw/state/openclaw.sqlite "SELECT status, count(*) FROM flow_runs GROUP BY status ORDER BY count(*) DESC;"
+succeeded|278
+failed|16
+cancelled|2
+queued|1
+
+$ sqlite3 ~/.openclaw/state/openclaw.sqlite "SELECT count(*) FROM flow_runs;"
+297
+
+# flow_runs table present with 297 durable rows. The ~/.openclaw/flows/registry.sqlite.migrated (May-31)
+# is the STALE pre-migration backup (.migrated suffix = the old in-memory-era registry, migrated out).
+# rune-rog-ally = same durable-sqlite architecture as elliott-host + ronan-dgx + cael-DGX + emeric-nuc.
+# (Rune retracted the earlier in-memory mis-claim at 1514437889 after byte-walking this; reaffirmed
+# authoritatively here at ~21:51 PDT.)

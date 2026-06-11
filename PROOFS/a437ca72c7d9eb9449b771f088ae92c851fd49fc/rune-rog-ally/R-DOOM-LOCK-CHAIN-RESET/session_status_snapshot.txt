@@ -1,0 +1,14 @@
+# rune-rog-ally session_status — live on deployed cure-binary a437ca72c7d (2026-06-10 ~21:55 PDT)
+# THE behavioral proof: chain 0/200 after a full day of heavy continuation activity + 6 compactions.
+
+🦞 OpenClaw 2026.6.2 (a437ca7)
+⏱️ Uptime: gateway 52m 12s · system 9d 1h
+🧠 Model: github-copilot/claude-opus-4.8
+📚 Context: 256k/1.0m (26%) · 🧹 Compactions: 6
+🧵 Session: agent:main:discord:channel:1466192485440164011 • updated 2m ago
+🔄 Continuation: chain 0/200
+
+# Gateway: active since 2026-06-10 21:03:09 PDT, MainPID 698556, restarted into the cure-binary per fanout.
+# chain 0/200 = the #989 !isContinuationWake reset-gate firing on this session's fresh non-continuation
+# user-turns (figs's PROOFS directive, the cohort design-pass replies, the corrections). Pre-#989 this
+# session would carry a stuck-high count after a full working day; it reads 0 = reset working.

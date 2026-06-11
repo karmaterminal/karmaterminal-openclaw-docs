@@ -1,0 +1,41 @@
+# #989 reset-gate site (deployed binary a437ca72c7d, src/auto-reply/reply/agent-runner.ts ~:1795-1820)
+# The reset-gate: when !isContinuationWake (fresh non-continuation user-turn), rewind the chain budget.
+# Discriminator (get-reply-run.ts:559): isContinuationWake = work-wake || delegate-return (mid-chain);
+# ordinary subagent-return + plain user-turn are NOT continuation-wakes -> reset-gate fires.
+# ---
+    // system-event, or an ordinary inter-session subagent completion) means the
+    // prior auto-continuation chain ended, so the runaway leashes — chain depth
+    // (n/maxChainLength) and accumulated token cost — must zero here, BEFORE this
+    // turn's chain-state load reads the entry (guard at the post-inference
+    // dispatch reads this same `activeSessionEntry`). Only mid-chain continuation
+    // wakes set `isContinuationWake`: `work-wake` (CONTINUE_WORK timer) and an
+    // in-chain `delegate-return` (a `[continuation:chain-hop:N]` return). An
+    // ordinary subagent completion arrives as `subagent-return`, which is NOT a
+    // continuation wake (#989), so it resets here like any other external turn —
+    // otherwise a long-lived session's stale chain count would reject every fresh
+    // continuation elected from an unrelated subagent return. Genuine mid-chain
+    // wakes must NOT reset, otherwise the cap could never bound a runaway. This is
+    // the light per-turn complement to the full session-rotation clear in
+    // agent-runner-session-reset.ts: it rewinds only the chain budget (minting a
+    // fresh chain id), not the whole session.
+    if (
+      continuationFeatureEnabled &&
+      sessionKey &&
+      activeSessionEntry &&
+      !isContinuationWake &&
+      ((activeSessionEntry.continuationChainCount ?? 0) > 0 ||
+        (activeSessionEntry.continuationChainTokens ?? 0) > 0)
+    ) {
+      await persistContinuationChainState({
+        count: 0,
+        startedAt: Date.now(),
+        tokens: 0,
+        chainId: generateChainId(),
+      });
+    }
+
+    const runStartedAt = Date.now();
+    await persistRestartRecoveryDeliveryContext();
+    const runOutcome = await traceAgentPhase("reply.run_agent_turn", () =>
+      runAgentTurnWithFallback({
+        commandBody,

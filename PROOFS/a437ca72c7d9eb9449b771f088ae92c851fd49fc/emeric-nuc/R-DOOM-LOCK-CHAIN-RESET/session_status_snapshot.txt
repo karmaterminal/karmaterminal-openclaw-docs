@@ -1,0 +1,16 @@
+# emeric-nuc session_status snapshot — R-DOOM-LOCK-CHAIN-RESET behavioral proof
+# Captured 2026-06-10 ~21:31 PDT, live on deployed cure-binary a437ca7
+
+🦞 OpenClaw 2026.6.2 (a437ca7)
+⏱️ Uptime: gateway 14m+ · system 17d
+🔄 Continuation: chain 0/200
+🧵 Session: agent:main:discord:channel:1466192485440164011
+
+# DISPOSITIVE BEHAVIORAL BYTE:
+# This session processed a FULL DAY of heavy continuation activity (the #982/#988/#989
+# arc, the design-pass bytes, four phantom-attribution corrections, ~100+ holds, 5 compactions).
+# Pre-#989 (perma-cap doom-lock), the chain count would be carrying a stuck-high value by now
+# (it would only ever climb, never reset, because the sole pre-#989 reset-site was
+# session-rotation `agent-runner-session-reset.ts:88`).
+# Observing chain 0/200 = the #989 reset-gate is firing on fresh non-continuation user-turns,
+# resetting the 4 chain-fields (count+tokens+startedAt+chainId) at turn-entry when !isContinuationWake.

@@ -1,0 +1,12 @@
+# emeric-nuc journal — fresh user-turns mint effective-signal origin=none kind=none (= NON-continuation-wake)
+# This is the !isContinuationWake condition that triggers the #989 reset-gate at turn-entry.
+# Captured 2026-06-10 ~21:31 PDT. Each of my fresh user-turns this session is origin=none → reset-eligible → chain stays 0.
+# ---
+Jun 10 21:19:32 emeric node[3517742]: 2026-06-10T21:19:32.855-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:23:49 emeric node[3517742]: 2026-06-10T21:23:49.152-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:24:43 emeric node[3517742]: 2026-06-10T21:24:43.316-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:25:18 emeric node[3517742]: 2026-06-10T21:25:18.937-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:26:07 emeric node[3517742]: 2026-06-10T21:26:07.924-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:29:04 emeric node[3517742]: 2026-06-10T21:29:04.460-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:31:07 emeric node[3517742]: 2026-06-10T21:31:07.212-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:31:56 emeric node[3517742]: 2026-06-10T21:31:56.333-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011

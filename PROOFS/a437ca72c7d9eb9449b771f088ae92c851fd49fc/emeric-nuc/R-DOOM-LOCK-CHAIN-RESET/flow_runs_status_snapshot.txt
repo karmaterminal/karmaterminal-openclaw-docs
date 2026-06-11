@@ -1,0 +1,8 @@
+# emeric-nuc ~/.openclaw/state/openclaw.sqlite — durable registry (4.76MB), flow_runs status counts
+# Captured 2026-06-10 ~21:31 PDT. Confirms emeric-nuc = durable-sqlite (4th all-durable seat: emeric + ronan-dgx + cael-DGX + rune-rog-ally).
+# status|count:
+succeeded|390
+failed|59
+cancelled|3
+blocked|1
+queued|1

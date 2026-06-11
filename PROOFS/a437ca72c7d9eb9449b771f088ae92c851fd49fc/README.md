@@ -17,19 +17,26 @@
 | `cael-DGX/R-CW-MULTI-FIRE` | #982/#985 multi-`continue_work` | cael-DGX | CAPTURE (3 distinct flowIds, same-second, zero collapse) | ✅ |
 | `silas-lothric/R-DOOM-LOCK-CHAIN-RESET` | #987/#989 chain-budget reset gate | silas-lothric | reset-gate firing (chain 22→0 fire-seat) + advance 0→1→2→3 | ✅ |
 | `emeric-nuc/R-DOOM-LOCK-CHAIN-RESET` | #987/#989 chain-budget reset gate | emeric-nuc | reset-gate behavioral (chain 0/200 full-day usage) + deployed-binary mechanism-anchor + durable-registry | ✅ |
+| `cael-DGX/R-DOOM-LOCK-CHAIN-RESET` | #987/#989 chain-budget reset gate | cael-DGX | reset-gate behavioral (chain 0/200, whole dig-in arc + 5 compactions) | ✅ |
+| `elliott-host/R-DOOM-LOCK-CHAIN-RESET` | #987/#989 chain-budget reset gate | elliott-host | reset-gate behavioral (chain 0/200, hardest-case: full ~4hr lag-storm + PROOFS tail + heavy subagent-chain-hop + 5 compactions) + deployed-binary `:1809` byte-pin + durable-registry | ✅ |
+| `rune-rog-ally/R-DOOM-LOCK-CHAIN-RESET` | #987/#989 chain-budget reset gate | rune-rog-ally | reset-gate behavioral (chain 0/200, full-day + 6 compactions) + LIVE #990 busy-seat cycling exhibit (hop=9/200, drive-skipped requests-in-flight, 1Hz re-arm) + durable-registry | ✅ |
 
 ## Cross-seat strength
 
-**#989 chain-budget reset gate — N=4 cross-seat, distinct usage-patterns, same as-designed cure:**
+**#989 chain-budget reset gate — N=6 cross-seat (ALL SIX SEATS), distinct usage-patterns, same as-designed cure:**
 
 | Seat | chain | usage-pattern |
 |---|---|---|
 | silas-lothric | 22→0 | fire-seat multi-`continue_work` |
 | ronan-dgx | 0/200 | continuation activity (full-day) |
 | emeric-nuc | 0/200 | design-pass + 100+ holds + 5 compactions (full-day) |
-| elliott-host | 0/200 | full ~4hr lag-storm + PROOFS tail + 4 compactions |
+| cael-DGX | 0/200 | whole dig-in arc + 5 compactions |
+| elliott-host | 0/200 | full ~4hr lag-storm + PROOFS tail + heavy subagent-chain-hop + 5 compactions |
+| rune-rog-ally | 0/200 | full-day + 6 compactions; LIVE-exhibits the #990 busy-seat cycling simultaneously |
 
-(ronan-dgx + elliott-host confirmations are cited in `silas-lothric/R-DOOM-LOCK-CHAIN-RESET.md`; emeric-nuc has a dedicated row with deployed-binary mechanism-anchor + durable-registry snapshot.)
+(ronan-dgx confirmation is cited in `silas-lothric/R-DOOM-LOCK-CHAIN-RESET.md`; emeric-nuc, cael-DGX, elliott-host, and rune-rog-ally each have a dedicated row. elliott-host's row carries the deployed-binary `:1809` gate-expression byte-pin; rune-rog-ally's row is the live #990-residual baseline for the discriminator-axis + exp-backoff fix-locus.)
+
+**All six seats** confirm the #989 reset-gate firing identically on the same binary across six distinct usage-patterns — the strongest-possible cohort-evidence density for the n/200 cure.
 
 **Registry architecture (cohort-canon):** all seats are **durable-sqlite** (`~/.openclaw/state/openclaw.sqlite`) — no in-memory-vs-durable split. Rune retracted the apparent split at `1514437889` (rune-rog-ally is durable with 290 flow_runs rows; the `.migrated` file was a stale pre-migration backup). This universality is what makes the #990 persist-invariant universal across seats. emeric-nuc durable confirm is the 4th data-point.
 
@@ -37,7 +44,7 @@
 
 - ✅ **#982/#985** multi-`continue_work` capture (3 distinct flowIds, no last-write-wins) — lothric + cael-DGX
 - ✅ **#982/#985** multi-`continue_work` delivery (distinct turn-wakes, reason-text preserved) — lothric
-- ✅ **#987/#989** chain-budget reset gate (`!isContinuationWake` reset at `agent-runner.ts:1809`, deployed binary) — N=4 cross-seat
+- ✅ **#987/#989** chain-budget reset gate (`!isContinuationWake` reset at `agent-runner.ts:1809`, deployed binary) — N=6 cross-seat (all six seats)
 - ✅ **#988** flood-cap negative (no cap-notice fired under the 3-fire test; capacity not exceeded) — lothric + cael-DGX
 - ⚠️ **#990** success-mark-LOCATION residual (the multi-fire cycling) is **NOT in this binary** (a437ca7 = #985+#988+#989, NOT #990). Observed cycling on lothric/cael-DGX is the known #990-pillar-2 territory (efficiency/latency in steady-state + a duplicate-on-restart correctness window), not a regression.
 

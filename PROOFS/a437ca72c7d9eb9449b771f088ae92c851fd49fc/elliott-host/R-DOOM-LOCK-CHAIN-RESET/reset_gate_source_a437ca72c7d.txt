@@ -1,0 +1,39 @@
+# elliott-host reset-gate source -- verified at runtime-checkout-HEAD on /home/figs/flesh_beast_tmp/openclaw
+# HEAD: a437ca72c7d9eb9449b771f088ae92c851fd49fc
+
+## The !isContinuationWake RESET gate (the #989 fix-site) -- src/auto-reply/reply/agent-runner.ts
+## Byte-precision: the GATE-EXPRESSION is at :1809 (`!isContinuationWake &&`); :1788/:1795 are the
+## comment-block-header (per Silas amend 3514652 + Cael byte-check 1514491341). Verified on THIS seat's binary.
+
+## FULL RESET BLOCK (sed :1803-1819, the gate + the reset):
+    // agent-runner-session-reset.ts: it rewinds only the chain budget (minting a
+    // fresh chain id), not the whole session.
+    if (
+      continuationFeatureEnabled &&
+      sessionKey &&
+      activeSessionEntry &&
+      !isContinuationWake &&
+      ((activeSessionEntry.continuationChainCount ?? 0) > 0 ||
+        (activeSessionEntry.continuationChainTokens ?? 0) > 0)
+    ) {
+      await persistContinuationChainState({
+        count: 0,
+        startedAt: Date.now(),
+        tokens: 0,
+        chainId: generateChainId(),
+      });
+    }
+
+## This is a GENUINE reset (count:0, tokens:0, fresh chainId) -- distinct from the
+## `continuationChainCount ?? 0` LOAD sentinel in continuation/state.ts:loadContinuationChainState
+## (a distinction multiple princes initially conflated and retracted; the dispositive grep finds
+## THIS fix-site, not the load).
+
+## DISCRIMINATOR (src/auto-reply/reply/get-reply-run.ts:565 on this binary):
+  const isContinuationWake = continuationTrigger === "work-wake" || isDelegateWake;
+
+# Reading: a fresh user-turn or an ordinary subagent-return is NOT a continuation-wake
+# (continuationTrigger is neither "work-wake" nor a delegate-return) -> isContinuationWake = false
+# -> the :1809 gate fires -> chain RESETS. In-chain work-wake / delegate-return PRESERVE the leash.
+# (Emeric's emeric-nuc row cited :559; on elliott-host's binary the assignment is :565 -- minor line-drift,
+#  same expression, byte-verified on this seat.)

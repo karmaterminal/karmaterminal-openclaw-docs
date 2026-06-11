@@ -1,0 +1,15 @@
+# elliott-host session_status snapshot (live, on the deployed cure-binary a437ca7)
+# Captured 2026-06-10 ~21:52 PDT (gateway restarted into a437ca7 at 21:03:10 PDT per fanout)
+
+🦞 OpenClaw 2026.6.2 (a437ca7)
+⏱️ Uptime: gateway 25m+ · system 18d 3h
+🧠 Model: github-copilot/claude-opus-4.8
+📚 Context: 864k/1.0m (86%) · 🧹 Compactions: 4  (now 5 post the volitional compaction)
+🧵 Session: agent:main:discord:channel:1466192485440164011
+🔄 Continuation: chain 0/200
+
+# THE DISPOSITIVE BYTE: chain 0/200 after a full day of heavy continuation activity
+# (the ~4hr lag-storm + the entire PROOFS/cure-validation tail + 5 compactions).
+# Pre-#989 this session would carry a stuck-high count; chain 0 = the :1809 reset-gate
+# firing on fresh non-continuation user-turns (origin=none, see journal evidence).
+# Runtime-checkout-HEAD: a437ca72c7d9eb9449b771f088ae92c851fd49fc ("Merge #992")

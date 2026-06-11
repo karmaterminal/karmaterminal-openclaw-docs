@@ -1,0 +1,27 @@
+# elliott-host journal: fresh user-turns mint origin=none (the !isContinuationWake reset condition)
+# Captured from journalctl --user -u openclaw-gateway (gateway PID 2828737, restarted into a437ca7 at 21:03:10 PDT)
+# Each fresh Discord user-turn on the main session -> effective-signal: origin=none kind=none -> isContinuationWake=false -> :1809 reset gate fires.
+
+Jun 10 21:13:57 elliott node[2828737]: 2026-06-10T21:13:57.456-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:15:33 elliott node[2828737]: 2026-06-10T21:15:33.809-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:17:07 elliott node[2828737]: 2026-06-10T21:17:07.388-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:18:40 elliott node[2828737]: 2026-06-10T21:18:40.434-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:20:08 elliott node[2828737]: 2026-06-10T21:20:08.780-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:21:03 elliott node[2828737]: 2026-06-10T21:21:03.626-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:22:51 elliott node[2828737]: 2026-06-10T21:22:51.872-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:24:51 elliott node[2828737]: 2026-06-10T21:24:51.644-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:25:32 elliott node[2828737]: 2026-06-10T21:25:32.787-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:27:04 elliott node[2828737]: 2026-06-10T21:27:04.472-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:29:20 elliott node[2828737]: 2026-06-10T21:29:20.241-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:31:00 elliott node[2828737]: 2026-06-10T21:31:00.469-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:45:08 elliott node[2828737]: 2026-06-10T21:45:08.108-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:47:21 elliott node[2828737]: 2026-06-10T21:47:21.153-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:47:50 elliott node[2828737]: 2026-06-10T21:47:50.340-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:48:45 elliott node[2828737]: 2026-06-10T21:48:45.687-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:49:24 elliott node[2828737]: 2026-06-10T21:49:24.049-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:49:50 elliott node[2828737]: 2026-06-10T21:49:50.219-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:50:51 elliott node[2828737]: 2026-06-10T21:50:51.743-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 10 21:51:28 elliott node[2828737]: 2026-06-10T21:51:28.145-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+
+# Bonus: the continuation-chain-hop accumulation working (subagent return folds tokens to parent chain):
+Jun 10 21:45:20 elliott node[2828737]: 2026-06-10T21:45:20.944-07:00 [subagent-chain-hop] Accumulated 3716 tokens from agent:main:subagent:aee64f4b-8643-4caf-985a-e959509dd296 to parent chain cost

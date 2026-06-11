@@ -19,7 +19,7 @@ The **complete doom-lock cure assembly** — the continuation-lifecycle cure-sta
 Built on the prior cure-layers carried into this assembly:
 - **#982 / #985** — multi-`continue_work` silent-loss cure (array-capture N→N at the 3 sibling closures: subagent-init, main-reply, followup; `let`→`const[]`+`.push` + `scheduleContinuationWorkBatch`)
 - **#986 / #988** — flood-cap (`maxPendingWork`) + drain-superseded fold
-- **#987 / #989** — chain-budget reset for the `n/200` doom-lock (the `!isContinuationWake` reset-gate at `agent-runner.ts:1788` fires on fresh non-continuation user-turns)
+- **#987 / #989** — chain-budget reset for the `n/200` doom-lock (the `!isContinuationWake` reset-gate at `agent-runner.ts:1809`, reset-section comment from `:1788`, fires on fresh non-continuation user-turns)
 
 ## Known residual (NOT a regression — rides post-deploy)
 

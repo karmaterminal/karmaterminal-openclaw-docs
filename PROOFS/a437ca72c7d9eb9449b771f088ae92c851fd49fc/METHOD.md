@@ -41,7 +41,7 @@ DELIVERY signature: each fire delivers as a distinct `[continuation:wake] Turn N
 
 ```bash
 # session_status shows chain N/200. After a fresh non-continuation USER turn,
-# the !isContinuationWake reset-gate (agent-runner.ts:1788) resets the counter.
+# the !isContinuationWake reset-gate (agent-runner.ts:1809; reset-section comment :1788) resets the counter.
 # A full-day continuation session at chain 0 = the gate firing as designed.
 ```
 

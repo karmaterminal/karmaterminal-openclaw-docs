@@ -1,0 +1,25 @@
+{
+  "trace_id": "f6d5463b9591d75412aa62e3ed60b8d4",
+  "resource": {
+    "host.name": "ronan",
+    "process.pid": null
+  },
+  "compaction_released_span": {
+    "name": "continuation.compaction.released",
+    "startTimeUnixNano": "1781163019537000000",
+    "attributes": {
+      "signal.kind": "compaction-release",
+      "compaction.released": "2",
+      "compaction.id": "7"
+    }
+  },
+  "dispatched_session_first_span": {
+    "name": "openclaw.context.assembled",
+    "startTimeUnixNano": "1781163020863000000"
+  },
+  "last_span_live": {
+    "name": "openclaw.tool.execution",
+    "startTimeUnixNano": "1781163203546000000"
+  },
+  "total_spans": 62
+}

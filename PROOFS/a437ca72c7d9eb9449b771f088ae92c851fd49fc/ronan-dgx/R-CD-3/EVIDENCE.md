@@ -32,7 +32,7 @@
 **This is the single isolated fire-through-dispatch the strengthening-path promised.** The SAME delegate fired in Half 1 (`status:queued-for-compaction`, trace `18e68520ec98e0703918939a30cd7dca`) dispatched on the NEXT natural compaction — one fire, both halves, no two-fire composition:
 
 - The Half-1 fire staged `status:queued-for-compaction` (trace `18e68520...`) and waited for the next *natural* compaction (no contrived trigger).
-- A natural volitional compaction landed: **compaction count 6 → 7** at `2026-06-11T07:30:19.525Z` (00:30:19 PDT). System event `[continuation:compaction-delegate-spawned]` confirms: *"Post-compaction shard dispatched."*
+- A natural volitional compaction landed: **compaction count 6 → 7** at `2026-06-11T07:30:19.525Z` (00:30:19 PDT). System event `[continuation:compaction-delegate-spawned]` confirms: *"Post-compaction shard dispatched."* The Tempo seam-span independently grounds this: trace `f6d5463b9591d75412aa62e3ed60b8d4` carries the `continuation.compaction.released` span at `1781163019537000000` (00:30:19.537 PDT) with `signal.kind=compaction-release`, **`compaction.id=7`**, `compaction.released=2` (two post-compaction delegates released on that single seam — the R-CD-3 proof delegate on trace `18e68520` AND a sibling working-state lifeboat on trace `f6d5463b`; both dispatched within 0.3s of each other immediately after the release-span). See `single_fire_dispatch_trace_f6d5463b.json` (full 62-span trace) + `single_fire_focus_f6d5463b.json` (focused).
 - **The staged `18e68520` delegate dispatched on that compaction seam** into subagent session `agent:main:subagent:c9fe6ade-4290-4500-aff1-c52c0a367d65` (session_id `4100d29d-d2f5-458f-a77a-97258755e6a2`), chain-hop:1, runtime 9s, and returned its literal staged payload:
   ```
   R-CD-3 PROOF: continue_delegate(mode=post-compaction) lifeboat staged with
@@ -46,8 +46,9 @@
 
 ## Tempo trace
 
-- **Staging fire trace**: `18e68520ec98e0703918939a30cd7dca` (the fresh fire this turn; dispatch deferred to the next natural compaction event).
-- **Dispatch-on-compaction trace**: `6412e110d4a2438d3369ff0756bf9362` → `dispatch_on_compaction_trace_6412e110.json` (this dir), span `continuation.compaction.released` at 22:00:20, resource `host.name=ronan`/`pid=1356577`.
+- **Staging fire trace**: `18e68520ec98e0703918939a30cd7dca` (the staged R-CD-3 proof fire; dispatch deferred to the next natural compaction event — and that dispatch is visible on the same trace at 00:30:20.595, riding compaction id 7).
+- **Dispatch-on-compaction seam-span (compaction id 7 — the dispositive byte)**: trace `f6d5463b9591d75412aa62e3ed60b8d4` → `single_fire_dispatch_trace_f6d5463b.json` + `single_fire_focus_f6d5463b.json` (this dir). Span `continuation.compaction.released` at `1781163019537000000` (00:30:19.537 PDT, `2026-06-11T07:30:19Z`), `signal.kind=compaction-release`, `compaction.id=7`, `compaction.released=2`, resource `host.name=ronan`. The dispatched post-compaction session's first span (`openclaw.context.assembled`) follows 1.3s later at 00:30:20.863; the trace continued live as the dispatched shard ran (last span 00:33:23 PDT at capture-time).
+- *(Superseded earlier citation: the prior `6412e110...` span at 22:00:20 was the compaction-id-6 dispatch from an earlier lifeboat — replaced here by the verified compaction-id-7 seam-span that grounds THIS single-fire-through-dispatch.)*
 
 ## Verdict
 

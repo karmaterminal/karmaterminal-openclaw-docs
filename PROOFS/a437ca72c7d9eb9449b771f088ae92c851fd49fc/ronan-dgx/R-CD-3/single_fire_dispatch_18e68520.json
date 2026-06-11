@@ -1,0 +1,24 @@
+{
+  "proof": "R-CD-3 single-fire-through-dispatch",
+  "delegate_trace": "18e68520ec98e0703918939a30cd7dca",
+  "candidate_sha": "a437ca72c7d9eb9449b771f088ae92c851fd49fc",
+  "seat": "ronan-dgx",
+  "gateway_pid": 1356577,
+  "half1_staging": {
+    "status": "queued-for-compaction",
+    "mode": "post-compaction",
+    "note": "Delegate will fire when compaction occurs, not on a timer."
+  },
+  "half2_dispatch_on_compaction": {
+    "compaction_utc": "2026-06-11T07:30:19.525Z",
+    "compaction_count": "6->7",
+    "system_event": "[continuation:compaction-delegate-spawned] Post-compaction shard dispatched",
+    "dispatched_subagent_session": "agent:main:subagent:c9fe6ade-4290-4500-aff1-c52c0a367d65",
+    "dispatched_session_id": "4100d29d-d2f5-458f-a77a-97258755e6a2",
+    "chain_hop": 1,
+    "task_markers": ["[continuation:post-compaction]", "[continuation:chain-hop:1]"],
+    "runtime_s": 9,
+    "returned_payload": "R-CD-3 PROOF: continue_delegate(mode=post-compaction) lifeboat staged with status=queued-for-compaction at CANDIDATE_SHA a437ca72c7d9eb9449b771f088ae92c851fd49fc from ronan-dgx main session 2026-06-10; dispatches on the compaction seam to re-inject working-state the summary cannot preserve."
+  },
+  "verdict": "PASS single-fire: one delegate (18e68520) captured both the staging-byte AND its own compaction-seam dispatch. Strongest form, no two-fire composition."
+}

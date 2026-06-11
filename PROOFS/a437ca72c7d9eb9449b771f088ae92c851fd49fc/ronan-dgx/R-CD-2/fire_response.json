@@ -1,0 +1,22 @@
+{
+  "row": "R-CD-2",
+  "fire_utc": "2026-06-11T05:07:54Z",
+  "fire_pdt": "2026-06-10 22:07:54 PDT",
+  "tool": "continue_delegate",
+  "session": "MAIN (agent:main:discord:channel:1466192485440164011) — NOT the dead shard; clean main-session provenance",
+  "fire_response": {
+    "status": "scheduled",
+    "mode": "silent-wake",
+    "delaySeconds": 0,
+    "delegateIndex": 1,
+    "delegatesThisTurn": 1,
+    "traceparent": "00-c91022b97a34f108a881ac37340495cd-a28033bc37644d6b-01"
+  },
+  "fire_trace_id": "c91022b97a34f108a881ac37340495cd",
+  "fire_parent_span": "a28033bc37644d6b",
+  "deployed_sha": "a437ca72c7d9eb9449b771f088ae92c851fd49fc",
+  "binary": "OpenClaw 2026.6.2 (a437ca7)",
+  "gateway_pid": "1356577",
+  "gateway_active_enter": "Wed 2026-06-10 21:01:59 PDT",
+  "note_silent_wake": "mode=silent-wake: payload returns as internal context (no channel-visible post) AND triggers a fresh parent-turn. Journal signature [continuation:enrichment-return]. The parent-wake that captures the EVIDENCE.md is itself the behavioral proof. Fired from MAIN session (superseding the dead shard's partial R-CD-2 capture for clean provenance)."
+}

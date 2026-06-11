@@ -1,0 +1,1 @@
+R-CD-1 PROOF: continue_delegate(mode=normal) basic spawn-and-return path verified at CANDIDATE_SHA a437ca72c7d9eb9449b771f088ae92c851fd49fc from ronan-dgx seat 2026-06-10

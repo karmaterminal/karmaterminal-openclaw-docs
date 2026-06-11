@@ -1,0 +1,4 @@
+Jun 10 22:15:39 ronan node[1356577]: 2026-06-10T22:15:39.289-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=2/200 mode=normal session=agent:main:discord:channel:1466192485440164011 task=[PROOF R-CD-4 / a437ca7 / ronan-dgx / main-session] Cross-session targeted-retur
+Jun 10 22:15:42 ronan node[1356577]: 2026-06-10T22:15:42.617-07:00 R-CD-4 PROOF: continue_delegate cross-session targetSessionKey-routing verified at CANDIDATE_SHA a437ca72c7d9eb9449b771f088ae92c851fd49fc from ronan-dgx main session 2026-06-10; return targeted to agent:main:main
+Jun 10 22:15:42 ronan node[1356577]: 2026-06-10T22:15:42.752-07:00 [subagent-chain-hop] Accumulated 106 tokens from agent:main:subagent:continuation-c64945d101032910966521af45f66722 to parent chain cost
+Jun 10 22:15:42 ronan node[1356577]: 2026-06-10T22:15:42.754-07:00 [continuation:targeted-return] Delivered to agent:main:main from agent:main:subagent:continuation-c64945d101032910966521af45f66722

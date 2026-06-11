@@ -1,0 +1,72 @@
+{
+  "resource": {
+    "host.name": "ronan",
+    "process.pid": "1356577"
+  },
+  "focused_continuation_spans": [
+    {
+      "name": "continuation.compaction.released",
+      "startTimeUnixNano": "1781154020065000000",
+      "endTimeUnixNano": "1781154020065016512",
+      "attributes": {
+        "signal.kind": "compaction-release",
+        "compaction.released": "1",
+        "compaction.id": "6"
+      }
+    },
+    {
+      "name": "continuation.queue.drain",
+      "startTimeUnixNano": "1781154079020000000",
+      "endTimeUnixNano": "1781154079020016272",
+      "attributes": {
+        "queue.drained_count": "2",
+        "queue.drained_continuation_count": "1"
+      }
+    },
+    {
+      "name": "continuation.delegate.dispatch",
+      "startTimeUnixNano": "1781154098378000000",
+      "endTimeUnixNano": "1781154098511022777",
+      "attributes": {
+        "delay.ms": "5000",
+        "chain.step.remaining": "199",
+        "delegate.delivery": "timer",
+        "chain.id": "1c900cd1-5e39-4379-acae-ee416bd918b9",
+        "delegate.mode": "normal",
+        "reason.preview": "[PROOF R-CD-1 / a437ca7 / ronan-dgx] You are a delegate dispatched by Ronan (\ud83c\udf0a)"
+      }
+    },
+    {
+      "name": "continuation.work",
+      "startTimeUnixNano": "1781154098412000000",
+      "endTimeUnixNano": "1781154098412015505",
+      "attributes": {
+        "delay.ms": "12000",
+        "chain.step.remaining": "199",
+        "reason.preview": "R-CD-1 continue_delegate(normal) fired as live behavioral-proof on a437ca7. Need"
+      }
+    },
+    {
+      "name": "continuation.delegate.dispatch",
+      "startTimeUnixNano": "1781154256790000000",
+      "endTimeUnixNano": "1781154256911586074",
+      "attributes": {
+        "delay.ms": "5000",
+        "chain.step.remaining": "198",
+        "delegate.delivery": "timer",
+        "chain.id": "1c900cd1-5e39-4379-acae-ee416bd918b9",
+        "delegate.mode": "silent-wake",
+        "reason.preview": "[PROOF R-CD-2 / a437ca7 / ronan-dgx] You are a silent-wake delegate dispatched b"
+      }
+    },
+    {
+      "name": "continuation.queue.drain",
+      "startTimeUnixNano": "1781154308435000000",
+      "endTimeUnixNano": "1781154308435011104",
+      "attributes": {
+        "queue.drained_count": "1",
+        "queue.drained_continuation_count": "0"
+      }
+    }
+  ]
+}

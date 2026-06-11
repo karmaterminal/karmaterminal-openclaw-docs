@@ -1,0 +1,20 @@
+{
+  "row": "R-CD-3",
+  "fire_utc": "2026-06-11T05:13:21Z",
+  "fire_pdt": "2026-06-10 22:13:21 PDT",
+  "tool": "continue_delegate",
+  "session": "MAIN (agent:main:discord:channel:1466192485440164011)",
+  "fire_response": {
+    "status": "queued-for-compaction",
+    "mode": "post-compaction",
+    "delegateIndex": 1,
+    "delegatesThisTurn": 1,
+    "traceparent": "00-18e68520ec98e0703918939a30cd7dca-44b00bb0cc297c68-01",
+    "note": "Delegate will fire when compaction occurs, not on a timer. The shard starts at the moment of compaction and returns to the post-compaction session. Chain tracking applies at dispatch time."
+  },
+  "fire_trace_id": "18e68520ec98e0703918939a30cd7dca",
+  "deployed_sha": "a437ca72c7d9eb9449b771f088ae92c851fd49fc",
+  "binary": "OpenClaw 2026.6.2 (a437ca7)",
+  "gateway_pid": "1356577",
+  "note_post_compaction": "status=queued-for-compaction is the DISPOSITIVE mode-distinguishing fire-byte (contrast R-CD-1/R-CD-2 status=scheduled). The dispatch-on-compaction was independently observed THIS session via the earlier lifeboat-fire (see dispatch_on_compaction section in EVIDENCE.md)."
+}

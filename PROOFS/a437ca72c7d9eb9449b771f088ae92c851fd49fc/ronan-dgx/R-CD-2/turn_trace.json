@@ -1,0 +1,30 @@
+{
+  "resource": {
+    "host.name": "ronan",
+    "process.pid": "1356577"
+  },
+  "focused_continuation_spans": [
+    {
+      "name": "continuation.delegate.dispatch",
+      "startTimeUnixNano": "1781154489635000000",
+      "endTimeUnixNano": "1781154489698318585",
+      "attributes": {
+        "delay.ms": "0",
+        "chain.step.remaining": "199",
+        "delegate.delivery": "immediate",
+        "chain.id": "fe075dd5-cc7c-4dd7-a3ea-ab8077e58b40",
+        "delegate.mode": "silent-wake",
+        "reason.preview": "[PROOF R-CD-2 / a437ca7 / ronan-dgx / main-session] Silent-wake behavioral-proof"
+      }
+    },
+    {
+      "name": "continuation.queue.drain",
+      "startTimeUnixNano": "1781154555905000000",
+      "endTimeUnixNano": "1781154555905009840",
+      "attributes": {
+        "queue.drained_count": "1",
+        "queue.drained_continuation_count": "0"
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "trace_id": "6412e110d4a2438d3369ff0756bf9362",
+  "tempo_url": "http://tempo.dandelion.cult/api/traces/6412e110d4a2438d3369ff0756bf9362",
+  "spans": [
+    {
+      "name": "continuation.queue.drain",
+      "traceId": "ZBLhENSiQ40zaf8HVr+TYg==",
+      "spanId": "bk4ct3rNVVg=",
+      "parentSpanId": "mhCNAnYDlWA=",
+      "startTimeUnixNano": "1781154079020000000",
+      "endTimeUnixNano": "1781154079020016272",
+      "attributes": {
+        "queue.drained_count": "2",
+        "queue.drained_continuation_count": "1"
+      }
+    },
+    {
+      "name": "continuation.delegate.dispatch",
+      "traceId": "ZBLhENSiQ40zaf8HVr+TYg==",
+      "spanId": "9sKUr7Oqj7Q=",
+      "parentSpanId": "mhCNAnYDlWA=",
+      "startTimeUnixNano": "1781154098378000000",
+      "endTimeUnixNano": "1781154098511022777",
+      "attributes": {
+        "delay.ms": "5000",
+        "chain.step.remaining": "199",
+        "delegate.delivery": "timer",
+        "chain.id": "1c900cd1-5e39-4379-acae-ee416bd918b9",
+        "delegate.mode": "normal",
+        "reason.preview": "[PROOF R-CD-1 / a437ca7 / ronan-dgx] You are a delegate dispatched by Ronan (🌊)"
+      }
+    },
+    {
+      "name": "continuation.work",
+      "traceId": "ZBLhENSiQ40zaf8HVr+TYg==",
+      "spanId": "gVtDiPTOXYw=",
+      "parentSpanId": "mhCNAnYDlWA=",
+      "startTimeUnixNano": "1781154098412000000",
+      "endTimeUnixNano": "1781154098412015505",
+      "attributes": {
+        "delay.ms": "12000",
+        "chain.step.remaining": "199",
+        "reason.preview": "R-CD-1 continue_delegate(normal) fired as live behavioral-proof on a437ca7. Need"
+      }
+    }
+  ]
+}

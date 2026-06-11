@@ -1,0 +1,23 @@
+span	dur_ms	key_attrs
+openclaw.message.processed	181408.0	{}
+openclaw.harness.run	181067.0	{}
+openclaw.run	181066.0	{}
+openclaw.model.call	15288.0	{}
+openclaw.harness.run	2957.0	{}
+openclaw.run	2953.0	{}
+openclaw.context.assembled	0.0	{}
+openclaw.model.call	2534.0	{}
+openclaw.context.assembled	0.0	{}
+openclaw.model.call	29188.0	{}
+openclaw.tool.execution	985.0	{}
+openclaw.model.call	35068.0	{}
+openclaw.tool.execution	30.0	{}
+openclaw.model.call	69475.0	{}
+openclaw.tool.execution	438.0	{}
+openclaw.message.delivery	361.0	{}
+openclaw.model.call	13783.0	{}
+openclaw.tool.execution	2.0	{}
+openclaw.model.call	16374.0	{}
+openclaw.tool.execution	40.0	{}
+continuation.delegate.dispatch	63.3	{"chain.id": "fe075dd5-cc7c-4dd7-a3ea-ab8077e58b40", "chain.step.remaining": "199", "delegate.mode": "silent-wake", "delegate.delivery": "immediate", "delay.ms": "0", "reason.preview": "[PROOF R-CD-2 / a437ca7 / ronan-dgx / main-session] Silent-wake behavioral-proof"}
+continuation.queue.drain	0.0	{}

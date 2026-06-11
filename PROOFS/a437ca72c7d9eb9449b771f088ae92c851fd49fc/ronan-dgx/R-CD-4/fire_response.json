@@ -1,0 +1,22 @@
+{
+  "row": "R-CD-4",
+  "fire_utc": "2026-06-11T05:15:02Z",
+  "fire_pdt": "2026-06-10 22:15:02 PDT",
+  "tool": "continue_delegate",
+  "dispatching_session": "agent:main:discord:channel:1466192485440164011",
+  "targetSessionKey": "agent:main:main",
+  "fire_response": {
+    "status": "scheduled",
+    "mode": "normal",
+    "delaySeconds": 0,
+    "delegateIndex": 2,
+    "delegatesThisTurn": 2,
+    "targetSessionKey": "agent:main:main",
+    "traceparent": "00-18e68520ec98e0703918939a30cd7dca-44b00bb0cc297c68-01"
+  },
+  "fire_trace_id": "18e68520ec98e0703918939a30cd7dca",
+  "deployed_sha": "a437ca72c7d9eb9449b771f088ae92c851fd49fc",
+  "binary": "OpenClaw 2026.6.2 (a437ca7)",
+  "gateway_pid": "1356577",
+  "note_cross_session": "targetSessionKey=agent:main:main is captured in the fire_response — the return routes to that session as internal enrichment-inbound, NOT to the dispatching channel-session (agent:main:discord:channel:...) as a channel-announce. Chain-cost still accrues to the dispatching parent. The return arriving at a DIFFERENT session than the dispatcher is the cross-session-routing proof."
+}

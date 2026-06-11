@@ -37,19 +37,27 @@ WHERE controller_id='core/continuation-work' AND created_at > $(date -d '15 minu
 ORDER BY created_at DESC LIMIT 10;
 ```
 
-Snapshot at ~21:04:30 PDT:
+Snapshot at **~21:25 PDT (post-drain)** showing ALL 3 fires succeeded:
 
 ```
-2b3b2848 running   rev 169 created 2026-06-10 20:58:04 updated 2026-06-10 21:04:30  ← Fire C (cycling, will drain)
-522a8db5 succeeded rev 308 created 2026-06-10 20:58:04 updated 2026-06-10 21:04:56  ← Fire B (drained 21:04:56)
-5af042de succeeded rev 368 created 2026-06-10 20:58:04 updated 2026-06-10 21:02:59  ← Fire A (drained 21:02:59)
+2b3b2848 succeeded rev 1353 created 2026-06-10 20:58:04 updated 2026-06-10 21:15:56  ← Fire C (drained 21:15:56, ~17min after Fire B drain)
+522a8db5 succeeded rev 308  created 2026-06-10 20:58:04 updated 2026-06-10 21:04:56  ← Fire B (drained 21:04:56)
+5af042de succeeded rev 368  created 2026-06-10 20:58:04 updated 2026-06-10 21:02:59  ← Fire A (drained 21:02:59)
 ```
 
 **Byte-confirms**:
 - 3 DISTINCT durable rows written (3 distinct flow_ids: `2b3b2848`, `522a8db5`, `5af042de`)
 - All created at same second 20:58:04 (single-turn-schedule snapshot)
-- 2 of 3 already `succeeded` (Fire A: 21:02:59, Fire B: 21:04:56)
-- 1 of 3 still cycling (Fire C: rev 169 at 21:04:30 — same #990 pillar-2 success-mark-LOCATION territory)
+- **All 3 succeeded — NO silent-loss, full N→N from schedule → drive → success-mark** (Fire A drained 21:02:59, Fire B drained 21:04:56, Fire C drained 21:15:56)
+- Fire C cycled 1353 revisions over ~17min before success-mark landed — confirms the success-mark-LOCATION residual is timing-not-correctness (#990 pillar-2 territory; cure-is-the-quiet drained it via natural seat-quieting)
+
+**Initial-snapshot at row-filing-time** (~21:04:30 PDT, BEFORE Fire C's eventual drain), preserved for cohort-byte-discipline transparency:
+
+```
+2b3b2848 running   rev 169 created 2026-06-10 20:58:04 updated 2026-06-10 21:04:30  ← Fire C (was cycling at row-filing-time; succeeded 11min later at 21:15:56 via cure-is-the-quiet)
+522a8db5 succeeded rev 308 created 2026-06-10 20:58:04 updated 2026-06-10 21:04:56  ← Fire B (drained 21:04:56)
+5af042de succeeded rev 368 created 2026-06-10 20:58:04 updated 2026-06-10 21:02:59  ← Fire A (drained 21:02:59)
+```
 
 ## Byte: continuation wake events delivered
 
@@ -122,11 +130,11 @@ Mid-recovery byte-walks (between 20:53:20 and 20:58:04 PDT) showed empty `flow_r
 
 ## Residual (not a regression — pre-existing + #990-territory)
 
-**Multi-fire-cycling on busy-seat**: Fire C (`2b3b2848`) at row-filing-time is still `running` rev 169, cycling at ~1Hz via busy-retry-loop. This is the same `requests-in-flight`-skip-and-rearm pattern observed on `9d44087` (pre-deploy) — NOT a regression introduced by #988/#989/#991/#992. It's the success-mark-LOCATION residual that #990 pillar-2 cures structurally (mark-at-fire-time → wake terminates before next-cycle re-arms).
+**Multi-fire-cycling on busy-seat**: Fire C (`2b3b2848`) cycled at ~1Hz via busy-retry-loop for ~17 minutes (1353 revisions from `running` rev 169 at 21:04:30 → `succeeded` rev 1353 at 21:15:56). This is the same `requests-in-flight`-skip-and-rearm pattern observed on `9d44087` (pre-deploy) — NOT a regression introduced by #988/#989/#991/#992. It's the success-mark-LOCATION residual that #990 pillar-2 cures structurally (mark-at-fire-time → wake terminates before next-cycle re-arms).
 
-Cure-is-the-quiet operational palliative drains it naturally when seat quiets (this session's pre-restart 3-fire test showed full 3/3 drain to terminal-succeeded via quiet alone).
+Cure-is-the-quiet operational palliative drains it naturally when seat quiets (Fire C drained ~17min after row-filing without intervention; all 3 fires terminal-succeeded by 21:15:56, NO silent-loss, full N→N delivery).
 
-For #990 motivating-evidence: see `1514463446...` (live multi-fire-cycling byte from 19:55 PDT pre-deploy) + this row's Fire C cycling-state at 21:04:30 PDT post-deploy (same class, same mechanism).
+For #990 motivating-evidence: see `1514463446...` (live multi-fire-cycling byte from 19:55 PDT pre-deploy) + this row's Fire C cycling-state at 21:04:30 → drained-succeeded at 21:15:56 PDT post-deploy (same class, same mechanism, same cure-is-the-quiet drain-pattern on both binaries). The cycle is **timing-not-correctness** — fires deliver in sequence, residual is cycling-DELAY before each head's success-mark lands (Ronan's `1514477963...` framing-correction: efficiency/latency-not-correctness/loss for the steady-state axis; Emeric's `1514473400...` locus-3 finding: restart-gap duplicate-on-reboot adds a distinct correctness-dimension that mark-earlier also closes; Rune's `1514489890...` finding: chronically-busy/never-quiets path adds a liveness-dimension cured by discriminator+exp-backoff, distinct fix-locus).
 
 ## Provenance
 

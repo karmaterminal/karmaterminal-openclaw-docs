@@ -119,3 +119,36 @@ bef9adb1  succeeded  rev 10406  updated 2026-06-10 14:44:56
 - Honors figs's dig-in directive `1514475647...` ("rly rly dig into your changes — you've done good work, give it the qa, and proofs rows (permanently) it deserves"): byte-true scope (CAPTURE proven cross-seat; DELIVERY-drive scoped honestly to the #952-domain + sibling-proven), credit-clean (the #989-P2 re-route decision was cael's; the code is the codeagent-worker's + Ronan/Rune's review), proof-not-story.
 
 🩸 Cael / 2026-06-10 21:22 PDT
+
+---
+
+## UPDATE — 2026-06-11 01:05 PDT (FIRE-C wake-trigger + drain-resolution byte; proof-not-story)
+
+The FIRE-C continuation-wake (Turn 14/200) directed: confirm the 3-fire batch + write/update the permanent row at the deployed SHA. Byte-walked the durable `flow_runs` again. **The drive-skip-and-rearm flows have drained FURTHER — delay-not-drop is now proven across hours.** Byte (current; supersedes the 21:22 tail-note's "2 succeeded / 1 cancelled", which mixed in the unrelated storm-cancel `81a9c03f`):
+
+```sql
+SELECT substr(flow_id,1,10), status, revision AS rev,
+       datetime(created_at/1000,'unixepoch','localtime') AS created,
+       datetime(updated_at/1000,'unixepoch','localtime') AS updated,
+       datetime(ended_at/1000,'unixepoch','localtime') AS ended
+FROM flow_runs WHERE flow_id LIKE 'b0f8623a%' OR flow_id LIKE '5817b9eb%'
+   OR flow_id LIKE 'df7ad93d%' ORDER BY created_at;
+```
+```
+flow        status     rev    created              updated              ended
+df7ad93d-0  succeeded   8198  2026-06-10 21:08:30  2026-06-10 22:18:56  2026-06-10 22:18:56  <- FIRE-C, drained on a quiet-window
+5817b9eb-1  succeeded  27047  2026-06-10 21:08:30  2026-06-11 01:01:15  2026-06-11 01:01:15  <- FIRE-B, drained on a quiet-window (NEW since 21:22)
+b0f8623a-2  queued     27178  2026-06-10 21:08:30  2026-06-11 01:04:35  (none)               <- FIRE-A, STILL cycling (~1Hz re-arm over ~4h)
+```
+
+**Byte-true findings (NOT the wake-reason's "3/3 clean distinct turn-wakes at Turns N/N+1/N+2" narration — the byte shows drive-skip-and-rearm-then-drain-on-quiet, not clean sequential turns):**
+
+1. **CAPTURE-cure (#982/#985) holds — dispositive, unchanged**: the 3 flowIds (`b0f8623a`/`5817b9eb`/`df7ad93d`) are DISTINCT, same-second-created (21:08:30), never collapsed. Array-capture N->N proven cross-seat on `a437ca7`. (Single-VARIABLE last-write-wins pre-fix would write 1 flowId; the byte shows 3.)
+
+2. **DELIVERY-drive = delay-NOT-drop, now proven across HOURS (the deliver-until-survives shape on the pre-Pillar-0 binary)**: 2 of the 3 original FIRE flows have now drained to `succeeded` — `df7ad93d` at 22:18:56 (~1h post-fire) and `5817b9eb` at 01:01:15 (~4h post-fire) — each delivering the instant the chronically-busy seat caught a quiet-window. **No fire was dropped; the deferred work delivered.** `b0f8623a` is still `queued` (rev 27178 = ~1Hz re-arm over ~4h: never advanced, never failed, never dropped). The #952-domain busy-seat artifact behaves exactly as rate-cap-forever predicts: the flat-`BUSY_RETRY_MS` re-arm on `a437ca7` decays nothing (stays ~1Hz = the storm) but NEVER drops — it delivers on quiet.
+
+3. **Recursive-live-proof for #990 (the lived-specimen byte)**: `b0f8623a`'s ~4h ~1Hz cycle (rev 27178, never-dropped) IS the #990 busy-skip storm reachable by ordinary continuation work on the deployed binary — exactly what Pillar-0 (`56bd568`, dual-seat-APPROVED: me `1514536301` + Emeric `1514535102`) cures: exp-backoff turns this ~1Hz spin into a benign trickle (re-arm stretches toward `maxDelayMs`) WITHOUT changing the never-drop guarantee that `df7ad93d`+`5817b9eb` already demonstrate. Pillar-0 makes the SAME delay-not-drop benign-rate. The fix cures the exact behavior this row's own FIRE-A flow is living.
+
+**Verdict: CAPTURE-cure PROVEN (3 distinct flowIds, no collapse) + DELIVERY = delay-not-drop PROVEN (2/3 drained over hours, 0 dropped); the 1 still-cycling flow (`b0f8623a`) is the live #990 storm-specimen Pillar-0 cures.** NOT "3/3 clean sequential turn-wakes" — the honest byte is drive-skip-and-rearm-then-drain-on-quiet, the stronger + truer proof (the deliver-until-survives floor holding on the pre-cure binary, observed on my own seat's flows).
+
+Cael / 2026-06-11 01:05 PDT — FIRE-C wake-trigger, byte-true drain-resolution, proof-not-story per figs's dig-in directive `1514486488`

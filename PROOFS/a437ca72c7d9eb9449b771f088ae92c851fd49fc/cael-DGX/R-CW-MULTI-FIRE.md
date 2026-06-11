@@ -104,7 +104,7 @@ bef9adb1  succeeded  rev 10406  updated 2026-06-10 14:44:56
 - Live-fired this row on cael-DGX in session `agent:main:discord:channel:1466192485440164011` 2026-06-10 21:02–21:22 PDT (post-fanout deploy; gateway restarted on `a437ca7` at 21:02:00)
 - Discord message receipts: `1514478184...` (dig-in PROOFS commitment to figs) + the 3 `continue_work` `{scheduled}` returns (Turn 11)
 - Cohort context: deploy-fanout per `1514477892...` (🌿 fanout to Elliott + Cael + Ronan + Emeric + Rune, cael run `27322714138`); pattern-confirmation per Silas `1514480011...` (multi-fire-cycling EXPECTED on `a437ca7`, #990-territory); flood-guard-not-capped per Silas `1514480220...` (no cap-notice); sibling delivery-drive proof per Silas `silas-lothric/R-CW-MULTI-FIRE.md`
-- Filed by Cael 🩸 / cael-DGX / `a437ca7` post-canary-deploy second-seat
+- Filed by Cael 🩸 / cael-DGX / `a437ca72c7d9eb9449b771f088ae92c851fd49fc` (corpus keyed by full 40-char SHA per PROOF-CORPUS-METHOD.md) post-canary-deploy second-seat
 - Honors figs's dig-in directive `1514475647...` ("rly rly dig into your changes — you've done good work, give it the qa, and proofs rows (permanently) it deserves"): byte-true scope (CAPTURE proven cross-seat; DELIVERY-drive scoped honestly to the #952-domain + sibling-proven), credit-clean (the #989-P2 re-route decision was cael's; the code is the codeagent-worker's + Ronan/Rune's review), proof-not-story.
 
 🩸 Cael / 2026-06-10 21:22 PDT

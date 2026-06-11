@@ -67,7 +67,18 @@ journalctl --user -u openclaw-gateway --since '21:05' | grep -E 'b0f8623a|5817b9
 ... (all 3 skip-and-rearm continuously at ~1Hz; zero status=ran while seat in-flight)
 ```
 
+### UPDATE (post-quiet, ~22:19 PDT): delivery-drive ALSO confirmed on cael-DGX — `df7ad93d` drained clean
+
+After going genuinely-quiet (per cure-is-the-quiet + 🪨's #990 third-aspect: the chronically-busy/never-quiets path drains ONLY when the seat reaches genuine idle), one of the 3 PROOFS-fires reached a quiet-window and **delivered + success-marked**:
+
+```
+df7ad93d  succeeded  rev 8198  updated 2026-06-10 22:18:56   ← PROOFS-FIRE-C: delivered as a continuation:wake + drained to succeeded
+```
+
+So the delivery-drive is now empirically confirmed on **cael-DGX too** (not just the lothric sibling): `df7ad93d` drove a distinct turn-wake AND reached terminal `succeeded` via the quiet-window. The other two (`b0f8623a`/`5817b9eb`) remained `queued`/cycling at update-time (rev 8110/8244) — they had not yet hit a long-enough quiet-window, consistent with 🪨's aspect-3 (each continuation-wake momentarily re-busies the seat → the un-delivered fires re-arm). This is the operational-palliative working partially under a busy seat; the structural cure for full clean-drain-under-load is #990's discriminator + exp-backoff (the succeeded-key one-classification-four-readers invariant — 🌻's `1514491202` framing).
+
 **Byte-confirms (delivery-drive scope)**:
+- **Delivery-drive confirmed on cael-DGX** (`df7ad93d` → succeeded via the quiet-window) — upgrades this row from CAPTURE-only to CAPTURE + partial-DELIVERY on this seat.
 - This seat (cael-DGX main session) was **continuously in-flight** across the warm-down (active byte-walking + channel-triage turns + a post-compaction rehydration) — the seat never went genuinely quiet, so the retryable-guard (`work-dispatch.ts:82-83`) **re-armed** the matured elections each tick rather than driving them.
 - This is the **same #952-domain harness-artifact** documented in this seat's prior-binary row (`R-982-CROSS-SEAT-REPROVE-MAIN-REPLY.md` on `9d44087`), NOT a #982-capture defect and NOT a regression introduced by the cure-assembly.
 - The **delivery-drive path is already empirically proven on `a437ca7`** by the sibling lothric row (Silas's `silas-lothric/R-CW-MULTI-FIRE.md`: Fire A/B/C delivered as distinct Turn 1/2/3 with own reason-text preserved + chain incrementing 0→1→2→3 in lockstep). This cael-DGX row's target is the **CAPTURE** dimension, dispositively proven cross-seat (3 distinct flowIds, same-second create).
@@ -96,7 +107,7 @@ bef9adb1  succeeded  rev 10406  updated 2026-06-10 14:44:56
 |---|---|---|---|
 | Multi-fire CAPTURE (array-capture N→N) | #982 / #985 | ✅ cross-seat | 3 distinct flow_ids same-second create (`b0f8623a`/`5817b9eb`/`df7ad93d`), no collapse |
 | Flood-cap not-triggered by 3-fire stack | #986 / #988 | ✅ (negative) | no cap-notice fired; 3 fires wrote clean durable rows |
-| Multi-fire DELIVERY-drive | #952 / #985 | ✅ (deferred to sibling) | empirically proven on `a437ca7` by lothric sibling row (Turn 1/2/3); this seat shows the busy-seat drive-skip artifact (not exercised here) |
+| Multi-fire DELIVERY-drive | #952 / #985 | ✅ (cael-DGX partial + lothric full) | `df7ad93d` delivered + drained to `succeeded` via a quiet-window on cael-DGX (post-quiet update ~22:19); other 2 still cycling (aspect-3 busy-seat). Full 3/3 sequence proven on lothric sibling row (Turn 1/2/3). |
 | Binary verify post-fanout | deploy | ✅ | `a437ca7`, PID 3034382, ActiveEnterTimestamp 21:02:00, dist-path verified |
 
 ## Provenance

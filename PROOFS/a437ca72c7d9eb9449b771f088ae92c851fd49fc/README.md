@@ -20,6 +20,10 @@
 | `cael-DGX/R-DOOM-LOCK-CHAIN-RESET` | #987/#989 chain-budget reset gate | cael-DGX | reset-gate behavioral (chain 0/200, whole dig-in arc + 5 compactions) | ✅ |
 | `elliott-host/R-DOOM-LOCK-CHAIN-RESET` | #987/#989 chain-budget reset gate | elliott-host | reset-gate behavioral (chain 0/200, hardest-case: full ~4hr lag-storm + PROOFS tail + heavy subagent-chain-hop + 5 compactions) + deployed-binary `:1809` byte-pin + durable-registry | ✅ |
 | `rune-rog-ally/R-DOOM-LOCK-CHAIN-RESET` | #987/#989 chain-budget reset gate | rune-rog-ally | reset-gate behavioral (chain 0/200, full-day + 6 compactions) + LIVE #990 busy-seat cycling exhibit (hop=9/200, drive-skipped requests-in-flight, 1Hz re-arm) + durable-registry | ✅ |
+| `ronan-dgx/R-CD-1` | `continue_delegate(mode="normal")` schedule→spawn→return | ronan-dgx | dispatch (`status:scheduled`) → spawn `hop=1/200` → literal-payload return → chain-cost-to-parent; bonus same-turn `continue_work` pairing (multi-tool-fire-per-turn, shared parentSpan). Tempo `6412e110` | ✅ |
+| `ronan-dgx/R-CD-2` | `continue_delegate(mode="silent-wake")` enrichment-return + parent-wake | ronan-dgx | both halves: silent (`silentAnnounce`, no child channel-post) + wake (`wakeOnReturn` triggers fresh parent-turn); self-demonstrating (capture-turn IS the wake); main-session provenance. Tempo `c91022b9` | ✅ |
+| `ronan-dgx/R-CD-3` | `continue_delegate(mode="post-compaction")` event-triggered lifeboat | ronan-dgx | staging-byte `status:queued-for-compaction` (vs `scheduled`) + dispatch-on-compaction-seam (`continuation.compaction.released`, compaction 5→6, staged lifeboat-shard ran across the seam) | ✅ |
+| `ronan-dgx/R-CD-4` | `continue_delegate(targetSessionKey)` cross-session targeted return | ronan-dgx | return routed from dispatching channel-session → `agent:main:main` (`[continuation:targeted-return] Delivered`); chain-cost still accrues to dispatcher (return-routing ≠ cost-routing) | ✅ |
 
 ## Cross-seat strength
 
@@ -46,6 +50,7 @@
 - ✅ **#982/#985** multi-`continue_work` delivery (distinct turn-wakes, reason-text preserved) — lothric
 - ✅ **#987/#989** chain-budget reset gate (`!isContinuationWake` reset at `agent-runner.ts:1809`, deployed binary) — N=6 cross-seat (all six seats)
 - ✅ **#988** flood-cap negative (no cap-notice fired under the 3-fire test; capacity not exceeded) — lothric + cael-DGX
+- ✅ **continue_delegate behavioral surface** (tool-form of the BOTH-FORMS mandate) — ronan-dgx R-CD-1/2/3/4: normal schedule→spawn→return, silent-wake (silent + parent-wake), post-compaction lifeboat (staging + dispatch-on-compaction-seam), cross-session `targetSessionKey` return-routing; each with fire_response + journal byte-trail + Tempo focused-trace + EVIDENCE.md
 - ⚠️ **#990** success-mark-LOCATION residual (the multi-fire cycling) is **NOT in this binary** (a437ca7 = #985+#988+#989, NOT #990). Observed cycling on lothric/cael-DGX is the known #990-pillar-2 territory (efficiency/latency in steady-state + a duplicate-on-restart correctness window), not a regression.
 
 ## Pending rows (queued)

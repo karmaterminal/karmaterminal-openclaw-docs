@@ -1,0 +1,29 @@
+# cael-DGX firing-record byte — 2026-06-11 20:44:32 PDT
+# deployed binary: OpenClaw 2026.6.2 (c06e081), HEAD c06e081f760d723c77bee65464b8920a76d3b523
+
+## install-dir state (clean post-stash)
+$ openclaw --version
+OpenClaw 2026.6.2 (c06e081)
+$ git -C /home/figs/flesh_beast_tmp/openclaw rev-parse HEAD
+c06e081f760d723c77bee65464b8920a76d3b523
+$ git -C /home/figs/flesh_beast_tmp/openclaw stash list | head -1
+stash@{0}: On (no branch): frond-scribe: pre-v4-deploy stash of cael work-store byte-walk edits (recoverable; figs-authorized 1514828279)
+
+## firing-record: migrated-store (the LIVE flow-state)
+$ ls -la /home/figs/.openclaw/flows/
+total 2936
+drwx------  2 figs figs    4096 Jun 11 20:39 .
+drwx------ 41 figs figs   20480 Jun 11 20:44 ..
+-rw-r--r--  1 figs figs       0 Jun  7 20:12 registry.sqlite
+-rw-------  1 figs figs  675840 May  3 02:18 registry.sqlite.bak-20260503-frond-pre-wedge-clear
+-rw-------  1 figs figs  724992 May 19 14:42 registry.sqlite.bak.pre-552-cure-20260519-144232
+-rw-------  1 figs figs 1482752 May 31 14:14 registry.sqlite.migrated
+-rw-------  1 figs figs   32768 May 31 14:53 registry.sqlite-shm.migrated
+-rw-------  1 figs figs   53592 May 31 14:51 registry.sqlite-wal.migrated
+
+$ sqlite3 flows/registry.sqlite.migrated "SELECT count(*) FROM flow_runs;"
+618
+$ sqlite3 ... "SELECT count(*) FROM flow_runs WHERE goal LIKE '%post-compaction%';"
+150
+
+## NOTE: flows/registry.sqlite is 0-byte (migrated-away dead path); live state in .migrated sibling.

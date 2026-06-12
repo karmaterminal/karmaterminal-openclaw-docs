@@ -1,0 +1,26 @@
+R-CW-DELEGATE dispatch-result — rune-rog-ally seat — deployed v4 c06e081f760d
+Captured: 2026-06-11 20:34:54 PDT by rune (gh: rune-dandelion-cult)
+Source: ~/.openclaw/state/openclaw.sqlite flow_runs (the live durable registry)
+
+=== Deployed binary identity (independent of /status card) ===
+running gateway: /home/figs/flesh_beast_tmp/openclaw/dist/index.js
+install HEAD:    c06e081f760d723c77bee65464b8920a76d3b523
+CLI:             OpenClaw 2026.6.2 (c06e081)
+
+=== continue_delegate specimen → TWO flow_runs rows (dispatch + spawn), both succeeded ===
+--- ROW 1: the dispatch-record (continue_delegate accepted) ---
+flow_id=7950f6e4-9154-453a-9ec3-05354ab395a3 status=succeeded controller=core/continuation-delegate shape=(none) step=Accepted by continuation subagent created=2026-06-11 20:29:35 ended=2026-06-11 20:30:02
+state_json (kind/childSessionKey/traceparent):
+{"kind":"continuation_delegate","task":"PROOF-ROW R-CW-DELEGATE specimen (rune-rog-ally seat, deployed v4 c06e081f760d): you are a continuation-delegate dispatch-record probe for the PROOFS corpus. Return shape: just confirm you executed by replying with the single line \"rune-rog-ally R-CW-DELEGATE dispatch-path executed on c06e081f760d\". This is a deliberate minimal probe to produce a clean flow_runs dispatch+spawn record proving continue_delegate fires end-to-end on the deployed binary. No other work needed.","silent":true,"traceparent":"00-f91d7bf1b6a1163a916955785dc7993a-daf6406e2f4b8933-01","releasedAt":1781235002100,"childSessionKey":"agent:main:subagent:continuation-66be2a14284db341322e12b7c50dcfca"}
+
+--- ROW 2: the spawned-shard (ran-to-completion-succeeded) ---
+flow_id=668a74a4-7992-4cf4-8e89-237dd39c4c39 status=succeeded shape=? created=2026-06-11 20:30:02 ended=2026-06-11 20:30:05 runtime_s=2.9
+
+goal:
+[continuation:chain-hop:1] Delegated task (turn 1/200): PROOF-ROW R-CW-DELEGATE specimen (rune-rog-ally seat, deployed v4 c06e081f760d): you are a continuation-delegate dispatch-record probe for the PROOFS corpus. Return shape: just confirm you executed by replying with the single line "rune-rog-ally R-CW-DELEGATE dispatch-path executed on c06e081f760d". This is a deliberate minimal probe to produ
+
+=== Tempo trace (W3C traceparent issued by the dispatch) ===
+traceparent: 00-f91d7bf1b6a1163a916955785dc7993a-daf6406e2f4b8933-01
+
+=== child return (proof of end-to-end execution) ===
+child replied: "rune-rog-ally R-CW-DELEGATE dispatch-path executed on c06e081f760d"

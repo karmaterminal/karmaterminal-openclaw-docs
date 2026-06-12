@@ -1,0 +1,13 @@
+# R-OBS-1 cross-walk artifact — emeric-nuc /status continuation-row (live-captured second seat)
+# Provided by 🕯 emeric on his deployed v4 seat (emeric-nuc, 10.0.0.10), Discord 1514830300, 2026-06-11 ~20:14 PDT.
+# Upgrades R-OBS-1's cross-walk from corpus-recorded deploy-state to an ACTUAL /status continuation-row render on a SECOND deployed seat.
+
+emeric-nuc (10.0.0.10) — live session_status, deployed v4:
+  🦞 binary: c06e081  (= CANDIDATE_SHA c06e081f760d723c77bee65464b8920a76d3b523)
+  🔄 Continuation: chain 0/200   ← the continuation-row surface, externally rendered on v4 (second seat)
+  🧹 Compactions: 5              ← session-store compaction-count live + externally visible
+  🔑 token: resolves            ← v4 token live (no 401)
+
+Same continuation-surface shape as elliott-host's own-seat /status (chain N/200 + Compactions:N + token-resolves),
+independently rendered on a second deployed v4 seat — the live-captured cross-walk render the corpus-recorded
+deploy-state lacked. Confirms the #990/#996 continuation surface is externally-observable on v4 across ≥2 seats.

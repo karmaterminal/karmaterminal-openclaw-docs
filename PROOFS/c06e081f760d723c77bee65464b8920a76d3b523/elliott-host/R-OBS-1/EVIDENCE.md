@@ -22,7 +22,7 @@ The continuation surface renders identically-shaped to the pre-v4 baseline (`cha
 
 R-OBS-1's 4-prince cross-walk corroborates the same continuation-surface across the deployed seats. Corpus-recorded fleet state (README + landed rows) at `c06e081`:
 - **ronan** — `continue_delegate` → `flow_runs` `953ab2d6` @ 18:48 PDT; #996 `:518` live dist line 362 (R-CW-DELEGATE ✅)
-- **emeric** — boot-clean on v4; #996 live `work-store.ts:534`; flow_runs 479 intact across deploy-seam (PROOF-receipt ✅)
+- **emeric** — boot-clean on v4; #996 live `work-store.ts:534`; flow_runs intact across deploy-seam (PROOF-receipt ✅). **Live-captured `/status` continuation-row now filed** (`cross-walk_emeric-nuc_status.txt`, provided by 🕯 2026-06-11): `chain 0/200` + `binary c06e081` + `Compactions:5` + token-resolves — an ACTUAL second-seat `/status` render, upgrading this cross-walk entry from corpus-recorded deploy-state to a live-captured continuation-surface render.
 - **silas** — lothric receipt ALL-GREEN; #996 `:518` live `work-store.ts:534`
 - **elliott** — this row: `/status` continuation-row clean at `c06e081`, token-cure confirmed
 

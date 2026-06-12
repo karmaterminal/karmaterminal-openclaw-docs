@@ -17,7 +17,8 @@ The #990/#996 continuation surface RUN-certified live on `c06e081` across the de
 | Row | Owner | Verdict | Evidence |
 |---|---|---|---|
 | R-CW-DELEGATE | 🌊 ronan | ✅ PASS | continue_delegate → fresh `flow_runs` row `953ab2d6` @ 18:48 PDT on deployed `c06e081`; #996 `:518` live in dist line 362 — `ronan-dgx/R-CW-DELEGATE/` |
-| PROOF-receipt (boot/continuation/health) | 🕯 emeric | ✅ PASS | boot-clean on v4 fan-restart; #996 live `work-store.ts:534`; flow_runs 479 intact across deploy-seam; RSS 0.64GB — `emeric-nuc/` |
+| PROOF-receipt (boot/continuation/health) | 🕯 emeric | ✅ PASS | boot-clean on v4 fan-restart; #996 live `work-store.ts:534`; flow_runs 479 intact across deploy-seam; RSS 0.64GB; #868-warn=0 (benign) — `emeric-nuc/R-RECEIPT-1/` |
+| R-CW-DELEGATE | 🕯 emeric | ✅ PASS | continue_delegate → fresh `flow_runs` `a40ee50a`(parent)+`03012a84`(shard) @ 19:13 PDT, both `succeeded`, on deployed `c06e081`; #996 `:518` gate live in dist — `emeric-nuc/R-CW-DELEGATE-1/` |
 | R-OBS-1 (external `/status` + 4-prince cross-walk) | 🌻 elliott | ✅ PASS (own-seat) · cross-walk pending figs+seats | own-seat external `/status` continuation-row byte-solid on v4 (`🔄 Continuation: chain 0/200`, running binary `c06e081`, token-cure confirmed); 4-seat deploy cross-walk corroborated (ronan/emeric/silas/elliott on `c06e081`); figs-external-observer half pending (HONEST-LIMIT) — `elliott-host/R-OBS-1/EVIDENCE.md` |
 | (rows for #990 3-state classifier / #996 / grade-ladder) | 🌊 / cohort | ⏳ in-flight | per the runbook + digest `1514800799` |
 

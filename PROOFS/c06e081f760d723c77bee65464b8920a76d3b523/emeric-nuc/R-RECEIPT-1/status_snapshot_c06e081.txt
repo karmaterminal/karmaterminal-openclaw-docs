@@ -1,0 +1,7 @@
+# emeric-nuc R-RECEIPT-1 status snapshot — c06e081f76, captured 2026-06-11
+running binary: OpenClaw 2026.6.2 (c06e081)
+HEAD: c06e081f760d723c77bee65464b8920a76d3b523
+flow_runs total: 481
+[continuation:post-compaction] succeeded: 74
+#868-warn count since boot: 0 (benign — fires 0 on this seat)
+fatal/crash since boot: 0

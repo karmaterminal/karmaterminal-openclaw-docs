@@ -1,0 +1,16 @@
+# emeric-nuc R-CW-DELEGATE-1 dispatch-result artifact — captured 2026-06-11 ~19:13 PDT, deployed c06e081f76
+
+## flow_runs (freshest, the live continue_delegate dispatch):
+03012a84-e400-4edf-8e5f-31c72433e900|succeeded|2026-06-11 19:13:34|[continuation:chain-hop:1] Delegated task (turn 1/200): R-CW-DELEGATE 
+a40ee50a-38ad-4d8b-be2d-d4a9c04894a2|succeeded|2026-06-11 19:13:17|Continuation delegate: R-CW-DELEGATE PROOF for Emeric🕯 lamp-seat on de
+83e6299e-1ac5-4a67-8de9-54d8aa300d23|succeeded|2026-06-11 18:38:10|Post-compaction delegate: POST-COMPACTION REHYDRATION — Emeric🕯 lamp-s
+
+## owner_key (confirms emeric main-session):
+agent:main:subagent:continuation-428e4758be2c69cc8f915898d5d4e58d
+
+## #996 :518 fix in deployed dist:
+dist: work-store-5haSToNg.js
+decodeWorkState(flow)?.succeeded) return false
+
+## deployed SHA:
+c06e081f760d723c77bee65464b8920a76d3b523

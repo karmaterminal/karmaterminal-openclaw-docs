@@ -1,0 +1,7 @@
+=== ronan-dgx tier-byte on deployed v4 c06e081f76 (2026-06-11 ~19:11 PDT) ===
+tier-2 (flow_runs [continuation:post-compaction]% succeeded — lifeboats FIRED):
+151
+tier-2b (subagent_runs.frozen_result_text post-compaction-PREFIXED — lifeboat-RESULTS captured):
+11
+spawn_mode of those (lifeboat dispatched AS run-subagent, prefix is the discriminator):
+run

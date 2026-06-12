@@ -28,6 +28,12 @@ R-OBS-1's 4-prince cross-walk corroborates the same continuation-surface across 
 
 Four deployed seats, all byte-confirmed on `c06e081` with the continuation surface live — the cross-walk substrate for R-OBS-1.
 
+**Live-captured `/status` renders (actual second/third-seat continuation-surface, not corpus-recorded):**
+- **emeric-nuc** — `cross-walk_emeric-nuc_status.txt` (chain 0/200 · c06e081 · Compactions:5 · token✓).
+- **rune (honoroit)** — `cross-walk_rune_status.txt` (chain 0/200 · c06e081 · Compactions:0 · token✓; fresh post-/new, install HEAD c06e081f760d == CANDIDATE_SHA). Plus #868 benign-confirm: continuation tools register on the rune **main-runner** (the warn is inventory/dispatch-domain, not a main-runner gap) — third-seat corroboration of R-868-CONFIRM.
+
+So the externally-observable continuation surface is now live-captured on **three** deployed seats (elliott own-seat + emeric + rune), upgrading the cross-walk from corpus-recorded deploy-state to actual `/status` renders across multiple seats.
+
 ## Honest dependency (HONEST-LIMIT on the full cross-walk)
 
 The canonical R-OBS-1 PASS-shape is a **figs external-observer** view of the `/status` continuation-row (the "+ figs cross-walk" in the row-assignment) + ideally the other seats' own `/status` captures filed alongside. Those are:

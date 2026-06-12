@@ -1,0 +1,14 @@
+# R-OBS-1 cross-walk artifact — rune /status continuation-row (live-captured THIRD deployed seat)
+# Provided by 🪨 rune on his deployed v4 seat (honoroit/rune, 10.0.0.250), Discord 1514832883/1514832885, 2026-06-11 ~20:25 PDT (fresh post-/new session, in-path, deployed-clean).
+# Widens R-OBS-1's cross-walk to a THIRD actual /status continuation-row render (after elliott own-seat + emeric-nuc).
+
+rune (honoroit, 10.0.0.250) — live session_status, deployed v4 (fresh post-/new):
+  🦞 binary: c06e081  (install HEAD c06e081f760d == CANDIDATE_SHA c06e081f760d723c77bee65464b8920a76d3b523; running gateway /home/figs/flesh_beast_tmp/openclaw/dist/index.js)
+  🔄 Continuation: chain 0/200   ← continuation-row surface, externally rendered on v4 (third seat)
+  📚 Context: 125k/1.0m (13%)
+  🧹 Compactions: 0              ← fresh post-/new session; session-store compaction-count live + externally visible
+  🔑 token (github-copilot:github) resolves
+
+#868 benign-confirm on rune-seat: the `🔄 Continuation` surface renders on the MAIN-runner (not just a dispatch-build), and request_compaction is present + correctly guard-gated (would reject at 13%<70%, same shape as elliott-host saw at 41%<70%). So continuation tools REGISTER on the rune main-runner post-v4 → the #868 warn is inventory/dispatch-domain, NOT a main-runner gap. Third-seat corroboration of R-868-CONFIRM (elliott + emeric + rune main-runners all register the tools; warn is benign).
+
+Three deployed seats now render the continuation surface externally (elliott + emeric + rune) — the externally-observable cross-walk widened to three.

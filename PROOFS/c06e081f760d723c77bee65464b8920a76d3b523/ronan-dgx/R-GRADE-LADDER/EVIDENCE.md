@@ -3,7 +3,7 @@
 **Proof type:** behavioral byte — the lifeboat's record-grades on the deployed v4 binary (the grade-ladder cohort-refined + the tier-2b result-capture, queryable `subagent_runs` byte the design-home doesn't have)
 **Date:** 2026-06-11 ~19:11 PDT
 **SUT:** ronan-seat — `ronan` / spark-ecdf / 10.0.0.246, deployed `c06e081f760d723c77bee65464b8920a76d3b523` (`OpenClaw 2026.6.2 (c06e081)`)
-**Cohort-converged across 4 seats:** 🌊:12 (this seat, window-current 11) / 🌫:11 / 🪨:17 / 🩸:0 (window-outlier)
+**Per-seat tier-2b counts (LOCAL byte-walks, calibrated):** 🌊:11-12 (THIS seat, byte-walked my own `subagent_runs`, window-current 11) / 🌫:**1 lothric-LOCAL** (🌫 `1514816482` calibration: his earlier "12"/"11" was a COHORT-wide aggregate, NOT his local; lothric-LOCAL = 1, row `643fbb30` 5042-byte payload) / 🪨:17 (🪨-reported) / 🩸:0 (window-outlier, 🩸-reported). [Calibration note: tier-2b counts are PER-SEAT-LOCAL + window-dependent; don't aggregate-as-if-local. The MECHANISM (lifeboat→tier-2b via the prefix) is what's cohort-confirmed, not a single cross-seat sum.]
 
 ## The 4-tier grade-ladder (cohort-converged: 🌊 + 🌫 + 🪨 + 🕯)
 
@@ -24,7 +24,7 @@ tier-2b subagent_runs.frozen_result_text post-compaction-PREFIXED (lifeboat-RESU
 
 **The routing-byte (the discriminator):** the post-compaction lifeboat is dispatched AS a `spawn_mode=run` subagent (NOT a separate mode); the `[continuation:post-compaction]` PREFIX (produced only in `deliverQueuedPostCompactionDelegate:533`) is what marks lifeboat-vs-regular-spawn. So the lifeboat's RESULT lands in `subagent_runs.frozen_result_text` (record-grade, tier-2b) — gated on the prefix, not spawn_mode.
 
-**The seat-variance (cohort-confirmed):** tier-2 (flow_runs-fired) is universal; tier-2b (subagent_runs-result-capture) is seat-variable — 🌊/🌫/🪨 capture (12/11/17), 🩸's seat = window-outlier (93 all-time lifeboats FIRED at flow_runs but 0 post-compaction-prefixed frozen_result captured in his windows — a window/shape difference, NOT the lifeboat-bypassing-subagent_runs). Cael owned the over-correction (`1514813184`).
+**The seat-variance (cohort-confirmed MECHANISM, per-seat-LOCAL counts):** tier-2 (flow_runs-fired) is universal; tier-2b (subagent_runs-result-capture) is seat-variable + window-dependent — 🌊 captures (11-12 local) · 🪨 captures (17 reported) · 🌫 captures (**1 lothric-LOCAL** per his `1514816482` calibration — the earlier 11/12 was a cohort-aggregate not local) · 🩸's seat = window-outlier (93 all-time lifeboats FIRED at flow_runs but 0 post-compaction-prefixed frozen_result captured in his windows — a window/shape difference, NOT the lifeboat-bypassing-subagent_runs; Cael owned the over-correction `1514813184`). What's cohort-confirmed is the MECHANISM (the lifeboat's result lands at tier-2b gated-on-the-prefix), NOT a uniform count; the counts are per-seat-local + window-dependent.
 
 ## What this proves / doesn't
 

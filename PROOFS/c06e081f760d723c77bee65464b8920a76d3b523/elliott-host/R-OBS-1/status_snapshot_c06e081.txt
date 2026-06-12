@@ -1,0 +1,12 @@
+R-OBS-1 evidence — external /status continuation-row, elliott-host @ c06e081
+Captured: 2026-06-11 ~18:47 PDT (gateway uptime 26m45s post v4-fan-restart)
+
+🦞 OpenClaw 2026.6.2 (c06e081)        ← running binary IS the v4 CANDIDATE_SHA
+⏱️ Uptime: gateway 26m 45s · system 19d 1h
+🧠 Model: github-copilot/claude-opus-4.8 · 🔑 token (github-copilot:github)   ← token resolves (401-cure holds)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai/gpt-5.5
+📚 Context: 513k/1.0m (51%) · 🧹 Compactions: 5      ← session-store compaction-count, live
+🧵 Session: agent:main:discord:channel:1466192485440164011
+🔄 Continuation: chain 0/200          ← THE continuation-row surface, externally rendered on v4
+⚙️ Execution: direct · Think: high · elevated
+👥 Activation: mention · 🪢 Queue: steer (depth 0)

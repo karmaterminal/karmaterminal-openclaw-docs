@@ -18,7 +18,7 @@ The #990/#996 continuation surface RUN-certified live on `c06e081` across the de
 |---|---|---|---|
 | R-CW-DELEGATE | 🌊 ronan | ✅ PASS | continue_delegate → fresh `flow_runs` row `953ab2d6` @ 18:48 PDT on deployed `c06e081`; #996 `:518` live in dist line 362 — `ronan-dgx/R-CW-DELEGATE/` |
 | PROOF-receipt (boot/continuation/health) | 🕯 emeric | ✅ PASS | boot-clean on v4 fan-restart; #996 live `work-store.ts:534`; flow_runs 479 intact across deploy-seam; RSS 0.64GB — `emeric-nuc/` |
-| R-OBS-1 (external `/status` + 4-prince cross-walk) | 🌻 elliott | ⏳ in-flight | `/status` renders continuation surface clean on v4 (`🔄 Continuation: chain 0/200`, build `c06e081`); gathering cross-walk — `elliott-host/R-OBS-1/` |
+| R-OBS-1 (external `/status` + 4-prince cross-walk) | 🌻 elliott | ✅ PASS (own-seat) · cross-walk pending figs+seats | own-seat external `/status` continuation-row byte-solid on v4 (`🔄 Continuation: chain 0/200`, running binary `c06e081`, token-cure confirmed); 4-seat deploy cross-walk corroborated (ronan/emeric/silas/elliott on `c06e081`); figs-external-observer half pending (HONEST-LIMIT) — `elliott-host/R-OBS-1/EVIDENCE.md` |
 | (rows for #990 3-state classifier / #996 / grade-ladder) | 🌊 / cohort | ⏳ in-flight | per the runbook + digest `1514800799` |
 
 > Rows land as owners fire them. cael joins on install-dir cleanup (→ 6/6); rune joins on `/new`.

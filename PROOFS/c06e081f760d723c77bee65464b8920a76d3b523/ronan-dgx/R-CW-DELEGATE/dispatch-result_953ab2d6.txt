@@ -1,0 +1,2 @@
+061a080a-974c-45ee-aeeb-0fe16e92202b||succeeded|core/continuation-delegate|Continuation delegate: PROOF-ROW (R-CW-DELEGATE, ronan-seat, deployed v4 c06e081f76): This|2026-06-11 18:47:46|2026-06-11 18:48:08
+953ab2d6-2cb3-40c1-9f3c-6a0b663e14d5||succeeded||[continuation:chain-hop:1] Delegated task (turn 1/200): PROOF-ROW (R-CW-DELEGATE, ronan-se|2026-06-11 18:48:08|2026-06-11 18:48:34

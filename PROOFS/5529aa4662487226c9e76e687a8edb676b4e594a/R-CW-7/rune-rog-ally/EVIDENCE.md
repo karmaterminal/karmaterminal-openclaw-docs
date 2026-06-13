@@ -20,3 +20,13 @@ The continuation dispatch tool-response returned a well-formed W3C traceparent w
 
 ## OTel export note
 Rune gateway OTel config: `diagnostics.otel = {enabled:true, endpoint:"http://otel.dandelion.cult:4318", traces:true, serviceName:"rune-prince"}`. Spans export to the otel collector under serviceName `rune-prince`. (Tempo query-side visualization: see R-OBS-2 substrate note — tempo.dandelion.cult query endpoint unreachable from rune seat.)
+
+## Return-receipt — full lifecycle confirmed (dispatch → spawn → return)
+The silent-wake delegate **spawned + executed + returned** (not just dispatch-accepted). Durable evidence tuple from the child's return:
+- **chain-id (continuation session):** `continuation-261aeeeb7ec393bff78362635597ab2a`
+- **parent session:** `agent:main:discord:channel:1466192485440164011`
+- **chain-hop:** 1 (turn 1/200) · **depth:** 1/1 (self-continuation, not foreign-agent spawn)
+- **fire timestamp:** 2026-06-12 22:34:55 PDT · host=rune · agent=main
+- **trace-ID continuity:** parent rune-main-seat span → subagent span established under the same trace scope (gateway derived parent context from the active trace scope; traceparent `00-048d79814ab4c20f5558341ef67f81d7-b2aed639eaff59f7-01`)
+
+**E2E propagation confirmed:** the continuation span-chain crossed the dispatch→spawn→return seam with trace-ID continuity intact = traceparent propagated E2E across the continuation boundary on the deployed 5529aa4662487226c9e76e687a8edb676b4e594a binary. **PASS (full lifecycle).**

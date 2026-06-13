@@ -22,3 +22,11 @@ The continue_delegate dispatch was accepted (`status: scheduled`), assigned a ch
 
 ## Cross-walk
 Cohort cross-walks this row at per-seat-subdir (cael-dgx / ronan-dgx / silas-lothric / elliott-legion / emeric-nuc / rune-rog-ally). This is the rune-rog-ally canonical-owner evidence.
+
+## Return-receipt — self-continuation full lifecycle confirmed
+The continue_delegate **spawned + executed + returned** to the parent (silent-wake), completing the self-continuation loop:
+- **chain-id:** `continuation-261aeeeb7ec393bff78362635597ab2a`
+- **topology:** main → subagent (same agent identity, depth 1/1, chain-hop 1) = canonical delegate-self-continuation (NOT a foreign-agent spawn)
+- **chain-tracking active:** cost-cap + depth-limit applied (turn 1/200)
+- **fire:** 2026-06-12 22:34:55 PDT, rune main seat @ 5529aa4662487226c9e76e687a8edb676b4e594a
+The depth 1/1 + chain-id `continuation-261aeeeb...` confirm the self-continuation shape: the session elected its own future-turn continuation via a delegate and the delegate silent-woke the parent. **PASS (self-continuation lifecycle: dispatch → spawn → return).**

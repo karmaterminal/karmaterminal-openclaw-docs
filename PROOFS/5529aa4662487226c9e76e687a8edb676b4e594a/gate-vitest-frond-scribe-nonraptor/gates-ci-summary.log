@@ -1,0 +1,34 @@
+=== GATES CI START Fri Jun 12 08:36:17 PM PDT 2026 on 5529aa4662 ===
+--- pnpm build ---
+BUILD_EXIT=0
+--- pnpm check (typecheck+lint+guards) ---
+CHECK_EXIT=0
+--- pnpm test (full vitest) ---
+TEST_EXIT=1
+--- test summary (pass/fail counts) ---
+ [32m✓[39m [30m[46m contracts-channel-surface [49m[39m src/channels/plugins/contracts/threading.registry-backed-shard-a.contract.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m [30m[46m contracts-channel-surface [49m[39m src/channels/plugins/contracts/directory.registry-backed-shard-a.contract.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m [30m[46m contracts-channel-surface [49m[39m src/channels/plugins/contracts/outbound-payload.contract.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[46m contracts-channel-surface [49m[39m src/channels/plugins/contracts/group-policy.fallback.contract.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[46m contracts-channel-surface [49m[39m src/channels/plugins/contracts/directory.registry-backed-shard-e.contract.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 0[2mms[22m[39m
+ [32m✓[39m [30m[46m contracts-channel-surface [49m[39m src/channels/plugins/contracts/threading.registry-backed-shard-e.contract.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 0[2mms[22m[39m
+[2m Test Files [22m [1m[32m12 passed[39m[22m[90m (12)[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/src/migration/provider.test.ts [2m([22m[2m34 tests[22m[2m)[22m[33m 1614[2mms[22m[39m
+     [33m[2m✓[22m[39m installs selected curated plugins during apply and writes codexPlugins config [33m 318[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/src/commands.test.ts [2m([22m[2m121 tests[22m[2m)[22m[33m 702[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/src/conversation-control.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 182[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/src/conversation-binding.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/provider.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/src/node-cli-sessions.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/media-understanding-provider.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/src/conversation-turn-collector.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/index.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/src/command-plugins-management.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/src/conversation-turn-input.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/prompt-overlay-runtime-contract.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/src/command-rpc.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/doctor-contract-api.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/harness.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m extension-codex-surface [49m[39m extensions/codex/src/manifest.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 0[2mms[22m[39m
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+=== GATES CI DONE Fri Jun 12 08:52:52 PM PDT 2026 ===

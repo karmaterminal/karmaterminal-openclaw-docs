@@ -1,0 +1,21 @@
+=== UPSTREAM/MAIN COMPARISON START Fri Jun 12 09:03:52 PM PDT 2026 ===
+Preparing worktree (detached HEAD 6cf06e8e7e)
+HEAD is now at 6cf06e8e7e ci: split plugin ClawHub publishing paths
+worktree HEAD: 6cf06e8e7e
+### running the 5 tests on CLEAN upstream/main ###
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 5 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+[41m[1m FAIL [22m[49m [30m[46m agents [49m[39m src/agents/model-auth-markers.test.ts[2m > [22mmodel auth markers[2m > [22mrecognizes explicit non-secret markers
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+[41m[1m FAIL [22m[49m [30m[46m agents [49m[39m src/agents/model-auth-markers.test.ts[2m > [22mmodel auth markers[2m > [22mreads bundled plugin-owned non-secret markers from manifests
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+[41m[1m FAIL [22m[49m [30m[46m agents [49m[39m src/agents/model-auth.test.ts[2m > [22mresolveUsableCustomProviderApiKey[2m > [22mdoes not treat the Vertex ADC marker as a usable models.json credential
+[31m[1mAssertionError[22m: expected { …(2) } to be null[39m
+[41m[1m FAIL [22m[49m [30m[46m agents [49m[39m src/agents/models-config.applies-config-env-vars.test.ts[2m > [22mmodels-config[2m > [22mkeeps google-vertex static catalog rows when ADC auth evidence supplies the marker
+[31m[1mAssertionError[22m: expected undefined to be 'google-vertex' // Object.is equality[39m
+[41m[1m FAIL [22m[49m [30m[46m agents [49m[39m src/agents/models-config.providers.implicit.discovery-scope.test.ts[2m > [22mresolveImplicitProviders startup discovery scope[2m > [22mfills missing static catalog apiKey from Google Vertex ADC auth evidence
+[31m[1mAssertionError[22m: expected undefined to be 'gcp-vertex-credentials' // Object.is equality[39m
+[2m Test Files [22m [1m[31m4 failed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m89 passed[39m[22m[90m (94)[39m
+=== cleanup ===
+worktree removed
+=== UPSTREAM/MAIN COMPARISON DONE Fri Jun 12 09:04:21 PM PDT 2026 ===

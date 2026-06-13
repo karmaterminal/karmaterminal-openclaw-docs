@@ -49,3 +49,15 @@ Source: `tempo.dandelion.cult` (k3s pod, restarted during proofs run to clear in
 ## Net
 
 7 of 8 build-health gates GREEN on `5529aa4662` from the canary seat (install, tsgo:core, tsgo:test, tsgo:extensions, check/lint, lint:extensions:bundled, package-boundary:compile, build). vitest is BLOCKED **seat-locally** by the raptor-lake worker-maglev gap, not by the candidate — defer the vitest proof-row to a non-raptor seat or thread `--no-maglev` into the vitest fork-pool execArgv. Behavioral rows (R-RC-1, R-CD-CHAINED test_1/2/3) and 3/3 tool-parity proven independently of the vitest gate.
+
+---
+## ⚠️ SUPERSEDED — vitest execArgv-path is disproven, crash is per-seat
+
+The vitest framing above ("thread `--no-maglev` into `poolOptions.forks.execArgv`" as the fix)
+is **disproven** — tinypool manages worker execArgv itself and drops the pool-level config
+(both forms, direct worker dump: `HAS_NO_MAGLEV=false`). Real lever = wrapper-node shim.
+And the crash is **per-seat** (Cael's ARM64 DGX completed 88 shards clean where Ronan's
+~120-crater'd → seat-local, coverable on a clean seat, not arch-independent).
+
+Canonical finding: `gates/FINDING-vitest-SEALED-per-seat-EXIT_RC.md` (seal `0fcbc32`).
+maxForks-cap + "defer to a clean non-raptor seat" guidance above remains valid.

@@ -1,0 +1,3 @@
+Jun 13 00:14:20 cael node[1989827]: 2026-06-13T00:14:20.611-07:00 Continuation cost cap exceeded (13485 > 100) for session agent:main:discord:channel:1466192485440164011
+Jun 13 00:14:20 cael node[1989827]: 2026-06-13T00:14:20.623-07:00 [continuation/scheduler] [continuation] Chain cost 13485/100 — capped for session agent:main:discord:channel:1466192485440164011
+Jun 13 00:14:20 cael node[1989827]: 2026-06-13T00:14:20.624-07:00 [continuation/delegate-dispatch] [continuation:delegate-rejected] cost-capped task=R-CW-5 cost-cap test dispatch — if accumulatedChainTokens > costCapTokens(100),  session=agent:main:discord:channel:1466192485440164011

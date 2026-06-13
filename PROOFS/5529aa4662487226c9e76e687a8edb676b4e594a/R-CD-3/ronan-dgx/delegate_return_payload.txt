@@ -1,0 +1,5 @@
+R-CD-3 (post-compaction lifeboat, ronan-dgx @ 5529aa46):
+- staged: status=queued-for-compaction (fires at compaction event, NOT a timer).
+- compaction fired live: 2026-06-12 22:23:43 [compaction-safeguard] dropped 1 chunk (218 msgs) at 41.8% ctx.
+- post-compaction band-0 context-pressure fire: 22:29:26 ratio=2% tokens=24k/1000k.
+post-compaction event-triggered path exercised live on 5529aa46. trace 11211a99537873f407a7dc8b29dba2fa.

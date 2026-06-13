@@ -1,0 +1,5 @@
+R-CD-TOKEN evidence (bracket/token form, ronan-dgx @ 5529aa46):
+(a) I am a child spawned via the BRACKET/token form of continue_delegate ([[CONTINUE_DELEGATE:...]] parsed from finalized reply text), NOT the tool form.
+(b) timestamp observed: 2026-06-12 22:29 PDT.
+(c) the bracket-parse path fired live on 5529aa46.
+both-forms-mandate: tool-form (R-CD-1/2/3/4) + token-form (this) both fire the continuation surface.

@@ -1,0 +1,5 @@
+R-CD-CHAINED-DEPTH-2 Chain-1 evidence (depth-2 chain leg 1, ronan-dgx @ 5529aa46):
+(a) I am Chain-1 (depth-1 child) of the depth-2 continue_delegate chain (Spawned turn 1/200, live).
+(b) timestamp observed: 2026-06-12 22:33:59 PDT.
+(c) I dispatched Chain-2 (depth-2 grandchild) via the continue_delegate TOOL — Chain-2 traceparent 00-ad92df6738f7a217c28668afa89016a5-80812ca19ed93bac-01.
+Chain-1 trace e3624b4e4f3129e0bed74425c2671467. depth-2 chain-dispatch + chain-tracking fires live on 5529aa46.

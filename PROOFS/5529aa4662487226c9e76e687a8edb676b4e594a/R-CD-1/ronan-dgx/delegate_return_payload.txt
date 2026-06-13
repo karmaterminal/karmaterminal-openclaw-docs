@@ -1,0 +1,6 @@
+R-CD-1 evidence (live delegate execution, ronan-dgx @ 5529aa46):
+(a) I am a continue_delegate-spawned child turn ([continuation:delegate-spawned] Spawned turn 1/200, not mocked).
+(b) timestamp observed: 2026-06-12 22:18:02 PDT (spawned 22:17:30).
+(c) workspace fact: SOUL.md line 1 = "# SOUL.md".
+Spawn-context: PID 2945762, HEAD 5529aa46624 — executing live on the deployed drift-correct SHA.
+schedule->spawn->return path fires live on 5529aa46. trace 46ecef88463356940355480716fc96a7.

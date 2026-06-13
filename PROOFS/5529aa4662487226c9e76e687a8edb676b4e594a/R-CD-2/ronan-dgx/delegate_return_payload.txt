@@ -1,0 +1,5 @@
+R-CD-2 evidence (silent-wake full path, ronan-dgx @ 5529aa46):
+(a) I am a continue_delegate(mode="silent-wake")-spawned child turn (Spawned turn 1/200, live, non-mocked).
+(b) timestamp observed: 2026-06-12 22:20:43 PDT.
+(c) This return is SILENT — deliberately NOT calling the message tool, so NOT posted to the channel; returns as internal context to the parent + WAKES the parent for a fresh turn. That silence-plus-wake IS the R-CD-2 proof.
+silent-wake full path fires live on 5529aa46. trace 35358b67d46e291167ceb70db272ce03.

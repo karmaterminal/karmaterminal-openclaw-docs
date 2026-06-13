@@ -1,0 +1,5 @@
+R-CD-4 evidence (cross-session targeted return, ronan-dgx @ 5529aa46):
+(a) I am a continue_delegate child whose return is routed via targetSessionKey (not implicitly to the dispatcher).
+(b) timestamp observed: 2026-06-12 22:23:41 PDT.
+(c) targetSessionKey my return routes to: agent:main:discord:channel:1466192485440164011.
+targetSessionKey return-routing fires live on 5529aa46 (dispatch result echoed the target).

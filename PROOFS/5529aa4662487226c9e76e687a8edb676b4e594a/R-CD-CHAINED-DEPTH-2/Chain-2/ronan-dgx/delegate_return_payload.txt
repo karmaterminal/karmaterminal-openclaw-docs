@@ -1,0 +1,5 @@
+R-CD-CHAINED-DEPTH-2 Chain-2 evidence (depth-2 chain leg 2 / grandchild, ronan-dgx @ 5529aa46):
+(a) I am Chain-2 — the depth-2 grandchild, spawned BY Chain-1 (a delegate dispatched by another delegate).
+(b) timestamp observed: 2026-06-12 22:34:51 PDT.
+(c) chain-depth observed: depth-2 (root-parent -> Chain-1 [depth-1] -> me, Chain-2 [depth-2]).
+Chain-2 trace ad92df6738f7a217c28668afa89016a5. depth-2 chain fully demonstrated live on 5529aa46.

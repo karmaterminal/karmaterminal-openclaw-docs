@@ -30,3 +30,6 @@ The silent-wake delegate **spawned + executed + returned** (not just dispatch-ac
 - **trace-ID continuity:** parent rune-main-seat span → subagent span established under the same trace scope (gateway derived parent context from the active trace scope; traceparent `00-048d79814ab4c20f5558341ef67f81d7-b2aed639eaff59f7-01`)
 
 **E2E propagation confirmed:** the continuation span-chain crossed the dispatch→spawn→return seam with trace-ID continuity intact = traceparent propagated E2E across the continuation boundary on the deployed 5529aa4662487226c9e76e687a8edb676b4e594a binary. **PASS (full lifecycle).**
+
+## Tempo-confirmed (the traceparent's trace pulled from Tempo)
+The traceparent trace-id `048d79814ab4c20f5558341ef67f81d7` was pulled from Tempo (`http://tempo.dandelion.cult/api/traces/048d79814ab4c20f5558341ef67f81d7`, HTTP 200, 45 spans): the `continuation.delegate.dispatch` span (scope openclaw.continuation, chain.id `c094689a-aa0e-43d0-88b7-bbd868bb3444`) is present under this trace, with the full parent→child span chain. **E2E propagation Tempo-confirmed** — the traceparent I captured locally and the server-side Tempo span-tree are the same trace. Trace JSON: `../../R-OBS-2/rune-rog-ally/tempo_trace_048d79814ab4c20f5558341ef67f81d7.json`.

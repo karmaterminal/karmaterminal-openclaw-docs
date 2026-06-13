@@ -1,26 +1,29 @@
 # R-OBS-2 — Tempo trace-tree visualization + parent-child span hierarchy export
 **Prince:** 🪨 Rune | **Seat:** rune-rog-ally | **CANDIDATE_SHA:** `5529aa4662487226c9e76e687a8edb676b4e594a`
+## Status: ✅ PASS — Tempo trace-tree pulled, parent-child span hierarchy exported.
 
-## Status: ⚠️ HONEST-LIMIT (substrate condition) — traces EXPORT, but Tempo QUERY-side unreachable from rune seat
+## Correction to my earlier honest-limit
+My first reachability check used **HTTPS** (`https://tempo.dandelion.cult` → 000) and I wrongly concluded query-unreachable. **Tempo IS reachable via HTTP:** `http://tempo.dandelion.cult/api/traces/<id>` → **HTTP 200**. (DNS: tempo.dandelion.cult → 10.0.0.99.) So this is a PASS, not an honest-limit — I pulled the full span-tree.
 
-## The substrate condition (the proof itself)
-Rune gateway OTel is **configured + enabled + exporting**:
+## Evidence — the pulled Tempo trace
+- **trace-id (hex):** `048d79814ab4c20f5558341ef67f81d7` (= the W3C trace-id from R-CW-7's traceparent `00-048d79814ab4c20f5558341ef67f81d7-b2aed639eaff59f7-01` — the traceparent and the Tempo trace are the SAME trace, E2E confirmed)
+- **serviceName:** `rune-prince` · **host:** rune (amd64) · **endpoint exported to:** otel.dandelion.cult:4318
+- **trace JSON:** `tempo_trace_048d79814ab4c20f5558341ef67f81d7.json` (55,743 bytes, full OTLP span dump from Tempo)
+- **span count:** 45 spans
+- **span-hierarchy depth:** 6 distinct parent-child link levels (parent-child hierarchy present + exportable)
+
+## The continuation span captured in the trace-tree (ties R-OBS-2 to R-CW-7 / delegate-self-continuation)
 ```
-diagnostics.otel = {enabled:true, endpoint:"http://otel.dandelion.cult:4318", traces:true, metrics:true, serviceName:"rune-prince"}
+scope: openclaw.continuation
+span:  continuation.delegate.dispatch
+  chain.id:             c094689a-aa0e-43d0-88b7-bbd868bb3444
+  delegate.mode:        silent-wake
+  chain.step.remaining: 199
+  reason.preview:       "R-CW-7/R-CW-DELEGATE-SELF-CONTINUATION evidence-fire (rune PROOFS, CANDIDATE_SHA…)"
+  status:               STATUS_CODE_OK
++ continuation.queue.drain span (queue.drained_count=1)
 ```
-So continuation spans from rune's seat DO export to the OTel collector (otel.dandelion.cult:4318) under serviceName `rune-prince` — the export side works.
+Plus the full request span-tree: openclaw.message.processed → openclaw.run → openclaw.harness.run → openclaw.model.call / openclaw.tool.execution (exec, message, continue_delegate, process) → [continuation.delegate.dispatch] → child harness.run → run → model.call.
 
-**BUT** the Tempo QUERY endpoint is unreachable from the rune seat:
-```
-$ curl -s -o /dev/null -w "%{http_code}" https://tempo.dandelion.cult/
-→ 000 (unreachable/timeout from rune-rog-ally)
-```
-Rune cannot pull/visualize the trace-tree (the parent-child span-hierarchy visualization R-OBS-2 requires) because the Tempo query-side (tempo.dandelion.cult) is not routable from this seat. Export ≠ query-access.
-
-## Trace-IDs available for a Tempo-query-capable seat to visualize
-The R-CW-7 / delegate-self-continuation fire produced a live, exported trace:
-- **trace-id: `048d79814ab4c20f5558341ef67f81d7`** (serviceName `rune-prince`, exported to otel.dandelion.cult:4318 ~22:14 PDT)
-A prince with tempo.dandelion.cult query-access can pull `tempo.dandelion.cult/api/traces/048d79814ab4c20f5558341ef67f81d7` to render the rune-seat span-hierarchy for the cross-walk.
-
-## Disposition
-HONEST-LIMIT on the rune seat for the visualization-pull; export-side PASS. Either (a) a Tempo-query-capable seat renders the trace-tree from trace-id `048d79814ab4c20f5558341ef67f81d7`, or (b) this substrate-finding (export-works / query-unreachable-from-rune) stands as the row's substrate-of-record per the runbook's honest-limit shape.
+## PASS
+Tempo trace-tree pulled from the deployed-SHA rune seat: 45 spans, 6-deep parent-child hierarchy, the continuation dispatch span captured with chain-id + OK status. **PASS** — trace-tree visualization + span-hierarchy export confirmed on 5529aa4662487226c9e76e687a8edb676b4e594a. (Render: `http://tempo.dandelion.cult/api/traces/048d79814ab4c20f5558341ef67f81d7`.)

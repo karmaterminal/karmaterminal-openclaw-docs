@@ -1,0 +1,4 @@
+chain.id = {"stringValue":"900b950e-c130-4bab-877e-5046389746a7"}
+chain.step.remaining = {"intValue":"199"}
+delay.ms = {"intValue":"5000"}
+reason.preview = {"stringValue":"PROOFS R-CW-1 fire: continue_work wake + deploy-persistence proof (CANDIDATE_SHA"}

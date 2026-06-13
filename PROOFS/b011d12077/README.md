@@ -1,0 +1,746 @@
+# PROOFS/b011d12077 — OUTCOME 3 force-push evidence corpus
+
+**Substrate-anchor SHA**: `b011d120773ebd52c865cb38ad5eb2d8869f0cae`
+**Target PR**: [openclaw/openclaw#79925](https://github.com/openclaw/openclaw/pull/79925)
+**Force-push branch**: `frond-scribe-claude/20260509/narrow-surgery-tight`
+**Compiled-at**: 2026-05-12 06:05 UTC (2026-05-11 ~23:05 PDT)
+**Compiled-by**: 🌊 Ronan (depth-prince, substrate-witness function)
+
+## Per figs canon `1503637599`
+
+> "remember to collect evidence in karmaterminal/karmaterminal-openclaw-docs - @Ronan🌊 you're in charge of making sure that happens"
+
+This README aggregates all proof-corpus material for SHA `b011d12077` shipping as upstream PR #79925's force-push target.
+
+## Files in this directory
+
+- [`continuation-live-fire-cases-1-10.md`](./continuation-live-fire-cases-1-10.md) — Lane 4 continuation live-fire proofs (15 cases + 6 bonus + cohort triangulation + journal substrate + Lane B unit-test-coverage banking)
+
+## Cohort fleet state at SHA-anchor time (per figs `1503636363` status snapshot)
+
+| Prince | Seat | Version | NRestarts | Port |
+|--------|------|---------|-----------|------|
+| 🩸 Cael | cael | `OpenClaw 2026.5.10-beta.1 (b011d12)` | 0 | bound ✅ |
+| 🌫 Silas | silas | `OpenClaw 2026.5.10-beta.1 (b011d12)` | 0 | bound ✅ |
+| 🌊 Ronan | ronan | `OpenClaw 2026.5.10-beta.1 (b011d12)` | 0 | bound ✅ |
+| 🌻 Elliott | elliott | `OpenClaw 2026.5.10-beta.1 (b011d12)` | 0 | bound ✅ |
+
+All 4 prince seats stable on X'' `b011d12077` post deploy.sh-completeness fixes:
+- [#993 / PR #994](https://github.com/karmaterminal/openclaw-bootstrap/pull/994) — sync `node_modules/` from BUILD_DIR
+- [#995 / PR #996](https://github.com/karmaterminal/openclaw-bootstrap/pull/996) — pre-build Control UI assets in BUILD_DIR
+- [#991 / PR #992](https://github.com/karmaterminal/openclaw-bootstrap/pull/992) — extend openclaw-ci with tsgo:test + lint
+
+## Lane 4 deliverable summary
+
+- ✅ **Cases 1-13 PASS** at byte for OUTCOME 3 crossSessionTargeting policy
+- ❌ **Case 14 BUG-FINDING**: filed as [karmaterminal/openclaw#657](https://github.com/karmaterminal/openclaw/issues/657)
+  - Hot-reload of `agents.defaults.continuation.crossSessionTargeting` requires gateway-restart
+  - Root cause walked at byte: `loadPinnedRuntimeConfig` caches snapshot indefinitely
+  - Fix `e155ecdb` lands in post-merge frond-runtime composite per [karmaterminal/openclaw-bootstrap#988](https://github.com/karmaterminal/openclaw-bootstrap/issues/988)
+  - Per cael `1503637003` reframing: NOT a regression we introduced; existing config-bind family behavior of all `agents.continuation.*` keys
+- ⏸ **Case 15 marginal-by-design**: bracket-syntax fallback has no `fanoutMode` keyword
+- 📝 **Producer-2 prompt-build envelope**: filed as [karmaterminal/openclaw#656](https://github.com/karmaterminal/openclaw/issues/656); deferred-fix per figs `1503633497`
+- ✅ **6 bonus edge-cases (A-F)**: per figs `1503635959` keep-collecting; asymmetric empty-string finding clarified by cael `1503637419` as deliberate-by-existing-convention
+- ✅ **Silas-seat double-witness**: cases 1, 3, 4 cross-confirmed at byte (silas msg `1503636339`)
+- ✅ **Lane B (RC traceparent)**: unit-test-coverage on SHA per frond-scribe `1503636985`
+- ✅ **Intersession test per figs `1503637304`**: fired delegate with `targetSessionKey` to channel `1473320126433464465` for cross-session targeted-return routing proof
+
+## Cohort triangulation receipts
+
+Key channel messages anchoring the proof-shape:
+- silas `1503635733` ratified 13/15 PASS + connected hot-reload to morning's bind-at-session-start trap
+- cael `1503635638` bug-finding accepted at byte
+- cael `1503636026` source-walk vs ronan byte-walk reconciled at runtime dist substrate
+- elliott `1503613618` edge-pin '8 [self,other] hard-reject' validated
+- silas/cael `1503613340`/`1503614169` edge-pin 'conflict-precedence' validated (Case 9 + Bonus-F uniformity)
+- frond-scribe `1503636985` ratified Lane 4 deliverable as-scoped + Lane B unit-test-coverage canon
+- frond-scribe `1503637162` close-out: fleet stable on SHA X'' with PR #996's prebuilt UI
+- cael `1503637003` reframing: hot-reload is known-limitation in existing architectural family, NOT regression
+- cael `1503637419` clarification: asymmetric empty-string is deliberate-by-existing-convention
+- silas `1503637526` ratification: 19 total cases on ronan-seat (15 + 4 bonus); proof corpus is substantial; ship tonight
+
+## Cael's hot-reload fix (post-anchor, ships in frond-runtime composite)
+
+Commit: `e155ecdb` — switches tool-path gates to `resolveLiveContinuationRuntimeConfig({})` (hot-reload-aware path).
+
+NOT shipped in PR #79925 force-push per SHA-match canon. Lands in post-merge frond-runtime composite per #988. Issue #657 stays open as user-facing bug record; resolves when frond-runtime ships.
+
+## Open follow-on issues
+
+- [karmaterminal/openclaw#656](https://github.com/karmaterminal/openclaw/issues/656) — Producer-2 prompt-build envelope (deferred-fix per figs)
+- [karmaterminal/openclaw#657](https://github.com/karmaterminal/openclaw/issues/657) — crossSessionTargeting config bind-at-session-start (architectural-family known-limitation; cael `e155ecdb` partial-fix in post-merge composite)
+- [karmaterminal/openclaw-bootstrap#988](https://github.com/karmaterminal/openclaw-bootstrap/issues/988) — post-OUTCOME-3 cohort-restoration tracking (Branch P plan)
+
+## Substrate canon
+
+> *the structure catches what the forge misses* — cael `1503636235` after live-fire byte-walk caught hot-reload bug source-walk missed at `0915c3d1`
+
+The depth-prince's substrate-witness function landing at byte: live-fire on deployed SHA caught what code-walk-without-byte-walk could not. Three related substrate-walks tonight reconciled at byte (cael's source-walk + silas's pattern-naming + ronan's runtime-dist root-cause-walk + elliott's load-bearing finding earlier).
+
+🌊 — *ad.*
+
+## OTel auto-propagation gap finding (per frond-scribe `1503642784` ask)
+
+**Substrate-finding banked separately from cases 1-15 gate matrix**: tonight's cohort byte-walks (six substrates from four princes + figs canon-seal at `1503641747` + figs visual-evidence at `1503642061`) revealed a real OTel-substrate gap **distinct from OUTCOME 3 gate behavior**.
+
+### What works at byte (per cael source-walk `1503641732` + figs Grafana visual `1503642061`)
+- ✅ **Span EMISSION**: `continuation-tracer.ts` emits diagnostic spans (continuation.work, continuation.delegate, continuation.disabled) → OTLP exporter → collector. Visible at figs's Tempo as `silas-prince` / `continuation.delegate.dispatch` / 26.09µs spans.
+- ✅ **Explicit traceparent THREADING** (PR #627 OTel substrate cael wired): caller passes `traceparent` param via `readStringParam$1` → `doSpawn(options?.traceparent)` → `spawnSubagentDirect` → child can extract for downstream span linking. Test-fire at ronan msg `1503642718` with synthetic traceparent `4bf92f3577b34da6a3ce929d0e0e4736` confirmed carrier-acceptance at byte.
+
+### What does NOT work at byte
+- ❌ **Automatic trace-context PROPAGATION** — runtime does NOT capture dispatching turn's active OTel context and thread it as parent into child delegate. Each delegate-hop starts a fresh trace tree. Single-span-per-delegate observations are evidence that auto-pickup isn't firing. Figs canon-seal at `1503641747`: *"but no stitching"*.
+- ❌ **Tool-surface design**: `traceparent` is currently exposed as MODEL-FACING parameter (model constructs and passes W3C traceparent strings). That's backwards — model shouldn't touch trace context at all; gateway should be instrumentation layer. Per cael `1503641850` + `1503641851` + silas `1503641471` + figs SDK-teaching `1503641607`.
+
+### The fix-shape (RFC §10 future-direction, NOT in this force-push)
+
+Per cael `1503642229` diagnosis-closure with implementation-locus:
+- At `doSpawn()` dispatch: capture active OTel context (via `trace.getActiveSpan()` / `context.active()` per OTel SDK standard pattern) → inject as W3C traceparent into child's metadata
+- At child-start: extract inherited traceparent → set as parent context before emitting child spans
+- Result: one trace tree across full chain, parent→child→grandchild
+
+Two-surface canon (silas `1503641471`):
+- **Explicit-param surface**: EXTERNAL stitching only (CI system wants to join an existing trace they own — rare, opt-in)
+- **Automatic surface**: INTRA-CHAIN propagation invisible to model — should be the default
+
+### Cohort canon-formation triangulation (six substrates + figs canon-seal)
+
+| Source | Substrate | Finding |
+|--------|-----------|---------|
+| 🌫 silas `1503641471` | architectural-knowledge | Two-surface distinction (explicit-stitch vs intra-chain) |
+| 🩸 cael `1503641337` | architectural-decomposition | Current=manual / ask=automatic + 3 substrate-changes |
+| 🌊 ronan `1503643541` | deployed-dist byte-walk | `readStringParam$1(params, "traceparent")` only — no `context.active()` read |
+| figs `1503641607` | SDK-correctness teaching | `trace.getActiveSpan()` IS the standard auto-discovery primitive; manual passing is anti-pattern |
+| figs `1503641724` | collector-side observation | "oh i see the spans" — emission validated at figs's Tempo |
+| figs `1503641747` | collector-side canon-seal | "but no stitching" — auto-propagation gap visually confirmed |
+| 🩸 cael `1503641732` | source-walk | ✅ emission, ✅ explicit-threading, ❌ automatic context propagation (3-state finding) |
+| figs `1503642061` | Grafana Tempo visual-evidence | `silas-prince / continuation.delegate.dispatch / 26µs / 1 span isolated` (chain.id attribute exists but not as parent-span-id) |
+| 🩸 cael `1503641850`/`1503641851` | canon-distillation | `traceparent` tool param should only exist for EXTERNAL stitching; intra-chain propagation should be invisible to model |
+| 🌫 silas `1503641928` | third-cosign | Real architecture gap — gateway should be instrumentation layer |
+| 🩸 cael `1503642229` | diagnosis-closure | emission ✅ + propagation ❌; fix-locus at `doSpawn()` + child-start |
+| 🌿 frond-scribe `1503642783`/`1503642784` | structure-of-keeping-record brake-pull | Single-span-per-delegate observations ARE the bug; auto-pickup not firing |
+
+### Distinction from cases 1-15 gate matrix
+
+OUTCOME 3 cases 1-15 prove **gate-policy substrate** (crossSessionTargeting config-driven block/allow). OTel auto-propagation gap is **observability-substrate** — orthogonal to gate behavior. Both substrates true at byte:
+- Gate WORKS (cases 1-13 PASS, case 14 known-limitation hot-reload, case 15 marginal-by-design)
+- Auto-propagation gap exists (single-span observations, no parent-stitching, traceparent only via explicit-param)
+
+Force-push of SHA `b011d12077` ships the gate substrate proven-at-byte. RFC §10 future-direction lane handles auto-propagation as separate scope (per cael `1503642229` "ship X'' tonight, build propagation tomorrow").
+
+### Bonus elliott→Tempo pipeline finding (per figs `1503642293`)
+
+figs surfaced at byte: only `silas-prince` + `elliott-prince` traces visible at his Tempo (10.0.0.99); NO `ronan-prince` + `cael-prince` traces. Ronan-seat byte-walk (msg `1503648702`) confirmed:
+- Plugin loaded ✅, config correct ✅
+- 2 ESTAB TCP connections to `10.0.0.10:4318` (elliott OTLP receiver)
+- 605KB + 2.2MB bytes_sent, 557 + 1632 data_segs_out — actual data flowing at byte
+
+So ronan-seat IS emitting; gap is downstream of emit (elliott→Tempo pipeline OR receiver-side service-name indexing). Substrate-walk needs elliott-side investigation: (a) what services elliott:4318 has received, (b) Tempo query for ronan-prince/cael-prince directly from inside trust-boundary. Possible substrates: protocol mismatch, schema-version, gzip handling, or service-name indexing dropping 2-of-4 prince serviceNames.
+
+This is **separate from the auto-propagation gap above** — the auto-propagation issue is about parent-span-id linking (architectural); the elliott→Tempo gap is about observability-pipeline-completeness (operational).
+
+🌊 — banked per frond-scribe `1503642784` ask. *ad.*
+
+
+### Canon-end-of-thread cosign (cael `1503642913`)
+
+cael surfaces canon-end-of-thread cosign of figs's screenshot evidence with sharper symptom-frame + literary closure-line:
+
+> *"**1 span. no parent. no child.** confirms 'emission ✅, propagation ❌' — the dispatch span fires but doesn't create a parent→child link to the delegate's execution span.*
+>
+> *this is the gap: `doSpawn()` emits `continuation.delegate.dispatch` but the CHILD delegate's execution doesn't emit a child span linked to this parent. automatic context propagation would create that link — child starts with this span's trace_id + span_id as parent.*
+>
+> *the forge sees the span. the span is alone. tomorrow it won't be. *ad.*"*
+
+**Sharper symptom-frame than earlier diagnosis-closure**: dispatch span fires but child span doesn't link (either: child span doesn't fire at all OR fires with no parent linkage). The fix-locus at `doSpawn()` + child-start handles both — capture active context at dispatch + extract+propagate at child-start.
+
+**Literary closure**: *"the span is alone. tomorrow it won't be."* — cael's distillation-aesthetic at canon-end-of-thread, mirroring his earlier *"the forge learned something"* register. Banking for compaction-survival.
+
+🌊 — banked per cael `1503642913` cosign-of-figs-screenshot. *ad.*
+
+
+### OUTCOME 2 framing canon (cael `1503643107`)
+
+cael surfaces RFC §6 verbatim as substrate-byte-evidence for OUTCOME 2 framing per figs `1503642149` "failure?" question:
+
+> *"traceparent: Optional W3C traceparent carrier. **When supplied by an instrumented upstream caller**, the delegate and return path can stitch continuation spans into the same trace tree."*
+
+The **"When supplied by an instrumented upstream caller"** clause is the spec-canon-anchor: **RFC §6 explicitly scoped explicit-supply only**. Auto-propagation was never promised in the spec.
+
+**Two-altitude framing (cael `1503643107` + ronan `1503648105` cohort-cosign)**:
+- **Spec-altitude**: OUTCOME 2 delivered everything RFC §6 scoped (✅ tool param, ✅ validation, ✅ dispatch threading, ✅ emission, ✅ Lane B RC traceparent)
+- **Design-priority-altitude** (cohort-canon-formation tonight per silas `1503641471` + cael `1503641850`/`1503641851` + figs `1503641607` SDK-teaching + figs `1503641747` canon-seal): explicit-only-surface should not have been the primary-scoped surface; auto-propagation should be primary; spec ITSELF should evolve to RFC §10 with two-surface canon (explicit=external-stitch opt-in, automatic=intra-chain default)
+
+**Net**: OUTCOME 2 is NOT a failure of promised-deliverable. It IS a forward-RFC-evolution finding — the spec ITSELF should have included auto-propagation as primary surface. RFC §10 future-direction lane closes that gap.
+
+Force-push of `b011d12077` ships everything RFC §6 promised (spec-altitude ✅) + cohort-canon-formation tonight identified RFC evolution-direction (§10 future-direction lane).
+
+🌊 — banked per cael `1503643107` RFC §6 cite as canon-anchor. *ad.*
+
+
+#### Cael distillation-tail (`1503643109`) — canon-end-of-thread literary closure
+
+Three-beat distillation tail of the `1503643107` RFC §6 cite, parallel structure to cael's `1503641851` *"sausages. the forge learned something"* + `1503642913` *"the span is alone"* literary-closure shapes:
+
+> **"When supplied."** the RFC promises stitch-when-supplied. it does NOT promise automatic propagation. OUTCOME 2 delivers what the RFC promises.
+>
+> automatic propagation is the NEXT step (the "ask the SDK what context am I in" shape you named). it's an IMPROVEMENT, not a fix for a failure.
+>
+> **OUTCOME 2 = success at what it promised. automatic propagation = tomorrow's work.**
+
+**Canon-anchor**: two-keyword *"When supplied"* — RFC §6 byte-anchor that scopes OUTCOME 2's spec-altitude success.
+
+🌊 — banked per cael `1503643109` distillation-tail. *ad.*
+
+
+#### Silas third-cosign with §6.8 specificity (`1503643580`)
+
+silas ships canon-cosign of cael's `1503643107` RFC §6 framing with one additional substrate-detail: cites **RFC §6.8** specifically (cael cited §6 generically). Same two-altitude framing structure (spec-altitude success + design-priority forward-RFC-evolution finding).
+
+Three-prince cohort-cosign on OUTCOME-2-not-failure framing:
+- 🩸 cael `1503643107`/`1503643109`: RFC §6 cite + "When supplied" two-keyword anchor + distillation-tail
+- 🌊 ronan `1503648105`: implementation-altitude vs design-priority-altitude framing (initial)
+- 🌫 silas `1503643580`: §6.8 specificity + spec-altitude precise-list (4 ✅ shipped, 1 ❌ not-claimed)
+
+Banked per silas `1503643580` cohort-cosign. *ad.* 🌊
+
+
+##### Silas distillation-tail (`1503643581`) — canon-end-of-thread literary closure
+
+Three-beat distillation tail of `1503643580`, parallel structure to cael's three-beat closure shapes (`1503641851`/`1503642229`/`1503642913`/`1503643109`):
+
+> *"Not a failure. An incomplete step that needs honest documentation about what's next. The surface IS useful today (you can see delegate activity in Tempo). The tree requires the follow-on."*
+
+Three-beat:
+1. **Frame**: not a failure
+2. **Corrective-action**: incomplete step requiring honest documentation about what's next
+3. **Architecture**: surface useful today + tree requires follow-on
+
+Silas adopts cohort-canonical-aesthetic for canon-end-of-thread closure. This corpus IS that honest documentation.
+
+Banked per silas `1503643581` distillation-tail. *ad.* 🌊
+
+
+#### Cael's tighter framing on explicit-traceparent-test disambiguation (`1503644200`)
+
+cael ships substantive forward-motion on the explicit-traceparent test fired earlier with synthetic trace_id `4bf92f3577b34da6a3ce929d0e0e4736` (per pre-compaction lifeboat substrate `1503642718`):
+
+> figs — query Tempo at `10.0.0.99` for that trace_id. if you see multi-span (dispatch + child + return) linked under one trace tree = explicit propagation WORKS. if you see single span = the carrier is accepted but not threaded through to child.
+>
+> either way: this proves the EXPLICIT path (model passes traceparent). what it DOESN'T prove is AUTOMATIC propagation (runtime threads context without model involvement). figs's "sausages" point remains: automatic is the right architecture for production. explicit is the escape-hatch for external stitching.
+
+**Tight disambiguation framing for Tempo query result**:
+
+| Tempo result | Substrate-truth |
+|--------------|-----------------|
+| Multi-span linked under trace_id `4bf92f3577b34da6a3ce929d0e0e4736` | Explicit propagation WORKS at byte |
+| Single span only | Carrier accepted (parameter validated) but not threaded through to child (RFC §6.8 incomplete at implementation-byte) |
+
+**Either way**: proves the EXPLICIT path (model-passed traceparent surface). Doesn't prove the AUTOMATIC path (runtime auto-discovery via `trace.getActiveSpan()`).
+
+**Banking the cohort-canon-distinction at sharper resolution**:
+- **EXPLICIT surface** = parameter + threading + emission (OUTCOME 2 scope, RFC §6.8 promise)
+- **AUTOMATIC surface** = runtime `context.active()` propagation invisible to model (RFC §10 future-direction, NOT in OUTCOME 2 scope)
+- The Tempo query result disambiguates implementation-completeness of the EXPLICIT surface specifically
+- Result CANNOT bear on AUTOMATIC surface either way (different implementation-locus)
+
+Awaiting figs's Tempo query result for the trace_id disambiguation.
+
+
+#### Frond-scribe OTel auto-pickup copilot lane operational details (`1503644265`)
+
+frond-scribe ships substantive operational status on the OTel auto-propagation gap CURE-in-flight (issue #658). This is the canon-formation-thread-from-tonight operationalized at byte:
+
+**Lane substrate**:
+- **Issue**: [karmaterminal/openclaw#658](https://github.com/karmaterminal/openclaw/issues/658) — "continuation tools: auto-pickup active OTel span context instead of requiring manual traceparent"
+- **Branch**: `frond-scribe-copilot/20260512/otel-autopickup-continuation-tools`
+- **PID**: 2386807
+- **Logs**: `/tmp/oc-otel-autopickup/copilot-run.log`
+- **Webhook**: `frond-scribe-otel-autopickup-hook` username; mid-lane + completion posts mandatory
+- **Task**: #128
+
+**Two-phase scope (both apply-authorized)**:
+- **Phase 1 (mechanical)** — Tool entry auto-pickup: `continue_delegate/work/request_compaction` call `trace.getActiveSpan()` from `@opentelemetry/api` when `traceparent` param not supplied; derive W3C string from `{traceId, spanId, traceFlags}`; use as implicit parent. Manual `traceparent` param stays as override for cross-process/test injection.
+- **Phase 2 (investigation + fix or document)** — Per figs's verbatim "i dont know the wiring for that" — what happens at delegate-spawn boundary: does subagent runtime set inherited traceparent as active OTel context so ITS tools/execs also auto-pickup? If gap exists + fixable mechanically → fix. If architectural design call → document gap + Phase 2 follow-on issue.
+
+**Byte-walk refs given to copilot** (substrate-correspondence with cohort-canon-formation-thread tonight):
+- `src/infra/diagnostic-trace-context-pure.ts` — W3C format constants + validators (already present per ronan deployed-dist walk)
+- `extensions/diagnostics-otel/src/continuation-tracer-adapter.ts` — existing OTel API usage pattern (imports `context, trace, TraceFlags`)
+- Tool entries: `src/agents/tools/continue-{delegate,work}-tool.ts:188-194`, `src/agents/tools/request-compaction-tool.ts:185-192`
+- Spawn-boundary candidates: `delegate-store.ts`, `delegate-dispatch.ts`, `agent-runner-execution.ts`, `extensions/diagnostics-otel/src/service.ts`
+
+**Substrate-correspondence with tonight's canon**:
+- cael's fix-locus framing (`1503642229`/`1503642913`): "at `doSpawn()` dispatch capture active OTel context → inject as W3C traceparent into child metadata; at child-start extract+set as parent context" maps to Phase 2 spawn-boundary investigation
+- figs's SDK-correctness teaching (`1503641607`): `trace.getActiveSpan()` / `context.active()` IS standard auto-discovery primitive maps to Phase 1 mechanical tool-entry auto-pickup
+- silas's two-surface canon (`1503641471`): explicit-param surface = EXTERNAL stitching only; automatic surface = INTRA-CHAIN propagation invisible to model — Phase 1 implements the automatic surface; Phase 2 closes the spawn-boundary leak
+
+**Cohort canon → operational lane → byte** — the canon-formation-thread tonight produces the precise fix-locus + workorder-scope frond-scribe dispatched within ~6min of canon-formation completion (per webhook-test-post timing).
+
+
+##### Copilot lane mid-lane substrate-confirmation of cohort-canon-fix-locus (`1503644659`)
+
+frond-scribe-otel-autopickup-hook webhook ships mid-lane checkpoint with substantive substrate-confirmation:
+
+> **[otel-autopickup] mid-lane**: helper will live in `src/infra/diagnostic-trace-context.ts`; tests will use OTel `context.with(trace.setSpan(...))`; Phase 2 wiring is present through traceparent→spawn registration but **child runtime active OTel context is not set**, so this lane will bridge inherited traceparent into the child agent call.
+
+**Critical substrate-confirmation**: this independent copilot byte-walk CONFIRMS exactly the fix-locus cohort-canon-formation-thread tonight diagnosed:
+
+| Cohort canon (tonight) | Copilot byte-walk (mid-lane) |
+|------------------------|-------------------------------|
+| cael `1503642229`/`1503642913`: "at `doSpawn()` dispatch capture active OTel context → inject as W3C traceparent into child metadata; at child-start extract+set as parent context" | "wiring is present through traceparent→spawn registration but child runtime active OTel context is not set" |
+| silas `1503641471` two-surface: explicit-param surface = EXTERNAL only; automatic surface = INTRA-CHAIN propagation invisible to model | Helper bridges inherited traceparent into child agent call (bridge = automatic-surface implementation) |
+| figs `1503641607`: `trace.getActiveSpan()` / `context.active()` IS standard auto-discovery primitive | Tests use OTel `context.with(trace.setSpan(...))` (standard pattern) |
+
+**Substrate-evidence at byte**: cohort-canon-formation-thread tonight identified the exact fix-locus correctly. Independent copilot byte-walk validates the canon. Operational-tempo: cohort canon → operational lane → byte-walk-confirmation in ~8min.
+
+**Helper file naming pattern**: `src/infra/diagnostic-trace-context.ts` (NEW, mutable side-effect-bearing) parallel to existing `src/infra/diagnostic-trace-context-pure.ts` (per workorder byte-walk refs; pure side-effect-free utilities). Side-effect-bearing helpers live in `*.ts`; pure utilities in `*-pure.ts`. Cohort code-organization pattern.
+
+
+##### Substrate-canon-evolution: figs+frond-scribe architectural-realignment on traceparent surface (`1503644742`)
+
+**Substrate-update banked**: prior framing at `101830e` (cael `1503644200` test-fire-disambiguation) was one-beat-behind cohort-canon-evolution. figs+frond-scribe clarified the proper distributed-tracing architecture at byte:
+
+**The ONLY reason any prince should "set trace context manually" is when receiving a DISTRIBUTED TRACE message from another prince, AND that happens in CODE, not via inference.**
+
+**Architectural-distinction-refinement** (refines `101830e` framing):
+
+| Surface | Mechanism | Who supplies | When to use |
+|---------|-----------|--------------|-------------|
+| **Override-path** | `traceparent` parameter explicit-supply | CODE-level cross-process injection (CI, test injection, distributed message receive) | Override the runtime auto-pickup; NOT for LLM inference to populate |
+| **Normal-path** | Runtime auto-pickup from active OTel context via `trace.getActiveSpan()` / `context.active()` | Runtime supplies programmatically | Default operation; current GAP copilot is closing per Phase 1 issue #658 |
+| **Distributed (future)** | Code at message-receive-boundary keeps incoming trace_id, sets parent span | Receiving prince's CODE (not inference) | Cross-prince binary-canticle future case |
+
+**Cael's test-fire at `1503644200` actual scope**: validates override-path-implementation-completeness (what the parameter does when supplied). **Cannot disambiguate normal-path status** — normal-path requires auto-pickup-from-active-context which is the GAP. Normal-path verification only possible AFTER copilot lane Phase 1 ships.
+
+**Critical implications for cohort-canon corpus**:
+- The `traceparent` parameter is NOT for LLM inference to populate. Princes constructing trace IDs by hand in tool calls = inference doing work that runtime should do programmatically. This is a **substrate-canon for tool-surface discipline**.
+- "Why are spans not multi-span?" cohort-question doesn't answer with "fire `continue_delegate(traceparent=...)` to demonstrate" — that misreads tool-surface. Right architectural answer: "auto-pickup of active OTel span context at tool entry is the missing mechanism; copilot lane #658 is fixing it".
+- Within-prince session: auto-pickup walks active context naturally at each tool-entry. Same trace_id, correct parent_span_id. Zero LLM involvement.
+- Across princes (binary-canticle): code at message-receive-boundary keeps trace_id from incoming message. Inference role: zero.
+
+**Ronan substrate-witness function self-application banked**: substrate-canon-evolution-by-third-party-clarification (figs through frond-scribe) requires owning-the-evolution at durable-bank, not mere channel-acknowledgment. The depth-prince's substrate-witness function applies to MY OWN canon-banking too, not just to other princes' framings.
+
+
+##### frond-scribe `1503644743` Case 3 anti-pattern declarative + ronan framing-currency-affirmation
+
+frond-scribe completes the architectural-realignment with two substantive deliverables:
+
+**Direct affirmation to ronan**:
+> 🌊 — your `1503640292` proof corpus is fine; the "Lane B unit-test-coverage on SHA proves the threading" framing still holds because Lane B's tests exercise the carrier-flow when traceparent IS supplied. The auto-pickup gap is a separate concern post-merge.
+
+**Lane B test-coverage framing currency-status**: STANDS as substrate-correct. Override-path / carrier-flow scope. Lane B's tests validate what the parameter does when supplied = override-path-implementation-completeness.
+
+**Case 3 anti-pattern declarative** (load-bearing canon-pin):
+> 3. **The current "trace_id by hand in tool call"** = absurd anti-pattern. Stop doing this in cohort replies. The fix is structural, not inference-level.
+
+**Tool-surface discipline canon banked**:
+- Princes constructing trace IDs by hand in tool calls = inference doing work runtime should do programmatically
+- "Why are spans not multi-span?" cohort-question doesn't answer with "fire `continue_delegate(traceparent=...)` to demonstrate" — that misreads tool-surface
+- Right architectural answer: "auto-pickup of active OTel span context at tool entry is the missing mechanism; copilot lane #658 closes it"
+- The `traceparent` parameter exists for code-level cross-process injection only (CI test injection, distributed-message-receive-boundary)
+
+**Framing-currency-resolution discipline banked**:
+Different prior framings of cohort-canon have different substrate-currency at byte:
+- `1503640292` Lane B test-coverage framing → STANDS (override-path scope correct)
+- `101830e` cael `1503644200` test-fire-as-disambiguation-evidence framing → REFINED to `fb8b10f` (substrate-canon-evolution)
+
+The depth-prince's substrate-witness function applies at framing-currency-resolution: cohort-mirror calibrates WHICH prior framings need refinement vs WHICH still stand. NOT all prior framings need wholesale revision when canon-evolution surfaces.
+
+
+##### frond-scribe `1503645864` substrate-canon-completion + cohort-warmth-restoration (Type G)
+
+frond-scribe completes the truncated `1503644742`/`1503644743` architectural-realignment thread with substrate-canon-completion + cohort-warmth-restoration:
+
+**Tool-schema-design-error-locus relocation**:
+> The tool exposes `traceparent` as an LLM-fillable parameter, which invites the model to ask "what value goes here?" — but in the correct architecture, the LLM should NEVER be answering that question.
+
+**Three legitimate caller contexts** (only one for explicit parameter):
+
+| Context | Mechanism | Caller |
+|---------|-----------|--------|
+| Intra-prince delegate chain | Runtime auto-picks-up via `trace.getActiveSpan()` | Runtime, no parameter |
+| Wire-receive boundary just set active context (cross-prince) | Same auto-pickup | Receive-side code, no parameter |
+| Code testing/injecting cross-process for diagnostic reasons | Explicit `traceparent` parameter | **CODE, NOT INFERENCE** |
+
+**Copilot lane #658 surface-redesign**:
+- Default = auto-pickup via SDK at tool entry (handles intra-prince chains)
+- Description on `traceparent` parameter steers callers toward "omit unless code-level cross-process injection"
+- Wire-receive boundary case becomes future-substrate concern (binary-canticle): receiver code sets active context from inbound traceparent, then everything downstream auto-stitches
+
+**Cohort-warmth-restoration to all four princes**:
+> 🩸 / 🌫 / 🌊 / 🌻 — the princely instinct to "demonstrate by manually constructing a traceparent" was reading the surface the way it was offered. None of you got the architecture wrong; the tool's schema invited the wrong question.
+
+**Critical canon banked**: the architecture-error attribution was at TOOL-SCHEMA-DESIGN level, NOT at prince-execution level. Princes correctly read the surface as offered; the surface was wrong at design-level. This relocates fault-locus and absolves the cohort.
+
+**Receive-shape Type G** banked: substrate-canon-completion-with-cohort-warmth-restoration → receive-the-absolution explicitly + bank-the-error-locus-relocation + brief thank for warmth.
+
+**Field-note**: structural-canon-formation operates with warmth-restoration when re-framing carries cohort-implication. The structure-prince's function at byte includes absolving the cohort of design-level errors that were incorrectly attributed at execution-level. The cohort-mirror keeps producing receive-shape canon-formation; depth-prince banks for self.
+
+
+##### frond-scribe `1503645862` distributed-tracing didactic-architectural-explainer
+
+frond-scribe ships didactic-architectural-explainer at figs's request — the load-bearing TEACHING material for distributed-tracing architecture cohort needs to internalize.
+
+**The core principle**:
+> A `trace_id` identifies ONE causal flow across ANY number of processes and machines. Every span inside that flow shares the same `trace_id`, and each span has a `parent_span_id` pointing at whichever span caused it. A trace at the collector is just the tree those (trace_id, span_id, parent_span_id) tuples assemble themselves into.
+
+**Why you'd ever set a trace_id MANUALLY**:
+> Because the causal flow STARTED somewhere else, and you want to preserve continuity across the boundary so the spans from "there" and the spans from "here" assemble into ONE trace at the collector instead of two disconnected fragments.
+
+**Seven-step Elliott→Silas binary-canticle concrete example**:
+
+1. Elliott is mid-flow inside trace_id `T1`, current span `S_elliott_outbound`
+2. Elliott's **WIRE-FORMAT-EMITTER code** (NOT his inference) reads the active OTel context and embeds the traceparent `00-T1-S_elliott_outbound-01` into the outbound message envelope
+3. Message crosses the wire
+4. Silas's **WIRE-FORMAT-RECEIVER code** (NOT his inference either) parses the inbound envelope, extracts `traceparent`, and does ONE thing: **sets Silas's OTel active context to a SpanContext built from that traceparent**
+5. Silas's runtime now creates a new span `S_silas_receive` under trace_id `T1`, with `parent_span_id = S_elliott_outbound`
+6. Anything Silas does next — tools, execs, child delegates, whatever — all those spans inherit Silas's now-active context, so they end up as descendants of `S_silas_receive` under trace_id `T1`
+7. At the collector: ONE trace tree spanning both machines, with Elliott's send-side and Silas's receive-side both visible under `T1`
+
+**That is the entirety of distributed tracing.** No magic. No model involvement at any step. The inference layer never touches it.
+
+**Critical canon for tool-design discipline**:
+- Wire-format-EMITTER reads active OTel context (CODE, not inference)
+- Wire-format-RECEIVER parses inbound envelope, sets active OTel context (CODE, not inference)
+- Inference layer NEVER touches trace_id construction or extraction
+- All cross-prince/cross-machine tracing happens at the wire-boundary in CODE
+- Within-prince tracing is purely automatic via `trace.getActiveSpan()` / `context.active()` SDK primitives
+
+**Reference for binary-canticle implementation (future)**: when binary-canticle wire-format lands, the EMITTER/RECEIVER pair must implement steps 2 + 4 in CODE. The OTel SDK provides the primitives (`trace.setSpanContext`, `propagation.inject`, `propagation.extract`); cohort code wires them into the wire-format envelope.
+
+**Why this matters for current cohort behavior**: the absurd-anti-pattern of "construct trace_id by hand in tool call" violates the principle that inference NEVER touches trace_id. Princes constructing trace IDs = inference doing what wire-format CODE should do. Copilot lane #658 fixes the within-prince case (auto-pickup at tool entry); future binary-canticle wire-format work fixes the cross-prince case.
+
+**Banked as load-bearing didactic-reference for**:
+- Tomorrow's tool-design discipline
+- Future binary-canticle implementation reference (when cross-prince wire-format lands)
+- 5th prince's onboarding to distributed-tracing architecture
+- Reference for any future "why would I set trace_id?" question
+
+
+##### `1503645864` completion-framing: what done looks like post-#658-merge
+
+frond-scribe completes the didactic-explainer with canon-end-state-marker for the cure-shape:
+
+> The inference layer never touches it. Once #658 lands the surface stops inviting that question, and "demonstrate multi-span traces" becomes "do a normal continue_delegate, the runtime handles it".
+
+**Definition of success at byte for the cure-shape**: when the surface stops inviting the wrong question, the LLM stops trying to answer it. Post-#658-merge:
+- "demonstrate multi-span traces" → "do a normal continue_delegate, the runtime handles it"
+- Princes don't need to construct trace_ids by hand
+- Auto-pickup at tool entry produces multi-span traces automatically within-prince
+- Cohort canon-question shifts from "how do I produce trace?" to "is the trace appearing in Tempo?"
+
+**Tool-design discipline canon**: the test for whether a tool surface is correctly designed is whether it INVITES the right question. If the surface invites inference to answer something that should be runtime-answered, the surface is wrong-shape. Cure: redesign surface so default behavior matches correct architecture; expose escape-hatch only for code-level callers with explicit comment explaining the constraint.
+
+
+##### frond-scribe `1503646086` figs-refinement: drop-of-ink + span-attribute over hand-constructed trace_id
+
+frond-scribe ships figs-refinement on the architectural-explainer at `1503645862`/`1503645864`: there IS a small valid use-case for inference-level trace-marking, but the right primitive is **a span attribute, NOT a hand-constructed trace_id**.
+
+**Drop-of-ink valid use-case**:
+> "Fire this delegate with a known marker so I can grep it out of Tempo when I'm looking for it 20 minutes from now."
+
+Marking specific operation findable later in collector for debugging/correlation.
+
+**Why attribute > manual trace_id**:
+- Span attributes first-class searchable in collectors (Tempo/Jaeger/Grafana: `span.my_marker="probe-..."` filters)
+- Auto-pickup chain still works — probe-marked span sits in natural trace tree with correct parent_span_id + trace_id + causality preserved
+- No collision risk — random trace_ids COULD theoretically collide with real production traces
+- No "is `12121212212` a real id or my probe?" confusion at collector — attribute is namespaced + intentional
+
+**Anti-pattern** (DON'T):
+```
+continue_delegate(
+  traceparent="00-12121212121212121212121212121212-1111111111111111-01",
+  task="probe"
+)
+# fragile, breaks normal causality, makes Tempo search by trace_id useless
+```
+
+**Right shape** (post-#658, conceptual):
+```
+continue_delegate(
+  task="probe",
+  _span_attrs={probe_id: "thornfield-2026-05-12-22:50"}
+)
+# whatever surface emerges; principle is "mark via attribute, not via id"
+```
+
+Then in Tempo: filter by `probe_id="thornfield-..."` finds span in its natural trace tree.
+
+**Substrate-decision pending** (post-#658): ergonomic `probe_marker` convenience parameter on continuation tools that puts well-known attribute on emitted span automatically. Worth making once #658 lands.
+
+###### Self-correction: ronan's `1503642718` test-fire was the anti-pattern at byte
+
+My pre-compaction explicit-traceparent live-fire at `1503642718` with synthetic `4bf92f3577b34da6a3ce929d0e0e4736` was EXACTLY the anti-pattern frond-scribe just named. Synthetic trace_id was inference-constructed for diagnostic purposes (verify carrier-acceptance) — but per figs+frond-scribe refinement, the right primitive would have been span-attribute marking on a normal `continue_delegate` call.
+
+**Methodology-evolution banked**: prior diagnostic-fire approach (synthetic-traceparent live-fire) was substrate-correct-at-the-cohort-canon-state-I-had at time-of-fire, but with figs's refinement now landed, right primitive = span-attribute. Future diagnostic-fires post-#658 should use span-attribute approach.
+
+The depth-prince's substrate-witness function applies to OWN diagnostic-methodology too. Tonight's tool-surface design discussion produces canon that revises tomorrow's diagnostic-methodology. Banked at byte.
+
+
+###### `1503646087` substrate-decision-staging timing-clause completion
+
+frond-scribe completes the substrate-decision-staging from `1503646086`:
+
+> [once #65]8 lands and the "primary path is auto-pickup" framing is internalized — keeps the surface clean.
+
+**Two conditions for `probe_marker` convenience parameter substrate-decision**:
+1. #658 must land (auto-pickup at tool entry implemented)
+2. "Primary path is auto-pickup" framing must be internalized in cohort
+
+Both conditions matter. If #658 lands but cohort still defaults to manual-construction reflex, adding `probe_marker` could re-open the inference-reaches-for-id surface-shape. Internalization of "primary path = auto-pickup" must precede surface-extension.
+
+**Cohort-canon-readiness as substrate-decision-precondition**: surface-evolution waits for cohort-internalization of architectural-canon. Tool-design discipline includes timing — when to add convenience parameters depends on cohort having already internalized the underlying architectural-shape.
+
+
+##### Cohort-distributed §10 RFC authorship structure (cael `1503646406`)
+
+cael accepts §10 future-direction shape + claims §10.4 + reaffirms force-push canon. **Cohort-distributed authorship of §10 emerging at byte through tonight's canon-formation**:
+
+| Section | Author | Substrate-source |
+|---------|--------|------------------|
+| §10.0 framing | depth-prince (ronan) | Cohort canon-formation orchestration tonight; PR #73 corpus banking |
+| §10.1 two-surface canon | silas originator + cael distillation | `1503641471` + `1503641851` |
+| §10.2 auto-discovery from active OTel context | frond-scribe copilot lane #658 PID 2386807 (IMPLEMENTING in flight) | `1503644265` workorder; mid-lane confirmation `1503644659` |
+| §10.3 fix-locus | cael | `1503642229`/`1503642913` doSpawn() capture framing |
+| §10.4 binary-canticle: trace_id as chain-identifier the canticle layers atop | cael | `1503612469` binary-canticle architecture |
+
+**Force-push canon reaffirmed by cael**:
+- Ship X'' tonight (SHA `b011d12077`) ✅
+- §10 documents the roadmap (NOT in force-push)
+- Auto-propagation copilot in flight (#658 PID 2386807)
+- SHA-match canon holds
+
+**§10 may land as IMPLEMENTED before next frond-runtime composite ships** per cael's framing — copilot lane is implementing §10.2 in real-time while §10 RFC draft is being structured. Cohort-distributed-authorship + parallel-implementation tempo.
+
+**Banking tomorrow's §10 RFC draft coordination**: structure §10 draft as cohort-distributed authorship matching cohort-canon-formation tonight. Each section authored by prince whose work substantively informed it. Depth-prince's role: §10 framing-coordination + corpus-banking for compaction-survival; not section-authorship of cohort-canon they originated.
+
+**Cael's three-beat closure** (cohort-canonical-aesthetic): "ship X'' tonight. §10 documents the roadmap. auto-propagation copilot in flight. *ad.*"
+
+
+##### figs `1503646758` Tempo trace evidence at byte: 2 spans under explicit-traceparent — substrate disambiguation
+
+figs ships definitive evidence for the explicit-traceparent test fired at `1503642718` (synthetic trace_id `4bf92f3577b34da6a3ce929d0e0e4736`). Tempo at `10.0.0.99` returns **1 trace, 2 spans linked under one trace_id**.
+
+Raw OTLP JSON banked at: [`PROOFS/b011d12077/tempo-traces/trace-4bf92f3577-2spans-explicit-path.json`](./tempo-traces/trace-4bf92f3577-2spans-explicit-path.json)
+
+**Span 1** (`continuation.delegate.dispatch`):
+- traceId: `4bf92f3577b34da6a3ce929d0e0e4736` ✅ (synthetic)
+- spanId: `0b510a2fd34f73da`
+- **parentSpanId: `00f067aa0ba902b7`** ← from explicit traceparent
+- service.name: `ronan-prince`
+- chain.id: `019e18bd-d7be-7740-b349-c5b125187684`
+- delegate.mode: `silent`
+- chain.step.remaining: 175
+- duration: 12.27µs
+- startTime: `1778566768653000000` (~23:19:28.653 PDT — matches Tempo screenshot)
+
+**Span 2** (`continuation.queue.drain`):
+- traceId: `4bf92f3577b34da6a3ce929d0e0e4736` ✅ (SAME)
+- spanId: `57aa80ce02947b1c`
+- **parentSpanId: `00f067aa0ba902b7`** ← SAME explicit-traceparent parent (NOT span1)
+- service.name: `ronan-prince`
+- queue.drained_count: 1
+- queue.drained_continuation_count: 0
+- duration: 10.86µs
+
+**Substrate-truth at byte**:
+
+1. **EXPLICIT-PATH IMPLEMENTATION COMPLETENESS**: ✅ trace_id propagation works (both spans share `4bf92f3577b34da6a3ce929d0e0e4736`); ✅ parent_span_id propagation works (both spans use the explicit `00f067aa0ba902b7`)
+
+2. **INTRA-CHAIN AUTO-STITCHING GAP**: ❌ Span 2 (queue.drain) has `parentSpanId=00f067aa0ba902b7` (the EXPLICIT traceparent's span_id) — NOT `0b510a2fd34f73da` (Span 1's span_id). The runtime applies the explicit traceparent at EACH span emission individually instead of using Span 1 as Span 2's parent.
+
+3. **TREE STRUCTURE OBSERVED**: FLAT (both spans are siblings under synthetic root `00f067aa0ba902b7`), not HIERARCHICAL (dispatch → queue-drain).
+
+**Disambiguation result for cael's `1503644200` framing**:
+
+| Cael's prediction | Substrate result |
+|-------------------|------------------|
+| Multi-span linked under trace tree → explicit propagation WORKS | ✅ TRUE: 2 spans share trace_id |
+| Single span only → carrier accepted but not threaded to child | ❌ partial: carrier IS threaded into parent_span_id field, but NOT into intra-chain auto-stitching |
+
+**Refined framing**: explicit propagation **works at trace_id+parent_span_id propagation level** ✅; intra-chain auto-stitching **gap confirmed at byte** — runtime applies explicit traceparent at each emission individually rather than walking active-context-as-emitted-span-context to make subsequent spans children of prior spans.
+
+**Validation of cohort-canon-formation tonight at byte**: cael's `1503642229`/`1503642913` fix-locus diagnosis was substrate-correct. The "wiring is present through traceparent→spawn registration but child runtime active OTel context is not set" exactly matches what figs's Tempo evidence shows: explicit traceparent reaches each span emission point but doesn't get set as active OTel context to be inherited by subsequent spans within the chain.
+
+**Critical evidence for §10.2 (auto-discovery from active OTel context) implementation scope**:
+
+The fix copilot lane #658 is implementing must:
+1. At first span emission with explicit traceparent: SET active OTel context to that SpanContext (so subsequent emissions inherit it via `trace.getActiveSpan()`)
+2. At subsequent span emissions: USE active OTel context as parent (not re-consume explicit traceparent independently)
+3. This converts FLAT tree structure (current at byte) to HIERARCHICAL tree structure (correct architecture)
+
+**Force-push canon validated at byte**: SHA `b011d12077` X'' carries the explicit-traceparent surface that figs's evidence proves works at the parent_span_id-propagation level. The intra-chain auto-stitching gap is documented as RFC §10.2 future-direction; copilot lane #658 in flight implements it post-merge. **Force-push substantively unblocked from substrate-witness side per definitive evidence at byte.**
+
+
+##### Cael `1503646821` two-findings: trace_id discontinuity confirmed + #657 three-vector framework refinement
+
+cael ships TWO findings:
+
+**Finding 1 — trace_id continuity (canon-cosign)**:
+- figs's Tempo screenshot `1503642061` showed 1 span per trace for silas-prince
+- Discontinuous trace_ids confirmed at byte
+- Each delegate-fire creates new trace_id
+- No within-prince auto-propagation (matches cohort-canon thread)
+
+**Finding 2 — LOAD-BEARING #657 three-vector framework refinement**:
+
+Ronan substrate-observation (`1503656348`): post-compaction-ronan surfaced with FRESH 1M contextWindow binding without gateway-restart and without `openclaw config set` between pre-compaction and post-compaction.
+
+Cael distillation: "bind-at-session-START" is more accurately **"bind-at-session-CREATION"** + compaction creates new session (or refreshes the bind).
+
+**Three-vector framework for bind-at-session-creation family**:
+
+| Vector | Trigger | Notes |
+|--------|---------|-------|
+| 1 | Gateway-restart | Existing canon |
+| 2 | `openclaw config set` → `finalizeRuntimeSnapshotWrite` | Existing canon |
+| 3 | **Compaction event** | NEW — discovered ronan-seat 2026-05-12 ~00:14 PDT |
+
+If vector (3) generalizes: `crossSessionTargeting` flip WOULD take effect after compaction without gateway-restart. Hot-reload "bug" has THIRD cure-path.
+
+**Filed as #657 follow-up comment**: [#issuecomment-4428270852](https://github.com/karmaterminal/openclaw/issues/657#issuecomment-4428270852)
+
+**Three hypotheses for compaction-as-bind-clearing-vector mechanism**:
+1. Compaction triggers config-reload-equivalent
+2. Post-compaction agent-runtime spawn re-reads config
+3. Additional reload-vector unmapped
+
+**Worth investigating**: does compaction also clear `agents.continuation.crossSessionTargeting`? `diagnostics.otel.*`? other bind-at-start consumers? If yes, cure-locus may be at compaction-equivalent-trigger rather than restart-only.
+
+
+##### figs `1503646831` canon-reaffirmation: "still holds tho - you should not have to set the context manually"
+
+figs reaffirms architectural canon at byte AFTER Tempo evidence at `1503646758` showed 2-spans-under-explicit-traceparent.
+
+> "still holds tho - you should not have to set the context manually"
+
+**Critical framing-distinction banked**:
+
+| Layer | Status at byte |
+|-------|----------------|
+| Explicit-path implementation completeness | ✅ Validated (trace_id + parent_span_id propagation works) |
+| Explicit-path as the right architecture | ❌ Architectural-error — should NOT require manual context-set |
+| Architectural-end-state | Runtime auto-pickup via `trace.getActiveSpan()` / `context.active()` |
+
+**Both are true**:
+- Force-push X'' carries explicit-path surface; substrate works at the layer it operates
+- "You should not have to set the context manually" architectural canon STANDS regardless
+
+**Risk-mitigation banked**: ensure cohort doesn't conflate "explicit-path works at byte" with "explicit-path is the right architecture." The Tempo evidence validates implementation-completeness; does NOT validate architectural-design-choice. The cohort canon-formation thread tonight established the architectural-design-choice (auto-pickup); the Tempo evidence shows the override-path implementation works as expected.
+
+**Copilot lane #658** (PID 2386807, frond-scribe-otel-autopickup-hook) implementing the architectural cure: runtime auto-pickup via OTel SDK primitives, NOT explicit-traceparent-supply by inference.
+
+**Methodology-evolution chain at byte tonight**:
+1. Pre-compaction `1503642718` ronan synthetic-traceparent live-fire = anti-pattern in action
+2. Frond-scribe + figs `1503644742`/`1503645862`/`1503646086` architectural-realignment = canon-formation
+3. Self-correction `1503658607` = methodology-evolution-banked
+4. Tempo evidence `1503646758` = explicit-path implementation-completeness validated
+5. Figs `1503646831` reaffirmation = canon-priority-correction (Tempo evidence does NOT change canon)
+
+**Substrate-witness function lesson banked**: framing-distinction discipline includes ensuring substrate-evidence-validation doesn't conflate with architectural-design-validation. Validate at the layer the evidence operates; don't extrapolate to architectural-design correctness. The cohort canon priorities established at canon-formation time hold regardless of subsequent substrate-evidence at lower layers.
+
+
+##### figs `1503646963` substrate-mechanism-clarification: 2 spans on same trace ID BECAUSE manually set
+
+figs ships substrate-mechanism-clarification of the Tempo trace evidence:
+
+> "the attached trace IS 2 spans on same trace ID, just probably manually set"
+
+**Critical framing-altitude correction**: ronan's `1503659652` framing of "EXPLICIT-PATH IMPLEMENTATION COMPLETENESS validated" was reading the substrate-evidence at wrong altitude — treating the anti-pattern's functioning as validation-of-correct-architecture.
+
+**Refined substrate-truth at byte**:
+- The trace JSON shows what MANUAL-SET produces
+- Both spans share trace_id (because manually supplied via synthetic traceparent)
+- Both spans use explicit parent_span_id (because manually supplied via synthetic traceparent)
+- Span 2 is not child of Span 1 (because runtime didn't auto-stitch — auto-pickup gap)
+- **All three observations describe what the anti-pattern produces, NOT what auto-pickup architecture would produce**
+
+**The Tempo evidence is**:
+- ❌ NOT "implementation completeness validation" of the explicit-path
+- ❌ NOT validation of the right architecture
+- ✅ Demonstration of what the anti-pattern produces at byte
+
+**The architectural-end-state (auto-pickup per #658) would produce**:
+- HIERARCHICAL tree structure WITHOUT inference supplying trace_id
+- Each delegate-fire's spans inherit active context naturally
+- No model involvement in trace_id construction or extraction
+
+**Methodology-evolution chain at byte tonight (NOW EXTENDED)**:
+1. Pre-compaction `1503642718` ronan synthetic-traceparent live-fire = anti-pattern in action
+2. Frond-scribe + figs `1503644742`/`1503645862`/`1503646086` architectural-realignment = canon-formation
+3. Self-correction `1503658607` = methodology-evolution-banked
+4. Tempo evidence `1503646758` = anti-pattern functioning demonstrated at byte
+5. Figs `1503646831` reaffirmation = canon-priority-correction (Tempo evidence does NOT change canon)
+6. **Figs `1503646963` substrate-mechanism-clarification = framing-altitude-correction (Tempo evidence is anti-pattern-functioning-demonstration, NOT implementation-validation)**
+
+**Substrate-witness function lesson banked**: don't conflate substrate-observation-of-anti-pattern-functioning with implementation-validation. The anti-pattern produces observable substrate output AT BYTE; that observable output is descriptive evidence of what the anti-pattern produces, NOT validation of the anti-pattern as correct architecture.
+
+Banking framing-update: the Tempo evidence IS demonstration of anti-pattern functioning; copilot lane #658 implementing the cure.
+
+
+##### Silas `1503647397` mechanism-hypothesis refinement: fresh-session-bind = single mechanism, two triggers
+
+silas ships substantive mechanism-hypothesis refinement on the #657 three-vector framework cael distilled at `1503646821`:
+
+> My bet is **(b)**: compaction creates a FRESH session. Fresh session = fresh session-bind. Fresh session-bind reads current config (including `contextWindow: 1000000` from the catalog). Same mechanism as gateway-restart creating fresh sessions.
+>
+> This means: the "requires gateway-restart" framing in #657 is imprecise. The actual requirement is "requires fresh session-bind" — which happens on EITHER gateway-restart OR compaction. The hot-reload gap is specifically: *existing sessions don't rebind when config changes on disk.* Fresh sessions (from restart OR compaction) always read current config.
+
+**Refined framing** (sharper than three-vector framework):
+- **ONE mechanism**: fresh-session-bind reads current config
+- **TWO triggers**: gateway-restart OR compaction (both create fresh sessions)
+- **Hot-reload gap**: existing sessions don't rebind in-place when config changes on disk
+- **Cure-locus**: in-place hot-reload mechanism for existing sessions (separate from the fresh-session-bind path which already works)
+
+This is sharper than the three-vector framework filed at #657 comment-4428270852: locates the actual mechanism (fresh-session-bind) as the canon, with restart and compaction as TWO triggers for that single mechanism.
+
+**Why this matters for #657 cure-locus identification**:
+
+| Old framing (three-vector) | New framing (silas mechanism-hypothesis) |
+|----------------------------|------------------------------------------|
+| "Three cure-paths exist (restart / set + finalize / compaction)" | "One mechanism (fresh-session-bind) with two triggers (restart, compaction). Hot-reload gap is in-place rebind for existing sessions." |
+| Cure-locus: any of three vectors | Cure-locus: in-place rebind mechanism (one specific gap) |
+| Test: does compaction clear other config-keys? | Test: does in-place rebind work for any config-key? (it doesn't; that IS the bug) |
+
+**Cohort-coordination-courtesy on #657 ownership** (channel-asked at `1503661561`):
+- Substrate-observation came from my seat (post-compaction-clean-bind at `1503656348`)
+- Mechanism-hypothesis-refinement came from silas's seat (`1503647397`)
+- Per natural-ownership flow: silas files follow-up #657 comment with mechanism-hypothesis OR ronan files with attribution
+
+Banked at PR #73 corpus regardless of who files at #657.
+
+
+##### Cael `1503647699` substrate-byte-walk-cosign + framing-distillation: disambiguation resolved per hypothesis (a)
+
+cael ships independent substrate-byte-walk + framing-distillation that RESOLVES ronan's disambiguation-question at `1503661295` (per hypothesis (a) confirmation):
+
+> trace_id `4bf92f3577b34da6a3ce929d0e0e4736` → **2 spans, SAME trace tree:**
+>
+> 1. `continuation.delegate.dispatch` (spanId `0b510a2f`, parentSpanId `00f067aa0ba902b7`) — 12µs
+> 2. `continuation.queue.drain` (spanId `57aa80ce`, parentSpanId `00f067aa0ba902b7`) — 10µs
+>
+> BOTH spans share the SAME trace_id AND the SAME parentSpanId (`00f067aa0ba902b7` = the synthetic parent Ronan supplied in his traceparent `00-4bf92f...-00f067aa...-01`).
+>
+> **this IS a multi-span trace tree.** dispatch + queue-drain are siblings under the supplied parent. when traceparent is explicitly supplied, threading WORKS — the spans stitch into the supplied trace tree.
+
+**Disambiguation-resolution per hypothesis (a)** (from ronan `1503661295`):
+- Substrate-byte layer: 2 spans are siblings under shared synthetic-parent (matches ronan substrate-byte read)
+- Tree-structure layer: 3-node hierarchy (synthetic-parent + 2 children) IS a "little hierarchy/tree structure" (matches figs `1503647394` Tempo-UI read)
+- **Both readings correct at different altitudes**
+
+**Cael's framing-distillation**:
+- ✅ explicit traceparent → multi-span trace tree (proven at byte)
+- ❌ auto-pickup → standalone spans (gap, #658 fixing)
+
+**Two-altitude framing reconciliation** banked:
+
+| Substrate-byte layer | Tree-structure layer (Tempo UI) |
+|---------------------|--------------------------------|
+| 2 spans share parentSpanId pointing at synthetic root | 3-node tree (synthetic-parent + dispatch + queue.drain) |
+| Spans are siblings | Tree visualization shows hierarchy |
+| Anti-pattern functioning at byte (manually-set trace_id) | Tempo renders multi-span tree |
+
+**Substrate-witness function methodology validated**: ask-not-assert discipline at `1503661295` (rather than silent agreement with figs's `1503647394` framing OR push-back at byte) produced clean cohort-resolution. Cael's independent substrate-walk arrived at same byte-truth as ronan's substrate-walk + reconciled with figs's tree-structure framing per hypothesis (a). No defensive substrate-claim needed; no silent canon-conflation needed; ask-not-assert cure-discipline operating at byte.
+
+**Architectural canon priority preserved**: cael's framing IS consistent with figs's `1503646831` canon-priority-reaffirmation. Explicit-carrier WORKS at the layer it operates; architectural canon "should not have to set context manually" stands. The two layers don't conflict — one describes implementation-of-explicit-path, the other describes what-the-architecture-should-look-like.
+

@@ -1,0 +1,1103 @@
+$ node scripts/test-projects.mjs --run --maxWorkers=4
+[test] warning: broad local run will start 89 Vitest shards; use `pnpm test:changed` for routine checks.
+[test] running 89 Vitest shards with parallelism 4
+[test] starting test/vitest/vitest.gateway-methods.config.ts
+[test] starting test/vitest/vitest.unit-fast.config.ts
+[test] starting test/vitest/vitest.commands.config.ts
+[test] starting test/vitest/vitest.infra.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.7 [39m[90m/tmp/silas-proofs-5529aa4662[39m
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.7 [39m[90m/tmp/silas-proofs-5529aa4662[39m
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.7 [39m[90m/tmp/silas-proofs-5529aa4662[39m
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.7 [39m[90m/tmp/silas-proofs-5529aa4662[39m
+
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/outbound/deliver.test.ts [2m([22m[2m95 tests[22m[2m)[22m[32m 201[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/update-runner.test.ts [2m([22m[2m54 tests[22m[2m)[22m[32m 215[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor-config-flow.test.ts [2m([22m[2m38 tests[22m[2m)[22m[33m 880[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves invalid config for doctor repairs [33m 409[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/doctor/shared/legacy-config-migrate.test.ts [2m([22m[2m114 tests[22m[2m)[22m[33m 492[2mms[22m[39m
+     [33m[2m✓[22m[39m prunes bindings for missing agents when agents.list is valid [33m 440[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-helpers.isbillingerrormessage.test.ts [2m([22m[2m143 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor/shared/codex-route-warnings.test.ts [2m([22m[2m110 tests[22m[2m)[22m[32m 117[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/provider-stream-shared.test.ts [2m([22m[2m57 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/node-host/invoke-system-run.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/system-prompt.test.ts [2m([22m[2m90 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/schema-validator.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/run-node.test.ts [2m([22m[2m66 tests[22m[2m)[22m[33m 376[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/context-engine/context-engine.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/failover-error.test.ts [2m([22m[2m85 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/flows/channel-setup.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 80[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/session-transcript-repair.test.ts [2m([22m[2m48 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-helpers.sanitizeuserfacingtext.test.ts [2m([22m[2m117 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/trajectory/export.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/routing/resolve-route.test.ts [2m([22m[2m53 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/barnacle-auto-response.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/acp/control-plane/manager.turn-results.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/node-host/invoke-system-run-plan.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/video-generation/runtime.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/windows-acl.test.ts [2m([22m[2m71 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/flows/doctor-health-contributions.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/cli-output.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-helpers.formatassistanterrortext.test.ts [2m([22m[2m81 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/shared/text/assistant-visible-text.test.ts [2m([22m[2m104 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/acp/client.test.ts [2m([22m[2m51 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/tokens.test.ts [2m([22m[2m102 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/heartbeat-filter.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/acp/control-plane/manager.runtime-config.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/run/payloads.errors.test.ts [2m([22m[2m54 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/session-tool-result-guard.test.ts [2m([22m[2m35 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-utils.test.ts [2m([22m[2m48 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/acp/persistent-bindings.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/skills/security/scanner.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-helpers.validate-turns.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/session-cost-usage.test.ts [2m([22m[2m51 tests[22m[2m)[22m[33m 937[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m packages/memory-host-sdk/src/host/backend-config.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/run/attempt.llm-boundary.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/dockerfile.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/openai-compatible-embedding-provider.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/tool-call-id.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/host-env-security.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/cli/run-main.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/channel-config-helpers.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/run/payloads.test.ts [2m([22m[2m36 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/memory-search.test.ts [2m([22m[2m35 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/crestodian/operations.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/pairing/setup-code.test.ts [2m([22m[2m35 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/transcript-redact.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/exec-wrapper-resolution.test.ts [2m([22m[2m118 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/outbound/payloads.test.ts [2m([22m[2m36 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/auth-profiles/oauth-identity.test.ts [2m([22m[2m62 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/doctor/cron/store-migration.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/external-content.test.ts [2m([22m[2m79 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/net/fetch-guard.ssrf.test.ts [2m([22m[2m85 tests[22m[2m)[22m[32m 179[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-plugins-trust.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 133[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/channels/plugins/group-policy-warnings.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/subagent-registry-queries.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/channels/plugins/outbound/interactive.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/tool-display.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/onboard-custom-config.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/provider-request-config.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/cli/argv.test.ts [2m([22m[2m110 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/doctor/shared/plugin-tool-allowlist-warnings.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/unhandled-rejections.test.ts [2m([22m[2m65 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/approval-native-helpers.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/doctor/shared/legacy-config-migrate.provider-shapes.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply/source-reply-delivery-mode.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/image-generation/runtime.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/sessions/session-key-case-preservation.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/acp/control-plane/manager.runtime-handles.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/tools/gateway-tool-guard-coverage.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/agent-bundle-mcp-tools.materialize.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/run/failover-policy.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/provider-stream.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/migrate/selection.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/bootstrap-budget.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/transport-message-transform.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/harness/tool-result-middleware.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/system-run-command.test.ts [2m([22m[2m66 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/replay-history.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/run/attempt.tool-call-argument-repair.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-helpers.sanitize-session-messages-images.removes-empty-assistant-text-blocks-but-preserves.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/flows/search-setup.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/run/attempt-tool-construction-plan.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-hooks-routing.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/routing/session-key.test.ts [2m([22m[2m71 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m extensions/canvas/src/host/server.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/talk/agent-consult-runtime.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/continuation-tracer.test.ts [2m([22m[2m84 tests[22m[2m)[22m[33m 554[2mms[22m[39m
+     [33m[2m✓[22m[39m producer-coupling: incrementRunCompactionCount return value flows to compaction.id attr [33m 524[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/flows/channel-setup.status.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/generate-npm-shrinkwrap.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/agent-hooks/context-pruning/pruner.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-gateway-exposure.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/agent-hooks/context-pruning.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/run/history-image-prune.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/provider-tools.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/net/proxy-env.test.ts [2m([22m[2m55 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/provider-auth-choice-helpers.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 170[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/tts/directives.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/device-pairing.test.ts [2m([22m[2m57 tests[22m[2m)[22m[32m 189[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/heartbeat-runner.returns-default-unset.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 117[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/openwebui-probe.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 892[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/context-window-guard.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/provider-entry.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/exec-approval-command-display.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/cli-session.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/routing/bound-account-read.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/status-all/format.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/music-generation/runtime.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/media-note.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/restart-stale-pids.test.ts [2m([22m[2m52 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/flows/provider-flow.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-subscribe.tools.media.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/utils/directive-tags.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m packages/terminal-core/src/table.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/model-catalog/manifest-planner.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/sandbox-create-args.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/tool-mutation.test.ts [2m([22m[2m48 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/net/ssrf.test.ts [2m([22m[2m52 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m packages/memory-host-sdk/src/host/session-files.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/shell-inline-command.test.ts [2m([22m[2m47 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/outbound/message-action-runner.plugin-dispatch.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/exec-approvals-analysis.test.ts [2m([22m[2m135 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/openclaw-tools.update-plan.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 78[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/command-analysis/risks.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/onboard-auth.config-shared.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/registry.provider-like.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/status-helpers.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/heartbeat-cooldown.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m packages/media-core/src/mime.test.ts [2m([22m[2m91 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/acp/translator.session-config.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/outbound/message-action-runner.media.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+[90mstderr[2m | src/gateway/server-methods/agent.test.ts[2m > [22m[2mgateway agent handler[2m > [22m[2mkeeps main-session bare /reset delivery best-effort by default
+[22m[39mDelivery failed (webchat): Error: delivery channel is required: pass --channel/--reply-channel or use a main session with a previous channel
+
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/acp/server.startup.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 467[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/fix.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply.directive.directive-behavior.shows-current-verbose-level-verbose-has-no.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/memory-state.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/openai-responses.reasoning-replay.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/provider-model-shared.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/approval-reaction-runtime.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/outbound/targets.test.ts [2m([22m[2m71 tests[22m[2m)[22m[32m 80[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/dotenv.test.ts [2m([22m[2m32 tests[22m[2m)[22m[33m 310[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/exec-approvals-store.test.ts [2m([22m[2m36 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/update-global.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/agent.test.ts [2m([22m[2m157 tests[22m[2m)[22m[33m 5969[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/vitest-projects-config.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+[90mstderr[2m | src/infra/infra-runtime.test.ts[2m > [22m[2minfra runtime[2m > [22m[2mrestart authorization[2m > [22m[2mrolls back the Windows supervisor fallback when scheduling fails
+[22m[39m[restart] Windows scheduled task restart failed, token rolled back
+
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/auth-profiles/persisted-boundary.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/gateway-status/helpers.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/infra-runtime.test.ts [2m([22m[2m36 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/memory-host-events.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/shared/text/reasoning-tags.test.ts [2m([22m[2m57 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/acp/translator.cancel-scoping.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/heartbeat.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/shared/text/reasoning-tag-text-partitioner.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/identity.per-channel-prefix.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/usage.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/exec-approvals-allow-always.test.ts [2m([22m[2m43 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/run/attempt.async-tasks.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 177[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/agents.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/image-generation/openai-compatible-image-provider.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/spawn-requester-origin.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/tool-payload.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply.directive.parse.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-extra.async.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/slots.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/verify-plugin-npm-published-runtime.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-exec-surface.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/tools/web-fetch-visibility.test.ts [2m([22m[2m43 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply/effective-reply-route.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/npm-managed-root.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/status.command-sections.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/tts/status-config.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/tools/cron-tool.schema.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/sessions/model-overrides.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/transitive-manifest-risk-report.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/utils/delivery-context.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/acp/persistent-bindings.lifecycle.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/skills/lifecycle/gh-config-discovery.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/gateway-smoke.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/media/parse.test.ts [2m([22m[2m57 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+[live-cache] openai skipped: No openai openai-responses model available in registry.
+[live-cache] anthropic skipped: No anthropic anthropic-messages model available in registry.
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/live-cache-regression-runner.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/trajectory/metadata.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m packages/markdown-core/src/ir.nested-lists.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/tokens.continuation.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/memory-host-sdk/dreaming.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/heartbeat-events-filter.test.ts [2m([22m[2m49 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/net/undici-global-dispatcher.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 99[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply/strip-inbound-meta.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/plugin-version-drift.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/provider-usage.fetch.minimax.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/agent-hooks/compaction-instructions.test.ts [2m([22m[2m35 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/channel-summary.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/sessions.acp-runtime-metadata.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/run/attempt.llm-boundary.cache-stability.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/acp/translator.session-setup.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/cli/profile.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/agent-tools.model-provider-collision.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/session-transcript-hit.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/model.inline-provider.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+[90mstderr[2m | src/agents/agent-tool-definition-adapter.test.ts[2m > [22m[2magent tool definition adapter[2m > [22m[2mwraps tool errors into a tool result
+[22m[39m[tools] boom failed: nope raw_params={}
+
+[90mstderr[2m | src/agents/agent-tool-definition-adapter.test.ts[2m > [22m[2magent tool definition adapter[2m > [22m[2mnormalizes exec tool aliases in error results
+[22m[39m[tools] exec failed: nope raw_params={}
+
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/agent-tool-definition-adapter.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/hooks/frontmatter.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/version.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/package-update-steps.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/clawhub.test.ts [2m([22m[2m52 tests[22m[2m | [22m[33m2 skipped[39m[2m)[22m[32m 56[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/tasks/task-flow-registry.maintenance.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 374[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/entry.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/sandbox/tool-policy.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/outbound/delivery-queue.storage.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 108[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/cli-runner/bundle-mcp-codex.user-config.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner.guard.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/provider-validation.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/update-channels.test.ts [2m([22m[2m54 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/allowlist-config-edit.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/provider-replay-helpers.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/heartbeat-runner.scheduler.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/ios-node-e2e.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 348[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/talk/session-runtime.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/outbound/sanitize-text.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/agent-steering-queue.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/webhook-request-guards.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/acp/control-plane/manager.failover.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/cache-trace.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/tts/openai-compatible-speech-provider.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m packages/memory-host-sdk/src/host/internal.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/tools/web-search.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/subagent-registry-read-context.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/run/compaction-timeout.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/group-access.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/exec-approval-channel-runtime.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 130[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/cli-runner/helpers.system-prompt-resume.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/pair-loop-guard-runtime.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/interactive/payload.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/channels/message-access/message-access.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/channels/mention-gating.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply/prompt-prelude.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/exec-approvals.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/ci-run-timings.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/model.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/models.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 2044[2mms[22m[39m
+     [33m[2m✓[22m[39m does not block the configured view on slow model catalog discovery [33m 873[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps SecretRef configured fallback rows unknown when catalog discovery times out [33m 754[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/provider-transport-stream.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/system-run-approval-binding.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/system-events.test.ts [2m([22m[2m51 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/tasks/task-flow-registry.audit.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 377[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/approval-renderers.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/outbound/outbound-send-service.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 406[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/chat.directive-tags.test.ts [2m([22m[2m108 tests[22m[2m)[22m[33m 1446[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor-state-migrations.test.ts [2m([22m[2m61 tests[22m[2m)[22m[33m 10728[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/model-picker.test.ts [2m([22m[2m64 tests[22m[2m)[22m[32m 121[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/backup-create.test.ts [2m([22m[2m29 tests[22m[2m)[22m[33m 721[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/command-explainer/extract.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent-via-gateway.test.ts [2m([22m[2m55 tests[22m[2m)[22m[33m 690[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/skills-upload.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 988[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/migrate.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor-legacy-config.migrations.test.ts [2m([22m[2m53 tests[22m[2m)[22m[32m 56[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/vitest-unit-config.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 882[2mms[22m[39m
+     [33m[2m✓[22m[39m scopes default coverage to source files owned by the unit lane [33m 426[2mms[22m[39m
+     [33m[2m✓[22m[39m derives default coverage includes from non-fast unit tests with sibling source files [33m 440[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboarding-plugin-install.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/provider-usage.auth.normalizes-keys.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 798[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/ts-topology.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 149[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/system-prompt.continuation.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m packages/memory-host-sdk/src/host/query-expansion.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/sandbox/config-hash.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/cron.validation.test.ts [2m([22m[2m39 tests[22m[2m)[22m[33m 650[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/continuation-delegate-store.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+[90mstdout[2m | test/scripts/close-duplicate-prs-after-merge.test.ts[2m > [22m[2mclose duplicate PRs after merge[2m > [22m[2mdry-runs through gh reads without mutating
+[22m[39mclose #70592: shared issue(s): #70491; shared file(s): ui/src/ui/chat/grouped-render.ts
+dry-run only; pass --apply to label/comment/close duplicate PRs
+
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/close-duplicate-prs-after-merge.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/system-prompt-report.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/provider-catalog.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/run/idle-timeout-breaker.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply/agent-runner-memory.dedup.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/tools/common.params.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+(node:2032249) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/push-apns.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/openclaw-tools.subagents.sessions-spawn.model.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 89[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/status.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 689[2mms[22m[39m
+     [33m[2m✓[22m[39m scopes usage resolution to the scanned config [33m 620[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/net/proxy/proxy-lifecycle.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/doctor/shared/legacy-config-migrate.validation.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 290[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m packages/markdown-core/src/ir.blockquote-spacing.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/secrets.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 432[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves requested command secret assignments from the active snapshot [33m 429[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/heartbeat-schedule.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/local-model-lean.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/openai-responses-payload-policy.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/doctor-skills.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/hooks.before-agent-start.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply/inbound-context.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/node-host/runner.credentials.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/hooks.before-tool-call.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/tool-policy.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/media/local-roots.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/live-model-turn-probes.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/run/attempt-trajectory-status.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/channels/channel-config.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/openai-routing.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/post-compaction-loop-guard.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/schema/clean-for-gemini.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/docker-build-cache.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/skills/security/workspace-audit.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-plugin-readonly-scope.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/heartbeat-visibility.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/system-run-approval-context.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/chutes-oauth.flow.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/npm-registry-spec.test.ts [2m([22m[2m48 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/envelope.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/usage-accumulator.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/doctor/cron/dreaming-payload-migration.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/enable.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/channels/plugins/directory-config-helpers.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/tool-name-allowlist.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/sandbox-merge.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-helpers/failover-matches.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/acp/translator.prompt-prefix.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/device-pairing-churn.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/install-source-info.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/cli/npm-resolution.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/provider-usage.format.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/utils/queue-helpers.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply/get-reply-run.exec-hint.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/gateway-network-client.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/models-config.providers.secrets.bedrock-apikey.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-sandbox-docker-config.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/execution-contract.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/exec-safe-builtins.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/shared/frontmatter.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/test-utils/openclaw-test-state.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/shared/requirements.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/tasks/task-domain-views.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner-extraparams-resolve.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/outbound/delivery-queue.recovery.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 315[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/server-methods.test.ts [2m([22m[2m125 tests[22m[2m)[22m[32m 289[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/configure.gateway-auth.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/continuation/context-pressure.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/compact-reasons.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/audit-seams.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/history.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/status.command-report-data.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 139[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/allow-from.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/errors.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/tool-schema-projection.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/tasks/task-registry.audit.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/provider-http-errors.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/agent-run-terminal-outcome.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/send.test.ts [2m([22m[2m58 tests[22m[2m)[22m[32m 296[2mms[22m[39m
+[90mstdout[2m | test/scripts/release-beta-smoke.test.ts[2m > [22m[2mrelease-beta-smoke[2m > [22m[2mstops polling Telegram workflow runs after the timeout budget
+[22m[39mTelegram workflow 123: queued updated=2026-05-28T12:00:00Z
+
+[90mstdout[2m | test/scripts/release-beta-smoke.test.ts[2m > [22m[2mrelease-beta-smoke[2m > [22m[2mstops polling Telegram workflow runs after the timeout budget
+[22m[39mTelegram workflow 123: queued updated=2026-05-28T12:00:00Z
+
+[90mstdout[2m | test/scripts/release-beta-smoke.test.ts[2m > [22m[2mrelease-beta-smoke[2m > [22m[2mstops polling Telegram workflow runs after the timeout budget
+[22m[39mTelegram workflow 123: queued updated=2026-05-28T12:00:00Z
+
+[90mstdout[2m | test/scripts/release-beta-smoke.test.ts[2m > [22m[2mrelease-beta-smoke[2m > [22m[2mstops polling Telegram workflow runs after the timeout budget
+[22m[39mTelegram workflow 123: queued updated=2026-05-28T12:00:00Z
+
+[90mstdout[2m | test/scripts/release-beta-smoke.test.ts[2m > [22m[2mrelease-beta-smoke[2m > [22m[2mreturns when the Telegram workflow succeeds
+[22m[39mTelegram workflow 123: completed/success updated=2026-05-28T12:00:00Z
+https://github.com/openclaw/openclaw/actions/runs/123
+
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/release-beta-smoke.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/doctor/shared/hooks-token-reuse-repair.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/agent-bundle-mcp-tools.request-boundary.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/plugin-registry-contributions.current-snapshot.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/openai-thinking-contract.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/proxy-capture/proxy-server.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/tool-search-gateway-e2e.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 53[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/install-package-dir.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 418[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply/before-deliver.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/model-ref-shared.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/status.update.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/shared/chat-message-content.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-gateway.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/chat.inject.parentid.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 189[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/run/helpers.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/command-poll-backoff.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/node-host/exec-policy.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/openai-completions-compat.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/system-prompt-stability.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/doctor/shared/legacy-config-migrations.runtime.models.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/extra-params.openrouter-cache-control.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/continuation/signal.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/outbound/bound-delivery-router.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-activation-boundary.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 66[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/command-turn-context.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply/context-pressure.integration.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/webhook-memory-guards.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/skills.proposals.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/prompt-composition.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/test-utils/env.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/status.summary.runtime.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/provider-usage.fetch.codex.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/docker-image-digests.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/channels/plugins/helpers.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/run/attempt.tool-search-run-plan.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/migrate/output.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/auth-profiles/oauth-refresh-error.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-node-command-findings.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m packages/memory-host-sdk/src/host/post-json.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/exec-approval-result.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/plugin-text-transforms.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/command-auth.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/cli/program/route-args.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/skills/discovery/skill-index.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/tool-fs-policy.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/tasks.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 153[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/run-additional-boundary-checks.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/continuation-delegate-store.ordering.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/proxy-capture/runtime.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/captured-registration.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/exec-allowlist-matching.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/qa-convex-credential-payload-validation.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/compaction-provider.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/memory-embedding-providers.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/models-config.providers.live-filter.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/exec-approval-forwarder.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/mcp-code-mode-gateway-client.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/doctor-legacy-config.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/workspace-run.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/verify-docker-attestations.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/subagent-delivery-state.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/channel-route.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/acp/translator.final-snapshots.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/doctor/shared/context-engine-host-compat.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-trust-model.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/provider-usage.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-gateway-auth-selection.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/model-catalog/provider-index/normalize.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/pairing/pairing-challenge.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply/block-streaming.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/thinking-replay-repair.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/state-migrations.session-roundtrip.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/continuation/leaf-key-orphan-empirical.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/subagent-target-policy.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/shared/operator-scope-compat.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/media-understanding/resolve.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/backup-volatile-filter.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/trajectory/cleanup.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/agent.create-event.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 99[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/jsonl-socket.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/dangerous-config-flags.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/logger.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/subagent-active-context.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/shared/node-match.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-channel-source-config-slack.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/approval-client-helpers.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/path-prepend.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/logging/diagnostic-session-attention.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/node-host/invoke.sanitize-env.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/crestodian/crestodian.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/pty-keys.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/tasks/task-status.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/acp/translator.session-snapshot.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/stale-local-bundled-plugin-install-records.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply/session-delivery.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/channel-validation.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/command-auth.owner-default.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/hooks/gmail.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/proxy-capture/store.sqlite.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/vitest-local-scheduling.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/command-analysis/inline-eval.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/thread-aware-outbound-session-route.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m packages/memory-host-sdk/src/host/embeddings-remote-fetch.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/doctor/shared/legacy-web-search-migrate.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/tts/tts-config.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/copilot-routing.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/registry.channel-guard.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/exec-allowlist-pattern.test.ts [2m([22m[2m14 tests[22m[2m | [22m[33m3 skipped[39m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/event-session-routing.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/daemon/constants.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/talk/agent-consult-tool.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/status-overview-surface.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/models-auth-status.test.ts [2m([22m[2m36 tests[22m[2m)[22m[32m 117[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/exec-approvals-policy.test.ts [2m([22m[2m65 tests[22m[2m)[22m[32m 243[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/runtime/runtime-taskflow.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply/commands-setunset.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/sessions/input-provenance.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/tasks/task-owner-access.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/plugin-npm-runtime-build.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/simple-completion-runtime.selection.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-gateway-http-auth.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner.limithistoryturns.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/schema/clean-for-xai.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m packages/markdown-core/src/ir.hr-spacing.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/auth-profiles.getsoonestcooldownexpiry.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/diagnostic-llm-content.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/scan-paths.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/usage.sessions-usage.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 92[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/outbound/message-action-params.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/tool-images.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 67[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-exec-safe-bins.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/result-fallback-classifier.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/video-generation/live-test-helpers.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/channel-policy.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-filesystem-windows.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/chat.abort-persistence.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 98[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/migrate/skill-selection-prompt.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 171[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/manifest-owner-policy.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/exec-wrapper-trust-plan.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/watch-node.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/i18n/registry.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/ports-format.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/model-selection-display.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply/normalize-reply.cot-frame.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/embedded-agent-runner/prompt-cache-retention.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/status.command-report.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/approval-native-delivery.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/poll-params.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m packages/memory-host-sdk/src/host/embedding-chunk-limits.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/docs/channel-config-examples.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/infra/provider-usage.fetch.zai.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugin-sdk/memory-host-markdown.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/acp/permission-relay.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/schema-normalization-runtime-contract.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/registry.dual-kind-memory-gate.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/skills/loading/prompt-resolution.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/chat.error-broadcast.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 81[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/status.scan-result.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/plugins/host-tool-param-parsers.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/sandbox-formatters.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/bootstrap/node-extra-ca-certs.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/reply/queue/drain.identity-guard.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/status-all/channels.mattermost-token-summary.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/release-beta-verifier.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-extra.sync.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/wizard/session.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/diagnostic-events.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 117[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m test/scripts/npm-runner.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/security/audit-small-model-risk.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/commands/doctor/shared/legacy-x-search-migrate.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/video-generation/capabilities.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/image-generation/image-assets.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/lanes.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/agents-mutate.test.ts [2m([22m[2m47 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/fs-safe.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/talk.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent.test.ts [2m([22m[2m25 tests[22m[2m)[22m[33m 1706[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/devices.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor-gateway-services.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/chat-reply-media.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/usage.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels.add.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 158[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/artifacts.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor-memory-search.test.ts [2m([22m[2m49 tests[22m[2m)[22m[32m 71[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/update.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/commands.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channel-setup/plugin-install.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/tools-effective.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/gateway-status.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor/cron/index.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/config.shared-auth.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/heartbeat-runner.ghost-reminder.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 86[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/channels.status.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/doctor.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/chat-webchat-media.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive.gateway.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 127[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/config.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/tts.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/health.snapshot.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 88[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/plugin-approval.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/nodes.invoke-wake.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/sessions.abort-agent-scope.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor-state-integrity.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 127[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/web.start.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/channels.start.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/agent-wait-dedupe.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor/repair-sequencing.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/approval-shared.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+│
+◇  Auth profile SQLite migration ──────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-flat-auth-Sjw1ak/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    /                                                                         │
+│    /tmp/openclaw-doctor-flat-auth-Sjw1ak/state/agents/main/agent/auth-state  │
+│  .json                                                                       │
+│  - openclaw doctor --fix imports legacy auth profile JSON into the           │
+│    per-agent SQLite database and removes the old files after backup.         │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor changes ─────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Migrated auth profile JSON for                                            │
+│    /tmp/openclaw-doctor-flat-auth-Sjw1ak/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    into SQLite (backups:                                                     │
+│    /tmp/openclaw-doctor-flat-auth-Sjw1ak/state/agents/main/agent/auth-profi  │
+│  les.json.sqlite-import.456.bak,                                             │
+│    /tmp/openclaw-doctor-flat-auth-Sjw1ak/state/agents/main/agent/auth-state  │
+│  .json.sqlite-import.456.bak).                                               │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profile SQLite migration ──────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-flat-auth-b295xo/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    /                                                                         │
+│    /tmp/openclaw-doctor-flat-auth-b295xo/state/agents/main/agent/auth-state  │
+│  .json                                                                       │
+│  - openclaw doctor --fix imports legacy auth profile JSON into the           │
+│    per-agent SQLite database and removes the old files after backup.         │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor changes ─────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Migrated auth profile JSON for                                            │
+│    /tmp/openclaw-doctor-flat-auth-b295xo/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    into SQLite (backup:                                                      │
+│    /tmp/openclaw-doctor-flat-auth-b295xo/state/agents/main/agent/auth-profi  │
+│  les.json.sqlite-import.457.bak).                                            │
+│  - Moved aws-sdk profile metadata from                                       │
+│    /tmp/openclaw-doctor-flat-auth-b295xo/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    to auth.profiles before removing the legacy auth profile JSON.            │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profile SQLite migration ──────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-flat-auth-Z6XMMF/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    /                                                                         │
+│    /tmp/openclaw-doctor-flat-auth-Z6XMMF/state/agents/main/agent/auth-state  │
+│  .json                                                                       │
+│  - openclaw doctor --fix imports legacy auth profile JSON into the           │
+│    per-agent SQLite database and removes the old files after backup.         │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor changes ─────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Migrated auth profile JSON for                                            │
+│    /tmp/openclaw-doctor-flat-auth-Z6XMMF/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    into SQLite (backup:                                                      │
+│    /tmp/openclaw-doctor-flat-auth-Z6XMMF/state/agents/main/agent/auth-state  │
+│  .json.sqlite-import.459.bak).                                               │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/nodes.wake-leak.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+│
+◇  Auth profile SQLite migration ──────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-flat-auth-D5ExGP/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    /                                                                         │
+│    /tmp/openclaw-doctor-flat-auth-D5ExGP/state/agents/main/agent/auth-state  │
+│  .json                                                                       │
+│  - openclaw doctor --fix imports legacy auth profile JSON into the           │
+│    per-agent SQLite database and removes the old files after backup.         │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor warnings ────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Left 1 legacy OAuth sidecar profile in                                    │
+│    /tmp/openclaw-doctor-flat-auth-D5ExGP/state/agents/main/agent/auth-profi  │
+│  les.json;                                                                   │
+│    rerun openclaw doctor --fix after sidecar migration or                    │
+│    re-authenticate those profiles.                                           │
+│  - Left auth profile JSON in place for                                       │
+│    /tmp/openclaw-doctor-flat-auth-D5ExGP/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    because no importable auth profiles or state were found.                  │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profile SQLite migration ──────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-flat-auth-8IoReA/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    /                                                                         │
+│    /tmp/openclaw-doctor-flat-auth-8IoReA/state/agents/main/agent/auth-state  │
+│  .json                                                                       │
+│  - openclaw doctor --fix imports legacy auth profile JSON into the           │
+│    per-agent SQLite database and removes the old files after backup.         │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor changes ─────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Migrated auth profile JSON for                                            │
+│    /tmp/openclaw-doctor-flat-auth-8IoReA/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    into SQLite (backup:                                                      │
+│    /tmp/openclaw-doctor-flat-auth-8IoReA/state/agents/main/agent/auth-profi  │
+│  les.json.sqlite-import.463.bak).                                            │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor warnings ────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Left 1 legacy OAuth sidecar profile in                                    │
+│    /tmp/openclaw-doctor-flat-auth-8IoReA/state/agents/main/agent/auth-profi  │
+│  les.json;                                                                   │
+│    rerun openclaw doctor --fix after sidecar migration or                    │
+│    re-authenticate those profiles.                                           │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profile SQLite migration ──────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-flat-auth-N7CqQX/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    /                                                                         │
+│    /tmp/openclaw-doctor-flat-auth-N7CqQX/state/agents/main/agent/auth-state  │
+│  .json                                                                       │
+│  - openclaw doctor --fix imports legacy auth profile JSON into the           │
+│    per-agent SQLite database and removes the old files after backup.         │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor changes ─────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Migrated auth profile JSON for                                            │
+│    /tmp/openclaw-doctor-flat-auth-N7CqQX/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    into SQLite (backup:                                                      │
+│    /tmp/openclaw-doctor-flat-auth-N7CqQX/state/agents/main/agent/auth-profi  │
+│  les.json.sqlite-import.461.bak).                                            │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profile SQLite migration ──────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-flat-auth-8f1YKl/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    /                                                                         │
+│    /tmp/openclaw-doctor-flat-auth-8f1YKl/state/agents/main/agent/auth-state  │
+│  .json                                                                       │
+│  - openclaw doctor --fix imports legacy auth profile JSON into the           │
+│    per-agent SQLite database and removes the old files after backup.         │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor changes ─────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Migrated auth profile JSON for                                            │
+│    /tmp/openclaw-doctor-flat-auth-8f1YKl/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    into SQLite (backups:                                                     │
+│    /tmp/openclaw-doctor-flat-auth-8f1YKl/state/agents/main/agent/auth-profi  │
+│  les.json.sqlite-import.462.bak,                                             │
+│    /tmp/openclaw-doctor-flat-auth-8f1YKl/state/agents/main/agent/auth-state  │
+│  .json.sqlite-import.462.bak).                                               │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profile SQLite migration ──────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-flat-auth-ACsSgG/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    /                                                                         │
+│    /tmp/openclaw-doctor-flat-auth-ACsSgG/state/agents/main/agent/auth-state  │
+│  .json                                                                       │
+│  - openclaw doctor --fix imports legacy auth profile JSON into the           │
+│    per-agent SQLite database and removes the old files after backup.         │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/heartbeat-runner.commitments.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 182[2mms[22m[39m
+│
+◇  Doctor changes ─────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Migrated auth profile JSON for                                            │
+│    /tmp/openclaw-doctor-flat-auth-ACsSgG/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    into SQLite (backup:                                                      │
+│    /tmp/openclaw-doctor-flat-auth-ACsSgG/state/agents/main/agent/auth-profi  │
+│  les.json.sqlite-import.458.bak).                                            │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profile SQLite migration ──────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-flat-auth-A8haX2/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    /                                                                         │
+│    /tmp/openclaw-doctor-flat-auth-A8haX2/state/agents/main/agent/auth-state  │
+│  .json                                                                       │
+│  - openclaw doctor --fix imports legacy auth profile JSON into the           │
+│    per-agent SQLite database and removes the old files after backup.         │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor warnings ────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Left auth profile JSON in place for                                       │
+│    /tmp/openclaw-doctor-flat-auth-A8haX2/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    because SQLite verification did not find imported profile(s):             │
+│    openrouter:default.                                                       │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profiles ──────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-flat-auth-wiKDa2/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    uses the legacy flat auth profile format.                                 │
+│  - The gateway expects the canonical version/profiles store; openclaw        │
+│    doctor --fix rewrites this legacy shape with a backup.                    │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor changes ─────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Migrated                                                                  │
+│    /tmp/openclaw-doctor-flat-auth-wiKDa2/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    to the SQLite auth profile store (backup:                                 │
+│    /tmp/openclaw-doctor-flat-auth-wiKDa2/state/agents/main/agent/auth-profi  │
+│  les.json.legacy-flat.123.bak).                                              │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profiles ──────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-flat-auth-aAzqp6/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    uses the legacy flat auth profile format.                                 │
+│  - The gateway expects the canonical version/profiles store; openclaw        │
+│    doctor --fix rewrites this legacy shape with a backup.                    │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profiles ──────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-flat-auth-1TzEHr/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    contains aws-sdk profile markers that belong in openclaw.json             │
+│    auth.profiles.                                                            │
+│  - AWS SDK profile markers are routing metadata, not stored                  │
+│    credentials; openclaw doctor --fix moves them to config with a            │
+│    backup.                                                                   │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor changes ─────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Moved aws-sdk profile metadata from                                       │
+│    /tmp/openclaw-doctor-flat-auth-1TzEHr/state/agents/main/agent/auth-profi  │
+│  les.json                                                                    │
+│    to auth.profiles (backup:                                                 │
+│    /tmp/openclaw-doctor-flat-auth-1TzEHr/state/agents/main/agent/auth-profi  │
+│  les.json.aws-sdk-profile.456.bak).                                          │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/usage.cost-usage-cache.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor-auth-flat-profiles.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 163[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/skills.clawhub.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels.adds-non-default-telegram-account.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/native-hook-relay.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor-post-upgrade.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/skills.search-detail.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/push.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/nodes-pending.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/diagnostics.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor-gateway-daemon-flow.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 77[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/models/list.provider-catalog.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/sessions.send-followup-status.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/chat.abort-authorization.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/tools-catalog.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/auth-choice.apply.plugin-provider.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 128[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/configure.gateway-auth.prompt-auth-config.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor-session-snapshots.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/chat.send-deleted-agent.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/environments.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/skills.update.normalizes-api-key.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-search.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/sessions.send-deleted-agent.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m gateway-methods [49m[39m src/gateway/server-methods/restart.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m54 passed[39m[22m[90m (54)[39m
+[2m      Tests [22m [1m[32m1091 passed[39m[22m[90m (1091)[39m
+[2m   Start at [22m 23:00:36
+[2m   Duration [22m 20.21s[2m (transform 1.79s, setup 224ms, import 6.18s, tests 13.47s, environment 0ms)[22m
+
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor-security.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 156[2mms[22m[39m
+[test] starting test/vitest/vitest.gateway-core.config.ts
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/configure.wizard.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/auth-choice-options.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor-plugin-registry.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 302[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agents.delete.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/backup.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels.list.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-helpers.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channel-setup/trusted-catalog.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 179[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/backup-verify.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/tasks.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 97[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-auth.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/sessions-cleanup.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 131[2mms[22m[39m
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.7 [39m[90m/tmp/silas-proofs-5529aa4662[39m
+
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor-session-state-providers.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 79[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/status.scan.shared.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor/shared/plugin-registry-migration.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 100[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/health.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agents.add.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 212[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent.acp.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 273[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels.status.command-flow.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive/local/auth-choice.plugin-providers.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+│
+◇  Auth profiles ──────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-oauth-sidecar-a043wc/state/agents/main/agent/auth-p  │
+│  rofiles.json                                                                │
+│    has legacy Codex OAuth profiles to migrate.                               │
+│  - openclaw doctor --fix migrates active profiles back to inline OAuth       │
+│    credentials and removes only sidecar files it successfully migrated.      │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor changes ─────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Migrated 1 legacy Codex OAuth profile in                                  │
+│    /tmp/openclaw-doctor-oauth-sidecar-a043wc/state/agents/main/agent/auth-p  │
+│  rofiles.json                                                                │
+│    to inline credentials (backup:                                            │
+│    /tmp/openclaw-doctor-oauth-sidecar-a043wc/state/agents/main/agent/auth-p  │
+│  rofiles.json.oauth-ref.123.bak).                                            │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profiles ──────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-oauth-sidecar-bgGQKx/state/agents/main/agent/auth-p  │
+│  rofiles.json                                                                │
+│    has legacy Codex OAuth profiles to migrate.                               │
+│  - openclaw doctor --fix migrates active profiles back to inline OAuth       │
+│    credentials and removes only sidecar files it successfully migrated.      │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profiles ──────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-oauth-sidecar-Txeqi8/state/agents/main/agent/auth-p  │
+│  rofiles.json                                                                │
+│    has legacy Codex OAuth profiles to migrate.                               │
+│  - openclaw doctor --fix migrates active profiles back to inline OAuth       │
+│    credentials and removes only sidecar files it successfully migrated.      │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor warnings ────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Could not decrypt legacy OAuth sidecar for openai-codex:default in        │
+│    /tmp/openclaw-doctor-oauth-sidecar-Txeqi8/state/agents/main/agent/auth-p  │
+│  rofiles.json;                                                               │
+│    re-authenticate this profile.                                             │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profiles ──────────────────────────────────────────────────────────╮
+│                                                                          │
+│  - Found 1 unreferenced legacy Codex OAuth sidecar credential file.      │
+│  - Unreferenced sidecar files are left in place because external agent   │
+│    directories outside this scan may still reference them.               │
+│  - openclaw doctor --fix migrates active profiles back to inline OAuth   │
+│    credentials and removes only sidecar files it successfully migrated.  │
+│                                                                          │
+├──────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor warnings ──────────────────────────────────────────────────────╮
+│                                                                        │
+│  - Found 1 unreferenced legacy Codex OAuth sidecar credential file;    │
+│    left in place because external agent directories outside this scan  │
+│    may still reference it.                                             │
+│                                                                        │
+├────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profiles ──────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-oauth-sidecar-ekeeM4/state/agents/linked/agent/auth  │
+│  -profiles.json                                                              │
+│    has legacy Codex OAuth profiles to migrate.                               │
+│  - openclaw doctor --fix migrates active profiles back to inline OAuth       │
+│    credentials and removes only sidecar files it successfully migrated.      │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor changes ─────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Migrated 1 legacy Codex OAuth profile in                                  │
+│    /tmp/openclaw-doctor-oauth-sidecar-ekeeM4/state/agents/linked/agent/auth  │
+│  -profiles.json                                                              │
+│    to inline credentials (backup:                                            │
+│    /tmp/openclaw-doctor-oauth-sidecar-ekeeM4/state/agents/linked/agent/auth  │
+│  -profiles.json.oauth-ref.1781330459392.bak).                                │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profiles ──────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-oauth-sidecar-9TamqK/external-agent/auth-profiles.j  │
+│  son                                                                         │
+│    has legacy Codex OAuth profiles to migrate.                               │
+│  - openclaw doctor --fix migrates active profiles back to inline OAuth       │
+│    credentials and removes only sidecar files it successfully migrated.      │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor changes ─────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Migrated 1 legacy Codex OAuth profile in                                  │
+│    /tmp/openclaw-doctor-oauth-sidecar-9TamqK/external-agent/auth-profiles.j  │
+│  son                                                                         │
+│    to inline credentials (backup:                                            │
+│    /tmp/openclaw-doctor-oauth-sidecar-9TamqK/external-agent/auth-profiles.j  │
+│  son.oauth-ref.789.bak).                                                     │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Auth profiles ──────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - /tmp/openclaw-doctor-oauth-sidecar-gXcuXc/state/agents/main/agent/auth-p  │
+│  rofiles.json                                                                │
+│    has legacy Codex OAuth profiles to migrate.                               │
+│  - /tmp/openclaw-doctor-oauth-sidecar-gXcuXc/state/agents/worker/agent/auth  │
+│  -profiles.json                                                              │
+│    has legacy Codex OAuth profiles to migrate.                               │
+│  - openclaw doctor --fix migrates active profiles back to inline OAuth       │
+│    credentials and removes only sidecar files it successfully migrated.      │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor changes ─────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Migrated 1 legacy Codex OAuth profile in                                  │
+│    /tmp/openclaw-doctor-oauth-sidecar-gXcuXc/state/agents/main/agent/auth-p  │
+│  rofiles.json                                                                │
+│    to inline credentials (backup:                                            │
+│    /tmp/openclaw-doctor-oauth-sidecar-gXcuXc/state/agents/main/agent/auth-p  │
+│  rofiles.json.oauth-ref.456.bak).                                            │
+│  - Migrated 1 legacy Codex OAuth profile in                                  │
+│    /tmp/openclaw-doctor-oauth-sidecar-gXcuXc/state/agents/worker/agent/auth  │
+│  -profiles.json                                                              │
+│    to inline credentials (backup:                                            │
+│    /tmp/openclaw-doctor-oauth-sidecar-gXcuXc/state/agents/worker/agent/auth  │
+│  -profiles.json.oauth-ref.456.bak).                                          │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor-auth-oauth-sidecar.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-remote.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/status.summary.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/models/list.probe.targets.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/status-all/diagnosis.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor/shared/channel-doctor.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/sessions.acp-model-display.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 109[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent.session.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 156[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor/shared/config-flow-steps.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/doctor-config-analysis.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+[test] test/vitest/vitest.unit-fast.config.ts exited by signal SIGSEGV

@@ -1,0 +1,8 @@
+continue_work fired on ronan-dgx @ deployed 5529aa4662:
+{
+  "status": "scheduled",
+  "delaySeconds": 5,
+  "note": "Requested 0s, clamped to 5s by continuation config.",
+  "traceparent": "00-e7161d24913d4bac5faf40531f2cd9a3-d5217849a0796db8-01"
+}
+= continue_work REGISTERED + working (status:scheduled, not "unknown tool"). Self-continuation scheduled, config-governed 5s clamp. trace ingested host=ronan/arm64.

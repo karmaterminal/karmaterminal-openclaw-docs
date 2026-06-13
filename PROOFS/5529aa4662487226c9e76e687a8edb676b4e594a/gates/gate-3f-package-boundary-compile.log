@@ -1,0 +1,135 @@
+$ node scripts/check-extension-package-tsc-boundary.mjs --mode=compile
+preparing plugin-sdk boundary artifacts for 114 plugins
+compile concurrency 4
+[1/114] acpx
+[2/114] admin-http-rpc
+[3/114] alibaba
+[4/114] amazon-bedrock
+[5/114] amazon-bedrock-mantle
+[6/114] anthropic
+[7/114] anthropic-vertex
+[8/114] arcee
+[9/114] azure-speech
+[10/114] brave
+[11/114] browser
+[12/114] byteplus
+[13/114] cerebras
+[14/114] chutes
+[15/114] clickclack
+[16/114] cloudflare-ai-gateway
+[17/114] codex
+[18/114] codex-supervisor
+[19/114] comfy
+[20/114] copilot
+[21/114] copilot-proxy
+[22/114] deepgram
+[23/114] deepinfra
+[24/114] deepseek
+[25/114] diagnostics-otel
+[26/114] diagnostics-prometheus
+[27/114] diffs
+[28/114] discord
+[29/114] duckduckgo
+[30/114] elevenlabs
+[31/114] exa
+[32/114] fal
+[33/114] feishu
+[34/114] firecrawl
+[35/114] fireworks
+[36/114] github-copilot
+[37/114] gmi
+[38/114] google
+[39/114] google-meet
+[40/114] googlechat
+[41/114] gradium
+[42/114] groq
+[43/114] huggingface
+[44/114] image-generation-core
+[45/114] imessage
+[46/114] inworld
+[47/114] irc
+[48/114] kilocode
+[49/114] kimi-coding
+[50/114] line
+[51/114] litellm
+[52/114] llm-task
+[53/114] lobster
+[54/114] matrix
+[55/114] mattermost
+[56/114] media-understanding-core
+[57/114] memory-core
+[58/114] memory-lancedb
+[59/114] memory-wiki
+[60/114] microsoft
+[61/114] microsoft-foundry
+[62/114] minimax
+[63/114] mistral
+[64/114] moonshot
+[65/114] msteams
+[66/114] nextcloud-talk
+[67/114] nostr
+[68/114] novita
+[69/114] nvidia
+[70/114] ollama
+[71/114] open-prose
+[72/114] openai
+[73/114] opencode
+[74/114] opencode-go
+[75/114] openrouter
+[76/114] openshell
+[77/114] parallel
+[78/114] perplexity
+[79/114] pixverse
+[80/114] qa-channel
+[81/114] qa-lab
+[82/114] qianfan
+[83/114] qqbot
+[84/114] qwen
+[85/114] runway
+[86/114] searxng
+[87/114] sglang
+[88/114] signal
+[89/114] slack
+[90/114] sms
+[91/114] stepfun
+[92/114] synology-chat
+[93/114] synthetic
+[94/114] tavily
+[95/114] telegram
+[96/114] tencent
+[97/114] tlon
+[98/114] together
+[99/114] tokenjuice
+[100/114] twitch
+[101/114] venice
+[102/114] vercel-ai-gateway
+[103/114] video-generation-core
+[104/114] vllm
+[105/114] voice-call
+[106/114] volcengine
+[107/114] vydra
+[108/114] webhooks
+[109/114] whatsapp
+[110/114] xai
+[111/114] xiaomi
+[112/114] zai
+[113/114] zalo
+[114/114] zalouser
+extension package boundary check passed
+mode: compile
+compiled plugins: 114
+canary plugins: 0
+prep elapsed: 32ms
+compile elapsed: 8882ms
+elapsed: 8945ms
+slowest plugin compiles:
+- feishu: 886ms
+- qa-lab: 810ms
+- slack: 721ms
+- discord: 681ms
+- matrix: 639ms
+- telegram: 628ms
+- whatsapp: 530ms
+- qqbot: 517ms
+- codex: 510ms
+- tlon: 509ms

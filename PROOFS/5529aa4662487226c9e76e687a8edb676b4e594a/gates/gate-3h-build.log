@@ -1,0 +1,109 @@
+$ node scripts/build-all.mjs
+[build-all] plugins:assets:build
+$ node scripts/bundled-plugin-assets.mjs --phase build
+[canvas] build: node scripts/bundle-a2ui.mjs
+A2UI bundle up to date; skipping.
+[diffs] build: node ../../scripts/build-diffs-viewer-runtime.mjs curated
+[diffs-language-pack] build: node ../../scripts/build-diffs-viewer-runtime.mjs full
+[build-all] plugins:assets:build done in 651ms
+[build-all] tsdown
+[tsdown-build] still running pid=2012793; no output for 30s
+[tsdown-build] still running pid=2012793; no output for 30s
+[build-all] tsdown done in 72.7s
+[build-all] check-cli-bootstrap-imports
+CLI bootstrap import guard passed.
+[build-all] check-cli-bootstrap-imports done in 83ms
+[build-all] runtime-postbuild
+runtime-postbuild: plugin SDK root alias completed in 0ms
+runtime-postbuild: bundled plugin metadata completed in 49ms
+runtime-postbuild: official channel catalog completed in 1ms
+runtime-postbuild: bundled plugin runtime overlay completed in 34ms
+runtime-postbuild: static extension assets completed in 12ms
+runtime-postbuild: stable root runtime imports completed in 69ms
+runtime-postbuild: stable root runtime aliases completed in 10ms
+runtime-postbuild: legacy root runtime compat aliases completed in 1ms
+runtime-postbuild: legacy CLI exit compat chunks completed in 0ms
+[build-all] runtime-postbuild done in 237ms
+[build-all] build-stamp
+[build-all] build-stamp done in 19ms
+[build-all] runtime-postbuild-stamp
+[build-all] runtime-postbuild-stamp done in 23ms
+[build-all] build:plugin-sdk:dts
+$ node scripts/run-tsgo.mjs -p tsconfig.plugin-sdk.dts.json --declaration true
+[build-all] build:plugin-sdk:dts done in 7.24s
+[build-all] write-plugin-sdk-entry-dts
+[build-all] write-plugin-sdk-entry-dts done in 13.6s
+[build-all] check-plugin-sdk-exports
+OK: All 4 required plugin-sdk exports verified.
+[build-all] check-plugin-sdk-exports done in 132ms
+[build-all] plugins:assets:copy
+$ node scripts/bundled-plugin-assets.mjs --phase copy
+[canvas] copy: node scripts/copy-a2ui.mjs
+[build-all] plugins:assets:copy done in 229ms
+[build-all] copy-hook-metadata
+[copy-hook-metadata] Copied 5 hook metadata files.
+[build-all] copy-hook-metadata done in 41ms
+[build-all] copy-export-html-templates
+[copy-export-html-templates] Copied 5 export-html assets.
+[build-all] copy-export-html-templates done in 34ms
+[build-all] ui:build
+$ node scripts/ui.js build
+$ vite build
+vite v8.0.14 building client environment for production...
+[2Ktransforming...✓ 918 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/control-ui/index.html                                 10.31 kB │ gzip:   3.04 kB
+../dist/control-ui/assets/index-D5N4Zoc_.css                 417.23 kB │ gzip:  65.90 kB
+../dist/control-ui/assets/preview-BBw3vauN.js                  0.18 kB │ gzip:   0.17 kB │ map:     0.37 kB
+../dist/control-ui/assets/channel-config-extras-MkoBBgM9.js    0.57 kB │ gzip:   0.36 kB │ map:     2.34 kB
+../dist/control-ui/assets/rolldown-runtime-QTnfLwEv.js         0.69 kB │ gzip:   0.42 kB
+../dist/control-ui/assets/push-subscription-BB--F2Xo.js        1.51 kB │ gzip:   0.76 kB │ map:     6.28 kB
+../dist/control-ui/assets/skills-shared-CNlkuf6o.js            1.51 kB │ gzip:   0.70 kB │ map:     4.64 kB
+../dist/control-ui/assets/instances-CWJ1Qnp4.js                2.95 kB │ gzip:   1.07 kB │ map:     6.03 kB
+../dist/control-ui/assets/logs-DIj0cuot.js                     3.19 kB │ gzip:   1.19 kB │ map:     6.71 kB
+../dist/control-ui/assets/debug-BTd9H4B-.js                    4.62 kB │ gzip:   1.28 kB │ map:     8.41 kB
+../dist/control-ui/assets/activity-BBwshyee.js                 5.97 kB │ gzip:   1.82 kB │ map:    13.04 kB
+../dist/control-ui/assets/skills-Dh_AFyAm.js                  17.26 kB │ gzip:   4.37 kB │ map:    35.13 kB
+../dist/control-ui/assets/gateway-runtime-CMyVbEq5.js         19.37 kB │ gzip:   7.33 kB │ map:   106.07 kB
+../dist/control-ui/assets/lit-runtime-BImxIzGR.js             23.12 kB │ gzip:   8.66 kB │ map:    60.78 kB
+../dist/control-ui/assets/nodes-BZA8rSAN.js                   23.60 kB │ gzip:   5.59 kB │ map:    60.29 kB
+../dist/control-ui/assets/channels-jZGwUmLC.js                24.80 kB │ gzip:   5.17 kB │ map:    67.12 kB
+../dist/control-ui/assets/sessions-BTKNw12-.js                26.53 kB │ gzip:   6.41 kB │ map:    62.94 kB
+../dist/control-ui/assets/skill-workshop-qK1HlFtq.js          34.70 kB │ gzip:   9.38 kB │ map:    70.24 kB
+../dist/control-ui/assets/workboard-jdsHYNON.js               41.21 kB │ gzip:   9.56 kB │ map:   100.98 kB
+../dist/control-ui/assets/zh-CN-_9quZiZu.js                   46.63 kB │ gzip:  19.04 kB │ map:    79.26 kB
+../dist/control-ui/assets/zh-TW-B-WN16Hf.js                   47.62 kB │ gzip:  19.44 kB │ map:    80.34 kB
+../dist/control-ui/assets/id-CLRhPmvL.js                      49.10 kB │ gzip:  17.97 kB │ map:    82.58 kB
+../dist/control-ui/assets/nl-CEpsSZFE.js                      50.08 kB │ gzip:  18.48 kB │ map:    83.63 kB
+../dist/control-ui/assets/pt-BR-CRn9A7QZ.js                   51.56 kB │ gzip:  18.79 kB │ map:    85.13 kB
+../dist/control-ui/assets/string-coerce-Dt6Kt5Fx.js           51.77 kB │ gzip:  19.04 kB │ map:    98.01 kB
+../dist/control-ui/assets/it-IAIAjf-Q.js                      51.86 kB │ gzip:  18.58 kB │ map:    85.54 kB
+../dist/control-ui/assets/pl-BFhjVaFd.js                      51.93 kB │ gzip:  19.64 kB │ map:    85.54 kB
+../dist/control-ui/assets/tr-D0Lfg5H_.js                      52.21 kB │ gzip:  19.21 kB │ map:    85.80 kB
+../dist/control-ui/assets/de-iWrE-YxJ.js                      52.56 kB │ gzip:  19.36 kB │ map:    86.26 kB
+../dist/control-ui/assets/ko-6JbsZZvn.js                      52.92 kB │ gzip:  19.52 kB │ map:    86.00 kB
+../dist/control-ui/assets/es-DURZflpX.js                      52.97 kB │ gzip:  19.11 kB │ map:    86.63 kB
+../dist/control-ui/assets/fr-CD8NDmL9.js                      54.04 kB │ gzip:  19.20 kB │ map:    87.77 kB
+../dist/control-ui/assets/cron-BVqN-GaV.js                    57.05 kB │ gzip:   9.51 kB │ map:   108.93 kB
+../dist/control-ui/assets/vi-DIRvGcMl.js                      57.37 kB │ gzip:  19.11 kB │ map:    90.79 kB
+../dist/control-ui/assets/ja-JP-DMAVRy9e.js                   59.90 kB │ gzip:  20.48 kB │ map:    93.18 kB
+../dist/control-ui/assets/ar-D0qBef7m.js                      64.63 kB │ gzip:  20.28 kB │ map:    97.91 kB
+../dist/control-ui/assets/fa-C_BMTCDj.js                      67.81 kB │ gzip:  20.39 kB │ map:   101.25 kB
+../dist/control-ui/assets/uk-CtScOpqB.js                      71.64 kB │ gzip:  21.86 kB │ map:   105.23 kB
+../dist/control-ui/assets/th-CCVGQUm2.js                      84.36 kB │ gzip:  20.97 kB │ map:   117.49 kB
+../dist/control-ui/assets/config-runtime-CCw2hptH.js          85.81 kB │ gzip:  24.10 kB │ map:   426.25 kB
+../dist/control-ui/assets/usage-x-QZmBe_.js                   88.98 kB │ gzip:  20.82 kB │ map:   245.32 kB
+../dist/control-ui/assets/agents-CZjaxpS2.js                 100.03 kB │ gzip:  26.26 kB │ map:   241.71 kB
+../dist/control-ui/assets/markdown-runtime-CUzFp-dW.js       200.11 kB │ gzip:  78.86 kB │ map:   788.37 kB
+../dist/control-ui/assets/index-BYQ7MxfI.js                  987.30 kB │ gzip: 262.96 kB │ map: 3,265.69 kB
+
+✓ built in 548ms
+[build-all] ui:build done in 1.07s
+[build-all] write-build-info
+[build-all] write-build-info done in 38ms
+[build-all] write-cli-startup-metadata
+[build-all] write-cli-startup-metadata done in 5.45s
+[build-all] write-cli-compat
+[build-all] write-cli-compat done in 39ms
+[build-all] phase timings: total 101.6s; slowest tsdown 72.7s; write-plugin-sdk-entry-dts 13.6s; build:plugin-sdk:dts 7.24s; write-cli-startup-metadata 5.45s; ui:build 1.07s; plugins:assets:build 651ms; runtime-postbuild 237ms; plugins:assets:copy 229ms; check-plugin-sdk-exports 132ms; check-cli-bootstrap-imports 83ms; copy-hook-metadata 41ms; write-cli-compat 39ms; write-build-info 38ms; copy-export-html-templates 34ms; runtime-postbuild-stamp 23ms; build-stamp 19ms

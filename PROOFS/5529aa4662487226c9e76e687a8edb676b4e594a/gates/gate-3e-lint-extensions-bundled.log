@@ -1,0 +1,10 @@
+$ node scripts/run-bundled-extension-oxlint.mjs
+[plugin-sdk boundary dts] fresh; skipping
+[plugin-sdk package boundary dts] fresh; skipping
+[qa-channel boundary dts] fresh; skipping
+[discord boundary dts] fresh; skipping
+[slack boundary dts] fresh; skipping
+[whatsapp boundary dts] fresh; skipping
+[plugin-sdk boundary root shims] fresh; skipping
+Found 0 warnings and 0 errors.
+Finished in 19.7s on 5912 files with 242 rules using 1 threads.

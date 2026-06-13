@@ -1,0 +1,15 @@
+R-RC-1 PRE-FIRE SESSION STATUS (under-threshold capture)
+SHA: 5529aa4662487226c9e76e687a8edb676b4e594a (5529aa4)
+Seat: silas (canary) — agent:main:discord:channel:1466192485440164011
+Captured: 2026-06-12 22:09 PDT
+
+Key fields:
+  OpenClaw 2026.6.2 (5529aa4)
+  Context: 209k/1.0m (21%)  ← UNDER the 70% request_compaction threshold
+  Compactions: 2
+  Continuation: chain 0/200
+  Model: github-copilot/claude-opus-4.8
+
+R-RC-1 PROOF SHAPE: request_compaction fired at 21% context (< 70% guard)
+  → MUST reject with threshold-gate message ("requires >=70% context usage")
+  → rejection = the proof the threshold gate is live + enforcing on 5529aa4662

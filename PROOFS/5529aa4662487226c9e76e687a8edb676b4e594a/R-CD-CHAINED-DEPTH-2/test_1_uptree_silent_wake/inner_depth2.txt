@@ -1,0 +1,1 @@
+INNER depth-2 delegate executed live (non-mocked) on 5529aa4662 at Sat Jun 13 05:30:22 AM UTC 2026. Chain-hop: NEW chain inside inner subagent. Depth=2/5 reached. Tree-fanout return-up-tree path exercised. This proves chained continue_delegate at depth-2 fires live on the deployed SHA.

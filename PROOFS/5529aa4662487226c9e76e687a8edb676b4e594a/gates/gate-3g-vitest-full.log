@@ -1,0 +1,1369 @@
+$ node scripts/test-projects.mjs --run --poolOptions.forks.maxForks=4 --poolOptions.forks.minForks=1
+[test] queued behind the local heavy-check lock held by oxlint shards, pid 2010923, cwd /tmp/silas-proofs-5529aa4662...
+[test] still waiting 15s for the local heavy-check lock held by oxlint shards, pid 2010923, cwd /tmp/silas-proofs-5529aa4662...
+[test] still waiting 30s for the local heavy-check lock held by oxlint shards, pid 2010923, cwd /tmp/silas-proofs-5529aa4662...
+[test] warning: broad local run will start 89 Vitest shards; use `pnpm test:changed` for routine checks.
+[test] running 89 Vitest shards with parallelism 4
+[test] starting test/vitest/vitest.gateway-server.config.ts
+[test] starting test/vitest/vitest.utils.config.ts
+[test] starting test/vitest/vitest.gateway-server.config.ts
+[test] starting test/vitest/vitest.unit-fast-fake-timers.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.gateway-server.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.ui.config.ts
+[test] starting test/vitest/vitest.gateway-server.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.tui.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.gateway-core.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.tui-pty.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.gateway-client.config.ts
+[test] starting test/vitest/vitest.tooling-docker.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.gateway-methods.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.shared-core.config.ts
+[test] starting test/vitest/vitest.commands.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.process.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.agents-core.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.media-understanding.config.ts
+[test] starting test/vitest/vitest.agents-embedded-agent.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.logging.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-voice-call.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.hooks.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.agents-support.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-qa.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-codex-app-server-attempt.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-misc.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extensions.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-media.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.agents-tools.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-browser.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-provider-openai.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.acp.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.runtime-config.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.tooling-isolated.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.tasks.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-msteams.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.channels.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-memory.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.unit-fast.config.ts
+[test] starting test/vitest/vitest.extension-active-memory.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.auto-reply-reply.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-diffs.config.ts
+[test] starting test/vitest/vitest.infra.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-acpx.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.secrets.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-signal.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.cron.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-line.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.wizard.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-imessage.config.ts
+[test] starting test/vitest/vitest.unit-src.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-messaging.config.ts
+[test] starting test/vitest/vitest.extension-codex-app-server-attempt-extra.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-mattermost.config.ts
+[test] starting test/vitest/vitest.extension-matrix.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-feishu.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-discord.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-irc.config.ts
+[test] starting test/vitest/vitest.extension-providers.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.contracts-plugin.config.ts
+[test] starting test/vitest/vitest.extension-telegram.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-zalo.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-whatsapp.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.unit-support.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.auto-reply-core.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.unit-security.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-codex-app-server-runtime.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.tooling.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.cli.config.ts
+[test] starting test/vitest/vitest.boundary.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.contracts-channel-config.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.contracts-channel-registry.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.media.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.daemon.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-codex-app-server-attempt-light.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.plugin-sdk-light.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.plugins.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.unit-ui.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.bundled.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.auto-reply-top-level.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-codex-app-server-attempt-support.config.ts
+[test] starting test/vitest/vitest.plugin-sdk.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-codex-app-server-tools.config.ts
+[test] starting test/vitest/vitest.commands-light.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.extension-slack.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.contracts-channel-session.config.ts
+[test] starting test/vitest/vitest.extension-codex-app-server-support.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] starting test/vitest/vitest.contracts-channel-surface.config.ts
+[test] starting test/vitest/vitest.extension-codex-surface.config.ts
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:406:17)
+    at CAC.runMatchedCommand (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:606:13)
+    at CAC.parse (file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/chunks/cac.BuBILSID.js:547:12)
+    at file:///tmp/silas-proofs-5529aa4662/node_modules/vitest/dist/cli.js:11:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v25.9.0
+[test] failed 89 Vitest shards in 32.45s; Vitest summaries above are per-shard, not aggregate totals.
+[test] failed shard digest (89):
+[test] - test/vitest/vitest.gateway-server.config.ts (exit 1)
+[test]   rerun: node scripts/run-vitest.mjs run --config test/vitest/vitest.gateway-server.config.ts --reporter=verbose
+[test] - test/vitest/vitest.utils.config.ts (exit 1)
+[test]   rerun: node scripts/run-vitest.mjs run --config test/vitest/vitest.utils.config.ts --reporter=verbose
+[test] - test/vitest/vitest.gateway-server.config.ts (exit 1)
+[test]   rerun: node scripts/run-vitest.mjs run --config test/vitest/vitest.gateway-server.config.ts --reporter=verbose
+[test] - test/vitest/vitest.unit-fast-fake-timers.config.ts (exit 1)
+[test]   rerun: node scripts/run-vitest.mjs run --config test/vitest/vitest.unit-fast-fake-timers.config.ts --reporter=verbose
+[test] - test/vitest/vitest.gateway-server.config.ts (exit 1)
+[test]   rerun: node scripts/run-vitest.mjs run --config test/vitest/vitest.gateway-server.config.ts --reporter=verbose
+[test] - test/vitest/vitest.ui.config.ts (exit 1)
+[test]   rerun: node scripts/run-vitest.mjs run --config test/vitest/vitest.ui.config.ts --reporter=verbose
+[test] - test/vitest/vitest.gateway-server.config.ts (exit 1)
+[test]   rerun: node scripts/run-vitest.mjs run --config test/vitest/vitest.gateway-server.config.ts --reporter=verbose
+[test] - test/vitest/vitest.tui.config.ts (exit 1)
+[test]   rerun: node scripts/run-vitest.mjs run --config test/vitest/vitest.tui.config.ts --reporter=verbose
+[test] - test/vitest/vitest.gateway-core.config.ts (exit 1)
+[test]   rerun: node scripts/run-vitest.mjs run --config test/vitest/vitest.gateway-core.config.ts --reporter=verbose
+[test] - test/vitest/vitest.tui-pty.config.ts (exit 1)
+[test]   rerun: node scripts/run-vitest.mjs run --config test/vitest/vitest.tui-pty.config.ts --reporter=verbose
+[test] - test/vitest/vitest.gateway-client.config.ts (exit 1)
+[test]   rerun: node scripts/run-vitest.mjs run --config test/vitest/vitest.gateway-client.config.ts --reporter=verbose
+[test] - test/vitest/vitest.tooling-docker.config.ts (exit 1)
+[test]   rerun: node scripts/run-vitest.mjs run --config test/vitest/vitest.tooling-docker.config.ts --reporter=verbose
+[test] - ... 77 more failed shard(s) omitted
+[ELIFECYCLE] Test failed. See above for more details.

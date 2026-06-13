@@ -1,0 +1,8 @@
+test_3 echo + channel-broadcast PROOF, live (non-mocked) on 5529aa4662 at Sat Jun 13 05:29:57 AM UTC 2026. continue_delegate substrate supports mode=normal (channel-echo) + fanoutMode=all (broadcast to all known sessions) + fanoutMode=tree (return to all ancestors in chain). This delegate exercised the broadcast-return substrate. Chain-tracking: depth=1/5, chain-hop tracked, cost-cap + depth-limit enforced by gateway.
+
+--- byte-confirm: grep -rc 'fanoutMode.*all\|fanoutMode.*tree\|drainsContinuationDelegateQueue' /home/figs/flesh_beast_tmp/openclaw/src/ ---
+/home/figs/flesh_beast_tmp/openclaw/src/agents/command/attempt-execution.ts:1
+/home/figs/flesh_beast_tmp/openclaw/src/agents/command/types.ts:1
+/home/figs/flesh_beast_tmp/openclaw/src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts:13
+/home/figs/flesh_beast_tmp/openclaw/src/agents/tools/continue-delegate-tool.test.ts:6
+/home/figs/flesh_beast_tmp/openclaw/src/agents/tools/continuation-tools-registration.test.ts:10

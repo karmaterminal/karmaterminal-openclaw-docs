@@ -1,0 +1,38 @@
+$ node scripts/build-all.mjs
+[build-all] plugins:assets:build
+$ node scripts/bundled-plugin-assets.mjs --phase build
+[canvas] build: node scripts/bundle-a2ui.mjs
+A2UI bundle up to date; skipping.
+[diffs] build: node ../../scripts/build-diffs-viewer-runtime.mjs curated
+[diffs-language-pack] build: node ../../scripts/build-diffs-viewer-runtime.mjs full
+[build-all] plugins:assets:build done in 588ms
+[build-all] tsdown
+
+ ERROR  Error: Build failed with 1 error:
+
+[plugin rolldown-plugin-dts:generate]
+RangeError: Invalid array length
+    at Array.unshift (<anonymous>)
+    at addWorkItem (/tmp/silas-proofs-5529aa4662/node_modules/typescript/lib/typescript.js:33115:14)
+    at visitNodes (/tmp/silas-proofs-5529aa4662/node_modules/typescript/lib/typescript.js:32556:14)
+    at forEachChildInBlock (/tmp/silas-proofs-5529aa4662/node_modules/typescript/lib/typescript.js:33029:10)
+    at forEachChild (/tmp/silas-proofs-5529aa4662/node_modules/typescript/lib/typescript.js:33072:35)
+    at gatherPossibleChildren (/tmp/silas-proofs-5529aa4662/node_modules/typescript/lib/typescript.js:33112:3)
+    at forEachChildRecursively (/tmp/silas-proofs-5529aa4662/node_modules/typescript/lib/typescript.js:33102:29)
+    at setParentRecursive (/tmp/silas-proofs-5529aa4662/node_modules/typescript/lib/typescript.js:23078:3)
+    at fixupParentReferences (/tmp/silas-proofs-5529aa4662/node_modules/typescript/lib/typescript.js:33614:5)
+    at parseSourceFileWorker (/tmp/silas-proofs-5529aa4662/node_modules/typescript/lib/typescript.js:33510:7)
+    at aggregateBindingErrorsIntoJsError (file:///tmp/silas-proofs-5529aa4662/node_modules/rolldown/dist/shared/error-CMKNSs0f.mjs:48:18)
+    at unwrapBindingResult (file:///tmp/silas-proofs-5529aa4662/node_modules/rolldown/dist/shared/error-CMKNSs0f.mjs:18:128)
+    at #build (file:///tmp/silas-proofs-5529aa4662/node_modules/rolldown/dist/shared/rolldown-build-Btfj7AD8.mjs:3252:34)
+    at async build (file:///tmp/silas-proofs-5529aa4662/node_modules/rolldown/dist/index.mjs:42:22)
+    at async Promise.all (index 0)
+    at async buildSingle (file:///tmp/silas-proofs-5529aa4662/node_modules/tsdown/dist/build-BZshaq8i.mjs:791:19)
+    at async Promise.all (index 12)
+    at async buildWithConfigs (file:///tmp/silas-proofs-5529aa4662/node_modules/tsdown/dist/build-BZshaq8i.mjs:747:18)
+    at async CAC.<anonymous> (file:///tmp/silas-proofs-5529aa4662/node_modules/tsdown/dist/run.mjs:21:2)
+    at async runCLI (file:///tmp/silas-proofs-5529aa4662/node_modules/tsdown/dist/run.mjs:45:3)
+
+[build-all] tsdown failed after 7.57s
+[build-all] phase timings: total 8.15s; slowest tsdown (failed) 7.57s; plugins:assets:build 588ms
+[ELIFECYCLE] Command failed with exit code 1.

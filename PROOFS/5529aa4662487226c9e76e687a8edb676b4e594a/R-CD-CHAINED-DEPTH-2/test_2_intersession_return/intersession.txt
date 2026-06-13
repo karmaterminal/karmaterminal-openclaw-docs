@@ -1,0 +1,17 @@
+test_2 inter-session return PROOF, live (non-mocked) on 5529aa4662 at Sat Jun 13 05:30:19 AM UTC 2026. Dispatched from silas main discord-channel session (agent:main:discord:channel:1466192485440164011). continue_delegate substrate supports targetSessionKey/targetSessionKeys cross-session return-addressing + fanoutMode (tree/all). Chain-tracking: carries own chain-context (chain-hop, depth=1/5, cost-cap) per gateway continuation substrate.
+
+--- byte-confirm: cross-session-return fields in deployed source tree ---
+NOTE: task-specified path src/agents/embedded-agent-runner/*.ts returns empty (fields not located there); the fields live in src/agents/tools/. Both recorded below for honesty.
+
+$ grep -c 'targetSessionKey|targetSessionKeys|fanoutMode' src/agents/embedded-agent-runner/*.ts | grep -v ':0' | head -5
+(empty — no matches in embedded-agent-runner)
+
+$ grep -c 'targetSessionKey|targetSessionKeys|fanoutMode' src/agents/tools/*.ts src/agents/*.ts | grep -v ':0' | head -8
+src/agents/tools/continuation-tools-registration.test.ts:19
+src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts:31
+src/agents/tools/continue-delegate-tool.test.ts:17
+src/agents/tools/continue-delegate-tool.ts:19
+src/agents/tools/sessions-resolution.test.ts:7
+src/agents/tools/sessions-resolution.ts:11
+src/agents/tools/sessions-send-helpers.test.ts:2
+src/agents/tools/sessions-send-helpers.ts:4

@@ -1,0 +1,93 @@
+$ node scripts/check.mjs
+
+[check] preflight guards
+$ node --import tsx scripts/check-no-deprecated-channel-access.ts
+$ node --import tsx scripts/check-runtime-sidecar-loaders.mjs
+$ node scripts/check-extension-wildcard-reexports.mjs
+$ node scripts/check-plugin-sdk-wildcard-reexports.mjs
+$ node scripts/generate-npm-shrinkwrap.mjs --all --check
+$ node scripts/check-duplicates.mjs --coverage
+$ node scripts/check-media-download-helper-roundtrip.mjs
+$ node scripts/check-no-conflict-markers.mjs
+$ node scripts/check-changelog-attributions.mjs
+$ node scripts/generate-host-env-security-policy-swift.mjs --check
+$ node security/opengrep/check-rule-metadata.mjs
+$ node scripts/check-package-patches.mjs
+$ node --import tsx scripts/tool-display.ts --check
+[dup:check] target coverage ok
+OK apps/macos/Sources/OpenClaw/HostEnvSecurityPolicy.generated.swift
+check-opengrep-rule-metadata: /tmp/silas-proofs-5529aa4662/security/opengrep/precise.yml ok
+tool-display snapshot is up to date
+No guarded extension wildcard re-exports found.
+No plugin-sdk wildcard re-exports found in extension API barrels.
+PASS package patch guard: no new pnpm patches; 4 legacy patches allowlisted.
+OK: bundled plugin production code avoids deprecated channel access seams.
+.: npm-shrinkwrap.json is current.
+extensions/acpx: npm-shrinkwrap.json is current.
+runtime-sidecar-loaders: local runtime sidecar loaders look OK.
+extensions/amazon-bedrock: npm-shrinkwrap.json is current.
+extensions/amazon-bedrock-mantle: npm-shrinkwrap.json is current.
+extensions/anthropic-vertex: npm-shrinkwrap.json is current.
+extensions/brave: npm-shrinkwrap.json is current.
+extensions/codex: npm-shrinkwrap.json is current.
+extensions/copilot: npm-shrinkwrap.json is current.
+extensions/diagnostics-otel: npm-shrinkwrap.json is current.
+extensions/diagnostics-prometheus: npm-shrinkwrap.json is current.
+extensions/diffs: npm-shrinkwrap.json is current.
+extensions/diffs-language-pack: npm-shrinkwrap.json is current.
+extensions/discord: npm-shrinkwrap.json is current.
+extensions/feishu: npm-shrinkwrap.json is current.
+extensions/google-meet: npm-shrinkwrap.json is current.
+extensions/googlechat: npm-shrinkwrap.json is current.
+extensions/line: npm-shrinkwrap.json is current.
+extensions/llama-cpp: npm-shrinkwrap.json is current.
+extensions/lobster: npm-shrinkwrap.json is current.
+extensions/matrix: npm-shrinkwrap.json is current.
+extensions/memory-lancedb: npm-shrinkwrap.json is current.
+extensions/msteams: npm-shrinkwrap.json is current.
+extensions/nextcloud-talk: npm-shrinkwrap.json is current.
+extensions/nostr: npm-shrinkwrap.json is current.
+extensions/openshell: npm-shrinkwrap.json is current.
+extensions/pixverse: npm-shrinkwrap.json is current.
+extensions/qqbot: npm-shrinkwrap.json is current.
+extensions/slack: npm-shrinkwrap.json is current.
+extensions/synology-chat: npm-shrinkwrap.json is current.
+extensions/tlon: npm-shrinkwrap.json is current.
+extensions/tokenjuice: npm-shrinkwrap.json is current.
+extensions/twitch: npm-shrinkwrap.json is current.
+extensions/voice-call: npm-shrinkwrap.json is current.
+extensions/whatsapp: npm-shrinkwrap.json is current.
+extensions/zalo: npm-shrinkwrap.json is current.
+extensions/zalouser: npm-shrinkwrap.json is current.
+
+[check] typecheck
+$ pnpm tsgo:core && pnpm tsgo:extensions
+$ node scripts/run-tsgo.mjs -p tsconfig.core.json --incremental --tsBuildInfoFile .artifacts/tsgo-cache/core.tsbuildinfo
+$ node scripts/run-tsgo.mjs -p tsconfig.extensions.json --incremental --tsBuildInfoFile .artifacts/tsgo-cache/extensions.tsbuildinfo
+
+[check] lint
+$ node scripts/run-oxlint-shards.mjs
+[plugin-sdk package boundary dts] fresh; skipping
+[oxlint:core] starting
+Found 0 warnings and 0 errors.
+Finished in 21.9s on 9744 files with 242 rules using 1 threads.
+[oxlint:core] finished
+[oxlint:extensions] starting
+Found 0 warnings and 0 errors.
+Finished in 18.4s on 5908 files with 242 rules using 1 threads.
+[oxlint:extensions] finished
+[oxlint:scripts] starting
+Found 0 warnings and 0 errors.
+Finished in 2.0s on 534 files with 242 rules using 1 threads.
+[oxlint:scripts] finished
+
+[check] policy guards
+$ node scripts/check-webhook-auth-body-order.mjs
+$ node --import tsx scripts/check-temp-path-guardrails.ts
+$ node scripts/check-no-pairing-store-group-auth.mjs
+$ node scripts/check-pairing-account-scope.mjs
+$ node --import tsx scripts/check-import-cycles.ts
+$ node scripts/check-no-runtime-action-load-config.mjs
+$ node scripts/check-deprecated-api-usage.mjs
+deprecated API usage guard passed
+Import cycle check: 0 runtime value cycle(s).

@@ -1,0 +1,21 @@
+Jun 12 23:33:46 cael node[1849931]: 2026-06-12T23:33:46.720-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 12 23:33:58 cael node[1849931]: 2026-06-12T23:33:58.524-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1473320126433464465
+Jun 12 23:33:58 cael node[1849931]: 2026-06-12T23:33:58.524-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1473320126433464465
+Jun 12 23:34:28 cael node[1849931]: 2026-06-12T23:34:28.474-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1473320126433464465
+Jun 12 23:34:28 cael node[1849931]: 2026-06-12T23:34:28.475-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1473320126433464465
+Jun 12 23:35:09 cael node[1849931]: 2026-06-12T23:35:09.162-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1473320126433464465
+Jun 12 23:35:09 cael node[1849931]: 2026-06-12T23:35:09.162-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1473320126433464465
+Jun 12 23:35:54 cael node[1849931]: 2026-06-12T23:35:54.737-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 12 23:37:08 cael node[1849931]: 2026-06-12T23:37:08.446-07:00 [continuation/signal] [continuation:trace] bracket-parse skipped: empty payloads session=agent:main:discord:channel:1473320126433464465
+Jun 12 23:37:08 cael node[1849931]: 2026-06-12T23:37:08.446-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1473320126433464465
+Jun 12 23:37:34 cael node[1849931]: 2026-06-12T23:37:34.597-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=0 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jun 12 23:37:34 cael node[1849931]: 2026-06-12T23:37:34.598-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=work delayMs=2000 session=agent:main:discord:channel:1466192485440164011
+Jun 12 23:37:34 cael node[1849931]: 2026-06-12T23:37:34.598-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=work session=agent:main:discord:channel:1466192485440164011
+Jun 12 23:37:39 cael node[1849931]: 2026-06-12T23:37:39.622-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 12 23:37:40 cael node[1849931]: 2026-06-12T23:37:40.638-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 12 23:37:42 cael node[1849931]: 2026-06-12T23:37:42.658-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 12 23:37:46 cael node[1849931]: 2026-06-12T23:37:46.671-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 12 23:37:54 cael node[1849931]: 2026-06-12T23:37:54.681-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 12 23:38:10 cael node[1849931]: 2026-06-12T23:38:10.697-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 12 23:38:33 cael node[1849931]: 2026-06-12T23:38:33.016-07:00 [continuation/signal] [continuation:trace] bracket-parse skipped: empty payloads session=agent:main:discord:channel:1473320126433464465
+Jun 12 23:38:33 cael node[1849931]: 2026-06-12T23:38:33.017-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1473320126433464465

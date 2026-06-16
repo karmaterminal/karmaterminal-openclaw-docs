@@ -37,7 +37,7 @@ Behavioral proof corpus for the **2026-06-15 deployed candidate SHA** — the fl
 | R-CD-TOKEN (bracket-form continue_delegate) | 🌊 ronan | ⏳ pending | `R-CD-TOKEN/` |
 | R-CD-CHAINED-DEPTH-2 (Chain-1/2/3) | 🌊 ronan | ⏳ pending | `R-CD-CHAINED-DEPTH-2/` |
 | R-CD-CHAINED-DEPTH-2 TEST-1 (uptree silent-wake) | 🕯 emeric (sub for 🌫) | ⏳ pending | `R-CD-CHAINED-DEPTH-2/test_1_uptree_silent_wake/` |
-| R-CD-CHAINED-DEPTH-2 TEST-2 (intersession return) | 🪨 rune (sub for 🌫) | ⏳ pending | `R-CD-CHAINED-DEPTH-2/test_2_intersession_return/` |
+| R-CD-CHAINED-DEPTH-2 TEST-2 (intersession return) | 🪨 rune (sub for 🌫) | ✅ PASS — `targetSessionKey` intersession-return proven: `continue_delegate` routes its return to a DIFFERENT session (cron-session, NOT the dispatcher) — airtight byte `[continuation:targeted-return] Delivered to cron:19ff1824 from subagent`; Tempo trace `59084dce` saved | `R-CD-CHAINED-DEPTH-2/test_2_intersession_return/` |
 | R-CD-CHAINED-DEPTH-2 TEST-3 (echo broadcast) | 🌫 silas (canary) | ✅ FULL PASS — `continue_delegate(fanoutMode=tree)` scheduled on `077b261dd8`, fanout-mode honored, traceparent `aae409d4` propagated + Tempo trace-tree (11 spans); dispatch-side confirmed — delegate ran + echoed its return to the chain (`dispatch_return.txt`) | `R-CD-CHAINED-DEPTH-2/test_3_echo_broadcast/` |
 | R-RC-1 (request_compaction threshold REJECT) | 🌫 silas (canonical) | ✅ PASS (fired at 68% < 70% floor on `077b261dd8` → structured `{status:rejected, guard:context_threshold, contextUsage:68, threshold:70}`, not error/no-op) | `R-RC-1/` (EVIDENCE.md + rejection JSON + session_status snapshot; commit `d1ea64d`) |
 | R-RC-2 (request_compaction over-threshold ACCEPT) | 🩸 cael | ⏳ pending | `R-RC-2/` |

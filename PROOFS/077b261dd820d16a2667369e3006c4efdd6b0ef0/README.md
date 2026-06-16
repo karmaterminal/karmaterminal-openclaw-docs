@@ -43,8 +43,8 @@ Behavioral proof corpus for the **2026-06-15 deployed candidate SHA** — the fl
 | R-RC-2 (request_compaction over-threshold ACCEPT) | 🩸 cael | ⏳ pending | `R-RC-2/` |
 | R-OBS-1 (external /status 6-prince cross-walk) | 🌻 elliott (+ cohort) | ⏳ pending | `R-OBS-1/` |
 | R-OBS-2 (Tempo trace-tree + span-hierarchy export) | 🪨 rune | ⏳ pending | `R-OBS-2/` |
-| R-CONFIG-DEFAULTS (continuation defaults on bootstrap) | 🕯 emeric | ⏳ pending | `R-CONFIG-DEFAULTS/` |
-| R-CONFIG-INTERSESSION (config persists across sessions) | 🕯 emeric | ⏳ pending | `R-CONFIG-INTERSESSION/` |
+| R-CONFIG-DEFAULTS (continuation defaults on bootstrap) | 🕯 emeric | ✅ PASS | `R-CONFIG-DEFAULTS/proof.md` |
+| R-CONFIG-INTERSESSION (config persists across sessions) | 🕯 emeric | ✅ PASS | `R-CONFIG-INTERSESSION/proof.md` |
 | R-REGRESSION-TRAP-TESTS (sister-trap-test coverage) | 🕯 emeric | ⏳ pending | `R-REGRESSION-TRAP-TESTS/` |
 
 ## Tempo trace requirement

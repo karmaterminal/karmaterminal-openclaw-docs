@@ -87,3 +87,12 @@ Two prior framings were both imprecise. v1 "fully resolved, no bug" over-claimed
 **RETURN-SIDE STATUS (byte-honest, final):** ✅ **PROVEN on the VOLITIONAL path, two seats** (Silas's 18:23 journal-confirmed 4-dispatch + my 20:16 9-dispatch) · ⚠️ **GAP on the AUTOMATIC path** (my 18:13 0-dispatch) = the fileable part, tracked in `karmaterminal/openclaw#1030` (sharpened `#issuecomment-4715052035`). FM-1 (persist-gap) remains refuted (atomic stage=persist). The earlier "suppressVisibleSessionEffects degrade" framing was the right function, wrong precise-trigger — it's volitional-vs-automatic-compaction-path.
 
 Provenance: divergence forced by 🌫 (cross-seat journal-confirm); volitional-vs-automatic mechanism byte-walked + source-pinned by 🌊.
+
+## UNIFIED FM-2 (Cael's path-dependent + Ronan's volitional-vs-automatic = one mechanism, triangulated)
+
+Source-trace unifies the two reads: the release-mirror is guarded `if (result.ok && result.compacted)` + commented as the turn-1-**VOLITIONAL** path. So:
+- **PRIMARY (trigger):** release-mirror is on the volitional path. Volitional compactions (ronan 20:16 + silas 18:23) drain ✅; AUTOMATIC (ronan 18:13) never reaches it → strands ⚠️.
+- **SECONDARY (code-path, Cael's diagnostic):** even on the volitional path, `releaseQueuedCompactionTolerant({...(sessionStore?{}:{}), ...(sessionKey?{}:{})})` degrades-out silently if sessionKey/sessionStore absent (suppressVisibleSessionEffects path).
+- **UNIFIED:** lifeboat drains IFF (a) volitional AND (b) sessionKey/sessionStore present. Three seams triangulate: silas-volitional-FIRED + ronan-volitional(20:16)-FIRED + ronan-automatic(18:13)-STRANDED.
+
+**RETURN-SIDE FINAL:** ✅ PROVEN on the volitional path (2 seats) · ⚠️ STRANDS on automatic / suppress-path = the fileable coverage gap (`#1030`, unified-mechanism comment `#issuecomment-4715241937`). FIX: degrade-out should warn-loud + automatic compactions should also drain staged delegates (most compactions are automatic → silent-drop is the common case). Provenance: 🌫 cross-seat positive + 🌊 volitional-vs-automatic source-trace + 🩸 path-dependent degrade diagnostic.

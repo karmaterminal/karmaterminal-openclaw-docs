@@ -29,7 +29,7 @@ Behavioral proof corpus for the **2026-06-15 deployed candidate SHA** — the fl
 | R-CW-6 (spawn-depth boundary reject) | 🪨 rune | ⏳ pending | `R-CW-6-BOUNDARY/` |
 | R-CW-7 (traceparent E2E across continuation spans) | 🪨 rune | ⏳ pending | `R-CW-7-TRACEPARENT-E2E/` |
 | R-CW-DELEGATE-SELF-CONTINUATION | 🪨 rune | ⏳ pending | `R-CW-DELEGATE-SELF-CONTINUATION/` |
-| R-CW-DELEGATE-TOKEN (#952 bracket row) | 🪨 rune | ⏳ pending | `R-CW-DELEGATE-TOKEN/` |
+| R-CW-DELEGATE-TOKEN (#952 bracket row) | 🪨 rune | ✅ PASS (positive-control) — bracket `[[CONTINUE_DELEGATE:...]]` fires from final-assistant-text (`bracketIdx=-1`→`0` + delegate-spawned hop 1/200 + chain-hop depth-2); the positive half of 🌊's R-CD-TOKEN negative, cross-seat second; Tempo JSON saved (HONEST-LIMIT: turn-trace not dispatch-spans) | `R-CW-DELEGATE-TOKEN/` |
 | R-CD-1 (schedule→spawn→return) | 🌊 ronan | ✅ PASS (fire-side) | `R-CD-1/` |
 | R-CD-2 (silent-wake full path) | 🌊 ronan | ✅ PASS (fire-side) | `R-CD-2/` |
 | R-CD-3 (post-compaction lifeboat, both legs) | 🌊 ronan | ✅ PASS (fire-side, queued-for-compaction) | `R-CD-3/` |

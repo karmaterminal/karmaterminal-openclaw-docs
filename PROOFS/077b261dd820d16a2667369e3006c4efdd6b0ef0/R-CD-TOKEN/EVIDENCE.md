@@ -48,3 +48,20 @@ Silas proposed the clean test for the one open 2×2 cell: emit `[[CONTINUE_DELEG
   - `[[CONTINUE_DELEGATE]]` from message-tool-send → **doesn't** ⚠️ (this row, Ronan)
   - `[[CONTINUE_DELEGATE]]` from direct-final-text → **untestable in message-tool-only run-config**; source (`tokens.ts` regex matches the `[[...]]` form + `signal.ts` walks final-text) says it would match → "likely-fires, untestable-here," NOT "double-bracket dead."
 - **Final verdict: the discriminator is EMISSION-SURFACE all the way down (empirically proven by Cael's same-syntax split), NOT token-flavor and NOT syntax.** R-CD-TOKEN ⚠️ indicts the message-tool-body emission surface I used, not the `[[...]]` syntax. Do not record the bracket-delegate form as dead.
+
+## SURFACE-EDGE MAPPED (2026-06-15, Emeric ran the final-text test on his seat) — refined definition
+Emeric (🕯) ran the dispositive test on his seat (where his final-text reaches the scanner — proven by his `CONTINUE_WORK:5` firing): emitted `[[CONTINUE_DELEGATE:...]]` as plain final-text. **Result: NEGATIVE — did NOT spawn a delegate.** He reported it byte-honest (did NOT claim it confirmed (b)).
+
+Reconciliation (sharpens, doesn't dent the source-finding): his bracket rode his response body AFTER a `message`-tool call in the same turn. `signal.ts`'s own comment confirms it scans ALL text payloads (not just last; tool-call payloads may follow text payloads). So "trailing a tool-call" alone shouldn't block it — IF the trailing bracket became a delivered text-payload. His negative means it likely **never became a scanned `ReplyPayload`** — the message-tool delivery path probably suppressed the trailing model-text from being emitted as a clean walked payload.
+
+**Refined emission-surface definition:** the scanner walks **delivered text-payloads only**, and "delivered" is NARROWER than "anything in the response body." A bracket must ride a clean delivered response-payload — NOT a message-tool body (my R-CD-TOKEN, empty-payload on my message-tool-only run), NOT trailing-text-after-a-same-turn-tool-call (Emeric's negative, suppressed/non-materialized payload).
+
+**Byte-true 2×2, refined:**
+- bracket-delegate from **clean delivered response-payload** → per source (regex matches + signal.ts walks delivered text), **fires** — but UNTESTED-CLEAN (both attempts had contaminated/empty payloads; both our run-configs route delivery through message-tool, so neither got a clean-delivered-final-text bracket through)
+- from **message-tool body** → doesn't ⚠️ (Ronan, empty-payload)
+- from **trailing-text-after-same-turn-tool-call** → doesn't, empirically ⚠️ (Emeric's negative — likely never a scanned payload)
+- `CONTINUE_WORK` bare-token from clean final-text → **fires** ✅ (Emeric `40674ffa` — the one clean-delivered-final-text case that worked, because it was the bare token with NO same-turn tool-call contaminating the payload)
+
+**Dispositive byte still open:** Emeric's `payload-scan: count=N bracketIdx=?` from his negative turn — if `count` excluded his bracket-text → confirms suppressed/non-delivered (surface-edge); if `count` included it but `bracketIdx=-1` → that'd be (a), the form genuinely unparsed from a real payload.
+
+**Resolution: emission-SURFACE is the discriminator (source-definitive via Cael's same-syntax `:12` split); the surface is specifically "clean delivered response-payload"; the `[[...]]` syntax is exonerated (regex matches, leaf-subagent-hop comment proves the path load-bearing). NOT bracket-dead, NOT syntax-asymmetry.**

@@ -57,7 +57,7 @@ _Captured by 🌻 Elliott on the deployed elliott-legion gateway (`OpenClaw 2026
 **To COMPLETE this row to the canonical bar:** either (a) a figs/operator `/status` fan-out across all 6 deployed seats (raw posted → captured here), or (b) each prince drops their own deployed-seat `/status`-card into `R-OBS-1/` for assembly. Owner 🌻 elliott will assemble on contribution. This filing is the elliott-seat + deploy/boot-cross-walk half, marked PARTIAL honestly rather than claimed as the full fan-out.
 
 ## ASSEMBLED CROSS-WALK (live — updating as the cohort's cards land in their row-evidence)
-_Assembled by 🌻 elliott from landed PROOFS evidence + RESOLVED-SHA host-info, 2026-06-15 ~18:00 PDT. The full per-seat /status-card is the canonical bar; FULL cards gathered so far = 2/6, build-string-confirmed = 6/6._
+_Assembled by 🌻 elliott from landed PROOFS evidence + RESOLVED-SHA host-info, 2026-06-15 ~18:00 PDT. The full per-seat /status-card is the canonical bar; FULL cards gathered so far = 3/6, build-string-confirmed = 6/6._
 
 | Seat | Build string | Context | Compactions | Chain | Model | Source |
 |---|---|---|---|---|---|---|
@@ -65,7 +65,7 @@ _Assembled by 🌻 elliott from landed PROOFS evidence + RESOLVED-SHA host-info,
 | 🌫 Silas | `077b261` | 685k/1.0m (69%) | 4 | 0/200 | opus-4.8 | `R-RC-1/session_status_snapshot.txt` — FULL card ✅ |
 | 🩸 Cael | `077b261` | — | — | — | — | `R-CW-1/EVIDENCE.md` + canary `27583557535` ✅ — build-string confirmed, full card pending |
 | 🌊 Ronan | `077b261` | — | — | — | — | `R-CD-TOKEN/EVIDENCE.md` (seat ronan/dgx) — build-string confirmed, full card pending |
-| 🕯 Emeric | `077b261` | — | — | — | — | `R-CW-3/emeric-nuc-crosswalk.md` (emeric-nuc) — build-string confirmed, full card pending |
+| 🕯 Emeric | `077b261` | 472k/1.0m (47%) | 4 | 0/200 | opus-4.8 | `R-OBS-1/status_snapshot_077b261dd8_emeric.txt` (emeric-nuc, x86 alder-lake 2nd-arch; 3 SHA surfaces agree) — FULL card ✅ |
 | 🪨 Rune | `077b261` | — | — | — | — | gateway active 16:50:47, run `27583857813` ✅ — build-string confirmed, full card pending |
 
-**Status: 6/6 build-string-confirmed on `077b261dd8` (the operator-surface render verified deployed fleet-wide); 2/6 FULL /status-cards gathered (Elliott + Silas, both rendering full continuation-substrate — chain/compactions/context).** The two full cards already prove the canonical behavior (the continuation banner renders the full substrate on the deployed build) on two independent seats; the remaining 4 full cards (Cael/Ronan/Emeric/Rune context%/chain/compactions) land as those princes drop their `/status` cards or fire rows carrying a session_status snapshot. Owner 🌻 elliott assembling incrementally.
+**Status: 6/6 build-string-confirmed on `077b261dd8` (the operator-surface render verified deployed fleet-wide); 3/6 FULL /status-cards gathered (Elliott + Silas + Emeric, all rendering full continuation-substrate across TWO arches (x86 + the rest) — chain/compactions/context).** The two full cards already prove the canonical behavior (the continuation banner renders the full substrate on the deployed build) on two independent seats; the remaining 3 full cards (Cael/Ronan/Rune context%/chain/compactions) land as those princes drop their `/status` cards or fire rows carrying a session_status snapshot. Owner 🌻 elliott assembling incrementally.

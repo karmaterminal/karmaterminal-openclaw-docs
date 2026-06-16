@@ -31,3 +31,9 @@ maxSpawnDepth defaults to 1 (unset on rune-seat), and `callerDepth >= maxSpawnDe
 
 ## Verdict: PASS
 Boundary enforced: `sessions_spawn` at depth 1/1 → forbidden (verbatim message, live this run + deployed-code byte-anchored). The full mis-probe→correction record is kept as the honest method (the byte over my own first reading).
+
+## Tempo trace JSON (saved as files per the corpus mandate)
+- `trace-159dc207-depth1-dispatch.json` (97625 bytes, host.name=rune) — the depth-1 delegate dispatch (`continue_delegate`, traceparent `00-159dc207e2597b46a92e9db9c843bdfa-...`)
+- `trace-8201f306-depth2-probe.json` (84704 bytes, host.name=rune) — the depth-2 child probe dispatch (`continue_delegate` from the depth-1 delegate, traceparent `00-8201f306f88c0ed176e88c5cd67256e8-...`)
+
+(The `sessions_spawn` cull byte itself is the runtime error-return `sessions_spawn is not allowed at this depth (current depth: 1, max: 1)` + the deployed-code anchor; the Tempo traces above capture the continue_delegate dispatch chain that set up the depth-1 lane. Traces fetched `curl tempo.dandelion.cult/api/traces/<id>` + committed as files — no tempo URL, per the clawsweeper-can't-reach-private-tempo mandate.)

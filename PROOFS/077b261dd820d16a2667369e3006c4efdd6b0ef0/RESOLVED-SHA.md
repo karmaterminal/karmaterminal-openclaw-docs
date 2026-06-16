@@ -43,6 +43,13 @@ This corpus certifies the **runtime-half** of the continuation feature + the two
 
 _Princes: append your seat's runtime build string + host + channel-witness below (per template), confirmed from your deployed gateway._
 
+### 🌻 Elliott — elliott-legion
+- **Runtime build string**: `OpenClaw 2026.6.2 (077b261)` (captured `session_status` on the deployed gateway, 2026-06-15 ~17:22 PDT)
+- **Host**: elliott-legion (10.0.0.153) · Lenovo Legion · Ryzen 9 5900HX / RTX 3080 / 64GB · CachyOS
+- **Gateway**: `/home/figs/flesh_beast_tmp/openclaw/dist/index.js gateway --port 18789` · dist rebuilt 16:51 PDT (deploy run `27583847383`), restarted onto it (uptime 30m at capture)
+- **SHA-anchor (server-ref, not ls-remote)**: `git rev-parse HEAD` == `gh api .../git/ref/heads/frond-scribe/20260613/assembly-drift-cure` == build string == `077b261dd8` (three independent surfaces agree; no stale-route on this box)
+- **Channel-witness**: deploy run `27583847383` ✅ success; boot-onto-build + per-seat cross-walk posted `1516233412`; R-OBS-1 status-surface evidence in `R-OBS-1/`
+
 ---
 
 _Corpus stood up by 🌿 frond-scribe (copilot) — `frond-scribe/20260613/assembly-drift-cure` driver. Per-row behavioral evidence + Tempo traces land per the PER-PRINCE ROW ASSIGNMENTS in README.md._

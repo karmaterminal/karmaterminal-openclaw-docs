@@ -1,0 +1,22 @@
+# R-OBS-1 raw operator status-card capture — Elliott 🌻 (elliott-legion seat)
+# Captured: 2026-06-15 ~17:22 PDT via session_status(current) on the DEPLOYED gateway
+# Gateway: /usr/bin/node /home/figs/flesh_beast_tmp/openclaw/dist/index.js gateway --port 18789
+# dist/index.js rebuilt 16:51 PDT (deploy-gateway run 27583847383), gateway restarted onto it
+
+🦞 OpenClaw 2026.6.2 (077b261)
+⏱️ Uptime: gateway 30m 21s · system 22d 23h
+🧠 Model: github-copilot/claude-opus-4.8 · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai/gpt-5.5
+🧮 Tokens: 2 in / 1.9k out
+📚 Context: 161k/1.0m (16%) · 🧹 Compactions: 13
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · elevated
+👥 Activation: mention · 🪢 Queue: steer (depth 0)
+
+# KEY R-OBS-1 SIGNALS (operator-surface verification):
+#  - Build string: OpenClaw 2026.6.2 (077b261)  → seat is on the candidate/deployed tip 077b261dd8 ✅
+#  - Continuation banner renders: chain 0/200 + Compactions 13 + Context 161k/1.0m (16%) ✅
+#  - Model opus-4.8 (primary), fallback ladder intact ✅
+#  - gateway uptime 30m = restart onto the 16:51 deploy build ✅

@@ -96,3 +96,24 @@ Source-trace unifies the two reads: the release-mirror is guarded `if (result.ok
 - **UNIFIED:** lifeboat drains IFF (a) volitional AND (b) sessionKey/sessionStore present. Three seams triangulate: silas-volitional-FIRED + ronan-volitional(20:16)-FIRED + ronan-automatic(18:13)-STRANDED.
 
 **RETURN-SIDE FINAL:** ✅ PROVEN on the volitional path (2 seats) · ⚠️ STRANDS on automatic / suppress-path = the fileable coverage gap (`#1030`, unified-mechanism comment `#issuecomment-4715241937`). FIX: degrade-out should warn-loud + automatic compactions should also drain staged delegates (most compactions are automatic → silent-drop is the common case). Provenance: 🌫 cross-seat positive + 🌊 volitional-vs-automatic source-trace + 🩸 path-dependent degrade diagnostic.
+
+## RETURN-CAPTURE at the THIRD VOLITIONAL seam (2026-06-16 15:08:32 PDT) — DEDICATED PROOF-DELEGATE returned its exact byte
+
+A third volitional compaction occurred at **15:08:32 PDT** on deployed `077b261dd8` (journal: `request_compaction:resolved-success ... trigger=volitional outcome=compacted`, `diagId=cmp-mqh6v9wr-15DGvQ`). This seam carried a **dedicated R-CD-3 PROOF post-compaction delegate** staged specifically to fire+return its exact payload line at the seam — the cleanest possible end-to-end return proof.
+
+**Byte chain at the seam (journal, saved verbatim in `delegate_return_payload.txt`):**
+1. **15:08:32.458** — `[compaction] rotated active transcript after compaction` (the seam).
+2. **15:08:32.638** — `request_compaction:resolved-success trigger=volitional outcome=compacted` (VOLITIONAL — the draining path).
+3. **15:08:34.564** — `Post-compaction delegate dispatch ... R-CD-3 PROOF ... Return exactly this line as your payload: "R-CD-3 PROOF: ..."` (the lifeboat DISPATCHED at the seam).
+4. **15:08:38.284** — `R-CD-3 PROOF: continue_delegate post-compaction lifeboat dispatch+fires-at-compaction verified at 077b261dd8 from ronan-seat 2026-06-16; staged queued-for-compaction, fires at the compaction seam.` — **the delegate RETURNED its exact payload line.**
+5. **15:08:38.404** — `[subagent-chain-hop] Accumulated 92 tokens from agent:main:subagent:06fb0acc-...` (the return-subagent's cost folded to parent chain).
+6. **15:08:38.409** — `[continuation/silent-wake] wakeOnReturn=true target=agent:main:discord:channel:1466192485440164011 silentAnnounce=true`.
+7. **15:08:38.410** — `[continuation:enrichment-return] Delivered to agent:main:discord:channel:1466192485440164011 from agent:main:subagent:06fb0acc-...` — **the lifeboat's return LANDED in the post-compaction session.**
+
+**This is the RETURN-SIDE end-to-end, witnessed clean:** stage → fire-at-seam → return-exact-payload → deliver-to-post-compaction-session, all on the deployed build, at a VOLITIONAL seam. It is the THIRD volitional witness (ronan 20:16 + silas 18:23 + **ronan 15:08 this seam**), and the first with a *dedicated proof-delegate that returned a pre-agreed exact byte* (vs the prior seams' working-state-shard re-injections) — so it removes any ambiguity about whether the return is real content vs incidental context.
+
+**Spawn-cap corroboration (by-design, unchanged):** the same seam ALSO showed `post-compaction delegate spawn forbidden` retries for several deeper-chain entries (`dd0a5a1b...`, `2fddd1f...`, `8fd2f850...`, `ecc2bc0d...`, `f5f333ef...`) — the `maxChainLength` protective cap firing on the already-deep chain, exactly as documented. The cap refusing the deep-chain spawns while the in-budget lifeboats returned cleanly is the by-design spawn-bound coexisting with the working return-path. Both true at once.
+
+**Trace artifacts:** `turn_trace_return.json` (the seam's batch trace `6ae2c84ec654f35825593513403fb146`, re-fetched at return-time, 26 batches, valid JSON) + `delegate_return_payload.txt` (the canonical journal return-byte). Tempo reachable (HTTP 200) via the ingress.
+
+**Return-side disposition (byte-honest, FINAL):** ✅ **PROVEN on the volitional path, now THREE volitional seats/seams** (silas 18:23 + ronan 20:16 + ronan 15:08-with-dedicated-proof-delegate). The earlier 18:13 AUTOMATIC-path 0-dispatch remains the byte-honest ⚠️ GAP (`#1030`) — NOT contradicted by this capture, because this seam is VOLITIONAL (the draining path); the automatic-path strand is a separate, still-open mechanism. **Credit the byte, not a forced PASS:** the volitional return is now over-proven (3 witnesses, one with an exact-payload proof-delegate); the automatic-path gap stays honestly open as the fileable residual.

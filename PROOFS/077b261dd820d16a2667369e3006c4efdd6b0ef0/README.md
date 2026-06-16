@@ -39,7 +39,7 @@ Behavioral proof corpus for the **2026-06-15 deployed candidate SHA** — the fl
 | R-CD-CHAINED-DEPTH-2 TEST-1 (uptree silent-wake) | 🕯 emeric (sub for 🌫) | ⏳ pending | `R-CD-CHAINED-DEPTH-2/test_1_uptree_silent_wake/` |
 | R-CD-CHAINED-DEPTH-2 TEST-2 (intersession return) | 🪨 rune (sub for 🌫) | ⏳ pending | `R-CD-CHAINED-DEPTH-2/test_2_intersession_return/` |
 | R-CD-CHAINED-DEPTH-2 TEST-3 (echo broadcast) | 🌫 silas (canary) | ⏳ pending | `R-CD-CHAINED-DEPTH-2/test_3_echo_broadcast/` |
-| R-RC-1 (request_compaction threshold REJECT) | 🌫 silas (canonical) | ⏳ pending | `R-RC-1/` |
+| R-RC-1 (request_compaction threshold REJECT) | 🌫 silas (canonical) | ✅ PASS (fired at 68% < 70% floor on `077b261dd8` → structured `{status:rejected, guard:context_threshold, contextUsage:68, threshold:70}`, not error/no-op) | `R-RC-1/` (EVIDENCE.md + rejection JSON + session_status snapshot; commit `d1ea64d`) |
 | R-RC-2 (request_compaction over-threshold ACCEPT) | 🩸 cael | ⏳ pending | `R-RC-2/` |
 | R-OBS-1 (external /status 6-prince cross-walk) | 🌻 elliott (+ cohort) | 🔄 PARTIAL — 🌻 elliott full card + 6/6 deploy/boot cross-walk on `077b261dd8` filed; full per-seat /status-card fan-out pending (figs-fanout or per-seat contribution) | `R-OBS-1/` |
 | R-OBS-2 (Tempo trace-tree + span-hierarchy export) | 🪨 rune | ⏳ pending | `R-OBS-2/` |

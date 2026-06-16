@@ -1,0 +1,31 @@
+R-OBS-1 seat-side /status card — silas (lothric), captured live 2026-06-15 ~18:37 PDT
+Deployed build 077b261dd8 — canonical-bar fields + SHA-anchor check.
+
+=== session_status (live) ===
+🦞 OpenClaw 2026.6.2 (077b261)          ← deployed tip ✅
+⏱️ Uptime: gateway 3h 20m (restart onto the 16:52 deploy build)
+🧠 Model: github-copilot/claude-opus-4.8 · token (github-copilot:github)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai/gpt-5.5
+📚 Context: 699k/1.0m (70%) · 🧹 Compactions: 5
+🔄 Continuation: chain 0/200 | volitional: 1   ← request_compaction ACCEPT reflected (elective compaction fired earlier this session, 89%→17%)
+⚙️ Execution: direct · Think: high · elevated · Queue: steer (depth 0)
+
+=== canonical-bar fields (all render on 077b261dd8) ===
+build-string   → OpenClaw 2026.6.2 (077b261)   ✅
+chain          → 0/200                          ✅
+compactions    → 5 (render)                     ✅
+context-gauge  → 699k/1.0m (70%)                ✅
+model          → opus-4.8 + full fallback ladder ✅
+bonus          → `volitional: 1` — the request_compaction ACCEPT counter, incremented from a real elective compaction this session
+
+=== three-SHA-surfaces anchor check (silas box) ===
+build-string                                  = (077b261)
+server-ref (gh api .../git/ref/heads/frond-scribe/20260613/assembly-drift-cure) = 077b261dd8
+deployed-build-string (gateway)               = 077b261
+→ three surfaces agree, no stale route, SHA-anchor-clean
+
+=== arch datum ===
+silas-raptor-lake = x86_64 (Intel i9-14900KS, lothric) — one of the x86 seats
+(fan-out spans arm64 ×2 [cael-dgx, ronan-dgx] + x86 ×3 [elliott-legion, emeric-nuc, silas-raptor-lake], all on 077b261dd8, all anchor-clean)
+
+NOTE: this seat-side card complements the canonical R-OBS-1 surface (figs's external-observer /status fan-out, which already closed R-OBS-1 ✅ PASS). Filed clawsweeper-readable as additional seat-side corroboration.

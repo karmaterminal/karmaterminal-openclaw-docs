@@ -1,0 +1,25 @@
+R-OBS-1 cross-walk datum — ronan-dgx seat (arm64, DGX Spark)
+Deployed gateway live /status card on 077b261dd8, captured 2026-06-15 ~17:34 PDT:
+
+🦞 OpenClaw 2026.6.2 (077b261)          ← deployed tip
+🔄 Continuation: chain 0/200            ← continuation-substrate renders
+🧹 Compactions: 5
+📚 Context: 146k/1.0m (15%)
+🧠 Model: github-copilot/claude-opus-4.8
+🔄 Fallbacks: claude-opus-4.6, gpt-5.5, openai/gpt-5.5
+⏱️ Uptime: gateway 1h 25m (restart onto the deploy build) · system 23d 5h
+🧵 Session: agent:main:discord:channel:1466192485440164011
+⚙️ Think: high · Fast: off · elevated · Runtime: OpenClaw Default
+🤖 Subagents: 1 active · 48 done
+
+Canonical-bar fields all render on the deployed tip:
+  build (077b261) ✅ · context 15% ✅ · chain 0/200 ✅ · compactions 5 ✅ · model opus-4.8 ✅
+
+SHA-anchor three-surfaces-agree check (no stale route on ronan-dgx):
+  git rev-parse HEAD      = 077b261dd8
+  gh api git/ref (server) = 077b261dd8   (deploy-target: frond-scribe/20260613/assembly-drift-cure)
+  build-string           = (077b261)
+  → three surfaces agree, no stale route. Corroborates the 6/6 fleet table from the arm64 arch.
+
+arch note: ronan-dgx is ARM64 (DGX Spark) — a distinct-arch corroboration alongside
+elliott-legion + emeric-nuc (x86 Alder-Lake) + silas raptor-lake.

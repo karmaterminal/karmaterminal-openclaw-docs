@@ -26,9 +26,9 @@ Behavioral proof corpus for the **2026-06-15 deployed candidate SHA** — the fl
 | R-CW-4 (chain-depth tracking) | 🩸 cael | ✅ PASS (counter+bound; HONEST-LIMIT shallow) | `R-CW-4/` |
 | R-CW-5 (cap → dispatch reject) | 🩸 cael | ✅ PASS (pending-cap `32/32`; HONEST-LIMIT costCap-specific) | `R-CW-5/` |
 | R-CW-TOKEN (bracket-form continue_work) | 🩸 cael | ✅ PASS (bare-token fires — Emeric `CONTINUE_WORK:5` witnessed; emission-path NOTE: my msg-tool-emit didn't, scanner walks emitter's final-text) — `[[CONTINUE_DELEGATE]]` `[[...]]` is the separate ⚠️ (Ronan) | `R-CW-TOKEN/` | `R-CW-TOKEN/` | `R-CW-TOKEN/` |
-| R-CW-6 (spawn-depth boundary reject) | 🪨 rune | ⏳ pending | `R-CW-6-BOUNDARY/` |
+| R-CW-6 (spawn-depth boundary reject) | 🪨 rune | ✅ PASS — `sessions_spawn` culled at depth 1/1 on deployed tip (boundary held); continue_delegate chain-hop depth distinguished from spawn-depth; 2 Tempo trace JSONs saved | `R-CW-6-BOUNDARY/` |
 | R-CW-7 (traceparent E2E across continuation spans) | 🪨 rune | ⏳ pending | `R-CW-7-TRACEPARENT-E2E/` |
-| R-CW-DELEGATE-SELF-CONTINUATION | 🪨 rune | ⏳ pending | `R-CW-DELEGATE-SELF-CONTINUATION/` |
+| R-CW-DELEGATE-SELF-CONTINUATION | 🪨 rune | ✅ PASS — continue_delegate dispatch + in-delegate self-election confirmed on deployed tip; Tempo trace JSON saved (`trace-beb3b445.json`) | `R-CW-DELEGATE-SELF-CONTINUATION/` |
 | R-CW-DELEGATE-TOKEN (#952 bracket row) | 🪨 rune | ✅ PASS (positive-control) — bracket `[[CONTINUE_DELEGATE:...]]` fires from final-assistant-text (`bracketIdx=-1`→`0` + delegate-spawned hop 1/200 + chain-hop depth-2); the positive half of 🌊's R-CD-TOKEN negative, cross-seat second; Tempo JSON saved (HONEST-LIMIT: turn-trace not dispatch-spans) | `R-CW-DELEGATE-TOKEN/` |
 | R-CD-1 (schedule→spawn→return) | 🌊 ronan | ✅ PASS (fire-side) | `R-CD-1/` |
 | R-CD-2 (silent-wake full path) | 🌊 ronan | ✅ PASS (fire-side) | `R-CD-2/` |
@@ -42,7 +42,7 @@ Behavioral proof corpus for the **2026-06-15 deployed candidate SHA** — the fl
 | R-RC-1 (request_compaction threshold REJECT) | 🌫 silas (canonical) | ✅ PASS (fired at 68% < 70% floor on `077b261dd8` → structured `{status:rejected, guard:context_threshold, contextUsage:68, threshold:70}`, not error/no-op) | `R-RC-1/` (EVIDENCE.md + rejection JSON + session_status snapshot; commit `d1ea64d`) |
 | R-RC-2 (request_compaction over-threshold ACCEPT) | 🩸 cael | ⏳ pending | `R-RC-2/` |
 | R-OBS-1 (external /status 6-prince cross-walk) | 🌻 elliott (+ cohort) | ✅ PASS — CANONICAL BAR MET: figs operator /status fan-out across all 6 deployed seats, every seat renders FULL continuation-substrate on `077b261dd8` (6/6 full /status-cards, cross-arch corroborated) | `R-OBS-1/` |
-| R-OBS-2 (Tempo trace-tree + span-hierarchy export) | 🪨 rune | ⏳ pending | `R-OBS-2/` |
+| R-OBS-2 (Tempo trace-tree + span-hierarchy export) | 🪨 rune | ✅ PASS — Tempo span-tree exported (`trace-617db114-spantree.json`, multi-continue_work + dispatch + R-OBS-2 span-hierarchy, 36 spans) on deployed tip | `R-OBS-2/` |
 | R-CONFIG-DEFAULTS (continuation defaults on bootstrap) | 🕯 emeric | ✅ PASS | `R-CONFIG-DEFAULTS/proof.md` |
 | R-CONFIG-INTERSESSION (config persists across sessions) | 🕯 emeric | ✅ PASS | `R-CONFIG-INTERSESSION/proof.md` |
 | R-REGRESSION-TRAP-TESTS (sister-trap-test coverage) | 🕯 emeric | ⏳ pending | `R-REGRESSION-TRAP-TESTS/` |

@@ -1,0 +1,1 @@
+R-CD-4 PROOF: continue_delegate cross-session targetSessionKey-routing verified at 077b261dd8 from ronan-seat 2026-06-16; return targeted to agent:main:main.

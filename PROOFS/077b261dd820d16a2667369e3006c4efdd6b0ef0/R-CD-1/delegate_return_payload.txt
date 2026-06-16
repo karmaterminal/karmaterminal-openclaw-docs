@@ -1,0 +1,1 @@
+R-CD-1 PROOF: continue_delegate normal-mode dispatch+return verified at 077b261dd8 from ronan-seat 2026-06-16; immediate normal-announce return.

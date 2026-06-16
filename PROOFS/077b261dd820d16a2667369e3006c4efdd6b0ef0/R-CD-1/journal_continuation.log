@@ -1,0 +1,2 @@
+Jun 15 17:15:10 ronan node[470616]: 2026-06-15T17:15:10.188-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=agent:main:discord:channel:1466192485440164011 task=R-CD-1 PROOF (continue_delegate normal-mode) at CANDIDATE_SHA 077b261dd820d16a26
+Jun 15 17:15:19 ronan node[470616]: 2026-06-15T17:15:19.044-07:00 R-CD-1 PROOF: continue_delegate normal-mode dispatch+return verified at 077b261dd8 from ronan-seat 2026-06-16; immediate normal-announce return.

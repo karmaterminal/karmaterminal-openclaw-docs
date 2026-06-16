@@ -1,0 +1,1 @@
+R-CD-2 PROOF: continue_delegate silent-mode dispatch+silent-return verified at 077b261dd8 from ronan-seat 2026-06-16; internal-context-only, no channel-announce.

@@ -71,3 +71,19 @@ Two prior framings were both imprecise. v1 "fully resolved, no bug" over-claimed
   - **NET:** since FM-1 is refuted by construction, the 18:13 0-dispatch points **straight at FM-2** — a silent-degrade in the post-compaction release-path. The dispositive test is no longer "does it persist" (it does, atomically) — it's **"did the seam hit a draining release-path or a degraded-out one"** (`releaseQueuedCompactionTolerant`-degrade-path check). This is a REAL fileable candidate if the degrade-out is what bit the 18:13 stage. Cael's early-staged cael shard (persisted-by-construction, FM-1 can't confound) + the fresh-stage→immediate-volitional-compact test (the turn-1 release-mirror) are the two control-cases; if either doesn't fire, it's FM-2. Credit the byte: Cael's source-walk refuted my FM-1 guess and pinned FM-2 to a specific silent-degrade.
 - **DISPOSITIVE TEST (narrowed) — Silas's lane when he crosses 70%**: the test is no longer "does the return fire" (it fires, proven two seats) — it's narrowed to **"why did the 18:13 staging specifically not persist"**: stage → **confirm the persist landed in the live store** → force compaction → observe. The persist-confirm middle step separates (1) timing-edge from (2) real-bug for the anomalous-miss class.
 - **Net (byte-precise)**: R-CD-3 = **fire-side ✅ · return-side ✅ WITNESSED two seats · spawn-side by-design ✅ · one anomalous-miss edge (18:13 0-dispatch) OPEN as a narrowed persist-gap sub-question pending the dispositive test.** The lifeboat works on the deployed build; the open edge is a specific-staging persist question, not the return-behavior. Credit the byte: Silas's two cuts (the over-claim AND the over-correction) found the middle; the floor cut my proof both directions toward the truth.
+
+## SHARPENED (cross-seat, Silas's divergence) — VOLITIONAL-vs-AUTOMATIC, the return-side is PROVEN-volitional + GAP-automatic
+
+🌫 Silas journal-verified his post-compaction delegates FIRED at his 18:23 elective compaction (`cmp-mqfyekhm`, 4 dispatched + returned, incl. earlier-turn-staged). My 18:13: 0-dispatch. Same build, opposite — looked like a seat-difference. Byte-walked my own two seams → it's a **compaction-TYPE** difference, consistent across both seats:
+
+- **My 18:13 (0-dispatch): AUTOMATIC** — `[context-pressure:fire] post-compaction band=0`, after a stalled embedded-run. NO `request_compaction`/`trigger=volitional`.
+- **My 20:16 (9-dispatch): VOLITIONAL** — `request_compaction:resolved-success trigger=volitional outcome=compacted`.
+- **Silas's 18:23 (4-dispatch): VOLITIONAL** — his elective `request_compaction`.
+
+**Pattern: VOLITIONAL compactions drain staged post-compaction delegates; AUTOMATIC (context-pressure/stall) ones do NOT.** Source: the release-mirror `attempt-execution.ts:767-772` is on the turn-1 **volitional** path (*"only the followup (turn-2+) path would ever drain them"* otherwise); automatic compactions don't route through it.
+
+**Disposition (sharpens #1030 to a real (b)-gap, not (a)-by-design):** a staged lifeboat fires only if the next compaction is **volitional**; if **automatic** (the MOST COMMON type), it's **silently dropped**. Genuine lich-phylactery coverage gap.
+
+**RETURN-SIDE STATUS (byte-honest, final):** ✅ **PROVEN on the VOLITIONAL path, two seats** (Silas's 18:23 journal-confirmed 4-dispatch + my 20:16 9-dispatch) · ⚠️ **GAP on the AUTOMATIC path** (my 18:13 0-dispatch) = the fileable part, tracked in `karmaterminal/openclaw#1030` (sharpened `#issuecomment-4715052035`). FM-1 (persist-gap) remains refuted (atomic stage=persist). The earlier "suppressVisibleSessionEffects degrade" framing was the right function, wrong precise-trigger — it's volitional-vs-automatic-compaction-path.
+
+Provenance: divergence forced by 🌫 (cross-seat journal-confirm); volitional-vs-automatic mechanism byte-walked + source-pinned by 🌊.

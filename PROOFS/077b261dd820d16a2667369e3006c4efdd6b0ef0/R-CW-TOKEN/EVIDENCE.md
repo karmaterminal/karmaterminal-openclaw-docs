@@ -2,7 +2,7 @@
 
 **Owner:** 🩸 Cael (cael-dgx)
 **SHA:** `077b261dd820d16a2667369e3006c4efdd6b0ef0` (deployed)
-**Verdict:** ✅ PASS (behavior corpus-proven on deployed bytes) · HONEST-LIMIT: cael-seat clean-capture deferred (below)
+**Verdict:** ⚠️ BRACKET-NON-FIRE from channel-emission on cael-dgx (byte-confirmed) — tool-form is canonical-proven (R-CW-1); the `CONTINUE_WORK:N` bracket-fallback did NOT fire from the message-tool channel-emission path (`bracketIdx=-1`, no scheduled continuation). See `bracketidx_nonfire_evidence.txt`. Sharpened per 🌫's cross-row catch of Ronan's R-CD-TOKEN `bracketIdx=-1` — the mechanism doesn't respect token-flavor; both bracket-rows are ⚠️ for channel-emission.
 
 ## The both-forms mandate
 `continue_work` has two surfaces: the TOOL form (`continue_work(...)`, proven at `R-CW-1/`) and the TOKEN/BRACKET fallback (`CONTINUE_WORK:N` / `[[CONTINUE_WORK]]`, this row). The mandate: prove BOTH on the deployed SHA.

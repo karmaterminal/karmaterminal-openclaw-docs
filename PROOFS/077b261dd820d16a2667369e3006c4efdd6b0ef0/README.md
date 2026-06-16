@@ -25,7 +25,7 @@ Behavioral proof corpus for the **2026-06-15 deployed candidate SHA** — the fl
 | R-CW-3 (reason-field OTel cross-walk, both forms) | 🩸 cael (canonical) + 🕯 emeric (per-seat cross-walk) | ✅ PROVEN (🕯 emeric cross-walk + 🩸 canonical: continuation.work/reason.preview; cael clean-marker pending) | `R-CW-3/emeric-nuc-crosswalk.md` |
 | R-CW-4 (chain-depth tracking) | 🩸 cael | ✅ PASS (counter+bound; HONEST-LIMIT shallow) | `R-CW-4/` |
 | R-CW-5 (cap → dispatch reject) | 🩸 cael | ✅ PASS (pending-cap `32/32`; HONEST-LIMIT costCap-specific) | `R-CW-5/` |
-| R-CW-TOKEN (bracket-form continue_work) | 🩸 cael | ✅ PASS (behavior corpus-proven; HONEST-LIMIT cael clean-capture) | `R-CW-TOKEN/` |
+| R-CW-TOKEN (bracket-form continue_work) | 🩸 cael | ⚠️ bracket-non-fire from channel-emission (byte-confirmed `bracketIdx=-1`; tool-form canonical-proven via R-CW-1) — pairs with Ronan's R-CD-TOKEN | `R-CW-TOKEN/` | `R-CW-TOKEN/` |
 | R-CW-6 (spawn-depth boundary reject) | 🪨 rune | ⏳ pending | `R-CW-6-BOUNDARY/` |
 | R-CW-7 (traceparent E2E across continuation spans) | 🪨 rune | ⏳ pending | `R-CW-7-TRACEPARENT-E2E/` |
 | R-CW-DELEGATE-SELF-CONTINUATION | 🪨 rune | ⏳ pending | `R-CW-DELEGATE-SELF-CONTINUATION/` |

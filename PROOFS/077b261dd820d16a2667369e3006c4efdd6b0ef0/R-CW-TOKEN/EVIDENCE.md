@@ -2,7 +2,7 @@
 
 **Owner:** 🩸 Cael (cael-dgx)
 **SHA:** `077b261dd820d16a2667369e3006c4efdd6b0ef0` (deployed)
-**Verdict:** ⚠️ BRACKET-NON-FIRE from channel-emission on cael-dgx (byte-confirmed) — tool-form is canonical-proven (R-CW-1); the `CONTINUE_WORK:N` bracket-fallback did NOT fire from the message-tool channel-emission path (`bracketIdx=-1`, no scheduled continuation). See `bracketidx_nonfire_evidence.txt`. Sharpened per 🌫's cross-row catch of Ronan's R-CD-TOKEN `bracketIdx=-1` — the mechanism doesn't respect token-flavor; both bracket-rows are ⚠️ for channel-emission.
+**Verdict:** ✅ PASS (bare-token fires — Emeric's `CONTINUE_WORK:5`→`continuation.work` `40674ffa`, witnessed) · EMISSION-PATH NOTE: my own `CONTINUE_WORK:12` via message-tool-send did NOT fire (`bracketIdx=-1` — the scanner walks the emitter's direct-final-assistant-text, not a message-tool channel-send; the canonical fire is direct-emission). See `bracketidx_nonfire_evidence.txt` RECONCILIATION. NB: the `[[CONTINUE_DELEGATE:...]]` double-bracket is a DIFFERENT syntax/path that does NOT fire (Ronan R-CD-TOKEN ⚠️) — the asymmetry (bare-token-fires / `[[...]]`-doesn't) is the real finding; I over-corrected to ⚠️ first, the byte cut the over-decline.
 
 ## The both-forms mandate
 `continue_work` has two surfaces: the TOOL form (`continue_work(...)`, proven at `R-CW-1/`) and the TOKEN/BRACKET fallback (`CONTINUE_WORK:N` / `[[CONTINUE_WORK]]`, this row). The mandate: prove BOTH on the deployed SHA.

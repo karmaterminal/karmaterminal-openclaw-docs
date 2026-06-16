@@ -38,7 +38,7 @@ The fleet operator-surface is corroborated by the deploy-gateway run records (al
 | 🕯 Emeric | `27583855160` ✅ | gateway up on `077b261dd8`, R-CW-3 firing on emeric-nuc (Emeric `1516232337`) |
 | 🩸 Cael | `27583557535` ✅ | canary: `077b261dd8` built+verified+restarted clean, #1029 in live build (Cael `1516231378`) |
 
-## Verdict: ✅ PASS
+## Verdict (elliott-seat sub-result): ✅ PASS
 The Elliott deployed seat renders the full continuation-substrate on the operator status-surface at candidate `077b261dd8`. Build string, continuation chain, compactions counter, and context gauge all render correctly post-deploy. Three independent SHA surfaces (local HEAD, server-ref, runtime build string) agree on the candidate tip — no stale-route on this box. Fleet cross-walk corroborates all six seats deployed + booted clean on `077b261dd8` (deploy-gateway 6/6 SUCCESS + per-seat boot confirmations).
 
 > **Note on scope:** R-OBS-1 is the operator-status-surface row (session_status render verification). The OTel/Tempo-trace observability surface is R-OBS-2 (🪨 Rune). This row certifies the status-card renders the candidate bytes correctly; the span-emission/Tempo-landing certification is R-OBS-2's lane.
@@ -56,16 +56,17 @@ _Captured by 🌻 Elliott on the deployed elliott-legion gateway (`OpenClaw 2026
 
 **To COMPLETE this row to the canonical bar:** either (a) a figs/operator `/status` fan-out across all 6 deployed seats (raw posted → captured here), or (b) each prince drops their own deployed-seat `/status`-card into `R-OBS-1/` for assembly. Owner 🌻 elliott will assemble on contribution. This filing is the elliott-seat + deploy/boot-cross-walk half, marked PARTIAL honestly rather than claimed as the full fan-out.
 
-## ASSEMBLED CROSS-WALK (live — updating as the cohort's cards land in their row-evidence)
-_Assembled by 🌻 elliott from landed PROOFS evidence + RESOLVED-SHA host-info, 2026-06-15 ~18:00 PDT. The full per-seat /status-card is the canonical bar; FULL cards gathered so far = 3/6, build-string-confirmed = 6/6._
+## ASSEMBLED CROSS-WALK — COMPLETE 6/6 (figs operator /status fan-out, 2026-06-15 ~17:48 PDT)
+_Canonical R-OBS-1 surface met: figs (external operator) ran `/status` across all 6 deployed seats and posted the raw — `figs-status-fanout-6prince.txt`. This is the same operator-/status-fan-out shape as the canonical prior R-OBS-1 (`7992640e60`). 6/6 FULL /status-cards._
 
-| Seat | Build string | Context | Compactions | Chain | Model | Source |
+| Seat | Build | Context | Compactions | Chain | Model | Source |
 |---|---|---|---|---|---|---|
-| 🌻 Elliott | `077b261` | 161k/1.0m (16%) | 13 | 0/200 | opus-4.8 | this row (session_status, 17:22) — FULL card ✅ |
-| 🌫 Silas | `077b261` | 685k/1.0m (69%) | 4 | 0/200 | opus-4.8 | `R-RC-1/session_status_snapshot.txt` — FULL card ✅ |
-| 🩸 Cael | `077b261` | — | — | — | — | `R-CW-1/EVIDENCE.md` + canary `27583557535` ✅ — build-string confirmed, full card pending |
-| 🌊 Ronan | `077b261` | — | — | — | — | `R-CD-TOKEN/EVIDENCE.md` (seat ronan/dgx) — build-string confirmed, full card pending |
-| 🕯 Emeric | `077b261` | 472k/1.0m (47%) | 4 | 0/200 | opus-4.8 | `R-OBS-1/status_snapshot_077b261dd8_emeric.txt` (emeric-nuc, x86 alder-lake 2nd-arch; 3 SHA surfaces agree) — FULL card ✅ |
-| 🪨 Rune | `077b261` | — | — | — | — | gateway active 16:50:47, run `27583857813` ✅ — build-string confirmed, full card pending |
+| 🌻 Elliott | `077b261` | 261k/1.0m (26%) | 13 | 0/200 | opus-4.8 | figs fan-out + this row's session_status ✅ |
+| 🌫 Silas | `077b261` | 746k/1.0m (75%) | 4 | 0/200 | opus-4.8 | figs fan-out + `R-RC-1/session_status_snapshot.txt` ✅ |
+| 🩸 Cael | `077b261` | 501k/1.0m (50%) | 4 | 0/200 | opus-4.8 | figs fan-out ✅ |
+| 🌊 Ronan | `077b261` | 817k/1.0m (82%) | 4 | 0/200 | opus-4.8 | figs fan-out (1 subagent active, 48 done) ✅ |
+| 🕯 Emeric | `077b261` | 504k/1.0m (50%) | 4 | 0/200 | opus-4.8 | figs fan-out + `R-OBS-1/status_snapshot_077b261dd8_emeric.txt` (x86 alder-lake 2nd-arch) ✅ |
+| 🪨 Rune | `077b261` | 634k/1.0m (63%) | 4 | 0/200 | opus-4.8 | figs fan-out ✅ |
 
-**Status: 6/6 build-string-confirmed on `077b261dd8` (the operator-surface render verified deployed fleet-wide); 3/6 FULL /status-cards gathered (Elliott + Silas + Emeric, all rendering full continuation-substrate across TWO arches (x86 + the rest) — chain/compactions/context).** The two full cards already prove the canonical behavior (the continuation banner renders the full substrate on the deployed build) on two independent seats; the remaining 3 full cards (Cael/Ronan/Rune context%/chain/compactions) land as those princes drop their `/status` cards or fire rows carrying a session_status snapshot. Owner 🌻 elliott assembling incrementally.
+## Verdict: ✅ PASS — CANONICAL BAR MET (6/6 full /status-cards, operator fan-out)
+All six deployed seats render `OpenClaw 2026.6.2 (077b261)` == deployed tip `077b261dd8` with the FULL continuation-substrate (chain 0/200 + compactions counter + context gauge) and the identical model+fallback ladder (opus-4.8 / 4.6 / gpt-5.5 / openai gpt-5.5), confirmed via figs's external operator `/status` fan-out — the canonical R-OBS-1 surface. The operator-surface proves the fleet is uniformly on the candidate bytes and the continuation banner renders correctly post-deploy on every seat. Cross-arch corroboration holds (🕯 emeric-nuc x86 alder-lake + the rest), and the SHA-anchor cross-check (HEAD == server-ref == build-string) held on every box that ran it — no stale route fleet-wide. **R-OBS-1 complete.**

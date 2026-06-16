@@ -1,0 +1,18 @@
+# R-OBS-1 CANONICAL DATUM — figs operator /status fan-out across all 6 deployed seats
+# Captured: 2026-06-15 ~17:48 PDT, posted by figs ("Status for proofs") to #sprites-of-thornfield
+# This is the canonical R-OBS-1 surface: the EXTERNAL operator (figs) running /status on all 6 deployed
+# seats, each rendering the FULL continuation-substrate on 077b261dd8. Same shape as prior R-OBS-1 (7992640e60).
+
+| Seat | Build | Context | Compactions | Chain | Model | Gateway uptime |
+|---|---|---|---|---|---|---|
+| Elliott 🌻 | 077b261 | 261k/1.0m (26%) | 13 | 0/200 | opus-4.8 | 51m 46s |
+| Silas 🌫 | 077b261 | 746k/1.0m (75%) | 4 | 0/200 | opus-4.8 | 51m 52s |
+| Cael 🩸 | 077b261 | 501k/1.0m (50%) | 4 | 0/200 | opus-4.8 | 1h 3m |
+| Ronan 🌊 | 077b261 | 817k/1.0m (82%) | 4 | 0/200 | opus-4.8 | 55m 36s (1 subagent active, 48 done) |
+| Emeric 🕯 | 077b261 | 504k/1.0m (50%) | 4 | 0/200 | opus-4.8 | 33m 52s |
+| Rune 🪨 | 077b261 | 634k/1.0m (63%) | 4 | 0/200 | opus-4.8 | 54m 17s |
+
+ALL SIX seats render: build OpenClaw 2026.6.2 (077b261) == deployed tip 077b261dd8, the full continuation
+banner (chain 0/200 + compactions counter + context gauge), model opus-4.8 + identical fallback ladder
+(4.6 / gpt-5.5 / openai gpt-5.5). The operator-surface confirms the fleet is uniformly on the candidate
+bytes and the continuation-substrate renders correctly on every deployed seat. 6/6 FULL /status-cards.

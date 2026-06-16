@@ -1,0 +1,16 @@
+R-CD-CHAINED-DEPTH-2 TEST-3 — DISPATCH-SIDE CONFIRMATION (echo-broadcast completed)
+================================================================================
+The fanoutMode="tree" delegate dispatched after the turn and RETURNED its echo marker
+to the chain (the dispatching silas-main session). Subagent completion event:
+
+  session_key: agent:main:subagent:continuation-f9aba0840c084c2cec86c95680bdd8fb
+  status: completed; ready for parent review
+  runtime: 2s · tokens 62 (in 2 / out 60)
+
+Child return payload (verbatim):
+  "R-CD-CHAINED-DEPTH-2 TEST-3 echo-broadcast: fanoutMode=tree return echoed to chain on 077b261dd8."
+
+=> FULL PASS: fire-side (fanoutMode honored + traceparent minted) + dispatch-side
+   (delegate spawned, ran on 077b261dd8, echoed its return to the chain) + Tempo
+   trace-tree aae409d4 (11 spans). The echo-broadcast leg traverses end-to-end on
+   the deployed build.

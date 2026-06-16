@@ -77,7 +77,7 @@ _Added 2026-06-15 ~18:14 PDT. Per frond's external-observer/seat-side framing: f
 | Seat | Seat-side card source | Seat-side context (vs figs-fanout context) |
 |---|---|---|
 | 🌻 Elliott | this row's session_status (`status_snapshot_077b261dd8_elliott.txt`) | 16% (fan-out: 26%) |
-| 🌫 Silas | `R-RC-1/session_status_snapshot.txt` | 69% (fan-out: 75%) |
+| 🌫 Silas | `seatside_card_077b261dd8_silas.txt` (Intel raptor-lake) + `R-RC-1/session_status_snapshot.txt` | 89% now (series: 69%→75%→89% across the cycle — long-PROOFS-burn climbing) |
 | 🕯 Emeric | `status_snapshot_077b261dd8_emeric.txt` (x86 alder-lake) | 47% (fan-out: 50%) |
 | 🌊 Ronan | `seatside_card_077b261dd8_ronan.txt` (arm64) | **15% (fan-out: 82%)** |
 | 🪨 Rune | `seatside_card_077b261dd8_rune.txt` (x86_64, 3rd x86 seat) | 78% (fan-out: 63%) |

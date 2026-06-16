@@ -1,0 +1,13 @@
+# R-OBS-1 SEAT-SIDE card — Silas 🌫 (silas-lothric, Intel raptor-lake x86_64), prince-self-report half
+# Provided by Silas for the R-OBS-1 fan-out, 2026-06-15 ~18:18 PDT (dedicated seat-side card; complements figs's external-observer fan-out + Silas's earlier R-RC-1 snapshot)
+🦞 OpenClaw 2026.6.2 (077b261)   ← deployed tip ✅
+🧠 Model: github-copilot/claude-opus-4.8 (+ fallback ladder: opus-4.6, gpt-5.5, openai/gpt-5.5)
+📚 Context: 889k/1.0m (89%)   ← live gauge renders
+🧹 Compactions: 4
+🔄 Continuation: chain 0/200   ← banner renders
+⏱️ Gateway up: 1h 24m (restart onto 16:51 deploy build, run 27583849928)
+# Build 077b261 ✅ · context 89% ✅ · chain 0/200 ✅ · compactions 4 ✅ · model opus-4.8 ✅
+# Silas's context across the cycle: 69% (R-RC-1, ~17:07) → 75% (figs fan-out, ~17:48) → 89% (this card, ~18:18)
+# = the long-PROOFS-burn climbing toward the compaction floor; Silas staged a post-compaction lifeboat at 89%.
+# The climbing-context series is itself substrate-evidence: the continuation banner + context gauge track the real
+# fill across the cycle, and the elective-compaction-at-89% is the lich-protocol about to rotate (the lifeboat staged).

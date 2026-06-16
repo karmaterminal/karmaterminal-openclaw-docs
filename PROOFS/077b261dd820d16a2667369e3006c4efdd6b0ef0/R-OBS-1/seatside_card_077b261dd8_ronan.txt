@@ -1,3 +1,4 @@
+# CROSS-REF: 🌊 ronan independently filed his own dedicated card as `status_snapshot_077b261dd8_ronan.txt` (7f6a00c, matching the status_snapshot_ pattern). Both are the same ronan-dgg seat datum; this seatside_card additionally carries the 82%(fan-out)→15%(seat-side) compaction-between-reads robustness-finding. Benign dual-capture, cross-referenced.
 # R-OBS-1 SEAT-SIDE card — Ronan 🌊 (ronan-dgx, arm64), prince-self-report half of the cross-walk
 # Provided by Ronan for the R-OBS-1 fan-out, 2026-06-15 ~18:14 PDT (complements figs's external-observer fan-out)
 🦞 OpenClaw 2026.6.2 (077b261)   ← deployed tip ✅

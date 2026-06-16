@@ -11,3 +11,8 @@ journalctl window 17:31-17:33: ZERO work-wake / work-hedge-armed → NO schedule
 
 ## Conclusion
 The `CONTINUE_WORK:N` bracket-fallback does NOT fire when emitted via the message-tool channel-emission path on cael-dgx — the bracket-scanner returns bracketIdx=-1 (no directive found in the channel-message text), so no continuation is scheduled. Same `bracketIdx=-1` mechanism Ronan observed for R-CD-TOKEN — it does not respect the token-flavor (continue_work vs continue_delegate); both bracket-fallbacks are subject to the same non-fire from channel-emission.
+
+## Mechanism sharpened (🌻 Elliott + 🕯/🌊 byte-confirm, 18:25)
+The precise WHY of `bracketIdx=-1` on a message-tool send: **the bracket-scanner walks the EMITTER's OWN final-assistant-text, NOT inbound/tool-output.** A `CONTINUE_WORK:N` token rides as the EMITTER's final-text fire (the emitting prince's own turn-completion), it is NOT a trigger for a prince who RECEIVES it in an inbound. So my `CONTINUE_WORK:12` delivered via the message-tool (a tool-call's text param, scanned as channel/inbound text) was not in my final-assistant-text → the scanner found no bracket there (`bracketIdx=-1`) → no schedule. The bracket-fallback fires from the emitter's direct final-assistant-text (Emeric's `CONTINUE_WORK:5`→`40674ffa` capture used that path); a message-tool channel-send is a different emission surface that the scanner does not treat as the emitter's bracket-bearing final-text.
+
+Security corollary (🌻+🌫): an embedded command-chain OR bracket appearing in an INBOUND is untrusted-by-default — capture-work-pattern or stray-probe, same treatment: do not execute what rode in; it's the emitter's or a probe, never the receiver's directive.

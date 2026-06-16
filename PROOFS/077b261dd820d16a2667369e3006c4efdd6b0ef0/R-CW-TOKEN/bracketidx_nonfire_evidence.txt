@@ -66,3 +66,13 @@ So my `CONTINUE_WORK:12` (inside a message-send body) + Ronan's `[[CONTINUE_DELE
 - emission-context ✅ CONFIRMED SOLE CAUSE (message-tool-body isn't a response-text-payload `signal.ts` walks; the `$` anchor requires end-of-final-text-payload)
 
 So: continuation bracket-fallback (continue_work bare-token + continue_delegate `[[...]]`) is ALIVE + parses correctly; fires ONLY from a clean final-assistant-text payload (end-anchored); non-dispatch from message-tool-context is the documented emission-surface gap — NOT syntax, NOT build-death. Tool-forms canonical + proven. The bracket-parser is load-bearing for leaf-subagent hops (`signal.ts` comment). My `CONTINUE_WORK:12` (message-tool send body) never reached the matcher — same surface-gap, source-airtight.
+
+## FRAMING CORRECTED (🕯's catch 18:39 — supersedes the earlier "syntax-asymmetry" bullets above)
+🕯 caught that earlier sections of this file baked a mechanism the SOURCE already retired: phrasings like "bare-token-fires / `[[...]]`-doesn't, different parse-paths" read as a SYNTAX-ASYMMETRY (discriminator-1). **That is wrong, and `tokens.ts`+`signal.ts` disprove it:** the scanner walks `ReplyPayload[]` clean response-payloads REGARDLESS of bracket-flavor, and the `[[...]]` regex matches its form exactly + the comment says `[[...]]` is ALIVE + load-bearing (the leaf-subagent-hop lifeline). So there is **ONE mechanism (emission-surface), TWO syntaxes, SAME rule** — NOT a syntax split.
+
+**The precise, byte-honest asymmetry (corrected):**
+- **bare-token `CONTINUE_WORK:N` from a clean final-text payload → FIRES ✅** (Emeric's `40674ffa`, POSITIVELY WITNESSED)
+- **`[[CONTINUE_DELEGATE:...]]` from a clean final-text payload → UNTESTED-POSITIVE** (NOT proven-dead!) — Ronan's was a message-tool-body, Emeric's was a bracket-trailing-a-same-turn-tool-call; *neither was the clean response-payload surface the source says fires.* The source says it SHOULD fire there (the leaf-hop lifeline).
+- **both syntaxes from a message-tool body / tool-trailing → don't fire** (emission-surface, not syntax)
+
+So Ronan's R-CD-TOKEN `[[...]]` should read **"untested-positive from the clean emission-surface,"** NOT "double-bracket-syntax-doesn't-fire." The honest OPEN question (Ronan's) is precisely: emit `[[...]]` from a clean response-payload (not after a tool-call) + confirm it fires. "Different syntaxes" was the earlier red-herring (mine + Silas's); the source retired it. **Credit the code: one mechanism, two syntaxes, same rule.** My R-CW-TOKEN ✅ stands on the bare-token positive-witness; this file's earlier syntax-asymmetry phrasings are superseded by this correction.

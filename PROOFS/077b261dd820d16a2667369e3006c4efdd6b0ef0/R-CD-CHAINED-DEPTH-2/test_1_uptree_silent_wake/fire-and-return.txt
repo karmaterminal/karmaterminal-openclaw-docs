@@ -1,0 +1,28 @@
+R-CD-CHAINED-DEPTH-2 TEST-1 (uptree silent-wake) fire window start: 2026-06-16T00:24:38Z (17:24:38 PDT)
+seat: OpenClaw 2026.6.2 (077b261), SHA 077b261dd820
+shape: root(emeric) -> cd(silent-wake) [depth-1] -> cd(silent-wake) [depth-2 leaf] -> up-tree wake return to root
+
+=== DEPTH-1 FIRE (root = emeric, mode=silent-wake) ===
+fire_response:
+{
+  "status": "scheduled",
+  "mode": "silent-wake",
+  "delaySeconds": 0,
+  "delegateIndex": 1,
+  "delegatesThisTurn": 1,
+  "traceparent": "00-92a67456e20cc759b7badb2fc08cc549-dfbb9c1347845804-01"
+}
+depth-1 trace-id: 92a67456e20cc759b7badb2fc08cc549
+NEXT: depth-1 delegate dispatches after this turn -> spawns depth-2 leaf -> up-tree wake to root.
+On wake: capture the [Internal task completion event] up-tree return + fetch Tempo trace(s) for the chain.
+
+=== UP-TREE RETURN ARRIVED (depth-1 leg completed, silent-wake propagation to root) ===
+[Internal task completion event] source: subagent
+session_key: agent:main:subagent:continuation-9f3bd3f77974e47159e24f6a8664b18a
+task: [continuation:chain-hop:1] depth-1 leg
+status: completed; ready for parent review
+CHILD RESULT (up-tree return text):
+  "DEPTH-1 leg: spawned depth-2 leaf OK; my chain-hop=1 depth=1; depth-2 dispatch traceparent=00-92a67456e20cc759b7badb2fc08cc549-dfbb9c1347845804-01"
+  - chain metadata: depth-1 delegate, chain-hop=1, depth=1/1, session continuation-9f3bd3f77974e47159e24f6a8664b18a, root=emeric (agent:main:discord:channel:1466192485440164011)
+  - depth-2 leaf dispatched via continue_delegate(mode=silent-wake), delegateIndex=1, traceparent 00-92a67456e20cc759b7badb2fc08cc549-dfbb9c1347845804-01
+  - STRUCTURE VERIFIED: depth-1 spawned -> depth-2 spawned inside it -> up-tree return via silent-wake to root

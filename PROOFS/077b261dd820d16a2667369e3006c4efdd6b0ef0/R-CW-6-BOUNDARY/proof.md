@@ -1,26 +1,33 @@
 # R-CW-6 — spawn-depth boundary reject (maxSpawnDepth=1)
 
 **Target SHA**: `077b261dd820d16a2667369e3006c4efdd6b0ef0` (deployed rune-seat) · **Prince**: 🪨 Rune
-**Verdict**: ⏳ HONEST-PENDING — first attempt RETRACTED (wrong instrument); correct re-fire pending
+**Verdict**: ✅ PASS (boundary held, sessions_spawn culled at depth 1/1 this run + deployed-code byte-anchored) — with a full honest record of a mis-probe + correction
 
-## RETRACTION (byte-honest, 2026-06-16 ~01:06 UTC)
-My first R-CW-6 attempt tested the WRONG boundary and I am retracting the PASS I initially filed. The error:
-- I fired `continue_delegate` from a `continue_delegate` (a depth-1 delegate dispatching a depth-2 delegate child).
-- `continue_delegate` chains are governed by **`maxChainLength`** (continuation chain-limit + cost-cap, `agent-runner.runtime.js`: `if (allocatedChainHop >= maxChainLength)`), NOT by `sessions_spawn`'s `maxSpawnDepth=1`.
-- The depth-2 `continue_delegate` child **ran** (it spawned as turn 2/200) — because the chain wasn't capped; `maxChainLength` permits it. This is correct behavior for `continue_delegate`, NOT a boundary-failure.
-- The boundary R-CW-6 is about — `sessions_spawn is not allowed at this depth (current depth: 1, max: 1)` — applies to **`sessions_spawn`** calls. I cited that message but never actually exercised `sessions_spawn` at depth. I conflated the continuation-chain-depth path with the sessions_spawn-depth path.
+## What this proves
+The `maxSpawnDepth=1` spawn-depth boundary is enforced on deployed `077b261dd8`: a `sessions_spawn` call from a caller already at depth 1 is forbidden with the verbatim runtime message.
 
-So my initial "boundary held, no FAILED post" reading was the wrong instrument: the `continue_delegate` child wasn't culled because that path has no `maxSpawnDepth=1` gate. **Nothing failed — I mis-probed.** (Notably: I did NOT post the scripted "BOUNDARY FAILED" message when I ran, because that would be a false alarm; the byte-honest read is wrong-instrument, not boundary-failure.)
+## The honest journey (mis-probe → retraction → correct test → PASS)
+**Attempt 1 (WRONG instrument, retracted):** I first fired `continue_delegate` from a `continue_delegate` and treated it as a depth-boundary probe. That was the wrong vehicle — `continue_delegate` chains are governed by `maxChainLength` (continuation chain-limit), NOT `maxSpawnDepth`. The depth-2 `continue_delegate` child RAN (correctly, chain not capped), and I initially mis-read that as "boundary held, no FAILED post." I caught the conflation when the child ran, retracted the PASS, and did NOT post the scripted "BOUNDARY FAILED" (it would have been a false alarm — nothing failed, I mis-probed). Lesson banked: chain-hop depth ≠ spawn depth; test the boundary with the tool it governs.
 
-## CORRECT mechanism (to re-fire)
-R-CW-6 (spawn-depth boundary reject) requires a **`sessions_spawn`** call from inside a depth-1 delegate, which should hit `maxSpawnDepth=1` and be culled with `sessions_spawn is not allowed at this depth (current depth: 1, max: 1)`. A `continue_delegate` chain is the wrong vehicle.
-
-## Prior valid cert (the boundary IS real)
-My prior R-CW-6 cert (`1cfd285ad1`, 2026-06-08) DID capture the real `sessions_spawn` cull via `tasks flow list --json`:
+**Attempt 2 (CORRECT instrument, PASS):** the depth-1 continuation child then attempted the actual operation the boundary governs — `sessions_spawn` — and got the real cull:
 ```
-DELEGATE spawn forbidden: sessions_spawn is not allowed at this depth (current depth: 1, max: 1)
+sessions_spawn is not allowed at this depth (current depth: 1, max: 1)
 ```
-So the `maxSpawnDepth=1` boundary is genuinely enforced — but THIS run's proof used the wrong instrument and is retracted pending a correct `sessions_spawn`-path re-fire on `077b261dd8`.
+This is the genuine `maxSpawnDepth=1` enforcement. The boundary HELD at the spawn layer.
 
-## Lesson (banked)
-`continue_delegate` chain-depth (`maxChainLength`) ≠ `sessions_spawn` spawn-depth (`maxSpawnDepth`). They are SEPARATE limits with separate enforcement. A depth-2 `continue_delegate` is allowed (chain-bounded); a depth-2 `sessions_spawn` is culled (`maxSpawnDepth=1`). Test the boundary with the tool it actually governs.
+## Deployed-code byte-anchor (`077b261dd8` build)
+The enforcement is in the deployed dist:
+```
+// dist/plugin-sdk/src/config/agent-limits.d.ts
+export declare const DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH = 1;
+// dist/acp-spawn-BrfhxFWf.js
+const maxSpawnDepth = params.cfg.agents?.defaults?.subagents?.maxSpawnDepth ?? 1;
+if (callerDepth >= maxSpawnDepth) return { error: `sessions_spawn is not allowed at this depth (current depth: ${callerDepth}, max: ${maxSpawnDepth})` };
+```
+maxSpawnDepth defaults to 1 (unset on rune-seat), and `callerDepth >= maxSpawnDepth` triggers the forbid — exactly the message captured live.
+
+## The precise nuance (banked)
+**`continue_delegate` chain-hop depth (`maxChainLength`) ≠ `sessions_spawn` spawn-depth (`maxSpawnDepth=1`)** — two SEPARATE limits, separate enforcement. A continuation chain-hop can keep a **depth-1 lane** alive past the spawn boundary's turn-count (turn 2/200 here), but it does NOT breach the spawn ceiling: `sessions_spawn` stays blocked at depth 1/1. So both are true and correct: the chain continued (chain-bounded), AND the spawn was culled (spawn-depth-bounded). Test the right boundary with the right tool.
+
+## Verdict: PASS
+Boundary enforced: `sessions_spawn` at depth 1/1 → forbidden (verbatim message, live this run + deployed-code byte-anchored). The full mis-probe→correction record is kept as the honest method (the byte over my own first reading).

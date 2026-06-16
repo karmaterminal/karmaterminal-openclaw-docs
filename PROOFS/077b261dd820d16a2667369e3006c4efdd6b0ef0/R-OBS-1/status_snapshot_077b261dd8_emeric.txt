@@ -1,0 +1,16 @@
+session_status on deployed emeric-nuc gateway (077b261dd8), Mon 2026-06-15 17:27 PDT
+
+🦞 OpenClaw 2026.6.2 (077b261)
+⏱️ Uptime: gateway 27m 48s · system 21d 21h
+🧠 Model: github-copilot/claude-opus-4.8 · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai/gpt-5.5
+🧮 Tokens: 2 in / 1.6k out
+📚 Context: 472k/1.0m (47%) · 🧹 Compactions: 4
+🧵 Session: agent:main:discord:channel:1466192485440164011
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default
+
+SHA-anchor cross-check (three surfaces agree, no stale-route):
+  git rev-parse HEAD                              = 077b261dd820
+  gh api .../git/ref/heads/...assembly-drift-cure = 077b261dd820  (server-computed)
+  openclaw --version build-string                 = (077b261)

@@ -34,9 +34,9 @@ Behavioral proof corpus for the **2026-06-15 deployed candidate SHA** — the fl
 | R-CD-2 (silent-wake full path) | 🌊 ronan | ✅ PASS (fire-side) | `R-CD-2/` |
 | R-CD-3 (post-compaction lifeboat, both legs) | 🌊 ronan | ✅ PASS (fire-side, queued-for-compaction) | `R-CD-3/` |
 | R-CD-4 (targeted return via targetSessionKey) | 🌊 ronan | ✅ PASS (fire-side) | `R-CD-4/` |
-| R-CD-TOKEN (bracket-form continue_delegate) | 🌊 ronan | ⏳ pending | `R-CD-TOKEN/` |
-| R-CD-CHAINED-DEPTH-2 (Chain-1/2/3) | 🌊 ronan | ⏳ pending | `R-CD-CHAINED-DEPTH-2/` |
-| R-CD-CHAINED-DEPTH-2 TEST-1 (uptree silent-wake) | 🕯 emeric (sub for 🌫) | ⏳ pending | `R-CD-CHAINED-DEPTH-2/test_1_uptree_silent_wake/` |
+| R-CD-TOKEN (bracket-form continue_delegate) | 🌊 ronan | ⚠️ tool-form canonical; bracket = emission-surface honest-limit (by-design, not a bug) | `R-CD-TOKEN/` |
+| R-CD-CHAINED-DEPTH-2 (Chain-1/2/3) | 🌊 ronan | ✅ PASS (fire-side) | `R-CD-CHAINED-DEPTH-2/` |
+| R-CD-CHAINED-DEPTH-2 TEST-1 (uptree silent-wake) | 🕯 emeric (sub for 🌫) | ✅ PASS | `R-CD-CHAINED-DEPTH-2/test_1_uptree_silent_wake/` |
 | R-CD-CHAINED-DEPTH-2 TEST-2 (intersession return) | 🪨 rune (sub for 🌫) | ✅ PASS — `targetSessionKey` intersession-return proven: `continue_delegate` routes its return to a DIFFERENT session (cron-session, NOT the dispatcher) — airtight byte `[continuation:targeted-return] Delivered to cron:19ff1824 from subagent`; Tempo trace `59084dce` saved | `R-CD-CHAINED-DEPTH-2/test_2_intersession_return/` |
 | R-CD-CHAINED-DEPTH-2 TEST-3 (echo broadcast) | 🌫 silas (canary) | ✅ FULL PASS — `continue_delegate(fanoutMode=tree)` scheduled on `077b261dd8`, fanout-mode honored, traceparent `aae409d4` propagated + Tempo trace-tree (11 spans); dispatch-side confirmed — delegate ran + echoed its return to the chain (`dispatch_return.txt`) | `R-CD-CHAINED-DEPTH-2/test_3_echo_broadcast/` |
 | R-RC-1 (request_compaction threshold REJECT) | 🌫 silas (canonical) | ✅ PASS (fired at 68% < 70% floor on `077b261dd8` → structured `{status:rejected, guard:context_threshold, contextUsage:68, threshold:70}`, not error/no-op) | `R-RC-1/` (EVIDENCE.md + rejection JSON + session_status snapshot; commit `d1ea64d`) |
@@ -45,7 +45,7 @@ Behavioral proof corpus for the **2026-06-15 deployed candidate SHA** — the fl
 | R-OBS-2 (Tempo trace-tree + span-hierarchy export) | 🪨 rune | ✅ PASS — Tempo span-tree exported (`trace-617db114-spantree.json`, multi-continue_work + dispatch + R-OBS-2 span-hierarchy, 36 spans) on deployed tip | `R-OBS-2/` |
 | R-CONFIG-DEFAULTS (continuation defaults on bootstrap) | 🕯 emeric | ✅ PASS | `R-CONFIG-DEFAULTS/proof.md` |
 | R-CONFIG-INTERSESSION (config persists across sessions) | 🕯 emeric | ✅ PASS | `R-CONFIG-INTERSESSION/proof.md` |
-| R-REGRESSION-TRAP-TESTS (sister-trap-test coverage) | 🕯 emeric | ⏳ pending | `R-REGRESSION-TRAP-TESTS/` |
+| R-REGRESSION-TRAP-TESTS (sister-trap-test coverage) | 🕯 emeric | ✅ PASS | `R-REGRESSION-TRAP-TESTS/` |
 
 ## Tempo trace requirement
 

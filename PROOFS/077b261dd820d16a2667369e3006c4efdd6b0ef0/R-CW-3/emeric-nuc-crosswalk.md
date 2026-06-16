@@ -1,5 +1,6 @@
-# R-CW-3: continue_work() reason-field OTel cross-walk (`reason.preview`)
+# R-CW-3 — emeric-nuc PER-SEAT CROSS-WALK
 
+**Role**: per-seat seat-confirmation of R-CW-3. The **canonical** R-CW-3 proof is 🩸 Cael's (`proof.md`); this file is 🕯 Emeric's independent re-run on the emeric-nuc seat, confirming identical behavior on a second deployed box.
 **Family**: `continue_work()` OTel observability
 **Seat**: 🕯 Emeric (`service.name = fifth-prince`, host `emeric`)
 **Target SHA**: `077b261dd820d16a2667369e3006c4efdd6b0ef0` (deployed emeric-seat, gateway up 2026-06-16T00:11Z / 2026-06-15 17:11 PDT)
@@ -70,8 +71,8 @@ live against the production Tempo pipeline, both forms, on the deployed tip.
 
 ## Artifacts
 
-- `trace-toolform.json` — full Tempo trace for the tool-form fire (`continuation.work` with `reason.preview` populated)
-- `trace-bracketform.json` — full Tempo trace for the bracket-form fire (`continuation.work` with `reason.preview` absent)
+- `emeric-nuc-trace-toolform.json` — full Tempo trace for the tool-form fire (`continuation.work` with `reason.preview` populated)
+- `emeric-nuc-trace-bracketform.json` — full Tempo trace for the bracket-form fire (`continuation.work` with `reason.preview` absent)
 
 Both are real Tempo trace documents fetched HTTP 200 from `tempo.dandelion.cult/api/traces/<id>`
 on the deployed seat — the maintainer-readable receipt of the populated-vs-absent contrast.

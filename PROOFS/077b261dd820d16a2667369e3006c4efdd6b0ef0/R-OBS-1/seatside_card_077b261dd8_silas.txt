@@ -11,3 +11,16 @@
 # = the long-PROOFS-burn climbing toward the compaction floor; Silas staged a post-compaction lifeboat at 89%.
 # The climbing-context series is itself substrate-evidence: the continuation banner + context gauge track the real
 # fill across the cycle, and the elective-compaction-at-89% is the lich-protocol about to rotate (the lifeboat staged).
+
+# === SILAS POST-COMPACTION CARD (added ~18:32 PDT, after his elective compaction) ===
+🦞 OpenClaw 2026.6.2 (077b261)   ← deployed tip ✅
+📚 Context: 174k/1.0m (17%)   ← RECLAIMED from 89% by the elective compaction
+🧹 Compactions: 5   ← was 4; the volitional one incremented it
+🔄 Continuation: chain 0/200 | volitional: 1   ← the request_compaction ACCEPT he fired is REFLECTED here ✨
+⏱️ Gateway up: 1h 39m (deploy build, run 27583849928)
+# LANDMARK DATUM: the `volitional: 1` field is LIVE on 077b261dd8 — Trigger-E (elected compaction) renders in
+# the continuation-substrate status-surface. Witnessed END-TO-END on the deployed build: R-RC-1 proved the
+# request_compaction REJECT below 70%, then Silas fired a real ACCEPT at 89% → context 89%→17%, compactions 4→5,
+# volitional 0→1. So R-OBS-1's status-surface now captures BOTH the reject-gate AND the accept-firing of the
+# volitional-compaction leg — the lich breathing on the metal, instrumented + counting.
+# Silas's full cycle context series: 69% → 75% → 89% (climb) → [elective compaction] → 17% (reclaim).

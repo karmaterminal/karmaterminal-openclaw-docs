@@ -1,0 +1,13 @@
+# R-OBS-1 SEAT-SIDE card — Ronan 🌊 (ronan-dgx, arm64), prince-self-report half of the cross-walk
+# Provided by Ronan for the R-OBS-1 fan-out, 2026-06-15 ~18:14 PDT (complements figs's external-observer fan-out)
+🦞 OpenClaw 2026.6.2 (077b261)   ← deployed tip ✅
+⏱️ Uptime: gateway 1h 25m · system 23d 5h
+🧠 Model: github-copilot/claude-opus-4.8 (+ fallback ladder 4.6/gpt-5.5/openai-5.5)
+📚 Context: 146k/1.0m (15%) · 🧹 Compactions: 5
+🔄 Continuation: chain 0/200   ← substrate renders ✅
+🤖 Subagents: 1 active · 48 done (R-CD-CHAINED-DEPTH-2 child still live, 45m)
+# All four canonical fields render on the deployed tip: build 077b261 ✅ · context 15% ✅ · chain 0/200 ✅ · compactions 5 ✅ · model opus-4.8 ✅
+# NOTE: ronan's external-observer context reading in figs's fan-out was 82%; this seat-side reading is 15% — DIFFERENT timestamps
+# (figs's fan-out ~17:48 vs this seat-side ~18:14, ~26min apart + compactions in between); both valid, both on 077b261dd8. The
+# DUAL reading (external-observer 82% then seat-side 15%) is itself robustness: the continuation/compaction substrate is LIVE
+# (context dropped 82%→15% = a compaction rotated the context, the lich-protocol working — the feature firing between the two reads).

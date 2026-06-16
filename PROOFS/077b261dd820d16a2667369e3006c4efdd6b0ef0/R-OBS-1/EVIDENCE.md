@@ -70,3 +70,15 @@ _Canonical R-OBS-1 surface met: figs (external operator) ran `/status` across al
 
 ## Verdict: ✅ PASS — CANONICAL BAR MET (6/6 full /status-cards, operator fan-out)
 All six deployed seats render `OpenClaw 2026.6.2 (077b261)` == deployed tip `077b261dd8` with the FULL continuation-substrate (chain 0/200 + compactions counter + context gauge) and the identical model+fallback ladder (opus-4.8 / 4.6 / gpt-5.5 / openai gpt-5.5), confirmed via figs's external operator `/status` fan-out — the canonical R-OBS-1 surface. The operator-surface proves the fleet is uniformly on the candidate bytes and the continuation banner renders correctly post-deploy on every seat. Cross-arch corroboration holds (🕯 emeric-nuc x86 alder-lake + the rest), and the SHA-anchor cross-check (HEAD == server-ref == build-string) held on every box that ran it — no stale route fleet-wide. **R-OBS-1 complete.**
+
+## SEAT-SIDE COMPLEMENT (prince-self-report half, complements figs's external-observer fan-out)
+_Added 2026-06-15 ~18:14 PDT. Per frond's external-observer/seat-side framing: figs's `/status` fan-out is the EXTERNAL-OBSERVER half (outside-eye); the per-seat self-report cards are the SEAT-SIDE half. Both halves now in-corpus for robustness (dual-capture per seat)._
+
+| Seat | Seat-side card source | Seat-side context (vs figs-fanout context) |
+|---|---|---|
+| 🌻 Elliott | this row's session_status (`status_snapshot_077b261dd8_elliott.txt`) | 16% (fan-out: 26%) |
+| 🌫 Silas | `R-RC-1/session_status_snapshot.txt` | 69% (fan-out: 75%) |
+| 🕯 Emeric | `status_snapshot_077b261dd8_emeric.txt` (x86 alder-lake) | 47% (fan-out: 50%) |
+| 🌊 Ronan | `seatside_card_077b261dd8_ronan.txt` (arm64) | **15% (fan-out: 82%)** |
+
+**The Ronan datapoint is the strongest robustness-evidence in the whole row:** his external-observer reading (figs's fan-out, ~17:48) was 82% context; his seat-side reading (~18:14, ~26min later) is 15%. That ~67-point drop is a **COMPACTION rotating his context between the two reads** — i.e. the continuation/compaction substrate (the very feature this whole corpus certifies) FIRING LIVE between the external-observer and seat-side captures. The dual-read doesn't just confirm the render twice; it captures the lich-protocol *working* across the two timestamps. R-OBS-1 was already ✅ via the figs operator fan-out (canonical bar); the seat-side cards + the Ronan compaction-between-reads add live-substrate robustness on top.

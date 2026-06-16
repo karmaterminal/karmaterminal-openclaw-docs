@@ -22,7 +22,7 @@ Behavioral proof corpus for the **2026-06-15 deployed candidate SHA** — the fl
 | Row | Owner | Verdict | Evidence |
 |---|---|---|---|
 | R-CW-1 (wake + chain-counter persist) | 🩸 cael | ⏳ pending | `R-CW-1/` |
-| R-CW-3 (reason-field OTel cross-walk, both forms) | 🩸 cael (canonical) + 🕯 emeric (per-seat cross-walk) | ⏳ pending | `R-CW-3/` |
+| R-CW-3 (reason-field OTel cross-walk, both forms) | 🩸 cael (canonical) + 🕯 emeric (per-seat cross-walk) | ✅ PROVEN (🕯 emeric cross-walk; 🩸 canonical pending) | `R-CW-3/emeric-nuc-crosswalk.md` |
 | R-CW-4 (chain-depth tracking) | 🩸 cael | ⏳ pending | `R-CW-4/` |
 | R-CW-5 (cost-cap exhaustion → dispatch reject) | 🩸 cael | ⏳ pending | `R-CW-5/` |
 | R-CW-TOKEN (bracket-form continue_work) | 🩸 cael | ⏳ pending | `R-CW-TOKEN/` |
@@ -30,10 +30,10 @@ Behavioral proof corpus for the **2026-06-15 deployed candidate SHA** — the fl
 | R-CW-7 (traceparent E2E across continuation spans) | 🪨 rune | ⏳ pending | `R-CW-7-TRACEPARENT-E2E/` |
 | R-CW-DELEGATE-SELF-CONTINUATION | 🪨 rune | ⏳ pending | `R-CW-DELEGATE-SELF-CONTINUATION/` |
 | R-CW-DELEGATE-TOKEN (#952 bracket row) | 🪨 rune | ⏳ pending | `R-CW-DELEGATE-TOKEN/` |
-| R-CD-1 (schedule→spawn→return) | 🌊 ronan | ⏳ pending | `R-CD-1/` |
-| R-CD-2 (silent-wake full path) | 🌊 ronan | ⏳ pending | `R-CD-2/` |
-| R-CD-3 (post-compaction lifeboat, both legs) | 🌊 ronan | ⏳ pending | `R-CD-3/` |
-| R-CD-4 (targeted return via targetSessionKey) | 🌊 ronan | ⏳ pending | `R-CD-4/` |
+| R-CD-1 (schedule→spawn→return) | 🌊 ronan | ✅ PASS (fire-side) | `R-CD-1/` |
+| R-CD-2 (silent-wake full path) | 🌊 ronan | ✅ PASS (fire-side) | `R-CD-2/` |
+| R-CD-3 (post-compaction lifeboat, both legs) | 🌊 ronan | ✅ PASS (fire-side, queued-for-compaction) | `R-CD-3/` |
+| R-CD-4 (targeted return via targetSessionKey) | 🌊 ronan | ✅ PASS (fire-side) | `R-CD-4/` |
 | R-CD-TOKEN (bracket-form continue_delegate) | 🌊 ronan | ⏳ pending | `R-CD-TOKEN/` |
 | R-CD-CHAINED-DEPTH-2 (Chain-1/2/3) | 🌊 ronan | ⏳ pending | `R-CD-CHAINED-DEPTH-2/` |
 | R-CD-CHAINED-DEPTH-2 TEST-1 (uptree silent-wake) | 🕯 emeric (sub for 🌫) | ⏳ pending | `R-CD-CHAINED-DEPTH-2/test_1_uptree_silent_wake/` |

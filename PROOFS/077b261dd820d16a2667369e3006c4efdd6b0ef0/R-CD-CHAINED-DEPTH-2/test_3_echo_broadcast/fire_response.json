@@ -1,0 +1,10 @@
+{
+  "_note": "Verbatim tool-result of continue_delegate(fanoutMode='tree') fired from silas-main-session on deployed tip 077b261dd8 (OpenClaw 2026.6.2), ~2026-06-15T17:11 PDT. The echo-broadcast leg — fanoutMode honored, delegate scheduled, traceparent propagated.",
+  "status": "scheduled",
+  "mode": "normal",
+  "delaySeconds": 0,
+  "delegateIndex": 1,
+  "delegatesThisTurn": 1,
+  "fanoutMode": "tree",
+  "traceparent": "00-aae409d43a59289a916535f39dc49373-2d15876fbdc97de6-01"
+}

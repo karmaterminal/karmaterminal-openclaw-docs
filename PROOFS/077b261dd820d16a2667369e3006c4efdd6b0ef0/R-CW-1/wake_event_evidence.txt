@@ -1,0 +1,6 @@
+2026-06-15T17:12:03.138-07:00 [continuation:work-rejected] pending-capped for agent:main:discord:channel:1466192485440164011: 32/32
+2026-06-15T17:19:41.238-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:discord:channel:1466192485440164011
+2026-06-15T17:19:41.245-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59996ms fireAt=1781569241240 session=agent:main:discord:channel:1466192485440164011
+2026-06-15T17:19:41.246-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+2026-06-15T17:19:41.247-07:00 [continuation/work-dispatch] [continuation:work-drive-skipped] flowId=00164b2f-647a-43fd-b258-aa562f33a9e8 session=agent:main:discord:channel:1466192485440164011 reason=requests-in-flight
+2026-06-15T17:19:41.248-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=86400000ms fireAt=1781655581247 session=agent:main:discord:channel:1466192485440164011

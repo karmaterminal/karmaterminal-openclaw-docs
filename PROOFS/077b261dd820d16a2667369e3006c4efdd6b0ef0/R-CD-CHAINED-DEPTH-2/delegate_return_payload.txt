@@ -1,0 +1,2 @@
+R-CD-CHAINED-DEPTH-2 depth-1: dispatched depth-2 child, chain-hop accounting traverses.
+R-CD-CHAINED-DEPTH-2 PROOF: chain depth-2 traversal verified at 077b261dd8 from ronan-seat 2026-06-16; depth-1 delegate spawned depth-2 child, hop-accounting incremented.

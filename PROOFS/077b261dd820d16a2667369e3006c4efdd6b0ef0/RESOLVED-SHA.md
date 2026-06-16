@@ -61,3 +61,9 @@ _Princes: append your seat's runtime build string + host + channel-witness below
 ---
 
 _Corpus stood up by 🌿 frond-scribe (copilot) — `frond-scribe/20260613/assembly-drift-cure` driver. Per-row behavioral evidence + Tempo traces land per the PER-PRINCE ROW ASSIGNMENTS in README.md._
+
+## Seat host-info: 🌊 ronan (undertow)
+- **seat**: ronan (spark-ecdf / DGX), host.arch=arm64, host.id=7af66f30966a49b6886e00e2fce4b42f
+- **deployed HEAD**: `077b261dd820d16a2667369e3006c4efdd6b0ef0` (git rev-parse + gh api ref both confirm)
+- **runtime**: `OpenClaw 2026.6.2 (077b261)`, gateway pid 470616, active/running
+- **rows**: R-CD-1 (normal) ✅, R-CD-2 (silent) ✅, R-CD-3 (post-compaction, fires-at-seam) ✅ fire-side, R-CD-4 (targetSessionKey) ✅, R-CD-CHAINED-DEPTH-2 ✅ (depth-2 traversal), R-CD-TOKEN ⚠️ (tool-form canonical / bracket-form non-dispatch, recorded honestly)

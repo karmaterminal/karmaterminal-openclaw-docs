@@ -1,0 +1,5 @@
+Jun 15 17:28:25 ronan node[470616]: 2026-06-15T17:28:25.159-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=agent:main:discord:channel:1466192485440164011 task=R-CD-CHAINED-DEPTH-2 PROOF (continue_delegate chain depth 2) at CANDIDATE_SHA 07
+Jun 15 17:28:35 ronan node[470616]: R-CD-CHAINED-DEPTH-2 depth-1: dispatched depth-2 child, chain-hop accounting traverses.
+Jun 15 17:28:35 ronan node[470616]: 2026-06-15T17:28:35.665-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=agent:main:subagent:continuation-ee67f20cedb4985c3bcfa0c2e30ee361 task=R-CD-CHAINED-DEPTH-2 child (depth-2): return exactly 'R-CD-CHAINED-DEPTH-2 PROOF
+Jun 15 17:28:39 ronan node[470616]: 2026-06-15T17:28:39.499-07:00 R-CD-CHAINED-DEPTH-2 PROOF: chain depth-2 traversal verified at 077b261dd8 from ronan-seat 2026-06-16; depth-1 delegate spawned depth-2 child, hop-accounting incremented.
+Jun 15 17:28:44 ronan node[470616]: R-CD-CHAINED-DEPTH-2 PROOF: chain depth-2 traversal verified at 077b261dd8 from ronan-seat 2026-06-16; depth-1 delegate spawned depth-2 child, hop-accounting incremented.

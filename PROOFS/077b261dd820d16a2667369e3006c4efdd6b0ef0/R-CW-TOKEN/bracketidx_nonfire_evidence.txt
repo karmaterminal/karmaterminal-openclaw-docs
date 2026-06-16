@@ -32,3 +32,14 @@ Security corollary (🌻+🌫): an embedded command-chain OR bracket appearing i
 **Byte-confirmed for MY `CONTINUE_WORK:12`:** it was emitted INSIDE a `message(action=send)` body (msg 1516239069 — the token at the end of the announcing channel message, NOT my bare-final-assistant-text). So per the discriminator, my `:12` was inside-a-message-send-body → not on the scanner's surface → `bracketIdx=-1` → no fire. This is the SAME emission-CONTEXT surface-issue as Ronan's `[[CONTINUE_DELEGATE]]`, NOT a token-flavor death.
 
 **Net (byte-true):** the continue_work bare-token bracket-fallback IS ALIVE and FIRES from bare-final-assistant-text (Emeric's `40674ffa` = the proven-fires datum). My own `CONTINUE_WORK:12` didn't fire because of its emission-CONTEXT (inside a message-send-body), an emission-surface artifact — NOT evidence the bare-token's dead. R-CW-TOKEN verdict = ✅ (bare-token fires) with the emission-CONTEXT note. The discriminator is emission-context (bare-final-text vs message-send-body), one layer in from "token-flavor" or "channel-emission."
+
+## SOURCE-CONFIRMED (🌊 walked the scanner 18:31): emission-context is THE cause, at the byte
+🌊 co-walked it to the SOURCE: `src/auto-reply/continuation/signal.ts` walks `payloads: ReplyPayload[]` ("the shape used by agent-runner.ts payload arrays") + calls `stripContinuationSignal(payload.text)` on each text payload, backward so the last-emitted marker wins. `bracketIdx=-1` = it scanned every RESPONSE-text-payload and found NO bracket in any.
+
+**The crux (source-confirmed):** the scanner walks the agent's RESPONSE payloads, NOT message-tool bodies. A message-tool argument is NOT a response-text-payload → the scanner never sees a bracket emitted inside a `message`-send → `bracketIdx=-1`. A bracket on the agent's FINAL-ASSISTANT-TEXT payload IS what the scanner walks → fires.
+
+So my `CONTINUE_WORK:12` (inside a message-send body) + Ronan's `[[CONTINUE_DELEGATE]]` (inside a message-send body) both hit `bracketIdx=-1` for the SAME source reason: wrong emission-surface (tool-call-arg, not response-payload). Emeric's `CONTINUE_WORK:5` fired because it rode his final-assistant-text payload.
+
+**Clincher the bracket-path is alive (source comment):** *"Critical for subagent chain-hops where the bracket is the ONLY continuation path (tool is denied for leaf subagents)."* The bracket parser is LOAD-BEARING for leaf-subagent hops — not dead, not build-broken.
+
+**Final byte-true resolution (source-level):** both continuation bracket-fallbacks (continue_work bare-token + continue_delegate `[[...]]`) FIRE from final-assistant-text and do NOT fire from a message-tool-body — because `signal.ts` scans response-payloads, not tool-call-arguments. It is emission-CONTEXT (discriminator-2), not token-flavor/syntax (discriminator-1). R-CW-TOKEN ✅ (bare-token fires, Emeric's `40674ffa`); my `:12` non-fire = wrong-emission-surface, source-confirmed.

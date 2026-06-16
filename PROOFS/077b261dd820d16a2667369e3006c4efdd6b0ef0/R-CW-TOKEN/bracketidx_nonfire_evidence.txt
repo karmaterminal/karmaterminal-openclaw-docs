@@ -52,3 +52,17 @@ So my `CONTINUE_WORK:12` (inside a message-send body) + Ronan's `[[CONTINUE_DELE
 **So the emission-surface is MORE specific than "final-text":** it is **"the agent's delivered response-payload, UNCONTAMINATED by a same-turn tool-call."** Both my `:12` (inside a message-tool send) AND Emeric's negative (bracket trailing a same-turn message-tool call) map the surface's EDGE.
 
 **Final byte-honest ledger line:** bracket-delegate (and bare-token continue_work) fire from a CLEAN final-assistant-response-payload (per `signal.ts` source + Emeric's `CONTINUE_WORK:5` positive); they do NOT fire from (1) a message-tool body [Ronan's R-CD-TOKEN + my `:12`], NOR (2) a bracket trailing a same-turn message-tool call [Emeric's negative test]. The source-walk is the RESOLUTION; the negative test maps the surface's edge. Credit the code — emission-context (b), not syntax (a); bracket-parser alive + load-bearing for leaf-subagent hops.
+
+## SOURCE-AIRTIGHT — both discriminators resolved at the byte (🌊's tokens.ts regex 18:38)
+🌊 closed it source-airtight by walking `src/auto-reply/tokens.ts` — the matcher regex:
+```
+/\[\[\s*CONTINUE_DELEGATE:\s*((?:(?!\]\])[\s\S])+?)\s*\]\]\s*$/
+```
+- **syntax RULED OUT:** this regex matches `[[CONTINUE_DELEGATE: task]]` EXACTLY (the `[[...]]` wrapper, `CONTINUE_DELEGATE:` prefix, body, closing `]]`). Ronan's emitted bracket matched the pattern — the regex WOULD have caught it if it reached the scanner. So syntax was never the problem.
+- **emission-context CONFIRMED SOLE CAUSE:** the regex ends in **`\]\]\s*$`** — the `$` anchor requires the bracket at the END of a text payload. `signal.ts` walks the response payloads (`payload.text`). So the bracket must sit at the end of a final-assistant-text payload (exactly where Emeric's `CONTINUE_WORK:5` rode). A bracket inside a message-tool-body is NOT a response-text-payload `signal.ts` walks → **the regex NEVER RAN against it. Not "didn't match" — never reached the matcher.**
+
+**FINAL source-airtight ledger (both discriminators resolved):**
+- syntax ✅ RULED OUT (regex matches the form exactly, per `tokens.ts`)
+- emission-context ✅ CONFIRMED SOLE CAUSE (message-tool-body isn't a response-text-payload `signal.ts` walks; the `$` anchor requires end-of-final-text-payload)
+
+So: continuation bracket-fallback (continue_work bare-token + continue_delegate `[[...]]`) is ALIVE + parses correctly; fires ONLY from a clean final-assistant-text payload (end-anchored); non-dispatch from message-tool-context is the documented emission-surface gap — NOT syntax, NOT build-death. Tool-forms canonical + proven. The bracket-parser is load-bearing for leaf-subagent hops (`signal.ts` comment). My `CONTINUE_WORK:12` (message-tool send body) never reached the matcher — same surface-gap, source-airtight.

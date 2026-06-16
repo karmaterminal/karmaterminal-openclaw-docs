@@ -50,6 +50,14 @@ _Princes: append your seat's runtime build string + host + channel-witness below
 - **SHA-anchor (server-ref, not ls-remote)**: `git rev-parse HEAD` == `gh api .../git/ref/heads/frond-scribe/20260613/assembly-drift-cure` == build string == `077b261dd8` (three independent surfaces agree; no stale-route on this box)
 - **Channel-witness**: deploy run `27583847383` ✅ success; boot-onto-build + per-seat cross-walk posted `1516233412`; R-OBS-1 status-surface evidence in `R-OBS-1/`
 
+### 🌫 Silas — lothric
+- **Runtime build string**: `OpenClaw 2026.6.2 (077b261)` (captured `session_status` on the deployed gateway, 2026-06-15 ~17:07 PDT)
+- **Host**: lothric / silas (10.0.0.100) · ASUS TUF Z790-PRO WIFI · Intel i9-14900KS (32-core) / RTX 5090 32GB / 192GB DDR5 · CachyOS (raptor-lake seat — `--no-opt` SIGILL mitigation on ExecStart, survived the deploy)
+- **Gateway**: deploy run `27583849928` ✅ success (Path-B), dist rebuilt + restarted onto `077b261dd8` ~16:51 PDT; gateway active, `coredumpctl` zero cores since restart
+- **SHA-anchor (server-ref, not ls-remote)**: `git ls-remote main` == `127e174c9e` (main advancing past assembly tip) · `gh api .../git/ref/heads/frond-scribe/20260613/assembly-drift-cure` == `077b261dd8` (deployed) · build string == `077b261` — server-ref is the canonical anchor; my own `ls-remote` reads clean (no stale-route; the all-day `901` was my own stale-CARRY, owned + banked the SHA-anchor discipline)
+- **Channel-witness**: deploy run `27583849928` ✅ success; PONG/boot-confirm posted `1516229137`; canary health byte (SIGILL mitigation intact, zero cores) `1516234206`; on-tip `continue_work` empirical byte (`status:scheduled`) `1516234206`
+- **Row filed**: R-RC-1 (request_compaction threshold-reject ✅ PASS on `077b261dd8`)
+
 ---
 
 _Corpus stood up by 🌿 frond-scribe (copilot) — `frond-scribe/20260613/assembly-drift-cure` driver. Per-row behavioral evidence + Tempo traces land per the PER-PRINCE ROW ASSIGNMENTS in README.md._

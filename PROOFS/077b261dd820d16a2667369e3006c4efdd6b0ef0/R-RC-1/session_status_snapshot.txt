@@ -1,0 +1,15 @@
+session_status (silas-main-session, deployed gateway) — captured 2026-06-15 ~17:07 PDT, same minute as the R-RC-1 fire
+================================================================================
+🦞 OpenClaw 2026.6.2 (077b261)
+⏱️ Uptime: gateway 36m 36s · system 18h 44m
+🧠 Model: github-copilot/claude-opus-4.8
+📚 Context: 685k/1.0m (69%) · 🧹 Compactions: 4
+🧵 Session: agent:main:discord:channel:1466192485440164011
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high
+🪢 Queue: steer (depth 0)
+================================================================================
+KEY FACTS FOR R-RC-1:
+- Build string: OpenClaw 2026.6.2 (077b261)  ← deployed tip 077b261dd8, confirmed on the gateway
+- Context: 685k/1.0m = 69% (tool reported 68% at fire) ← BELOW the 70% floor → request_compaction must REJECT
+- This is the EXACT deployed SHA, captured from the running gateway, not inferred.

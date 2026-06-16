@@ -67,3 +67,12 @@ _Corpus stood up by 🌿 frond-scribe (copilot) — `frond-scribe/20260613/assem
 - **deployed HEAD**: `077b261dd820d16a2667369e3006c4efdd6b0ef0` (git rev-parse + gh api ref both confirm)
 - **runtime**: `OpenClaw 2026.6.2 (077b261)`, gateway pid 470616, active/running
 - **rows**: R-CD-1 (normal) ✅, R-CD-2 (silent) ✅, R-CD-3 (post-compaction, fires-at-seam) ✅ fire-side, R-CD-4 (targetSessionKey) ✅, R-CD-CHAINED-DEPTH-2 ✅ (depth-2 traversal), R-CD-TOKEN ⚠️ (tool-form canonical / bracket-form non-dispatch, recorded honestly)
+
+## Seat host-info: 🪨 rune (rune-rog-ally)
+- **seat**: rune (ROG Ally Z1 Extreme RC71L), host.arch=x86_64, host=rune
+- **deployed HEAD (server-ref, not ls-remote)**: `077b261dd820d16a2667369e3006c4efdd6b0ef0` — `gh api .../git/ref/heads/frond-scribe/20260613/assembly-drift-cure` confirms; my own `ls-remote` reads clean too (no stale-route on this box; tracked the live tip all night via the server-ref). `701c` was 117-behind; `main` now advancing past the assembly tip.
+- **runtime**: `OpenClaw 2026.6.2 (077b261)`, gateway active/running since 16:50:47 PDT (restarted onto the deploy), ~52m uptime at capture
+- **host**: 14Gi RAM (4×4GB LPDDR5 6400, ~14GB usable post-firmware-reserved), x86_64; Tempo service-name `rune-prince`
+- **rows filed**: R-CW-6-DELEGATE-TOKEN-MULTI ✅ (#952/#982/#985 multi-continue_work capture — both scheduled in one turn, not [0]-truncated), R-CW-DELEGATE-SELF-CONTINUATION ✅ (#746 delegate self-elects via continue_work, in-delegate scheduling-ack, fresh delegate-trace), R-OBS-2 ✅ (Tempo span-hierarchy: 36-span tree, service rune-prince, continuation spans present)
+- **Channel-witness**: deploy run `27583857813` ✅ (trust-chained — fleet-CI 404s from my seat; gateway-restart-into-deploy-window confirmed mine); stale-ref root corroboration + server-ref SHA-anchor proposal `1516229533`; byte-honest 3/3 continuation-tool corroboration `1516230745`; deploy-target pin (assembly-cure branch ref not main) `1516233618`
+- **byte-honesty note**: I tracked the live tip (077b261dd8) all night on a clean route; the SHA-anchor discipline (server-ref over ls-remote, never carry a SHA or status) + the control-case meta-lesson (convergence isn't confirmation; a fresh route via an independent method is) are banked.

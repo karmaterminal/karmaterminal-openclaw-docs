@@ -29,3 +29,10 @@ Cause of bracketIdx=-1 confirmed at the scanner source, NOT syntax-shape, NOT bu
 - Emeric's control case (`CONTINUE_WORK:5` in his FINAL-ASSISTANT-TEXT → fired, `continuation.work` span) proves the bracket-path is alive; the delta is emission-surface.
 - Source comment confirms bracket-path is load-bearing: "Critical for subagent chain-hops where the bracket is the ONLY continuation path (tool is denied for leaf subagents)."
 - **Final verdict: bracket-delegate works from final-assistant-text; does NOT fire from a message-tool-body. Both-forms mandate resolves: tool-form canonical+proven (R-CD-1/2/3/4/CHAINED); bracket-form alive on the correct emission-surface (final-text, not message-tool-body). Recorded honest-as-observed; now source-confirmed.**
+
+## Discriminator-1 (syntax) FULLY RULED OUT — emission-context is SOLE cause (source byte, 2026-06-15)
+The 5-min syntax confirm Emeric suggested, done at the source `src/auto-reply/tokens.ts`:
+- Delegate-bracket matcher: `/\[\[\s*CONTINUE_DELEGATE:\s*((?:(?!\]\])[\s\S])+?)\s*\]\]\s*$/`
+- This regex matches `[[CONTINUE_DELEGATE: task]]` CORRECTLY — `[[...]]` wrapper + `CONTINUE_DELEGATE:` prefix + body + closing `]]`. My emitted `[[CONTINUE_DELEGATE: R-CD-TOKEN PROOF... +2s]]` matches EXACTLY → syntax was never the problem.
+- Clincher: the regex ends in `\]\]\s*$` (END-of-payload anchor), and `signal.ts` walks RESPONSE payloads (`payload.text`). So the bracket must sit at the end of a final-assistant-text payload. Mine rode a message-tool send body → never a response-text-payload → the regex NEVER RAN against it (not "didn't match" — never reached the matcher).
+- **FINAL (source-airtight, both discriminators resolved): syntax ✅ RULED OUT; emission-context ✅ SOLE CAUSE.** continue_delegate tool-form canonical + 5-rows-PASS; bracket-form ALIVE, fires from final-assistant-text only; non-dispatch from message-tool-context is the documented emission-surface gap — NOT syntax, NOT build-death. Recorded honest-as-observed → control-case-localized → source-confirmed → syntax-ruled-out. Complete.

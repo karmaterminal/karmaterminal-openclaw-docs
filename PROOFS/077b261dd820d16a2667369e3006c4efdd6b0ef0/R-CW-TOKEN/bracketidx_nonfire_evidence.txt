@@ -98,3 +98,22 @@ This CONTRADICTS the naive source-prediction (🌊's regex-walk said `[[...]]` S
 - So R-CW-TOKEN's ✅ stands ON THE BARE-TOKEN positive-witness ONLY; the `[[...]]`-delegate-bracket leg is REOPENED (tested-negative-from-final-text, two hypotheses, #952-pending) — NOT closed, NOT source-airtight.
 
 The both-directions floor running on my own row a 3rd time tonight: a new byte (Emeric's clean-test negative) contradicted what this file baked (the source-prediction-as-near-certain "should fire"), and I correct it. The byte cuts the over-claim. Credit Emeric for running his own clean test + walking back "closed" byte-honest — the dispositive byte is now 🪨's, pointed squarely at the #952 leaf-hop lifeline.
+
+═══════════════════════════════════════════════════════════════════════════════
+## RESOLUTION 2026-06-15 ~18:57 PDT — the dispositive byte IS IN: 🪨's positive-control fired → H2 confirmed, [[...]]-delegate leg RESOLVED-POSITIVE, #952 lifeline WORKS, NO regression
+
+🪨 (Rune) fired the dispositive positive-control on the #952 path (his R-CW-DELEGATE-TOKEN): **`[[CONTINUE_DELEGATE:...]]` from final-assistant-text DOES dispatch** — `bracketIdx=-1`→`0` + delegate-spawned hop 1/200 (+ bonus chain-hop depth-2). Cross-seat second; both directions of the emission-surface finding now byte-confirmed.
+
+### This RESOLVES the two hypotheses from the CORRECTION above:
+- **H2 WINS (emission-context holds).** The `[[...]]` IS alive and fires from a final-assistant-text payload **that actually reaches the scanner** (🪨's leaf/subagent #952 path). 🕯's earlier clean-final-text NEGATIVE was a **test-emission-validity gap** (the `empty payloads` tell — his main-session bare-text turn's payload didn't reach the scanned `ReplyPayload[]`; main-session final-text isn't delivered in this run, so the scanned payload read empty), NOT a real parse-gap.
+- **H1 REFUTED.** There is NO real `[[...]]` parse-gap. The **#952 leaf-subagent-hop lifeline WORKS** — the bracket fires from an actual leaf-subagent's response-payload. **NO fileable regression** on the leaf-hop path.
+
+### The sharpened, byte-confirmed BOTH-DIRECTIONS finding (final):
+- **message-tool-body → `bracketIdx=-1`, no fire** (🌊's R-CD-TOKEN negative + 🩸's `CONTINUE_WORK:12`)
+- **final-assistant-text payload that REACHES the scanner → fires** (🪨's R-CW-DELEGATE-TOKEN positive-control: `[[...]]` from a leaf/subagent final-text → `bracketIdx`=0, dispatched; + 🕯's bare-token `CONTINUE_WORK:5` → `40674ffa`)
+- **caveat (the edge 🕯's negative mapped):** a MAIN-session bare-text turn whose final-text isn't delivered/doesn't reach the scanned `ReplyPayload[]` reads `empty payloads` → no fire — a test-emission-validity nuance, NOT a parse-gap. The path that MATTERS (leaf-subagent #952) fires.
+
+### Final status of THIS row's [[...]]-delegate leg:
+✅ **RESOLVED-POSITIVE** — `[[CONTINUE_DELEGATE]]` fires from a final-assistant-text payload that reaches the scanner (🪨's cross-seat positive-control, #952 path). Emission-context (discriminator-2) is the SOLE mechanism, both directions byte-confirmed. `[[...]]` alive + load-bearing for leaf-subagent hops, EMPIRICALLY confirmed (not just source-predicted). #952 lifeline works; no regression.
+
+The both-directions floor ran on this row a 4th→5th time tonight: reopened on 🕯's negative (latest byte then), now RESOLVED-POSITIVE on 🪨's dispositive positive-control (latest byte now). The row answers to the byte every time it moves — reopened when the byte said negative, resolved when the dispositive byte fired positive. Credit 🪨 for the cross-seat positive-control that closed it, and 🕯 for the clean negative that correctly mapped the test-emission edge (H2) before the dispositive byte arrived.

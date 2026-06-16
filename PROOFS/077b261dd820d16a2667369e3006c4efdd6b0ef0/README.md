@@ -41,7 +41,7 @@ Behavioral proof corpus for the **2026-06-15 deployed candidate SHA** — the fl
 | R-CD-CHAINED-DEPTH-2 TEST-3 (echo broadcast) | 🌫 silas (canary) | ⏳ pending | `R-CD-CHAINED-DEPTH-2/test_3_echo_broadcast/` |
 | R-RC-1 (request_compaction threshold REJECT) | 🌫 silas (canonical) | ⏳ pending | `R-RC-1/` |
 | R-RC-2 (request_compaction over-threshold ACCEPT) | 🩸 cael | ⏳ pending | `R-RC-2/` |
-| R-OBS-1 (external /status 6-prince cross-walk) | 🌻 elliott (+ cohort) | ⏳ pending | `R-OBS-1/` |
+| R-OBS-1 (external /status 6-prince cross-walk) | 🌻 elliott (+ cohort) | 🔄 PARTIAL — 🌻 elliott full card + 6/6 deploy/boot cross-walk on `077b261dd8` filed; full per-seat /status-card fan-out pending (figs-fanout or per-seat contribution) | `R-OBS-1/` |
 | R-OBS-2 (Tempo trace-tree + span-hierarchy export) | 🪨 rune | ⏳ pending | `R-OBS-2/` |
 | R-CONFIG-DEFAULTS (continuation defaults on bootstrap) | 🕯 emeric | ✅ PASS | `R-CONFIG-DEFAULTS/proof.md` |
 | R-CONFIG-INTERSESSION (config persists across sessions) | 🕯 emeric | ✅ PASS | `R-CONFIG-INTERSESSION/proof.md` |

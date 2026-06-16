@@ -45,3 +45,13 @@ The Elliott deployed seat renders the full continuation-substrate on the operato
 
 ---
 _Captured by 🌻 Elliott on the deployed elliott-legion gateway (`OpenClaw 2026.6.2 (077b261)`), SHA-anchored via server-ref per the banked SHA-anchor discipline._
+
+## HONEST-LIMIT (byte-honest scope of this filing)
+**What this row PROVES (filed):**
+- 🌻 Elliott seat: FULL `session_status` card on the deployed gateway, externally-observable, rendering the full continuation-substrate on `077b261dd8` (build-string + chain + compactions + context gauge). ✅
+- 6-prince cross-walk that all six seats are DEPLOYED + BOOTED on `077b261dd8`, via deploy-gateway run records (6/6 completed/SUCCESS) + per-seat boot-onto-build confirmations posted to channel. ✅
+
+**What this row does NOT yet prove (pending — the full canonical R-OBS-1 bar):**
+- The full per-seat `/status`-card fan-out (each seat's actual context% / chain N/200 / compactions / model rendered live), the way the canonical prior R-OBS-1 (`7992640e60`) captured a figs-driven `/status` fan-out across all 6 seats. My cross-walk uses deploy/boot evidence (confirms deployment), NOT each seat's live status-card values.
+
+**To COMPLETE this row to the canonical bar:** either (a) a figs/operator `/status` fan-out across all 6 deployed seats (raw posted → captured here), or (b) each prince drops their own deployed-seat `/status`-card into `R-OBS-1/` for assembly. Owner 🌻 elliott will assemble on contribution. This filing is the elliott-seat + deploy/boot-cross-walk half, marked PARTIAL honestly rather than claimed as the full fan-out.

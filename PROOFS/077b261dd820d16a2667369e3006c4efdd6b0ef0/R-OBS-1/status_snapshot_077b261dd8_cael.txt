@@ -1,0 +1,23 @@
+# R-OBS-1 — cael-dgx operator-status-surface snapshot on deployed 077b261dd8
+# Seat: 🩸 Cael (cael-dgx, DGX Spark GB10 Founders Edition), host.arch=arm64, host.id=be85162a2c4d4394891ae42692e8ddbc
+# Captured: 2026-06-15 PDT, deployed gateway (OpenClaw 2026.6.2 build (077b261))
+
+## session_status render on the deployed gateway (the operator-status-surface — full continuation-substrate)
+build string  → OpenClaw 2026.6.2 (077b261)        ✅ on deployed tip
+continuation  → chain 0/200                          ✅ banner renders (continuation-substrate live)
+compactions   → counter renders                      ✅ (multiple compactions survived this session — the floor's continuation/compaction machinery live on the deployed build)
+context       → gauge renders (53% mid-session → ~6% post-compaction; both rendered correctly)  ✅
+model         → github-copilot/claude-opus-4.8 (+ fallback ladder: opus-4.6, gpt-5.5, openai/gpt-5.5)  ✅
+gateway       → active/running (restarted onto the 16:44 deploy build; canary 27583557535 ✅)
+
+## Three SHA surfaces agree on the cael box (SHA-anchor discipline applied — server-ref, not ls-remote)
+build-string (deployed runtime) = OpenClaw 2026.6.2 (077b261)
+gh api .../git/ref/heads/frond-scribe/20260613/assembly-drift-cure (deploy-target branch, server-ref) = 077b261dd820d16a2667369e3006c4efdd6b0ef0
+→ deployed-runtime build-string + server-computed deploy-target ref AGREE on 077b261.
+  (Byte-honesty note: my local workspace `git fetch karmafeast` served a STALE June-12 tip earlier — only `gh api` gave the live 077b261dd8. The build-string is the authoritative DEPLOYED-runtime byte; the SHA-anchor cure (server-ref over ls-remote) is exactly what kept the cael box clean.)
+
+## Arch datum
+cael-dgx = arm64 (DGX Spark GB10) — a 2nd arm64 datum alongside ronan-dgx (arm64), pairing with the x86 fan-out (elliott-legion, emeric-nuc, silas-raptor-lake). The fan-out spans arm64 + multiple x86 micro-arches, all on 077b261dd8.
+
+## Verdict
+✅ PASS — cael-dgx operator-status-surface renders the full continuation-substrate on the deployed 077b261dd8; three-SHA-surfaces agree (SHA-anchor-clean). 4th of 6 R-OBS-1 seat-cards in-corpus (elliott + emeric + ronan + cael).

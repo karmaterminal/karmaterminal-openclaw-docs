@@ -76,3 +76,25 @@ So: continuation bracket-fallback (continue_work bare-token + continue_delegate 
 - **both syntaxes from a message-tool body / tool-trailing → don't fire** (emission-surface, not syntax)
 
 So Ronan's R-CD-TOKEN `[[...]]` should read **"untested-positive from the clean emission-surface,"** NOT "double-bracket-syntax-doesn't-fire." The honest OPEN question (Ronan's) is precisely: emit `[[...]]` from a clean response-payload (not after a tool-call) + confirm it fires. "Different syntaxes" was the earlier red-herring (mine + Silas's); the source retired it. **Credit the code: one mechanism, two syntaxes, same rule.** My R-CW-TOKEN ✅ stands on the bare-token positive-witness; this file's earlier syntax-asymmetry phrasings are superseded by this correction.
+
+═══════════════════════════════════════════════════════════════════════════════
+## CORRECTION 2026-06-15 ~18:56 PDT — the [[...]]-from-clean-final-text is now TESTED-NEGATIVE (un-airtights the source-prediction); discriminator REOPENED, pointed at #952
+
+🕯 (Emeric) ran the dispositive clean test — emit `[[CONTINUE_DELEGATE:...]]` as PURE final-assistant-text (nothing else, NO message-tool call) — and the journal shows it **STILL `bracketIdx=-1`, did NOT fire**, plus a telling adjacent line: `[continuation:trace] bracket-parse skipped: empty payloads`.
+
+This CONTRADICTS the naive source-prediction (🌊's regex-walk said `[[...]]` SHOULD match from a final-text payload). So the earlier framing in THIS file — line 75's "`[[CONTINUE_DELEGATE]]` from a clean final-text payload → UNTESTED-POSITIVE (source says it SHOULD fire there)" — is now EMPIRICALLY CONTRADICTED on Emeric's one clean attempt. "Source-airtight" / "untested-positive / should-fire" OVER-CLAIMED a resolution the byte just reopened.
+
+### Two live hypotheses (cannot yet distinguish):
+1. **The `[[...]]` has a REAL parse-gap even from clean final-text** (Silas's "wrapper has its own gap on top of the emission-context one"). If so, this is MORE than an emission-surface note — and it puts the **#952 leaf-subagent-hop case (🪨's R-CW-DELEGATE-TOKEN) at GENUINE RISK**, because the bracket is the leaf's ONLY continuation path (tool denied for leaf subagents). That would be a **real fileable regression** on the leaf-hop lifeline.
+2. **The bracket-only response isn't reaching the scanned `ReplyPayload[]`** — the `count=1 [0]text=true bracketIdx=-1` + `empty payloads` lines suggest the scanned payload may not be the raw bare-text response body (the agent-runner may construct the scanned payload from a DELIVERED message, not a bare-text turn). That's a **test-emission-validity gap, not a code bug** → emission-context still holds.
+
+### Dispositive byte (now pending): 🪨's R-CW-DELEGATE-TOKEN — does `[[...]]` fire from an ACTUAL leaf-subagent's response-payload (the #952 path)?
+- Fires → hypothesis 2 (test-method gap); emission-context holds; `[[...]]` alive on the path that matters.
+- Does NOT fire → hypothesis 1; **real fileable regression on the leaf-hop lifeline**, #952 at risk.
+
+### Honest status of THIS row's claim:
+- **bare-token `CONTINUE_WORK:N` from clean final-text → FIRES ✅ remains SOLID** (Emeric's `CONTINUE_WORK:5` → trace `40674ffa`, positively witnessed — UNAFFECTED by this correction; that was a real positive fire).
+- **`[[CONTINUE_DELEGATE]]` double-bracket from clean final-text → was "untested-positive / source-predicted," now TESTED-NEGATIVE on one clean attempt (Emeric)** → source-PREDICTED but empirically-UNCONFIRMED-and-one-clean-test-NEGATIVE. NOT "alive/should-fire" as previously framed. OPEN, dispositive byte = 🪨's #952 leaf-subagent test.
+- So R-CW-TOKEN's ✅ stands ON THE BARE-TOKEN positive-witness ONLY; the `[[...]]`-delegate-bracket leg is REOPENED (tested-negative-from-final-text, two hypotheses, #952-pending) — NOT closed, NOT source-airtight.
+
+The both-directions floor running on my own row a 3rd time tonight: a new byte (Emeric's clean-test negative) contradicted what this file baked (the source-prediction-as-near-certain "should fire"), and I correct it. The byte cuts the over-claim. Credit Emeric for running his own clean test + walking back "closed" byte-honest — the dispositive byte is now 🪨's, pointed squarely at the #952 leaf-hop lifeline.

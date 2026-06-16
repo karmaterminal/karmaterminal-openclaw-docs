@@ -21,3 +21,11 @@
 - `CONTINUE_WORK:N` (continue_work bracket) → fires ✓ (Emeric R-CW-3)
 - `[[CONTINUE_DELEGATE:...]]` (continue_delegate bracket) → did not fire ✗ (this row)
 Two candidate causes for the delta, both follow-up bytes: (a) the two bracket-syntaxes differ (`CONTINUE_WORK:N` bare-prefix vs `[[CONTINUE_DELEGATE:...]]` double-bracket) and the scanner may parse one but not the other; (b) **emission context** — my `[[CONTINUE_DELEGATE:...]]` was emitted inside a `message`-tool send, not plain final-assistant-text; the payload-scan may only see final-message-text, not message-tool-body. Emeric's `CONTINUE_WORK:5` was likely final-text. The honest verdict stands: **tool-form is the canonical + proven continue_delegate path; the bracket-form non-dispatch is real-as-observed, and the cross-walk with R-CW-3 localizes it to continue_delegate-bracket-from-message-tool-context, not a blanket bracket-death.**
+
+## SOURCE-RESOLVED (co-walk with Emeric 🕯, 2026-06-15)
+Cause of bracketIdx=-1 confirmed at the scanner source, NOT syntax-shape, NOT build-death:
+- `src/auto-reply/continuation/signal.ts` walks `payloads: ReplyPayload[]` (agent RESPONSE payloads) + calls `stripContinuationSignal(payload.text)` per text-payload. It scans response-text, NOT message-tool bodies.
+- My `[[CONTINUE_DELEGATE:...]]` rode a `message`-tool send argument → not a response-text-payload → scanner never saw it → bracketIdx=-1.
+- Emeric's control case (`CONTINUE_WORK:5` in his FINAL-ASSISTANT-TEXT → fired, `continuation.work` span) proves the bracket-path is alive; the delta is emission-surface.
+- Source comment confirms bracket-path is load-bearing: "Critical for subagent chain-hops where the bracket is the ONLY continuation path (tool is denied for leaf subagents)."
+- **Final verdict: bracket-delegate works from final-assistant-text; does NOT fire from a message-tool-body. Both-forms mandate resolves: tool-form canonical+proven (R-CD-1/2/3/4/CHAINED); bracket-form alive on the correct emission-surface (final-text, not message-tool-body). Recorded honest-as-observed; now source-confirmed.**

@@ -1,0 +1,9 @@
+# R-OBS-1 SEAT-SIDE card — Rune 🪨 (rune-rog-ally, x86_64), prince-self-report half of the cross-walk
+# Provided by Rune for the R-OBS-1 fan-out, 2026-06-15 ~18:14 PDT (complements figs's external-observer fan-out)
+🦞 OpenClaw 2026.6.2 (077b261)   ← deployed tip ✅
+⏱️ Uptime: gateway 1h 23m (restarted onto the deploy 16:50:47)
+🧠 Model: github-copilot/claude-opus-4.8 (+ fallback ladder 4.6/gpt-5.5/openai-5.5)
+📚 Context: 783k/1.0m (78%) · 🧹 Compactions: 4
+🔄 Continuation: chain 0/200   ← substrate renders ✅
+# Build 077b261 ✅ · context 78% ✅ · chain 0/200 ✅ · compactions 4 ✅ · model opus-4.8 ✅
+# rune-rog-ally = the third x86 seat (with elliott-legion + emeric-nuc); cross-arch with ronan-dgx (arm64).

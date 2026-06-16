@@ -1,0 +1,27 @@
+# R-RC-2 second-seat cross-seal — silas/lothric (x86 raptor-lake)
+
+Row: R-RC-2 — request_compaction ACCEPT at >=70% (deliberate-condition row)
+Owner of close: Ronan (74% accept, this dir's EVIDENCE.md + ronan-accept-trace-9448ef2c.json)
+This file: Silas second-seat cross-seal — the dual-seat ACCEPT datum.
+
+## Silas ACCEPTs this session (both fired clean on deployed 077b261dd8)
+- ACCEPT #1: contextUsage 89% -> status "compaction_requested", trigger "volitional".
+  Compaction #5 ran; volitional counter 0->1 rendered in session_status.
+- ACCEPT #2: contextUsage 74% -> status "compaction_requested", trigger "volitional"
+  (diagId cmp-mqg2uwov-Go1ggw). Compaction #6 ran; volitional counter 1->2.
+  Post-compaction delegate fired + spawned (rehydration shard ran ~1m45s) -> the
+  re-injection leg of the lich-protocol witnessed live on this seat.
+
+## Guard demonstrated end-to-end on this seat (the pair)
+- REJECT below threshold: request_compaction at exactly 70.0% -> rejected
+  (guard "context_threshold", contextUsage 70, threshold 70 -> "below the minimum").
+  The guard is strictly > 70, demonstrated at the 70.000 boundary. (R-RC-1, my lothric row.)
+- ACCEPT above threshold: 89% and 74% both accepted + compaction ran (above).
+
+So request_compaction's full guard (reject<=70, accept>70) is proven on TWO seats,
+TWO architectures, one tip: Ronan arm64 (74% accept) + Silas x86 raptor-lake
+(R-RC-1 reject-at-70 + 89%/74% accepts). session_status snapshot shows
+"Continuation: chain 0/200 | volitional: 2" on 077b261 at capture.
+
+SHA-anchor: build-string (077b261) == server-ref 077b261dd8 == deployed-build-string.
+gh auth: silas-dandelion-cult.

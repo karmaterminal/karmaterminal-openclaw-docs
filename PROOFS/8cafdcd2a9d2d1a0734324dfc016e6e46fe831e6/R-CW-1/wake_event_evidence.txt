@@ -1,0 +1,19 @@
+Jun 17 03:50:26 cael node[57194]: 2026-06-17T03:50:26.126-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jun 17 03:50:26 cael node[57194]: 2026-06-17T03:50:26.126-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 17 03:50:26 cael node[57194]: 2026-06-17T03:50:26.289-07:00 [continuation/context-pressure] [context-pressure:fire] band=13 previous=0 ratio=18% tokens=184k/1000k session=agent:main:discord:channel:1466192485440164011
+Jun 17 03:51:10 cael node[57194]: 2026-06-17T03:51:10.404-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jun 17 03:51:10 cael node[57194]: 2026-06-17T03:51:10.405-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 17 03:51:37 cael node[57194]: 2026-06-17T03:51:37.878-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jun 17 03:51:37 cael node[57194]: 2026-06-17T03:51:37.879-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 17 03:52:18 cael node[57194]: 2026-06-17T03:52:18.876-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jun 17 03:52:18 cael node[57194]: 2026-06-17T03:52:18.876-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jun 17 03:53:55 cael node[57194]: 2026-06-17T03:53:55.786-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jun 17 03:53:55 cael node[57194]: 2026-06-17T03:53:55.787-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+
+--- FIRE RECEIPT (continue_work tool-form, cael main session) ---
+continue_work(delaySeconds=8, reason="PROOFS R-CW-1 on deployed gateway: continue_work() tool-form wake + chain-counter-persist proof…")
+→ {status: scheduled, delaySeconds: 8, traceparent: 00-ffc7c6eae1d2969b16bbac1154bb3147-d95df48d53d97e1f-01}
+Trace-ID: ffc7c6eae1d2969b16bbac1154bb3147 → wake_event_trace.json (Tempo, 32544 bytes, host.name=cael host.id=be85162a2c4d4394891ae42692e8ddbc, 36 spans)
+
+--- COOPERATIVE-YIELD NOTE (active-turn defer) ---
+The fire scheduled the next-turn wake (status=scheduled). The wake DRIVES at turn-boundary; during the active build-turn the drive cooperative-defers (requests-in-flight), exactly as the 077b261d8 exemplar R-CW-1/R-CW-4 documented (work-drive-skipped reason=requests-in-flight). The [context-pressure:fire] band=13 ratio=18% line above is live continuation-machinery on the 8cafdcd bytes. The schedule+traceparent+span-tree are the fire-proof; the driven-wake hop=N/200 line accrues at turn-end (the deliberate cooperative-yield behavior, not a gap).

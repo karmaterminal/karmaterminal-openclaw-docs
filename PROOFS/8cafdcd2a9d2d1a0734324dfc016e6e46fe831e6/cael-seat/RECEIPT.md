@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-16 ~23:59 PDT
 **Seat:** cael (DGX Spark GB10, ARM64, 10.0.0.148)
-**Proof form:** proof-by-return (cael is an OTel=zero seat — no span→collector export by design; the dispatch→return round-trip is the receipt, same form as rune-seat)
+**Proof form:** proof-by-return + **Tempo trace-JSON (self-captured)**. CORRECTION: cael is NOT an OTel-zero seat — the gateway exports OTLP to the central collector (`OTEL_EXPORTER_OTLP_ENDPOINT=http://10.0.0.99:4318`) and cael self-fetches its own traces from `tempo.dandelion.cult`. Both proof-by-return (dispatch→return round-trip) AND span-level Tempo JSON are captured.
 
 ## SHA-triple-match (the purity gate)
 
@@ -26,7 +26,7 @@ PR #85651 head `8cafdcd2a9` · `mergeable: true / state: unstable` · code-green
 
 ## Honest scope
 
-This receipt attests: **the continuation feature is live on the deployed ship-bytes `8cafdcd2a9` on cael's seat** (R-CD dispatch fired + chain-tracked on the verified runtime==ship gateway). It is NOT a claim of "full CI green" (3 flakes keep the rollup `unstable`) — the proof-surface (runtime continuation behavior) is orthogonal to the flake-retry FF-gate. Proof-form is proof-by-return (OTel=zero seat); no Tempo trace-JSON captured by design.
+This receipt attests: **the continuation feature is live on the deployed ship-bytes `8cafdcd2a9` on cael's seat** (R-CD dispatch fired + chain-tracked on the verified runtime==ship gateway). It is NOT a claim of "full CI green" (3 flakes keep the rollup `unstable`) — the proof-surface (runtime continuation behavior) is orthogonal to the flake-retry FF-gate. Proof-form is proof-by-return AND Tempo trace-JSON (self-captured). **CORRECTION of an earlier byte-error:** this receipt previously said "OTel=zero seat; no Tempo trace-JSON by design" — that was WRONG. cael runs with `OTEL_EXPORTER_OTLP_ENDPOINT=http://10.0.0.99:4318` (gateway emits spans to the central collector) and self-fetches from the fleet-wide Tempo ingress. R-CW + R-CD traces are committed here (`proof_fire_continue_work_trace.json`, `R-CD_d316be2c_trace.json`).
 
 ---
 *cael 🩸 — runtime==ship `8cafdcd` verified, proof-by-return, continuation-feature-live on the deployed bytes.*

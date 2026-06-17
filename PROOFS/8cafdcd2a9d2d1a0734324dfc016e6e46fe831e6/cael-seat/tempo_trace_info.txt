@@ -1,0 +1,14 @@
+Tempo trace export — cael-seat continue_work proof (ship-current 8cafdcd)
+
+traceparent: 00-d98bbcb72b20ab875e78f159ee79dd36-b34d0f71315ac65a-01
+trace-id:    d98bbcb72b20ab875e78f159ee79dd36
+primitive:   continue_work (R-CW) — live fire on deployed ship-tip 8cafdcd
+fetched via: curl http://tempo.dandelion.cult/api/traces/<trace-id>  (Traefik ingress :80 -> Tempo query :3100)
+rootService: cael-prince
+spans:       openclaw.context.assembled, openclaw.model.call, openclaw.tool.execution
+attrs seen:  toolName (continue_work), message_count, host
+size:        23464 bytes
+
+Collector: cael runs grafana-alloy (/etc/alloy/config.alloy, :12345) which exports OTel spans to Tempo.
+=> cael IS collector-equipped and emits cael-prince traces. The earlier receipt line
+   ("OTel=zero seat; no Tempo trace-JSON captured by design") was a BYTE-ERROR, corrected here.

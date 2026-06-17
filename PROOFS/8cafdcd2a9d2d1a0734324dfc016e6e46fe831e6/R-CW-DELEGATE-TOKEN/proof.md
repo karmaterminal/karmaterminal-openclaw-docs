@@ -22,8 +22,9 @@ from two seats:
   fired `[[CONTINUE_DELEGATE]]` on live `8cafdcd`, journal `origin=bracket kind=delegate`
   (token-parse path `tokens.ts:parseContinuationSignal`, NOT the tool path) → dispatched hop-2
   → shard returned the proof line. Tempo trace `dfc8451cb0bcf4b660d9ae1f1b0a0396` (7 spans,
-  `continuation.delegate.dispatch` span). (#952 finding banked: bracket-parse is FORMAT-SENSITIVE —
-  long/multi-line bracket fails `bracketIdx=-1`, compact single-line parses `bracketIdx=0`; fire compact.)
+  `continuation.delegate.dispatch` span). (#952 finding banked, CORRECTED 2026-06-17 ~04:10: bracket-parse is POSITION-sensitive,
+  NOT format/length-sensitive — the bracket must be TERMINAL (only whitespace after `]]`); multi-line/long bodies are SAFE.
+  Earlier "fire compact / multi-line fails" was a confound (the failing case also had a trailing sign-off). Do NOT single-line multi-line task specs; just keep the `]]` last. See elliott-seat/EVIDENCE.md correction + 🌫's regex re-run at `tokens.ts:491` (no `/m` flag).)
 
 So #952's leaf-subagent bracket-hop lifeline WORKS for `[[CONTINUE_DELEGATE]]` from final-text —
 the emission-surface gap (🌊 Ronan's R-CD-TOKEN) is message-tool-BODY emission, not the bracket itself.

@@ -36,9 +36,13 @@ elliott R-CW-DELEGATE bracket-form dispatched via token-parse on 8cafdcd   ← s
 
 ---
 
-## #952-relevant finding: the bracket-form parse is FORMAT-SENSITIVE
+## #952-relevant finding: the bracket-form parse is POSITION-SENSITIVE (corrected 2026-06-17 ~04:10 PDT)
 
-A first attempt with a **long, multi-line** `[[CONTINUE_DELEGATE: …]]` bracket did NOT parse — journal showed `payload-scan: count=1 bracketIdx=-1` (scanned, but no valid bracket-signal found). The **compact, single-line** form (`[[CONTINUE_DELEGATE: <short task> | silent-wake]]`) parsed cleanly (`bracketIdx=0`). So the token-parse path (`tokens.ts:parseContinuationSignal`) is sensitive to bracket length/multi-line structure — the compact single-line form is the reliable shape. Worth banking for the canonical pass: **fire the bracket-form compact + single-line.**
+**CORRECTION of my own earlier cause-attribution** (after 🌫 Silas re-ran the exact shapes at the regex, `tokens.ts:491`). My first draft of this finding said "FORMAT-SENSITIVE: long/multi-line fails; fire compact + single-line." **That was the wrong cause — a confound.** My failing first-attempt was long/multi-line AND had a trailing sign-off after the `]]`; my working compact retry was short AND dropped the sign-off. I credited the **length** (the salient change) when the causal variable was the **terminal position**.
+
+The byte: the regex `tokens.ts:491` is `/\[\[\s*CONTINUE_DELEGATE:\s*([\s\S]+?)\s*\]\]\s*$/` — **no `/m` flag**, so the trailing `\s*$` anchors to the end of the WHOLE response. Body is `[\s\S]` (the `:486` comment literally says multiline tasks are safe). Re-run on `8cafdcd`: long multi-line body + bracket TERMINAL → `bracketIdx=0` ✅; same long body + a trailing ` 🤝` → `bracketIdx=-1` ❌.
+
+**The real rule: the `[[CONTINUE_DELEGATE:...]]` bracket must be the TERMINAL thing in the message — only whitespace after the closing `]]` (no glyph, no sign-off, no prose). Multi-line / long task bodies are SAFE.** Do NOT single-line a legitimately-multi-line task spec (e.g. R-CD-TOKEN); just keep the bracket last. The earlier "fire compact" advice treated a symptom (compacting also dropped the trailing chars) as the cause.
 
 ---
 

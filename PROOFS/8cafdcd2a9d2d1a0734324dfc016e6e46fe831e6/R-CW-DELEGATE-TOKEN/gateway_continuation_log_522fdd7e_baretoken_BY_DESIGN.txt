@@ -1,0 +1,11 @@
+2026-06-17T03:07:07.509-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=0 [0]text=true session=agent:main:subagent:522fdd7e-4c15-47e3-a500-49e77273f099
+2026-06-17T03:07:07.510-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=work delayMs=5000 session=agent:main:subagent:522fdd7e-4c15-47e3-a500-49e77273f099
+2026-06-17T03:07:07.511-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=work session=agent:main:subagent:522fdd7e-4c15-47e3-a500-49e77273f099
+2026-06-17T03:07:07.513-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=4999ms fireAt=1781690832511 session=agent:main:subagent:522fdd7e-4c15-47e3-a500-49e77273f099
+2026-06-17T03:07:07.749-07:00 [subagent-chain-hop] CONTINUE_WORK not supported in sub-agent chain (from agent:main:subagent:522fdd7e-4c15-47e3-a500-49e77273f099), ignoring
+2026-06-17T03:07:12.513-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:subagent:522fdd7e-4c15-47e3-a500-49e77273f099
+2026-06-17T03:07:12.515-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=60000ms fireAt=1781690892514 session=agent:main:subagent:522fdd7e-4c15-47e3-a500-49e77273f099
+2026-06-17T03:07:12.516-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:subagent:522fdd7e-4c15-47e3-a500-49e77273f099
+2026-06-17T03:07:12.517-07:00 [continuation/work-dispatch] [continuation:work-drive-skipped] flowId=104022b6-a65d-4e94-a979-c889ea48c21b session=agent:main:subagent:522fdd7e-4c15-47e3-a500-49e77273f099 reason=requests-in-flight
+2026-06-17T03:07:12.518-07:00 [continuation/work-dispatch] [continuation:work-orphan-reaped] flowId=104022b6-a65d-4e94-a979-c889ea48c21b session=agent:main:subagent:522fdd7e-4c15-47e3-a500-49e77273f099 parentRunId=314aa124-6bac-433a-a7ee-8eae568b157e — parent confident-terminal, can never rehydrate
+2026-06-17T03:08:12.517-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:subagent:522fdd7e-4c15-47e3-a500-49e77273f099

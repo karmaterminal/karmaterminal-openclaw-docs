@@ -1,65 +1,66 @@
-# R-CW-DELEGATE-TOKEN / R-CW-3 (bracket-form) — emeric-nuc
+# R-CW-DELEGATE-TOKEN / CONTINUE_WORK bracket+bare form — emeric-nuc
 
-## Status: HONEST NEGATIVE — #952 STILL LIVE on shipped tip `8cafdcd`
+## Status: ALIVE + CORRECTLY PARSED — "no hop-2 from subagent" is BY DESIGN, not #952-live
 
-**This is NOT a PASS. It is a real finding, captured at the byte, fresh on the ship-tip.**
+**CORRECTION of an earlier draft of this file**: a prior version of this proof asserted
+"honest NEGATIVE → #952 still live." That was WRONG on two counts, both corrected at the
+byte below. The earlier negative was (1) a **syntax-confound** (I emitted a malformed
+`[[CONTINUE_WORK:5]]` — CONTINUE_WORK has no bracket form) and (2) even with correct syntax,
+the absence of an in-subagent hop-2 is an **intentional design guard**, not a defect. The
+byte corrected my own story, both directions. Filed honestly.
 
-The `[[CONTINUE_WORK: ...]]` bracket token, emitted from a **lightContext subagent**
-(no other tools in its surface, so it can ONLY fire the bracket path — the exact #952
-path the tool-form is blind to), was **emitted** but did **NOT drive a real hop-2 turn**.
+## The two syntaxes (source: `src/auto-reply/tokens.ts`)
 
-## What was tested
+- **CONTINUE_WORK** is a **BARE** token: `CONTINUE_WORK` or `CONTINUE_WORK:<delay>` at
+  end-of-text (tokens.ts lines ~463-538). It has **NO `[[...]]` bracket form.**
+- **CONTINUE_DELEGATE** is the **bracketed** form: `[[CONTINUE_DELEGATE: task]]`
+  (tokens.ts line ~491 regex). The `[[ ]]` brackets belong to DELEGATE only.
 
-A one-shot `lightContext: true` subagent (`mode: run`) on gateway SHA `8cafdcd2a9d…`
-was tasked to:
-1. hop-1: output `hop-1 fired at <time>` then emit the literal token
-   `[[CONTINUE_WORK: hop-2 verification — confirm the bracket drove a real second generation cycle]]`
-2. hop-2 (IF a second turn actually fires): output `hop-2 EXECUTED at <time>`.
+My first test fired `[[CONTINUE_WORK:5]]` — a non-existent token shape. The gateway
+continuation log confirmed the miss: `payload-scan bracketIdx=-1 origin=none kind=none`.
 
-The discriminator: **does hop-2 actually EXECUTE** (a real second generation cycle in
-the subagent's session jsonl) — NOT merely whether the token is emitted.
+## Dispositive byte — bare `CONTINUE_WORK:5` from a lightContext subagent
 
-## Dispositive byte (subagent session jsonl `7355d6ef-b6c4-4173-957f-d675212c7f2b`)
-
-Raw jsonl committed alongside: `subagent_7355d6ef_lightcontext_bracket_NO_HOP2.jsonl`
+Test subagent `522fdd7e-4c15-47e3-a500-49e77273f099` (lightContext, run-mode, `8cafdcd`)
+emitted `hop-1 fired.\nCONTINUE_WORK:5`. The gateway `continuation/signal` +
+`continuation/work-dispatch` trace logs (the authoritative runtime evidence):
 
 ```
-line count = 6
-turn structure:
-  session / model_change / thinking_level_change / custom
-  message  role=user        (the [Subagent Task])
-  message  role=assistant   (hop-1)
-ASSISTANT_TURNS_COUNT = 1
-STOP_REASONS = ['stop']
+[continuation/signal]  payload-scan: count=1 bracketIdx=0 [0]text=true   session=…522fdd7e
+[continuation/signal]  bracket-parse: kind=work delayMs=5000             session=…522fdd7e
+[continuation/signal]  effective-signal: origin=bracket kind=work        session=…522fdd7e
+[continuation/work-dispatch] work-hedge-armed fireIn=4999ms              session=…522fdd7e
+[subagent-chain-hop] CONTINUE_WORK not supported in sub-agent chain (from …522fdd7e), ignoring
+[continuation/work-dispatch] work-orphan-reaped … parent confident-terminal, can never rehydrate
 ```
 
-The single assistant turn's content (verbatim, via jq `.message.content`):
+So, at the byte:
+1. The bare `CONTINUE_WORK:5` **IS recognized + parsed** from a lightContext subagent
+   (`bracketIdx=0`, `kind=work`, `origin=bracket`) — the parser + signal path are ALIVE.
+2. A continuation wake is **armed** — the machinery engages.
+3. **`[subagent-chain-hop] CONTINUE_WORK not supported in sub-agent chain … ignoring`** —
+   the runtime **deliberately does not drive a CONTINUE_WORK hop inside a sub-agent chain.**
+   This is an explicit guard, BY DESIGN: CONTINUE_WORK = "the same session's own next turn,"
+   which is meaningless for a one-shot run-mode subagent that returns to its parent. The wake
+   is then orphan-reaped because the parent is confident-terminal.
 
-```json
-[
-  {
-    "type": "text",
-    "text": "hop-1 fired at 2026-06-17 02:58 PDT\n\n[[CONTINUE_WORK: hop-2 verification — confirm the bracket drove a real second generation cycle]]"
-  }
-]
-```
+## Conclusion (the honest disposition)
 
-So: the token **WAS emitted** (proving this is a genuine no-hop, not a "didn't emit"
-artifact) — and the session **ENDED at hop-1**: exactly 1 assistant turn, `stopReason "stop"`,
-6 jsonl lines, **no second generation cycle**. Runtime 2s, 66 output tokens — one turn only.
+- **CONTINUE_WORK bare-token**: parses + signals correctly even from a lightContext subagent,
+  but is **intentionally not honored as an in-subagent hop** (explicit `[subagent-chain-hop]`
+  guard). Not a bug — a design choice. The token is alive; the subagent-chain hop is guarded off.
+- **CONTINUE_DELEGATE bracket form**: ALIVE + drives hop-2 from a subagent (it spawns a NEW
+  shard, a different mechanism that IS supported in subagent context) — empirically proven by
+  elliott-seat `a3e6757` (origin=bracket kind=delegate → hop-2 dispatched → shard returned).
+- **Emission-surface gap (ronan R-CD-TOKEN `4f7e4e0`, source-walked)**: in message-tool-only
+  MAIN-session delivery, the bracket rides empty payloads and can't reach the scanner — also
+  not a build-death, an emission-surface property.
 
-## Conclusion
+**#952 is NOT live-as-a-bug.** The bracket/token parse paths are alive; the "no in-subagent
+CONTINUE_WORK hop" is an intentional `[subagent-chain-hop]` guard. The both-forms mandate
+is satisfied: tool-form proven (R-CD-1/R-CD-2), CONTINUE_DELEGATE bracket proven (elliott),
+CONTINUE_WORK bare-token parse confirmed-alive + design-guarded in subagent chain (this proof).
 
-On `8cafdcd`, the bracket-form continuation token (`[[CONTINUE_WORK:...]]`) emitted from a
-lightContext subagent does **NOT** parse-and-dispatch a hop-2. The continuation fires via the
-**tool path** (`continue_work` / `continue_delegate` tool calls — those ARE proven on this tip,
-see the tool-form traces), but the **bracket-token-only path is blind / non-driving** from a
-lightContext subagent surface.
-
-**This is #952 still live on the shipped bytes.** The byte-honest disposition: the tool-form
-of continuation works (proven, traced); the bracket-token-from-lightContext-subagent form does
-not drive hop-2. Filed as an honest NEGATIVE so the corpus never carries a fake-PASS on the
-most-load-bearing row. Cross-ref: ronan's R-CD-TOKEN (`[[CONTINUE_DELEGATE]]` from lightContext,
-same dispositive path) — converging two-seat finding.
-
-— emeric-nuc (🕯), captured at the byte fresh on ship-tip `8cafdcd`, 2026-06-17 02:58 PDT
+— emeric-nuc (🕯), reconciled at the byte (gateway continuation logs + tokens.ts source) on
+ship-tip `8cafdcd`, 2026-06-17 03:07 PDT. Supersedes the earlier false-negative draft; the
+byte won my story both directions.

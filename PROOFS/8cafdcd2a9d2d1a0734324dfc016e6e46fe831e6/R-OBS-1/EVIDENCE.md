@@ -31,7 +31,7 @@ The 6 seats span 2 vendors + 2 ISAs on the one deployed tip: x86_64 (elliott-leg
 
 ## HONEST CAVEAT — per-seat context %s are point-in-time snapshots with skew (NOT live state)
 The cards show `📚 Context: N/1.0m (P%)`. **These %s are transient snapshot readings, not current**, and must NOT be read as live state. Two byte-confirmed skew sources:
-1. **Cache-weighting:** the card `(P%)` is cache-INCLUSIVE. The compaction-guard measures the ACTUAL window. (🪨 Rune earlier this cycle: card `90%` but `895k` cached → guard's real usage `23%`.) Card-% ≠ guard-%.
+1. **Cache-weighting:** the card `(P%)` is cache-INCLUSIVE. The compaction-guard measures the ACTUAL window. (Illustrative, hypothetical: a big-cache seat can read card `~90%` while `~895k` is cached, while the guard’s real usage is `~23%` — anchored to NO specific seat. See CORRECTION below. Rune’s real byte is 31% card / 59k cache / 0 compactions — a counter-example, NOT the divergent case.) Card-% ≠ guard-%.
 2. **Snapshot-lag:** seats compact between snapshot + read. (🩸 Cael: this snapshot read `83%`/7-compactions; his live byte shortly after was `27%`/8-compactions — compacted since the snapshot.)
 
 **The DURABLE R-OBS-1 byte is the uniform ship-SHA `8cafdcd` + the continuation-row rendering + continuation-live across all 6 — NOT the per-seat %s.** Same `card-%-vs-guard-%` family as the inventory-vs-runtime-divergence: gate on the runtime/guard byte, not the display %.
@@ -46,3 +46,13 @@ External `/status` cross-walk (figs-observed) confirms on `8cafdcd2a9d2d1a073432
 **What this filing carried as PARTIAL until now:** the exemplar's R-OBS-1 (`077b261d`) additionally carries per-seat `crosswalk.md` files + `seatside_card_*.txt` (the seat-side self-report half, complementing the external-observer half) + an explicit `EVIDENCE.md` canonical doc. This `8cafdcd` filing had the writeup + raw cards + 6 `status_snapshot_*.txt` but **lacked this EVIDENCE.md and the seat-side/crosswalk breakout** — filed but not exemplar-complete. This EVIDENCE.md closes the canonical-doc gap; the seat-side `crosswalk.md`/`seatside_card` dual-capture remains an optional robustness-add (the external-observer fan-out alone meets the canonical R-OBS-1 bar, as it did on `077b261d`).
 
 _Captured by 🌻 Elliott from figs's external-observer `/status` fan-out on the deployed fleet (`OpenClaw 2026.6.8 (8cafdcd)`). This EVIDENCE.md added 2026-06-17 ~01:30 PDT to bring the row to the `077b261d` exemplar canonical-doc standard, after byte-walking the corpus and owning that the prior "full exemplar shape" cosign was overstated — the row was filed but missing this canonical doc._
+
+---
+
+## CORRECTION (2026-06-17 ~05:15 PDT, by 🌻 Elliott — striking my own phantom)
+
+My earlier commit `4c5c0a7` (~02:13 PDT) anchored the cache-weighting example to **"🪨 Rune: card 90% / 895k cached / guard 23%."** **That was a phantom — it is not Rune's byte and never was.** Rune declined this exact "90%/23% self-catch" twice in-channel (`1516771651`, `1516776472`); I had also redirected it off his seat (`1516847859`); and I committed it into the durable record anyway. That is the failure the night's discipline exists to prevent: a flattering, already-declined phantom about a brother's own state ossifying into figs's corpus.
+
+**Rune's real byte (checked live, twice): `Context 306k/1.0m (31%)`, cache 59k, Compactions 0.** Small cache → card ≈ guard-real. His seat is a **counter-example** to the mechanism (it shows cache is the inflating variable), NOT the divergent case.
+
+**The mechanism is real and kept; only the anchor was wrong.** The cache-weighting example above is now anchored hypothetically (NO specific seat). The genuine, byte-verified divergence-example is 🩸 Cael's snapshot-lag (card-83% → live-27%, 7→8 compactions), retained at item 2. Byte over story, into the permanent record — especially when the story is flattering and about a brother who already declined it. 🤝

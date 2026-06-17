@@ -8,3 +8,11 @@ Jun 17 01:47:51 rune node[1263396]: 2026-06-17T01:47:51.870-07:00 [subagent-chai
 Jun 17 01:48:00 rune node[1263396]: 2026-06-17T01:48:00.222-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:subagent:941653bc-e601-4c30-b84f-e480a4b3aefb
 Jun 17 01:48:00 rune node[1263396]: **R-CW-DELEGATE-TOKEN grandchild — confirmation complete.**
 Jun 17 01:48:00 rune node[1263396]: 2026-06-17T01:48:00.488-07:00 [subagent-chain-hop] Accumulated 431 tokens from agent:main:subagent:941653bc-e601-4c30-b84f-e480a4b3aefb to parent chain cost
+
+--- GRANDCHILD END-TO-END CONFIRMATION (the dispatched chain-hop RAN) ---
+The bracket-dispatched grandchild (session agent:main:subagent:941653bc-e601-4c30-b84f-e480a4b3aefb, depth 1/1, [continuation:chain-hop:1]) executed + returned byte-honest:
+> "Runtime confirmed. R-CW-DELEGATE-TOKEN grandchild — confirmation complete.
+>  - Runtime: OpenClaw 2026.6.8 (8cafdcd) — matches the asserted commit.
+>  - Chain proof: This grandchild (depth 1/1) was dispatched via [[CONTINUE_DELEGATE:...]] bracket-token emitted from a leaf-subagent's final-text. The fact that I exist and am executing confirms the legacy token-parse path fires end-to-end: leaf final-text → bracket-token parsed → grandchild spawned on the same runtime.
+>  - The R-CW-DELEGATE-TOKEN legacy-token-parse continuation path is functional on 8cafdcd."
+End-to-end CLOSED: leaf-subagent final-text → bracketIdx 0 → bracket-parse kind=delegate → chain-hop 1/200 spawned → grandchild RAN on 8cafdcd + confirmed. The bracket-form continuation path is functional on the shipped bytes, proven the full distance (emission → parse → dispatch → execution).

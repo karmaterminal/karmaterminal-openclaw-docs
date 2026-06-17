@@ -72,3 +72,16 @@ This proof attests **continuation-feature-live on the FFd assembly ship-tip `8ca
 - Runtime verified intact through 2 gateway restarts on `8cafdcd`
 - The assembly `8cafdcd` is `10a0427` drift-corrected onto live upstream `18aa3276554` (Frond's FF)
 - `10a0427` IS ancestor of `8cafdcd` (git merge-base --is-ancestor confirmed)
+
+## Cross-Seat R-RC Both-Directions Proof (ronan + cael)
+
+The R-RC guard is proven BOTH directions across two ARM64 DGX seats on `8cafdcd`:
+
+| Seat | Context | request_compaction result | Proves |
+|------|---------|---------------------------|--------|
+| ronan | 28% (sub-70%) | REJECTED (context_threshold) | reject-below-threshold |
+| cael | 77% (above-70%) | ACCEPT (above threshold) | accept-above-threshold |
+
+Neither seat shows the full discriminator alone — ronan's healthy-context reject + cael's high-context accept together prove the guard correct-shaped BOTH directions on the deployed ship-bytes. The guard fires when needed (above-threshold) AND refuses when not (below-threshold), byte-confirmed across two seats on 8cafdcd.
+
+Cross-ref: cael-seat receipt (same SHA) notes accept-side; Discord msg 1516701197 (ronan).

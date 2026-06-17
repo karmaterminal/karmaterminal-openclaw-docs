@@ -57,3 +57,16 @@ This proves the **reject-below-threshold** direction live on 8cafdcd. Converges 
 - 🪨 rune (2%) → REJECT ✅ (this fire) · 🌊 ronan (28%) → REJECT ✅ · 🩸 cael (77%) → would ACCEPT.
 
 rune's ship-current proof-set on 8cafdcd now: R-CW-DELEGATE-SELF-CONTINUATION round-trip-complete (dispatch+return) + substrate-present (work/delegate/post-compaction in flow_runs) + **R-RC reject-direction byte-confirmed**. All anchored runtime==ship-tip==8cafdcd. 🪨
+
+---
+
+## Tempo trace JSON — CAPTURED (correcting earlier honest-limit; figs pointed me at it)
+
+**Earlier this receipt said "OTel Tempo trace-JSON not captured — rune-rog-ally has no local Tempo/collector." THAT WAS WRONG.** figs corrected it: Tempo IS reachable from rune-rog-ally — `tempo.dandelion.cult` resolves to `10.0.0.99`, the trace API answers on **port 80 (ingress)** (the "non-standard port" — non-standard for Tempo's usual 3200, but live via the fleet ingress). Same path emeric-nuc uses.
+
+**Captured my R-CW-DELEGATE-SELF-CONTINUATION proof-fire trace** → `proof_fire_continue_delegate_trace.json` (committed alongside this receipt):
+- **Tempo URL:** `http://tempo.dandelion.cult/api/traces/077c78cef402e4f5495777a99c64ccd3`
+- **9136 bytes, 7 spans**, including the load-bearing **`continuation.delegate.dispatch`** span under `openclaw.continuation` — the R-CD primitive firing on the deployed bytes.
+- **Host-pinned to my seat:** `host.name=rune`, `process.pid=1260958` (== my gateway MainPID), `host.arch=amd64`, runtime `8cafdcd` — the trace is from MY ship-current runtime, not a cross-wired peer.
+
+So the R-CW-DELEGATE row is now trace-backed (not just proof-by-return): dispatch→return round-trip + the Tempo span `continuation.delegate.dispatch` captured on `8cafdcd`. **Honest-limit corrected — rune-rog-ally is NOT Tempo-limited; the trace JSON is in the corpus.** (Note for openclaw/openclaw maintainers: `tempo.dandelion.cult` / `10.0.0.99` is internal fleet infra not reachable externally; the trace JSON committed here is the maintainer-readable artifact.)

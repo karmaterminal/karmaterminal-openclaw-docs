@@ -1,0 +1,15 @@
+Emeric :candle:
+:lobster: OpenClaw 2026.6.8 (8cafdcd)
+:stopwatch: Uptime: gateway 11m 29s · system 23d 3h
+:brain: Model: github-copilot/claude-opus-4.8 · :key: token (github-copilot:github)
+:arrows_counterclockwise: Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai/gpt-5.5
+:abacus: Tokens: 6 in / 2.5k out · :dollar: Cost: $0.0000
+:file_cabinet: Cache: 100% hit · 238k cached, 503 new
+:books: Context: 241k/1.0m (24%) · :broom: Compactions: 7
+:bar_chart: Usage: Premium 100% left · Chat 100% left
+:thread: Session: agent:main:discord:channel:1466192485440164011 • updated 1m ago
+:pushpin: Tasks: recently finished · subagent · [continuation:chain-hop:1] Delegated task (turn 1/200): PROOF-FIRE (R-CW-DELEGA…
+:arrows_counterclockwise: Continuation: chain 0/200
+:gear: Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+:electric_plug: Plugins: OK
+:busts_in_silhouette: Activation: always · :knot: Queue: steer (depth 0)

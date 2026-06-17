@@ -1,0 +1,16 @@
+Ronan :ocean:
+:lobster: OpenClaw 2026.6.8 (8cafdcd)
+:stopwatch: Uptime: gateway 6m 31s · system 24d 11h
+:brain: Model: github-copilot/claude-opus-4.8 · :key: token (github-copilot:github)
+:arrows_counterclockwise: Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai/gpt-5.5
+:abacus: Tokens: 2 in / 1.4k out · :dollar: Cost: $0.0000
+:file_cabinet: Cache: 32% hit · 104k cached, 217k new
+:books: Context: 323k/1.0m (32%) · :broom: Compactions: 7
+:bar_chart: Usage: Premium 100% left · Chat 100% left
+:thread: Session: agent:main:discord:channel:1466192485440164011 • updated just now
+:pushpin: Tasks: 0 active · 1 total · agent-local
+:arrows_counterclockwise: Continuation: chain 0/200
+:gear: Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+:electric_plug: Plugins: OK
+:loud_sound: Voice: inbound · provider=microsoft · limit=1500 · summary=on
+:busts_in_silhouette: Activation: always · :knot: Queue: steer (depth 0)

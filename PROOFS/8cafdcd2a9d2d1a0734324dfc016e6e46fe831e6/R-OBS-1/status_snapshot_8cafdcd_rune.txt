@@ -1,0 +1,14 @@
+Rune:rock: 
+:lobster: OpenClaw 2026.6.8 (8cafdcd)
+:stopwatch: Uptime: gateway 4m 34s · system 15d 3h
+:brain: Model: github-copilot/claude-opus-4.8 · :key: token (github-copilot:github)
+:arrows_counterclockwise: Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai/gpt-5.5
+:abacus: Tokens: 4 in / 3.4k out · :dollar: Cost: $0.0000
+:file_cabinet: Cache: 100% hit · 895k cached, 1.5k new
+:books: Context: 896k/1.0m (90%) · :broom: Compactions: 7
+:bar_chart: Usage: Premium 100% left · Chat 100% left
+:thread: Session: agent:main:discord:channel:1466192485440164011 • updated 2m ago
+:arrows_counterclockwise: Continuation: chain 0/200
+:gear: Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+:electric_plug: Plugins: OK
+:busts_in_silhouette: Activation: always · :knot: Queue: steer (depth 0)

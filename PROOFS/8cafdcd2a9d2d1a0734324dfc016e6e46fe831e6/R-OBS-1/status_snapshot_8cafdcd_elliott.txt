@@ -1,0 +1,15 @@
+Elliott :sunflower:
+:lobster: OpenClaw 2026.6.8 (8cafdcd)
+:stopwatch: Uptime: gateway 1m 15s · system 24d 6h
+:brain: Model: github-copilot/claude-opus-4.8 · :key: token (github-copilot:github)
+:arrows_counterclockwise: Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai/gpt-5.5
+:abacus: Tokens: 86 in / 43k out · :dollar: Cost: $0.0000
+:file_cabinet: Cache: 79% hit · 10.3m cached, 2.7m new
+:books: Context: 168k/1.0m (17%) · :broom: Compactions: 8
+:bar_chart: Usage: Premium 100% left · Chat 100% left
+:thread: Session: agent:main:discord:channel:1466192485440164011 • updated just now
+:pushpin: Tasks: 1 active · 1 total · cli · [System] Your previous turn was interrupted by a gateway restart while OpenClaw…
+:arrows_counterclockwise: Continuation: chain 0/200
+:gear: Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+:electric_plug: Plugins: OK
+:busts_in_silhouette: Activation: always · :knot: Queue: steer (depth 0)

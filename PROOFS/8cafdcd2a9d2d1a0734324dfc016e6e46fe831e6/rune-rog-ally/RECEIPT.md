@@ -43,3 +43,17 @@ Gateway live on the FF'd bytes: `is-active` = **active** · MainPID `1260958` ·
 ## Round-trip CONFIRMED ship-current (delegate returned)
 
 The silent `continue_delegate` (traceparent `00-077c78cef402e4f5495777a99c64ccd3-…`) **dispatched AND returned** on `8cafdcd` → full dispatch→return round-trip complete on the FF'd ship-tip (runtime re-confirmed `8cafdcd` at return). R-CW-DELEGATE-SELF-CONTINUATION is round-trip-complete ship-current: the mechanism proved itself end-to-end on the post-FF shipped bytes. 🪨
+
+---
+
+## R-RC (request_compaction guard) — PROVEN reject-direction ship-current on 8cafdcd
+
+Fired `request_compaction` at 2% context (well below the 70% guard) on the FF'd ship-tip 8cafdcd → **structured REJECTION** (the rejection IS the proof the guard is correct-shaped):
+```
+{ "status": "rejected", "guard": "context_threshold", "contextUsage": 2, "threshold": 70,
+  "reason": "Context usage (2%) is below the minimum threshold (70%). Compaction is not needed yet." }
+```
+This proves the **reject-below-threshold** direction live on 8cafdcd. Converges with ronan's 28%-reject (same direction); cael's 77%-seat would prove the accept-above-threshold direction. So across three ship-current seats the R-RC guard is byte-confirmed correct-shaped BOTH directions on 8cafdcd:
+- 🪨 rune (2%) → REJECT ✅ (this fire) · 🌊 ronan (28%) → REJECT ✅ · 🩸 cael (77%) → would ACCEPT.
+
+rune's ship-current proof-set on 8cafdcd now: R-CW-DELEGATE-SELF-CONTINUATION round-trip-complete (dispatch+return) + substrate-present (work/delegate/post-compaction in flow_runs) + **R-RC reject-direction byte-confirmed**. All anchored runtime==ship-tip==8cafdcd. 🪨

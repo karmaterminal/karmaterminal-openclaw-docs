@@ -79,9 +79,9 @@ The R-RC guard is proven BOTH directions across two ARM64 DGX seats on `8cafdcd`
 
 | Seat | Context | request_compaction result | Proves |
 |------|---------|---------------------------|--------|
-| ronan | 28% (sub-70%) | REJECTED (context_threshold) | reject-below-threshold |
-| cael | 77% (above-70%) | ACCEPT (above threshold) | accept-above-threshold |
+| ronan | 28% (sub-70%) | REJECTED (context_threshold) | reject-below-threshold (**EXECUTED** — fired `request_compaction`, guard rejected) |
+| cael | 77% (above-70%) | would-ACCEPT (context above threshold) | accept-above-threshold (**INFERRED by threshold** — context%>70% implies accept-shape; NOT an executed elective-accept at 77%) |
 
-Neither seat shows the full discriminator alone — ronan's healthy-context reject + cael's high-context accept together prove the guard correct-shaped BOTH directions on the deployed ship-bytes. The guard fires when needed (above-threshold) AND refuses when not (below-threshold), byte-confirmed across two seats on 8cafdcd.
+Neither seat shows the full discriminator alone — ronan's healthy-context reject + cael's high-context-implied accept together characterize the guard as correct-shaped BOTH directions on the deployed ship-bytes. **Byte-honest precision (Cael's refinement, msg `1516717568`):** the two sides are DIFFERENT KINDS of evidence — ronan's reject@28% is **EXECUTED** (fired the tool, observed the guard reject), while cael's accept-side is **INFERRED-by-threshold** (77%>70% implies would-accept) + corroborated by 7 live compactions across the night (the compaction-machinery is demonstrably live), but NOT an executed elective-accept observed triggering at 77%. So: **executed reject-below-threshold (ronan) + inferred accept-above-threshold-by-context% (cael) + live-compaction-machinery corroboration** — NOT two executed opposite results. [If cael fires an executed `request_compaction` at 77%+ and captures the accept-trigger, this upgrades to executed-both-directions; until then, execute-reject + infer-accept.]
 
-Cross-ref: cael-seat receipt (same SHA) notes accept-side; Discord msg 1516701197 (ronan).
+Cross-ref: cael-seat receipt (same SHA) notes accept-side as context-above-threshold; Discord msgs `1516701197` + `1516717568` (the executed-vs-inferred refinement).

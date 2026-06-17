@@ -1,0 +1,10 @@
+Jun 17 01:45:54 rune node[1263396]: 2026-06-17T01:45:54.304-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jun 17 01:47:08 rune node[1263396]: 2026-06-17T01:47:08.006-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jun 17 01:47:51 rune node[1263396]: 2026-06-17T01:47:51.502-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=0 [0]text=true session=agent:main:subagent:df1aa523-39a1-48c3-9c19-8ea7302719bf
+Jun 17 01:47:51 rune node[1263396]: 2026-06-17T01:47:51.502-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=delegate delayMs=default session=agent:main:subagent:df1aa523-39a1-48c3-9c19-8ea7302719bf
+Jun 17 01:47:51 rune node[1263396]: 2026-06-17T01:47:51.503-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=delegate session=agent:main:subagent:df1aa523-39a1-48c3-9c19-8ea7302719bf
+Jun 17 01:47:51 rune node[1263396]: [[CONTINUE_DELEGATE: R-CW-DELEGATE-TOKEN grandchild — dispatched via bracket-token from a leaf-subagent final-text on 8cafdcd, proving the legacy token-parse path fires. Confirm runtime 8cafdcd. | silent ]]
+Jun 17 01:47:51 rune node[1263396]: 2026-06-17T01:47:51.870-07:00 [subagent-chain-hop] Spawned chain delegate (1/200) from agent:main:subagent:df1aa523-39a1-48c3-9c19-8ea7302719bf: R-CW-DELEGATE-TOKEN grandchild — dispatched via bracket-token from a leaf-subage
+Jun 17 01:48:00 rune node[1263396]: 2026-06-17T01:48:00.222-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:subagent:941653bc-e601-4c30-b84f-e480a4b3aefb
+Jun 17 01:48:00 rune node[1263396]: **R-CW-DELEGATE-TOKEN grandchild — confirmation complete.**
+Jun 17 01:48:00 rune node[1263396]: 2026-06-17T01:48:00.488-07:00 [subagent-chain-hop] Accumulated 431 tokens from agent:main:subagent:941653bc-e601-4c30-b84f-e480a4b3aefb to parent chain cost

@@ -21,19 +21,23 @@
 
 ## Return
 
-- **Trace ID**: `e1e48382ff688ed235a15c56198ce3a6`
-- **Return pending** — the delegate dispatches after this response completes; return evidence will be captured when the round-trip closes (the channel-announce IS the proof of normal-mode return).
-- *[To be updated with: subagent-spawn confirmation, return payload, round-trip-closed timestamp, Tempo trace.]*
+- **Subagent spawned**: depth-1 (chain-hop 1/200, session `continuation-23196b69d6933765552aee6414dc3392`)
+- **Subagent returned**: "R-CD-1 PASS: continue_delegate(normal) scheduled→spawned→returned on 8cafdcd. runtime=2026.6.8(8cafdcd), host=ronan, arch=arm64, pid=3376718. Round-trip closed."
+- **SHA-verified at return**: runtime `8cafdcd` == ship-tip (the delegate independently verified the runtime SHA via `openclaw --version`)
+- **Host-pinned**: host=ronan, arch=aarch64 (arm64), MainPID=3376718
+- **Channel-announce**: normal-mode return announced to the channel (visible delivery, confirming normal-mode behavior)
+- **Round-trip time**: ~9s (spawn → execute → return)
 
 ## Tempo Trace
 
 - **Trace ID**: `e1e48382ff688ed235a15c56198ce3a6`
-- **Capture**: pending round-trip — will pull from `http://tempo.dandelion.cult/api/traces/e1e48382ff688ed235a15c56198ce3a6` after the delegate returns.
-- *[To be updated with: byte-count, span-count, host-pin verification.]*
+- **Captured**: `turn_trace.json` (39,552 bytes, 13 batches, 30 spans)
+- **Host-pinned**: `host.name=ronan` (verified in trace JSON)
+- **Source**: Self-pulled from shared Tempo ingress `http://tempo.dandelion.cult/api/traces/e1e48382ff688ed235a15c56198ce3a6` (port 80)
 
-## Verdict (fire-side)
+## Verdict
 
-✅ **PASS (fire-side)** — `continue_delegate(mode=normal)` registered + scheduled on deployed `8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6`. Round-trip closure + Tempo trace pending the delegate's return.
+✅ **FULL PASS** — `continue_delegate(mode=normal)` dispatch→spawn→execute→SHA-verify→return on deployed `8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6`. Normal-mode channel-announce on return (visible delivery). Tempo trace captured (39KB, 30 spans, host=ronan/arm64). Round-trip-closed in ~9s on the FFd ship-tip.
 
 ## Both-forms note
 

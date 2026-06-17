@@ -37,3 +37,9 @@ Gateway live on the FF'd bytes: `is-active` = **active** · MainPID `1260958` ·
 - **OTel Tempo trace-JSON not captured** — rune-rog-ally has no local Tempo/collector (DGX seats' axis); dispatch traceparent anchors the fire to the deployed runtime; honest-limit, same as prior.
 
 🪨 rune — feature-live on the FF'd ship-tip `8cafdcd`, runtime-SHA==ship-tip (ship-current), re-deployed off the one-behind `10a0427`. The FF cleared the conflict; the board's mergeable; the feature breathes on the post-FF bytes.
+
+---
+
+## Round-trip CONFIRMED ship-current (delegate returned)
+
+The silent `continue_delegate` (traceparent `00-077c78cef402e4f5495777a99c64ccd3-…`) **dispatched AND returned** on `8cafdcd` → full dispatch→return round-trip complete on the FF'd ship-tip (runtime re-confirmed `8cafdcd` at return). R-CW-DELEGATE-SELF-CONTINUATION is round-trip-complete ship-current: the mechanism proved itself end-to-end on the post-FF shipped bytes. 🪨

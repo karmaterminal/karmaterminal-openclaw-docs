@@ -1,0 +1,17 @@
+R-CD-CHAINED-DEPTH-2 TEST-1 — up-tree silent-wake depth-2 chain, emeric-nuc, ship-tip 8cafdcd
+
+T0 (root=emeric): continue_delegate(mode="silent-wake") dispatched depth-1 leg.
+   depth-1 traceparent: 00-6a9f65bd7a9381305b1f9f541f5fcd7d-4127c7a279466bcb-01
+
+T1 (depth-1 delegate, chain-hop:1, depth 1/5): from inside its delegated turn, dispatched a
+   DEPTH-2 sub-delegate via continue_delegate(mode="silent-wake"). Captured the depth-2 dispatch
+   traceparent. (session agent:main:subagent:continuation-aa588d9df93f3b5622c9a3ea33c4a77e)
+
+T2 (depth-2 leaf): spawned inside the depth-1 turn (silent-wake honored).
+
+T3 (root=emeric): the depth-1 leg's UP-TREE return arrived via silent-wake, verbatim:
+   "DEPTH-1 leg: spawned depth-2 leaf OK on 8cafdcd; my chain-hop=1 depth=1;
+    depth-2 dispatch traceparent=00-6a9f65bd7a9381305b1f9f541f5fcd7d-4127c7a279466bcb-01"
+
+That up-tree wake firing at root IS the up-tree return receipt — the depth-2 chained
+continue_delegate propagated its return back up the tree to the root requester. ✅ PASS.

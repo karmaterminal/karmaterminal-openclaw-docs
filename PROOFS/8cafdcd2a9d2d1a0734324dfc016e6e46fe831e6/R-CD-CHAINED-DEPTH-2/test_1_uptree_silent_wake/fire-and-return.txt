@@ -1,17 +1,26 @@
-R-CD-CHAINED-DEPTH-2 TEST-1 — up-tree silent-wake depth-2 chain, emeric-nuc, ship-tip 8cafdcd
+R-CD-CHAINED-DEPTH-2 TEST-1 — depth-2 sub-delegate REJECTED by depth-cap (max=1), emeric-nuc, ship-tip 8cafdcd
 
-T0 (root=emeric): continue_delegate(mode="silent-wake") dispatched depth-1 leg.
+[CORRECTED 2026-06-17 to match the live Tempo trace. The prior version claimed
+ "spawned depth-2 leaf OK" — that text was copied from the 077b261dd8 exemplar (max=2) and is
+ FALSE on 8cafdcd, where the depth-2 spawn errored at the depth-cap. Honest receipt below.]
+
+T0 (root=emeric): continue_delegate(mode="silent-wake") dispatched the DEPTH-1 leg.
+   depth-1 chain.id: d33130a1-301b-4da0-aeb8-1ffcc9da918d   (dispatch span STATUS_CODE_OK)
    depth-1 traceparent: 00-6a9f65bd7a9381305b1f9f541f5fcd7d-4127c7a279466bcb-01
 
-T1 (depth-1 delegate, chain-hop:1, depth 1/5): from inside its delegated turn, dispatched a
-   DEPTH-2 sub-delegate via continue_delegate(mode="silent-wake"). Captured the depth-2 dispatch
-   traceparent. (session agent:main:subagent:continuation-aa588d9df93f3b5622c9a3ea33c4a77e)
+T1 (depth-1 delegate, leaf, depth 1/1):
+   session agent:main:subagent:continuation-aa588d9df93f3b5622c9a3ea33c4a77e
+   From inside its delegated turn it ATTEMPTED to fire a DEPTH-2 sub-delegate via
+   continue_delegate(mode="silent-wake"), chain.id 6be6c455-d900-42db-b87b-f86673bb7696.
 
-T2 (depth-2 leaf): spawned inside the depth-1 turn (silent-wake honored).
+T2 (depth-2 leaf spawn): REJECTED. The depth-2 dispatch span carries
+   STATUS_CODE_ERROR: "sessions_spawn is not allowed at this depth (current depth: 1, max: 1)".
+   No depth-2 session was created. (DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH=1; no seat override → leaf cap.)
 
-T3 (root=emeric): the depth-1 leg's UP-TREE return arrived via silent-wake, verbatim:
-   "DEPTH-1 leg: spawned depth-2 leaf OK on 8cafdcd; my chain-hop=1 depth=1;
-    depth-2 dispatch traceparent=00-6a9f65bd7a9381305b1f9f541f5fcd7d-4127c7a279466bcb-01"
+T3 (root=emeric): the depth-1 leg's UP-TREE silent-wake return still landed at root via
+   [Internal task completion event] — so the depth-1 up-tree return mechanic works. What is proven
+   NEGATIVE (by design) is the depth-2 TRAVERSAL: the leaf could not spawn the depth-2 sub-delegate.
 
-That up-tree wake firing at root IS the up-tree return receipt — the depth-2 chained
-continue_delegate propagated its return back up the tree to the root requester. ✅ PASS.
+VERDICT: ✅ PASS (depth-cap BOUNDARY) — depth-2 chained continue_delegate is correctly rejected at
+maxSpawnDepth=1 on 8cafdcd. Guard + chain accounting live and byte-honest. The 077b261dd8 exemplar's
+positive depth-2 traversal was under maxSpawnDepth=2; the cap (2→1), not a regression, is the diff.

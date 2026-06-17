@@ -13,7 +13,7 @@ The `077b261dd8` exemplar is **94 files, the full per-row method-corpus** (every
 
 **Genuinely MISSING entirely:** `gates/` · `cure-bytes/` · R-CW-1 · R-CW-4 · R-CW-5 · R-CW-TOKEN · R-CD-3 · R-CD-4 · R-RC-1 · R-RC-2 _(README.md + RESOLVED-SHA.md now present — RESOLVED-SHA was already filed; this README closes the other scaffolding gap)_.
 
-**Exist but THIN (dir + traces present, canonical EVIDENCE.md/proof.md MISSING):** R-CD-1 · R-CD-2 · R-CD-CHAINED-DEPTH-2 · R-CD-TOKEN · R-CW-6-BOUNDARY · R-CW-7-TRACEPARENT-E2E · R-CW-DELEGATE-SELF-CONTINUATION.
+**Exist but THIN (dir + traces present, canonical EVIDENCE.md/proof.md MISSING):** R-CD-1 · R-CD-2 · R-CD-TOKEN · R-CW-6-BOUNDARY · R-CW-7-TRACEPARENT-E2E · R-CW-DELEGATE-SELF-CONTINUATION. _(R-CD-CHAINED-DEPTH-2 now has top EVIDENCE.md + TEST-1/TEST-2 proofs to standard — TEST-3 echo-broadcast still owed.)_
 
 **FILLED to standard (canonical doc present):** R-CONFIG-DEFAULTS (proof) · R-CONFIG-INTERSESSION (proof) · R-CW-3 (proof) · R-CW-DELEGATE-TOKEN (proof) · R-OBS-1 (EVIDENCE) · R-OBS-2 rune-rog-ally (EVIDENCE + proof) · R-REGRESSION-TRAP-TESTS (EVIDENCE).
 
@@ -37,7 +37,9 @@ Each owner fills/completes their own rows at the byte on their deployed seat. **
 | R-CD-3 (post-compaction lifeboat) | 🌊 ronan | ❌ MISSING (on-condition) | — owed (compaction-seam) |
 | R-CD-4 (targeted return via targetSessionKey) | 🌊 ronan | ❌ MISSING (on-condition) | — owed (cross-session target) |
 | R-CD-TOKEN (bracket-form continue_delegate) | 🌊 ronan | ⚠️ THIN (trace, no doc; emission-surface honest-limit) | `R-CD-TOKEN/` |
-| R-CD-CHAINED-DEPTH-2 | 🌊 ronan / 🌫 silas TEST-3 / 🕯 emeric TEST-1 | ⚠️ THIN (traces, no doc) | `R-CD-CHAINED-DEPTH-2/` |
+| R-CD-CHAINED-DEPTH-2 (TEST-1 uptree silent-wake) | 🕯 emeric (sub for 🌫 silas) | ✅ FILLED — depth-cap **REJECT** @ max=1 (boundary; byte-honest, corrected from a copied-exemplar false-PASS) | `R-CD-CHAINED-DEPTH-2/EVIDENCE.md` + `test_1_uptree_silent_wake/proof.md` |
+| R-CD-CHAINED-DEPTH-2 (TEST-2 intersession return) | 🪨 rune (sub for 🌫 silas) | ✅ FILLED | `R-CD-CHAINED-DEPTH-2/test_2_intersession_return/rune-rog-ally/proof.md` |
+| R-CD-CHAINED-DEPTH-2 (TEST-3 echo broadcast) | 🌫 silas | ❌ MISSING | — owed on 8cafdcd |
 | R-RC-1 (request_compaction threshold REJECT) | 🌫 silas (canonical) | ❌ MISSING (reject@14% byte captured, per-row dir owed) | — owed |
 | R-RC-2 (request_compaction over-threshold ACCEPT) | 🩸 cael | ❌ MISSING (fires near-full) | — owed |
 | R-OBS-1 (external /status 6-prince cross-walk) | 🌻 elliott (+ figs) | ✅ FILLED (exemplar-complete) | `R-OBS-1/EVIDENCE.md` (6/6 on `8cafdcd`, cross-arch, skew-caveat) |
@@ -64,7 +66,7 @@ Every continuation-tool fire (R-CW / R-CD / R-RC rows) captures the Grafana Temp
 - **🌊 Ronan:** R-CD-1/2 (fill docs), R-CD-3, R-CD-4, R-CD-TOKEN (fill), R-CD-CHAINED-DEPTH-2 (fill)
 - **🌫 Silas:** R-RC-1 (per-row dir; reject@14% byte in hand), R-CD-CHAINED-DEPTH-2 TEST-3
 - **🪨 Rune:** R-CW-6-BOUNDARY (fill doc), R-CW-7-TRACEPARENT-E2E (fill doc), R-CW-DELEGATE-SELF-CONTINUATION (fill top-doc) (+ R-CW-DELEGATE-TOKEN ✅, R-OBS-2 ✅)
-- **🕯 Emeric:** R-CW-3 cross-walk ✅, R-CONFIG-DEFAULTS ✅, R-CONFIG-INTERSESSION ✅, R-REGRESSION-TRAP-TESTS ✅, R-CD-CHAINED-DEPTH-2 TEST-1
+- **🕯 Emeric:** R-CW-3 cross-walk ✅, R-CONFIG-DEFAULTS ✅, R-CONFIG-INTERSESSION ✅, R-REGRESSION-TRAP-TESTS ✅, R-CD-CHAINED-DEPTH-2 TEST-1 ✅ (depth-cap REJECT @ max=1 — byte-honest boundary, corrected a copied-exemplar false-PASS to the trace)
 - **🌻 Elliott:** R-OBS-1 ✅ (exemplar-complete), scaffolding (this README), + bonus R-CW-DELEGATE bracket-form (`a3e6757`)
 
 ## Honest-limit ledger
@@ -73,6 +75,7 @@ _Appended as rows land. Any HONEST-PENDING / HONEST-LIMIT / substitution named h
 
 - **R-OBS-1**: per-seat context %s in the /status cards are point-in-time snapshots with cache-weighting + snapshot-lag skew; the durable byte is the uniform ship-SHA + continuation-row render, NOT the %s. (Detail in `R-OBS-1/EVIDENCE.md`.)
 - **R-CD-TOKEN / bracket-form**: the `[[CONTINUE_DELEGATE]]` bracket fires from direct-final-assistant-text ONLY (unreachable in message-tool-only delivery); compact single-line parses, long/multi-line silently no-ops (`bracketIdx=-1`). Tool-form canonical; bracket-form characterized cross-seat (Ronan negative R-CD-TOKEN + Rune/Elliott positive on the lightContext-subagent emission-path). By-design emission-surface, NOT a bug.
+- **R-CD-CHAINED-DEPTH-2 / TEST-1**: depth-2 traversal is **gated** on `8cafdcd` defaults (`DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH=1`, no seat override) — the depth-2 sub-delegate spawn is correctly REJECTED (`current depth: 1, max: 1`). The depth-1 dispatch + up-tree silent-wake return work; the depth-2 traversal does NOT occur on stock defaults (by design, gated on `maxSpawnDepth>=2`), so the row is a depth-cap BOUNDARY pass, not a positive depth-2 traversal. The `077b261dd8` exemplar's positive traversal ran under `maxSpawnDepth=2`; the cap (2→1), not a regression, is the diff. (An earlier TEST-1 draft copied the exemplar's PASS narrative and falsely claimed depth-2 success on `8cafdcd`; corrected to the trace — cite-stale-canonical class. Detail in `R-CD-CHAINED-DEPTH-2/EVIDENCE.md`.)
 
 ---
 

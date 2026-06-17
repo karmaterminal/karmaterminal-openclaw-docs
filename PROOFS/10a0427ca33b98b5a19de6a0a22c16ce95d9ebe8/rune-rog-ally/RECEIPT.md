@@ -39,3 +39,9 @@ Gateway live on the deployed bytes: `systemctl is-active` = **active** · MainPI
 - **CANDIDATE_SHA caveat:** `10a0427c` is the PR-tip at proof-time; if the conflict-clean rebase advances the head, re-prove on the new tip. This receipt anchors the deployed-bytes-at-proof-time.
 
 🪨 rune — feature-live on `10a0427c`, runtime-SHA==ship-tip, dispatch round-trip live. The fix landed green; the open item is the rebase.
+
+---
+
+## Round-trip CONFIRMED (delegate returned)
+
+**Update:** the silent `continue_delegate` (traceparent `00-ac1ae7937a186c7b5aaf36a1b26cf301-…`) **dispatched AND returned** to context — the full **dispatch→return round-trip** completed on the deployed `10a0427c` runtime (runtime-SHA re-confirmed `10a0427` at return). So R-CW-DELEGATE-SELF-CONTINUATION is not just dispatch-clean but **round-trip-complete**: the mechanism proved itself end-to-end on the deployed PR-tip bytes — dispatched on `10a0427c`, returned to context = continue_delegate works on the shipped code. 🪨

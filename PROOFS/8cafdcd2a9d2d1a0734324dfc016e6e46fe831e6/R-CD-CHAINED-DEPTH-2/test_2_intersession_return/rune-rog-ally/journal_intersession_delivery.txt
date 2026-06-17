@@ -1,0 +1,5 @@
+Jun 17 01:34:32 rune node[1263396]: 2026-06-17T01:34:32.341-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=2/200 mode=silent session=agent:main:discord:channel:1466192485440164011 task=R-CD-CHAINED-DEPTH-2 TEST-2 (intersession return, rune-rog-ally sub-for-Silas, o
+Jun 17 01:34:40 rune node[1263396]: R-CD-TEST-2 intersession-return landed at cron-session agent:main:cron:19ff1824 — runtime 8cafdcd, return routed cross-session NOT to the dispatching channel.
+Jun 17 01:34:40 rune node[1263396]: - **Return marker emitted** for `targetSessionKey` intersession-return register validation ✓
+Jun 17 01:34:40 rune node[1263396]: The cross-session-delivery byte is the dispatch-response (`targetSessionKey` echoed) plus the journal targeted-return line confirming return routed to the cron watch-session rather than the dispatching channel session.
+Jun 17 01:34:40 rune node[1263396]: 2026-06-17T01:34:40.760-07:00 [continuation:targeted-return] Delivered to agent:main:cron:19ff1824-a2a4-4997-a1c4-1bcaeb95eeaf from agent:main:subagent:continuation-74f6ac9b8fd8180d881583b11f49300f

@@ -1,0 +1,5 @@
+blocked|2
+cancelled|4
+failed|11
+queued|37
+succeeded|579

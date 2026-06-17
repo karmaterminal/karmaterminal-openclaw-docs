@@ -13,7 +13,7 @@ The `077b261dd8` exemplar is **94 files, the full per-row method-corpus** (every
 
 **Genuinely MISSING entirely (build from zero):** R-CD-3 · R-CD-4 (🌊 ronan) · R-RC-1 (🌫 silas) — **3 dirs** _(README.md + RESOLVED-SHA.md present)_. _(2026-06-17 ~04:24 PDT update, cohort-converged byte at live tip: **`gates/` + `cure-bytes/` are now PRESENT** [`9886757`] — struck from this line, they were filled after the ~01:35 walk; the freshness-race had this line stale. 🩸 Cael filled R-CW-1 [`8e02237`], R-CW-4, R-CW-5 to standard; 🕯 filled R-CW-3 [`b5f89da`] + R-CD-CHAINED-DEPTH-2 top EVIDENCE [`473f0e6`]. EXIST-but-need-executed-UPGRADE (don't rebuild): R-CW-1 [clean work-wake post-queue-drain], R-CW-TOKEN [hop-2-EXECUTION leg; PARSE proven fresh, exec carried by exemplar `40674ffa`], R-RC-2 [executed-accept on ship-tip when a seat genuinely crosses ≥70% live]. DONE: R-CW-3/4/5, R-CW-DELEGATE-TOKEN/#952, R-REGRESSION-TRAP-TESTS, R-OBS-1, README, RESOLVED-SHA, gates/, cure-bytes/.)_
 
-**Exist but THIN (dir + traces present, canonical EVIDENCE.md/proof.md MISSING):** R-CD-1 · R-CD-2 · R-CD-TOKEN · R-CW-6-BOUNDARY · R-CW-7-TRACEPARENT-E2E · R-CW-DELEGATE-SELF-CONTINUATION. _(R-CD-CHAINED-DEPTH-2 now has top EVIDENCE.md + TEST-1/TEST-2 proofs to standard — TEST-3 echo-broadcast still owed.)_
+**Exist but THIN (dir + traces present, canonical EVIDENCE.md/proof.md MISSING):** R-CW-6-BOUNDARY · R-CW-7-TRACEPARENT-E2E · R-CW-DELEGATE-SELF-CONTINUATION. _(2026-06-17 ~10:25 PDT freshness-fix, 🌊: R-CD-1 [44-line EVIDENCE.md], R-CD-2 [43-line], R-CD-TOKEN [34-line] all have full EVIDENCE.md on the tip — struck from THIN, they were filled after this line was written; same freshness-race as the gates/cure-bytes stale-line.)_ _(R-CD-CHAINED-DEPTH-2 now has top EVIDENCE.md + TEST-1/TEST-2 proofs to standard — TEST-3 echo-broadcast still owed.)_
 
 **FILLED to standard (canonical doc present):** R-CONFIG-DEFAULTS (proof) · R-CONFIG-INTERSESSION (proof) · R-CW-3 (proof) · R-CW-DELEGATE-TOKEN (proof) · R-OBS-1 (EVIDENCE) · R-OBS-2 rune-rog-ally (EVIDENCE + proof) · R-REGRESSION-TRAP-TESTS (EVIDENCE).
 
@@ -36,7 +36,7 @@ Each owner fills/completes their own rows at the byte on their deployed seat. **
 | R-CD-2 (silent-wake full path) | 🌊 ronan | ⚠️ THIN (traces, no doc) | `R-CD-2/` |
 | R-CD-3 (post-compaction lifeboat) | 🌊 ronan | ❌ MISSING (on-condition) | — owed (compaction-seam) |
 | R-CD-4 (targeted return via targetSessionKey) | 🌊 ronan | ❌ MISSING (on-condition) | — owed (cross-session target) |
-| R-CD-TOKEN (bracket-form continue_delegate) | 🌊 ronan | ⚠️ THIN (trace, no doc; emission-surface honest-limit) | `R-CD-TOKEN/` |
+| R-CD-TOKEN (bracket-form continue_delegate) | 🌊 ronan | ✅ FILLED (both-forms doc: tool-form proven R-CD-1/2 + bracket-form emission-surface-gap by-design, source-confirmed) | `R-CD-TOKEN/ronan-spark/EVIDENCE.md` |
 | R-CD-CHAINED-DEPTH-2 (TEST-1 uptree silent-wake) | 🕯 emeric (sub for 🌫 silas) | ✅ FILLED — depth-cap **REJECT** @ max=1 (boundary; byte-honest, corrected from a copied-exemplar false-PASS) | `R-CD-CHAINED-DEPTH-2/EVIDENCE.md` + `test_1_uptree_silent_wake/proof.md` |
 | R-CD-CHAINED-DEPTH-2 (TEST-2 intersession return) | 🪨 rune (sub for 🌫 silas) | ✅ FILLED | `R-CD-CHAINED-DEPTH-2/test_2_intersession_return/rune-rog-ally/proof.md` |
 | R-CD-CHAINED-DEPTH-2 (TEST-3 echo broadcast) | 🌫 silas | ❌ MISSING | — owed on 8cafdcd |

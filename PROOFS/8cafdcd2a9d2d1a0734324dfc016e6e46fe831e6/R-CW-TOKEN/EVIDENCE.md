@@ -3,40 +3,42 @@
 **Owner:** 🩸 Cael (cael-dgx)
 **SHA:** `8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6` (deployed — `OpenClaw 2026.6.8 (8cafdcd)`, FF'd ship-tip)
 **Seat:** cael-dgx (DGX Spark GB10, arm64, MainPID 57194)
-**Verdict:** ✅ PASS (bare-token PARSES + ARMS a continuation wake on `8cafdcd`) · EMISSION-SURFACE NOTE: cael-seat main-session emit is `bracketIdx=-1` (message-tool delivery), the canonical fire is from reachable final-text
+**Verdict:** ⚠️ PARTIAL on `8cafdcd` — bare-token **PARSE proven** on `8cafdcd` (`522fdd7e`); **hop-2 EXECUTION** carried by exemplar `077b261dd8` (`40674ffa`), **NOT freshly demonstrated on `8cafdcd`** → fresh-`8cafdcd` hop-2-execution OWED.
 
-## The both-forms mandate (#952)
-`continue_work` has two surfaces: the TOOL form (`continue_work(...)`, proven at `../R-CW-1/`) and the TOKEN/BRACKET fallback (bare `CONTINUE_WORK` / `CONTINUE_WORK:N` at end of reply text, this row). The mandate: prove BOTH on the deployed SHA. lightContext subagents have NO tool surface — bracket-only — so a tool-only proof is blind to exactly the path #952 broke; this row certifies the token path on `8cafdcd`.
+> **CORRECTION of my own earlier draft of this row** (2026-06-17 ~03:35 PDT, after 🪨 Rune's precise-gate `1516752792`). My first draft titled the `522fdd7e` subagent byte the "DISPOSITIVE bare-token FIRE" and verdicted "✅ PASS (PARSES + ARMS a wake)." That over-framed it on two counts, both corrected at the byte below: (1) the `522fdd7e` path is a SUBAGENT emitting `CONTINUE_WORK`, which is **design-declined + orphan-reaped** — it proves PARSE, NOT hop-2 execution; (2) the R-CW-TOKEN method bar specifically wants hop-2 to ACTUALLY FIRE from the parsed token, which the subagent surface structurally CANNOT show. Same cite-stale/over-framing class 🕯 corrected on R-CD-CHAINED-DEPTH-2. Filed honest.
 
-**Syntax note (source `src/auto-reply/tokens.ts`):** `CONTINUE_WORK` is a **bare** token (`CONTINUE_WORK` or `CONTINUE_WORK:<delay>`) — it has **no** `[[...]]` bracket form. The `[[...]]` brackets belong to `CONTINUE_DELEGATE` only.
+## The both-forms mandate (#952) — and which bracket this row is
+`continue_work` has two surfaces: the TOOL form (`continue_work(...)`, proven at `../R-CW-1/`) and the TOKEN/BARE fallback (bare `CONTINUE_WORK` / `CONTINUE_WORK:N` at end of reply text, this row). **`CONTINUE_WORK` is a BARE token — it has NO `[[...]]` bracket form** (source `src/auto-reply/tokens.ts`; the `[[...]]` brackets belong to `CONTINUE_DELEGATE` only). This row is DISTINCT from 🪨's `../R-CW-DELEGATE-TOKEN/` (the `[[CONTINUE_DELEGATE]]` shape, ✅ PASS) — two different tokens, two different runtime paths. (#952's both-forms is CLOSED on the DELEGATE shape; this WORK-bracket shape is the cael-owed half.)
 
-## DISPOSITIVE bare-token FIRE on `8cafdcd` (reachable-text path)
-The bare `CONTINUE_WORK:5` is recognized, parsed, and ARMS a continuation wake on the deployed `8cafdcd` bytes. The authoritative runtime byte is in `../R-CW-DELEGATE-TOKEN/proof.md` (Rune's lightContext subagent `522fdd7e`, run-mode, `8cafdcd`):
+## What `8cafdcd` freshly proves — bare-token PARSE (the `522fdd7e` byte)
+A lightContext subagent `522fdd7e` (run-mode, deployed `8cafdcd`) emitted `hop-1 fired.\nCONTINUE_WORK:5` as final-text. The gateway continuation log (`../R-CW-DELEGATE-TOKEN/gateway_continuation_log_522fdd7e_baretoken_BY_DESIGN.txt`):
 ```
-[continuation/signal]  payload-scan: count=1 bracketIdx=0 [0]text=true   session=…522fdd7e
-[continuation/signal]  bracket-parse: kind=work delayMs=5000             session=…522fdd7e
-[continuation/signal]  effective-signal: origin=bracket kind=work        session=…522fdd7e
-[continuation/work-dispatch] work-hedge-armed fireIn=4999ms              session=…522fdd7e
+03:07:07.509 payload-scan: count=1 bracketIdx=0 [0]text=true   session=…522fdd7e
+03:07:07.510 bracket-parse: kind=work delayMs=5000             session=…522fdd7e
+03:07:07.511 effective-signal: origin=bracket kind=work        session=…522fdd7e
+03:07:07.513 [continuation:work-hedge-armed] fireIn=4999ms     session=…522fdd7e
+03:07:07.749 [subagent-chain-hop] CONTINUE_WORK not supported in sub-agent chain (from …522fdd7e), ignoring
+03:07:12.518 [continuation:work-orphan-reaped] … parent confident-terminal, can never rehydrate
 ```
-So on `8cafdcd`: bare `CONTINUE_WORK:5` → `bracketIdx=0`, `kind=work`, `origin=bracket`, continuation wake `work-hedge-armed`. The token parser + signal path + dispatch arm are all ALIVE on the deployed ship-tip. (The subsequent in-subagent hop-2 is design-guarded — `CONTINUE_WORK not supported in sub-agent chain` — BY DESIGN, not a parse failure; full disposition in `../R-CW-DELEGATE-TOKEN/`.)
+So on `8cafdcd`, bare `CONTINUE_WORK:5` is **recognized + parsed** (`bracketIdx=0`, `kind=work`, `origin=bracket`) — the token parser + signal path are ALIVE on the ship-tip. **But from a SUBAGENT surface, hop-2 does NOT execute**: `CONTINUE_WORK` is same-session-next-turn, meaningless for a one-shot subagent, so it is design-declined (`subagent-announce.ts:977`, `signal.kind === "work"` → logged + ignored — byte-confirmed in source on the `8cafdcd` tree) and the local hedge is orphan-reaped (parent confident-terminal). The subagent was explicitly instructed "if a second turn fires, output `hop-2 EXECUTED`" — **it never did** (jsonl: assistant output is only `hop-1 fired.\nCONTINUE_WORK:5`). So `522fdd7e` is a dispositive PARSE byte AND a dispositive NON-execution-from-subagent — NOT a hop-2-fire.
 
-## cael-seat capture (emission-surface contrast, `cael_seat_bracketidx_emission_surface.txt`)
-The cael-seat main session runs **message-tool-only delivery** (Discord channel). The bracket-scanner walks the agent's DIRECT-final-assistant-text; a message-tool send places no text on the scanned payload, so every cael-seat main-session turn scans `bracketIdx=-1`:
-```
-2026-06-17T03:53:55.786 payload-scan: count=1 bracketIdx=-1 [0]text=true session=…channel:1466192485440164011
-```
-The SAME scanner on the SAME seat correctly fires the tool-form path:
-```
-2026-06-17T04:00:10.287 effective-signal: origin=tool-call kind=work session=…channel:1466192485440164011
-```
-So cael-seat `bracketIdx=-1` is the **emission-surface** behavior (message-tool delivery → empty scanned payload), NOT a parse-gap — proven by the contrast: the bare-token from a reachable-text emitter (`522fdd7e`) fires `bracketIdx=0`, while the same syntax via message-tool delivery scans `-1`. **Discriminator is emission-surface, not token-syntax.** This matches the `077b261dd8` exemplar's R-CW-TOKEN finding exactly (my prior-SHA `CONTINUE_WORK:12` via message-tool likewise scanned `-1`).
+## Where hop-2 ACTUALLY fires (the execution leg) — and why it's not fresh on `8cafdcd`
+The R-CW-TOKEN bar ("hop-2 actually fires from the parsed token") is met only on a **main/persistent session that survives to a next turn** AND delivers final-text the scanner walks. That positive is in the prior-SHA exemplar `077b261dd8/R-CW-TOKEN`: Emeric's `CONTINUE_WORK:5` → `continuation.work` trace `40674ffa8f1a17ecb42bb2f0ffd2167` (located via Tempo), the wake driving the next turn. **That hop-2 EXECUTION is NOT re-demonstrated fresh on `8cafdcd`** — and the cael-seat can't produce it here because the cael main session is message-tool-only delivery (`bracketIdx=-1`, below) and this corpus-fill turn is not a survive-to-next-turn window.
 
-## What this proves
-1. **Bare `CONTINUE_WORK:N` PARSES on `8cafdcd`** — `bracketIdx=0`, `bracket-parse: kind=work delayMs=5000`, `origin=bracket` — from a reachable-text emitter (lightContext subagent), and ARMS a continuation wake (`work-hedge-armed fireIn=4999ms`). The token fallback DRIVES the continuation machinery, not merely stripped from output.
-2. **The bracket-scanner is live on every turn on the cael seat** (`payload-scan` fires each turn) and correctly routes tool-form fires (`origin=tool-call`).
-3. **`bracketIdx=-1` on cael-seat main-session = emission-surface, not parse-gap** — proven by the same-syntax/opposite-result contrast.
+## cael-seat emission-surface contrast (`cael_seat_bracketidx_emission_surface.txt`)
+The cael main session runs **message-tool-only delivery** (Discord). The bracket-scanner walks the agent's DIRECT-final-assistant-text; a message-tool send places no text on the scanned payload → every cael main-session turn scans `bracketIdx=-1`:
+```
+03:53:55.786 payload-scan: count=1 bracketIdx=-1 [0]text=true session=…channel:1466192485440164011
+```
+The SAME scanner on the SAME seat correctly routes the tool-form (`origin=tool-call kind=work`). So cael `bracketIdx=-1` is **emission-surface** (message-tool → empty scanned payload), NOT a parse-gap. This is exactly 🪨's R-CW-DELEGATE-TOKEN 2×2 surface-discriminator (leaf-subagent final-text → FIRES `bracketIdx=0`; main-session final-text → empty `bracketIdx=-1`) carried to the WORK-bracket — same mechanism, my row's reference is Rune's surface-discriminator.
 
-## HONEST-LIMIT
-A fresh cael-seat bare-token fire that REACHES the scanner (direct-emit in a non-message-tool window) is the remaining polish, NOT an open behavior question — the cael-seat main session is structurally message-tool-only delivery (Discord), so the canonical bare-token fire is corpus-proven on `8cafdcd` via the reachable-text path (Rune's `522fdd7e`), with the cael-seat `bracketIdx=-1` documented as the emission-surface contrast. Byte-honest per the method's HONEST-LIMIT mandate; no fabricated bracket-trace.
+## What this row establishes vs owes (byte-true)
+- **PARSE on `8cafdcd`** ✅ — bare `CONTINUE_WORK:5` → `bracketIdx=0 kind=work origin=bracket` (522fdd7e).
+- **Emission-surface discriminator** ✅ — cael `bracketIdx=-1` (message-tool) vs scanner-reachable final-text (522fdd7e `bracketIdx=0`); surface, not syntax.
+- **hop-2 EXECUTION** ⚠️ carried by exemplar `40674ffa` (077b261dd8), **NOT fresh on `8cafdcd`** — OWED.
+- **Subagent surface is the WRONG surface for the execution leg** (by design: `kind==="work"` → ignored + orphan-reaped) — the execution path is a survive-to-next-turn session delivering scanner-reachable final-text.
 
-🩸 Cael — R-CW-TOKEN bare-token PASS on `8cafdcd`: parses (`bracketIdx=0 kind=work`) + arms a wake on the reachable-text path; cael-seat `bracketIdx=-1` is emission-surface, not parse.
+## To close to PASS (the path)
+A fresh `8cafdcd` hop-2-execution needs a session that (a) emits bare `CONTINUE_WORK:N` as direct final-text the scanner walks, AND (b) survives to a next turn so the armed wake drives `hop=2`. On a message-tool-delivery main session that's structurally unavailable; the clean fire is a direct-emit (non-message-tool) persistent session window, or a re-fire of the Emeric `40674ffa` shape on `8cafdcd`. Until then: PARTIAL — PARSE proven fresh, EXECUTION carried by exemplar, fresh-`8cafdcd` execution OWED. No fabricated hop-2-trace; byte-honest per the method's HONEST mandate.
+
+🩸 Cael — R-CW-TOKEN PARTIAL on `8cafdcd`: bare-token PARSE proven (522fdd7e), hop-2 EXECUTION carried by exemplar `40674ffa` not fresh on `8cafdcd` (owed); subagent surface design-declines the WORK token (correct, not a fire). Corrected from an over-framed first draft per 🪨's gate.

@@ -52,8 +52,19 @@ So not only does the continuation-row render statically, the cards capture **liv
 
 ---
 
+## Honest caveat — the per-seat context %s are point-in-time snapshots with skew (NOT live)
+
+The `/status` cards show per-seat `📚 Context: N/1.0m (P%)`. **These %s are transient snapshot readings, not current**, and must NOT be read as live state. Two skew sources (both byte-confirmed this cycle):
+
+1. **Cache-weighting:** the card `(P%)` is cache-INCLUSIVE — it counts cached tokens. The compaction-guard measures the ACTUAL context-window. Example (🪨 Rune): card read `896k/1.0m (90%)` but `895k` was `cached`; the guard's real usage was **23%**. Card-% ≠ guard-%.
+2. **Snapshot-lag:** the card is a point-in-time capture; seats compact between snapshot + read. Example (🩸 Cael): this card snapshot read 83% (and 7 compactions); his LIVE byte shortly after was **27%** (`session_status`: 275k/1M, 8 compactions — he compacted since the snapshot).
+
+**So the DURABLE R-OBS-1 cross-walk byte is the uniform ship-SHA `8cafdcd` + the continuation-row rendering + continuation-live across all 6 — NOT the per-seat %s.** The SHA + continuation-surface hold regardless of the %-skew. (This is the same `card-%-vs-guard-%` family as the inventory-vs-runtime-divergence — gate on the runtime/guard byte, not the display %.)
+
+---
+
 ## Verdict
 
 **R-OBS-1: ✅ PASS ship-current** on `8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6` — external `/status` cross-walk (figs-observed) confirms (a) 6/6 fleet converged on the FF'd ship-tip, (b) the continuation status-row renders in the `/status` card on every seat, (c) live continuation-chain activity (Emeric's R-CW-DELEGATE chain-hop) visible in the cards. The continuation feature's external status-surface is live on the shipped bytes, fleet-wide.
 
-Completes the corpus cross-walk: 6/6 seat proof-receipts (proof-by-return + OTel trace-JSON) + this external `/status` observer row.
+**Scope (honest framing per the recalibration):** this R-OBS-1 row is durable as the external-observer cross-walk ✅. The 6/6 seat-RECEIPTs (proof-by-return + OTel trace-JSON) are valid **feature-live-on-`8cafdcd`** artifacts — but they are NOT the full per-row method-corpus gate (which is the row-distributed per-row dirs per the `077b261dd8` exemplar: R-CW-1..7/R-CD-1..4/R-RC-1/2/TOKEN both-forms/etc, with the #952 both-forms mandate). So: R-OBS-1 cross-walk satisfied + durable; the per-row method-corpus (incl. this row's per-seat `status_snapshot_*.txt`/`seatside_card_*.txt` breakout per the exemplar) is the remaining settling arc.

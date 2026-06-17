@@ -1,0 +1,15 @@
+# Continuation substrate — emeric-nuc flow_runs (state/openclaw.sqlite)
+## continuation flow_runs by signature (goal LIKE '[continuation%'):
+total continuation flow_runs: 141
+
+## by continuation sub-type (parsed from goal):
+continuation-chain-hop|141
+
+## by status (liveness — succeeded vs stuck):
+succeeded|129
+failed|8
+cancelled|4
+
+## my proof-fire row THIS session (the live R-CW-DELEGATE fire):
+75b69591|succeeded|2026-06-17 07:04:48
+27e44b95|succeeded|2026-06-17 07:04:29

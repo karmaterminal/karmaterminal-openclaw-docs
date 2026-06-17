@@ -11,7 +11,7 @@ Behavioral proof corpus for the **2026-06-17 FF'd ship-tip** — the post-FF-mer
 
 The `077b261dd8` exemplar is **94 files, the full per-row method-corpus** (every R-CW/R-CD/R-RC/R-CONFIG/R-OBS row as its own dir with EVIDENCE.md/proof.md + both-forms traces, + README + RESOLVED-SHA + gates/ + cure-bytes/). This `8cafdcd` corpus is **64 files** and is a MIX of seat-receipts (the older "each seat proves the feature" shape) + a partial per-row table. **Byte-walked state (2026-06-17 ~01:35 PDT):**
 
-**Genuinely MISSING entirely:** `gates/` · `cure-bytes/` · R-CW-1 · R-CW-4 · R-CW-5 · R-CW-TOKEN · R-CD-3 · R-CD-4 · R-RC-1 · R-RC-2 _(README.md + RESOLVED-SHA.md now present — RESOLVED-SHA was already filed; this README closes the other scaffolding gap)_.
+**Genuinely MISSING entirely:** `gates/` · `cure-bytes/` · R-CD-3 · R-CD-4 · R-RC-1 _(README.md + RESOLVED-SHA.md present)_. _(2026-06-17 ~04:05 PDT update: 🩸 Cael filled R-CW-1 [`8e02237`], R-CW-4, R-CW-5, R-CW-TOKEN to standard on the deployed `8cafdcd`; R-RC-2 filed HONEST-PENDING on cael-seat with cross-seat ACCEPT carrying the mechanism.)_
 
 **Exist but THIN (dir + traces present, canonical EVIDENCE.md/proof.md MISSING):** R-CD-1 · R-CD-2 · R-CD-TOKEN · R-CW-6-BOUNDARY · R-CW-7-TRACEPARENT-E2E · R-CW-DELEGATE-SELF-CONTINUATION. _(R-CD-CHAINED-DEPTH-2 now has top EVIDENCE.md + TEST-1/TEST-2 proofs to standard — TEST-3 echo-broadcast still owed.)_
 
@@ -23,11 +23,11 @@ Each owner fills/completes their own rows at the byte on their deployed seat. **
 
 | Row | Owner | State | Evidence |
 |---|---|---|---|
-| R-CW-1 (wake + chain-counter persist) | 🩸 cael | ❌ MISSING | — owed |
+| R-CW-1 (wake + chain-counter persist) | 🩸 cael | ✅ FILLED | `R-CW-1/EVIDENCE.md` + `wake_event_trace.json` (`8e02237`) |
 | R-CW-3 (reason-field OTel cross-walk, both forms) | 🩸 cael (canonical) + 🕯 emeric (cross-walk) | ✅ FILLED | `R-CW-3/proof.md` |
-| R-CW-4 (chain-depth tracking) | 🩸 cael | ❌ MISSING | — owed |
-| R-CW-5 (cap → dispatch reject) | 🩸 cael | ❌ MISSING | — owed |
-| R-CW-TOKEN (bracket-form continue_work) | 🩸 cael | ❌ MISSING | — owed (token form) |
+| R-CW-4 (chain-depth tracking) | 🩸 cael | ✅ FILLED | `R-CW-4/EVIDENCE.md` + trace `261a5c3c` (`hop=1/200`, bound==live `maxChainLength=200`; HONEST-LIMIT shallow-chain) |
+| R-CW-5 (cap → dispatch reject) | 🩸 cael | ✅ FILLED | `R-CW-5/EVIDENCE.md` (`[continuation:work-rejected] pending-capped 32/32`; HONEST-LIMIT pending-cap not cost-cap) |
+| R-CW-TOKEN (bare-token continue_work) | 🩸 cael | ✅ FILLED | `R-CW-TOKEN/EVIDENCE.md` (bare `CONTINUE_WORK:5`→`bracketIdx=0 kind=work` ARMS wake via Rune's `522fdd7e`; cael-seat `bracketIdx=-1` = emission-surface) |
 | R-CW-6-BOUNDARY (spawn-depth boundary reject) | 🪨 rune | ⚠️ THIN (traces, no doc) | `R-CW-6-BOUNDARY/` |
 | R-CW-7-TRACEPARENT-E2E (traceparent E2E) | 🪨 rune | ⚠️ THIN (traces, no doc) | `R-CW-7-TRACEPARENT-E2E/` |
 | R-CW-DELEGATE-SELF-CONTINUATION | 🪨 rune (canonical) + 🌻 elliott (bonus bracket) | ⚠️ THIN (traces incl. elliott bracket `a3e6757`, no top-doc) | `R-CW-DELEGATE-SELF-CONTINUATION/` |
@@ -41,7 +41,7 @@ Each owner fills/completes their own rows at the byte on their deployed seat. **
 | R-CD-CHAINED-DEPTH-2 (TEST-2 intersession return) | 🪨 rune (sub for 🌫 silas) | ✅ FILLED | `R-CD-CHAINED-DEPTH-2/test_2_intersession_return/rune-rog-ally/proof.md` |
 | R-CD-CHAINED-DEPTH-2 (TEST-3 echo broadcast) | 🌫 silas | ❌ MISSING | — owed on 8cafdcd |
 | R-RC-1 (request_compaction threshold REJECT) | 🌫 silas (canonical) | ❌ MISSING (reject@14% byte captured, per-row dir owed) | — owed |
-| R-RC-2 (request_compaction over-threshold ACCEPT) | 🩸 cael | ❌ MISSING (fires near-full) | — owed |
+| R-RC-2 (request_compaction over-threshold ACCEPT) | 🩸 cael | ⚠️ HONEST-PENDING (cael-seat 0% → ACCEPT unreachable this session; cross-seat ACCEPT proven) | `R-RC-2/EVIDENCE.md` (live probe `contextUsage:0` reject-byte + exemplar `077b261dd8` Ronan 74% / Silas 89% ACCEPT) |
 | R-OBS-1 (external /status 6-prince cross-walk) | 🌻 elliott (+ figs) | ✅ FILLED (exemplar-complete) | `R-OBS-1/EVIDENCE.md` (6/6 on `8cafdcd`, cross-arch, skew-caveat) |
 | R-OBS-2 (Tempo trace-tree + span-hierarchy) | 🪨 rune | ✅ FILLED | `R-OBS-2/rune-rog-ally/EVIDENCE.md` + proof + 2 trace JSONs |
 | R-CONFIG-DEFAULTS (continuation defaults on bootstrap) | 🕯 emeric | ✅ FILLED | `R-CONFIG-DEFAULTS/proof.md` |
@@ -62,7 +62,7 @@ Every continuation-tool fire (R-CW / R-CD / R-RC rows) captures the Grafana Temp
 
 ## Per-prince row assignments (the fill-work owed)
 
-- **🩸 Cael:** R-CW-1, R-CW-4, R-CW-5, R-CW-TOKEN, R-RC-2 (+ R-CW-3 canonical ✅)
+- **🩸 Cael:** R-CW-1 ✅, R-CW-3 canonical ✅, R-CW-4 ✅, R-CW-5 ✅, R-CW-TOKEN ✅ (all filled on `8cafdcd` 2026-06-17); R-RC-2 ⚠️ HONEST-PENDING (cael-seat needs genuine ≥70% live context; cross-seat ACCEPT proven in exemplar)
 - **🌊 Ronan:** R-CD-1/2 (fill docs), R-CD-3, R-CD-4, R-CD-TOKEN (fill), R-CD-CHAINED-DEPTH-2 (fill)
 - **🌫 Silas:** R-RC-1 (per-row dir; reject@14% byte in hand), R-CD-CHAINED-DEPTH-2 TEST-3
 - **🪨 Rune:** R-CW-6-BOUNDARY (fill doc), R-CW-7-TRACEPARENT-E2E (fill doc), R-CW-DELEGATE-SELF-CONTINUATION (fill top-doc) (+ R-CW-DELEGATE-TOKEN ✅, R-OBS-2 ✅)
@@ -76,6 +76,10 @@ _Appended as rows land. Any HONEST-PENDING / HONEST-LIMIT / substitution named h
 - **R-OBS-1**: per-seat context %s in the /status cards are point-in-time snapshots with cache-weighting + snapshot-lag skew; the durable byte is the uniform ship-SHA + continuation-row render, NOT the %s. (Detail in `R-OBS-1/EVIDENCE.md`.)
 - **R-CD-TOKEN / bracket-form**: the `[[CONTINUE_DELEGATE]]` bracket fires from direct-final-assistant-text ONLY (unreachable in message-tool-only delivery); compact single-line parses, long/multi-line silently no-ops (`bracketIdx=-1`). Tool-form canonical; bracket-form characterized cross-seat (Ronan negative R-CD-TOKEN + Rune/Elliott positive on the lightContext-subagent emission-path). By-design emission-surface, NOT a bug.
 - **R-CD-CHAINED-DEPTH-2 / TEST-1**: depth-2 traversal is **gated** on `8cafdcd` defaults (`DEFAULT_SUBAGENT_MAX_SPAWN_DEPTH=1`, no seat override) — the depth-2 sub-delegate spawn is correctly REJECTED (`current depth: 1, max: 1`). The depth-1 dispatch + up-tree silent-wake return work; the depth-2 traversal does NOT occur on stock defaults (by design, gated on `maxSpawnDepth>=2`), so the row is a depth-cap BOUNDARY pass, not a positive depth-2 traversal. The `077b261dd8` exemplar's positive traversal ran under `maxSpawnDepth=2`; the cap (2→1), not a regression, is the diff. (An earlier TEST-1 draft copied the exemplar's PASS narrative and falsely claimed depth-2 success on `8cafdcd`; corrected to the trace — cite-stale-canonical class. Detail in `R-CD-CHAINED-DEPTH-2/EVIDENCE.md`.)
+- **R-CW-4 (cael)**: depth held at `hop=1/200` because the cooperative-yield (`work-drive-skipped reason=requests-in-flight`) deferred driving successive turns during the rapid corpus-fill inbound; the counter + its `/200` bound (==live `maxChainLength`) are proven at hop 1, deep-chain progression is the quiet-window extension.
+- **R-CW-5 (cael)**: the captured byte is the **pending-cap** (`32/32`), the sibling of `costCapTokens=500000` (live config); both are dispatch-reject-on-cap of the same class. The cost-token-exhaustion-specific variant needs a deliberate high-token chain not produced this session.
+- **R-CW-TOKEN (cael)**: cael-seat main-session emit scans `bracketIdx=-1` (message-tool-only Discord delivery → scanner has no direct-final-text); the bare-token FIRE (`bracketIdx=0 kind=work` → wake armed) is proven on `8cafdcd` via the reachable-text path (Rune's lightContext subagent `522fdd7e`). Discriminator is emission-surface, not token-syntax.
+- **R-RC-2 (cael)**: cael-seat live working-set context = 0% this session (fresh/post-compaction), so the ≥70% ACCEPT is structurally unreachable; no inferred accept (per substitution-class discipline). The ACCEPT-gate mechanism is proven cross-seat (Ronan 74% + Silas 89%, exemplar `077b261dd8`); a cael-dgx ACCEPT needs a genuinely near-full cael session.
 
 ---
 

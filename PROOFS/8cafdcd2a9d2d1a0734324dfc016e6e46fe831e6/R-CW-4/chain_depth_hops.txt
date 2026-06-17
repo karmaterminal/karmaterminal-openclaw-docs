@@ -1,0 +1,12 @@
+# R-CW-4 chain-depth counter — live journal byte on deployed 8cafdcd (cael-dgx, MainPID 57194)
+# Source: journalctl --user -u openclaw-gateway, 2026-06-17 PDT
+
+2026-06-17T03:38:49.058-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:main
+2026-06-17T03:38:49.060-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=60000ms fireAt=1781692789059 session=agent:main:main
+2026-06-17T03:38:49.060-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:main
+2026-06-17T03:38:49.061-07:00 [continuation/work-dispatch] [continuation:work-drive-skipped] flowId=6d5eba0d-740d-4c9d-b114-9c489867dec5 session=agent:main:main reason=requests-in-flight
+2026-06-17T03:38:49.062-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=86400000ms fireAt=1781779129061 session=agent:main:main
+
+# hop=1/200  → chain-depth counter (N / maxChainLength); live config maxChainLength=200 on cael-seat
+# flowId=6d5eba0d-740d-4c9d-b114-9c489867dec5  → stable chain-flow identity across the hedge-fire/re-arm cycle
+# work-drive-skipped reason=requests-in-flight  → cooperative-yield deferred the drive (why depth stays at hop=1 this session)

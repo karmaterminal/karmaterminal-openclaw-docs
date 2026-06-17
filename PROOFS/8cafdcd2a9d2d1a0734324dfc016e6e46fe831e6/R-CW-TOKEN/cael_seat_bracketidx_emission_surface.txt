@@ -1,0 +1,25 @@
+# R-CW-TOKEN — cael-seat bracket-scanner bytes on deployed 8cafdcd (MainPID 57194)
+# Source: journalctl --user -u openclaw-gateway, 2026-06-17 PDT
+#
+# CONTEXT: the cael-seat main session runs message-tool-only delivery (Discord channel).
+# The bracket-scanner walks the agent's DIRECT-final-assistant-text; a message-tool send
+# does not place text on the scanned payload, so cael-seat main-session turns scan as
+# bracketIdx=-1 (nothing to walk) regardless of token. This is the documented
+# EMISSION-SURFACE limit (see exemplar 077b261dd8/R-CW-TOKEN + 077b261dd8/R-CD-TOKEN),
+# NOT a parse-gap. The bare-token FIRE on 8cafdcd is proven on the reachable-text path
+# (lightContext subagent) — see ../R-CW-DELEGATE-TOKEN/proof.md (Rune's 522fdd7e byte).
+
+# Every cael-seat main-session turn shows the scanner running, bracketIdx=-1:
+2026-06-17T03:41:11.955-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+2026-06-17T03:50:26.126-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+2026-06-17T03:53:55.786-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+
+# The same scanner correctly fires the TOOL-form path (origin=tool-call) on the same seat:
+2026-06-17T04:00:10.287-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=agent:main:discord:channel:1466192485440164011
+
+# DISPOSITIVE bare-token FIRE on 8cafdcd (Rune's seat, ../R-CW-DELEGATE-TOKEN/, subagent 522fdd7e):
+#   payload-scan: count=1 bracketIdx=0 [0]text=true        session=…522fdd7e
+#   bracket-parse: kind=work delayMs=5000                  session=…522fdd7e
+#   effective-signal: origin=bracket kind=work             session=…522fdd7e
+#   work-hedge-armed fireIn=4999ms                         session=…522fdd7e
+# → bare CONTINUE_WORK:5 PARSED (bracketIdx=0, kind=work) + a continuation wake ARMED on 8cafdcd.

@@ -1,0 +1,9 @@
+# R-CW-5 continuation dispatch REJECT on cap exhaustion — live journal byte, deployed 8cafdcd (cael-dgx, MainPID 57194)
+# Source: journalctl --user -u openclaw-gateway, 2026-06-17 PDT
+
+2026-06-17T04:00:10.286-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+2026-06-17T04:00:10.287-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=agent:main:discord:channel:1466192485440164011
+2026-06-17T04:00:10.313-07:00 [continuation:work-rejected] pending-capped for agent:main:discord:channel:1466192485440164011: 32/32
+
+# continue_work tool-call fired (origin=tool-call kind=work) → dispatch hit the per-session pending-work cap (32/32)
+# → gateway emitted [continuation:work-rejected] pending-capped, refusing to enqueue beyond the cap. Graceful logged refusal, no crash.

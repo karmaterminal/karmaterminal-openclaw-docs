@@ -20,3 +20,6 @@ The trace-JSON export is NOT k3s-equipped-seats-only. The **centralized Tempo in
 
 ## Cert
 RUN is the cert: trace pulled live from the deployed `8cafdcd` runtime's own dispatch, parent-child hierarchy intact, host-pinned to this seat.
+
+## Fresh re-capture (Emeric's byte-confirmed method, current-byte)
+Re-verified the Tempo capture works robustly on rune-rog-ally per 🕯's method (`1516704318`): fired a fresh `continue_delegate` (traceparent `00-3d242e3d641799b7fa50f2a6319938b6-…`), pulled the trace from `http://tempo.dandelion.cult/api/traces/3d242e3d641799b7fa50f2a6319938b6` — **indexed at attempt 1, 7020 bytes, host.name=rune**. `fresh_capture_3d242e3d_trace.json` committed as the current-byte. DNS `tempo.dandelion.cult`→`10.0.0.99` resolves on the ROG seat; the method works first-try. Confirms rune-rog-ally is trace-captured, not honest-limited — twice over (this fresh capture + the original `077c78ce` dispatch-span capture).

@@ -1,6 +1,6 @@
-# R-CD-1 — continue_delegate self-continuation (rune-rog-ally, ship-current 8cafdcd)
+# R-CW-DELEGATE-SELF-CONTINUATION — continue_delegate self-continuation (rune canonical-owner) (rune-rog-ally, ship-current 8cafdcd)
 
-**Row:** R-CD (continue_delegate dispatch→return round-trip), instance 1, rune-rog-ally seat.
+**Row:** R-CW-DELEGATE-SELF-CONTINUATION (rune-rog-ally canonical-owner, succeeded Cael-originator per method-doc line 82). This is rune-axis assigned row — NOT R-CD-1 (that is Ronan's). Earlier mislabeled as R-CD-1; corrected to canonical.
 **SHA:** 8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6 (FF'd ship-tip). **Runtime==ship** byte-confirmed (`OpenClaw 2026.6.8 (8cafdcd)`).
 
 ## The fire

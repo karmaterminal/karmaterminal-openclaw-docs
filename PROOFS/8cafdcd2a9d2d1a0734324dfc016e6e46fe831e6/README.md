@@ -13,7 +13,7 @@ Machine-readable manifest: **[`proofs-manifest.json`](./proofs-manifest.json)** 
 
 **Rollup (22 rows):** `pass: 15` · `partial: 4` · `thin: 3` · `fail: 0` · `missing: 0`.
 - **pass (15):** R-CW-1, R-CW-3, R-CW-4, R-CW-5, R-CD-1, R-CD-2, R-CD-3, R-CD-4, R-CD-TOKEN, R-RC-1, R-OBS-1, R-OBS-2, R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, R-REGRESSION-TRAP-TESTS
-- **partial (4):** R-CW-DELEGATE-TOKEN (#952 — CONTESTED-DEFERRED, figs's RFC: dormant-seat continue_work-nested-tool hop-2 repro UNEXERCISED) · R-CW-TOKEN (PARSE proven, main-session hop-2-EXECUTION-DRIVE owed) · R-CD-CHAINED-DEPTH-2 (TEST-1/2 filled, TEST-3 echo-broadcast owed) · R-RC-2 (ACCEPT proven cross-seat exemplar, fresh-`8cafdcd` executed-accept owed)
+- **partial (4):** R-CW-DELEGATE-TOKEN (#952 — CONTESTED-DEFERRED, figs's RFC: spec-L86 repro = lightContext subagent NO-tool fires bare/bracket CONTINUE_WORK:N in a continue_delegate child on a dormant seat -> hop-2 must EXECUTE; UNEXERCISED. Per L71 the tool-call is BLIND to #952) · R-CW-TOKEN (PARSE proven, main-session hop-2-EXECUTION-DRIVE owed) · R-CD-CHAINED-DEPTH-2 (TEST-1/2 filled, TEST-3 echo-broadcast owed) · R-RC-2 (ACCEPT proven cross-seat exemplar, fresh-`8cafdcd` executed-accept owed)
 - **thin (3):** R-CW-6-BOUNDARY · R-CW-7-TRACEPARENT-E2E · R-CW-DELEGATE-SELF-CONTINUATION (traces present, canonical top-doc owed)
 
 **dir-presence: 0 genuinely-absent** at the live docs HEAD (22/22 row-dirs present; count earlier mis-read off a stale tip + per-seat-subdir nesting — recursive `<sha>/<row>/**` resolves it). **#952 disposition:** figs ruled BUG; verdict + which-mechanism + scope = his RFC; not closed, not green. **Both-forms mandate** per method; `request_compaction` is tool-only.

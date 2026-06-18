@@ -13,7 +13,7 @@
     "fail": 0,
     "missing": 0
   },
-  "notes": "Runtime-half certification of the continuation feature on the FF'd ship-tip 8cafdcd. dir-presence 0-absent at the live docs HEAD. #952 (R-CW-DELEGATE-TOKEN) is CONTESTED-DEFERRED — figs ruled BUG; verdict + which-mechanism + scope = figs's RFC; the dormant-seat continue_work-nested-tool hop-2 repro is the owed daylight byte (UNEXERCISED). Both-forms mandate per method; request_compaction is tool-only.",
+  "notes": "Runtime-half certification of the continuation feature on the FF'd ship-tip 8cafdcd. dir-presence 0-absent at the live docs HEAD. #952 (R-CW-DELEGATE-TOKEN) is CONTESTED-DEFERRED — figs ruled BUG; verdict + which-mechanism + scope = figs's RFC. The owed daylight byte (UNEXERCISED) is the spec-defined repro: a lightContext subagent (NO continue_work tool) fires the bare/bracket CONTINUE_WORK:N TOKEN inside a continue_delegate child on a dormant seat -> hop-2 must EXECUTE. Per figs's L71 mandate a tool-only proof is BLIND to #952's path (the tool-call is the separate sibling row R-CW-DELEGATE-SELF-CONTINUATION). Both-forms mandate per method; request_compaction is tool-only.",
   "rows": [
     {
       "row": "R-CW-1",
@@ -168,11 +168,11 @@
       "state": "partial",
       "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-DELEGATE-TOKEN/",
       "evidence_doc": "R-CW-DELEGATE-TOKEN/proof.md",
-      "summary": "CONTESTED-DEFERRED (figs's RFC). Spec L86 = this row's bar (hop-2-must-EXECUTE-on-a-dormant-seat). Committed token-form PASS exists (e66dc63-lineage: delegate emitted CONTINUE_WORK:7 as text, wake delivered hop-2 which executed, drive-gated). BUT: (1) #952's issue-repro is the continue_work() TOOL-call, a different primitive than the token-form; (2) the corpus self-contradicts (:977 by-design ignore vs the token-PASS), which path each exercised is unreconciled; (3) the bar is UNMET on the actual nested-tool-call surface (the 522fdd7e :977-decline shows no hop-2). Whether the decline is FAIL (#952 live) or by-design-honest-limit is figs's call.",
+      "summary": "CONTESTED-DEFERRED (figs's RFC). Spec L86 defines this row's bar: a lightContext subagent (NO continue_work tool in its surface) fires the bare/bracket CONTINUE_WORK:N TOKEN inside a continue_delegate child -> hop-2 must EXECUTE on a dormant seat. figs's L71 mandate: a tool-only proof is BLIND to #952's path; the tool-call is the separate sibling row R-CW-DELEGATE-SELF-CONTINUATION. A committed token-form PASS exists in a non-lightContext shape (e66dc63-lineage: a delegate emitted CONTINUE_WORK:7 as text, hop-2 executed, drive-gated) BUT it is NOT the lightContext-no-tool surface the spec names. The actual #952 surface (lightContext-subagent bare-token on a dormant seat) is UNEXERCISED; the 522fdd7e :977-decline is an adjacent decline-path, not the #952 surface. Whether that decline is FAIL (#952 live) or by-design-honest-limit is figs's call.",
       "test_cases_executed": [
-        "committed token-form PASS (e66dc63-lineage): delegate emitted CONTINUE_WORK:7 as text, hop-2 executed+posted, drive-gated on requests-in-flight",
-        "522fdd7e: bare CONTINUE_WORK → :977 subagent-chain decline, no hop-2 (adjacent decline-path, NOT the flood/tool-call mechanism)",
-        "the actual continue_work-TOOL-from-a-delegate-child hop-2 repro on a dormant seat: UNEXERCISED"
+        "committed token-form PASS (e66dc63-lineage, NON-lightContext shape): a delegate emitted CONTINUE_WORK:7 as text, hop-2 executed+posted, drive-gated on requests-in-flight",
+        "522fdd7e: bare CONTINUE_WORK -> :977 subagent-chain decline, no hop-2 (adjacent decline-path)",
+        "the actual #952 surface per spec L86 (lightContext subagent NO-tool fires bare/bracket CONTINUE_WORK:N in a continue_delegate child, hop-2 must EXECUTE on a dormant seat): UNEXERCISED"
       ],
       "traces": [
         {

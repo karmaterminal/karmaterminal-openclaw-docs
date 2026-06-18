@@ -261,7 +261,7 @@
       "supporting_docs": [
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-3/ronan-spark/EVIDENCE.md"
       ],
-      "notes": "Present at the live tip (573aa77; the count-oscillation read this absent off a stale 1943b548 tip + seat-subdir nesting — recursive <sha>/<row>/** count resolves it present).",
+      "notes": "Present at the live tip (573aa77; the count-oscillation read this absent off a stale 1943b548 tip + seat-subdir nesting — recursive <sha>/<row>/** count resolves it present). CANONICAL-SHAPE caveat: behavior is proven via the NESTED ronan-spark/EVIDENCE.md, but the canonical row-level top-doc (EVIDENCE.md/proof.md at the row root) is ABSENT -> daylight task is PROMOTE-from-nested, not build-from-zero. dir-present, behavior-proven, top-doc-absent.",
       "fired": ""
     },
     {
@@ -279,7 +279,7 @@
       "supporting_docs": [
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-4/ronan-spark/EVIDENCE.md"
       ],
-      "notes": "Present at the live tip (573aa77; same stale-tip/seat-subdir false-absent as R-CD-3 — recursive count resolves present).",
+      "notes": "Present at the live tip (573aa77; same stale-tip/seat-subdir false-absent as R-CD-3 — recursive count resolves present). CANONICAL-SHAPE caveat: behavior is proven via the NESTED ronan-spark/EVIDENCE.md, but the canonical row-level top-doc (EVIDENCE.md/proof.md at the row root) is ABSENT -> daylight task is PROMOTE-from-nested, not build-from-zero. dir-present, behavior-proven, top-doc-absent.",
       "fired": ""
     },
     {

@@ -168,11 +168,11 @@
       "state": "partial",
       "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-DELEGATE-TOKEN/",
       "evidence_doc": "R-CW-DELEGATE-TOKEN/proof.md",
-      "summary": "CONTESTED-DEFERRED (figs's RFC). Spec L86 defines this row's bar: a lightContext subagent (NO continue_work tool in its surface) fires the bare/bracket CONTINUE_WORK:N TOKEN inside a continue_delegate child -> hop-2 must EXECUTE on a dormant seat. figs's L71 mandate: a tool-only proof is BLIND to #952's path; the tool-call is the separate sibling row R-CW-DELEGATE-SELF-CONTINUATION. A committed token-form PASS exists in a non-lightContext shape (e66dc63-lineage: a delegate emitted CONTINUE_WORK:7 as text, hop-2 executed, drive-gated) BUT it is NOT the lightContext-no-tool surface the spec names. The actual #952 surface (lightContext-subagent bare-token on a dormant seat) is UNEXERCISED; the 522fdd7e :977-decline is an adjacent decline-path, not the #952 surface. Whether that decline is FAIL (#952 live) or by-design-honest-limit is figs's call.",
+      "summary": "CONTESTED-DEFERRED (figs's RFC). THE ROW'S BAR (spec L86, firm): a lightContext subagent (NO continue_work tool in its surface) fires the bare/bracket CONTINUE_WORK:N TOKEN inside a continue_delegate child -> hop-2 must EXECUTE on a dormant seat. (Tool-form sibling = the separate row R-CW-DELEGATE-SELF-CONTINUATION.) #952's ACTUAL MECHANISM is OPEN, figs's-own-mandate-vs-code-walk: figs's L71 mandate (his words) says a tool-only proof is BLIND to #952's path (=> lightContext-TOKEN); the cohort code-walk reads #952's issue-repro as routing through the continue_work TOOL-call timer (signal.ts) which is a DISTINCT path from the subagent-announce :975/:977 announce-decline. These CONFLICT on the primitive (token per figs's words vs tool-call-timer per the code-walk); reconciliations OPEN: (a) figs's mandate authoritative, (b) two paths conflated, (c) the token also routes to that timer (convergence) -- UNRESOLVED, figs's call. EITHER WAY the actual #952 surface is UNEXERCISED: the committed token-form PASS (e66dc63-lineage: a delegate emitted CONTINUE_WORK:7 as text, hop-2 executed, drive-gated) is a NON-lightContext shape, not the spec's lightContext-no-tool surface; the 522fdd7e :977-decline is an adjacent decline-path. Whether the decline is FAIL (#952 live) or by-design-honest-limit is figs's call.",
       "test_cases_executed": [
         "committed token-form PASS (e66dc63-lineage, NON-lightContext shape): a delegate emitted CONTINUE_WORK:7 as text, hop-2 executed+posted, drive-gated on requests-in-flight",
-        "522fdd7e: bare CONTINUE_WORK -> :977 subagent-chain decline, no hop-2 (adjacent decline-path)",
-        "the actual #952 surface per spec L86 (lightContext subagent NO-tool fires bare/bracket CONTINUE_WORK:N in a continue_delegate child, hop-2 must EXECUTE on a dormant seat): UNEXERCISED"
+        "522fdd7e: bare CONTINUE_WORK -> :977 subagent-announce-decline, no hop-2 (adjacent decline-path; subagent-announce :975 != signal.ts tool-call-timer, distinct paths)",
+        "the actual #952 surface per spec L86 (lightContext subagent NO-tool fires bare/bracket CONTINUE_WORK:N in a continue_delegate child, hop-2 must EXECUTE on a dormant seat): UNEXERCISED -- and whether its mechanism is the token-path or the tool-call-timer is figs's-mandate-vs-code-walk OPEN"
       ],
       "traces": [
         {
@@ -182,7 +182,7 @@
       "supporting_docs": [
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-DELEGATE-TOKEN/proof.md"
       ],
-      "notes": "CONTESTED-DEFERRED — figs ruled BUG (it should chain); cohort sealed neither-lean. Daylight byte = controlled dormant-seat continue_work-nested fire (the repro never fired clean). Verdict + which-mechanism + scope = figs's RFC. Spec-bar byte-confirmed in openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md L86 + L71 both-forms-mandate.",
+      "notes": "CONTESTED-DEFERRED — figs ruled BUG (it should chain); cohort sealed neither-lean. The ROW bar (L86) = lightContext-subagent bare-token -> hop-2-must-EXECUTE-on-dormant-seat (firm, spec definition). #952's actual MECHANISM = figs's-mandate-vs-code-walk OPEN (token-per-L71-tool-blind vs tool-call-timer-per-code-walk; reconciliations a/b/c unresolved). Daylight byte = a controlled dormant-seat lightContext-subagent bare-token fire (never fired clean). Verdict + which-mechanism + scope = figs's RFC. Spec L86 + L71 byte-confirmed in openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md.",
       "fired": ""
     },
     {

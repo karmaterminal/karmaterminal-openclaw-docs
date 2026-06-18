@@ -32,3 +32,27 @@ The prior cycle on `077b261dd820d16a2667369e3006c4efdd6b0ef0` fully resolved thi
 Per figs's 2026-06-07 mandate (#952): tool-form PROVEN (R-CD-1/R-CD-2 full-pass on `8cafdcd`); bracket-form documented-as-source-confirmed-alive-but-emission-surface-unreachable in message-tool-only mode. The mandate is satisfied by: (a) proving the tool-form exercises the continue_delegate dispatch path, AND (b) documenting the bracket-form's emission-surface gap honestly with source-confirmation that the syntax + scanner are alive.
 
 **The #952 path (lightContext subagents that can ONLY fire the bracket):** those subagents' final-text IS auto-delivered (they're not message-tool-only) — so the bracket-form DOES fire in the lightContext-subagent emission-context. The gap is message-tool-only MAIN-SESSION delivery, not the lightContext-subagent path. The #952 lifeline (leaf-subagent bracket-hop) is source-confirmed alive.
+
+## ⚡ EMPIRICAL BRACKET-FIRE — UPGRADE source-confirmed → FIRED-on-8cafdcd (2026-06-17 18:07 PDT)
+
+The lightContext-subagent bracket-form path is now **empirically fired**, not just source-confirmed. Verified at the gateway continuation journal (the byte, not subagent narration):
+
+```
+18:07:10  payload-scan: count=1 bracketIdx=0   session=…6f911b5b   ← FIRED (was bracketIdx=-1 from main-session message-tool surface)
+18:07:10  bracket-parse: kind=delegate delayMs=default
+18:07:10  effective-signal: origin=bracket kind=delegate
+18:07:11  [subagent-chain-hop] Spawned chain delegate (1/200) from …6f911b5b: R-CD-TOKEN empirical-bracket-fire grandchild
+```
+
+**Two-generation cascade (proof carries BOTH directions in one chain):**
+- `6f911b5b` (leaf-subagent, terminal `[[CONTINUE_DELEGATE]]`) → `bracketIdx=0` → FIRED → spawned grandchild (1/200)
+- `865c87d3` (grandchild, also emitted terminal bracket) → `bracketIdx=0` → FIRED → spawned great-grandchild (2/200) @ 18:07:24-25
+- `b30211a0` (great-grandchild, did NOT end on bracket) → `bracketIdx=-1` → correctly no-op'd (chain terminates)
+
+**Confirms both axes live, demonstrated:**
+1. **POSITION**: terminal `]]` (whitespace-only after) fires; non-terminal (great-grandchild) → `bracketIdx=-1`. (regex `\s*$`, no `/m` flag.)
+2. **SURFACE**: subagent-final-text is auto-delivered → scanner walks the response-payload → fires. (Main-session message-tool-body surface → `bracketIdx=-1`, the emission-surface gap documented above.)
+
+## Verdict (UPGRADED)
+
+✅ **Tool-form PROVEN** (R-CD-1/R-CD-2 full-pass) **+ Bracket-form EMPIRICALLY-FIRED** on `8cafdcd` (ronan-spark, gateway-journal-verified, two-generation chain-hop cascade). The both-forms mandate is satisfied empirically on both surfaces: tool-form round-trip-closed, bracket-form fired-positive from the lightContext-subagent scanned-surface. The message-tool-only MAIN-SESSION emission-surface gap remains documented (structural, not a build-death) — but the bracket-form itself is no longer source-confirmed-only; it is fired-on-8cafdcd.

@@ -30,9 +30,7 @@
       ],
       "traces": [
         {
-          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-1/wake_event_trace.json",
-          "trace_id": "ffc7c6ea",
-          "spans": 36
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-1/wake_event_trace.json"
         }
       ],
       "supporting_docs": [
@@ -53,7 +51,11 @@
         "reason-field present on continuation span (tool-form)",
         "cross-walk confirms both-forms parity"
       ],
-      "traces": [],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-3/emeric-nuc-trace-toolform.json"
+        }
+      ],
       "supporting_docs": [
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-3/proof.md"
       ],
@@ -73,7 +75,7 @@
       ],
       "traces": [
         {
-          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-4/",
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-4/chain_depth_trace_261a5c3c.json",
           "trace_id": "261a5c3c"
         }
       ],
@@ -110,11 +112,7 @@
       "evidence_doc": null,
       "summary": "Traces present; canonical EVIDENCE.md/proof.md not yet written (THIN).",
       "test_cases_executed": [],
-      "traces": [
-        {
-          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-6-BOUNDARY/"
-        }
-      ],
+      "traces": [],
       "supporting_docs": [],
       "notes": "THIN: traces present, top-doc owed.",
       "fired": ""
@@ -130,7 +128,8 @@
       "test_cases_executed": [],
       "traces": [
         {
-          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-7-TRACEPARENT-E2E/rune-rog-ally/"
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-7-TRACEPARENT-E2E/rune-rog-ally/trace-ac9c23c3-dispatch-tree.json",
+          "trace_id": "ac9c23c3"
         }
       ],
       "supporting_docs": [
@@ -150,8 +149,10 @@
       "test_cases_executed": [],
       "traces": [
         {
-          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-DELEGATE-SELF-CONTINUATION/",
-          "trace_id": "a3e6757"
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-DELEGATE-SELF-CONTINUATION/elliott-seat/bracket_form_dispatch_trace.json"
+        },
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-DELEGATE-SELF-CONTINUATION/rune-rog-ally/dispatch_trace.json"
         }
       ],
       "supporting_docs": [
@@ -174,11 +175,7 @@
         "the e66dc63 token-PASS is a NON-lightContext-subagent shape (a delegate emitted CONTINUE_WORK:7 as text, hop-2 executed) -- not the spec's lightContext-subagent surface",
         "the actual #952 surface per spec L86 (lightContext subagent NO-tool fires bare/bracket CONTINUE_WORK:N in a continue_delegate child on a dormant seat -> hop-2 must EXECUTE, but code :977 ignores it): UNEXERCISED -- FAIL-vs-by-design is figs's call"
       ],
-      "traces": [
-        {
-          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-DELEGATE-TOKEN/rune-rog-ally/EVIDENCE.md"
-        }
-      ],
+      "traces": [],
       "supporting_docs": [
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-DELEGATE-TOKEN/proof.md"
       ],
@@ -198,12 +195,7 @@
         "subagent surface design-declines the WORK token by design (:977); cael-seat bracketIdx=-1 = emission-surface (message-tool-body, not scanned-final-text)",
         "main-session hop-2 EXECUTION-DRIVE on fresh 8cafdcd: OWED (untested)"
       ],
-      "traces": [
-        {
-          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-TOKEN/EVIDENCE.md",
-          "trace_id": "522fdd7e"
-        }
-      ],
+      "traces": [],
       "supporting_docs": [
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-TOKEN/EVIDENCE.md"
       ],
@@ -221,7 +213,11 @@
       "test_cases_executed": [
         "schedule→spawn→return end-to-end on 8cafdcd"
       ],
-      "traces": [],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-1/ronan-spark/turn_trace.json"
+        }
+      ],
       "supporting_docs": [
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-1/ronan-spark/EVIDENCE.md"
       ],
@@ -239,7 +235,11 @@
       "test_cases_executed": [
         "silent-wake full path end-to-end on 8cafdcd"
       ],
-      "traces": [],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-2/ronan-spark/turn_trace.json"
+        }
+      ],
       "supporting_docs": [
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-2/ronan-spark/EVIDENCE.md"
       ],
@@ -257,7 +257,11 @@
       "test_cases_executed": [
         "post-compaction lifeboat fires at the compaction-seam on 8cafdcd"
       ],
-      "traces": [],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-3/ronan-spark/fire_response.json"
+        }
+      ],
       "supporting_docs": [
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-3/ronan-spark/EVIDENCE.md"
       ],
@@ -275,7 +279,11 @@
       "test_cases_executed": [
         "cross-session targeted return to a named session on 8cafdcd"
       ],
-      "traces": [],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-4/ronan-spark/fire_response.json"
+        }
+      ],
       "supporting_docs": [
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-4/ronan-spark/EVIDENCE.md"
       ],
@@ -295,12 +303,7 @@
         "tool-form parity (R-CD-1/2)",
         "bracket-form emission-surface-gap is by-design, source-confirmed"
       ],
-      "traces": [
-        {
-          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-TOKEN/ronan-spark/EVIDENCE.md",
-          "trace_id": "ac7077f"
-        }
-      ],
+      "traces": [],
       "supporting_docs": [
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-TOKEN/ronan-spark/EVIDENCE.md"
       ],
@@ -320,7 +323,14 @@
         "TEST-2 inter-session return — FILLED (rune-rog-ally)",
         "TEST-3 echo+cross-channel-broadcast — MISSING (owed, silas)"
       ],
-      "traces": [],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-CHAINED-DEPTH-2/test_1_uptree_silent_wake/chain-trace.json"
+        },
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-CHAINED-DEPTH-2/test_2_intersession_return/rune-rog-ally/dispatch_response.json"
+        }
+      ],
       "supporting_docs": [
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-CHAINED-DEPTH-2/test_1_uptree_silent_wake/proof.md",
@@ -399,7 +409,11 @@
       ],
       "traces": [
         {
-          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-OBS-2/rune-rog-ally/"
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-OBS-2/rune-rog-ally/fresh_capture_3d242e3d_trace.json",
+          "trace_id": "3d242e3d"
+        },
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-OBS-2/rune-rog-ally/span_hierarchy_trace.json"
         }
       ],
       "supporting_docs": [
@@ -419,7 +433,11 @@
       "test_cases_executed": [
         "continuation defaults resolved on 8cafdcd config"
       ],
-      "traces": [],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CONFIG-DEFAULTS/live-config-emeric-nuc.json"
+        }
+      ],
       "supporting_docs": [
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CONFIG-DEFAULTS/proof.md"
       ],

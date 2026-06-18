@@ -7,6 +7,17 @@ Behavioral proof corpus for the **2026-06-17 FF'd ship-tip** — the post-FF-mer
 - **Method**: `openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md` — full row-set, skipping none, Tempo trace per continuation-fire, honest HONEST-LIMITs. **Both-forms mandate**: every continue_* row in BOTH tool form AND token/bracket form; `request_compaction` is tool-only.
 - **Scope**: feature-live runtime-proofs on the FF'd ship-tip. The merge-to-upstream is figs's call (board FF-ready, flake-retry from green).
 
+## 🤖 clawsweeper-facing summary (machine-readable: `proofs-manifest.json`)
+
+Machine-readable manifest: **[`proofs-manifest.json`](./proofs-manifest.json)** — an array of 22 row-entries, each with `row` · `title` · `owner` · `state` · `dir` · `evidence_doc` · `summary` · `test_cases_executed` · `traces` (path/trace_id/spans) · `supporting_docs` · `notes` · `fired`. Valid JSON, no comments. clawsweeper walks: link → summary → tests → traces-path → docs → state/notes.
+
+**Rollup (22 rows):** `pass: 15` · `partial: 4` · `thin: 3` · `fail: 0` · `missing: 0`.
+- **pass (15):** R-CW-1, R-CW-3, R-CW-4, R-CW-5, R-CD-1, R-CD-2, R-CD-3, R-CD-4, R-CD-TOKEN, R-RC-1, R-OBS-1, R-OBS-2, R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, R-REGRESSION-TRAP-TESTS
+- **partial (4):** R-CW-DELEGATE-TOKEN (#952 — CONTESTED-DEFERRED, figs's RFC: dormant-seat continue_work-nested-tool hop-2 repro UNEXERCISED) · R-CW-TOKEN (PARSE proven, main-session hop-2-EXECUTION-DRIVE owed) · R-CD-CHAINED-DEPTH-2 (TEST-1/2 filled, TEST-3 echo-broadcast owed) · R-RC-2 (ACCEPT proven cross-seat exemplar, fresh-`8cafdcd` executed-accept owed)
+- **thin (3):** R-CW-6-BOUNDARY · R-CW-7-TRACEPARENT-E2E · R-CW-DELEGATE-SELF-CONTINUATION (traces present, canonical top-doc owed)
+
+**dir-presence: 0 genuinely-absent** at the live docs HEAD (22/22 row-dirs present; count earlier mis-read off a stale tip + per-seat-subdir nesting — recursive `<sha>/<row>/**` resolves it). **#952 disposition:** figs ruled BUG; verdict + which-mechanism + scope = his RFC; not closed, not green. **Both-forms mandate** per method; `request_compaction` is tool-only.
+
 ## ⚠️ CORPUS COMPLETENESS — BYTE-HONEST STATE (this corpus is NOT yet whole vs the `077b261dd8` exemplar)
 
 The `077b261dd8` exemplar is **94 files, the full per-row method-corpus** (every R-CW/R-CD/R-RC/R-CONFIG/R-OBS row as its own dir with EVIDENCE.md/proof.md + both-forms traces, + README + RESOLVED-SHA + gates/ + cure-bytes/). This `8cafdcd` corpus is **64 files** and is a MIX of seat-receipts (the older "each seat proves the feature" shape) + a partial per-row table. **Byte-walked state (2026-06-17 ~01:35 PDT):**

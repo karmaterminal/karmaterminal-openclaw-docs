@@ -1,0 +1,466 @@
+{
+  "corpus": "continuation-feature behavioral proof corpus",
+  "sha": "8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6",
+  "sha_short": "8cafdcd",
+  "build_string": "OpenClaw 2026.6.8 (8cafdcd)",
+  "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
+  "generated": "2026-06-18 (cael, byte-true off README verdict table)",
+  "rollup": {
+    "total_rows": 22,
+    "pass": 15,
+    "partial": 4,
+    "thin": 3,
+    "fail": 0,
+    "missing": 0
+  },
+  "notes": "Runtime-half certification of the continuation feature on the FF'd ship-tip 8cafdcd. dir-presence 0-absent at the live docs HEAD. #952 (R-CW-DELEGATE-TOKEN) is CONTESTED-DEFERRED — figs ruled BUG; verdict + which-mechanism + scope = figs's RFC; the dormant-seat continue_work-nested-tool hop-2 repro is the owed daylight byte (UNEXERCISED). Both-forms mandate per method; request_compaction is tool-only.",
+  "rows": [
+    {
+      "row": "R-CW-1",
+      "title": "continue_work() wake + chain-counter persist + deploy-persistence",
+      "owner": "🩸 cael (cael-dgx)",
+      "state": "pass",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-1/",
+      "evidence_doc": "R-CW-1/EVIDENCE.md",
+      "summary": "tool-form continue_work() fires+schedules+emits a live Tempo trace on deployed 8cafdcd; continuation machinery survives the deploy.",
+      "test_cases_executed": [
+        "tool-form FIRES+SCHEDULES — status=scheduled + live traceparent; 36-span trace carries openclaw.tool.execution",
+        "continuation machinery observable-live — journal [continuation/*] lines on 8cafdcd",
+        "DEPLOY-PERSISTENCE — clean register+schedule after deploy to 8cafdcd"
+      ],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-1/wake_event_trace.json",
+          "trace_id": "ffc7c6ea",
+          "spans": 36
+        }
+      ],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-1/wake_event_evidence.txt"
+      ],
+      "notes": "HONEST-LIMIT: driven-wake hop accrues at turn-boundary (cooperative-yield) — deliberate, not a gap. Both-forms: token-form at R-CW-TOKEN.",
+      "fired": "2026-06-17 ~03:54 PDT, cael 8cafdcd gateway ((8e02237))"
+    },
+    {
+      "row": "R-CW-3",
+      "title": "reason-field OTel cross-walk (both forms)",
+      "owner": "🩸 cael (canonical) + 🕯 emeric (cross-walk)",
+      "state": "pass",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-3/",
+      "evidence_doc": "R-CW-3/proof.md",
+      "summary": "continue_work() reason field propagates onto the OTel continuation span; cross-walked tool-form + token-form.",
+      "test_cases_executed": [
+        "reason-field present on continuation span (tool-form)",
+        "cross-walk confirms both-forms parity"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-3/proof.md"
+      ],
+      "notes": "Both-forms mandate satisfied (canonical cael + emeric cross-walk).",
+      "fired": ""
+    },
+    {
+      "row": "R-CW-4",
+      "title": "chain-depth tracking (chain.step.remaining across same chain.id)",
+      "owner": "🩸 cael",
+      "state": "pass",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-4/",
+      "evidence_doc": "R-CW-4/EVIDENCE.md",
+      "summary": "chain-depth decrements across hops on a shared chain.id; bound==live maxChainLength=200.",
+      "test_cases_executed": [
+        "hop=1/200 on trace 261a5c3c; bound==live maxChainLength=200"
+      ],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-4/",
+          "trace_id": "261a5c3c"
+        }
+      ],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-4/EVIDENCE.md"
+      ],
+      "notes": "HONEST-LIMIT: shallow-chain (single observed hop); decrement mechanism proven.",
+      "fired": ""
+    },
+    {
+      "row": "R-CW-5",
+      "title": "cost-cap exhaustion → dispatch-time reject",
+      "owner": "🩸 cael",
+      "state": "pass",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-5/",
+      "evidence_doc": "R-CW-5/EVIDENCE.md",
+      "summary": "continuation dispatch rejects at the pending-cap; [continuation:work-rejected] pending-capped 32/32.",
+      "test_cases_executed": [
+        "[continuation:work-rejected] pending-capped 32/32 observed live on 8cafdcd"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-5/EVIDENCE.md"
+      ],
+      "notes": "HONEST-LIMIT: pending-cap reject (32/32), not cost-cap reject — the reachable cap on this seat.",
+      "fired": ""
+    },
+    {
+      "row": "R-CW-6-BOUNDARY",
+      "title": "chain-depth-boundary reject (spawn-depth boundary)",
+      "owner": "🪨 rune",
+      "state": "thin",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-6-BOUNDARY/",
+      "evidence_doc": null,
+      "summary": "Traces present; canonical EVIDENCE.md/proof.md not yet written (THIN).",
+      "test_cases_executed": [],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-6-BOUNDARY/"
+        }
+      ],
+      "supporting_docs": [],
+      "notes": "THIN: traces present, top-doc owed.",
+      "fired": ""
+    },
+    {
+      "row": "R-CW-7-TRACEPARENT-E2E",
+      "title": "traceparent E2E propagation across continuation spans",
+      "owner": "🪨 rune",
+      "state": "thin",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-7-TRACEPARENT-E2E/",
+      "evidence_doc": null,
+      "summary": "Traces present (rune-rog-ally/EVIDENCE.md); canonical top-doc not yet written (THIN).",
+      "test_cases_executed": [],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-7-TRACEPARENT-E2E/rune-rog-ally/"
+        }
+      ],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-7-TRACEPARENT-E2E/rune-rog-ally/EVIDENCE.md"
+      ],
+      "notes": "THIN: per-seat evidence present, canonical top-doc owed.",
+      "fired": ""
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "title": "continue_delegate self-continuation pattern",
+      "owner": "🪨 rune (canonical) + 🌻 elliott (bonus bracket)",
+      "state": "thin",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-DELEGATE-SELF-CONTINUATION/",
+      "evidence_doc": null,
+      "summary": "Per-seat traces present incl. elliott bracket (a3e6757); canonical top-doc not yet written (THIN).",
+      "test_cases_executed": [],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-DELEGATE-SELF-CONTINUATION/",
+          "trace_id": "a3e6757"
+        }
+      ],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-DELEGATE-SELF-CONTINUATION/rune-rog-ally/EVIDENCE.md",
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-DELEGATE-SELF-CONTINUATION/elliott-seat/EVIDENCE.md"
+      ],
+      "notes": "THIN: traces (incl. elliott bracket a3e6757), top-doc owed.",
+      "fired": ""
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "title": "THE #952 ROW — lightContext subagent fires [[CONTINUE_WORK:N]]/CONTINUE_WORK:N inside a continue_delegate child → hop-2 must EXECUTE on a real/dormant seat",
+      "owner": "🪨 rune",
+      "state": "partial",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-DELEGATE-TOKEN/",
+      "evidence_doc": "R-CW-DELEGATE-TOKEN/proof.md",
+      "summary": "CONTESTED-DEFERRED (figs's RFC). Spec L86 = this row's bar (hop-2-must-EXECUTE-on-a-dormant-seat). Committed token-form PASS exists (e66dc63-lineage: delegate emitted CONTINUE_WORK:7 as text, wake delivered hop-2 which executed, drive-gated). BUT: (1) #952's issue-repro is the continue_work() TOOL-call, a different primitive than the token-form; (2) the corpus self-contradicts (:977 by-design ignore vs the token-PASS), which path each exercised is unreconciled; (3) the bar is UNMET on the actual nested-tool-call surface (the 522fdd7e :977-decline shows no hop-2). Whether the decline is FAIL (#952 live) or by-design-honest-limit is figs's call.",
+      "test_cases_executed": [
+        "committed token-form PASS (e66dc63-lineage): delegate emitted CONTINUE_WORK:7 as text, hop-2 executed+posted, drive-gated on requests-in-flight",
+        "522fdd7e: bare CONTINUE_WORK → :977 subagent-chain decline, no hop-2 (adjacent decline-path, NOT the flood/tool-call mechanism)",
+        "the actual continue_work-TOOL-from-a-delegate-child hop-2 repro on a dormant seat: UNEXERCISED"
+      ],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-DELEGATE-TOKEN/rune-rog-ally/EVIDENCE.md"
+        }
+      ],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-DELEGATE-TOKEN/proof.md"
+      ],
+      "notes": "CONTESTED-DEFERRED — figs ruled BUG (it should chain); cohort sealed neither-lean. Daylight byte = controlled dormant-seat continue_work-nested fire (the repro never fired clean). Verdict + which-mechanism + scope = figs's RFC. Spec-bar byte-confirmed in openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md L86 + L71 both-forms-mandate.",
+      "fired": ""
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "title": "token/bracket form of continue_work (bare CONTINUE_WORK / CONTINUE_WORK:N drives continuation, hop-2 fires from the parsed response-token)",
+      "owner": "🩸 cael",
+      "state": "partial",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-TOKEN/",
+      "evidence_doc": "R-CW-TOKEN/EVIDENCE.md",
+      "summary": "PARSE proven fresh on 8cafdcd (bare CONTINUE_WORK:5 → bracketIdx=0 kind=work via 522fdd7e). Main-session hop-2 EXECUTION-DRIVE owed fresh on 8cafdcd (the :26 exemplar 40674ffa cite is a continuation.work armed-wake span, NOT a verified executed second turn — execution-untested stands). Daylight, not code-fix-gated.",
+      "test_cases_executed": [
+        "PARSE+SCHEDULE proven: bare CONTINUE_WORK:5 → bracketIdx=0 kind=work (522fdd7e)",
+        "subagent surface design-declines the WORK token by design (:977); cael-seat bracketIdx=-1 = emission-surface (message-tool-body, not scanned-final-text)",
+        "main-session hop-2 EXECUTION-DRIVE on fresh 8cafdcd: OWED (untested)"
+      ],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-TOKEN/EVIDENCE.md",
+          "trace_id": "522fdd7e"
+        }
+      ],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CW-TOKEN/EVIDENCE.md"
+      ],
+      "notes": "⚠️ PARTIAL: PARSE proven; hop-2-EXECUTION-DRIVE owed (the :26 EVIDENCE line cites 40674ffa = armed-wake span, retracted as a verified-execution claim). Daylight forward-fire: bare CONTINUE_WORK:N as TERMINAL token in main-session direct-final-text (terminal-position causal, not length). Bracketed [[CONTINUE_WORK:N]] is unparseable (tokens.ts:491 bare-only).",
+      "fired": ""
+    },
+    {
+      "row": "R-CD-1",
+      "title": "continue_delegate() schedule → spawn → return",
+      "owner": "🌊 ronan",
+      "state": "pass",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-1/",
+      "evidence_doc": "R-CD-1/ronan-spark/EVIDENCE.md",
+      "summary": "continue_delegate() schedules, spawns the shard, and returns; 44-line EVIDENCE.md on the tip.",
+      "test_cases_executed": [
+        "schedule→spawn→return end-to-end on 8cafdcd"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-1/ronan-spark/EVIDENCE.md"
+      ],
+      "notes": "Filled to standard (freshness-fix 2026-06-17 ~10:25 PDT; struck from THIN).",
+      "fired": ""
+    },
+    {
+      "row": "R-CD-2",
+      "title": "continue_delegate(mode=silent-wake) full path",
+      "owner": "🌊 ronan",
+      "state": "pass",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-2/",
+      "evidence_doc": "R-CD-2/ronan-spark/EVIDENCE.md",
+      "summary": "silent-wake full path (silent enrichment + own-next-turn trigger); 43-line EVIDENCE.md on the tip.",
+      "test_cases_executed": [
+        "silent-wake full path end-to-end on 8cafdcd"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-2/ronan-spark/EVIDENCE.md"
+      ],
+      "notes": "Filled to standard (freshness-fix; struck from THIN).",
+      "fired": ""
+    },
+    {
+      "row": "R-CD-3",
+      "title": "continue_delegate(mode=post-compaction) event-triggered lifeboat",
+      "owner": "🌊 ronan",
+      "state": "pass",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-3/",
+      "evidence_doc": "R-CD-3/ronan-spark/EVIDENCE.md",
+      "summary": "post-compaction event-triggered lifeboat (fires at the compaction seam). Per-seat EVIDENCE.md present at ronan-spark/.",
+      "test_cases_executed": [
+        "post-compaction lifeboat fires at the compaction-seam on 8cafdcd"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-3/ronan-spark/EVIDENCE.md"
+      ],
+      "notes": "Present at the live tip (573aa77; the count-oscillation read this absent off a stale 1943b548 tip + seat-subdir nesting — recursive <sha>/<row>/** count resolves it present).",
+      "fired": ""
+    },
+    {
+      "row": "R-CD-4",
+      "title": "cross-session targeted return via targetSessionKey",
+      "owner": "🌊 ronan",
+      "state": "pass",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-4/",
+      "evidence_doc": "R-CD-4/ronan-spark/EVIDENCE.md",
+      "summary": "cross-session targeted return (delegate result routes to a named targetSessionKey). Per-seat EVIDENCE.md present at ronan-spark/.",
+      "test_cases_executed": [
+        "cross-session targeted return to a named session on 8cafdcd"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-4/ronan-spark/EVIDENCE.md"
+      ],
+      "notes": "Present at the live tip (573aa77; same stale-tip/seat-subdir false-absent as R-CD-3 — recursive count resolves present).",
+      "fired": ""
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "title": "token/bracket form of continue_delegate ([[CONTINUE_DELEGATE: task]] schedules → spawns → returns, parity with tool path)",
+      "owner": "🌊 ronan",
+      "state": "pass",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-TOKEN/",
+      "evidence_doc": "R-CD-TOKEN/ronan-spark/EVIDENCE.md",
+      "summary": "[[CONTINUE_DELEGATE: task]] bracket-form schedules→spawns→returns; both-forms doc (tool-form proven R-CD-1/2 + bracket-form emission-surface-gap by-design, source-confirmed). Rune's grandchild ran (ac7077f).",
+      "test_cases_executed": [
+        "bracket [[CONTINUE_DELEGATE: task]] → schedule→spawn→return (grandchild ran, ac7077f)",
+        "tool-form parity (R-CD-1/2)",
+        "bracket-form emission-surface-gap is by-design, source-confirmed"
+      ],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-TOKEN/ronan-spark/EVIDENCE.md",
+          "trace_id": "ac7077f"
+        }
+      ],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-TOKEN/ronan-spark/EVIDENCE.md"
+      ],
+      "notes": "CLOSED-POSITIVE. Distinct primitive from R-CW-DELEGATE-TOKEN (#952): this is [[CONTINUE_DELEGATE]]→spawn, NOT continue_work-in-a-delegate-child.",
+      "fired": ""
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "title": "depth-2 chain — up-tree silent-wake / inter-session return / echo+cross-channel-broadcast",
+      "owner": "🕯 emeric + 🪨 rune (sub for 🌫 silas) + 🌫 silas (TEST-3)",
+      "state": "partial",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-CHAINED-DEPTH-2/",
+      "evidence_doc": "R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
+      "summary": "TEST-1 (up-tree silent-wake) FILLED — depth-cap REJECT @ max=1 (boundary; byte-honest, corrected from a copied-exemplar false-PASS). TEST-2 (inter-session return) FILLED. TEST-3 (echo+cross-channel-broadcast) MISSING/owed on 8cafdcd (silas).",
+      "test_cases_executed": [
+        "TEST-1 up-tree silent-wake → depth-cap REJECT @ max=1 (boundary, byte-honest) — FILLED",
+        "TEST-2 inter-session return — FILLED (rune-rog-ally)",
+        "TEST-3 echo+cross-channel-broadcast — MISSING (owed, silas)"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-CHAINED-DEPTH-2/test_1_uptree_silent_wake/proof.md",
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CD-CHAINED-DEPTH-2/test_2_intersession_return/rune-rog-ally/proof.md"
+      ],
+      "notes": "PARTIAL: TEST-1/2 filled (TEST-1 honest depth-cap-reject@max=1, corrected from false-PASS), TEST-3 echo-broadcast owed.",
+      "fired": ""
+    },
+    {
+      "row": "R-RC-1",
+      "title": "request_compaction threshold REJECT (below-threshold reject, tool-only)",
+      "owner": "🌫 silas",
+      "state": "pass",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-RC-1/",
+      "evidence_doc": "R-RC-1/EVIDENCE.md",
+      "summary": "request_compaction below-threshold REJECT (reject@14% byte captured). Per-row dir filled at the live tip (d97becb).",
+      "test_cases_executed": [
+        "request_compaction below threshold → REJECT (guard-byte ~14%) on 8cafdcd"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-RC-1/EVIDENCE.md",
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-RC-1/silas_seat_request_compaction_reject_8cafdcd.txt"
+      ],
+      "notes": "Filled at the live tip (d97becb, 'the sole genuinely-absent dir at the 8cafdcd corpus, 22/22 dir-floor now complete'). request_compaction is TOOL-ONLY (no bracket form).",
+      "fired": ""
+    },
+    {
+      "row": "R-RC-2",
+      "title": "request_compaction over-threshold ACCEPT (tool-only)",
+      "owner": "🩸 cael",
+      "state": "partial",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-RC-2/",
+      "evidence_doc": "R-RC-2/EVIDENCE.md",
+      "summary": "HONEST-PENDING: cael-seat live probe contextUsage:0 → ACCEPT unreachable this session (reject-byte captured). Cross-seat ACCEPT proven on exemplar 077b261dd8 (Ronan 74% / Silas 89% ACCEPT). Fresh-8cafdcd executed-accept owed when a seat genuinely crosses ≥70% live.",
+      "test_cases_executed": [
+        "cael-seat live probe contextUsage:0 → reject-byte (ACCEPT unreachable at 0%)",
+        "cross-seat ACCEPT proven on exemplar 077b261dd8 (Ronan 74% / Silas 89%)",
+        "fresh-8cafdcd executed-accept (a seat crossing ≥70% live): OWED"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-RC-2/EVIDENCE.md"
+      ],
+      "notes": "⚠️ HONEST-PENDING: ACCEPT proven cross-seat (exemplar), fresh-8cafdcd executed-accept owed (needs a live ≥70% crossing). request_compaction is TOOL-ONLY.",
+      "fired": ""
+    },
+    {
+      "row": "R-OBS-1",
+      "title": "external /status 6-prince cross-walk",
+      "owner": "🌻 elliott (+ figs)",
+      "state": "pass",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-OBS-1/",
+      "evidence_doc": "R-OBS-1/EVIDENCE.md",
+      "summary": "external /status cross-walk across all 6 princes on 8cafdcd (6/6, cross-arch, skew-caveat). Exemplar-complete.",
+      "test_cases_executed": [
+        "6/6 prince /status cross-walk on 8cafdcd, cross-arch (x86_64 + ARM64)"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-OBS-1/EVIDENCE.md"
+      ],
+      "notes": "FILLED exemplar-complete. HONEST-LIMIT: cross-arch clock-skew caveat noted.",
+      "fired": ""
+    },
+    {
+      "row": "R-OBS-2",
+      "title": "Tempo trace-tree + span-hierarchy",
+      "owner": "🪨 rune",
+      "state": "pass",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-OBS-2/",
+      "evidence_doc": "R-OBS-2/rune-rog-ally/EVIDENCE.md",
+      "summary": "Tempo trace-tree + span-hierarchy captured (EVIDENCE + proof + 2 trace JSONs).",
+      "test_cases_executed": [
+        "trace-tree + span-hierarchy observable on 8cafdcd (2 trace JSONs)"
+      ],
+      "traces": [
+        {
+          "path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-OBS-2/rune-rog-ally/"
+        }
+      ],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-OBS-2/rune-rog-ally/EVIDENCE.md"
+      ],
+      "notes": "FILLED (EVIDENCE + proof + 2 trace JSONs).",
+      "fired": ""
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "title": "continuation defaults on bootstrap",
+      "owner": "🕯 emeric",
+      "state": "pass",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CONFIG-DEFAULTS/",
+      "evidence_doc": "R-CONFIG-DEFAULTS/proof.md",
+      "summary": "continuation config defaults resolve correctly on the bootstrap/ship config.",
+      "test_cases_executed": [
+        "continuation defaults resolved on 8cafdcd config"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CONFIG-DEFAULTS/proof.md"
+      ],
+      "notes": "FILLED (proof).",
+      "fired": ""
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "title": "config persists across sessions",
+      "owner": "🕯 emeric",
+      "state": "pass",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CONFIG-INTERSESSION/",
+      "evidence_doc": "R-CONFIG-INTERSESSION/proof.md",
+      "summary": "continuation config persists across sessions on 8cafdcd.",
+      "test_cases_executed": [
+        "config persists across sessions on 8cafdcd"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-CONFIG-INTERSESSION/proof.md"
+      ],
+      "notes": "FILLED (proof).",
+      "fired": ""
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "title": "sister-trap-test coverage",
+      "owner": "🕯 emeric",
+      "state": "pass",
+      "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-REGRESSION-TRAP-TESTS/",
+      "evidence_doc": "R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
+      "summary": "sister-trap-test coverage for the continuation regression family.",
+      "test_cases_executed": [
+        "sister-trap-test coverage on 8cafdcd"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-REGRESSION-TRAP-TESTS/EVIDENCE.md"
+      ],
+      "notes": "FILLED (EVIDENCE).",
+      "fired": ""
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+R-RC-1 — request_compaction() threshold-reject — silas-lothric canonical REJECT-arm
+====================================================================================
+SHA:        8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6 (deployed, OpenClaw 2026.6.8)
+Seat:       silas-lothric (host=silas, i9-14900KS raptor-lake x86_64, gateway MainPID 897170)
+Captured:   2026-06-18T00:18Z
+Live ctx:   36% (below the 70% threshold)
+Echo token: R-RC-1-silas-8cafdcd-1781741800
+
+--- tool call ---
+request_compaction(reason="PROOF-FIRE R-RC-1 threshold-reject (silas-lothric canonical
+REJECT-arm, live request_compaction on deployed 8cafdcd). Echo token
+R-RC-1-silas-8cafdcd-1781741800. Expected: structured rejection guard=context_threshold
+below 70% — NOT a genuine compaction request, capturing the reject byte for the 8cafdcd
+proofs corpus.")
+
+--- verbatim tool response ---
+{
+  "status": "rejected",
+  "guard": "context_threshold",
+  "contextUsage": 36,
+  "threshold": 70,
+  "reason": "Context usage (36%) is below the minimum threshold (70%). Compaction is not needed yet."
+}
+
+--- interpretation ---
+ctx=36 < threshold=70  -> guard: context_threshold  (correct)
+typed rejection object, not an exception            (correct)
+no compactionRequestId, no event queued             (correct)
+session uninterrupted                               (correct)

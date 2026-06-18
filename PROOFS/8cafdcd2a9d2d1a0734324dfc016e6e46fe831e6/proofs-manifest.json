@@ -346,16 +346,16 @@
       "state": "pass",
       "dir": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-RC-1/",
       "evidence_doc": "R-RC-1/EVIDENCE.md",
-      "summary": "request_compaction below-threshold REJECT (reject@14% byte captured). Per-row dir filled at the live tip (d97becb).",
+      "summary": "request_compaction() below-threshold REJECT-arm, ✅ PASS. Captured 2026-06-18T00:18Z: silas live contextUsage=36 << threshold=70 -> STRUCTURED typed rejection (guard=context_threshold, status=rejected, no compactionRequestId, session uninterrupted). @36%<70% IS the reject condition, so this capture is CORRECT-AND-COMPLETE (the ≥70% caveat belongs to R-RC-2's ACCEPT-arm, NOT here). Per-row dir filled at the live tip (d97becb). request_compaction is TOOL-ONLY (no bracket form).",
       "test_cases_executed": [
-        "request_compaction below threshold → REJECT (guard-byte ~14%) on 8cafdcd"
+        "request_compaction(reason) at silas live ctx=36% (< 70% threshold) -> structured typed rejection: status=rejected, guard=context_threshold, contextUsage=36, threshold=70; no compactionRequestId, no event queued, session uninterrupted (✅ PASS REJECT-arm)"
       ],
       "traces": [],
       "supporting_docs": [
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-RC-1/EVIDENCE.md",
         "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/R-RC-1/silas_seat_request_compaction_reject_8cafdcd.txt"
       ],
-      "notes": "Filled at the live tip (d97becb, 'the sole genuinely-absent dir at the 8cafdcd corpus, 22/22 dir-floor now complete'). request_compaction is TOOL-ONLY (no bracket form).",
+      "notes": "REJECT-arm RESOLVED (✅ PASS, not owed) — @36%<70% IS the reject condition, capture correct-and-complete; the ≥70%-live caveat is R-RC-2's ACCEPT-arm, not this row. Filled at the live tip (d97becb, 22/22 dir-floor complete). request_compaction is TOOL-ONLY. (Corrected: prior summary said 14%, the EVIDENCE byte is 36%.)",
       "fired": ""
     },
     {

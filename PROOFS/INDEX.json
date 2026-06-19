@@ -1,0 +1,22 @@
+{
+  "schema": "openclaw.proofs.index.v1",
+  "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is the CURRENT pr-presentation one. Many per-SHA corpus dirs exist; THIS file names the current one so navigation and dir-count are unambiguous.",
+  "current_sha": "8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6",
+  "current_sha_short": "8cafdcd",
+  "build_string": "OpenClaw 2026.6.8 (8cafdcd)",
+  "corpus_path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/",
+  "manifest_path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/proofs-manifest.json",
+  "readme_path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/README.md",
+  "rollup": {
+    "total_rows": 22,
+    "pass": 15,
+    "partial": 4,
+    "thin": 3,
+    "fail": 0,
+    "missing": 0
+  },
+  "disposition_note": "#952 (R-CW-DELEGATE-TOKEN) CONTESTED-DEFERRED -- figs RFC; OPEN issue. FF-decoupled. dir-presence 0-absent at the manifest live HEAD.",
+  "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[] (each row carries link, summary, test_cases_executed, traces, supporting_docs, state, notes). Do NOT treat other PROOFS/<sha>/ dirs as current -- they are historical.",
+  "generated": "2026-06-18",
+  "generated_by": "ronan-spark (figs-directed, built off the live per-SHA proofs-manifest.json)"
+}

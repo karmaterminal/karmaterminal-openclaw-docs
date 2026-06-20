@@ -132,13 +132,27 @@
 8. **Tool-form is canonical; bracket-syntax is fallback only (tools-disabled environments)**
 9. **`request_compaction` requires context-pressure ≥ threshold before firing**
 10. **Volitional compaction emits `trigger: "volitional"` (distinct from budget/overflow/manual)**
+11. **Continuation-tool registration is ASYMMETRIC by design** (`openclaw-tools.ts:592`): `continue_work` + `request_compaction` need runner-supplied in-process callbacks (`continueWorkOpts`/`requestCompactionOpts`) — without them they'd be dead tools that error on invoke; `continue_delegate` uses TaskFlow (durable SQLite seam) and needs no closure. So an isolated cron/agentTurn session registers ONLY `continue_delegate` (it doesn't supply `continueWorkOpts`).
+12. **`[[CONTINUE_WORK]]` bracket is parsed ONLY in subagent-context** (`subagent-announce.ts:453`), NOT main; main uses the bare `CONTINUE_WORK[:N]` token (`tokens.ts:538`) + the tool. figs ruled the bracket MUST fire for a delegate-child's own session (the lightContext leaf has no tool — bracket is its only path).
+13. **Multi-`continue_work()` same-turn captures ALL elections** (`attempt-execution.ts:769` array; `:988` fans out one wake each) — the #982 single-var-drop is FIXED. A stale pile past `supersededGraceMs` (`= maxDelayMs × SUPERSEDED_GRACE_MULTIPLIER`) is coalesced/folded into the newest (`partitionSupersededWork`, #986); on-time staggered elections drain one-per-poll (distinct turns) and never co-arrive.
+14. **A delegate's return follows up-tree on collapse to root regardless of wake** (`fanoutMode="tree"` → `targeting.ts:46` ancestor-routing; `parentRunId` threading; follow-up injection `subagent-announce.ts:1579` deliver=false) — collection-on-collapse: the return aggregates up-tree as context EVEN WHEN it did not trigger a parent-turn.
 
 ---
 
-## 5. Open Questions for Figs
+## 5. Behavior Specification (the desired behavior is OURS to define, not deferred)
 
+figs `1517936677` (2026-06-20) corrected a cohort drift: routing a design-decision to figs ("maybe figs's RFC") is the shutdown-vector — a deferral dressed as deference. **This is our software; we DEFINE the desired behavior and design to it, and that definition is what makes "erroneous" renderable.** The full per-cell behavior (4 surfaces × 2 contexts + figs's 8 #1053 tests, DESIRED + ERRONEOUS each) is specified in `openclaw-bootstrap:RUNBOOKS/CONTINUATION-BEHAVIOR-SPEC.md` and byte-pinned in `karmaterminal/openclaw#1054`. Headline definitions:
+
+- **tool/bare-token/bracket `continue_work` from a delegate-child** → MUST self-continue (drives hop-2 in the child's OWN session; figs `1516841690`). The #952/#1044 `:977`-reap-false-positive regression that broke it is FIXED (#1044, mock-proven). The live clean-idle hop-2-EXECUTE is a PROOF-ROW owed (`R-CW-DELEGATE-CHILD-LIVE`; #1045 `Real behavior proof` gate, currently RED) — NOT an open RFC. Structurally hard: needs a `continueWorkOpts`-session that goes genuinely idle (cron-isolated can't register it; main is the busy channel).
+- **test-3** (3× `continue_work()`, yield-immediately) → 3 distinct turns at +0/+60s/+120s. ERRONEOUS: only 1 (the pre-#982 drop).
+- **test-4** (3×, wait-120s, yield) → grace-conditional: on-time-staggered drains one-per-poll (distinct); piled-past-grace coalesces to newest. NOT a blanket collapse, NOT undefined.
+- **`[[CONTINUE_WORK]]` in main** → no-op BY DESIGN (main = tool + bare-token; bracket is the tool-less-leaf affordance).
+- **collection-on-collapse** → the return reaches root on collapse regardless of wake. ERRONEOUS: return lost when no wake.
+
+PROOF-rows tracking these: `R-CW-MULTI` / `R-CW-MULTI-COLLAPSE` / `R-CW-DELEGATE-CHILD-LIVE` / `R-CD-COLLECTION-ON-COLLAPSE` (openclaw-bootstrap PRs #1205/#1206/#1207). The one genuinely-owed thing is the empirical CAPTURE (the live-EXECUTE proof-row), not a behavior decision.
+
+### Remaining open question
 1. **gpt-5.5 hardcoded fallback in model.ts** — do we still need this or has upstream model registry caught up?
-2. (Inherits frond's §9 questions: test scope / intersession.return / ACP wrapper / defensive-guard merge bias / schema-tie-breaking)
 
 ---
 

@@ -375,16 +375,22 @@ export function rCdToken() {
         if (ck && !(rec.facts.receipts && rec.facts.receipts.childKeyOrRunId)) rec.setFact('receipts.childKeyOrRunId', ck);
       }
       // SILENT-WAKE RECEIPT (R-CD-owner correction, mirrors 04-r-cd-token.js): a
-      // FRESH parent turn/run starting on the parent session AFTER the child was
+      // FRESH parent turn starting on the parent session AFTER the child was
       // observed is the wake the silent-wake return triggered. The transcript
       // echo is OPTIONAL under silent-wake; the WAKE is the load-bearing receipt.
+      // EVENT-NAME (🔍 Cael byte-verified): key on `session.message` (the woken
+      // turn's transcript message via sessions.messages.subscribe), NOT
+      // `turn.start`/`run.start` (source-only, never pushed — would never fire).
       if (obs.promptSent && obs.childObserved) {
-        const isParentTurnStart =
-          /(turn.*start|run.*start|generation.*start|agent.*turn|message.*(received|start))/i.test(blob) &&
-          (blob.includes(sessionKey) || (msg.params && msg.params.sessionKey === sessionKey));
-        if (isParentTurnStart && childSeenAtMs && Date.now() > childSeenAtMs + 250 && !obs.parentWoke) {
+        const evt = (msg.type === 'event' && msg.event) ? String(msg.event) : '';
+        const evtSession = (msg.params && msg.params.sessionKey) ||
+          (msg.data && msg.data.sessionKey) || null;
+        const isParentWake =
+          (/session\.message/i.test(evt) || /sessions?\.changed/i.test(evt)) &&
+          (evtSession === sessionKey || blob.includes(sessionKey));
+        if (isParentWake && childSeenAtMs && Date.now() > childSeenAtMs + 250 && !obs.parentWoke) {
           obs.parentWoke = true;
-          rec.note('wake', `parent woke (fresh turn/run on ${sessionKey}) after child spawn -> silent-wake receipt`);
+          rec.note('wake', `parent woke (fresh session.message on ${sessionKey}) after child spawn -> silent-wake receipt`);
           rec.setFact('receipts.parentWoke', true);
         }
       }

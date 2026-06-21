@@ -134,18 +134,26 @@ export default function () {
 
       // SILENT-WAKE RECEIPT: a fresh parent turn/run STARTING on the parent
       // session AFTER the child was observed = the wake the silent-wake return
-      // triggered. We look for a parent-session turn/run-start event whose
-      // session key matches the parent and that occurs after the child spawn.
+      // triggered.
+      //
+      // EVENT-NAME (🔍 Cael byte-verified vs the live gateway surface,
+      // VERIFIED-GATEWAY-SURFACE.md): the gateway does NOT push `turn.start`/
+      // `run.start` as client subscription events (internal source refs only —
+      // keying on them would NEVER fire). The woken successor turn surfaces as a
+      // fresh **`session.message`** event on the subscribed session (via
+      // `sessions.messages.subscribe`); `sessions.changed` is a secondary signal.
       if (obs.promptSent && obs.childObserved) {
-        const isParentTurnStart =
-          /(turn.*start|run.*start|generation.*start|agent.*turn|message.*(received|start))/i.test(blob) &&
-          (blob.includes(cfg.sessionKey) ||
-            (msg.params && (msg.params.sessionKey === cfg.sessionKey)));
+        const evt = (msg.type === 'event' && msg.event) ? String(msg.event) : '';
+        const evtSession = (msg.params && msg.params.sessionKey) ||
+          (msg.data && msg.data.sessionKey) || null;
+        const isParentWake =
+          (/session\.message/i.test(evt) || /sessions?\.changed/i.test(evt)) &&
+          (evtSession === cfg.sessionKey || blob.includes(cfg.sessionKey));
         // require it to be AFTER the child spawn (a wake, not the original send echo)
-        if (isParentTurnStart && childSeenAtMs && Date.now() > childSeenAtMs + 250) {
+        if (isParentWake && childSeenAtMs && Date.now() > childSeenAtMs + 250) {
           if (!obs.parentWoke) {
             obs.parentWoke = true;
-            rec.note('wake', `parent woke (fresh turn/run on ${cfg.sessionKey}) after child spawn → silent-wake receipt`);
+            rec.note('wake', `parent woke (fresh session.message on ${cfg.sessionKey}) after child spawn → silent-wake receipt`);
             rec.setFact('receipts.parentWoke', true);
           }
         }

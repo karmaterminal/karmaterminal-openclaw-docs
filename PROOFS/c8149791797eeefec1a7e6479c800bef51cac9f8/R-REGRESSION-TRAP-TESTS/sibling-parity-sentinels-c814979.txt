@@ -1,0 +1,39 @@
+=== request-compaction-opts.test.ts header (the sibling-parity rationale) ===
+/**
+ * Regression coverage for spawn-init requestCompactionOpts wiring.
+ *
+ * `runAgentAttempt` constructs and forwards a `requestCompactionOpts` closure
+ * to `runEmbeddedAgent` whenever continuation is enabled. Without this wiring,
+ * `createOpenClawTools` sees no request-compaction callbacks on turn 1, so the
+ * `request_compaction` tool never registers for newly spawned subagents.
+ *
+ * The sibling `continueWorkOpts` closure already uses the same spawn-init path.
+ * These tests keep request-compaction plumbing aligned with it so subagents can
+ * both schedule a next turn and reclaim context when pressure rises.
+ */
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+=== continue-work-opts.test.ts header (the Layer-2 cure-pin + introspection invariant) ===
+/**
+ * Regression-pin trap-test for #746 Layer 2 cure (PR #892 complement).
+ *
+ * Asserts that `runAgentAttempt` (the spawn-init / turn-1 path that subagent
+ * gateway invocations land on via callSubagentGateway → agentCommandInternal →
+ * runAgentAttempt → runEmbeddedAgent) forwards a `continueWorkOpts` closure to
+ * `runEmbeddedAgent` whenever `cfg.agents.defaults.continuation.enabled === true`.
+ *
+ * Without this wiring, openclaw-tools.ts:592 evaluates
+ * `options?.continueWorkOpts` as undefined on turn-1, the `continue_work` tool
+ * never registers in the subagent's spawn-init tool-list, and subagent sessions
+ * cannot self-elect another turn even though PR #892 cured the same gap on the
+ * followup-runner (turn-2+) path. Empirical observation:
+ * `CONTINUE_WORK STILL NOT AVAILABLE` post-PR-#892-merge.
+ *
+ * Cure-mechanism-distinction: same observable `turn 2/200` event can be
+ * produced by either chain-hop (continue_delegate) or in-session continue_work.
+ * This test pins the tool-list-introspection invariant (continueWorkOpts
+ * present on turn-1) so the cure path can be verified independently of the
+ * delivery mechanism.

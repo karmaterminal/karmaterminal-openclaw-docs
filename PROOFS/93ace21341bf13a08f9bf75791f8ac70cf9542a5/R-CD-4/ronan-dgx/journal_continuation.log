@@ -1,0 +1,4 @@
+  Jun 21 01:00:12 ronan node[600103]: 2026-06-21T01:00:12.806-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session agent:main:discord:channel:1466192485440164011
+  Jun 21 01:00:13 ronan node[600103]: 2026-06-21T01:00:13.004-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=silent session=agent:main:discord:channel:1466192485440164011 task=[PROOF R-CD-4 / 93ace21341bf13a08f9bf75791f8ac70cf9542a5] You are a delegate dis
+  Jun 21 01:00:16 ronan node[600103]: 2026-06-21T01:00:16.733-07:00 R-CD-4 PROOF: continue_delegate cross-session targetSessionKey-routing verified at CANDIDATE_SHA 93ace21341bf13a08f9bf75791f8ac70cf9542a5 from ronan-dgx seat 2026-06-21; return targeted to agent:main:main
+  Jun 21 01:00:17 ronan node[600103]: 2026-06-21T01:00:17.047-07:00 [continuation:targeted-return] Delivered to agent:main:main from agent:main:subagent:continuation-7fd0888464d115a96becd70f311fe283

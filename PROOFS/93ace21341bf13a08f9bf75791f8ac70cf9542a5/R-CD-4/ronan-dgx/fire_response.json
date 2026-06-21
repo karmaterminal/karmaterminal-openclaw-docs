@@ -1,0 +1,4 @@
+{"status":"scheduled","mode":"silent","delaySeconds":5,"delegateIndex":2,"delegatesThisTurn":2,
+ "targetSessionKey":"agent:main:main",
+ "traceparent":"00-e1ad376d3790c7152c46a1f4f6fcc7da-0b968a935cde2cc6-01",
+ "note":"Delegate will be dispatched after your response completes. Chain tracking (cost cap, depth limit) applies."}

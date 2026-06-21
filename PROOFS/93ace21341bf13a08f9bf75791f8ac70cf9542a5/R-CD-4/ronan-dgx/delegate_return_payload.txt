@@ -1,0 +1,1 @@
+R-CD-4 PROOF: continue_delegate cross-session targetSessionKey-routing verified at CANDIDATE_SHA 93ace21341bf13a08f9bf75791f8ac70cf9542a5 from ronan-dgx seat 2026-06-21; return targeted to agent:main:main

@@ -1,0 +1,2 @@
+{"status":"scheduled","mode":"normal","delaySeconds":5,"delegateIndex":3,"delegatesThisTurn":3,
+ "traceparent":"00-fd6dab620c7ddff41f0c4fdc913c1104-476b7db80b50e8f3-01","chain":"echo-broadcast-depth-2","depth2_fanoutMode":"tree"}

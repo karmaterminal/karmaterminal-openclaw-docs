@@ -161,17 +161,23 @@ export default function () {
       // (Subscribe note: the lib subscribes via `sessions.messages.subscribe`;
       //  Cael flags the pushes arrive as `session.message` events — verify the
       //  exact subscribe method name against the deployed SHA.)
+      // (R-CD-owner careful impl, Ronan PR #97 `1518178667`: gate on `msg.type
+      //  === 'event'` so a non-event frame that merely contains the string
+      //  "session.message" can't false-match; extract the session key from BOTH
+      //  `params` and `data`; accept `sessions.changed` as a secondary live wake
+      //  signal alongside the primary `session.message`.)
       if (obs.promptSent && obs.childObserved) {
-        const evtName = msg.event || msg.method || (msg.params && msg.params.event);
-        const isParentSessionMessage =
-          (evtName === 'session.message' || /(^|[."'])session\.message([."']|$)/.test(blob)) &&
-          (blob.includes(cfg.sessionKey) ||
-            (msg.params && (msg.params.sessionKey === cfg.sessionKey)));
+        const evt = (msg.type === 'event' && msg.event) ? String(msg.event) : '';
+        const evtSession = (msg.params && msg.params.sessionKey) ||
+          (msg.data && msg.data.sessionKey) || null;
+        const isParentWake =
+          (/session\.message/i.test(evt) || /sessions?\.changed/i.test(evt)) &&
+          (evtSession === cfg.sessionKey || blob.includes(cfg.sessionKey));
         // require it to be AFTER the child spawn (a wake, not the original send echo)
-        if (isParentSessionMessage && childSeenAtMs && Date.now() > childSeenAtMs + 250) {
+        if (isParentWake && childSeenAtMs && Date.now() > childSeenAtMs + 250) {
           if (!obs.parentWoke) {
             obs.parentWoke = true;
-            rec.note('wake', `parent woke (session.message on ${cfg.sessionKey}) after child spawn → silent-wake receipt`);
+            rec.note('wake', `parent woke (fresh session.message on ${cfg.sessionKey}) after child spawn → silent-wake receipt`);
             rec.setFact('receipts.parentWoke', true);
           }
         }

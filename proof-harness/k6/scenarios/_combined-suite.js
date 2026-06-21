@@ -409,14 +409,20 @@ export function rCdToken() {
       // transcript echo is OPTIONAL under silent-wake; the WAKE is load-bearing.
       // (Subscribe via `sessions.messages.subscribe` → pushes arrive as
       //  `session.message`; verify the exact method name against the deployed SHA.)
+      // (R-CD-owner careful impl, Ronan PR #97: gate on `msg.type === 'event'`
+      //  so a non-event frame containing "session.message" can't false-match;
+      //  extract sessionKey from BOTH params + data; accept `sessions.changed` as
+      //  a secondary live wake signal alongside the primary `session.message`.)
       if (obs.promptSent && obs.childObserved) {
-        const evtName = msg.event || msg.method || (msg.params && msg.params.event);
-        const isParentSessionMessage =
-          (evtName === 'session.message' || /(^|[."'])session\.message([."']|$)/.test(blob)) &&
-          (blob.includes(sessionKey) || (msg.params && msg.params.sessionKey === sessionKey));
-        if (isParentSessionMessage && childSeenAtMs && Date.now() > childSeenAtMs + 250 && !obs.parentWoke) {
+        const evt = (msg.type === 'event' && msg.event) ? String(msg.event) : '';
+        const evtSession = (msg.params && msg.params.sessionKey) ||
+          (msg.data && msg.data.sessionKey) || null;
+        const isParentWake =
+          (/session\.message/i.test(evt) || /sessions?\.changed/i.test(evt)) &&
+          (evtSession === sessionKey || blob.includes(sessionKey));
+        if (isParentWake && childSeenAtMs && Date.now() > childSeenAtMs + 250 && !obs.parentWoke) {
           obs.parentWoke = true;
-          rec.note('wake', `parent woke (session.message on ${sessionKey}) after child spawn -> silent-wake receipt`);
+          rec.note('wake', `parent woke (fresh session.message on ${sessionKey}) after child spawn -> silent-wake receipt`);
           rec.setFact('receipts.parentWoke', true);
         }
       }

@@ -1,0 +1,134 @@
+{
+  "$schema": "openclaw.proof-harness.row-manifest.v0",
+  "_comment": [
+    "EXAMPLE row manifest for the k6 proof-harness. Describes the rows a run will",
+    "fire/observe and the receipts each row expects. The post-processor reads this",
+    "plus each scenario's summary.json to author PROOFS/<SHA>/<ROW>/ artifacts.",
+    "",
+    "SECURITY: this file carries NO token. The gateway token comes from the",
+    "OPENCLAW_GATEWAY_TOKEN env var (loopback/tailnet only) or a CI repo-secret.",
+    "Never put a token in a manifest or any committed artifact.",
+    "",
+    "safeToFire: a row only fires its continuation tool when BOTH this flag AND the",
+    "SAFE_TO_FIRE=1 env gate are set. Default OFF — scaffold-safe. preflight is",
+    "read-only and always safe.",
+    "",
+    "⚠️ Verify gateway method/tool names against the DEPLOYED SHA before a real run",
+    "(the names below come from the design notes, not yet byte-verified live)."
+  ],
+  "corpus": "continuation-proof-harness",
+  "candidateSha": "REPLACE-WITH-FULL-40-CHAR-CANDIDATE-SHA",
+  "buildString": "OpenClaw <ver> (<sha_short>)",
+  "seatName": "elliott-legion",
+  "gateway": {
+    "wsUrl": "ws://127.0.0.1:18789",
+    "httpFallback": "http://127.0.0.1:18789/tools/invoke",
+    "tokenEnvVar": "OPENCLAW_GATEWAY_TOKEN",
+    "transportPrimary": "websocket",
+    "networkPolicy": "loopback-or-tailnet-only"
+  },
+  "outputRoot": "PROOFS/<CANDIDATE_SHA>/",
+  "rows": [
+    {
+      "row": "preflight",
+      "scenario": "scenarios/00-preflight.js",
+      "transport": "websocket",
+      "sessionKey": "main",
+      "safeToFire": true,
+      "_safeNote": "read-only inventory; no continuation is fired",
+      "expectedReceipts": [
+        "connect/auth ok",
+        "health ok",
+        "sessions.list resolvable",
+        "tools.effective listing",
+        "per-tool visibility label for continue_work / continue_delegate / request_compaction"
+      ],
+      "specAnchor": "CONTINUATION-BEHAVIOR-SPEC §surfaces",
+      "passCandidateRule": "all expected continuation tools visible (or absent-classified as HONEST-LIMIT per surface)"
+    },
+    {
+      "row": "R-CW-1",
+      "form": "tool",
+      "bothFormsSibling": "R-CW-TOKEN",
+      "scenario": "scenarios/01-r-cw-1-tool.js",
+      "transport": "websocket",
+      "sessionKey": "main",
+      "safeToFire": false,
+      "nonceEnv": "PROOF_NONCE",
+      "expectedReceipts": [
+        "tools.invoke continue_work accepted (ok:true)",
+        "successor turn observed after current turn",
+        "same chain/run correlation id",
+        "trace id captured -> wake_event_trace.json (fetch from Tempo in post-process)"
+      ],
+      "specAnchor": "CONTINUATION-BEHAVIOR-SPEC §test-1",
+      "passCandidateRule": "accepted AND successorTurnObserved AND chainCorrelated; ERRONEOUS = 0 turns or >1"
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "form": "token",
+      "bothFormsSibling": "R-CW-1",
+      "scenario": "scenarios/02-r-cw-token.js",
+      "transport": "websocket",
+      "sessionKey": "REPLACE-WITH-DEDICATED-TEST-SESSION",
+      "_sessionNote": "target a dedicated test session — this injects a driving prompt",
+      "safeToFire": false,
+      "nonceEnv": "PROOF_NONCE",
+      "expectedReceipts": [
+        "sessions.send driving prompt landed",
+        "hop-2 turn fired from the parsed bare CONTINUE_WORK:1 token",
+        "hop-2 reply carried the nonce (PROOF-HOP2 <nonce>) -> proves it DROVE, not just stripped",
+        "trace id captured"
+      ],
+      "specAnchor": "CONTINUATION-BEHAVIOR-SPEC §test-2 (both-forms; the #952 path)",
+      "passCandidateRule": "promptSent AND hop2Observed AND nonceEchoedInHop2"
+    },
+    {
+      "row": "R-CD-1",
+      "form": "tool",
+      "bothFormsSibling": "R-CD-TOKEN",
+      "scenario": "scenarios/03-r-cd-1-tool.js",
+      "transport": "websocket",
+      "sessionKey": "main",
+      "safeToFire": false,
+      "nonceEnv": "PROOF_NONCE",
+      "expectedReceipts": [
+        "tools.invoke continue_delegate accepted",
+        "task-ledger entry (tasks.list shows the delegate/background task)",
+        "child session key or run id",
+        "parent receives delegate completion (DONE <nonce>)",
+        "trace showing dispatch -> child run stitch -> task-ledger.json"
+      ],
+      "specAnchor": "CONTINUATION-BEHAVIOR-SPEC §test-5",
+      "passCandidateRule": "accepted AND taskLedgerEntry AND childKeyOrRunId AND parentReturnObserved"
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "form": "token",
+      "bothFormsSibling": "R-CD-1",
+      "scenario": "scenarios/04-r-cd-token.js",
+      "transport": "websocket",
+      "sessionKey": "REPLACE-WITH-DEDICATED-TEST-SESSION",
+      "_sessionNote": "target a dedicated test session — this injects a bracket-driving prompt",
+      "safeToFire": false,
+      "nonceEnv": "PROOF_NONCE",
+      "expectedReceipts": [
+        "sessions.send bracket-driving prompt landed",
+        "child run created from the parsed [[CONTINUE_DELEGATE: ... | silent-wake]] bracket",
+        "parent return / wake carrying DONE <nonce>",
+        "trace id captured"
+      ],
+      "specAnchor": "CONTINUATION-BEHAVIOR-SPEC §test-6 (both-forms; bracket parser path)",
+      "passCandidateRule": "promptSent AND childObserved AND parentReturnObserved"
+    }
+  ],
+  "_notIncludedFirstMilestone": {
+    "_comment": "Deferred per notes 'Recommended first milestone' — add one at a time, serialized, after the 5 smokes are stable.",
+    "rows": [
+      "R-RC-1 / R-RC-2 (request_compaction — TOOL-ONLY, no token form; opt-in + serialized; never parallel with cw/cd against the same session)",
+      "R-CW-MULTI / R-CW-MULTI-COLLAPSE (multi-cw fan-out + grace-conditional fold)",
+      "R-CW-DELEGATE-CHILD-LIVE (live from-child hop-2-execute; #1057)",
+      "R-CD-CHAINED-DEPTH-2 + R-CD-COLLECTION-ON-COLLAPSE (chains; mode=session intermediates required)"
+    ]
+  }
+}

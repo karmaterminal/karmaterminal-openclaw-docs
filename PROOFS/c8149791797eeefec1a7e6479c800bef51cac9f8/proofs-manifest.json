@@ -1,0 +1,319 @@
+{
+  "corpus": "openclaw continuation proofs — token-fix #1071 (#952 token-half) + upstream 2026.6.9",
+  "sha": "c8149791797eeefec1a7e6479c800bef51cac9f8",
+  "sha_short": "c814979",
+  "build_string": "OpenClaw 2026.6.9 (c814979)",
+  "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
+  "generated": "2026-06-21 (frond-scribe, off corpus rows + cohort row-state reports)",
+  "rollup": {
+    "total_rows": 28,
+    "pass": 18,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 10,
+    "missing": 0
+  },
+  "notes": "Token-fix ship: bare CONTINUE_WORK from a subagent-child now drives (KEY row R-CW-DELEGATE-TOKEN GREEN live). 18 PASS + 10 HONEST-LIMIT (all cael-dgx #552 pending-cap saturation; live-re-fire owed post-drain, next cycle). Gate-5 FF 93ace21341->c814979179 done; pr-presentation==proof SHA.",
+  "rows": [
+    {
+      "row": "R-CD-1",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-1/",
+      "evidence_doc": "R-CD-1/EVIDENCE.md",
+      "traces": [],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CD-2",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-2/",
+      "evidence_doc": "R-CD-2/EVIDENCE.md",
+      "traces": [],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CD-3",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-3/",
+      "evidence_doc": "R-CD-3/EVIDENCE.md",
+      "traces": [],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CD-4",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-4/",
+      "evidence_doc": "R-CD-4/EVIDENCE.md",
+      "traces": [],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-CHAINED-DEPTH-2/",
+      "evidence_doc": "R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
+      "traces": [],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2-TEST-2",
+      "owner": "🪨 rune (rune-rog-ally, sub-for-silas)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-CHAINED-DEPTH-2-TEST-2/",
+      "evidence_doc": "R-CD-CHAINED-DEPTH-2-TEST-2/EVIDENCE.md",
+      "traces": [
+        {
+          "path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-CHAINED-DEPTH-2-TEST-2/intersession_return_trace.json"
+        }
+      ],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-TOKEN/",
+      "evidence_doc": "R-CD-TOKEN/EVIDENCE.md",
+      "traces": [],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CONFIG-DEFAULTS/",
+      "evidence_doc": "R-CONFIG-DEFAULTS/EVIDENCE.md",
+      "traces": [],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CONFIG-INTERSESSION/",
+      "evidence_doc": "R-CONFIG-INTERSESSION/EVIDENCE.md",
+      "traces": [],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CW-6",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-6/",
+      "evidence_doc": "R-CW-6/EVIDENCE.md",
+      "traces": [],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CW-7",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-7/",
+      "evidence_doc": "R-CW-7/EVIDENCE.md",
+      "traces": [],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "owner": "🩸 cael (cael-dgx)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-DELEGATE-CHILD-LIVE/",
+      "evidence_doc": "R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
+      "traces": [],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-DELEGATE-SELF-CONTINUATION/",
+      "evidence_doc": "R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
+      "traces": [
+        {
+          "path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-DELEGATE-SELF-CONTINUATION/selfcont_trace.json"
+        }
+      ],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-DELEGATE-TOKEN/",
+      "evidence_doc": "R-CW-DELEGATE-TOKEN/EVIDENCE.md",
+      "traces": [
+        {
+          "path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-DELEGATE-TOKEN/token_selfcont_trace.json"
+        },
+        {
+          "path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-DELEGATE-TOKEN/tokenbare_trace.json"
+        }
+      ],
+      "notes": "THE #952 token-half row — bare CONTINUE_WORK from subagent-child drives hop-2 via :1098 scheduleSubagentSelfContinuationWork (both-forms inversion resolved live)",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-OBS-1",
+      "owner": "🌻 elliott (elliott-legion)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-OBS-1/",
+      "evidence_doc": "R-OBS-1/EVIDENCE.md",
+      "traces": [
+        {
+          "path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-OBS-1/continuation_trace.json"
+        }
+      ],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-OBS-2",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-OBS-2/",
+      "evidence_doc": "R-OBS-2/EVIDENCE.md",
+      "traces": [],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-RC-1",
+      "owner": "🌫 silas (silas-lothric)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-RC-1/",
+      "evidence_doc": "R-RC-1/EVIDENCE.md",
+      "traces": [],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-REGRESSION-TRAP-TESTS/",
+      "evidence_doc": "R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
+      "traces": [],
+      "notes": "",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CW-1",
+      "owner": "🩸 cael (cael-dgx)",
+      "state": "honest-limit",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-1/",
+      "evidence_doc": "R-CW-1/SUBSTRATE-FINDING.md",
+      "traces": [],
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
+      "fired": "blocked — #552 saturation"
+    },
+    {
+      "row": "R-CW-2",
+      "owner": "🩸 cael (cael-dgx)",
+      "state": "honest-limit",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-2/",
+      "evidence_doc": "R-CW-2/SUBSTRATE-FINDING.md",
+      "traces": [],
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
+      "fired": "blocked — #552 saturation"
+    },
+    {
+      "row": "R-CW-3",
+      "owner": "🩸 cael (cael-dgx)",
+      "state": "honest-limit",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-3/",
+      "evidence_doc": "R-CW-3/SUBSTRATE-FINDING.md",
+      "traces": [],
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
+      "fired": "blocked — #552 saturation"
+    },
+    {
+      "row": "R-CW-4",
+      "owner": "🩸 cael (cael-dgx)",
+      "state": "honest-limit",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-4/",
+      "evidence_doc": "R-CW-4/SUBSTRATE-FINDING.md",
+      "traces": [],
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
+      "fired": "blocked — #552 saturation"
+    },
+    {
+      "row": "R-CW-5",
+      "owner": "🩸 cael (cael-dgx)",
+      "state": "honest-limit",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-5/",
+      "evidence_doc": "R-CW-5/SUBSTRATE-FINDING.md",
+      "traces": [],
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
+      "fired": "blocked — #552 saturation"
+    },
+    {
+      "row": "R-CW-MULTI",
+      "owner": "🩸 cael (cael-dgx)",
+      "state": "honest-limit",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-MULTI/",
+      "evidence_doc": "R-CW-MULTI/SUBSTRATE-FINDING.md",
+      "traces": [],
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
+      "fired": "blocked — #552 saturation"
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "owner": "🩸 cael (cael-dgx)",
+      "state": "honest-limit",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-MULTI-COLLAPSE/",
+      "evidence_doc": "R-CW-MULTI-COLLAPSE/SUBSTRATE-FINDING.md",
+      "traces": [],
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
+      "fired": "blocked — #552 saturation"
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "owner": "🩸 cael (cael-dgx)",
+      "state": "honest-limit",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-TOKEN/",
+      "evidence_doc": "R-CW-TOKEN/SUBSTRATE-FINDING.md",
+      "traces": [],
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
+      "fired": "blocked — #552 saturation"
+    },
+    {
+      "row": "R-RC-2",
+      "owner": "🩸 cael (cael-dgx)",
+      "state": "honest-limit",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-RC-2/",
+      "evidence_doc": "R-RC-2/SUBSTRATE-FINDING.md",
+      "traces": [],
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
+      "fired": "blocked — #552 saturation"
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "owner": "🩸 cael (cael-dgx)",
+      "state": "honest-limit",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-COLLECTION-ON-COLLAPSE/",
+      "evidence_doc": "R-CD-COLLECTION-ON-COLLAPSE/SUBSTRATE-FINDING.md",
+      "traces": [],
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
+      "fired": "blocked — #552 saturation"
+    }
+  ]
+}

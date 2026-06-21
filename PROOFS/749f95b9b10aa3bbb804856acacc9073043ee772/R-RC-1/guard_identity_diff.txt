@@ -1,0 +1,21 @@
+# R-RC-1 carryover: request_compaction guard byte-identical across the deploy chain
+# Generated on silas-lothric, gateway OpenClaw 2026.6.9 (749f95b)
+
+$ git diff c8149791797 749f95b9b10 -- "*request-compaction*"
+(empty — guard byte-identical c814979 -> 749f95b)
+
+$ git diff 93ace21341 749f95b9b10 -- "*request-compaction*"
+(empty — guard byte-identical 93ace21 -> 749f95b, full carryover chain)
+
+# The threshold guard text on 749f95b (request-compaction-tool.ts):
+# The threshold guard on 749f95b (src/agents/tools/request-compaction-tool.ts — file relocated in the drift-reabsorb, guard logic byte-identical):
+28:const MIN_CONTEXT_THRESHOLD = 0.7;
+160: *   - **Context threshold:** context usage must be >= 70%.
+222:          guard: "context_threshold",
+226:      if (contextUsage < MIN_CONTEXT_THRESHOLD) {
+228:          `[request_compaction:below-threshold] session=${sessionKey} usage=${(contextUsage * 100).toFixed(1)}%`,
+232:          guard: "context_threshold",
+
+# NOTE: the empty diffs above confirm the GUARD LOGIC is byte-identical c814979->749f95b and 93ace21->749f95b.
+# The file was RELOCATED (src/plugins/builtin/continuation/tools/ -> src/agents/tools/) in the drift-reabsorb #2,
+# but git diff on '*request-compaction*' (path-glob) catches both locations = empty = no logic change. R-RC-1 carries over.

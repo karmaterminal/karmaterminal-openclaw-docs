@@ -8,14 +8,14 @@
   "manifest_path": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/proofs-manifest.json",
   "rollup": {
     "total_rows": 26,
-    "pass": 24,
+    "pass": 25,
     "partial": 0,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 2,
+    "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Continuation PR #85651 proof corpus. 24 PASS + 2 honest-limit, 0 fail, 0 missing. All 4 continue_delegate register-modes row-backed. Byte-identical carry: captured live at 749f95b9b10, stamped at ship-SHA b248f2fd2d3 (continuation surface empty-diff; drift = infra/test/Slack-relay/deadcode). Supersedes PROOFS/c8149791797.",
+  "disposition_note": "Continuation PR #85651 proof corpus. 25 PASS + 1 honest-limit, 0 fail, 0 missing. All 4 continue_delegate register-modes row-backed. Byte-identical carry: captured live at 749f95b9b10, stamped at ship-SHA b248f2fd2d3 (continuation surface empty-diff; drift = infra/test/Slack-relay/deadcode). Supersedes PROOFS/c8149791797.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-06-21",
   "generated_by": "frond-scribe (copilot, corpus-manager)",

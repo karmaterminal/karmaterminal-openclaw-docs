@@ -12,11 +12,11 @@
   "register_mode_coverage": "continue_delegate register modes all row-backed: normal=R-CD-1 / silent=R-CD-SILENT / silent-wake=R-CD-2 / post-compaction=R-CD-3.",
   "rollup": {
     "total_rows": 26,
-    "pass": 24,
+    "pass": 25,
     "partial": 0,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 2,
+    "honest_limit": 1,
     "missing": 0
   },
   "rows": [
@@ -56,10 +56,10 @@
       "row": "R-CD-CHAINED-DEPTH-2",
       "owner": "🌊 ronan (ronan-dgx)",
       "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-CHAINED-DEPTH-2/",
-      "state": "honest-limit",
+      "state": "pass",
       "traces": 4,
       "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-CHAINED-DEPTH-2/emeric-nuc/EVIDENCE.md",
-      "notes": "HONEST-LIMIT: depth-1 silent-wake DROVE + dispatched live; the depth-2 grandchild leg is the documented boundary."
+      "notes": "PASS (2-seat): depth-2 chained silent-wake drives end-to-end - depth-1 child DROVE + depth-2 GRANDCHILD executed-to-marker (emeric-nuc GREEN three-instrument + rune-rog-ally second-seat, both firsthand). The earlier first-fire honest-limit was check-too-early (pendingDescendants:0 = grandchild not-yet-registered at fire-instant), NOT a seam; re-fire drove. #1057 correct-as-filed."
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2-TEST-2",
@@ -131,7 +131,7 @@
       "owner": "🪨 rune (rune-rog-ally)",
       "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-7/",
       "state": "pass",
-      "traces": 1,
+      "traces": 3,
       "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-7/cael-dgx/EVIDENCE.md"
     },
     {
@@ -148,7 +148,7 @@
       "owner": "🪨 rune (rune-rog-ally)",
       "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-DELEGATE-SELF-CONTINUATION/",
       "state": "pass",
-      "traces": 1,
+      "traces": 5,
       "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/EVIDENCE.md"
     },
     {

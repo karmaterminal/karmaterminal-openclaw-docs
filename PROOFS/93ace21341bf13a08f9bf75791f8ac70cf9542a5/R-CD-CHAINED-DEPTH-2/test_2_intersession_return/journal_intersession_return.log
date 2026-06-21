@@ -1,0 +1,2 @@
+Jun 21 01:23:24 rune node[1782640]: 2026-06-21T01:23:24.026-07:00 R-CD-DEPTH2-TEST2-RETURN-OK 1782030000 inter-session-return-from-depth2
+Jun 21 01:23:24 rune node[1782640]: 2026-06-21T01:23:24.335-07:00 [continuation:targeted-return] Delivered to agent:main:discord:channel:1466192485440164011 from agent:main:subagent:continuation-f00ca4bdde4fae8542140baf0964a474

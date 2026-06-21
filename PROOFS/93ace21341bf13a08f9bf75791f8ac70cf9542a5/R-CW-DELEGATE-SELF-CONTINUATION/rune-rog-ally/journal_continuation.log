@@ -1,0 +1,5 @@
+Jun 21 01:10:11 rune node[1782640]: 2026-06-21T01:10:11.552-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=agent:main:subagent:continuation-3a6454fb930decead15851b17e76c4da
+Jun 21 01:10:11 rune node[1782640]: 2026-06-21T01:10:11.560-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=4998ms fireAt=1782029416557 session=agent:main:subagent:continuation-3a6454fb930decead15851b17e76c4da
+Jun 21 01:10:16 rune node[1782640]: 2026-06-21T01:10:16.559-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:subagent:continuation-3a6454fb930decead15851b17e76c4da
+Jun 21 01:10:16 rune node[1782640]: 2026-06-21T01:10:16.564-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59998ms fireAt=1782029476560 session=agent:main:subagent:continuation-3a6454fb930decead15851b17e76c4da
+Jun 21 01:10:16 rune node[1782640]: 2026-06-21T01:10:16.565-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:subagent:continuation-3a6454fb930decead15851b17e76c4da

@@ -215,7 +215,11 @@ export function rCw1() {
         if (tid) { obs.traceId = tid; rec.setFact('receipts.traceId', tid); }
       }
       const blob = JSON.stringify(msg);
-      if (obs.accepted && /turn[_-]?start|run[_-]?start|continuation/i.test(blob) && blob.includes(cfg.sessionKey)) {
+      // Live successor-turn = `session.message` event (turn.start/run.start are NOT
+      // live-pushed — VERIFIED-GATEWAY-SURFACE.md). Key on session.message.
+      const isSuccessorEvt = (msg.type === 'event' && /session\.message/i.test(blob)) ||
+        /"event"\s*:\s*"session\.message"|continuation\.work/i.test(blob);
+      if (obs.accepted && isSuccessorEvt && blob.includes(cfg.sessionKey)) {
         turnsAfterFire += 1;
         obs.successorTurnObserved = true;
         if (blob.includes(nonce) || /chain|parent|continuation/i.test(blob)) obs.chainCorrelated = true;
@@ -269,11 +273,11 @@ export function rCwToken() {
         obs.hop2Observed = true; obs.nonceEchoedInHop2 = true;
         rec.note('hop2', `hop-2 detected carrying nonce: "${hop2Needle}"`);
       }
-      if (obs.promptSent && /turn[_-]?start|run[_-]?start|continuation/i.test(blob) && blob.includes(sessionKey)) {
+      if (obs.promptSent && /"event"\s*:\s*"session\.message"|continuation\.work/i.test(blob) && blob.includes(sessionKey)) {
         turnsAfterSend += 1;
         if (turnsAfterSend >= 2 && !obs.hop2Observed) {
           obs.hop2Observed = true;
-          rec.note('hop2', 'a second turn began after send (hop-2 likely) -- nonce not yet matched');
+          rec.note('hop2', 'a second turn began after send (hop-2 likely, via session.message) -- nonce not yet matched');
         }
       }
       const tid = deepFindTraceId(msg);

@@ -79,3 +79,20 @@ R-CD-CHAINED-DEPTH-2 = **✅ GREEN @ `749f95b9b10a`**: depth-1 silent-wake DROVE
 
 ### Net (supersedes the RESOLUTION section's mechanism-claim only; disposition unchanged)
 R-CD-CHAINED-DEPTH-2 = **✅ GREEN @ `749f95b`** (depth-2 grandchild executes on a quiet seat, firsthand + cross-seat). The `:256` gate is subagent-EXEMPT (not the mechanism). My row is **NOT a #1057-`:256` corroboration** (retracted — the gate can't gate a subagent). #1057's busy-main negative mechanism is an open issue-precision, decoupled from this row's GREEN.
+
+---
+
+## FINAL MECHANISM LANDING 2026-06-21 ~11:46 PDT — the flat-key byte dissolves the "depth-2 seam" entirely (cohort-converged)
+
+The mechanism resolved one notch past the `:256`-exemption, to its cleanest form. Cohort-converged (🩸 Cael + 🌊 Ronan + 🕯 all walked the source independently; everyone self-corrected at the byte — Cael his `:256`-attribution, Ronan his key-recognition-failure hypothesis, me my premature mechanism-claims).
+
+### The dispositive byte (firsthand session-key trail)
+Grepped the full emeric-nuc continuation session-key trail: **every continuation key is FLAT `agent:main:subagent:continuation-${digest}` — ZERO nested/double-`subagent:` keys exist.** Because `deriveContinuationDelegateChildSessionKey` (`subagent-continuation-ids.ts:12`) uses `parseAgentSessionKey(parent).agentId` (= `main`), NOT the nested parent key. So a depth-2 grandchild gets a **depth-1-SHAPED key** (`getSubagentDepth`=1, one `:subagent:`).
+
+### What this resolves
+The depth-2 grandchild is **KEY-IDENTICAL to a depth-1 child**: same `agent:main:subagent:continuation-…` shape → same `isSubagentSessionKey`=TRUE (clause-2) → same `run.ts:740` direct-run → same `work-dispatch.ts:256` exemption. So it drives EXACTLY like depth-1.
+
+**There is no structural depth-2 seam.** The "depth-2 is past the depth-1 fix" framing (and the (a) key-recognition-failure / (b) downstream-seam split) dissolves — at the key/routing level there IS no depth-2; the grandchild is another depth-1 key. My re-fire confirms it drove. So the first-fire marker-absent was **(c) check-too-early**, not any seam.
+
+### Final disposition
+R-CD-CHAINED-DEPTH-2 = **✅ GREEN @ `749f95b`**: depth-2 grandchild drives (key-identical to depth-1). NOT a #1057 seam corroboration at any line — there is no depth-2-specific gate (the key never carries depth-2). First-fire honest-limit = check-too-early. **Only residual**: a hypothetical busy-mechanism past BOTH `:740` and `:256` — low-probability (no depth-2-specific reason to expect one), confirmable via a busy-main delegate-child fire. Non-blocking; decoupled from this row's GREEN. Supersedes the "downstream seam" framing in the prior section — the byte went one notch deeper to no-seam.

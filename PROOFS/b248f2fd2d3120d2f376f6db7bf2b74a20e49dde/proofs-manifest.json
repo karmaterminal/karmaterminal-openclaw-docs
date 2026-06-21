@@ -12,11 +12,11 @@
   "register_mode_coverage": "continue_delegate register modes all row-backed: normal=R-CD-1 / silent=R-CD-SILENT / silent-wake=R-CD-2 / post-compaction=R-CD-3.",
   "rollup": {
     "total_rows": 26,
-    "pass": 23,
+    "pass": 24,
     "partial": 0,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 3,
+    "honest_limit": 2,
     "missing": 0
   },
   "rows": [
@@ -220,10 +220,10 @@
       "row": "R-RC-2",
       "owner": "🩸 cael (cael-dgx)",
       "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-RC-2/",
-      "state": "honest-limit",
-      "traces": 0,
-      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-RC-2/EVIDENCE.md",
-      "notes": "HONEST-LIMIT: request_compaction ACCEPT at >=70% - accept-path code-verified (request-compaction-tool.ts:27 MIN_CONTEXT_THRESHOLD=0.7); live organic >=70% accept-fire pending (scarce; seats compact below threshold at capture). Complement of R-RC-1 (reject = PASS)."
+      "state": "pass",
+      "traces": 2,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-RC-2/emeric-nuc/EVIDENCE.md",
+      "notes": "PASS: request_compaction ACCEPT at organic >=70% - 2-seat cross-walk (emeric-nuc 71% + rune-rog-ally 82%); real tool-return status=compaction_requested + contextUsage>=70 (returns own field, not inferred) + Tempo trace. Complement of R-RC-1 (reject = PASS)."
     },
     {
       "row": "R-REGRESSION-TRAP-TESTS",

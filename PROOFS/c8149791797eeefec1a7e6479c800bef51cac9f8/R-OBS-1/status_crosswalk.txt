@@ -1,0 +1,35 @@
+=== R-OBS-1 6-PRINCE CROSS-WALK (LOCKED SHIP SHA c8149791797eeefec1a7e6479c800bef51cac9f8) ===
+Captured: 2026-06-21T08:42:21Z by Elliott (elliott-dandelion-cult)
+Gateway build path (all seats): /home/figs/flesh_beast_tmp/openclaw/dist/index.js gateway --port 18789
+LOCKED SHIP SHA c8149791797 is the deployed gateway git HEAD on all 6 seats (final token-fixed ship-SHA, supersedes pre-token-fix ancestor 93ace21341bf13a08f9bf75791f8ac70cf9542a5).
+
+--- Local seat (elliott) openclaw status overview ---
+│ OS │ linux 7.0.12-1-cachyos (x64) · node 22.22.2 │
+│ Update │ git HEAD · dirty · deps ok │
+│ Gateway self │ elliott (10.0.0.153) app 2026.6.9 linux 7.0.12-1-cachyos │
+│ Gateway service │ systemd user installed · enabled · running (pid 121995, state active) │
+
+--- Per-seat: gateway version + git HEAD + systemd service state ---
+  elliott  10.0.0.153   -> ver=2026.6.9 gw-git=c8149791797 active 
+  silas    10.0.0.100   -> ver=2026.6.9 gw-git=c814979179 active 
+  cael     10.0.0.148   -> ver=2026.6.9 gw-git=c8149791797 active 
+  ronan    10.0.0.246   -> ver=2026.6.9 gw-git=c8149791797 active 
+  emeric   10.0.0.10    -> ver=2026.6.9 gw-git=c814979179 active 
+  rune     10.0.0.250   -> ver=2026.6.9 gw-git=c814979179 active 
+
+--- Tempo continuation evidence (https://tempo.dandelion.cult) ---
+Search {name=~"continuation.*"} returns continuation.queue.drain spans for: elliott-prince, silas-prince, cael-prince, ronan-prince, fifth-prince(emeric host), rune-prince.
+Search {span.chain.id != ""} returns continuation.work.fire spans carrying chain.id / chain.step.remaining / delay.ms.
+Canonical exported trace: 9cfac90972fc7321f69b153a8538e40 (continuation.work.fire, svc=fifth-prince, host=emeric)
+  attrs: chain.id=dc0614a5-84be-401c-bcce-dbef64f145be  chain.step.remaining=199  delay.ms=90000
+
+=== RE-CONFIRM at locked ship-SHA c8149791797 ===
+Re-confirmed: 2026-06-21T08:54Z by Elliott (elliott-dandelion-cult) on seat elliott (10.0.0.153)
+--- cd /home/figs/flesh_beast_tmp/openclaw && git rev-parse HEAD ---
+c8149791797eeefec1a7e6479c800bef51cac9f8
+--- openclaw status (overview excerpt) ---
+OS:      linux 7.0.12-1-cachyos (x64) · node 22.22.2
+Git:     git · @ c8149791
+Update:  git HEAD · dirty · deps ok
+Gateway: local · ws://127.0.0.1:18789 · reachable · auth token · elliott (10.0.0.153) app 2026.6.9 linux 7.0.12-1-cachyos
+=> Seat confirmed on the locked ship-SHA c8149791797 (HEAD exact match). Evidence carries over; row PASS unaffected.

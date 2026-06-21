@@ -1,0 +1,2 @@
+git diff 93ace21341 c8149791797 -- '*request-compaction*' '*request_compaction*':
+(empty = guard byte-identical = R-RC-1 reject-shape carries over from 93ace21 to c814979)

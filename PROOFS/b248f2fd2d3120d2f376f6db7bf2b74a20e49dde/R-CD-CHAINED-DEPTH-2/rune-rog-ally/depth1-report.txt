@@ -1,0 +1,5 @@
+=== depth-1 child report (20:21:10Z) ===
+depth-1 EXECUTED: yes (marker written 20:20:42Z)
+depth-2 grandchild DISPATCHED: yes (continue_delegate silent, traceparent 00-fb593e86640b68c250645030bde8a99c-79eb10f3366d3015-01)
+depth-1 OPENCLAW_SESSION_KEY (exec-env): UNSET (exec env does not expose it; sessionKey to be recovered from session-store/journal in verification)
+NOTE: grandchild will fire after this depth-1 turn completes; parent (rune-main) verifies grandchild-marker.txt presence/absence next.

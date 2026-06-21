@@ -1,0 +1,4 @@
+Jun 21 12:54:04 ronan node[3683825]: 2026-06-21T12:54:04.937-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=0 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jun 21 12:54:04 ronan node[3683825]: 2026-06-21T12:54:04.938-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=delegate delayMs=default session=agent:main:discord:channel:1466192485440164011
+Jun 21 12:54:04 ronan node[3683825]: 2026-06-21T12:54:04.938-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=delegate session=agent:main:discord:channel:1466192485440164011
+Jun 21 12:54:18 ronan node[3683825]: R-CD-TOKEN bracket-form parsed from finalized reply text + spawned live on 749f95b.

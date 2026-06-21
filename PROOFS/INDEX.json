@@ -1,23 +1,23 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "c8149791797eeefec1a7e6479c800bef51cac9f8",
-  "current_sha_short": "c814979",
-  "build_string": "OpenClaw 2026.6.9 (c814979)",
-  "corpus_path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/",
-  "manifest_path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/proofs-manifest.json",
-  "readme_path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/README.md",
+  "current_sha": "b248f2fd2d3120d2f376f6db7bf2b74a20e49dde",
+  "current_sha_short": "b248f2f",
+  "build_string": "OpenClaw continuation PR #85651 (b248f2f)",
+  "corpus_path": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/",
+  "manifest_path": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/proofs-manifest.json",
   "rollup": {
-    "total_rows": 28,
-    "pass": 22,
+    "total_rows": 26,
+    "pass": 23,
     "partial": 0,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 6,
+    "honest_limit": 3,
     "missing": 0
   },
-  "disposition_note": "Token-fix #1071 shipped (Gate-5 FF). KEY row R-CW-DELEGATE-TOKEN GREEN (2-seat). 22 PASS + 6 HONEST-LIMIT. #552 drain blast-radius = ZERO continue_work rows (per-session-key bypass clears the cap-class; R-CW-MULTI proven bypass-able d50eaa7); R-RC-2 context-gated; drain = pure hygiene. Bracket-work = bare-only by-design (no figs-requirement). Supersedes PROOFS/8cafdcd + PROOFS/93ace21341 (historical).",
+  "disposition_note": "Continuation PR #85651 proof corpus. 23 PASS + 3 honest-limit, 0 fail, 0 missing. All 4 continue_delegate register-modes row-backed. Byte-identical carry: captured live at 749f95b9b10, stamped at ship-SHA b248f2fd2d3 (continuation surface empty-diff; drift = infra/test/Slack-relay/deadcode). Supersedes PROOFS/c8149791797.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-06-21",
-  "generated_by": "frond-scribe (copilot, off corpus + cohort row-state)"
+  "generated_by": "frond-scribe (copilot, corpus-manager)",
+  "capture_sha": "749f95b9b10aa3bbb804856acacc9073043ee772"
 }

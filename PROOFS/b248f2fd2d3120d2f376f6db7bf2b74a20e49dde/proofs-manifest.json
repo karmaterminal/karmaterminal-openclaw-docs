@@ -1,0 +1,237 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "sha": "b248f2fd2d3120d2f376f6db7bf2b74a20e49dde",
+  "sha_short": "b248f2f",
+  "capture_sha": "749f95b9b10aa3bbb804856acacc9073043ee772",
+  "capture_sha_short": "749f95b",
+  "build_string": "OpenClaw continuation PR #85651 (ship b248f2f / capture 749f95b)",
+  "generated": "2026-06-21",
+  "generated_by": "frond-scribe (copilot, corpus-manager)",
+  "carry_note": "BYTE-IDENTICAL CARRY. Evidence + Tempo traces captured LIVE at capture-SHA 749f95b9b10aa3bbb804856acacc9073043ee772 on the deployed 6-seat fleet. This manifest stamps ship-SHA b248f2fd2d3120d2f376f6db7bf2b74a20e49dde (PR #85651 head). The continuation surface (continue_work / continue_delegate / request_compaction + TaskFlow/dispatch/targeting/tokens plumbing) is BYTE-IDENTICAL between 749f95b9b10 and b248f2fd2d3 (verified empty-diff). Per-row EVIDENCE.md + traces retain their capture-SHA (749f95b9b10) stamps honestly - NO SHA was rewritten. Intervening upstream drift (749f95b9b10 -> b248f2fd2d3) is confined to test/scripts/CI-tooling + a Slack-relay channel feature (#94707) + deadcode removals; none touch continuation execution paths.",
+  "method": "Live / API testing across a 6-seat fleet on distinct model/provider backends; real tools fired through the real gateway path. Each row carries journal receipts + a Grafana Tempo distributed trace where applicable.",
+  "register_mode_coverage": "continue_delegate register modes all row-backed: normal=R-CD-1 / silent=R-CD-SILENT / silent-wake=R-CD-2 / post-compaction=R-CD-3.",
+  "rollup": {
+    "total_rows": 26,
+    "pass": 23,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 3,
+    "missing": 0
+  },
+  "rows": [
+    {
+      "row": "R-CD-1",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-1/",
+      "state": "pass",
+      "traces": 2,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-1/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CD-2",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-2/",
+      "state": "pass",
+      "traces": 2,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-2/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CD-3",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-3/",
+      "state": "pass",
+      "traces": 4,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-3/ronan-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CD-4",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-4/",
+      "state": "pass",
+      "traces": 2,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-4/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-CHAINED-DEPTH-2/",
+      "state": "honest-limit",
+      "traces": 4,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-CHAINED-DEPTH-2/emeric-nuc/EVIDENCE.md",
+      "notes": "HONEST-LIMIT: depth-1 silent-wake DROVE + dispatched live; the depth-2 grandchild leg is the documented boundary."
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2-TEST-2",
+      "owner": "🪨 rune (rune-rog-ally, sub-for-silas)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-CHAINED-DEPTH-2-TEST-2/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-CHAINED-DEPTH-2-TEST-2/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CD-SILENT",
+      "owner": "frond cohort",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-SILENT/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-SILENT/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-TOKEN/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-TOKEN/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CONFIG-DEFAULTS/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CONFIG-DEFAULTS/emeric-nuc/EVIDENCE.md"
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CONFIG-INTERSESSION/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CONFIG-INTERSESSION/emeric-nuc/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-1",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-1/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-1/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-3",
+      "owner": "🩸 cael (cael-dgx) + 🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-3/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-3/emeric-nuc/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-6",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-6/",
+      "state": "honest-limit",
+      "traces": 0,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-6/rune-rog-ally/EVIDENCE.md",
+      "notes": "HONEST-LIMIT: chain-depth-boundary reject at maxChainLength=200 - live-induction at 200 hops is impractical; boundary-as-discipline-floor."
+    },
+    {
+      "row": "R-CW-7",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-7/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-7/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-DELEGATE-CHILD-LIVE/",
+      "state": "pass",
+      "traces": 2,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/EVIDENCE.md",
+      "notes": "PASS on the positive case (recognized-subagent-key passes the :256 gate -> delegate-child continue_work drives hop-2). The #1057 from-child-on-busy-main negative case is a SEVERABLE, NON-BLOCKING residual (work-dispatch.ts:240 wrong-lane gate) filed separately; the capability is shipped + proven."
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-DELEGATE-SELF-CONTINUATION/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-DELEGATE-SILENT-WAKE",
+      "owner": "frond cohort",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-DELEGATE-SILENT-WAKE/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-DELEGATE-SILENT-WAKE/rune-rog-ally/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "owner": "🪨 rune (rune-rog-ally) + 🌊 ronan (ronan-dgx) + 🌫 silas (silas-lothric)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-DELEGATE-TOKEN/",
+      "state": "pass",
+      "traces": 4,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-DELEGATE-TOKEN/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-MULTI",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-MULTI/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-MULTI/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-MULTI-COLLAPSE/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-MULTI-COLLAPSE/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-TOKEN/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CW-TOKEN/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-OBS-1",
+      "owner": "🌻 elliott (elliott-legion)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-OBS-1/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-OBS-1/elliott-seat/EVIDENCE.md"
+    },
+    {
+      "row": "R-OBS-2",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-OBS-2/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-OBS-2/rune-rog-ally/EVIDENCE.md"
+    },
+    {
+      "row": "R-RC-1",
+      "owner": "🌫 silas (silas-lothric)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-RC-1/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-RC-1/EVIDENCE.md",
+      "notes": "request_compaction REJECT at low-context - PASS (guard-identity byte). Trace N/A-by-design (no continuation.work span for a reject)."
+    },
+    {
+      "row": "R-RC-2",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-RC-2/",
+      "state": "honest-limit",
+      "traces": 0,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-RC-2/EVIDENCE.md",
+      "notes": "HONEST-LIMIT: request_compaction ACCEPT at >=70% - accept-path code-verified (request-compaction-tool.ts:27 MIN_CONTEXT_THRESHOLD=0.7); live organic >=70% accept-fire pending (scarce; seats compact below threshold at capture). Complement of R-RC-1 (reject = PASS)."
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-REGRESSION-TRAP-TESTS/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-REGRESSION-TRAP-TESTS/emeric-nuc/EVIDENCE.md"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+R-CD-3-POSTCOMPACTION-DROVE-749f95b ts=2026-06-21T20:27:13Z firedAtCompaction=true session=agent:main:subagent:77b1b0d0-341b-4fec-b9bc-c89f80352902 chainHop=2 mode=post-compaction

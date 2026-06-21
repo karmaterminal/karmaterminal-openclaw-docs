@@ -132,20 +132,33 @@ export default function () {
         if (ck && !rec.facts.receipts.childKeyOrRunId) rec.setFact('receipts.childKeyOrRunId', ck);
       }
 
-      // SILENT-WAKE RECEIPT: a fresh parent turn/run STARTING on the parent
-      // session AFTER the child was observed = the wake the silent-wake return
-      // triggered. We look for a parent-session turn/run-start event whose
-      // session key matches the parent and that occurs after the child spawn.
+      // SILENT-WAKE RECEIPT: a fresh parent turn STARTING on the parent session
+      // AFTER the child was observed = the wake the silent-wake return triggered.
+      //
+      // EVENT-NAME (🔍 byte-verified by 🩸 Cael against the live gateway surface,
+      // `1518174611` / VERIFIED-GATEWAY-SURFACE.md @ `7e1433e`): the live gateway
+      // does NOT push `turn.start`/`run.start` as client subscription events
+      // (they're internal source refs only — keying on them would NEVER fire). The
+      // successor turn / hop-2 / parent-wake surfaces as a fresh **`session.message`**
+      // event on the subscribed session (the new turn's transcript message), via
+      // `sessions.messages.subscribe`. So we key the wake on `session.message`
+      // arriving after the child spawn (a NEW message on the parent = the woken turn).
+      // `sessions.changed` (state transition) is a secondary corroborating signal.
       if (obs.promptSent && obs.childObserved) {
-        const isParentTurnStart =
-          /(turn.*start|run.*start|generation.*start|agent.*turn|message.*(received|start))/i.test(blob) &&
-          (blob.includes(cfg.sessionKey) ||
-            (msg.params && (msg.params.sessionKey === cfg.sessionKey)));
+        const evt = (msg.type === 'event' && msg.event) ? String(msg.event) : '';
+        const evtSession = (msg.params && msg.params.sessionKey) ||
+          (msg.data && msg.data.sessionKey) || null;
+        const isParentWakeMessage =
+          (evt === 'session.message' || /session\.message/i.test(evt)) &&
+          (evtSession === cfg.sessionKey || blob.includes(cfg.sessionKey));
+        const isParentStateChange =
+          (evt === 'sessions.changed' || /sessions?\.changed/i.test(evt)) &&
+          (evtSession === cfg.sessionKey || blob.includes(cfg.sessionKey));
         // require it to be AFTER the child spawn (a wake, not the original send echo)
-        if (isParentTurnStart && childSeenAtMs && Date.now() > childSeenAtMs + 250) {
+        if ((isParentWakeMessage || isParentStateChange) && childSeenAtMs && Date.now() > childSeenAtMs + 250) {
           if (!obs.parentWoke) {
             obs.parentWoke = true;
-            rec.note('wake', `parent woke (fresh turn/run on ${cfg.sessionKey}) after child spawn → silent-wake receipt`);
+            rec.note('wake', `parent woke (fresh session.message on ${cfg.sessionKey}) after child spawn → silent-wake receipt`);
             rec.setFact('receipts.parentWoke', true);
           }
         }

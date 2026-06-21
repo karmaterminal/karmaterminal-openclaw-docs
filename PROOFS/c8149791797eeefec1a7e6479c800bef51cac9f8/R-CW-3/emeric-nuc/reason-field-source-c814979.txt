@@ -1,0 +1,36 @@
+=== R-CW-3 SOURCE byte (c814979): continue_work reason-field → OTel span attribute 'reason.preview' ===
+--- continue-work-tool.ts: the reason field is required + captured + emitted ---
+const ContinueWorkToolSchema = Type.Object({
+  reason: Type.String({
+    description:
+
+      const reason = readStringParam(params, "reason", { required: true }).slice(0, 1024);
+      const parsedDelaySeconds = readNumberParam(params, "delaySeconds", { strict: true });
+      if (parsedDelaySeconds !== undefined && parsedDelaySeconds < 0) {
+        throw new ToolInputError("delaySeconds must be a non-negative number.");
+      }
+      const delaySeconds = parsedDelaySeconds ?? 0;
+      const traceparentRaw = readStringParam(params, "traceparent");
+      const explicitTraceparent =
+        traceparentRaw !== undefined ? normalizeDiagnosticTraceparent(traceparentRaw) : undefined;
+      if (traceparentRaw !== undefined && !explicitTraceparent) {
+        throw new ToolInputError("traceparent must be a valid W3C traceparent header.");
+      }
+      const traceparent = explicitTraceparent ?? formatActiveContinuationTraceparent();
+      const traceContextFields = traceparent ? { traceparent } : {};
+
+      log.debug(
+        `[continue_work:request] session=${sessionKey} delaySeconds=${delaySeconds} reason=${reason.slice(0, 80)}`,
+      );
+      opts.requestContinuation({
+        reason,
+        delaySeconds,
+
+--- continuation-tracer.ts: the OTel span carries 'reason.preview' (first <=80 chars of the tool-call reason) ---
+  readonly "delay.ms"?: number;
+  /** First ≤80 chars of the tool-call `reason`, for operator readability. */
+  readonly "reason.preview"?: string;
+  /** Mode of a `continue_delegate` dispatch (normal/silent/silent-wake/post-compaction). */
+
+deployed HEAD: c8149791797eeefec1a7e6479c800bef51cac9f8
+reason.preview grep on continuation-tracer.ts: 9

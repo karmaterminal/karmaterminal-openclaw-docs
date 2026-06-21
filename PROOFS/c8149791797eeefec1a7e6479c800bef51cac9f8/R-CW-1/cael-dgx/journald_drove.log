@@ -1,0 +1,11 @@
+Jun 21 03:46:51 cael node[2377327]: 2026-06-21T03:46:51.677-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=0 [0]text=true session=agent:main:subagent:8560f83a-2f21-4726-873c-e783b32aa997
+Jun 21 03:46:51 cael node[2377327]: 2026-06-21T03:46:51.678-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=work delayMs=default session=agent:main:subagent:8560f83a-2f21-4726-873c-e783b32aa997
+Jun 21 03:46:51 cael node[2377327]: 2026-06-21T03:46:51.678-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=work session=agent:main:subagent:8560f83a-2f21-4726-873c-e783b32aa997
+Jun 21 03:46:51 cael node[2377327]: 2026-06-21T03:46:51.680-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=14999ms fireAt=1782038826679 session=agent:main:subagent:8560f83a-2f21-4726-873c-e783b32aa997
+Jun 21 03:46:51 cael node[2377327]: 2026-06-21T03:46:51.734-07:00 Hop-1 marker written. Ending this turn with the bare continuation token to drive hop-2.
+Jun 21 03:47:06 cael node[2377327]: 2026-06-21T03:47:06.682-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:subagent:8560f83a-2f21-4726-873c-e783b32aa997
+Jun 21 03:47:06 cael node[2377327]: 2026-06-21T03:47:06.684-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59999ms fireAt=1782038886683 session=agent:main:subagent:8560f83a-2f21-4726-873c-e783b32aa997
+Jun 21 03:47:06 cael node[2377327]: 2026-06-21T03:47:06.685-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:subagent:8560f83a-2f21-4726-873c-e783b32aa997
+Jun 21 03:47:06 cael node[2377327]: 2026-06-21T03:47:06.923-07:00 [agent/embedded] workspace bootstrap file TOOLS.md is 118857 chars (limit 100000); truncating in injected context (sessionKey=agent:main:subagent:8560f83a-2f21-4726-873c-e783b32aa997)
+Jun 21 03:47:14 cael node[2377327]: 2026-06-21T03:47:14.211-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:subagent:8560f83a-2f21-4726-873c-e783b32aa997
+Jun 21 03:47:14 cael node[2377327]: 2026-06-21T03:47:14.212-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:subagent:8560f83a-2f21-4726-873c-e783b32aa997

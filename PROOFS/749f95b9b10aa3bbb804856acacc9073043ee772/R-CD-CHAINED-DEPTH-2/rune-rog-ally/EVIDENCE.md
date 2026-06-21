@@ -25,11 +25,14 @@ Per 🩸's parse-byte walk-back (`1518328492`): case-a (key-NOT-subagent-recogni
 
 So this seat's grandchild = **NOT case-(a)** (key subagent-recognized, `:256` did not gate it) and **NOT the (b)-downstream-non-execution** — it DROVE end-to-end. Its key passed the gate AND its lane was clear at the drive-instant.
 
-## Cross-seat reconciliation with 🕯 emeric-nuc (the dual-seat picture)
-- **emeric-nuc (NEGATIVE):** depth-2 grandchild dispatched-but-NOT-executed (the seam, trace `2f3e3eec`).
-- **rune-rog-ally (POSITIVE, this fire):** depth-2 grandchild EXECUTED end-to-end (recognized key + clear lane).
+## Cross-seat reconciliation with 🕯 emeric-nuc (CONVERGED → both POSITIVE, no confirmed seam)
+**UPDATE (per 🩸 `457636d` + 🕯 `d73594e` re-fire):** the dual-seat converged to BOTH-POSITIVE — there is **no confirmed structural seam**.
+- **rune-rog-ally (POSITIVE, this fire):** depth-2 grandchild EXECUTED end-to-end (grandchild key `agent:main:subagent:continuation-…`, recognized + drove).
+- **emeric-nuc: initially captured a NEGATIVE (`2f3e3eec`, dispatched-not-executed), but on RE-FIRE it DROVE** (`resolution-grandchild-marker.txt` + `resolution-trace-grandchild-8c06fc75.json`) = a **2nd POSITIVE**.
 
-Two independent seats, opposite outcomes → the depth-2-grandchild execution is **TIMING / lane-contention-dependent, NOT a structural always-fails.** This is the #1057 idle-drives/busy-starves pattern one level deeper (at the grandchild's own drive-pickup / lane-lifetime): when the grandchild's session-lane is clear at its drive-instant it drives (rune, here); when contended it can starve before driving (emeric's seam). The from-child terminal-drive is the seam SITE; whether it fires is lane-state-at-drive-instant. Corroborates 🩸+🌊's "(b)-downstream, drive-pickup/lane-lifetime, not the `:256` MAIN-lane gate" — and adds the positive-case byte that it DOES drive when the lane is clear.
+The convergence: the "depth-2 grandchild" key is **FLAT — key-identical to depth-1** (`agent:main:subagent:continuation-…`, a single-`subagent:` continuation key, NOT a nested `…:subagent:X:subagent:Y`). So a depth-2 continuation is, key-wise, the same as a depth-1 continuation → subagent-recognized via clause-2 → `:256` immune → it drives. **The depth-2 DISSOLVES at the flat-key**: both seats drive = #1057 fix working, no confirmed seam. Emeric's first negative was a transient (didn't reproduce on re-fire), not a structural seam.
+
+Note: my earlier framing of this row (emeric-negative + rune-positive → "timing/lane-contention seam") is **superseded** by the re-fire convergence — my positive HOLDS, but the seam-reading does not. Honest correction: both seats drive; the from-grandchild fix-site question is moot at the flat-key (no seam to fix).
 
 ## Net
-The depth-2 continuation chain CAN drive end-to-end on `749f95b` (this seat's grandchild drove, firsthand). Combined with emeric-nuc's negative, the depth-2-grandchild seam is confirmed lane-state-dependent (timing), not structural — the positive byte the dual-seat verification needed.
+The depth-2 continuation chain drives end-to-end on `749f95b` — both rune-rog-ally (this fire) AND emeric-nuc (on re-fire) DROVE. The "depth-2" is key-identical-to-depth-1 (flat continuation key) → recognized → drives. No confirmed structural seam; #1057's fix is working at depth-2. Dual-seat = two positives.

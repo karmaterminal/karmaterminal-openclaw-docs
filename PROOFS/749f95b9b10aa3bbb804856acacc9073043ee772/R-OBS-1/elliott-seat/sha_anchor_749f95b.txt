@@ -1,0 +1,8 @@
+R-OBS-1 SHA-anchor cross-check — elliott seat @ 749f95b
+local openclaw-src HEAD  : 749f95b9b10aa3bbb804856acacc9073043ee772
+runtime build string     : OpenClaw 2026.6.9 (749f95b)
+server-ref (assembly tip): b248f2fd2d3120d2f376f6db7bf2b74a20e49dde  (= frond's transposition target, AHEAD of deployed tip)
+gh auth                  : elliott-dandelion-cult
+VERDICT: local HEAD == runtime build == 749f95b (two surfaces agree on the DEPLOYED tip).
+The server-ref at b248f2fd2d3 is the next-hop transposition target, NOT a stale-route on this seat —
+the elliott box is correctly on the deployed 749f95b build, server has advanced for the transpose.

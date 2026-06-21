@@ -1,0 +1,10 @@
+🦞 OpenClaw 2026.6.9 (749f95b)
+⏱️ Uptime: gateway 1h 24m · system 22h 19m
+🧠 Model: github-copilot/claude-opus-4.8 · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/claude-opus-4.6, github-copilot/gpt-5.5, openai/gpt-5.5
+📚 Context: 374k/1.0m (37%) · 🧹 Compactions: 3
+🧵 Session: agent:main:discord:channel:1466192485440164011 • duration 40m 55s
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · elevated
+🔌 Plugins: OK
+[captured 2026-06-21 ~12:23 PDT via session_status(current) on the deployed elliott gateway]

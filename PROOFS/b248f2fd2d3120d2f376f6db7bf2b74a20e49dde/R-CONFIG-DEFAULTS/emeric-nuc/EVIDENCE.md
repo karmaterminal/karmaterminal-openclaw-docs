@@ -25,3 +25,7 @@ Covers continuation tool registration + the continue_work/continue_delegate conf
 ## Method: raptor-lake-x86 vitest cure — `node --no-opt` + retry-on-SIGSEGV (TOOLS.md). Clean rc=0.
 
 ## Disposition: R-CONFIG-DEFAULTS = ✅ PASS @ `749f95b9b10a`, byte-verified firsthand.
+
+## Tempo trace: N/A by design
+
+**This row carries NO Tempo trace — and that is correct, not a gap.** `R-CONFIG-*` / `R-REGRESSION-TRAP-TESTS` are **vitest test-rows** (deterministic unit/integration tests of config resolution + regression-trap coverage). They do **not** fire a `continue_work` / `continue_delegate` / `request_compaction` continuation, so they emit **no `continuation.*` / `openclaw.continuation` span** — there is nothing for Tempo to capture. The **vitest pass output IS the evidence** (test counts + assertions recorded above), the analogue of the Tempo JSON for a fire-row. So for the "full trace set" audit: **trace = N/A-by-design (no continuation fire → no span); the row is complete via its vitest evidence.** (Same disposition class as R-RC-1's reject-shape carryover note.)

@@ -9,7 +9,7 @@
 The gate is `request-compaction-tool.ts:27` — `MIN_CONTEXT_THRESHOLD = 0.7`. A session at ≥70% context passes the guard (ACCEPT); below it rejects. The reject-side is proven live (R-RC-1 = PASS); the accept-branch is the same single threshold guard, code-present.
 
 ## Why honest-limit (not a full live PASS at this SHA)
-The accept requires a session **organically at ≥70% context** AND willing to fire `request_compaction` — a scarce, timing-dependent condition. A freshly-spawned subagent starts low-context (guard rejects, structurally cannot produce the accept), and a seat that climbs to ≥70% is compacting — dropping back below threshold at the moment of capture. The cohort attempted a live capture this round (a ~75%-context session was observed ACCEPTing); the dispositive filed byte was not landed before this corpus closed.
+The accept requires a session **organically at ≥70% context** AND willing to fire `request_compaction` — a scarce, timing-dependent condition. A freshly-spawned subagent starts low-context (guard rejects, structurally cannot produce the accept), and a seat that climbs toward ≥70% is compacting — dropping back below threshold. **No live accept-fire was captured before this corpus closed**: the seats that approached the threshold this round had not crossed it (one seat climbed 56→64% over the round without reaching ≥70%). The accept-path is code-present (the same single guard); only the live organic-≥70% accept-fire is pending. (Prior in-channel attribution of a "~75% ACCEPT" was a cross-seat misattribution, corrected firsthand by the named seat — no such fire was filed.)
 
 ## Honest scope
 - Reject-side (R-RC-1): **PASS** (live, guard-identity byte).

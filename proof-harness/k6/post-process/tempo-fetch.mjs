@@ -181,6 +181,52 @@ async function main() {
   console.log('matches the transcript before finalizing the EVIDENCE.md verdict.');
 }
 
+// ── Verified continuation span-names (🩸 Cael, source-verified 2026-06-21 ──────
+// against the actual span-emission source; see VERIFIED-GATEWAY-SURFACE.md §Tempo
+// spans). These are the canonical span names tempo-fetch looks for in the trace
+// JSON to bind a trace to a continuation row's receipt. SOURCE-EMISSION names —
+// a live-trace confirm (fire one continuation → fetch → eyeball) belongs at the
+// first SAFE_TO_FIRE run, but the matcher keys on THESE verified names, NOT the
+// notes' guesses. (Cael's own catch: `continuation.work-wake` was a GUESS and
+// does NOT exist — the real hop-fire span is `continuation.work.fire`.)
+export const EXPECTED_CONTINUATION_SPANS = {
+  // R-CW (continue_work): hop-fire = the successor-turn receipt
+  'continuation.work': 'R-CW work-election (parent schedule/registration)',
+  'continuation.work.fire': 'R-CW-1 / R-CW-TOKEN hop-fire receipt (successor turn)',
+  // R-CD (continue_delegate)
+  'continuation.delegate.dispatch': 'R-CD-1 delegate-spawn span',
+  'continuation.delegate.fire': 'R-CD delegate-fire receipt',
+  'continuation.queue.enqueue': 'R-CD queue enqueue',
+  'continuation.queue.drain': 'R-CD dispatch-time fire (drain)',
+  'continuation.queue.fanout': 'tree-broadcast fanout (#1061 territory)',
+  // R-RC (request_compaction)
+  'continuation.compaction.released': 'R-RC-2 compaction-accept receipt',
+  // HONEST-LIMIT (continuation off / policy-blocked)
+  'continuation.disabled': 'HONEST-LIMIT signal (continuation disabled / deny-path)',
+};
+
+// The per-row attribute key: the tool-execution span carries
+// `span.attributes.toolName` = continue_work | continue_delegate | request_compaction.
+// A row binds its trace by matching the expected span name AND toolName.
+export const TOOL_NAME_ATTR = 'toolName';
+
+// Given the collected span names, report which verified continuation spans are
+// PRESENT — orients the human/row reviewer to the receipt straight away
+// (e.g. `continuation.work.fire` present ⇒ R-CW hop-fire receipt observed).
+// Matches exact names + a dotted-prefix tolerance (some exporters suffix).
+export function matchExpectedSpans(spanNames) {
+  const present = {};
+  const missing = [];
+  for (const [span, meaning] of Object.entries(EXPECTED_CONTINUATION_SPANS)) {
+    const hit = spanNames.some(
+      (n) => n === span || n.startsWith(span + '.') || n.endsWith('.' + span),
+    );
+    if (hit) present[span] = meaning;
+    else missing.push(span);
+  }
+  return { present, missingCount: missing.length, checkedAgainst: 'VERIFIED-GATEWAY-SURFACE.md §Tempo spans' };
+}
+
 // Best-effort body read that never throws.
 async function safeText(res) {
   try {
@@ -223,9 +269,16 @@ function summarizeTrace(trace, id, fetchedFrom) {
     serviceCount: services.size,
     services: [...services],
     spanNames: spanNames.slice(0, 200), // cap the index; full detail in the .json
+    // Which VERIFIED continuation receipt-spans are present (Cael's source-verified
+    // names). This is the row-binding signal: e.g. continuation.work.fire present
+    // ⇒ the R-CW hop-fire receipt was emitted. Names per VERIFIED-GATEWAY-SURFACE.md.
+    continuationReceiptsPresent: matchExpectedSpans(spanNames),
     note:
-      'Heuristic index — the harness does not pin the exact OTLP envelope. ' +
-      'The full, authoritative trace is wake_event_trace.json. Human verifies the stitch.',
+      'Span-name index. The continuationReceiptsPresent block flags which VERIFIED ' +
+      'continuation receipt-spans (Cael, source-verified) appear; the harness still ' +
+      'does not pin the exact OTLP envelope, so the full authoritative trace is ' +
+      'wake_event_trace.json + a human confirms the parent/child stitch + a live ' +
+      'SAFE_TO_FIRE trace confirms the source-emission names fire as expected.',
   };
 }
 

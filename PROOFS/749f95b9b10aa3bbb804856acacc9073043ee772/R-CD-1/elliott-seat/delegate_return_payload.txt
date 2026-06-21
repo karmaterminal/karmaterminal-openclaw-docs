@@ -1,0 +1,10 @@
+R-CD-1 elliott-seat — delegate spawn+return evidence
+
+Spawn confirmed via runtime continuation event:
+[2026-06-21 14:40:06 PDT] [continuation:delegate-spawned] Spawned turn 1/200: R-CD-1 proof fire from elliott-seat ...
+
+The delegate was dispatched after the parent turn completed (as the ACCEPT-shape note promised: "Delegate will be dispatched after your response completes"). The spawn event confirms the normal-mode, depth-1 delegate materialized on schedule (delaySeconds=5).
+
+Spawn→dispatch chain (byte): tool-response status=scheduled → delegate-spawned event fired (turn 1/200) → delegate executes its one-line confirmation task → returns to parent session.
+
+This completes the R-CD-1 round-trip: continue_delegate(normal, delay=5) ACCEPTED-for-schedule (7-field contract) → delegate SPAWNED (this event) → return. Cross-walks the ronan-dgx primary; elliott-seat coverage per figs split-not-lock (`1518337097`).

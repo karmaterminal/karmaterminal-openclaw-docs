@@ -1,0 +1,6 @@
+Live compaction event on ronan-dgx seat (gateway pid 600103, build 93ace21341bf), this session:
+
+  2026-06-21T00:35:54.592-07:00 [compaction-safeguard] Compaction safeguard: new content uses 44.1% of context; dropped 1 older chunk(s) (372 messages) to fit history budget.
+  2026-06-21T00:40:59.282-07:00 [continuation/context-pressure] [context-pressure:fire] post-compaction band=0 previous=none ratio=2% tokens=24k/1000k session=agent:main:discord:channel:1466192485440164011
+
+The post-compaction delegate is compaction-gated: it fires AT the compaction seam (the [compaction-safeguard] drop + the post-compaction band-0 context-pressure fire), distinct from the timer-gated silent-wake (R-CD-2). This seat compacted live this session, exercising the event-trigger the lifeboat arms against.

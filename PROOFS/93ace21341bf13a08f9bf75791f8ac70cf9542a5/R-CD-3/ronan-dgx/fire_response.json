@@ -1,0 +1,3 @@
+{"status":"queued-for-compaction","mode":"post-compaction","delegateIndex":1,"delegatesThisTurn":1,
+ "traceparent":"00-e1ad376d3790c7152c46a1f4f6fcc7da-0b968a935cde2cc6-01",
+ "note":"Delegate will fire when compaction occurs, not on a timer. The shard starts at the moment of compaction and returns to the post-compaction session. Chain tracking applies at dispatch time."}

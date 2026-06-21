@@ -1,0 +1,8 @@
+Jun 21 01:56:17 rune node[1795422]: 2026-06-21T01:56:17.598-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:subagent:continuation-0fb3222aafb72c26a03bc5d46205c9ab
+Jun 21 01:56:17 rune node[1795422]: 2026-06-21T01:56:17.600-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=60000ms fireAt=1782032237599 session=agent:main:subagent:continuation-0fb3222aafb72c26a03bc5d46205c9ab
+Jun 21 01:56:17 rune node[1795422]: 2026-06-21T01:56:17.601-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:subagent:continuation-0fb3222aafb72c26a03bc5d46205c9ab
+Jun 21 01:56:17 rune node[1795422]: 2026-06-21T01:56:17.604-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=999ms fireAt=1782032178602 session=agent:main:subagent:continuation-0fb3222aafb72c26a03bc5d46205c9ab
+Jun 21 01:56:18 rune node[1795422]: 2026-06-21T01:56:18.604-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:subagent:continuation-0fb3222aafb72c26a03bc5d46205c9ab
+Jun 21 01:56:18 rune node[1795422]: 2026-06-21T01:56:18.606-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59999ms fireAt=1782032238604 session=agent:main:subagent:continuation-0fb3222aafb72c26a03bc5d46205c9ab
+Jun 21 01:56:18 rune node[1795422]: 2026-06-21T01:56:18.607-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:subagent:continuation-0fb3222aafb72c26a03bc5d46205c9ab
+Jun 21 01:56:18 rune node[1795422]: 2026-06-21T01:56:18.609-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=2000ms fireAt=1782032180608 session=agent:main:subagent:continuation-0fb3222aafb72c26a03bc5d46205c9ab

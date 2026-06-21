@@ -1,0 +1,8 @@
+src/agents/subagent-announce.ts (ship SHA 93ace21) — the chain-depth-boundary reject:
+
+:1023  | { allowed: false; reason: "chain-length"; chainCount: number; maxChainLength: number }
+:1029-1030    allowed: false, reason: "chain-length"   (when the chain depth exceeds maxChainLength)
+:1054-1056    if (chainGuardResult.reason === "chain-length")
+                log: `[subagent-chain-hop] Chain length ${chainCount} > ${maxChainLength}, rejecting hop from ${childSessionKey}`
+
+The chain-guard computes allowed:false reason:chain-length when currentChainCount >= maxChainLength, and the dispatcher rejects the hop with the logged reject. Live config: agents.defaults.continuation.maxChainLength = 200 (default 10).

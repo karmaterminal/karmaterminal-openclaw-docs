@@ -1,0 +1,9 @@
+$ npx vitest run src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts
+ ✓ src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts (3 tests) 57ms
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   (at ship SHA 93ace21341bf13a08f9bf75791f8ac70cf9542a5, rune-rog-ally seat)
+
+Tests:
+  - "rejects a delegate when currentChainCount equals maxChainLength" (currentChainCount:10, max:10 -> reject)
+  - "accepts a delegate at count 9/10, then rejects the next at 10/10" (boundary: 9<10 accept, 10>=10 reject)

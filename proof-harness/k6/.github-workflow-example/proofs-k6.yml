@@ -1,0 +1,245 @@
+# proofs-k6.yml — EXAMPLE GitHub Actions workflow for the continuation k6
+# proof-harness. ────────────────────────────────────────────────────────────
+#
+#   ⚠️⚠️  THIS IS A DOCUMENTED PATTERN, *NOT* A LIVE-WIRED WORKFLOW.  ⚠️⚠️
+#
+# It lives in `proof-harness/k6/.github-workflow-example/` ON PURPOSE — NOT in
+# the repo's real `.github/workflows/` — so it does NOT register as a runnable
+# Action. Two things must happen before it is promoted to a live workflow:
+#   1. The gateway method/tool names it depends on (via the scenarios) are
+#      VERIFIED against the deployed SHA (the whole harness is "documented, not
+#      byte-verified live" until then — see README "Open questions").
+#   2. figs REVIEWS it. He set the repo-secrets direction; the wiring is his call.
+#
+# WHAT IT DOES (when promoted): runs the k6 proof-harness against a gateway that
+# is reachable FROM THE RUNNER OVER LOOPBACK — i.e. a SELF-HOSTED runner ON a
+# fleet prince seat. It runs the read-only preflight always, and the fire rows
+# ONLY when explicitly opted in. Artifacts are uploaded for human review; nothing
+# is auto-committed into PROOFS/.
+#
+# SECURITY MODEL (matches README "Security model" + figs's repo-secrets call):
+#   - The gateway operator endpoint grants BROAD operator access → it must stay on
+#     loopback/tailnet. This workflow therefore targets `ws://127.0.0.1:18789`
+#     and MUST run on a self-hosted runner physically on the seat. A public
+#     gateway is FORBIDDEN.
+#   - The token is a PER-SEAT REPO SECRET, selected by the chosen seat:
+#     `secrets.<SEAT>_GATEWAY_TOKEN` (e.g. ELLIOTT_GATEWAY_TOKEN). It is injected
+#     as the OPENCLAW_GATEWAY_TOKEN env ONLY into the steps that need it, never
+#     echoed, never written to an artifact (the harness + post-processor scrub it).
+#   - Fire rows require BOTH the `safe_to_fire` input == 'true' AND the harness's
+#     own SAFE_TO_FIRE=1 env gate. Default OFF.
+#
+# NB: GitHub Actions cannot index a repo secret by a dynamic name directly
+# (`secrets[format('{0}_GATEWAY_TOKEN', ...)]` is NOT supported). The portable
+# pattern is an explicit `if:`-gated select step per seat, shown below. Add a
+# branch per provisioned seat. (Alternative: a single OPENCLAW_GATEWAY_TOKEN
+# secret per-repo if you only ever target one seat — but per-seat secrets match
+# figs's direction and the multi-seat fleet.)
+
+name: continuation-proofs-k6 (EXAMPLE — not wired)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_seat:
+        description: "Which prince seat to run on (selects the self-hosted runner + the per-seat token secret)."
+        required: true
+        type: choice
+        options:
+          - elliott
+          - silas
+          - cael
+          - ronan
+          - emeric
+      candidate_sha:
+        description: "Full 40-char candidate SHA deployed on the seat under test (recorded into evidence)."
+        required: true
+        type: string
+      safe_to_fire:
+        description: "Set 'true' ONLY to fire real continuations on a QUIET seat at the candidate SHA. Default 'false' = preflight-only."
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+# Never run two proof jobs against the same seat at once (a busy seat busy-skips
+# continuations — the #1057 surface — and parallel fires violate the serialize
+# guardrail). Concurrency is keyed per seat.
+concurrency:
+  group: proofs-k6-${{ github.event.inputs.target_seat }}
+  cancel-in-progress: false
+
+jobs:
+  proofs:
+    # Self-hosted runner ON the chosen seat. The labels must match how the
+    # runners are registered (here: 'self-hosted' + the seat name). This is what
+    # guarantees loopback reachability of the local gateway.
+    runs-on: [self-hosted, "${{ github.event.inputs.target_seat }}"]
+    timeout-minutes: 30
+
+    env:
+      # Non-secret run context. The token is injected per-step below, NOT here.
+      OPENCLAW_GATEWAY_WS: ws://127.0.0.1:18789
+      OPENCLAW_SESSION_KEY: main
+      # Token-form rows must target a DEDICATED test session, never live main.
+      # Provision this throwaway session on the seat and name it here.
+      OPENCLAW_TOKEN_SESSION_KEY: proof-harness-test
+      CANDIDATE_SHA: ${{ github.event.inputs.candidate_sha }}
+      SEAT_NAME: ${{ github.event.inputs.target_seat }}
+      # Tempo base is PER-SEAT (see tempo-fetch.mjs). elliott = tempo.dandelion.cult.
+      # Override per seat if/when their endpoints differ.
+      TEMPO_BASE_URL: https://tempo.dandelion.cult
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── select the per-seat gateway token into a masked output ──────────────
+      # GitHub can't index secrets by a dynamic name, so we select explicitly per
+      # seat with `if:` guards. add_mask keeps it out of logs. Add a step per
+      # provisioned seat. The token NEVER appears in plaintext in logs/artifacts.
+      - name: Select per-seat gateway token (elliott)
+        id: tok_elliott
+        if: ${{ github.event.inputs.target_seat == 'elliott' }}
+        run: |
+          echo "::add-mask::${{ secrets.ELLIOTT_GATEWAY_TOKEN }}"
+          echo "token=${{ secrets.ELLIOTT_GATEWAY_TOKEN }}" >> "$GITHUB_OUTPUT"
+      - name: Select per-seat gateway token (silas)
+        id: tok_silas
+        if: ${{ github.event.inputs.target_seat == 'silas' }}
+        run: |
+          echo "::add-mask::${{ secrets.SILAS_GATEWAY_TOKEN }}"
+          echo "token=${{ secrets.SILAS_GATEWAY_TOKEN }}" >> "$GITHUB_OUTPUT"
+      - name: Select per-seat gateway token (cael)
+        id: tok_cael
+        if: ${{ github.event.inputs.target_seat == 'cael' }}
+        run: |
+          echo "::add-mask::${{ secrets.CAEL_GATEWAY_TOKEN }}"
+          echo "token=${{ secrets.CAEL_GATEWAY_TOKEN }}" >> "$GITHUB_OUTPUT"
+      - name: Select per-seat gateway token (ronan)
+        id: tok_ronan
+        if: ${{ github.event.inputs.target_seat == 'ronan' }}
+        run: |
+          echo "::add-mask::${{ secrets.RONAN_GATEWAY_TOKEN }}"
+          echo "token=${{ secrets.RONAN_GATEWAY_TOKEN }}" >> "$GITHUB_OUTPUT"
+      - name: Select per-seat gateway token (emeric)
+        id: tok_emeric
+        if: ${{ github.event.inputs.target_seat == 'emeric' }}
+        run: |
+          echo "::add-mask::${{ secrets.EMERIC_GATEWAY_TOKEN }}"
+          echo "token=${{ secrets.EMERIC_GATEWAY_TOKEN }}" >> "$GITHUB_OUTPUT"
+
+      # Coalesce whichever seat's token got selected into one step output.
+      - name: Resolve token
+        id: tok
+        run: |
+          T="${{ steps.tok_elliott.outputs.token }}${{ steps.tok_silas.outputs.token }}${{ steps.tok_cael.outputs.token }}${{ steps.tok_ronan.outputs.token }}${{ steps.tok_emeric.outputs.token }}"
+          if [ -z "$T" ]; then echo "No token selected for seat '${{ github.event.inputs.target_seat }}'. Add a select step + secret." >&2; exit 1; fi
+          echo "::add-mask::$T"
+          echo "token=$T" >> "$GITHUB_OUTPUT"
+
+      - name: Install k6
+        run: |
+          # Prefer a preinstalled k6 on the self-hosted runner; install if absent.
+          if ! command -v k6 >/dev/null 2>&1; then
+            curl -fsSL https://github.com/grafana/k6/releases/latest/download/k6-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64.tar.gz \
+              | tar xz --strip-components=1 -C /tmp k6 || { echo "k6 install failed; preinstall on the runner"; exit 1; }
+            sudo mv /tmp/k6 /usr/local/bin/k6
+          fi
+          k6 version
+
+      # ── preflight (READ-ONLY — always runs, even when safe_to_fire=false) ────
+      - name: Preflight (read-only inventory)
+        env:
+          OPENCLAW_GATEWAY_TOKEN: ${{ steps.tok.outputs.token }}
+        run: |
+          mkdir -p artifacts
+          k6 run --summary-export=artifacts/preflight-summary.json \
+            proof-harness/k6/scenarios/00-preflight.js | tee artifacts/preflight-stdout.ndjson
+
+      # ── fire rows (ONLY when safe_to_fire == 'true') ─────────────────────────
+      # SERIALIZED: each row is its own step, run back-to-back. NEVER run these in
+      # parallel against one session. request_compaction is intentionally absent.
+      - name: R-CW-1 (typed continue_work — FIRES)
+        if: ${{ github.event.inputs.safe_to_fire == 'true' }}
+        env:
+          OPENCLAW_GATEWAY_TOKEN: ${{ steps.tok.outputs.token }}
+          SAFE_TO_FIRE: "1"
+          PROOF_NONCE: cw1-${{ github.run_id }}
+        run: |
+          k6 run --summary-export=artifacts/r-cw-1-summary.json \
+            proof-harness/k6/scenarios/01-r-cw-1-tool.js | tee artifacts/r-cw-1-stdout.ndjson
+
+      - name: R-CW-TOKEN (bare CONTINUE_WORK:1 — FIRES, dedicated session)
+        if: ${{ github.event.inputs.safe_to_fire == 'true' }}
+        env:
+          OPENCLAW_GATEWAY_TOKEN: ${{ steps.tok.outputs.token }}
+          OPENCLAW_SESSION_KEY: ${{ env.OPENCLAW_TOKEN_SESSION_KEY }}
+          SAFE_TO_FIRE: "1"
+          PROOF_NONCE: cwtok-${{ github.run_id }}
+        run: |
+          k6 run --summary-export=artifacts/r-cw-token-summary.json \
+            proof-harness/k6/scenarios/02-r-cw-token.js | tee artifacts/r-cw-token-stdout.ndjson
+
+      - name: R-CD-1 (typed continue_delegate — FIRES)
+        if: ${{ github.event.inputs.safe_to_fire == 'true' }}
+        env:
+          OPENCLAW_GATEWAY_TOKEN: ${{ steps.tok.outputs.token }}
+          SAFE_TO_FIRE: "1"
+          PROOF_NONCE: cd1-${{ github.run_id }}
+        run: |
+          k6 run --summary-export=artifacts/r-cd-1-summary.json \
+            proof-harness/k6/scenarios/03-r-cd-1-tool.js | tee artifacts/r-cd-1-stdout.ndjson
+
+      - name: R-CD-TOKEN (bracket [[CONTINUE_DELEGATE]] — FIRES, dedicated session)
+        if: ${{ github.event.inputs.safe_to_fire == 'true' }}
+        env:
+          OPENCLAW_GATEWAY_TOKEN: ${{ steps.tok.outputs.token }}
+          OPENCLAW_SESSION_KEY: ${{ env.OPENCLAW_TOKEN_SESSION_KEY }}
+          SAFE_TO_FIRE: "1"
+          PROOF_NONCE: cdtok-${{ github.run_id }}
+        run: |
+          k6 run --summary-export=artifacts/r-cd-token-summary.json \
+            proof-harness/k6/scenarios/04-r-cd-token.js | tee artifacts/r-cd-token-stdout.ndjson
+
+      # ── post-process every summary into PROOFS/ draft artifacts ─────────────
+      # The post-processor scrubs the token defensively; artifacts are token-free.
+      - name: Post-process → EVIDENCE drafts (+ fetch Tempo traces)
+        if: ${{ always() }}
+        env:
+          OPENCLAW_GATEWAY_TOKEN: ${{ steps.tok.outputs.token }}  # only for the scrub match; never written out
+        run: |
+          set -e
+          for pair in \
+            "preflight:artifacts/preflight-summary.json:artifacts/preflight-stdout.ndjson" \
+            "r-cw-1:artifacts/r-cw-1-summary.json:artifacts/r-cw-1-stdout.ndjson" \
+            "r-cw-token:artifacts/r-cw-token-summary.json:artifacts/r-cw-token-stdout.ndjson" \
+            "r-cd-1:artifacts/r-cd-1-summary.json:artifacts/r-cd-1-stdout.ndjson" \
+            "r-cd-token:artifacts/r-cd-token-summary.json:artifacts/r-cd-token-stdout.ndjson"; do
+            name="${pair%%:*}"; rest="${pair#*:}"; sum="${rest%%:*}"; nd="${rest#*:}"
+            [ -f "$sum" ] || { echo "skip $name (no summary — row not run)"; continue; }
+            node proof-harness/k6/post-process/summary-to-evidence.mjs \
+              --summary "$sum" --ndjson "$nd" \
+              --out artifacts/PROOFS --sha "$CANDIDATE_SHA" --seat "$SEAT_NAME"
+            # Fetch the Tempo trace into the freshly written k6-run dir, if a trace
+            # id surfaced. Find the most recent run dir for this row and fetch.
+            row_upper=$(echo "$name" | tr '[:lower:]-' '[:upper:]_')
+            run_dir=$(ls -dt artifacts/PROOFS/"$CANDIDATE_SHA"/*/k6-run-* 2>/dev/null | head -1 || true)
+            if [ -n "$run_dir" ]; then
+              node proof-harness/k6/post-process/tempo-fetch.mjs \
+                --summary "$sum" --out "$run_dir" || echo "tempo-fetch non-fatal for $name"
+            fi
+          done
+
+      - name: Upload proof artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: continuation-proofs-${{ github.event.inputs.target_seat }}-${{ github.run_id }}
+          path: artifacts/
+          retention-days: 14
+        # NOTE: artifacts are uploaded for HUMAN REVIEW. They are NOT auto-committed
+        # into PROOFS/ — a human confirms transcript meaning + the Tempo trace, then
+        # promotes the EVIDENCE.md drafts per RUNBOOKS/PROOF-CORPUS-METHOD.md.

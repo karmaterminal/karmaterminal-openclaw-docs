@@ -12,6 +12,15 @@ trace receipts, and labels a **candidate** verdict. A **human verdicts**.
 > before a real proof run (every scenario says so in its header). k6 is not
 > installed on the authoring seat, so the k6 scripts here are written + syntax-
 > reviewed but **not yet executed against a gateway**.
+>
+> **Live-verification landed (🩸 Cael, 2026-06-21 —
+> [`VERIFIED-GATEWAY-SURFACE.md`](./VERIFIED-GATEWAY-SURFACE.md)):** the method/
+> tool names + `tools.invoke` schema are confirmed against the live gateway. Two
+> corrections are now wired in: (1) the connect flow is **challenge-first** — the
+> gateway pushes a `connect.challenge` event before accepting `connect` and
+> rejects a raw connect-on-open; and (2) the wake-matcher / subscribe scenarios
+> key on **`session.message`** (the live event) — `turn.start`/`run.start` are NOT
+> in the live 25-event surface and would never fire. See the doc for details.
 
 ## What this is (and is NOT)
 
@@ -250,15 +259,27 @@ the full version (per-seat token selection, serialized fire steps, Tempo fetch).
 
 ## Open questions / assumptions flagged for review
 
-1. **Gateway method/tool names are documented, not byte-verified live.** The
-   `connect` envelope and `health` / `sessions.list` / `tools.effective` /
-   `tools.invoke` / `sessions.send` / `tasks.list` / `*.subscribe` names come
-   from the design notes + protocol docs. Before a real run, confirm each against
-   the deployed SHA (a `tools.catalog` probe + a manual `connect`).
-2. **Inbound event envelope is matched heuristically.** Successor-turn / child-
-   spawn / task-ledger / return detection uses tolerant field-name + needle
-   matching (the unique nonce is the strong signal), because the exact event
-   frame shape per SHA is not pinned here. Once verified, tighten to exact paths.
+1. **Gateway method/tool names — VERIFIED LIVE (🩸 Cael,
+   [`VERIFIED-GATEWAY-SURFACE.md`](./VERIFIED-GATEWAY-SURFACE.md)).** The
+   `health` / `sessions.list` / `tools.effective` / `tools.invoke` /
+   `sessions.send` / `tasks.list` / `*.subscribe` names + the `tools.invoke`
+   schema + the continuation tool names are confirmed present in the live
+   inventory. The one real connect fix is wired: the handshake is
+   **challenge-first** — the gateway emits a `connect.challenge` event before
+   accepting `connect` and rejects a raw connect-on-open, so every scenario now
+   gates its `connect` send on that challenge (`isConnectChallenge` /
+   `onConnectChallenge` in `lib/gateway.js`) instead of sending on `open`.
+   `mode:'operator'` is kept (probe-mode loses scopes). Still confirm the live
+   SHA with `openclaw --version` at proof-run time.
+2. **Inbound event envelope — event-names VERIFIED LIVE (25-event surface).**
+   Successor-turn / child-spawn / task-ledger / return detection uses tolerant
+   field-name + needle matching (the unique nonce is the strong signal). Per
+   Cael's verification, the **wake-matcher** (R-CD-TOKEN silent-wake, scenario 04
+   + `_combined-suite`) keys on **`session.message`** — the live event a parent
+   wake surfaces as — NOT `turn.start`/`run.start` (those are source-internal and
+   never pushed to subscribers, so a matcher on them would never fire). The
+   subscribe path is `sessions.messages.subscribe` (pushes arrive as
+   `session.message`); verify the exact subscribe method name vs the deployed SHA.
 3. **Trace capture — companion ADDED (`post-process/tempo-fetch.mjs`).**
    Scenarios capture a trace id when one appears in a frame; fetching the Tempo
    trace JSON (`wake_event_trace.json`, the runbook's Tempo requirement) is now

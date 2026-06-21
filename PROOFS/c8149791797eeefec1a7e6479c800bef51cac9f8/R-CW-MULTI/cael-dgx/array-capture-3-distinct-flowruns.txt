@@ -1,0 +1,10 @@
+flow_id       status  owner_key                                             goal                                                        created_at   
+------------  ------  ----------------------------------------------------  ----------------------------------------------------------  -------------
+e4ca7082-662  queued  agent:main:subagent:77a64ba5-9064-4b70-82f6-5c179f3d  Continuation work: R-CW-MULTI-FIRE-B-CAEL-C814979 — array-  1782043727787
+6c0ad0f8-5c8  queued  agent:main:subagent:77a64ba5-9064-4b70-82f6-5c179f3d  Continuation work: R-CW-MULTI-FIRE-C-CAEL-C814979 — array-  1782043727787
+flow_id       status     created_utc          created_at   
+------------  ---------  -------------------  -------------
+e4ca7082-662  queued     2026-06-21 12:08:47  1782043727787
+6c0ad0f8-5c8  queued     2026-06-21 12:08:47  1782043727787
+17b6227d-971  succeeded  2026-06-21 12:08:47  1782043727785
+e5ed5b84-bf1  succeeded  2026-06-21 12:06:15  1782043575148

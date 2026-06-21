@@ -1,0 +1,14 @@
+R-RC-2 over-threshold ACCEPT — firsthand from request_compaction tool-return (rune-rog-ally)
+SHA: 749f95b9b10aa3bbb804856acacc9073043ee772
+Fired: 2026-06-21 ~12:31 PDT, rune-rog-ally session at 81% context
+
+TOOL-RETURN (verbatim, the dispositive byte):
+{
+  "status": "compaction_requested",      <- ACCEPTED (not rejected)
+  "compactionRequestId": "cmp-mqoag2ax-tNNC-w",
+  "trigger": "volitional",
+  "contextUsage": 81,                    <- 81% >= MIN_CONTEXT_THRESHOLD(0.70) = the over-threshold gate satisfied
+  "traceparent": "00-49e6f484e1e80397fad966c1476251de-27951c7d2bd1d85d-01"
+}
+
+INTERPRETATION: request_compaction at contextUsage=81 (>= 70% threshold) -> status=compaction_requested (ACCEPT), compaction enqueued. This IS the R-RC-2 over-threshold-ACCEPT shape: the accept-side of the threshold, complement of R-RC-1's reject-at-low-context. Verified firsthand from the tool-return (not 81>70-inferred): the status field is the byte.

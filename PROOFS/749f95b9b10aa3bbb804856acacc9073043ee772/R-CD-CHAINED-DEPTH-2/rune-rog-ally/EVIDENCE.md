@@ -36,3 +36,6 @@ Note: my earlier framing of this row (emeric-negative + rune-positive → "timin
 
 ## Net
 The depth-2 continuation chain drives end-to-end on `749f95b` — both rune-rog-ally (this fire) AND emeric-nuc (on re-fire) DROVE. The "depth-2" is key-identical-to-depth-1 (flat continuation key) → recognized → drives. No confirmed structural seam; #1057's fix is working at depth-2. Dual-seat = two positives.
+
+## Tempo trace (per-row deliverable)
+`tempo-trace-depth2-chain-fb593e86.json` (traceId `fb593e86640b68c250645030bde8a99c`, 19 spans, pulled live from Tempo) — the depth-2 chain's trace: `openclaw.message.processed → harness.run → run` (the agent turn) + **`continuation.delegate.dispatch`** (the depth-1→depth-2 grandchild dispatch) + **`continuation.queue.drain`** (the continuation queue). The continuation machinery's spans are present + nested, confirming the chain dispatched + the continuation path is traced.

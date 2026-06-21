@@ -1,0 +1,3 @@
+  Jun 21 01:53:19 ronan node[1333838]: 2026-06-21T01:53:19.924-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=2/200 mode=silent-wake session=agent:main:discord:channel:1466192485440164011 task=[PROOF R-CD-2 / c8149791797eeefec1a7e6479c800bef51cac9f8] Delegate by Ronan (🌊)
+  Jun 21 01:53:23 ronan node[1333838]: 2026-06-21T01:53:23.815-07:00 R-CD-2 PROOF: continue_delegate(mode=silent-wake) silent-return-plus-wake verified at SHIP-SHA c8149791797eeefec1a7e6479c800bef51cac9f8 from ronan-dgx 2026-06-21
+  Jun 21 01:53:24 ronan node[1333838]: 2026-06-21T01:53:24.180-07:00 [continuation/announce] [continuation/silent-wake] wakeOnReturn=true target=agent:main:discord:channel:1466192485440164011 silentAnnounce=true

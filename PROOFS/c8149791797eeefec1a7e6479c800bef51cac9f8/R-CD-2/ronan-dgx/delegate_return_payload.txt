@@ -1,0 +1,1 @@
+R-CD-2 PROOF: continue_delegate(mode=silent-wake) silent-return-plus-wake verified at SHIP-SHA c8149791797eeefec1a7e6479c800bef51cac9f8 from ronan-dgx 2026-06-21

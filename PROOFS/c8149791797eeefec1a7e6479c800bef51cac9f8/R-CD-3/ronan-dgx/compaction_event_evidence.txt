@@ -1,0 +1,2 @@
+  Jun 21 00:35:54 ronan node[600103]: 2026-06-21T00:35:54.592-07:00 [compaction-safeguard] Compaction safeguard: new content uses 44.1% of context; dropped 1 older chunk(s) (372 messages) to fit history budget.
+  Jun 21 00:40:59 ronan node[600103]: 2026-06-21T00:40:59.282-07:00 [continuation/context-pressure] [context-pressure:fire] post-compaction band=0 previous=none ratio=2% tokens=24k/1000k session=agent:main:discord:channel:1466192485440164011

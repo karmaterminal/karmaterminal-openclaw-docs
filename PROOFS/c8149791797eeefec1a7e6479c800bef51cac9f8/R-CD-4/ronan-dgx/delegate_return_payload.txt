@@ -1,0 +1,1 @@
+R-CD-4 PROOF: continue_delegate cross-session targetSessionKey-routing verified at SHIP-SHA c8149791797eeefec1a7e6479c800bef51cac9f8 from ronan-dgx 2026-06-21; return targeted to agent:main:main

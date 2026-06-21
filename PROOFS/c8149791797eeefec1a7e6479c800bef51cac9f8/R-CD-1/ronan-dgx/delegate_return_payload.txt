@@ -1,0 +1,1 @@
+R-CD-1 PROOF: continue_delegate(mode=normal) schedule-spawn-return verified at SHIP-SHA c8149791797eeefec1a7e6479c800bef51cac9f8 from ronan-dgx seat 2026-06-21

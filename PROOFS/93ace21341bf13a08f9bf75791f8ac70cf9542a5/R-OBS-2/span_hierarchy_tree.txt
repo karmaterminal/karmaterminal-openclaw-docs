@@ -1,0 +1,37 @@
+SPAN TREE (parent-child hierarchy):
+  - openclaw.message.processed
+    - openclaw.harness.run
+      - openclaw.run
+        - openclaw.context.assembled
+        - openclaw.model.call
+        - openclaw.tool.execution
+        - openclaw.model.call
+        - openclaw.tool.execution
+        - openclaw.model.call
+        - openclaw.tool.execution
+        - openclaw.model.call
+        - openclaw.tool.execution
+        - openclaw.model.call
+        - openclaw.tool.execution
+        - openclaw.model.call
+        - openclaw.tool.execution
+        - openclaw.model.call
+        - openclaw.tool.execution
+        - openclaw.model.call
+      - openclaw.message.delivery
+    - continuation.delegate.dispatch
+      - openclaw.harness.run
+        - openclaw.run
+          - openclaw.context.assembled
+          - openclaw.model.call
+          - openclaw.tool.execution
+          - openclaw.model.call
+          - openclaw.tool.execution
+          - openclaw.model.call
+          - openclaw.tool.execution
+          - openclaw.model.call
+    - continuation.work
+
+CONTINUATION spans + their parent chain (traceparent E2E):
+  continuation.delegate.dispatch  <-parent-  openclaw.message.processed
+  continuation.work  <-parent-  openclaw.message.processed

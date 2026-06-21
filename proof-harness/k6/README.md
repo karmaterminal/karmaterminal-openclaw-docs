@@ -48,10 +48,43 @@ proof-harness/k6/
 │   ├── 01-r-cw-1-tool.js           ← R-CW-1: typed continue_work()              [BOTH-FORMS: tool]
 │   ├── 02-r-cw-token.js            ← R-CW-TOKEN: bare CONTINUE_WORK:1 + nonce    [BOTH-FORMS: token, the #952 path]
 │   ├── 03-r-cd-1-tool.js           ← R-CD-1: typed continue_delegate()          [BOTH-FORMS: tool]
-│   └── 04-r-cd-token.js            ← R-CD-TOKEN: [[CONTINUE_DELEGATE | silent-wake]] [BOTH-FORMS: bracket]
-└── post-process/
-    └── summary-to-evidence.mjs     ← k6 summary.json (+ NDJSON) → PROOFS/<SHA>/<ROW>/k6-run-<ts>/ artifacts
+│   ├── 04-r-cd-token.js            ← R-CD-TOKEN: [[CONTINUE_DELEGATE | silent-wake]] [BOTH-FORMS: bracket]
+│   └── _combined-suite.js          ← OPTIONAL single-invocation runner (preflight + fire rows SERIALIZED via startTime)
+├── post-process/
+│   ├── summary-to-evidence.mjs     ← k6 summary.json (+ NDJSON) → PROOFS/<SHA>/<ROW>/k6-run-<ts>/ artifacts
+│   └── tempo-fetch.mjs             ← fetch the Tempo trace JSON → wake_event_trace.json (closes the trace TODO)
+└── .github-workflow-example/
+    └── proofs-k6.yml               ← EXAMPLE CI workflow (per-seat repo-secret token; NOT wired — review first)
 ```
+
+### Companion tooling + optional runners (the open-Q follow-ups)
+
+Three additions sit alongside the core scaffold; each is a deliberate follow-up
+to a flagged open question, and each is honest about assumed-vs-verified:
+
+- **`post-process/tempo-fetch.mjs`** (open-Q #3) — companion to
+  `summary-to-evidence.mjs`. Given a trace id (explicit `--trace`, or pulled from
+  a scenario's `summary.json`) and a Tempo base URL (`--base` / `$TEMPO_BASE_URL`,
+  **per-seat** — `https://tempo.dandelion.cult` on elliott), it fetches the full
+  trace export (`GET <base>/api/traces/<id>`) and writes `wake_event_trace.json`
+  (+ a small span-name index) into the row's `k6-run-<ts>/` dir, satisfying the
+  EVIDENCE.md trace TODO. A missing trace id / network failure is an HONEST
+  breadcrumb file, never a crash. Any Tempo bearer is env-only + scrubbed — same
+  discipline as the post-processor. Use `--insecure` for a self-signed ingress
+  (`curl -k` parity); per-deployment assumptions are flagged in its header.
+- **`scenarios/_combined-suite.js`** (open-Q #4) — the OPTIONAL combined runner.
+  Runs preflight then the four fire rows in ONE `k6 run` via a k6 `scenarios{}`
+  config with `startTime` staggering. Fire rows are **SERIALIZED, never parallel**
+  (the guardrail) and still require `SAFE_TO_FIRE=1`. Its header documents the
+  honest k6-model constraint: per-row files each own module-scope state +
+  `options` + `handleSummary`, so they cannot simply be imported and multiplexed
+  — the combined runner re-uses the shared **libs** instead. **The per-file
+  scenarios remain the source of truth + the recommended evidence-grade path.**
+  `request_compaction` / future compaction rows must NOT be added to it.
+- **`.github-workflow-example/proofs-k6.yml`** — the concrete CI pattern (see
+  "CI / repo-secrets pattern" below). In `.github-workflow-example/` (NOT the
+  real `.github/workflows/`) so it does not register as a live Action — a
+  documented pattern pending method-verify + figs review.
 
 ## The five first-milestone scenarios
 
@@ -176,12 +209,18 @@ captured trace id: `https://tempo.dandelion.cult/api/traces/<trace-id>`).
 - **Receipts/traces are the product, not a green exit** — the harness will not
   call anything a PASS without the corroborating receipts.
 
-## CI / repo-secrets pattern (note, not wired)
+## CI / repo-secrets pattern (concrete example added; not wired)
 
 figs's direction: in production the gateway token lives as a **repo secret**.
-A GitHub Actions workflow would run this harness against a gateway reachable
-from the runner (a self-hosted runner *on* a fleet seat, or a tailnet-joined
-runner — **never** a public gateway), injecting the token from the secret:
+A concrete, heavily-commented workflow now exists at
+**`.github-workflow-example/proofs-k6.yml`** (placed there, NOT in the real
+`.github/workflows/`, so it does not register as a live Action pending
+method-verify + figs review). It uses **per-seat repo-secrets**
+(`secrets.<SEAT>_GATEWAY_TOKEN`, e.g. `ELLIOTT_GATEWAY_TOKEN`) selected by a
+`target_seat` input, runs on a **self-hosted runner on that seat** (loopback
+only), runs preflight always, fires only when `safe_to_fire=true`, serializes
+the fire rows, and post-processes + Tempo-fetches + uploads artifacts (never
+auto-commits to `PROOFS/`). The condensed shape:
 
 ```yaml
 # .github/workflows/proof-harness.yml  (SKETCH — not committed; wire when ready)
@@ -203,9 +242,11 @@ jobs:
 ```
 
 Key constraints: the runner must reach the gateway on loopback/tailnet (a
-public gateway is forbidden); the token is **only** ever `${{ secrets.* }}`;
-fire jobs are explicitly opt-in via a `safe_to_fire` input; artifacts are
-uploaded for human review, **not** auto-committed into `PROOFS/`.
+public gateway is forbidden); the token is **only** ever `${{ secrets.* }}`
+(per-seat: `secrets.<SEAT>_GATEWAY_TOKEN`); fire jobs are explicitly opt-in via
+the `safe_to_fire` input; artifacts are uploaded for human review, **not**
+auto-committed into `PROOFS/`. See `.github-workflow-example/proofs-k6.yml` for
+the full version (per-seat token selection, serialized fire steps, Tempo fetch).
 
 ## Open questions / assumptions flagged for review
 
@@ -218,14 +259,22 @@ uploaded for human review, **not** auto-committed into `PROOFS/`.
    spawn / task-ledger / return detection uses tolerant field-name + needle
    matching (the unique nonce is the strong signal), because the exact event
    frame shape per SHA is not pinned here. Once verified, tighten to exact paths.
-3. **Trace capture is a post-process TODO.** Scenarios capture a trace id when
-   one appears in a frame; fetching the Tempo trace JSON
-   (`wake_event_trace.json`) is left to a companion step (the runbook's Tempo
-   requirement). A `tempo-fetch.mjs` companion is the obvious next addition.
-4. **One file per scenario vs a single k6 `scenarios` config.** Chosen: one file
-   per scenario, for independent runnability + clear `--summary-export` per row.
-   A combined runner with k6 `scenarios{}` + `startTime` staggering (as the notes
-   sketch) is a straightforward follow-up if a single-invocation suite is wanted.
+3. **Trace capture — companion ADDED (`post-process/tempo-fetch.mjs`).**
+   Scenarios capture a trace id when one appears in a frame; fetching the Tempo
+   trace JSON (`wake_event_trace.json`, the runbook's Tempo requirement) is now
+   done by `tempo-fetch.mjs` (given a trace id + per-seat Tempo base). Remaining
+   per-deployment assumptions are flagged in its header: the **per-seat** Tempo
+   base URL, the OTLP/JSON envelope shape (parsed tolerantly), and self-signed
+   ingress TLS (`--insecure` for `curl -k` parity).
+4. **One file per scenario vs a single k6 `scenarios` config — OPTIONAL combined
+   runner ADDED (`scenarios/_combined-suite.js`).** Default remains one file per
+   scenario (independent runnability + a clean `--summary-export` per row). The
+   combined runner (k6 `scenarios{}` + `startTime` staggering, fire rows
+   **serialized**) is the single-invocation option. Honest caveat in its header:
+   k6 cannot multiplex the per-row files' module-scope state, so it re-uses the
+   shared libs and the per-file scenarios stay the evidence-grade source of truth;
+   a combined run emits one nested summary (per-row `PROOFS/` authoring from it is
+   a further follow-up).
 5. **Human-verdict boundary is hard-coded.** The harness deliberately cannot emit
    a final verdict — only candidates. If we ever want auto-PASS for the most
    deterministic rows, that is a policy decision for figs, not a harness default.

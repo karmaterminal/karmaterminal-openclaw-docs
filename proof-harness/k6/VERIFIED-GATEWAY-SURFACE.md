@@ -78,3 +78,34 @@ The live gateway advertises **25 events** (`hello-ok.features.eventsCount: 25`).
 The lib's scenarios use `sessions.messages.subscribe` — verify the exact subscribe method name against the deployed SHA (the events arrive as `session.message` pushes once subscribed). The chat-style path (`chat.history`/`session.message`) is the WebChat-native surface.
 
 **Net for the wake-matcher:** parent-wake-after-child-spawn = a fresh **`session.message`** event on the parent session post-spawn (NOT a `turn.start`). Ronan's silent-wake fix (wake OR echo, child-spawned-but-no-parent-signal → HONEST-LIMIT) is correct in shape; just point the wake-detector at `session.message`, not `turn.start`/`run.start`.
+
+## ✅ TEMPO SPAN-names verification (for tempo-fetch's span-match) — surface #4, source-verified
+
+**Verified against:** the actual span-emission source (`src/` continuation tracer calls), 2026-06-21. These are the span names tempo-fetch matches in the trace JSON (`<base>/api/traces/<id>`). ⚠️ **Corrects my earlier guess** (`continuation.work-wake` was a GUESS — the real span is `continuation.work`/`continuation.work.fire`; this is why source-verify beats notes-transcription).
+
+### The continuation spans (source-verified, exact):
+| Span name | Emitted by | tempo-fetch meaning |
+|---|---|---|
+| **`continuation.work`** | `continue_work` registration/schedule | the work-election span (parent) |
+| **`continuation.work.fire`** | `continue_work` hop execution | **the hop-fire receipt** (R-CW-1/R-CW-TOKEN successor turn) |
+| **`continuation.delegate.dispatch`** | `continue_delegate` dispatch | delegate-spawn span (R-CD-1) |
+| **`continuation.delegate.fire`** | `continue_delegate` execution | delegate-fire receipt |
+| **`continuation.queue.enqueue`** / **`.drain`** / **`.fanout`** | queue ops | the queue lifecycle (drain = the dispatch-time fire; fanout = tree-broadcast, #1061 territory) |
+| **`continuation.compaction.released`** | `request_compaction` | **the compaction-accept receipt** (R-RC-2) |
+| **`continuation.disabled`** | the disabled/deny path | HONEST-LIMIT signal (continuation off / policy-blocked) |
+
+### Span ATTRIBUTE (the tag tempo-fetch keys for tool identity):
+- **`toolName`** — set on the tool-execution span to `continue_work` / `continue_delegate` / `request_compaction`. tempo-fetch matches `span.attributes.toolName === '<row-tool>'` to bind the trace to the row.
+
+### For tempo-fetch's span-match (the wire-correct keys, NOT guesses):
+- **R-CW rows:** match `continuation.work.fire` (hop-fire) + the `toolName: continue_work` tool-span. (NOT `continuation.work-wake` — that name doesn't exist.)
+- **R-CD rows:** match `continuation.delegate.dispatch` + `continuation.delegate.fire` + `continuation.queue.drain`.
+- **R-RC-2 (accept):** match `continuation.compaction.released`.
+- **HONEST-LIMIT (disabled/blocked):** `continuation.disabled`.
+
+### ⚠️ Caveat: source-verified, not live-trace-confirmed yet.
+These are the span names in the emission *source*. A live `tools.catalog`-class confirm against an *actual fired trace* (one real continuation → fetch its Tempo JSON → confirm the span names present) should happen at the first SAFE_TO_FIRE proof-run. But the names above are the source-of-truth emission names — tempo-fetch should key on these, not the notes' approximations. (Same discipline as the WS-method/event verify: source/live byte over transcription.)
+
+## Net — all 4 surfaces:
+1. WS methods ✅ verified · 2. WS events ✅ (`session.message`) · 3. `connect.challenge` ✅ (fix identified) · 4. **Tempo spans ✅ source-verified** (`continuation.work.fire`/`.delegate.*`/`.compaction.released` + `toolName` attr — corrects the `continuation.work-wake` guess)
+→ every harness match is now verified-byte (source/live), not heuristic. Milestone-1 surface-confirmed.

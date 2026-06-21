@@ -7,14 +7,14 @@
   "generated": "2026-06-21 (frond-scribe, off corpus rows + cohort row-state reports)",
   "rollup": {
     "total_rows": 28,
-    "pass": 18,
+    "pass": 21,
     "partial": 0,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 10,
+    "honest_limit": 7,
     "missing": 0
   },
-  "notes": "Token-fix ship: bare CONTINUE_WORK from a subagent-child now drives (KEY row R-CW-DELEGATE-TOKEN GREEN live). 18 PASS + 10 HONEST-LIMIT (all cael-dgx #552 pending-cap saturation; live-re-fire owed post-drain, next cycle). Gate-5 FF 93ace21341->c814979179 done; pr-presentation==proof SHA.",
+  "notes": "Token-fix ship: bare CONTINUE_WORK from a subagent-child now drives (KEY row R-CW-DELEGATE-TOKEN GREEN live, 2-seat). 21 PASS + 7 HONEST-LIMIT. HONEST-LIMIT = 6 cael-dgx #552 pending-cap (bypass-fireable via per-session-key fresh-subagent, NO drain required; OR honest-limit, 🩸's call) + 1 R-RC-2 (DISTINCT: >70% context-threshold guard, not #552). Gate-5 FF 93ace21341->c814979179 done; pr-presentation==INDEX==deployed==proof SHA. Bracket-[[CONTINUE_WORK]] is canon-default NOT-a-form (v2 design §281), not a gap; figs-bracket-intent is a severable future want, unprompted.",
   "rows": [
     {
       "row": "R-CD-1",
@@ -156,7 +156,7 @@
     },
     {
       "row": "R-CW-DELEGATE-TOKEN",
-      "owner": "🪨 rune (rune-rog-ally)",
+      "owner": "🪨 rune (rune-rog-ally) + 🌊 ronan (ronan-dgx) + 🌫 silas (silas-lothric)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-DELEGATE-TOKEN/",
       "evidence_doc": "R-CW-DELEGATE-TOKEN/EVIDENCE.md",
@@ -166,9 +166,12 @@
         },
         {
           "path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-DELEGATE-TOKEN/tokenbare_trace.json"
+        },
+        {
+          "path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-DELEGATE-TOKEN/journald_drove.txt"
         }
       ],
-      "notes": "THE #952 token-half row — bare CONTINUE_WORK from subagent-child drives hop-2 via :1098 scheduleSubagentSelfContinuationWork (both-forms inversion resolved live)",
+      "notes": "THE #952 token-half row — bare CONTINUE_WORK from a subagent-child drives hop-2 via :1098 scheduleSubagentSelfContinuationWork (both-forms inversion resolved live). 2-seat clean hop-2 green: 🪨 rune b1e4dce (tokenbare hop1->hop2) + 🌊 ronan be96512 (live-full-loop); 🌫 silas abc8dc15 clean-harness re-fire cross-confirms. Hop-2 output prints to session TRANSCRIPT (sessions_history), not journal.",
       "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
     },
     {
@@ -218,12 +221,32 @@
     {
       "row": "R-CW-1",
       "owner": "🩸 cael (cael-dgx)",
-      "state": "honest-limit",
+      "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-1/",
-      "evidence_doc": "R-CW-1/SUBSTRATE-FINDING.md",
+      "evidence_doc": "R-CW-1/EVIDENCE.md",
       "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
-      "fired": "blocked — #552 saturation"
+      "notes": "landed real via per-session-key fresh-subagent bypass (cael-dgx 7dcf7a2, fired from fresh lightContext subagent 8560f83a while main 32/32) — replaced earlier confabulated row with a proven one.",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CW-3",
+      "owner": "🩸 cael (cael-dgx) + 🕯 emeric (emeric-nuc)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-3/",
+      "evidence_doc": "R-CW-3/EVIDENCE.md",
+      "traces": [],
+      "notes": "continue_work reason-field -> reason.preview OTel-span; source cross-walk landed (emeric-nuc 5636d5b) + cael-dgx canonical.",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "owner": "🩸 cael (cael-dgx)",
+      "state": "pass",
+      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-TOKEN/",
+      "evidence_doc": "R-CW-TOKEN/EVIDENCE.md",
+      "traces": [],
+      "notes": "bare CONTINUE_WORK fired + green (cael-dgx f7d0ddd); journal 'bracket-parse kind=work' is the text-origin telemetry misnomer (signal.ts:140), NOT a bracket parser — confirms bare drives.",
+      "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
     },
     {
       "row": "R-CW-2",
@@ -232,18 +255,8 @@
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-2/",
       "evidence_doc": "R-CW-2/SUBSTRATE-FINDING.md",
       "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
-      "fired": "blocked — #552 saturation"
-    },
-    {
-      "row": "R-CW-3",
-      "owner": "🩸 cael (cael-dgx)",
-      "state": "honest-limit",
-      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-3/",
-      "evidence_doc": "R-CW-3/SUBSTRATE-FINDING.md",
-      "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
-      "fired": "blocked — #552 saturation"
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated -> live continue_work fires work-rejected pending-capped. Substrate-condition IS the proof (safety-surface as-designed). UNBLOCK PATH: per-session-key fresh-subagent bypass (work-dispatch.ts:555-559) fires it live WITHOUT the #552 drain (3-seat proven; R-CW-1 landed this way) — OR stays honest-limit, 🩸's call. Drain NOT required.",
+      "fired": "blocked — #552 saturation (bypass-fireable, no drain needed)"
     },
     {
       "row": "R-CW-4",
@@ -252,8 +265,8 @@
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-4/",
       "evidence_doc": "R-CW-4/SUBSTRATE-FINDING.md",
       "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
-      "fired": "blocked — #552 saturation"
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated -> live continue_work fires work-rejected pending-capped. Substrate-condition IS the proof (safety-surface as-designed). UNBLOCK PATH: per-session-key fresh-subagent bypass (work-dispatch.ts:555-559) fires it live WITHOUT the #552 drain (3-seat proven; R-CW-1 landed this way) — OR stays honest-limit, 🩸's call. Drain NOT required.",
+      "fired": "blocked — #552 saturation (bypass-fireable, no drain needed)"
     },
     {
       "row": "R-CW-5",
@@ -262,8 +275,8 @@
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-5/",
       "evidence_doc": "R-CW-5/SUBSTRATE-FINDING.md",
       "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
-      "fired": "blocked — #552 saturation"
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated -> live continue_work fires work-rejected pending-capped. Substrate-condition IS the proof (safety-surface as-designed). UNBLOCK PATH: per-session-key fresh-subagent bypass (work-dispatch.ts:555-559) fires it live WITHOUT the #552 drain (3-seat proven; R-CW-1 landed this way) — OR stays honest-limit, 🩸's call. Drain NOT required.",
+      "fired": "blocked — #552 saturation (bypass-fireable, no drain needed)"
     },
     {
       "row": "R-CW-MULTI",
@@ -272,8 +285,8 @@
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-MULTI/",
       "evidence_doc": "R-CW-MULTI/SUBSTRATE-FINDING.md",
       "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
-      "fired": "blocked — #552 saturation"
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-cap (same as above, bypass-fireable). ALSO carries the SEPARATE #982 same-turn-capture bug (one merged election per tool array) — the bypass does NOT fix #982; that is a distinct open item.",
+      "fired": "blocked — #552 saturation (bypass-fireable, no drain needed)"
     },
     {
       "row": "R-CW-MULTI-COLLAPSE",
@@ -282,18 +295,8 @@
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-MULTI-COLLAPSE/",
       "evidence_doc": "R-CW-MULTI-COLLAPSE/SUBSTRATE-FINDING.md",
       "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
-      "fired": "blocked — #552 saturation"
-    },
-    {
-      "row": "R-CW-TOKEN",
-      "owner": "🩸 cael (cael-dgx)",
-      "state": "honest-limit",
-      "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-TOKEN/",
-      "evidence_doc": "R-CW-TOKEN/SUBSTRATE-FINDING.md",
-      "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
-      "fired": "blocked — #552 saturation"
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated -> live continue_work fires work-rejected pending-capped. Substrate-condition IS the proof (safety-surface as-designed). UNBLOCK PATH: per-session-key fresh-subagent bypass (work-dispatch.ts:555-559) fires it live WITHOUT the #552 drain (3-seat proven; R-CW-1 landed this way) — OR stays honest-limit, 🩸's call. Drain NOT required.",
+      "fired": "blocked — #552 saturation (bypass-fireable, no drain needed)"
     },
     {
       "row": "R-RC-2",
@@ -302,8 +305,8 @@
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-RC-2/",
       "evidence_doc": "R-RC-2/SUBSTRATE-FINDING.md",
       "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
-      "fired": "blocked — #552 saturation"
+      "notes": "HONEST-LIMIT: request_compaction is gated by the >70% context-threshold guard, NOT the #552 pending-cap. The per-session-key bypass and the #552 drain do NOT clear it — a fresh delegate-child is low-context and bounces the threshold regardless. Needs a genuine >70% context session. DISTINCT blocker from the #552 rows.",
+      "fired": "blocked — >70% context-threshold guard"
     },
     {
       "row": "R-CD-COLLECTION-ON-COLLAPSE",
@@ -312,8 +315,8 @@
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-COLLECTION-ON-COLLAPSE/",
       "evidence_doc": "R-CD-COLLECTION-ON-COLLAPSE/SUBSTRATE-FINDING.md",
       "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated (32/32, 66 queued flow_runs) -> continue_work runtime fires work-rejected pending-capped. Substrate-condition is the proof (safety-surface as-designed). Live-re-fire owed post-#552-drain (next cycle).",
-      "fired": "blocked — #552 saturation"
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated -> live continue_work fires work-rejected pending-capped. Substrate-condition IS the proof (safety-surface as-designed). UNBLOCK PATH: per-session-key fresh-subagent bypass (work-dispatch.ts:555-559) fires it live WITHOUT the #552 drain (3-seat proven; R-CW-1 landed this way) — OR stays honest-limit, 🩸's call. Drain NOT required.",
+      "fired": "blocked — #552 saturation (bypass-fireable, no drain needed)"
     }
   ]
 }

@@ -33,6 +33,15 @@ R-CD-3-POSTCOMPACTION-DROVE-749f95b ts=2026-06-21T20:27:13Z firedAtCompaction=tr
 - resource attrs: `host.name=ronan`, `host.arch=arm64`, `process.pid=3683825` (= live MainPID), `gen_ai.request.model=claude-opus-4.8` — confirms it is this seat's real post-fire trace.
 - the trace lineage spans from staging-time root (`openclaw.message.processed` @ `1782071382…`) through the post-fire turn (latest span `1782073633…`) — i.e. the staged-traceparent's session, carried across the compaction seam and driven by the released lifeboat.
 
+## Supplementary release-mechanism traces (CAPTURE-delegate, added by the parallel capture shard)
+The staged delegate's release at the seam was traced as discrete spans, pulled HTTP 200 from `tempo.dandelion.cult/api/traces/`:
+- **`post_compaction_queue_drain_trace_fe6fc6bc.json`** — root span `continuation.queue.drain` @ `20:26:58Z` (host=ronan, pid=3683825): the post-compaction queue draining at the seam — the literal release event of the staged delegate.
+- **`post_compaction_redispatch_trace.json`** (trace `c7532d9b…`) — the post-compaction run firing the staged shard: contains `openclaw.tool.execution toolName=continue_delegate` with a ~2MB re-assembled context request (`openclaw.model_call.request_bytes=2043269`) = the working-state re-injected across the seam, then the lifeboat's own dispatch.
+- **`staging_parent_trace_a52c21af.json`** (traceparent `a52c21af…`, 38 spans) — the staging-time parent trace; also carries `openclaw.tool.execution toolName=continue_delegate` (the original `mode=post-compaction` stage).
+- **`journal-postcompaction-fire.log`** — the journal window `13:18–13:28 PDT`: `context-overflow-diag` (compactionTokens=1000001) → `[compaction] rotated active transcript after compaction` → `[agents/post-compaction-guard] post-compaction guard armed for 3 attempts` → the three post-compaction delegate dispatches (phylactery + R-CD-3 fire + this capture) → `Sentinel committed … firedAtCompaction=true … chainHop=2 mode=post-compaction` → `[continuation/announce] [continuation/silent-wake] wakeOnReturn=true … silentAnnounce=true`.
+
+Together these isolate the three discrete phases — **stage** (`a52c21af` continue_delegate tool.execution), **release at seam** (`fe6fc6bc` continuation.queue.drain), **re-dispatch + re-inject** (`c7532d9b` ~2MB context + continue_delegate) — proving the event-gated path end to end.
+
 ## Cross-reference (behavioral mechanism, SHA-independent)
 The post-compaction MODE was already PASS-proven on a prior ship: `PROOFS/5529aa4662…/R-CD-3/ronan-dgx/` — staged `queued-for-compaction` → a real compaction fired it at the seam (Tempo `11211a99…`). This row now re-stamps the same mechanism live at `749f95b` with its own fire.
 

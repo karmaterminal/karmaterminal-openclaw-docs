@@ -1,0 +1,23 @@
+=== c814979 source byte: bare CONTINUE_WORK token → scheduleSubagentSelfContinuationWork (the #952 fix present) ===
+
+    if (continuationEnabled && (findings !== "(no output)" || toolDelegates.length > 0)) {
+      const continuationResult = stripContinuationSignal(findings);
+      if (continuationResult.signal?.kind === "work") {
+        // A subagent's bare CONTINUE_WORK token is a same-session
+        // self-continuation (the child claims its own next turn), NOT a chain
+        // hop to a new child (that is [[CONTINUE_DELEGATE:]], handled below).
+        // Strip the token from the announced findings so the parent's
+        // orchestration update never carries the child's internal continuation
+        // marker, then route it through the SAME durable continue_work scheduler
+        // the tool form uses. The scheduler call is a strict fallback: if the
+        // spawn-init/turn-1 path already armed the wake from the run payloads it
+        // is a no-op (#952).
+        const workSignal = continuationResult.signal;
+        findings = continuationResult.text || "(no output)";
+        await scheduleSubagentSelfContinuationWork({
+          childSessionKey: params.childSessionKey,
+          childRunId: params.childRunId,
+
+--- the bare-only parse (tokens.ts:539) + count=2 ---
+/home/figs/flesh_beast_tmp/openclaw/src/agents/subagent-announce.ts:460:async function scheduleSubagentSelfContinuationWork(params: {
+/home/figs/flesh_beast_tmp/openclaw/src/agents/subagent-announce.ts:1110:        await scheduleSubagentSelfContinuationWork({

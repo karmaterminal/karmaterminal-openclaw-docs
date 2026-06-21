@@ -1,0 +1,5 @@
+Jun 21 02:14:50 emeric node[478898]: 2026-06-21T02:14:50.857-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=2/200 mode=silent-wake session=agent:main:discord:channel:1466192485440164011 task=R-CD-CHAINED-DEPTH-2 TEST-1 (up-tree silent-wake, emeric-nuc substituting for ca
+Jun 21 02:15:03 emeric node[478898]: - ✅ Step 1: `b-depth1.txt` written — `B-DEPTH1 1782033294 c814979 chainhop2`
+Jun 21 02:15:03 emeric node[478898]: - ✅ Step 2: Depth-2 leaf C dispatched via `continue_delegate` mode=silent-wake (delegateIndex 1, traceparent `00-7b17e059...-01`)
+Jun 21 02:15:04 emeric node[478898]: 2026-06-21T02:15:04.141-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawn-rejected] status=forbidden session=agent:main:subagent:continuation-043802b317e55c6048687699383cfd9b reason=sessions_spawn is not allowed at this depth (current depth: 1, max: 1) task=You are C (depth-2 leaf). Run: echo "C-LEAF-ECHO $(date +%s) TEST1-ECHO-SENTINEL
+Jun 21 02:15:04 emeric node[478898]: 2026-06-21T02:15:04.177-07:00 [subagent-chain-hop] Accumulated 673 tokens from agent:main:subagent:continuation-043802b317e55c6048687699383cfd9b to parent chain cost

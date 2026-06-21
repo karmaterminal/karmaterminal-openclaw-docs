@@ -1,0 +1,25 @@
+# config.test.ts — deployed token-fixed ship SHA c8149791797eeefec1a7e6479c800bef51cac9f8
+# RUN v4.1.8 /home/figs/flesh_beast_tmp/openclaw  (node --no-opt, per emeric-nuc raptor-lake SIGILL mitigation)
+
+✓ resolveContinuationRuntimeConfig > returns defaults when continuation is not configured  74ms
+✓ resolveContinuationRuntimeConfig > resolves configured values with clamping  0ms
+✓ resolveContinuationRuntimeConfig > clamps negative values to defaults  0ms
+✓ resolveContinuationRuntimeConfig > clamps maxPendingWork to default when non-positive (#986)  0ms
+✓ resolveContinuationRuntimeConfig > rejects invalid contextPressureThreshold  0ms
+✓ resolveContinuationRuntimeConfig > defaults invalid earlyWarningBand and preserves explicit opt-out  0ms
+✓ resolveContinuationRuntimeConfig > has no generationGuardTolerance field  0ms
+✓ resolveContinuationRuntimeConfig > defaults busySkipBackoff to 1s base ×2 capped at maxDelayMs (#990)  0ms
+✓ resolveContinuationRuntimeConfig > resolves configured busySkipBackoff and clamps invalid values (#990)  0ms
+✓ resolveContinuationRuntimeConfig > leaves orphanReapStaleCutoffMs unset by default and resolves a positive override (#990)  0ms
+✓ resolveContinuationRuntimeConfig > prefers the active runtime snapshot when resolving live config  0ms
+✓ resolveContinuationRuntimeConfig > falls back to the provided config when no runtime snapshot is active  0ms
+✓ resolveContinuationRuntimeConfig > uses active runtime snapshot defaults when continuation config was unset  0ms
+✓ clampDelayMs > uses default when undefined  0ms
+✓ clampDelayMs > treats an explicit zero as a real 0 → clamps up to minDelayMs, NOT defaultDelayMs (#918 codex P2)  0ms
+✓ clampDelayMs > clamps below minimum  0ms
+✓ clampDelayMs > clamps above maximum  0ms
+✓ clampDelayMs > passes through values in range  0ms
+
+Test Files  1 passed (1)
+     Tests  18 passed (18)
+  Duration  527ms

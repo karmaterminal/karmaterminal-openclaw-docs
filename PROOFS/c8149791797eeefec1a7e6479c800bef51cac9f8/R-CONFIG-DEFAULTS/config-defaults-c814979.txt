@@ -1,0 +1,41 @@
+const DEFAULT_CONTINUATION_DELAY_MS = 15_000;
+const DEFAULT_CONTINUATION_MIN_DELAY_MS = 5_000;
+const DEFAULT_CONTINUATION_MAX_DELAY_MS = 300_000;
+const DEFAULT_CONTINUATION_MAX_CHAIN_LENGTH = 10;
+const DEFAULT_CONTINUATION_COST_CAP_TOKENS = 500_000;
+const DEFAULT_CONTINUATION_MAX_DELEGATES_PER_TURN = 5;
+const DEFAULT_CONTINUATION_MAX_PENDING_WORK = 32;
+const DEFAULT_EARLY_WARNING_BAND = 0.3125;
+// #990 busy-skip exp-backoff defaults (preserve pre-config behavior: 1s base,
+// ×2 per consecutive busy-skip, capped at maxDelayMs).
+const DEFAULT_BUSY_SKIP_BACKOFF_BASE_MS = 1_000;
+const DEFAULT_BUSY_SKIP_BACKOFF_FACTOR = 2;
+--- resolution logic (clamps read agents.defaults.continuation) ---
+  const continuation = cfg.agents?.defaults?.continuation;
+  const maxDelayMs = clampNonNegativeDelayMs(
+    continuation?.maxDelayMs,
+    DEFAULT_CONTINUATION_MAX_DELAY_MS,
+  );
+
+  return {
+    enabled: continuation?.enabled === true,
+    defaultDelayMs: clampNonNegativeDelayMs(
+      continuation?.defaultDelayMs,
+      DEFAULT_CONTINUATION_DELAY_MS,
+    ),
+    minDelayMs: clampNonNegativeDelayMs(
+      continuation?.minDelayMs,
+      DEFAULT_CONTINUATION_MIN_DELAY_MS,
+    ),
+    maxDelayMs,
+    maxChainLength: clampPositiveInt(
+      continuation?.maxChainLength,
+      DEFAULT_CONTINUATION_MAX_CHAIN_LENGTH,
+    ),
+    costCapTokens: clampNonNegativeInt(
+      continuation?.costCapTokens,
+      DEFAULT_CONTINUATION_COST_CAP_TOKENS,
+    ),
+    maxDelegatesPerTurn: clampPositiveInt(
+      continuation?.maxDelegatesPerTurn,
+      DEFAULT_CONTINUATION_MAX_DELEGATES_PER_TURN,

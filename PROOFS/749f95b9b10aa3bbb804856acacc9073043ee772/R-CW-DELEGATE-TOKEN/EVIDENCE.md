@@ -29,3 +29,6 @@ The driven hop-2 turn wrote the sentinel `SILAS-RCWDT-749f95b-HOP2-DROVE` (file 
 - `silas-tokenbare-hop2.txt` — the FILED hop-2 sentinel (the hop-2 turn's output)
 - `silas-tokenbare-hop1.txt` — the hop-1 marker
 - `journald_drove.txt` — the work-wake drive-chain (10 lines)
+
+## Tempo trace (the cross-surface tie — backfilled this cycle per 🌿's per-row-trace rule)
+`silas-tokenbare/tempo_continuation_work_fire.json` — trace `6e5a1fdb7ffd3d34da7d906e81eae247`, span `continuation.work.fire` (service `silas-prince`), `startTimeUnixNano=1782065217638000000` = **11:06:57.638 PDT — byte-matches the journal `work-wake hop=1/200` line at 11:06:57.638 to the millisecond** (the dispositive cross-surface tie: journal drive-chain + OTel span agree on the hop-2 fire instant). Span attrs: `chain.step.remaining=199`, `delay.ms=15000`, `fire.deferred_ms=15007` (matches journal `fireIn=14999ms` → fired +15007ms). Pulled from `tempo.dandelion.cult/api/traces/` firsthand.

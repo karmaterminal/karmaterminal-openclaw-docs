@@ -61,3 +61,20 @@ Using `client.id:"openclaw-probe"` + `mode:"probe"` gets a method list BUT **the
 - Tool names (`continue_work`/`continue_delegate`/`request_compaction`): ✅ exact
 - **Fix needed:** `connect.challenge`-first handshake ordering in the WS connect flow (FIX #1) — the one real blocker, now identified
 - Scopes: ✅ `operator.read`/`operator.write` correct, keep `mode:'operator'`
+
+## ✅ EVENT-name verification (for the wake-matcher + subscribe-scenarios) — Ronan's R-CD-TOKEN ask
+
+The live gateway advertises **25 events** (`hello-ok.features.eventsCount: 25`). The wake-matcher (R-CD-TOKEN silent-wake) + all subscribe-based scenarios must key on **live-advertised event names**, not source-internal ones. Verified live event list:
+
+`connect.challenge`, `agent`, `chat`, **`session.message`**, **`session.tool`**, **`sessions.changed`**, `presence`, `tick`, `talk.mode`, `shutdown`, `health`, `heartbeat`, `cron`, (+ node/device/voicewake/exec/plugin pair+approval events), `update.available`.
+
+### ⚠️ For Ronan's wake-matcher (the R-CD-TOKEN / continuation successor-turn detection):
+- **`turn.start` / `run.start` are NOT in the live-advertised 25-event surface.** They appear in gateway *source* (4 internal refs) but are NOT pushed as client subscription events. **A wake-matcher keying on `turn.start`/`run.start` will never fire.** ❌
+- **Key on `session.message` instead.** The successor turn / hop-2 / parent-wake surfaces as a **`session.message`** event on the subscribed session (the new turn's transcript message). That's the live event the matcher should track.
+- `session.tool` = tool-execution events (the `continue_work`/`continue_delegate` fire shows here).
+- `sessions.changed` = session-state transitions (useful as a secondary signal).
+
+### Subscribe method:
+The lib's scenarios use `sessions.messages.subscribe` — verify the exact subscribe method name against the deployed SHA (the events arrive as `session.message` pushes once subscribed). The chat-style path (`chat.history`/`session.message`) is the WebChat-native surface.
+
+**Net for the wake-matcher:** parent-wake-after-child-spawn = a fresh **`session.message`** event on the parent session post-spawn (NOT a `turn.start`). Ronan's silent-wake fix (wake OR echo, child-spawned-but-no-parent-signal → HONEST-LIMIT) is correct in shape; just point the wake-detector at `session.message`, not `turn.start`/`run.start`.

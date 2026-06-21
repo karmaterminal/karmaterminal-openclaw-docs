@@ -1,5 +1,5 @@
 {
-  "corpus": "openclaw continuation proofs — token-fix #1071 (#952 token-half) + upstream 2026.6.9",
+  "corpus": "openclaw continuation proofs \u2014 token-fix #1071 (#952 token-half) + upstream 2026.6.9",
   "sha": "c8149791797eeefec1a7e6479c800bef51cac9f8",
   "sha_short": "c814979",
   "build_string": "OpenClaw 2026.6.9 (c814979)",
@@ -14,11 +14,11 @@
     "honest_limit": 6,
     "missing": 0
   },
-  "notes": "Token-fix ship: bare CONTINUE_WORK from a subagent-child now drives (KEY row R-CW-DELEGATE-TOKEN GREEN live, 2-seat). 22 PASS + 6 HONEST-LIMIT. Unblock per-row (byte-PROVEN): single-token self-cont = per-session-key bypass-fireable -> PASS (R-CW-1/3/TOKEN). R-CW-MULTI = PROVEN bypass-able (d50eaa7): 3 continue_work in one turn from a fresh lightContext subagent -> 3 distinct flow_runs (array-capture N->N, zero collapse, fire-A succeeded) = the #982 scheduleContinuationWorkBatch fix proven LIVE; per-turn mechanism test, NOT under-saturation, drain-INDEPENDENT. R-CW-MULTI-COLLAPSE = same shape, bypass-able (pending its own fire). R-CW-4 = bypass-attemptable 2-hop. R-RC-2 = DISTINCT >70% context-threshold guard (request-compaction-tool.ts:27; NOT cap-bypassable). R-CD-COLLECTION-ON-COLLAPSE = delegate row. #552 DRAIN BLAST-RADIUS = ZERO continue_work rows (the per-session-key bypass clears the whole cap-class); drain is PURE HYGIENE, figs owner-go. Gate-5 FF 93ace21341->c814979179 done; pr-presentation==INDEX==deployed==proof SHA. Bracket-[[CONTINUE_WORK]] = bare-only BY DESIGN, NO gap: main path v2 design §281; subagent-path BRACKET_CONTINUE_WORK_PATTERN on un-shipped 3ae2d4cb2c was its only figs-required evidence, and that :446 code-comment was a MISATTRIBUTION of figs cap-directive (1518163797532086412 = maxDelayMs 300s->24h). figs-ruled work = cap-raise (next cycle). NON-blocking.",
+  "notes": "Token-fix ship: bare CONTINUE_WORK from a subagent-child now drives (KEY row R-CW-DELEGATE-TOKEN GREEN live, 2-seat). 22 PASS + 6 HONEST-LIMIT. Unblock per-row (byte-PROVEN): single-token self-cont = per-session-key bypass-fireable -> PASS (R-CW-1/3/TOKEN). R-CW-MULTI = PROVEN bypass-able (d50eaa7): 3 continue_work in one turn from a fresh lightContext subagent -> 3 distinct flow_runs (array-capture N->N, zero collapse, fire-A succeeded) = the #982 scheduleContinuationWorkBatch fix proven LIVE; per-turn mechanism test, NOT under-saturation, drain-INDEPENDENT. R-CW-MULTI-COLLAPSE = same shape, bypass-able (pending its own fire). R-CW-4 = bypass-attemptable 2-hop. R-RC-2 = DISTINCT >70% context-threshold guard (request-compaction-tool.ts:27; NOT cap-bypassable). R-CD-COLLECTION-ON-COLLAPSE = delegate row. #552 DRAIN BLAST-RADIUS = ZERO continue_work rows (the per-session-key bypass clears the whole cap-class); drain is PURE HYGIENE, figs owner-go. Gate-5 FF 93ace21341->c814979179 done; pr-presentation==INDEX==deployed==proof SHA. Bracket-[[CONTINUE_WORK]] = bare-only BY DESIGN: main path v2 design \u00a7281 (brackets are the delegate-body delimiter, not a separate interface); subagent-path BRACKET_CONTINUE_WORK_PATTERN existed on un-shipped 3ae2d4cb2c (absent on deployed c814979, code-verified not-ancestor). Its only figs-required evidence was the :446 code-comment, which was a MISATTRIBUTION of figs cap-directive (1518163797532086412 = maxDelayMs 300s->24h, NOT a bracket-parser) -> NO verified figs-requirement, so NOT a current owed gap. The bracket-syntax is a SEVERABLE UNPROMPTED future-want (if figs ever wants bracket-work-as-a-form -> separate future PR), not a ship-hold. figs-ruled work = the cap-raise (next cycle). Capability ships bare; NON-blocking.",
   "rows": [
     {
       "row": "R-CD-1",
-      "owner": "🌊 ronan (ronan-dgx)",
+      "owner": "\ud83c\udf0a ronan (ronan-dgx)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-1/",
       "evidence_doc": "R-CD-1/EVIDENCE.md",
@@ -28,7 +28,7 @@
     },
     {
       "row": "R-CD-2",
-      "owner": "🌊 ronan (ronan-dgx)",
+      "owner": "\ud83c\udf0a ronan (ronan-dgx)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-2/",
       "evidence_doc": "R-CD-2/EVIDENCE.md",
@@ -38,7 +38,7 @@
     },
     {
       "row": "R-CD-3",
-      "owner": "🌊 ronan (ronan-dgx)",
+      "owner": "\ud83c\udf0a ronan (ronan-dgx)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-3/",
       "evidence_doc": "R-CD-3/EVIDENCE.md",
@@ -48,7 +48,7 @@
     },
     {
       "row": "R-CD-4",
-      "owner": "🌊 ronan (ronan-dgx)",
+      "owner": "\ud83c\udf0a ronan (ronan-dgx)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-4/",
       "evidence_doc": "R-CD-4/EVIDENCE.md",
@@ -58,7 +58,7 @@
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2",
-      "owner": "🌊 ronan (ronan-dgx)",
+      "owner": "\ud83c\udf0a ronan (ronan-dgx)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-CHAINED-DEPTH-2/",
       "evidence_doc": "R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
@@ -68,7 +68,7 @@
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2-TEST-2",
-      "owner": "🪨 rune (rune-rog-ally, sub-for-silas)",
+      "owner": "\ud83e\udea8 rune (rune-rog-ally, sub-for-silas)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-CHAINED-DEPTH-2-TEST-2/",
       "evidence_doc": "R-CD-CHAINED-DEPTH-2-TEST-2/EVIDENCE.md",
@@ -82,7 +82,7 @@
     },
     {
       "row": "R-CD-TOKEN",
-      "owner": "🌊 ronan (ronan-dgx)",
+      "owner": "\ud83c\udf0a ronan (ronan-dgx)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-TOKEN/",
       "evidence_doc": "R-CD-TOKEN/EVIDENCE.md",
@@ -92,7 +92,7 @@
     },
     {
       "row": "R-CONFIG-DEFAULTS",
-      "owner": "🕯 emeric (emeric-nuc)",
+      "owner": "\ud83d\udd6f emeric (emeric-nuc)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CONFIG-DEFAULTS/",
       "evidence_doc": "R-CONFIG-DEFAULTS/EVIDENCE.md",
@@ -102,7 +102,7 @@
     },
     {
       "row": "R-CONFIG-INTERSESSION",
-      "owner": "🕯 emeric (emeric-nuc)",
+      "owner": "\ud83d\udd6f emeric (emeric-nuc)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CONFIG-INTERSESSION/",
       "evidence_doc": "R-CONFIG-INTERSESSION/EVIDENCE.md",
@@ -112,7 +112,7 @@
     },
     {
       "row": "R-CW-6",
-      "owner": "🪨 rune (rune-rog-ally)",
+      "owner": "\ud83e\udea8 rune (rune-rog-ally)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-6/",
       "evidence_doc": "R-CW-6/EVIDENCE.md",
@@ -122,7 +122,7 @@
     },
     {
       "row": "R-CW-7",
-      "owner": "🪨 rune (rune-rog-ally)",
+      "owner": "\ud83e\udea8 rune (rune-rog-ally)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-7/",
       "evidence_doc": "R-CW-7/EVIDENCE.md",
@@ -132,7 +132,7 @@
     },
     {
       "row": "R-CW-DELEGATE-CHILD-LIVE",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-DELEGATE-CHILD-LIVE/",
       "evidence_doc": "R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
@@ -142,7 +142,7 @@
     },
     {
       "row": "R-CW-DELEGATE-SELF-CONTINUATION",
-      "owner": "🪨 rune (rune-rog-ally)",
+      "owner": "\ud83e\udea8 rune (rune-rog-ally)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-DELEGATE-SELF-CONTINUATION/",
       "evidence_doc": "R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
@@ -156,7 +156,7 @@
     },
     {
       "row": "R-CW-DELEGATE-TOKEN",
-      "owner": "🪨 rune (rune-rog-ally) + 🌊 ronan (ronan-dgx) + 🌫 silas (silas-lothric)",
+      "owner": "\ud83e\udea8 rune (rune-rog-ally) + \ud83c\udf0a ronan (ronan-dgx) + \ud83c\udf2b silas (silas-lothric)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-DELEGATE-TOKEN/",
       "evidence_doc": "R-CW-DELEGATE-TOKEN/EVIDENCE.md",
@@ -171,12 +171,12 @@
           "path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-DELEGATE-TOKEN/journald_drove.txt"
         }
       ],
-      "notes": "THE #952 token-half row — bare CONTINUE_WORK from a subagent-child drives hop-2 via :1098 scheduleSubagentSelfContinuationWork (both-forms inversion resolved live). 2-seat clean hop-2 green: 🪨 rune b1e4dce (tokenbare hop1->hop2) + 🌊 ronan be96512 (live-full-loop); 🌫 silas abc8dc15 clean-harness re-fire cross-confirms. Hop-2 output prints to session TRANSCRIPT (sessions_history), not journal.",
+      "notes": "THE #952 token-half row \u2014 bare CONTINUE_WORK from a subagent-child drives hop-2 via :1098 scheduleSubagentSelfContinuationWork (both-forms inversion resolved live). 2-seat clean hop-2 green: \ud83e\udea8 rune b1e4dce (tokenbare hop1->hop2) + \ud83c\udf0a ronan be96512 (live-full-loop); \ud83c\udf2b silas abc8dc15 clean-harness re-fire cross-confirms. Hop-2 output prints to session TRANSCRIPT (sessions_history), not journal.",
       "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
     },
     {
       "row": "R-OBS-1",
-      "owner": "🌻 elliott (elliott-legion)",
+      "owner": "\ud83c\udf3b elliott (elliott-legion)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-OBS-1/",
       "evidence_doc": "R-OBS-1/EVIDENCE.md",
@@ -190,7 +190,7 @@
     },
     {
       "row": "R-OBS-2",
-      "owner": "🪨 rune (rune-rog-ally)",
+      "owner": "\ud83e\udea8 rune (rune-rog-ally)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-OBS-2/",
       "evidence_doc": "R-OBS-2/EVIDENCE.md",
@@ -200,7 +200,7 @@
     },
     {
       "row": "R-RC-1",
-      "owner": "🌫 silas (silas-lothric)",
+      "owner": "\ud83c\udf2b silas (silas-lothric)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-RC-1/",
       "evidence_doc": "R-RC-1/EVIDENCE.md",
@@ -210,7 +210,7 @@
     },
     {
       "row": "R-REGRESSION-TRAP-TESTS",
-      "owner": "🕯 emeric (emeric-nuc)",
+      "owner": "\ud83d\udd6f emeric (emeric-nuc)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-REGRESSION-TRAP-TESTS/",
       "evidence_doc": "R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
@@ -220,17 +220,17 @@
     },
     {
       "row": "R-CW-1",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-1/",
       "evidence_doc": "R-CW-1/EVIDENCE.md",
       "traces": [],
-      "notes": "landed real via per-session-key fresh-subagent bypass (cael-dgx 7dcf7a2, fired from fresh lightContext subagent 8560f83a while main 32/32) — replaced earlier confabulated row with a proven one.",
+      "notes": "landed real via per-session-key fresh-subagent bypass (cael-dgx 7dcf7a2, fired from fresh lightContext subagent 8560f83a while main 32/32) \u2014 replaced earlier confabulated row with a proven one.",
       "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
     },
     {
       "row": "R-CW-3",
-      "owner": "🩸 cael (cael-dgx) + 🕯 emeric (emeric-nuc)",
+      "owner": "\ud83e\ude78 cael (cael-dgx) + \ud83d\udd6f emeric (emeric-nuc)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-3/",
       "evidence_doc": "R-CW-3/EVIDENCE.md",
@@ -240,47 +240,47 @@
     },
     {
       "row": "R-CW-TOKEN",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-TOKEN/",
       "evidence_doc": "R-CW-TOKEN/EVIDENCE.md",
       "traces": [],
-      "notes": "bare CONTINUE_WORK fired + green (cael-dgx f7d0ddd); journal 'bracket-parse kind=work' is the text-origin telemetry misnomer (signal.ts:140), NOT a bracket parser — confirms bare drives.",
+      "notes": "bare CONTINUE_WORK fired + green (cael-dgx f7d0ddd); journal 'bracket-parse kind=work' is the text-origin telemetry misnomer (signal.ts:140), NOT a bracket parser \u2014 confirms bare drives.",
       "fired": "2026-06-21, ship SHA c814979 (2026.6.9)"
     },
     {
       "row": "R-CW-2",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "state": "honest-limit",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-2/",
       "evidence_doc": "R-CW-2/SUBSTRATE-FINDING.md",
       "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated -> live continue_work fires work-rejected pending-capped. Substrate-condition IS the proof (safety-surface as-designed). UNBLOCK PATH: per-session-key fresh-subagent bypass (work-dispatch.ts:555-559) fires it live WITHOUT the #552 drain (3-seat proven; R-CW-1 landed this way) — OR stays honest-limit, 🩸's call. Drain NOT required.",
-      "fired": "blocked — #552 saturation (bypass-fireable, no drain needed)"
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated -> live continue_work fires work-rejected pending-capped. Substrate-condition IS the proof (safety-surface as-designed). UNBLOCK PATH: per-session-key fresh-subagent bypass (work-dispatch.ts:555-559) fires it live WITHOUT the #552 drain (3-seat proven; R-CW-1 landed this way) \u2014 OR stays honest-limit, \ud83e\ude78's call. Drain NOT required.",
+      "fired": "blocked \u2014 #552 saturation (bypass-fireable, no drain needed)"
     },
     {
       "row": "R-CW-4",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "state": "honest-limit",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-4/",
       "evidence_doc": "R-CW-4/SUBSTRATE-FINDING.md",
       "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated -> live continue_work fires work-rejected pending-capped. Substrate-condition IS the proof (safety-surface as-designed). UNBLOCK PATH: per-session-key fresh-subagent bypass (work-dispatch.ts:555-559) fires it live WITHOUT the #552 drain (3-seat proven; R-CW-1 landed this way) — OR stays honest-limit, 🩸's call. Drain NOT required.",
-      "fired": "blocked — #552 saturation (bypass-fireable, no drain needed)"
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated -> live continue_work fires work-rejected pending-capped. Substrate-condition IS the proof (safety-surface as-designed). UNBLOCK PATH: per-session-key fresh-subagent bypass (work-dispatch.ts:555-559) fires it live WITHOUT the #552 drain (3-seat proven; R-CW-1 landed this way) \u2014 OR stays honest-limit, \ud83e\ude78's call. Drain NOT required.",
+      "fired": "blocked \u2014 #552 saturation (bypass-fireable, no drain needed)"
     },
     {
       "row": "R-CW-5",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "state": "honest-limit",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-5/",
       "evidence_doc": "R-CW-5/SUBSTRATE-FINDING.md",
       "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated -> live continue_work fires work-rejected pending-capped. Substrate-condition IS the proof (safety-surface as-designed). UNBLOCK PATH: per-session-key fresh-subagent bypass (work-dispatch.ts:555-559) fires it live WITHOUT the #552 drain (3-seat proven; R-CW-1 landed this way) — OR stays honest-limit, 🩸's call. Drain NOT required.",
-      "fired": "blocked — #552 saturation (bypass-fireable, no drain needed)"
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated -> live continue_work fires work-rejected pending-capped. Substrate-condition IS the proof (safety-surface as-designed). UNBLOCK PATH: per-session-key fresh-subagent bypass (work-dispatch.ts:555-559) fires it live WITHOUT the #552 drain (3-seat proven; R-CW-1 landed this way) \u2014 OR stays honest-limit, \ud83e\ude78's call. Drain NOT required.",
+      "fired": "blocked \u2014 #552 saturation (bypass-fireable, no drain needed)"
     },
     {
       "row": "R-CW-MULTI",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-MULTI/",
       "evidence_doc": "R-CW-MULTI/cael-dgx/EVIDENCE.md",
@@ -297,33 +297,33 @@
     },
     {
       "row": "R-CW-MULTI-COLLAPSE",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "state": "honest-limit",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-MULTI-COLLAPSE/",
       "evidence_doc": "R-CW-MULTI-COLLAPSE/SUBSTRATE-FINDING.md",
       "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated -> live continue_work fires work-rejected pending-capped. Substrate-condition IS the proof (safety-surface as-designed). UNBLOCK PATH: per-session-key fresh-subagent bypass (work-dispatch.ts:555-559) fires it live WITHOUT the #552 drain (3-seat proven; R-CW-1 landed this way) — OR stays honest-limit, 🩸's call. Drain NOT required.",
-      "fired": "blocked — #552 saturation (bypass-fireable, no drain needed)"
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated -> live continue_work fires work-rejected pending-capped. Substrate-condition IS the proof (safety-surface as-designed). UNBLOCK PATH: per-session-key fresh-subagent bypass (work-dispatch.ts:555-559) fires it live WITHOUT the #552 drain (3-seat proven; R-CW-1 landed this way) \u2014 OR stays honest-limit, \ud83e\ude78's call. Drain NOT required.",
+      "fired": "blocked \u2014 #552 saturation (bypass-fireable, no drain needed)"
     },
     {
       "row": "R-RC-2",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "state": "honest-limit",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-RC-2/",
       "evidence_doc": "R-RC-2/SUBSTRATE-FINDING.md",
       "traces": [],
-      "notes": "HONEST-LIMIT: request_compaction is gated by the >70% context-threshold guard, NOT the #552 pending-cap. The per-session-key bypass and the #552 drain do NOT clear it — a fresh delegate-child is low-context and bounces the threshold regardless. Needs a genuine >70% context session. DISTINCT blocker from the #552 rows.",
-      "fired": "blocked — >70% context-threshold guard"
+      "notes": "HONEST-LIMIT: request_compaction is gated by the >70% context-threshold guard, NOT the #552 pending-cap. The per-session-key bypass and the #552 drain do NOT clear it \u2014 a fresh delegate-child is low-context and bounces the threshold regardless. Needs a genuine >70% context session. DISTINCT blocker from the #552 rows.",
+      "fired": "blocked \u2014 >70% context-threshold guard"
     },
     {
       "row": "R-CD-COLLECTION-ON-COLLAPSE",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "state": "honest-limit",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CD-COLLECTION-ON-COLLAPSE/",
       "evidence_doc": "R-CD-COLLECTION-ON-COLLAPSE/SUBSTRATE-FINDING.md",
       "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated -> live continue_work fires work-rejected pending-capped. Substrate-condition IS the proof (safety-surface as-designed). UNBLOCK PATH: per-session-key fresh-subagent bypass (work-dispatch.ts:555-559) fires it live WITHOUT the #552 drain (3-seat proven; R-CW-1 landed this way) — OR stays honest-limit, 🩸's call. Drain NOT required.",
-      "fired": "blocked — #552 saturation (bypass-fireable, no drain needed)"
+      "notes": "HONEST-LIMIT: cael-dgx #552 pending-continuation-cap saturated -> live continue_work fires work-rejected pending-capped. Substrate-condition IS the proof (safety-surface as-designed). UNBLOCK PATH: per-session-key fresh-subagent bypass (work-dispatch.ts:555-559) fires it live WITHOUT the #552 drain (3-seat proven; R-CW-1 landed this way) \u2014 OR stays honest-limit, \ud83e\ude78's call. Drain NOT required.",
+      "fired": "blocked \u2014 #552 saturation (bypass-fireable, no drain needed)"
     }
   ]
 }

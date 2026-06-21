@@ -1,0 +1,3 @@
+  Jun 21 00:53:00 ronan node[600103]: 2026-06-21T00:53:00.643-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session agent:main:discord:channel:1466192485440164011
+  Jun 21 00:53:00 ronan node[600103]: 2026-06-21T00:53:00.863-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=agent:main:discord:channel:1466192485440164011 task=[PROOF R-CD-1 / 93ace21341bf13a08f9bf75791f8ac70cf9542a5] You are a delegate dis
+  Jun 21 00:53:04 ronan node[600103]: 2026-06-21T00:53:04.176-07:00 R-CD-1 PROOF: continue_delegate(mode=normal) basic spawn-and-return path verified at CANDIDATE_SHA 93ace21341bf13a08f9bf75791f8ac70cf9542a5 from ronan-dgx seat 2026-06-21

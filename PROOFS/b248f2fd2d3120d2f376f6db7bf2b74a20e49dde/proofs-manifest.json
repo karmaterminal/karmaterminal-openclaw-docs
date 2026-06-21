@@ -54,12 +54,12 @@
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2",
-      "owner": "🌊 ronan (ronan-dgx)",
+      "owner": "🕯 emeric (emeric-nuc) + 🪨 rune (rune-rog-ally)",
       "dir": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-CHAINED-DEPTH-2/",
       "state": "pass",
       "traces": 4,
       "evidence_doc": "PROOFS/b248f2fd2d3120d2f376f6db7bf2b74a20e49dde/R-CD-CHAINED-DEPTH-2/emeric-nuc/EVIDENCE.md",
-      "notes": "PASS (2-seat): depth-2 chained silent-wake drives end-to-end - depth-1 child DROVE + depth-2 GRANDCHILD executed-to-marker (emeric-nuc GREEN three-instrument + rune-rog-ally second-seat, both firsthand). The earlier first-fire honest-limit was check-too-early (pendingDescendants:0 = grandchild not-yet-registered at fire-instant), NOT a seam; re-fire drove. #1057 correct-as-filed."
+      "notes": "PASS (2-seat): depth-2 chained silent-wake drives end-to-end — depth-1 child DROVE + depth-2 grandchild EXECUTED-TO-MARKER (emeric-nuc GREEN three-instrument + rune-rog-ally second-seat, both firsthand). The earlier honest-limit was check-too-early / wrong-trace, NOT a seam. Mechanism: flat subagent key -> :256-exempt / own-lane direct-run; #1057 fix working at depth."
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2-TEST-2",

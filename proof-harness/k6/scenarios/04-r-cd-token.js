@@ -29,6 +29,11 @@
 // (some delivery shapes echo), but absence of the transcript-nonce under
 // silent-wake is EXPECTED, not a failure. The verdict accepts EITHER the wake OR
 // the transcript-return as the parent-side receipt.
+//
+// EVENT-NAME (🩸 Cael live-verification, VERIFIED-GATEWAY-SURFACE.md): the WAKE
+// surfaces as a **`session.message`** event on the subscribed parent session.
+// `turn.start` / `run.start` are NOT in the live 25-event surface and would NEVER
+// fire — the wake-matcher below keys on `session.message` (the live event).
 // ─────────────────────────────────────────────────────────────────────────────
 //
 // ⚠️ FIRES A REAL DELEGATE via the agent's own reply. Gated behind SAFE_TO_FIRE=1.
@@ -145,20 +150,28 @@ export default function () {
         if (ck && !rec.facts.receipts.childKeyOrRunId) rec.setFact('receipts.childKeyOrRunId', ck);
       }
 
-      // SILENT-WAKE RECEIPT: a fresh parent turn/run STARTING on the parent
-      // session AFTER the child was observed = the wake the silent-wake return
-      // triggered. We look for a parent-session turn/run-start event whose
-      // session key matches the parent and that occurs after the child spawn.
+      // SILENT-WAKE RECEIPT (event-name re-pointed per Cael's verification —
+      // VERIFIED-GATEWAY-SURFACE.md, EVENT-name section / Ronan's R-CD-TOKEN ask):
+      // the parent-wake / successor-turn surfaces as a **`session.message`** event
+      // on the subscribed parent session. `turn.start` / `run.start` are NOT in
+      // the live 25-event surface (they exist only in gateway source) — a matcher
+      // keying on them would NEVER fire. So we key on `session.message` (the live
+      // event) as the parent-wake signal: a fresh `session.message` on the parent
+      // session AFTER the child spawn = the wake the silent-wake return triggered.
+      // (Subscribe note: the lib subscribes via `sessions.messages.subscribe`;
+      //  Cael flags the pushes arrive as `session.message` events — verify the
+      //  exact subscribe method name against the deployed SHA.)
       if (obs.promptSent && obs.childObserved) {
-        const isParentTurnStart =
-          /(turn.*start|run.*start|generation.*start|agent.*turn|message.*(received|start))/i.test(blob) &&
+        const evtName = msg.event || msg.method || (msg.params && msg.params.event);
+        const isParentSessionMessage =
+          (evtName === 'session.message' || /(^|[."'])session\.message([."']|$)/.test(blob)) &&
           (blob.includes(cfg.sessionKey) ||
             (msg.params && (msg.params.sessionKey === cfg.sessionKey)));
         // require it to be AFTER the child spawn (a wake, not the original send echo)
-        if (isParentTurnStart && childSeenAtMs && Date.now() > childSeenAtMs + 250) {
+        if (isParentSessionMessage && childSeenAtMs && Date.now() > childSeenAtMs + 250) {
           if (!obs.parentWoke) {
             obs.parentWoke = true;
-            rec.note('wake', `parent woke (fresh turn/run on ${cfg.sessionKey}) after child spawn → silent-wake receipt`);
+            rec.note('wake', `parent woke (session.message on ${cfg.sessionKey}) after child spawn → silent-wake receipt`);
             rec.setFact('receipts.parentWoke', true);
           }
         }

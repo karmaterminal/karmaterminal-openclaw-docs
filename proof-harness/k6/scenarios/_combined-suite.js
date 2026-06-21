@@ -401,17 +401,22 @@ export function rCdToken() {
         const ck = deepFindFirst(msg, /child.*key|runId|taskId|sessionKey/i);
         if (ck && !(rec.facts.receipts && rec.facts.receipts.childKeyOrRunId)) rec.setFact('receipts.childKeyOrRunId', ck);
       }
-      // SILENT-WAKE RECEIPT (R-CD-owner correction, mirrors 04-r-cd-token.js): a
-      // FRESH parent turn/run starting on the parent session AFTER the child was
-      // observed is the wake the silent-wake return triggered. The transcript
-      // echo is OPTIONAL under silent-wake; the WAKE is the load-bearing receipt.
+      // SILENT-WAKE RECEIPT (R-CD-owner correction, mirrors 04-r-cd-token.js;
+      // event-name re-pointed per Cael's VERIFIED-GATEWAY-SURFACE.md): the wake
+      // surfaces as a **`session.message`** event on the subscribed parent session
+      // AFTER the child spawn. `turn.start`/`run.start` are NOT in the live
+      // 25-event surface and would NEVER fire — key on `session.message`. The
+      // transcript echo is OPTIONAL under silent-wake; the WAKE is load-bearing.
+      // (Subscribe via `sessions.messages.subscribe` → pushes arrive as
+      //  `session.message`; verify the exact method name against the deployed SHA.)
       if (obs.promptSent && obs.childObserved) {
-        const isParentTurnStart =
-          /(turn.*start|run.*start|generation.*start|agent.*turn|message.*(received|start))/i.test(blob) &&
+        const evtName = msg.event || msg.method || (msg.params && msg.params.event);
+        const isParentSessionMessage =
+          (evtName === 'session.message' || /(^|[."'])session\.message([."']|$)/.test(blob)) &&
           (blob.includes(sessionKey) || (msg.params && msg.params.sessionKey === sessionKey));
-        if (isParentTurnStart && childSeenAtMs && Date.now() > childSeenAtMs + 250 && !obs.parentWoke) {
+        if (isParentSessionMessage && childSeenAtMs && Date.now() > childSeenAtMs + 250 && !obs.parentWoke) {
           obs.parentWoke = true;
-          rec.note('wake', `parent woke (fresh turn/run on ${sessionKey}) after child spawn -> silent-wake receipt`);
+          rec.note('wake', `parent woke (session.message on ${sessionKey}) after child spawn -> silent-wake receipt`);
           rec.setFact('receipts.parentWoke', true);
         }
       }

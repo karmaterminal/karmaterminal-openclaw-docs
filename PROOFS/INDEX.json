@@ -1,22 +1,23 @@
 {
   "schema": "openclaw.proofs.index.v1",
-  "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is the CURRENT pr-presentation one. Many per-SHA corpus dirs exist; THIS file names the current one so navigation and dir-count are unambiguous.",
-  "current_sha": "8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6",
-  "current_sha_short": "8cafdcd",
-  "build_string": "OpenClaw 2026.6.8 (8cafdcd)",
-  "corpus_path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/",
-  "manifest_path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/proofs-manifest.json",
-  "readme_path": "PROOFS/8cafdcd2a9d2d1a0734324dfc016e6e46fe831e6/README.md",
+  "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
+  "current_sha": "c8149791797eeefec1a7e6479c800bef51cac9f8",
+  "current_sha_short": "c814979",
+  "build_string": "OpenClaw 2026.6.9 (c814979)",
+  "corpus_path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/",
+  "manifest_path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/proofs-manifest.json",
+  "readme_path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/README.md",
   "rollup": {
-    "total_rows": 22,
-    "pass": 15,
-    "partial": 4,
-    "thin": 3,
+    "total_rows": 28,
+    "pass": 18,
+    "partial": 0,
+    "thin": 0,
     "fail": 0,
+    "honest_limit": 10,
     "missing": 0
   },
-  "disposition_note": "#952 (R-CW-DELEGATE-TOKEN) CONTESTED-DEFERRED -- figs RFC; OPEN issue. FF-decoupled. dir-presence 0-absent at the manifest live HEAD.",
-  "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[] (each row carries link, summary, test_cases_executed, traces, supporting_docs, state, notes). Do NOT treat other PROOFS/<sha>/ dirs as current -- they are historical.",
-  "generated": "2026-06-18",
-  "generated_by": "ronan-spark (figs-directed, built off the live per-SHA proofs-manifest.json)"
+  "disposition_note": "Token-fix #1071 shipped (Gate-5 FF). KEY row R-CW-DELEGATE-TOKEN GREEN. 10 HONEST-LIMIT = cael-dgx #552 saturation (live-re-fire owed post-drain). Supersedes PROOFS/8cafdcd (06-18) + PROOFS/93ace21341 (pre-token-fix, historical).",
+  "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
+  "generated": "2026-06-21",
+  "generated_by": "frond-scribe (copilot, off corpus + cohort row-state)"
 }

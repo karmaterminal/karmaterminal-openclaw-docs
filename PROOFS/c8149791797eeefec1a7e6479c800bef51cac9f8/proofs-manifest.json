@@ -4,7 +4,7 @@
   "sha_short": "c814979",
   "build_string": "OpenClaw 2026.6.9 (c814979)",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "generated": "2026-06-21 (frond-scribe; note-refresh: bracket two-path precision per cohort byte-walk)",
+  "generated": "2026-06-21 (frond-scribe; note: bracket two-path + #552 honest-limit class-split)",
   "rollup": {
     "total_rows": 28,
     "pass": 21,

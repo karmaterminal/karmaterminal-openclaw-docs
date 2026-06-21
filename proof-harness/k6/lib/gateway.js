@@ -6,14 +6,26 @@
 // scenario (and the post-processor) can classify receipts against the
 // CONTINUATION-BEHAVIOR-SPEC definitions.
 //
-// ⚠️ VERIFY-AGAINST-DEPLOYED-SHA: the method names below (connect, health,
-// sessions.list, tools.effective, tools.invoke, sessions.send, tasks.list,
-// tasks.get, *.subscribe) and the `connect` frame shape are transcribed from
-// openclaw-bootstrap/.specify/notes/k6-for-proofs-deterministic-elements.md
-// and the OpenClaw Gateway protocol docs. Before a REAL proof run, confirm each
-// method/tool name and the connect envelope against the SHA actually deployed on
-// the seat (e.g. via `tools.catalog` + a manual `connect` probe). The notes flag
-// this explicitly; treat names here as "documented, not yet byte-verified live".
+// ✅ VERIFIED-AGAINST-LIVE-GATEWAY (🩸 Cael, 2026-06-21 — see
+// proof-harness/k6/VERIFIED-GATEWAY-SURFACE.md). The method names below (connect,
+// health, sessions.list, tools.effective, tools.invoke, sessions.send,
+// tasks.list, tasks.get, *.subscribe) were confirmed present in the live
+// 183-method inventory; the `tools.invoke` schema is byte-identical to the fire
+// path here; the continuation tool names (continue_work / continue_delegate /
+// request_compaction) are exact. TWO corrections landed from that verification:
+//   • FIX #1 (THIS FILE): the connect handshake is CHALLENGE-FIRST. The live
+//     gateway sends a `{type:'event', event:'connect.challenge', payload:{}}`
+//     frame BEFORE the client may send `connect`, and REJECTS a raw
+//     connect-on-open. Scenarios must therefore gate the connect send on the
+//     challenge (see `isConnectChallenge` + the CHALLENGE-FIRST pattern block
+//     below), NOT send it unconditionally on `open`.
+//   • FIX #2 (wake-matcher, scenario 04 + _combined-suite): the parent-wake /
+//     successor-turn signal surfaces as a `session.message` event — `turn.start`
+//     / `run.start` are NOT in the live 25-event surface and would never fire.
+// Keep `mode:'operator'` in `connectFrame` (do NOT switch to probe-mode — a
+// device-less probe client gets its requested scopes cleared, dropping
+// operator.write). Still confirm the live SHA with `openclaw --version` at
+// proof-run time; the method *surface* is stable across recent SHAs.
 //
 // SECURITY: the operator token is read from env (OPENCLAW_GATEWAY_TOKEN) and is
 // never written to disk, logged at info level, or embedded in any artifact. Keep
@@ -50,6 +62,13 @@ export function reqFrame(method, params = {}, id = null) {
 // Shape mirrors the notes' skeleton. minProtocol/maxProtocol bracket the
 // negotiated gateway protocol version — adjust to the deployed range if the
 // connect is rejected with a protocol-mismatch error.
+//
+// ⚠️ CHALLENGE-FIRST (Cael FIX #1): do NOT `socket.send(connectFrame(...))` on
+// `open`. The live gateway rejects a raw connect-on-open and instead pushes a
+// `connect.challenge` event first. Send this frame ONLY after
+// `isConnectChallenge(parsed)` is true (guarded once by a `sentConnect` flag).
+// See the CHALLENGE-FIRST pattern block below for the canonical wiring.
+// `mode:'operator'` is intentional (FIX #2 in the doc: probe-mode loses scopes).
 export function connectFrame({ token, scopes }) {
   return reqFrame('connect', {
     minProtocol: 3,
@@ -70,6 +89,62 @@ export function connectFrame({ token, scopes }) {
     auth: { token }, // token from env; NEVER hard-coded.
     userAgent: 'k6-proof-harness/0.1.0',
   }, 'connect');
+}
+
+// ---- connect.challenge handshake (Cael FIX #1) ----------------------------
+//
+// VERIFIED LIVE (proof-harness/k6/VERIFIED-GATEWAY-SURFACE.md): the gateway emits
+//   { type: 'event', event: 'connect.challenge', payload: {} }
+// BEFORE accepting a `connect` frame, and REJECTS a raw connect sent on `open`.
+//
+// `isConnectChallenge(msg)` returns true for that challenge frame so a scenario's
+// single `socket.on('message')` loop can detect it and respond. Because the live
+// envelope field has been seen as both `event` and (older docs) `method`, and the
+// challenge has surfaced as an `event`-typed push, we match tolerantly on the
+// challenge NAME in either slot.
+export function isConnectChallenge(msg) {
+  if (!msg || typeof msg !== 'object') return false;
+  const name = msg.event || msg.method || (msg.payload && msg.payload.event);
+  return name === 'connect.challenge';
+}
+
+// ---- CHALLENGE-FIRST connect pattern (canonical wiring) -------------------
+//
+// k6's `k6/ws` exposes a single `socket.on('message')` loop per socket, so the
+// robust, DRY pattern is: at the TOP of that loop, call `isConnectChallenge`,
+// and on the challenge send `connectFrame(...)` exactly ONCE (guarded by a
+// `sentConnect` flag). Do NOT send connect on `open`.
+//
+//   let sentConnect = false;
+//   const sendConnectOnChallenge = (socket, msg) => {
+//     if (sentConnect || !isConnectChallenge(msg)) return false;
+//     sentConnect = true;
+//     socket.send(connectFrame({ token: cfg.token, scopes: [...] }));
+//     return true;                       // handled this frame as the challenge
+//   };
+//
+//   socket.on('open', () => { /* wait for connect.challenge — do NOT send connect */ });
+//   socket.on('message', (raw) => {
+//     const msg = rec.record(raw);
+//     if (sendConnectOnChallenge(socket, msg)) return;   // challenge handled
+//     ... normal per-row handling ...
+//   });
+//
+// `onConnectChallenge(...)` packages exactly that guard so each scenario stays a
+// one-liner. It returns a closure: call it with (socket, parsedMsg) at the top
+// of the message handler; it sends connect once on the challenge and returns
+// true when it consumed the challenge frame (so the caller can `return` early).
+// `onSent` (optional) fires once right after the connect is sent (e.g. for a
+// `rec.note('connect', ...)`).
+export function onConnectChallenge(connectArgs, onSent) {
+  let sentConnect = false;
+  return function maybeSendConnect(socket, msg) {
+    if (sentConnect || !isConnectChallenge(msg)) return false;
+    sentConnect = true;
+    socket.send(connectFrame(connectArgs));
+    if (typeof onSent === 'function') onSent();
+    return true;
+  };
 }
 
 // ---- env / config ---------------------------------------------------------

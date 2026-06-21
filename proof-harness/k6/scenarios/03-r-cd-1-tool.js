@@ -20,7 +20,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter } from 'k6/metrics';
-import { env, connectFrame, send, requireToken, newRecorder } from '../lib/gateway.js';
+import { env, connectFrame, send, requireToken, newRecorder, onConnectChallenge } from '../lib/gateway.js';
 import { classifyContinueDelegateTool, rollup, label, INCONCLUSIVE, LIMIT } from '../lib/verdict.js';
 
 export const options = {
@@ -55,38 +55,51 @@ export default function () {
   let fireId = null;
 
   const res = ws.connect(cfg.wsUrl, {}, (socket) => {
+    // CHALLENGE-FIRST (Cael FIX #1, VERIFIED-GATEWAY-SURFACE.md): wait for the
+    // gateway's `connect.challenge` push before sending connect (raw
+    // connect-on-open is rejected). Subscribe + poll the ledger + fire AFTER
+    // connect is accepted.
+    const onChallenge = onConnectChallenge(
+      { token: cfg.token, scopes: ['operator.read', 'operator.write'] },
+      () => {
+        rec.note('connect', 'connect.challenge received → sent operator connect (read+write)');
+        socket.setTimeout(() => { send(socket, rec, 'sessions.messages.subscribe', { sessionKey: cfg.sessionKey }); }, 500);
+        // Also watch the task ledger via tasks.list polling.
+        socket.setTimeout(() => { send(socket, rec, 'tasks.list', {}); }, 800);
+
+        socket.setTimeout(() => {
+          const idem = `R-CD-1/${cfg.candidateSha}/${cfg.seatName}/${nonce}`;
+          fireId = send(socket, rec, 'tools.invoke', {
+            name: 'continue_delegate',
+            sessionKey: cfg.sessionKey,
+            args: {
+              task: `Proof nonce ${nonce}: reply with exactly "DONE ${nonce}" and nothing else; do NOT mutate files or call external tools.`,
+              mode: 'normal',
+              delaySeconds: 1,
+            },
+            idempotencyKey: idem,
+          }, 'fire');
+          rec.note('fire', `invoked continue_delegate (idem=${idem}, nonce=${nonce})`);
+        }, 1200);
+
+        // Poll the task ledger a couple more times to catch the spawned task + its
+        // child/run id while the delegate runs.
+        socket.setTimeout(() => { send(socket, rec, 'tasks.list', {}); }, 6000);
+        socket.setTimeout(() => { send(socket, rec, 'tasks.list', {}); }, 20000);
+
+        // Delegate spawn + child run + return can take a while; hold the socket.
+        socket.setTimeout(() => socket.close(), 150000);
+      },
+    );
+
     socket.on('open', () => {
-      socket.send(connectFrame({ token: cfg.token, scopes: ['operator.read', 'operator.write'] }));
-      socket.setTimeout(() => { send(socket, rec, 'sessions.messages.subscribe', { sessionKey: cfg.sessionKey }); }, 500);
-      // Also watch the task ledger via tasks.list polling.
-      socket.setTimeout(() => { send(socket, rec, 'tasks.list', {}); }, 800);
-
-      socket.setTimeout(() => {
-        const idem = `R-CD-1/${cfg.candidateSha}/${cfg.seatName}/${nonce}`;
-        fireId = send(socket, rec, 'tools.invoke', {
-          name: 'continue_delegate',
-          sessionKey: cfg.sessionKey,
-          args: {
-            task: `Proof nonce ${nonce}: reply with exactly "DONE ${nonce}" and nothing else; do NOT mutate files or call external tools.`,
-            mode: 'normal',
-            delaySeconds: 1,
-          },
-          idempotencyKey: idem,
-        }, 'fire');
-        rec.note('fire', `invoked continue_delegate (idem=${idem}, nonce=${nonce})`);
-      }, 1200);
-
-      // Poll the task ledger a couple more times to catch the spawned task + its
-      // child/run id while the delegate runs.
-      socket.setTimeout(() => { send(socket, rec, 'tasks.list', {}); }, 6000);
-      socket.setTimeout(() => { send(socket, rec, 'tasks.list', {}); }, 20000);
-
-      // Delegate spawn + child run + return can take a while; hold the socket.
-      socket.setTimeout(() => socket.close(), 150000);
+      // Wait for connect.challenge before sending connect (challenge-first).
+      rec.note('open', 'ws open — awaiting connect.challenge before sending connect');
     });
 
     socket.on('message', (raw) => {
       const msg = rec.record(raw);
+      if (onChallenge(socket, msg)) return; // consumed the connect.challenge frame
       if (!msg) return;
       if (msg.type === 'res' && msg.ok === false) failures.add(1);
 

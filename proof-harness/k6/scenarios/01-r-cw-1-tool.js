@@ -21,7 +21,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter } from 'k6/metrics';
-import { env, connectFrame, send, requireToken, newRecorder, callOk, responseFor } from '../lib/gateway.js';
+import { env, connectFrame, send, requireToken, newRecorder, callOk, responseFor, onConnectChallenge } from '../lib/gateway.js';
 import { classifyContinueWorkTool, rollup, label, INCONCLUSIVE, LIMIT } from '../lib/verdict.js';
 
 export const options = {
@@ -62,38 +62,49 @@ export default function () {
   let chainHints = [];
 
   const res = ws.connect(cfg.wsUrl, {}, (socket) => {
+    // CHALLENGE-FIRST (Cael FIX #1, VERIFIED-GATEWAY-SURFACE.md): the live gateway
+    // pushes `connect.challenge` before accepting connect and rejects a raw
+    // connect-on-open. Gate the connect (operator.read+write — write needed to
+    // invoke) on the challenge, then subscribe + fire AFTER connect is accepted.
+    const onChallenge = onConnectChallenge(
+      { token: cfg.token, scopes: ['operator.read', 'operator.write'] },
+      () => {
+        rec.note('connect', 'connect.challenge received → sent operator connect (read+write)');
+
+        // Subscribe to the target session's messages/events BEFORE firing, so we
+        // don't miss the successor turn. (subscribe method name: verify vs SHA.)
+        socket.setTimeout(() => {
+          send(socket, rec, 'sessions.messages.subscribe', { sessionKey: cfg.sessionKey });
+          rec.note('subscribe', `subscribed to messages for ${cfg.sessionKey}`);
+        }, 500);
+
+        // Fire the typed continue_work via tools.invoke.
+        socket.setTimeout(() => {
+          const idem = `R-CW-1/${cfg.candidateSha}/${cfg.seatName}/${cfg.nonce}`;
+          fireId = send(socket, rec, 'tools.invoke', {
+            name: 'continue_work',
+            sessionKey: cfg.sessionKey,
+            args: { delaySeconds: 1, reason: `k6 proof R-CW-1 typed continue_work nonce ${cfg.nonce}` },
+            idempotencyKey: idem,
+          }, 'fire');
+          rec.note('fire', `invoked continue_work (idem=${idem}, nonce=${cfg.nonce})`);
+        }, 1200);
+
+        // Observe window: wait for the successor turn to begin. continue_work
+        // delaySeconds=1 means hop-2 should arm ~1s after the current turn ends;
+        // we hold the socket open long enough to catch the successor-turn events.
+        socket.setTimeout(() => socket.close(), 90000);
+      },
+    );
+
     socket.on('open', () => {
-      // operator.write needed to invoke.
-      socket.send(connectFrame({ token: cfg.token, scopes: ['operator.read', 'operator.write'] }));
-      rec.note('connect', 'sent operator connect (read+write)');
-
-      // Subscribe to the target session's messages/events BEFORE firing, so we
-      // don't miss the successor turn. (subscribe method name: verify vs SHA.)
-      socket.setTimeout(() => {
-        send(socket, rec, 'sessions.messages.subscribe', { sessionKey: cfg.sessionKey });
-        rec.note('subscribe', `subscribed to messages for ${cfg.sessionKey}`);
-      }, 500);
-
-      // Fire the typed continue_work via tools.invoke.
-      socket.setTimeout(() => {
-        const idem = `R-CW-1/${cfg.candidateSha}/${cfg.seatName}/${cfg.nonce}`;
-        fireId = send(socket, rec, 'tools.invoke', {
-          name: 'continue_work',
-          sessionKey: cfg.sessionKey,
-          args: { delaySeconds: 1, reason: `k6 proof R-CW-1 typed continue_work nonce ${cfg.nonce}` },
-          idempotencyKey: idem,
-        }, 'fire');
-        rec.note('fire', `invoked continue_work (idem=${idem}, nonce=${cfg.nonce})`);
-      }, 1200);
-
-      // Observe window: wait for the successor turn to begin. continue_work
-      // delaySeconds=1 means hop-2 should arm ~1s after the current turn ends;
-      // we hold the socket open long enough to catch the successor-turn events.
-      socket.setTimeout(() => socket.close(), 90000);
+      // Wait for connect.challenge before sending connect (challenge-first).
+      rec.note('open', 'ws open — awaiting connect.challenge before sending connect');
     });
 
     socket.on('message', (raw) => {
       const msg = rec.record(raw);
+      if (onChallenge(socket, msg)) return; // consumed the connect.challenge frame
       if (!msg) return;
       if (msg.type === 'res' && msg.ok === false) failures.add(1);
 

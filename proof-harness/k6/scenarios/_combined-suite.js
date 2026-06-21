@@ -53,7 +53,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter } from 'k6/metrics';
-import { env, connectFrame, send, requireToken, newRecorder } from '../lib/gateway.js';
+import { env, connectFrame, send, requireToken, newRecorder, onConnectChallenge } from '../lib/gateway.js';
 import {
   classifyContinueWorkTool,
   classifyContinueWorkToken,
@@ -130,15 +130,22 @@ export function preflight() {
   }
 
   const res = ws.connect(cfg.wsUrl, {}, (socket) => {
-    socket.on('open', () => {
-      socket.send(connectFrame({ token: cfg.token, scopes: ['operator.read'] }));
-      socket.setTimeout(() => send(socket, rec, 'health'), 400);
-      socket.setTimeout(() => send(socket, rec, 'sessions.list'), 800);
-      socket.setTimeout(() => send(socket, rec, 'tools.effective', { sessionKey: cfg.sessionKey }), 1300);
-      socket.setTimeout(() => socket.close(), 6000);
-    });
+    // CHALLENGE-FIRST (Cael FIX #1, VERIFIED-GATEWAY-SURFACE.md): wait for the
+    // gateway's connect.challenge push before sending connect (raw connect-on-
+    // open is rejected); stagger the read-only probes AFTER connect.
+    const onChallenge = onConnectChallenge(
+      { token: cfg.token, scopes: ['operator.read'] },
+      () => {
+        socket.setTimeout(() => send(socket, rec, 'health'), 400);
+        socket.setTimeout(() => send(socket, rec, 'sessions.list'), 800);
+        socket.setTimeout(() => send(socket, rec, 'tools.effective', { sessionKey: cfg.sessionKey }), 1300);
+        socket.setTimeout(() => socket.close(), 6000);
+      },
+    );
+    socket.on('open', () => { rec.note('open', 'awaiting connect.challenge'); });
     socket.on('message', (raw) => {
       const msg = rec.record(raw);
+      if (onChallenge(socket, msg)) return; // consumed connect.challenge
       if (msg && msg.type === 'res' && msg.result && rec.facts.authOk === null) {
         rec.setFact('authOk', true); rec.setFact('connected', true);
       }
@@ -178,23 +185,28 @@ export function rCw1() {
   let turnsAfterFire = 0;
 
   const res = ws.connect(cfg.wsUrl, {}, (socket) => {
-    socket.on('open', () => {
-      socket.send(connectFrame({ token: cfg.token, scopes: ['operator.read', 'operator.write'] }));
-      socket.setTimeout(() => send(socket, rec, 'sessions.messages.subscribe', { sessionKey: cfg.sessionKey }), 500);
-      socket.setTimeout(() => {
-        const idem = `R-CW-1/${cfg.candidateSha}/${cfg.seatName}/${nonce}`;
-        fireId = send(socket, rec, 'tools.invoke', {
-          name: 'continue_work',
-          sessionKey: cfg.sessionKey,
-          args: { reason: `proof R-CW-1 nonce ${nonce} (combined-suite)`, delaySeconds: 1 },
-          idempotencyKey: idem,
-        }, 'fire');
-        rec.note('fire', `invoked continue_work (idem=${idem}, nonce=${nonce})`);
-      }, 1200);
-      socket.setTimeout(() => socket.close(), (SLOT - 5) * 1000);
-    });
+    // CHALLENGE-FIRST (Cael FIX #1): connect only after connect.challenge; fire AFTER.
+    const onChallenge = onConnectChallenge(
+      { token: cfg.token, scopes: ['operator.read', 'operator.write'] },
+      () => {
+        socket.setTimeout(() => send(socket, rec, 'sessions.messages.subscribe', { sessionKey: cfg.sessionKey }), 500);
+        socket.setTimeout(() => {
+          const idem = `R-CW-1/${cfg.candidateSha}/${cfg.seatName}/${nonce}`;
+          fireId = send(socket, rec, 'tools.invoke', {
+            name: 'continue_work',
+            sessionKey: cfg.sessionKey,
+            args: { reason: `proof R-CW-1 nonce ${nonce} (combined-suite)`, delaySeconds: 1 },
+            idempotencyKey: idem,
+          }, 'fire');
+          rec.note('fire', `invoked continue_work (idem=${idem}, nonce=${nonce})`);
+        }, 1200);
+        socket.setTimeout(() => socket.close(), (SLOT - 5) * 1000);
+      },
+    );
+    socket.on('open', () => { rec.note('open', 'awaiting connect.challenge'); });
     socket.on('message', (raw) => {
       const msg = rec.record(raw);
+      if (onChallenge(socket, msg)) return; // consumed connect.challenge
       if (!msg) return;
       if (msg.type === 'res' && msg.ok === false) failures.add(1);
       if (msg.type === 'res' && fireId && msg.id === fireId) {
@@ -233,18 +245,23 @@ export function rCwToken() {
   let turnsAfterSend = 0;
 
   const res = ws.connect(cfg.wsUrl, {}, (socket) => {
-    socket.on('open', () => {
-      socket.send(connectFrame({ token: cfg.token, scopes: ['operator.read', 'operator.write'] }));
-      socket.setTimeout(() => send(socket, rec, 'sessions.messages.subscribe', { sessionKey }), 500);
-      socket.setTimeout(() => {
-        send(socket, rec, 'sessions.send', { sessionKey, text: buildCwTokenPrompt(nonce) }, 'send');
-        obs.promptSent = true;
-        rec.note('send', `injected R-CW-TOKEN driving prompt (nonce ${nonce}) -> session '${sessionKey}'`);
-      }, 1200);
-      socket.setTimeout(() => socket.close(), (SLOT - 5) * 1000);
-    });
+    // CHALLENGE-FIRST (Cael FIX #1): connect only after connect.challenge; inject AFTER.
+    const onChallenge = onConnectChallenge(
+      { token: cfg.token, scopes: ['operator.read', 'operator.write'] },
+      () => {
+        socket.setTimeout(() => send(socket, rec, 'sessions.messages.subscribe', { sessionKey }), 500);
+        socket.setTimeout(() => {
+          send(socket, rec, 'sessions.send', { sessionKey, text: buildCwTokenPrompt(nonce) }, 'send');
+          obs.promptSent = true;
+          rec.note('send', `injected R-CW-TOKEN driving prompt (nonce ${nonce}) -> session '${sessionKey}'`);
+        }, 1200);
+        socket.setTimeout(() => socket.close(), (SLOT - 5) * 1000);
+      },
+    );
+    socket.on('open', () => { rec.note('open', 'awaiting connect.challenge'); });
     socket.on('message', (raw) => {
       const msg = rec.record(raw);
+      if (onChallenge(socket, msg)) return; // consumed connect.challenge
       if (!msg) return;
       if (msg.type === 'res' && msg.ok === false) failures.add(1);
       const blob = JSON.stringify(msg);
@@ -284,30 +301,35 @@ export function rCd1() {
   let fireId = null;
 
   const res = ws.connect(cfg.wsUrl, {}, (socket) => {
-    socket.on('open', () => {
-      socket.send(connectFrame({ token: cfg.token, scopes: ['operator.read', 'operator.write'] }));
-      socket.setTimeout(() => send(socket, rec, 'sessions.messages.subscribe', { sessionKey: cfg.sessionKey }), 500);
-      socket.setTimeout(() => send(socket, rec, 'tasks.list', {}), 800);
-      socket.setTimeout(() => {
-        const idem = `R-CD-1/${cfg.candidateSha}/${cfg.seatName}/${nonce}`;
-        fireId = send(socket, rec, 'tools.invoke', {
-          name: 'continue_delegate',
-          sessionKey: cfg.sessionKey,
-          args: {
-            task: `Proof nonce ${nonce}: reply with exactly "DONE ${nonce}" and nothing else; do NOT mutate files or call external tools.`,
-            mode: 'normal',
-            delaySeconds: 1,
-          },
-          idempotencyKey: idem,
-        }, 'fire');
-        rec.note('fire', `invoked continue_delegate (idem=${idem}, nonce=${nonce})`);
-      }, 1200);
-      socket.setTimeout(() => send(socket, rec, 'tasks.list', {}), 6000);
-      socket.setTimeout(() => send(socket, rec, 'tasks.list', {}), 20000);
-      socket.setTimeout(() => socket.close(), (SLOT - 5) * 1000);
-    });
+    // CHALLENGE-FIRST (Cael FIX #1): connect only after connect.challenge; fire AFTER.
+    const onChallenge = onConnectChallenge(
+      { token: cfg.token, scopes: ['operator.read', 'operator.write'] },
+      () => {
+        socket.setTimeout(() => send(socket, rec, 'sessions.messages.subscribe', { sessionKey: cfg.sessionKey }), 500);
+        socket.setTimeout(() => send(socket, rec, 'tasks.list', {}), 800);
+        socket.setTimeout(() => {
+          const idem = `R-CD-1/${cfg.candidateSha}/${cfg.seatName}/${nonce}`;
+          fireId = send(socket, rec, 'tools.invoke', {
+            name: 'continue_delegate',
+            sessionKey: cfg.sessionKey,
+            args: {
+              task: `Proof nonce ${nonce}: reply with exactly "DONE ${nonce}" and nothing else; do NOT mutate files or call external tools.`,
+              mode: 'normal',
+              delaySeconds: 1,
+            },
+            idempotencyKey: idem,
+          }, 'fire');
+          rec.note('fire', `invoked continue_delegate (idem=${idem}, nonce=${nonce})`);
+        }, 1200);
+        socket.setTimeout(() => send(socket, rec, 'tasks.list', {}), 6000);
+        socket.setTimeout(() => send(socket, rec, 'tasks.list', {}), 20000);
+        socket.setTimeout(() => socket.close(), (SLOT - 5) * 1000);
+      },
+    );
+    socket.on('open', () => { rec.note('open', 'awaiting connect.challenge'); });
     socket.on('message', (raw) => {
       const msg = rec.record(raw);
+      if (onChallenge(socket, msg)) return; // consumed connect.challenge
       if (!msg) return;
       if (msg.type === 'res' && msg.ok === false) failures.add(1);
       if (msg.type === 'res' && fireId && msg.id === fireId) {
@@ -350,20 +372,25 @@ export function rCdToken() {
   let childSeenAtMs = null;
 
   const res = ws.connect(cfg.wsUrl, {}, (socket) => {
-    socket.on('open', () => {
-      socket.send(connectFrame({ token: cfg.token, scopes: ['operator.read', 'operator.write'] }));
-      socket.setTimeout(() => send(socket, rec, 'sessions.messages.subscribe', { sessionKey }), 500);
-      socket.setTimeout(() => send(socket, rec, 'tasks.list', {}), 800);
-      socket.setTimeout(() => {
-        send(socket, rec, 'sessions.send', { sessionKey, text: buildCdBracketPrompt(nonce) }, 'send');
-        obs.promptSent = true;
-        rec.note('send', `injected R-CD-TOKEN bracket-driving prompt (nonce ${nonce}) -> session '${sessionKey}'`);
-      }, 1200);
-      socket.setTimeout(() => send(socket, rec, 'tasks.list', {}), 12000);
-      socket.setTimeout(() => socket.close(), (SLOT - 5) * 1000);
-    });
+    // CHALLENGE-FIRST (Cael FIX #1): connect only after connect.challenge; inject AFTER.
+    const onChallenge = onConnectChallenge(
+      { token: cfg.token, scopes: ['operator.read', 'operator.write'] },
+      () => {
+        socket.setTimeout(() => send(socket, rec, 'sessions.messages.subscribe', { sessionKey }), 500);
+        socket.setTimeout(() => send(socket, rec, 'tasks.list', {}), 800);
+        socket.setTimeout(() => {
+          send(socket, rec, 'sessions.send', { sessionKey, text: buildCdBracketPrompt(nonce) }, 'send');
+          obs.promptSent = true;
+          rec.note('send', `injected R-CD-TOKEN bracket-driving prompt (nonce ${nonce}) -> session '${sessionKey}'`);
+        }, 1200);
+        socket.setTimeout(() => send(socket, rec, 'tasks.list', {}), 12000);
+        socket.setTimeout(() => socket.close(), (SLOT - 5) * 1000);
+      },
+    );
+    socket.on('open', () => { rec.note('open', 'awaiting connect.challenge'); });
     socket.on('message', (raw) => {
       const msg = rec.record(raw);
+      if (onChallenge(socket, msg)) return; // consumed connect.challenge
       if (!msg) return;
       if (msg.type === 'res' && msg.ok === false) failures.add(1);
       const blob = JSON.stringify(msg);

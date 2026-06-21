@@ -20,7 +20,7 @@ import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter } from 'k6/metrics';
 import {
-  env, connectFrame, send, requireToken, newRecorder, callOk, responseFor,
+  env, connectFrame, send, requireToken, newRecorder, callOk, responseFor, onConnectChallenge,
 } from '../lib/gateway.js';
 import {
   classifyToolVisibility, rollup, INCONCLUSIVE, label,
@@ -56,23 +56,33 @@ export default function () {
 
   const res = ws.connect(cfg.wsUrl, {}, (socket) => {
     const ids = {};
-    socket.on('open', () => {
-      // Mandatory first frame: operator connect (read scope is enough here).
-      socket.send(connectFrame({ token: cfg.token, scopes: ['operator.read'] }));
-      rec.note('connect', 'sent operator connect frame (operator.read)');
+    // CHALLENGE-FIRST (Cael FIX #1, VERIFIED-GATEWAY-SURFACE.md): do NOT send
+    // connect on `open` — the live gateway pushes `connect.challenge` first and
+    // rejects a raw connect-on-open. We gate the connect send on the challenge,
+    // then stagger the read-only probes AFTER connect is accepted.
+    const onChallenge = onConnectChallenge(
+      { token: cfg.token, scopes: ['operator.read'] },
+      () => {
+        rec.note('connect', 'connect.challenge received → sent operator connect (operator.read)');
+        // Staggered sends so responses can correlate before the next call.
+        socket.setTimeout(() => { ids.health = send(socket, rec, 'health'); }, 400);
+        socket.setTimeout(() => { ids.sessions = send(socket, rec, 'sessions.list'); }, 800);
+        socket.setTimeout(() => {
+          ids.tools = send(socket, rec, 'tools.effective', { sessionKey: cfg.sessionKey });
+        }, 1300);
+        // Give the gateway time to answer all three, then close.
+        socket.setTimeout(() => socket.close(), 6000);
+      },
+    );
 
-      // Staggered sends so responses can correlate before the next call.
-      socket.setTimeout(() => { ids.health = send(socket, rec, 'health'); }, 400);
-      socket.setTimeout(() => { ids.sessions = send(socket, rec, 'sessions.list'); }, 800);
-      socket.setTimeout(() => {
-        ids.tools = send(socket, rec, 'tools.effective', { sessionKey: cfg.sessionKey });
-      }, 1300);
-      // Give the gateway time to answer all three, then close.
-      socket.setTimeout(() => socket.close(), 6000);
+    socket.on('open', () => {
+      // Wait for connect.challenge before sending connect (challenge-first).
+      rec.note('open', 'ws open — awaiting connect.challenge before sending connect');
     });
 
     socket.on('message', (raw) => {
       const msg = rec.record(raw);
+      if (onChallenge(socket, msg)) return; // consumed the connect.challenge frame
       // Mark auth/connect success when we see the connect response ok.
       if (msg && msg.type === 'res' && msg.result && rec.facts.authOk === null) {
         // best-effort: first successful res implies handshake accepted

@@ -117,13 +117,20 @@ export default function () {
         rec.note('hop2', `hop-2 detected carrying nonce: "${hop2Needle}"`);
       }
 
-      // Weaker signal: a turn/run-start event after our send (hop-2 may fire even
-      // if the model phrased the echo differently). Count turns to disambiguate.
-      if (obs.promptSent && /turn[_-]?start|run[_-]?start|continuation/i.test(blob) && blob.includes(cfg.sessionKey)) {
+      // Weaker signal: a successor turn after our send (hop-2 may fire even if the
+      // model phrased the echo differently). The live successor-turn surfaces as a
+      // `session.message` event (VERIFIED-GATEWAY-SURFACE.md: turn.start/run.start
+      // are NOT in the live 25-event surface — they're source-internal, never
+      // pushed as client events, so a matcher on them never fires). Key on
+      // session.message (the woken turn's transcript message); `continuation` span
+      // text is a secondary signal. Count turns to disambiguate.
+      const isSuccessorEvt = (msg.type === 'event' && /session\.message/i.test(blob)) ||
+        /"event"\s*:\s*"session\.message"|continuation\.work/i.test(blob);
+      if (obs.promptSent && isSuccessorEvt && blob.includes(cfg.sessionKey)) {
         turnsAfterSend += 1;
         if (turnsAfterSend >= 2 && !obs.hop2Observed) {
-          obs.hop2Observed = true; // a second turn began ⇒ a hop-2 occurred
-          rec.note('hop2', 'a second turn began after send (hop-2 likely) — nonce not yet matched');
+          obs.hop2Observed = true; // a second session.message turn began ⇒ a hop-2 occurred
+          rec.note('hop2', 'a second turn began after send (hop-2 likely, via session.message) — nonce not yet matched');
         }
       }
 

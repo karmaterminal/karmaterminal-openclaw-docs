@@ -30,3 +30,10 @@ The canary seat was **over the 70% threshold** at re-fire time on `749f95b` (hea
 ## Files
 - `EVIDENCE.md` — this summary
 - `guard_identity_diff.txt` — the empty-diff bytes (guard logic unchanged `93ace21`/`c814979` → `749f95b`) + the relocated-file note
+
+## Tempo trace: N/A by design (this round's deliverable note)
+R-RC-1 has **no `continuation.work` Tempo trace**, for two byte-reasons:
+1. **Row class:** R-RC-1 is a `request_compaction` THRESHOLD-REJECT shape, NOT a `continue_work` fire. `continuation.work` / `openclaw.continuation` spans are emitted by continue_work self-continuation fires; a request_compaction *reject* does not emit a continuation.work span.
+2. **HONEST-LIMIT this cycle:** the live reject could not fire (canary seat over the 70% threshold → request_compaction would ACCEPT, which is R-RC-2's shape, not R-RC-1's reject-shape). So no live span of any kind was produced for the reject this cycle.
+
+The dispositive proof for R-RC-1 is the **guard-identity carryover** (`guard_identity_diff.txt`: empty diff `93ace21`/`c814979` → `749f95b`, the threshold-guard logic byte-identical), not a fire-trace. Same disposition as the R-CW-MULTI-COLLAPSE honest-limit case (note-why-no-trace).

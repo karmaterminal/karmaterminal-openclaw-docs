@@ -1,0 +1,32 @@
+{
+  "traceId": "4/827HCufh0xb/tEQFLQAw==",
+  "spanId": "NDIXeBkJh8s=",
+  "parentSpanId": "CGovQp3aKnw=",
+  "name": "continuation.work",
+  "kind": "SPAN_KIND_INTERNAL",
+  "startTimeUnixNano": "1782040821065000000",
+  "endTimeUnixNano": "1782040821065011120",
+  "attributes": [
+    {
+      "key": "delay.ms",
+      "value": {
+        "intValue": "5000"
+      }
+    },
+    {
+      "key": "chain.step.remaining",
+      "value": {
+        "intValue": "199"
+      }
+    },
+    {
+      "key": "reason.preview",
+      "value": {
+        "stringValue": "R-CW-3-REASON-FIELD-CAEL-C814979-PROOF — verifying continue_work reason-field ca"
+      }
+    }
+  ],
+  "status": {
+    "code": "STATUS_CODE_OK"
+  }
+}

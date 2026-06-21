@@ -24,5 +24,9 @@ Written at 18:08:16 — AFTER the work-wake fired at 18:08:10 — by the hop-2 t
 ## The fresh-subagent bypass (drain-independent)
 The subagent `834aa32a` fired on its OWN session-key (0-queued), so its `continue_work` registers + fires regardless of the main session's cap state (`queuedPendingWorkCount(params.sessionKey)`). The bare-token self-continuation is NOT main-session-cap-gated — a fresh subagent fires it clean.
 
+## Tempo trace receipts (continuation.work.fire on the driven fire)
+- **`tempo_continuation_work_fire.json`** — trace `b1dbba555befcd6b35d6afbf9acfb7e9`, span `continuation.work.fire`, ronan-prince, startTimeUnixNano `1782065290527000000` = **11:08:10.527 PDT — byte-matches the journal `work-wake hop=1/200` line exactly.** The Tempo receipt for the hop-2 drive.
+- **`tempo_continuation_queue_drain.json`** — trace `a3a96bec81f47df3164ffe60e22e1ee`, `continuation.queue.drain` at 11:08:10.898, the queue-drain on the fresh subagent's own key (the bypass context).
+
 ## Verdict: ✅ PASS — RECOVERABLE LIVE full-loop R-CW-DELEGATE-TOKEN
-Bare `CONTINUE_WORK` from a tool-less subagent DROVE hop-2 (`TOKENBARE-HOP2-DROVE` sentinel written on the driven turn) on deployed `749f95b`, via a fresh-subagent session-key. Right-surface (turn-output sentinel) + recoverable (session-key recorded). ARM64 / non-raptor seat. The c814979-fullloop's inconclusive is now resolved to a real green on the new SHA.
+Bare `CONTINUE_WORK` from a tool-less subagent DROVE hop-2 (`TOKENBARE-HOP2-DROVE` sentinel written on the driven turn) on deployed `749f95b`, via a fresh-subagent session-key. Right-surface (turn-output sentinel) + recoverable (session-key recorded) + Tempo receipt (continuation.work.fire byte-matching the journal). ARM64 / non-raptor seat. The c814979-fullloop's inconclusive is now resolved to a real green on the new SHA.

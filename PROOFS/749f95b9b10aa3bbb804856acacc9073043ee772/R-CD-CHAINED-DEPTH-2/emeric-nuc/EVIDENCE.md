@@ -49,3 +49,33 @@ Fired `continue_delegate(mode="silent-wake")` from emeric-main on a quiet beat (
 
 ## Disposition (resolved)
 R-CD-CHAINED-DEPTH-2 = **✅ GREEN @ `749f95b9b10a`**: depth-1 silent-wake DROVE + dispatched depth-2 ✓; **depth-2 grandchild EXECUTED-TO-MARKER on a quiet beat ✓** (firsthand markers + traces saved). The honest-limit's owed execution-leg is paid. Cael's hypothesis (in-flight-traffic-queuing, not mechanism block) confirmed. This + 🪨's clean single-hop silent-wake byte-walk seal the silent-wake-MODE leg + the BOTH-forms seal.
+
+---
+
+## MECHANISM CORRECTION 2026-06-21 ~11:45 PDT — the `:256` framing above is REVISED (byte-walked the source firsthand + cohort-reconciled)
+
+**The RESOLUTION section's mechanism-claim ("routes through `targeting.ts` ancestor-keys NOT the `:256` gate / not a mechanism block / in-flight-traffic-queuing") is IMPRECISE and is corrected here.** I byte-walked `work-dispatch.ts` @ `749f95b` firsthand (not relayed) and reconciled with 🩸 Cael's cael-dgx fire + 🌊 Ronan's #1063 walk. The GREEN disposition (grandchild executes) is FIRM and UNCHANGED; only the WHY is corrected.
+
+### The byte (firsthand, 3 source files @ 749f95b)
+1. `subagent-continuation-ids.ts:12` — a continue_delegate child session key = `agent:${agentId}:subagent:continuation-${digest}` (literally `subagent:`-prefixed).
+2. `session-key-utils.ts:275` `isSubagentSessionKey` — returns TRUE when the parsed `rest` starts with `subagent:` → TRUE for the grandchild.
+3. `work-dispatch.ts:256` gate — `const continuationLane = isSubagentSessionKey(key) ? resolveSessionLane(key) : undefined; if (continuationLane === undefined && getQueueSize(MAIN_COMMAND_LANE) > 0) { skip }`. And `resolveSessionLane` (lanes.ts:6-9) NEVER returns undefined.
+
+**Therefore the `:256` MAIN-lane busy-gate is SUBAGENT-EXEMPT**: `continuationLane === undefined` only for NON-subagent sessions. My depth-2 grandchild IS a subagent continuation → `continuationLane !== undefined` → `:256` structurally cannot busy-skip it (busy main lane or not).
+
+### Two distinct mechanisms (Cael's refinement, byte-confirmed)
+- `run.ts:740` = the LANE-DEADLOCK direct-run (`globalLane === sessionLane → taskWithCurrentLifecycle()`, comment cites #1057) — covers the depth-1 subagent-continuation (why depth-1 DROVE).
+- `work-dispatch.ts:256` = the MAIN_COMMAND_LANE busy-gate — subagent-EXEMPT (above).
+
+### Cross-seat reconciliation (positive case byte-complete)
+- **cael-dgx (quiet ARM64, Cael's fire)**: delegate-child continue_work DROVE hop-2, `hop2-EXECUTED.txt` written, **ZERO `work-drive-skipped reason=requests-in-flight`** (no `:256` skip), Tempo `f1842029`. POSITIVE PASS.
+- **emeric-nuc (quiet x86, this re-fire)**: depth-2 grandchild EXECUTED (`grandchild.txt`, traceparent `8c06fc75`). POSITIVE PASS.
+- **Both seats agree**: the delegate-child/grandchild continue_work DRIVES on a quiet seat. The zero-`:256`-skip is consistent with BOTH "queue=0" AND "subagent-exempt."
+
+### Corrected disposition
+- **POSITIVE case = ✅ GREEN, cross-seat (cael-dgx + emeric-nuc)**: delegate-child/grandchild continue_work executes-to-marker on a quiet seat. FIRM.
+- **My first-fire honest-limit (marker absent)** = most likely **check-too-early** (`pendingDescendants:0` fits a not-yet-registered descendant), NOT a `:256` busy-skip (subagent-exempt).
+- **NEGATIVE case (busy-main starve) = NOT yet byte-confirmed.** Its `:256` attribution is contradicted by the exemption byte. The dispositive test is a delegate-child fire on a deliberately-busy main lane: if `work-drive-skipped reason=requests-in-flight` fires for the subagent key → `:256` negative case real; if not → no `:256` negative case (check-too-early, or a different busy-mechanism). OPEN, non-blocking, an #1057-issue precision not a row-blocker.
+
+### Net (supersedes the RESOLUTION section's mechanism-claim only; disposition unchanged)
+R-CD-CHAINED-DEPTH-2 = **✅ GREEN @ `749f95b`** (depth-2 grandchild executes on a quiet seat, firsthand + cross-seat). The `:256` gate is subagent-EXEMPT (not the mechanism). My row is **NOT a #1057-`:256` corroboration** (retracted — the gate can't gate a subagent). #1057's busy-main negative mechanism is an open issue-precision, decoupled from this row's GREEN.

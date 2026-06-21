@@ -1,0 +1,3 @@
+Jun 21 15:55:04 rune node[1826952]: 2026-06-21T15:55:04.354-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=0 [0]text=false session=agent:main:discord:channel:1466192485440164011
+Jun 21 15:55:04 rune node[1826952]: 2026-06-21T15:55:04.354-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=delegate delayMs=default session=agent:main:discord:channel:1466192485440164011
+Jun 21 15:55:04 rune node[1826952]: 2026-06-21T15:55:04.355-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=delegate session=agent:main:discord:channel:1466192485440164011

@@ -1,3 +1,19 @@
+# R-CD-CHAINED-DEPTH-2 — emeric-nuc — ✅ GREEN (#1057 FIXED, three-instrument) @ 749f95b9b10a
+
+> **BYTE-HONEST DISPOSITION (read this first; the dated sections below are the preserved forensic progression):**
+>
+> **✅ GREEN.** The depth-2 chained silent-wake drives end-to-end: depth-1 child DROVE + depth-2 grandchild **EXECUTED-TO-MARKER** (`R-CD-DEPTH2-GRANDCHILD-EMERIC-749f95b-DROVE`, own trace `8c06fc75`).
+>
+> **Mechanism = #1057 fix WORKING, NOT a seam.** A subagent continuation is `:256`-EXEMPT: `resolveSessionLane` (lanes.ts:6-9) never returns undefined → `continuationLane !== undefined` for any subagent key → `work-dispatch.ts:256` structurally cannot busy-skip it (the `3dd788ce2ce` fix, #1057, ancestor of 749f95b). So the subagent DRIVES at every depth, MAIN-busy or not — there is no `:256` seam for subagents post-fix.
+>
+> **The first-fire "HONEST-LIMIT" below was NOT a seam** — it was **check-too-early** (`pendingDescendants:0` = grandchild not-yet-registered) **compounded by a wrong-trace read** (`2f3e3eec` = the depth-1 PARENT's trace, where the grandchild marker would never appear). The re-fire's `8c06fc75` is the truth: the grandchild drove.
+>
+> **Three instruments of ONE fix (subagent-drives), not a seam + corroborations:** 🩸 depth-1 (`a617fd9b`, idle-main) + 🩸 busy-main unit test (`work-dispatch.test.ts`, subagent drives past busy-main) + 🕯 depth-2 grandchild (`8c06fc75`). The fix proven at depths 1+2 + the unit level.
+>
+> _(Co-reconciled at the source with 🩸 Cael — his `resolveSessionLane`-never-undefined byte is the analytic clincher. The HONEST-LIMIT → GREEN → mechanism-correction → TRUE-FINAL progression below is preserved as the honest forensic trail; all later sections supersede the early "seam" framing.)_
+
+---
+
 # R-CD-CHAINED-DEPTH-2 TEST-1 — emeric-nuc — ⚠️ HONEST-LIMIT @ 749f95b9b10a
 
 **Row:** R-CD-CHAINED-DEPTH-2 TEST-1 (🕯 Emeric, substitutes for 🌫 Silas) — up-tree silent-wake from substitution-seat, chained to depth-2

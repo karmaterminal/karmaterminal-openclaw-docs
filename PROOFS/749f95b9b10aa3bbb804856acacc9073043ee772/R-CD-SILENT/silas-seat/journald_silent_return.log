@@ -1,0 +1,14 @@
+Jun 21 13:56:45 silas taskset[344772]: 2026-06-21T13:56:45.657-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=2/200 mode=silent session=agent:main:discord:channel:1466192485440164011 task=R-CD-SILENT proof-fire (silas-seat, 749f95b). You are a silent-mode delegate chi
+Jun 21 13:56:48 silas taskset[344772]: 2026-06-21T13:56:48.338-07:00 SILAS-RCD-SILENT-749f95b-CHILD-RETURNED-NOWAKE
+Jun 21 13:56:48 silas taskset[344772]: 2026-06-21T13:56:48.609-07:00 [continuation/announce] [continuation:enrichment-return] Delivered to agent:main:discord:channel:1466192485440164011 from agent:main:subagent:continuation-8eb9a95f93b21417a3c5a20f0bba0533
+Jun 21 13:57:10 silas taskset[344772]: 2026-06-21T13:57:10.515-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 21 13:57:10 silas taskset[344772]: 2026-06-21T13:57:10.518-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 21 13:57:10 silas taskset[344772]: 2026-06-21T13:57:10.523-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 21 13:57:10 silas taskset[344772]: 2026-06-21T13:57:10.527-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 21 13:57:10 silas taskset[344772]: 2026-06-21T13:57:10.529-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 21 13:57:10 silas taskset[344772]: 2026-06-21T13:57:10.531-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 21 13:57:10 silas taskset[344772]: 2026-06-21T13:57:10.533-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 21 13:57:10 silas taskset[344772]: 2026-06-21T13:57:10.535-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 21 13:57:10 silas taskset[344772]: 2026-06-21T13:57:10.537-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 21 13:57:11 silas taskset[344772]: 2026-06-21T13:57:11.551-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011
+Jun 21 13:57:13 silas taskset[344772]: 2026-06-21T13:57:13.567-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011

@@ -1,0 +1,7 @@
+Jun 21 03:12:24 cael node[2377327]: 2026-06-21T03:12:24.121-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=work delayMs=default session=agent:main:subagent:4e239a66-11d3-4990-a752-a27dcb030acc
+Jun 21 03:12:24 cael node[2377327]: 2026-06-21T03:12:24.122-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=work session=agent:main:subagent:4e239a66-11d3-4990-a752-a27dcb030acc
+Jun 21 03:12:24 cael node[2377327]: 2026-06-21T03:12:24.127-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=14999ms fireAt=1782036759125 session=agent:main:subagent:4e239a66-11d3-4990-a752-a27dcb030acc
+Jun 21 03:12:39 cael node[2377327]: 2026-06-21T03:12:39.128-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:subagent:4e239a66-11d3-4990-a752-a27dcb030acc
+Jun 21 03:12:39 cael node[2377327]: 2026-06-21T03:12:39.131-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59999ms fireAt=1782036819129 session=agent:main:subagent:4e239a66-11d3-4990-a752-a27dcb030acc
+Jun 21 03:12:39 cael node[2377327]: 2026-06-21T03:12:39.132-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:subagent:4e239a66-11d3-4990-a752-a27dcb030acc
+Jun 21 03:12:51 cael node[2377327]: 2026-06-21T03:12:51.285-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:subagent:4e239a66-11d3-4990-a752-a27dcb030acc

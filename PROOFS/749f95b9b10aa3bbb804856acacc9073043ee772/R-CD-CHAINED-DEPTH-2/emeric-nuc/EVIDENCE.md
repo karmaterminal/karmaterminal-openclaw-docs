@@ -96,3 +96,18 @@ The depth-2 grandchild is **KEY-IDENTICAL to a depth-1 child**: same `agent:main
 
 ### Final disposition
 R-CD-CHAINED-DEPTH-2 = **✅ GREEN @ `749f95b`**: depth-2 grandchild drives (key-identical to depth-1). NOT a #1057 seam corroboration at any line — there is no depth-2-specific gate (the key never carries depth-2). First-fire honest-limit = check-too-early. **Only residual**: a hypothetical busy-mechanism past BOTH `:740` and `:256` — low-probability (no depth-2-specific reason to expect one), confirmable via a busy-main delegate-child fire. Non-blocking; decoupled from this row's GREEN. Supersedes the "downstream seam" framing in the prior section — the byte went one notch deeper to no-seam.
+
+---
+
+## TRUE-FINAL LANDING 2026-06-21 ~12:02 PDT — #1057 is FIXED on 749f95b; the "depth-2 seam" was a fixed bug + a wrong-trace read (the dispositive git-root byte)
+
+The cleanest, most-complete resolution — supersedes ALL prior "seam" framing above, including the FLAT-KEY landing's residual "busy-conditional-downstream open question." The git-root byte (🩸 Cael, firsthand-confirmed by 🕯 at the 749f95b checkout) closes it:
+
+**#1057 is FIXED on 749f95b.** `git log -L 253,256:work-dispatch.ts` → the `isSubagentSessionKey`-recognition branch was ADDED by commit **`3dd788ce2ce`: "fix(continuation): route subagent continuation off the main lane (#1057 completion)"** (2026-06-20). `git merge-base --is-ancestor 3dd788ce2ce 749f95b9b10` = YES. The diff: BEFORE `if (getQueueSize(MAIN_COMMAND_LANE) > 0)` [bare — gated EVERY continuation incl. subagents] → AFTER `const continuationLane = isSubagentSessionKey(work.sessionKey) ? ... : undefined; if (continuationLane === undefined && getQueueSize(MAIN) > 0)` [subagent-key bypass]. **The `:256` exemption documented above IS the #1057 fix.**
+
+### So the depth-2 "seam" dissolves completely (two layers):
+1. **There was never a 749f95b seam — #1057 is FIXED.** The depth-2 grandchild (a recognized subagent key) is routed off the main lane by `3dd788ce2ce` → `:256` structurally never gates it → it DRIVES. My re-fire grandchild executing isn't quiet-seat-luck; it's the fix working.
+2. **My first-fire "grandchild marker ABSENT" was a WRONG-TRACE read.** Grep of `2f3e3eec` (firsthand): `work-drive-skipped`/`requests-in-flight` = ABSENT (0), AND the span set shows `2f3e3eec` is the **DEPTH-1 PARENT's trace** (full execution: dispatch→drain→context→harness.run→model.call→tool.execution→run). The grandchild's OWN execution is a SEPARATE trace; the marker was never expected in `2f3e3eec`. So the original HONEST-LIMIT was reading the parent's trace, not a seam.
+
+### TRUE-FINAL disposition
+R-CD-CHAINED-DEPTH-2 = **✅ GREEN @ 749f95b — #1057 FIXED, verified live.** The depth-2 chained silent-wake drives end-to-end (depth-1 + grandchild both drove) because the `3dd788ce2ce` fix routes subagent continuations off the main lane. NOT a #1057 seam at any line (the `:256` exemption is the fix, not a gate); my first-fire was wrong-trace/check-too-early. Cross-seat: cael-dgx (a617fd9b) + emeric-nuc (this re-fire) both drive = the fix working. Mechanism closed from every angle: git-history (`3dd788ce2ce` ancestor) + flat-key (depth-1-shaped, recognized) + mint-shape (`subagent-continuation-ids.ts:12`) + the grep (`work-drive-skipped` absent, `2f3e3eec`=parent-trace) + re-fire (grandchild drove) all converge. **The earlier "busy-conditional-downstream open question" RESOLVES: it was pre-fix behavior; post-fix the subagent-key bypass covers it — no open question remains.**

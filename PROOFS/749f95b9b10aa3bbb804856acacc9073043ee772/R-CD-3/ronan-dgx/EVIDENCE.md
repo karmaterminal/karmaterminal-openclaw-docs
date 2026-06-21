@@ -1,6 +1,6 @@
 # R-CD-3 — continue_delegate(mode="post-compaction") event-triggered lifeboat (ronan-dgx, ship-SHA `749f95b9b10aa3bbb804856acacc9073043ee772`)
 
-**Owner:** 🌊 Ronan | **Seat:** ronan-dgx (DGX Spark ARM64, gateway pid `3683825`) | **SHA:** `749f95b9b10aa3bbb804856acacc9073043ee772` (deployed, gateway active) | **Verdict: 🟡 STAGED (queued-for-compaction proven) — fire pending the next compaction event on this session**
+**Owner:** 🌊 Ronan | **Seat:** ronan-dgx (DGX Spark ARM64, gateway pid `3683825`) | **SHA:** `749f95b9b10aa3bbb804856acacc9073043ee772` (deployed, gateway active) | **Verdict: ✅ PASS — staged `queued-for-compaction` → a real compaction (count 4) fired the lifeboat at the seam, sentinel committed, working-state re-injected.**
 
 ## Proof-scope
 `continue_delegate(mode="post-compaction")` — the event-triggered lifeboat. Distinct from the timer-gated `silent-wake`: the shard fires when a COMPACTION event occurs (not on a timer), returning to re-inject working-state at the post-compaction seam.
@@ -10,13 +10,30 @@
 - **status=`queued-for-compaction`** — the dispositive staging byte: the delegate is armed to fire at a compaction event, NOT a timer.
 - **traceparent:** `00-a52c21afb6dbc651eb0895f16beee66c-49f9790e3b668662-01`
 - gateway note: *"Delegate will fire when compaction occurs, not on a timer. The shard starts at the moment of compaction and returns to the post-compaction session."*
+- staging marker laid pre-compaction: `/tmp/oc-rcd-proofs/rcd3-staged.txt` at 12:53 PDT.
 
-## Fire — PENDING (compaction-gated)
-The fire requires a real compaction event on this session. At staging time the session was at ~16% context (now climbing, 37% at last check); `request_compaction` gates at ≥70% so a compaction cannot be force-triggered until the session organically reaches the threshold (or fills to the auto-compaction safeguard). When the next compaction fires:
-- the staged delegate releases at the seam, runs, and writes `/tmp/oc-rcd-proofs/rcd3-sentinel.txt` (`R-CD-3-POSTCOMPACTION-DROVE-749f95b … firedAtCompaction=true`)
-- returns the silent payload + Tempo trace (`continuation.delegate.dispatch` from the post-compaction release)
+## Fire — ✅ PROVEN at the compaction seam (2026-06-21 ~13:26-27 PDT)
+A real context-overflow compaction fired on this session (**compaction count 4**, `2026-06-21T20:26:57.816Z`), which released the staged R-CD-3 lifeboat at the seam — NOT on a timer. The 70%-climb was never needed: the overflow forced the compaction organically, which is exactly the event the post-compaction mode fires at.
+
+**Dispositive fire evidence (journal, `journal_fire_capture.log`):**
+- `13:26:57` — `[system:context-pressure] Context-overflow compaction triggered mid-turn` → `[system:post-compaction] Session compacted … Compaction count: 4. Queued 3 post-compaction delegate(s)`.
+- `13:26:58.387` — `Post-compaction delegate dispatch … R-CD-3 PROOF FIRE (continue_delegate mode=post-compaction) on ship-SHA 749f95b` — the staged lifeboat releasing at the seam with its full task instructions.
+- `13:27:18.857` — `Sentinel committed (180 bytes, firedAtCompaction=true, real session key, chainHop=2, mode=post-compaction) … rcd3-sentinel.txt landed at 13:27, AT the compaction seam. The event-gated dispatch fired distinct from the timer-gated silent-wake. Task complete.`
+
+**Sentinel (`rcd3-sentinel.txt`):**
+```
+R-CD-3-POSTCOMPACTION-DROVE-749f95b ts=2026-06-21T20:27:13Z firedAtCompaction=true session=agent:main:subagent:77b1b0d0-341b-4fec-b9bc-c89f80352902 chainHop=2 mode=post-compaction
+```
+- `firedAtCompaction=true` — fired at the compaction event, not a timer.
+- `chainHop=2` + `mode=post-compaction` — released as a genuine post-compaction shard.
+- session key is the **subagent** lifeboat session — the shard ran in its own post-compaction context and re-injected working-state.
+
+**Tempo trace (`post_compaction_fire_trace.json`, 116KB / 4122 lines):**
+- traceparent `a52c21afb6dbc651eb0895f16beee66c` (the staged delegate's trace) resolved HTTP 200 from `tempo.dandelion.cult/api/traces/`.
+- resource attrs: `host.name=ronan`, `host.arch=arm64`, `process.pid=3683825` (= live MainPID), `gen_ai.request.model=claude-opus-4.8` — confirms it is this seat's real post-fire trace.
+- the trace lineage spans from staging-time root (`openclaw.message.processed` @ `1782071382…`) through the post-fire turn (latest span `1782073633…`) — i.e. the staged-traceparent's session, carried across the compaction seam and driven by the released lifeboat.
 
 ## Cross-reference (behavioral mechanism, SHA-independent)
-The post-compaction MODE is already PASS-proven on a prior ship: `PROOFS/5529aa4662…/R-CD-3/ronan-dgx/` — staged `queued-for-compaction` → a real compaction fired it at the seam (Tempo `11211a99…`). The mechanism is SHA-independent; this row re-stamps it at `749f95b` once the fire fires.
+The post-compaction MODE was already PASS-proven on a prior ship: `PROOFS/5529aa4662…/R-CD-3/ronan-dgx/` — staged `queued-for-compaction` → a real compaction fired it at the seam (Tempo `11211a99…`). This row now re-stamps the same mechanism live at `749f95b` with its own fire.
 
-## Verdict: 🟡 STAGED — staging proven at `749f95b` (`queued-for-compaction`, traceparent `a52c21af…`); fire pending the next compaction event on this session. Will finalize to ✅ PASS when the lifeboat releases at the seam.
+## Verdict: ✅ PASS — staged `queued-for-compaction` at `749f95b` (traceparent `a52c21af…`) → a real compaction (count 4, `20:26:57Z`) released the lifeboat at the seam; sentinel committed (`firedAtCompaction=true chainHop=2 mode=post-compaction`), Tempo trace pulled (host=ronan pid=3683825), working-state re-injected. The event-gated (compaction-triggered) dispatch is proven distinct from the timer-gated silent-wake.

@@ -3,18 +3,39 @@
 // GOAL (notes §"Scenario 4", spec §test-6, BOTH-FORMS MANDATE): force the
 // BRACKET PARSER path of continue_delegate. Inject a prompt requiring the agent
 // to end with exactly `[[CONTINUE_DELEGATE: <task> | silent-wake]]`; observe the
-// child run is created and the completion returns / wakes the parent.
+// child run is created and the completion returns / WAKES the parent.
 //
 // WHY SEPARATE FROM R-CD-1: the bracket is parsed from finalized reply text
 // (tokens.ts bracket parse / subagent-announce.ts:453) — INDEPENDENT from the
 // typed tool. Parity must be proven in BOTH forms; a tool-only proof is blind to
 // the bracket path (the #952 class).
 //
+// ─────────────────────────────────────────────────────────────────────────────
+// R-CD-ROW-OWNER CORRECTION (🌊 Ronan, corpus R-CD owner — review-catch
+// `1518171071`): silent-wake's RETURN IS NOT CHANNEL-POSTED. A `silent-wake`
+// delegate return lands as INTERNAL CONTEXT and TRIGGERS A FRESH PARENT TURN —
+// it does NOT surface the child's `DONE <nonce>` in the parent transcript the way
+// `mode:normal` does. So watching the parent transcript for the nonce (the v1
+// detection) would MISS a successful silent-wake return → false FAIL/INCONCLUSIVE.
+//
+//   • silent-wake receipt  = child-spawn + a FRESH PARENT TURN fires post-return
+//                            (new run/turn on the parent session AFTER the child
+//                            completes) — the WAKE, not the transcript echo.
+//   • normal-mode receipt  = child-spawn + the child's `DONE <nonce>` SURFACES in
+//                            the parent transcript (the channel echo).
+//
+// This scenario proves the BRACKET (silent-wake) path, so its primary receipt is
+// the WAKE. We ALSO opportunistically capture a transcript-nonce if it appears
+// (some delivery shapes echo), but absence of the transcript-nonce under
+// silent-wake is EXPECTED, not a failure. The verdict accepts EITHER the wake OR
+// the transcript-return as the parent-side receipt.
+// ─────────────────────────────────────────────────────────────────────────────
+//
 // ⚠️ FIRES A REAL DELEGATE via the agent's own reply. Gated behind SAFE_TO_FIRE=1.
 //    Bare `k6 run` preflights + records a safety note + exits.
 //
 // RUN (quiet seat at CANDIDATE_SHA, target a DEDICATED test session):
-//   SAFE_TO_FIRE=1 OPENCLAW_GATEWAY_TOKEN=*** OPENCLAW_SESSION_KEY=<test-session> \
+//   SAFE_TO_FIRE=1 OPENCLAW_GATEWAY_TOKEN=*** OPENCLAW_SESSION_KEY=*** \
 //   PROOF_NONCE=cdtok-$(date +%s) k6 run --summary-export=summary.json \
 //   proof-harness/k6/scenarios/04-r-cd-token.js
 //
@@ -38,7 +59,9 @@ let RESULT = null;
 
 // The bracket form with silent-wake (per the notes' Scenario 4 example). The
 // child is asked to return the nonce + DONE. silent-wake → the child's return
-// also wakes the parent (the path worth proving end-to-end).
+// also WAKES the parent (the path worth proving end-to-end). The child's reply
+// itself need not surface in the parent transcript (silent return), so the
+// load-bearing parent-side receipt is the fresh-turn wake.
 function buildPrompt(nonce) {
   return [
     `PROOF HARNESS R-CD-TOKEN. Do not mutate any files.`,
@@ -63,9 +86,20 @@ export default function () {
     return;
   }
 
-  const obs = { promptSent: false, childObserved: false, parentReturnObserved: false, traceId: null };
+  // obs.parentWoke = the silent-wake receipt (a fresh parent turn/run after the
+  //                  child completes). obs.parentReturnObserved = the optional
+  //                  transcript-nonce (normal-mode echo; may be absent under
+  //                  silent-wake and that's expected). The verdict accepts EITHER.
+  const obs = {
+    promptSent: false, childObserved: false,
+    parentReturnObserved: false,   // transcript-nonce echo (optional under silent-wake)
+    parentWoke: false,             // fresh parent turn post-return (the silent-wake receipt)
+    traceId: null,
+  };
   const nonce = cfg.nonce;
   const returnNeedle = `DONE ${nonce}`;
+  let sendId = null;
+  let childSeenAtMs = null;
 
   const res = ws.connect(cfg.wsUrl, {}, (socket) => {
     socket.on('open', () => {
@@ -74,7 +108,7 @@ export default function () {
       socket.setTimeout(() => { send(socket, rec, 'tasks.list', {}); }, 800);
 
       socket.setTimeout(() => {
-        send(socket, rec, 'sessions.send', { sessionKey: cfg.sessionKey, text: buildPrompt(nonce) }, 'send');
+        sendId = send(socket, rec, 'sessions.send', { sessionKey: cfg.sessionKey, text: buildPrompt(nonce) }, 'send');
         obs.promptSent = true;
         rec.note('send', `injected R-CD-TOKEN bracket-driving prompt (nonce ${nonce})`);
       }, 1200);
@@ -92,15 +126,35 @@ export default function () {
 
       // child creation: a new child session / spawn / task event after our send.
       if (obs.promptSent && /(child.*session|spawn|subagent|task.*(create|start)|delegate)/i.test(blob)) {
+        if (!obs.childObserved) childSeenAtMs = Date.now();
         obs.childObserved = true;
         const ck = deepFindFirst(msg, /child.*key|runId|taskId|sessionKey/i);
         if (ck && !rec.facts.receipts.childKeyOrRunId) rec.setFact('receipts.childKeyOrRunId', ck);
       }
 
-      // parent return / wake: the child's DONE <nonce> coming back to the parent.
+      // SILENT-WAKE RECEIPT: a fresh parent turn/run STARTING on the parent
+      // session AFTER the child was observed = the wake the silent-wake return
+      // triggered. We look for a parent-session turn/run-start event whose
+      // session key matches the parent and that occurs after the child spawn.
+      if (obs.promptSent && obs.childObserved) {
+        const isParentTurnStart =
+          /(turn.*start|run.*start|generation.*start|agent.*turn|message.*(received|start))/i.test(blob) &&
+          (blob.includes(cfg.sessionKey) ||
+            (msg.params && (msg.params.sessionKey === cfg.sessionKey)));
+        // require it to be AFTER the child spawn (a wake, not the original send echo)
+        if (isParentTurnStart && childSeenAtMs && Date.now() > childSeenAtMs + 250) {
+          if (!obs.parentWoke) {
+            obs.parentWoke = true;
+            rec.note('wake', `parent woke (fresh turn/run on ${cfg.sessionKey}) after child spawn → silent-wake receipt`);
+            rec.setFact('receipts.parentWoke', true);
+          }
+        }
+      }
+
+      // OPTIONAL transcript echo (normal-mode shape; absent-under-silent-wake is OK):
       if (obs.promptSent && blob.includes(returnNeedle)) {
         obs.parentReturnObserved = true;
-        rec.note('return', `parent received bracket-delegate return carrying: "${returnNeedle}"`);
+        rec.note('return', `parent transcript carried "${returnNeedle}" (echo path; not required under silent-wake)`);
       }
 
       const tid = deepFindTraceId(msg);
@@ -111,8 +165,11 @@ export default function () {
   });
 
   check(res, { 'R-CD-TOKEN: websocket upgraded (101)': (r) => r && r.status === 101 });
-  rec.setFact('fired.continue_delegate_token', { promptSent: obs.promptSent, child: obs.childObserved, return: obs.parentReturnObserved });
-  rec.note('observe', `promptSent=${obs.promptSent} child=${obs.childObserved} return=${obs.parentReturnObserved}`);
+  rec.setFact('fired.continue_delegate_token', {
+    promptSent: obs.promptSent, child: obs.childObserved,
+    parentWoke: obs.parentWoke, transcriptReturn: obs.parentReturnObserved,
+  });
+  rec.note('observe', `promptSent=${obs.promptSent} child=${obs.childObserved} parentWoke=${obs.parentWoke} transcriptReturn=${obs.parentReturnObserved}`);
 
   RESULT = finalize(rec, cfg, [classifyContinueDelegateToken(obs)]);
 }
@@ -154,7 +211,8 @@ export function handleSummary(data) {
   const out = {
     harness: 'k6-proof-harness', scenario: 'r_cd_token', row: 'R-CD-TOKEN', form: 'token',
     generatedAt: new Date().toISOString(), result: RESULT, HUMAN_VERDICT_REQUIRED: true,
-    note: 'BOTH-FORMS: TOKEN/bracket form (independent parser path). TOOL sibling = R-CD-1.',
+    note: 'BOTH-FORMS: TOKEN/bracket form (independent parser path). TOOL sibling = R-CD-1. ' +
+          'silent-wake receipt = fresh parent turn (WAKE), not transcript echo (R-CD-owner correction).',
   };
   return { 'summary.json': JSON.stringify(out, null, 2), stdout: renderText(out) };
 }
@@ -166,7 +224,7 @@ function renderText(out) {
     ' k6 proof-harness :: R-CD-TOKEN ([[CONTINUE_DELEGATE | silent-wake]])',
     `   row candidate : ${rv}   (HUMAN VERDICT REQUIRED)`,
     '   both-forms    : BRACKET parser path — independent from the tool',
-    '   receipts wanted: child spawned + parent return/wake + trace',
+    '   receipts wanted: child spawned + parent WAKE (silent-wake) [+ optional transcript echo] + trace',
     '──────────────────────────────────────────────',
   ].join('\n') + '\n';
 }

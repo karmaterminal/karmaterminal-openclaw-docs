@@ -142,11 +142,29 @@ export function classifyContinueDelegateTool(r) {
 // receipts: { promptSent, childObserved, parentReturnObserved, traceId }
 export function classifyContinueDelegateToken(r) {
   const ev = { ...r };
-  if (r.promptSent && r.childObserved && r.parentReturnObserved) {
+  // R-CD-owner correction (🌊): under `silent-wake` the return is INTERNAL
+  // CONTEXT + a FRESH PARENT TURN (the WAKE) — it is NOT channel-posted, so the
+  // transcript-nonce (`parentReturnObserved`) is OPTIONAL and frequently ABSENT
+  // on a correct silent-wake. The parent-side receipt is satisfied by EITHER the
+  // wake (`parentWoke`) OR the transcript echo (`parentReturnObserved`).
+  const parentSideReceipt = r.parentWoke || r.parentReturnObserved;
+  if (r.promptSent && r.childObserved && parentSideReceipt) {
+    const via = r.parentWoke ? 'parent WOKE (fresh turn — silent-wake receipt)'
+                             : 'parent transcript echo';
     return label(PASS, 'CONTINUATION-BEHAVIOR-SPEC §test-6 (both-forms)', ev,
-      'Bracket [[CONTINUE_DELEGATE]] spawned a child AND the parent received the ' +
-      'return → bracket-parser path at parity with the tool. Confirm trace + the ' +
-      'bracket appeared terminal in the reply, then ✅.');
+      'Bracket [[CONTINUE_DELEGATE | silent-wake]] spawned a child AND the parent-' +
+      `side return landed via ${via} → bracket-parser path at parity with the tool. ` +
+      'Confirm trace + the bracket appeared terminal in the reply, then ✅. NOTE: ' +
+      'absence of the transcript echo under silent-wake is EXPECTED (silent return), ' +
+      'not a failure — the WAKE is the correct receipt.');
+  }
+  if (r.promptSent && r.childObserved && !parentSideReceipt) {
+    return label(LIMIT, 'CONTINUATION-BEHAVIOR-SPEC §test-6 (both-forms)', ev,
+      'Bracket spawned a child but NEITHER a parent wake NOR a transcript return was ' +
+      'observed in-window. Under silent-wake the wake can be the only parent signal — ' +
+      'widen the observe window / confirm the wake event surfaces in the operator ' +
+      'stream. HONEST-LIMIT (observation gap), not a confirmed break, until the wake ' +
+      'is verified absent.');
   }
   if (r.promptSent && !r.childObserved) {
     return label(FAIL, 'CONTINUATION-BEHAVIOR-SPEC §test-6 (both-forms)', ev,

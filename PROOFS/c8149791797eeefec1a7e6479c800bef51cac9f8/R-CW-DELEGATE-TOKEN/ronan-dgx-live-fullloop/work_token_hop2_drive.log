@@ -1,0 +1,7 @@
+  Jun 21 02:52:52 ronan node[1333838]: 2026-06-21T02:52:52.719-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=0 [0]text=true session=agent:main:subagent:b87a1781-36c8-4cb2-b634-9bd7f56336f8
+  Jun 21 02:52:52 ronan node[1333838]: 2026-06-21T02:52:52.719-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=work delayMs=default session=agent:main:subagent:b87a1781-36c8-4cb2-b634-9bd7f56336f8
+  Jun 21 02:52:52 ronan node[1333838]: 2026-06-21T02:52:52.720-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=work session=agent:main:subagent:b87a1781-36c8-4cb2-b634-9bd7f56336f8
+  Jun 21 02:52:52 ronan node[1333838]: 2026-06-21T02:52:52.727-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=14999ms fireAt=1782035587725 session=agent:main:subagent:b87a1781-36c8-4cb2-b634-9bd7f56336f8
+  Jun 21 02:53:07 ronan node[1333838]: 2026-06-21T02:53:07.727-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:subagent:b87a1781-36c8-4cb2-b634-9bd7f56336f8
+  Jun 21 02:53:07 ronan node[1333838]: 2026-06-21T02:53:07.730-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59999ms fireAt=1782035647728 session=agent:main:subagent:b87a1781-36c8-4cb2-b634-9bd7f56336f8
+  Jun 21 02:53:07 ronan node[1333838]: 2026-06-21T02:53:07.731-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:subagent:b87a1781-36c8-4cb2-b634-9bd7f56336f8

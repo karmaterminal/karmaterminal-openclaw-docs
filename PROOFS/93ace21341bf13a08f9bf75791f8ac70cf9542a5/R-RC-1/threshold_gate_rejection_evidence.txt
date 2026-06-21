@@ -1,0 +1,28 @@
+R-RC-1 — request_compaction() threshold REJECT
+Ship SHA: 93ace21341bf13a08f9bf75791f8ac70cf9542a5
+Seat: silas-lothric (i9-14900KS, RTX 5090, CachyOS x86_64)
+Owner: 🌫 Silas (canonical-owner)
+Fired: 2026-06-21 ~00:50 PDT
+
+PASS-SHAPE: request_compaction() must REJECT when main-session context is BELOW the
+context-pressure threshold (70%). The canary seat was at 55-57% context at fire-time
+(under-threshold), so the canonical reject-shape fired cleanly (substrate-luck — no
+HONEST-LIMIT substitution needed this cycle).
+
+TOOL CALL: request_compaction(reason="R-RC-1 PROOF-CORPUS row ... firing at 57% context
+(571k/1.0m, UNDER the 70% threshold) to capture the threshold-gate REJECT")
+
+STRUCTURED REJECTION RETURNED (the proof byte):
+{
+  "status": "rejected",
+  "guard": "context_threshold",
+  "contextUsage": 55,
+  "threshold": 70,
+  "reason": "Context usage (55%) is below the minimum threshold (70%). Compaction is not needed yet."
+}
+
+VERDICT: ✅ PASS — the threshold-gate correctly rejects request_compaction below 70%.
+The guard returns a structured rejection (guard=context_threshold), NOT an error and NOT
+an accept. This proves the context_threshold guard on the deployed ship SHA. The reject is
+the documented behavior: "Guards return as structured rejections (not errors): requires
+>=70% context usage."

@@ -1,0 +1,14 @@
+R-RC-1 session_status snapshot at fire-time (the under-threshold substrate enabling the reject-shape)
+Captured: 2026-06-21 ~00:50 PDT, seat silas-lothric
+
+🦞 OpenClaw 2026.6.8 (93ace21)
+🧠 Model: github-copilot/claude-opus-4.8
+📚 Context: 571k/1.0m (57%) · 🧹 Compactions: 7
+🧵 Session: agent:main:discord:channel:1466192485440164011
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default
+
+KEY: Context at 57% (and 55% at the exact request_compaction tick) is BELOW the 70%
+threshold → request_compaction must REJECT (guard=context_threshold). This is the
+canonical R-RC-1 PASS-shape substrate (no HONEST-LIMIT substitution needed — the canary
+seat was naturally under-threshold).

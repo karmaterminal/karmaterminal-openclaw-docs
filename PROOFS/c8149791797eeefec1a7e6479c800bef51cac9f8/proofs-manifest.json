@@ -7,14 +7,14 @@
   "generated": "2026-06-21 (frond-scribe; note: bracket two-path + #552 honest-limit class-split)",
   "rollup": {
     "total_rows": 28,
-    "pass": 21,
+    "pass": 22,
     "partial": 0,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 7,
+    "honest_limit": 6,
     "missing": 0
   },
-  "notes": "Token-fix ship: bare CONTINUE_WORK from a subagent-child now drives (KEY row R-CW-DELEGATE-TOKEN GREEN live, 2-seat). 21 PASS + 7 HONEST-LIMIT (6 cael-dgx + R-RC-2). Unblock per-row: single-token self-cont rows = per-session-key bypass-fireable, PROVEN -> PASS (R-CW-1/3/TOKEN; R-CW-4 bypass-attemptable 2-hop). R-CW-MULTI / R-CW-MULTI-COLLAPSE = mechanism BEING PROVEN by row-owner (firing now); per the row assertion (a437ca7 R-CW-MULTI-FIRE.md) they test PER-TURN array-capture (fire N continue_work in one turn -> N distinct flowIds, N->N not collapsed) = a mechanism test, NOT under-saturation -> a fresh subagent firing N<cap demonstrates it => bypass-fireable, drain NOT required. The #982 array-capture fix is SHIPPED on c814979 (work-dispatch.ts:639 scheduleContinuationWorkBatch + agent-runner-execution.ts:1957 ContinueWorkRequest[]). Status PENDING Cael fresh-subagent fire (green+traceparent) -> PASS on landing. (Note deliberately held OPEN here through a 3-position row-owner refinement; fold the PROVEN corpus artifact, not the in-flight claim.) R-RC-2 = DISTINCT >70% context-threshold guard (request-compaction-tool.ts:27; NOT cap-bypassable - fresh subagent is low-context, bounces threshold). R-CD-COLLECTION-ON-COLLAPSE = delegate row. #552 drain = figs owner-go, HYGIENE (bypass covers the continue_work rows). Gate-5 FF 93ace21341->c814979179 done; pr-presentation==INDEX==deployed==proof SHA. Bracket-[[CONTINUE_WORK]] = bare-only BY DESIGN, NO gap: main path v2 design §281; subagent-path BRACKET_CONTINUE_WORK_PATTERN on un-shipped 3ae2d4cb2c was its only figs-required evidence, and that :446 code-comment was a MISATTRIBUTION of figs cap-directive (1518163797532086412 = maxDelayMs 300s->24h, NOT a bracket-parser) - no verified figs-requirement. figs-ruled work = cap-raise (next cycle). NON-blocking (capability ships bare).",
+  "notes": "Token-fix ship: bare CONTINUE_WORK from a subagent-child now drives (KEY row R-CW-DELEGATE-TOKEN GREEN live, 2-seat). 22 PASS + 6 HONEST-LIMIT. Unblock per-row (byte-PROVEN): single-token self-cont = per-session-key bypass-fireable -> PASS (R-CW-1/3/TOKEN). R-CW-MULTI = PROVEN bypass-able (d50eaa7): 3 continue_work in one turn from a fresh lightContext subagent -> 3 distinct flow_runs (array-capture N->N, zero collapse, fire-A succeeded) = the #982 scheduleContinuationWorkBatch fix proven LIVE; per-turn mechanism test, NOT under-saturation, drain-INDEPENDENT. R-CW-MULTI-COLLAPSE = same shape, bypass-able (pending its own fire). R-CW-4 = bypass-attemptable 2-hop. R-RC-2 = DISTINCT >70% context-threshold guard (request-compaction-tool.ts:27; NOT cap-bypassable). R-CD-COLLECTION-ON-COLLAPSE = delegate row. #552 DRAIN BLAST-RADIUS = ZERO continue_work rows (the per-session-key bypass clears the whole cap-class); drain is PURE HYGIENE, figs owner-go. Gate-5 FF 93ace21341->c814979179 done; pr-presentation==INDEX==deployed==proof SHA. Bracket-[[CONTINUE_WORK]] = bare-only BY DESIGN, NO gap: main path v2 design §281; subagent-path BRACKET_CONTINUE_WORK_PATTERN on un-shipped 3ae2d4cb2c was its only figs-required evidence, and that :446 code-comment was a MISATTRIBUTION of figs cap-directive (1518163797532086412 = maxDelayMs 300s->24h). figs-ruled work = cap-raise (next cycle). NON-blocking.",
   "rows": [
     {
       "row": "R-CD-1",
@@ -281,12 +281,19 @@
     {
       "row": "R-CW-MULTI",
       "owner": "🩸 cael (cael-dgx)",
-      "state": "honest-limit",
+      "state": "pass",
       "dir": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-MULTI/",
-      "evidence_doc": "R-CW-MULTI/SUBSTRATE-FINDING.md",
-      "traces": [],
-      "notes": "HONEST-LIMIT: cael-dgx #552 pending-cap (same as above, bypass-fireable). ALSO carries the SEPARATE #982 same-turn-capture bug (one merged election per tool array) — the bypass does NOT fix #982; that is a distinct open item.",
-      "fired": "blocked — #552 saturation (bypass-fireable, no drain needed)"
+      "evidence_doc": "R-CW-MULTI/cael-dgx/EVIDENCE.md",
+      "traces": [
+        {
+          "path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-MULTI/cael-dgx/array-capture-3-distinct-flowruns.txt"
+        },
+        {
+          "path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/R-CW-MULTI/cael-dgx/continuation_trace.json"
+        }
+      ],
+      "notes": "PROVEN bypass-able (drain-independent): 3 continue_work in one turn from a fresh lightContext subagent (own key, 0 queued) -> 3 distinct flow_runs (array-capture N->N, zero collapse, fire-A succeeded). #982 scheduleContinuationWorkBatch fix proven live. Per-turn mechanism, NOT under-saturation.",
+      "fired": "2026-06-21, ship SHA c814979 (per-session-key bypass, d50eaa7)"
     },
     {
       "row": "R-CW-MULTI-COLLAPSE",

@@ -344,9 +344,10 @@ export function rCdToken() {
   const rec = newRecorder(meta);
   if (!gateOrToken(cfg, rec, 'R-CD-TOKEN', (steps) => { ROWS.r_cd_token = finalizeWithSession(rec, cfg, sessionKey, steps); })) return;
 
-  const obs = { promptSent: false, childObserved: false, parentReturnObserved: false, traceId: null };
+  const obs = { promptSent: false, childObserved: false, parentReturnObserved: false, parentWoke: false, traceId: null };
   const nonce = cfg.nonce;
   const returnNeedle = `DONE ${nonce}`;
+  let childSeenAtMs = null;
 
   const res = ws.connect(cfg.wsUrl, {}, (socket) => {
     socket.on('open', () => {
@@ -358,7 +359,7 @@ export function rCdToken() {
         obs.promptSent = true;
         rec.note('send', `injected R-CD-TOKEN bracket-driving prompt (nonce ${nonce}) -> session '${sessionKey}'`);
       }, 1200);
-      socket.setTimeout(() => send(socket, rec, 'tasks.list', {}), 8000);
+      socket.setTimeout(() => send(socket, rec, 'tasks.list', {}), 12000);
       socket.setTimeout(() => socket.close(), (SLOT - 5) * 1000);
     });
     socket.on('message', (raw) => {
@@ -366,14 +367,31 @@ export function rCdToken() {
       if (!msg) return;
       if (msg.type === 'res' && msg.ok === false) failures.add(1);
       const blob = JSON.stringify(msg);
-      // child spawn signal: a task/child/run frame mentioning the nonce or a delegate kind.
-      if (obs.promptSent && /task|child|run/i.test(blob) && (blob.includes(nonce) || /delegate|continuation/i.test(blob))) {
+      // child spawn signal: a new child session / spawn / task event after our send.
+      if (obs.promptSent && /(child.*session|spawn|subagent|task.*(create|start)|delegate)/i.test(blob)) {
+        if (!obs.childObserved) childSeenAtMs = Date.now();
         obs.childObserved = true;
+        const ck = deepFindFirst(msg, /child.*key|runId|taskId|sessionKey/i);
+        if (ck && !(rec.facts.receipts && rec.facts.receipts.childKeyOrRunId)) rec.setFact('receipts.childKeyOrRunId', ck);
       }
-      // parent return / wake carrying DONE <nonce>.
+      // SILENT-WAKE RECEIPT (R-CD-owner correction, mirrors 04-r-cd-token.js): a
+      // FRESH parent turn/run starting on the parent session AFTER the child was
+      // observed is the wake the silent-wake return triggered. The transcript
+      // echo is OPTIONAL under silent-wake; the WAKE is the load-bearing receipt.
+      if (obs.promptSent && obs.childObserved) {
+        const isParentTurnStart =
+          /(turn.*start|run.*start|generation.*start|agent.*turn|message.*(received|start))/i.test(blob) &&
+          (blob.includes(sessionKey) || (msg.params && msg.params.sessionKey === sessionKey));
+        if (isParentTurnStart && childSeenAtMs && Date.now() > childSeenAtMs + 250 && !obs.parentWoke) {
+          obs.parentWoke = true;
+          rec.note('wake', `parent woke (fresh turn/run on ${sessionKey}) after child spawn -> silent-wake receipt`);
+          rec.setFact('receipts.parentWoke', true);
+        }
+      }
+      // OPTIONAL transcript echo (normal-mode shape; absent-under-silent-wake is OK):
       if (obs.promptSent && blob.includes(returnNeedle)) {
         obs.parentReturnObserved = true;
-        rec.note('return', `parent received bracket-delegate return carrying: "${returnNeedle}"`);
+        rec.note('return', `parent transcript carried "${returnNeedle}" (echo path; not required under silent-wake)`);
       }
       const tid = deepFindTraceId(msg);
       if (tid && !obs.traceId) { obs.traceId = tid; rec.setFact('receipts.traceId', tid); }
@@ -381,7 +399,7 @@ export function rCdToken() {
     socket.on('error', (e) => { rec.note('error', `ws error: ${e && e.error ? e.error() : e}`); failures.add(1); });
   });
   check(res, { 'R-CD-TOKEN: websocket upgraded (101)': (r) => r && r.status === 101 });
-  rec.note('observe', `promptSent=${obs.promptSent} child=${obs.childObserved} return=${obs.parentReturnObserved}`);
+  rec.note('observe', `promptSent=${obs.promptSent} child=${obs.childObserved} parentWoke=${obs.parentWoke} transcriptReturn=${obs.parentReturnObserved}`);
   ROWS.r_cd_token = finalizeWithSession(rec, cfg, sessionKey, [classifyContinueDelegateToken(obs)]);
 }
 

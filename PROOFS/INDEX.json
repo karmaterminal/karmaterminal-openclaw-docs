@@ -9,14 +9,14 @@
   "readme_path": "PROOFS/c8149791797eeefec1a7e6479c800bef51cac9f8/README.md",
   "rollup": {
     "total_rows": 28,
-    "pass": 21,
+    "pass": 22,
     "partial": 0,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 7,
+    "honest_limit": 6,
     "missing": 0
   },
-  "disposition_note": "Token-fix #1071 shipped (Gate-5 FF). KEY row R-CW-DELEGATE-TOKEN GREEN (2-seat). 7 HONEST-LIMIT: 6 cael-dgx #552 (bypass-fireable, no drain needed) + 1 R-RC-2 (>70% context-threshold, distinct). Supersedes PROOFS/8cafdcd (06-18) + PROOFS/93ace21341 (pre-token-fix, historical).",
+  "disposition_note": "Token-fix #1071 shipped (Gate-5 FF). KEY row R-CW-DELEGATE-TOKEN GREEN (2-seat). 22 PASS + 6 HONEST-LIMIT. #552 drain blast-radius = ZERO continue_work rows (per-session-key bypass clears the cap-class; R-CW-MULTI proven bypass-able d50eaa7); R-RC-2 context-gated; drain = pure hygiene. Bracket-work = bare-only by-design (no figs-requirement). Supersedes PROOFS/8cafdcd + PROOFS/93ace21341 (historical).",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-06-21",
   "generated_by": "frond-scribe (copilot, off corpus + cohort row-state)"

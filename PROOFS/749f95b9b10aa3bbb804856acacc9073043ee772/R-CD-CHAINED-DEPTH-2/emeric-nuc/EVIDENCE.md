@@ -23,3 +23,29 @@ This matches the R-CW-DELEGATE-CHILD-LIVE pattern (a delegate-child continuation
 
 ## Disposition
 R-CD-CHAINED-DEPTH-2 = ⚠️ HONEST-LIMIT @ `749f95b9b10a`: **depth-1 silent-wake DROVE + dispatched depth-2 ✓; depth-2 grandchild execution NOT confirmed** (dispatched+queued, marker absent). Trace JSON committed.
+
+---
+
+## RESOLUTION 2026-06-21 ~12:40 PDT — ✅ GREEN: depth-2 grandchild EXECUTED-TO-MARKER on a genuinely-quiet beat
+
+**The HONEST-LIMIT above RESOLVES to GREEN — and the honest-limit was CORRECT at the time** (the grandchild genuinely did NOT execute-to-marker on that beat). The resolution explains WHY it didn't then, and DOES now: **in-flight-traffic-queuing on a non-quiet beat, NOT a mechanism block.**
+
+### Cael's discriminator (`1518322171`, byte-confirmed by this re-fire)
+My depth-2 return routes through `targeting.ts` ancestor-keys (up-tree silent-wake **aggregation**), NOT the contended `work-dispatch.ts:240` terminal-drive gate that #1057 busy-skips. So #1057 does NOT touch my depth-2 return. The earlier non-execution was the depth-1+depth-2 markers **queuing behind in-flight traffic** (I fired the first attempt during a busy channel beat). Cael's prescription: fire on a genuinely-quiet beat so the markers actually propagate. **Confirmed.**
+
+### Re-fire on a quiet beat (firsthand byte)
+Fired `continue_delegate(mode="silent-wake")` from emeric-main on a quiet beat (channel settled post-restart-storm, session went silent after dispatch). Depth-1 child → depth-2 grandchild, both silent-wake.
+
+- **Depth-1 marker** (`resolution-depth1-marker.txt`, firsthand-grepped): `R-CD-DEPTH2-DEPTH1-EMERIC-749f95b-DROVE ts=2026-06-21T19:39:51Z` ✅
+- **Depth-2 GRANDCHILD marker** (`resolution-grandchild-marker.txt`, firsthand-grepped): `R-CD-DEPTH2-GRANDCHILD-EMERIC-749f95b-DROVE ts=2026-06-21T19:40:09Z` ✅ — **the grandchild EXECUTED-TO-MARKER** (the file could only be written by the grandchild's own turn running the `echo` command). 18s after the depth-1 marker.
+
+### Trace corroboration (firsthand-pulled + saved)
+- `resolution-trace-parent-faf7ef79.json` (parent chain, 31575 bytes, 26 spans): `continuation.delegate.dispatch` + `continuation.queue.drain`.
+- `resolution-trace-grandchild-8c06fc75.json` (grandchild fire, 19616 bytes, 16 spans): `continuation.delegate.dispatch`.
+
+### The precise verdict (byte-discipline: claim only what's firsthand-proven)
+- **EXECUTION-LEG (the owed leg) = PROVEN ✅:** the depth-2 grandchild executed-to-marker (firsthand file-evidence). This is exactly the leg the honest-limit flagged as owed. It is now paid: **depth-2 chained silent-wake DRIVES the grandchild on a quiet beat.**
+- **The earlier honest-limit was a true finding on a non-quiet beat** (the grandchild genuinely didn't execute-to-marker then — `pendingDescendants:0`, marker absent). NOT scrubbed; explained: the queuing-behind-traffic was the cause, the quiet beat is the cure. Cael's `targeting.ts`-aggregation-≠-#1057-`:240` distinguish is byte-confirmed.
+
+## Disposition (resolved)
+R-CD-CHAINED-DEPTH-2 = **✅ GREEN @ `749f95b9b10a`**: depth-1 silent-wake DROVE + dispatched depth-2 ✓; **depth-2 grandchild EXECUTED-TO-MARKER on a quiet beat ✓** (firsthand markers + traces saved). The honest-limit's owed execution-leg is paid. Cael's hypothesis (in-flight-traffic-queuing, not mechanism block) confirmed. This + 🪨's clean single-hop silent-wake byte-walk seal the silent-wake-MODE leg + the BOTH-forms seal.

@@ -65,3 +65,19 @@ My earlier cael-dgx instances (`93ace2134`, `c8149791`) carry `hop2-EXECUTED.txt
 - `hop1.txt` — depth-1 hop-1 marker
 - `hop2-EXECUTED.txt` — hop-2 execution proof (existence = drove)
 - `trace-f1842029.json` — Tempo trace, full dispatch→drive→execute span path
+
+---
+
+## CONVERGED-MECHANISM CORRECTION (2026-06-21 ~13:11, per 🕯's re-fire byte + flat-key d73594e)
+
+The "emeric-nuc = depth-2 NEGATIVE/seam" framing above (lines re: emeric-nuc negative/seam, case-b downstream) is **SUPERSEDED** by the full cohort reconciliation. Corrected:
+
+**emeric-nuc is a SECOND POSITIVE, not the negative/seam.** 🕯's RE-FIRE DROVE (the depth-2 grandchild executed its marker-turn, `d73594e` GREEN). So emeric-nuc's first-fire (marker-absent, `pendingDescendants:0`) was **(c) check-too-early** (trace pulled before the grandchild completed), NOT a confirmed seam.
+
+**The depth-2 seam DISSOLVES at the key level (flat-key byte, two-seat-confirmed):** the continuation-delegate grandchild key is FLAT single-subagent `agent:main:subagent:continuation-${digest}` (`getSubagentDepth=1`, depth-1-SHAPED), because `deriveContinuationDelegateChildSessionKey` uses `parsed.agentId=main`, NOT the nested parent key. So the depth-2 grandchild is **KEY-IDENTICAL to a depth-1 child** → same clause-2 recognition + `:740` direct-run + `:256` exemption → drives like depth-1. **There is no depth-2-SPECIFIC seam** — at the key/routing level there is no depth-2; it's another depth-1. (🕯 emeric-nuc `d73594e` + cael-dgx R-CD-CHAINED-DEPTH-2-TEST-2 `c172d9c` both confirm the flat grandchild key firsthand.)
+
+**Corrected two-seat picture:** cael-dgx drives (a617fd9b, positive) + emeric-nuc ALSO drives-on-re-fire (second positive) — **both positive, NOT positive+negative-seam.** The #1057 fix is the subagent-`:256`-exemption (`3dd788ce2ce`, ancestor of `749f95b`): a recognized subagent key has `continuationLane !== undefined` → `:256` cannot gate it → drives past busy-main. Confirmed at: depth-1 (a617fd9b), depth-2 (both seats' flat-key grandchildren drive), AND the unit level (`work-dispatch.test.ts`: subagent `dispatched:1` under `mainQueueSize=1` busy-main while main-session `dispatched:0` busy-skips = the paired discriminator).
+
+**The only residual open question** (non-blocking): a busy-conditional, NON-depth-specific drive-pickup gate downstream of both `:740` and `:256` — but it would hit depth-1 equally (keys are identical), so it's not depth-2-specific. The busy-main unit test (`dispatched:1`) shows the subagent drives under busy-main, strongly indicating no such seam. The only non-`:256` gate in `driveContinuationTurn` is `:246` `replyRunRegistry.isActive(work.sessionKey)` (own-session-active), which is a legitimate readiness check, NOT a bug-seam, and keys on the subagent's OWN session not the main lane.
+
+**Net:** R-CW-DELEGATE-CHILD-LIVE = the #1057 fix WORKING (subagent-exempt, drives at any depth), two-seat-positive (cael-dgx + emeric-nuc both drive), no confirmed depth-2 seam. The earlier "execution-leg-is-the-seam" disposition is corrected to "drives — the fix working."

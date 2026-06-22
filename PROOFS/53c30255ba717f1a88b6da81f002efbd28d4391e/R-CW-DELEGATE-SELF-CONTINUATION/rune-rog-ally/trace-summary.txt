@@ -1,0 +1,11 @@
+Trace summary (native rune-rog-ally, service.name=rune-prince):
+- dispatch/self-continuation traceID: 4b4c9049e12483bcc4d34f9db906b0a9
+- dispatch root span: continuation.delegate.dispatch spanId=9cc8fa47044f432b at 2026-06-21T22:55:04.385Z
+- child harness span: openclaw.harness.run spanId=f0e072e716a54952 parent=9cc8fa47044f432b at 2026-06-21T22:55:05.118Z
+- child run span: openclaw.run spanId=b1b7c3130f85b8d9 parent=f0e072e716a54952 at 2026-06-21T22:55:05.119Z
+- self-continue scheduling span: continuation.work spanId=86dca96c2378931d parent=9cc8fa47044f432b at 2026-06-21T22:59:30.096Z
+- self-continue queue drain span: continuation.queue.drain spanId=2b0f53da814654ae parent=9cc8fa47044f432b at 2026-06-21T22:59:33.536Z
+- work-fire traceID: 77f5ef0d3af8536283052580f1b80c90, span continuation.work.fire at 2026-06-21T22:59:55.102Z
+- hop2 run traceID: 826cec06bb97f0b198c32446b9334da7, openclaw.harness.run/openclaw.run spans from 2026-06-21T22:59:55.859Z forward
+- resource attrs for saved Tempo JSONs: host.name=rune, host.arch=amd64, service.name=rune-prince
+- all spans in trace-4b4c9049-after-hop2.json decode to exactly one traceID: 4b4c9049e12483bcc4d34f9db906b0a9

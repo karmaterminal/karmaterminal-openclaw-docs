@@ -1,0 +1,20 @@
+R-RC-2 — request_compaction OVER-THRESHOLD ACCEPT — emeric-nuc — verified firsthand from tool-return @ 749f95b9b10a
+ts=2026-06-21T19:46Z (12:46 PDT)
+
+TOOL-RETURN (request_compaction, verbatim — the dispositive accept-byte, NOT threshold-inferred):
+  status: "compaction_requested"   ← ACCEPTED (a reject would not enqueue compaction)
+  trigger: "volitional"
+  contextUsage: 71                 ← ≥ MIN_CONTEXT_THRESHOLD (0.7) — the REAL byte, read from the return
+  compactionRequestId: "cmp-mqoacr7c-94jE2Q"
+  traceparent: "00-7736f593e33d625f581956d7291ff577-42e7221b848f473e-01"
+  note: "Compaction has been enqueued and will run after your turn completes."
+
+DISPOSITION: ACCEPT at 71% organic context. This is R-RC-2 (over-threshold ACCEPT) — the complement of
+R-RC-1 (reject-at-low-context). The guard ACCEPTED because the firing session was genuinely >=70%
+(session_status-verified at 71%, 713k/1.0m, BEFORE firing). Captured the accept-side of the
+MIN_CONTEXT_THRESHOLD=0.7 gate firsthand.
+
+VERIFY-BEFORE-FIRE NOTE: this fire came ONLY after session_status crossed 70% organically (pulled 7x:
+56->59->61->64->64->64->71%). Earlier greenlights cited a phantom "75/80%" that was NOT this seat's byte;
+firing at <70% would have captured a REJECT mislabeled as ACCEPT. The 71% here is the tool-return's own
+contextUsage field, not an inference.

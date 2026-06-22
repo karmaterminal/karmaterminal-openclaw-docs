@@ -1,0 +1,271 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "sha": "53c30255ba717f1a88b6da81f002efbd28d4391e",
+  "sha_short": "53c3025",
+  "capture_sha": "749f95b9b10aa3bbb804856acacc9073043ee772",
+  "capture_sha_short": "749f95b",
+  "carried_from": "d04ab6c556742b775307d0b41759c51d418dd792",
+  "carried_from_short": "d04ab6c",
+  "build_string": "OpenClaw continuation PR #85651 (ship 53c3025 / capture 749f95b, drift re-absorb #5 = current-upstream, mergeable)",
+  "generated": "2026-06-22",
+  "generated_by": "frond-scribe (copilot, corpus-manager)",
+  "carry_note": "CARRIED CORPUS (continuation surface BYTE-IDENTICAL to prior ship-SHA) + carried live spot-check. Per-row EVIDENCE.md + Tempo traces were captured LIVE at capture-SHA 749f95b9b10 on the 6-seat fleet. Carried via d04ab6c5567 (carry #2 = drift re-absorb #4, the 556-file upstream absorb, live-spot-checked) and now to ship-SHA 53c30255ba7. 53c30255ba7 = drift re-absorb #5: back-merged CURRENT upstream/main 3ff59df960 (+23 commits / 48 files) into d04ab6c5567 to make PR #85651 MERGEABLE (an unmergeable PR means CI never runs and the reviewer only sees \"CI didn't run\"). Basis for this carry: the continuation feature cores are BYTE-IDENTICAL d04ab6c5567 -> 53c30255ba7 (empty-diff: the 23-commit absorb touched only non-continuation files + the plugin-sdk numeric export-budget; resolved take-max, surface-report exit 0). Gate-2.7 frozen-wall at 53c30255ba7: FROZEN-STALE=0. The live spot-check performed at d04ab6c5567 (see spot_check) therefore represents 53c30255ba7 unchanged - the continuation runtime did not move between these two SHAs. Per-row EVIDENCE retains its capture-SHA (749f95b9b10) stamps honestly - NO SHA was rewritten. A full live re-fire was deliberately NOT run (drift-safe; upstream drifts faster than a full proof cycle).",
+  "spot_check": {
+    "performed_at_sha": "d04ab6c556742b775307d0b41759c51d418dd792",
+    "status": "PASS",
+    "what": "A small live subset fired at this SHA to confirm continuation behavior survives the upstream absorb. NOT the full corpus. Verified firsthand in tempo.dandelion.cult + loki.dandelion.cult (NOT via cohort-pasted receipts - two pasted traceparents were placeholders and were rejected).",
+    "fires": [
+      {
+        "behavior": "continue_delegate (silent-wake)",
+        "row_analog": "R-CD-2 / R-CW-DELEGATE-SILENT-WAKE",
+        "seat": "emeric",
+        "result": "DROVE clean",
+        "evidence": "Tempo trace ac72c695116f66e7bbacac8f378962f5: continuation.delegate.dispatch (341ms) -> child openclaw.harness.run (21.5s) -> openclaw.model.call -> openclaw.tool.execution (memory_search). Tags: delegate.mode=silent-wake, delegate.delivery=immediate, chain.id=98c6eec1-0a69-4d5f-884e-8c0c826d4ae1, chain.step.remaining=199. The delegate woke a child agent that ran to tool-execution - the deepest drive path - live at this SHA."
+      },
+      {
+        "behavior": "request_compaction",
+        "row_analog": "R-RC-2 (accept >=70%)",
+        "seat": "elliott",
+        "result": "tool-result PASS",
+        "evidence": "Tool return status=compaction_requested, compactionRequestId=cmp-mqopsx89-pYAlSQ, contextUsage=70%. Trace N/A by design (request_compaction is not trace-instrumented; only continuation is). At this SHA."
+      },
+      {
+        "behavior": "continue_work",
+        "row_analog": "R-CW-1",
+        "seat": "cael + emeric",
+        "result": "machinery ALIVE; self-drive skipped (live-session de-dup)",
+        "evidence": "Real Tempo continuation.work.fire spans (cael c557f846 @04:28, emeric @04:13) + Loki continuation:work-wake hop=1/200 / work-hedge-fired at this SHA. The self-drive showed continuation:work-drive-skipped because the spot-fires landed in a live, already-driving Discord session (the correct de-dup gate), NOT a code break. The clean continue_work self-drive proofs are the carried capture-SHA rows + byte-identical continuation code; the silent-wake delegate DRIVE above exercises the same drive machinery live at this SHA."
+      }
+    ],
+    "machinery": "continuation.queue.drain spans present across all 6 seats at this SHA (verified in Tempo).",
+    "honest_note": "A clean fresh continue_work SELF-drive-to-marker was not captured at this SHA (the spot-fires de-dup-skipped in live sessions); it is covered by the carried capture-SHA proofs + byte-identical code + the live silent-wake delegate drive (which exercises the identical drive machinery). request_compaction + continue_delegate-silent-wake both drove/returned clean LIVE at this SHA.",
+    "carried_to_sha": "53c30255ba717f1a88b6da81f002efbd28d4391e",
+    "carry_basis": "Spot-check fires were LIVE at d04ab6c5567. They represent 53c30255ba7 because the continuation cores are byte-identical between the two (empty-diff) and Gate-2.7 frozen-wall at 53c30255ba7 is FROZEN-STALE=0. Not re-fired at 53c30255ba7."
+  },
+  "method": "Live / API testing across a 6-seat fleet on distinct model/provider backends; real tools fired through the real gateway path. Each row carries journal receipts + a Grafana Tempo distributed trace where applicable. Corpus captured at capture_sha; carried to this ship_sha with a live spot-check (see carry_note + spot_check).",
+  "register_mode_coverage": "continue_delegate register modes all row-backed: normal=R-CD-1 / silent=R-CD-SILENT / silent-wake=R-CD-2 / post-compaction=R-CD-3.",
+  "rollup": {
+    "total_rows": 26,
+    "pass": 25,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 1,
+    "missing": 0
+  },
+  "rows": [
+    {
+      "row": "R-CD-1",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-1/",
+      "state": "pass",
+      "traces": 2,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-1/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CD-2",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-2/",
+      "state": "pass",
+      "traces": 2,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-2/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CD-3",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-3/",
+      "state": "pass",
+      "traces": 4,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-3/ronan-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CD-4",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-4/",
+      "state": "pass",
+      "traces": 2,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-4/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-CHAINED-DEPTH-2/",
+      "state": "pass",
+      "traces": 4,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-CHAINED-DEPTH-2/emeric-nuc/EVIDENCE.md",
+      "notes": "PASS (2-seat): depth-2 chained silent-wake drives end-to-end - depth-1 child DROVE + depth-2 GRANDCHILD executed-to-marker (emeric-nuc GREEN three-instrument + rune-rog-ally second-seat, both firsthand). The earlier first-fire honest-limit was check-too-early (pendingDescendants:0 = grandchild not-yet-registered at fire-instant), NOT a seam; re-fire drove. #1057 correct-as-filed."
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2-TEST-2",
+      "owner": "🪨 rune (rune-rog-ally, sub-for-silas)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-CHAINED-DEPTH-2-TEST-2/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-CHAINED-DEPTH-2-TEST-2/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CD-SILENT",
+      "owner": "frond cohort",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-SILENT/",
+      "state": "pass",
+      "traces": 3,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-SILENT/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-TOKEN/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CD-TOKEN/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CONFIG-DEFAULTS/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CONFIG-DEFAULTS/emeric-nuc/EVIDENCE.md"
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CONFIG-INTERSESSION/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CONFIG-INTERSESSION/emeric-nuc/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-1",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-1/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-1/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-3",
+      "owner": "🩸 cael (cael-dgx) + 🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-3/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-3/emeric-nuc/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-6",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-6/",
+      "state": "honest-limit",
+      "traces": 0,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-6/rune-rog-ally/EVIDENCE.md",
+      "notes": "HONEST-LIMIT: chain-depth-boundary reject at maxChainLength=200 - live-induction at 200 hops is impractical; boundary-as-discipline-floor."
+    },
+    {
+      "row": "R-CW-7",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-7/",
+      "state": "pass",
+      "traces": 3,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-7/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-DELEGATE-CHILD-LIVE/",
+      "state": "pass",
+      "traces": 2,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/EVIDENCE.md",
+      "notes": "PASS on the positive case (recognized-subagent-key passes the :256 gate -> delegate-child continue_work drives hop-2). The #1057 from-child-on-busy-main negative case is a SEVERABLE, NON-BLOCKING residual (work-dispatch.ts:240 wrong-lane gate) filed separately; the capability is shipped + proven."
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-DELEGATE-SELF-CONTINUATION/",
+      "state": "pass",
+      "traces": 5,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-DELEGATE-SILENT-WAKE",
+      "owner": "frond cohort",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-DELEGATE-SILENT-WAKE/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-DELEGATE-SILENT-WAKE/rune-rog-ally/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "owner": "🪨 rune (rune-rog-ally) + 🌊 ronan (ronan-dgx) + 🌫 silas (silas-lothric)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-DELEGATE-TOKEN/",
+      "state": "pass",
+      "traces": 4,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-DELEGATE-TOKEN/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-MULTI",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-MULTI/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-MULTI/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-MULTI-COLLAPSE/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-MULTI-COLLAPSE/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-TOKEN/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-CW-TOKEN/cael-dgx/EVIDENCE.md"
+    },
+    {
+      "row": "R-OBS-1",
+      "owner": "🌻 elliott (elliott-legion)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-OBS-1/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-OBS-1/elliott-seat/EVIDENCE.md"
+    },
+    {
+      "row": "R-OBS-2",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-OBS-2/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-OBS-2/rune-rog-ally/EVIDENCE.md"
+    },
+    {
+      "row": "R-RC-1",
+      "owner": "🌫 silas (silas-lothric)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-RC-1/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-RC-1/EVIDENCE.md",
+      "notes": "request_compaction REJECT at low-context - PASS (guard-identity byte). Trace N/A-by-design (no continuation.work span for a reject)."
+    },
+    {
+      "row": "R-RC-2",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-RC-2/",
+      "state": "pass",
+      "traces": 2,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-RC-2/emeric-nuc/EVIDENCE.md",
+      "notes": "PASS: request_compaction ACCEPT at organic >=70% - 2-seat cross-walk (emeric-nuc 71% + rune-rog-ally 82%); real tool-return status=compaction_requested + contextUsage>=70 (returns own field, not inferred) + Tempo trace. Complement of R-RC-1 (reject = PASS)."
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-REGRESSION-TRAP-TESTS/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/R-REGRESSION-TRAP-TESTS/emeric-nuc/EVIDENCE.md"
+    }
+  ]
+}

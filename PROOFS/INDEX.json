@@ -1,11 +1,11 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "d04ab6c556742b775307d0b41759c51d418dd792",
-  "current_sha_short": "d04ab6c",
-  "build_string": "OpenClaw continuation PR #85651 (d04ab6c)",
-  "corpus_path": "PROOFS/d04ab6c556742b775307d0b41759c51d418dd792/",
-  "manifest_path": "PROOFS/d04ab6c556742b775307d0b41759c51d418dd792/proofs-manifest.json",
+  "current_sha": "53c30255ba717f1a88b6da81f002efbd28d4391e",
+  "current_sha_short": "53c3025",
+  "build_string": "OpenClaw continuation PR #85651 (53c3025)",
+  "corpus_path": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/",
+  "manifest_path": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/proofs-manifest.json",
   "rollup": {
     "total_rows": 26,
     "pass": 25,
@@ -15,7 +15,7 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Continuation PR #85651 proof corpus. 25 PASS + 1 honest-limit, 0 fail, 0 missing. All 4 continue_delegate register-modes row-backed. CARRIED corpus + live spot-check: captured live at 749f95b9b10, carried via b248f2fd2d3 to ship-SHA d04ab6c5567 (drift re-absorb #4 of upstream@190ca52882; 556 files moved; continuation cores byte-identical per Gate-2; execution-path verified; spot-checked live at this SHA - see manifest carry_note + spot_check). NOT a full re-fire. Supersedes PROOFS/b248f2fd2d3.",
+  "disposition_note": "Continuation PR #85651 proof corpus. 25 PASS + 1 honest-limit, 0 fail, 0 missing. All 4 continue_delegate register-modes row-backed. CARRIED corpus + live spot-check: captured live at 749f95b9b10, carried via d04ab6c5567 to ship-SHA 53c30255ba7 (drift re-absorb #5 = current upstream 3ff59df for mergeability; continuation cores BYTE-IDENTICAL d04ab6c5567->53c30255ba7 empty-diff; frozen-wall FROZEN-STALE=0; spot-check live at d04ab6c5567 carries forward). NOT a full re-fire. Supersedes PROOFS/d04ab6c5567.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-06-22",
   "generated_by": "frond-scribe (copilot, corpus-manager)",

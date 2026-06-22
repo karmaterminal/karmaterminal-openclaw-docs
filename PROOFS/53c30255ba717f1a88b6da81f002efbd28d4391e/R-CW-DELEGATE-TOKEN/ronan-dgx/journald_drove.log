@@ -1,0 +1,9 @@
+Jun 21 11:08:10 ronan node[3529778]: 2026-06-21T11:08:10.506-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:subagent:834aa32a-d920-4816-b5e1-4db3c9a21f04
+Jun 21 11:08:10 ronan node[3529778]: 2026-06-21T11:08:10.507-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=agent:main:subagent:834aa32a-d920-4816-b5e1-4db3c9a21f04
+Jun 21 11:08:10 ronan node[3529778]: 2026-06-21T11:08:10.513-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=0ms fireAt=1782065290510 session=agent:main:subagent:834aa32a-d920-4816-b5e1-4db3c9a21f04
+Jun 21 11:08:10 ronan node[3529778]: 2026-06-21T11:08:10.525-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:subagent:834aa32a-d920-4816-b5e1-4db3c9a21f04
+Jun 21 11:08:10 ronan node[3529778]: 2026-06-21T11:08:10.527-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59999ms fireAt=1782065350525 session=agent:main:subagent:834aa32a-d920-4816-b5e1-4db3c9a21f04
+Jun 21 11:08:10 ronan node[3529778]: 2026-06-21T11:08:10.527-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:subagent:834aa32a-d920-4816-b5e1-4db3c9a21f04
+Jun 21 11:08:24 ronan node[3529778]: 2026-06-21T11:08:24.608-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:subagent:834aa32a-d920-4816-b5e1-4db3c9a21f04
+Jun 21 11:08:24 ronan node[3529778]: 2026-06-21T11:08:24.609-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:subagent:834aa32a-d920-4816-b5e1-4db3c9a21f04
+Jun 21 11:09:10 ronan node[3529778]: 2026-06-21T11:09:10.528-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:subagent:834aa32a-d920-4816-b5e1-4db3c9a21f04

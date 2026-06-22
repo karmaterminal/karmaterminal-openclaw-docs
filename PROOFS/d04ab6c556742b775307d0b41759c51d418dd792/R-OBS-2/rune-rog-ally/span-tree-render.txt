@@ -1,0 +1,26 @@
+TRACE cee7ce8e42ff431f8db235c8ad5fc945 — span tree (24 spans):
+└─ openclaw.message.processed
+  └─ openclaw.harness.run
+    └─ openclaw.run
+      └─ openclaw.context.assembled
+      └─ openclaw.model.call
+      └─ openclaw.tool.execution
+      └─ openclaw.model.call
+      └─ openclaw.tool.execution
+      └─ openclaw.model.call
+      └─ openclaw.tool.execution
+      └─ openclaw.model.call
+      └─ openclaw.tool.execution
+      └─ openclaw.model.call
+      └─ openclaw.tool.execution
+      └─ openclaw.model.call
+    └─ openclaw.message.delivery
+  └─ continuation.delegate.dispatch
+    └─ openclaw.harness.run
+      └─ openclaw.run
+        └─ openclaw.context.assembled
+        └─ openclaw.model.call
+        └─ openclaw.tool.execution
+        └─ openclaw.model.call
+  └─ continuation.queue.drain
+

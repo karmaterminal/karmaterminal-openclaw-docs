@@ -1,0 +1,10 @@
+Jun 21 11:06:42 silas taskset[344772]: 2026-06-21T11:06:42.626-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=0 [0]text=true session=agent:main:subagent:2453e0fa-8edc-46b3-9108-01845fb46ec8
+Jun 21 11:06:42 silas taskset[344772]: 2026-06-21T11:06:42.627-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=work delayMs=default session=agent:main:subagent:2453e0fa-8edc-46b3-9108-01845fb46ec8
+Jun 21 11:06:42 silas taskset[344772]: 2026-06-21T11:06:42.627-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=work session=agent:main:subagent:2453e0fa-8edc-46b3-9108-01845fb46ec8
+Jun 21 11:06:42 silas taskset[344772]: 2026-06-21T11:06:42.631-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=14999ms fireAt=1782065217630 session=agent:main:subagent:2453e0fa-8edc-46b3-9108-01845fb46ec8
+Jun 21 11:06:57 silas taskset[344772]: 2026-06-21T11:06:57.634-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:subagent:2453e0fa-8edc-46b3-9108-01845fb46ec8
+Jun 21 11:06:57 silas taskset[344772]: 2026-06-21T11:06:57.637-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59998ms fireAt=1782065277635 session=agent:main:subagent:2453e0fa-8edc-46b3-9108-01845fb46ec8
+Jun 21 11:06:57 silas taskset[344772]: 2026-06-21T11:06:57.638-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:subagent:2453e0fa-8edc-46b3-9108-01845fb46ec8
+Jun 21 11:07:00 silas taskset[344772]: 2026-06-21T11:07:00.082-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:subagent:2453e0fa-8edc-46b3-9108-01845fb46ec8
+Jun 21 11:07:00 silas taskset[344772]: 2026-06-21T11:07:00.083-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:subagent:2453e0fa-8edc-46b3-9108-01845fb46ec8
+Jun 21 11:07:57 silas taskset[344772]: 2026-06-21T11:07:57.639-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:subagent:2453e0fa-8edc-46b3-9108-01845fb46ec8

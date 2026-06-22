@@ -1,0 +1,9 @@
+session_key=agent:main:subagent:0e248108-1b2b-4308-ae3f-76f517346c43
+sessionId=9e2164d3-be2e-4c18-b68f-a9e34c530ef4
+runId=85272307-95fd-4950-8fdf-8770b6bcdcf3
+spawn_dispatch_traceID=4b4c9049e12483bcc4d34f9db906b0a9
+spawn_dispatch_traceparent_root=00-4b4c9049e12483bcc4d34f9db906b0a9-9cc8fa47044f432b-01
+startedAt_epoch_ms=1782082504494
+service.name=rune-prince  host.name=rune  host.arch=amd64
+full_spawn_traceparent=00-4b4c9049e12483bcc4d34f9db906b0a9-9cc8fa47044f432b-01
+continuation_parent_span=openclaw.continuation spanId=b1b7c3130f85b8d9

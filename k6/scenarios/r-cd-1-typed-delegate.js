@@ -4,14 +4,16 @@
  * Fires a continue_delegate tool invocation with mode=normal, waits for
  * task ledger entries, child session, and parent return/completion evidence.
  *
+ * Data-driven: reads row config from manifest at runtime.
+ *
  * References:
  *   - Issue: karmaterminal/karmaterminal-openclaw-docs#103
- *   - Spec: openclaw-bootstrap/.specify/notes/k6-for-proofs-deterministic-elements.md
+ *   - Manifest: k6/manifests/r-cd-1.json
  */
 import ws from 'k6/ws';
 import { check, sleep } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
-import { connectFrame, frame, nonce } from '../lib/gateway-ws.js';
+import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 
 export const options = {
   scenarios: {
@@ -23,12 +25,12 @@ export const options = {
     },
   },
   thresholds: {
-    r_cd_1_failures: ['count==0'],
+    proof_failures: ['count==0'],
     r_cd_1_duration: ['p(95)<90000'],
   },
 };
 
-const failures = new Counter('r_cd_1_failures');
+const failures = new Counter('proof_failures');
 const duration = new Trend('r_cd_1_duration');
 
 export default function () {
@@ -51,25 +53,26 @@ export default function () {
     task_created: false,
     child_session: null,
     parent_return: false,
-    events: [],
+    trace_id: null,
+    redacted_events: [],
   };
 
   const started = Date.now();
 
   const res = ws.connect(url, {}, (socket) => {
-    let connected = false;
-    let toolResponseReceived = false;
+    const tracker = new RequestTracker();
 
     socket.on('open', () => {
       socket.send(connectFrame(token));
 
-      // Wait for connect ack, then fire the delegate
+      // Subscribe to session events after brief connect delay
       socket.setTimeout(() => {
-        // Subscribe to session events first
-        socket.send(frame('sessions.messages.subscribe', { sessionKey }));
+        tracker.send(socket, 'sessions.messages.subscribe', { sessionKey });
+      }, 500);
 
-        // Fire continue_delegate typed tool invocation
-        socket.send(frame('tools.invoke', {
+      // Fire continue_delegate typed tool invocation
+      socket.setTimeout(() => {
+        tracker.send(socket, 'tools.invoke', {
           name: 'continue_delegate',
           sessionKey,
           args: {
@@ -78,18 +81,18 @@ export default function () {
             delaySeconds: 1,
           },
           idempotencyKey: `R-CD-1-${rowNonce}`,
-        }));
+        });
       }, 1000);
 
       // Poll task ledger
       socket.setTimeout(() => {
-        socket.send(frame('tasks.list', { limit: 10 }));
-      }, 5000);
+        tracker.send(socket, 'tasks.list', { limit: 10 });
+      }, 8000);
 
       // Second task poll for child completion
       socket.setTimeout(() => {
-        socket.send(frame('tasks.list', { limit: 10 }));
-      }, 15000);
+        tracker.send(socket, 'tasks.list', { limit: 10 });
+      }, 20000);
 
       // Close after reasonable wait
       socket.setTimeout(() => socket.close(), 60000);
@@ -98,49 +101,61 @@ export default function () {
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
-        evidence.events.push({ ts: Date.now(), msg });
+        const classified = tracker.classify(msg);
 
-        // Track connect acknowledgment
-        if (msg.type === 'res' && msg.method === 'connect') {
-          connected = true;
-        }
+        // Redact before storing
+        evidence.redacted_events.push({
+          ts: Date.now(),
+          kind: classified.kind,
+          method: classified.method || null,
+          event: classified.event || null,
+          ok: classified.ok !== undefined ? classified.ok : null,
+          data: classified.payload ? redactEvent(classified.payload) : null,
+        });
 
-        // Track tool invocation response
-        if (msg.result && msg.id && msg.id.includes && raw.includes('tools.invoke')) {
-          if (msg.ok !== false && msg.result) {
+        // Handle tool invocation response
+        if (classified.kind === 'response' && classified.method === 'tools.invoke') {
+          if (classified.ok && classified.payload) {
             evidence.tool_accepted = true;
-            toolResponseReceived = true;
-            console.log(`✓ tools.invoke accepted for R-CD-1`);
+            // Extract trace ID if present
+            if (classified.payload.traceId) {
+              evidence.trace_id = classified.payload.traceId;
+            }
+            console.log('✓ tools.invoke accepted for R-CD-1');
+          } else if (classified.error) {
+            console.error(`✗ tools.invoke rejected: ${JSON.stringify(classified.error)}`);
+            failures.add(1);
           }
         }
 
-        // Track task ledger for delegate task
-        if (msg.result && msg.result.tasks && Array.isArray(msg.result.tasks)) {
-          for (const task of msg.result.tasks) {
+        // Handle task ledger response
+        if (classified.kind === 'response' && classified.method === 'tasks.list') {
+          const tasks = classified.payload?.tasks || [];
+          for (const task of tasks) {
             if (task.task && task.task.includes && task.task.includes(rowNonce)) {
               evidence.task_created = true;
               evidence.child_session = task.sessionKey || task.childSessionKey || null;
-              console.log(`✓ Task found with nonce correlation`);
+              if (task.traceId) evidence.trace_id = task.traceId;
+              console.log('✓ Task found with nonce correlation');
             }
           }
         }
 
-        // Track session events for delegate return
-        if (msg.type === 'event' && msg.event) {
-          if (msg.event.includes && (
-            msg.event.includes('delegate') ||
-            msg.event.includes('completion') ||
-            msg.event.includes('return')
-          )) {
+        // Handle session events for delegate return
+        if (classified.kind === 'event') {
+          const eventStr = JSON.stringify(classified.data || {});
+          if (eventStr.includes('delegate') || eventStr.includes('completion') || eventStr.includes('return')) {
             evidence.parent_return = true;
-            console.log(`✓ Delegate return/completion event observed`);
+            console.log('✓ Delegate return/completion event observed');
           }
         }
 
-        // Early close if all evidence gathered
-        if (evidence.tool_accepted && evidence.task_created && evidence.parent_return) {
-          console.log('All evidence gathered, closing early');
-          socket.close();
+        // Early close if all required evidence gathered
+        if (evidence.tool_accepted && evidence.task_created) {
+          if (evidence.parent_return) {
+            console.log('All evidence gathered, closing early');
+            socket.close();
+          }
         }
       } catch (e) {
         console.warn(`parse error: ${e}`);

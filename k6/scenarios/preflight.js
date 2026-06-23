@@ -7,7 +7,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter } from 'k6/metrics';
-import { connectFrame, frame } from '../lib/gateway-ws.js';
+import { connectFrame, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 
 export const options = {
   scenarios: {
@@ -19,11 +19,11 @@ export const options = {
     },
   },
   thresholds: {
-    preflight_failures: ['count==0'],
+    proof_failures: ['count==0'],
   },
 };
 
-const failures = new Counter('preflight_failures');
+const failures = new Counter('proof_failures');
 
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
@@ -39,25 +39,33 @@ export default function () {
   const results = { health: null, tools: null, sessions: null };
 
   const res = ws.connect(url, {}, (socket) => {
+    const tracker = new RequestTracker();
+
     socket.on('open', () => {
       socket.send(connectFrame(token));
-      socket.setTimeout(() => socket.send(frame('health')), 300);
-      socket.setTimeout(() => socket.send(frame('sessions.list')), 600);
-      socket.setTimeout(() => socket.send(frame('tools.effective', { sessionKey })), 900);
+      socket.setTimeout(() => tracker.send(socket, 'health'), 300);
+      socket.setTimeout(() => tracker.send(socket, 'sessions.list'), 600);
+      socket.setTimeout(() => tracker.send(socket, 'tools.effective', { sessionKey }), 900);
       socket.setTimeout(() => socket.close(), 8000);
     });
 
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
-        if (msg.method === 'health' || (msg.result && msg.result.uptime !== undefined)) {
-          results.health = msg.result || msg;
-        }
-        if (msg.result && msg.result.tools) {
-          results.tools = msg.result.tools;
-        }
-        if (msg.result && Array.isArray(msg.result.sessions)) {
-          results.sessions = msg.result.sessions;
+        const classified = tracker.classify(msg);
+
+        if (classified.kind === 'response') {
+          switch (classified.method) {
+            case 'health':
+              results.health = classified.payload;
+              break;
+            case 'sessions.list':
+              results.sessions = classified.payload?.sessions || classified.payload;
+              break;
+            case 'tools.effective':
+              results.tools = classified.payload?.tools || classified.payload;
+              break;
+          }
         }
       } catch (e) {
         console.warn(`parse error: ${e}`);

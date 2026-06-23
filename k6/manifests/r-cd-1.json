@@ -1,0 +1,40 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-1",
+  "issue": 103,
+  "candidateSha": "PLACEHOLDER_DEPLOY_SHA",
+  "seat": "ronan-dgx",
+  "sessionKey": "main",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-1-typed-delegate",
+    "description": "Typed continue_delegate() schedule/spawn/return. Fires a delegate with a nonce-only child task, observes task ledger entry and parent return.",
+    "methods": ["tools.invoke", "tasks.list", "sessions.messages.subscribe"]
+  },
+  "expectedReceipts": [
+    { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted the continue_delegate tool invocation" },
+    { "name": "task-ledger-entry", "required": true, "description": "Task created in ledger with nonce correlation" },
+    { "name": "child-session-key", "required": false, "description": "Child session key or run ID from task metadata" },
+    { "name": "parent-return-event", "required": false, "description": "Delegate completion/return event observed on parent session", "pathHint": "gateway-events.ndjson" },
+    { "name": "trace-id", "required": false, "description": "Trace ID from tool response or task metadata for Tempo fetch" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "PLACEHOLDER_DEPLOY_SHA",
+    "row": "R-CD-1",
+    "seat": "ronan-dgx",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Typed tool path. PASS-candidate when tool accepted + task created + nonce correlates."
+  }
+}

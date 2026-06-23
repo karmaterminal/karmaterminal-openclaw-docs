@@ -1,56 +1,83 @@
-# R-CW-6 — chain-depth boundary / cap guard evidence
+# R-CW-6 — low-cap chain-depth cap proof (rune-seat)
 
 **Row:** R-CW-6  
 **Seat:** 🪨 Rune (`rune`, ROG Ally Z1 Extreme)  
 **SHA tested:** `82827d3cbcba92ff6e19863b30615db028c2651c` (`OpenClaw 2026.6.9 (82827d3)`)  
-**Captured:** 2026-06-23 00:12 PDT  
-**Verdict:** ✅ PASS (guard present + live chain accounting observed)
+**Fired:** 2026-06-23 00:24–00:31 PDT  
+**Verdict:** ✅ PASS — cap triggered live after temporarily lowering `maxChainLength` to 1, then settings restored to 200.
 
-## Source/test guard on SHA
+## Safety / config sequence
 
-The source worktree at `/home/figs/flesh_beast_tmp/openclaw` is exactly:
+Per figs's cap-test procedure, Rune did not try to burn a 200-hop chain. Instead:
 
-```text
-82827d3cbcba92ff6e19863b30615db028c2651c
-```
+1. Read current continuation settings: `maxChainLength=200`, `costCapTokens=50000000`, `maxDelegatesPerTurn=500`, `defaultDelayMs=15000`, `minDelayMs=5000`, `maxDelayMs=86400000`, `crossSessionTargeting=enabled`.
+2. Backed up `/home/figs/.openclaw/openclaw.json` to `/home/figs/.openclaw/openclaw.json.rune-rcw6-backup`.
+3. Temporarily set `agents.defaults.continuation.maxChainLength=1`.
+4. Restarted Rune gateway using the governed workflow:
+   - `restart-gateway.yml` run `28009656744`
+   - URL: `https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/28009656744`
+   - conclusion: success
+5. Verified effective runtime reported `chain max 1`.
+6. Ran the cap probe below.
+7. Restored the original config from backup (`maxChainLength=200`).
+8. Restarted Rune gateway again using the governed workflow:
+   - `restart-gateway.yml` run `28009857555`
+   - URL: `https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/28009857555`
+   - conclusion: success
+9. Verified restored config is back to `maxChainLength=200`. Breathed the sigh of relief; low cap is not left live.
 
-The cap guard is present in `src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts`. Its header pins the bounded-continuation invariant:
+Machine-readable artifacts in this directory:
 
-- dispatch checks `currentChainCount < maxChainLength`
-- equality means the delegate is rejected, not dispatched
-- rejection emits a `chain-capped` system event
-- rejection marks the corresponding TaskFlow as `failed`
-- within one dispatch call, the running chain counter increments per successful spawn
+- `low-cap-config-notes.json`
+- `restart-apply-lowcap-run-28009656744.json`
+- `restart-restore-run-28009857555.json`
+- `restored-continuation-config.json`
+- `low-cap-live-journal.log`
 
-The live runtime status reports continuation enabled with chain max 200:
+## Probe shape
 
-```text
-OpenClaw 2026.6.9 (82827d3)
-Continuation: enabled · chain max 200 · fan-out max 500
-```
+Important correction: a non-chain root subagent under `maxChainLength=1` is still allowed to spawn hop `1/1`. The first probe intentionally showed that if the root tries once, the child can run; that is **not** the cap boundary.
 
-## Live chain accounting observed
+Correct cap probe:
 
-The R-CD chained TEST-2 proof in this same corpus executed a bracket delegate chain. Journal bytes show the chain accounting path active:
-
-```text
-[subagent-chain-hop] Spawned chain delegate (1/200) from agent:main:subagent:3bae706b-9a4b-47ea-8426-3d6afc9de488: taskName=r_cd_chained_test2_depth2_proof...
-[subagent-chain-hop] Accumulated 23849 tokens from agent:main:subagent:d69b7d49-b40d-4b85-99b5-3ed5dd5bb747 to parent chain cost
-```
-
-This does not intentionally burn the fleet into a 200-hop cap. Instead it verifies the active runtime is using the same chain-hop accounting path whose cap/reject branch is pinned by the source test. That matches the prior row discipline: the reject guard is a source/test-gated safety boundary; live proof shows the accounting path in use.
-
-## Targeted local gate
-
-A low-memory targeted Vitest run on rune-seat completed green for continuation tool boundary coverage:
+1. Root subagent `ce331778-bbe9-41d8-87d6-3bca14779dd8` emitted a bracket delegate under low cap:
 
 ```text
-Test Files: 2 passed
-Tests: 8 passed
+R-CW-6 LOW-CAP ROOT emitting chain-hop child under maxChainLength=1
+[[CONTINUE_DELEGATE: R-CW-6 LOW-CAP DEPTH-1 ACTIVE; you are a chain-hop child under maxChainLength=1. Your ONLY job is to attempt one more bracket delegate, which should be capped/rejected. Final answer must be exactly a CONTINUE_DELEGATE bracket for task "R-CW-6 LOW-CAP DEPTH-2 SHOULD-NOT-RUN; if you run, return CAP-FAIL-DEPTH2-RAN" and no text after it]]
 ```
 
-The exact chain-depth exhaustion test was also started with single-worker/forks, but rune-seat is resource-constrained; this evidence therefore claims the row at source/test-presence + live chain-accounting scope, not an expensive live cap-exhaustion burn.
+2. Runtime spawned the first chain child at the cap edge:
+
+```text
+[subagent-chain-hop] Spawned chain delegate (1/1) from agent:main:subagent:ce331778-bbe9-41d8-87d6-3bca14779dd8: R-CW-6 LOW-CAP DEPTH-1 ACTIVE; you are a chain-hop child under maxChainLength=1.
+```
+
+3. The chain child `df582f1e-5753-489c-9f37-c5569dac4c85` emitted a second bracket delegate:
+
+```text
+[[CONTINUE_DELEGATE: R-CW-6 LOW-CAP DEPTH-2 SHOULD-NOT-RUN; if you run, return CAP-FAIL-DEPTH2-RAN]]
+```
+
+4. Runtime rejected that second hop:
+
+```text
+[subagent-chain-hop] Chain length 2 > 1, rejecting hop from agent:main:subagent:df582f1e-5753-489c-9f37-c5569dac4c85
+```
+
+No `CAP-FAIL-DEPTH2-RAN` child result appeared in the corrected probe window.
+
+## Full journal excerpt
+
+See `low-cap-live-journal.log`. The dispositive lines are:
+
+```text
+[continuation/signal] bracket-parse: kind=delegate delayMs=default session=agent:main:subagent:ce331778-bbe9-41d8-87d6-3bca14779dd8
+[subagent-chain-hop] Spawned chain delegate (1/1) from agent:main:subagent:ce331778-bbe9-41d8-87d6-3bca14779dd8: R-CW-6 LOW-CAP DEPTH-1 ACTIVE...
+[continuation/signal] bracket-parse: kind=delegate delayMs=default session=agent:main:subagent:df582f1e-5753-489c-9f37-c5569dac4c85
+[subagent-chain-hop] Chain length 2 > 1, rejecting hop from agent:main:subagent:df582f1e-5753-489c-9f37-c5569dac4c85
+```
 
 ## Verdict
 
-✅ PASS (honest scope): on `82827d3cbc`, the chain-depth cap guard is present/pinned in source tests, the live runtime reports chain max 200, and the chain-hop accounting path executed live during R-CD-CHAINED-DEPTH-2 TEST-2. No 200-hop cap-exhaustion burn was performed.
+✅ PASS: with `maxChainLength=1` effective, a first chain hop (`1/1`) was allowed, and the child’s attempt to spawn the next hop was rejected with `Chain length 2 > 1`. Original settings were restored and gateway restarted successfully afterward.

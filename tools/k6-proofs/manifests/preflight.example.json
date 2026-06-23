@@ -1,0 +1,59 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "preflight",
+  "issue": 100,
+  "candidateSha": "82827d3cbcba92ff6e19863b30615db028c2651c",
+  "seat": "emeric-nuc",
+  "sessionKey": "${OPENCLAW_SESSION_KEY}",
+  "transport": "offline",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 30,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "preflight inventory",
+    "description": "Authenticate/read-only gateway inventory: health/status, sessions.list, tools.effective. Offline mode validates manifest shape without gateway traffic.",
+    "methods": ["health", "status", "sessions.list", "tools.effective"]
+  },
+  "expectedReceipts": [
+    {
+      "name": "manifest-loaded",
+      "required": true,
+      "pathHint": "row-manifest.json",
+      "description": "The exact row manifest used for the k6 run."
+    },
+    {
+      "name": "k6-summary",
+      "required": true,
+      "pathHint": "k6-summary.json",
+      "description": "Raw k6 summary/export for the run."
+    },
+    {
+      "name": "tool-inventory",
+      "required": false,
+      "pathHint": "artifacts/tool-inventory.json",
+      "description": "Live preflight only: tools.effective inventory for the target session."
+    },
+    {
+      "name": "session-inventory",
+      "required": false,
+      "pathHint": "artifacts/session-inventory.json",
+      "description": "Live preflight only: sessions.list/session resolution receipt."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "82827d3cbcba92ff6e19863b30615db028c2651c",
+    "row": "preflight",
+    "seat": "emeric-nuc",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Preflight is non-mutating and should never write a final proof verdict by itself."
+  }
+}

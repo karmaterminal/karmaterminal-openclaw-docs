@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/tools/k6-proofs/row-manifest.schema.json",
+  "title": "OpenClaw k6 PROOFS row manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "rowId",
+    "candidateSha",
+    "seat",
+    "sessionKey",
+    "transport",
+    "toolSurface",
+    "mutates",
+    "timeoutSeconds",
+    "expectedReceipts",
+    "artifactDestination",
+    "review"
+  ],
+  "properties": {
+    "schema": { "const": "openclaw.k6.proof-row-manifest.v1" },
+    "rowId": { "type": "string", "minLength": 1 },
+    "issue": { "type": "integer", "minimum": 1 },
+    "candidateSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "seat": { "type": "string", "minLength": 1 },
+    "sessionKey": { "type": "string", "minLength": 1 },
+    "transport": { "enum": ["websocket", "http-tools-invoke", "offline"] },
+    "toolSurface": { "enum": ["typed-tool", "token", "bracket-token", "read-only", "mixed"] },
+    "mutates": { "type": "boolean" },
+    "timeoutSeconds": { "type": "integer", "minimum": 1 },
+    "gateway": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "wsEnv": { "type": "string", "default": "OPENCLAW_GATEWAY_WS" },
+        "tokenEnv": { "type": "string", "default": "OPENCLAW_GATEWAY_TOKEN" }
+      }
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "methods": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "expectedReceipts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "required"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "required": { "type": "boolean" },
+          "pathHint": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "artifactDestination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "sha", "row", "seat", "runDirPrefix"],
+      "properties": {
+        "root": { "type": "string", "default": "PROOFS" },
+        "sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "row": { "type": "string", "minLength": 1 },
+        "seat": { "type": "string", "minLength": 1 },
+        "runDirPrefix": { "type": "string", "default": "k6-run" }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidateOnly", "foldRequiresReview"],
+      "properties": {
+        "candidateOnly": { "type": "boolean", "const": true },
+        "foldRequiresReview": { "type": "boolean", "const": true },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

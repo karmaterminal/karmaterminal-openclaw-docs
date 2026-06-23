@@ -66,9 +66,15 @@ export default function () {
             case 'sessions.list':
               results.sessions = classified.payload?.sessions || classified.payload;
               break;
-            case 'tools.effective':
-              results.tools = classified.payload?.tools || classified.payload;
+            case 'tools.effective': {
+              // Response shape: { agentId, profile, groups: [{ tools: [{ id, ... }] }] }
+              const groups = classified.payload?.groups || [];
+              const allTools = Array.isArray(groups)
+                ? groups.flatMap((g) => g.tools || [])
+                : [];
+              results.tools = allTools;
               break;
+            }
           }
         }
       } catch (e) {
@@ -85,14 +91,13 @@ export default function () {
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
 
   // Verify expected tools are visible
-  if (results.tools) {
-    const toolNames = Array.isArray(results.tools)
-      ? results.tools.map((t) => t.name || t)
-      : Object.keys(results.tools);
+  if (results.tools && results.tools.length > 0) {
+    // Tools use 'id' field, not 'name'
+    const toolIds = results.tools.map((t) => t.id || t.name || t);
 
-    const hasCW = toolNames.includes('continue_work');
-    const hasCD = toolNames.includes('continue_delegate');
-    const hasRC = toolNames.includes('request_compaction');
+    const hasCW = toolIds.includes('continue_work');
+    const hasCD = toolIds.includes('continue_delegate');
+    const hasRC = toolIds.includes('request_compaction');
 
     check(null, {
       'continue_work visible': () => hasCW,
@@ -101,8 +106,10 @@ export default function () {
     });
 
     if (!hasCW || !hasCD) {
-      console.error(`Missing expected tools. Found: ${toolNames.join(', ')}`);
+      console.error(`Missing expected tools. Found ${toolIds.length} tools total.`);
       failures.add(1);
+    } else {
+      console.log(`Tools inventory: ${toolIds.length} tools, continuation tools present.`);
     }
   } else {
     console.error('No tools response received');

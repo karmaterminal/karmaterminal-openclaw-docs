@@ -31,10 +31,10 @@ export function connectFrame(token) {
     minProtocol: 3,
     maxProtocol: 4,
     client: {
-      id: 'k6-proof-harness',
+      id: __ENV.HARNESS_CLIENT_ID || 'gateway-client',
       version: '0.2.0',
       platform: 'linux',
-      mode: 'operator',
+      mode: __ENV.HARNESS_CLIENT_MODE || 'backend',
     },
     role: 'operator',
     scopes: ['operator.read', 'operator.write'],

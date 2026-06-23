@@ -1,0 +1,17 @@
+2026-06-23T00:17:44-07:00
+openclaw_version:
+OpenClaw 2026.6.9 (82827d3)
+service show:
+MainPID=809404
+ExecStart={ path=/home/figs/.nvm/versions/node/v25.9.0/bin/node ; argv[]=/home/figs/.nvm/versions/node/v25.9.0/bin/node /home/figs/flesh_beast_tmp/openclaw/dist/index.js gateway --port 18789 ; ignore_errors=no ; start_time=[Tue 2026-06-23 00:06:21 PDT] ; stop_time=[n/a] ; pid=809404 ; code=(null) ; status=0/0 }
+FragmentPath=/home/figs/.config/systemd/user/openclaw-gateway.service
+InvocationID=2d2fc0ded6564ca9adf78d37075d80c0
+process:
+    PID                  STARTED CMD
+ 809404 Tue Jun 23 00:06:21 2026 /home/figs/.nvm/versions/node/v25.9.0/bin/node /home/figs/flesh_beast_tmp/openclaw/dist/index.js gateway --port 18789
+runtime cmdline:
+/home/figs/.nvm/versions/node/v25.9.0/bin/node /home/figs/flesh_beast_tmp/openclaw/dist/index.js gateway --port 18789 
+runtime source git:
+82827d3cbcba92ff6e19863b30615db028c2651c
+docs git:
+5709a6dacb5872d56a7826b0576b134dbf6b0e21

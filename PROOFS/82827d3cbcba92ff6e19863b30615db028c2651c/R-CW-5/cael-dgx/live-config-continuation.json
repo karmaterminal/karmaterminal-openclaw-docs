@@ -1,0 +1,16 @@
+{
+  "agents.defaults.continuation": {
+    "enabled": true,
+    "defaultDelayMs": 15000,
+    "minDelayMs": 5000,
+    "maxDelayMs": 86400000,
+    "maxChainLength": 200,
+    "costCapTokens": 500000,
+    "maxDelegatesPerTurn": 500,
+    "crossSessionTargeting": "enabled",
+    "contextPressureThreshold": 0.4,
+    "earlyWarningBand": 0.3125
+  },
+  "source": "gateway config.get agents.defaults.continuation",
+  "capturedAt": "2026-06-23T07:17:44.192267+00:00"
+}

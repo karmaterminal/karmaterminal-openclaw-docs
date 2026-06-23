@@ -1,0 +1,21 @@
+### scheduler.ts cost cap
+23:}): "chain-capped" | "cost-capped" | null {
+34:  if (config.costCapTokens > 0 && chainState.accumulatedChainTokens > config.costCapTokens) {
+36:      `[continuation] Chain cost ${chainState.accumulatedChainTokens}/${config.costCapTokens} — capped for session ${sessionKey}`,
+38:    return "cost-capped";
+### work-dispatch.ts caps
+550:      `[continuation:work-rejected] ${budgetCheck} for ${params.sessionKey}: ${params.chainState.currentChainCount}/${params.config.maxChainLength}`,
+561:  // flow — so a serial chain at maxPendingWork:1 can still schedule its own
+564:  if (pending >= params.config.maxPendingWork) {
+566:      `[continuation:work-rejected] pending-capped for ${params.sessionKey}: ${pending}/${params.config.maxPendingWork}`,
+### delegate-dispatch.ts caps
+275:      `[continuation:delegate-rejected] maxDelegatesPerTurn=${maxDelegatesPerTurn} task=${dropped.task.slice(0, 80)} session=${sessionKey}`,
+300:        `[continuation:delegate-rejected] policy.cross_session_targeting task=${delegate.task.slice(0, 80)} session=${sessionKey}`,
+334:        `[continuation:delegate-rejected] ${budgetCheck} task=${delegate.task.slice(0, 80)} session=${sessionKey}`,
+658:          : `cost cap exceeded (${accumulatedChainTokens} > ${config.costCapTokens})`;
+### agent-runner bracket cap
+2767:        costCapTokens,
+2779:          `[continuation] Bracket continuation rejected: chain length ${maxChainLength} reached.`,
+2814:        if (costCapTokens > 0 && accumulatedChainTokens > costCapTokens) {
+2816:            `Continuation cost cap exceeded (${accumulatedChainTokens} > ${costCapTokens}) for session ${sessionKey}`,
+2819:            `[continuation] Bracket continuation rejected: cost cap exceeded (${accumulatedChainTokens} > ${costCapTokens}).`,

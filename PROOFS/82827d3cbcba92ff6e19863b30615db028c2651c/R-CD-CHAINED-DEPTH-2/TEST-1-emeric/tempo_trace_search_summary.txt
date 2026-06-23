@@ -1,0 +1,80 @@
+TRACE eabf279ce9755c96c491a18efef899a6
+  openclaw.tool.execution | cael-prince | continue_work | continue_work
+  openclaw.tool.execution | cael-prince | continue_work | continue_work
+  openclaw.tool.execution | cael-prince | continue_work | continue_work
+  openclaw.tool.execution | cael-prince | continue_work | continue_work
+  openclaw.tool.execution | cael-prince | continue_work | continue_work
+TRACE dabb801809a813e04c5ed53e0872909b
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_work | continue_work
+  continuation.work | ronan-prince |  | Fire R-CD-TOKEN bracket-form proof (raw-terminal-final-text, no message-tool cal
+  continuation.delegate.dispatch | ronan-prince |  | PROOFS ROW R-CD-CHAINED-DEPTH-2 Chain-3: You are a depth-1 delegate spawned from
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_work | continue_work
+  continuation.work | ronan-prince |  | Fire R-CD-TOKEN bracket-form on a clean turn (no tool calls, just the bracket as
+TRACE cd24ee24d2d6732c2ba12dbc5128e7f1
+  openclaw.tool.execution | rune-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | rune-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | rune-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | rune-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | rune-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | rune-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | rune-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | rune-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | rune-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | rune-prince | continue_work | continue_work
+  openclaw.tool.execution | rune-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | rune-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | rune-prince | continue_work | continue_work
+  openclaw.tool.execution | rune-prince | continue_work | continue_work
+TRACE c2c3615e2e081101be9d8ea4e86120f1
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_work | continue_work
+  continuation.work | ronan-prince |  | Wait for R-CD-1/2/3 delegate returns + Chain-1/2/3 depth-1 returns to land, then
+  continuation.delegate.dispatch | ronan-prince |  | PROOFS ROW R-CD-1: continue_delegate tool-form, mode=normal. You are a proof-row
+  continuation.delegate.dispatch | ronan-prince |  | PROOFS ROW R-CD-2: continue_delegate tool-form, mode=silent. You are a proof-row
+  continuation.delegate.dispatch | ronan-prince |  | PROOFS ROW R-CD-3: continue_delegate tool-form, mode=silent-wake. You are a proo
+  continuation.delegate.dispatch | ronan-prince |  | PROOFS ROW R-CD-CHAINED-DEPTH-2 Chain-1: You are a depth-1 delegate spawned from
+  continuation.delegate.dispatch | ronan-prince |  | PROOFS ROW R-CD-CHAINED-DEPTH-2 Chain-2: You are a depth-1 delegate spawned from
+  continuation.delegate.dispatch | ronan-prince |  | PROOFS ROW R-CD-CHAINED-DEPTH-2 Chain-3: You are a depth-1 delegate spawned from
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | ronan-prince | continue_delegate | continue_delegate
+TRACE b6b71ccffa811a1656b0fba6f64f352c
+  openclaw.tool.execution | fifth-prince | continue_work | continue_work
+  openclaw.tool.execution | fifth-prince | continue_work | continue_work
+  openclaw.tool.execution | fifth-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | fifth-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | fifth-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | fifth-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | fifth-prince | continue_work | continue_work
+TRACE a3190461b8f2adf50952527d670245f5
+  openclaw.tool.execution | fifth-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | fifth-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | fifth-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | fifth-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | fifth-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | fifth-prince | continue_delegate | continue_delegate
+  openclaw.tool.execution | fifth-prince | continue_delegate | continue_delegate
+TRACE 1fa2992f6d832c01cd81717fe4ff6089
+  openclaw.tool.execution | cael-prince | continue_work | continue_work
+  openclaw.tool.execution | cael-prince | continue_work | continue_work
+  openclaw.tool.execution | cael-prince | continue_work | continue_work
+  openclaw.tool.execution | cael-prince | continue_work | continue_work
+  openclaw.tool.execution | cael-prince | continue_work | continue_work

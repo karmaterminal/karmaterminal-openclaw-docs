@@ -1,0 +1,201 @@
+## continuation config references
+src/agents/cli-runner/helpers.ts:198:    continuationEnabled: params.config?.agents?.defaults?.continuation?.enabled === true,
+src/agents/command/attempt-execution.request-compaction-opts.test.ts:5: * to `runEmbeddedAgent` whenever continuation is enabled. Without this wiring,
+src/agents/command/attempt-execution.request-compaction-opts.test.ts:100:        continuation: {
+src/agents/command/attempt-execution.request-compaction-opts.test.ts:102:          maxChainLength: 200,
+src/agents/command/attempt-execution.request-compaction-opts.test.ts:106:          costCapTokens: 50000000,
+src/agents/command/attempt-execution.request-compaction-opts.test.ts:180:  it("forwards requestCompactionOpts to runEmbeddedAgent when continuation.enabled=true (spawn-init / turn-1)", async () => {
+src/agents/command/attempt-execution.request-compaction-opts.test.ts:195:    // subagent's turn-1 tool list even though continuation is enabled.
+src/agents/command/attempt-execution.request-compaction-opts.test.ts:202:  it("does NOT forward requestCompactionOpts when continuation is disabled", async () => {
+src/agents/command/attempt-execution.request-compaction-opts.test.ts:294:// Together these prevent one continuation tool from being wired while its
+src/agents/command/attempt-execution.request-compaction-opts.test.ts:296:describe("spawn-init continuation tool plumbing parity", () => {
+src/agents/command/attempt-execution.request-compaction-opts.test.ts:297:  it("documents both sibling spawn-init continuation tool sites (sentinel only)", () => {
+src/agents/command/attempt-execution.continue-work-opts.test.ts:7: * `runEmbeddedAgent` whenever `cfg.agents.defaults.continuation.enabled === true`.
+src/agents/command/attempt-execution.continue-work-opts.test.ts:99:        continuation: {
+src/agents/command/attempt-execution.continue-work-opts.test.ts:101:          maxChainLength: 200,
+src/agents/command/attempt-execution.continue-work-opts.test.ts:105:          costCapTokens: 50000000,
+src/agents/command/attempt-execution.continue-work-opts.test.ts:121:// Continuation enabled but pinned at the chain cap (maxChainLength:1): a session
+src/agents/command/attempt-execution.continue-work-opts.test.ts:128:        continuation: {
+src/agents/command/attempt-execution.continue-work-opts.test.ts:130:          maxChainLength: 1,
+src/agents/command/attempt-execution.continue-work-opts.test.ts:134:          costCapTokens: 50000000,
+src/agents/command/attempt-execution.continue-work-opts.test.ts:151:      await import("../../auto-reply/continuation/work-dispatch.js");
+src/agents/command/attempt-execution.continue-work-opts.test.ts:173:      await import("../../auto-reply/continuation/work-dispatch.js");
+src/agents/command/attempt-execution.continue-work-opts.test.ts:216:  it("forwards continueWorkOpts to runEmbeddedAgent when continuation.enabled=true (spawn-init / turn-1)", async () => {
+src/agents/command/attempt-execution.continue-work-opts.test.ts:230:  it("does NOT forward continueWorkOpts when continuation is disabled", async () => {
+src/agents/command/attempt-execution.continue-work-opts.test.ts:264:    expect(sessionStore[sessionKey]?.continuationChainCount).toBe(1);
+src/agents/command/attempt-execution.continue-work-opts.test.ts:265:    expect(persisted[sessionKey]?.continuationChainCount).toBe(1);
+src/agents/command/attempt-execution.continue-work-opts.test.ts:266:    expect(persisted[sessionKey]?.continuationChainTokens).toBe(2);
+src/agents/command/attempt-execution.continue-work-opts.test.ts:299:    expect(sessionStore[sessionKey]?.continuationChainCount).toBe(3);
+src/agents/command/attempt-execution.continue-work-opts.test.ts:338:    expect(sessionStore[sessionKey]?.continuationChainCount).toBe(3);
+src/agents/command/attempt-execution.continue-work-opts.test.ts:350:    sessionEntry.continuationChainCount = 1;
+src/agents/command/attempt-execution.continue-work-opts.test.ts:354:    // The continuation budget reads the live runtime-config snapshot (see
+src/agents/command/attempt-execution.continue-work-opts.test.ts:381:    expect(sessionStore[sessionKey]?.continuationChainCount).toBe(1);
+src/agents/command/attempt-execution.continue-work-opts.test.ts:388:    sessionEntry.continuationChainCount = 1;
+src/agents/command/attempt-execution.continue-work-opts.test.ts:464:      kind: "continuation_work",
+src/agents/command/attempt-execution.continue-work-opts.test.ts:494:    expect(sessionStore[sessionKey]?.continuationChainCount).toBe(1);
+src/agents/command/attempt-execution.continue-work-opts.test.ts:523:    expect(flow?.stateJson).toMatchObject({ kind: "continuation_work" });
+src/agents/command/attempt-execution.continue-work-opts.test.ts:552:    // existing continuation-state test suite), only on the wiring invariant.
+src/agents/command/attempt-execution.continue-work-token.test.ts:7: * run-result payloads, arms a durable `continuation_work` wake for the
+src/agents/command/attempt-execution.continue-work-token.test.ts:9: * same session via `getReplyFromConfig` with `continuationTrigger:"work-wake"`.
+src/agents/command/attempt-execution.continue-work-token.test.ts:72:describe("#952 subagent CONTINUE_WORK token self-continuation (token-form parity)", () => {
+src/agents/command/attempt-execution.continue-work-token.test.ts:83:          continuation: {
+src/agents/command/attempt-execution.continue-work-token.test.ts:85:            maxChainLength: 200,
+src/agents/command/attempt-execution.continue-work-token.test.ts:90:            costCapTokens: 50_000_000,
+src/agents/command/attempt-execution.continue-work-token.test.ts:92:            maxPendingWork: 10,
+src/agents/command/attempt-execution.continue-work-token.test.ts:110:      await import("../../auto-reply/continuation/work-dispatch.js");
+src/agents/command/attempt-execution.continue-work-token.test.ts:171:    expect((optsArg as { continuationTrigger?: string }).continuationTrigger).toBe("work-wake");
+src/agents/command/attempt-execution.ts:767:  // --- continuation: spawn-init / turn-1 continueWorkOpts plumbing ---
+src/agents/command/attempt-execution.ts:774:  const continuationEnabled = params.cfg?.agents?.defaults?.continuation?.enabled === true;
+src/agents/command/attempt-execution.ts:778:  const continueWorkOpts = continuationEnabled
+src/agents/command/attempt-execution.ts:786:  // --- continuation: spawn-init / turn-1 requestCompactionOpts plumbing ---
+src/agents/command/attempt-execution.ts:791:  const requestCompactionOpts = continuationEnabled
+src/agents/command/attempt-execution.ts:984:  if (continuationEnabled && params.sessionKey) {
+src/agents/command/attempt-execution.ts:987:        import("../../auto-reply/continuation/signal.js"),
+src/agents/command/attempt-execution.ts:990:      const continuationPayloads = embeddedRunResult.payloads ?? [];
+src/agents/command/attempt-execution.ts:993:        payloads: continuationPayloads.map((payload) => ({ ...payload })),
+src/agents/command/attempt-execution.ts:1016:          for (let i = continuationPayloads.length - 1; i >= 0; i--) {
+src/agents/command/attempt-execution.ts:1017:            const payload = continuationPayloads[i];
+src/agents/command/attempt-execution.ts:1071:    import("../../auto-reply/continuation/config.js"),
+src/agents/command/attempt-execution.ts:1072:    import("../../auto-reply/continuation/state.js"),
+src/agents/command/attempt-execution.ts:1073:    import("../../auto-reply/continuation/lazy.runtime.js"),
+src/agents/command/attempt-execution.ts:1077:  const continuationConfig = resolveLiveContinuationRuntimeConfig(params.cfg);
+src/agents/command/attempt-execution.ts:1086:      delaySeconds: request.delaySeconds ?? continuationConfig.defaultDelayMs / 1000,
+src/agents/command/attempt-execution.ts:1089:    config: continuationConfig,
+src/agents/command/attempt-execution.ts:1112:      `[continuation] ${result.cappedCount} of ${params.requests.length} continue_work elections were not scheduled (chain/cost/pending cap).`,
+src/agents/command/attempt-execution.ts:1134:        continuationChainCount: result.chainState.currentChainCount,
+src/agents/command/attempt-execution.ts:1135:        continuationChainStartedAt: result.chainState.chainStartedAt,
+src/agents/command/attempt-execution.ts:1136:        continuationChainTokens: result.chainState.accumulatedChainTokens,
+src/agents/command/attempt-execution.ts:1137:        ...(result.chainState.chainId ? { continuationChainId: result.chainState.chainId } : {}),
+src/agents/command/types.ts:121:  continuationTrigger?: ContinuationTrigger;
+src/agents/command/types.ts:122:  /** When true, the run drains the pending continuation delegate queue after completion. */
+src/agents/command/types.ts:124:  /** Inherited continuation trace context for this run. */
+src/agents/tools/continuation-inventory-opts.test.ts:2:import { buildInventoryContinuationToolOpts } from "./continuation-inventory-opts.js";
+src/agents/tools/continuation-inventory-opts.test.ts:5:  it("returns no opts when continuation is disabled", () => {
+src/agents/tools/continuation-inventory-opts.ts:4: * Stub continuation-tool callbacks for inventory/catalog build paths
+src/agents/tools/continuation-inventory-opts.ts:9: * request_compaction so the catalog reflects the full continuation surface
+src/agents/tools/continuation-inventory-opts.ts:14: * continuation tools are dead tools that error when invoked). So:
+src/agents/tools/continuation-inventory-opts.ts:20:export function buildInventoryContinuationToolOpts(continuationEnabled: boolean): {
+src/agents/tools/continuation-inventory-opts.ts:28:  if (!continuationEnabled) {
+src/agents/tools/continuation-inventory-opts.ts:35:          "continue_work is not available in this catalog/inventory context (no continuation runner).",
+src/agents/tools/continuation-tools-registration.test.ts:9:describe("continuation tool registration", { timeout: 240000 }, () => {
+src/agents/tools/continuation-tools-registration.test.ts:14:        continuation: {
+src/agents/tools/continuation-tools-registration.test.ts:21:  it("exposes continue_delegate on normal turns when continuation is enabled", () => {
+src/agents/tools/continuation-tools-registration.test.ts:47:  it("description documents the five continuation return targeting modes", () => {
+src/agents/tools/continuation-tools-registration.test.ts:64:  it("hides continue_delegate when continuation is disabled", () => {
+src/agents/tools/continuation-tools-registration.test.ts:68:        agents: { defaults: { continuation: { enabled: false } } },
+src/agents/tools/continuation-tools-registration.test.ts:76:  it("exposes continue_work when continuation is enabled and the runner wires it", () => {
+src/agents/tools/continuation-tools-registration.test.ts:145:  // `src/auto-reply/continuation/types.mode-shape.test.ts` and asserts
+src/agents/tools/continuation-tools-registration.test.ts:259:  // three-state matrix (continuation enabled + opts present, continuation
+src/agents/tools/continuation-tools-registration.test.ts:270:    it("exposes request_compaction when continuation enabled AND requestCompactionOpts wired", () => {
+src/agents/tools/continuation-tools-registration.test.ts:279:    it("hides request_compaction when continuation disabled (regardless of opts)", () => {
+src/agents/tools/continuation-tools-registration.test.ts:283:          agents: { defaults: { continuation: { enabled: false } } },
+src/agents/tools/continuation-tools-registration.test.ts:291:    it("hides request_compaction when continuation enabled but opts omitted", () => {
+src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts:6:} from "../../auto-reply/continuation-delegate-store.js";
+src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts:7:import { getContinuationDelegateQueueDepths } from "../../auto-reply/continuation/delegate-store.js";
+src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts:17:function continuationConfig(crossSessionTargeting: "disabled" | "enabled"): OpenClawConfig {
+src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts:21:        continuation: {
+src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts:35:  setRuntimeConfigSnapshot(continuationConfig(params.crossSessionTargeting));
+src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts:73:    ).rejects.toThrow("cross-session continuation targeting is disabled");
+src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts:83:    ).rejects.toThrow("cross-session continuation targeting is disabled");
+src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts:104:    ).rejects.toThrow("cross-session continuation targeting is disabled");
+src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts:177:    expect(error.message).not.toContain("cross-session continuation targeting is disabled");
+src/agents/tools/continue-delegate-tool.test.ts:6:} from "../../auto-reply/continuation-delegate-store.js";
+src/agents/tools/continue-delegate-tool.test.ts:52:      agents: { defaults: { continuation: { maxDelegatesPerTurn: 5 } } },
+src/agents/tools/continue-delegate-tool.test.ts:58:      agents: { defaults: { continuation: { maxDelegatesPerTurn: 10 } } },
+src/agents/tools/continue-delegate-tool.test.ts:81:      agents: { defaults: { continuation: { maxDelegatesPerTurn: 10 } } },
+src/agents/tools/continue-delegate-tool.test.ts:92:      agents: { defaults: { continuation: { maxDelegatesPerTurn: 5 } } },
+src/agents/tools/continue-delegate-tool.test.ts:132:      agents: { defaults: { continuation: { maxDelegatesPerTurn: 2 } } },
+src/agents/tools/continue-delegate-tool.test.ts:195:          continuation: {
+src/agents/tools/continue-delegate-tool.test.ts:240:      agents: { defaults: { continuation: { crossSessionTargeting: "enabled" } } },
+src/agents/tools/continue-delegate-tool.test.ts:263:      agents: { defaults: { continuation: { crossSessionTargeting: "enabled" } } },
+src/agents/tools/continue-delegate-tool.test.ts:301:      agents: { defaults: { continuation: { crossSessionTargeting: "enabled" } } },
+src/agents/tools/goal-tools.test.ts:46:          continuationTurns: 0,
+src/agents/tools/request-compaction-tool.test.ts:11:} from "../../infra/continuation-tracer.js";
+src/agents/tools/request-compaction-tool.test.ts:415:      name: "continuation.compaction.released",
+src/agents/tools/request-compaction-tool.ts:3:import { formatActiveContinuationTraceparent } from "../../infra/continuation-tracer.js";
+src/agents/tools/request-compaction-tool.ts:21:const log = createSubsystemLogger("continuation/request-compaction");
+src/agents/tools/request-compaction-tool.ts:39: * Module-level map — same volatility contract as continuation-delegate-store.
+src/agents/tools/request-compaction-tool.volitional-threading.test.ts:34:    subsystem: "continuation/request-compaction",
+src/agents/tools/continue-delegate-tool.ts:5:} from "../../auto-reply/continuation/config.js";
+src/agents/tools/continue-delegate-tool.ts:10:} from "../../auto-reply/continuation/delegate-store.js";
+src/agents/tools/continue-delegate-tool.ts:15:} from "../../auto-reply/continuation/targeting.js";
+src/agents/tools/continue-delegate-tool.ts:16:import { formatActiveContinuationTraceparent } from "../../infra/continuation-tracer.js";
+src/agents/tools/continue-delegate-tool.ts:27:const log = createSubsystemLogger("continuation/delegate-tool");
+src/agents/tools/continue-delegate-tool.ts:43:        "Positive delays are clamped to continuation.minDelayMs / maxDelayMs from config.",
+src/agents/tools/continue-delegate-tool.ts:70:      'Broadcast return targeting. "tree" returns to every ancestor in the current continuation/subagent chain; ' +
+src/agents/tools/continue-delegate-tool.ts:111: * This tool dispatches a sub-agent as a continuation delegate — tracked by the
+src/agents/tools/continue-delegate-tool.ts:112: * gateway's continuation chain (cost caps, depth limits, chain counters).
+src/agents/tools/continue-delegate-tool.ts:199:      const continuationConfig = resolveContinuationRuntimeConfig();
+src/agents/tools/continue-delegate-tool.ts:202:          ? clampDelayMs(requestedDelayMs, continuationConfig)
+src/agents/tools/continue-delegate-tool.ts:208:      if (continuationConfig.crossSessionTargeting === "disabled" && hasCrossSessionTargeting) {
+src/agents/tools/continue-delegate-tool.ts:210:          "cross-session continuation targeting is disabled by agents.defaults.continuation.crossSessionTargeting. " +
+src/agents/tools/continue-delegate-tool.ts:217:      const maxPerTurn = continuationConfig.maxDelegatesPerTurn;
+src/agents/tools/continue-work-tool.boundary.test.ts:3:// SEAM GUARDED: contract between model and continuation runtime around
+src/agents/tools/continue-work-tool.boundary.test.ts:5:// the runtime enforces bounds from continuation config (min/maxDelayMs)
+src/agents/tools/continue-work-tool.boundary.test.ts:18:import { resetContinuationTracer } from "../../infra/continuation-tracer.js";
+src/agents/tools/continue-work-tool.boundary.test.ts:22:// Mock continuation config — same shape as the sibling test file. The
+src/agents/tools/continue-work-tool.boundary.test.ts:26:vi.mock("../../auto-reply/continuation/config.js", () => ({
+src/agents/tools/continue-work-tool.boundary.test.ts:31:    maxChainLength: 10,
+src/agents/tools/continue-work-tool.boundary.test.ts:32:    costCapTokens: 500_000,
+src/agents/tools/continue-work-tool.boundary.test.ts:102:    // The tool should NOT have scheduled a continuation — negatives are
+src/agents/tools/continue-work-tool.test.ts:11:} from "../../infra/continuation-tracer.js";
+src/agents/tools/continue-work-tool.test.ts:19:// Mock continuation config for deterministic delay resolution in tests.
+src/agents/tools/continue-work-tool.test.ts:20:vi.mock("../../auto-reply/continuation/config.js", () => ({
+src/agents/tools/continue-work-tool.test.ts:25:    maxChainLength: 10,
+src/agents/tools/continue-work-tool.test.ts:26:    costCapTokens: 500_000,
+src/agents/tools/continue-work-tool.test.ts:184:  it("threads a valid optional traceparent carrier into the continuation work span", async () => {
+src/agents/tools/continue-work-tool.test.ts:217:      name: "continuation.work",
+src/agents/tools/continue-work-tool.ts:5:} from "../../auto-reply/continuation/config.js";
+src/agents/tools/continue-work-tool.ts:6:import type { ContinueWorkRequest } from "../../auto-reply/continuation/types.js";
+src/agents/tools/continue-work-tool.ts:7:import { formatActiveContinuationTraceparent } from "../../infra/continuation-tracer.js";
+src/agents/tools/continue-work-tool.ts:16:const log = createSubsystemLogger("continuation/continue-work");
+src/agents/tools/continue-work-tool.ts:18:export type { ContinueWorkRequest } from "../../auto-reply/continuation/types.js";
+src/agents/tools/continue-work-tool.ts:23:      "Why another turn is needed before you yield. Logged for diagnostics and continuation context.",
+src/agents/tools/continue-work-tool.ts:31:        "Positive delays are clamped to continuation.minDelayMs / maxDelayMs from config.",
+src/agents/tools/continue-work-tool.ts:98:      const continuationConfig = resolveContinuationRuntimeConfig();
+src/agents/tools/continue-work-tool.ts:99:      const resolvedDelayMs = clampDelayMs(delaySeconds * 1000, continuationConfig);
+src/agents/tools/continue-work-tool.ts:107:              note: `Requested ${delaySeconds}s, clamped to ${resolvedDelaySeconds}s by continuation config.`,
+src/agents/tools/gateway-tool.test.ts:100:describe("gateway tool restart continuation", () => {
+src/agents/tools/gateway-tool.test.ts:135:  it("does not expose system-event continuations to the agent tool", async () => {
+src/agents/tools/gateway-tool.test.ts:140:        continuationKind?: unknown;
+src/agents/tools/gateway-tool.test.ts:143:    expect(parameters.properties?.continuationKind).toBeUndefined();
+src/agents/tools/gateway-tool.test.ts:166:  it("instructs agents to use continuationMessage for internal post-restart work", async () => {
+src/agents/tools/gateway-tool.test.ts:174:    expect(tool.description).toContain("continuationMessage");
+src/agents/tools/gateway-tool.test.ts:178:  it("writes an agentTurn continuation into the restart sentinel", async () => {
+src/agents/tools/gateway-tool.test.ts:189:      continuationMessage: "Reply with exactly: Yay! I did it!",
+src/agents/tools/gateway-tool.test.ts:208:    expect(payload.continuation).toEqual({
+src/agents/tools/gateway-tool.test.ts:223:      continuationQueued: true,
+src/agents/tools/gateway-tool.test.ts:236:      continuationMessage: "Reply after restart",
+src/agents/tools/gateway-tool.test.ts:244:  it("reports continuationQueued=false when a coalesced restart belongs to another session (#86742)", async () => {
+src/agents/tools/gateway-tool.test.ts:262:      continuationMessage: "Reply after restart",
+src/agents/tools/gateway-tool.test.ts:269:      continuationQueued: false,
+src/agents/tools/gateway-tool.test.ts:302:  it("coerces legacy continuationKind inputs to an agentTurn", async () => {
+src/agents/tools/gateway-tool.test.ts:310:      continuationKind: "systemEvent",
+src/agents/tools/gateway-tool.test.ts:311:      continuationMessage: "Reply after restart",
+src/agents/tools/gateway-tool.test.ts:317:    // continuations; visible replies still go through the message tool.
+src/agents/tools/gateway-tool.test.ts:318:    expect(requireRestartSentinelPayload().continuation).toEqual({
+src/agents/tools/gateway-tool.test.ts:324:  it("does not infer a continuation for session-scoped restarts", async () => {
+src/agents/tools/gateway-tool.test.ts:340:    expect(payload.continuation).toBeNull();
+src/agents/tools/gateway-tool.test.ts:360:  it("uses the runtime session for update.run continuation routing (#86742)", async () => {
+src/agents/tools/gateway-tool.test.ts:369:      continuationMessage: "Reply after update restart",
+src/agents/tools/gateway-tool.test.ts:379:        continuationMessage: "Reply after update restart",
+src/agents/tools/gateway-tool.ts:429:  continuationMessage: Type.Optional(Type.String()),
+src/agents/tools/gateway-tool.ts:456:      "Gateway restart/config/update. Before config edits, use config.schema.lookup with targeted dot path. Prefer config.patch for partial merge; config.apply only full replace. For config.patch that intentionally removes array entries, pass replacePaths with the exact affected array path. Writes hot-reload or restart as needed. Always pass human `note` for post-restart delivery. If post-restart work must continue internally, pass one-shot `continuationMessage`; visible follow-up from that turn must use the message tool. Do not write restart sentinel files directly.",
+src/agents/tools/gateway-tool.ts:471:        const continuationMessage = normalizeOptionalString(params.continuationMessage);
+src/agents/tools/gateway-tool.ts:483:          continuation: buildRestartSuccessContinuation({
+src/agents/tools/gateway-tool.ts:485:            continuationMessage,
+src/agents/tools/gateway-tool.ts:517:          ...(payload.continuation ? { continuationQueued: scheduled.emitHooksQueued } : {}),
+src/agents/tools/gateway-tool.ts:629:        const continuationMessage = normalizeOptionalString(params.continuationMessage);
+src/agents/tools/gateway-tool.ts:638:          continuationMessage,
+src/agents/agent-tools.create-openclaw-coding-tools.adds-claude-style-aliases-schemas-without-dropping-g.test.ts:127:  it("adds capped continuation guidance when aggregated read output reaches budget", async () => {
+src/agents/agent-tools.deferred-followup-guidance.test.ts:31:      "Execute shell commands with background continuation for work that starts now. Use yieldMs/background to continue later via process tool. For long-running work started now, rely on automatic completion wake when it is enabled and the command emits output or fails; otherwise use process to confirm completion. Use process whenever you need logs, status, input, or intervention. Do not use exec sleep or delay loops for reminders or deferred follow-ups; use cron instead. Use pty=true for TTY-required commands (terminal UIs, coding agents).",
+src/agents/agent-tools.deferred-followup-guidance.test.ts:44:      "Execute shell commands with background continuation for work that starts now. Use yieldMs/background to continue later via process tool. For long-running work started now, rely on automatic completion wake when it is enabled and the command emits output or fails; otherwise use process to confirm completion. Use process whenever you need logs, status, input, or intervention. Use pty=true for TTY-required commands (terminal UIs, coding agents).",
+src/agents/bash-tools.descriptions.ts:24:    "Execute shell commands with background continuation for work that starts now.",
+src/agents/bash-tools.exec-approval-followup.test.ts:277:  ])("uses agent continuation for $channel followups when a session exists", async (target) => {
+src/agents/bash-tools.exec-host-shared.ts:355:/** Builds the immutable follow-up target passed to async approval continuations. */
+src/agents/bootstrap-files.test.ts:699:  it("returns the configured continuation-skip mode", () => {
+src/agents/bootstrap-files.test.ts:702:        agents: { defaults: { contextInjection: "continuation-skip" } },
+src/agents/bootstrap-files.test.ts:704:    ).toBe("continuation-skip");
+src/agents/bootstrap-files.test.ts:712:            defaults: { contextInjection: "continuation-skip" },
+src/agents/btw-transcript.ts:95: * Reads prior messages for BTW continuation.
+src/agents/embedded-agent-runner/run.before-agent-finalize.test.ts:80:  it("turns a revise decision into one more hidden continuation", async () => {

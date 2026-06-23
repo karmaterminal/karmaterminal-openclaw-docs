@@ -2,9 +2,9 @@
   "schema": "openclaw.k6.proof-row-manifest.v1",
   "rowId": "R-CD-TOKEN",
   "issue": 103,
-  "candidateSha": "PLACEHOLDER_DEPLOY_SHA",
-  "seat": "ronan-dgx",
-  "sessionKey": "main",
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
   "transport": "websocket",
   "toolSurface": "bracket-token",
   "mutates": false,
@@ -31,14 +31,14 @@
   ],
   "artifactDestination": {
     "root": "PROOFS",
-    "sha": "PLACEHOLDER_DEPLOY_SHA",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
     "row": "R-CD-TOKEN",
-    "seat": "ronan-dgx",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
     "runDirPrefix": "k6-run"
   },
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Bracket/token path. On message-body-delivery seats (ronan-dgx default), expected outcome is HONEST-LIMIT-candidate (scanner killed). PASS-candidate only on raw-final-text seats or when the agent skips message-tool that turn."
+    "notes": "Bracket/token path. On message-body-delivery seats (ronan-dgx default), expected outcome is HONEST-LIMIT-candidate (scanner killed). PASS-candidate only on raw-final-text seats. candidateSha and seat resolved from env at runtime."
   }
 }

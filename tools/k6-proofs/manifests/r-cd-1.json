@@ -2,9 +2,9 @@
   "schema": "openclaw.k6.proof-row-manifest.v1",
   "rowId": "R-CD-1",
   "issue": 103,
-  "candidateSha": "PLACEHOLDER_DEPLOY_SHA",
-  "seat": "ronan-dgx",
-  "sessionKey": "main",
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
   "transport": "websocket",
   "toolSurface": "typed-tool",
   "mutates": false,
@@ -27,14 +27,14 @@
   ],
   "artifactDestination": {
     "root": "PROOFS",
-    "sha": "PLACEHOLDER_DEPLOY_SHA",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
     "row": "R-CD-1",
-    "seat": "ronan-dgx",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
     "runDirPrefix": "k6-run"
   },
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Typed tool path. PASS-candidate when tool accepted + task created + nonce correlates."
+    "notes": "Typed tool path. PASS-candidate when tool accepted + task created + nonce correlates. candidateSha and seat are resolved from env at runtime."
   }
 }

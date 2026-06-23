@@ -18,6 +18,7 @@ import ws from 'k6/ws';
 import { check, sleep } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
 export const options = {
   scenarios: {
@@ -37,11 +38,21 @@ export const options = {
 const failures = new Counter('proof_failures');
 const duration = new Trend('r_cd_token_duration');
 
+// --- Manifest-driven config ---
+const manifest = loadManifestFromEnv();
+
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
-  const sessionKey = __ENV.OPENCLAW_SESSION_KEY || 'main';
+  const sessionKey = manifest?.sessionKey || __ENV.OPENCLAW_SESSION_KEY || 'main';
+  const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || 'ronan-dgx';
   const rowNonce = nonce('R-CD-TOKEN');
+
+  // Validate manifest if loaded
+  if (manifest) {
+    const errors = validateManifest(manifest);
+    if (errors.length > 0) console.warn(`Manifest validation warnings: ${errors.join('; ')}`);
+  }
 
   if (!token) {
     console.error('OPENCLAW_GATEWAY_TOKEN is required');

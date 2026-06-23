@@ -1,132 +1,120 @@
-# k6 PROOFS harness foundation
+# k6 Proof Harness — continue_delegate rows
 
-Issue: [#100](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/100)  
-Coordination epic: [#106](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/106)
+Deterministic proof-row fire-and-observe harness for the OpenClaw continuation feature corpus.
 
-This directory is the docs-side home for candidate k6 proof harness output. It is intentionally a harness and artifact layout, not an automatic proof verdict engine.
+## Structure
 
-The harness may fire deterministic rows and collect receipts, but generated `EVIDENCE.md` files are **draft/candidate output** until a human reviewer folds them into `PROOFS/<sha>/` and the corpus manifest.
-
-## Source notes
-
-Primary design note:
-
-- `karmaterminal/openclaw-bootstrap:.specify/notes/k6-for-proofs-deterministic-elements.md`
-
-Compatibility target:
-
-- `karmaterminal/openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md`
-- Existing docs corpus shape under `PROOFS/<sha>/<row>/<seat>/`
-
-## What belongs here
-
-```text
+```
 tools/k6-proofs/
-├── README.md
-├── row-manifest.schema.json
+├── lib/
+│   ├── gateway-ws.js              # WS helpers (frame, connect, nonce, RequestTracker, redaction)
+│   └── manifest-loader.js         # Manifest loading, env-var resolution, validation
 ├── manifests/
-│   └── preflight.example.json
+│   ├── r-cd-1.json                # Row manifest: R-CD-1 typed delegate
+│   └── r-cd-token.json            # Row manifest: R-CD-TOKEN bracket delegate
 ├── scenarios/
-│   └── preflight.js
-├── scripts/
-│   └── postprocess-k6-summary.mjs
-└── examples/
-    └── k6-summary.preflight.example.json
+│   ├── preflight.js               # Scenario 0: auth + tool inventory check
+│   ├── r-cd-1-typed-delegate.js   # R-CD-1: typed continue_delegate()
+│   └── r-cd-token-bracket-delegate.js  # R-CD-TOKEN: [[CONTINUE_DELEGATE:...]]
+└── scripts/
+    └── evidence-writer.mjs        # Transforms k6 output → PROOFS/<sha>/<row>/k6-run-<ts>/ artifacts
 ```
 
-Future row PRs can add focused scenario files for issue-owned lanes, for example:
+## Prerequisites
 
-- `scenarios/continue-work.js` for `R-CW-1` / `R-CW-TOKEN`
-- `scenarios/continue-delegate.js` for `R-CD-1` / `R-CD-TOKEN`
-- serialized opt-in scenarios for compaction/config/observer rows
+- [Grafana k6](https://grafana.com/docs/k6/latest/get-started/installation/) installed on the run seat.
+- A running OpenClaw gateway on the local seat.
+- Environment variables:
+  - `OPENCLAW_GATEWAY_WS` — WebSocket URL (default: `ws://127.0.0.1:18789`)
+  - `OPENCLAW_GATEWAY_TOKEN` — operator auth token (**required, never in source**)
+  - `OPENCLAW_SESSION_KEY` — target session key (default: `main`)
+  - `OPENCLAW_CANDIDATE_SHA` — 40-char deploy SHA for this proof run
+  - `OPENCLAW_SEAT_NAME` — seat identifier (default: `ronan-dgx`)
+  - `OPENCLAW_ROW_MANIFEST` — path to row manifest JSON (optional; enables manifest-driven mode)
+  - `OPENCLAW_SEAT_CLASS` — `raw-final-text` or `message-body` (default: `message-body`; affects R-CD-TOKEN)
 
-## Required environment
+## Usage
 
-Do not commit secrets. Operator credentials and session keys come from environment or local untracked wrapper scripts.
-
-Common variables:
-
-- `OPENCLAW_GATEWAY_WS` — Gateway WebSocket URL, usually `ws://127.0.0.1:18789`.
-- `OPENCLAW_GATEWAY_TOKEN` — operator token/password for the selected gateway. Required unless running offline dry mode.
-- `OPENCLAW_SESSION_KEY` — target session key for the row. Defaults to `main` only as a local convenience; real proof runs should pin the exact session.
-- `K6_PROOF_MANIFEST` — row manifest path. Defaults to `tools/k6-proofs/manifests/preflight.example.json`.
-- `K6_PROOF_RUN_ID` — optional stable run id. Defaults to `k6-run-<UTC timestamp>`.
-- `K6_PROOFS_OFFLINE=1` — no-mutating offline dry preflight. This validates manifest/env shape without connecting to the gateway.
-
-## No-mutating dry preflight
-
-The first accepted harness behavior is a dry preflight stub. It must not write proof verdicts or call mutating tools.
+### 1. Preflight check
 
 ```bash
-k6 run \
-  -e K6_PROOFS_OFFLINE=1 \
-  -e K6_PROOF_MANIFEST=tools/k6-proofs/manifests/preflight.example.json \
-  --summary-export /tmp/k6-preflight-summary.json \
-  tools/k6-proofs/scenarios/preflight.js
+OPENCLAW_GATEWAY_TOKEN="***" k6 run tools/k6-proofs/scenarios/preflight.js
 ```
 
-The offline mode checks the manifest, emits k6 checks, and exits without gateway traffic.
-
-For a live read-only preflight, set `OPENCLAW_GATEWAY_WS`, `OPENCLAW_GATEWAY_TOKEN`, and `OPENCLAW_SESSION_KEY`; keep the manifest row `mutates=false`.
-
-## Candidate artifact layout
-
-Post-processing writes candidate output under the proof corpus shape, but under an explicit `k6-run-<timestamp>/` directory so review/fold can be done later:
-
-```text
-PROOFS/<sha>/<row>/<seat>/
-└── k6-run-<timestamp>/
-    ├── EVIDENCE.md                  # generated draft, not final verdict
-    ├── row-manifest.json            # exact row manifest used
-    ├── k6-summary.json              # raw k6 summary/export
-    ├── row-result.json              # normalized candidate result
-    └── artifacts/                   # optional copied receipts later
-        ├── gateway-events.ndjson
-        ├── tool-invoke-response.json
-        ├── task-ledger.json
-        ├── logs-tail.txt
-        └── wake_event_trace.json
-```
-
-The `EVIDENCE.md` draft always labels itself `CANDIDATE` and includes the review warning. A human fold may copy or rewrite its contents into the row's canonical `EVIDENCE.md` only after checking the raw receipts.
-
-## Post-process a k6 summary
+### 2. Run R-CD-1 (manifest-driven)
 
 ```bash
-node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \
-  --manifest tools/k6-proofs/manifests/preflight.example.json \
-  --summary /tmp/k6-preflight-summary.json \
-  --out-root PROOFS
+OPENCLAW_GATEWAY_TOKEN="***" \
+OPENCLAW_CANDIDATE_SHA="<40-char-sha>" \
+OPENCLAW_ROW_MANIFEST="tools/k6-proofs/manifests/r-cd-1.json" \
+  k6 run tools/k6-proofs/scenarios/r-cd-1-typed-delegate.js 2>&1 | tee /tmp/r-cd-1-output.txt
 ```
 
-The output directory is derived from the manifest:
+### 3. Post-process into proof artifacts
 
-```text
-PROOFS/<sha>/<row>/<seat>/<runId>/
+```bash
+node tools/k6-proofs/scripts/evidence-writer.mjs \
+  --input /tmp/r-cd-1-output.txt \
+  --row R-CD-1 \
+  --seat ronan-dgx \
+  --sha <40-char-sha>
 ```
 
-Use `--run-id k6-run-YYYYMMDDTHHMMSSZ` to override the generated run id.
+Writes candidate evidence into `PROOFS/<SHA>/R-CD-1/ronan-dgx/k6-run-<timestamp>/`.
 
-## Row manifest fields
+## Design principles
 
-See [`row-manifest.schema.json`](./row-manifest.schema.json). The core fields are:
+### Manifest-driven scenarios (data/logic separation)
 
-- `schema` — currently `openclaw.k6.proof-row-manifest.v1`.
-- `rowId` — proof row id or sub-row id, e.g. `R-CW-1`, `R-CD-TOKEN`, `preflight`.
-- `candidateSha` — full 40-char deployed/candidate SHA.
-- `seat` — canonical seat name, e.g. `emeric-nuc`, `ronan-dgx`.
-- `sessionKey` — exact target session key or an environment placeholder.
-- `transport` — `websocket`, `http-tools-invoke`, or `offline`.
-- `toolSurface` — `typed-tool`, `token`, `bracket-token`, `read-only`, or `mixed`.
-- `mutates` — boolean. Preflight must be `false`.
-- `expectedReceipts` — checklist of receipts the row must capture before a PASS can be considered.
-- `artifactDestination` — target proof path fields.
-- `review` — candidate/fold policy.
+Row-specific configuration lives in **manifests** (`tools/k6-proofs/manifests/*.json`), not hardcoded in scenario logic. Scenarios load their manifest at init time via `OPENCLAW_ROW_MANIFEST` env var.
+
+Manifests use `${ENV_VAR:-default}` placeholders resolved at runtime — no secrets or seat-specific values baked into source.
+
+Manifests follow the schema defined by #100 (foundation): `openclaw.k6.proof-row-manifest.v1`.
+
+### Redaction boundary
+
+**No secrets in source or public artifacts.** Gateway tokens come from env vars only.
+
+Event payloads are redacted through an allowlist (`redactEvent()` in `lib/gateway-ws.js`) before storing.
+
+The post-processor **refuses** to write public artifacts if evidence contains raw `events` without `redacted_events`. This is a hard gate — scenarios must use the redaction layer.
+
+### Protocol correctness
+
+Gateway WS responses use `{ type: "res", id, payload?, error? }` — NOT `{ result }`.
+
+The `RequestTracker` class maps request IDs to method names for reliable response correlation (responses don't echo method names).
+
+### Seat-class awareness (R-CD-TOKEN)
+
+The bracket scanner fires only on scanned-final-text (terminal position). Seats that route final-text through `message(send)` body kill the scanner.
+
+- **raw-final-text seat**: bracket fires → PASS-candidate
+- **message-body seat** (ronan-dgx default): bracket killed → HONEST-LIMIT-candidate
+
+This is **declared in the manifest before the run**, not a post-hoc excuse. The `seatClassExpectation` block in `r-cd-token.json` states the expected outcome per seat class.
+
+## Row coverage
+
+| Row | Scenario | Surface | Expected outcome |
+|-----|----------|---------|-----------------|
+| R-CD-1 | Typed `continue_delegate()` | typed-tool | PASS-candidate |
+| R-CD-TOKEN | Bracket `[[CONTINUE_DELEGATE:...]]` | bracket-token | Seat-dependent (see manifest) |
 
 ## Guardrails
 
-- No secrets in manifests, summaries, logs, or generated evidence.
-- Do not mark generated evidence as final PASS. Use `PASS-candidate`, `HONEST-LIMIT-candidate`, or `FAIL-candidate` language until reviewed.
-- Do not run mutating rows in parallel against the same live session.
-- Serialize compaction/config rows and require explicit issue ownership before adding them.
-- Capture Tempo trace JSON for every continuation-tool fire before a row can be folded as PASS.
+- Child tasks use nonce-only prompts: no file mutation, no external writes.
+- Scenarios run single-VU, serialized. Do not run against active sessions without coordination.
+- Gateway token must never appear in committed artifacts or source.
+- All artifacts are CANDIDATE status; human review promotes to PASS.
+- Post-processor refuses unredacted event data.
+- No manifest fold without review (per #100 foundation contract).
+
+## Coordination
+
+- Epic: [#106](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/106)
+- Row issue: [#103](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/103)
+- Foundation: [#100](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/100) (artifact layout by Emeric)
+- Coordinator: @silas-dandelion-cult
+- Project: [karmaterminal project 81](https://github.com/orgs/karmaterminal/projects/81)

@@ -1,19 +1,18 @@
 /**
  * Scenario: R-CD-1 — typed continue_delegate() schedule/spawn/return.
  *
- * Fires a continue_delegate tool invocation with mode=normal, waits for
- * task ledger entries, child session, and parent return/completion evidence.
- *
- * Data-driven: reads row config from manifest at runtime.
+ * Manifest-driven: reads row config from OPENCLAW_ROW_MANIFEST env var
+ * or falls back to inline defaults for shape-testing.
  *
  * References:
  *   - Issue: karmaterminal/karmaterminal-openclaw-docs#103
- *   - Manifest: k6/manifests/r-cd-1.json
+ *   - Manifest: tools/k6-proofs/manifests/r-cd-1.json
  */
 import ws from 'k6/ws';
 import { check, sleep } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
 export const options = {
   scenarios: {
@@ -33,10 +32,25 @@ export const options = {
 const failures = new Counter('proof_failures');
 const duration = new Trend('r_cd_1_duration');
 
+// --- Manifest-driven config ---
+const manifest = loadManifestFromEnv();
+const DEFAULTS = {
+  sessionKey: 'main',
+  seat: 'ronan-dgx',
+  mode: 'normal',
+  delaySeconds: 1,
+};
+
+function cfg(field, fallback) {
+  if (manifest && manifest[field] !== undefined) return manifest[field];
+  return __ENV[`OPENCLAW_${field.toUpperCase()}`] || fallback;
+}
+
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
-  const sessionKey = __ENV.OPENCLAW_SESSION_KEY || 'main';
+  const sessionKey = manifest?.sessionKey || __ENV.OPENCLAW_SESSION_KEY || DEFAULTS.sessionKey;
+  const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CD-1');
 
   if (!token) {
@@ -45,9 +59,22 @@ export default function () {
     return;
   }
 
+  // Validate manifest if loaded
+  if (manifest) {
+    const errors = validateManifest(manifest);
+    if (errors.length > 0) {
+      console.warn(`Manifest validation warnings: ${errors.join('; ')}`);
+      // Non-fatal for shape-testing; fatal for live-fire would check candidateSha
+    }
+  }
+
   const evidence = {
     row: 'R-CD-1',
+    manifest_loaded: !!manifest,
     nonce: rowNonce,
+    seat,
+    sessionKey,
+    candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
     tool_accepted: false,
     task_created: false,
@@ -65,7 +92,6 @@ export default function () {
     socket.on('open', () => {
       socket.send(connectFrame(token));
 
-      // Subscribe to session events after brief connect delay
       socket.setTimeout(() => {
         tracker.send(socket, 'sessions.messages.subscribe', { sessionKey });
       }, 500);
@@ -77,24 +103,18 @@ export default function () {
           sessionKey,
           args: {
             task: `Proof nonce ${rowNonce}: reply with DONE and the nonce only. Do not mutate files.`,
-            mode: 'normal',
-            delaySeconds: 1,
+            mode: DEFAULTS.mode,
+            delaySeconds: DEFAULTS.delaySeconds,
           },
           idempotencyKey: `R-CD-1-${rowNonce}`,
         });
       }, 1000);
 
       // Poll task ledger
-      socket.setTimeout(() => {
-        tracker.send(socket, 'tasks.list', { limit: 10 });
-      }, 8000);
+      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 8000);
+      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 20000);
 
-      // Second task poll for child completion
-      socket.setTimeout(() => {
-        tracker.send(socket, 'tasks.list', { limit: 10 });
-      }, 20000);
-
-      // Close after reasonable wait
+      // Close after wait
       socket.setTimeout(() => socket.close(), 60000);
     });
 
@@ -103,7 +123,7 @@ export default function () {
         const msg = JSON.parse(raw);
         const classified = tracker.classify(msg);
 
-        // Redact before storing
+        // Store ONLY redacted events
         evidence.redacted_events.push({
           ts: Date.now(),
           kind: classified.kind,
@@ -113,14 +133,10 @@ export default function () {
           data: classified.payload ? redactEvent(classified.payload) : null,
         });
 
-        // Handle tool invocation response
         if (classified.kind === 'response' && classified.method === 'tools.invoke') {
           if (classified.ok && classified.payload) {
             evidence.tool_accepted = true;
-            // Extract trace ID if present
-            if (classified.payload.traceId) {
-              evidence.trace_id = classified.payload.traceId;
-            }
+            if (classified.payload.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ tools.invoke accepted for R-CD-1');
           } else if (classified.error) {
             console.error(`✗ tools.invoke rejected: ${JSON.stringify(classified.error)}`);
@@ -128,7 +144,6 @@ export default function () {
           }
         }
 
-        // Handle task ledger response
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
           const tasks = classified.payload?.tasks || [];
           for (const task of tasks) {
@@ -141,7 +156,6 @@ export default function () {
           }
         }
 
-        // Handle session events for delegate return
         if (classified.kind === 'event') {
           const eventStr = JSON.stringify(classified.data || {});
           if (eventStr.includes('delegate') || eventStr.includes('completion') || eventStr.includes('return')) {
@@ -150,12 +164,9 @@ export default function () {
           }
         }
 
-        // Early close if all required evidence gathered
-        if (evidence.tool_accepted && evidence.task_created) {
-          if (evidence.parent_return) {
-            console.log('All evidence gathered, closing early');
-            socket.close();
-          }
+        if (evidence.tool_accepted && evidence.task_created && evidence.parent_return) {
+          console.log('All evidence gathered, closing early');
+          socket.close();
         }
       } catch (e) {
         console.warn(`parse error: ${e}`);
@@ -172,7 +183,6 @@ export default function () {
   evidence.duration_ms = Date.now() - started;
   duration.add(evidence.duration_ms);
 
-  // Verdict checks
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'tool invocation accepted': () => evidence.tool_accepted,

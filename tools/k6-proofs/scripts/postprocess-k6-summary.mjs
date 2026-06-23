@@ -31,6 +31,42 @@ function requiredMetric(summary, name) {
   return summary?.metrics?.[name]?.values || null;
 }
 
+function durationMsFromSummary(summary, rowId) {
+  const candidates = [
+    'proof_row_duration_ms',
+    `${String(rowId || '').toLowerCase().replaceAll('-', '_')}_duration`,
+    'r_cd_1_duration',
+    'r_cd_token_duration',
+  ];
+  for (const name of candidates) {
+    const values = requiredMetric(summary, name);
+    if (values) return Number(values.avg ?? values.med ?? values.max ?? 0);
+  }
+  return null;
+}
+
+function failureClassFrom({ outcome, failureCount, checkRate, receipts }) {
+  if (failureCount > 0) return 'threshold';
+  if (receipts.some((r) => r.required && r.status === 'missing')) return 'missing-receipt';
+  if (checkRate !== null && checkRate < 1) return 'checks';
+  if (outcome === 'FAIL-candidate') return 'postprocess';
+  return 'none';
+}
+
+function receiptStatusFromName(name, summary) {
+  const summaryText = JSON.stringify(summary);
+  switch (name) {
+    case 'tool-invoke-accepted':
+      return summaryText.includes('tool invocation accepted') || summaryText.includes('tools.invoke accepted') ? 'present' : 'unknown';
+    case 'task-ledger-entry':
+      return summaryText.includes('delegate task created') || summaryText.includes('Task found with nonce correlation') ? 'present' : 'unknown';
+    case 'parent-return-event':
+      return summaryText.includes('Delegate return/completion event observed') ? 'present' : 'unknown';
+    default:
+      return 'unknown';
+  }
+}
+
 function outcomeFromSummary(summary) {
   const failures = requiredMetric(summary, 'proof_failures');
   const failureCount = failures ? Number(failures.count || 0) : 0;
@@ -123,6 +159,16 @@ async function main() {
   const runDir = path.join(outRoot, sha, row, seat, runId);
 
   const outcome = outcomeFromSummary(summary);
+  const failures = requiredMetric(summary, 'proof_failures');
+  const failureCount = failures ? Number(failures.count || 0) : 0;
+  const checks = requiredMetric(summary, 'checks');
+  const checkRate = checks ? Number(checks.rate ?? 0) : null;
+  const receipts = (manifest.expectedReceipts || []).map((r) => ({
+    name: r.name,
+    required: Boolean(r.required),
+    status: receiptStatusFromName(r.name, summary),
+  }));
+  const failureClass = failureClassFrom({ outcome, failureCount, checkRate, receipts });
   const result = {
     schema: 'openclaw.k6.proof-row-result.v1',
     runId,
@@ -131,6 +177,13 @@ async function main() {
     candidateSha: manifest.candidateSha,
     seat: manifest.seat,
     outcome,
+    metrics: {
+      proofFailures: failureCount,
+      checksRate: checkRate,
+      durationMs: durationMsFromSummary(summary, manifest.rowId),
+    },
+    receipts,
+    failureClass,
     reason: outcome === 'FAIL-candidate'
       ? 'k6 proof_failures metric is non-zero'
       : outcome === 'HONEST-LIMIT-candidate'

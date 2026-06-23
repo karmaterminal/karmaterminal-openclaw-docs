@@ -62,6 +62,10 @@ node tools/k6-proofs/scripts/evidence-writer.mjs \
 
 Writes candidate evidence into `PROOFS/<SHA>/R-CD-1/ronan-dgx/k6-run-<timestamp>/`.
 
+## Metrics and dashboard contract
+
+Public-safe visualization fields for Project 81 live in [`METRICS.md`](./METRICS.md). Treat that file as the contract for Grafana / Prometheus / postprocess ingestion: candidate outcome, `proof_failures`, duration, receipt status, and review-pending state are allowed; tokens, session keys, prompts, nonces, raw events, and raw responses are not.
+
 ## Design principles
 
 ### Manifest-driven scenarios (data/logic separation)

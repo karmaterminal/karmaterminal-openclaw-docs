@@ -30,6 +30,14 @@ export const options = {
 const failures = new Counter('proof_failures');
 const duration = new Trend('preflight_duration');
 
+function publicSessionScope(key) {
+  if (!key) return 'unspecified';
+  if (key === 'main' || key === 'agent:main:main') return 'main';
+  if (key.startsWith('agent:main:')) return 'main-agent-session';
+  if (key.startsWith('agent:')) return 'agent-session';
+  return 'configured-session';
+}
+
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
@@ -55,7 +63,7 @@ export default function () {
     issue: 101,
     manifest_loaded: !!manifest,
     seat,
-    sessionKey,
+    session_scope: publicSessionScope(sessionKey),
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
     health_received: false,

@@ -98,8 +98,8 @@ export class RequestTracker {
 const EVENT_ALLOWLIST = new Set([
   'type', 'id', 'method', 'event',
   // Payload fields safe for public
-  'ok', 'status', 'uptime', 'sessionKey', 'taskId', 'runId',
-  'childSessionKey', 'traceId', 'spanId', 'tools', 'name',
+  'ok', 'status', 'uptime', 'taskId', 'runId',
+  'traceId', 'spanId', 'tools', 'name',
   'state', 'reason', 'delaySeconds', 'mode',
   // Timing
   'ts', 'timestamp', 'startedAt', 'completedAt', 'duration',

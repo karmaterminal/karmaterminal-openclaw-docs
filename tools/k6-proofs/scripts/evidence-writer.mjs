@@ -77,7 +77,18 @@ if (evidence.events && !evidence.redacted_events) {
   process.exit(1);
 }
 
-const events = evidence.redacted_events || [];
+function scrubPublicArtifact(value) {
+  if (Array.isArray(value)) return value.map((item) => scrubPublicArtifact(item));
+  if (typeof value !== 'object' || value === null) return value;
+  const out = {};
+  for (const [key, child] of Object.entries(value)) {
+    if (key === 'sessionKey' || key === 'childSessionKey') continue;
+    out[key] = scrubPublicArtifact(child);
+  }
+  return out;
+}
+
+const events = scrubPublicArtifact(evidence.redacted_events || []);
 
 // Build output directory
 const runId = `k6-run-${stamp()}`;
@@ -85,7 +96,7 @@ const outDir = join('PROOFS', args.sha, args.row, args.seat, runId);
 mkdirSync(join(outDir, 'artifacts'), { recursive: true });
 
 // Write k6-summary.json (evidence without raw events)
-const summary = { ...evidence };
+const summary = scrubPublicArtifact({ ...evidence });
 delete summary.redacted_events; // events go to ndjson, not summary
 writeFileSync(join(outDir, 'k6-summary.json'), JSON.stringify(summary, null, 2) + '\n');
 

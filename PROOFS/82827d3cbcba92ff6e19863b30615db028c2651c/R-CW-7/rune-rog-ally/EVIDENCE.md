@@ -64,6 +64,33 @@ Tests: 8 passed
 
 (The broader multi-file Vitest gate was started with single-worker/forks on rune-seat; the ROG Ally is resource-constrained, so the row relies primarily on live runtime bytes + Tempo export.)
 
+
+## Late direct-wake trace confirmation
+
+A later continuation wake for Rune's direct R-CW-7 `continue_work` fire landed in the parent session:
+
+```text
+[continuation:wake] Turn 1/200. Chain started at 2026-06-23T07:19:45.875Z. Accumulated tokens: 286980. The agent elected to continue working. Reason: R-CW-7 traceparent E2E proof on rune-seat 82827d3cbc; schedule live wake to capture continuation.work trace.
+```
+
+The originally scheduled explicit traceparent was:
+
+```text
+00-dddddddddddddddddddddddddddddddd-4444444444444444-01
+```
+
+Tempo initially 404'd for this trace while the export was still landing. A retry after the wake succeeded:
+
+```text
+GET http://tempo.dandelion.cult/api/traces/dddddddddddddddddddddddddddddddd
+batches=1
+span names include: continuation.work
+```
+
+Archived raw export:
+
+- `tempo-trace-dddddddddddddddddddddddddddddddd.json`
+
 ## Verdict
 
 ✅ PASS: `continue_work` emitted a W3C traceparent, the continuation wake executed, and the trace exported to Tempo with `continuation.work` present under the expected trace id on the `82827d3cbc` runtime.

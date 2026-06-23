@@ -17,6 +17,7 @@ Raw Tempo exports archived in this directory:
 - `tempo-trace-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json` — batches=4, span names include `continuation.work`
 - `tempo-trace-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.json` — batches=1, span names include `continuation.work`
 - `tempo-trace-cccccccccccccccccccccccccccccccc.json` — batches=1, span names include `continuation.work`
+- `tempo-trace-dddddddddddddddddddddddddddddddd.json` — batches=1, span names include `continuation.work` (late direct-wake retry)
 
 Fetch command shape:
 
@@ -34,6 +35,9 @@ continuation.work
 batches=1
 continuation.work
 === cccccccccccccccccccccccccccccccc ===
+batches=1
+continuation.work
+=== dddddddddddddddddddddddddddddddd ===
 batches=1
 continuation.work
 ```

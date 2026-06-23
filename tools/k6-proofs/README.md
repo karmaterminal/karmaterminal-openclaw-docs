@@ -1,6 +1,6 @@
-# k6 Proof Harness — continue_delegate rows
+# k6 Proof Harness — PROOFS rows
 
-Deterministic proof-row fire-and-observe harness for the OpenClaw continuation feature corpus.
+Deterministic proof-row fire-and-observe harness for the OpenClaw continuation feature corpus. Preflight is read-only inventory; row scenarios remain candidate-output-only until review.
 
 ## Structure
 
@@ -38,7 +38,10 @@ tools/k6-proofs/
 ### 1. Preflight check
 
 ```bash
-OPENCLAW_GATEWAY_TOKEN="***" k6 run tools/k6-proofs/scenarios/preflight.js
+OPENCLAW_GATEWAY_TOKEN="***" \
+OPENCLAW_ROW_MANIFEST="tools/k6-proofs/manifests/preflight.example.json" \
+OPENCLAW_SESSION_KEY="agent:main:main" \
+  k6 run tools/k6-proofs/scenarios/preflight.js 2>&1 | tee /tmp/preflight-output.txt
 ```
 
 ### 2. Run R-CD-1 (manifest-driven)
@@ -99,6 +102,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 
 | Row | Scenario | Surface | Expected outcome |
 |-----|----------|---------|-----------------|
+| preflight | Read-only gateway/session/tool inventory | read-only | PASS-candidate when health, sessions, and required continuation tools are visible |
 | R-CD-1 | Typed `continue_delegate()` | typed-tool | PASS-candidate |
 | R-CD-TOKEN | Bracket `[[CONTINUE_DELEGATE:...]]` | bracket-token | Seat-dependent (see manifest) |
 
@@ -114,7 +118,8 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 ## Coordination
 
 - Epic: [#106](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/106)
-- Row issue: [#103](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/103)
+- Preflight issue: [#101](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/101)
+- continue_delegate row issue: [#103](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/103)
 - Foundation: [#100](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/100) (artifact layout by Emeric)
 - Coordinator: @silas-dandelion-cult
 - Project: [karmaterminal project 81](https://github.com/orgs/karmaterminal/projects/81)

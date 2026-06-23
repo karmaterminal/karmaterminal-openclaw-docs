@@ -95,10 +95,19 @@ if (events.length > 0) {
   writeFileSync(join(outDir, 'gateway-events.ndjson'), ndjson);
 }
 
-// Determine verdict
-const verdict = evidence.tool_accepted || evidence.prompt_sent
-  ? (evidence.task_created || evidence.child_spawned ? 'PASS-candidate' : 'PARTIAL-candidate')
-  : 'FAIL-candidate';
+// Determine verdict. Preflight is read-only inventory, not a tool-mutation row.
+const isPreflight = (args.row || '').toLowerCase() === 'preflight' || evidence.row === 'preflight';
+const preflightPassed = isPreflight
+  && evidence.health_received
+  && evidence.sessions_received
+  && evidence.tools_received
+  && Array.isArray(evidence.missing_tools)
+  && evidence.missing_tools.length === 0;
+const verdict = isPreflight
+  ? (preflightPassed ? 'PASS-candidate' : 'FAIL-candidate')
+  : (evidence.tool_accepted || evidence.prompt_sent
+    ? (evidence.task_created || evidence.child_spawned ? 'PASS-candidate' : 'PARTIAL-candidate')
+    : 'FAIL-candidate');
 
 // Write row-result.json
 const result = {
@@ -137,11 +146,18 @@ const md = `# ${args.row} — ${args.seat} — ${verdict}
 
 | Check | Result |
 |-------|--------|
-| Tool/prompt accepted | ${evidence.tool_accepted || evidence.prompt_sent ? '✓' : '✗'} |
+${isPreflight ? `| Health/status received | ${evidence.health_received ? '✓' : '✗'} |
+| Sessions inventory received | ${evidence.sessions_received ? '✓' : '✗'} |
+| Target session seen | ${evidence.target_session_seen ? '✓' : 'not required / not observed'} |
+| Tools inventory received | ${evidence.tools_received ? '✓' : '✗'} |
+| Required continuation tools visible | ${Array.isArray(evidence.missing_tools) && evidence.missing_tools.length === 0 ? '✓' : `✗ missing: ${(evidence.missing_tools || []).join(', ') || 'unknown'}`} |
+| Tool count | ${evidence.tool_count ?? 'N/A'} |
+| Manifest loaded | ${evidence.manifest_loaded ? '✓' : '✗ (defaults used)'} |`
+: `| Tool/prompt accepted | ${evidence.tool_accepted || evidence.prompt_sent ? '✓' : '✗'} |
 | Task/child created | ${evidence.task_created || evidence.child_spawned ? '✓' : '✗'} |
 | Parent return observed | ${evidence.parent_return ? '✓' : '✗'} |
 | Nonce | \`${evidence.nonce || 'N/A'}\` |
-| Manifest loaded | ${evidence.manifest_loaded ? '✓' : '✗ (defaults used)'} |
+| Manifest loaded | ${evidence.manifest_loaded ? '✓' : '✗ (defaults used)'} |`}
 
 ## Artifacts
 

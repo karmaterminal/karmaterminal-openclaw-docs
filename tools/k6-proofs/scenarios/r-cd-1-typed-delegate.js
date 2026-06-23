@@ -39,7 +39,21 @@ const DEFAULTS = {
   seat: 'ronan-dgx',
   mode: 'normal',
   delaySeconds: 1,
+  promptTemplate: 'Proof nonce {{nonce}}: reply with DONE and the nonce only. Do not mutate files.',
+  idempotencyKeyPrefix: 'R-CD-1',
 };
+
+// Resolve invocation config from manifest → env → defaults
+function invocationCfg() {
+  const inv = manifest?.invocation || {};
+  return {
+    tool: inv.tool || 'continue_delegate',
+    mode: inv.mode || __ENV.OPENCLAW_DELEGATE_MODE || DEFAULTS.mode,
+    delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds),
+    promptTemplate: inv.promptTemplate || DEFAULTS.promptTemplate,
+    idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix,
+  };
+}
 
 function cfg(field, fallback) {
   if (manifest && manifest[field] !== undefined) return manifest[field];
@@ -96,17 +110,19 @@ export default function () {
         tracker.send(socket, 'sessions.messages.subscribe', { sessionKey });
       }, 500);
 
-      // Fire continue_delegate typed tool invocation
+      // Fire continue_delegate typed tool invocation (manifest-driven)
       socket.setTimeout(() => {
+        const inv = invocationCfg();
+        const prompt = inv.promptTemplate.replace('{{nonce}}', rowNonce);
         tracker.send(socket, 'tools.invoke', {
-          name: 'continue_delegate',
+          name: inv.tool,
           sessionKey,
           args: {
-            task: `Proof nonce ${rowNonce}: reply with DONE and the nonce only. Do not mutate files.`,
-            mode: DEFAULTS.mode,
-            delaySeconds: DEFAULTS.delaySeconds,
+            task: prompt,
+            mode: inv.mode,
+            delaySeconds: inv.delaySeconds,
           },
-          idempotencyKey: `R-CD-1-${rowNonce}`,
+          idempotencyKey: `${inv.idempotencyKeyPrefix}-${rowNonce}`,
         });
       }, 1000);
 

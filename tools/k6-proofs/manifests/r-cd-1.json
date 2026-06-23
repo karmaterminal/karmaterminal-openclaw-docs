@@ -18,6 +18,13 @@
     "description": "Typed continue_delegate() schedule/spawn/return. Fires a delegate with a nonce-only child task, observes task ledger entry and parent return.",
     "methods": ["tools.invoke", "tasks.list", "sessions.messages.subscribe"]
   },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "normal",
+    "delaySeconds": 1,
+    "promptTemplate": "Proof nonce {{nonce}}: reply with DONE and the nonce only. Do not mutate files.",
+    "idempotencyKeyPrefix": "R-CD-1"
+  },
   "expectedReceipts": [
     { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted the continue_delegate tool invocation" },
     { "name": "task-ledger-entry", "required": true, "description": "Task created in ledger with nonce correlation" },

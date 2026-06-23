@@ -1,23 +1,23 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "53c30255ba717f1a88b6da81f002efbd28d4391e",
-  "current_sha_short": "53c3025",
-  "build_string": "OpenClaw continuation PR #85651 (53c3025)",
-  "corpus_path": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/",
-  "manifest_path": "PROOFS/53c30255ba717f1a88b6da81f002efbd28d4391e/proofs-manifest.json",
+  "current_sha": "82827d3cbcba92ff6e19863b30615db028c2651c",
+  "current_sha_short": "82827d3",
+  "build_string": "OpenClaw continuation PR #85651 (82827d3) — fresh-fire",
+  "corpus_path": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/",
+  "manifest_path": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/proofs-manifest.json",
   "rollup": {
-    "total_rows": 26,
-    "pass": 25,
+    "total_rows": 19,
+    "pass": 18,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Continuation PR #85651 proof corpus. 25 PASS + 1 honest-limit, 0 fail, 0 missing. All 4 continue_delegate register-modes row-backed. CARRIED corpus + live spot-check: captured live at 749f95b9b10, carried via d04ab6c5567 to ship-SHA 53c30255ba7 (drift re-absorb #5 = current upstream 3ff59df for mergeability; continuation cores BYTE-IDENTICAL d04ab6c5567->53c30255ba7 empty-diff; frozen-wall FROZEN-STALE=0; spot-check live at d04ab6c5567 carries forward). NOT a full re-fire. Supersedes PROOFS/d04ab6c5567.",
-  "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-06-22",
+  "disposition_note": "FRESH-FIRE corpus: all rows fired live at ship-SHA 82827d3cbc by the 6-prince fleet (deployed + AFTER_COMMIT-verified on 82827d3cbc). NOT a carry. 18 PASS + 1 honest-limit across 19 rows from 5 seats (ronan/cael/rune/silas/elliott), zero-404. 🕯 Emeric's 5 rows (4 PASS + 1 honest-limit) are reported-clean but a docs-main push did not land; folding in on re-push (see pending_push). Continuation feature comprehensively proven: continue_work (tool+token), continue_delegate (tool+token, all modes, chained depth-2), request_compaction (reject+accept), cap-boundary, traceparent E2E, #952 lightContext bracket row.",
+  "navigation": "clawsweeper: read INDEX.json → current_sha → manifest_path → rows[]",
+  "generated": "2026-06-23",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
-  "capture_sha": "749f95b9b10aa3bbb804856acacc9073043ee772"
+  "capture_sha": "82827d3cbcba92ff6e19863b30615db028c2651c"
 }

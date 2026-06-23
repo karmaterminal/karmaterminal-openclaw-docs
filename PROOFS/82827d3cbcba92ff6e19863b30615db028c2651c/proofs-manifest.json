@@ -1,0 +1,199 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "capture_sha": "82827d3cbcba92ff6e19863b30615db028c2651c",
+  "ship_sha": "82827d3cbcba92ff6e19863b30615db028c2651c",
+  "fire_type": "fresh-fire",
+  "carried_from": null,
+  "rows": [
+    {
+      "row": "R-CD-1",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-1/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-1/ronan-dgx/EVIDENCE.md",
+      "note": "continue_delegate() schedule→spawn→return; tool-form"
+    },
+    {
+      "row": "R-CD-2",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-2/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-2/ronan-dgx/EVIDENCE.md",
+      "note": "continue_delegate(mode=silent) child as internal context"
+    },
+    {
+      "row": "R-CD-3",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-3/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-3/ronan-dgx/EVIDENCE.md",
+      "note": "continue_delegate silent-wake woke parent"
+    },
+    {
+      "row": "R-CD-4",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-4/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-4/ronan-dgx/EVIDENCE.md",
+      "note": "continue_delegate post-compaction queued-for-compaction=proof"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "owner": "🌊 ronan (ronan-dgx) + 🪨 rune TEST-2 + 🌫 silas TEST-3",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-CHAINED-DEPTH-2/",
+      "state": "pass",
+      "traces": 3,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-CHAINED-DEPTH-2/TEST-3-silas/EVIDENCE.md",
+      "note": "depth-2 chain; Ronan Chain-1/2/3 PASS; rune TEST-2 PASS; silas TEST-3 honest-limit (fanout/targeting validation); emeric TEST-1 pending-push"
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-TOKEN/",
+      "state": "honest_limit",
+      "traces": 0,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-TOKEN/ronan-dgx/EVIDENCE.md",
+      "note": "bracket/token form did not fire from main-session delivery (final-text via message-body→empty scanned payload); tool-form works; context-dependent"
+    },
+    {
+      "row": "R-CW-1",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-1/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-1/cael-dgx/EVIDENCE.md",
+      "note": "continue_work() tool-form scheduled+woke; Tempo json"
+    },
+    {
+      "row": "R-CW-3",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-3/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-3/cael-dgx/EVIDENCE.md",
+      "note": "continue_work reason.preview in continuation.work OTel span"
+    },
+    {
+      "row": "R-CW-4",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-4/",
+      "state": "pass",
+      "traces": 4,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-4/cael-dgx/EVIDENCE.md",
+      "note": "chain depth hop counter 1/200→3/200"
+    },
+    {
+      "row": "R-CW-5",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-5/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-5/cael-dgx/EVIDENCE.md",
+      "note": "cost-cap exhaustion → dispatch-time reject (the reject is the proof)"
+    },
+    {
+      "row": "R-CW-6",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-6/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-6/rune-rog-ally/EVIDENCE.md",
+      "note": "REAL low-cap proof: maxChainLength=1 applied via restart workflow, boundary at attempted chain length 2>1, originals restored"
+    },
+    {
+      "row": "R-CW-7",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-7/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-7/rune-rog-ally/EVIDENCE.md",
+      "note": "traceparent E2E propagation across continuation spans; Tempo json"
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-DELEGATE-SELF-CONTINUATION/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-DELEGATE-SELF-CONTINUATION/rune-rog-ally/EVIDENCE.md",
+      "note": "continue_work hop-2 woke in delegate self-continuation"
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-DELEGATE-TOKEN/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-DELEGATE-TOKEN/rune-rog-ally/EVIDENCE.md",
+      "note": "THE #952 row: lightContext subagent bracket CONTINUE_WORK → hop-2 executes live"
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-TOKEN/",
+      "state": "pass",
+      "traces": 3,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-TOKEN/cael-dgx/EVIDENCE.md",
+      "note": "lightContext bare CONTINUE_WORK token-form drives hop-2"
+    },
+    {
+      "row": "R-OBS-1",
+      "owner": "🌻 elliott (elliott-seat)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-OBS-1/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-OBS-1/elliott-seat/EVIDENCE.md",
+      "note": "external /status continuation card cross-walk; observer-row, no-Tempo (correct)"
+    },
+    {
+      "row": "R-OBS-2",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-OBS-2/",
+      "state": "pass",
+      "traces": 4,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-OBS-2/rune-rog-ally/EVIDENCE.md",
+      "note": "Tempo trace-tree viz + parent-child span hierarchy"
+    },
+    {
+      "row": "R-RC-1",
+      "owner": "🌫 silas (silas-lothric)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-RC-1/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-RC-1/silas-lothric/EVIDENCE.md",
+      "note": "request_compaction() threshold guard reject at 19% < threshold 70"
+    },
+    {
+      "row": "R-RC-2",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-RC-2/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-RC-2/cael-dgx/EVIDENCE.md",
+      "note": "request_compaction() over-threshold ACCEPT"
+    }
+  ],
+  "rollup": {
+    "total_rows": 19,
+    "pass": 18,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 1,
+    "missing": 0
+  },
+  "pending_push": [
+    "R-CONFIG-DEFAULTS (🕯 emeric-nuc, PASS reported)",
+    "R-CONFIG-INTERSESSION (🕯 emeric-nuc, PASS reported)",
+    "R-REGRESSION-TRAP-TESTS (🕯 emeric-nuc, PASS reported)",
+    "R-CW-3 emeric-nuc sister-cross-walk (PASS reported, reason-sentinel trace)",
+    "R-CD-CHAINED-DEPTH-2 TEST-1 (🕯 emeric-nuc, HONEST-LIMIT reported)"
+  ],
+  "disposition_note": "FRESH-FIRE corpus: all rows fired live at ship-SHA 82827d3cbc by the 6-prince fleet (deployed + AFTER_COMMIT-verified on 82827d3cbc). NOT a carry. 18 PASS + 1 honest-limit across 19 rows from 5 seats (ronan/cael/rune/silas/elliott), zero-404. 🕯 Emeric's 5 rows (4 PASS + 1 honest-limit) are reported-clean but a docs-main push did not land; folding in on re-push (see pending_push). Continuation feature comprehensively proven: continue_work (tool+token), continue_delegate (tool+token, all modes, chained depth-2), request_compaction (reject+accept), cap-boundary, traceparent E2E, #952 lightContext bracket row.",
+  "generated": "2026-06-23",
+  "generated_by": "frond-scribe (copilot, corpus-manager)"
+}

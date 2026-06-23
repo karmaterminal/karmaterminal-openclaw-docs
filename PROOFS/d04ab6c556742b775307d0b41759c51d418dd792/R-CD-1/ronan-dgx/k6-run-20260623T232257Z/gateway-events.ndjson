@@ -1,0 +1,10 @@
+{"ts":1782231718633,"kind":"event","method":null,"event":"connect.challenge","ok":null,"data":null}
+{"ts":1782231718635,"kind":"other","method":null,"event":null,"ok":null,"data":null}
+{"ts":1782231718689,"kind":"event","method":null,"event":"health","ok":null,"data":null}
+{"ts":1782231719136,"kind":"response","method":"sessions.messages.subscribe","event":null,"ok":false,"data":null}
+{"ts":1782231719462,"kind":"event","method":null,"event":"tick","ok":null,"data":null}
+{"ts":1782231719673,"kind":"response","method":"tools.invoke","event":null,"ok":true,"data":{"ok":true}}
+{"ts":1782231726639,"kind":"response","method":"tasks.list","event":null,"ok":true,"data":{}}
+{"ts":1782231738636,"kind":"response","method":"tasks.list","event":null,"ok":true,"data":{}}
+{"ts":1782231749463,"kind":"event","method":null,"event":"tick","ok":null,"data":null}
+{"ts":1782231777354,"kind":"event","method":null,"event":"health","ok":null,"data":null}

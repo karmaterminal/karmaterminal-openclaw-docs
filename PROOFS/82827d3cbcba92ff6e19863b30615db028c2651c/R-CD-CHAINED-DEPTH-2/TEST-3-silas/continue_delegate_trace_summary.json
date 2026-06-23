@@ -1,0 +1,61 @@
+{
+  "traceId": "cd24ee24d2d6732c2ba12dbc5128e7f1",
+  "continueDelegateSpanCount": 11,
+  "errorSpans": [
+    {
+      "spanId": "bP7NntAs4xQ=",
+      "errorCode": "400",
+      "errorCategory": "Error"
+    },
+    {
+      "spanId": "IFhBe/fklJo=",
+      "errorCode": "400",
+      "errorCategory": "Error"
+    },
+    {
+      "spanId": "McsgU1FU5cc=",
+      "errorCode": "400",
+      "errorCategory": "Error"
+    },
+    {
+      "spanId": "6H1wDrxL5OM=",
+      "errorCode": "400",
+      "errorCategory": "Error"
+    },
+    {
+      "spanId": "2FYsxhr6lRE=",
+      "errorCode": "400",
+      "errorCategory": "Error"
+    },
+    {
+      "spanId": "pjyVDV0VZ+s=",
+      "errorCode": "400",
+      "errorCategory": "Error"
+    },
+    {
+      "spanId": "Z3ZJ30qYf5g=",
+      "errorCode": "400",
+      "errorCategory": "Error"
+    },
+    {
+      "spanId": "dXhMNffC0KM=",
+      "errorCode": "400",
+      "errorCategory": "Error"
+    },
+    {
+      "spanId": "coxsG2g/05I=",
+      "errorCode": "400",
+      "errorCategory": "Error"
+    },
+    {
+      "spanId": "TxO0iIfGfss=",
+      "errorCode": "400",
+      "errorCategory": "Error"
+    },
+    {
+      "spanId": "R/zuIHC883I=",
+      "errorCode": "400",
+      "errorCategory": "Error"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "shipSha": "82827d3cbcba92ff6e19863b30615db028c2651c",
+  "seat": "silas-lothric",
+  "capturedAt": "2026-06-23T00:10:00-07:00",
+  "echoToken": "R-CD-CHAINED-DEPTH-2-TEST-3-silas-82827d3cbc-1782198700",
+  "attempts": [
+    {
+      "intended": "continue_delegate(mode=silent-wake, fanoutMode=all)",
+      "receipt": {
+        "status": "error",
+        "tool": "continue_delegate",
+        "error": "targetSessionKeys must include at least one session key."
+      }
+    },
+    {
+      "intended": "continue_delegate(mode=silent-wake, fanoutMode=tree)",
+      "receipt": {
+        "status": "error",
+        "tool": "continue_delegate",
+        "error": "targetSessionKeys must include at least one session key."
+      }
+    },
+    {
+      "intended": "continue_delegate(mode=silent-wake, fanoutMode=all, targetSessionKey=current)",
+      "receipt": {
+        "status": "error",
+        "tool": "continue_delegate",
+        "error": "fanoutMode cannot be combined with targetSessionKey or targetSessionKeys."
+      }
+    }
+  ],
+  "verdict": "HONEST-LIMIT: root dispatch blocked before scheduling; no depth-1/depth-2 child claimed."
+}

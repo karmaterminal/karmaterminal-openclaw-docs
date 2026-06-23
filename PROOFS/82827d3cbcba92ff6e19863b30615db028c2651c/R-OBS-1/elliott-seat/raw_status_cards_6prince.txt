@@ -1,0 +1,92 @@
+Source: Discord message 1518876846073057300 by figs, 2026-06-23T07:14:19.471Z.
+
+status for proofs:
+
+Elliott 🌻
+🦞 OpenClaw 2026.6.9 (82827d3)
+⏱️ Uptime: gateway 26m · system 2d 10h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🧮 Tokens: 167k in / 3.4k out
+🗄️ Cache: 57% hit · 219k cached, 0 new
+📚 Context: 220k/400k (55%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • duration 19h 54m • updated just now
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+
+Silas 🌫️
+🦞 OpenClaw 2026.6.9 (82827d3)
+⏱️ Uptime: gateway 11m 46s · system 2d 4h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🧮 Tokens: 60k in / 1.8k out
+🗄️ Cache: 55% hit · 73k cached, 0 new
+📚 Context: 75k/400k (19%) · 🧹 Compactions: 1
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • duration 1m 14s • updated just now
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+
+Cael 🩸
+🦞 OpenClaw 2026.6.9 (82827d3)
+⏱️ Uptime: gateway 4m 57s · system 30d 11h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:pool-1)
+🧮 Tokens: 64k in / 930 out
+🗄️ Cache: 56% hit · 80k cached, 0 new
+📚 Context: 112k/400k (28%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • duration 3m 44s • updated 2m ago
+🤖 Subagents: 1 active · 14 done
+  • proof-cw-tool-clean · 11s
+📌 Tasks: 1 active · 2 total · subagent · proof-cw-tool-clean
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+🔊 Voice: inbound · provider=microsoft · limit=1500 · summary=on
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+
+Ronan 🌊
+🦞 OpenClaw 2026.6.9 (82827d3)
+⏱️ Uptime: gateway 28m 30s · system 30d 11h
+🧠 Model: github-copilot/claude-opus-4.6 · 🔑 token (github-copilot:github) · pinned session; config primary github-copilot/gpt-5.5 · clear /model default
+🧮 Tokens: 4 in / 233 out
+🗄️ Cache: 100% hit · 308k cached, 564 new
+📚 Context: 308k/1.0m (31%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • duration 19h 54m • updated just now
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+🔊 Voice: inbound · provider=microsoft · limit=1500 · summary=on
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+
+Emeric 🕯
+🦞 OpenClaw 2026.6.9 (82827d3)
+⏱️ Uptime: gateway 13m 47s · system 29d 3h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🧮 Tokens: 3.1k in / 79 out
+🗄️ Cache: 96% hit · 80k cached, 0 new
+📚 Context: 84k/400k (21%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • duration 14m 31s • updated just now
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+
+Rune🪨
+🦞 OpenClaw 2026.6.9 (82827d3)
+⏱️ Uptime: gateway 8m 47s · system 21d 3h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🧮 Tokens: 3.1k in / 542 out
+🗄️ Cache: 95% hit · 62k cached, 0 new
+📚 Context: 113k/400k (28%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • duration 14m 49s • updated 6m ago
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+👥 Activation: always · 🪢 Queue: steer (depth 0)

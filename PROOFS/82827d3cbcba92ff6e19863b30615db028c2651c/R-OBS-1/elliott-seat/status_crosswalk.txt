@@ -1,0 +1,12 @@
+External status card: Discord message 1518876846073057300 by figs, 2026-06-23T07:14:19.471Z.
+Candidate SHA: 82827d3cbcba92ff6e19863b30615db028c2651c (status card short SHA: 82827d3).
+
+Seat | Runtime card | Continuation | Context | Queue/plugins | Proof-state signal
+Elliott 🌻 | OpenClaw 2026.6.9 (82827d3), gateway 26m | chain 0/200 | 220k/400k (55%), 0 compactions | Plugins OK, queue steer depth 0 | deployed, headroom for R-OBS-1
+Silas 🌫️ | OpenClaw 2026.6.9 (82827d3), gateway 11m46s | chain 0/200 | 75k/400k (19%), 1 compaction | Plugins OK, queue steer depth 0 | fresh proof lane, rows pending
+Cael 🩸 | OpenClaw 2026.6.9 (82827d3), gateway 4m57s | chain 0/200 | 112k/400k (28%), 0 compactions | Plugins OK, queue steer depth 0 | 1 active subagent: proof-cw-tool-clean
+Ronan 🌊 | OpenClaw 2026.6.9 (82827d3), gateway 28m30s | chain 0/200 | 308k/1.0m (31%), 0 compactions | Plugins OK, queue steer depth 0 | rows already pushed; pinned model noted
+Emeric 🕯 | OpenClaw 2026.6.9 (82827d3), gateway 13m47s | chain 0/200 | 84k/400k (21%), 0 compactions | Plugins OK, queue steer depth 0 | fresh proof lane, rows pending
+Rune 🪨 | OpenClaw 2026.6.9 (82827d3), gateway 8m47s | chain 0/200 | 113k/400k (28%), 0 compactions | Plugins OK, queue steer depth 0 | fresh proof lane, rows pending
+
+Observer conclusion: six deployed seats visible on the candidate runtime; continuation chain counter visible on every card; plugins/queues healthy; Cael already had proof subagent activity visible from outside.

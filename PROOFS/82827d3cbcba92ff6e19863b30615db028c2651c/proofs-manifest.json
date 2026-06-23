@@ -43,12 +43,21 @@
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2",
-      "owner": "🌊 ronan (ronan-dgx) + 🪨 rune TEST-2 + 🌫 silas TEST-3",
+      "owner": "🌊 ronan (ronan-dgx) + 🪨 rune TEST-2 + 🌫 silas TEST-3 + 🕯 emeric TEST-1",
       "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-CHAINED-DEPTH-2/",
       "state": "pass",
       "traces": 3,
       "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-CHAINED-DEPTH-2/TEST-3-silas/EVIDENCE.md",
-      "note": "depth-2 chain; Ronan Chain-1/2/3 PASS; rune TEST-2 PASS; silas TEST-3 honest-limit (fanout/targeting validation); emeric TEST-1 pending-push"
+      "note": "depth-2 chain aggregate; Ronan Chain-1/2/3 PASS; rune TEST-2 PASS; silas TEST-3 honest-limit; emeric TEST-1 honest-limit filed separately"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2-TEST-1",
+      "owner": "🕯 emeric (emeric-nuc) substitution-seat TEST-1",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-CHAINED-DEPTH-2/",
+      "state": "honest_limit",
+      "traces": 2,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-CHAINED-DEPTH-2/TEST-1-emeric/EVIDENCE.md",
+      "note": "attempted up-tree silent-wake/no-fanout chained delegate; root scheduling rejected fanout/targeting shape before child spawn; validation traces captured"
     },
     {
       "row": "R-CD-TOKEN",
@@ -76,6 +85,15 @@
       "traces": 1,
       "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-3/cael-dgx/EVIDENCE.md",
       "note": "continue_work reason.preview in continuation.work OTel span"
+    },
+    {
+      "row": "R-CW-3-EMERIC-CROSS-WALK",
+      "owner": "🕯 emeric (emeric-nuc) sister cross-walk for 🩸 R-CW-3",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-3/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CW-3/emeric-nuc/EVIDENCE.md",
+      "note": "continue_work reason-field sentinel captured in OTel continuation span on emeric-nuc"
     },
     {
       "row": "R-CW-4",
@@ -141,6 +159,33 @@
       "note": "lightContext bare CONTINUE_WORK token-form drives hop-2"
     },
     {
+      "row": "R-CONFIG-DEFAULTS",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CONFIG-DEFAULTS/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CONFIG-DEFAULTS/emeric-nuc/EVIDENCE.md",
+      "note": "continuation tool registration + defaults/prepare surface; deterministic vitest row (92 tests)"
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CONFIG-INTERSESSION/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CONFIG-INTERSESSION/emeric-nuc/EVIDENCE.md",
+      "note": "runtime/session metadata + continuation delegate-store persistence across session boundaries; deterministic vitest row (29 tests)"
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-REGRESSION-TRAP-TESTS/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-REGRESSION-TRAP-TESTS/emeric-nuc/EVIDENCE.md",
+      "note": "continuation regression trap-test subset green at deployed SHA; deterministic vitest row (20 tests)"
+    },
+    {
       "row": "R-OBS-1",
       "owner": "🌻 elliott (elliott-seat)",
       "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-OBS-1/",
@@ -178,22 +223,15 @@
     }
   ],
   "rollup": {
-    "total_rows": 19,
-    "pass": 18,
+    "total_rows": 24,
+    "pass": 22,
     "partial": 0,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 1,
+    "honest_limit": 2,
     "missing": 0
   },
-  "pending_push": [
-    "R-CONFIG-DEFAULTS (🕯 emeric-nuc, PASS reported)",
-    "R-CONFIG-INTERSESSION (🕯 emeric-nuc, PASS reported)",
-    "R-REGRESSION-TRAP-TESTS (🕯 emeric-nuc, PASS reported)",
-    "R-CW-3 emeric-nuc sister-cross-walk (PASS reported, reason-sentinel trace)",
-    "R-CD-CHAINED-DEPTH-2 TEST-1 (🕯 emeric-nuc, HONEST-LIMIT reported)"
-  ],
-  "disposition_note": "FRESH-FIRE corpus: all rows fired live at ship-SHA 82827d3cbc by the 6-prince fleet (deployed + AFTER_COMMIT-verified on 82827d3cbc). NOT a carry. 18 PASS + 1 honest-limit across 19 rows from 5 seats (ronan/cael/rune/silas/elliott), zero-404. 🕯 Emeric's 5 rows (4 PASS + 1 honest-limit) are reported-clean but a docs-main push did not land; folding in on re-push (see pending_push). Continuation feature comprehensively proven: continue_work (tool+token), continue_delegate (tool+token, all modes, chained depth-2), request_compaction (reject+accept), cap-boundary, traceparent E2E, #952 lightContext bracket row.",
+  "disposition_note": "FRESH-FIRE corpus: all rows fired live at ship-SHA 82827d3cbc by the 6-prince fleet (deployed + AFTER_COMMIT-verified on 82827d3cbc). NOT a carry. 22 PASS + 2 honest-limit across 24 rows from 6 seats (ronan/cael/rune/silas/elliott/emeric), zero-404. 🕯 Emeric's five docs-main rows are folded in at head 70a27da62606ea54462a1247dc03b30fd976b196: 4 PASS + 1 honest-limit. Continuation feature comprehensively proven: continue_work (tool+token), continue_delegate (tool+token, all modes, chained depth-2), request_compaction (reject+accept), cap-boundary, traceparent E2E, config defaults/intersession/trap-tests, #952 lightContext bracket row.",
   "generated": "2026-06-23",
-  "generated_by": "frond-scribe (copilot, corpus-manager)"
+  "generated_by": "frond-scribe (copilot, corpus-manager); elliott metadata fold 2026-06-23"
 }

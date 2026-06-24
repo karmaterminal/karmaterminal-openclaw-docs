@@ -1,0 +1,187 @@
+name: k6 PROOF row
+
+# Kickoff side of the k6-PROOFS integration (#127).
+# A prince triggers this with workflow_dispatch; the gateway token comes from a
+# repo secret (never in source, never echoed). The harness lives in
+# tools/k6-proofs/; this workflow is the "very little work beyond kickoff" path.
+#
+# Pairs with #105 (the fold/validation side: validate-corpus.mjs + CONTRIBUTING-ROWS.md).
+#
+# Required repo secrets (names only — values are configured in repo settings):
+#   OPENCLAW_GATEWAY_TOKEN   operator auth token for the target gateway (REQUIRED)
+#
+# The target gateway WS URL is a workflow input (the gateway runs on a prince
+# seat, not the runner). For a network-reachable target, point gateway_ws at it
+# and run on a runner with a route to that seat (self-hosted runner on/near the
+# seat is the typical shape). dry_run=true (default) runs preflight only and
+# writes no proof verdicts, so it is safe to exercise the plumbing first.
+
+on:
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: "Scenario file under tools/k6-proofs/scenarios/ (without path)"
+        required: true
+        type: choice
+        default: preflight.js
+        options:
+          - preflight.js
+          - r-cd-1-typed-delegate.js
+          - r-cd-token-bracket-delegate.js
+      row:
+        description: "Row id for evidence (e.g. R-CD-1, R-CD-TOKEN). Ignored when dry_run=true."
+        required: false
+        type: string
+        default: ""
+      manifest_path:
+        description: "Path to a row manifest JSON under tools/k6-proofs/manifests/ (optional; enables manifest-driven mode)"
+        required: false
+        type: string
+        default: ""
+      seat:
+        description: "Seat identifier for artifact layout (e.g. ronan-dgx, emeric-nuc)"
+        required: false
+        type: string
+        default: "ci-runner"
+      candidate_sha:
+        description: "40-char openclaw deploy SHA this proof runs against. Required when dry_run=false."
+        required: false
+        type: string
+        default: ""
+      gateway_ws:
+        description: "Target gateway WebSocket URL (e.g. ws://10.0.0.246:18789). Defaults to local."
+        required: false
+        type: string
+        default: "ws://127.0.0.1:18789"
+      session_key:
+        description: "Target session key"
+        required: false
+        type: string
+        default: "main"
+      dry_run:
+        description: "Preflight/dry mode: run preflight only, write NO proof verdicts"
+        required: false
+        type: boolean
+        default: true
+
+# No elevated token in source. The only secret is injected as env at the step
+# that needs it, scoped as tightly as the job allows.
+permissions:
+  contents: read
+
+concurrency:
+  # Serialize proof runs on the same row+seat — k6 proof rows are single-VU and
+  # must not run in parallel against the same session.
+  group: k6-proof-${{ github.event.inputs.seat }}-${{ github.event.inputs.row }}
+  cancel-in-progress: false
+
+jobs:
+  k6-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate inputs
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          SCENARIO: ${{ github.event.inputs.scenario }}
+          ROW: ${{ github.event.inputs.row }}
+          CANDIDATE_SHA: ${{ github.event.inputs.candidate_sha }}
+          MANIFEST_PATH: ${{ github.event.inputs.manifest_path }}
+        run: |
+          set -euo pipefail
+          scenario_file="tools/k6-proofs/scenarios/${SCENARIO}"
+          if [ ! -f "$scenario_file" ]; then
+            echo "::error::scenario file not found: $scenario_file"
+            exit 1
+          fi
+          if [ -n "$MANIFEST_PATH" ] && [ ! -f "$MANIFEST_PATH" ]; then
+            echo "::error::manifest path not found: $MANIFEST_PATH"
+            exit 1
+          fi
+          if [ "$DRY_RUN" != "true" ]; then
+            if [ -z "$ROW" ]; then
+              echo "::error::row is required when dry_run=false"
+              exit 1
+            fi
+            if ! printf '%s' "$CANDIDATE_SHA" | grep -Eq '^[0-9a-f]{40}$'; then
+              echo "::error::candidate_sha must be a 40-char hex string when dry_run=false"
+              exit 1
+            fi
+          fi
+          echo "inputs validated (dry_run=$DRY_RUN, scenario=$SCENARIO)"
+
+      - name: Install k6
+        run: |
+          set -euo pipefail
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg \
+            --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" \
+            | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install -y k6
+          k6 version
+
+      - name: Run k6 scenario
+        # Token is injected ONLY here, ONLY as env. Never echoed; runner masks
+        # registered secrets in logs, and we keep `set +x` so the env line is
+        # not traced. k6 reads OPENCLAW_GATEWAY_TOKEN from the environment.
+        env:
+          OPENCLAW_GATEWAY_TOKEN: ${{ secrets.OPENCLAW_GATEWAY_TOKEN }}
+          OPENCLAW_GATEWAY_WS: ${{ github.event.inputs.gateway_ws }}
+          OPENCLAW_SESSION_KEY: ${{ github.event.inputs.session_key }}
+          OPENCLAW_CANDIDATE_SHA: ${{ github.event.inputs.candidate_sha }}
+          OPENCLAW_SEAT_NAME: ${{ github.event.inputs.seat }}
+          OPENCLAW_ROW_MANIFEST: ${{ github.event.inputs.manifest_path }}
+          SCENARIO: ${{ github.event.inputs.scenario }}
+        run: |
+          set +x
+          set -euo pipefail
+          if [ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]; then
+            echo "::error::OPENCLAW_GATEWAY_TOKEN repo secret is not set"
+            exit 1
+          fi
+          mkdir -p /tmp/k6-out
+          # tee to a file for the evidence post-processor; k6's own stdout is the
+          # human log. The token is never printed by k6 or by us.
+          k6 run "tools/k6-proofs/scenarios/${SCENARIO}" 2>&1 | tee /tmp/k6-out/run.txt
+          echo "k6 run complete"
+
+      - name: Write evidence artifacts
+        # Skipped on dry_run: a preflight/dry run writes NO proof verdicts.
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        env:
+          ROW: ${{ github.event.inputs.row }}
+          SEAT: ${{ github.event.inputs.seat }}
+          CANDIDATE_SHA: ${{ github.event.inputs.candidate_sha }}
+        run: |
+          set -euo pipefail
+          node tools/k6-proofs/scripts/evidence-writer.mjs \
+            --input /tmp/k6-out/run.txt \
+            --row "$ROW" \
+            --seat "$SEAT" \
+            --sha "$CANDIDATE_SHA"
+          echo "evidence written under PROOFS/${CANDIDATE_SHA}/${ROW}/${SEAT}/"
+
+      - name: Upload run log (dry_run)
+        if: ${{ github.event.inputs.dry_run == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-dry-run-log
+          path: /tmp/k6-out/run.txt
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload proof artifacts
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-proof-${{ github.event.inputs.row }}-${{ github.event.inputs.seat }}
+          # CANDIDATE artifacts only — human review folds into canonical PROOFS/.
+          path: |
+            PROOFS/${{ github.event.inputs.candidate_sha }}/${{ github.event.inputs.row }}/${{ github.event.inputs.seat }}/
+          if-no-files-found: error
+          retention-days: 30

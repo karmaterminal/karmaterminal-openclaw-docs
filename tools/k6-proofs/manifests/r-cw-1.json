@@ -1,0 +1,53 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "r-cw-1",
+  "issue": 102,
+  "candidateSha": "82827d3cbcba92ff6e19863b30615db028c2651c",
+  "seat": "${OPENCLAW_SEAT_NAME:-local-seat}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY}",
+  "transport": "websocket",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 30,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "continue_work typed delegate",
+    "description": "Validates that a typed continue_work tool call correctly schedules and executes a continuation turn on the same session.",
+    "methods": ["continue_work"]
+  },
+  "expectedReceipts": [
+    {
+      "name": "manifest-loaded",
+      "required": true,
+      "pathHint": "row-manifest.json",
+      "description": "The exact row manifest used for the k6 run."
+    },
+    {
+      "name": "k6-summary",
+      "required": true,
+      "pathHint": "k6-summary.json",
+      "description": "Raw k6 summary/export for the run."
+    },
+    {
+      "name": "wake-event-evidence",
+      "required": true,
+      "pathHint": "artifacts/wake_event_evidence.txt",
+      "description": "Transcript excerpt showing the scheduled continuation waking up."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "82827d3cbcba92ff6e19863b30615db028c2651c",
+    "row": "r-cw-1",
+    "seat": "${OPENCLAW_SEAT_NAME:-local-seat}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Validates the continuation mechanism's core path."
+  }
+}

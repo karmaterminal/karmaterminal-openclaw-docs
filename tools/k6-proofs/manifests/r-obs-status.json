@@ -5,7 +5,7 @@
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-emeric-nuc}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:***-obs}",
-  "transport": "http-tools-invoke",
+  "transport": "ws-status-probe",
   "toolSurface": "read-only",
   "mutates": false,
   "timeoutSeconds": 60,

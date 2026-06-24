@@ -11,11 +11,6 @@ Pairs with **#105** (the fold/validation side: `validate-corpus.mjs` +
 `CONTRIBUTING-ROWS.md`). This workflow fires the row; #105 validates + folds the
 candidate artifacts into the canonical corpus.
 
-### Required repo secrets (names only)
-
-| Secret | Purpose |
-|--------|---------|
-| `OPENCLAW_GATEWAY_TOKEN` | Operator auth token for the **target** gateway. Required. Injected as env only at the run step; never echoed, never in source. Configure under **Settings → Secrets and variables → Actions**. |
 
 ### Trigger (Actions tab → "k6 PROOF row" → Run workflow)
 

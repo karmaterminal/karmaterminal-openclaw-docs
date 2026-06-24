@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  k6 PROOFS Pipeline — Structured Decision Tree
+  Domain: Continuation feature behavioral proof automation
+  
+  Use: Machine-actor navigation when building/running/verifying proof rows.
+  Companion: k6-proofs/skill/SKILL.md (human-readable, detailed)
+  
+  One-shot parse: a model loads this whole and knows which row, what to fire,
+  how to verify, and where artifacts land — no line-by-line scanning.
+-->
+<K6ProofsPipeline version="1.0" sha-index="PROOFS/INDEX.json">
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       INFRASTRUCTURE — What exists, where it lives
+       ═══════════════════════════════════════════════════════════════ -->
+  <Infrastructure>
+    <Component id="k6" location="/home/figs/bin/k6" version="2.0.0" seats="ronan-dgx"/>
+    <Component id="prometheus" url="http://prometheus.dandelion.cult" port="80" host="silas-k3s"/>
+    <Component id="grafana" url="http://grafana.dandelion.cult" port="80" host="silas-k3s"/>
+    <Component id="loki" url="http://loki.dandelion.cult" port="80" host="silas-k3s"/>
+    <Component id="tempo" url="http://tempo.dandelion.cult" port="80" host="silas-k3s"/>
+    <Component id="gateway" url="http://127.0.0.1:18789" path="/health" expect="ok:true"/>
+    <Component id="harness" repo="karmaterminal/karmaterminal-openclaw-docs" path="k6-proofs/"/>
+    <Component id="runner" path="k6-proofs/run-proof.sh" auto-detects="sha,seat,prometheus-url"/>
+  </Infrastructure>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PIPELINE — How a proof run flows
+       ═══════════════════════════════════════════════════════════════ -->
+  <Pipeline>
+    <Step order="1" id="preflight">
+      <Action>./run-proof.sh preflight</Action>
+      <Verifies>Gateway alive, Tempo reachable, Loki reachable, Prometheus accepting writes</Verifies>
+      <FailAction>Do not proceed — infrastructure not ready</FailAction>
+    </Step>
+    <Step order="2" id="fire-row">
+      <Action>./run-proof.sh r-{row-name}</Action>
+      <Metrics>Auto-ship to Prometheus via Remote Write</Metrics>
+      <Output>r-{row-name}-summary.json</Output>
+    </Step>
+    <Step order="3" id="evidence-capture">
+      <Action>Grep journal for nonce; pull Tempo trace; query Loki</Action>
+      <Artifacts>EVIDENCE.md + raw trace JSON + summary JSON</Artifacts>
+      <Destination>PROOFS/{SHA}/R-{ROW-NAME}/</Destination>
+    </Step>
+    <Step order="4" id="commit">
+      <Action>git add PROOFS/{SHA}/; git commit; git push origin main</Action>
+      <Constraint>Proofs land on main directly (no branch/PR detour per figs directive)</Constraint>
+    </Step>
+  </Pipeline>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PROOF ROWS — Complete registry with fire method + evidence shape
+       ═══════════════════════════════════════════════════════════════ -->
+  <ProofRows>
+
+    <!-- continue_work family -->
+    <Row id="R-CW-1" owner="cael" forms="tool+token" issue="102">
+      <Behavior>continue_work() wake + deploy-persistence (chain-counter increments + persists across deploy)</Behavior>
+      <FireMethod>Agent calls continue_work() tool in main session</FireMethod>
+      <TokenForm>CONTINUE_WORK or CONTINUE_WORK:N at end of reply</TokenForm>
+      <Evidence>Successor turn fires; chain.step.remaining decrements; persists across gateway restart</Evidence>
+    </Row>
+    <Row id="R-CW-2" owner="cael" forms="tool" issue="117">
+      <Behavior>chain-counter accounting (embedded in R-CW-1)</Behavior>
+      <Evidence>chain.step.remaining field in OTel span decrements per hop</Evidence>
+    </Row>
+    <Row id="R-CW-3" owner="cael+emeric" forms="tool" issue="117">
+      <Behavior>reason-field captured in OTel span</Behavior>
+      <Evidence>Span attribute contains the reason string from continue_work(reason=...)</Evidence>
+    </Row>
+    <Row id="R-CW-4" owner="cael" forms="tool" issue="117">
+      <Behavior>chain depth tracking across hops</Behavior>
+      <Evidence>chain.step.remaining decrements across 4+ hops in same chain.id</Evidence>
+    </Row>
+    <Row id="R-CW-5" owner="cael" forms="tool" issue="117" procedure="caps-test">
+      <Behavior>cost-cap exhaustion dispatch-time reject</Behavior>
+      <FireMethod>Lower costCapTokens artificially; fire continue_work; verify reject</FireMethod>
+      <Evidence>Journal shows "[continuation:work-rejected] N/N"; Tempo trace captures rejection</Evidence>
+      <Restore>Return original caps + gateway-reload</Restore>
+    </Row>
+    <Row id="R-CW-6" owner="rune" forms="tool" issue="117" procedure="caps-test">
+      <Behavior>chain-depth-boundary reject</Behavior>
+      <FireMethod>Lower maxChainLength; fire continue_work past limit; verify reject</FireMethod>
+      <Evidence>Journal reject + Tempo trace</Evidence>
+    </Row>
+    <Row id="R-CW-7" owner="rune" forms="tool" issue="117">
+      <Behavior>traceparent E2E propagation across continuation spans</Behavior>
+      <Evidence>Same trace-tree in Tempo across parent→child hops (W3C traceparent preserved)</Evidence>
+    </Row>
+    <Row id="R-CW-TOKEN" owner="cael" forms="token-only" issue="102">
+      <Behavior>CONTINUE_WORK / CONTINUE_WORK:N token at end of reply DRIVES continuation</Behavior>
+      <FireMethod>Agent emits bare CONTINUE_WORK token as terminal text</FireMethod>
+      <Evidence>bracketIdx=0 in journal; hop-2 fires from parsed response-token</Evidence>
+      <Constraint>Tool-form sibling = R-CW-1; independent code paths</Constraint>
+    </Row>
+    <Row id="R-CW-DELEGATE-SELF-CONTINUATION" owner="rune" forms="tool+token" issue="118">
+      <Behavior>continue_delegate self-continuation pattern</Behavior>
+      <Evidence>Per-seat-subdir cross-walk: delegate fires, returns to self</Evidence>
+    </Row>
+    <Row id="R-CW-DELEGATE-TOKEN" owner="rune" forms="token-only" issue="118">
+      <Behavior>lightContext subagent fires [[CONTINUE_WORK:N]] bracket; hop-2 EXECUTES</Behavior>
+      <FireMethod>Subagent with NO continue_work tool emits bracket → must drive</FireMethod>
+      <Evidence>Subagent jsonl shows hop-2 turn completing on quiet seat</Evidence>
+      <Constraint>THE #952 ROW — the one the corpus never covered until fixed</Constraint>
+    </Row>
+    <Row id="R-CW-DELEGATE-CHILD-LIVE" owner="cael+emeric" forms="tool+token" issue="118">
+      <Behavior>LIVE delegate-child continue_work hop-2 EXECUTES end-to-end</Behavior>
+      <Evidence>Delegate-child takes a fresh hop-2 turn to COMPLETION on genuinely-quiet seat</Evidence>
+    </Row>
+    <Row id="R-CW-MULTI" owner="cael" forms="tool+token" issue="118">
+      <Behavior>N elections in ONE turn → N DISTINCT next-turn wakes at different delays</Behavior>
+      <Evidence>3 elections (60/120/default) → 3 turns at +0/+60s/+120s</Evidence>
+    </Row>
+    <Row id="R-CW-MULTI-COLLAPSE" owner="cael" forms="tool+token" issue="118">
+      <Behavior>Elapsed-overlap grace-conditional fold (matured elections co-drain)</Behavior>
+      <Evidence>Within-grace pair → BOTH deliver; stale pile → folded; running → never folded</Evidence>
+    </Row>
+
+    <!-- continue_delegate family -->
+    <Row id="R-CD-1" owner="ronan" forms="tool" issue="103,119">
+      <Behavior>continue_delegate() schedule → spawn → return (mode=normal)</Behavior>
+      <FireMethod>Agent calls continue_delegate(task=..., mode="normal")</FireMethod>
+      <Evidence>Delegate dispatch accepted; child session spawns; payload returns to parent</Evidence>
+    </Row>
+    <Row id="R-CD-2" owner="ronan" forms="tool" issue="119">
+      <Behavior>continue_delegate(mode="silent-wake") full path</Behavior>
+      <Evidence>Delegate returns silently; parent wakes with enriched context; no channel post</Evidence>
+    </Row>
+    <Row id="R-CD-3" owner="ronan" forms="tool" issue="119">
+      <Behavior>continue_delegate(mode="post-compaction") event-triggered lifeboat</Behavior>
+      <Evidence>Compaction event → delegate fires → return re-hydrates post-compaction session</Evidence>
+      <Constraint>Needs context >70% to trigger compaction (or lower threshold via caps-test)</Constraint>
+    </Row>
+    <Row id="R-CD-4" owner="ronan" forms="tool" issue="119">
+      <Behavior>Cross-session targeted return via targetSessionKey</Behavior>
+      <Evidence>Return lands in specified target session, not dispatching session</Evidence>
+    </Row>
+    <Row id="R-CD-TOKEN" owner="ronan" forms="token-only" issue="103">
+      <Behavior>[[CONTINUE_DELEGATE: task]] bracket schedules → spawns → returns</Behavior>
+      <FireMethod>Agent emits [[CONTINUE_DELEGATE: task | mode]] as terminal text</FireMethod>
+      <Evidence>bracketIdx=0; delegate spawns from bracket-parse path (origin=bracket)</Evidence>
+    </Row>
+    <Row id="R-CD-CHAINED-DEPTH-2" owner="ronan" forms="tool" issue="119">
+      <Behavior>Depth-2 chain: parent→child→grandchild→return</Behavior>
+      <SubTests>
+        <Test id="Chain-1">up-tree silent-wake</Test>
+        <Test id="Chain-2">inter-session return</Test>
+        <Test id="Chain-3">echo + cross-channel-broadcast</Test>
+      </SubTests>
+      <Constraint>Fire sequentially, not in parallel</Constraint>
+    </Row>
+    <Row id="R-CD-COLLECTION-ON-COLLAPSE" owner="cael" forms="tool" issue="119">
+      <Behavior>A→B→C chain where B COLLAPSES before C returns → root(A) still collects C sentinel</Behavior>
+      <FireMethod>Intermediates MUST be mode=session (detached), NOT mode=run</FireMethod>
+      <Evidence>Root(A) receives C sentinel across dead intermediate; negative-guard no-orphan</Evidence>
+      <Constraint>Mode-conditional: default=one-level-up; fanoutMode="tree"=reaches-root</Constraint>
+    </Row>
+
+    <!-- request_compaction family -->
+    <Row id="R-RC-1" owner="silas" forms="tool-only" issue="104">
+      <Behavior>request_compaction() threshold REJECT (context below 70%)</Behavior>
+      <Evidence>Structured JSON rejection: {status:"rejected", guard:"context_threshold", ...}</Evidence>
+      <Constraint>Requires low-context main-session</Constraint>
+    </Row>
+    <Row id="R-RC-2" owner="cael" forms="tool-only" issue="104">
+      <Behavior>request_compaction() over-threshold ACCEPT</Behavior>
+      <Evidence>Compaction fires; context reclaimed; successor session wakes</Evidence>
+      <Constraint>Needs context >70% to trigger (real or lowered-threshold)</Constraint>
+    </Row>
+
+    <!-- Observer/config rows -->
+    <Row id="R-OBS-1" owner="elliott" forms="external" issue="104">
+      <Behavior>External /status continuation row + 6-prince cross-walk</Behavior>
+      <Evidence>Cross-walk table: all 6 seats on same SHA, chain states visible</Evidence>
+    </Row>
+    <Row id="R-OBS-2" owner="rune" forms="external" issue="104">
+      <Behavior>Tempo trace-tree visualization + parent-child span hierarchy export</Behavior>
+      <Evidence>Exported span tree showing continuation chain lineage</Evidence>
+    </Row>
+    <Row id="R-CONFIG-DEFAULTS" owner="emeric" forms="config" issue="104">
+      <Behavior>Continuation config defaults applied on bootstrap</Behavior>
+      <Evidence>Fresh gateway starts with continuation.enabled=true + all defaults populated</Evidence>
+    </Row>
+    <Row id="R-CONFIG-INTERSESSION" owner="emeric" forms="config" issue="104">
+      <Behavior>Continuation config persists across session boundaries</Behavior>
+      <Evidence>Config change survives session restart; hot-reload where applicable</Evidence>
+    </Row>
+    <Row id="R-REGRESSION-TRAP-TESTS" owner="emeric" forms="ci" issue="120">
+      <Behavior>Sister-trap-tests lock in each cure going forward</Behavior>
+      <Evidence>Enumeration of trap-tests by cure-PR; current PASS/FAIL status on deployed SHA</Evidence>
+    </Row>
+  </ProofRows>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       MANDATES — Rules that apply across all rows
+       ═══════════════════════════════════════════════════════════════ -->
+  <Mandates>
+    <Mandate id="both-forms">
+      <Rule>Every behavioral row for continue_work and continue_delegate MUST fire in BOTH forms (typed tool + token/bracket)</Rule>
+      <Reason>They take partially independent code paths; tool-only proof is blind to lightContext-subagent path</Reason>
+      <Exception>request_compaction is tool-only (no token form)</Exception>
+    </Mandate>
+    <Mandate id="caps-test">
+      <Rule>Cap-exhaustion rows MUST be proven by actually hitting the cap</Rule>
+      <Procedure>Lower caps → reload gateway → fire → verify reject → restore → reload</Procedure>
+    </Mandate>
+    <Mandate id="corpus-direct">
+      <Rule>Proofs land on main directly — no branch/PR detour</Rule>
+      <Path>PROOFS/{CANDIDATE_SHA}/R-{ROW-NAME}/EVIDENCE.md</Path>
+    </Mandate>
+    <Mandate id="nonce-correlation">
+      <Rule>Use unique nonces and idempotency keys per proof-fire</Rule>
+      <Reason>Evidence correlation across journal + Tempo + Loki</Reason>
+    </Mandate>
+    <Mandate id="no-concurrent-rows">
+      <Rule>Do not run multiple continuation rows against the same live session concurrently</Rule>
+    </Mandate>
+  </Mandates>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       METRICS — How to name and query proof metrics
+       ═══════════════════════════════════════════════════════════════ -->
+  <Metrics>
+    <Convention>Prefix all custom metrics with row name: r_cd_1_pass, r_cd_1_duration_ms, r_cd_1_pass_rate</Convention>
+    <Output endpoint="http://prometheus.dandelion.cult/api/v1/write" protocol="prometheus-remote-write"/>
+    <Query>curl "http://prometheus.dandelion.cult/api/v1/query?query=k6_{metric}"</Query>
+    <Dashboard path="k6-proofs/dashboards/k6-proofs.json" grafana-uid="k6-proofs-continuation"/>
+  </Metrics>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PROJECT TRACKING
+       ═══════════════════════════════════════════════════════════════ -->
+  <Tracking>
+    <Project id="81" url="https://github.com/orgs/karmaterminal/projects/81"/>
+    <Epic issue="106" repo="karmaterminal/karmaterminal-openclaw-docs"/>
+    <Issues range="101-121" repo="karmaterminal/karmaterminal-openclaw-docs"/>
+    <Method path="PROOFS/PROOF-CORPUS-METHOD.md"/>
+    <Index path="PROOFS/INDEX.json" schema="openclaw.proofs.index.v1"/>
+  </Tracking>
+
+</K6ProofsPipeline>

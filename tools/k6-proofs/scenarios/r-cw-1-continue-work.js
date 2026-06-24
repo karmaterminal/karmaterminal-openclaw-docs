@@ -1,7 +1,7 @@
 import { check, sleep } from 'k6';
 import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.2/index.js';
-import { connectToGateway, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
-import { loadManifest } from '../lib/manifest-loader.js';
+import { connectFrame, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { loadManifestFromEnv } from '../lib/manifest-loader.js';
 
 export const options = {
     vus: 1,
@@ -9,7 +9,7 @@ export const options = {
 };
 
 // Initialize manifest and artifacts at module level so handleSummary can access them
-const { manifest, errors } = loadManifest(__ENV.OPENCLAW_ROW_MANIFEST || 'manifests/r-cw-1.json');
+const { manifest, errors } = loadManifestFromEnv(__ENV.OPENCLAW_ROW_MANIFEST || 'manifests/r-cw-1.json');
 const artifacts = {
     manifest: manifest,
     events: [], // Redacted events
@@ -25,8 +25,8 @@ export default function () {
         throw new Error('Manifest validation failed; aborting run.');
     }
 
-    const wsUrl = manifest.gateway.wsEnv;
-    const token = manifest.gateway.tokenEnv;
+    const wsUrl = __ENV[manifest.gateway.wsEnv];
+    const token = __ENV[manifest.gateway.tokenEnv];
     const sessionKey = manifest.sessionKey;
 
     if (!wsUrl || !token || !sessionKey) {
@@ -37,8 +37,9 @@ export default function () {
     let isConnected = false;
     let authSuccess = false;
     let continuationScheduled = false;
+    let continuationWoke = false;
 
-    const res = connectToGateway(wsUrl, function (socket) {
+    const res = connectFrame(wsUrl, function (socket) {
         tracker.setSocket(socket);
 
         socket.on('open', () => {
@@ -70,9 +71,14 @@ export default function () {
                     artifacts.errors.push(`Request ${classified.method} failed: ${JSON.stringify(classified.error)}`);
                 }
             } else if (msg.type === 'event' && msg.payload && msg.payload.type === 'tool_call') {
-                // Observe tool calls for the continuation
                 if (msg.payload.tool === 'continue_work') {
                     continuationScheduled = true;
+                }
+            } else if (msg.type === 'event' && msg.payload && msg.payload.type === 'message' && msg.payload.role === 'user') {
+                // Detect the actual wake event
+                if (msg.payload.text && msg.payload.text.includes('[continuation:wake]')) {
+                    continuationWoke = true;
+                    socket.close(); // Only close AFTER the wake fires
                 }
             }
         });
@@ -84,39 +90,30 @@ export default function () {
         });
 
         socket.setTimeout(function () {
-            if (authSuccess && continuationScheduled) {
-                // Wait briefly for the scheduled turn to be accepted by the gateway before closing
-                socket.setTimeout(function() {
-                     socket.close();
-                }, 2000);
-            } else {
-               artifacts.errors.push('Scenario timed out before completion.');
+            if (!continuationWoke) {
+               artifacts.errors.push('Scenario timed out before continuation woke.');
                socket.close();
             }
-        }, manifest.timeoutSeconds * 1000);
+        }, manifest.timeoutSeconds * 1000); // 30s timeout covers the 5s delay
     });
 
     check(res, {
         'Connected successfully': () => isConnected,
         'Authenticated successfully': () => authSuccess,
         'Continuation scheduled': () => continuationScheduled,
+        'Continuation woke': () => continuationWoke,
         'No errors encountered': () => artifacts.errors.length === 0,
     });
 }
 
 export function handleSummary(data) {
-    // Generate the standard text summary for stdout
     const summary = textSummary(data, { indent: ' ', enableColors: true });
 
-    // Validate that no raw events leaked into the artifacts
     if (artifacts.events && artifacts.events.some(e => e.sessionKey || e.childSessionKey)) {
         artifacts.errors.push('FATAL: Evidence payload contains raw unredacted "events" field.');
     }
 
-    // Embed the evidence bundle within the summary string using the markers the post-processor expects
     const evidenceBundle = JSON.stringify(artifacts, null, 2);
-    
-    // Check if the run achieved PASS-candidate threshold
     const isPass = artifacts.errors.length === 0 && data.metrics.checks && data.metrics.checks.fails === 0;
 
     const fullOutput = summary + 

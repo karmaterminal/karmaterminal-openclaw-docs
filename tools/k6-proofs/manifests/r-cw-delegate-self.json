@@ -1,0 +1,47 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CW-DELEGATE-SELF-CONTINUATION",
+  "issue": 118,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cw-delegate-self-continuation",
+    "description": "Fires continue_delegate that internally calls continue_work — proves hop-2 woke inside a delegate child session. The delegate dispatches, the child fires its own continue_work, and the hop-2 turn executes.",
+    "methods": ["tools.invoke", "sessions.messages.subscribe", "tasks.list"]
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "normal",
+    "delaySeconds": 1,
+    "promptTemplate": "k6 proof R-CW-DELEGATE-SELF: after arriving, fire continue_work(reason='k6-self-continuation-{{nonce}}', delaySeconds=2). On hop-2 wake, report DONE with the nonce and your chain.step. Do not mutate files.",
+    "idempotencyKeyPrefix": "R-CW-DELEGATE-SELF"
+  },
+  "expectedReceipts": [
+    { "name": "delegate-accepted", "required": true, "description": "continue_delegate accepted by gateway" },
+    { "name": "child-spawned", "required": true, "description": "Child session spawned for the delegate" },
+    { "name": "child-continue-work-accepted", "required": true, "description": "Child's own continue_work was accepted" },
+    { "name": "child-hop-2-woke", "required": false, "description": "Child's hop-2 turn executed (DONE + nonce in return)" },
+    { "name": "parent-return", "required": false, "description": "Delegate return event on parent session" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Delegate self-continuation: delegate child fires its own continue_work. PASS when child's hop-2 executes. Proves continue_work works INSIDE a delegate context (not just main session)."
+  }
+}

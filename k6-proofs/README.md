@@ -39,6 +39,8 @@ k6 (any prince seat)
 |------|-----|--------|-------------|
 | `preflight.js` | #101 | ✅ Green | Gateway health + observability stack reachable |
 | `r-cd-1.js` | R-CD-1 | ✅ Green | continue_delegate schedule→spawn→return infrastructure |
+| `r-cw-1.js` | R-CW-1 | 🆕 New | continue_work tool-form schedule + wake |
+| `r-cw.js` | R-CW-* | 🆕 New | Combined continue_work infrastructure preflight |
 
 ## Requirements
 

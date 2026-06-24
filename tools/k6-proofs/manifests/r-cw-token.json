@@ -1,0 +1,44 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CW-TOKEN",
+  "issue": 118,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "bracket-token",
+  "mutates": false,
+  "timeoutSeconds": 90,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cw-token-bracket",
+    "description": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives. Proves the token-form continuation works for subagents (the #952 row lineage).",
+    "methods": ["sessions.send", "sessions.messages.subscribe", "subagents.spawn"]
+  },
+  "seatClassExpectation": {
+    "lightContext-subagent": "PASS-candidate",
+    "message-body-main-session": "HONEST-LIMIT-candidate",
+    "reason": "CONTINUE_WORK bare token only fires from auto-delivered final-text (subagent-announce path). On main-session message-body delivery seats, the token scanner doesn't walk the payload. lightContext subagents auto-deliver → scanner fires → hop-2 drives."
+  },
+  "expectedReceipts": [
+    { "name": "subagent-spawned", "required": true, "description": "lightContext subagent spawned with continuation-instructing prompt" },
+    { "name": "token-emitted", "required": false, "description": "CONTINUE_WORK token observed in subagent final-text (may not surface in events)" },
+    { "name": "hop-2-executed", "required": true, "description": "Subagent's hop-2 turn fired (the continuation drove)" },
+    { "name": "parent-return", "required": false, "description": "Subagent result returned to parent" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CW-TOKEN",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Token/bracket CONTINUE_WORK path. PASS when hop-2 drives on the subagent. This is the #952 lineage proof — the lightContext bracket path that was broken pre-fix."
+  }
+}

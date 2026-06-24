@@ -37,7 +37,7 @@ export function connectFrame(token) {
       mode: __ENV.HARNESS_CLIENT_MODE || 'backend',
     },
     role: 'operator',
-    scopes: ['operator.read', 'operator.write'],
+    scopes: ['operator.read', 'operator.write', 'session.control'],
     caps: [],
     commands: [],
     permissions: {},

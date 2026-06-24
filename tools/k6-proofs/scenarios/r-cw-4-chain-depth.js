@@ -79,7 +79,7 @@ export default function () {
 
     socket.on('open', function () {
       // Authenticate
-      socket.send(connectFrame(token));
+      socket.send(connectFrame(token, ['operator.read', 'operator.write', 'session.control']));
     });
 
     socket.on('message', function (msg) {
@@ -98,14 +98,13 @@ export default function () {
 
         // Subscribe to session events for continuation observations
         // NB: handler expects `key`, not `sessionKey` (sessions.ts:1058)
-        tracker.send(socket, 'sessions.subscribe', {
+        tracker.send(socket, 'sessions.messages.subscribe', {
           key: sessionKey,
           events: ['continuation.*', 'agent.turn.*'],
         });
 
         // Send the first prompt that triggers continue_work
         // The agent's own tool-call will fire continue_work; we observe the chain
-        // NB: handler expects `key`, not `sessionKey` (sessions.ts:1058)
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
           message: `[k6-proof] R-CW-4 chain-depth: fire continue_work(reason="k6-proof-R-CW-4-hop-${rowNonce}", delaySeconds=2) then stop. Nonce: ${rowNonce}. After wake, fire continue_work again (total 3 hops for chain proof). Report chain.step from each response.`,

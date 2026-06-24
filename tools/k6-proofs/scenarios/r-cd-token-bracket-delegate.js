@@ -1,229 +1,129 @@
-/**
- * Scenario: R-CD-TOKEN — bracket [[CONTINUE_DELEGATE: ...]] path.
- *
- * Injects a prompt via sessions.send that instructs the agent to end
- * with a terminal bracket delegate token. Observes child spawn + return.
- *
- * Seat-class expectation:
- *   - raw-final-text seats: PASS-candidate (bracket scanner fires)
- *   - message-body seats (ronan-dgx default): HONEST-LIMIT-candidate
- *     (scanner killed by message-tool-body routing, bracketIdx=-1)
- *
- * References:
- *   - Issue: karmaterminal/karmaterminal-openclaw-docs#103
- *   - Manifest: k6/manifests/r-cd-token.json
- *   - TOOLS.md: bracket position-sensitive + body-vs-final-text notes
- */
-import ws from 'k6/ws';
 import { check, sleep } from 'k6';
-import { Counter, Trend } from 'k6/metrics';
-import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
-import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.2/index.js';
+import { connectFrame, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { loadManifestFromEnv } from '../lib/manifest-loader.js';
 
 export const options = {
-  scenarios: {
-    r_cd_token: {
-      executor: 'shared-iterations',
-      vus: 1,
-      iterations: 1,
-      maxDuration: '120s',
-    },
-  },
-  thresholds: {
-    proof_failures: ['count==0'],
-    r_cd_token_duration: ['p(95)<90000'],
-  },
+    vus: 1,
+    iterations: 1,
 };
 
-const failures = new Counter('proof_failures');
-const duration = new Trend('r_cd_token_duration');
+const { manifest, errors } = loadManifestFromEnv(__ENV.OPENCLAW_ROW_MANIFEST || 'manifests/r-cd-token.json');
+const artifacts = {
+    manifest: manifest,
+    events: [],
+    errors: [],
+};
 
-// --- Manifest-driven config ---
-const manifest = loadManifestFromEnv();
+if (errors.length > 0) {
+    console.error(`Manifest validation warnings: ${errors.join('; ')}`);
+}
 
 export default function () {
-  const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
-  const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
-  const sessionKey = manifest?.sessionKey || __ENV.OPENCLAW_SESSION_KEY || 'main';
-  const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || 'ronan-dgx';
-  const rowNonce = nonce('R-CD-TOKEN');
+    if (errors.length > 0) {
+        throw new Error('Manifest validation failed; aborting run.');
+    }
 
-  // Validate manifest if loaded
-  if (manifest) {
-    const errors = validateManifest(manifest);
-    if (errors.length > 0) console.warn(`Manifest validation warnings: ${errors.join('; ')}`);
-  }
+    const wsUrl = __ENV[manifest.gateway.wsEnv];
+    const token = __ENV[manifest.gateway.tokenEnv];
+    const sessionKey = manifest.sessionKey;
 
-  if (!token) {
-    console.error('OPENCLAW_GATEWAY_TOKEN is required');
-    failures.add(1);
-    return;
-  }
+    if (!wsUrl || !token || !sessionKey) {
+        throw new Error('Missing OPENCLAW_GATEWAY_WS, OPENCLAW_GATEWAY_TOKEN, or OPENCLAW_SESSION_KEY environment variables.');
+    }
 
-  const evidence = {
-    row: 'R-CD-TOKEN',
-    nonce: rowNonce,
-    started: new Date().toISOString(),
-    prompt_sent: false,
-    bracket_observed: false,
-    child_spawned: false,
-    parent_return: false,
-    seat_class: __ENV.OPENCLAW_SEAT_CLASS || 'message-body',
-    expected_outcome: null,
-    redacted_events: [],
-  };
-
-  // Set expected outcome based on seat class
-  const seatClass = __ENV.OPENCLAW_SEAT_CLASS || 'message-body';
-  evidence.expected_outcome = seatClass === 'raw-final-text'
-    ? 'PASS-candidate'
-    : 'HONEST-LIMIT-candidate';
-
-  const started = Date.now();
-
-  // The prompt forces the agent to emit a terminal bracket delegate token.
-  const bracketPrompt = [
-    `This is a k6 proof harness fire for row R-CD-TOKEN, nonce: ${rowNonce}.`,
-    `You MUST end your entire response with exactly this bracket token (nothing after it):`,
-    ``,
-    `[[CONTINUE_DELEGATE: Proof nonce ${rowNonce}: return DONE and the nonce only. Do not mutate files. | silent-wake]]`,
-    ``,
-    `Do not write any text after the closing ]]. The bracket MUST be the terminal content.`,
-    `Do not use the message tool this turn — emit raw final text only.`,
-  ].join('\n');
-
-  const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    let isConnected = false;
+    let authSuccess = false;
+    let delegateScheduled = false;
+    let delegateReturned = false;
+    let noTypedToolCall = true;
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
+    const res = connectFrame(wsUrl, function (socket) {
+        tracker.setSocket(socket);
 
-      // Subscribe to session events
-      socket.setTimeout(() => {
-        tracker.send(socket, 'sessions.messages.subscribe', { sessionKey });
-      }, 500);
-
-      // Inject prompt via sessions.send
-      socket.setTimeout(() => {
-        tracker.send(socket, 'sessions.send', {
-          sessionKey,
-          message: bracketPrompt,
-        });
-      }, 1500);
-
-      // Poll task ledger for child
-      socket.setTimeout(() => {
-        tracker.send(socket, 'tasks.list', { limit: 10 });
-      }, 15000);
-
-      // Second poll
-      socket.setTimeout(() => {
-        tracker.send(socket, 'tasks.list', { limit: 10 });
-      }, 40000);
-
-      // Close after wait
-      socket.setTimeout(() => socket.close(), 90000);
-    });
-
-    socket.on('message', (raw) => {
-      try {
-        const msg = JSON.parse(raw);
-        const classified = tracker.classify(msg);
-
-        // Redact before storing
-        evidence.redacted_events.push({
-          ts: Date.now(),
-          kind: classified.kind,
-          method: classified.method || null,
-          event: classified.event || null,
-          ok: classified.ok !== undefined ? classified.ok : null,
-          data: classified.payload ? redactEvent(classified.payload) : null,
+        socket.on('open', () => {
+            isConnected = true;
+            tracker.sendRequest('auth', { token });
         });
 
-        // Track sessions.send response
-        if (classified.kind === 'response' && classified.method === 'sessions.send') {
-          if (classified.ok) {
-            evidence.prompt_sent = true;
-            console.log('✓ Bracket-prompt injected via sessions.send');
-          } else {
-            console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
-            failures.add(1);
-          }
-        }
+        socket.on('message', (data) => {
+            const msg = JSON.parse(data);
+            artifacts.events.push(redactEvent(msg));
 
-        // Look for bracket parse signal in events
-        if (classified.kind === 'event') {
-          const eventStr = JSON.stringify(classified.data || {});
-          if (eventStr.includes('bracket') || eventStr.includes('CONTINUE_DELEGATE')) {
-            evidence.bracket_observed = true;
-            console.log('✓ Bracket delegate token observed in event stream');
-          }
-          // Look for child spawn
-          if (eventStr.includes(rowNonce) || eventStr.includes('delegate') || eventStr.includes('spawn')) {
-            evidence.child_spawned = true;
-            console.log('✓ Child delegate spawn signal observed');
-          }
-          // Look for return
-          if (eventStr.includes('completion') || eventStr.includes('return') || eventStr.includes('silent-wake')) {
-            evidence.parent_return = true;
-            console.log('✓ Delegate return observed');
-          }
-        }
-
-        // Task ledger check
-        if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const tasks = classified.payload?.tasks || [];
-          for (const task of tasks) {
-            if (task.task && task.task.includes && task.task.includes(rowNonce)) {
-              evidence.child_spawned = true;
-              console.log('✓ Child task with nonce found in ledger');
+            if (msg.type === 'response') {
+                const classified = tracker.handleResponse(msg);
+                if (classified.method === 'auth' && !classified.error) {
+                    authSuccess = true;
+                    // Trigger the delegate using bracket syntax
+                    tracker.sendRequest('session.message', {
+                        sessionKey: sessionKey,
+                        message: "Do not use any tools. Simply reply with the following exact text at the very end of your message: [[CONTINUE_DELEGATE: Return the exact string R-CD-TOKEN-SUCCESS silently | silent ]]",
+                    });
+                } else if (classified.method === 'session.message') {
+                     if (!classified.error) {
+                         delegateScheduled = true;
+                     }
+                }
+                
+                if (classified.error) {
+                    artifacts.errors.push(`Request ${classified.method} failed: ${JSON.stringify(classified.error)}`);
+                }
+            } else if (msg.type === 'event' && msg.payload && msg.payload.type === 'tool_call') {
+                if (msg.payload.tool === 'continue_delegate') {
+                    noTypedToolCall = false; // The bracket syntax should be used, not the tool
+                }
+            } else if (msg.type === 'event' && msg.payload && msg.payload.type === 'message' && msg.payload.role === 'user') {
+                // Detect the silent return payload
+                if (msg.payload.text && msg.payload.text.includes('R-CD-TOKEN-SUCCESS')) {
+                    delegateReturned = true;
+                    socket.close(); 
+                }
             }
-          }
-        }
+        });
 
-        // Early close if all evidence gathered
-        if (evidence.prompt_sent && evidence.child_spawned && evidence.parent_return) {
-          console.log('All evidence gathered, closing early');
-          socket.close();
-        }
-      } catch (e) {
-        console.warn(`parse error: ${e}`);
-      }
+        socket.on('error', (e) => {
+            if (e.error() != "websocket: close 1000 (normal)") {
+                artifacts.errors.push(`WebSocket error: ${e.error()}`);
+            }
+        });
+
+        socket.setTimeout(function () {
+            if (!delegateReturned) {
+               artifacts.errors.push('Scenario timed out before delegate returned.');
+               socket.close();
+            }
+        }, manifest.timeoutSeconds * 1000);
     });
 
-    socket.on('error', (e) => {
-      console.error(`ws error: ${e && e.error ? e.error() : e}`);
-      failures.add(1);
+    check(res, {
+        'Connected successfully': () => isConnected,
+        'Authenticated successfully': () => authSuccess,
+        'Delegate scheduled via bracket': () => delegateScheduled,
+        'No typed continue_delegate tool call used': () => noTypedToolCall,
+        'Delegate returned': () => delegateReturned,
+        'No errors encountered': () => artifacts.errors.length === 0,
     });
-  });
+}
 
-  evidence.ended = new Date().toISOString();
-  evidence.duration_ms = Date.now() - started;
-  duration.add(evidence.duration_ms);
+export function handleSummary(data) {
+    const summary = textSummary(data, { indent: ' ', enableColors: true });
 
-  // Verdict — seat-class-aware
-  check(res, { 'websocket connected': (r) => r && r.status === 101 });
-  check(null, {
-    'prompt injected': () => evidence.prompt_sent,
-  });
+    if (artifacts.events && artifacts.events.some(e => e.sessionKey || e.childSessionKey)) {
+        artifacts.errors.push('FATAL: Evidence payload contains raw unredacted "events" field.');
+    }
 
-  if (!evidence.prompt_sent) {
-    failures.add(1);
-    console.error('FAIL: Could not inject bracket prompt');
-  }
+    const evidenceBundle = JSON.stringify(artifacts, null, 2);
+    const isPass = artifacts.errors.length === 0 && data.metrics.checks && data.metrics.checks.fails === 0;
 
-  // Seat-class-aware outcome classification
-  if (evidence.prompt_sent && !evidence.bracket_observed && seatClass === 'message-body') {
-    // Expected: message-body seats kill the bracket scanner
-    console.log(`NOTE: bracket not observed — HONEST-LIMIT-candidate (expected for ${seatClass} seat)`);
-    console.log('This is expected behavior per TOOLS.md: message-tool-body routing → bracketIdx=-1');
-  } else if (evidence.prompt_sent && !evidence.bracket_observed && seatClass === 'raw-final-text') {
-    // Unexpected: raw-final-text seat should fire the bracket
-    console.error('UNEXPECTED: bracket not observed on raw-final-text seat — investigate');
-    failures.add(1);
-  }
+    const fullOutput = summary + 
+        `\n\n--- PREFLIGHT EVIDENCE SUMMARY ---\n` +
+        evidenceBundle +
+        `\n--- END EVIDENCE ---\n` +
+        `\nOutcome: ${isPass ? 'PASS-candidate' : 'FAIL-candidate'}\n`;
 
-  console.log(`\n--- R-CD-TOKEN EVIDENCE SUMMARY ---`);
-  console.log(JSON.stringify(evidence, null, 2));
-  console.log(`--- END EVIDENCE ---\n`);
+    return {
+        'stdout': fullOutput,
+        'k6-summary.json': JSON.stringify(data, null, 2)
+    };
 }

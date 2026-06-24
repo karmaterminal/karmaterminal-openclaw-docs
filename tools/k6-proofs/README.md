@@ -111,6 +111,37 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 - Post-processor refuses unredacted event data.
 - No manifest fold without review (per #100 foundation contract).
 
+## Integration & validation
+
+Row PRs go through a contribution checklist + a fold-time validator. See
+[`CONTRIBUTING-ROWS.md`](CONTRIBUTING-ROWS.md) for the prince-facing checklist
+(claim the issue, run the row, post-process, paste validator output in the PR
+body, zero secrets).
+
+The corpus invariants enforced at fold time live in
+[`scripts/validate-corpus.mjs`](scripts/validate-corpus.mjs):
+
+```bash
+# Validate a single corpus dir (manifest + rollup tally + evidence + dirs)
+node tools/k6-proofs/scripts/validate-corpus.mjs --sha <40-char-sha>
+
+# Validate every PROOFS/<sha>/ that has a manifest; legacy short-SHA dirs are skipped
+node tools/k6-proofs/scripts/validate-corpus.mjs --all
+
+# Validate PROOFS/INDEX.json consistency vs the manifest it points to
+node tools/k6-proofs/scripts/validate-corpus.mjs --index
+
+# Machine-readable
+node tools/k6-proofs/scripts/validate-corpus.mjs --index --json
+```
+
+Checks: JSON parse, schema sanity (`openclaw.proofs.index.v1` /
+`openclaw.proofs.manifest.v1`), every declared `evidence_doc` and `rows[].dir`
+exists, no orphan row dirs, INDEX `rollup` tallies match the manifest `rows[].state`
+counts, manifest `capture_sha` matches its directory name, and no stale
+`pending_push` / `upload-blame` / `TODO-UPLOAD` wording. Exit code is non-zero
+on any failure; the script never mutates corpus data.
+
 ## Coordination
 
 - Epic: [#106](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/106)

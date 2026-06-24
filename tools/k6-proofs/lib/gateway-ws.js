@@ -4,6 +4,12 @@
  *
  * Protocol note: Gateway WS responses use { type: "res", id, payload?, error? }
  * NOT { result }. Track request IDs to correlate responses.
+ *
+ * ⚠️ Param name inconsistency across WS methods:
+ *   tools.effective → { sessionKey }
+ *   sessions.messages.subscribe → { key }
+ *   sessions.send → { key }
+ *   Don't assume uniformity; check per-method.
  */
 
 /**

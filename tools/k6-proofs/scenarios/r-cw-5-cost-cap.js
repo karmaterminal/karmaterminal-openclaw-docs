@@ -67,7 +67,7 @@ export default function () {
     const tracker = new RequestTracker();
 
     socket.on('open', function () {
-      socket.send(connectFrame(token));
+      socket.send(connectFrame(token, ['operator.read', 'operator.write', 'session.control']));
     });
 
     socket.on('message', function (msg) {

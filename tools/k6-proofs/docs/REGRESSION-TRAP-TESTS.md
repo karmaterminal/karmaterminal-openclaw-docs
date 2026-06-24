@@ -15,6 +15,8 @@ This is a **`ci`-form** proof row, not a k6 live-fire row: the evidence is the *
 
 `82827d3cbcba92ff6e19863b30615db028c2651c` (openclaw source at `/home/figs/flesh_beast_tmp/openclaw`, "Merge upstream/main f66e83154b (drift re-absorb #9)").
 
+> **SHA-topology note (2026-06-24):** `82827d3cbc` is on the **continuation-feature line** — a descendant of the deployed gateway SHA `749f95b` (which carries the `CONTINUE_WORK` parser + full `src/auto-reply/continuation/` source; `749f95b...82827d3cbc` = `status: ahead`, `behind_by: 0`). That is the correct SHA to key these `ci`-form trap-tests on. **Do not** expect these test paths on `karmaterminal/openclaw` `main` HEAD: at time of writing, current `main` (`5eec2158…`) is a *separate, diverged* branch (an SDK surface-budget line, `status: diverged` from `82827d3cbc`, 199/315) that does **not** carry the continuation subsystem. The trap-tests live and verify on the continuation/deployed line — re-resolve against the deployed gateway SHA, not `main`, when re-verifying.
+
 ## Trap-test registry (by cure-PR)
 
 Every file below is **PRESENT on the deployed SHA** (byte-confirmed `git ls-tree` + file-stat).

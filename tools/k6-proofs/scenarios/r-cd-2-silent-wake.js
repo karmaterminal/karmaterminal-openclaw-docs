@@ -112,8 +112,9 @@ export default function () {
       socket.send(connectFrame(token));
 
       // Subscribe to parent session messages to detect wake + verify no channel delivery
+      // Protocol: sessions.messages.subscribe uses 'key' not 'sessionKey'
       socket.setTimeout(() => {
-        tracker.send(socket, 'sessions.messages.subscribe', { sessionKey });
+        tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       }, 500);
 
       // Fire continue_delegate(mode=silent-wake)

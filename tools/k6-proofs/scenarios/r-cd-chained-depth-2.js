@@ -117,7 +117,7 @@ export default function () {
 
       // Subscribe to parent session
       socket.setTimeout(() => {
-        tracker.send(socket, 'sessions.messages.subscribe', { sessionKey });
+        tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       }, 500);
 
       // Fire the chain: parent dispatches child with chain-instruction

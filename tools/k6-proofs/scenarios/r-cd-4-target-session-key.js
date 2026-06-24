@@ -119,8 +119,8 @@ export default function () {
 
       // Subscribe to BOTH sessions: parent (dispatching) and target (receiving)
       socket.setTimeout(() => {
-        tracker.send(socket, 'sessions.messages.subscribe', { sessionKey });
-        tracker.send(socket, 'sessions.messages.subscribe', { sessionKey: inv.targetSessionKey });
+        tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
+        tracker.send(socket, 'sessions.messages.subscribe', { key: inv.targetSessionKey });
       }, 500);
 
       // Fire continue_delegate with targetSessionKey

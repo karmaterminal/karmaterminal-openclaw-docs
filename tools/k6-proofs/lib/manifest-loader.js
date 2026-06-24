@@ -65,7 +65,7 @@ export function validateManifest(manifest) {
   }
   if (!manifest.seat) errors.push('missing seat');
   if (!manifest.sessionKey) errors.push('missing sessionKey');
-  if (manifest.review?.candidateOnly !== true) errors.push('review.candidateOnly must be true');
-  if (manifest.review?.foldRequiresReview !== true) errors.push('review.foldRequiresReview must be true');
+  if ((manifest.review && manifest.review.candidateOnly) !== true) errors.push('review.candidateOnly must be true');
+  if ((manifest.review && manifest.review.foldRequiresReview) !== true) errors.push('review.foldRequiresReview must be true');
   return errors;
 }

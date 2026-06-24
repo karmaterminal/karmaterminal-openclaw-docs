@@ -117,18 +117,17 @@ export default function () {
         tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       }, 500);
 
-      // Fire continue_delegate(mode=silent-wake)
+      // Fire continue_delegate via sessions.send — instructs the agent to call the tool
+      // NOTE: tools.invoke at the RPC layer accepts the call but continuation tools
+      // are agent-side (execute inside an agent turn). sessions.send triggers an actual
+      // agent turn that can call the tool, which is the E2E proof path.
       socket.setTimeout(() => {
         const inv = invocationCfg();
         const prompt = inv.promptTemplate.replace('{{nonce}}', rowNonce);
-        tracker.send(socket, 'tools.invoke', {
-          name: inv.tool,
-          sessionKey,
-          args: {
-            task: prompt,
-            mode: inv.mode,
-            delaySeconds: inv.delaySeconds,
-          },
+        const agentInstruction = `[k6-proof-harness] Call continue_delegate with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. This is a proof run — execute the tool call immediately, no other action needed.`;
+        tracker.send(socket, 'sessions.send', {
+          key: sessionKey,
+          message: agentInstruction,
           idempotencyKey: `${inv.idempotencyKeyPrefix}-${rowNonce}`,
         });
       }, 1000);
@@ -156,14 +155,14 @@ export default function () {
           data: classified.payload ? redactEvent(classified.payload) : null,
         });
 
-        // Check tool invocation accepted
-        if (classified.kind === 'response' && classified.method === 'tools.invoke') {
-          if (classified.ok && classified.payload) {
+        // Check sessions.send accepted (agent turn triggered)
+        if (classified.kind === 'response' && classified.method === 'sessions.send') {
+          if (classified.ok) {
             evidence.tool_accepted = true;
-            if (classified.payload.traceId) evidence.trace_id = classified.payload.traceId;
-            console.log('✓ tools.invoke accepted for R-CD-2 (mode=silent-wake)');
+            if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
+            console.log('✓ sessions.send accepted — agent turn triggered for R-CD-2 (mode=silent-wake)');
           } else if (classified.error) {
-            console.error(`✗ tools.invoke rejected: ${JSON.stringify(classified.error)}`);
+            console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
             failures.add(1);
           }
         }

@@ -123,3 +123,17 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 - Foundation: [#100](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/100) (artifact layout by Emeric)
 - Coordinator: @silas-dandelion-cult
 - Project: [karmaterminal project 81](https://github.com/orgs/karmaterminal/projects/81)
+
+## Preflight (Scenario 0)
+
+The `preflight.js` scenario is the required read-only starting point for any PROOFS validation run. It verifies:
+- Gateway WebSocket connectivity and auth token validity
+- Server capability flags
+- Available session tools (`sessions.list`, `tools.effective`)
+- Continuation tools presence (`continue_work`, `continue_delegate`, `request_compaction`)
+
+### Redaction Boundary
+
+The k6 harness enforces a strict redaction boundary to keep public evidence artifacts safe:
+- **`gateway-ws.js`**: `redactEvent()` drops raw `sessionKey` and `childSessionKey` from payload events, keeping only `session_scope`
+- **`evidence-writer.mjs`**: Recursively scrubs any accidental raw session keys from the final `k6-summary.json` and `gateway-events.ndjson` artifacts.

@@ -97,15 +97,17 @@ export default function () {
         console.log(`[R-CW-4] Connected to gateway — subscribing to session events`);
 
         // Subscribe to session events for continuation observations
+        // NB: handler expects `key`, not `sessionKey` (sessions.ts:1058)
         tracker.send(socket, 'sessions.subscribe', {
-          sessionKey: sessionKey,
+          key: sessionKey,
           events: ['continuation.*', 'agent.turn.*'],
         });
 
         // Send the first prompt that triggers continue_work
         // The agent's own tool-call will fire continue_work; we observe the chain
+        // NB: handler expects `key`, not `sessionKey` (sessions.ts:1058)
         tracker.send(socket, 'sessions.send', {
-          sessionKey: sessionKey,
+          key: sessionKey,
           message: `[k6-proof] R-CW-4 chain-depth: fire continue_work(reason="k6-proof-R-CW-4-hop-${rowNonce}", delaySeconds=2) then stop. Nonce: ${rowNonce}. After wake, fire continue_work again (total 3 hops for chain proof). Report chain.step from each response.`,
         });
 

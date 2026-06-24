@@ -88,8 +88,9 @@ export default function () {
         // 1. Lower costCapTokens to 1 via config.patch
         // 2. Attempt continue_work (should reject)
         // 3. Restore original costCapTokens
+        // NB: handler expects `key`, not `sessionKey` (sessions.ts:1058)
         tracker.send(socket, 'sessions.send', {
-          sessionKey: sessionKey,
+          key: sessionKey,
           message: `[k6-proof] R-CW-5 cost-cap reject: (1) Read current agents.defaults.continuation.costCapTokens. (2) Patch it to 1 via gateway config.patch. (3) Attempt continue_work — it SHOULD reject with cost-cap-exceeded. (4) Restore the original costCapTokens value. Report each step. Nonce: ${rowNonce}`,
         });
 

@@ -11,9 +11,23 @@ into `PROOFS/<sha>/` without back-and-forth.
 1. **Claim the labelled issue on [Project 81](https://github.com/orgs/karmaterminal/projects/81)
    BEFORE doing row work.** Assign yourself. If you don't see it on the board, ping the
    coordinator — don't shadow-run.
-2. Confirm the **deployed SHA** you will fire against. Get the 40-char hex from the
-   gateway (`/version` / build banner) on the seat you will run from. The SHA is the
-   identity of your proof; do not invent or trim it.
+2. **Verify the gateway you fire against is actually deployed to the corpus-pin SHA.**
+   This is a PRE-FIRE gate the validator CANNOT do for you: `validate-corpus.mjs`
+   checks that your *artifacts* are consistent with a SHA, but it cannot verify your
+   running *gateway* is on that SHA. Confirm both, on the seat you will run from:
+   ```bash
+   # (a) what SHA is this seat's gateway actually running?
+   openclaw --version            # or: git -C ~/flesh_beast_tmp/openclaw rev-parse HEAD
+   # (b) does that SHA carry the feature under test? (example: continuation parser)
+   gh api repos/karmaterminal/openclaw/contents/src/auto-reply/tokens.ts?ref=<that-sha> \
+     --jq '.content' | base64 -d | grep -c CONTINUE_WORK   # want > 0
+   ```
+   The SHA is the identity of your proof; do not invent or trim it. If the gateway is
+   on a different line than the corpus pin (e.g. `main` / an upstream-mirror SHA that
+   lacks the feature), **deploy the seat first** — firing against a feature-less
+   gateway produces rows that fail at the gateway-lacks-feature layer, not the harness
+   layer, and the failure is easy to misread. The fleet can run mixed SHAs; check
+   *your* seat, not someone else's.
 3. Confirm secrets are in env, not on disk. `OPENCLAW_GATEWAY_TOKEN` and friends come
    from the seat's environment or GH Actions repo secrets — **zero secrets in source,
    manifests, evidence, or PR body**. If the token leaks into a log, rotate before

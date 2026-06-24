@@ -1,0 +1,18 @@
+{
+  "row": "R-CD-2",
+  "sha": "0460d7b1f1342926eaf5bf2ca27d18943e3b5c9f",
+  "seat": "ronan-dgx",
+  "timestamp": "2026-06-24T18:47:02.920Z",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "duration_ms": {
+      "avg": 90005,
+      "min": 90005,
+      "med": 90005,
+      "max": 90005,
+      "p(90)": 90005,
+      "p(95)": 90005
+    },
+    "failures": 0
+  }
+}

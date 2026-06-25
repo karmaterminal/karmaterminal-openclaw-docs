@@ -9,15 +9,14 @@ tools/k6-proofs/
 ├── lib/
 │   ├── gateway-ws.js              # WS helpers (frame, connect, nonce, RequestTracker, redaction)
 │   └── manifest-loader.js         # Manifest loading, env-var resolution, validation
-├── manifests/
-│   ├── r-cd-1.json                # Row manifest: R-CD-1 typed delegate
-│   └── r-cd-token.json            # Row manifest: R-CD-TOKEN bracket delegate
+├── manifests/                    # Row manifests (R-CD, R-CW, R-RC, R-OBS, safety/config rows)
 ├── scenarios/
 │   ├── preflight.js               # Scenario 0: auth + tool inventory check
-│   ├── r-cd-1-typed-delegate.js   # R-CD-1: typed continue_delegate()
-│   └── r-cd-token-bracket-delegate.js  # R-CD-TOKEN: [[CONTINUE_DELEGATE:...]]
-└── scripts/
-    └── evidence-writer.mjs        # Transforms k6 output → PROOFS/<sha>/<row>/k6-run-<ts>/ artifacts
+│   ├── r-cd-*.js                  # continue_delegate rows
+│   └── r-cw*.js                   # continue_work rows
+├── dashboards/                    # Grafana dashboard JSON
+├── docs/                          # Folded row-family docs
+└── scripts/                       # evidence writer, postprocessor, corpus validator
 ```
 
 ## Prerequisites
@@ -90,6 +89,28 @@ Gateway WS responses use `{ type: "res", id, payload?, error? }` — NOT `{ resu
 
 The `RequestTracker` class maps request IDs to method names for reliable response correlation (responses don't echo method names).
 
+### Continuation observability surfaces
+
+`continue_delegate` proof rows must not require a `tasks.list` row as the primary
+spawn receipt. The generic `tasks.list` method reads the TaskFlow / scheduled-task
+registry; `continue_delegate` uses the pending-delegate queue and then the
+subagent/session run surfaces. A delegate can fire successfully while never writing
+a nonce-correlated record to `tasks.list`.
+
+For R-CD rows, prefer these public-safe receipts instead:
+
+- `sessions.send` or `tools.invoke` accepted the dispatch request.
+- `sessions.messages.subscribe` emitted `session.message` / agent events for the
+  dispatching or target session.
+- Nonce-correlated parent/target return events appeared on the subscribed session
+  stream.
+- `tasks.list` may be kept as optional extra context only; a missing task-ledger
+  row is not a delegate failure by itself.
+
+This avoids the false-negative filed in #134, where a live delegate fired but the
+scenario failed because it queried the wrong registry surface.
+
+
 ### Seat-class awareness (R-CD-TOKEN)
 
 The bracket scanner fires only on scanned-final-text (terminal position). Seats that route final-text through `message(send)` body kill the scanner.
@@ -104,6 +125,9 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | Row | Scenario | Surface | Expected outcome |
 |-----|----------|---------|-----------------|
 | R-CD-1 | Typed `continue_delegate()` | typed-tool | PASS-candidate |
+| R-CD-2 | `continue_delegate(mode="silent-wake")` | typed-tool | PASS-candidate when dispatch/session-events observed and no channel delivery appears |
+| R-CD-4 | `continue_delegate(targetSessionKey=...)` | typed-tool | Candidate; verify target-vs-parent session events, not `tasks.list` |
+| R-CD-CHAINED-DEPTH-2 | Depth-2 delegate chain | typed-tool | Candidate; verify nonce-correlated chain return on subscribed session stream |
 | R-CD-TOKEN | Bracket `[[CONTINUE_DELEGATE:...]]` | bracket-token | Seat-dependent (see manifest) |
 
 ## Guardrails

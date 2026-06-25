@@ -167,7 +167,8 @@ export default function () {
           }
         }
 
-        // Check task ledger — look for mode=silent-wake in task metadata
+        // Optional TaskFlow ledger context. Absence here is not a failure:
+        // continue_delegate uses pending-delegate/subagent surfaces.
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
           const tasks = classified.payload?.tasks || [];
           for (const task of tasks) {
@@ -205,9 +206,9 @@ export default function () {
           }
         }
 
-        // Early close if all evidence gathered
-        if (evidence.tool_accepted && evidence.task_created && evidence.parent_wake_observed) {
-          console.log('All required evidence gathered, closing early');
+        // Early close if primary evidence is gathered; task ledger context is optional.
+        if (evidence.tool_accepted && evidence.parent_wake_observed) {
+          console.log('Primary silent-wake evidence gathered, closing early');
           socket.close();
         }
       } catch (e) {

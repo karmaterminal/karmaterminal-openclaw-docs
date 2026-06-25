@@ -1,0 +1,46 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-RC-1",
+  "issue": 104,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-elliott}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 60,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-rc-1-threshold-reject",
+    "description": "request_compaction() threshold-REJECT guard. Invokes request_compaction on a below-threshold session and asserts the gateway REJECTS it (compaction does NOT fire) with a threshold reason. Proves the safety guard before the irreversible accept path (R-RC-2).",
+    "methods": ["tools.invoke", "sessions.messages.subscribe"]
+  },
+  "invocation": {
+    "tool": "request_compaction",
+    "reasonTemplate": "Proof nonce {{nonce}}: R-RC-1 below-threshold reject probe. Expect REJECT (compaction must NOT fire on a low-context session).",
+    "idempotencyKeyPrefix": "R-RC-1",
+    "expectReject": true,
+    "rejectReasonSubstrings": ["context", "threshold", "70", "usage"]
+  },
+  "expectedReceipts": [
+    { "name": "tool-invoke-rejected", "required": true, "description": "Gateway REJECTED request_compaction on the below-threshold session (ok:false or structured rejection)" },
+    { "name": "reject-reason-threshold", "required": true, "description": "Rejection reason cites the context-usage threshold guard (>=70% / context / usage)" },
+    { "name": "no-compaction-fired", "required": true, "description": "No compaction-fired / summarization-started event observed on the session (the guard held; nothing mutated)", "pathHint": "gateway-events.ndjson" },
+    { "name": "trace-id", "required": false, "description": "Trace ID from the tool response for Tempo fetch" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-RC-1",
+    "seat": "${OPENCLAW_SEAT_NAME:-elliott}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Threshold-REJECT path: non-mutating safety proof. PASS-candidate when request_compaction is REJECTED on a below-threshold session AND the reason cites the context-usage guard AND no compaction-fired event is seen. Must run on a genuinely low-context session (a fresh/idle main session). candidateSha + seat resolved from env at runtime. Run BEFORE R-RC-2 (the accept path)."
+  }
+}

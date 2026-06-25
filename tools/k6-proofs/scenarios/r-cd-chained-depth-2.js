@@ -135,7 +135,9 @@ export default function () {
         });
       }, 1000);
 
-      // Poll task ledger repeatedly to observe chain progression
+      // Optional context only: continue_delegate does not write to the generic
+      // TaskFlow task registry. Chain progression is verified primarily from
+      // nonce-correlated subscribed session events.
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 8000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 20000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 40000);
@@ -173,7 +175,8 @@ export default function () {
           }
         }
 
-        // Task ledger: observe chain depth progression
+        // Optional TaskFlow ledger context. Absence here is not a failure:
+        // continue_delegate uses pending-delegate/subagent surfaces.
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
           const tasks = classified.payload?.tasks || [];
           let childFound = false;
@@ -208,13 +211,28 @@ export default function () {
           if (grandchildFound) console.log('✓ Grandchild (depth-2) observed in task ledger');
         }
 
-        // Chain return event on parent
+        // Chain progression on subscribed session events. These are the primary
+        // public proof surface for continue_delegate chains; task registry rows
+        // are only optional context.
         if (classified.kind === 'event') {
           const eventStr = JSON.stringify(classified.data || {});
-          if ((eventStr.includes('delegate') || eventStr.includes('completion') ||
-               eventStr.includes('return')) && eventStr.includes(chainNonce)) {
-            evidence.chain_return_received = true;
-            console.log('✓ Chain return received at parent session');
+          if (eventStr.includes(chainNonce)) {
+            if (eventStr.includes('depth-1') || eventStr.includes('CHILD-DONE')) {
+              evidence.child_spawned = true;
+              if (evidence.max_depth_observed < 1) evidence.max_depth_observed = 1;
+              console.log('✓ Child/depth-1 event observed on session stream');
+            }
+            if (eventStr.includes('Grandchild') || eventStr.includes('GRANDCHILD-DONE')) {
+              evidence.grandchild_spawned = true;
+              if (evidence.max_depth_observed < 2) evidence.max_depth_observed = 2;
+              console.log('✓ Grandchild/depth-2 event observed on session stream');
+            }
+            if (eventStr.includes('delegate') || eventStr.includes('completion') ||
+                eventStr.includes('return') || eventStr.includes('CHILD-DONE') ||
+                eventStr.includes('GRANDCHILD-DONE')) {
+              evidence.chain_return_received = true;
+              console.log('✓ Chain return/progression received at parent session');
+            }
           }
         }
 

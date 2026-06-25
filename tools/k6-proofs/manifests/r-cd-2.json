@@ -16,7 +16,11 @@
   "scenario": {
     "name": "r-cd-2-silent-wake",
     "description": "continue_delegate(mode='silent-wake') full path. Fires a delegate that returns silently and triggers a fresh parent turn without channel output.",
-    "methods": ["tools.invoke", "tasks.list", "sessions.messages.subscribe"]
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "tasks.list"
+    ]
   },
   "invocation": {
     "tool": "continue_delegate",
@@ -26,12 +30,36 @@
     "idempotencyKeyPrefix": "R-CD-2"
   },
   "expectedReceipts": [
-    { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted the continue_delegate(mode=silent-wake) tool invocation" },
-    { "name": "task-ledger-entry", "required": true, "description": "Task created in ledger with nonce correlation and mode=silent-wake" },
-    { "name": "child-session-key", "required": false, "description": "Child session key from task metadata" },
-    { "name": "parent-wake-event", "required": true, "description": "Parent session wakes after silent return (session.message or run event with no channel delivery)" },
-    { "name": "no-channel-delivery", "required": true, "description": "Delegate return does NOT produce a channel message (silent mode verified)" },
-    { "name": "trace-id", "required": false, "description": "Trace ID from tool response or task metadata for Tempo fetch" }
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the dispatching sessions.send request that asks the agent to call continue_delegate(mode=silent-wake)"
+    },
+    {
+      "name": "task-ledger-entry",
+      "required": false,
+      "description": "Optional extra context from the generic TaskFlow task ledger; continue_delegate does not reliably write here"
+    },
+    {
+      "name": "child-session-key",
+      "required": false,
+      "description": "Child session key from task metadata"
+    },
+    {
+      "name": "parent-wake-event",
+      "required": true,
+      "description": "Parent session wakes after silent return (session.message or run event with no channel delivery)"
+    },
+    {
+      "name": "no-channel-delivery",
+      "required": true,
+      "description": "Delegate return does NOT produce a channel message (silent mode verified)"
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID from dispatch response or optional task metadata for Tempo fetch"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",
@@ -43,6 +71,6 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Silent-wake path. PASS-candidate when: (1) tool accepted, (2) task created with mode=silent-wake, (3) parent wakes with enriched context, (4) NO channel message delivered from the delegate return. The negative assertion (no-channel-delivery) distinguishes this from R-CD-1's mode=normal."
+    "notes": "Silent-wake path. PASS-candidate when: (1) dispatching agent turn accepted, (2) parent session emits wake/agent events, (3) NO channel message delivered from the delegate return. A nonce-correlated tasks.list row is optional because continue_delegate uses pending-delegate/subagent surfaces, not the generic task registry."
   }
 }

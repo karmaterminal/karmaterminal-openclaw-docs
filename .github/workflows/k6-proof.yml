@@ -77,7 +77,7 @@ concurrency:
 
 jobs:
   k6-proof:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, "${{ inputs.seat }}"]
     timeout-minutes: 20
     steps:
       - name: Checkout

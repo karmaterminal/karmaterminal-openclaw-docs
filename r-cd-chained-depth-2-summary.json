@@ -1,0 +1,18 @@
+{
+  "row": "R-CD-CHAINED-DEPTH-2",
+  "sha": "unset",
+  "seat": "ronan-dgx",
+  "timestamp": "2026-06-25T00:06:27.265Z",
+  "verdict": "PARTIAL-candidate",
+  "metrics": {
+    "duration_ms": {
+      "p(95)": 150003,
+      "avg": 150003,
+      "min": 150003,
+      "med": 150003,
+      "max": 150003,
+      "p(90)": 150003
+    },
+    "failures": 1
+  }
+}

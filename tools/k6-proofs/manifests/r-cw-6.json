@@ -1,0 +1,51 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CW-6",
+  "issue": 117,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": true,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cw-6-max-chain-length",
+    "description": "maxChainLength boundary: sets maxChainLength=1 via config, fires continue_work twice, verifies second hop is rejected at chain depth 2>1. Restores originals after.",
+    "methods": ["tools.invoke", "config.patch", "config.restore", "gateway.restart"]
+  },
+  "invocation": {
+    "tool": "continue_work",
+    "delaySeconds": 2,
+    "reason": "k6-proof-R-CW-6-chain-cap-{{nonce}}",
+    "idempotencyKeyPrefix": "R-CW-6",
+    "configOverride": {
+      "path": "agents.defaults.continuation.maxChainLength",
+      "testValue": 1,
+      "restoreAfter": true,
+      "requiresRestart": true
+    }
+  },
+  "expectedReceipts": [
+    { "name": "config-set-to-1", "required": true, "description": "maxChainLength set to 1 + gateway restart" },
+    { "name": "hop-1-accepted", "required": true, "description": "First continue_work accepted (chain 1/1)" },
+    { "name": "hop-2-rejected", "required": true, "description": "Second continue_work rejected (chain length 2>1)" },
+    { "name": "config-restored", "required": true, "description": "Original maxChainLength restored + restart" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CW-6",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "maxChainLength boundary proof. MUTATES config (maxChainLength→1) + requires restart. PASS when boundary enforced at hop-2. Originals MUST be restored (includes restart)."
+  }
+}

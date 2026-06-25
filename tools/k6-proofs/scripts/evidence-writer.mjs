@@ -59,14 +59,43 @@ if (!/^[0-9a-f]{40}$/.test(args.sha)) {
 
 const raw = readFileSync(args.input, 'utf-8');
 
-// Extract the evidence JSON block from k6 console output
-const evidenceMatch = raw.match(/--- .* EVIDENCE SUMMARY ---\n([\s\S]*?)\n--- END EVIDENCE ---/);
+// Extract the evidence JSON block from k6 console output.
+//
+// Historical scenarios emitted row-scoped banners such as:
+//   --- R-CD-2 EVIDENCE SUMMARY ---
+//   { ... }
+//   --- END EVIDENCE ---
+//
+// The live R-CD-1/R-CD-TOKEN scenarios emit the generic proof banner:
+//   === K6-PROOF-EVIDENCE ===
+//   { ... }
+//   --- END EVIDENCE ---
+//
+// Keep the writer tolerant at the scenario↔writer seam: one post-processor
+// should be able to consume candidate output from every k6 proof scenario.
+const evidencePatterns = [
+  /---\s+[^\n]*\bEVIDENCE SUMMARY\b[^\n]*---\s*\n([\s\S]*?)\n---\s+END EVIDENCE\s+---/,
+  /===\s+K6-PROOF-EVIDENCE\s+===\s*\n([\s\S]*?)\n---\s+END EVIDENCE\s+---/,
+  /===\s+K6-PROOF-EVIDENCE\s+===\s*\n([\s\S]*?)\n===\s+END K6-PROOF-EVIDENCE\s+===/,
+];
+
+const evidenceMatch = evidencePatterns.map((pattern) => raw.match(pattern)).find(Boolean);
 if (!evidenceMatch) {
   console.error('ERROR: Could not find evidence summary block in k6 output');
+  console.error('Supported markers:');
+  console.error('  --- <ROW> EVIDENCE SUMMARY --- ... --- END EVIDENCE ---');
+  console.error('  === K6-PROOF-EVIDENCE === ... --- END EVIDENCE ---');
+  console.error('  === K6-PROOF-EVIDENCE === ... === END K6-PROOF-EVIDENCE ===');
   process.exit(1);
 }
 
-const evidence = JSON.parse(evidenceMatch[1]);
+let evidence;
+try {
+  evidence = JSON.parse(evidenceMatch[1]);
+} catch (err) {
+  console.error(`ERROR: Evidence block was found but did not parse as JSON: ${err.message}`);
+  process.exit(1);
+}
 
 // --- REDACTION BOUNDARY ---
 // Refuse to write if evidence has raw 'events' but no 'redacted_events'

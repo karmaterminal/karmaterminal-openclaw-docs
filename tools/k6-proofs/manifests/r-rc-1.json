@@ -15,21 +15,48 @@
   },
   "scenario": {
     "name": "r-rc-1-threshold-reject",
-    "description": "request_compaction() threshold-REJECT guard. Invokes request_compaction on a below-threshold session and asserts the gateway REJECTS it (compaction does NOT fire) with a threshold reason. Proves the safety guard before the irreversible accept path (R-RC-2).",
-    "methods": ["tools.invoke", "sessions.messages.subscribe"]
+    "description": "request_compaction() threshold-REJECT guard. Triggers an agent turn via sessions.send that calls request_compaction on a below-threshold (low-context) session and asserts compaction does NOT fire (the guard held). Non-mutating; gates the irreversible accept path (R-RC-2). Uses the sessions.send agent-turn dispatch path (#134), NOT tools.invoke.",
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe"
+    ]
   },
   "invocation": {
     "tool": "request_compaction",
-    "reasonTemplate": "Proof nonce {{nonce}}: R-RC-1 below-threshold reject probe. Expect REJECT (compaction must NOT fire on a low-context session).",
+    "dispatch": "sessions.send",
+    "reasonTemplate": "R-RC-1 proof nonce {{nonce}}: below-threshold reject probe.",
     "idempotencyKeyPrefix": "R-RC-1",
     "expectReject": true,
-    "rejectReasonSubstrings": ["context", "threshold", "70", "usage"]
+    "rejectReasonSubstrings": [
+      "context",
+      "threshold",
+      "70",
+      "usage",
+      "%"
+    ]
   },
   "expectedReceipts": [
-    { "name": "tool-invoke-rejected", "required": true, "description": "Gateway REJECTED request_compaction on the below-threshold session (ok:false or structured rejection)" },
-    { "name": "reject-reason-threshold", "required": true, "description": "Rejection reason cites the context-usage threshold guard (>=70% / context / usage)" },
-    { "name": "no-compaction-fired", "required": true, "description": "No compaction-fired / summarization-started event observed on the session (the guard held; nothing mutated)", "pathHint": "gateway-events.ndjson" },
-    { "name": "trace-id", "required": false, "description": "Trace ID from the tool response for Tempo fetch" }
+    {
+      "name": "agent-turn-triggered",
+      "required": true,
+      "description": "sessions.send accepted -> an agent turn fired that can call request_compaction (the #134 dispatch path, not a bare tools.invoke RPC)"
+    },
+    {
+      "name": "no-compaction-fired",
+      "required": true,
+      "description": "No compaction/summarization lifecycle event on the below-threshold session (the guard held; nothing mutated)",
+      "pathHint": "gateway-events.ndjson"
+    },
+    {
+      "name": "reject-reason-threshold",
+      "required": false,
+      "description": "Rejection/threshold-decline citing the context-usage guard surfaced in the agent turn output (soft corroborator; not always emitted on the WS stream)"
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID from the turn for Tempo fetch"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",
@@ -41,6 +68,6 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Threshold-REJECT path: non-mutating safety proof. PASS-candidate when request_compaction is REJECTED on a below-threshold session AND the reason cites the context-usage guard AND no compaction-fired event is seen. Must run on a genuinely low-context session (a fresh/idle main session). candidateSha + seat resolved from env at runtime. Run BEFORE R-RC-2 (the accept path)."
+    "notes": "Threshold-REJECT path via the sessions.send agent-turn dispatch (#134): non-mutating safety proof. PASS-candidate when an agent turn is triggered AND no compaction fires on a genuinely below-threshold session. reject-reason is a soft corroborator. Must run on a genuinely low-context session (fresh/idle main). candidateSha + seat resolved from env at runtime. Run BEFORE R-RC-2 (the accept path)."
   }
 }

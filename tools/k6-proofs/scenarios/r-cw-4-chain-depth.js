@@ -93,8 +93,8 @@ export default function () {
       const classified = tracker.classify(parsed);
       events.push(redactEvent(parsed));
 
-      if (classified.kind === 'other' && (parsed.type === 'connected' || parsed.payload?.connected)) {
-        console.log(`[R-CW-4] Connected to gateway — subscribing to session events`);
+      if (classified.kind === 'response' && classified.method === 'connect') {
+        console.log(`[R-CW-4] Connected to gateway (connect-ack received) — subscribing to session events`);
 
         // Subscribe to session events for continuation observations
         // NB: handler expects `key`, not `sessionKey` (sessions.ts:1058)

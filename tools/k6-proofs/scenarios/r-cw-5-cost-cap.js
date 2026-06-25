@@ -81,7 +81,7 @@ export default function () {
       const classified = tracker.classify(parsed);
       events.push(redactEvent(parsed));
 
-      if (classified.kind === 'other' && (parsed.type === 'connected' || parsed.payload?.connected)) {
+      if (classified.kind === 'response' && classified.method === 'connect') {
         console.log(`[R-CW-5] Connected — injecting cost-cap-exhaustion prompt`);
 
         // Inject a prompt that asks the agent to:

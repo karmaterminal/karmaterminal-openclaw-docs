@@ -1,0 +1,47 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-RC-2",
+  "issue": 104,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-elliott}",
+  "sessionKey": "${OPENCLAW_RC_SESSION_KEY:-rc-proof-dedicated}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": true,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-rc-2-threshold-accept",
+    "description": "request_compaction() over-threshold ACCEPT (compaction FIRES). Triggers an agent turn via sessions.send that calls request_compaction on a DEDICATED >=70%-context session; asserts ACCEPT + a compaction/summarization lifecycle event (the reclaim). requires-human-confirmation: compaction is irreversible-in-session. Uses sessions.send agent-turn dispatch (#134), dedicated session (never live main).",
+    "methods": ["sessions.send", "sessions.messages.subscribe"]
+  },
+  "invocation": {
+    "tool": "request_compaction",
+    "dispatch": "sessions.send",
+    "reasonTemplate": "R-RC-2 proof nonce {{nonce}}: over-threshold accept probe (compaction expected to fire on this dedicated session).",
+    "idempotencyKeyPrefix": "R-RC-2",
+    "expectAccept": true,
+    "fireSubstrings": ["compaction-started", "summarizing", "summarization", "compacted", "successor"]
+  },
+  "expectedReceipts": [
+    { "name": "agent-turn-triggered", "required": true, "description": "sessions.send accepted -> an agent turn fired that calls request_compaction (the #134 dispatch path)" },
+    { "name": "request-accepted", "required": true, "description": "request_compaction was ACCEPTED (>=70% context threshold met), not rejected" },
+    { "name": "compaction-fired", "required": true, "description": "A compaction/summarization lifecycle event fired on the dedicated session = context reclaimed (the ACCEPT proof)", "pathHint": "gateway-events.ndjson" },
+    { "name": "trace-id", "required": false, "description": "Trace ID from the turn for Tempo fetch" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-RC-2",
+    "seat": "${OPENCLAW_SEAT_NAME:-elliott}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "ACCEPT path (compaction FIRES) via sessions.send agent-turn dispatch. requires-human-confirmation: irreversible-in-session, runs ONLY on a DEDICATED >=70%-context session (the scenario hard-refuses sessionKey='main'). PASS-candidate when turn triggered + compaction fires; HONEST-LIMIT-candidate when turn fired but session below threshold (accept unreachable, not a guard bug). To exercise: prepare a dedicated high-context session OR lower the threshold via config + restart-to-arm. Run R-RC-1 (REJECT) first to prove the guard. candidateSha + seat resolved from env at runtime."
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CONFIG-defaults",
+  "issue": 104,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-emeric-nuc}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:***-config}",
+  "transport": "http-tools-invoke",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 60,
+  "expectedReceipts": [
+    { "name": "config-read", "required": true, "description": "Configuration read successful" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CONFIG-defaults",
+    "seat": "${OPENCLAW_SEAT_NAME:-emeric-nuc}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Config defaults intersession row. Read-only."
+  }
+}

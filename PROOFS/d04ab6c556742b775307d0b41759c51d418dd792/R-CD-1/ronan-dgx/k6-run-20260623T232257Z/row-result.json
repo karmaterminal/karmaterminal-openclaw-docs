@@ -1,0 +1,11 @@
+{
+  "schema": "openclaw.k6.proof-row-result.v1",
+  "runId": "k6-run-20260623T232257Z",
+  "generatedAt": "2026-06-23T23:22:57.305Z",
+  "rowId": "R-CD-1",
+  "candidateSha": "d04ab6c556742b775307d0b41759c51d418dd792",
+  "seat": "ronan-dgx",
+  "outcome": "PARTIAL-candidate",
+  "candidateOnly": true,
+  "foldRequiresReview": true
+}

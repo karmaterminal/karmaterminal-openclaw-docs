@@ -1,0 +1,16 @@
+{
+  "row": "R-CD-1",
+  "manifest_loaded": true,
+  "nonce": "R-CD-1-1782231718631-2dny85l3",
+  "seat": "ronan-dgx",
+  "sessionKey": "agent:main:discord:channel:1466192485440164011",
+  "candidateSha": "d04ab6c556742b775307d0b41759c51d418dd792",
+  "started": "2026-06-23T16:21:58.631Z",
+  "tool_accepted": true,
+  "task_created": false,
+  "child_session": null,
+  "parent_return": false,
+  "trace_id": null,
+  "ended": "2026-06-23T16:22:58.633Z",
+  "duration_ms": 60002
+}

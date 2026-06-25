@@ -1,0 +1,53 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-3",
+  "issue": 119,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 300,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-3-post-compaction",
+    "description": "continue_delegate(mode='post-compaction') event-triggered lifeboat. Fires a post-compaction delegate, triggers compaction, and verifies the delegate fires post-compaction and returns to the rehydrated session.",
+    "methods": ["tools.invoke", "tasks.list", "sessions.messages.subscribe"],
+    "notes": "Requires context >70% to trigger compaction, OR the test must use a low compaction threshold configuration."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "post-compaction",
+    "delaySeconds": 0,
+    "promptTemplate": "Post-compaction lifeboat nonce {{nonce}}: you are a post-compaction delegate. Reply with LIFEBOAT-RECEIVED and the nonce. Do not mutate files.",
+    "idempotencyKeyPrefix": "R-CD-3"
+  },
+  "prerequisites": {
+    "contextUsage": ">=70% OR lowered compaction threshold in test config",
+    "notes": "post-compaction delegates only fire on a compaction event. The scenario either needs a session near compaction threshold, or must lower the threshold for testing purposes."
+  },
+  "expectedReceipts": [
+    { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted the continue_delegate(mode=post-compaction) tool invocation" },
+    { "name": "delegate-staged", "required": true, "description": "Delegate registered as post-compaction hook (not immediately spawned)" },
+    { "name": "compaction-triggered", "required": true, "description": "Compaction event fired (via request_compaction or natural pressure)" },
+    { "name": "delegate-fires-post-compaction", "required": true, "description": "Delegate spawns AFTER compaction completes (not before)" },
+    { "name": "return-reaches-post-compaction-session", "required": true, "description": "Delegate return lands in the post-compaction session with rehydrated context" },
+    { "name": "trace-id", "required": false, "description": "Trace ID for Tempo correlation" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-3",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Post-compaction lifeboat path. PASS-candidate when: (1) delegate staged, (2) compaction triggers, (3) delegate fires AFTER compaction, (4) return lands in post-compaction session. Timing order is critical: staged → compaction → fires → returns. Out-of-order = FAIL."
+  }
+}

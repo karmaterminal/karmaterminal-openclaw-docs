@@ -1,0 +1,49 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-4",
+  "issue": 119,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-4-target-session-key",
+    "description": "continue_delegate with targetSessionKey: delegate return lands in a SPECIFIED target session, not the dispatching session. Cross-session targeted delivery.",
+    "methods": ["tools.invoke", "tasks.list", "sessions.messages.subscribe"]
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "silent-wake",
+    "delaySeconds": 1,
+    "targetSessionKey": "${OPENCLAW_TARGET_SESSION_KEY}",
+    "promptTemplate": "Proof nonce {{nonce}}: reply with TARGET-RECEIVED and the nonce. Do not mutate files.",
+    "idempotencyKeyPrefix": "R-CD-4"
+  },
+  "expectedReceipts": [
+    { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted continue_delegate with targetSessionKey" },
+    { "name": "task-ledger-entry", "required": true, "description": "Task created with targetSessionKey metadata" },
+    { "name": "child-completes", "required": true, "description": "Child delegate completes its task" },
+    { "name": "return-lands-in-target", "required": true, "description": "Delegate return arrives in the TARGET session (not the dispatching session)" },
+    { "name": "no-return-to-parent", "required": true, "description": "Dispatching session does NOT receive the return (delivery went to target)" },
+    { "name": "trace-id", "required": false, "description": "Trace ID for Tempo correlation" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-4",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Cross-session targeted return. PASS-candidate when: (1) tool accepted with targetSessionKey, (2) child completes, (3) return lands in TARGET session, (4) dispatching session does NOT receive the return. Requires two session subscriptions to verify routing."
+  }
+}

@@ -1,0 +1,25 @@
+[test] starting test/vitest/vitest.unit-fast.config.ts
+
+RUN v4.1.8 /home/figs/flesh_beast_tmp/openclaw
+
+✓ unit-fast src/agents/tools/continuation-inventory-opts.test.ts (5 tests) 3ms
+
+Test Files  1 passed (1)
+     Tests  5 passed (5)
+  Start at  10:29:01
+  Duration  461ms (transform 284ms, setup 0ms, import 362ms, tests 3ms, environment 0ms)
+
+[test] starting test/vitest/vitest.agents.config.ts
+
+RUN v4.1.8 /home/figs/flesh_beast_tmp/openclaw
+
+✓ agents src/agents/openclaw-tools.continuation-registration.test.ts (7 tests) 509ms
+✓ agents src/agents/openclaw-tools.continuation-misconfig-warn.test.ts (6 tests) 512ms
+✓ agents src/agents/tools/continuation-tools-registration.test.ts (13 tests) 1369ms
+
+Test Files  3 passed (3)
+     Tests  26 passed (26)
+  Start at  10:29:04
+  Duration  11.68s (transform 25.32s, setup 987ms, import 29.54s, tests 2.39s, environment 0ms)
+
+[test] passed 2 Vitest shards in 18.41s

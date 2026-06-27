@@ -125,6 +125,27 @@ jobs:
           sudo apt-get install -y k6
           k6 version
 
+      - name: Seat readiness preflight
+        env:
+          OPENCLAW_GATEWAY_WS: ${{ github.event.inputs.gateway_ws }}
+          OPENCLAW_SESSION_KEY: ${{ github.event.inputs.session_key }}
+          OPENCLAW_CANDIDATE_SHA: ${{ github.event.inputs.candidate_sha }}
+          OPENCLAW_SEAT_NAME: ${{ github.event.inputs.seat }}
+          OPENCLAW_EXPECTED_K6_VERSION: v2.0.0
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          export OPENCLAW_GATEWAY_TOKEN="$(python3 -c 'import json, os; print(json.load(open(os.path.expanduser("~/.openclaw/openclaw.json")))["gateway"]["auth"]["token"])')"
+          set +x
+          set -euo pipefail
+          if ! node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json | tee /tmp/seat-readiness.json; then
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "::warning::seat readiness preflight did not pass; dry_run continues, but output is not proof-standard"
+              exit 0
+            fi
+            echo "::error::seat readiness preflight did not pass; inspect /tmp/seat-readiness.json before treating k6 output as proof-standard"
+            exit 1
+          fi
+
       - name: Run k6 scenario
         # Token is injected ONLY here, ONLY as env. Never echoed; runner masks
         # registered secrets in logs, and we keep `set +x` so the env line is

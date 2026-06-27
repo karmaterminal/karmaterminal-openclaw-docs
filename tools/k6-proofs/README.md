@@ -21,8 +21,9 @@ tools/k6-proofs/
 
 ## Prerequisites
 
-- [Grafana k6](https://grafana.com/docs/k6/latest/get-started/installation/) installed on the run seat.
+- [Grafana k6](https://grafana.com/docs/k6/latest/get-started/installation/) installed on the run seat. The proof-standard expectation is `v2.0.0` unless a row issue explicitly says otherwise.
 - A running OpenClaw gateway on the local seat.
+- Run `node tools/k6-proofs/scripts/seat-readiness-preflight.mjs` before treating row output as proof-standard. A version/env/gateway mismatch is `HONEST-LIMIT-candidate`, not product failure.
 - Environment variables:
   - `OPENCLAW_GATEWAY_WS` — WebSocket URL (default: `ws://127.0.0.1:18789`)
   - `OPENCLAW_GATEWAY_TOKEN` — operator auth token (**required, never in source**)
@@ -31,8 +32,31 @@ tools/k6-proofs/
   - `OPENCLAW_SEAT_NAME` — seat identifier (default: `ronan-dgx`)
   - `OPENCLAW_ROW_MANIFEST` — path to row manifest JSON (optional; enables manifest-driven mode)
   - `OPENCLAW_SEAT_CLASS` — `raw-final-text` or `message-body` (default: `message-body`; affects R-CD-TOKEN)
+  - `OPENCLAW_EXPECTED_K6_VERSION` — expected k6 version for seat-readiness preflight (default: `v2.0.0`)
 
 ## Usage
+
+### 0. Seat readiness / version preflight
+
+Run this before a proof row when the output may be folded or compared across seats:
+
+```bash
+OPENCLAW_CANDIDATE_SHA="<40-char-sha>" \
+OPENCLAW_SEAT_NAME="<seat>" \
+OPENCLAW_SESSION_KEY="<target-session>" \
+OPENCLAW_GATEWAY_TOKEN="***" \
+  node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json
+```
+
+The helper emits `openclaw.k6.seat-readiness.v1` JSON and never prints secret values. It records:
+
+- k6 binary path and version, compared to the single documented expectation (`v2.0.0` by default)
+- gateway health/status reachability shape
+- candidate SHA validity, seat name/class, and coarse session scope
+- required env-var presence as booleans only
+- whether the check is safe to run concurrently
+
+If k6 is missing, the version differs, required env is absent, or gateway health/status is unreachable, treat row output as `HONEST-LIMIT-candidate` / setup failure until the seat is fixed. Do not fold it as product behavior evidence. Use `--no-gateway` only for offline docs/schema checks; live proof rows need a checked gateway.
 
 ### 1. Preflight check
 

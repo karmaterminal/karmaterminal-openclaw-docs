@@ -1,7 +1,7 @@
 {
   "schema": "openclaw.k6.proof-row-manifest.v1",
   "rowId": "preflight",
-  "issue": 100,
+  "issue": 101,
   "candidateSha": "82827d3cbcba92ff6e19863b30615db028c2651c",
   "seat": "emeric-nuc",
   "sessionKey": "${OPENCLAW_SESSION_KEY}",
@@ -15,8 +15,13 @@
   },
   "scenario": {
     "name": "preflight inventory",
-    "description": "Authenticate/read-only gateway inventory: health/status, sessions.list, tools.effective. Offline mode validates manifest shape without gateway traffic.",
-    "methods": ["health", "status", "sessions.list", "tools.effective"]
+    "description": "Authenticate/read-only gateway inventory plus seat-readiness contract: health/status, sessions.list, tools.effective, k6 version/path, env presence, and candidate metadata. Offline mode validates manifest shape without gateway traffic.",
+    "methods": [
+      "health",
+      "status",
+      "sessions.list",
+      "tools.effective"
+    ]
   },
   "expectedReceipts": [
     {
@@ -30,6 +35,12 @@
       "required": true,
       "pathHint": "k6-summary.json",
       "description": "Raw k6 summary/export for the run."
+    },
+    {
+      "name": "seat-readiness",
+      "required": true,
+      "pathHint": "seat-readiness.json",
+      "description": "Public-safe seat/tooling preflight: k6 path/version, gateway reachability, candidate SHA validity, env presence booleans, seat/session class, and concurrency safety."
     },
     {
       "name": "tool-inventory",
@@ -54,6 +65,6 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Preflight is non-mutating and should never write a final proof verdict by itself."
+    "notes": "Preflight is non-mutating and should never write a final proof verdict by itself. k6 version/env/gateway mismatches are HONEST-LIMIT/setup candidates, not product failures."
   }
 }

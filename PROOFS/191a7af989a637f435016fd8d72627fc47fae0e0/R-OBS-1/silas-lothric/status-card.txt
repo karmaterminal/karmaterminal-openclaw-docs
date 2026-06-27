@@ -1,0 +1,14 @@
+🦞 OpenClaw 2026.6.10 (191a7af)
+⏱️ Uptime: gateway 13m 31s · system 1h 50m
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/gemini-3.1-pro-preview
+🧮 Tokens: 5.7k in / 571 out · 💵 Cost: $0.0000
+🗄️ Cache: 94% hit · 90k cached, 0 new
+📚 Context: 93k/200k (46%) · 🧹 Compactions: 9
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: agent:main:discord:channel:1466192485440164011 • duration 2m 7s • updated just now
+📌 Tasks: latest succeeded · subagent · [continuation:chain-hop:1] Delegated task (turn 1/200): R-CD-CHAINED-DEPTH-2 TE…
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+👥 Activation: mention · 🪢 Queue: steer (depth 0)

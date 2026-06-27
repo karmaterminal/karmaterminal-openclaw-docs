@@ -34,6 +34,22 @@ tools/k6-proofs/
 
 ## Usage
 
+### 0. Offline golden-path smoke (no gateway, no secrets)
+
+Use this first to verify the candidate artifact pipeline is alive without touching
+a live gateway or writing into the canonical corpus:
+
+```bash
+rm -rf /tmp/p81-k6-golden-path
+node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \
+  --manifest tools/k6-proofs/manifests/preflight.example.json \
+  --summary tools/k6-proofs/examples/k6-summary.preflight.example.json \
+  --out-root /tmp/p81-k6-golden-path
+```
+
+See [`docs/GOLDEN-PATH.md`](docs/GOLDEN-PATH.md). Output remains
+`PASS-candidate` / review-required and must not be folded automatically.
+
 ### 1. Preflight check
 
 ```bash

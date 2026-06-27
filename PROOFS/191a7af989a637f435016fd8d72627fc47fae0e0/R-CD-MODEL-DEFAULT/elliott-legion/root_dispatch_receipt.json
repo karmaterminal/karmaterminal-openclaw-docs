@@ -1,0 +1,11 @@
+{
+  "status": "scheduled",
+  "mode": "normal",
+  "delaySeconds": 0,
+  "fanoutMode": "tree",
+  "traceparent": "00-00000000000000000000000000000012-0000000000000012-01",
+  "modelOverride": null,
+  "requestedAt": "2026-06-27T18:22:13Z",
+  "row": "R-CD-MODEL-DEFAULT",
+  "seat": "elliott-legion"
+}

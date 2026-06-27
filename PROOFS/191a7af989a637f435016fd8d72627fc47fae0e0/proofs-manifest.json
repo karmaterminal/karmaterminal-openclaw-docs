@@ -4,16 +4,16 @@
   "ship_sha": "191a7af989a637f435016fd8d72627fc47fae0e0",
   "fire_type": "fresh-fire-in-progress",
   "carried_from": null,
-  "status": "in_progress_silas_r_cd_2_filled",
+  "status": "in_progress_elliott_r_cd_substitution_filled",
   "rollup": {
     "total_rows": 28,
-    "pass": 16,
+    "pass": 18,
     "partial": 1,
     "thin": 0,
     "fail": 0,
     "honest_limit": 4,
     "missing": 0,
-    "pending": 7
+    "pending": 5
   },
   "notes": "Initial full-proof corpus for deployed assembly 191a7af989. Rune-owned rows R-CW-6, R-CW-7, R-CW-DELEGATE-SELF-CONTINUATION, and R-OBS-2 are filled with fresh 191a7af receipts; remaining rows pending owners/review.",
   "rows": [
@@ -21,10 +21,15 @@
       "row": "R-CD-1",
       "owner": "🌊 ronan (ronan-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-1/",
-      "state": "pending",
-      "traces": 0,
-      "evidence_doc": null,
-      "note": "continue_delegate() schedule→spawn→return; tool-form"
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-1/elliott-legion/EVIDENCE.md",
+      "note": "Elliott substitution proof: continue_delegate tool-form scheduled, spawned child, and returned matching nonce on deployed 191a7af; Tempo JSON exported.",
+      "supporting_docs": [
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-1/elliott-legion/root_dispatch_receipt.json",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-1/elliott-legion/delegate_return.md",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-1/elliott-legion/artifacts/trace_00000000000000000000000000000011.json"
+      ]
     },
     {
       "row": "R-CD-2",
@@ -57,10 +62,15 @@
       "row": "R-CD-MODEL-DEFAULT",
       "owner": "🌊 ronan (ronan-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-DEFAULT/",
-      "state": "pending",
-      "traces": 0,
-      "evidence_doc": null,
-      "note": "continue_delegate default model/provider inheritance; cover tool form and token/bracket form without model override (or explicit model=default if implemented); remains proofable as default-inheritance contrast while alternate-model rows are blocked by #1103."
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-DEFAULT/elliott-legion/EVIDENCE.md",
+      "note": "Elliott substitution proof: continue_delegate without model override inherited/defaulted to github-copilot/gpt-5.5 and returned matching nonce; contrasts with alternate-model rows blocked by #1103.",
+      "supporting_docs": [
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-DEFAULT/elliott-legion/root_dispatch_receipt.json",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-DEFAULT/elliott-legion/delegate_return.md",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-DEFAULT/elliott-legion/artifacts/trace_00000000000000000000000000000012.json"
+      ]
     },
     {
       "row": "R-CD-MODEL-TOOL",

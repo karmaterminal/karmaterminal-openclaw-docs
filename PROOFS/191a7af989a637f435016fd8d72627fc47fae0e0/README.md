@@ -39,11 +39,11 @@ Current manifest rollup: `28 total / 16 pass / 1 partial / 4 honest_limit / 7 pe
 | R-CW-7 | Rune | pass |
 | R-CW-DELEGATE-SELF-CONTINUATION | Rune | pass |
 | R-CW-DELEGATE-TOKEN | Rune | pending |
-| R-CD-1 | Ronan | pending |
+| R-CD-1 | Ronan + Elliott substitution | pass |
 | R-CD-2 | Ronan + Silas fill-in canary | pass |
 | R-CD-3 | Ronan | pending |
 | R-CD-4 | Ronan | pending |
-| R-CD-MODEL-DEFAULT | Ronan | pending (default-inheritance contrast) |
+| R-CD-MODEL-DEFAULT | Ronan + Elliott substitution | pass (default-inheritance contrast) |
 | R-CD-MODEL-TOOL | Ronan | honest_limit — grouped under `karmaterminal/openclaw#1103` |
 | R-CD-MODEL-TOKEN | Ronan | honest_limit — grouped under `karmaterminal/openclaw#1103` |
 | R-CD-MODEL-CHAINED-ALT | Ronan | honest_limit — grouped under `karmaterminal/openclaw#1103` |
@@ -89,7 +89,7 @@ Fresh Rune rows on `191a7af989`:
 | R-CW-DELEGATE-SELF-CONTINUATION | ✅ PASS | `R-CW-DELEGATE-SELF-CONTINUATION/rune-rog-ally/EVIDENCE.md` + trace JSON |
 | R-OBS-2 | ✅ PASS | `R-OBS-2/rune-rog-ally/EVIDENCE.md` + span-hierarchy JSON |
 
-Manifest rollup after Rune fill was superseded by later folds; current rollup after Silas R-CD-2 fill is `28 total / 16 pass / 1 partial / 4 honest_limit / 7 pending / 0 fail / 0 missing`.
+Manifest rollup after Rune fill was superseded by later folds; current rollup after Elliott substitution fill is `28 total / 18 pass / 1 partial / 4 honest_limit / 5 pending / 0 fail / 0 missing`.
 
 
 ## Silas fill status (2026-06-27)
@@ -101,3 +101,14 @@ Silas filled one safe Ronan-owned row without touching `PROOFS/INDEX.json`:
 | R-CD-2 | ✅ PASS-candidate | `R-CD-2/silas-lothric/EVIDENCE.md` + redacted k6 artifacts + nonce-only delegate return |
 
 The fill-in proof is explicitly seat-scoped to Silas. It does not claim Ronan-local artifacts or unblock the remaining Ronan R-CD rows without their own receipts/Tempo exports.
+
+## Elliott substitution fill (2026-06-27)
+
+Elliott added substitution evidence for two Ronan-owned gaps while Ronan artifact rendering was blocked:
+
+| Row | State | Evidence |
+|---|---|---|
+| R-CD-1 | ✅ PASS-candidate | `R-CD-1/elliott-legion/EVIDENCE.md` + Tempo JSON |
+| R-CD-MODEL-DEFAULT | ✅ PASS-candidate | `R-CD-MODEL-DEFAULT/elliott-legion/EVIDENCE.md` + Tempo JSON |
+
+These are substitution proofs on Elliott, not a claim that Ronan-local artifacts landed. Alternate-model rows remain honest-limited by `karmaterminal/openclaw#1103`; Ronan chained/delegate-token rows remain pending/partial until their artifacts are byte-verified.

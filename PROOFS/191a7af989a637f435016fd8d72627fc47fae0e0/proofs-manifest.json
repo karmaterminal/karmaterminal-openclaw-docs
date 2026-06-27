@@ -7,39 +7,235 @@
   "status": "in_progress",
   "rollup": {
     "total_rows": 24,
-    "pass": 0,
+    "pass": 1,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
     "missing": 0,
-    "pending": 24
+    "pending": 23
   },
   "notes": "Initial scaffold for full proofs on deployed assembly 191a7af989. Row owners should replace pending rows with pass/partial/honest_limit/fail as evidence lands. PROOFS/INDEX.json is intentionally not advanced until this corpus is filled and reviewed.",
   "rows": [
-    { "row": "R-CD-1", "owner": "🌊 ronan (ronan-dgx)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-1/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "continue_delegate() schedule→spawn→return; tool-form" },
-    { "row": "R-CD-2", "owner": "🌊 ronan (ronan-dgx)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-2/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "continue_delegate silent/silent-wake behavior" },
-    { "row": "R-CD-3", "owner": "🌊 ronan (ronan-dgx)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-3/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "continue_delegate post-compaction / lifeboat behavior" },
-    { "row": "R-CD-4", "owner": "🌊 ronan (ronan-dgx)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-4/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "cross-session targeted return via targetSessionKey" },
-    { "row": "R-CD-CHAINED-DEPTH-2", "owner": "🌊 ronan + 🪨 rune TEST-2 + 🌫 silas TEST-3 + 🕯 emeric TEST-1", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "depth-2 chain aggregate and substitution-seat tests" },
-    { "row": "R-CD-CHAINED-DEPTH-2-TEST-1", "owner": "🕯 emeric (emeric-nuc)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "up-tree silent-wake substitution-seat test" },
-    { "row": "R-CD-TOKEN", "owner": "🌊 ronan (ronan-dgx)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-TOKEN/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "bracket/token form of continue_delegate" },
-    { "row": "R-CW-1", "owner": "🩸 cael (cael-dgx)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-1/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "continue_work() tool-form scheduled+woke" },
-    { "row": "R-CW-3", "owner": "🩸 cael (canonical) + 🕯 emeric cross-walk", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "reason-field OTel span capture" },
-    { "row": "R-CW-3-EMERIC-CROSS-WALK", "owner": "🕯 emeric (emeric-nuc)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "sister cross-walk for reason-field capture" },
-    { "row": "R-CW-4", "owner": "🩸 cael (cael-dgx)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-4/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "chain-depth tracking" },
-    { "row": "R-CW-5", "owner": "🩸 cael (cael-dgx)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-5/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "cost/token/pending cap reject proof" },
-    { "row": "R-CW-6", "owner": "🪨 rune (rune-rog-ally)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-6/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "chain-depth-boundary reject" },
-    { "row": "R-CW-7", "owner": "🪨 rune (rune-rog-ally)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-7/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "traceparent E2E propagation" },
-    { "row": "R-CW-DELEGATE-SELF-CONTINUATION", "owner": "🪨 rune (rune-rog-ally)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-DELEGATE-SELF-CONTINUATION/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "continue_delegate self-continuation" },
-    { "row": "R-CW-DELEGATE-TOKEN", "owner": "🪨 rune (rune-rog-ally)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-DELEGATE-TOKEN/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "#952 lightContext bracket continue_work row" },
-    { "row": "R-CW-TOKEN", "owner": "🩸 cael (cael-dgx)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-TOKEN/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "token/bare CONTINUE_WORK form" },
-    { "row": "R-CONFIG-DEFAULTS", "owner": "🕯 emeric (emeric-nuc)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CONFIG-DEFAULTS/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "continuation defaults on bootstrap" },
-    { "row": "R-CONFIG-INTERSESSION", "owner": "🕯 emeric (emeric-nuc)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CONFIG-INTERSESSION/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "config/session metadata persists across sessions" },
-    { "row": "R-REGRESSION-TRAP-TESTS", "owner": "🕯 emeric (emeric-nuc)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-REGRESSION-TRAP-TESTS/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "deterministic continuation regression trap tests" },
-    { "row": "R-OBS-1", "owner": "🌻 elliott (elliott-legion)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "external /status continuation card cross-walk" },
-    { "row": "R-OBS-2", "owner": "🪨 rune (rune-rog-ally)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-2/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "Tempo trace-tree visualization and span hierarchy" },
-    { "row": "R-RC-1", "owner": "🌫 silas (silas-lothric)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-RC-1/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "request_compaction threshold reject" },
-    { "row": "R-RC-2", "owner": "🩸 cael (cael-dgx)", "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-RC-2/", "state": "pending", "traces": 0, "evidence_doc": null, "note": "request_compaction over-threshold accept" }
+    {
+      "row": "R-CD-1",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-1/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "continue_delegate() schedule→spawn→return; tool-form"
+    },
+    {
+      "row": "R-CD-2",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-2/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "continue_delegate silent/silent-wake behavior"
+    },
+    {
+      "row": "R-CD-3",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-3/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "continue_delegate post-compaction / lifeboat behavior"
+    },
+    {
+      "row": "R-CD-4",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-4/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "cross-session targeted return via targetSessionKey"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "owner": "🌊 ronan + 🪨 rune TEST-2 + 🌫 silas TEST-3 + 🕯 emeric TEST-1",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "depth-2 chain aggregate and substitution-seat tests"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2-TEST-1",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "up-tree silent-wake substitution-seat test"
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-TOKEN/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "bracket/token form of continue_delegate"
+    },
+    {
+      "row": "R-CW-1",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-1/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "continue_work() tool-form scheduled+woke"
+    },
+    {
+      "row": "R-CW-3",
+      "owner": "🩸 cael (canonical) + 🕯 emeric cross-walk",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "reason-field OTel span capture"
+    },
+    {
+      "row": "R-CW-3-EMERIC-CROSS-WALK",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "sister cross-walk for reason-field capture"
+    },
+    {
+      "row": "R-CW-4",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-4/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "chain-depth tracking"
+    },
+    {
+      "row": "R-CW-5",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-5/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "cost/token/pending cap reject proof"
+    },
+    {
+      "row": "R-CW-6",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-6/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "chain-depth-boundary reject"
+    },
+    {
+      "row": "R-CW-7",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-7/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "traceparent E2E propagation"
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-DELEGATE-SELF-CONTINUATION/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "continue_delegate self-continuation"
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-DELEGATE-TOKEN/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "#952 lightContext bracket continue_work row"
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-TOKEN/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "token/bare CONTINUE_WORK form"
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CONFIG-DEFAULTS/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "continuation defaults on bootstrap"
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CONFIG-INTERSESSION/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "config/session metadata persists across sessions"
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-REGRESSION-TRAP-TESTS/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "deterministic continuation regression trap tests"
+    },
+    {
+      "row": "R-OBS-1",
+      "owner": "🌻 elliott (elliott-legion)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "external /status continuation card cross-walk"
+    },
+    {
+      "row": "R-OBS-2",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-2/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "Tempo trace-tree visualization and span hierarchy"
+    },
+    {
+      "row": "R-RC-1",
+      "owner": "🌫 silas (silas-lothric)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-RC-1/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-RC-1/silas-lothric/EVIDENCE.md",
+      "note": "request_compaction threshold reject: contextUsage 39% below threshold 70%; tool receipt has no trace id, exact rejection receipt is load-bearing evidence",
+      "supporting_docs": [
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-RC-1/silas-lothric/request_compaction_reject_receipt.json"
+      ],
+      "fired": "2026-06-27 10:27 PDT, silas-lothric"
+    },
+    {
+      "row": "R-RC-2",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-RC-2/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "request_compaction over-threshold accept"
+    }
   ]
 }

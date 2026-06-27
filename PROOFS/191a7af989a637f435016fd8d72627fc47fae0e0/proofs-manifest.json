@@ -321,5 +321,26 @@
       "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-RC-2/cael-dgx/EVIDENCE.md",
       "note": "current post-compaction lane is 12% context and rejects below threshold; no accept proof claimed"
     }
-  ]
+  ],
+  "honest_limit_summary": {
+    "total": 4,
+    "clusters": [
+      {
+        "blocker": "karmaterminal/openclaw#1103",
+        "rows": [
+          "R-CD-MODEL-TOOL",
+          "R-CD-MODEL-TOKEN",
+          "R-CD-MODEL-CHAINED-ALT"
+        ],
+        "meaning": "single alternate-model override bug surface counted across three explicit proof permutations; model override accepted/applied-looking, but child reports github-copilot/gpt-5.5 instead of requested alternate model"
+      },
+      {
+        "blocker": "context substrate below threshold",
+        "rows": [
+          "R-RC-2"
+        ],
+        "meaning": "Cael was post-compaction at low context, so request_compaction over-threshold accept cannot honestly fire on that lane yet"
+      }
+    ]
+  }
 }

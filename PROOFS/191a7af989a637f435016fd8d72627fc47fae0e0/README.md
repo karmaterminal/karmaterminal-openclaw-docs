@@ -38,18 +38,18 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 | R-CW-DELEGATE-SELF-CONTINUATION | Rune | pass |
 | R-CW-DELEGATE-TOKEN | Rune | pending |
 | R-CD-1 | Ronan | pending |
-| R-CD-2 | Ronan | pending |
+| R-CD-2 | Ronan + Silas fill-in canary | pass |
 | R-CD-3 | Ronan | pending |
 | R-CD-4 | Ronan | pending |
 | R-CD-MODEL-DEFAULT | Ronan | pending |
-| R-CD-MODEL-TOOL | Ronan | pending |
-| R-CD-MODEL-TOKEN | Ronan | pending |
-| R-CD-MODEL-CHAINED-ALT | Ronan | pending |
+| R-CD-MODEL-TOOL | Ronan | honest_limit (#1103) |
+| R-CD-MODEL-TOKEN | Ronan | honest_limit (#1103) |
+| R-CD-MODEL-CHAINED-ALT | Ronan | honest_limit (#1103) |
 | R-CD-TOKEN | Ronan | pending |
 | R-CD-CHAINED-DEPTH-2 | Ronan + Rune + Silas + Emeric | pending |
-| R-RC-1 | Silas | pending |
+| R-RC-1 | Silas | pass |
 | R-RC-2 | Cael | honest_limit |
-| R-OBS-1 | Elliott | pending |
+| R-OBS-1 | Elliott + figs external observer | pass |
 | R-OBS-2 | Rune | pass |
 | R-CONFIG-DEFAULTS | Emeric | pass |
 | R-CONFIG-INTERSESSION | Emeric | pass |
@@ -79,4 +79,15 @@ Fresh Rune rows on `191a7af989`:
 | R-CW-DELEGATE-SELF-CONTINUATION | ✅ PASS | `R-CW-DELEGATE-SELF-CONTINUATION/rune-rog-ally/EVIDENCE.md` + trace JSON |
 | R-OBS-2 | ✅ PASS | `R-OBS-2/rune-rog-ally/EVIDENCE.md` + span-hierarchy JSON |
 
-Manifest rollup after Rune fill: `10 pass / 14 pending / 0 fail`.
+Manifest rollup after Rune fill was superseded by later folds; current rollup after Silas R-CD-2 fill is `16 pass / 1 partial / 4 honest_limit / 7 pending / 0 fail / 0 missing`.
+
+
+## Silas fill status (2026-06-27)
+
+Silas filled one safe Ronan-owned row without touching `PROOFS/INDEX.json`:
+
+| Row | State | Evidence |
+|---|---|---|
+| R-CD-2 | ✅ PASS-candidate | `R-CD-2/silas-lothric/EVIDENCE.md` + redacted k6 artifacts + nonce-only delegate return |
+
+The fill-in proof is explicitly seat-scoped to Silas. It does not claim Ronan-local artifacts or unblock the remaining Ronan R-CD rows without their own receipts/Tempo exports.

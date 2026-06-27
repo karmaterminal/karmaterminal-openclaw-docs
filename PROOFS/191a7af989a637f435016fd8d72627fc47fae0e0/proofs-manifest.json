@@ -4,16 +4,16 @@
   "ship_sha": "191a7af989a637f435016fd8d72627fc47fae0e0",
   "fire_type": "fresh-fire-in-progress",
   "carried_from": null,
-  "status": "in_progress_rune_rows_filled",
+  "status": "in_progress_silas_r_cd_2_filled",
   "rollup": {
     "total_rows": 28,
-    "pass": 15,
+    "pass": 16,
     "partial": 1,
     "thin": 0,
     "fail": 0,
     "honest_limit": 4,
     "missing": 0,
-    "pending": 8
+    "pending": 7
   },
   "notes": "Initial full-proof corpus for deployed assembly 191a7af989. Rune-owned rows R-CW-6, R-CW-7, R-CW-DELEGATE-SELF-CONTINUATION, and R-OBS-2 are filled with fresh 191a7af receipts; remaining rows pending owners/review.",
   "rows": [
@@ -30,10 +30,10 @@
       "row": "R-CD-2",
       "owner": "🌊 ronan (ronan-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-2/",
-      "state": "pending",
+      "state": "pass",
       "traces": 0,
-      "evidence_doc": null,
-      "note": "continue_delegate silent/silent-wake behavior"
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-2/silas-lothric/EVIDENCE.md",
+      "note": "continue_delegate silent-wake behavior; Silas fill-in canary observed dispatch/wake/no-channel-message and nonce-only child return."
     },
     {
       "row": "R-CD-3",

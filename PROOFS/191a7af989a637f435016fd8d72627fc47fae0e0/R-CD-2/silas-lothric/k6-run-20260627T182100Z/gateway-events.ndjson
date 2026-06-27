@@ -1,0 +1,9 @@
+{"ts":1782584239182,"kind":"event","method":null,"event":"connect.challenge","ok":null,"data":null}
+{"ts":1782584239184,"kind":"other","method":null,"event":null,"ok":null,"data":null}
+{"ts":1782584239223,"kind":"event","method":null,"event":"health","ok":null,"data":null}
+{"ts":1782584239690,"kind":"response","method":"sessions.messages.subscribe","event":null,"ok":true,"data":{}}
+{"ts":1782584240198,"kind":"event","method":null,"event":"agent","ok":null,"data":null}
+{"ts":1782584240201,"kind":"event","method":null,"event":"agent","ok":null,"data":null}
+{"ts":1782584240205,"kind":"event","method":null,"event":"agent","ok":null,"data":null}
+{"ts":1782584240223,"kind":"response","method":"sessions.send","event":null,"ok":true,"data":{"runId":"R-CD-2-R-CD-2-1782584239174-5kssdnto","status":"started"}}
+{"ts":1782584244113,"kind":"event","method":null,"event":"session.message","ok":null,"data":null}

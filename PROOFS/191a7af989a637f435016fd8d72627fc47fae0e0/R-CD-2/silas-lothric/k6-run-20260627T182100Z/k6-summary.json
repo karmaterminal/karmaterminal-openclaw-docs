@@ -1,0 +1,18 @@
+{
+  "row": "R-CD-2",
+  "manifest_loaded": true,
+  "nonce": "R-CD-2-1782584239174-5kssdnto",
+  "seat": "silas-lothric",
+  "sessionKey": "[redacted]",
+  "candidateSha": "191a7af989a637f435016fd8d72627fc47fae0e0",
+  "started": "2026-06-27T18:17:19.174Z",
+  "tool_accepted": true,
+  "task_created": false,
+  "task_mode": null,
+  "parent_wake_observed": true,
+  "channel_message_observed": false,
+  "child_session": null,
+  "trace_id": null,
+  "ended": "2026-06-27T18:17:24.113Z",
+  "duration_ms": 4939
+}

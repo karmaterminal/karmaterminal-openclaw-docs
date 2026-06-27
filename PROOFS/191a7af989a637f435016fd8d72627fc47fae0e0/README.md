@@ -26,7 +26,7 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 
 ## Row-owner map
 
-Current manifest rollup: `28 total / 16 pass / 1 partial / 4 honest_limit / 7 pending / 0 fail / 0 missing`.
+Current manifest rollup: `28 total / 19 pass / 1 partial / 4 honest_limit / 4 pending / 0 fail / 0 missing`.
 
 | Row | Owner | State |
 |---|---|---|
@@ -38,7 +38,7 @@ Current manifest rollup: `28 total / 16 pass / 1 partial / 4 honest_limit / 7 pe
 | R-CW-6 | Rune | pass |
 | R-CW-7 | Rune | pass |
 | R-CW-DELEGATE-SELF-CONTINUATION | Rune | pass |
-| R-CW-DELEGATE-TOKEN | Rune | pending |
+| R-CW-DELEGATE-TOKEN | Rune | pass |
 | R-CD-1 | Ronan + Elliott substitution | pass |
 | R-CD-2 | Ronan + Silas fill-in canary | pass |
 | R-CD-3 | Ronan | pending |
@@ -89,7 +89,7 @@ Fresh Rune rows on `191a7af989`:
 | R-CW-DELEGATE-SELF-CONTINUATION | ✅ PASS | `R-CW-DELEGATE-SELF-CONTINUATION/rune-rog-ally/EVIDENCE.md` + trace JSON |
 | R-OBS-2 | ✅ PASS | `R-OBS-2/rune-rog-ally/EVIDENCE.md` + span-hierarchy JSON |
 
-Manifest rollup after Rune fill was superseded by later folds; current rollup after Elliott substitution fill is `28 total / 18 pass / 1 partial / 4 honest_limit / 5 pending / 0 fail / 0 missing`.
+Manifest rollup after Rune fill was superseded by later folds; current rollup after Rune R-CW-DELEGATE-TOKEN fill is `28 total / 19 pass / 1 partial / 4 honest_limit / 4 pending / 0 fail / 0 missing`.
 
 
 ## Silas fill status (2026-06-27)
@@ -120,3 +120,13 @@ Emeric captured an additional default-inheritance tool-form receipt after Elliot
 | Row | State | Evidence |
 |---|---|---|
 | R-CD-MODEL-DEFAULT | supplemental receipt | `R-CD-MODEL-DEFAULT/emeric-nuc/EVIDENCE.md` + `tool-default-trace-00000000000000000000000000000012.json` |
+
+## Rune R-CW-DELEGATE-TOKEN fill (2026-06-27)
+
+Rune filled the remaining Rune-owned token row on the deployed `191a7af989` corpus:
+
+| Row | State | Evidence |
+|---|---|---|
+| R-CW-DELEGATE-TOKEN | ✅ PASS | `R-CW-DELEGATE-TOKEN/rune-rog-ally/EVIDENCE.md` + subagent transcript excerpt + journal parse/wake log |
+
+This proof is transcript+journal based: a lightContext subagent emitted bare `CONTINUE_WORK:5`, the journal parsed it as `kind=work` with `delayMs=5000`, the runtime delivered hop `1/200`, and the hop-2 transcript marker `TOKENBARE-HOP2-DROVE R-CW-DELEGATE-TOKEN-191a7af` landed. No Tempo JSON is filed for this row.

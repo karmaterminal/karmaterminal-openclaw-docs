@@ -1,0 +1,9 @@
+Jun 27 11:35:45 rune node[2385353]: 2026-06-27T11:35:45.511-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=0 [0]text=false session=<child-subagent-session>
+Jun 27 11:35:45 rune node[2385353]: 2026-06-27T11:35:45.512-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=work delayMs=5000 session=<child-subagent-session>
+Jun 27 11:35:45 rune node[2385353]: 2026-06-27T11:35:45.512-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=work session=<child-subagent-session>
+Jun 27 11:35:45 rune node[2385353]: 2026-06-27T11:35:45.521-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=4998ms fireAt=1782585350518 session=<child-subagent-session>
+Jun 27 11:35:50 rune node[2385353]: 2026-06-27T11:35:50.520-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<child-subagent-session>
+Jun 27 11:35:50 rune node[2385353]: 2026-06-27T11:35:50.522-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=60000ms fireAt=1782585410521 session=<child-subagent-session>
+Jun 27 11:35:50 rune node[2385353]: 2026-06-27T11:35:50.523-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=<child-subagent-session> reasonCategory=unknown
+Jun 27 11:35:54 rune node[2385353]: 2026-06-27T11:35:54.118-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<child-subagent-session>
+Jun 27 11:35:54 rune node[2385353]: 2026-06-27T11:35:54.119-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<child-subagent-session>

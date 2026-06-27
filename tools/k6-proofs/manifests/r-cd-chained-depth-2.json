@@ -25,7 +25,9 @@
       "chain-1-uptree-silent-wake",
       "chain-2-inter-session-return",
       "chain-3-echo-broadcast"
-    ]
+    ],
+    "status": "runnable",
+    "file": "r-cd-chained-depth-2.js"
   },
   "invocation": {
     "tool": "continue_delegate",

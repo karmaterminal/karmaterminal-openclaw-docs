@@ -9,6 +9,11 @@
   "toolSurface": "read-only",
   "mutates": false,
   "timeoutSeconds": 60,
+  "scenario": {
+    "status": "scaffold",
+    "expectedFile": "r-obs-status.js",
+    "registryNotes": "No runnable observer/status scenario exists yet; this read-only manifest is scaffolded until a dedicated runner lands."
+  },
   "expectedReceipts": [
     { "name": "tempo-trace-id", "required": true, "description": "Tempo trace ID generated and resolvable" },
     { "name": "observer-receipt", "required": true, "description": "Observer/status receipt intact" }

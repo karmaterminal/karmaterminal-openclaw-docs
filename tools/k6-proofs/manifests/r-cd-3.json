@@ -17,7 +17,10 @@
     "name": "r-cd-3-post-compaction",
     "description": "continue_delegate(mode='post-compaction') event-triggered lifeboat. Fires a post-compaction delegate, triggers compaction, and verifies the delegate fires post-compaction and returns to the rehydrated session.",
     "methods": ["tools.invoke", "tasks.list", "sessions.messages.subscribe"],
-    "notes": "Requires context >70% to trigger compaction, OR the test must use a low compaction threshold configuration."
+    "notes": "Requires context >70% to trigger compaction, OR the test must use a low compaction threshold configuration.",
+    "status": "scaffold",
+    "expectedFile": "r-cd-3-post-compaction.js",
+    "registryNotes": "No runnable scenario file exists yet; post-compaction runs need dedicated safe setup before this becomes runnable."
   },
   "invocation": {
     "tool": "continue_delegate",

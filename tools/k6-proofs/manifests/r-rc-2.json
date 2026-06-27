@@ -9,6 +9,11 @@
   "toolSurface": "typed-tool",
   "mutates": true,
   "timeoutSeconds": 120,
+  "scenario": {
+    "status": "scaffold",
+    "expectedFile": "r-rc-2.js",
+    "registryNotes": "No runnable request_compaction threshold-accept scenario exists yet; keep scaffolded until a serialized, human-confirmed runner lands."
+  },
   "expectedReceipts": [
     { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted request_compaction at >=70% threshold" },
     { "name": "compaction-triggered", "required": true, "description": "Compaction cycle executed and rewrote session context" }

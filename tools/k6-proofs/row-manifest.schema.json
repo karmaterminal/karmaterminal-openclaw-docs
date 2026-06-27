@@ -41,9 +41,25 @@
       "type": "object",
       "additionalProperties": true,
       "properties": {
+        "status": {
+          "enum": ["runnable", "scaffold", "construct-only"],
+          "description": "Runnable means scenario.file/name resolves to tools/k6-proofs/scenarios/*.js. Scaffold/construct-only rows are intentional non-runnable manifest entries."
+        },
+        "file": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+\\.js$",
+          "description": "Runnable scenario file basename under tools/k6-proofs/scenarios/."
+        },
+        "expectedFile": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+\\.js$",
+          "description": "Planned scenario file basename for scaffold rows. The file is not expected to exist yet."
+        },
         "name": { "type": "string" },
         "description": { "type": "string" },
-        "methods": { "type": "array", "items": { "type": "string" } }
+        "methods": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": "string" },
+        "registryNotes": { "type": "string" }
       }
     },
     "expectedReceipts": {

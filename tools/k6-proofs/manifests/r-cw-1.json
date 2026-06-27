@@ -16,7 +16,10 @@
   "scenario": {
     "name": "r-cw-1-tool-schedule-wake",
     "description": "Typed continue_work() tool-form schedule + wake. Fires continue_work with a reason, observes the scheduled work entry and wake event on the session.",
-    "methods": ["tools.invoke", "sessions.messages.subscribe"]
+    "methods": ["tools.invoke", "sessions.messages.subscribe"],
+    "status": "scaffold",
+    "expectedFile": "r-cw-1-tool-schedule-wake.js",
+    "registryNotes": "Legacy scenarios/r-cw-1.js exists but is an infrastructure-only check that does not load this manifest, so this manifest is not marked runnable."
   },
   "invocation": {
     "tool": "continue_work",

@@ -16,7 +16,10 @@
   "scenario": {
     "name": "r-cw-4-chain-depth",
     "description": "Chain depth hop counter: fires continue_work 3× in sequence, verifies hop increments from 1/200 → 3/200 in traced responses.",
-    "methods": ["tools.invoke", "sessions.messages.subscribe"]
+    "methods": ["tools.invoke", "sessions.messages.subscribe"],
+    "status": "scaffold",
+    "expectedFile": "r-cw-4-chain-depth.js",
+    "registryNotes": "No runnable row scenario file exists yet; this manifest is a registry contract only."
   },
   "invocation": {
     "tool": "continue_work",

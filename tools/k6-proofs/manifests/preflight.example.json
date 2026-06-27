@@ -16,7 +16,10 @@
   "scenario": {
     "name": "preflight inventory",
     "description": "Authenticate/read-only gateway inventory: health/status, sessions.list, tools.effective. Offline mode validates manifest shape without gateway traffic.",
-    "methods": ["health", "status", "sessions.list", "tools.effective"]
+    "methods": ["health", "status", "sessions.list", "tools.effective"],
+    "status": "scaffold",
+    "expectedFile": "preflight.js",
+    "registryNotes": "No runnable preflight.js exists yet; this manifest remains a preflight scaffold/example until that file lands."
   },
   "expectedReceipts": [
     {

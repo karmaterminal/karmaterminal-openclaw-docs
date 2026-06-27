@@ -9,6 +9,11 @@
   "toolSurface": "typed-tool",
   "mutates": false,
   "timeoutSeconds": 60,
+  "scenario": {
+    "status": "scaffold",
+    "expectedFile": "r-rc-1.js",
+    "registryNotes": "No runnable request_compaction threshold-reject scenario exists yet; keep scaffolded until a serialized/opt-in runner lands."
+  },
   "expectedReceipts": [
     { "name": "tool-invoke-rejected", "required": true, "description": "Gateway rejected request_compaction due to <70% threshold or rate limit" }
   ],

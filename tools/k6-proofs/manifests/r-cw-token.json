@@ -16,7 +16,10 @@
   "scenario": {
     "name": "r-cw-token-bracket",
     "description": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives. Proves the token-form continuation works for subagents (the #952 row lineage).",
-    "methods": ["sessions.send", "sessions.messages.subscribe", "subagents.spawn"]
+    "methods": ["sessions.send", "sessions.messages.subscribe", "subagents.spawn"],
+    "status": "scaffold",
+    "expectedFile": "r-cw-token-bracket.js",
+    "registryNotes": "No runnable row scenario file exists yet; bracket-token continue_work coverage is scaffolded only."
   },
   "seatClassExpectation": {
     "lightContext-subagent": "PASS-candidate",

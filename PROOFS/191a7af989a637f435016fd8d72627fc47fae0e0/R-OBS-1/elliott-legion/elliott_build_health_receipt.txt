@@ -1,0 +1,15 @@
+Seat: elliott-legion (🌻)
+Captured: 2026-06-27 ~10:27 PDT
+Candidate full SHA: 191a7af989a637f435016fd8d72627fc47fae0e0
+
+$ git -C /home/figs/flesh_beast_tmp/openclaw rev-parse HEAD
+191a7af989a637f435016fd8d72627fc47fae0e0
+
+$ node dist/index.js --version
+OpenClaw 2026.6.10 (191a7af)
+
+$ cat dist/build-info.json
+{"version":"2026.6.10","commit":"191a7af989a637f435016fd8d72627fc47fae0e0","builtAt":"2026-06-27T17:03:13.879Z"}
+
+$ curl -fsS http://127.0.0.1:18789/health
+{"ok":true,"status":"live"}

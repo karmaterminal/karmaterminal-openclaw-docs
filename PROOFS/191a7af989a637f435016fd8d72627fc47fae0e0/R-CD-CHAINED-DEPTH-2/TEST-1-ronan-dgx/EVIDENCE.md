@@ -44,9 +44,9 @@ ronan-dgx parent main subagent (dispatcher: cf72f31b-...)
 ## Depth-1 delegate's return
 
 ```
-R-CD-CHAINED-DEPTH-2 Chain-1 depth-1: spawned depth-2 leaf (up-tree silent-wake). 
-Runtime=OpenClaw 2026.6.10 (191a7af), host=ronan, 
-depth-1-traceparent=unavailable, 
+R-CD-CHAINED-DEPTH-2 Chain-1 depth-1: spawned depth-2 leaf (up-tree silent-wake).
+Runtime=OpenClaw 2026.6.10 (191a7af), host=ronan,
+depth-1-traceparent=unavailable,
 depth-2-traceparent=00-11111111111111111111111111111111-1111111111111111-01.
 ```
 
@@ -68,7 +68,7 @@ depth-2-traceparent=00-11111111111111111111111111111111-1111111111111111-01.
 
 The depth-2 LEAF return line shows multi-target delivery:
 ```
-Delivered to 
+Delivered to
   agent:main:subagent:continuation-ab987bad535f10e10f3855630301ab80,    ← depth-1 parent
   agent:main:subagent:cf72f31b-beee-43d0-97f4-b3bec89a9e1f,              ← depth-2 grandparent (this dispatcher)
   agent:main:discord:channel:1466192485440164011                          ← main channel session

@@ -4,16 +4,16 @@
   "ship_sha": "191a7af989a637f435016fd8d72627fc47fae0e0",
   "fire_type": "fresh-fire-in-progress",
   "carried_from": null,
-  "status": "in_progress_rune_rcw_delegate_token_filled",
+  "status": "in_progress_ronan_r_cd_rows_filled",
   "rollup": {
     "total_rows": 28,
-    "pass": 19,
+    "pass": 23,
     "partial": 1,
     "thin": 0,
     "fail": 0,
     "honest_limit": 4,
     "missing": 0,
-    "pending": 4
+    "pending": 0
   },
   "notes": "Ronan filled R-CD-3, R-CD-4, R-CD-TOKEN, and R-CD-CHAINED-DEPTH-2-TEST-1 from ronan-dgx 191a7af artifacts. Aggregate chained-depth row remains partial; invalid local Chain-2/Chain-3 attempts are documented but not counted.",
   "rows": [

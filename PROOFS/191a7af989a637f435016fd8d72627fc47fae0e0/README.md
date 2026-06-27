@@ -112,3 +112,11 @@ Elliott added substitution evidence for two Ronan-owned gaps while Ronan artifac
 | R-CD-MODEL-DEFAULT | ✅ PASS-candidate | `R-CD-MODEL-DEFAULT/elliott-legion/EVIDENCE.md` + Tempo JSON |
 
 These are substitution proofs on Elliott, not a claim that Ronan-local artifacts landed. Alternate-model rows remain honest-limited by `karmaterminal/openclaw#1103`; Ronan chained/delegate-token rows remain pending/partial until their artifacts are byte-verified.
+
+## Emeric supplemental receipt (2026-06-27)
+
+Emeric captured an additional default-inheritance tool-form receipt after Elliott had already filled `R-CD-MODEL-DEFAULT`. This is supplemental only; the manifest row remains anchored to Elliott's substitution proof.
+
+| Row | State | Evidence |
+|---|---|---|
+| R-CD-MODEL-DEFAULT | supplemental receipt | `R-CD-MODEL-DEFAULT/emeric-nuc/EVIDENCE.md` + `tool-default-trace-00000000000000000000000000000012.json` |

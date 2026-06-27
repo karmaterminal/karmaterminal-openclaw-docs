@@ -1,0 +1,12 @@
+{
+  "row": "R-CD-MODEL-DEFAULT",
+  "seat": "emeric-nuc",
+  "sha": "191a7af989a637f435016fd8d72627fc47fae0e0",
+  "fired_at": "2026-06-27 11:23:16 PDT",
+  "nonce": "R-CD-MODEL-DEFAULT-TOOL-emeric-191a7af-1782584541",
+  "surface": "continue_delegate tool form",
+  "requested_model_override": "none/default",
+  "observed_model": "github-copilot/gpt-5.5",
+  "trace_id": "00000000000000000000000000000012",
+  "verdict": "pass-candidate: default inheritance observed on Emeric substitution seat; Ronan-owned row still needs owner/final fold if required"
+}

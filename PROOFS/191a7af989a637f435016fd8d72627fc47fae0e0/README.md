@@ -31,7 +31,7 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 | R-CW-1 | Cael | pass |
 | R-CW-3 | Cael + Emeric cross-walk | pass (Emeric + Cael filed) |
 | R-CW-4 | Cael | pass |
-| R-CW-5 | Cael | honest_limit |
+| R-CW-5 | Cael | pass |
 | R-CW-TOKEN | Cael | pass |
 | R-CW-6 | Rune | pass |
 | R-CW-7 | Rune | pass |

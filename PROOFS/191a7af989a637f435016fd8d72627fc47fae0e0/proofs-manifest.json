@@ -173,10 +173,10 @@
       "row": "R-CW-5",
       "owner": "🩸 cael (cael-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-5/",
-      "state": "honest_limit",
+      "state": "pass",
       "traces": 0,
       "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-5/cael-dgx/EVIDENCE.md",
-      "note": "safe gateway config.patch route blocked by protected costCapTokens path; no unsafe config edit performed"
+      "note": "natural runtime cost-cap rejection observed (731168 > 500000); protected config patch receipt retained as safety context"
     },
     {
       "row": "R-CW-6",

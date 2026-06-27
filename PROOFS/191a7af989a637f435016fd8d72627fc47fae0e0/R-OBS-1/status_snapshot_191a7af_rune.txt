@@ -1,0 +1,14 @@
+Rune🪨
+🦞 OpenClaw 2026.6.10 (191a7af)
+⏱️ Uptime: gateway 28m 40s · system 25d 14h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🧮 Tokens: 181k in / 13k out · 💵 Cost: $0.0000
+🗄️ Cache: 36% hit · 102k cached, 0 new
+📚 Context: 106k/200k (53%) · 🧹 Compactions: 8
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: [redacted-session-key] • duration 9m 8s • updated 1m ago
+📌 Tasks: recently finished · subagent · [continuation:chain-hop:1] Delegated task (turn 1/200): R-CW-7 / R-CW-DELEGATE-…
+🔄 Continuation: chain 1/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+👥 Activation: always · 🪢 Queue: steer (depth 0)

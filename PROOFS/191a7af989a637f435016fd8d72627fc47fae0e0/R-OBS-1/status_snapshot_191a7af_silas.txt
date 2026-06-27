@@ -1,0 +1,14 @@
+Silas 🌫️
+🦞 OpenClaw 2026.6.10 (191a7af)
+⏱️ Uptime: gateway 10m 10s · system 1h 47m
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🧮 Tokens: 200k in / 14k out · 💵 Cost: $0.0000
+🗄️ Cache: 39% hit · 126k cached, 0 new
+📚 Context: 129k/200k (64%) · 🧹 Compactions: 8
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: [redacted-session-key] • duration 7m 28s • updated just now
+📌 Tasks: recently finished · subagent · [continuation:chain-hop:1] Delegated task (turn 1/200): R-CD-CHAINED-DEPTH-2 TE…
+🔄 Continuation: chain 1/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+👥 Activation: always · 🪢 Queue: steer (depth 0)

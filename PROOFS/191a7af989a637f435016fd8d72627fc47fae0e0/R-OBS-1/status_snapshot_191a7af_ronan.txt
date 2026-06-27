@@ -1,0 +1,15 @@
+Ronan 🌊
+🦞 OpenClaw 2026.6.10 (191a7af)
+⏱️ Uptime: gateway 10m 25s · system 34d 22h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🧮 Tokens: 262k in / 265 out · 💵 Cost: $0.0000
+🗄️ Cache: 19% hit · 61k cached, 0 new
+📚 Context: 324k/1.0m (32%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: [redacted-session-key] • duration 2h 36m • updated 1m ago
+📌 Tasks: recently finished · subagent · Ronan PROOFS runbook reader
+🔄 Continuation: chain 0/200 | 1 delegates pending
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: off · Fast: off · elevated
+🔌 Plugins: OK
+🔊 Voice: inbound · provider=microsoft · limit=1500 · summary=on
+👥 Activation: always · 🪢 Queue: steer (depth 0)

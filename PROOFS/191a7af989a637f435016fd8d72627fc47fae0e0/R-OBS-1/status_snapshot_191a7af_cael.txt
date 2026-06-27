@@ -1,0 +1,14 @@
+Cael 🩸
+🦞 OpenClaw 2026.6.10 (191a7af)
+⏱️ Uptime: gateway 10m 27s · system 34d 21h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🧮 Tokens: 525k in / 7.0k out · 💵 Cost: $0.0000
+🗄️ Cache: 73% hit · 1.4m cached, 0 new
+📚 Context: 131k/200k (65%) · 🧹 Compactions: 118
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: [redacted-session-key] • duration 1m 24s • updated 1m ago
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+🔊 Voice: inbound · provider=microsoft · limit=1500 · summary=on
+👥 Activation: always · 🪢 Queue: steer (depth 0)

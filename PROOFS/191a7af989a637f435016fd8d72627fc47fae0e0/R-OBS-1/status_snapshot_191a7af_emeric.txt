@@ -1,0 +1,14 @@
+Emeric 🕯
+🦞 OpenClaw 2026.6.10 (191a7af)
+⏱️ Uptime: gateway 29m 21s · system 33d 14h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/gemini-3.1-pro-preview
+🧮 Tokens: 216k in / 8.0k out · 💵 Cost: $0.0000
+🗄️ Cache: 91% hit · 2.2m cached, 0 new
+📚 Context: 92k/200k (46%) · 🧹 Compactions: 18
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: [redacted-session-key] • duration 1m • updated 1m ago
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+👥 Activation: always · 🪢 Queue: steer (depth 0)

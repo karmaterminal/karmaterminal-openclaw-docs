@@ -1,0 +1,14 @@
+Elliott 🌻
+🦞 OpenClaw 2026.6.10 (191a7af)
+⏱️ Uptime: gateway 25m 33s · system 6d 20h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/gemini-3.1-pro-preview
+🧮 Tokens: 9.5k in / 1.1k out · 💵 Cost: $0.0000
+🗄️ Cache: 94% hit · 147k cached, 0 new
+📚 Context: 151k/400k (38%) · 🧹 Compactions: 1
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: [redacted-session-key] • duration 21m 57s • updated just now
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+👥 Activation: always · 🪢 Queue: steer (depth 0)

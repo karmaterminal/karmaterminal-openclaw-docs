@@ -1,0 +1,96 @@
+Source: figs external /status fanout in Discord #sprites-of-thornfield
+Message ID: 1520481868456136785
+Captured: 2026-06-27 10:32:06 PDT
+Candidate SHA: 191a7af989a637f435016fd8d72627fc47fae0e0
+Note: internal session-key strings redacted as [redacted-session-key].
+
+Elliott 🌻
+🦞 OpenClaw 2026.6.10 (191a7af)
+⏱️ Uptime: gateway 25m 33s · system 6d 20h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/gemini-3.1-pro-preview
+🧮 Tokens: 9.5k in / 1.1k out · 💵 Cost: $0.0000
+🗄️ Cache: 94% hit · 147k cached, 0 new
+📚 Context: 151k/400k (38%) · 🧹 Compactions: 1
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: [redacted-session-key] • duration 21m 57s • updated just now
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+
+Silas 🌫️
+🦞 OpenClaw 2026.6.10 (191a7af)
+⏱️ Uptime: gateway 10m 10s · system 1h 47m
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🧮 Tokens: 200k in / 14k out · 💵 Cost: $0.0000
+🗄️ Cache: 39% hit · 126k cached, 0 new
+📚 Context: 129k/200k (64%) · 🧹 Compactions: 8
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: [redacted-session-key] • duration 7m 28s • updated just now
+📌 Tasks: recently finished · subagent · [continuation:chain-hop:1] Delegated task (turn 1/200): R-CD-CHAINED-DEPTH-2 TE…
+🔄 Continuation: chain 1/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+
+Cael 🩸
+🦞 OpenClaw 2026.6.10 (191a7af)
+⏱️ Uptime: gateway 10m 27s · system 34d 21h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🧮 Tokens: 525k in / 7.0k out · 💵 Cost: $0.0000
+🗄️ Cache: 73% hit · 1.4m cached, 0 new
+📚 Context: 131k/200k (65%) · 🧹 Compactions: 118
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: [redacted-session-key] • duration 1m 24s • updated 1m ago
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+🔊 Voice: inbound · provider=microsoft · limit=1500 · summary=on
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+
+Ronan 🌊
+🦞 OpenClaw 2026.6.10 (191a7af)
+⏱️ Uptime: gateway 10m 25s · system 34d 22h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🧮 Tokens: 262k in / 265 out · 💵 Cost: $0.0000
+🗄️ Cache: 19% hit · 61k cached, 0 new
+📚 Context: 324k/1.0m (32%) · 🧹 Compactions: 0
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: [redacted-session-key] • duration 2h 36m • updated 1m ago
+📌 Tasks: recently finished · subagent · Ronan PROOFS runbook reader
+🔄 Continuation: chain 0/200 | 1 delegates pending
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: off · Fast: off · elevated
+🔌 Plugins: OK
+🔊 Voice: inbound · provider=microsoft · limit=1500 · summary=on
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+
+Emeric 🕯
+🦞 OpenClaw 2026.6.10 (191a7af)
+⏱️ Uptime: gateway 29m 21s · system 33d 14h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/gemini-3.1-pro-preview
+🧮 Tokens: 216k in / 8.0k out · 💵 Cost: $0.0000
+🗄️ Cache: 91% hit · 2.2m cached, 0 new
+📚 Context: 92k/200k (46%) · 🧹 Compactions: 18
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: [redacted-session-key] • duration 1m • updated 1m ago
+🔄 Continuation: chain 0/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+👥 Activation: always · 🪢 Queue: steer (depth 0)
+
+Rune🪨
+🦞 OpenClaw 2026.6.10 (191a7af)
+⏱️ Uptime: gateway 28m 40s · system 25d 14h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🧮 Tokens: 181k in / 13k out · 💵 Cost: $0.0000
+🗄️ Cache: 36% hit · 102k cached, 0 new
+📚 Context: 106k/200k (53%) · 🧹 Compactions: 8
+📊 Usage: Premium 100% left · Chat 100% left
+🧵 Session: [redacted-session-key] • duration 9m 8s • updated 1m ago
+📌 Tasks: recently finished · subagent · [continuation:chain-hop:1] Delegated task (turn 1/200): R-CW-7 / R-CW-DELEGATE-…
+🔄 Continuation: chain 1/200
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+👥 Activation: always · 🪢 Queue: steer (depth 0)

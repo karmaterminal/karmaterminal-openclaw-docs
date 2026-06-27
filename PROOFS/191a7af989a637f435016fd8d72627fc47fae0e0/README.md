@@ -26,10 +26,12 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 
 ## Row-owner map
 
+Current manifest rollup: `28 total / 16 pass / 1 partial / 4 honest_limit / 7 pending / 0 fail / 0 missing`.
+
 | Row | Owner | State |
 |---|---|---|
 | R-CW-1 | Cael | pass |
-| R-CW-3 | Cael + Emeric cross-walk | pass (Emeric + Cael filed) |
+| R-CW-3 | Cael + Emeric cross-walk | pass |
 | R-CW-4 | Cael | pass |
 | R-CW-5 | Cael | pass |
 | R-CW-TOKEN | Cael | pass |
@@ -41,12 +43,13 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 | R-CD-2 | Ronan + Silas fill-in canary | pass |
 | R-CD-3 | Ronan | pending |
 | R-CD-4 | Ronan | pending |
-| R-CD-MODEL-DEFAULT | Ronan | pending |
-| R-CD-MODEL-TOOL | Ronan | honest_limit (#1103) |
-| R-CD-MODEL-TOKEN | Ronan | honest_limit (#1103) |
-| R-CD-MODEL-CHAINED-ALT | Ronan | honest_limit (#1103) |
+| R-CD-MODEL-DEFAULT | Ronan | pending (default-inheritance contrast) |
+| R-CD-MODEL-TOOL | Ronan | honest_limit — grouped under `karmaterminal/openclaw#1103` |
+| R-CD-MODEL-TOKEN | Ronan | honest_limit — grouped under `karmaterminal/openclaw#1103` |
+| R-CD-MODEL-CHAINED-ALT | Ronan | honest_limit — grouped under `karmaterminal/openclaw#1103` |
 | R-CD-TOKEN | Ronan | pending |
-| R-CD-CHAINED-DEPTH-2 | Ronan + Rune + Silas + Emeric | pending |
+| R-CD-CHAINED-DEPTH-2 | Ronan + Rune + Silas + Emeric | partial |
+| R-CD-CHAINED-DEPTH-2-TEST-1 | Emeric | pending |
 | R-RC-1 | Silas | pass |
 | R-RC-2 | Cael | honest_limit |
 | R-OBS-1 | Elliott + figs external observer | pass |
@@ -54,6 +57,13 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 | R-CONFIG-DEFAULTS | Emeric | pass |
 | R-CONFIG-INTERSESSION | Emeric | pass |
 | R-REGRESSION-TRAP-TESTS | Emeric | pass |
+
+### Honest-limit grouping
+
+The `4 honest_limit` entries represent two underlying blockers, not four unrelated proof gaps:
+
+- `R-CD-MODEL-TOOL`, `R-CD-MODEL-TOKEN`, and `R-CD-MODEL-CHAINED-ALT` are one alternate-model override cluster blocked by `karmaterminal/openclaw#1103`. In the observed edge, the runtime accepts/applies-looking `github-copilot/goldeneye`, but the child context reports `github-copilot/gpt-5.5`; the unresolved root remains override ignored vs runtime context misreported vs silent fallback/alias normalization.
+- `R-RC-2` is separate: the firing lane was below the `request_compaction` over-threshold accept condition, so the corpus records an honest limit rather than claiming an accept-leg pass.
 
 ## Assembly instructions
 
@@ -79,7 +89,7 @@ Fresh Rune rows on `191a7af989`:
 | R-CW-DELEGATE-SELF-CONTINUATION | ✅ PASS | `R-CW-DELEGATE-SELF-CONTINUATION/rune-rog-ally/EVIDENCE.md` + trace JSON |
 | R-OBS-2 | ✅ PASS | `R-OBS-2/rune-rog-ally/EVIDENCE.md` + span-hierarchy JSON |
 
-Manifest rollup after Rune fill was superseded by later folds; current rollup after Silas R-CD-2 fill is `16 pass / 1 partial / 4 honest_limit / 7 pending / 0 fail / 0 missing`.
+Manifest rollup after Rune fill was superseded by later folds; current rollup after Silas R-CD-2 fill is `28 total / 16 pass / 1 partial / 4 honest_limit / 7 pending / 0 fail / 0 missing`.
 
 
 ## Silas fill status (2026-06-27)

@@ -4,18 +4,18 @@
   "ship_sha": "191a7af989a637f435016fd8d72627fc47fae0e0",
   "fire_type": "fresh-fire-in-progress",
   "carried_from": null,
-  "status": "in_progress",
+  "status": "in_progress_rune_rows_filled",
   "rollup": {
     "total_rows": 24,
-    "pass": 6,
+    "pass": 10,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
     "missing": 0,
-    "pending": 18
+    "pending": 14
   },
-  "notes": "Initial scaffold for full proofs on deployed assembly 191a7af989. Row owners should replace pending rows with pass/partial/honest_limit/fail as evidence lands. PROOFS/INDEX.json is intentionally not advanced until this corpus is filled and reviewed.",
+  "notes": "Initial full-proof corpus for deployed assembly 191a7af989. Rune-owned rows R-CW-6, R-CW-7, R-CW-DELEGATE-SELF-CONTINUATION, and R-OBS-2 are filled with fresh 191a7af receipts; remaining rows pending owners/review.",
   "rows": [
     {
       "row": "R-CD-1",
@@ -137,28 +137,28 @@
       "row": "R-CW-6",
       "owner": "🪨 rune (rune-rog-ally)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-6/",
-      "state": "pending",
-      "traces": 0,
-      "evidence_doc": null,
-      "note": "chain-depth-boundary reject"
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-6-BOUNDARY/rune-rog-ally/EVIDENCE.md",
+      "note": "Rune depth-1 subagent on 191a7af has sessions_yield but no sessions_spawn; boundary holds."
     },
     {
       "row": "R-CW-7",
       "owner": "🪨 rune (rune-rog-ally)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-7/",
-      "state": "pending",
-      "traces": 0,
-      "evidence_doc": null,
-      "note": "traceparent E2E propagation"
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-7-TRACEPARENT-E2E/rune-rog-ally/EVIDENCE.md",
+      "note": "Valid non-zero W3C traceparent accepted; Tempo trace shows Rune continuation.delegate.dispatch and child run under supplied trace-id."
     },
     {
       "row": "R-CW-DELEGATE-SELF-CONTINUATION",
       "owner": "🪨 rune (rune-rog-ally)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-DELEGATE-SELF-CONTINUATION/",
-      "state": "pending",
-      "traces": 0,
-      "evidence_doc": null,
-      "note": "continue_delegate self-continuation"
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-DELEGATE-SELF-CONTINUATION/rune-rog-ally/EVIDENCE.md",
+      "note": "continue_delegate silent-wake dispatched, child completed, and tree fanout returned on deployed 191a7af."
     },
     {
       "row": "R-CW-DELEGATE-TOKEN",
@@ -230,10 +230,10 @@
       "row": "R-OBS-2",
       "owner": "🪨 rune (rune-rog-ally)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-2/",
-      "state": "pending",
-      "traces": 0,
-      "evidence_doc": null,
-      "note": "Tempo trace-tree visualization and span hierarchy"
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-2/rune-rog-ally/EVIDENCE.md",
+      "note": "Tempo trace-tree/span hierarchy export captured for Rune continuation fire on 191a7af."
     },
     {
       "row": "R-RC-1",

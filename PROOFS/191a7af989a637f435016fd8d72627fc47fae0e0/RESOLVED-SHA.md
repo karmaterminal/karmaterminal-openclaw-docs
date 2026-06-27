@@ -38,3 +38,8 @@ All six prince gateways were deployed and verified on `191a7af989`:
 
 - Upstream moved after this green SHA. Per figs, later drift is post-proof incidental unless it touches continuation feature surface; if it does, rerun proofs after GATES.
 - Discord reply-session conflict remains an upstream open bug (`openclaw/openclaw#96936`) and is not treated as a `191a7af989` deploy regression.
+
+
+## Rune runtime receipt (2026-06-27)
+
+Rune row fires confirmed local deployed runtime: `OpenClaw 2026.6.10 (191a7af)` with build-info commit `191a7af989a637f435016fd8d72627fc47fae0e0`.

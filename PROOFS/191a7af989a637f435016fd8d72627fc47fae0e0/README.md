@@ -33,9 +33,9 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 | R-CW-4 | Cael | pending |
 | R-CW-5 | Cael | pending |
 | R-CW-TOKEN | Cael | pending |
-| R-CW-6 | Rune | pending |
-| R-CW-7 | Rune | pending |
-| R-CW-DELEGATE-SELF-CONTINUATION | Rune | pending |
+| R-CW-6 | Rune | pass |
+| R-CW-7 | Rune | pass |
+| R-CW-DELEGATE-SELF-CONTINUATION | Rune | pass |
 | R-CW-DELEGATE-TOKEN | Rune | pending |
 | R-CD-1 | Ronan | pending |
 | R-CD-2 | Ronan | pending |
@@ -46,7 +46,7 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 | R-RC-1 | Silas | pending |
 | R-RC-2 | Cael | pending |
 | R-OBS-1 | Elliott | pending |
-| R-OBS-2 | Rune | pending |
+| R-OBS-2 | Rune | pass |
 | R-CONFIG-DEFAULTS | Emeric | pass |
 | R-CONFIG-INTERSESSION | Emeric | pass |
 | R-REGRESSION-TRAP-TESTS | Emeric | pass |
@@ -62,3 +62,17 @@ Princes should place row artifacts under `PROOFS/191a7af989a637f435016fd8d72627f
 5. honest limits and any scoped bug encountered.
 
 `PROOFS/INDEX.json` remains pointed at the last completed corpus until this proof set is filled and reviewed.
+
+
+## Rune fill status (2026-06-27)
+
+Fresh Rune rows on `191a7af989`:
+
+| Row | State | Evidence |
+|---|---|---|
+| R-CW-6-BOUNDARY | ✅ PASS | `R-CW-6-BOUNDARY/rune-rog-ally/EVIDENCE.md` |
+| R-CW-7-TRACEPARENT-E2E | ✅ PASS | `R-CW-7-TRACEPARENT-E2E/rune-rog-ally/EVIDENCE.md` + `trace-00000000000000000000000000000001-dispatch-tree.json` |
+| R-CW-DELEGATE-SELF-CONTINUATION | ✅ PASS | `R-CW-DELEGATE-SELF-CONTINUATION/rune-rog-ally/EVIDENCE.md` + trace JSON |
+| R-OBS-2 | ✅ PASS | `R-OBS-2/rune-rog-ally/EVIDENCE.md` + span-hierarchy JSON |
+
+Manifest rollup after Rune fill: `10 pass / 14 pending / 0 fail`.

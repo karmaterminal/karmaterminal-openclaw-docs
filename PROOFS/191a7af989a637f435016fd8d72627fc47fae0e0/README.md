@@ -29,7 +29,7 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 | Row | Owner | State |
 |---|---|---|
 | R-CW-1 | Cael | pending |
-| R-CW-3 | Cael + Emeric cross-walk | pending |
+| R-CW-3 | Cael + Emeric cross-walk | pass (Emeric cross-walk filed) |
 | R-CW-4 | Cael | pending |
 | R-CW-5 | Cael | pending |
 | R-CW-TOKEN | Cael | pending |
@@ -47,9 +47,9 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 | R-RC-2 | Cael | pending |
 | R-OBS-1 | Elliott | pending |
 | R-OBS-2 | Rune | pending |
-| R-CONFIG-DEFAULTS | Emeric | pending |
-| R-CONFIG-INTERSESSION | Emeric | pending |
-| R-REGRESSION-TRAP-TESTS | Emeric | pending |
+| R-CONFIG-DEFAULTS | Emeric | pass |
+| R-CONFIG-INTERSESSION | Emeric | pass |
+| R-REGRESSION-TRAP-TESTS | Emeric | pass |
 
 ## Assembly instructions
 

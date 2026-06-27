@@ -7,13 +7,13 @@
   "status": "in_progress",
   "rollup": {
     "total_rows": 24,
-    "pass": 1,
+    "pass": 6,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
     "missing": 0,
-    "pending": 23
+    "pending": 18
   },
   "notes": "Initial scaffold for full proofs on deployed assembly 191a7af989. Row owners should replace pending rows with pass/partial/honest_limit/fail as evidence lands. PROOFS/INDEX.json is intentionally not advanced until this corpus is filled and reviewed.",
   "rows": [
@@ -93,19 +93,27 @@
       "row": "R-CW-3",
       "owner": "🩸 cael (canonical) + 🕯 emeric cross-walk",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/",
-      "state": "pending",
-      "traces": 0,
-      "evidence_doc": null,
-      "note": "reason-field OTel span capture"
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/proof.md",
+      "note": "Emeric per-seat cross-walk: continue_work reason.preview captured in Tempo trace; Cael canonical may add separate receipt",
+      "supporting_docs": [
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/emeric-nuc-trace-toolform.json"
+      ],
+      "fired": "2026-06-27 10:29 PDT, emeric-nuc"
     },
     {
       "row": "R-CW-3-EMERIC-CROSS-WALK",
       "owner": "🕯 emeric (emeric-nuc)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/",
-      "state": "pending",
-      "traces": 0,
-      "evidence_doc": null,
-      "note": "sister cross-walk for reason-field capture"
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/proof.md",
+      "note": "continue_work tool-form reason-field OTel proof on emeric-nuc; trace 4bf92f3577b34da6a3ce929d0e0e4736",
+      "supporting_docs": [
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/emeric-nuc-trace-toolform.json"
+      ],
+      "fired": "2026-06-27 10:29 PDT, emeric-nuc"
     },
     {
       "row": "R-CW-4",
@@ -174,28 +182,40 @@
       "row": "R-CONFIG-DEFAULTS",
       "owner": "🕯 emeric (emeric-nuc)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CONFIG-DEFAULTS/",
-      "state": "pending",
+      "state": "pass",
       "traces": 0,
-      "evidence_doc": null,
-      "note": "continuation defaults on bootstrap"
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CONFIG-DEFAULTS/proof.md",
+      "note": "Live continuation defaults captured from ~/.openclaw/openclaw.json on deployed 191a7af; enabled=true maxChainLength=200 costCapTokens=50000000 crossSessionTargeting=enabled",
+      "supporting_docs": [
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CONFIG-DEFAULTS/live-config-emeric-nuc.json"
+      ],
+      "fired": "2026-06-27 10:28 PDT, emeric-nuc"
     },
     {
       "row": "R-CONFIG-INTERSESSION",
       "owner": "🕯 emeric (emeric-nuc)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CONFIG-INTERSESSION/",
-      "state": "pending",
+      "state": "pass",
       "traces": 0,
-      "evidence_doc": null,
-      "note": "config/session metadata persists across sessions"
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CONFIG-INTERSESSION/proof.md",
+      "note": "Gate-side proof: crossSessionTargeting enabled in live config; behavior-side rows owned separately",
+      "supporting_docs": [
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CONFIG-DEFAULTS/live-config-emeric-nuc.json"
+      ],
+      "fired": "2026-06-27 10:28 PDT, emeric-nuc"
     },
     {
       "row": "R-REGRESSION-TRAP-TESTS",
       "owner": "🕯 emeric (emeric-nuc)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-REGRESSION-TRAP-TESTS/",
-      "state": "pending",
+      "state": "pass",
       "traces": 0,
-      "evidence_doc": null,
-      "note": "deterministic continuation regression trap tests"
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
+      "note": "Continuation opts/registration/misconfig warning regression tests passed 31/31 on deployed 191a7af",
+      "supporting_docs": [
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-REGRESSION-TRAP-TESTS/regression-trap.log"
+      ],
+      "fired": "2026-06-27 10:29 PDT, emeric-nuc"
     },
     {
       "row": "R-OBS-1",

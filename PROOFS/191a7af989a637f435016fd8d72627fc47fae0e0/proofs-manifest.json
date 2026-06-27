@@ -7,13 +7,13 @@
   "status": "in_progress_rune_rows_filled",
   "rollup": {
     "total_rows": 28,
-    "pass": 11,
+    "pass": 15,
     "partial": 1,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 0,
+    "honest_limit": 4,
     "missing": 0,
-    "pending": 16
+    "pending": 8
   },
   "notes": "Initial full-proof corpus for deployed assembly 191a7af989. Rune-owned rows R-CW-6, R-CW-7, R-CW-DELEGATE-SELF-CONTINUATION, and R-OBS-2 are filled with fresh 191a7af receipts; remaining rows pending owners/review.",
   "rows": [
@@ -60,34 +60,43 @@
       "state": "pending",
       "traces": 0,
       "evidence_doc": null,
-      "note": "continue_delegate default model/provider inheritance; cover tool form and token/bracket form without model override (or explicit model=default if implemented)"
+      "note": "continue_delegate default model/provider inheritance; cover tool form and token/bracket form without model override (or explicit model=default if implemented); remains proofable as default-inheritance contrast while alternate-model rows are blocked by #1103."
     },
     {
       "row": "R-CD-MODEL-TOOL",
       "owner": "🌊 ronan (ronan-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-TOOL/",
-      "state": "pending",
+      "state": "honest_limit",
       "traces": 0,
       "evidence_doc": null,
-      "note": "continue_delegate tool form with alternate provider/model override; child must report requested model/provider"
+      "note": "continue_delegate tool form with alternate provider/model override; child must report requested model/provider; BLOCKED by karmaterminal/openclaw#1103: model override accepted/applied-looking but child reports default github-copilot/gpt-5.5 instead of requested alternate model.",
+      "supporting_docs": [
+        "https://github.com/karmaterminal/openclaw/issues/1103"
+      ]
     },
     {
       "row": "R-CD-MODEL-TOKEN",
       "owner": "🌊 ronan (ronan-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-TOKEN/",
-      "state": "pending",
+      "state": "honest_limit",
       "traces": 0,
       "evidence_doc": null,
-      "note": "continue_delegate token/bracket form with alternate provider/model override; child must report requested model/provider"
+      "note": "continue_delegate token/bracket form with alternate provider/model override; child must report requested model/provider; BLOCKED by karmaterminal/openclaw#1103: model override accepted/applied-looking but child reports default github-copilot/gpt-5.5 instead of requested alternate model.",
+      "supporting_docs": [
+        "https://github.com/karmaterminal/openclaw/issues/1103"
+      ]
     },
     {
       "row": "R-CD-MODEL-CHAINED-ALT",
       "owner": "🌊 ronan (ronan-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-CHAINED-ALT/",
-      "state": "pending",
+      "state": "honest_limit",
       "traces": 0,
       "evidence_doc": null,
-      "note": "depth-1 delegate creates another continue_delegate with alternate provider/model; depth-2 child reports current time and observed model/provider"
+      "note": "depth-1 delegate creates another continue_delegate with alternate provider/model; depth-2 child reports current time and observed model/provider; BLOCKED by karmaterminal/openclaw#1103: model override accepted/applied-looking but child reports default github-copilot/gpt-5.5 instead of requested alternate model.",
+      "supporting_docs": [
+        "https://github.com/karmaterminal/openclaw/issues/1103"
+      ]
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2",

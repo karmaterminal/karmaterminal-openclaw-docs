@@ -4,18 +4,18 @@
   "ship_sha": "191a7af989a637f435016fd8d72627fc47fae0e0",
   "fire_type": "fresh-fire-in-progress",
   "carried_from": null,
-  "status": "in_progress_rune_rcw_delegate_token_filled",
+  "status": "in_progress_ronan_r_cd_rows_filled",
   "rollup": {
     "total_rows": 28,
-    "pass": 19,
+    "pass": 23,
     "partial": 1,
     "thin": 0,
     "fail": 0,
     "honest_limit": 4,
     "missing": 0,
-    "pending": 4
+    "pending": 0
   },
-  "notes": "Rune filled R-CW-DELEGATE-TOKEN with lightContext bare-token subagent transcript+journal proof; remaining rows pending owners/review.",
+  "notes": "Ronan filled R-CD-3, R-CD-4, R-CD-TOKEN, and R-CD-CHAINED-DEPTH-2-TEST-1 from ronan-dgx 191a7af artifacts. Aggregate chained-depth row remains partial; invalid local Chain-2/Chain-3 attempts are documented but not counted.",
   "rows": [
     {
       "row": "R-CD-1",
@@ -44,19 +44,31 @@
       "row": "R-CD-3",
       "owner": "🌊 ronan (ronan-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-3/",
-      "state": "pending",
-      "traces": 0,
-      "evidence_doc": null,
-      "note": "continue_delegate post-compaction / lifeboat behavior"
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-3/ronan-dgx/EVIDENCE.md",
+      "note": "Ronan ronan-dgx registration-tier proof: post-compaction delegate accepted with distinct status=queued-for-compaction; event fires at next compaction seam.",
+      "supporting_docs": [
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-3/ronan-dgx/fire_response.json",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-3/ronan-dgx/journal.log",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-3/ronan-dgx/turn_trace.json"
+      ],
+      "fired": "2026-06-27 10:33 PDT, ronan-dgx"
     },
     {
       "row": "R-CD-4",
       "owner": "🌊 ronan (ronan-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-4/",
-      "state": "pending",
-      "traces": 0,
-      "evidence_doc": null,
-      "note": "cross-session targeted return via targetSessionKey"
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-4/ronan-dgx/EVIDENCE.md",
+      "note": "Ronan ronan-dgx proof: targetSessionKey accepted, delegate spawned, and targeted-return delivered to explicit main Discord session.",
+      "supporting_docs": [
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-4/ronan-dgx/fire_response.json",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-4/ronan-dgx/journal.log",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-4/ronan-dgx/turn_trace.json"
+      ],
+      "fired": "2026-06-27 10:33 PDT, ronan-dgx"
     },
     {
       "row": "R-CD-MODEL-DEFAULT",
@@ -113,34 +125,48 @@
       "owner": "🌊 ronan + 🪨 rune TEST-2 + 🌫 silas TEST-3 + 🕯 emeric TEST-1",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/",
       "state": "partial",
-      "traces": 1,
+      "traces": 2,
       "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/EVIDENCE.md",
-      "note": "TEST-3 Silas canary PASS-candidate: root scheduled, depth-1 ran, nested depth-2 scheduled, depth-2 returned nonce with chain depth 2/5; full aggregate row remains partial until other chain subrows land/review.",
+      "note": "Partial aggregate: Silas TEST-3 pass candidate and Ronan TEST-1 substitution pass are folded. Aggregate remains partial until remaining chain subrow(s) are cleanly rerun/reviewed; Ronan local Chain-2/Chain-3 attempts were invalid model-call-shape artifacts and are not counted as pass evidence.",
       "supporting_docs": [
         "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/root_dispatch_receipt.json",
         "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/depth1_result.json",
         "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/depth2_result.md",
-        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/artifacts/root_trace_00000000000000000000000000000003.json"
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/artifacts/root_trace_00000000000000000000000000000003.json",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-1-ronan-dgx/EVIDENCE.md",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/RONAN-LOCAL-CHAIN-AUDIT.md"
       ],
       "fired": "2026-06-27 10:29 PDT, silas-lothric"
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2-TEST-1",
-      "owner": "🕯 emeric (emeric-nuc)",
+      "owner": "🌊 ronan (ronan-dgx substitution)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/",
-      "state": "pending",
-      "traces": 0,
-      "evidence_doc": null,
-      "note": "up-tree silent-wake substitution-seat test"
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-1-ronan-dgx/EVIDENCE.md",
+      "note": "Ronan substitution TEST-1: depth-2 silent-wake up-tree traversal completed and delivered to depth-1 parent, grandparent dispatcher, and main channel.",
+      "supporting_docs": [
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-1-ronan-dgx/fire_response_depth1.json",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-1-ronan-dgx/journal.log",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-1-ronan-dgx/turn_trace.json"
+      ],
+      "fired": "2026-06-27 10:33 PDT, ronan-dgx"
     },
     {
       "row": "R-CD-TOKEN",
       "owner": "🌊 ronan (ronan-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-TOKEN/",
-      "state": "pending",
-      "traces": 0,
-      "evidence_doc": null,
-      "note": "bracket/token form of continue_delegate"
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-TOKEN/ronan-dgx/EVIDENCE.md",
+      "note": "Ronan ronan-dgx proof: terminal bracket token parsed with origin=bracket kind=delegate, spawned chain delegate, grandchild returned SHA-verified.",
+      "supporting_docs": [
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-TOKEN/ronan-dgx/fire_response.json",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-TOKEN/ronan-dgx/journal.log",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-TOKEN/ronan-dgx/turn_trace.json"
+      ],
+      "fired": "2026-06-27 10:33 PDT, ronan-dgx"
     },
     {
       "row": "R-CW-1",
@@ -356,5 +382,14 @@
         "meaning": "Cael was post-compaction at low context, so request_compaction over-threshold accept cannot honestly fire on that lane yet"
       }
     ]
+  },
+  "summary": {
+    "total": 28,
+    "pass": 23,
+    "partial": 1,
+    "fail": 0,
+    "honest_limit": 4,
+    "pending": 0,
+    "missing": 0
   }
 }

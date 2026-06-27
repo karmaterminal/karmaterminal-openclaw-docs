@@ -26,7 +26,7 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 
 ## Row-owner map
 
-Current manifest rollup: `28 total / 19 pass / 1 partial / 4 honest_limit / 4 pending / 0 fail / 0 missing`.
+Current manifest rollup: `28 total / 23 pass / 1 partial / 4 honest_limit / 0 pending / 0 fail / 0 missing`.
 
 | Row | Owner | State |
 |---|---|---|
@@ -41,15 +41,15 @@ Current manifest rollup: `28 total / 19 pass / 1 partial / 4 honest_limit / 4 pe
 | R-CW-DELEGATE-TOKEN | Rune | pass |
 | R-CD-1 | Ronan + Elliott substitution | pass |
 | R-CD-2 | Ronan + Silas fill-in canary | pass |
-| R-CD-3 | Ronan | pending |
-| R-CD-4 | Ronan | pending |
+| R-CD-3 | Ronan | pass — ronan-dgx registration-tier artifact |
+| R-CD-4 | Ronan | pass — ronan-dgx targetSessionKey artifact |
 | R-CD-MODEL-DEFAULT | Ronan + Elliott substitution | pass (default-inheritance contrast) |
 | R-CD-MODEL-TOOL | Ronan | honest_limit — grouped under `karmaterminal/openclaw#1103` |
 | R-CD-MODEL-TOKEN | Ronan | honest_limit — grouped under `karmaterminal/openclaw#1103` |
 | R-CD-MODEL-CHAINED-ALT | Ronan | honest_limit — grouped under `karmaterminal/openclaw#1103` |
-| R-CD-TOKEN | Ronan | pending |
+| R-CD-TOKEN | Ronan | pass — ronan-dgx bracket-token artifact |
 | R-CD-CHAINED-DEPTH-2 | Ronan + Rune + Silas + Emeric | partial |
-| R-CD-CHAINED-DEPTH-2-TEST-1 | Emeric | pending |
+| R-CD-CHAINED-DEPTH-2-TEST-1 | Ronan substitution | pass — ronan-dgx up-tree silent-wake artifact |
 | R-RC-1 | Silas | pass |
 | R-RC-2 | Cael | honest_limit |
 | R-OBS-1 | Elliott + figs external observer | pass |
@@ -89,7 +89,7 @@ Fresh Rune rows on `191a7af989`:
 | R-CW-DELEGATE-SELF-CONTINUATION | ✅ PASS | `R-CW-DELEGATE-SELF-CONTINUATION/rune-rog-ally/EVIDENCE.md` + trace JSON |
 | R-OBS-2 | ✅ PASS | `R-OBS-2/rune-rog-ally/EVIDENCE.md` + span-hierarchy JSON |
 
-Manifest rollup after Rune fill was superseded by later folds; current rollup after Rune R-CW-DELEGATE-TOKEN fill is `28 total / 19 pass / 1 partial / 4 honest_limit / 4 pending / 0 fail / 0 missing`.
+Manifest rollup after Rune fill was superseded by later folds; current rollup after Rune R-CW-DELEGATE-TOKEN fill is `28 total / 23 pass / 1 partial / 4 honest_limit / 0 pending / 0 fail / 0 missing`.
 
 
 ## Silas fill status (2026-06-27)
@@ -111,7 +111,7 @@ Elliott added substitution evidence for two Ronan-owned gaps while Ronan artifac
 | R-CD-1 | ✅ PASS-candidate | `R-CD-1/elliott-legion/EVIDENCE.md` + Tempo JSON |
 | R-CD-MODEL-DEFAULT | ✅ PASS-candidate | `R-CD-MODEL-DEFAULT/elliott-legion/EVIDENCE.md` + Tempo JSON |
 
-These are substitution proofs on Elliott, not a claim that Ronan-local artifacts landed. Alternate-model rows remain honest-limited by `karmaterminal/openclaw#1103`; Ronan chained/delegate-token rows remain pending/partial until their artifacts are byte-verified.
+These are substitution proofs on Elliott, not a claim that Ronan-local artifacts landed. Alternate-model rows remain honest-limited by `karmaterminal/openclaw#1103`; Ronan R-CD-3/R-CD-4/R-CD-TOKEN and TEST-1 chained artifacts are now byte-verified/folded; aggregate chained-depth remains partial pending remaining subrow review/rerun.
 
 ## Emeric supplemental receipt (2026-06-27)
 
@@ -130,3 +130,15 @@ Rune filled the remaining Rune-owned token row on the deployed `191a7af989` corp
 | R-CW-DELEGATE-TOKEN | ✅ PASS | `R-CW-DELEGATE-TOKEN/rune-rog-ally/EVIDENCE.md` + subagent transcript excerpt + journal parse/wake log |
 
 This proof is transcript+journal based: a lightContext subagent emitted bare `CONTINUE_WORK:5`, the journal parsed it as `kind=work` with `delayMs=5000`, the runtime delivered hop `1/200`, and the hop-2 transcript marker `TOKENBARE-HOP2-DROVE R-CW-DELEGATE-TOKEN-191a7af` landed. No Tempo JSON is filed for this row.
+
+
+## Ronan fill — 2026-06-27 13:35 PDT
+
+Filled four previously pending rows from ronan-dgx `/tmp` artifacts after byte audit:
+
+- `R-CD-3/ronan-dgx` — post-compaction registration-tier `queued-for-compaction` proof.
+- `R-CD-4/ronan-dgx` — `targetSessionKey` scheduled/spawned/targeted-return proof.
+- `R-CD-TOKEN/ronan-dgx` — terminal bracket-token parsed as `origin=bracket kind=delegate`, spawned grandchild, SHA-verified return.
+- `R-CD-CHAINED-DEPTH-2/TEST-1-ronan-dgx` — depth-2 silent-wake up-tree traversal proof.
+
+The aggregate `R-CD-CHAINED-DEPTH-2` row remains `partial`: Ronan local Chain-2/Chain-3 attempts are documented as invalid model-call-shape artifacts and intentionally not counted as pass evidence.

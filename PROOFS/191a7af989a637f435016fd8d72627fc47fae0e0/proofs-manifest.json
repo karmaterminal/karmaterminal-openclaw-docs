@@ -6,14 +6,14 @@
   "carried_from": null,
   "status": "in_progress_rune_rows_filled",
   "rollup": {
-    "total_rows": 24,
-    "pass": 10,
-    "partial": 2,
+    "total_rows": 28,
+    "pass": 11,
+    "partial": 1,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
     "missing": 0,
-    "pending": 12
+    "pending": 16
   },
   "notes": "Initial full-proof corpus for deployed assembly 191a7af989. Rune-owned rows R-CW-6, R-CW-7, R-CW-DELEGATE-SELF-CONTINUATION, and R-OBS-2 are filled with fresh 191a7af receipts; remaining rows pending owners/review.",
   "rows": [
@@ -52,6 +52,42 @@
       "traces": 0,
       "evidence_doc": null,
       "note": "cross-session targeted return via targetSessionKey"
+    },
+    {
+      "row": "R-CD-MODEL-DEFAULT",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-DEFAULT/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "continue_delegate default model/provider inheritance; cover tool form and token/bracket form without model override (or explicit model=default if implemented)"
+    },
+    {
+      "row": "R-CD-MODEL-TOOL",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-TOOL/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "continue_delegate tool form with alternate provider/model override; child must report requested model/provider"
+    },
+    {
+      "row": "R-CD-MODEL-TOKEN",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-TOKEN/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "continue_delegate token/bracket form with alternate provider/model override; child must report requested model/provider"
+    },
+    {
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-CHAINED-ALT/",
+      "state": "pending",
+      "traces": 0,
+      "evidence_doc": null,
+      "note": "depth-1 delegate creates another continue_delegate with alternate provider/model; depth-2 child reports current time and observed model/provider"
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2",
@@ -228,19 +264,20 @@
       "row": "R-OBS-1",
       "owner": "🌻 elliott (elliott-legion)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/",
-      "state": "partial",
+      "state": "pass",
       "traces": 0,
-      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/elliott-legion/EVIDENCE.md",
-      "note": "R-OBS-1 partial: Elliott + Silas status/build/health slices present; remaining four prince status snapshots owed before pass.",
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/EVIDENCE.md",
+      "note": "Six-prince external /status fanout PASS: all cards show OpenClaw 2026.6.10 (191a7af), continuation row renders, and queue state is healthy; session keys redacted.",
       "supporting_docs": [
-        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/elliott-legion/status_snapshot_191a7af_elliott.txt",
-        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/elliott-legion/elliott_build_health_receipt.txt",
-        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/silas-lothric/EVIDENCE.md",
-        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/silas-lothric/status-card.txt",
-        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/silas-lothric/version.txt",
-        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/silas-lothric/health.json"
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/raw_status_cards_6prince.txt",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/status_snapshot_191a7af_cael.txt",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/status_snapshot_191a7af_ronan.txt",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/status_snapshot_191a7af_silas.txt",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/status_snapshot_191a7af_elliott.txt",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/status_snapshot_191a7af_emeric.txt",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-OBS-1/status_snapshot_191a7af_rune.txt"
       ],
-      "fired": "2026-06-27 10:27-10:31 PDT, elliott-legion + silas-lothric"
+      "fired": "2026-06-27 10:32 PDT, figs external fanout + Elliott/Silas row slices"
     },
     {
       "row": "R-OBS-2",

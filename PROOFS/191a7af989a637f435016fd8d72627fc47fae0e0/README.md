@@ -41,6 +41,10 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 | R-CD-2 | Ronan | pending |
 | R-CD-3 | Ronan | pending |
 | R-CD-4 | Ronan | pending |
+| R-CD-MODEL-DEFAULT | Ronan | pending |
+| R-CD-MODEL-TOOL | Ronan | pending |
+| R-CD-MODEL-TOKEN | Ronan | pending |
+| R-CD-MODEL-CHAINED-ALT | Ronan | pending |
 | R-CD-TOKEN | Ronan | pending |
 | R-CD-CHAINED-DEPTH-2 | Ronan + Rune + Silas + Emeric | pending |
 | R-RC-1 | Silas | pending |

@@ -127,21 +127,23 @@
       "row": "R-CW-1",
       "owner": "🩸 cael (cael-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-1/",
-      "state": "pending",
-      "traces": 0,
-      "evidence_doc": null,
-      "note": "continue_work() tool-form scheduled+woke"
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-1/cael-dgx/EVIDENCE.md",
+      "note": "continue_work() tool-form scheduled+woke on cael-dgx; Tempo continuation.work + journal wake"
     },
     {
       "row": "R-CW-3",
       "owner": "🩸 cael (canonical) + 🕯 emeric cross-walk",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/",
       "state": "pass",
-      "traces": 1,
+      "traces": 2,
       "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/proof.md",
-      "note": "Emeric per-seat cross-walk: continue_work reason.preview captured in Tempo trace; Cael canonical may add separate receipt",
+      "note": "Emeric cross-walk primary plus Cael canonical receipt; continue_work reason.preview captured in Tempo on both seats",
       "supporting_docs": [
-        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/emeric-nuc-trace-toolform.json"
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/emeric-nuc-trace-toolform.json",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/cael-dgx/EVIDENCE.md",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-3/cael-dgx/reason_preview_trace_bbbbbbbb.json"
       ],
       "fired": "2026-06-27 10:29 PDT, emeric-nuc"
     },
@@ -162,19 +164,19 @@
       "row": "R-CW-4",
       "owner": "🩸 cael (cael-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-4/",
-      "state": "pending",
+      "state": "pass",
       "traces": 0,
-      "evidence_doc": null,
-      "note": "chain-depth tracking"
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-4/cael-dgx/EVIDENCE.md",
+      "note": "journal shows chain-depth hop increments through hop=5/200 on cael-dgx"
     },
     {
       "row": "R-CW-5",
       "owner": "🩸 cael (cael-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-5/",
-      "state": "pending",
+      "state": "honest_limit",
       "traces": 0,
-      "evidence_doc": null,
-      "note": "cost/token/pending cap reject proof"
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-5/cael-dgx/EVIDENCE.md",
+      "note": "safe gateway config.patch route blocked by protected costCapTokens path; no unsafe config edit performed"
     },
     {
       "row": "R-CW-6",
@@ -216,10 +218,10 @@
       "row": "R-CW-TOKEN",
       "owner": "🩸 cael (cael-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-TOKEN/",
-      "state": "pending",
+      "state": "pass",
       "traces": 0,
-      "evidence_doc": null,
-      "note": "token/bare CONTINUE_WORK form"
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-TOKEN/cael-dgx/EVIDENCE.md",
+      "note": "bare CONTINUE_WORK:90 token parsed from subagent final text and scheduled work"
     },
     {
       "row": "R-CONFIG-DEFAULTS",
@@ -305,10 +307,10 @@
       "row": "R-RC-2",
       "owner": "🩸 cael (cael-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-RC-2/",
-      "state": "pending",
+      "state": "honest_limit",
       "traces": 0,
-      "evidence_doc": null,
-      "note": "request_compaction over-threshold accept"
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-RC-2/cael-dgx/EVIDENCE.md",
+      "note": "current post-compaction lane is 12% context and rejects below threshold; no accept proof claimed"
     }
   ]
 }

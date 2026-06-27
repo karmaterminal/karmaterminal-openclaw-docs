@@ -28,11 +28,11 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 
 | Row | Owner | State |
 |---|---|---|
-| R-CW-1 | Cael | pending |
-| R-CW-3 | Cael + Emeric cross-walk | pass (Emeric cross-walk filed) |
-| R-CW-4 | Cael | pending |
-| R-CW-5 | Cael | pending |
-| R-CW-TOKEN | Cael | pending |
+| R-CW-1 | Cael | pass |
+| R-CW-3 | Cael + Emeric cross-walk | pass (Emeric + Cael filed) |
+| R-CW-4 | Cael | pass |
+| R-CW-5 | Cael | honest_limit |
+| R-CW-TOKEN | Cael | pass |
 | R-CW-6 | Rune | pass |
 | R-CW-7 | Rune | pass |
 | R-CW-DELEGATE-SELF-CONTINUATION | Rune | pass |
@@ -48,7 +48,7 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 | R-CD-TOKEN | Ronan | pending |
 | R-CD-CHAINED-DEPTH-2 | Ronan + Rune + Silas + Emeric | pending |
 | R-RC-1 | Silas | pending |
-| R-RC-2 | Cael | pending |
+| R-RC-2 | Cael | honest_limit |
 | R-OBS-1 | Elliott | pending |
 | R-OBS-2 | Rune | pass |
 | R-CONFIG-DEFAULTS | Emeric | pass |

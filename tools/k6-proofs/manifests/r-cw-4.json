@@ -15,8 +15,14 @@
   },
   "scenario": {
     "name": "r-cw-4-chain-depth",
-    "description": "Chain depth hop counter: fires continue_work 3× in sequence, verifies hop increments from 1/200 → 3/200 in traced responses.",
-    "methods": ["tools.invoke", "sessions.messages.subscribe"]
+    "description": "Chain depth hop counter: fires continue_work 3\u00d7 in sequence, verifies hop increments from 1/200 \u2192 3/200 in traced responses.",
+    "methods": [
+      "tools.invoke",
+      "sessions.messages.subscribe"
+    ],
+    "runnable": false,
+    "implementationStatus": "scaffold-only",
+    "statusReason": "No matching tools/k6-proofs/scenarios/r-cw-4-chain-depth.js file exists yet; manifest is tracked but not workflow-runnable."
   },
   "invocation": {
     "tool": "continue_work",
@@ -26,10 +32,26 @@
     "idempotencyKeyPrefix": "R-CW-4"
   },
   "expectedReceipts": [
-    { "name": "hop-1-accepted", "required": true, "description": "First continue_work accepted, chain.step shows 1/N" },
-    { "name": "hop-2-accepted", "required": true, "description": "Second continue_work accepted after wake, chain.step shows 2/N" },
-    { "name": "hop-3-accepted", "required": true, "description": "Third continue_work accepted after wake, chain.step shows 3/N" },
-    { "name": "trace-ids", "required": false, "description": "Trace IDs from each hop for Tempo chain verification" }
+    {
+      "name": "hop-1-accepted",
+      "required": true,
+      "description": "First continue_work accepted, chain.step shows 1/N"
+    },
+    {
+      "name": "hop-2-accepted",
+      "required": true,
+      "description": "Second continue_work accepted after wake, chain.step shows 2/N"
+    },
+    {
+      "name": "hop-3-accepted",
+      "required": true,
+      "description": "Third continue_work accepted after wake, chain.step shows 3/N"
+    },
+    {
+      "name": "trace-ids",
+      "required": false,
+      "description": "Trace IDs from each hop for Tempo chain verification"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",

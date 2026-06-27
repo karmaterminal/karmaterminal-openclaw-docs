@@ -16,7 +16,13 @@
   "scenario": {
     "name": "r-cw-1-tool-schedule-wake",
     "description": "Typed continue_work() tool-form schedule + wake. Fires continue_work with a reason, observes the scheduled work entry and wake event on the session.",
-    "methods": ["tools.invoke", "sessions.messages.subscribe"]
+    "methods": [
+      "tools.invoke",
+      "sessions.messages.subscribe"
+    ],
+    "runnable": false,
+    "implementationStatus": "scaffold-only",
+    "statusReason": "No matching tools/k6-proofs/scenarios/r-cw-1-tool-schedule-wake.js file exists yet; manifest is tracked but not workflow-runnable."
   },
   "invocation": {
     "tool": "continue_work",
@@ -25,10 +31,26 @@
     "idempotencyKeyPrefix": "R-CW-1"
   },
   "expectedReceipts": [
-    { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted the continue_work tool invocation" },
-    { "name": "work-scheduled-event", "required": true, "description": "continuation.work.scheduled event with reason field" },
-    { "name": "work-woke-event", "required": true, "description": "Session wake event delivered after delaySeconds" },
-    { "name": "trace-id", "required": false, "description": "Trace ID from tool response for Tempo fetch" }
+    {
+      "name": "tool-invoke-accepted",
+      "required": true,
+      "description": "Gateway accepted the continue_work tool invocation"
+    },
+    {
+      "name": "work-scheduled-event",
+      "required": true,
+      "description": "continuation.work.scheduled event with reason field"
+    },
+    {
+      "name": "work-woke-event",
+      "required": true,
+      "description": "Session wake event delivered after delaySeconds"
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID from tool response for Tempo fetch"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",

@@ -16,7 +16,15 @@
   "scenario": {
     "name": "r-cw-6-max-chain-length",
     "description": "maxChainLength boundary: sets maxChainLength=1 via config, fires continue_work twice, verifies second hop is rejected at chain depth 2>1. Restores originals after.",
-    "methods": ["tools.invoke", "config.patch", "config.restore", "gateway.restart"]
+    "methods": [
+      "tools.invoke",
+      "config.patch",
+      "config.restore",
+      "gateway.restart"
+    ],
+    "runnable": false,
+    "implementationStatus": "scaffold-only",
+    "statusReason": "No matching tools/k6-proofs/scenarios/r-cw-6-max-chain-length.js file exists yet; manifest is tracked but not workflow-runnable."
   },
   "invocation": {
     "tool": "continue_work",
@@ -31,10 +39,26 @@
     }
   },
   "expectedReceipts": [
-    { "name": "config-set-to-1", "required": true, "description": "maxChainLength set to 1 + gateway restart" },
-    { "name": "hop-1-accepted", "required": true, "description": "First continue_work accepted (chain 1/1)" },
-    { "name": "hop-2-rejected", "required": true, "description": "Second continue_work rejected (chain length 2>1)" },
-    { "name": "config-restored", "required": true, "description": "Original maxChainLength restored + restart" }
+    {
+      "name": "config-set-to-1",
+      "required": true,
+      "description": "maxChainLength set to 1 + gateway restart"
+    },
+    {
+      "name": "hop-1-accepted",
+      "required": true,
+      "description": "First continue_work accepted (chain 1/1)"
+    },
+    {
+      "name": "hop-2-rejected",
+      "required": true,
+      "description": "Second continue_work rejected (chain length 2>1)"
+    },
+    {
+      "name": "config-restored",
+      "required": true,
+      "description": "Original maxChainLength restored + restart"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",
@@ -46,6 +70,6 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "maxChainLength boundary proof. MUTATES config (maxChainLength→1) + requires restart. PASS when boundary enforced at hop-2. Originals MUST be restored (includes restart)."
+    "notes": "maxChainLength boundary proof. MUTATES config (maxChainLength\u21921) + requires restart. PASS when boundary enforced at hop-2. Originals MUST be restored (includes restart)."
   }
 }

@@ -16,18 +16,41 @@
   "scenario": {
     "name": "r-cd-token-bracket-delegate",
     "description": "Bracket [[CONTINUE_DELEGATE:...]] path. Injects prompt requiring terminal bracket token, observes child spawn and return.",
-    "methods": ["sessions.send", "tasks.list", "sessions.messages.subscribe"]
+    "methods": [
+      "sessions.send",
+      "tasks.list",
+      "sessions.messages.subscribe"
+    ],
+    "runnable": false,
+    "implementationStatus": "scaffold-only",
+    "statusReason": "No matching tools/k6-proofs/scenarios/r-cd-token-bracket-delegate.js file exists yet; manifest is tracked but not workflow-runnable."
   },
   "seatClassExpectation": {
     "raw-final-text-seat": "PASS-candidate",
     "message-body-seat": "HONEST-LIMIT-candidate",
-    "reason": "Bracket scanner fires only on scanned-final-text. Seats that route final-text through message(send) body kill the scanner (bracketIdx=-1). ronan-dgx IS a message-body seat in its default Discord delivery — expected HONEST-LIMIT unless raw-final-text mode is forced (no message-tool call that turn). See TOOLS.md bracket-position-sensitive notes."
+    "reason": "Bracket scanner fires only on scanned-final-text. Seats that route final-text through message(send) body kill the scanner (bracketIdx=-1). ronan-dgx IS a message-body seat in its default Discord delivery \u2014 expected HONEST-LIMIT unless raw-final-text mode is forced (no message-tool call that turn). See TOOLS.md bracket-position-sensitive notes."
   },
   "expectedReceipts": [
-    { "name": "prompt-injected", "required": true, "description": "sessions.send accepted the bracket-instructing prompt" },
-    { "name": "bracket-token-observed", "required": false, "description": "Bracket delegate token observed in session event stream (may be absent on message-body seats)" },
-    { "name": "child-spawned", "required": false, "description": "Child task/session created with nonce correlation" },
-    { "name": "parent-return-event", "required": false, "description": "Delegate return/silent-wake observed on parent session" }
+    {
+      "name": "prompt-injected",
+      "required": true,
+      "description": "sessions.send accepted the bracket-instructing prompt"
+    },
+    {
+      "name": "bracket-token-observed",
+      "required": false,
+      "description": "Bracket delegate token observed in session event stream (may be absent on message-body seats)"
+    },
+    {
+      "name": "child-spawned",
+      "required": false,
+      "description": "Child task/session created with nonce correlation"
+    },
+    {
+      "name": "parent-return-event",
+      "required": false,
+      "description": "Delegate return/silent-wake observed on parent session"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",

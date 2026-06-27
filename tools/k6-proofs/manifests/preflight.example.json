@@ -14,9 +14,17 @@
     "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
   },
   "scenario": {
-    "name": "preflight inventory",
+    "name": "preflight-inventory",
     "description": "Authenticate/read-only gateway inventory: health/status, sessions.list, tools.effective. Offline mode validates manifest shape without gateway traffic.",
-    "methods": ["health", "status", "sessions.list", "tools.effective"]
+    "methods": [
+      "health",
+      "status",
+      "sessions.list",
+      "tools.effective"
+    ],
+    "runnable": false,
+    "implementationStatus": "scaffold-only",
+    "statusReason": "No matching tools/k6-proofs/scenarios/preflight-inventory.js file exists yet; manifest is tracked but not workflow-runnable."
   },
   "expectedReceipts": [
     {

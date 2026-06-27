@@ -20,7 +20,8 @@
       "tools.invoke",
       "sessions.messages.subscribe",
       "tasks.list"
-    ]
+    ],
+    "runnable": true
   },
   "invocation": {
     "tool": "continue_delegate",

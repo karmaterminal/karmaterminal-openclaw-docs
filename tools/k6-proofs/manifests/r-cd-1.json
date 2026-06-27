@@ -16,7 +16,14 @@
   "scenario": {
     "name": "r-cd-1-typed-delegate",
     "description": "Typed continue_delegate() schedule/spawn/return. Fires a delegate with a nonce-only child task, observes task ledger entry and parent return.",
-    "methods": ["tools.invoke", "tasks.list", "sessions.messages.subscribe"]
+    "methods": [
+      "tools.invoke",
+      "tasks.list",
+      "sessions.messages.subscribe"
+    ],
+    "runnable": false,
+    "implementationStatus": "scaffold-only",
+    "statusReason": "No matching tools/k6-proofs/scenarios/r-cd-1-typed-delegate.js file exists yet; manifest is tracked but not workflow-runnable."
   },
   "invocation": {
     "tool": "continue_delegate",
@@ -26,11 +33,32 @@
     "idempotencyKeyPrefix": "R-CD-1"
   },
   "expectedReceipts": [
-    { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted the continue_delegate tool invocation" },
-    { "name": "task-ledger-entry", "required": true, "description": "Task created in ledger with nonce correlation" },
-    { "name": "child-session-key", "required": false, "description": "Child session key or run ID from task metadata" },
-    { "name": "parent-return-event", "required": false, "description": "Delegate completion/return event observed on parent session", "pathHint": "gateway-events.ndjson" },
-    { "name": "trace-id", "required": false, "description": "Trace ID from tool response or task metadata for Tempo fetch" }
+    {
+      "name": "tool-invoke-accepted",
+      "required": true,
+      "description": "Gateway accepted the continue_delegate tool invocation"
+    },
+    {
+      "name": "task-ledger-entry",
+      "required": true,
+      "description": "Task created in ledger with nonce correlation"
+    },
+    {
+      "name": "child-session-key",
+      "required": false,
+      "description": "Child session key or run ID from task metadata"
+    },
+    {
+      "name": "parent-return-event",
+      "required": false,
+      "description": "Delegate completion/return event observed on parent session",
+      "pathHint": "gateway-events.ndjson"
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID from tool response or task metadata for Tempo fetch"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",

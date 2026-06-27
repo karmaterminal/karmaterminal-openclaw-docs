@@ -16,7 +16,14 @@
   "scenario": {
     "name": "r-cw-5-cost-cap-reject",
     "description": "Cost-cap exhaustion: fires continue_work after artificially exhausting costCapTokens budget, verifies dispatch-time rejection with appropriate error.",
-    "methods": ["tools.invoke", "config.patch", "config.restore"]
+    "methods": [
+      "tools.invoke",
+      "config.patch",
+      "config.restore"
+    ],
+    "runnable": false,
+    "implementationStatus": "scaffold-only",
+    "statusReason": "No matching tools/k6-proofs/scenarios/r-cw-5-cost-cap-reject.js file exists yet; manifest is tracked but not workflow-runnable."
   },
   "invocation": {
     "tool": "continue_work",
@@ -30,9 +37,21 @@
     }
   },
   "expectedReceipts": [
-    { "name": "config-lowered", "required": true, "description": "costCapTokens set to 1 (exhausted boundary)" },
-    { "name": "tool-invoke-rejected", "required": true, "description": "continue_work rejected at dispatch with cost-cap exceeded error" },
-    { "name": "config-restored", "required": true, "description": "Original costCapTokens restored after proof" }
+    {
+      "name": "config-lowered",
+      "required": true,
+      "description": "costCapTokens set to 1 (exhausted boundary)"
+    },
+    {
+      "name": "tool-invoke-rejected",
+      "required": true,
+      "description": "continue_work rejected at dispatch with cost-cap exceeded error"
+    },
+    {
+      "name": "config-restored",
+      "required": true,
+      "description": "Original costCapTokens restored after proof"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",
@@ -44,6 +63,6 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Cost-cap boundary. PASS when rejection is delivered at the cap boundary. MUTATES config temporarily (costCapTokens→1 then restore). The reject IS the proof."
+    "notes": "Cost-cap boundary. PASS when rejection is delivered at the cap boundary. MUTATES config temporarily (costCapTokens\u21921 then restore). The reject IS the proof."
   }
 }

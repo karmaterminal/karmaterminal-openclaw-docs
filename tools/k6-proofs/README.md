@@ -37,29 +37,43 @@ tools/k6-proofs/
 ### 1. Preflight check
 
 ```bash
-OPENCLAW_GATEWAY_TOKEN="***" k6 run tools/k6-proofs/scenarios/preflight.js
+OPENCLAW_GATEWAY_TOKEN="***" \
+OPENCLAW_ROW_MANIFEST="tools/k6-proofs/manifests/preflight.example.json" \
+  k6 run tools/k6-proofs/scenarios/preflight.js
 ```
 
-### 2. Run R-CD-1 (manifest-driven)
+### 2. Run an existing scenario (manifest-driven)
+
+Scenario names are **basenames without `.js`**, matching `run-proof.sh` and the
+GitHub Actions workflow choices. Current workflow-runnable basenames are:
+
+- `preflight`
+- `r-cd-2-silent-wake`
+- `r-cd-4-target-session-key`
+- `r-cd-chained-depth-2`
+- `r-cw-1`
+- `r-cw`
+
+Example:
 
 ```bash
 OPENCLAW_GATEWAY_TOKEN="***" \
 OPENCLAW_CANDIDATE_SHA="<40-char-sha>" \
-OPENCLAW_ROW_MANIFEST="tools/k6-proofs/manifests/r-cd-1.json" \
-  k6 run tools/k6-proofs/scenarios/r-cd-1-typed-delegate.js 2>&1 | tee /tmp/r-cd-1-output.txt
+OPENCLAW_ROW_MANIFEST="tools/k6-proofs/manifests/r-cd-2.json" \
+  ./tools/k6-proofs/run-proof.sh r-cd-2-silent-wake 2>&1 | tee /tmp/r-cd-2-output.txt
 ```
 
 ### 3. Post-process into proof artifacts
 
 ```bash
 node tools/k6-proofs/scripts/evidence-writer.mjs \
-  --input /tmp/r-cd-1-output.txt \
-  --row R-CD-1 \
+  --input /tmp/r-cd-2-output.txt \
+  --row R-CD-2 \
   --seat ronan-dgx \
   --sha <40-char-sha>
 ```
 
-Writes candidate evidence into `PROOFS/<SHA>/R-CD-1/ronan-dgx/k6-run-<timestamp>/`.
+Writes candidate evidence into `PROOFS/<SHA>/R-CD-2/ronan-dgx/k6-run-<timestamp>/`.
 
 ## Metrics and dashboard contract
 
@@ -124,11 +138,16 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 
 | Row | Scenario | Surface | Expected outcome |
 |-----|----------|---------|-----------------|
-| R-CD-1 | Typed `continue_delegate()` | typed-tool | PASS-candidate |
-| R-CD-2 | `continue_delegate(mode="silent-wake")` | typed-tool | PASS-candidate when dispatch/session-events observed and no channel delivery appears |
-| R-CD-4 | `continue_delegate(targetSessionKey=...)` | typed-tool | Candidate; verify target-vs-parent session events, not `tasks.list` |
-| R-CD-CHAINED-DEPTH-2 | Depth-2 delegate chain | typed-tool | Candidate; verify nonce-correlated chain return on subscribed session stream |
-| R-CD-TOKEN | Bracket `[[CONTINUE_DELEGATE:...]]` | bracket-token | Seat-dependent (see manifest) |
+| Row | Scenario | Surface | Expected outcome |
+|-----|----------|---------|-----------------|
+| preflight | `preflight` | read-only | Candidate; gateway/session/tool inventory check |
+| R-CD-2 | `r-cd-2-silent-wake` | typed-tool | PASS-candidate when dispatch/session-events observed and no channel delivery appears |
+| R-CD-4 | `r-cd-4-target-session-key` | typed-tool | Candidate; verify target-vs-parent session events, not `tasks.list` |
+| R-CD-CHAINED-DEPTH-2 | `r-cd-chained-depth-2` | typed-tool | Candidate; verify nonce-correlated chain return on subscribed session stream |
+| R-CW-1 | `r-cw-1` | typed-tool | Candidate; continue_work schedule + wake |
+| R-CW overview | `r-cw` | read-only/infrastructure | Candidate; combined continue_work infrastructure check |
+
+Other manifests may be `scaffold-only`: they are tracked rows, but not workflow-runnable until a matching `tools/k6-proofs/scenarios/<name>.js` exists.
 
 ## Guardrails
 
@@ -161,6 +180,9 @@ node tools/k6-proofs/scripts/validate-corpus.mjs --index
 
 # Machine-readable
 node tools/k6-proofs/scripts/validate-corpus.mjs --index --json
+
+# Validate workflow scenario choices + manifest runnable/scaffold status
+node tools/k6-proofs/scripts/check-scenario-alignment.mjs
 ```
 
 Checks: JSON parse, schema sanity (`openclaw.proofs.index.v1` /

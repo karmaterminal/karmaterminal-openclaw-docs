@@ -16,18 +16,41 @@
   "scenario": {
     "name": "r-cw-token-bracket",
     "description": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives. Proves the token-form continuation works for subagents (the #952 row lineage).",
-    "methods": ["sessions.send", "sessions.messages.subscribe", "subagents.spawn"]
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "subagents.spawn"
+    ],
+    "runnable": false,
+    "implementationStatus": "scaffold-only",
+    "statusReason": "No matching tools/k6-proofs/scenarios/r-cw-token-bracket.js file exists yet; manifest is tracked but not workflow-runnable."
   },
   "seatClassExpectation": {
     "lightContext-subagent": "PASS-candidate",
     "message-body-main-session": "HONEST-LIMIT-candidate",
-    "reason": "CONTINUE_WORK bare token only fires from auto-delivered final-text (subagent-announce path). On main-session message-body delivery seats, the token scanner doesn't walk the payload. lightContext subagents auto-deliver → scanner fires → hop-2 drives."
+    "reason": "CONTINUE_WORK bare token only fires from auto-delivered final-text (subagent-announce path). On main-session message-body delivery seats, the token scanner doesn't walk the payload. lightContext subagents auto-deliver \u2192 scanner fires \u2192 hop-2 drives."
   },
   "expectedReceipts": [
-    { "name": "subagent-spawned", "required": true, "description": "lightContext subagent spawned with continuation-instructing prompt" },
-    { "name": "token-emitted", "required": false, "description": "CONTINUE_WORK token observed in subagent final-text (may not surface in events)" },
-    { "name": "hop-2-executed", "required": true, "description": "Subagent's hop-2 turn fired (the continuation drove)" },
-    { "name": "parent-return", "required": false, "description": "Subagent result returned to parent" }
+    {
+      "name": "subagent-spawned",
+      "required": true,
+      "description": "lightContext subagent spawned with continuation-instructing prompt"
+    },
+    {
+      "name": "token-emitted",
+      "required": false,
+      "description": "CONTINUE_WORK token observed in subagent final-text (may not surface in events)"
+    },
+    {
+      "name": "hop-2-executed",
+      "required": true,
+      "description": "Subagent's hop-2 turn fired (the continuation drove)"
+    },
+    {
+      "name": "parent-return",
+      "required": false,
+      "description": "Subagent result returned to parent"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",
@@ -39,6 +62,6 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Token/bracket CONTINUE_WORK path. PASS when hop-2 drives on the subagent. This is the #952 lineage proof — the lightContext bracket path that was broken pre-fix."
+    "notes": "Token/bracket CONTINUE_WORK path. PASS when hop-2 drives on the subagent. This is the #952 lineage proof \u2014 the lightContext bracket path that was broken pre-fix."
   }
 }

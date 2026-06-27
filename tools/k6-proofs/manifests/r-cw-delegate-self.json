@@ -15,8 +15,15 @@
   },
   "scenario": {
     "name": "r-cw-delegate-self-continuation",
-    "description": "Fires continue_delegate that internally calls continue_work — proves hop-2 woke inside a delegate child session. The delegate dispatches, the child fires its own continue_work, and the hop-2 turn executes.",
-    "methods": ["tools.invoke", "sessions.messages.subscribe", "tasks.list"]
+    "description": "Fires continue_delegate that internally calls continue_work \u2014 proves hop-2 woke inside a delegate child session. The delegate dispatches, the child fires its own continue_work, and the hop-2 turn executes.",
+    "methods": [
+      "tools.invoke",
+      "sessions.messages.subscribe",
+      "tasks.list"
+    ],
+    "runnable": false,
+    "implementationStatus": "scaffold-only",
+    "statusReason": "No matching tools/k6-proofs/scenarios/r-cw-delegate-self-continuation.js file exists yet; manifest is tracked but not workflow-runnable."
   },
   "invocation": {
     "tool": "continue_delegate",
@@ -26,11 +33,31 @@
     "idempotencyKeyPrefix": "R-CW-DELEGATE-SELF"
   },
   "expectedReceipts": [
-    { "name": "delegate-accepted", "required": true, "description": "continue_delegate accepted by gateway" },
-    { "name": "child-spawned", "required": true, "description": "Child session spawned for the delegate" },
-    { "name": "child-continue-work-accepted", "required": true, "description": "Child's own continue_work was accepted" },
-    { "name": "child-hop-2-woke", "required": false, "description": "Child's hop-2 turn executed (DONE + nonce in return)" },
-    { "name": "parent-return", "required": false, "description": "Delegate return event on parent session" }
+    {
+      "name": "delegate-accepted",
+      "required": true,
+      "description": "continue_delegate accepted by gateway"
+    },
+    {
+      "name": "child-spawned",
+      "required": true,
+      "description": "Child session spawned for the delegate"
+    },
+    {
+      "name": "child-continue-work-accepted",
+      "required": true,
+      "description": "Child's own continue_work was accepted"
+    },
+    {
+      "name": "child-hop-2-woke",
+      "required": false,
+      "description": "Child's hop-2 turn executed (DONE + nonce in return)"
+    },
+    {
+      "name": "parent-return",
+      "required": false,
+      "description": "Delegate return event on parent session"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",

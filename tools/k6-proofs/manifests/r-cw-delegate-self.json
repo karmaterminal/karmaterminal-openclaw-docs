@@ -16,7 +16,10 @@
   "scenario": {
     "name": "r-cw-delegate-self-continuation",
     "description": "Fires continue_delegate that internally calls continue_work — proves hop-2 woke inside a delegate child session. The delegate dispatches, the child fires its own continue_work, and the hop-2 turn executes.",
-    "methods": ["tools.invoke", "sessions.messages.subscribe", "tasks.list"]
+    "methods": ["tools.invoke", "sessions.messages.subscribe", "tasks.list"],
+    "status": "scaffold",
+    "expectedFile": "r-cw-delegate-self-continuation.js",
+    "registryNotes": "No runnable row scenario file exists yet; this manifest is a registry contract only."
   },
   "invocation": {
     "tool": "continue_delegate",

@@ -20,7 +20,9 @@
       "sessions.send",
       "sessions.messages.subscribe",
       "tasks.list"
-    ]
+    ],
+    "status": "runnable",
+    "file": "r-cd-2-silent-wake.js"
   },
   "invocation": {
     "tool": "continue_delegate",

@@ -16,7 +16,10 @@
   "scenario": {
     "name": "r-cd-1-typed-delegate",
     "description": "Typed continue_delegate() schedule/spawn/return. Fires a delegate with a nonce-only child task, observes task ledger entry and parent return.",
-    "methods": ["tools.invoke", "tasks.list", "sessions.messages.subscribe"]
+    "methods": ["tools.invoke", "tasks.list", "sessions.messages.subscribe"],
+    "status": "scaffold",
+    "expectedFile": "r-cd-1-typed-delegate.js",
+    "registryNotes": "No runnable scenario file exists yet; this manifest is a registry contract only."
   },
   "invocation": {
     "tool": "continue_delegate",

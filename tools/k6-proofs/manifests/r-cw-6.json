@@ -16,7 +16,10 @@
   "scenario": {
     "name": "r-cw-6-max-chain-length",
     "description": "maxChainLength boundary: sets maxChainLength=1 via config, fires continue_work twice, verifies second hop is rejected at chain depth 2>1. Restores originals after.",
-    "methods": ["tools.invoke", "config.patch", "config.restore", "gateway.restart"]
+    "methods": ["tools.invoke", "config.patch", "config.restore", "gateway.restart"],
+    "status": "scaffold",
+    "expectedFile": "r-cw-6-max-chain-length.js",
+    "registryNotes": "No runnable row scenario file exists yet; restart/restoration semantics need a dedicated scenario before this becomes runnable."
   },
   "invocation": {
     "tool": "continue_work",

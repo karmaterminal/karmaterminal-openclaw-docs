@@ -9,6 +9,11 @@
   "toolSurface": "read-only",
   "mutates": false,
   "timeoutSeconds": 60,
+  "scenario": {
+    "status": "scaffold",
+    "expectedFile": "r-config-defaults.js",
+    "registryNotes": "No runnable config/defaults scenario exists yet; this read-only manifest is scaffolded until a dedicated runner lands."
+  },
   "expectedReceipts": [
     { "name": "config-read", "required": true, "description": "Configuration read successful" }
   ],

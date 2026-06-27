@@ -16,7 +16,10 @@
   "scenario": {
     "name": "r-cd-token-bracket-delegate",
     "description": "Bracket [[CONTINUE_DELEGATE:...]] path. Injects prompt requiring terminal bracket token, observes child spawn and return.",
-    "methods": ["sessions.send", "tasks.list", "sessions.messages.subscribe"]
+    "methods": ["sessions.send", "tasks.list", "sessions.messages.subscribe"],
+    "status": "scaffold",
+    "expectedFile": "r-cd-token-bracket-delegate.js",
+    "registryNotes": "No runnable scenario file exists yet; bracket-token delegate coverage is scaffolded only."
   },
   "seatClassExpectation": {
     "raw-final-text-seat": "PASS-candidate",

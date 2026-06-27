@@ -161,6 +161,9 @@ node tools/k6-proofs/scripts/validate-corpus.mjs --index
 
 # Machine-readable
 node tools/k6-proofs/scripts/validate-corpus.mjs --index --json
+
+# Validate row-manifest scenario registry status vs runnable scenario files
+node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
 ```
 
 Checks: JSON parse, schema sanity (`openclaw.proofs.index.v1` /
@@ -169,6 +172,10 @@ exists, no orphan row dirs, INDEX `rollup` tallies match the manifest `rows[].st
 counts, manifest `capture_sha` matches its directory name, and no stale
 `pending_push` / `upload-blame` / `TODO-UPLOAD` wording. Exit code is non-zero
 on any failure; the script never mutates corpus data.
+
+`check-manifest-scenarios.mjs` is the row-harness registry check: runnable
+manifests must point at an existing `tools/k6-proofs/scenarios/*.js`; rows with
+no runnable file must say `scenario.status` is `scaffold` or `construct-only`.
 
 ## Coordination
 

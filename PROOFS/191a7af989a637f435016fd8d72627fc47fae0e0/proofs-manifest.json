@@ -115,12 +115,14 @@
       "state": "partial",
       "traces": 1,
       "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/EVIDENCE.md",
-      "note": "TEST-3 Silas canary PASS-candidate: root scheduled, depth-1 ran, nested depth-2 scheduled, depth-2 returned nonce with chain depth 2/5; full aggregate row remains partial until other chain subrows land/review.",
+      "note": "TEST-3 Silas canary PASS-candidate scheduled depth-2 and returned nonce with chain depth 2/5. TEST-2 Rune targetSessionKey attempt filed as NOT PROVEN: sink ready, but continue_delegate rejected before dispatch because serialized args combined fanoutMode=tree with targetSessionKey; full aggregate row remains partial.",
       "supporting_docs": [
         "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/root_dispatch_receipt.json",
         "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/depth1_result.json",
         "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/depth2_result.md",
-        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/artifacts/root_trace_00000000000000000000000000000003.json"
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/artifacts/root_trace_00000000000000000000000000000003.json",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-2-rune/proof.md",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-2-rune/artifacts/observed-counts.json"
       ],
       "fired": "2026-06-27 10:29 PDT, silas-lothric"
     },

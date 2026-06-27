@@ -1,0 +1,12 @@
+Curated session extract (source: /home/figs/.openclaw/agents/main/sessions/2026-06-27T19-26-16-281Z_b8ebed6e-ba8c-439d-a889-f2c125b8b4c6.jsonl)
+
+Observed target sink completion via sessions_history:
+- sessionKey: agent:main:subagent:e928ecbc-be2f-4bdd-99ed-a5692610a84e
+- assistant final: TARGET-SINK-READY R-CD-CHAINED-DEPTH-2-TEST-2
+
+Observed repeated TEST-2 continue_delegate tool failures in the requester transcript:
+- marker requested: R-CD-CHAINED-DEPTH-2 TEST-2 TARGETSESSION RETURN OK nonce=rune-test2-191a7af-1782587770 runtime=OpenClaw-2026.6.10-191a7af
+- tool result error: fanoutMode cannot be combined with targetSessionKey or targetSessionKeys.
+- representative serialized args contained targetSessionKey=agent:main:subagent:e928ecbc-be2f-4bdd-99ed-a5692610a84e and fanoutMode=tree.
+
+No session-history or journal evidence in this capture showed a successful [continuation:delegate-spawned] for the TEST-2 targetSessionKey dispatch.

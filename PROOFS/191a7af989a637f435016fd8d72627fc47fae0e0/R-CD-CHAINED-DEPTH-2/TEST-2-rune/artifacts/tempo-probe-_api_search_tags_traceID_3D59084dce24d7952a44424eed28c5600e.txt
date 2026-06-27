@@ -1,0 +1,4 @@
+url=http://tempo.dandelion.cult/api/search?tags=traceID%3D59084dce24d7952a44424eed28c5600e
+http_status=200
+body:
+{"traces":[],"metrics":{"inspectedTraces":1795,"inspectedBytes":"1874940","completedJobs":1,"totalJobs":1}}

@@ -1,0 +1,20 @@
+{
+  "depth1_started": true,
+  "nested_dispatch_status": {
+    "first_attempt": {
+      "status": "error",
+      "error": "traceparent must be a valid W3C traceparent header"
+    },
+    "second_attempt": {
+      "status": "scheduled",
+      "mode": "silent-wake",
+      "delaySeconds": 0,
+      "delegateIndex": 1,
+      "fanoutMode": "tree"
+    }
+  },
+  "errors": [
+    "Initial continue_delegate call failed due invalid traceparent; retried with valid W3C traceparent and scheduled successfully."
+  ],
+  "final_nonce": "R-CD-CHAINED-DEPTH-2-TEST-3-silas-191a7af989a6-1782581400"
+}

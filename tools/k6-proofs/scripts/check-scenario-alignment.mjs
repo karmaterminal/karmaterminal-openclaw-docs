@@ -17,6 +17,8 @@ const SCENARIO_DIR = path.join(ROOT, 'tools/k6-proofs/scenarios');
 const MANIFEST_DIR = path.join(ROOT, 'tools/k6-proofs/manifests');
 const WORKFLOW_PATH = path.join(ROOT, '.github/workflows/k6-proof.yml');
 const VALID_STATUSES = new Set(['runnable', 'scaffold', 'construct-only']);
+const VALID_SAFETY_CLASSES = new Set(['static-preflight-only', 'k6-runnable', 'orchestration-required', 'construct-only']);
+const VALID_ARTIFACT_CLASSES = new Set(['PASS-candidate', 'HONEST-LIMIT-candidate', 'PARTIAL-candidate', 'FAIL-candidate', 'construct-only']);
 
 function withoutJs(value) {
   return String(value || '').replace(/\.js$/u, '');
@@ -107,6 +109,44 @@ for (const file of fs.readdirSync(MANIFEST_DIR).filter((entry) => entry.endsWith
 
   if (status === 'construct-only' && (scenario.file || scenario.expectedFile)) {
     errors.push(`${file}: construct-only manifest should not declare scenario.file/expectedFile`);
+  }
+
+  const safety = manifest.liveRunSafety;
+  if (safety) {
+    if (!VALID_SAFETY_CLASSES.has(safety.classification)) {
+      errors.push(`${file}: liveRunSafety.classification must be one of ${[...VALID_SAFETY_CLASSES].join(', ')}`);
+    }
+    if (!VALID_ARTIFACT_CLASSES.has(safety.expectedArtifactClass)) {
+      errors.push(`${file}: liveRunSafety.expectedArtifactClass must be one of ${[...VALID_ARTIFACT_CLASSES].join(', ')}`);
+    }
+    if (safety.foldRequiresReview !== true) {
+      errors.push(`${file}: liveRunSafety.foldRequiresReview must be true`);
+    }
+    if (safety.classification === 'k6-runnable' && status !== 'runnable') {
+      errors.push(`${file}: liveRunSafety.classification=k6-runnable requires scenario.status=runnable`);
+    }
+    if (safety.classification === 'construct-only' && status === 'runnable') {
+      errors.push(`${file}: liveRunSafety.classification=construct-only cannot be paired with scenario.status=runnable`);
+    }
+    if (safety.requiresLiveGatewayToken === true && manifest.transport === 'offline') {
+      errors.push(`${file}: offline transport cannot require a live gateway token`);
+    }
+    if (typeof safety.requiresCandidateSha !== 'boolean') {
+      errors.push(`${file}: liveRunSafety.requiresCandidateSha must be boolean`);
+    }
+    if (safety.requiresExternalAgentOrToolInvocation === true && manifest.toolSurface === 'read-only') {
+      errors.push(`${file}: read-only toolSurface cannot require external agent/tool invocation`);
+    }
+    if (!Array.isArray(safety.requiredReceipts) || safety.requiredReceipts.length === 0) {
+      errors.push(`${file}: liveRunSafety.requiredReceipts must be non-empty`);
+    } else {
+      const expected = new Set((manifest.expectedReceipts || []).map((receipt) => receipt.name));
+      for (const receiptName of safety.requiredReceipts) {
+        if (receiptName !== 'seat-readiness' && !expected.has(receiptName)) {
+          errors.push(`${file}: liveRunSafety.requiredReceipts references '${receiptName}' but expectedReceipts has no matching receipt`);
+        }
+      }
+    }
   }
 }
 

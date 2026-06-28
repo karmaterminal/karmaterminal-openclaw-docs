@@ -31,6 +31,24 @@
     "promptTemplate": "Proof nonce {{nonce}}: reply with DONE and the nonce only. Do not mutate files. Do not post to any channel.",
     "idempotencyKeyPrefix": "R-CD-2"
   },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": true,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "dispatch-accepted",
+      "parent-wake-event",
+      "no-channel-delivery",
+      "trace-id"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live continuation row. Fail closed when token/session env is missing, serialize per target session, and treat generated output as a PASS-candidate until required receipts are reviewed."
+  },
   "expectedReceipts": [
     {
       "name": "dispatch-accepted",
@@ -59,8 +77,8 @@
     },
     {
       "name": "trace-id",
-      "required": false,
-      "description": "Trace ID from dispatch response or optional task metadata for Tempo fetch"
+      "required": true,
+      "description": "Trace ID from dispatch response or optional task metadata; Tempo trace JSON must be fetched before folding a PASS."
     }
   ],
   "artifactDestination": {
@@ -73,6 +91,6 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Silent-wake path. PASS-candidate when: (1) dispatching agent turn accepted, (2) parent session emits wake/agent events, (3) NO channel message delivered from the delegate return. A nonce-correlated tasks.list row is optional because continue_delegate uses pending-delegate/subagent surfaces, not the generic task registry."
+    "notes": "Silent-wake path. PASS-candidate when: (1) dispatching agent turn accepted, (2) parent session emits wake/agent events, (3) NO channel message delivered from the delegate return, and (4) trace/receipt artifacts are fetched for review. A nonce-correlated tasks.list row is optional because continue_delegate uses pending-delegate/subagent surfaces, not the generic task registry."
   }
 }

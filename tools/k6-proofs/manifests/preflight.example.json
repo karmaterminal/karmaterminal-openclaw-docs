@@ -25,6 +25,22 @@
     "status": "runnable",
     "file": "preflight.js"
   },
+  "liveRunSafety": {
+    "classification": "static-preflight-only",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": false,
+    "requiresExternalAgentOrToolInvocation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "manifest-loaded",
+      "k6-summary",
+      "seat-readiness"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Offline golden-path/preflight metadata is concurrency-safe. Live preflight may use a token, but this example must remain safe without secrets."
+  },
   "expectedReceipts": [
     {
       "name": "manifest-loaded",

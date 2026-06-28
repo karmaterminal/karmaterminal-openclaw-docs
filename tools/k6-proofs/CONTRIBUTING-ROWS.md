@@ -32,15 +32,33 @@ into `PROOFS/<sha>/` without back-and-forth.
    from the seat's environment or GH Actions repo secrets — **zero secrets in source,
    manifests, evidence, or PR body**. If the token leaks into a log, rotate before
    pushing.
+4. For any live row, fill or verify the manifest's `liveRunSafety` block before firing:
+   `classification`, `requiresLiveGatewayToken`, `requiresTargetSessionKey`,
+   `requiresCandidateSha`, `requiresExternalAgentOrToolInvocation`, `sameSessionConcurrencySafe`,
+   `expectedArtifactClass`, `requiredReceipts`, and `foldRequiresReview:true`.
+   `OPENCLAW_SESSION_KEY` must be explicit when the row mutates/wakes a session; do
+   not rely on the `main` fallback for live continuation rows.
 
 ## Running the row
 
 Use the harness as documented in [`README.md`](README.md):
 
 1. Optional preflight: `k6 run tools/k6-proofs/scenarios/preflight.js`.
-2. Run the row scenario with the manifest pointed via `OPENCLAW_ROW_MANIFEST` and the
+2. Run the fail-closed guard before the live row (the wrapper does this automatically
+   when `OPENCLAW_ROW_MANIFEST` is set):
+
+   ```bash
+   OPENCLAW_GATEWAY_TOKEN="***" \
+   OPENCLAW_SESSION_KEY="<target-session>" \
+     node tools/k6-proofs/scripts/live-run-guard.mjs \
+       --manifest tools/k6-proofs/manifests/<row>.json --json
+   ```
+
+   If it reports missing token/session env or an active same-session lock, stop; the
+   output is setup/coordination failure, not row evidence.
+3. Run the row scenario with the manifest pointed via `OPENCLAW_ROW_MANIFEST` and the
    deployed SHA in `OPENCLAW_CANDIDATE_SHA`. Tee the output to a local file.
-3. Post-process into proof artifacts with `evidence-writer.mjs` (or
+4. Post-process into proof artifacts with `evidence-writer.mjs` (or
    `postprocess-k6-summary.mjs` for the summary-driven path):
 
    ```bash
@@ -48,7 +66,8 @@ Use the harness as documented in [`README.md`](README.md):
      --input /tmp/<row>-output.txt \
      --row <ROW-ID> \
      --seat <seat> \
-     --sha <40-char-sha>
+     --sha <40-char-sha> \
+     --manifest tools/k6-proofs/manifests/<row>.json
    ```
 
    The script writes into `PROOFS/<sha>/<row>/<seat>/k6-run-<timestamp>/`.
@@ -77,6 +96,8 @@ Every `PROOFS/<sha>/<row>/<seat>/k6-run-<ts>/` directory must contain:
   manifest loaded).
 - A "no secrets" line — explicit statement that the captured artifacts contain no
   tokens, no prompt bodies, no user content.
+- The live-run safety classification, expected artifact class, required receipts,
+  same-session concurrency safety, and `foldRequiresReview:true`.
 - For HONEST-LIMIT outcomes: the declared seat-class expectation that explains
   why it is honest-limit and not a fail (e.g. message-body seat killed the bracket
   scanner — must be declared in the manifest before the run, not retro-justified).

@@ -1,0 +1,14 @@
+{
+  "finalStatus": "PASS",
+  "modeObserved": "silent-wake",
+  "parentTaskSummary": "Ronan PROOFS R-CD-2 behavioral fire: child spawned through continue_delegate mode=silent-wake on deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3 and asked to create receipt/return artifacts, then return paths and sentinel to parent only.",
+  "sentinel": "ronan-rcd2-silent-wake-sentinel-2723dbee",
+  "session": {
+    "host": "ronan",
+    "model": "github-copilot/gpt-5.5",
+    "requesterSession": "agent:main:discord:channel:1466192485440164011",
+    "sessionId": "0840fa59-b405-4899-9f74-057b2e076ce3",
+    "sessionKey": "agent:main:subagent:continuation-b2225a78231191e35716902aa5650d58"
+  },
+  "timestamp": "2026-06-27T20:31:01.606681-07:00"
+}

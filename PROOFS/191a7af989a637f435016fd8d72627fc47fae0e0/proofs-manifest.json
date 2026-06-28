@@ -4,14 +4,14 @@
   "ship_sha": "191a7af989a637f435016fd8d72627fc47fae0e0",
   "fire_type": "fresh-fire-in-progress",
   "carried_from": null,
-  "status": "in_progress_chained_depth_filled_honest_limits_remaining",
+  "status": "in_progress_honest_limits_remaining",
   "rollup": {
     "total_rows": 28,
-    "pass": 24,
+    "pass": 23,
     "partial": 0,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 4,
+    "honest_limit": 5,
     "missing": 0,
     "pending": 0
   },
@@ -211,10 +211,10 @@
       "row": "R-CW-4",
       "owner": "🩸 cael (cael-dgx)",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-4/",
-      "state": "pass",
+      "state": "honest_limit",
       "traces": 0,
-      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-4/cael-dgx/EVIDENCE.md",
-      "note": "journal shows chain-depth hop increments through hop=5/200 on cael-dgx"
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-4/silas-clean-worker/EVIDENCE.md",
+      "note": "HONEST_LIMIT: existing 191a journal proves wake/hop markers but lacks chain.id or chain.step.remaining discriminator; repeated hop=1/200 leaves fresh-chain/duplicate-hedge ambiguity."
     },
     {
       "row": "R-CW-5",
@@ -365,7 +365,7 @@
     }
   ],
   "honest_limit_summary": {
-    "total": 4,
+    "total": 5,
     "clusters": [
       {
         "blocker": "karmaterminal/openclaw#1103",
@@ -382,15 +382,22 @@
           "R-RC-2"
         ],
         "meaning": "Cael was post-compaction at low context, so request_compaction over-threshold accept cannot honestly fire on that lane yet"
+      },
+      {
+        "blocker": "R-CW-4 chain identity/depth discriminator missing from 191a capture",
+        "rows": [
+          "R-CW-4"
+        ],
+        "meaning": "wake/hop markers are present, but the current capture lacks chain.id or chain.step.remaining; repeated hop=1/200 keeps same-chain decrement unproven"
       }
     ]
   },
   "summary": {
     "total": 28,
-    "pass": 24,
+    "pass": 23,
     "partial": 0,
     "fail": 0,
-    "honest_limit": 4,
+    "honest_limit": 5,
     "pending": 0,
     "missing": 0
   }

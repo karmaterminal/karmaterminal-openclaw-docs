@@ -318,7 +318,7 @@
       "state": "pass",
       "traces": 0,
       "evidence_doc": "PROOFS/18a221f7d/R-CW-4.md",
-      "note": "Reconciliation pointer imported via #117. Transcript artifact recovered showing chain depth constraint rejection logic."
+      "note": "Reconciliation pointer imported via #117. Archived transcript locator for chain-depth tracking."
     }
   ],
   "rollup": {

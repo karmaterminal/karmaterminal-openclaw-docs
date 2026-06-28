@@ -121,6 +121,23 @@
       "note": "continue_work() typed tool accepted same-session election, emitted continuation.work trace span, persisted TaskFlow row, and released/woke parent session; flow e2689b5c-c76f-42c8-b9a9-9400ef61f199 succeeded"
     },
     {
+      "row": "R-CW-2",
+      "owner": "🌻 elliott (elliott-legion)",
+      "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-2/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-2/elliott-legion/EVIDENCE.md",
+      "note": "continue_work same-session wake produced Turn/hop 1/200 and a continuation.work span with chain.step.remaining=199; delaySeconds=0 was immediate (delay.ms=0), so this row claims chain-counter accounting only.",
+      "supporting_docs": [
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-2/elliott-legion/continue_work_tool_receipt.json",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-2/elliott-legion/wake_event.txt",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-2/elliott-legion/journal_continuation.log",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-2/elliott-legion/trace_summary.txt",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-2/elliott-legion/artifacts/trace_2723dbee000000000000000000000c02.json"
+      ],
+      "fired": "2026-06-27 22:00 PDT, Elliott continue_work chain-counter proof"
+    },
+    {
       "row": "R-CW-3",
       "owner": "🩸 cael (cael-dgx)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-3/",
@@ -143,15 +160,15 @@
     }
   ],
   "rollup": {
-    "total_rows": 14,
-    "pass": 13,
+    "total_rows": 15,
+    "pass": 14,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Fresh PROOFS corpus for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Current filed rows include R-RC-1, Silas R-CW-1, R-CD-1, R-CD-2, R-CD-4 guard-side targeting, R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, R-OBS-1, Cael R-CW-3, Rune R-CW-7 typed traceparent PASS, Rune R-CW-DELEGATE-TOKEN bare-token PASS, Rune R-CW-DELEGATE-SELF-CONTINUATION parent typed delegate spawn/return PASS, and Rune R-CW-6 HONEST-LIMIT/source-boundary + cap-scheduling evidence with invalid low-cap attempt and delivery/timer red preserved as diagnostics. Remaining rows are expected from their owning seats. Silas added R-REGRESSION-TRAP-TESTS PASS on 2723dbee with 31/31 vitest trap assertions.",
+  "disposition_note": "Fresh PROOFS corpus for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Current filed rows include R-RC-1, Silas R-CW-1, R-CD-1, R-CD-2, R-CD-4 guard-side targeting, R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, R-OBS-1, Cael R-CW-3, Rune R-CW-7 typed traceparent PASS, Rune R-CW-DELEGATE-TOKEN bare-token PASS, Rune R-CW-DELEGATE-SELF-CONTINUATION parent typed delegate spawn/return PASS, and Rune R-CW-6 HONEST-LIMIT/source-boundary + cap-scheduling evidence with invalid low-cap attempt and delivery/timer red preserved as diagnostics. Remaining rows are expected from their owning seats. Silas added R-REGRESSION-TRAP-TESTS PASS on 2723dbee with 31/31 vitest trap assertions. Elliott R-CW-2 chain-counter PASS added from live continue_work wake/Tempo evidence (delaySeconds=0 immediate; no delay-clamp claim).",
   "generated": "2026-06-27",
   "generated_by": "elliott-legion"
 }

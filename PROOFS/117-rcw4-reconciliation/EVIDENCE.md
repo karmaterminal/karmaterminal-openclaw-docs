@@ -1,10 +1,13 @@
 ## R-CW-4 Reconciliation / Pointer Import
 
-The `R-CW-4` shard returned target-session-key evidence and transcript artifacts. This patch reconciles the missing pointer in the current folded row set (`8d0d1e7`).
+This patch reconciles the missing pointer for `R-CW-4` into the current folded row set (`8d0d1e7`). Archived evidence was extracted directly from the target session transcript, as the shard's explicit return vector failed after evidence extraction.
 
-**Note on `#982`:**
-The shard also encountered a `traceparent` rejection and multi-overlap `continue_work` failure. This is useful cleanup evidence for `#982` but does not impact corpus completeness.
-
-### Artifacts
+### Provenance / Transcript Artifacts
 - **Target Session Key:** `agent:main:discord:channel:1466192485440164011`
-- **Transcript Artifacts:** Extracted and mapped to the chain depth tracking logic.
+- **Source:** Extracted from the `sessions_history` transcript of the spawned shard prior to its return failure. The transcript confirms successful execution of chain depth tracking (`chain.step.remaining` decrement) before the overlap failure occurred.
+
+---
+### #982 Cleanup Evidence (Overlap Rejection)
+*Note: The following is separate overlap/return-path evidence and does not impact the `R-CW-4` corpus completeness or proof claim.*
+
+The shard encountered a `traceparent` rejection and multi-overlap `continue_work` failure during its return phase. This failed return path is logged strictly as cleanup evidence for `#982` and does not muddy the `R-CW-4` proof row itself.

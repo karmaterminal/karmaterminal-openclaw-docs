@@ -1,0 +1,1 @@
+PASS: R-CD-2 child delegate executed via observed silent-wake path, wrote the JSON receipt and this return summary under /tmp, and is returning only to the parent with sentinel ronan-rcd2-silent-wake-sentinel-2723dbee.

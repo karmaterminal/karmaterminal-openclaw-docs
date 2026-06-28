@@ -1,0 +1,9 @@
+Jun 27 21:40:09 rune node[35596]: 2026-06-27T21:40:09.979-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=0 [0]text=false session=agent:main:subagent:549e6d81-13cf-456c-9f26-70f8acd5ca8c
+Jun 27 21:40:09 rune node[35596]: 2026-06-27T21:40:09.980-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=work delayMs=5000 session=agent:main:subagent:549e6d81-13cf-456c-9f26-70f8acd5ca8c
+Jun 27 21:40:09 rune node[35596]: 2026-06-27T21:40:09.981-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=work session=agent:main:subagent:549e6d81-13cf-456c-9f26-70f8acd5ca8c
+Jun 27 21:40:09 rune node[35596]: 2026-06-27T21:40:09.988-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=4999ms fireAt=1782621614985 session=agent:main:subagent:549e6d81-13cf-456c-9f26-70f8acd5ca8c
+Jun 27 21:40:14 rune node[35596]: 2026-06-27T21:40:14.989-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:subagent:549e6d81-13cf-456c-9f26-70f8acd5ca8c
+Jun 27 21:40:14 rune node[35596]: 2026-06-27T21:40:14.991-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59999ms fireAt=1782621674989 session=agent:main:subagent:549e6d81-13cf-456c-9f26-70f8acd5ca8c
+Jun 27 21:40:14 rune node[35596]: 2026-06-27T21:40:14.991-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:subagent:549e6d81-13cf-456c-9f26-70f8acd5ca8c reasonCategory=unknown
+Jun 27 21:40:18 rune node[35596]: 2026-06-27T21:40:18.103-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:subagent:549e6d81-13cf-456c-9f26-70f8acd5ca8c
+Jun 27 21:40:18 rune node[35596]: 2026-06-27T21:40:18.104-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:subagent:549e6d81-13cf-456c-9f26-70f8acd5ca8c

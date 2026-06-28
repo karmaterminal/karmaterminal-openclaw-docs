@@ -1,0 +1,9 @@
+Jun 27 21:51:29 rune node[35596]: 2026-06-27T21:51:29.986-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session agent:main:discord:channel:1466192485440164011
+Jun 27 21:51:30 rune node[35596]: 2026-06-27T21:51:30.168-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=silent-wake session=agent:main:discord:channel:1466192485440164011 task=R-CW-DELEGATE-SELF-CONTINUATION-2723DBEE child proof. This child was spawned by
+Jun 27 21:51:34 rune node[35596]: 2026-06-27T21:51:34.965-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:subagent:continuation-8228b461fb77dd2e7bec0339a5b309c5
+Jun 27 21:51:34 rune node[35596]: 2026-06-27T21:51:34.966-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:subagent:continuation-8228b461fb77dd2e7bec0339a5b309c5
+Jun 27 21:51:34 rune node[35596]: session: agent:main:subagent:continuation-8228b461fb77dd2e7bec0339a5b309c5
+Jun 27 21:51:34 rune node[35596]: sessionId: ed4cbcfd-5232-4620-93cc-684fcb9832dc
+Jun 27 21:51:34 rune node[35596]: 2026-06-27T21:51:34.993-07:00 [agent] run continuation-delegate-8228b461fb77dd2e7bec0339a5b309c5 ended with stopReason=stop
+Jun 27 21:51:35 rune node[35596]: 2026-06-27T21:51:35.379-07:00 [subagent-chain-hop] Accumulated 19696 tokens from agent:main:subagent:continuation-8228b461fb77dd2e7bec0339a5b309c5 to parent chain cost
+Jun 27 21:51:35 rune node[35596]: 2026-06-27T21:51:35.382-07:00 [continuation:targeted-return] Delivered to agent:main:discord:channel:1466192485440164011 from agent:main:subagent:continuation-8228b461fb77dd2e7bec0339a5b309c5

@@ -1,0 +1,49 @@
+timestamp=2026-06-28T03:47:37Z
+--- current continuation config
+{
+  "agents": {
+    "defaults": {
+      "continuation": {
+        "enabled": true,
+        "maxChainLength": 200,
+        "costCapTokens": 50000000,
+        "contextPressureThreshold": 0.4,
+        "crossSessionTargeting": "enabled",
+        "defaultDelayMs": 15000,
+        "maxDelayMs": 86400000,
+        "maxDelegatesPerTurn": 500,
+        "minDelayMs": 5000
+      }
+    }
+  }
+}
+--- restart runs
+28310449439	completed	success	2026-06-28T03:47:07Z	restart-gateway rune R-CW-6 restore maxChainLength=200 after low-cap proof attempt	https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/28310449439
+28310367530	completed	success	2026-06-28T03:43:06Z	restart-gateway rune R-CW-6 temporary maxChainLength=2 low-cap proof apply	https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/28310367530
+28306621194	completed	success	2026-06-28T00:40:23Z	restart-gateway rune reload #1247 discord batch tuning cap10 debounce45s history8	https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/28306621194
+28306620563	completed	success	2026-06-28T00:40:21Z	restart-gateway emeric reload #1247 discord batch tuning cap10 debounce45s history8	https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/28306620563
+28306620103	completed	success	2026-06-28T00:40:20Z	restart-gateway elliott reload #1247 discord batch tuning cap10 debounce45s history8	https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/28306620103
+--- focused journal since lowcap apply
+2026-06-27T20:44:24-07:00 rune node[35056]: 2026-06-27T20:44:24.859-07:00 [agents/openclaw-tools] continuation.enabled=true but neither continueWorkOpts nor requestCompactionOpts were supplied — only continue_delegate will register. If this is a live runner, it must supply both callbacks for the full continuation tool set (likely a config/wiring gap). If this is an inventory/catalog/dispatch build, register the tools via stub callbacks (buildInventoryContinuationToolOpts) so the catalog reflects the full surface and this warning is satisfied honestly rather than suppressed.
+2026-06-27T20:46:27-07:00 rune node[35056]: 2026-06-27T20:46:27.102-07:00 🪨 R-CW-6 low-cap proof is in flight after the restart interruption:
+2026-06-27T20:46:27-07:00 rune node[35056]:   - backup saved at `/home/figs/.openclaw/workspace/proof-r-cw-6-lowcap-20260628T034259Z/openclaw.json.before`
+2026-06-27T20:46:27-07:00 rune node[35056]:   - `28310367530` — `restart-gateway rune R-CW-6 temporary maxChainLength=2 low-cap proof apply`
+2026-06-27T20:46:27-07:00 rune node[35056]: - delegate 3: expected over-cap reject
+2026-06-27T20:47:10-07:00 rune node[35056]: 2026-06-27T20:47:10.945-07:00 [agent/embedded] incomplete turn detected: runId=e6294471-9b28-4e1f-ae06-51b378fc617a sessionId=d45c7845-50c8-4f49-a5d3-aa714a142a6e provider=github-copilot/gpt-5.5 stopReason=stop hasLastAssistant=yes hasCurrentAttemptAssistant=yes payloads=0 tools=5 replaySafe=no compactions=0 reasoningRetries=0/2 emptyRetries=0/1 missingAssistantRetries=0/1 — surfacing error to user
+2026-06-27T20:47:19-07:00 rune node[35596]: 2026-06-27T20:47:19.900-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 3 tool delegate(s) for session agent:main:discord:channel:1466192485440164011
+2026-06-27T20:47:20-07:00 rune node[35596]: 2026-06-27T20:47:20.184-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=2/200 mode=silent session=agent:main:discord:channel:1466192485440164011 task=R-CW-6 low-cap live proof fit-1 on rune: return one-line sentinel R-CW6-LOWCAP-F
+2026-06-27T20:47:21-07:00 rune node[35596]: 2026-06-27T20:47:21.950-07:00 [agents/tool-policy] tool policy removed 5 tool(s) via subagent tools.deny: agents_list, cron, gateway, session_status, sessions_send; matched agents_list, cron, gateway, session_status, sessions_send
+2026-06-27T20:47:23-07:00 rune node[35596]: 2026-06-27T20:47:23.166-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=3/200 mode=silent session=agent:main:discord:channel:1466192485440164011 task=R-CW-6 low-cap live proof fit-2 on rune: return one-line sentinel R-CW6-LOWCAP-F
+2026-06-27T20:47:24-07:00 rune node[35596]: 2026-06-27T20:47:24.929-07:00 [plugins] active-memory: agent=main session=agent:main:subagent:continuation-1ad385c905958135669e93821bf13350 activeProvider=github-copilot activeModel=gpt-5.5 start timeoutMs=15000 queryChars=358 searchQueryChars=355
+2026-06-27T20:47:25-07:00 rune node[35596]: 2026-06-27T20:47:25.886-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=4/200 mode=silent session=agent:main:discord:channel:1466192485440164011 task=R-CW-6 low-cap live proof over-cap on rune: this third delegate should be reject
+2026-06-27T20:47:26-07:00 rune node[35596]: 2026-06-27T20:47:26.203-07:00 [agents/tool-policy] tool policy removed 5 tool(s) via subagent tools.deny: agents_list, cron, gateway, session_status, sessions_send; matched agents_list, cron, gateway, session_status, sessions_send
+2026-06-27T20:47:26-07:00 rune node[35596]: 2026-06-27T20:47:26.219-07:00 [continuation-delegate-recovery] replayed sessions=1 dispatched=3 rejected=0
+2026-06-27T20:47:26-07:00 rune node[35596]: 2026-06-27T20:47:26.437-07:00 [plugins] active-memory: agent=main session=agent:main:subagent:continuation-fa6efd1750c375d6d0ed370c2143ad3f activeProvider=github-copilot activeModel=gpt-5.5 start timeoutMs=15000 queryChars=358 searchQueryChars=355
+2026-06-27T20:47:26-07:00 rune node[35596]: 2026-06-27T20:47:26.673-07:00 [agents/tool-policy] tool policy removed 5 tool(s) via subagent tools.deny: agents_list, cron, gateway, session_status, sessions_send; matched agents_list, cron, gateway, session_status, sessions_send
+2026-06-27T20:47:26-07:00 rune node[35596]: 2026-06-27T20:47:26.768-07:00 [plugins] active-memory: agent=main session=agent:main:subagent:continuation-9a05e28bc03c2305b0c8896d148ed531 activeProvider=github-copilot activeModel=gpt-5.5 start timeoutMs=15000 queryChars=405 searchQueryChars=402
+2026-06-27T20:47:33-07:00 rune node[35596]: 2026-06-27T20:47:33.507-07:00 [plugins] active-memory: agent=main session=agent:main:subagent:continuation-1ad385c905958135669e93821bf13350 activeProvider=github-copilot activeModel=gpt-5.5 done status=no_relevant_memory elapsedMs=8578 summaryChars=0
+2026-06-27T20:47:36-07:00 rune node[35596]: 2026-06-27T20:47:36.477-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:subagent:continuation-1ad385c905958135669e93821bf13350
+2026-06-27T20:47:36-07:00 rune node[35596]: 2026-06-27T20:47:36.478-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:subagent:continuation-1ad385c905958135669e93821bf13350
+2026-06-27T20:47:36-07:00 rune node[35596]: 2026-06-27T20:47:36.536-07:00 R-CW6-LOWCAP-FIT-1
+2026-06-27T20:47:37-07:00 rune node[35596]: 2026-06-27T20:47:37.490-07:00 [subagent-chain-hop] Accumulated 23449 tokens from agent:main:subagent:continuation-1ad385c905958135669e93821bf13350 to parent chain cost
+2026-06-27T20:47:37-07:00 rune node[35596]: 2026-06-27T20:47:37.494-07:00 [continuation:targeted-return] Delivered to agent:main:discord:channel:1466192485440164011 from agent:main:subagent:continuation-1ad385c905958135669e93821bf13350

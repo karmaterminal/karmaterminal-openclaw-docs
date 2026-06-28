@@ -83,6 +83,27 @@ AssertionError: expected [] to deeply equal [ ObjectContaining{…} ]
 
 That failure is not used as R-CW-6 evidence; it is a separate zero-delay scheduling expectation failure surfaced by the broad filtered selector.
 
+## Low-cap live-fire attempt after initial filing
+
+After this row was first filed, Rune attempted a temporary low-cap induction on the room gateway. This attempt is retained as an audit receipt, but it **does not upgrade** the row from HONEST-LIMIT to PASS.
+
+Receipt dir: `lowcap-attempt-20260628T034259Z/`
+
+What happened:
+
+1. Rune backed up `/home/figs/.openclaw/openclaw.json` and changed only continuation `maxChainLength: 200 → 2`; `costCapTokens` remained `50000000`.
+2. Restart workflow `karmaterminal/openclaw-bootstrap/actions/runs/28310367530` completed successfully and `session_status` reported continuation chain `0/2`.
+3. Rune queued three `continue_delegate(mode=silent)` tool calls intended as fit-1, fit-2, and over-cap.
+4. The same turn hit the live `#1110` incomplete-turn class (`payloads=0 tools=5 replaySafe=no`) and the queued delegates were not consumed before Rune restored config.
+5. Rune restored `maxChainLength: 200` from backup and restart workflow `28310449439` completed successfully.
+6. After the restore/restart, delegate recovery replayed the three queued delegates under restored config, not low-cap config:
+   - journal: `Consuming 3 tool delegate(s)`
+   - journal: `hop=2/200`, `hop=3/200`, `hop=4/200`
+   - journal: `continuation-delegate-recovery ... dispatched=3 rejected=0`
+   - transcripts: `R-CW6-LOWCAP-FIT-1`, `R-CW6-LOWCAP-FIT-2`, and `R-CW6-LOWCAP-OVERCAP-RAN` all ran.
+
+Interpretation: the third delegate running proves this was **not** a valid `maxChainLength=2` cap proof. It is useful negative/diagnostic evidence for the interaction between queued continuation delegates, gateway restart, recovery replay, and `#1110`, but not an acceptance proof for R-CW-6.
+
 ## Verdict
 
-⚠️ **HONEST-LIMIT / source+test proof**. Live induction at `maxChainLength=200` would require 200 sequential hops (or sensitive live config mutation). The exact deployed SHA contains the boundary reject (`currentChainCount >= maxChainLength → chain-capped`) and deterministic tests covering both direct budget rejection and partial-success overflow rejection. The row should be treated as the chain-depth safety boundary present and test-covered at `2723dbee783c113cae70e4fb63a4cff9f55402e3`, with no live low-cap mutation performed on the room gateway.
+⚠️ **HONEST-LIMIT / source+test proof**. Live low-cap induction was attempted after initial filing but invalidated by restart/recovery timing: the over-cap delegate ran after restore under `maxChainLength=200` (`hop=4/200`, `dispatched=3 rejected=0`). The exact deployed SHA still contains the boundary reject (`currentChainCount >= maxChainLength → chain-capped`) and deterministic tests covering both direct budget rejection and partial-success overflow rejection. The row should be treated as the chain-depth safety boundary present and test-covered at `2723dbee783c113cae70e4fb63a4cff9f55402e3`, with the low-cap attempt preserved as diagnostic evidence, not PASS evidence.

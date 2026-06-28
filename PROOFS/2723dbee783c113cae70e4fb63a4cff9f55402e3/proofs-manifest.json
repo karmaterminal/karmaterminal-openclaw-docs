@@ -1,0 +1,30 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "capture_sha": "2723dbee783c113cae70e4fb63a4cff9f55402e3",
+  "ship_sha": "2723dbee783c113cae70e4fb63a4cff9f55402e3",
+  "fire_type": "fresh-fire",
+  "carried_from": null,
+  "rows": [
+    {
+      "row": "R-RC-1",
+      "owner": "🌫 silas (silas-lothric)",
+      "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-RC-1/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-RC-1/silas-lothric/EVIDENCE.md",
+      "note": "request_compaction() threshold guard reject at 6% < threshold 70"
+    }
+  ],
+  "rollup": {
+    "total_rows": 1,
+    "pass": 1,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 0,
+    "missing": 0
+  },
+  "disposition_note": "Fresh PROOFS corpus opened after fleet deploy receipts green for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. This initial commit files Silas R-RC-1 only; remaining rows are expected from their owning seats.",
+  "generated": "2026-06-27",
+  "generated_by": "silas-lothric"
+}

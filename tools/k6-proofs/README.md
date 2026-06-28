@@ -140,11 +140,16 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 
 | Row | Scenario | Surface | Expected outcome |
 |-----|----------|---------|-----------------|
-| R-CD-1 | Typed `continue_delegate()` | typed-tool | PASS-candidate |
-| R-CD-2 | `continue_delegate(mode="silent-wake")` | typed-tool | PASS-candidate when dispatch/session-events observed and no channel delivery appears |
-| R-CD-4 | `continue_delegate(targetSessionKey=...)` | typed-tool | Candidate; verify target-vs-parent session events, not `tasks.list` |
-| R-CD-CHAINED-DEPTH-2 | Depth-2 delegate chain | typed-tool | Candidate; verify nonce-correlated chain return on subscribed session stream |
-| R-CD-TOKEN | Bracket `[[CONTINUE_DELEGATE:...]]` | bracket-token | Seat-dependent (see manifest) |
+| preflight | `preflight` | read-only | Candidate; gateway/session/tool inventory check |
+| R-CD-2 | `r-cd-2-silent-wake` | typed-tool | PASS-candidate when dispatch/session-events observed and no channel delivery appears |
+| R-CD-4 | `r-cd-4-target-session-key` | typed-tool | Candidate; verify target-vs-parent session events, not `tasks.list` |
+| R-CD-CHAINED-DEPTH-2 | `r-cd-chained-depth-2` | typed-tool | Candidate; verify nonce-correlated chain return on subscribed session stream |
+| R-CW-1 | `r-cw-1` | typed-tool | Candidate; continue_work schedule + wake |
+| R-CW overview | `r-cw` | read-only/infrastructure | Candidate; combined continue_work infrastructure check |
+
+Other manifests may be `scaffold` or `construct-only`: they are tracked rows,
+but not workflow-runnable until a matching `tools/k6-proofs/scenarios/<name>.js`
+exists and the manifest is promoted to `scenario.status="runnable"`.
 
 ## Guardrails
 
@@ -180,6 +185,9 @@ node tools/k6-proofs/scripts/validate-corpus.mjs --index --json
 
 # Validate row-manifest scenario registry status vs runnable scenario files
 node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
+
+# Validate workflow scenario choices and row-manifest scenario alignment
+node tools/k6-proofs/scripts/check-scenario-alignment.mjs
 ```
 
 Checks: JSON parse, schema sanity (`openclaw.proofs.index.v1` /

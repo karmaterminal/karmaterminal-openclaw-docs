@@ -26,9 +26,10 @@ if [[ ! -f "$SCENARIO_FILE" ]]; then
   exit 1
 fi
 
-# Auto-detect seat and SHA
-SEAT="${PROOF_SEAT:-$(hostname)}"
-SHA="${PROOF_SHA:-$(openclaw --version 2>/dev/null | awk '{print $3}' | tr -d '()' || echo 'unknown')}"
+# Auto-detect seat and SHA. Prefer OPENCLAW_* names used by manifests/workflow,
+# but keep legacy PROOF_* as compatibility aliases.
+SEAT="${OPENCLAW_SEAT_NAME:-${PROOF_SEAT:-$(hostname)}}"
+SHA="${OPENCLAW_CANDIDATE_SHA:-${PROOF_SHA:-$(openclaw --version 2>/dev/null | awk '{print $3}' | tr -d '()' || echo 'unknown')}}"
 
 # Prometheus Remote Write target
 PROM_URL="${K6_PROMETHEUS_RW_SERVER_URL:-http://prometheus.dandelion.cult/api/v1/write}"
@@ -43,5 +44,7 @@ exec k6 run "${SCENARIO_FILE}" \
   --out "experimental-prometheus-rw" \
   --env "PROOF_SHA=${SHA}" \
   --env "PROOF_SEAT=${SEAT}" \
+  --env "OPENCLAW_CANDIDATE_SHA=${SHA}" \
+  --env "OPENCLAW_SEAT_NAME=${SEAT}" \
   --env "K6_PROMETHEUS_RW_SERVER_URL=${PROM_URL}" \
   "$@"

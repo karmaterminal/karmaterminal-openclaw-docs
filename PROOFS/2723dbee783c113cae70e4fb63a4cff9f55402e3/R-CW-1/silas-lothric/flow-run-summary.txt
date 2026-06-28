@@ -1,0 +1,9 @@
+R-CW-1 same-session continue_work closeout summary
+
+Flow id: e2689b5c-c76f-42c8-b9a9-9400ef61f199
+Sentinel: silas-rcw1-continue-work-sentinel-2723dbee-20260628T041928Z
+Evidence source: local live gateway state DB ~/.openclaw/state/openclaw.sqlite flow_runs row.
+
+The continue_work tool returned status=scheduled for an 8s delay. The TaskFlow row subsequently reached status=succeeded and released this same main Discord session for the follow-up turn. Because the room was busy, the flow recorded a busy-skip/idle retry before final release; the row still closed as succeeded. This proves the live typed continue_work path accepted the election, persisted the work item, and delivered/released the continuation turn on the deployed SHA.
+
+Load-bearing JSON: flow-run-closeout.json

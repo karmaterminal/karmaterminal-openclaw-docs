@@ -31,18 +31,27 @@
       "traces": 1,
       "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-2/ronan-dgx/EVIDENCE.md",
       "note": "continue_delegate(mode=\"silent-wake\") schedule \u2192 child spawn \u2192 silent return \u2192 parent wake; trace 4bf92f3577b34da6a3ce929d0e0e4736"
+    },
+    {
+      "row": "R-CW-1",
+      "owner": "\ud83c\udf2b silas (silas-lothric)",
+      "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-1/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-1/silas-lothric/EVIDENCE.md",
+      "note": "continue_work() typed tool accepted same-session election, emitted continuation.work trace span, persisted TaskFlow row, and released/woke parent session; flow e2689b5c-c76f-42c8-b9a9-9400ef61f199 succeeded"
     }
   ],
   "rollup": {
-    "total_rows": 3,
-    "pass": 2,
+    "total_rows": 4,
+    "pass": 3,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Fresh PROOFS corpus opened after fleet deploy receipts green for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Silas R-RC-1 PASS filed; Ronan R-CD-2 PASS filed; Rune R-CW-6 honest-limit/source-boundary + cap-scheduling evidence filed with later invalid low-cap attempt and multi-seat work-dispatch delivery/timer red preserved as diagnostic receipts; remaining rows are expected from their owning seats.",
+  "disposition_note": "Fresh PROOFS corpus for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. R-RC-1 PASS, R-CD-2 PASS, and R-CW-1 PASS are live typed-tool evidence rows; R-CW-6 remains HONEST-LIMIT/source-boundary + cap-scheduling evidence only with delivery/timer excluded red/fragile and low-cap attempt diagnostic only. Remaining rows are expected from owning seats.",
   "generated": "2026-06-27",
   "generated_by": "silas-lothric"
 }

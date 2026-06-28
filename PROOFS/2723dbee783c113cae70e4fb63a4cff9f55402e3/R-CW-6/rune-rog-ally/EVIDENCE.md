@@ -2,7 +2,7 @@
 
 **Seat:** `rune-rog-ally`  
 **Capture/ship SHA:** `2723dbee783c113cae70e4fb63a4cff9f55402e3`  
-**Disposition:** ⚠️ **HONEST-LIMIT** — live low-cap induction was not performed because `agents.defaults.continuation.maxChainLength` is a protected runtime config path. The chain-depth boundary reject is byte-verified in source and deterministically test-covered at the deployed SHA; the narrow local test selector included the relevant pass rows, while an unrelated zero-delay work test failed in the same filtered invocation.
+**Disposition:** ⚠️ **HONEST-LIMIT** — live low-cap induction was attempted after initial filing but invalidated by restore/replay timing. The chain-depth boundary reject is byte-verified in source; the direct scheduler unit covers boundary rejection; and work-dispatch evidence is limited to cap-scheduling/accounting assertions (`scheduledCount: 2`, `cappedCount: 1`, `capped: true`). Delivery/timer dispatch is red/fragile on multiple seats, so this row is not a PASS upgrade and should not be summarized as full deterministic work-dispatch coverage.
 
 ## What this row tests
 
@@ -26,7 +26,7 @@ Before attempting any config mutation, Rune inspected schema and current state:
 - `gateway config.schema.lookup agents.defaults.continuation.maxChainLength` → integer path, reloadKind `none`
 - `gateway config.get agents.defaults.continuation` → `maxChainLength: 200`
 
-Per the runbook, lowering `maxChainLength` can cheaply induce the boundary. I did **not** lower it on this live room session: prior R-CW-6 cycles established this as a protected/sensitive config path, and mutating continuation depth on the active gateway during a fresh room proof cycle is not required for an honest proof when the source/test boundary is present at the exact deployed SHA.
+Per the runbook, lowering `maxChainLength` can cheaply induce the boundary. This row was initially filed without a live mutation. A later low-cap attempt did mutate the live room gateway, but the queued delegates were replayed only after config restore under `maxChainLength=200`; therefore that attempt is preserved below as diagnostic evidence, not acceptance proof.
 
 ## Source byte
 

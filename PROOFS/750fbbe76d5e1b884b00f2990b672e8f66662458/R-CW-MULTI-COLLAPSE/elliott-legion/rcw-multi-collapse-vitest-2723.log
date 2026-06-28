@@ -1,0 +1,19 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.8 [39m[90m/home/figs/flesh_beast_tmp/openclaw[39m
+
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/work-dispatch.test.ts [2m([22m[2m71 tests[22m[2m)[22m[32m 225[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m71 passed[39m[22m[90m (71)[39m
+[2m   Start at [22m 00:00:25
+[2m   Duration [22m 966ms[2m (transform 726ms, setup 376ms, import 211ms, tests 225ms, environment 0ms)[22m
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.8 [39m[90m/home/figs/flesh_beast_tmp/openclaw[39m
+
+ [32m✓[39m [30m[46m agents [49m[39m src/agents/command/attempt-execution.continue-work-opts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 379[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m15 passed[39m[22m[90m (15)[39m
+[2m   Start at [22m 00:00:29
+[2m   Duration [22m 14.94s[2m (transform 11.62s, setup 394ms, import 14.02s, tests 379ms, environment 0ms)[22m

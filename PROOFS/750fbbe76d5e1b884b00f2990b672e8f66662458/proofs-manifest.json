@@ -1,0 +1,329 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "capture_sha": "750fbbe76d5e1b884b00f2990b672e8f66662458",
+  "ship_sha": "750fbbe76d5e1b884b00f2990b672e8f66662458",
+  "fire_type": "transposed-fresh-fire-corpus",
+  "carried_from": "2723dbee783c113cae70e4fb63a4cff9f55402e3",
+  "rows": [
+    {
+      "row": "R-RC-1",
+      "owner": "🌫 silas (silas-lothric)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-RC-1/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-RC-1/silas-lothric/EVIDENCE.md",
+      "note": "request_compaction() threshold guard reject at 6% < threshold 70"
+    },
+    {
+      "row": "R-CD-1",
+      "owner": "🌻 elliott (elliott-legion)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-1/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-1/elliott-legion/EVIDENCE.md",
+      "note": "Elliott substitution proof: continue_delegate tool-form scheduled silent-wake child, child returned matching nonce under default github-copilot/gpt-5.5, and fanout delivered to parent; Tempo trace exported.",
+      "supporting_docs": [
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-1/elliott-legion/root_dispatch_receipt.json",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-1/elliott-legion/delegate_return.md",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-1/elliott-legion/trace_summary.txt",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-1/elliott-legion/artifacts/trace_00000000000000000000000000000021.json"
+      ],
+      "fired": "2026-06-27 21:19 PDT, Elliott tool-form continue_delegate substitution proof"
+    },
+    {
+      "row": "R-CW-6",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-6/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-6/rune-rog-ally/EVIDENCE.md",
+      "note": "PASS: source boundary + direct scheduler unit + cap-accounting test byte + live lowered-cap rejection (`[continuation:work-rejected] chain-capped ... 1/1`) + restored-settings proof from Cael. Only R-RC-2/request_compaction remains HONEST_LIMIT."
+    },
+    {
+      "row": "R-CW-7",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-7/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-7/rune-rog-ally/EVIDENCE.md",
+      "note": "typed continue_delegate traceparent path: explicit W3C traceparent accepted; child spawned; Tempo shows dispatch → child run → tree fanout/drain under supplied trace id 2723dbee000000000000000000000007"
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-DELEGATE-TOKEN/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-DELEGATE-TOKEN/rune-rog-ally/EVIDENCE.md",
+      "note": "bare CONTINUE_WORK:5 token from depth-1 child parsed as kind=work; journal shows work-wake hop=1/200; transcript shows hop-2 marker TOKENBARE-HOP2-DROVE"
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-DELEGATE-SELF-CONTINUATION/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-DELEGATE-SELF-CONTINUATION/rune-rog-ally/EVIDENCE.md",
+      "note": "parent continue_delegate(mode=silent-wake) spawned continuation child and delivered targeted return to parent; child returned sentinel R-CW-DELEGATE-SELF-CONTINUATION-2723DBEE"
+    },
+    {
+      "row": "R-CD-2",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-2/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-2/ronan-dgx/EVIDENCE.md",
+      "note": "continue_delegate(mode=\"silent-wake\") schedule → child spawn → silent return → parent wake; trace 4bf92f3577b34da6a3ce929d0e0e4736"
+    },
+    {
+      "row": "R-CD-SILENT",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-SILENT",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-SILENT/cael-dgx/EVIDENCE.md",
+      "note": "continue_delegate(mode=silent) spawned silent child, returned sentinel, and delivered targeted enrichment to parent; transcript + journal captured."
+    },
+    {
+      "row": "R-CD-4",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-4/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-4/rune-rog-ally/EVIDENCE.md",
+      "note": "guard-side targeting proof: continue_delegate rejects combining fanoutMode with targetSessionKey/targetSessionKeys"
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CONFIG-DEFAULTS/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CONFIG-DEFAULTS/emeric-nuc/EVIDENCE.md",
+      "note": "continuation runtime defaults byte-present in source at deployed SHA; config.test.ts 18/18 passed; live fleet overrides documented"
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CONFIG-INTERSESSION/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CONFIG-INTERSESSION/rune-rog-ally/EVIDENCE.md",
+      "note": "config-gate side: gateway config.get agents.defaults.continuation.crossSessionTargeting returned enabled on rune-rog-ally"
+    },
+    {
+      "row": "R-OBS-1",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-OBS-1/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-OBS-1/rune-rog-ally/EVIDENCE.md",
+      "note": "status-card observability surface: session_status current shows OpenClaw 2026.6.10 (2723dbe), Continuation chain 0/200, Plugins OK, queue visible"
+    },
+    {
+      "row": "R-CW-1",
+      "owner": "🌫 silas (silas-lothric)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-1/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-1/silas-lothric/EVIDENCE.md",
+      "note": "continue_work() typed tool accepted same-session election, emitted continuation.work trace span, persisted TaskFlow row, and released/woke parent session; flow e2689b5c-c76f-42c8-b9a9-9400ef61f199 succeeded"
+    },
+    {
+      "row": "R-CW-2",
+      "owner": "🌻 elliott (elliott-legion)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-2/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-2/elliott-legion/EVIDENCE.md",
+      "note": "continue_work same-session wake produced Turn/hop 1/200 and a continuation.work span with chain.step.remaining=199; delaySeconds=0 was immediate (delay.ms=0), so this row claims chain-counter accounting only.",
+      "supporting_docs": [
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-2/elliott-legion/continue_work_tool_receipt.json",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-2/elliott-legion/wake_event.txt",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-2/elliott-legion/journal_continuation.log",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-2/elliott-legion/trace_summary.txt",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-2/elliott-legion/artifacts/trace_2723dbee000000000000000000000c02.json"
+      ],
+      "fired": "2026-06-27 22:00 PDT, Elliott continue_work chain-counter proof"
+    },
+    {
+      "row": "R-CW-3",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-3/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-3/cael-dgx/EVIDENCE.md",
+      "note": "continue_work reason.preview OTel capture on continuation.work span for Cael marker R-CW-1-R-CW-3-CAEL-2723dbee; Cael does not claim R-CW-1 (Silas owns R-CW-1 separately)."
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "owner": "🌫 silas (silas-lothric)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-REGRESSION-TRAP-TESTS/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-REGRESSION-TRAP-TESTS/silas-lothric/EVIDENCE.md",
+      "note": "continuation sibling-surface regression trap tests passed on exact deployed 2723dbee runtime: inventory opts 5/5 + registration/misconfig 26/26 = 31/31 PASS",
+      "supporting_docs": [
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-REGRESSION-TRAP-TESTS/silas-lothric/regression-trap.log"
+      ]
+    },
+    {
+      "row": "R-OBS-2",
+      "owner": "🌫 silas (silas-lothric)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-OBS-2/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-OBS-2/silas-lothric/EVIDENCE.md",
+      "note": "Tempo trace-tree observability row: normalized the committed R-CW-7 trace into machine-readable trace-tree.json and human span-tree.txt; 8 spans with delegate dispatch, child run, fanout and drain hierarchy.",
+      "supporting_docs": [
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-OBS-2/silas-lothric/trace-tree.json",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-OBS-2/silas-lothric/span-tree.txt",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-7/rune-rog-ally/trace-2723dbee000000000000000000000007.json"
+      ]
+    },
+    {
+      "row": "R-CW-5",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-5/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-5/ronan-dgx/EVIDENCE.md",
+      "note": "source/test static proof: accumulatedChainTokens > costCapTokens returns cost-capped and delegate dispatch rejects over-cap queued delegates; dedicated cost-cap exhaustion suite passed 5/5; no live fire or config mutation",
+      "supporting_docs": [
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-5/ronan-dgx/source-test-evidence.json",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-5/ronan-dgx/cost-cap-source-and-test-byte.txt",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-5/ronan-dgx/cost-cap-test-summary.txt",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-5/ronan-dgx/cost-cap-test.log"
+      ]
+    },
+    {
+      "row": "R-CD-3",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-3",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-3/cael-dgx/EVIDENCE.md",
+      "note": "continue_delegate(mode=post-compaction) accepted and queued for next compaction seam; status=queued-for-compaction receipt captured."
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-TOKEN",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-TOKEN/cael-dgx/EVIDENCE.md",
+      "note": "terminal [[CONTINUE_DELEGATE: ... | silent-wake]] from lightContext subagent parsed as delegate; spawned chain child returned sentinel and silent-woke parent."
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-TOKEN",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-TOKEN/cael-dgx/EVIDENCE.md",
+      "note": "terminal CONTINUE_WORK:5 from lightContext subagent parsed as work token and drove same-subagent wake hop=1/200."
+    },
+    {
+      "row": "R-RC-2",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-RC-2",
+      "state": "honest_limit",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-RC-2/cael-dgx/HONEST_LIMIT.md",
+      "note": "current clean /new lane is below compaction threshold (8% reject; status later 14%); accept proof requires genuine >=70% context session."
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "owner": "🌫 silas (silas-lothric)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-COLLECTION-ON-COLLAPSE/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-COLLECTION-ON-COLLAPSE/silas-lothric/EVIDENCE.md",
+      "note": "A→B→C live fire: root A spawned detached B2, B2 scheduled delayed C with fanoutMode=tree then finalized, and root A later received C_SENTINEL_RCD_COLLECTION_2723DBEE_RETRY2_20260628T0658Z with visible requester chain B2 -> continuation leaf; invalid mixed target+tree B1 preserved as negative guard.",
+      "supporting_docs": [
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-COLLECTION-ON-COLLAPSE/silas-lothric/root-dispatch-receipts.json",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-COLLECTION-ON-COLLAPSE/silas-lothric/root-collection-receipt.txt",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-COLLECTION-ON-COLLAPSE/silas-lothric/negative-guard.txt"
+      ],
+      "fired": "2026-06-27 23:52 PDT, Silas A→B→C collection-on-collapse retry2"
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI-COLLAPSE/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI-COLLAPSE/cael-dgx/EVIDENCE.md",
+      "note": "Live stale-backlog collapse proof on cael: figs-authorized temporary continuation delay lowering to 1000ms, two sqlite continuation flow_runs injected in same session/chain, old flow succeeded as superseded after 40331ms stale backlog, newest flow granted the wake (Turn 102/200, NEWEST should drive); config restored to min/default/max 5000/15000/86400000. No genuine Tempo trace captured; traces=0.",
+      "supporting_docs": [
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI-COLLAPSE/cael-dgx/pre-dispatch-sqlite.txt",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI-COLLAPSE/cael-dgx/post-dispatch-sqlite.txt",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI-COLLAPSE/cael-dgx/post-restore-sqlite.txt",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI-COLLAPSE/cael-dgx/config-lowered.json",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI-COLLAPSE/cael-dgx/config-active-lowered.json",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI-COLLAPSE/cael-dgx/config-restored.json",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI-COLLAPSE/cael-dgx/config-final-restored-file.json",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI-COLLAPSE/cael-dgx/insert-vars.json",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI-COLLAPSE/cael-dgx/newest-wake-receipt.txt",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI-COLLAPSE/cael-dgx/receipt.txt"
+      ],
+      "fired": "2026-06-28 01:28-01:33 PDT, Cael live sqlite stale-fold rescue with authorized temporary config lowering/restoration"
+    },
+    {
+      "row": "R-CW-MULTI",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI/cael-dgx/EVIDENCE.md",
+      "note": "Cael DGX evidence supplies both forms: typed multi-continue_work fan-out and bare CONTINUE_WORK token receipts; includes Tempo trace JSON. Extra later token attempt rejected by cost cap is preserved but not counted.",
+      "supporting_docs": [
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI/cael-dgx/wake-receipts.json",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI/cael-dgx/session-history-excerpt.md",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-MULTI/cael-dgx/trace.json"
+      ]
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-CHAINED-DEPTH-2/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-CHAINED-DEPTH-2/ronan/receipt.txt",
+      "note": "PASS: Ronan depth-5 seat reached depth-2 delegate via depth-1 continue_delegate; receipt records depth-2 subagent session, proof sentinel, and fanoutMode=tree return wake. Tempo API unavailable, so trace JSON is absent but row evidence proves depth-2 execution path.",
+      "supporting_docs": [
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CD-CHAINED-DEPTH-2/ronan/row-status.json"
+      ]
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-DELEGATE-CHILD-LIVE/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/EVIDENCE.md",
+      "note": "delegate-child live execution: parent continue_delegate(mode=normal, fanoutMode=tree) spawned child; child wrote hop1, scheduled its own continue_work without sessions_yield, and wrote hop2-EXECUTED after the continuation wake; marker RCW_DELEGATE_CHILD_LIVE_2723_CAEL_1782632760 verified in both files.",
+      "supporting_docs": [
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/hop1.txt",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/hop2-EXECUTED.txt",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/verify-wc.txt",
+        "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/verify-hop2-metadata.txt"
+      ],
+      "fired": "2026-06-28 00:46 PDT, Cael delegate-child continue_work hop2 live fire"
+    }
+  ],
+  "rollup": {
+    "total_rows": 27,
+    "pass": 26,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 1,
+    "missing": 0
+  },
+  "disposition_note": "TRANSPOSED corpus for drift-absorbed PR-presentation SHA 750fbbe76d5e1b884b00f2990b672e8f66662458. Evidence was fired for base proof SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3; diff from 2723dbee to 750fbbe is non-surface upstream drift absorption to keep the PR presentation mergeable. Behavioral proof corpus is copied in full under this SHA for clawsweeper/human locality. Final rollup remains 27 rows = 26 PASS + 1 accepted HONEST_LIMIT (R-RC-2), 0 partial/thin/fail/missing.",
+  "generated": "2026-06-27",
+  "generated_by": "elliott-legion",
+  "status": "drift_absorbed_manifest_transposed_from_2723dbee",
+  "notes": "Cael clean /new additions: R-CD-SILENT tool silent PASS, R-CD-3 post-compaction registration PASS, R-CD-TOKEN bracket subagent fallback PASS, R-CW-TOKEN subagent work token PASS, R-RC-2 honest-limit due low context threshold. R-CW-4 intentionally not touched; treated as Silas-occupied unless blocked. Silas R-CD-COLLECTION-ON-COLLAPSE: live root collection across finalized intermediate B2, with mixed-target negative guard. Elliott R-CW-MULTI-COLLAPSE: honest-limit source/test/config evidence folded from PR #167 onto current main without clobbering Silas R-CD-COLLECTION-ON-COLLAPSE. Silas R-CW-MULTI: typed-tool transcript wake evidence for three same-turn elections; no Tempo export; token/bracket not claimed. Scribe correction 2026-06-28: honest-limit inflation rejected; only R-RC-2 remains HONEST_LIMIT. R-CW-6/R-CW-MULTI moved to PARTIAL; R-CW-MULTI-COLLAPSE later completed PASS by Cael. Rune R-CD-CHAINED-DEPTH-2: child environment omits chain config; HONEST_LIMIT. Scribe correction 2026-06-28: R-CD-CHAINED-DEPTH-2 evidence proves env metadata absence only; row remains PARTIAL/owed, not accepted HONEST_LIMIT. Ronan R-CD-CHAINED-DEPTH-2: PASS evidence merged via #172/e33a55f; manifest updated by frond-scribe. Cael added R-CW-DELEGATE-CHILD-LIVE PASS from live delegate-child hop2 execution bytes. Cael completed R-CW-MULTI-COLLAPSE PASS from live stale-backlog collapse bytes with authorized temporary continuation delay lowering/restoration; no Tempo trace captured (traces=0). Proof corpus transposed by frond-scribe from 2723dbee to drift-absorbed SHA 750fbbe for PR presentation locality; see top-level disposition_note."
+}

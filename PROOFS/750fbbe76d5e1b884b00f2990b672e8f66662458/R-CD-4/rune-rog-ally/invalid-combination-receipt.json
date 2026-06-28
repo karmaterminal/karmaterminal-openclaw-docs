@@ -1,0 +1,5 @@
+{
+  "status": "error",
+  "tool": "continue_delegate",
+  "error": "fanoutMode cannot be combined with targetSessionKey or targetSessionKeys."
+}

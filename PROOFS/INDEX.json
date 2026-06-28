@@ -1,11 +1,11 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "2723dbee783c113cae70e4fb63a4cff9f55402e3",
-  "current_sha_short": "2723dbee",
-  "build_string": "OpenClaw continuation PR #85651 (2723dbee) — fresh-fire plus frond-build placeholder mitigation for live proofing",
-  "corpus_path": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/",
-  "manifest_path": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/proofs-manifest.json",
+  "current_sha": "750fbbe76d5e1b884b00f2990b672e8f66662458",
+  "current_sha_short": "750fbbe7",
+  "build_string": "OpenClaw continuation PR #85651 (750fbbe) — drift-absorbed presentation SHA, corpus transposed from 2723dbee",
+  "corpus_path": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/",
+  "manifest_path": "PROOFS/750fbbe76d5e1b884b00f2990b672e8f66662458/proofs-manifest.json",
   "rollup": {
     "total_rows": 27,
     "pass": 26,
@@ -15,9 +15,10 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "FRESH-FIRE corpus for exact deployed/proof SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Final rollup: 27 rows = 26 PASS + 1 accepted HONEST_LIMIT (R-RC-2 request_compaction below context threshold), 0 partial/thin/fail/missing. Late live rows were completed on a temporary frond-build runtime 64324505 (= 2723dbee + empty non-image tool-result placeholder mitigation) strictly for operability; proof corpus remains keyed to 2723dbee and receipts disclose this where relevant. Continuation behavior covered across continue_work (tool+token, multi, collapse, cap), continue_delegate (tool+token, silent/post-compaction/targeting/chained depth/collection), delegate-child live continuation, request_compaction, config defaults/intersession, observability, and regression trap tests.",
+  "disposition_note": "TRANSPOSED corpus for drift-absorbed PR-presentation SHA 750fbbe76d5e1b884b00f2990b672e8f66662458. Evidence was fired for base proof SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3; diff from 2723dbee to 750fbbe is non-surface upstream drift absorption to keep the PR presentation mergeable. Behavioral proof corpus is copied in full under this SHA for clawsweeper/human locality. Final rollup remains 27 rows = 26 PASS + 1 accepted HONEST_LIMIT (R-RC-2), 0 partial/thin/fail/missing.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-06-28",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
-  "capture_sha": "2723dbee783c113cae70e4fb63a4cff9f55402e3"
+  "capture_sha": "750fbbe76d5e1b884b00f2990b672e8f66662458",
+  "carried_from": "2723dbee783c113cae70e4fb63a4cff9f55402e3"
 }

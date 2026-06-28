@@ -265,15 +265,16 @@
     },
     {
       "row": "R-CW-MULTI",
-      "owner": "🌫 silas (silas-lothric)",
+      "owner": "🩸 cael (cael-dgx)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI/",
-      "state": "partial",
-      "traces": 0,
-      "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI/silas-lothric/EVIDENCE.md",
-      "note": "CORRECTION: not an acceptable HONEST_LIMIT for final corpus; only R-RC-2/request_compaction below threshold may remain HONEST_LIMIT. R-CW-MULTI has typed-tool wake evidence only; BOTH-FORMS plus Tempo JSON evidence are still owed before PASS.",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI/cael-dgx/EVIDENCE.md",
+      "note": "Cael DGX evidence supplies both forms: typed multi-continue_work fan-out and bare CONTINUE_WORK token receipts; includes Tempo trace JSON. Extra later token attempt rejected by cost cap is preserved but not counted.",
       "supporting_docs": [
-        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI/silas-lothric/wake-receipts.json",
-        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI/silas-lothric/session-history-excerpt.md"
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI/cael-dgx/wake-receipts.json",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI/cael-dgx/session-history-excerpt.md",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI/cael-dgx/trace.json"
       ]
     },
     {
@@ -307,8 +308,8 @@
   ],
   "rollup": {
     "total_rows": 27,
-    "pass": 23,
-    "partial": 3,
+    "pass": 24,
+    "partial": 2,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,

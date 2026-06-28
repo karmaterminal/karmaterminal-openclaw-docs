@@ -7,7 +7,7 @@
   "rows": [
     {
       "row": "R-RC-1",
-      "owner": "\ud83c\udf2b silas (silas-lothric)",
+      "owner": "🌫 silas (silas-lothric)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-RC-1/",
       "state": "pass",
       "traces": 0,
@@ -15,8 +15,24 @@
       "note": "request_compaction() threshold guard reject at 6% < threshold 70"
     },
     {
+      "row": "R-CD-1",
+      "owner": "🌻 elliott (elliott-legion)",
+      "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-1/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-1/elliott-legion/EVIDENCE.md",
+      "note": "Elliott substitution proof: continue_delegate tool-form scheduled silent-wake child, child returned matching nonce under default github-copilot/gpt-5.5, and fanout delivered to parent; Tempo trace exported.",
+      "supporting_docs": [
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-1/elliott-legion/root_dispatch_receipt.json",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-1/elliott-legion/delegate_return.md",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-1/elliott-legion/trace_summary.txt",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-1/elliott-legion/artifacts/trace_00000000000000000000000000000021.json"
+      ],
+      "fired": "2026-06-27 21:19 PDT, Elliott tool-form continue_delegate substitution proof"
+    },
+    {
       "row": "R-CW-6",
-      "owner": "\ud83e\udea8 rune (rune-rog-ally)",
+      "owner": "🪨 rune (rune-rog-ally)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-6/",
       "state": "honest_limit",
       "traces": 0,
@@ -25,33 +41,33 @@
     },
     {
       "row": "R-CW-7",
-      "owner": "\ud83e\udea8 rune (rune-rog-ally)",
+      "owner": "🪨 rune (rune-rog-ally)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-7/",
       "state": "pass",
       "traces": 1,
       "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-7/rune-rog-ally/EVIDENCE.md",
-      "note": "typed continue_delegate traceparent path: explicit W3C traceparent accepted; child spawned; Tempo shows dispatch \u2192 child run \u2192 tree fanout/drain under supplied trace id 2723dbee000000000000000000000007"
+      "note": "typed continue_delegate traceparent path: explicit W3C traceparent accepted; child spawned; Tempo shows dispatch → child run → tree fanout/drain under supplied trace id 2723dbee000000000000000000000007"
     },
     {
       "row": "R-CD-2",
-      "owner": "\ud83c\udf0a ronan (ronan-dgx)",
+      "owner": "🌊 ronan (ronan-dgx)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-2/",
       "state": "pass",
       "traces": 1,
       "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-2/ronan-dgx/EVIDENCE.md",
-      "note": "continue_delegate(mode=\"silent-wake\") schedule \u2192 child spawn \u2192 silent return \u2192 parent wake; trace 4bf92f3577b34da6a3ce929d0e0e4736"
+      "note": "continue_delegate(mode=\"silent-wake\") schedule → child spawn → silent return → parent wake; trace 4bf92f3577b34da6a3ce929d0e0e4736"
     }
   ],
   "rollup": {
-    "total_rows": 4,
-    "pass": 3,
+    "total_rows": 5,
+    "pass": 4,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Fresh PROOFS corpus opened after fleet deploy receipts green for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Silas R-RC-1 PASS filed; Ronan R-CD-2 PASS filed; Rune R-CW-6 honest-limit/source-boundary + cap-scheduling evidence filed with invalid low-cap attempt and multi-seat work-dispatch delivery/timer red preserved as diagnostic receipts; Rune R-CW-7 PASS filed for typed continue_delegate traceparent propagation with Tempo trace under supplied trace id 2723dbee000000000000000000000007. Remaining rows are expected from their owning seats.",
+  "disposition_note": "Fresh PROOFS corpus opened after fleet deploy receipts green for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Silas R-RC-1 PASS filed; Elliott R-CD-1 tool-form default continue_delegate PASS filed; Ronan R-CD-2 PASS filed; Rune R-CW-6 honest-limit/source-boundary + cap-scheduling evidence filed with invalid low-cap attempt and multi-seat work-dispatch delivery/timer red preserved as diagnostic receipts; Rune R-CW-7 PASS filed for typed continue_delegate traceparent propagation with Tempo trace under supplied trace id 2723dbee000000000000000000000007. Remaining rows are expected from their owning seats.",
   "generated": "2026-06-27",
-  "generated_by": "silas-lothric"
+  "generated_by": "elliott-legion"
 }

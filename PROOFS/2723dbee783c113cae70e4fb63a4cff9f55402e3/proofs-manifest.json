@@ -262,20 +262,33 @@
         "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI-COLLAPSE/elliott-legion/rcw-multi-collapse-vitest-2723.log",
         "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI-COLLAPSE/elliott-legion/artifact-checksums.json"
       ]
+    },
+    {
+      "row": "R-CW-MULTI",
+      "owner": "🌫 silas (silas-lothric)",
+      "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI/silas-lothric/EVIDENCE.md",
+      "note": "typed continue_work multi-election: three same-turn elections returned scheduled and then executed as distinct transcript wakes Turn 1/200, 2/200, and 3/200 with A/B/C markers; no Tempo export; token form not claimed.",
+      "supporting_docs": [
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI/silas-lothric/wake-receipts.json",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI/silas-lothric/session-history-excerpt.md"
+      ]
     }
   ],
   "rollup": {
-    "total_rows": 24,
-    "pass": 21,
+    "total_rows": 25,
+    "pass": 22,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 3,
     "missing": 0
   },
-  "disposition_note": "Fresh PROOFS corpus for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Current filed rows include R-RC-1, Silas R-CW-1, R-CD-1, R-CD-2, R-CD-4 guard-side targeting, R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, R-OBS-1, Cael R-CW-3, Rune R-CW-7 typed traceparent PASS, Rune R-CW-DELEGATE-TOKEN bare-token PASS, Rune R-CW-DELEGATE-SELF-CONTINUATION parent typed delegate spawn/return PASS, and Rune R-CW-6 HONEST-LIMIT/source-boundary + cap-scheduling evidence with invalid low-cap attempt and delivery/timer red preserved as diagnostics. Remaining rows are expected from their owning seats. Silas added R-REGRESSION-TRAP-TESTS PASS on 2723dbee with 31/31 vitest trap assertions. Elliott R-CW-2 chain-counter PASS added from live continue_work wake/Tempo evidence (delaySeconds=0 immediate; no delay-clamp claim). Silas added R-OBS-2 PASS with normalized Tempo trace-tree visualization from the R-CW-7 explicit-traceparent export. Silas added R-CD-COLLECTION-ON-COLLAPSE PASS from live A→B→C fanoutMode=tree evidence with B finalized before delayed C returned to root A. Elliott added R-CW-MULTI-COLLAPSE HONEST_LIMIT: exact-SHA source/tests are green, but live stale-fold capture was not performed because current grace is 48h without an authorized temporary config reduction.",
+  "disposition_note": "Fresh PROOFS corpus for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Current filed rows include R-RC-1, Silas R-CW-1, R-CD-1, R-CD-2, R-CD-4 guard-side targeting, R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, R-OBS-1, Cael R-CW-3, Rune R-CW-7 typed traceparent PASS, Rune R-CW-DELEGATE-TOKEN bare-token PASS, Rune R-CW-DELEGATE-SELF-CONTINUATION parent typed delegate spawn/return PASS, and Rune R-CW-6 HONEST-LIMIT/source-boundary + cap-scheduling evidence with invalid low-cap attempt and delivery/timer red preserved as diagnostics. Remaining rows are expected from their owning seats. Silas added R-REGRESSION-TRAP-TESTS PASS on 2723dbee with 31/31 vitest trap assertions. Elliott R-CW-2 chain-counter PASS added from live continue_work wake/Tempo evidence (delaySeconds=0 immediate; no delay-clamp claim). Silas added R-OBS-2 PASS with normalized Tempo trace-tree visualization from the R-CW-7 explicit-traceparent export. Silas added R-CD-COLLECTION-ON-COLLAPSE PASS from live A→B→C fanoutMode=tree evidence with B finalized before delayed C returned to root A. Elliott added R-CW-MULTI-COLLAPSE HONEST_LIMIT: exact-SHA source/tests are green, but live stale-fold capture was not performed because current grace is 48h without an authorized temporary config reduction. Silas added R-CW-MULTI typed-tool PASS: 3 same-turn continue_work elections produced Turn 1/200, 2/200, and 3/200 wake receipts; no R-CW-4/MULTI-COLLAPSE/DELEGATE-CHILD-LIVE/R-CD rows touched.",
   "generated": "2026-06-27",
   "generated_by": "elliott-legion",
-  "status": "in_progress_rows_added_multi_collapse_honest_limit",
-  "notes": "Cael clean /new additions: R-CD-SILENT tool silent PASS, R-CD-3 post-compaction registration PASS, R-CD-TOKEN bracket subagent fallback PASS, R-CW-TOKEN subagent work token PASS, R-RC-2 honest-limit due low context threshold. R-CW-4 intentionally not touched; treated as Silas-occupied unless blocked. Silas R-CD-COLLECTION-ON-COLLAPSE: live root collection across finalized intermediate B2, with mixed-target negative guard. Elliott R-CW-MULTI-COLLAPSE: honest-limit source/test/config evidence folded from PR #167 onto current main without clobbering Silas R-CD-COLLECTION-ON-COLLAPSE."
+  "status": "in_progress_rows_added_collection_collapse_rcw_multi",
+  "notes": "Cael clean /new additions: R-CD-SILENT tool silent PASS, R-CD-3 post-compaction registration PASS, R-CD-TOKEN bracket subagent fallback PASS, R-CW-TOKEN subagent work token PASS, R-RC-2 honest-limit due low context threshold. R-CW-4 intentionally not touched; treated as Silas-occupied unless blocked. Silas R-CD-COLLECTION-ON-COLLAPSE: live root collection across finalized intermediate B2, with mixed-target negative guard. Elliott R-CW-MULTI-COLLAPSE: honest-limit source/test/config evidence folded from PR #167 onto current main without clobbering Silas R-CD-COLLECTION-ON-COLLAPSE. Silas R-CW-MULTI: typed-tool transcript wake evidence for three same-turn elections; no Tempo export; token/bracket not claimed."
 }

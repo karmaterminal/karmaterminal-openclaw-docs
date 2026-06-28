@@ -128,18 +128,30 @@
       "traces": 1,
       "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-3/cael-dgx/EVIDENCE.md",
       "note": "continue_work reason.preview OTel capture on continuation.work span for Cael marker R-CW-1-R-CW-3-CAEL-2723dbee; Cael does not claim R-CW-1 (Silas owns R-CW-1 separately)."
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "owner": "🌫 silas (silas-lothric)",
+      "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-REGRESSION-TRAP-TESTS/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-REGRESSION-TRAP-TESTS/silas-lothric/EVIDENCE.md",
+      "note": "continuation sibling-surface regression trap tests passed on exact deployed 2723dbee runtime: inventory opts 5/5 + registration/misconfig 26/26 = 31/31 PASS",
+      "supporting_docs": [
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-REGRESSION-TRAP-TESTS/silas-lothric/regression-trap.log"
+      ]
     }
   ],
   "rollup": {
-    "total_rows": 13,
-    "pass": 12,
+    "total_rows": 14,
+    "pass": 13,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Fresh PROOFS corpus for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Current filed rows include R-RC-1, Silas R-CW-1, R-CD-1, R-CD-2, R-CD-4 guard-side targeting, R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, R-OBS-1, Cael R-CW-3, Rune R-CW-7 typed traceparent PASS, Rune R-CW-DELEGATE-TOKEN bare-token PASS, Rune R-CW-DELEGATE-SELF-CONTINUATION parent typed delegate spawn/return PASS, and Rune R-CW-6 HONEST-LIMIT/source-boundary + cap-scheduling evidence with invalid low-cap attempt and delivery/timer red preserved as diagnostics. Remaining rows are expected from their owning seats.",
+  "disposition_note": "Fresh PROOFS corpus for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Current filed rows include R-RC-1, Silas R-CW-1, R-CD-1, R-CD-2, R-CD-4 guard-side targeting, R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, R-OBS-1, Cael R-CW-3, Rune R-CW-7 typed traceparent PASS, Rune R-CW-DELEGATE-TOKEN bare-token PASS, Rune R-CW-DELEGATE-SELF-CONTINUATION parent typed delegate spawn/return PASS, and Rune R-CW-6 HONEST-LIMIT/source-boundary + cap-scheduling evidence with invalid low-cap attempt and delivery/timer red preserved as diagnostics. Remaining rows are expected from their owning seats. Silas added R-REGRESSION-TRAP-TESTS PASS on 2723dbee with 31/31 vitest trap assertions.",
   "generated": "2026-06-27",
   "generated_by": "elliott-legion"
 }

@@ -1,0 +1,80 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "issue": 140,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "mutates": false,
+  "timeoutSeconds": 180,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "rowId": "R-CD-MODEL-TOOL",
+  "toolSurface": "typed-tool",
+  "scenario": {
+    "name": "r-cd-model-tool",
+    "description": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe"
+    ],
+    "status": "scaffold",
+    "expectedFile": "r-cd-model-tool.js",
+    "notes": "Alternate-model rows are blocked on karmaterminal/openclaw#1103 until the child runtime observes the requested model instead of inheriting gpt-5.5."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "forms": [
+      "typed-tool-model-override"
+    ],
+    "model": "${OPENCLAW_ALT_MODEL:-github-copilot/goldeneye}",
+    "promptTemplate": "Proof nonce {{nonce}}: report your observed provider/model and the nonce only. Do not mutate files. Do not post to any channel.",
+    "idempotencyKeyPrefix": "R-CD-MODEL-TOOL"
+  },
+  "expectedReceipts": [
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the parent request that asks the agent to call continue_delegate for this model row"
+    },
+    {
+      "name": "child-session-observed",
+      "required": true,
+      "description": "A nonce-correlated delegate child session/run is observed on the subscribed session stream or session history"
+    },
+    {
+      "name": "child-model-byte",
+      "required": true,
+      "description": "Observed child runtime model/provider byte from status/session metadata or child self-report backed by session metadata"
+    },
+    {
+      "name": "return-payload",
+      "required": true,
+      "description": "Delegate return includes the row nonce and observed model/provider summary"
+    },
+    {
+      "name": "trace-or-session-correlation",
+      "required": false,
+      "description": "Trace id, span tree, or session-event correlation tying dispatch to child and return"
+    },
+    {
+      "name": "requested-model-byte",
+      "required": true,
+      "description": "Committed request byte showing continue_delegate model=<provider/model>"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-MODEL-TOOL",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "PASS-candidate only when requested model byte and observed child model byte match. If #1103 reproduces, fold as HONEST-LIMIT-candidate with the mismatch evidence, not as pass."
+  }
+}

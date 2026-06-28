@@ -157,6 +157,30 @@
       <Evidence>Root(A) receives C sentinel across dead intermediate; negative-guard no-orphan</Evidence>
       <Constraint>Mode-conditional: default=one-level-up; fanoutMode="tree"=reaches-root</Constraint>
     </Row>
+    <Row id="R-CD-MODEL-DEFAULT" owner="unclaimed" forms="tool+token" issue="140">
+      <Behavior>continue_delegate with no model override inherits the parent provider/model</Behavior>
+      <FireMethod>Fire both typed-tool and bracket/token no-override forms</FireMethod>
+      <Evidence>Parent model byte + child session model byte match; return includes nonce</Evidence>
+      <Manifest>tools/k6-proofs/manifests/r-cd-model-default.json</Manifest>
+    </Row>
+    <Row id="R-CD-MODEL-TOOL" owner="unclaimed" forms="tool" issue="140">
+      <Behavior>continue_delegate(model=&lt;provider/model&gt;) forwards explicit model override to the child</Behavior>
+      <Evidence>Request byte records model override; child runtime model byte matches requested model</Evidence>
+      <Constraint>Currently blocked by karmaterminal/openclaw#1103 if child observes inherited gpt-5.5 instead</Constraint>
+      <Manifest>tools/k6-proofs/manifests/r-cd-model-tool.json</Manifest>
+    </Row>
+    <Row id="R-CD-MODEL-TOKEN" owner="unclaimed" forms="token" issue="140">
+      <Behavior>[[CONTINUE_DELEGATE: ... | model=&lt;provider/model&gt;]] parses and forwards explicit model override</Behavior>
+      <Evidence>Bracket parse origin + requested model byte + child runtime model byte</Evidence>
+      <Constraint>Declare seat class before firing; message-body seats may suppress terminal bracket scan</Constraint>
+      <Manifest>tools/k6-proofs/manifests/r-cd-model-token.json</Manifest>
+    </Row>
+    <Row id="R-CD-MODEL-CHAINED-ALT" owner="unclaimed" forms="tool" issue="140">
+      <Behavior>Depth-1 delegate creates depth-2 continue_delegate with explicit alternate model; depth-2 reports observed model/provider</Behavior>
+      <Evidence>Depth-1 and depth-2 child receipts, plus depth-2 requested-vs-observed model byte</Evidence>
+      <Constraint>Sequential nested row; do not run concurrently with other continuation rows in the same session</Constraint>
+      <Manifest>tools/k6-proofs/manifests/r-cd-model-chained-alt.json</Manifest>
+    </Row>
 
     <!-- request_compaction family -->
     <Row id="R-RC-1" owner="silas" forms="tool-only" issue="104">

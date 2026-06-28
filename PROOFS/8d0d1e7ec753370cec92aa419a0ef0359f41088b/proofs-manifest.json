@@ -310,11 +310,20 @@
         "PROOFS/8d0d1e7ec753370cec92aa419a0ef0359f41088b/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/verify-hop2-metadata.txt"
       ],
       "fired": "2026-06-28 00:46 PDT, Cael delegate-child continue_work hop2 live fire"
+    },
+    {
+      "row": "R-CW-4",
+      "owner": "🪨 rune (rune-dandelion-cult)",
+      "dir": "PROOFS/18a221f7d/R-CW-4.md",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/18a221f7d/R-CW-4.md",
+      "note": "Reconciliation pointer imported via #117. Archived transcript locator for chain-depth tracking."
     }
   ],
   "rollup": {
-    "total_rows": 27,
-    "pass": 26,
+    "total_rows": 28,
+    "pass": 27,
     "partial": 0,
     "thin": 0,
     "fail": 0,

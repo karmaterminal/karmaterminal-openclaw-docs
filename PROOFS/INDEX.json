@@ -1,24 +1,24 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "8d0d1e7ec753370cec92aa419a0ef0359f41088b",
-  "current_sha_short": "8d0d1e7e",
-  "build_string": "OpenClaw continuation PR #85651 (8d0d1e7) — presentation SHA after latest upstream update, corpus transposed from 2723dbee/750fbbe/bdd3cfd",
-  "corpus_path": "PROOFS/8d0d1e7ec753370cec92aa419a0ef0359f41088b/",
-  "manifest_path": "PROOFS/8d0d1e7ec753370cec92aa419a0ef0359f41088b/proofs-manifest.json",
+  "current_sha": "0ab5f5e71f333ea4621262239f314a7d39ddee7c",
+  "current_sha_short": "0ab5f5e71f",
+  "build_string": "OpenClaw continuation PR #85651 (0ab5f5e71f) — 8d0d1 corpus + trace redaction proof",
+  "corpus_path": "PROOFS/0ab5f5e71f333ea4621262239f314a7d39ddee7c/",
+  "manifest_path": "PROOFS/0ab5f5e71f333ea4621262239f314a7d39ddee7c/proofs-manifest.json",
   "rollup": {
-    "total_rows": 27,
-    "pass": 26,
+    "total_rows": 28,
+    "pass": 27,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "TRANSPOSED corpus for PR-presentation SHA 8d0d1e7ec753370cec92aa419a0ef0359f41088b. Evidence was fired for base proof SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3 and previously transposed through bdd3cfd038b014d829a4debdb6cb26e57aa138a5; diff to 8d0d1e7ec753370cec92aa419a0ef0359f41088b is non-surface upstream drift update including startup migration test stabilization. Full corpus is copied locally under this SHA for clawsweeper locality. Final rollup remains 27 rows = 26 PASS + 1 accepted HONEST_LIMIT (R-RC-2), 0 partial/thin/fail/missing.",
+  "disposition_note": "TRANSPOSED corpus from 8d0d1e7ec753370cec92aa419a0ef0359f41088b to 0ab5f5e71f333ea4621262239f314a7d39ddee7c; added R-TRACE-REDACTION-1121 for the continuation trace privacy fix. Carried rows retain the prior 27-row corpus locality, and the new row proves raw reason/task preview omission with focused unit output plus machine-readable span attributes.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-06-28",
-  "generated_by": "frond-scribe (copilot, corpus-manager)",
-  "capture_sha": "8d0d1e7ec753370cec92aa419a0ef0359f41088b",
-  "carried_from": "bdd3cfd038b014d829a4debdb6cb26e57aa138a5"
+  "generated_by": "frond-scribe-1121-continuation-trace-redaction-hook",
+  "capture_sha": "0ab5f5e71f333ea4621262239f314a7d39ddee7c",
+  "carried_from": "8d0d1e7ec753370cec92aa419a0ef0359f41088b"
 }

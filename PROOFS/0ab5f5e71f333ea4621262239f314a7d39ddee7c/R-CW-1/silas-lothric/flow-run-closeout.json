@@ -1,0 +1,27 @@
+{
+  "flow_id": "e2689b5c-c76f-42c8-b9a9-9400ef61f199",
+  "status": "succeeded",
+  "created_at": 1782620394377,
+  "updated_at": 1782620467987,
+  "state": {
+    "kind": "continuation_work",
+    "sessionKey": "[REDACTED_SESSION_KEY]",
+    "hop": 1,
+    "delayMs": 8000,
+    "electedAt": 1782620394377,
+    "dueAt": 1782706802396,
+    "maxChainLength": 200,
+    "chainStartedAt": 1782601261609,
+    "accumulatedChainTokens": 191135,
+    "reason": "R-CW-1 proof on deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3; sentinel silas-rcw1-continue-work-sentinel-2723dbee-20260628T041928Z; verify same-session wake, then write proof artifacts/manifest update and validate corpus.",
+    "chainId": "6a51c383-715a-4c32-bdb2-3447cdf756ac",
+    "traceparent": "00-11111111111111111111111111111111-2222222222222222-01",
+    "releasedAt": 1782620467697,
+    "busySkipCount": 0,
+    "succeeded": {
+      "point": "optimal",
+      "durability": "durable"
+    },
+    "turnGrantedAt": 1782620467987
+  }
+}

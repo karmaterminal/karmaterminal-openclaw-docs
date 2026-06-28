@@ -1,0 +1,1 @@
+PASS: fake sentinel ghp_EXAMPLE_DO_NOT_EXPORT_1121 is absent from span-attributes-redaction-proof.json exported attributes.

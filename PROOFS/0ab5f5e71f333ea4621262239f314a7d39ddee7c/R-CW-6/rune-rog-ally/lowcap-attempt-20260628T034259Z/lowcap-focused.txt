@@ -1,0 +1,6 @@
+--- 2026-06-28T03:46:48Z focused lowcap journal after proof fire
+2026-06-27T20:46:27-07:00 rune node[35056]: 2026-06-27T20:46:27.102-07:00 🪨 R-CW-6 low-cap proof is in flight after the restart interruption:
+2026-06-27T20:46:27-07:00 rune node[35056]:   - backup saved at `/home/figs/.openclaw/workspace/proof-r-cw-6-lowcap-20260628T034259Z/openclaw.json.before`
+2026-06-27T20:46:27-07:00 rune node[35056]:   - `28310367530` — `restart-gateway rune R-CW-6 temporary maxChainLength=2 low-cap proof apply`
+2026-06-27T20:46:27-07:00 rune node[35056]: - delegate 3: expected over-cap reject
+--- sessions with lowcap/search?

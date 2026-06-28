@@ -45,12 +45,12 @@ if (allocatedChainHop >= config.maxChainLength) {
 
 That is the boundary: `currentChainCount >= maxChainLength` returns `chain-capped`.
 
-## Deterministic test bytes
+## Source/test bytes
 
 `chain-depth-source-and-test-byte.txt` also captures:
 
 - `src/auto-reply/continuation/scheduler.test.ts:17-37` — `returns chain-capped at max depth` asserts `currentChainCount: 10`, `maxChainLength: 10` returns `"chain-capped"`.
-- `src/auto-reply/continuation/work-dispatch.test.ts:1608-1632` — `schedules the valid elections and caps the overflow without dropping the earlier ones` uses `maxChainLength: 2`, schedules two valid elections, caps the third, and asserts only `fit-1`/`fit-2` deliver while `over-cap` does not.
+- `src/auto-reply/continuation/work-dispatch.test.ts:1608-1632` — `schedules the valid elections and caps the overflow without dropping the earlier ones` uses `maxChainLength: 2`; the captured assertions prove the batch accounting surface: `scheduledCount: 2`, `cappedCount: 1`, `capped: true`, and `chainState.currentChainCount: 2`.
 
 ## Local narrow test run
 
@@ -69,12 +69,14 @@ Test Files  1 failed | 1 passed (2)
 Tests       1 failed | 15 passed | 60 skipped (76)
 ```
 
-Relevant R-CW-6 assertions passed in the run:
+Relevant R-CW-6 assertions passed in the broad filtered run:
 
 - `checkContinuationBudget > returns chain-capped at max depth`
 - `durable continuation_work dispatch > schedules the valid elections and caps the overflow without dropping the earlier ones`
 
-The single failure was unrelated to R-CW-6 chain-depth semantics:
+Independent follow-up from Ronan isolated the exact work-dispatch test and found the earlier batch assertions still pass (`scheduledCount: 2`, `cappedCount: 1`, `capped: true`, `chainState.currentChainCount: 2`), but the later delivery assertion is order-dependent / harness-fragile (`expected [] to have a length of 2`). Therefore this row should cite the direct scheduler unit plus the batch scheduling/capping assertions, not claim isolated-stable delivery coverage for that work-dispatch test.
+
+The single failure in Rune's broad filtered run was unrelated to R-CW-6 chain-depth semantics:
 
 ```text
 work-dispatch.test.ts > durable continuation_work dispatch > arms zero-delay work for the next tick so callers can persist chain state first
@@ -106,4 +108,4 @@ Interpretation: the third delegate running proves this was **not** a valid `maxC
 
 ## Verdict
 
-⚠️ **HONEST-LIMIT / source+test proof**. Live low-cap induction was attempted after initial filing but invalidated by restart/recovery timing: the over-cap delegate ran after restore under `maxChainLength=200` (`hop=4/200`, `dispatched=3 rejected=0`). The exact deployed SHA still contains the boundary reject (`currentChainCount >= maxChainLength → chain-capped`) and deterministic tests covering both direct budget rejection and partial-success overflow rejection. The row should be treated as the chain-depth safety boundary present and test-covered at `2723dbee783c113cae70e4fb63a4cff9f55402e3`, with the low-cap attempt preserved as diagnostic evidence, not PASS evidence.
+⚠️ **HONEST-LIMIT / source+test proof**. Live low-cap induction was attempted after initial filing but invalidated by restart/recovery timing: the over-cap delegate ran after restore under `maxChainLength=200` (`hop=4/200`, `dispatched=3 rejected=0`). The exact deployed SHA still contains the boundary reject (`currentChainCount >= maxChainLength → chain-capped`), the direct scheduler unit covers boundary rejection, and the work-dispatch batch accounting assertions cover partial-success capping (`scheduledCount: 2`, `cappedCount: 1`, `capped: true`). The row should be treated as the chain-depth safety boundary present and partially test-covered at `2723dbee783c113cae70e4fb63a4cff9f55402e3`, with isolated delivery-assertion fragility and the invalid low-cap attempt preserved as diagnostic evidence, not PASS evidence.

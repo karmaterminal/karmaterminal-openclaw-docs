@@ -21,7 +21,7 @@
       "state": "honest_limit",
       "traces": 0,
       "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-6/rune-rog-ally/EVIDENCE.md",
-      "note": "chain-depth boundary source/test proof at deployed SHA; low-cap live-fire attempt invalidated by restart/recovery timing (over-cap ran under restored 200 cap)"
+      "note": "chain-depth boundary source/direct scheduler proof plus batch accounting assertions; low-cap live-fire invalidated by restore/replay timing; work-dispatch delivery assertion is isolated-fragile"
     },
     {
       "row": "R-CD-2",
@@ -42,7 +42,7 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Fresh PROOFS corpus opened after fleet deploy receipts green for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Silas R-RC-1 PASS filed; Ronan R-CD-2 PASS filed; Rune R-CW-6 honest-limit/source+test boundary proof filed with later invalid low-cap attempt preserved as diagnostic receipt; remaining rows are expected from their owning seats.",
+  "disposition_note": "Fresh PROOFS corpus opened after fleet deploy receipts green for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Silas R-RC-1 PASS filed; Ronan R-CD-2 PASS filed; Rune R-CW-6 honest-limit/source+test boundary proof filed with later invalid low-cap attempt and isolated work-dispatch delivery fragility preserved as diagnostic receipts; remaining rows are expected from their owning seats.",
   "generated": "2026-06-27",
   "generated_by": "silas-lothric"
 }

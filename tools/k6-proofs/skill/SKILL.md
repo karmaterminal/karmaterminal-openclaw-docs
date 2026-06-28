@@ -5,36 +5,38 @@ Build, run, and maintain k6 proof-row scenarios for the OpenClaw continuation fe
 
 ## Components
 
-### Infrastructure (already deployed)
-- **k6 v2.0.0** — load testing tool, installed on ronan-dgx (`/home/figs/bin/k6`)
-- **Prometheus** — metrics store at `prometheus.dandelion.cult` (k3s on silas)
-- **Grafana** — dashboards at `grafana.dandelion.cult`
-- **Loki** — log aggregation at `loki.dandelion.cult`
-- **Tempo** — distributed tracing at `tempo.dandelion.cult`
-- **Alloy** — DaemonSet on all nodes, forwards logs to Loki
-- **OTel Collector** — trace collection on silas
+### Infrastructure (resolve per seat before proof-standard runs)
+- **k6** — proof-standard expectation is `v2.0.0`; run `node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json` on the target seat before folding evidence.
+- **Prometheus** — metrics store for candidate rows (fleet example: `prometheus.dandelion.cult`).
+- **Grafana** — dashboards (contract in `tools/k6-proofs/METRICS.md`; JSON in `tools/k6-proofs/dashboards/k6-proofs.json`).
+- **Loki** — log aggregation for nonce-correlated journal receipts.
+- **Tempo** — distributed tracing; raw trace JSON is the proof surface for continuation spans.
+- **Alloy / OTel Collector** — forwards logs and traces from seats into Loki/Tempo.
 
 ### Repo Structure
 ```
-karmaterminal-openclaw-docs/k6-proofs/
-├── README.md              — full documentation
-├── run-proof.sh           — universal runner (auto-detect seat/SHA + Prometheus output)
+tools/k6-proofs/
+├── README.md                       — canonical operator docs + runnable scenario list
+├── run-proof.sh                    — runner for workflow-runnable scenario basenames
 ├── lib/
-│   ├── gateway.js         — WebSocket helpers, custom metrics, nonce generation
-│   └── report.js          — HTML report generator (handleSummary)
-├── scenarios/
-│   ├── preflight.js       — gateway health verification (#101)
-│   └── r-cd-1.js          — continue_delegate infrastructure (#103)
-├── dashboards/
-│   └── k6-proofs.json     — Grafana dashboard for proof metrics
+│   ├── gateway-ws.js               — WS helpers, request tracking, nonce/redaction boundary
+│   └── manifest-loader.js          — row-manifest loading + env placeholder resolution
+├── manifests/                      — row manifests (broader than runnable scenario coverage)
+├── scenarios/                      — k6 scenarios currently promoted to runnable
+├── scripts/                        — seat preflight, evidence writer, postprocessor, corpus validator
+├── dashboards/                     — Grafana dashboard JSON
+├── docs/                           — golden path / safety / regression-trap notes
 └── skill/
-    └── SKILL.md           — this file
+    └── SKILL.md                    — this detailed how-to
+
+.agents/skills/k6-proofs/SKILL.md   — discoverable wrapper that points agents here
+tools/k6-proofs/k6-proofs-pipeline.xml — structured one-shot decision tree
 ```
 
 ## How to Build a New Proof Scenario
 
 ### 1. Identify the Row
-Check `PROOFS/PROOF-CORPUS-METHOD.md` for the row definition:
+Check `tools/k6-proofs/k6-proofs-pipeline.xml`, `tools/k6-proofs/CONTRIBUTING-ROWS.md`, and the Project-81 issue for the row definition:
 - Row name (e.g., `R-CD-2`)
 - Expected behavior
 - Owner assignment
@@ -43,7 +45,7 @@ Check `PROOFS/PROOF-CORPUS-METHOD.md` for the row definition:
 ### 2. Create the Scenario File
 ```bash
 # Name convention: scenarios/r-<row-name>.js (lowercase, hyphens)
-touch karmaterminal-openclaw-docs/k6-proofs/scenarios/r-cd-2.js
+touch tools/k6-proofs/scenarios/r-cd-2.js
 ```
 
 ### 3. Scenario Template
@@ -126,31 +128,34 @@ export function handleSummary(data) {
 
 ### 4. Run It
 ```bash
-# Local test (no Prometheus output)
-k6 run scenarios/r-cd-2.js
+# Local test from repo root (no Prometheus output)
+k6 run tools/k6-proofs/scenarios/r-cd-2.js
 
-# Full pipeline (metrics → Grafana)
-./run-proof.sh r-cd-2
+# Full runner path from repo root; use a promoted scenario basename
+./tools/k6-proofs/run-proof.sh r-cd-2-silent-wake
 
-# Custom target
-./run-proof.sh r-cd-2 --env GATEWAY_HOST=10.0.0.246
+# Custom target/env is passed through k6 as environment
+OPENCLAW_GATEWAY_WS=ws://10.0.0.246:18789 ./tools/k6-proofs/run-proof.sh r-cd-2-silent-wake
 ```
 
 ### 5. Commit Evidence
 After a successful run on the target SHA:
 ```bash
-# Copy summary to corpus
-cp r-cd-2-summary.json ../PROOFS/<SHA>/R-CD-2/
-# Write EVIDENCE.md with verdict, trace links, nonce correlation
+node tools/k6-proofs/scripts/evidence-writer.mjs \
+  --input /tmp/r-cd-2-output.txt \
+  --row R-CD-2 \
+  --seat <seat> \
+  --sha <40-char-sha>
+# Review the candidate run directory, add raw trace/log receipts, then fold intentionally.
 ```
 
 ## Key Patterns
 
 ### Evidence Correlation
 The gateway doesn't expose a REST API for delegate dispatch — delegates fire via the agent's tool surface. The k6 harness verifies infrastructure readiness and captures evidence post-run:
-1. **Journal grep** — `journalctl -u openclaw-gateway --since "5min ago" | grep <nonce>`
-2. **Tempo trace pull** — `curl http://tempo.dandelion.cult/api/traces/<traceId>`
-3. **Loki query** — via Grafana or `logcli`
+1. **Journal/Loki grep** — query the gateway journal or Loki for the nonce window; do not commit secrets.
+2. **Tempo trace pull** — export raw trace JSON for the trace id; summarize span tree separately.
+3. **Session/event receipt** — use redacted `sessions.messages.subscribe` / response receipts where the row depends on session delivery.
 
 ### Both-Forms Mandate
 Every continuation row must prove BOTH the typed tool path AND the bracket/token path:
@@ -162,9 +167,9 @@ Every continuation row must prove BOTH the typed tool path AND the bracket/token
 ### Caps-Test Procedure
 For rows that test cap exhaustion (R-CW-5, R-CW-6):
 1. Lower caps in `openclaw.json` (record originals)
-2. Reload gateway config
+2. Restart/reload as required by the config lever; record the exact arm step
 3. Fire the row — verify reject
-4. Restore originals + reload
+4. Restore originals + restart/reload back to baseline
 
 ### Custom Metrics Naming
 Prefix all custom metrics with the row name (underscores, lowercase):
@@ -174,11 +179,11 @@ This ensures Grafana queries can filter by row.
 
 ## Project Tracking
 - **EPIC**: #106
-- **Issues**: #101–#121 in karmaterminal-openclaw-docs
+- **Issues**: Project 81 issues in `karmaterminal/karmaterminal-openclaw-docs` (currently #100–#146+)
 - **Project Board**: [P81](https://github.com/orgs/karmaterminal/projects/81)
-- **Method Spec**: `PROOFS/PROOF-CORPUS-METHOD.md` (in openclaw-bootstrap evacuated)
+- **Row registry**: `tools/k6-proofs/k6-proofs-pipeline.xml`, row manifests, and per-SHA `PROOFS/<sha>/proofs-manifest.json`
 
 ## Dependencies
-- k6 binary (currently ronan-dgx only; #121 tracks fleet-wide install)
+- k6 binary present on the target seat at the expected version
 - Gateway running on target seat
-- Observability stack on silas k3s
+- Observability stack reachable for the evidence surfaces the row claims

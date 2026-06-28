@@ -1,0 +1,27 @@
+[
+  {
+    "path": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI-COLLAPSE/elliott-legion/HONEST_LIMIT.md",
+    "bytes": 4150,
+    "sha256": "d4c98573ac065e1410ec8e32ce851d67823517bf601770ab3f58ef5368b9de72"
+  },
+  {
+    "path": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI-COLLAPSE/elliott-legion/source-test-byte.txt",
+    "bytes": 12195,
+    "sha256": "1aaf985a7ee17435c3589ad3e55769c39d0e95e58dc56728561b4ffb7585c569"
+  },
+  {
+    "path": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI-COLLAPSE/elliott-legion/gateway-config-continuation.json",
+    "bytes": 661,
+    "sha256": "7168286c1afda71ab1be1ac2e0b7a41c23dce5b4d21dfe6ea07ea82ed118b8ae"
+  },
+  {
+    "path": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI-COLLAPSE/elliott-legion/test-summary.txt",
+    "bytes": 832,
+    "sha256": "f76caea2bcab4388062c77cf02f25ef8c909518e97175049c69d9ef11e63dd21"
+  },
+  {
+    "path": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI-COLLAPSE/elliott-legion/rcw-multi-collapse-vitest-2723.log",
+    "bytes": 1084,
+    "sha256": "02e825dd648a38c063a5ae3d2372e4c59343ef42a7b82e93b35befadd4f446fd"
+  }
+]

@@ -7,7 +7,7 @@
   "rows": [
     {
       "row": "R-RC-1",
-      "owner": "🌫 silas (silas-lothric)",
+      "owner": "\ud83c\udf2b silas (silas-lothric)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-RC-1/",
       "state": "pass",
       "traces": 0,
@@ -16,7 +16,7 @@
     },
     {
       "row": "R-CD-1",
-      "owner": "🌻 elliott (elliott-legion)",
+      "owner": "\ud83c\udf3b elliott (elliott-legion)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-1/",
       "state": "pass",
       "traces": 1,
@@ -32,7 +32,7 @@
     },
     {
       "row": "R-CW-6",
-      "owner": "🪨 rune (rune-rog-ally)",
+      "owner": "\ud83e\udea8 rune (rune-rog-ally)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-6/",
       "state": "honest_limit",
       "traces": 0,
@@ -41,16 +41,16 @@
     },
     {
       "row": "R-CW-7",
-      "owner": "🪨 rune (rune-rog-ally)",
+      "owner": "\ud83e\udea8 rune (rune-rog-ally)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-7/",
       "state": "pass",
       "traces": 1,
       "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-7/rune-rog-ally/EVIDENCE.md",
-      "note": "typed continue_delegate traceparent path: explicit W3C traceparent accepted; child spawned; Tempo shows dispatch → child run → tree fanout/drain under supplied trace id 2723dbee000000000000000000000007"
+      "note": "typed continue_delegate traceparent path: explicit W3C traceparent accepted; child spawned; Tempo shows dispatch \u2192 child run \u2192 tree fanout/drain under supplied trace id 2723dbee000000000000000000000007"
     },
     {
       "row": "R-CW-DELEGATE-TOKEN",
-      "owner": "🪨 rune (rune-rog-ally)",
+      "owner": "\ud83e\udea8 rune (rune-rog-ally)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-DELEGATE-TOKEN/",
       "state": "pass",
       "traces": 0,
@@ -59,7 +59,7 @@
     },
     {
       "row": "R-CW-DELEGATE-SELF-CONTINUATION",
-      "owner": "🪨 rune (rune-rog-ally)",
+      "owner": "\ud83e\udea8 rune (rune-rog-ally)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-DELEGATE-SELF-CONTINUATION/",
       "state": "pass",
       "traces": 0,
@@ -68,16 +68,16 @@
     },
     {
       "row": "R-CD-2",
-      "owner": "🌊 ronan (ronan-dgx)",
+      "owner": "\ud83c\udf0a ronan (ronan-dgx)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-2/",
       "state": "pass",
       "traces": 1,
       "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-2/ronan-dgx/EVIDENCE.md",
-      "note": "continue_delegate(mode=\"silent-wake\") schedule → child spawn → silent return → parent wake; trace 4bf92f3577b34da6a3ce929d0e0e4736"
+      "note": "continue_delegate(mode=\"silent-wake\") schedule \u2192 child spawn \u2192 silent return \u2192 parent wake; trace 4bf92f3577b34da6a3ce929d0e0e4736"
     },
     {
       "row": "R-CD-SILENT",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-SILENT",
       "state": "pass",
       "traces": 0,
@@ -86,7 +86,7 @@
     },
     {
       "row": "R-CD-4",
-      "owner": "🪨 rune (rune-rog-ally)",
+      "owner": "\ud83e\udea8 rune (rune-rog-ally)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-4/",
       "state": "pass",
       "traces": 0,
@@ -95,7 +95,7 @@
     },
     {
       "row": "R-CONFIG-DEFAULTS",
-      "owner": "🕯 emeric (emeric-nuc)",
+      "owner": "\ud83d\udd6f emeric (emeric-nuc)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CONFIG-DEFAULTS/",
       "state": "pass",
       "traces": 0,
@@ -104,7 +104,7 @@
     },
     {
       "row": "R-CONFIG-INTERSESSION",
-      "owner": "🪨 rune (rune-rog-ally)",
+      "owner": "\ud83e\udea8 rune (rune-rog-ally)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CONFIG-INTERSESSION/",
       "state": "pass",
       "traces": 0,
@@ -113,7 +113,7 @@
     },
     {
       "row": "R-OBS-1",
-      "owner": "🪨 rune (rune-rog-ally)",
+      "owner": "\ud83e\udea8 rune (rune-rog-ally)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-OBS-1/",
       "state": "pass",
       "traces": 0,
@@ -122,7 +122,7 @@
     },
     {
       "row": "R-CW-1",
-      "owner": "🌫 silas (silas-lothric)",
+      "owner": "\ud83c\udf2b silas (silas-lothric)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-1/",
       "state": "pass",
       "traces": 1,
@@ -131,7 +131,7 @@
     },
     {
       "row": "R-CW-2",
-      "owner": "🌻 elliott (elliott-legion)",
+      "owner": "\ud83c\udf3b elliott (elliott-legion)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-2/",
       "state": "pass",
       "traces": 1,
@@ -148,7 +148,7 @@
     },
     {
       "row": "R-CW-3",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-3/",
       "state": "pass",
       "traces": 1,
@@ -157,7 +157,7 @@
     },
     {
       "row": "R-REGRESSION-TRAP-TESTS",
-      "owner": "🌫 silas (silas-lothric)",
+      "owner": "\ud83c\udf2b silas (silas-lothric)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-REGRESSION-TRAP-TESTS/",
       "state": "pass",
       "traces": 0,
@@ -169,7 +169,7 @@
     },
     {
       "row": "R-OBS-2",
-      "owner": "🌫 silas (silas-lothric)",
+      "owner": "\ud83c\udf2b silas (silas-lothric)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-OBS-2/",
       "state": "pass",
       "traces": 1,
@@ -183,7 +183,7 @@
     },
     {
       "row": "R-CW-5",
-      "owner": "🌊 ronan (ronan-dgx)",
+      "owner": "\ud83c\udf0a ronan (ronan-dgx)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-5/",
       "state": "pass",
       "traces": 0,
@@ -198,7 +198,7 @@
     },
     {
       "row": "R-CD-3",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-3",
       "state": "pass",
       "traces": 0,
@@ -207,7 +207,7 @@
     },
     {
       "row": "R-CD-TOKEN",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-TOKEN",
       "state": "pass",
       "traces": 0,
@@ -216,7 +216,7 @@
     },
     {
       "row": "R-CW-TOKEN",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-TOKEN",
       "state": "pass",
       "traces": 0,
@@ -225,26 +225,42 @@
     },
     {
       "row": "R-RC-2",
-      "owner": "🩸 cael (cael-dgx)",
+      "owner": "\ud83e\ude78 cael (cael-dgx)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-RC-2",
       "state": "honest_limit",
       "traces": 0,
       "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-RC-2/cael-dgx/HONEST_LIMIT.md",
       "note": "current clean /new lane is below compaction threshold (8% reject; status later 14%); accept proof requires genuine >=70% context session."
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "owner": "\ud83c\udf3b elliott (elliott-legion)",
+      "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI-COLLAPSE/",
+      "state": "honest_limit",
+      "traces": 0,
+      "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI-COLLAPSE/elliott-legion/HONEST_LIMIT.md",
+      "note": "HONEST-LIMIT: exact-SHA source/test substrate green for grace-conditional multi continue_work fold, but live stale-fold induction would require >48h overdue backlog under current maxDelayMs=86400000 (grace=maxDelayMs*2) or a temporary production config mutation; neither performed.",
+      "supporting_docs": [
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI-COLLAPSE/elliott-legion/source-test-byte.txt",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI-COLLAPSE/elliott-legion/gateway-config-continuation.json",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI-COLLAPSE/elliott-legion/test-summary.txt",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI-COLLAPSE/elliott-legion/rcw-multi-collapse-vitest-2723.log",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-MULTI-COLLAPSE/elliott-legion/artifact-checksums.json"
+      ]
     }
   ],
   "rollup": {
-    "total_rows": 22,
+    "total_rows": 23,
     "pass": 20,
     "partial": 0,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 2,
+    "honest_limit": 3,
     "missing": 0
   },
   "disposition_note": "Fresh PROOFS corpus for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Current filed rows include R-RC-1, Silas R-CW-1, R-CD-1, R-CD-2, R-CD-4 guard-side targeting, R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, R-OBS-1, Cael R-CW-3, Rune R-CW-7 typed traceparent PASS, Rune R-CW-DELEGATE-TOKEN bare-token PASS, Rune R-CW-DELEGATE-SELF-CONTINUATION parent typed delegate spawn/return PASS, and Rune R-CW-6 HONEST-LIMIT/source-boundary + cap-scheduling evidence with invalid low-cap attempt and delivery/timer red preserved as diagnostics. Remaining rows are expected from their owning seats. Silas added R-REGRESSION-TRAP-TESTS PASS on 2723dbee with 31/31 vitest trap assertions. Elliott R-CW-2 chain-counter PASS added from live continue_work wake/Tempo evidence (delaySeconds=0 immediate; no delay-clamp claim). Silas added R-OBS-2 PASS with normalized Tempo trace-tree visualization from the R-CW-7 explicit-traceparent export.",
   "generated": "2026-06-27",
   "generated_by": "elliott-legion",
-  "status": "in_progress_rows_added_cael_token_postcompaction_silent_rrc2_limit",
-  "notes": "Cael clean /new additions: R-CD-SILENT tool silent PASS, R-CD-3 post-compaction registration PASS, R-CD-TOKEN bracket subagent fallback PASS, R-CW-TOKEN subagent work token PASS, R-RC-2 honest-limit due low context threshold. R-CW-4 intentionally not touched; treated as Silas-occupied unless blocked."
+  "status": "in_progress_rcw_multi_collapse_honest_limit_added",
+  "notes": "Cael clean /new additions: R-CD-SILENT tool silent PASS, R-CD-3 post-compaction registration PASS, R-CD-TOKEN bracket subagent fallback PASS, R-CW-TOKEN subagent work token PASS, R-RC-2 honest-limit due low context threshold. R-CW-4 intentionally not touched; treated as Silas-occupied unless blocked. Elliott added R-CW-MULTI-COLLAPSE HONEST-LIMIT: source/test green at 2723dbee; live stale-fold needs >48h overdue backlog under current maxDelayMs=86400000 or config mutation, so no live PASS claimed."
 }

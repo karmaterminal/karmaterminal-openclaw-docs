@@ -1,0 +1,7 @@
+R-CW-7-RUNE-2723DBEE-TRACEPARENT-SENTINEL
+
+Child return summary:
+- Runtime/version visible: Runtime context shows host rune, repo /home/figs/.openclaw/workspace, OS Linux 7.0.12-1-cachyos-deckify (x64), Node v26.1.0, model github-copilot/gpt-5.5; no OpenClaw runtime version string visible in prompt/context.
+- Session key visible: agent:main:subagent:continuation-bfa9b51ff77d1d6895f2f425c021c2bc
+- Traceparent exposure: yes, the task prompt/context exposes literal traceparent text: 00-2723dbee000000000000000000000007-0000000000000007-01
+- PASS/limit statement: PASS for typed continue_delegate.traceparent path at the “accepted and spawned this proof child” level; child exists and received the delegated task carrying the explicit traceparent string. Limit: child context alone cannot verify lower-level trace propagation/storage beyond prompt-visible delivery.

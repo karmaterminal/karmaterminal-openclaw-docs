@@ -24,6 +24,15 @@
       "note": "HONEST-LIMIT: source boundary + direct scheduler unit + cap-scheduling accounting only; low-cap live-fire invalidated by restore/replay; work-dispatch delivery/timer red on multiple seats"
     },
     {
+      "row": "R-CW-7",
+      "owner": "\ud83e\udea8 rune (rune-rog-ally)",
+      "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-7/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-7/rune-rog-ally/EVIDENCE.md",
+      "note": "typed continue_delegate traceparent path: explicit W3C traceparent accepted; child spawned; Tempo shows dispatch \u2192 child run \u2192 tree fanout/drain under supplied trace id 2723dbee000000000000000000000007"
+    },
+    {
       "row": "R-CD-2",
       "owner": "\ud83c\udf0a ronan (ronan-dgx)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-2/",
@@ -34,15 +43,15 @@
     }
   ],
   "rollup": {
-    "total_rows": 3,
-    "pass": 2,
+    "total_rows": 4,
+    "pass": 3,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Fresh PROOFS corpus opened after fleet deploy receipts green for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Silas R-RC-1 PASS filed; Ronan R-CD-2 PASS filed; Rune R-CW-6 honest-limit/source-boundary + cap-scheduling evidence filed with later invalid low-cap attempt and multi-seat work-dispatch delivery/timer red preserved as diagnostic receipts; remaining rows are expected from their owning seats.",
+  "disposition_note": "Fresh PROOFS corpus opened after fleet deploy receipts green for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Silas R-RC-1 PASS filed; Ronan R-CD-2 PASS filed; Rune R-CW-6 honest-limit/source-boundary + cap-scheduling evidence filed with invalid low-cap attempt and multi-seat work-dispatch delivery/timer red preserved as diagnostic receipts; Rune R-CW-7 PASS filed for typed continue_delegate traceparent propagation with Tempo trace under supplied trace id 2723dbee000000000000000000000007. Remaining rows are expected from their owning seats.",
   "generated": "2026-06-27",
   "generated_by": "silas-lothric"
 }

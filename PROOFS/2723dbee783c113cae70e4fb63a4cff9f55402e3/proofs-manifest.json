@@ -157,18 +157,32 @@
       "supporting_docs": [
         "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-REGRESSION-TRAP-TESTS/silas-lothric/regression-trap.log"
       ]
+    },
+    {
+      "row": "R-OBS-2",
+      "owner": "🌫 silas (silas-lothric)",
+      "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-OBS-2/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-OBS-2/silas-lothric/EVIDENCE.md",
+      "note": "Tempo trace-tree observability row: normalized the committed R-CW-7 trace into machine-readable trace-tree.json and human span-tree.txt; 8 spans with delegate dispatch, child run, fanout and drain hierarchy.",
+      "supporting_docs": [
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-OBS-2/silas-lothric/trace-tree.json",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-OBS-2/silas-lothric/span-tree.txt",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-7/rune-rog-ally/trace-2723dbee000000000000000000000007.json"
+      ]
     }
   ],
   "rollup": {
-    "total_rows": 15,
-    "pass": 14,
+    "total_rows": 16,
+    "pass": 15,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Fresh PROOFS corpus for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Current filed rows include R-RC-1, Silas R-CW-1, R-CD-1, R-CD-2, R-CD-4 guard-side targeting, R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, R-OBS-1, Cael R-CW-3, Rune R-CW-7 typed traceparent PASS, Rune R-CW-DELEGATE-TOKEN bare-token PASS, Rune R-CW-DELEGATE-SELF-CONTINUATION parent typed delegate spawn/return PASS, and Rune R-CW-6 HONEST-LIMIT/source-boundary + cap-scheduling evidence with invalid low-cap attempt and delivery/timer red preserved as diagnostics. Remaining rows are expected from their owning seats. Silas added R-REGRESSION-TRAP-TESTS PASS on 2723dbee with 31/31 vitest trap assertions. Elliott R-CW-2 chain-counter PASS added from live continue_work wake/Tempo evidence (delaySeconds=0 immediate; no delay-clamp claim).",
+  "disposition_note": "Fresh PROOFS corpus for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Current filed rows include R-RC-1, Silas R-CW-1, R-CD-1, R-CD-2, R-CD-4 guard-side targeting, R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, R-OBS-1, Cael R-CW-3, Rune R-CW-7 typed traceparent PASS, Rune R-CW-DELEGATE-TOKEN bare-token PASS, Rune R-CW-DELEGATE-SELF-CONTINUATION parent typed delegate spawn/return PASS, and Rune R-CW-6 HONEST-LIMIT/source-boundary + cap-scheduling evidence with invalid low-cap attempt and delivery/timer red preserved as diagnostics. Remaining rows are expected from their owning seats. Silas added R-REGRESSION-TRAP-TESTS PASS on 2723dbee with 31/31 vitest trap assertions. Elliott R-CW-2 chain-counter PASS added from live continue_work wake/Tempo evidence (delaySeconds=0 immediate; no delay-clamp claim). Silas added R-OBS-2 PASS with normalized Tempo trace-tree visualization from the R-CW-7 explicit-traceparent export.",
   "generated": "2026-06-27",
   "generated_by": "elliott-legion"
 }

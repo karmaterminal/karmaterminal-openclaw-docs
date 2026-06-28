@@ -7,8 +7,8 @@
   "corpus_path": "PROOFS/8d0d1e7ec753370cec92aa419a0ef0359f41088b/",
   "manifest_path": "PROOFS/8d0d1e7ec753370cec92aa419a0ef0359f41088b/proofs-manifest.json",
   "rollup": {
-    "total_rows": 27,
-    "pass": 26,
+    "total_rows": 28,
+    "pass": 27,
     "partial": 0,
     "thin": 0,
     "fail": 0,

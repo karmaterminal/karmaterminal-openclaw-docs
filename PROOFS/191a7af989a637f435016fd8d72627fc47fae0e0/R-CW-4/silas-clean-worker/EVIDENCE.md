@@ -44,4 +44,4 @@ This worker scheduled a local continuation retest with marker:
 SILAS-R-CW4-20260627T2357PDT
 ```
 
-The first scheduling call succeeded, but the visible tool result only returned the injected W3C `traceparent`; it did not expose `chain.id` or `chain.step.remaining`. Unless the follow-up turn can retrieve correlated gateway/Tempo span bytes for that trace and show the same-chain decrement, the honest classification remains `HONEST_LIMIT`.
+The local retest later produced visible wake metadata for A and B: `Turn 1/200` followed by `Turn 2/200`, both with `Chain started at 2026-06-28T06:53:37.227Z`. That is useful evidence of wake continuity at the visible metadata layer, but it still does not expose `chain.id` or `chain.step.remaining`. A hop C was scheduled; unless it exposes those proof bytes or correlated gateway/Tempo spans for the same chain, the honest classification remains `HONEST_LIMIT`.

@@ -11,7 +11,8 @@
  *     --input /tmp/r-cd-1-output.txt \
  *     --row R-CD-1 \
  *     --seat ronan-dgx \
- *     --sha <40-char-hex>
+ *     --sha <40-char-hex> \
+ *     [--manifest tools/k6-proofs/manifests/r-cd-1.json]
  *
  * Writes:
  *   PROOFS/<sha>/<row>/<seat>/k6-run-<timestamp>/
@@ -44,7 +45,7 @@ function stamp() {
 }
 
 function usage() {
-  console.error(`Usage: node evidence-writer.mjs --input <k6-output> --row <ROW> --seat <SEAT> --sha <SHA>`);
+  console.error(`Usage: node evidence-writer.mjs --input <k6-output> --row <ROW> --seat <SEAT> --sha <SHA> [--manifest <row-manifest.json>]`);
   process.exit(2);
 }
 
@@ -55,6 +56,12 @@ if (!args.input || !args.row || !args.seat || !args.sha) usage();
 // Validate SHA is 40-char hex
 if (!/^[0-9a-f]{40}$/.test(args.sha)) {
   console.error(`ERROR: --sha must be a 40-character hex string (got: "${args.sha}")`);
+  process.exit(1);
+}
+
+const manifest = args.manifest ? JSON.parse(readFileSync(args.manifest, 'utf-8')) : null;
+if (manifest && (manifest.review?.foldRequiresReview !== true || manifest.liveRunSafety?.foldRequiresReview === false)) {
+  console.error('ERROR: manifest must keep foldRequiresReview=true for candidate evidence');
   process.exit(1);
 }
 
@@ -143,6 +150,17 @@ const result = {
   candidateSha: args.sha,
   seat: args.seat,
   outcome: verdict,
+  liveRunSafety: manifest?.liveRunSafety ? {
+    classification: manifest.liveRunSafety.classification,
+    requiresLiveGatewayToken: Boolean(manifest.liveRunSafety.requiresLiveGatewayToken),
+    requiresTargetSessionKey: Boolean(manifest.liveRunSafety.requiresTargetSessionKey),
+    requiresCandidateSha: Boolean(manifest.liveRunSafety.requiresCandidateSha),
+    requiresExternalAgentOrToolInvocation: Boolean(manifest.liveRunSafety.requiresExternalAgentOrToolInvocation),
+    sameSessionConcurrencySafe: Boolean(manifest.liveRunSafety.sameSessionConcurrencySafe),
+    expectedArtifactClass: manifest.liveRunSafety.expectedArtifactClass,
+    requiredReceipts: manifest.liveRunSafety.requiredReceipts || [],
+    foldRequiresReview: manifest.liveRunSafety.foldRequiresReview === true,
+  } : null,
   candidateOnly: true,
   foldRequiresReview: true,
 };
@@ -184,6 +202,18 @@ const md = `# ${args.row} — ${args.seat} — ${verdict}
 - \`row-result.json\` — normalized outcome
 - \`seat-readiness.json\` — public-safe seat/tooling preflight (${args['seat-readiness'] ? 'captured' : 'not supplied to writer'})
 - \`artifacts/\` — optional copied receipts (Tempo trace, logs)
+
+## Live-run safety
+
+${manifest?.liveRunSafety ? `- Classification: \`${manifest.liveRunSafety.classification}\`
+- Requires live gateway token: ${manifest.liveRunSafety.requiresLiveGatewayToken ? 'yes' : 'no'}
+- Requires explicit target session key: ${manifest.liveRunSafety.requiresTargetSessionKey ? 'yes' : 'no'}
+- Requires candidate SHA: ${manifest.liveRunSafety.requiresCandidateSha ? 'yes' : 'no'}
+- Requires external agent/tool invocation: ${manifest.liveRunSafety.requiresExternalAgentOrToolInvocation ? 'yes' : 'no'}
+- Same-session concurrency safe: ${manifest.liveRunSafety.sameSessionConcurrencySafe ? 'yes' : 'no'}
+- Expected artifact class: \`${manifest.liveRunSafety.expectedArtifactClass}\`
+- Required receipts: ${manifest.liveRunSafety.requiredReceipts.map((r) => `\`${r}\``).join(', ')}
+- Fold requires review: ${manifest.liveRunSafety.foldRequiresReview ? 'yes' : 'no'}` : '- No manifest supplied to evidence-writer; reviewer must verify live-run safety from the row manifest.'}
 
 ## Redaction boundary
 

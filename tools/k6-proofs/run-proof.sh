@@ -26,6 +26,20 @@ if [[ ! -f "$SCENARIO_FILE" ]]; then
   exit 1
 fi
 
+LOCK_FD=""
+if [[ -n "${OPENCLAW_ROW_MANIFEST:-}" ]]; then
+  GUARD_VARS="$(node "${SCRIPT_DIR}/scripts/live-run-guard.mjs" --manifest "${OPENCLAW_ROW_MANIFEST}" --shell)"
+  eval "$GUARD_VARS"
+  if [[ "${K6_PROOF_LOCK_REQUIRED:-0}" == "1" ]]; then
+    LOCK_FD=9
+    exec 9>"${K6_PROOF_LOCK_PATH}"
+    if ! flock -n 9; then
+      echo "ERROR: another k6 proof run is active for ${K6_PROOF_LOCK_LABEL}; same-session concurrency is not safe for this row" >&2
+      exit 1
+    fi
+  fi
+fi
+
 # Auto-detect seat and SHA. Prefer OPENCLAW_* names used by manifests/workflow,
 # but keep legacy PROOF_* as compatibility aliases.
 SEAT="${OPENCLAW_SEAT_NAME:-${PROOF_SEAT:-$(hostname)}}"

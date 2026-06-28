@@ -165,6 +165,9 @@ async function main() {
   if (manifest.review?.candidateOnly !== true || manifest.review?.foldRequiresReview !== true) {
     throw new Error('manifest must declare candidateOnly=true and foldRequiresReview=true');
   }
+  if (manifest.liveRunSafety && manifest.liveRunSafety.foldRequiresReview !== true) {
+    throw new Error('manifest liveRunSafety must declare foldRequiresReview=true');
+  }
 
   const dest = manifest.artifactDestination || {};
   const outRoot = args['out-root'] || dest.root || 'PROOFS';
@@ -202,6 +205,17 @@ async function main() {
       durationMs: durationMsFromSummary(summary, manifest.rowId),
     },
     receipts,
+    liveRunSafety: manifest.liveRunSafety ? {
+      classification: manifest.liveRunSafety.classification,
+      requiresLiveGatewayToken: Boolean(manifest.liveRunSafety.requiresLiveGatewayToken),
+      requiresTargetSessionKey: Boolean(manifest.liveRunSafety.requiresTargetSessionKey),
+      requiresCandidateSha: Boolean(manifest.liveRunSafety.requiresCandidateSha),
+      requiresExternalAgentOrToolInvocation: Boolean(manifest.liveRunSafety.requiresExternalAgentOrToolInvocation),
+      sameSessionConcurrencySafe: Boolean(manifest.liveRunSafety.sameSessionConcurrencySafe),
+      expectedArtifactClass: manifest.liveRunSafety.expectedArtifactClass,
+      requiredReceipts: manifest.liveRunSafety.requiredReceipts || [],
+      foldRequiresReview: manifest.liveRunSafety.foldRequiresReview === true,
+    } : null,
     failureClass,
     reason: outcome === 'FAIL-candidate'
       ? 'k6 proof_failures metric is non-zero'

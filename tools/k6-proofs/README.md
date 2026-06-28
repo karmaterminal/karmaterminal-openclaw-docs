@@ -26,8 +26,8 @@ tools/k6-proofs/
 - Run `node tools/k6-proofs/scripts/seat-readiness-preflight.mjs` before treating row output as proof-standard. A version/env/gateway mismatch is `HONEST-LIMIT-candidate`, not product failure.
 - Environment variables:
   - `OPENCLAW_GATEWAY_WS` — WebSocket URL (default: `ws://127.0.0.1:18789`)
-  - `OPENCLAW_GATEWAY_TOKEN` — operator auth token (**required, never in source**)
-  - `OPENCLAW_SESSION_KEY` — target session key (default: `main`)
+  - `OPENCLAW_GATEWAY_TOKEN` — operator auth token (**required for live rows, never in source**)
+  - `OPENCLAW_SESSION_KEY` — target session key (**required explicitly for live rows that set `liveRunSafety.requiresTargetSessionKey=true`**)
   - `OPENCLAW_CANDIDATE_SHA` — 40-char deploy SHA for this proof run
   - `OPENCLAW_SEAT_NAME` — seat identifier (default: `ronan-dgx`)
   - `OPENCLAW_ROW_MANIFEST` — path to row manifest JSON (optional; enables manifest-driven mode)
@@ -130,6 +130,24 @@ Manifests use `${ENV_VAR:-default}` placeholders resolved at runtime — no secr
 
 Manifests follow the schema defined by #100 (foundation): `openclaw.k6.proof-row-manifest.v1`.
 
+### Live-run safety contract
+
+Rows may declare a `liveRunSafety` block so reviewers and runners can tell the difference between static/preflight-only rows, k6-runnable live rows, orchestration-required rows, and construct-only registry entries before any gateway traffic starts.
+
+The block records:
+
+- `classification`: `static-preflight-only`, `k6-runnable`, `orchestration-required`, or `construct-only`.
+- `requiresLiveGatewayToken`: whether `OPENCLAW_GATEWAY_TOKEN` must be present before the row can run.
+- `requiresTargetSessionKey`: whether `OPENCLAW_SESSION_KEY` must be set explicitly instead of falling back to `main`.
+- `requiresCandidateSha`: whether `OPENCLAW_CANDIDATE_SHA` must be present and a 40-character hex SHA before the row can run.
+- `requiresExternalAgentOrToolInvocation`: whether k6 REST/WS alone is insufficient and an agent/tool invocation is part of the proof path.
+- `sameSessionConcurrencySafe`: `false` means the runner serializes the row per `(rowId, target session)` and fails closed if another run already holds that lock.
+- `expectedArtifactClass`: the highest candidate class the row should emit before review, for example `PASS-candidate`, `HONEST-LIMIT-candidate`, or `construct-only`.
+- `requiredReceipts`: the review receipts that must exist before folding.
+- `foldRequiresReview`: always `true`; generated artifacts are candidates, never final proof verdicts.
+
+When `OPENCLAW_ROW_MANIFEST` is set, `run-proof.sh` calls `scripts/live-run-guard.mjs` before invoking k6. The guard fails closed if required token/session/SHA env is absent, if the manifest's live/static classification contradicts its scenario status, or if a same-session unsafe row is already running against the same target session.
+
 ### Redaction boundary
 
 **No secrets in source or public artifacts.** Gateway tokens come from env vars only.
@@ -229,6 +247,9 @@ node tools/k6-proofs/scripts/validate-corpus.mjs --index --json
 
 # Validate row-manifest scenario registry status vs runnable scenario files
 node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
+
+# Fail-closed live-run safety guard for one manifest
+node tools/k6-proofs/scripts/live-run-guard.mjs --manifest tools/k6-proofs/manifests/r-cd-2.json --json
 
 # Validate workflow scenario choices and row-manifest scenario alignment
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs

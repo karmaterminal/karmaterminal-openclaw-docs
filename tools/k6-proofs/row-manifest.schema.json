@@ -62,6 +62,52 @@
         "registryNotes": { "type": "string" }
       }
     },
+    "liveRunSafety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification",
+        "requiresLiveGatewayToken",
+        "requiresTargetSessionKey",
+        "requiresCandidateSha",
+        "requiresExternalAgentOrToolInvocation",
+        "sameSessionConcurrencySafe",
+        "expectedArtifactClass",
+        "requiredReceipts",
+        "foldRequiresReview"
+      ],
+      "properties": {
+        "classification": {
+          "enum": ["static-preflight-only", "k6-runnable", "orchestration-required", "construct-only"],
+          "description": "Static/preflight-only rows never fire the live gateway; k6-runnable rows may be started by run-proof.sh; orchestration-required rows need an external agent/tool/human step; construct-only rows document planned/non-runnable proof contracts."
+        },
+        "requiresLiveGatewayToken": { "type": "boolean" },
+        "requiresTargetSessionKey": { "type": "boolean" },
+        "requiresCandidateSha": {
+          "type": "boolean",
+          "description": "True when OPENCLAW_CANDIDATE_SHA must be present and a 40-character hex SHA before the row can run."
+        },
+        "requiresExternalAgentOrToolInvocation": {
+          "type": "boolean",
+          "description": "True when k6 REST/WS alone is not enough and an agent/tool invocation outside the raw k6 transport is required."
+        },
+        "sameSessionConcurrencySafe": {
+          "type": "boolean",
+          "description": "False means do not run this row concurrently against the same target session unless the row explicitly proves concurrency behavior."
+        },
+        "expectedArtifactClass": {
+          "enum": ["PASS-candidate", "HONEST-LIMIT-candidate", "PARTIAL-candidate", "FAIL-candidate", "construct-only"],
+          "description": "The highest artifact class this run should emit before maintainer review/fold."
+        },
+        "requiredReceipts": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "foldRequiresReview": { "type": "boolean", "const": true },
+        "notes": { "type": "string" }
+      }
+    },
     "expectedReceipts": {
       "type": "array",
       "minItems": 1,

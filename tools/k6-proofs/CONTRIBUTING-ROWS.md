@@ -11,7 +11,23 @@ into `PROOFS/<sha>/` without back-and-forth.
 1. **Claim the labelled issue on [Project 81](https://github.com/orgs/karmaterminal/projects/81)
    BEFORE doing row work.** Assign yourself. If you don't see it on the board, ping the
    coordinator — don't shadow-run.
-2. **Verify the gateway you fire against is actually deployed to the corpus-pin SHA.**
+2. **Run seat readiness before row fire.**
+   The proof-standard k6 version and public-safe env contract live in
+   [`seat-readiness.policy.json`](seat-readiness.policy.json). Run the helper and
+   save the JSON beside your candidate artifacts:
+   ```bash
+   OPENCLAW_CANDIDATE_SHA="<40-char-sha>" \
+   OPENCLAW_SEAT_NAME="<seat>" \
+   OPENCLAW_SESSION_KEY="<target-session>" \
+   OPENCLAW_GATEWAY_TOKEN="***" \
+     node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json \
+       > /tmp/seat-readiness.json
+   ```
+   A missing/mismatched k6 binary, missing required env, invalid candidate SHA, or
+   unreachable checked gateway is `HONEST-LIMIT-candidate` / setup failure — not
+   product behavior evidence. The report prints env presence booleans only; no
+   token/secret values, prompt bodies, or raw gateway payloads are allowed.
+3. **Verify the gateway you fire against is actually deployed to the corpus-pin SHA.**
    This is a PRE-FIRE gate the validator CANNOT do for you: `validate-corpus.mjs`
    checks that your *artifacts* are consistent with a SHA, but it cannot verify your
    running *gateway* is on that SHA. Confirm both, on the seat you will run from:
@@ -28,7 +44,7 @@ into `PROOFS/<sha>/` without back-and-forth.
    gateway produces rows that fail at the gateway-lacks-feature layer, not the harness
    layer, and the failure is easy to misread. The fleet can run mixed SHAs; check
    *your* seat, not someone else's.
-3. Confirm secrets are in env, not on disk. `OPENCLAW_GATEWAY_TOKEN` and friends come
+4. Confirm secrets are in env, not on disk. `OPENCLAW_GATEWAY_TOKEN` and friends come
    from the seat's environment or GH Actions repo secrets — **zero secrets in source,
    manifests, evidence, or PR body**. If the token leaks into a log, rotate before
    pushing.
@@ -57,6 +73,10 @@ Use the harness as documented in [`README.md`](README.md):
 
 Every `PROOFS/<sha>/<row>/<seat>/k6-run-<ts>/` directory must contain:
 
+- `seat-readiness.json` — public-safe readiness report from
+  `scripts/seat-readiness-preflight.mjs`. If this is not `PASS-candidate`, the row
+  must stay setup/HONEST-LIMIT until the seat is fixed or the row issue declares a
+  different expectation.
 - `EVIDENCE.md` — candidate evidence document. Captures the run context, the
   candidate outcome, receipts table, and the review checklist (`evidence-writer.mjs`
   emits the right shape; do not hand-edit the schema).

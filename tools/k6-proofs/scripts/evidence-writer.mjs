@@ -18,10 +18,11 @@
  *     ├── EVIDENCE.md
  *     ├── k6-summary.json
  *     ├── gateway-events.ndjson  (redacted only)
- *     └── row-result.json
+ *     ├── row-result.json
+ *     └── seat-readiness.json  (when --seat-readiness is supplied)
  */
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { copyFileSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 function parseArgs(argv) {
@@ -113,6 +114,10 @@ const runId = `k6-run-${stamp()}`;
 const outDir = join('PROOFS', args.sha, args.row, args.seat, runId);
 mkdirSync(join(outDir, 'artifacts'), { recursive: true });
 
+if (args['seat-readiness']) {
+  copyFileSync(args['seat-readiness'], join(outDir, 'seat-readiness.json'));
+}
+
 // Write k6-summary.json (evidence without raw events)
 const summary = { ...evidence };
 delete summary.redacted_events; // events go to ndjson, not summary
@@ -177,6 +182,7 @@ const md = `# ${args.row} — ${args.seat} — ${verdict}
 - \`k6-summary.json\` — structured evidence (no raw events)
 - \`gateway-events.ndjson\` — redacted WS frames (${events.length} captured)
 - \`row-result.json\` — normalized outcome
+- \`seat-readiness.json\` — public-safe seat/tooling preflight (${args['seat-readiness'] ? 'captured' : 'not supplied to writer'})
 - \`artifacts/\` — optional copied receipts (Tempo trace, logs)
 
 ## Redaction boundary

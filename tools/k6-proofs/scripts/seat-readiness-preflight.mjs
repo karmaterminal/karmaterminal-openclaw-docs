@@ -7,16 +7,19 @@
  * being confused with product behavior.
  */
 import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const DEFAULT_EXPECTED_K6_VERSION = 'v2.0.0';
-const SECRET_ENV = new Set(['OPENCLAW_GATEWAY_TOKEN']);
-const REQUIRED_ENV = [
-  'OPENCLAW_GATEWAY_TOKEN',
-  'OPENCLAW_GATEWAY_WS',
-  'OPENCLAW_SESSION_KEY',
-  'OPENCLAW_CANDIDATE_SHA',
-  'OPENCLAW_SEAT_NAME',
-];
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = join(__dirname, '../../..');
+const DEFAULT_POLICY_PATH = join(REPO_ROOT, 'tools/k6-proofs/seat-readiness.policy.json');
+const SECRET_NAME_PATTERN = /(?:TOKEN|SECRET|PASSWORD|KEY|CREDENTIAL|COOKIE|AUTH)/i;
+
+function loadPolicy(policyPath = DEFAULT_POLICY_PATH) {
+  const raw = readFileSync(policyPath, 'utf8');
+  return JSON.parse(raw);
+}
 
 function parseArgs(argv) {
   const out = { gateway: true };
@@ -25,6 +28,7 @@ function parseArgs(argv) {
     if (arg === '--json') out.json = true;
     else if (arg === '--no-gateway') out.gateway = false;
     else if (arg === '--expected-k6-version') out.expectedK6Version = argv[++i];
+    else if (arg === '--policy') out.policyPath = argv[++i];
     else if (arg === '--help' || arg === '-h') out.help = true;
     else throw new Error(`unknown arg: ${arg}`);
   }
@@ -32,7 +36,7 @@ function parseArgs(argv) {
 }
 
 function usage() {
-  console.log(`Usage: node tools/k6-proofs/scripts/seat-readiness-preflight.mjs [--json] [--no-gateway] [--expected-k6-version v2.0.0]\n\nEmits no secret values. Exit 0 only for PASS-candidate.`);
+  console.log(`Usage: node tools/k6-proofs/scripts/seat-readiness-preflight.mjs [--json] [--no-gateway] [--policy path] [--expected-k6-version v2.0.0]\n\nEmits no secret values. Exit 0 only for PASS-candidate. Version/env defaults come from tools/k6-proofs/seat-readiness.policy.json.`);
 }
 
 function commandOrNull(cmd, args) {
@@ -43,12 +47,30 @@ function commandOrNull(cmd, args) {
   }
 }
 
-function detectK6() {
-  const path = commandOrNull('which', ['k6']);
-  if (!path) return { ok: false, path: null, version: null, rawVersion: null };
-  const rawVersion = commandOrNull('k6', ['version']);
-  const version = rawVersion && rawVersion.match(/\bv\d+\.\d+\.\d+\b/)?.[0] || null;
-  return { ok: Boolean(version), path, version, rawVersion };
+function unique(values) {
+  return [...new Set(values.filter(Boolean))];
+}
+
+function detectK6(policy) {
+  const candidates = unique([
+    process.env.K6_BIN,
+    ...(policy.k6?.binaryCandidates || []),
+    commandOrNull('which', ['k6']),
+  ]);
+
+  const checked = [];
+  for (const path of candidates) {
+    if (!existsSync(path)) {
+      checked.push({ path, exists: false, version: null, rawVersion: null });
+      continue;
+    }
+    const rawVersion = commandOrNull(path, ['version']);
+    const version = rawVersion && rawVersion.match(/\bv\d+\.\d+\.\d+\b/)?.[0] || null;
+    checked.push({ path, exists: true, version, rawVersion });
+    if (version) return { ok: true, path, version, rawVersion, checked };
+  }
+
+  return { ok: false, path: null, version: null, rawVersion: null, checked };
 }
 
 async function fetchOk(url, token) {
@@ -89,17 +111,26 @@ function sessionScope(sessionKey) {
   return 'configured-session';
 }
 
-function envReport() {
-  return REQUIRED_ENV.map((name) => ({
-    name,
-    present: Boolean(process.env[name]),
-    secret: SECRET_ENV.has(name),
-    required: name !== 'OPENCLAW_GATEWAY_WS',
+function envReport(policy) {
+  return (policy.env || []).map((entry) => ({
+    name: entry.name,
+    present: Boolean(process.env[entry.name]),
+    secret: Boolean(entry.secret) || SECRET_NAME_PATTERN.test(entry.name),
+    required: entry.required !== false,
+    purpose: entry.purpose || null,
   }));
+}
+
+function redactRawVersion(rawVersion) {
+  // k6 version output is public-safe today; keep this guard so future tooling
+  // that appends build metadata cannot accidentally leak shell/env material.
+  if (!rawVersion) return null;
+  return rawVersion.replace(/(token|secret|password|authorization|bearer)=[^\s]+/gi, '$1=<redacted>');
 }
 
 function printText(report) {
   console.log(`seat readiness: ${report.outcome}`);
+  console.log(`policy: ${report.policy.name} ${report.policy.version}`);
   console.log(`k6: ${report.k6.version || 'missing'} at ${report.k6.path || '(not found)'} (expected ${report.expectedK6Version})`);
   console.log(`gateway: ${report.gateway.mode}; health=${report.gateway.healthReachable}; status=${report.gateway.statusReachable}; url=${report.gateway.url}`);
   console.log(`candidate sha: ${report.candidate.valid40Hex ? 'valid' : 'missing/invalid'}`);
@@ -117,11 +148,14 @@ async function main() {
     return 0;
   }
 
-  const expectedK6Version = args.expectedK6Version || process.env.OPENCLAW_EXPECTED_K6_VERSION || DEFAULT_EXPECTED_K6_VERSION;
-  const k6 = detectK6();
+  const policy = loadPolicy(args.policyPath);
+  const expectedK6Version = args.expectedK6Version || process.env.OPENCLAW_EXPECTED_K6_VERSION || policy.k6.expectedVersion;
+  const k6 = detectK6(policy);
   k6.matchesExpected = k6.version === expectedK6Version;
+  k6.rawVersion = redactRawVersion(k6.rawVersion);
+  k6.checked = k6.checked.map((item) => ({ ...item, rawVersion: redactRawVersion(item.rawVersion) }));
 
-  const gatewayWs = process.env.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
+  const gatewayWs = process.env.OPENCLAW_GATEWAY_WS || policy.gateway.defaultWsUrl || 'ws://127.0.0.1:18789';
   const gatewayBase = httpBaseFromWs(gatewayWs);
   const token = process.env.OPENCLAW_GATEWAY_TOKEN;
   let gateway = { url: gatewayWs, healthReachable: false, statusReachable: false, mode: 'skipped-by-flag' };
@@ -137,7 +171,7 @@ async function main() {
   }
 
   const candidateSha = process.env.OPENCLAW_CANDIDATE_SHA || null;
-  const env = envReport();
+  const env = envReport(policy);
   const requiredMissing = env.filter((e) => e.required && !e.present).map((e) => e.name);
   const notes = [];
   if (!k6.ok) notes.push('k6 is not installed or did not report a parseable version.');
@@ -155,19 +189,24 @@ async function main() {
     schema: 'openclaw.k6.seat-readiness.v1',
     generatedAt: new Date().toISOString(),
     outcome: pass ? 'PASS-candidate' : 'HONEST-LIMIT-candidate',
+    policy: {
+      name: policy.name,
+      version: policy.version,
+      source: args.policyPath || 'tools/k6-proofs/seat-readiness.policy.json',
+    },
     expectedK6Version,
     k6,
     gateway,
     candidate: { sha: candidateSha, valid40Hex },
     seat: {
-      name: process.env.OPENCLAW_SEAT_NAME || 'unknown-seat',
-      class: process.env.OPENCLAW_SEAT_CLASS || 'message-body',
+      name: process.env.OPENCLAW_SEAT_NAME || policy.seat?.defaultName || 'unknown-seat',
+      class: process.env.OPENCLAW_SEAT_CLASS || policy.seat?.defaultClass || 'message-body',
     },
     session: { scope: sessionScope(process.env.OPENCLAW_SESSION_KEY) },
     env,
     concurrency: {
       safeToRunConcurrently: true,
-      reason: 'read-only seat readiness preflight; no continuation/delegate/compaction calls are fired',
+      reason: policy.concurrency?.reason || 'read-only seat readiness preflight; no continuation/delegate/compaction calls are fired',
     },
     notes,
   };

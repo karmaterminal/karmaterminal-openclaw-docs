@@ -8,6 +8,7 @@
     "schema",
     "generatedAt",
     "outcome",
+    "policy",
     "expectedK6Version",
     "k6",
     "gateway",
@@ -19,57 +20,168 @@
     "notes"
   ],
   "properties": {
-    "schema": { "const": "openclaw.k6.seat-readiness.v1" },
-    "generatedAt": { "type": "string", "format": "date-time" },
-    "outcome": { "enum": ["PASS-candidate", "HONEST-LIMIT-candidate", "FAIL-candidate"] },
-    "expectedK6Version": { "type": "string", "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "schema": {
+      "const": "openclaw.k6.seat-readiness.v1"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "outcome": {
+      "enum": [
+        "PASS-candidate",
+        "HONEST-LIMIT-candidate",
+        "FAIL-candidate"
+      ]
+    },
+    "expectedK6Version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
     "k6": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["ok", "path", "version", "matchesExpected", "rawVersion"],
+      "required": [
+        "ok",
+        "path",
+        "version",
+        "matchesExpected",
+        "rawVersion",
+        "checked"
+      ],
       "properties": {
-        "ok": { "type": "boolean" },
-        "path": { "type": ["string", "null"] },
-        "version": { "type": ["string", "null"] },
-        "matchesExpected": { "type": "boolean" },
-        "rawVersion": { "type": ["string", "null"] }
+        "ok": {
+          "type": "boolean"
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "matchesExpected": {
+          "type": "boolean"
+        },
+        "rawVersion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "checked": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "exists",
+              "version",
+              "rawVersion"
+            ],
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "exists": {
+                "type": "boolean"
+              },
+              "version": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "rawVersion": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
       }
     },
     "gateway": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["url", "healthReachable", "statusReachable", "mode"],
+      "required": [
+        "url",
+        "healthReachable",
+        "statusReachable",
+        "mode"
+      ],
       "properties": {
-        "url": { "type": "string" },
-        "healthReachable": { "type": "boolean" },
-        "statusReachable": { "type": "boolean" },
-        "mode": { "enum": ["checked", "skipped-no-token", "skipped-by-flag"] }
+        "url": {
+          "type": "string"
+        },
+        "healthReachable": {
+          "type": "boolean"
+        },
+        "statusReachable": {
+          "type": "boolean"
+        },
+        "mode": {
+          "enum": [
+            "checked",
+            "skipped-no-token",
+            "skipped-by-flag"
+          ]
+        }
       }
     },
     "candidate": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["sha", "valid40Hex"],
+      "required": [
+        "sha",
+        "valid40Hex"
+      ],
       "properties": {
-        "sha": { "type": ["string", "null"] },
-        "valid40Hex": { "type": "boolean" }
+        "sha": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "valid40Hex": {
+          "type": "boolean"
+        }
       }
     },
     "seat": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "class"],
+      "required": [
+        "name",
+        "class"
+      ],
       "properties": {
-        "name": { "type": "string" },
-        "class": { "type": "string" }
+        "name": {
+          "type": "string"
+        },
+        "class": {
+          "type": "string"
+        }
       }
     },
     "session": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["scope"],
+      "required": [
+        "scope"
+      ],
       "properties": {
-        "scope": { "type": "string" }
+        "scope": {
+          "type": "string"
+        }
       }
     },
     "env": {
@@ -77,24 +189,76 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "present", "secret", "required"],
+        "required": [
+          "name",
+          "present",
+          "secret",
+          "required",
+          "purpose"
+        ],
         "properties": {
-          "name": { "type": "string" },
-          "present": { "type": "boolean" },
-          "secret": { "type": "boolean" },
-          "required": { "type": "boolean" }
+          "name": {
+            "type": "string"
+          },
+          "present": {
+            "type": "boolean"
+          },
+          "secret": {
+            "type": "boolean"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "purpose": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         }
       }
     },
     "concurrency": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["safeToRunConcurrently", "reason"],
+      "required": [
+        "safeToRunConcurrently",
+        "reason"
+      ],
       "properties": {
-        "safeToRunConcurrently": { "type": "boolean" },
-        "reason": { "type": "string" }
+        "safeToRunConcurrently": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        }
       }
     },
-    "notes": { "type": "array", "items": { "type": "string" } }
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "source"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    }
   }
 }

@@ -1,0 +1,70 @@
+{
+  "schema": "openclaw.k6.seat-readiness-policy.v1",
+  "name": "k6 PROOFS seat readiness policy",
+  "version": "2026-06-27",
+  "k6": {
+    "expectedVersion": "v2.0.0",
+    "binaryCandidates": [
+      "/home/figs/bin/k6",
+      "/usr/local/bin/k6",
+      "/usr/bin/k6"
+    ]
+  },
+  "gateway": {
+    "defaultWsUrl": "ws://127.0.0.1:18789"
+  },
+  "seat": {
+    "defaultName": "unknown-seat",
+    "defaultClass": "message-body"
+  },
+  "env": [
+    {
+      "name": "OPENCLAW_GATEWAY_TOKEN",
+      "required": true,
+      "secret": true,
+      "purpose": "operator auth token; presence only is reported"
+    },
+    {
+      "name": "OPENCLAW_GATEWAY_WS",
+      "required": false,
+      "secret": false,
+      "purpose": "target gateway websocket URL; defaults to local gateway"
+    },
+    {
+      "name": "OPENCLAW_SESSION_KEY",
+      "required": true,
+      "secret": false,
+      "purpose": "target session key or coarse session class"
+    },
+    {
+      "name": "OPENCLAW_CANDIDATE_SHA",
+      "required": true,
+      "secret": false,
+      "purpose": "40-character OpenClaw deploy SHA under test"
+    },
+    {
+      "name": "OPENCLAW_SEAT_NAME",
+      "required": true,
+      "secret": false,
+      "purpose": "public seat identifier used in proof artifacts"
+    },
+    {
+      "name": "OPENCLAW_SEAT_CLASS",
+      "required": false,
+      "secret": false,
+      "purpose": "seat behavior class used by token/bracket rows"
+    },
+    {
+      "name": "OPENCLAW_ROW_MANIFEST",
+      "required": false,
+      "secret": false,
+      "purpose": "manifest path for a specific row run"
+    }
+  ],
+  "concurrency": {
+    "reason": "read-only seat readiness preflight; no continuation/delegate/compaction calls are fired"
+  },
+  "redaction": {
+    "guarantee": "Report env values as booleans only; never print token/secret values, prompt bodies, session keys beyond coarse scope, or raw gateway payloads."
+  }
+}

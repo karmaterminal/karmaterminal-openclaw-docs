@@ -98,6 +98,40 @@
         "foldRequiresReview": { "type": "boolean", "const": true },
         "notes": { "type": "string" }
       }
+    },
+    "liveRun": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Live-run safety contract (#146). All fields optional; check-live-run-safety.mjs infers defaults when absent.",
+      "properties": {
+        "requiresLiveGatewayToken": {
+          "type": "boolean",
+          "description": "Row needs OPENCLAW_GATEWAY_TOKEN in env to fire. Default: true for runnable rows, false for offline/construct-only."
+        },
+        "requiresTargetSessionKey": {
+          "type": "boolean",
+          "description": "Row needs a real target session key (not a placeholder). Default: true for live rows."
+        },
+        "requiresOutsideK6Orchestration": {
+          "type": "boolean",
+          "description": "Row needs an agent / prince to emit the trigger; k6 alone cannot drive the proof. Default: false for typed-tool rows, true for bracket-token / model-byte / detached-intermediate rows."
+        },
+        "safeToRunConcurrently": {
+          "type": "boolean",
+          "description": "Safe to run alongside other live continuation rows on the same session. Default: false for live rows."
+        },
+        "expectedArtifactClass": {
+          "enum": [
+            "PASS-candidate",
+            "PARTIAL-candidate",
+            "HONEST-LIMIT-candidate",
+            "FAIL-candidate",
+            "construct-only"
+          ],
+          "description": "Outcome the manifest declares before the run. Folding to PASS requires the candidate to match this class."
+        },
+        "notes": { "type": "string" }
+      }
     }
   }
 }

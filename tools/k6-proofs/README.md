@@ -208,7 +208,10 @@ exists and the manifest is promoted to `scenario.status="runnable"`.
 Row PRs go through a contribution checklist + a fold-time validator. See
 [`CONTRIBUTING-ROWS.md`](CONTRIBUTING-ROWS.md) for the prince-facing checklist
 (claim the issue, run the row, post-process, paste validator output in the PR
-body, zero secrets).
+body, zero secrets), and
+[`LIVE-RUN-SAFETY.md`](LIVE-RUN-SAFETY.md) for the live-run safety / review-gate
+contract (which rows are safe to run automatically and which require
+orchestration).
 
 The corpus invariants enforced at fold time live in
 [`scripts/validate-corpus.mjs`](scripts/validate-corpus.mjs):
@@ -231,6 +234,9 @@ node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
 
 # Validate workflow scenario choices and row-manifest scenario alignment
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs
+
+# Walk manifests and report live-run safety class + declared/inferred flags
+node tools/k6-proofs/scripts/check-live-run-safety.mjs
 ```
 
 Checks: JSON parse, schema sanity (`openclaw.proofs.index.v1` /
@@ -243,6 +249,13 @@ on any failure; the script never mutates corpus data.
 `check-manifest-scenarios.mjs` is the row-harness registry check: runnable
 manifests must point at an existing `tools/k6-proofs/scenarios/*.js`; rows with
 no runnable file must say `scenario.status` is `scaffold` or `construct-only`.
+
+`check-live-run-safety.mjs` is the live-run safety walker for
+[#146](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/146):
+it classifies every manifest into one of four row classes (A offline,
+B k6-driven live, C agent-orchestrated, D config/safety/restart), echoes the
+declared or inferred `liveRun` flags, and flags internal inconsistencies. The
+full contract lives in [`LIVE-RUN-SAFETY.md`](LIVE-RUN-SAFETY.md).
 
 ## Coordination
 

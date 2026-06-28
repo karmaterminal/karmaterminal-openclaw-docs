@@ -120,5 +120,9 @@ Every `PROOFS/<sha>/<row>/<seat>/k6-run-<ts>/` directory must contain:
 ## See also
 
 - [README.md](README.md) — harness usage, design principles, redaction boundary.
+- [`LIVE-RUN-SAFETY.md`](LIVE-RUN-SAFETY.md) — row classes A/B/C/D, live-run
+  safety flags, and the review gates a candidate must satisfy before it can be
+  folded as proof-standard.
 - [`validate-corpus.mjs`](scripts/validate-corpus.mjs) — invariants enforced at fold time.
+- [`check-live-run-safety.mjs`](scripts/check-live-run-safety.mjs) — registry walker; reports row class + live-run flags.
 - [Project 81](https://github.com/orgs/karmaterminal/projects/81) — row backlog.

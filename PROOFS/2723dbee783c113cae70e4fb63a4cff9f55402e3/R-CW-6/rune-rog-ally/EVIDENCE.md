@@ -69,12 +69,11 @@ Test Files  1 failed | 1 passed (2)
 Tests       1 failed | 15 passed | 60 skipped (76)
 ```
 
-Relevant R-CW-6 assertions passed in the broad filtered run:
+Safe R-CW-6 carry from the broad filtered run plus follow-up seat checks:
 
-- `checkContinuationBudget > returns chain-capped at max depth`
-- `durable continuation_work dispatch > schedules the valid elections and caps the overflow without dropping the earlier ones`
-
-Independent follow-up from Ronan isolated the exact work-dispatch test and found the earlier batch assertions still pass (`scheduledCount: 2`, `cappedCount: 1`, `capped: true`, `chainState.currentChainCount: 2`), but the later delivery assertion is order-dependent / harness-fragile (`expected [] to have a length of 2`). Therefore this row should cite the direct scheduler unit plus the batch scheduling/capping assertions, not claim isolated-stable delivery coverage for that work-dispatch test.
+- `checkContinuationBudget > returns chain-capped at max depth` passed in Rune's broad filtered run.
+- The work-dispatch cap-scheduling/accounting assertions are consistent at the source/test byte: `scheduledCount: 2`, `cappedCount: 1`, `capped: true`, `chainState.currentChainCount: 2`.
+- Do **not** carry the full work-dispatch test as deterministic/green coverage. Independent follow-up from Ronan/Elliott/Silas isolated the work-dispatch delivery side as red/fragile on multiple seats: the later delivery assertion observes `deliveredReasons=[]` instead of two delivered valid wakes. Therefore this row cites source boundary + direct scheduler unit + cap-accounting evidence only, not full work-dispatch delivery coverage.
 
 The single failure in Rune's broad filtered run was unrelated to R-CW-6 chain-depth semantics:
 
@@ -108,4 +107,4 @@ Interpretation: the third delegate running proves this was **not** a valid `maxC
 
 ## Verdict
 
-⚠️ **HONEST-LIMIT / source+test proof**. Live low-cap induction was attempted after initial filing but invalidated by restart/recovery timing: the over-cap delegate ran after restore under `maxChainLength=200` (`hop=4/200`, `dispatched=3 rejected=0`). The exact deployed SHA still contains the boundary reject (`currentChainCount >= maxChainLength → chain-capped`), the direct scheduler unit covers boundary rejection, and the work-dispatch batch accounting assertions cover partial-success capping (`scheduledCount: 2`, `cappedCount: 1`, `capped: true`). The row should be treated as the chain-depth safety boundary present and partially test-covered at `2723dbee783c113cae70e4fb63a4cff9f55402e3`, with isolated delivery-assertion fragility and the invalid low-cap attempt preserved as diagnostic evidence, not PASS evidence.
+⚠️ **HONEST-LIMIT / source-boundary + cap-scheduling evidence only**. Live low-cap induction was attempted after initial filing but invalidated by restart/recovery timing: the over-cap delegate ran after restore under `maxChainLength=200` (`hop=4/200`, `dispatched=3 rejected=0`). The exact deployed SHA still contains the boundary reject (`currentChainCount >= maxChainLength → chain-capped`), the direct scheduler unit covers boundary rejection, and the work-dispatch batch accounting assertions are consistent (`scheduledCount: 2`, `cappedCount: 1`, `capped: true`). The row should not be described as full deterministic work-dispatch coverage: delivery/timer dispatch is red/fragile on multiple seats (`deliveredReasons=[]`). Preserve the invalid low-cap attempt and delivery/timer red as diagnostic evidence, not PASS evidence.

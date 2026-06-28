@@ -1,154 +1,269 @@
 {
-  "annotations": { "list": [] },
+  "annotations": {
+    "list": []
+  },
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "k6 PROOFS metrics contract",
+      "url": "../METRICS.md",
+      "type": "link"
+    }
+  ],
   "panels": [
     {
-      "title": "Proof Row Pass Rate",
+      "title": "Candidate outcomes",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
       "targets": [
         {
-          "expr": "k6_checks_rate",
-          "legendFormat": "Pass Rate"
+          "expr": "sum by (outcome) (openclaw_proofs_k6_run_total{candidate_sha=~\"$candidate_sha\", row_id=~\"$row_id\", seat=~\"$seat\"})",
+          "legendFormat": "{{outcome}}"
+        }
+      ],
+      "description": "Counts candidate proof runs by normalized outcome."
+    },
+    {
+      "title": "Pending human review",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum(openclaw_proofs_k6_candidate_pending_review{candidate_sha=~\"$candidate_sha\", row_id=~\"$row_id\", seat=~\"$seat\"})",
+          "legendFormat": "pending review"
+        }
+      ],
+      "description": "Candidate-only runs that still require fold review."
+    },
+    {
+      "title": "Proof failures",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum(openclaw_proofs_k6_proof_failures_total{candidate_sha=~\"$candidate_sha\", row_id=~\"$row_id\", seat=~\"$seat\"})",
+          "legendFormat": "proof failures"
+        }
+      ],
+      "description": "Total proof_failures emitted by selected candidate runs."
+    },
+    {
+      "title": "Average checks rate",
+      "type": "gauge",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "avg(openclaw_proofs_k6_checks_rate{candidate_sha=~\"$candidate_sha\", row_id=~\"$row_id\", seat=~\"$seat\"})",
+          "legendFormat": "checks rate"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "percentunit",
-          "thresholds": {
-            "steps": [
-              { "color": "red", "value": null },
-              { "color": "yellow", "value": 0.8 },
-              { "color": "green", "value": 0.95 }
-            ]
-          }
+          "unit": "percentunit"
         }
-      }
+      },
+      "description": "Average k6 checks.rate for selected candidate rows."
     },
     {
-      "title": "Total HTTP Requests",
-      "type": "stat",
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "title": "Outcomes per seat",
+      "type": "barchart",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
       "targets": [
         {
-          "expr": "k6_http_reqs_total",
-          "legendFormat": "Requests"
+          "expr": "sum by (seat, outcome) (openclaw_proofs_k6_run_total{candidate_sha=~\"$candidate_sha\", row_id=~\"$row_id\"})",
+          "legendFormat": "{{seat}} {{outcome}}"
         }
-      ]
+      ],
+      "description": "Outcome distribution by seat."
     },
     {
-      "title": "Total Iterations",
-      "type": "stat",
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "title": "Row \u00d7 outcome matrix",
+      "type": "table",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
       "targets": [
         {
-          "expr": "k6_iterations_total",
-          "legendFormat": "Iterations"
+          "expr": "sum by (row_id, outcome) (openclaw_proofs_k6_run_total{candidate_sha=~\"$candidate_sha\", seat=~\"$seat\"})",
+          "legendFormat": "{{row_id}} {{outcome}}"
         }
-      ]
+      ],
+      "description": "Rows grouped by outcome for the selected candidate SHA / seat."
     },
     {
-      "title": "Preflight Pass Count",
-      "type": "stat",
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "title": "Duration by row",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
       "targets": [
         {
-          "expr": "k6_preflight_pass_total",
-          "legendFormat": "Preflight Passes"
+          "expr": "avg by (row_id, seat) (openclaw_proofs_k6_duration_ms{candidate_sha=~\"$candidate_sha\", row_id=~\"$row_id\", seat=~\"$seat\"})",
+          "legendFormat": "{{row_id}} {{seat}}"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "thresholds": {
-            "steps": [
-              { "color": "red", "value": null },
-              { "color": "green", "value": 1 }
-            ]
-          }
+          "unit": "ms"
         }
-      }
+      },
+      "description": "Average normalized row duration in milliseconds."
     },
     {
-      "title": "HTTP Request Duration (p99)",
+      "title": "Missing required receipts",
+      "type": "table",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "targets": [
+        {
+          "expr": "openclaw_proofs_k6_receipt_status{candidate_sha=~\"$candidate_sha\", row_id=~\"$row_id\", seat=~\"$seat\", receipt_required=\"true\", receipt_status!=\"present\"}",
+          "legendFormat": "{{row_id}} {{seat}} {{receipt_name}}"
+        }
+      ],
+      "description": "Required receipts that are missing or unknown."
+    },
+    {
+      "title": "Failure classes",
+      "type": "piechart",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 20
+      },
+      "targets": [
+        {
+          "expr": "sum by (failure_class) (openclaw_proofs_k6_run_total{candidate_sha=~\"$candidate_sha\", row_id=~\"$row_id\", seat=~\"$seat\"})",
+          "legendFormat": "{{failure_class}}"
+        }
+      ],
+      "description": "Coarse failure-class breakdown."
+    },
+    {
+      "title": "Recent run volume",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 20
+      },
       "targets": [
         {
-          "expr": "k6_http_req_duration_p99",
-          "legendFormat": "p99 Duration"
+          "expr": "sum by (outcome) (increase(openclaw_proofs_k6_run_total{candidate_sha=~\"$candidate_sha\", row_id=~\"$row_id\", seat=~\"$seat\"}[1h]))",
+          "legendFormat": "{{outcome}}"
         }
       ],
-      "fieldConfig": {
-        "defaults": { "unit": "ms" }
-      }
-    },
-    {
-      "title": "Iteration Duration (p99)",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
-      "targets": [
-        {
-          "expr": "k6_iteration_duration_p99",
-          "legendFormat": "p99 Iteration"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": { "unit": "ms" }
-      }
-    },
-    {
-      "title": "Data Transfer",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
-      "targets": [
-        {
-          "expr": "rate(k6_data_received_total[5m])",
-          "legendFormat": "Received"
-        },
-        {
-          "expr": "rate(k6_data_sent_total[5m])",
-          "legendFormat": "Sent"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": { "unit": "Bps" }
-      }
-    },
-    {
-      "title": "HTTP Request Failures",
-      "type": "stat",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
-      "targets": [
-        {
-          "expr": "k6_http_req_failed_rate",
-          "legendFormat": "Failure Rate"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percentunit",
-          "thresholds": {
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 0.01 },
-              { "color": "red", "value": 0.1 }
-            ]
-          }
-        }
-      }
+      "description": "Recent candidate run volume by outcome."
     }
   ],
   "schemaVersion": 39,
-  "tags": ["k6", "proofs", "continuation"],
-  "templating": { "list": [] },
-  "time": { "from": "now-1h", "to": "now" },
+  "tags": [
+    "k6",
+    "proofs",
+    "continuation",
+    "project-81"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "candidate_sha",
+        "type": "query",
+        "label": "candidate_sha",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "query": "label_values(openclaw_proofs_k6_run_total, candidate_sha)",
+        "includeAll": true,
+        "multi": true,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": ".*"
+        }
+      },
+      {
+        "name": "row_id",
+        "type": "query",
+        "label": "row_id",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "query": "label_values(openclaw_proofs_k6_run_total, row_id)",
+        "includeAll": true,
+        "multi": true,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": ".*"
+        }
+      },
+      {
+        "name": "seat",
+        "type": "query",
+        "label": "seat",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "query": "label_values(openclaw_proofs_k6_run_total, seat)",
+        "includeAll": true,
+        "multi": true,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": ".*"
+        }
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "browser",
-  "title": "k6 PROOFS — Continuation Behavioral Proofs",
-  "uid": "k6-proofs-continuation",
-  "version": 1
+  "title": "k6 PROOFS \u2014 Candidate Row Health",
+  "uid": "k6-proofs-candidate-row-health",
+  "version": 2
 }

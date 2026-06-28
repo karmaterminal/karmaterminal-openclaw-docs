@@ -85,7 +85,7 @@ Minimum v1 shape:
 }
 ```
 
-Current post-processor output is smaller than this ideal v1 shape. The next harness patch should add `metrics`, `receipts`, and `failureClass` to `row-result.json` by deriving them from the manifest and k6 summary / evidence summary. Until then, dashboards can still ingest `outcome`, `rowId`, `candidateSha`, `seat`, `runId`, `candidateOnly`, and `foldRequiresReview`.
+Current post-processor output writes this v1 dashboard shape for manifest-driven runs: `scenario`, `toolSurface`, `transport`, `metrics`, `receipts`, and `failureClass` are normalized into `row-result.json` from the row manifest plus k6 summary / evidence summary. Dashboards may still ingest the minimal fields (`outcome`, `rowId`, `candidateSha`, `seat`, `runId`, `candidateOnly`, and `foldRequiresReview`) for older candidate runs, but new candidate artifacts should include the full v1 shape above.
 
 ## Prometheus metric names
 
@@ -190,7 +190,7 @@ Value:
 
 ## Dashboard v1 panels
 
-The first Grafana dashboard should use built-in panel types only; no plugin is required for v1.
+The committed Grafana dashboard at `tools/k6-proofs/dashboards/k6-proofs.json` uses the Prometheus metric names below and built-in panel types only. It intentionally avoids generic upstream k6 metric names (`k6_http_reqs_total`, `k6_checks_rate`, etc.) because Project 81 proof review needs the normalized public-safe proof labels and receipt/fold-review signals.
 
 Recommended variables:
 

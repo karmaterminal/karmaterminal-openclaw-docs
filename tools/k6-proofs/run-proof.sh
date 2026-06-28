@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 # k6 PROOFS runner — fires a proof scenario with full stack integration
-# Usage: ./run-proof.sh <scenario> [extra k6 args]
-# Example: ./run-proof.sh preflight
-#          ./run-proof.sh r-cd-1 --env GATEWAY_HOST=10.0.0.246
+# Usage: ./run-proof.sh <scenario-basename> [extra k6 args]
+#
+# <scenario-basename> is the filename under tools/k6-proofs/scenarios/
+# without a path or .js suffix. This matches the GitHub Actions
+# workflow_dispatch scenario choices in .github/workflows/k6-proof.yml.
+#
+# Examples:
+#   ./run-proof.sh preflight
+#   ./run-proof.sh r-cd-2-silent-wake --env GATEWAY_HOST=10.0.0.246
 #
 # Outputs:
 #   - Metrics → Prometheus (prometheus.dandelion.cult) → Grafana
@@ -14,8 +20,13 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCENARIOS_DIR="${SCRIPT_DIR}/scenarios"
 
-SCENARIO="${1:?Usage: ./run-proof.sh <scenario-name> [k6 args]}"
+SCENARIO="${1:?Usage: ./run-proof.sh <scenario-basename> [k6 args]}"
 shift || true
+
+if [[ "$SCENARIO" == */* || "$SCENARIO" == *.js ]]; then
+  echo "ERROR: Scenario must be a basename without path or .js suffix: ${SCENARIO}"
+  exit 1
+fi
 
 # Resolve scenario file
 SCENARIO_FILE="${SCENARIOS_DIR}/${SCENARIO}.js"

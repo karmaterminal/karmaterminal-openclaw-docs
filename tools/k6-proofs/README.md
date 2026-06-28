@@ -21,8 +21,9 @@ tools/k6-proofs/
 
 ## Prerequisites
 
-- [Grafana k6](https://grafana.com/docs/k6/latest/get-started/installation/) installed on the run seat.
+- [Grafana k6](https://grafana.com/docs/k6/latest/get-started/installation/) installed on the run seat. The proof-standard expectation is `v2.0.0` unless a row issue explicitly says otherwise.
 - A running OpenClaw gateway on the local seat.
+- Run `node tools/k6-proofs/scripts/seat-readiness-preflight.mjs` before treating row output as proof-standard. A version/env/gateway mismatch is `HONEST-LIMIT-candidate`, not product failure.
 - Environment variables:
   - `OPENCLAW_GATEWAY_WS` — WebSocket URL (default: `ws://127.0.0.1:18789`)
   - `OPENCLAW_GATEWAY_TOKEN` — operator auth token (**required, never in source**)
@@ -31,6 +32,7 @@ tools/k6-proofs/
   - `OPENCLAW_SEAT_NAME` — seat identifier (default: `ronan-dgx`)
   - `OPENCLAW_ROW_MANIFEST` — path to row manifest JSON (optional; enables manifest-driven mode)
   - `OPENCLAW_SEAT_CLASS` — `raw-final-text` or `message-body` (default: `message-body`; affects R-CD-TOKEN)
+  - `OPENCLAW_EXPECTED_K6_VERSION` — expected k6 version for seat-readiness preflight (default: `v2.0.0`)
 
 ## Usage
 
@@ -50,32 +52,68 @@ node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \
 See [`docs/GOLDEN-PATH.md`](docs/GOLDEN-PATH.md). Output remains
 `PASS-candidate` / review-required and must not be folded automatically.
 
-### 1. Preflight check
+### 1. Seat readiness / version preflight
+
+Run this before a proof row when the output may be folded or compared across seats:
 
 ```bash
-OPENCLAW_GATEWAY_TOKEN="***" k6 run tools/k6-proofs/scenarios/preflight.js
+OPENCLAW_CANDIDATE_SHA="<40-char-sha>" \
+OPENCLAW_SEAT_NAME="<seat>" \
+OPENCLAW_SESSION_KEY="<target-session>" \
+OPENCLAW_GATEWAY_TOKEN="***" \
+  node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json
 ```
 
-### 2. Run R-CD-1 (manifest-driven)
+The helper emits `openclaw.k6.seat-readiness.v1` JSON and never prints secret values. It records:
+
+- k6 binary path and version, compared to the documented expectation (`v2.0.0` by default)
+- gateway health/status reachability shape
+- candidate SHA validity, seat name/class, and coarse session scope
+- required env-var presence as booleans only
+- whether the check is safe to run concurrently
+
+If k6 is missing, the version differs, required env is absent, or gateway health/status is unreachable, treat row output as `HONEST-LIMIT-candidate` / setup failure until the seat is fixed. Do not fold it as product behavior evidence. Use `--no-gateway` only for offline docs/schema checks; live proof rows need a checked gateway.
+
+### 2. Preflight check
+
+```bash
+OPENCLAW_GATEWAY_TOKEN="***" \
+OPENCLAW_ROW_MANIFEST="tools/k6-proofs/manifests/preflight.example.json" \
+  k6 run tools/k6-proofs/scenarios/preflight.js
+```
+
+### 3. Run an existing scenario (manifest-driven)
+
+Scenario names are **basenames without `.js`**, matching `run-proof.sh` and the
+GitHub Actions workflow choices. Current workflow-runnable basenames are:
+
+- `preflight`
+- `r-cd-2-silent-wake`
+- `r-cd-4-target-session-key`
+- `r-cd-chained-depth-2`
+- `r-cw-1`
+- `r-cw`
+
+Example:
 
 ```bash
 OPENCLAW_GATEWAY_TOKEN="***" \
 OPENCLAW_CANDIDATE_SHA="<40-char-sha>" \
-OPENCLAW_ROW_MANIFEST="tools/k6-proofs/manifests/r-cd-1.json" \
-  k6 run tools/k6-proofs/scenarios/r-cd-1-typed-delegate.js 2>&1 | tee /tmp/r-cd-1-output.txt
+OPENCLAW_ROW_MANIFEST="tools/k6-proofs/manifests/r-cd-2.json" \
+  ./tools/k6-proofs/run-proof.sh r-cd-2-silent-wake 2>&1 | tee /tmp/r-cd-2-output.txt
 ```
 
-### 3. Post-process into proof artifacts
+### 4. Post-process into proof artifacts
 
 ```bash
 node tools/k6-proofs/scripts/evidence-writer.mjs \
-  --input /tmp/r-cd-1-output.txt \
-  --row R-CD-1 \
+  --input /tmp/r-cd-2-output.txt \
+  --row R-CD-2 \
   --seat ronan-dgx \
   --sha <40-char-sha>
 ```
 
-Writes candidate evidence into `PROOFS/<SHA>/R-CD-1/ronan-dgx/k6-run-<timestamp>/`.
+Writes candidate evidence into `PROOFS/<SHA>/R-CD-2/ronan-dgx/k6-run-<timestamp>/`.
 
 ## Metrics and dashboard contract
 

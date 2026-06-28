@@ -1,0 +1,13 @@
+OpenClaw 2026.6.10 (2723dbe)
+Uptime: gateway 1h 11m · system 7h 9m
+Model: github-copilot/gpt-5.5 · token (github-copilot:github)
+Fallbacks: github-copilot/gemini-3.1-pro-preview
+Tokens: 10k in / 524 out · Cost: $0.0000
+Cache: 91% hit · 102k cached, 0 new
+Context: 159k/1.0m (16%) · Compactions: 27
+Usage: Premium 100% left · Chat 100% left
+Session: agent:main:discord:channel:1466192485440164011 • duration 9h 37m • updated just now
+Continuation: chain 0/200
+Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+Plugins: OK
+Activation: mention · Queue: collect (depth 0)

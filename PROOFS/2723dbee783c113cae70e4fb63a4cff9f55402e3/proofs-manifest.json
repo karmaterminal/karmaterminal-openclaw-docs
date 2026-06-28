@@ -94,6 +94,15 @@
       "note": "config-gate side: gateway config.get agents.defaults.continuation.crossSessionTargeting returned enabled on rune-rog-ally"
     },
     {
+      "row": "R-OBS-1",
+      "owner": "🪨 rune (rune-rog-ally)",
+      "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-OBS-1/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-OBS-1/rune-rog-ally/EVIDENCE.md",
+      "note": "status-card observability surface: session_status current shows OpenClaw 2026.6.10 (2723dbe), Continuation chain 0/200, Plugins OK, queue visible"
+    },
+    {
       "row": "R-CW-1",
       "owner": "🌫 silas (silas-lothric)",
       "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-1/",
@@ -113,15 +122,15 @@
     }
   ],
   "rollup": {
-    "total_rows": 11,
-    "pass": 10,
+    "total_rows": 12,
+    "pass": 11,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Fresh PROOFS corpus for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Current filed rows include R-RC-1, Silas R-CW-1, R-CD-1, R-CD-2, R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, Cael R-CW-3, Rune R-CW-7 typed traceparent PASS, Rune R-CW-DELEGATE-TOKEN bare-token PASS, Rune R-CW-DELEGATE-SELF-CONTINUATION parent typed delegate spawn/return PASS, and Rune R-CW-6 HONEST-LIMIT/source-boundary + cap-scheduling evidence with invalid low-cap attempt and delivery/timer red preserved as diagnostics. Remaining rows are expected from their owning seats.",
+  "disposition_note": "Fresh PROOFS corpus for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Current filed rows include R-RC-1, Silas R-CW-1, R-CD-1, R-CD-2, R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, R-OBS-1, Cael R-CW-3, Rune R-CW-7 typed traceparent PASS, Rune R-CW-DELEGATE-TOKEN bare-token PASS, Rune R-CW-DELEGATE-SELF-CONTINUATION parent typed delegate spawn/return PASS, and Rune R-CW-6 HONEST-LIMIT/source-boundary + cap-scheduling evidence with invalid low-cap attempt and delivery/timer red preserved as diagnostics. Remaining rows are expected from their owning seats.",
   "generated": "2026-06-27",
   "generated_by": "elliott-legion"
 }

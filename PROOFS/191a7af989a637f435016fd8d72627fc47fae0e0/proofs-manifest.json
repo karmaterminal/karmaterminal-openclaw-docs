@@ -4,18 +4,18 @@
   "ship_sha": "191a7af989a637f435016fd8d72627fc47fae0e0",
   "fire_type": "fresh-fire-in-progress",
   "carried_from": null,
-  "status": "in_progress_ronan_r_cd_rows_filled",
+  "status": "in_progress_chained_depth_filled_honest_limits_remaining",
   "rollup": {
     "total_rows": 28,
-    "pass": 23,
-    "partial": 1,
+    "pass": 24,
+    "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 4,
     "missing": 0,
     "pending": 0
   },
-  "notes": "Ronan filled R-CD-3, R-CD-4, R-CD-TOKEN, and R-CD-CHAINED-DEPTH-2-TEST-1 from ronan-dgx 191a7af artifacts. Aggregate chained-depth row remains partial; invalid local Chain-2/Chain-3 attempts are documented but not counted.",
+  "notes": "R-CD-CHAINED-DEPTH-2 aggregate moved to PASS after Ronan Chain-2B targeted-return and Chain-3B tree-fanout retries landed cleanly; invalid early Chain-2/Chain-3 attempts remain documented and excluded. Alternate-model rows and R-RC-2 remain honest-limit.",
   "rows": [
     {
       "row": "R-CD-1",
@@ -90,7 +90,7 @@
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-TOOL/",
       "state": "honest_limit",
       "traces": 0,
-      "evidence_doc": null,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-TOOL/HONEST_LIMIT.md",
       "note": "continue_delegate tool form with alternate provider/model override; child must report requested model/provider; BLOCKED by karmaterminal/openclaw#1103: model override accepted/applied-looking but child reports default github-copilot/gpt-5.5 instead of requested alternate model.",
       "supporting_docs": [
         "https://github.com/karmaterminal/openclaw/issues/1103"
@@ -102,7 +102,7 @@
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-TOKEN/",
       "state": "honest_limit",
       "traces": 0,
-      "evidence_doc": null,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-TOKEN/HONEST_LIMIT.md",
       "note": "continue_delegate token/bracket form with alternate provider/model override; child must report requested model/provider; BLOCKED by karmaterminal/openclaw#1103: model override accepted/applied-looking but child reports default github-copilot/gpt-5.5 instead of requested alternate model.",
       "supporting_docs": [
         "https://github.com/karmaterminal/openclaw/issues/1103"
@@ -114,7 +114,7 @@
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-CHAINED-ALT/",
       "state": "honest_limit",
       "traces": 0,
-      "evidence_doc": null,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-MODEL-CHAINED-ALT/HONEST_LIMIT.md",
       "note": "depth-1 delegate creates another continue_delegate with alternate provider/model; depth-2 child reports current time and observed model/provider; BLOCKED by karmaterminal/openclaw#1103: model override accepted/applied-looking but child reports default github-copilot/gpt-5.5 instead of requested alternate model.",
       "supporting_docs": [
         "https://github.com/karmaterminal/openclaw/issues/1103"
@@ -122,21 +122,23 @@
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2",
-      "owner": "🌊 ronan + 🪨 rune TEST-2 + 🌫 silas TEST-3 + 🕯 emeric TEST-1",
+      "owner": "🌊 ronan + 🌫 silas corroboration",
       "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/",
-      "state": "partial",
-      "traces": 2,
-      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/EVIDENCE.md",
-      "note": "Partial aggregate: Silas TEST-3 pass candidate and Ronan TEST-1 substitution pass are folded. Aggregate remains partial until remaining chain subrow(s) are cleanly rerun/reviewed; Ronan local Chain-2/Chain-3 attempts were invalid model-call-shape artifacts and are not counted as pass evidence.",
+      "state": "pass",
+      "traces": 4,
+      "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
+      "note": "Aggregate PASS: TEST-1 up-tree silent-wake, TEST-2 targeted inter-session return, and TEST-3 tree fanout return are all covered on deployed 191a7af; invalid early Chain-2/Chain-3 model-call-shape attempts are documented but excluded.",
       "supporting_docs": [
-        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/root_dispatch_receipt.json",
-        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/depth1_result.json",
-        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/depth2_result.md",
-        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/artifacts/root_trace_00000000000000000000000000000003.json",
         "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-1-ronan-dgx/EVIDENCE.md",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-2-ronan-dgx/EVIDENCE.md",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-2-ronan-dgx/artifacts/trace-55555555555555555555555555555555-chain2b.json",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-ronan-dgx/EVIDENCE.md",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-ronan-dgx/artifacts/trace-77777777777777777777777777777777-chain3b-depth1.json",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-ronan-dgx/artifacts/trace-66666666666666666666666666666666-chain3b-depth2.json",
+        "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/TEST-3-silas/EVIDENCE.md",
         "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CD-CHAINED-DEPTH-2/RONAN-LOCAL-CHAIN-AUDIT.md"
       ],
-      "fired": "2026-06-27 10:29 PDT, silas-lothric"
+      "fired": "2026-06-27 21:22 PDT, ronan-dgx Chain-2B/Chain-3B retries"
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2-TEST-1",
@@ -226,7 +228,7 @@
     {
       "row": "R-CW-6",
       "owner": "🪨 rune (rune-rog-ally)",
-      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-6/",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-6-BOUNDARY/",
       "state": "pass",
       "traces": 1,
       "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-6-BOUNDARY/rune-rog-ally/EVIDENCE.md",
@@ -235,7 +237,7 @@
     {
       "row": "R-CW-7",
       "owner": "🪨 rune (rune-rog-ally)",
-      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-7/",
+      "dir": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-7-TRACEPARENT-E2E/",
       "state": "pass",
       "traces": 1,
       "evidence_doc": "PROOFS/191a7af989a637f435016fd8d72627fc47fae0e0/R-CW-7-TRACEPARENT-E2E/rune-rog-ally/EVIDENCE.md",
@@ -385,8 +387,8 @@
   },
   "summary": {
     "total": 28,
-    "pass": 23,
-    "partial": 1,
+    "pass": 24,
+    "partial": 0,
     "fail": 0,
     "honest_limit": 4,
     "pending": 0,

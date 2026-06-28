@@ -6,7 +6,7 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 - **Short**: `191a7af989a6`
 - **Branch**: `karmaterminal/openclaw:frond-scribe/20260624/assembly-continuation-followons`
 - **Method**: `openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md`
-- **Status**: in progress; row owners are firing live proofs on deployed prince gateways.
+- **Status**: live rows filled; four honest-limit rows remain explicitly bounded.
 
 ## Gate and deploy state
 
@@ -26,7 +26,7 @@ Behavioral proof corpus for the deployed assembly continuation candidate `191a7a
 
 ## Row-owner map
 
-Current manifest rollup: `28 total / 23 pass / 1 partial / 4 honest_limit / 0 pending / 0 fail / 0 missing`.
+Current manifest rollup: `28 total / 24 pass / 0 partial / 4 honest_limit / 0 pending / 0 fail / 0 missing`.
 
 | Row | Owner | State |
 |---|---|---|
@@ -48,7 +48,7 @@ Current manifest rollup: `28 total / 23 pass / 1 partial / 4 honest_limit / 0 pe
 | R-CD-MODEL-TOKEN | Ronan | honest_limit — grouped under `karmaterminal/openclaw#1103` |
 | R-CD-MODEL-CHAINED-ALT | Ronan | honest_limit — grouped under `karmaterminal/openclaw#1103` |
 | R-CD-TOKEN | Ronan | pass — ronan-dgx bracket-token artifact |
-| R-CD-CHAINED-DEPTH-2 | Ronan + Rune + Silas + Emeric | partial |
+| R-CD-CHAINED-DEPTH-2 | Ronan + Silas corroboration | pass |
 | R-CD-CHAINED-DEPTH-2-TEST-1 | Ronan substitution | pass — ronan-dgx up-tree silent-wake artifact |
 | R-RC-1 | Silas | pass |
 | R-RC-2 | Cael | honest_limit |
@@ -89,7 +89,7 @@ Fresh Rune rows on `191a7af989`:
 | R-CW-DELEGATE-SELF-CONTINUATION | ✅ PASS | `R-CW-DELEGATE-SELF-CONTINUATION/rune-rog-ally/EVIDENCE.md` + trace JSON |
 | R-OBS-2 | ✅ PASS | `R-OBS-2/rune-rog-ally/EVIDENCE.md` + span-hierarchy JSON |
 
-Manifest rollup after Rune fill was superseded by later folds; current rollup after Rune R-CW-DELEGATE-TOKEN fill is `28 total / 23 pass / 1 partial / 4 honest_limit / 0 pending / 0 fail / 0 missing`.
+Manifest rollup after Rune fill was superseded by later folds; current rollup after Ronan Chain-2B/Chain-3B fill is `28 total / 24 pass / 0 partial / 4 honest_limit / 0 pending / 0 fail / 0 missing`.
 
 
 ## Silas fill status (2026-06-27)
@@ -111,7 +111,7 @@ Elliott added substitution evidence for two Ronan-owned gaps while Ronan artifac
 | R-CD-1 | ✅ PASS-candidate | `R-CD-1/elliott-legion/EVIDENCE.md` + Tempo JSON |
 | R-CD-MODEL-DEFAULT | ✅ PASS-candidate | `R-CD-MODEL-DEFAULT/elliott-legion/EVIDENCE.md` + Tempo JSON |
 
-These are substitution proofs on Elliott, not a claim that Ronan-local artifacts landed. Alternate-model rows remain honest-limited by `karmaterminal/openclaw#1103`; Ronan R-CD-3/R-CD-4/R-CD-TOKEN and TEST-1 chained artifacts are now byte-verified/folded; aggregate chained-depth remains partial pending remaining subrow review/rerun.
+These are substitution proofs on Elliott, not a claim that Ronan-local artifacts landed. Alternate-model rows remain honest-limited by `karmaterminal/openclaw#1103`; Ronan R-CD-3/R-CD-4/R-CD-TOKEN and all three chained-depth subtests are now byte-verified/folded.
 
 ## Emeric supplemental receipt (2026-06-27)
 
@@ -141,4 +141,17 @@ Filled four previously pending rows from ronan-dgx `/tmp` artifacts after byte a
 - `R-CD-TOKEN/ronan-dgx` — terminal bracket-token parsed as `origin=bracket kind=delegate`, spawned grandchild, SHA-verified return.
 - `R-CD-CHAINED-DEPTH-2/TEST-1-ronan-dgx` — depth-2 silent-wake up-tree traversal proof.
 
-The aggregate `R-CD-CHAINED-DEPTH-2` row remains `partial`: Ronan local Chain-2/Chain-3 attempts are documented as invalid model-call-shape artifacts and intentionally not counted as pass evidence.
+The aggregate `R-CD-CHAINED-DEPTH-2` row was later completed by Chain-2B/Chain-3B retries; the original invalid local Chain-2/Chain-3 attempts remain documented as excluded model/tool-call-shape artifacts.
+
+
+## Ronan chained-depth completion — 2026-06-27 21:22 PDT
+
+Ronan completed the aggregate `R-CD-CHAINED-DEPTH-2` row on deployed `191a7af989` after two stricter retries:
+
+| Subtest | State | Evidence |
+|---|---|---|
+| TEST-1 up-tree silent-wake | ✅ PASS | `R-CD-CHAINED-DEPTH-2/TEST-1-ronan-dgx/EVIDENCE.md` |
+| TEST-2 targeted inter-session return | ✅ PASS | `R-CD-CHAINED-DEPTH-2/TEST-2-ronan-dgx/EVIDENCE.md` |
+| TEST-3 fanout tree echo | ✅ PASS | `R-CD-CHAINED-DEPTH-2/TEST-3-ronan-dgx/EVIDENCE.md` |
+
+The aggregate row is now PASS. The first same-night Chain-2/Chain-3 attempts remain excluded because their depth-1 children supplied invalid tool argument shapes; see `R-CD-CHAINED-DEPTH-2/RONAN-LOCAL-CHAIN-AUDIT.md`.

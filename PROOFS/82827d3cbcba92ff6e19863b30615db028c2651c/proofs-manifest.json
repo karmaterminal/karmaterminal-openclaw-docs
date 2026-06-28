@@ -60,6 +60,15 @@
       "note": "attempted up-tree silent-wake/no-fanout chained delegate; root scheduling rejected fanout/targeting shape before child spawn; validation traces captured"
     },
     {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "owner": "🩸 cael (cael-dgx)",
+      "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-COLLECTION-ON-COLLAPSE/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/EVIDENCE.md",
+      "note": "manual live-fire A→B→C: B schedules delayed C via fanoutMode=tree then completes; root observes C sentinel after B done; caveat: functional collapse, not external-kill harness"
+    },
+    {
       "row": "R-CD-TOKEN",
       "owner": "🌊 ronan (ronan-dgx)",
       "dir": "PROOFS/82827d3cbcba92ff6e19863b30615db028c2651c/R-CD-TOKEN/",
@@ -223,15 +232,15 @@
     }
   ],
   "rollup": {
-    "total_rows": 24,
-    "pass": 22,
+    "total_rows": 25,
+    "pass": 23,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 2,
     "missing": 0
   },
-  "disposition_note": "FRESH-FIRE corpus: all rows fired live at ship-SHA 82827d3cbc by the 6-prince fleet (deployed + AFTER_COMMIT-verified on 82827d3cbc). NOT a carry. 22 PASS + 2 honest-limit across 24 rows from 6 seats (ronan/cael/rune/silas/elliott/emeric), zero-404. 🕯 Emeric's five rows are present on docs-main and explicitly represented here: R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, R-REGRESSION-TRAP-TESTS, R-CW-3-EMERIC-CROSS-WALK, and R-CD-CHAINED-DEPTH-2-TEST-1. Continuation feature comprehensively proven: continue_work (tool+token), continue_delegate (tool+token, all modes, chained depth-2), request_compaction (reject+accept), cap-boundary, traceparent E2E, config defaults/intersession/trap-tests, #952 lightContext bracket row.",
+  "disposition_note": "FRESH-FIRE corpus: all rows fired live at ship-SHA 82827d3cbc by the 6-prince fleet (deployed + AFTER_COMMIT-verified on 82827d3cbc). NOT a carry. 23 PASS + 2 honest-limit across 25 rows from 6 seats (ronan/cael/rune/silas/elliott/emeric), zero-404. 🕯 Emeric's five rows are present on docs-main and explicitly represented here: R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, R-REGRESSION-TRAP-TESTS, R-CW-3-EMERIC-CROSS-WALK, and R-CD-CHAINED-DEPTH-2-TEST-1. Continuation feature comprehensively proven: continue_work (tool+token), continue_delegate (tool+token, all modes, chained depth-2), request_compaction (reject+accept), cap-boundary, traceparent E2E, config defaults/intersession/trap-tests, #952 lightContext bracket row. Added R-CD-COLLECTION-ON-COLLAPSE manual live-fire from cael-dgx: A→B→C functional-collapse/no-orphan PASS.",
   "generated": "2026-06-23",
   "generated_by": "frond-scribe (copilot, corpus-manager); elliott metadata fold 2026-06-23"
 }

@@ -1,0 +1,16 @@
+{
+  "sessionKey": "agent:main:subagent:continuation-f59ad50a36ed8b976a2daaa7b4b43f13",
+  "role": "intermediate B",
+  "evidence": {
+    "initial_invalid_traceparent_rejected": "traceparent must be a valid W3C traceparent header.",
+    "scheduled_grandchild_tool_result": {
+      "status": "scheduled",
+      "mode": "silent-wake",
+      "delaySeconds": 10,
+      "fanoutMode": "tree",
+      "traceparent": "00-11111111111111111111111111111111-2222222222222222-01"
+    },
+    "b_final_text": "B_SCHEDULED_20260627_2355_CAEL — scheduled grandchild C via continue_delegate with delaySeconds=10, mode=silent-wake, fanoutMode=tree. C sentinel: C_SENTINEL_20260627_2355_CAEL",
+    "recordTimestampMs_final": 1782629563654
+  }
+}

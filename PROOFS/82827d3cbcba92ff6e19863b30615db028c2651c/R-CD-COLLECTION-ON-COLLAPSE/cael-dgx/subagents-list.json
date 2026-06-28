@@ -1,0 +1,15 @@
+{
+  "status": "ok",
+  "requesterSessionKey": "agent:main:discord:channel:1520682808643813406",
+  "recent": [
+    {
+      "runId": "continuation-delegate-f59ad50a36ed8b976a2daaa7b4b43f13",
+      "sessionKey": "agent:main:subagent:continuation-f59ad50a36ed8b976a2daaa7b4b43f13",
+      "status": "done",
+      "runtimeMs": 10021,
+      "childSessions": ["agent:main:subagent:continuation-32078098243c450078bac75a4c5d9cf5"],
+      "startedAt": 1782629553519,
+      "endedAt": 1782629563718
+    }
+  ]
+}

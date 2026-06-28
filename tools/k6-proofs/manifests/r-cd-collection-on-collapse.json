@@ -1,0 +1,81 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-COLLECTION-ON-COLLAPSE",
+  "issue": 119,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 180,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-collection-on-collapse",
+    "description": "A\u2192B\u2192C delegate chain where intermediate B is detached/collapsed before C returns; root A still collects C sentinel.",
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe"
+    ],
+    "status": "scaffold",
+    "expectedFile": "r-cd-collection-on-collapse.js",
+    "notes": "Scaffold only. Requires reviewed mode=session/detached intermediate design before live fire; do not run concurrently with other continuation rows in the same session."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "forms": [
+      "typed-tool"
+    ],
+    "mode": "silent-wake",
+    "delaySeconds": 1,
+    "promptTemplate": "Proof nonce {{nonce}}: construct A\u2192B\u2192C collection-on-collapse chain with detached intermediate only when explicitly live-fired. Do not mutate files. Do not post to any channel.",
+    "idempotencyKeyPrefix": "R-CD-COLLECT-COLLAPSE"
+  },
+  "expectedReceipts": [
+    {
+      "name": "root-dispatch-accepted",
+      "required": true,
+      "description": "Root A accepts dispatch that creates detached intermediate B."
+    },
+    {
+      "name": "intermediate-session-detached",
+      "required": true,
+      "description": "Intermediate B is created as a session/detached participant, not a run-mode transient."
+    },
+    {
+      "name": "grandchild-sentinel",
+      "required": true,
+      "description": "Grandchild C emits nonce-correlated sentinel after B is collapsed or unavailable."
+    },
+    {
+      "name": "root-collection",
+      "required": true,
+      "description": "Root A receives/collects C sentinel despite intermediate B collapse."
+    },
+    {
+      "name": "negative-orphan-guard",
+      "required": true,
+      "description": "Evidence shows C return is not orphaned or delivered only to collapsed B."
+    },
+    {
+      "name": "trace-or-session-correlation",
+      "required": false,
+      "description": "Trace id, span tree, or session-event correlation tying A\u2192B\u2192C and root collection."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-COLLECTION-ON-COLLAPSE",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Scaffold/registry only until a human-reviewed live-fire design handles the mode=session detached intermediate and collapse trigger. Never fold as pass without root-collection and negative-orphan evidence."
+  }
+}

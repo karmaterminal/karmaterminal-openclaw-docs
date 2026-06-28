@@ -182,6 +182,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-CD-2 | `r-cd-2-silent-wake` | typed-tool | PASS-candidate when dispatch/session-events observed and no channel delivery appears |
 | R-CD-4 | `r-cd-4-target-session-key` | typed-tool | Candidate; verify target-vs-parent session events, not `tasks.list` |
 | R-CD-CHAINED-DEPTH-2 | `r-cd-chained-depth-2` | typed-tool | Candidate; verify nonce-correlated chain return on subscribed session stream |
+| R-CD-COLLECTION-ON-COLLAPSE | planned `r-cd-collection-on-collapse` | typed-tool | Scaffold; A→B→C detached-intermediate collapse with root collection + no-orphan guard |
 | R-CD-MODEL-DEFAULT | planned `r-cd-model-default` | mixed | Scaffold; tool + bracket/token no-override inheritance contrast row |
 | R-CD-MODEL-TOOL | planned `r-cd-model-tool` | typed-tool | Scaffold; explicit model override request byte must match observed child model byte |
 | R-CD-MODEL-TOKEN | planned `r-cd-model-token` | bracket-token | Scaffold; bracket `model=` modifier parse + observed child model byte |

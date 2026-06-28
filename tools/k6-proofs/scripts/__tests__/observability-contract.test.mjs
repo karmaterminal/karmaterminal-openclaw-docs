@@ -40,7 +40,7 @@ test('row-result exposes the dashboard v1 observability fields', async () => {
     const result = JSON.parse(await readFile(join(printed.runDir, 'row-result.json'), 'utf8'));
 
     assert.equal(result.schema, 'openclaw.k6.proof-row-result.v1');
-    assert.equal(result.scenario, 'preflight inventory');
+    assert.equal(result.scenario, 'preflight');
     assert.equal(result.toolSurface, 'read-only');
     assert.equal(result.transport, 'offline');
     assert.equal(result.failureClass, 'none');

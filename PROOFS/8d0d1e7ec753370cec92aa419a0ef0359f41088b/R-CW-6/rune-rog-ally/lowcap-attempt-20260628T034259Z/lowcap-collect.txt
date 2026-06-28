@@ -1,0 +1,35 @@
+proof_dir=/home/figs/.openclaw/workspace/proof-r-cw-6-lowcap-20260628T034259Z
+2026-06-28T03:46:38Z
+--- current continuation config
+{
+  "agents": {
+    "defaults": {
+      "continuation": {
+        "enabled": true,
+        "maxChainLength": 2,
+        "costCapTokens": 50000000,
+        "contextPressureThreshold": 0.4,
+        "crossSessionTargeting": "enabled",
+        "defaultDelayMs": 15000,
+        "maxDelayMs": 86400000,
+        "maxDelegatesPerTurn": 500,
+        "minDelayMs": 5000
+      }
+    }
+  }
+}
+--- recent continuation/delegate journal
+2026-06-27T20:40:15-07:00 rune node[32781]: 2026-06-27T20:40:15.523-07:00 [agent/embedded] incomplete turn detected: runId=9d97d0b7-e09f-4ccc-b99e-e547e9bfdffd sessionId=d45c7845-50c8-4f49-a5d3-aa714a142a6e provider=github-copilot/gpt-5.5 stopReason=stop hasLastAssistant=yes hasCurrentAttemptAssistant=yes payloads=0 tools=1 replaySafe=no compactions=0 reasoningRetries=0/2 emptyRetries=0/1 missingAssistantRetries=0/1 — surfacing error to user
+2026-06-27T20:40:27-07:00 rune node[32781]: 2026-06-27T20:40:27.793-07:00 [agent/embedded] incomplete turn detected: runId=ed72326a-85e7-4ea0-a106-3f18053f7e3c sessionId=d45c7845-50c8-4f49-a5d3-aa714a142a6e provider=github-copilot/gpt-5.5 stopReason=stop hasLastAssistant=yes hasCurrentAttemptAssistant=yes payloads=0 tools=1 replaySafe=no compactions=0 reasoningRetries=0/2 emptyRetries=0/1 missingAssistantRetries=0/1 — surfacing error to user
+2026-06-27T20:40:39-07:00 rune node[32781]: 2026-06-27T20:40:39.972-07:00 [agent/embedded] incomplete turn detected: runId=090f256f-3844-468f-b57c-b23ef2730449 sessionId=d45c7845-50c8-4f49-a5d3-aa714a142a6e provider=github-copilot/gpt-5.5 stopReason=stop hasLastAssistant=yes hasCurrentAttemptAssistant=yes payloads=0 tools=1 replaySafe=no compactions=0 reasoningRetries=0/2 emptyRetries=0/1 missingAssistantRetries=0/1 — surfacing error to user
+2026-06-27T20:40:57-07:00 rune node[32781]: 2026-06-27T20:40:57.172-07:00 [agent/embedded] incomplete turn detected: runId=81dffa76-d035-48a0-8eb4-7066ac108f69 sessionId=d45c7845-50c8-4f49-a5d3-aa714a142a6e provider=github-copilot/gpt-5.5 stopReason=stop hasLastAssistant=yes hasCurrentAttemptAssistant=yes payloads=0 tools=1 replaySafe=no compactions=0 reasoningRetries=0/2 emptyRetries=0/1 missingAssistantRetries=0/1 — surfacing error to user
+2026-06-27T20:41:09-07:00 rune node[32781]: 2026-06-27T20:41:09.617-07:00 [agent/embedded] incomplete turn detected: runId=eb56d249-7790-4c5e-b178-de647665f826 sessionId=d45c7845-50c8-4f49-a5d3-aa714a142a6e provider=github-copilot/gpt-5.5 stopReason=stop hasLastAssistant=yes hasCurrentAttemptAssistant=yes payloads=0 tools=1 replaySafe=no compactions=0 reasoningRetries=0/2 emptyRetries=0/1 missingAssistantRetries=0/1 — surfacing error to user
+2026-06-27T20:41:24-07:00 rune node[32781]: 2026-06-27T20:41:24.166-07:00 [agent/embedded] incomplete turn detected: runId=45a79905-5a16-4bef-9aa0-db5634eb1014 sessionId=d45c7845-50c8-4f49-a5d3-aa714a142a6e provider=github-copilot/gpt-5.5 stopReason=stop hasLastAssistant=yes hasCurrentAttemptAssistant=yes payloads=0 tools=1 replaySafe=no compactions=0 reasoningRetries=0/2 emptyRetries=0/1 missingAssistantRetries=0/1 — surfacing error to user
+2026-06-27T20:41:38-07:00 rune node[32781]: 2026-06-27T20:41:38.738-07:00 [agent/embedded] incomplete turn detected: runId=42e07272-4db0-438a-af9d-b1d1e5ab4c8a sessionId=d45c7845-50c8-4f49-a5d3-aa714a142a6e provider=github-copilot/gpt-5.5 stopReason=stop hasLastAssistant=yes hasCurrentAttemptAssistant=yes payloads=0 tools=1 replaySafe=no compactions=0 reasoningRetries=0/2 emptyRetries=0/1 missingAssistantRetries=0/1 — surfacing error to user
+2026-06-27T20:44:24-07:00 rune node[35056]: 2026-06-27T20:44:24.859-07:00 [agents/openclaw-tools] continuation.enabled=true but neither continueWorkOpts nor requestCompactionOpts were supplied — only continue_delegate will register. If this is a live runner, it must supply both callbacks for the full continuation tool set (likely a config/wiring gap). If this is an inventory/catalog/dispatch build, register the tools via stub callbacks (buildInventoryContinuationToolOpts) so the catalog reflects the full surface and this warning is satisfied honestly rather than suppressed.
+2026-06-27T20:46:27-07:00 rune node[35056]: 2026-06-27T20:46:27.102-07:00 🪨 R-CW-6 low-cap proof is in flight after the restart interruption:
+2026-06-27T20:46:27-07:00 rune node[35056]:   - `costCapTokens` unchanged
+2026-06-27T20:46:27-07:00 rune node[35056]:   - backup saved at `/home/figs/.openclaw/workspace/proof-r-cw-6-lowcap-20260628T034259Z/openclaw.json.before`
+2026-06-27T20:46:27-07:00 rune node[35056]:   - `28310367530` — `restart-gateway rune R-CW-6 temporary maxChainLength=2 low-cap proof apply`
+2026-06-27T20:46:27-07:00 rune node[35056]: I fired the low-cap proof batch:
+2026-06-27T20:46:27-07:00 rune node[35056]: - delegate 3: expected over-cap reject

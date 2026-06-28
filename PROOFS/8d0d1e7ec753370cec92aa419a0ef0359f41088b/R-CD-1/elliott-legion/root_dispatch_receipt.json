@@ -1,0 +1,11 @@
+{
+  "tool": "continue_delegate",
+  "status": "scheduled",
+  "mode": "silent-wake",
+  "delaySeconds": 0,
+  "delegateIndex": 1,
+  "fanoutMode": "tree",
+  "traceparent": "00-00000000000000000000000000000021-0000000000000021-01",
+  "task_nonce": "elliott-rcd1-2723dbee-20260627T2119PDT",
+  "note": "Delegate scheduled from Elliott main Discord session for R-CD-1 proof capture."
+}

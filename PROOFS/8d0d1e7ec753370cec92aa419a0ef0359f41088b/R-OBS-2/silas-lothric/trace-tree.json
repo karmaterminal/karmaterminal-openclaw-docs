@@ -1,0 +1,174 @@
+{
+  "row": "R-OBS-2",
+  "source_trace": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-7/rune-rog-ally/trace-2723dbee000000000000000000000007.json",
+  "trace_id": "2723dbee000000000000000000000007",
+  "span_count": 8,
+  "hosts": [
+    "rune"
+  ],
+  "span_names": {
+    "continuation.work": 1,
+    "continuation.delegate.dispatch": 1,
+    "openclaw.harness.run": 1,
+    "openclaw.run": 1,
+    "openclaw.model.call": 1,
+    "openclaw.context.assembled": 1,
+    "continuation.queue.fanout": 1,
+    "continuation.queue.drain": 1
+  },
+  "spans": [
+    {
+      "traceId": "JyPb7gAAAAAAAAAAAAAABw==",
+      "spanId": "5qq8CX1YhOM=",
+      "parentSpanId": "AAAAAAAAAAc=",
+      "name": "continuation.work",
+      "host": "rune",
+      "service": "rune-prince",
+      "attributes": {
+        "delay.ms": 20000,
+        "chain.step.remaining": 199,
+        "chain.id": "df596753-7d1b-4dab-be9e-f6a43fc9824a",
+        "reason.preview": "Collect the R-CW-7 2723dbee silent-wake delegate result/trace, write evidence ro"
+      },
+      "startTimeUnixNano": "1782620431408000000",
+      "endTimeUnixNano": "1782620431408018094"
+    },
+    {
+      "traceId": "JyPb7gAAAAAAAAAAAAAABw==",
+      "spanId": "wMk31Leu3xg=",
+      "parentSpanId": "AAAAAAAAAAc=",
+      "name": "continuation.delegate.dispatch",
+      "host": "rune",
+      "service": "rune-prince",
+      "attributes": {
+        "delay.ms": 0,
+        "chain.step.remaining": 198,
+        "delegate.delivery": "immediate",
+        "chain.id": "df596753-7d1b-4dab-be9e-f6a43fc9824a",
+        "delegate.mode": "silent-wake",
+        "reason.preview": "R-CW-7 proof shard for deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3 on "
+      },
+      "startTimeUnixNano": "1782620431464000000",
+      "endTimeUnixNano": "1782620431645572879"
+    },
+    {
+      "traceId": "JyPb7gAAAAAAAAAAAAAABw==",
+      "spanId": "y1iMGLIGDxE=",
+      "parentSpanId": "wMk31Leu3xg=",
+      "name": "openclaw.harness.run",
+      "host": "rune",
+      "service": "rune-prince",
+      "attributes": {
+        "openclaw.harness.id": "openclaw",
+        "openclaw.harness.plugin": "unknown",
+        "openclaw.provider": "github-copilot",
+        "openclaw.model": "gpt-5.5",
+        "openclaw.channel": "discord",
+        "openclaw.outcome": "completed",
+        "openclaw.harness.items.started": 0,
+        "openclaw.harness.items.completed": 0,
+        "openclaw.harness.items.active": 0
+      },
+      "startTimeUnixNano": "1782620432054000000",
+      "endTimeUnixNano": "1782620441015000000"
+    },
+    {
+      "traceId": "JyPb7gAAAAAAAAAAAAAABw==",
+      "spanId": "+imbmKu29Tk=",
+      "parentSpanId": "y1iMGLIGDxE=",
+      "name": "openclaw.run",
+      "host": "rune",
+      "service": "rune-prince",
+      "attributes": {
+        "openclaw.provider": "github-copilot",
+        "openclaw.model": "gpt-5.5",
+        "openclaw.channel": "discord",
+        "openclaw.trigger": "user",
+        "openclaw.outcome": "completed"
+      },
+      "startTimeUnixNano": "1782620432060000000",
+      "endTimeUnixNano": "1782620441014000000"
+    },
+    {
+      "traceId": "JyPb7gAAAAAAAAAAAAAABw==",
+      "spanId": "e6V3YNxDeLU=",
+      "parentSpanId": "+imbmKu29Tk=",
+      "name": "openclaw.model.call",
+      "host": "rune",
+      "service": "rune-prince",
+      "attributes": {
+        "openclaw.provider": "github-copilot",
+        "openclaw.model": "gpt-5.5",
+        "gen_ai.system": "github-copilot",
+        "gen_ai.request.model": "gpt-5.5",
+        "gen_ai.operation.name": "chat",
+        "openclaw.api": "openai-responses",
+        "openclaw.transport": "auto",
+        "openclaw.model_call.request_bytes": 126516,
+        "openclaw.model_call.response_bytes": 4922,
+        "openclaw.model_call.time_to_first_byte_ms": 6135
+      },
+      "startTimeUnixNano": "1782620432437000000",
+      "endTimeUnixNano": "1782620441004000000"
+    },
+    {
+      "traceId": "JyPb7gAAAAAAAAAAAAAABw==",
+      "spanId": "O0vEuZntvYM=",
+      "parentSpanId": "+imbmKu29Tk=",
+      "name": "openclaw.context.assembled",
+      "host": "rune",
+      "service": "rune-prince",
+      "attributes": {
+        "openclaw.context.message_count": 0,
+        "openclaw.context.history_text_chars": 0,
+        "openclaw.context.history_image_blocks": 0,
+        "openclaw.context.max_message_text_chars": 0,
+        "openclaw.context.system_prompt_chars": 52732,
+        "openclaw.context.prompt_chars": 793,
+        "openclaw.context.prompt_images": 0,
+        "openclaw.provider": "github-copilot",
+        "openclaw.model": "gpt-5.5",
+        "openclaw.channel": "discord",
+        "openclaw.trigger": "user",
+        "openclaw.context.token_budget": 1000000,
+        "openclaw.context.reserve_tokens": 16384
+      },
+      "startTimeUnixNano": "1782620432308000000",
+      "endTimeUnixNano": "1782620432308000000"
+    },
+    {
+      "traceId": "JyPb7gAAAAAAAAAAAAAABw==",
+      "spanId": "SQSIludqCCA=",
+      "parentSpanId": "wMk31Leu3xg=",
+      "name": "continuation.queue.fanout",
+      "host": "rune",
+      "service": "rune-prince",
+      "attributes": {
+        "fanout.recipient_count": 1,
+        "fanout.delivered_count": 1,
+        "fanout.mode": "tree",
+        "chain.step.remaining": 198
+      },
+      "startTimeUnixNano": "1782620441421000000",
+      "endTimeUnixNano": "1782620441421027381"
+    },
+    {
+      "traceId": "JyPb7gAAAAAAAAAAAAAABw==",
+      "spanId": "cPYW921onE0=",
+      "parentSpanId": "wMk31Leu3xg=",
+      "name": "continuation.queue.drain",
+      "host": "rune",
+      "service": "rune-prince",
+      "attributes": {
+        "queue.drained_count": 1,
+        "queue.drained_continuation_count": 0
+      },
+      "startTimeUnixNano": "1782620448272000000",
+      "endTimeUnixNano": "1782620448272013756"
+    }
+  ],
+  "roots": [
+    "5qq8CX1YhOM=",
+    "wMk31Leu3xg="
+  ]
+}

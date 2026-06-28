@@ -1,0 +1,18 @@
+Subagent transcript receipts captured via sessions_history after low-cap attempt:
+
+1. session=agent:main:subagent:continuation-1ad385c905958135669e93821bf13350
+   task prefix=[continuation:chain-hop:2] R-CW-6 low-cap live proof fit-1
+   assistant text=R-CW6-LOWCAP-FIT-1
+   status=done
+
+2. session=agent:main:subagent:continuation-fa6efd1750c375d6d0ed370c2143ad3f
+   task prefix=[continuation:chain-hop:3] R-CW-6 low-cap live proof fit-2
+   assistant text=R-CW6-LOWCAP-FIT-2
+   status=done
+
+3. session=agent:main:subagent:continuation-9a05e28bc03c2305b0c8896d148ed531
+   task prefix=[continuation:chain-hop:4] R-CW-6 low-cap live proof over-cap
+   assistant text=R-CW6-LOWCAP-OVERCAP-RAN
+   status=done
+
+Interpretation: this is NOT a valid maxChainLength=2 cap proof. The gateway was restored/restarted before continuation delegate recovery replayed the queued delegates; session_status after restore showed chain 4/200, and journal showed hop=2/200, hop=3/200, hop=4/200 plus continuation-delegate-recovery dispatched=3 rejected=0. The attempted over-cap delegate ran under restored maxChainLength=200, not lowcap=2.

@@ -1,0 +1,5 @@
+openclaw --version: OpenClaw 2026.6.10 (2723dbe)
+repo HEAD: 2723dbee783c113cae70e4fb63a4cff9f55402e3
+docs HEAD: e6795b79f2a5c56257099eea71d31afa69a23df7
+gateway MainPID: 2938611
+gateway cmdline: /home/figs/.nvm/versions/node/v25.9.0/bin/node /home/figs/flesh_beast_tmp/openclaw/dist/index.js gateway --port 18789 

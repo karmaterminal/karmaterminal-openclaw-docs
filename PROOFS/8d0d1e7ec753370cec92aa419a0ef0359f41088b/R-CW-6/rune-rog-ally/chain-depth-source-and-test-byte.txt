@@ -1,0 +1,82 @@
+# R-CW-6 source/test bytes @ 2723dbee783c113cae70e4fb63a4cff9f55402e3
+
+## Source: src/auto-reply/continuation/scheduler.ts:19-38
+
+```ts
+  19 | export function checkContinuationBudget(params: {
+  20 |   chainState: ChainState;
+  21 |   config: ContinuationRuntimeConfig;
+  22 |   sessionKey: string;
+  23 | }): "chain-capped" | "cost-capped" | null {
+  24 |   const { chainState, config, sessionKey } = params;
+  25 |   const allocatedChainHop = chainState.currentChainCount;
+  26 | 
+  27 |   if (allocatedChainHop >= config.maxChainLength) {
+  28 |     log.info(
+  29 |       `[continuation] Chain depth ${allocatedChainHop}/${config.maxChainLength} — capped for session ${sessionKey}`,
+  30 |     );
+  31 |     return "chain-capped";
+  32 |   }
+  33 | 
+  34 |   if (config.costCapTokens > 0 && chainState.accumulatedChainTokens > config.costCapTokens) {
+  35 |     log.info(
+  36 |       `[continuation] Chain cost ${chainState.accumulatedChainTokens}/${config.costCapTokens} — capped for session ${sessionKey}`,
+  37 |     );
+  38 |     return "cost-capped";
+```
+
+## Test: src/auto-reply/continuation/scheduler.test.ts:17-37
+
+```ts
+  17 | describe("checkContinuationBudget", () => {
+  18 |   it("returns null when under budget", () => {
+  19 |     expect(
+  20 |       checkContinuationBudget({
+  21 |         chainState: { currentChainCount: 3, chainStartedAt: 0, accumulatedChainTokens: 100_000 },
+  22 |         config: baseConfig,
+  23 |         sessionKey: "test",
+  24 |       }),
+  25 |     ).toBeNull();
+  26 |   });
+  27 | 
+  28 |   it("returns chain-capped at max depth", () => {
+  29 |     expect(
+  30 |       checkContinuationBudget({
+  31 |         chainState: { currentChainCount: 10, chainStartedAt: 0, accumulatedChainTokens: 0 },
+  32 |         config: baseConfig,
+  33 |         sessionKey: "test",
+  34 |       }),
+  35 |     ).toBe("chain-capped");
+  36 |   });
+  37 | 
+```
+
+## Test: src/auto-reply/continuation/work-dispatch.test.ts:1608-1632
+
+```ts
+1608 |     // later election, the earlier valid ones must still schedule and deliver.
+1609 |     const sessionKey = "agent:main:partial-cap";
+1610 |     mockSessionStore[sessionKey] = { sessionKey };
+1611 |     const cappedConfig = { ...config, maxChainLength: 2 } satisfies ContinuationRuntimeConfig;
+1612 | 
+1613 |     const batch = await scheduleContinuationWorkBatch({
+1614 |       sessionKey,
+1615 |       chainState: {
+1616 |         currentChainCount: 0,
+1617 |         chainStartedAt: Date.now(),
+1618 |         accumulatedChainTokens: 0,
+1619 |         chainId: "chain-partial",
+1620 |       },
+1621 |       requests: [
+1622 |         { reason: "fit-1", delaySeconds: 1 },
+1623 |         { reason: "fit-2", delaySeconds: 1 },
+1624 |         { reason: "over-cap", delaySeconds: 1 },
+1625 |       ],
+1626 |       config: cappedConfig,
+1627 |       parentRunId: "run-partial",
+1628 |     });
+1629 | 
+1630 |     expect(batch).toMatchObject({ scheduledCount: 2, cappedCount: 1, capped: true });
+1631 |     expect(batch.chainState.currentChainCount).toBe(2);
+1632 | 
+```

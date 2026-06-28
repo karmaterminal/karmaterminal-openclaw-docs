@@ -1,0 +1,174 @@
+# OpenClaw source/test byte for R-CW-5 cost-cap exhaustion
+source_sha=2723dbee783c113cae70e4fb63a4cff9f55402e3
+worktree=/tmp/oc-p81-static-2723dbee783c113cae70e4fb63a4cff9f55402e3
+
+## src/auto-reply/continuation/scheduler.ts:16-39
+    16	 * Check chain and cost caps. Returns null if clear to proceed, or the
+    17	 * rejection reason.
+    18	 */
+    19	export function checkContinuationBudget(params: {
+    20	  chainState: ChainState;
+    21	  config: ContinuationRuntimeConfig;
+    22	  sessionKey: string;
+    23	}): "chain-capped" | "cost-capped" | null {
+    24	  const { chainState, config, sessionKey } = params;
+    25	  const allocatedChainHop = chainState.currentChainCount;
+    26
+    27	  if (allocatedChainHop >= config.maxChainLength) {
+    28	    log.info(
+    29	      `[continuation] Chain depth ${allocatedChainHop}/${config.maxChainLength} — capped for session ${sessionKey}`,
+    30	    );
+    31	    return "chain-capped";
+    32	  }
+    33
+    34	  if (config.costCapTokens > 0 && chainState.accumulatedChainTokens > config.costCapTokens) {
+    35	    log.info(
+    36	      `[continuation] Chain cost ${chainState.accumulatedChainTokens}/${config.costCapTokens} — capped for session ${sessionKey}`,
+    37	    );
+    38	    return "cost-capped";
+    39	  }
+
+## src/auto-reply/continuation/delegate-dispatch.ts:287-337
+   287	  const accumulatedTokens = chainState.accumulatedChainTokens;
+   288	  let currentChainId = chainState.chainId;
+   289
+   290	  for (const delegate of delegatesWithinLimit) {
+   291	    if (
+   292	      crossSessionTargeting === "disabled" &&
+   293	      hasCrossSessionDelegateTargeting(delegate, sessionKey)
+   294	    ) {
+   295	      const delegateMode = delegate.mode ?? "normal";
+   296	      const delegateDelivery: "immediate" | "timer" =
+   297	        delegate.delayMs && delegate.delayMs > 0 ? "timer" : "immediate";
+   298	      const summary = "Tool delegate rejected: cross-session targeting is disabled by policy.";
+   299	      log.info(
+   300	        `[continuation:delegate-rejected] policy.cross_session_targeting task=${delegate.task.slice(0, 80)} session=${sessionKey}`,
+   301	      );
+   302	      markDelegateFailed(delegate, summary);
+   303	      enqueueSystemEvent(`[continuation] ${summary} Task: ${delegate.task}`, {
+   304	        sessionKey,
+   305	        trusted: true,
+   306	      });
+   307	      emitContinuationDisabledSpan({
+   308	        chainId: undefined,
+   309	        chainStepRemaining: Math.max(0, maxChainLength - currentChainCount),
+   310	        disabledReason: "policy.cross_session_targeting",
+   311	        signalKind: "tool-delegate",
+   312	        delegateDelivery,
+   313	        delegateMode,
+   314	        reason: delegate.task,
+   315	        log: (message) => log.info(message),
+   316	      });
+   317	      rejected++;
+   318	      continue;
+   319	    }
+   320
+   321	    const budgetCheck = checkContinuationBudget({
+   322	      chainState: {
+   323	        currentChainCount,
+   324	        chainStartedAt: chainState.chainStartedAt,
+   325	        accumulatedChainTokens: accumulatedTokens,
+   326	      },
+   327	      config,
+   328	      sessionKey,
+   329	    });
+   330
+   331	    if (budgetCheck) {
+   332	      const summary = `Tool delegate rejected: ${budgetCheck}.`;
+   333	      log.info(
+   334	        `[continuation:delegate-rejected] ${budgetCheck} task=${delegate.task.slice(0, 80)} session=${sessionKey}`,
+   335	      );
+   336	      markDelegateFailed(delegate, summary);
+   337	      enqueueSystemEvent(`[continuation] ${summary} Task: ${delegate.task}`, {
+
+## src/auto-reply/continuation/delegate-dispatch.ts:646-666
+   646	    const budgetCheck = checkContinuationBudget({
+   647	      chainState: {
+   648	        currentChainCount,
+   649	        chainStartedAt,
+   650	        accumulatedChainTokens,
+   651	      },
+   652	      config,
+   653	      sessionKey,
+   654	    });
+   655	    if (budgetCheck) {
+   656	      const disabledReason = budgetCheck === "chain-capped" ? "cap.chain" : "cap.cost";
+   657	      const summary =
+   658	        budgetCheck === "chain-capped"
+   659	          ? `chain length ${config.maxChainLength} reached`
+   660	          : `cost cap exceeded (${accumulatedChainTokens} > ${config.costCapTokens})`;
+   661	      postCompactionLog.warn(
+   662	        `[continuation:post-compaction-policy-rejected] ${disabledReason} session=${sessionKey} task=${delegate.task.slice(0, 80)}`,
+   663	      );
+   664	      enqueueSystemEvent(
+   665	        `[continuation] Post-compaction delegate rejected: ${summary}. Task: ${delegate.task}`,
+   666	        { sessionKey, trusted: true },
+
+## src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts:1-38
+     1	// ─────────────────────────────────────────────────────────────────────────────
+     2	// delegate-dispatch — cost-cap exhaustion mid-chain
+     3	//
+     4	// SEAM GUARDED: This file traps the cost-cap invariant — the second of
+     5	// the two bounded-continuation guards (the first
+     6	// being chain-depth, covered in the sibling test file). Where chain-depth
+     7	// counts HOPS, cost-cap counts TOKENS. A long chain of cheap delegates
+     8	// might never hit chain-depth but could still burn through the user's
+     9	// token budget; the cost-cap is the financial-pressure brake.
+    10	//
+    11	// ARCHITECTURAL CANON (from delegate-dispatch.ts):
+    12	//   1. EVERY chain carries an accumulatedChainTokens running total.
+    13	//   2. The dispatcher compares it to config.costCapTokens using
+    14	//      STRICT-GREATER-THAN. accumulated > cap → reject; accumulated <=
+    15	//      cap → allow. This means an exact equality at the cap is ALLOWED,
+    16	//      not rejected — a deliberate "one more allowed at the line" choice
+    17	//      that this test file pins down.
+    18	//   3. Once the cap is crossed, EVERY remaining queued delegate in the
+    19	//      same dispatch call is rejected as a CASCADE — the dispatcher
+    20	//      doesn't re-check each one independently because the accumulated
+    21	//      total can only grow.
+    22	//   4. Cap-rejected delegates transition their TaskFlow record from
+    23	//      `queued` to `failed`, identical to chain-depth rejections.
+    24	//   5. Cap rejections emit a system event with "cost-capped" text.
+    25	//
+    26	// Tests guard distinct corners of the
+    27	// cost-cap contract:
+    28	//   - just-under   → ALLOW (proves the gate isn't over-eager)
+    29	//   - just-over    → REJECT (proves the gate fires)
+    30	//   - exact        → ALLOW (proves strict-greater-than, not >=)
+    31	//   - cascade      → all-remaining-rejected (proves the loop short-circuits)
+    32	//   - taskflow     → failed-state recorded (proves side-effect persists)
+    33	//
+    34	// If a future refactor changes the comparison operator (`>` → `>=`),
+    35	// removes the cascade short-circuit, or skips the failFlow call on
+    36	// cost-rejection, exactly one of these tests will fire and route the
+    37	// reviewer to the budget block in delegate-dispatch.ts. The five-point
+    38	// coverage is intentional — collapsing any two would leave a blind spot.
+
+## src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts test names
+187:  it("allows dispatch when accumulatedChainTokens is 1 below costCapTokens", async () => {
+236:  it("rejects dispatch when accumulatedChainTokens exceeds costCapTokens by 1", async () => {
+290:  it("rejects all remaining queued delegates once cost cap is crossed", async () => {
+341:  it("marks TaskFlow records as failed for cost-cap-rejected delegates", async () => {
+394:  it("rejects at exact boundary (accumulatedChainTokens === costCapTokens is NOT over)", async () => {
+
+## src/auto-reply/continuation/scheduler.test.ts budget refs
+2:import { checkContinuationBudget } from "./scheduler.js";
+11:  costCapTokens: 500_000,
+17:describe("checkContinuationBudget", () => {
+20:      checkContinuationBudget({
+21:        chainState: { currentChainCount: 3, chainStartedAt: 0, accumulatedChainTokens: 100_000 },
+28:  it("returns chain-capped at max depth", () => {
+30:      checkContinuationBudget({
+31:        chainState: { currentChainCount: 10, chainStartedAt: 0, accumulatedChainTokens: 0 },
+35:    ).toBe("chain-capped");
+38:  it("returns cost-capped over budget", () => {
+40:      checkContinuationBudget({
+41:        chainState: { currentChainCount: 0, chainStartedAt: 0, accumulatedChainTokens: 600_000 },
+45:    ).toBe("cost-capped");
+48:  it("allows continuation when accumulated tokens equal costCapTokens exactly", () => {
+50:      checkContinuationBudget({
+51:        chainState: { currentChainCount: 0, chainStartedAt: 0, accumulatedChainTokens: 500_000 },
+58:  it("does not cost-cap when costCapTokens is 0", () => {
+60:      checkContinuationBudget({
+61:        chainState: { currentChainCount: 0, chainStartedAt: 0, accumulatedChainTokens: 999_999 },
+62:        config: { ...baseConfig, costCapTokens: 0 },

@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "minDelayMs": 5000,
+  "defaultDelayMs": 15000,
+  "maxDelayMs": 86400000,
+  "maxChainLength": 200,
+  "costCapTokens": 500000,
+  "maxDelegatesPerTurn": 500,
+  "maxPendingWork": null
+}

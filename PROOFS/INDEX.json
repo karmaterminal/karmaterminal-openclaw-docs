@@ -1,11 +1,11 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "bdd3cfd038b014d829a4debdb6cb26e57aa138a5",
-  "current_sha_short": "bdd3cfd0",
-  "build_string": "OpenClaw continuation PR #85651 (bdd3cfd) — drift-absorbed presentation SHA with docs formatting fix, corpus transposed from 2723dbee/750fbbe",
-  "corpus_path": "PROOFS/bdd3cfd038b014d829a4debdb6cb26e57aa138a5/",
-  "manifest_path": "PROOFS/bdd3cfd038b014d829a4debdb6cb26e57aa138a5/proofs-manifest.json",
+  "current_sha": "8d0d1e7ec753370cec92aa419a0ef0359f41088b",
+  "current_sha_short": "8d0d1e7e",
+  "build_string": "OpenClaw continuation PR #85651 (8d0d1e7) — presentation SHA after latest upstream update, corpus transposed from 2723dbee/750fbbe/bdd3cfd",
+  "corpus_path": "PROOFS/8d0d1e7ec753370cec92aa419a0ef0359f41088b/",
+  "manifest_path": "PROOFS/8d0d1e7ec753370cec92aa419a0ef0359f41088b/proofs-manifest.json",
   "rollup": {
     "total_rows": 27,
     "pass": 26,
@@ -15,10 +15,10 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "TRANSPOSED corpus for PR-presentation SHA bdd3cfd038b014d829a4debdb6cb26e57aa138a5. Evidence was fired for base proof SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3 and previously transposed to 750fbbe76d5e1b884b00f2990b672e8f66662458; diff to bdd3cfd038b014d829a4debdb6cb26e57aa138a5 is docs formatting / non-surface drift-correction to keep PR #85651 mergeable. Full corpus is copied locally under this SHA for clawsweeper locality. Final rollup remains 27 rows = 26 PASS + 1 accepted HONEST_LIMIT (R-RC-2), 0 partial/thin/fail/missing.",
+  "disposition_note": "TRANSPOSED corpus for PR-presentation SHA 8d0d1e7ec753370cec92aa419a0ef0359f41088b. Evidence was fired for base proof SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3 and previously transposed through bdd3cfd038b014d829a4debdb6cb26e57aa138a5; diff to 8d0d1e7ec753370cec92aa419a0ef0359f41088b is non-surface upstream drift update including startup migration test stabilization. Full corpus is copied locally under this SHA for clawsweeper locality. Final rollup remains 27 rows = 26 PASS + 1 accepted HONEST_LIMIT (R-RC-2), 0 partial/thin/fail/missing.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-06-28",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
-  "capture_sha": "bdd3cfd038b014d829a4debdb6cb26e57aa138a5",
-  "carried_from": "750fbbe76d5e1b884b00f2990b672e8f66662458"
+  "capture_sha": "8d0d1e7ec753370cec92aa419a0ef0359f41088b",
+  "carried_from": "bdd3cfd038b014d829a4debdb6cb26e57aa138a5"
 }

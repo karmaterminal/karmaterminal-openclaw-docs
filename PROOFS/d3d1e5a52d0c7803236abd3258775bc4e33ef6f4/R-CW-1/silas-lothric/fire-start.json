@@ -1,0 +1,10 @@
+{
+  "row": "R-CW-1",
+  "seat": "silas-lothric",
+  "ship_sha": "2723dbee783c113cae70e4fb63a4cff9f55402e3",
+  "docs_head_at_fire": "c040ce759516411b136ab3cd36c21d70e24014c4",
+  "sentinel": "silas-rcw1-continue-work-sentinel-2723dbee-20260628T041928Z",
+  "fire_time_utc": "20260628T041928Z",
+  "delay_seconds": 8,
+  "status": "scheduled_pending_tool_call"
+}

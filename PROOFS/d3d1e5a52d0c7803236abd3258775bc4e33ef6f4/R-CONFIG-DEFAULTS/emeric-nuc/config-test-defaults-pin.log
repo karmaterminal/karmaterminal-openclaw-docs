@@ -1,0 +1,27 @@
+
+ RUN  v4.1.8 /home/figs/flesh_beast_tmp/openclaw
+
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > resolveContinuationRuntimeConfig > returns defaults when continuation is not configured 74ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > resolveContinuationRuntimeConfig > resolves configured values with clamping 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > resolveContinuationRuntimeConfig > clamps negative values to defaults 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > resolveContinuationRuntimeConfig > clamps maxPendingWork to default when non-positive (#986) 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > resolveContinuationRuntimeConfig > rejects invalid contextPressureThreshold 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > resolveContinuationRuntimeConfig > defaults invalid earlyWarningBand and preserves explicit opt-out 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > resolveContinuationRuntimeConfig > has no generationGuardTolerance field 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > resolveContinuationRuntimeConfig > defaults busySkipBackoff to 1s base ×2 capped at maxDelayMs (#990) 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > resolveContinuationRuntimeConfig > resolves configured busySkipBackoff and clamps invalid values (#990) 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > resolveContinuationRuntimeConfig > leaves orphanReapStaleCutoffMs unset by default and resolves a positive override (#990) 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > resolveContinuationRuntimeConfig > prefers the active runtime snapshot when resolving live config 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > resolveContinuationRuntimeConfig > falls back to the provided config when no runtime snapshot is active 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > resolveContinuationRuntimeConfig > uses active runtime snapshot defaults when continuation config was unset 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > clampDelayMs > uses default when undefined 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > clampDelayMs > treats an explicit zero as the immediate sentinel → 0, NOT defaultDelayMs (#918 + #1075) 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > clampDelayMs > clamps below minimum 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > clampDelayMs > clamps above maximum 0ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/config.test.ts > clampDelayMs > passes through values in range 0ms
+
+ Test Files  1 passed (1)
+      Tests  18 passed (18)
+   Start at  21:22:17
+   Duration  543ms (transform 445ms, setup 329ms, import 18ms, tests 78ms, environment 0ms)
+

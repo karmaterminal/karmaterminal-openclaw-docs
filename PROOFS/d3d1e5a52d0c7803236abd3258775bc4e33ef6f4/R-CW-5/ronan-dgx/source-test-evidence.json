@@ -1,0 +1,39 @@
+{
+  "row": "R-CW-5",
+  "state": "pass",
+  "seat": "ronan-dgx",
+  "capture_sha": "2723dbee783c113cae70e4fb63a4cff9f55402e3",
+  "evidence_type": "static source + deterministic unit tests; no live continuation/delegate/compaction fire",
+  "source_repo": "karmaterminal/openclaw",
+  "source_worktree": "/tmp/oc-p81-static-2723dbee783c113cae70e4fb63a4cff9f55402e3",
+  "test_command": "pnpm exec vitest run src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts --pool=forks --maxWorkers=1 --no-fileParallelism --reporter=verbose",
+  "test_result": {
+    "test_files": "1 passed (1)",
+    "tests": "5 passed (5)",
+    "exit_code": 0
+  },
+  "artifacts": [
+    {
+      "path": "cost-cap-source-and-test-byte.txt",
+      "sha256": "6791e6d558c95c54bfffe9e98a7de5ef239b603cce3da1211fd2ab4a59a57852",
+      "bytes": 9201
+    },
+    {
+      "path": "cost-cap-test.log",
+      "sha256": "de3edcefe40009031600d4e5a0ac29412f7b4f1f0acadf794b73b102290fd7e4",
+      "bytes": 7344
+    },
+    {
+      "path": "cost-cap-test-summary.txt",
+      "sha256": "ed58bf99cdfd07cdd616990d5e9cdc84c3b83727769104000b862104e9026b4f",
+      "bytes": 1475
+    }
+  ],
+  "notes": [
+    "Proves dispatch-time cost-cap reject when accumulatedChainTokens > costCapTokens.",
+    "Pins strict > semantics: accumulatedChainTokens == costCapTokens is allowed.",
+    "Pins cascade rejection for remaining queued delegates and TaskFlow failed-state side effect.",
+    "Does not claim a live temporary-low-cap gateway/restart induction."
+  ],
+  "generated_at": "2026-06-27T22:25:00-07:00"
+}

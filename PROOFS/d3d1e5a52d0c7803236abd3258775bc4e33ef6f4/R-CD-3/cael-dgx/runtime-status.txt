@@ -1,0 +1,3 @@
+openclaw --version: OpenClaw 2026.6.10 (2723dbe)
+repo HEAD: 2723dbee783c113cae70e4fb63a4cff9f55402e3
+docs HEAD: fa9ece08cbee188ea33be7a4755ca926bdc522a6

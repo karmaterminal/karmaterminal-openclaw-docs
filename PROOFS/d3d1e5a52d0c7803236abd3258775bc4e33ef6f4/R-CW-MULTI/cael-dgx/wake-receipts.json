@@ -1,0 +1,28 @@
+{
+  "row": "R-CW-MULTI",
+  "marker": "RCW_MULTI_CAEL_1782634400",
+  "phase": "complete-with-extra-token-rejection-recorded",
+  "typed_expected": [
+    "typed-A",
+    "typed-B",
+    "typed-C"
+  ],
+  "token_expected": [
+    "token-A",
+    "token-B"
+  ],
+  "typed_seen": [
+    "typed-A",
+    "typed-B",
+    "typed-C"
+  ],
+  "token_seen": [
+    "token-A",
+    "token-B"
+  ],
+  "last_update": "2026-06-28T08:18:23.544532+00:00",
+  "token_instruction": "final response emitted bare CONTINUE_WORK:5 after this state write",
+  "token_syntax": "bare CONTINUE_WORK:5 final text (not bracket form)",
+  "token_blocker": "bare CONTINUE_WORK:5 fallback token was rejected by continuation cost cap before scheduling; no token-form wake receipt can be produced in this chain.",
+  "extra_rejected_attempt": "token-A-rejected.txt records a later bare CONTINUE_WORK:5 attempt rejected by cost cap after token-A/token-B receipts existed; not counted as PASS evidence."
+}

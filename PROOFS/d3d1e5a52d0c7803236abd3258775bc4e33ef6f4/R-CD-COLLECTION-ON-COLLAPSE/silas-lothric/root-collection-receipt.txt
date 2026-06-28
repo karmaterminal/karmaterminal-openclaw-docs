@@ -1,0 +1,3 @@
+OpenClaw runtime steering queue delivered C result to root A after B2 final.
+
+C_SENTINEL_RCD_COLLECTION_2723DBEE_RETRY2_20260628T0658Z reached root A via fanoutMode=tree after B2 final; visible chain: requester=agent:main:subagent:8cc53a05-1b1e-4cc3-9fad-9c8e4e1eb53b -> session=agent:main:subagent:continuation-fa2a9eb07259c4da91e5a11adf101227.

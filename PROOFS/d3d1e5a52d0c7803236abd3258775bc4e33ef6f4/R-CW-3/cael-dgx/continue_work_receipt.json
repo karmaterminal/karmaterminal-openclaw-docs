@@ -1,0 +1,6 @@
+{
+  "status": "scheduled",
+  "delaySeconds": 5,
+  "traceparent": "00-2723dbee00000000000000000000ca31-1520644643887251-01",
+  "reason": "R-CW-1-R-CW-3-CAEL-2723dbee-unique-1520644643887251639-reason-field-proof"
+}

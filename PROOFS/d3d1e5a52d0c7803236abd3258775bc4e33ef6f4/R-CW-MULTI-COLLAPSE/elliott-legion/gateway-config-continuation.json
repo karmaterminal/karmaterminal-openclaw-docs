@@ -1,0 +1,23 @@
+{
+  "path": "agents.defaults.continuation",
+  "config": {
+    "enabled": true,
+    "defaultDelayMs": 15000,
+    "minDelayMs": 5000,
+    "maxDelayMs": 86400000,
+    "maxChainLength": 200,
+    "costCapTokens": 50000000,
+    "maxDelegatesPerTurn": 500,
+    "crossSessionTargeting": "enabled",
+    "contextPressureThreshold": 0.4,
+    "earlyWarningBand": 0.3125
+  },
+  "derived": {
+    "supersededGraceMultiplier": 2,
+    "supersededGraceMs": 172800000,
+    "supersededGraceHuman": "48h"
+  },
+  "captured_by": "elliott-legion",
+  "captured_at": "2026-06-28T07:05:00Z",
+  "capture_note": "gateway config.get agents.defaults.continuation; secret-free excerpt only"
+}

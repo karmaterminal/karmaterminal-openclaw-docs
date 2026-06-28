@@ -1,0 +1,41 @@
+[
+  {
+    "traceId": "EREREREREREREREREREREQ==",
+    "spanId": "/aguSp1tb1A=",
+    "parentSpanId": "IiIiIiIiIiI=",
+    "name": "continuation.work",
+    "host": "silas",
+    "service": "silas-prince",
+    "startTimeUnixNano": "1782620394378000000",
+    "endTimeUnixNano": "1782620394378012916",
+    "attributes": [
+      {
+        "key": "delay.ms",
+        "value": {
+          "intValue": "8000"
+        }
+      },
+      {
+        "key": "chain.step.remaining",
+        "value": {
+          "intValue": "199"
+        }
+      },
+      {
+        "key": "chain.id",
+        "value": {
+          "stringValue": "6a51c383-715a-4c32-bdb2-3447cdf756ac"
+        }
+      },
+      {
+        "key": "reason.preview",
+        "value": {
+          "stringValue": "R-CW-1 proof on deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3; sentinel "
+        }
+      }
+    ],
+    "status": {
+      "code": "STATUS_CODE_OK"
+    }
+  }
+]

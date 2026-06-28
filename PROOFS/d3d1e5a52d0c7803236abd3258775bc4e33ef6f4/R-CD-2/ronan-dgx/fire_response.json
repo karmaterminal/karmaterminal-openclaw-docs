@@ -1,0 +1,12 @@
+{
+  "status": "scheduled",
+  "mode": "silent-wake",
+  "delaySeconds": 0,
+  "delegateIndex": 1,
+  "delegatesThisTurn": 1,
+  "fanoutMode": "tree",
+  "traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+  "runId": "continuation-delegate-b2225a78231191e35716902aa5650d58",
+  "sessionKey": "agent:main:subagent:continuation-b2225a78231191e35716902aa5650d58",
+  "sentinel": "ronan-rcd2-silent-wake-sentinel-2723dbee"
+}

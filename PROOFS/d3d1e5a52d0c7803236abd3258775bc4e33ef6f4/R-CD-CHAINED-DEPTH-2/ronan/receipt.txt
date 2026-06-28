@@ -1,0 +1,36 @@
+proof id: R-CD-CHAINED-DEPTH-2
+DEPTH_2_DELEGATE_REACHED=true
+DEPTH_1_DISPATCHER_SESSION=agent:main:subagent:continuation-d24211bb3bdada0a882fd1d9dfc8c00b
+ORIGINAL_PARENT_CONTINUATION=continuation-129836b672a40d399dcbcbeff76c0f13
+This is the depth-2 delegate reached through a depth-1 continue_delegate spawned by parent continuation-129836b672a40d399dcbcbeff76c0f13.
+hostname: ronan
+date: 2026-06-28T07:25:23+00:00
+current working directory: /home/figs/.openclaw/workspace
+uname: Linux ronan 6.17.0-1018-nvidia #18-Ubuntu SMP PREEMPT_DYNAMIC Tue May  5 21:28:33 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+
+session/runtime context visible in prompt:
+requester session: agent:main:subagent:continuation-d24211bb3bdada0a882fd1d9dfc8c00b
+requester channel: discord
+current session: agent:main:subagent:continuation-80e8967998c629b5e2dff59b6cb4d068
+sessionId: ea56e144-3eda-45a5-b1ff-01f67138ef09
+runtime agent: main
+host: ronan
+os: Linux 6.17.0-1018-nvidia (arm64)
+node: v25.9.0
+model: github-copilot/gpt-5.5
+default_model: github-copilot/gpt-5.5
+shell: bash
+channel: discord
+capabilities: nativeapprovals,threadbound-acp-spawn,threadbound-subagent-spawn
+thinking: high
+subagent depth: 3/5
+chain hop: 1
+proof task role: DEPTH-2 delegate for proof id R-CD-CHAINED-DEPTH-2
+
+trace env check:
+TRACEPARENT_present=false
+TRACE_ID_present=false
+OTEL_TRACE_ID_present=false
+trace_source: none
+trace_id: none
+trace: unavailable; sentinel proof file is the evidence

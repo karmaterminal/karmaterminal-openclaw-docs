@@ -1,0 +1,7 @@
+Jun 27 21:38:18 cael node[2938611]: 2026-06-27T21:38:18.418-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=4997ms fireAt=1782621503414 session=agent:main:discord:channel:1466192485440164011
+Jun 27 21:38:23 cael node[2938611]: 2026-06-27T21:38:23.417-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:discord:channel:1466192485440164011
+Jun 27 21:38:23 cael node[2938611]: 2026-06-27T21:38:23.426-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=60000ms fireAt=1782621563425 session=agent:main:discord:channel:1466192485440164011
+Jun 27 21:38:23 cael node[2938611]: 2026-06-27T21:38:23.428-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011 reasonCategory=follow-up-work
+Jun 27 21:38:23 cael node[2938611]: 2026-06-27T21:38:23.438-07:00 [continuation/work-dispatch] [continuation:work-drive-skipped] flowId=7901dfae-39c8-4e30-b86f-9597b533d1ad session=agent:main:discord:channel:1466192485440164011 reason=requests-in-flight reasonCategory=follow-up-work
+Jun 27 21:38:23 cael node[2938611]: 2026-06-27T21:38:23.444-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=86399996ms fireAt=1782707903438 session=agent:main:discord:channel:1466192485440164011
+Jun 27 21:38:23 cael node[2938611]: 2026-06-27T21:38:23.445-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-armed] trigger=reply-run-ended session=agent:main:discord:channel:1466192485440164011

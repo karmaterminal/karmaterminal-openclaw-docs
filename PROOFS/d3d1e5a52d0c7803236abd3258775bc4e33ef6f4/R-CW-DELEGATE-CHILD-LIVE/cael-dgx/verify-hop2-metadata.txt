@@ -1,0 +1,1 @@
+ok: hop2 file contains marker plus one of Turn/continuation/wake/hop2 metadata needles

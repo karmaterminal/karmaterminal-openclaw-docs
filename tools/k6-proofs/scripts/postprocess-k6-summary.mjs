@@ -31,6 +31,10 @@ function requiredMetric(summary, name) {
   return summary?.metrics?.[name]?.values || null;
 }
 
+function scenarioFromManifest(manifest) {
+  return manifest?.scenario?.name || manifest?.scenario?.file?.replace(/\.js$/, '') || manifest?.scenario?.expectedFile?.replace(/\.js$/, '') || null;
+}
+
 function durationMsFromSummary(summary, rowId) {
   const candidates = [
     'proof_row_duration_ms',
@@ -45,9 +49,14 @@ function durationMsFromSummary(summary, rowId) {
   return null;
 }
 
-function failureClassFrom({ outcome, failureCount, checkRate, receipts }) {
-  if (failureCount > 0) return 'threshold';
+function failureClassFrom({ outcome, failureCount, checkRate, receipts, summary }) {
+  const statusText = JSON.stringify(summary?.root_group || {}) + JSON.stringify(summary?.errors || {});
+  if (/timeout|timed out/i.test(statusText)) return 'timeout';
+  if (/auth|unauthorized|forbidden|token/i.test(statusText)) return 'auth';
+  if (/transport|websocket|network|ECONNREFUSED|connection/i.test(statusText)) return 'transport';
+  if (/redaction/i.test(statusText)) return 'redaction-gate';
   if (receipts.some((r) => r.required && r.status === 'missing')) return 'missing-receipt';
+  if (failureCount > 0) return 'threshold';
   if (checkRate !== null && checkRate < 1) return 'checks';
   if (outcome === 'FAIL-candidate') return 'postprocess';
   return 'none';
@@ -55,6 +64,13 @@ function failureClassFrom({ outcome, failureCount, checkRate, receipts }) {
 
 function receiptStatusFromName(name, summary) {
   const summaryText = JSON.stringify(summary);
+  const receiptStatuses = summary?.proof_receipts || summary?.receipts || {};
+  if (Object.prototype.hasOwnProperty.call(receiptStatuses, name)) {
+    const value = receiptStatuses[name];
+    if (value === true || value === 'present') return 'present';
+    if (value === false || value === 'missing') return 'missing';
+    if (value === 'unknown') return 'unknown';
+  }
   switch (name) {
     case 'tool-invoke-accepted':
       return summaryText.includes('tool invocation accepted') || summaryText.includes('tools.invoke accepted') ? 'present' : 'unknown';
@@ -168,7 +184,7 @@ async function main() {
     required: Boolean(r.required),
     status: receiptStatusFromName(r.name, summary),
   }));
-  const failureClass = failureClassFrom({ outcome, failureCount, checkRate, receipts });
+  const failureClass = failureClassFrom({ outcome, failureCount, checkRate, receipts, summary });
   const result = {
     schema: 'openclaw.k6.proof-row-result.v1',
     runId,
@@ -176,6 +192,9 @@ async function main() {
     rowId: manifest.rowId,
     candidateSha: manifest.candidateSha,
     seat: manifest.seat,
+    scenario: scenarioFromManifest(manifest),
+    toolSurface: manifest.toolSurface,
+    transport: manifest.transport,
     outcome,
     metrics: {
       proofFailures: failureCount,

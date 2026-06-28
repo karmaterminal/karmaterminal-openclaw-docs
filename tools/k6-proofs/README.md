@@ -21,7 +21,7 @@ tools/k6-proofs/
 
 ## Prerequisites
 
-- [Grafana k6](https://grafana.com/docs/k6/latest/get-started/installation/) installed on the run seat. The proof-standard expectation is `v2.0.0` unless a row issue explicitly says otherwise.
+- [Grafana k6](https://grafana.com/docs/k6/latest/get-started/installation/) installed on the run seat. The proof-standard expectation is centralized in [`seat-readiness.policy.json`](seat-readiness.policy.json) (`v2.0.0` unless the policy or row issue explicitly says otherwise).
 - A running OpenClaw gateway on the local seat.
 - Run `node tools/k6-proofs/scripts/seat-readiness-preflight.mjs` before treating row output as proof-standard. A version/env/gateway mismatch is `HONEST-LIMIT-candidate`, not product failure.
 - Environment variables:
@@ -66,10 +66,11 @@ OPENCLAW_GATEWAY_TOKEN="***" \
 
 The helper emits `openclaw.k6.seat-readiness.v1` JSON and never prints secret values. It records:
 
-- k6 binary path and version, compared to the documented expectation (`v2.0.0` by default)
+- k6 binary path and version, compared to the centralized policy expectation (`tools/k6-proofs/seat-readiness.policy.json`; override with `OPENCLAW_EXPECTED_K6_VERSION` or `--expected-k6-version` only when the row issue says so)
+- every binary candidate checked (`/home/figs/bin/k6`, common system paths, and `K6_BIN` when set)
 - gateway health/status reachability shape
 - candidate SHA validity, seat name/class, and coarse session scope
-- required env-var presence as booleans only
+- required env-var presence as booleans only, plus public-safe purpose strings from the policy
 - whether the check is safe to run concurrently
 
 If k6 is missing, the version differs, required env is absent, or gateway health/status is unreachable, treat row output as `HONEST-LIMIT-candidate` / setup failure until the seat is fixed. Do not fold it as product behavior evidence. Use `--no-gateway` only for offline docs/schema checks; live proof rows need a checked gateway.

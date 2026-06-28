@@ -191,7 +191,8 @@ jobs:
             --input /tmp/k6-out/run.txt \
             --row "$ROW" \
             --seat "$SEAT" \
-            --sha "$CANDIDATE_SHA"
+            --sha "$CANDIDATE_SHA" \
+            --seat-readiness /tmp/seat-readiness.json
           echo "evidence written under PROOFS/${CANDIDATE_SHA}/${ROW}/${SEAT}/"
 
       - name: Upload run log (dry_run)
@@ -199,7 +200,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: k6-dry-run-log
-          path: /tmp/k6-out/run.txt
+          path: |
+            /tmp/k6-out/run.txt
+            /tmp/seat-readiness.json
           if-no-files-found: warn
           retention-days: 14
 

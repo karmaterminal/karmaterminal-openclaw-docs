@@ -171,11 +171,26 @@
         "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-OBS-2/silas-lothric/span-tree.txt",
         "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-7/rune-rog-ally/trace-2723dbee000000000000000000000007.json"
       ]
+    },
+    {
+      "row": "R-CW-5",
+      "owner": "🌊 ronan (ronan-dgx)",
+      "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-5/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-5/ronan-dgx/EVIDENCE.md",
+      "note": "source/test static proof: accumulatedChainTokens > costCapTokens returns cost-capped and delegate dispatch rejects over-cap queued delegates; dedicated cost-cap exhaustion suite passed 5/5; no live fire or config mutation",
+      "supporting_docs": [
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-5/ronan-dgx/source-test-evidence.json",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-5/ronan-dgx/cost-cap-source-and-test-byte.txt",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-5/ronan-dgx/cost-cap-test-summary.txt",
+        "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-5/ronan-dgx/cost-cap-test.log"
+      ]
     }
   ],
   "rollup": {
-    "total_rows": 16,
-    "pass": 15,
+    "total_rows": 17,
+    "pass": 16,
     "partial": 0,
     "thin": 0,
     "fail": 0,

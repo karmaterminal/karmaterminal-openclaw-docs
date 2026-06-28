@@ -37,7 +37,7 @@ Allowed metric labels are low-cardinality and non-secret:
 - `receipt_name` — manifest receipt id, for example `tool-invoke-accepted`
 - `receipt_required` — `true` / `false`
 - `receipt_status` — `present`, `missing`, or `unknown`
-- `failure_class` — coarse class such as `none`, `threshold`, `missing-receipt`, `timeout`, `auth`, `transport`, `redaction-gate`, `postprocess`
+- `failure_class` — coarse class such as `none`, `threshold`, `checks`, `missing-receipt`, `timeout`, `auth`, `transport`, `redaction-gate`, `postprocess`
 
 Do **not** put these values in metric labels, logs intended for public artifacts, or dashboard annotations:
 
@@ -85,7 +85,31 @@ Minimum v1 shape:
 }
 ```
 
-Current post-processor output writes this v1 dashboard shape for manifest-driven runs: `scenario`, `toolSurface`, `transport`, `metrics`, `receipts`, and `failureClass` are normalized into `row-result.json` from the row manifest plus k6 summary / evidence summary. Dashboards may still ingest the minimal fields (`outcome`, `rowId`, `candidateSha`, `seat`, `runId`, `candidateOnly`, and `foldRequiresReview`) for older candidate runs, but new candidate artifacts should include the full v1 shape above.
+The post-processor writes this v1 shape today. Receipt statuses are normalized from `summary.proof_receipts` / `summary.receipts` when present; otherwise they are `unknown` unless a narrow legacy evidence-string heuristic can prove a receipt present. `unknown` is deliberate for receipts that still require manual review and must not be promoted to folded proof status automatically.
+
+## Automated versus manual receipts
+
+`row-result.json` distinguishes the postprocessor's automated normalization from the human review receipts required before folding into the canonical `PROOFS/` corpus.
+
+Automatically generated for every postprocessed candidate run:
+
+- `row-manifest.json` — exact manifest copied into the run directory.
+- `k6-summary.json` — raw k6 summary/export copied into the run directory.
+- `row-result.json` — public-safe normalized summary containing `metrics`, `receipts`, and `failureClass`.
+- Draft `EVIDENCE.md` — candidate-only review scaffold; not a folded proof verdict.
+
+Automatically normalized when the summary exposes explicit public-safe receipt state:
+
+- `summary.proof_receipts[receiptName]` or `summary.receipts[receiptName]` values of `true`/`present`, `false`/`missing`, or `unknown` become `receipts[].status`.
+
+Manual/review-required unless separately captured by the scenario and exposed through the summary/artifacts:
+
+- Tempo trace JSON and trace-derived spans.
+- Loki/journal receipts.
+- Gateway/tool/task-ledger receipts.
+- Any copied artifact under `artifacts/` that requires byte inspection.
+
+Dashboard and metric consumers must treat `receipt_status="unknown"` as **not automatically present**. A candidate run can be `PASS-candidate` while still requiring human receipt review before any corpus fold.
 
 ## Prometheus metric names
 
@@ -190,7 +214,7 @@ Value:
 
 ## Dashboard v1 panels
 
-The committed Grafana dashboard at `tools/k6-proofs/dashboards/k6-proofs.json` uses the Prometheus metric names below and built-in panel types only. It intentionally avoids generic upstream k6 metric names (`k6_http_reqs_total`, `k6_checks_rate`, etc.) because Project 81 proof review needs the normalized public-safe proof labels and receipt/fold-review signals.
+The first Grafana dashboard should use built-in panel types only; no plugin is required for v1.
 
 Recommended variables:
 

@@ -38,7 +38,7 @@ The dashboard consists of 10 panels designed to monitor run outcomes, performanc
 * **Title:** Proof Failure Hotspots
 * **Viz Type:** Bar Chart
 * **Fields Read:** `metrics.proofFailures` (sum/avg)
-* **Group By:** `scenario` (v1 `row-result.json` has no `toolSurface` field; group by `scenario`, or add `toolSurface` to the artifact first)
+* **Group By:** `toolSurface` or `scenario`
 * **Purpose:** Pinpoints where `proof_failures` are occurring across different tool surfaces.
 
 ### Panel 6: Run Duration Trends
@@ -52,7 +52,7 @@ The dashboard consists of 10 panels designed to monitor run outcomes, performanc
 * **Title:** Timeout & Performance Outliers
 * **Viz Type:** Table
 * **Fields Read:** `metrics.durationMs`, `runId`
-* **Group By:** `rowId` (sort by `durationMs` desc; v1 has no top-level `failureClass` field — derive timeout from `reason`/`outcome` or add `failureClass` to the artifact first)
+* **Group By:** `rowId`, `failureClass` (sort by `durationMs` desc)
 * **Purpose:** Isolates runs that timed out or ran exceptionally long.
 
 ### Panel 8: Missing Required Receipts
@@ -73,8 +73,8 @@ The dashboard consists of 10 panels designed to monitor run outcomes, performanc
 * **Title:** Failure Class Breakdown
 * **Viz Type:** Pie Chart / Donut
 * **Fields Read:** count of occurrences
-* **Group By:** `failureClass` (requires `failureClass` added to the `row-result.json` v1 shape; see field-vocabulary note below)
-* **Purpose:** Categorizes failures into buckets: `none`, `threshold`, `missing-receipt`, `timeout`, `auth`, `transport`, `redaction-gate`, `postprocess`.
+* **Group By:** `failureClass`
+* **Purpose:** Categorizes failures into buckets: `none`, `threshold`, `checks`, `missing-receipt`, `timeout`, `auth`, `transport`, `redaction-gate`, `postprocess`.
 
 ---
 
@@ -82,10 +82,10 @@ The dashboard consists of 10 panels designed to monitor run outcomes, performanc
 
 **Important:** #110 defines two distinct vocabularies, and v1 uses only the first:
 
-- **`row-result.json` artifact fields = camelCase** (`rowId`, `candidateSha`, `candidateOnly`, `foldRequiresReview`, `metrics.proofFailures`, `metrics.durationMs`, `outcome`, `seat`, `runId`, `scenario`, `receipts[].name/required/status`). **v1 reads these** via the Infinity static-JSON source, so all panel Fields-Read / Group-By above use camelCase.
+- **`row-result.json` artifact fields = camelCase** (`rowId`, `candidateSha`, `candidateOnly`, `foldRequiresReview`, `metrics.proofFailures`, `metrics.durationMs`, `outcome`, `seat`, `runId`, `scenario`, `toolSurface`, `transport`, `failureClass`, `receipts[].name/required/status`). **v1 reads these** via the Infinity static-JSON source, so all panel Fields-Read / Group-By above use camelCase.
 - **Prometheus label names = snake_case** (`row_id`, `candidate_sha`, `tool_surface`, `failure_class`, `receipt_name`, ...). These are the *public-safe label allowlist* for a future metrics-exporter path — **not present in the v1 JSON artifact.** Do not group v1 panels by these snake_case names; they would query non-existent keys and render empty.
 
-Fields named in the allowlist but **absent from the current `row-result.json` v1 shape** (`toolSurface`, top-level `failureClass`, `transport`) require either deriving from existing fields or extending the artifact schema first; panels depending on them are noted inline above.
+The current post-processor writes `toolSurface`, `transport`, top-level `failureClass`, `metrics.*`, and `receipts[]` into `row-result.json`; v1 dashboards should read those camelCase artifact fields directly. The snake_case names remain reserved for a future Prometheus/exporter path.
 
 ---
 
@@ -94,10 +94,16 @@ Fields named in the allowlist but **absent from the current `row-result.json` v1
 This dashboard operates **strictly** within the public-safe bounds established by the v1 k6 PROOFS metrics contract. 
 
 **Guarantee:** No forbidden fields are extracted, processed, or visualized in this dashboard. 
-* **Used:** Only low-cardinality, public-safe labels are permitted (`row_id`, `seat`, `candidate_sha`, `scenario`, `tool_surface`, `transport`, `outcome`, `candidate_only`, `fold_requires_review`, `receipt_name`, `receipt_required`, `receipt_status`, `failure_class`).
+* **Used:** Only low-cardinality, public-safe artifact fields / future labels are permitted (`rowId`/`row_id`, `seat`, `candidateSha`/`candidate_sha`, `scenario`, `toolSurface`/`tool_surface`, `transport`, `outcome`, `candidateOnly`/`candidate_only`, `foldRequiresReview`/`fold_requires_review`, `receipts[].name`/`receipt_name`, `receipts[].required`/`receipt_required`, `receipts[].status`/`receipt_status`, `failureClass`/`failure_class`).
 * **Forbidden (Excluded):** No tokens, auth headers, env dumps, session keys/ids, prompt bodies, delegate task bodies, nonces, raw request/response bodies, raw WS events, unredacted errors, private absolute paths, or non-public hostnames/IPs are present in the underlying `row-result.json` contract or queried by these panels.
 
 ---
+
+## Automated versus manual receipt semantics
+
+The dashboard reads normalized `receipts[]` from `row-result.json`; it does **not** inspect raw Tempo/Loki/journal/gateway artifacts. `receipt_status="present"` means the postprocessor saw an explicit public-safe receipt signal in the k6 summary (or a narrow legacy heuristic matched). `missing` means the summary explicitly reported absence. `unknown` means the receipt still requires manual byte review; panels must render it as incomplete/pending, not as present.
+
+Candidate outcome and receipt completeness are separate signals: `PASS-candidate` only means the k6 checks/proof failure counters passed for the run. Canonical proof folding still requires human review of required receipts and redaction safety.
 
 ## 3. Data Ingestion (V1 Architecture)
 

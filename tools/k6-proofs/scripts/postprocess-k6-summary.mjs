@@ -124,6 +124,8 @@ Reason: ${result.reason}
 
 ${receipts}
 
+Receipt statuses in \`row-result.json\` are automated only when the k6 summary exposes explicit public-safe receipt state. \`unknown\` means manual byte review is still required; it is not a passing receipt. Tempo/Loki/journal/gateway receipts must be copied or reviewed separately before any corpus fold.
+
 ## Raw artifacts in this run directory
 
 - \`row-manifest.json\` — exact manifest used.

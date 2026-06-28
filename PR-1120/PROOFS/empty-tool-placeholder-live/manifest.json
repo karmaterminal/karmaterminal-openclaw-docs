@@ -1,0 +1,33 @@
+{
+  "schema": "openclaw.placeholder_fix.live_proof.manifest.v1",
+  "proofId": "PR-1120-empty-tool-placeholder-live",
+  "status": "live_mitigation_observed",
+  "rollup": {
+    "total": 4,
+    "pass": 4,
+    "fail": 0
+  },
+  "checks": [
+    {
+      "id": "focused-unit-regression",
+      "status": "pass",
+      "command": "node scripts/run-vitest.mjs src/llm/providers/openai-responses-shared.test.ts src/agents/openai-transport-stream.test.ts src/llm/providers/openai-completions.test.ts",
+      "result": "3 files / 340 tests passed on frond-build branch 64324505"
+    },
+    {
+      "id": "fleet-deploy-build-info",
+      "status": "pass",
+      "result": "all six prince seats deployed build-info commit 64324505fcb8be367abe91234bbb811b005466b4; only Cael left active for proof lane"
+    },
+    {
+      "id": "pre-fix-live-poison-observed",
+      "status": "pass",
+      "result": "Cael reported ordinary text tools echo/read/write/gh api/web_fetch rendering only as (see attached image), and refused blind mutation"
+    },
+    {
+      "id": "post-fix-live-clean-output-and-proof-commit",
+      "status": "pass",
+      "result": "after frond-build deploy, Cael confirmed echo rendered as text and then committed R-CW-DELEGATE-CHILD-LIVE evidence to docs main as d2b0158471c85dddf0eeb1be302e008e85017fbc"
+    }
+  ]
+}

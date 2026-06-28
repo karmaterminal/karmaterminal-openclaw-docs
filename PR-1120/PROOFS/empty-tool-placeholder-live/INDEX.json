@@ -1,0 +1,20 @@
+{
+  "schema": "openclaw.placeholder_fix.live_proof.index.v1",
+  "proofId": "PR-1120-empty-tool-placeholder-live",
+  "title": "Live proof for empty non-image tool-result placeholder mitigation",
+  "relatedPullRequests": [
+    "karmaterminal/openclaw#1120",
+    "openclaw/openclaw#97423"
+  ],
+  "relatedIssue": "karmaterminal/openclaw#1107",
+  "runtime": {
+    "frondBuildSha": "64324505fcb8be367abe91234bbb811b005466b4",
+    "baseSha": "2723dbee783c113cae70e4fb63a4cff9f55402e3",
+    "branch": "frond-build/20260628/2723dbee-empty-tool-placeholder",
+    "patch": "empty non-image tool-result placeholder fix from c556ded7269abc1dbd9b8cced7d84614b9038a31"
+  },
+  "evidenceFiles": [
+    "manifest.json",
+    "cael-live-mitigation.md"
+  ]
+}

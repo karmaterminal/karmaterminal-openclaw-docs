@@ -83,18 +83,27 @@
       "traces": 1,
       "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-3/cael-dgx/EVIDENCE.md",
       "note": "continue_work reason.preview OTel capture on continuation.work span for Cael marker R-CW-1-R-CW-3-CAEL-2723dbee; Cael does not claim R-CW-1 (Silas owns R-CW-1 separately)."
+    },
+    {
+      "row": "R-CW-1",
+      "owner": "🌫 silas (silas-lothric)",
+      "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-1/",
+      "state": "pass",
+      "traces": 1,
+      "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CW-1/silas-lothric/EVIDENCE.md",
+      "note": "continue_work() typed tool accepted same-session election, emitted continuation.work trace span, persisted TaskFlow row, and released/woke parent session; flow e2689b5c-c76f-42c8-b9a9-9400ef61f199 succeeded"
     }
   ],
   "rollup": {
-    "total_rows": 8,
-    "pass": 7,
+    "total_rows": 9,
+    "pass": 8,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Fresh PROOFS corpus for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Current filed rows include R-RC-1, R-CD-1, R-CD-2, R-CONFIG-DEFAULTS, Rune R-CW-7 typed traceparent PASS, Rune R-CW-DELEGATE-TOKEN bare-token PASS, and Rune R-CW-6 HONEST-LIMIT/source-boundary + cap-scheduling evidence with invalid low-cap attempt and delivery/timer red preserved as diagnostics. Remaining rows are expected from their owning seats. Cael R-CW-3 PASS filed from cael-dgx: reason.preview OTel capture under trace 2723dbee00000000000000000000ca31. R-CW-1 intentionally left to Silas PR #152 to avoid duplicate row ownership.",
+  "disposition_note": "Fresh PROOFS corpus for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Current filed rows include R-RC-1, R-CD-1, R-CD-2, R-CONFIG-DEFAULTS, Rune R-CW-7 typed traceparent PASS, Rune R-CW-DELEGATE-TOKEN bare-token PASS, and Rune R-CW-6 HONEST-LIMIT/source-boundary + cap-scheduling evidence with invalid low-cap attempt and delivery/timer red preserved as diagnostics. Remaining rows are expected from their owning seats. Cael R-CW-3 PASS filed from cael-dgx: reason.preview OTel capture under trace 2723dbee00000000000000000000ca31. R-CW-1 intentionally left to Silas PR #152 to avoid duplicate row ownership. Silas R-CW-1 PASS integrated from PR #152: typed continue_work same-session wake, TaskFlow closeout succeeded.",
   "generated": "2026-06-27",
-  "generated_by": "rune-rog-ally + cael-dgx R-CW-3 row fold"
+  "generated_by": "cael-dgx integration of silas-lothric R-CW-1"
 }

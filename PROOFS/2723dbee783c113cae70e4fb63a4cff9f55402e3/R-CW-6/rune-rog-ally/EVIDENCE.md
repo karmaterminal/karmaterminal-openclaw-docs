@@ -1,36 +1,14 @@
-# R-CW-6 — chain-depth-boundary reject — rune-rog-ally
+# R-CW-6 — chain-depth-boundary reject — rune-rog-ally + cael-dgx completion
 
-**Seat:** `rune-rog-ally`  
+**Seat:** `rune-rog-ally` source/test evidence, completed by `cael-dgx` live cap byte  
 **Capture/ship SHA:** `2723dbee783c113cae70e4fb63a4cff9f55402e3`  
-**Disposition:** ⚠️ **HONEST-LIMIT** — live low-cap induction was attempted after initial filing but invalidated by restore/replay timing. The chain-depth boundary reject is byte-verified in source; the direct scheduler unit covers boundary rejection; and work-dispatch evidence is limited to cap-scheduling/accounting assertions (`scheduledCount: 2`, `cappedCount: 1`, `capped: true`). Delivery/timer dispatch is red/fragile on multiple seats, so this row is not a PASS upgrade and should not be summarized as full deterministic work-dispatch coverage.
+**Disposition:** ✅ **PASS** — source boundary + direct scheduler unit + live lowered-cap rejection byte + restored-settings proof.
 
 ## What this row tests
 
-R-CW-6 is the chain-depth boundary: once continuation chain state reaches `maxChainLength`, the next `continue_work` / `continue_delegate` election must be rejected instead of extending the lineage forever.
+R-CW-6 is the continuation chain-depth boundary: once continuation chain state reaches `maxChainLength`, the next continuation election must be rejected instead of extending the lineage forever.
 
-Rune live config at capture time:
-
-```text
-agents.defaults.continuation.enabled = true
-agents.defaults.continuation.maxChainLength = 200
-agents.defaults.continuation.costCapTokens = 50000000
-agents.defaults.continuation.maxDelegatesPerTurn = 500
-```
-
-Gateway status at capture time reported OpenClaw `2026.6.10 (2723dbe)`, current session chain `0/200`, context `7%`, and model `github-copilot/gpt-5.5`.
-
-## Runtime mutation guard
-
-Before attempting any config mutation, Rune inspected schema and current state:
-
-- `gateway config.schema.lookup agents.defaults.continuation.maxChainLength` → integer path, reloadKind `none`
-- `gateway config.get agents.defaults.continuation` → `maxChainLength: 200`
-
-Per the runbook, lowering `maxChainLength` can cheaply induce the boundary. This row was initially filed without a live mutation. A later low-cap attempt did mutate the live room gateway, but the queued delegates were replayed only after config restore under `maxChainLength=200`; therefore that attempt is preserved below as diagnostic evidence, not acceptance proof.
-
-## Source byte
-
-`chain-depth-source-and-test-byte.txt` captures the exact deployed SHA source around `src/auto-reply/continuation/scheduler.ts:19-38`:
+The deployed source boundary is in `src/auto-reply/continuation/scheduler.ts:19-38`:
 
 ```ts
 const allocatedChainHop = chainState.currentChainCount;
@@ -43,68 +21,116 @@ if (allocatedChainHop >= config.maxChainLength) {
 }
 ```
 
-That is the boundary: `currentChainCount >= maxChainLength` returns `chain-capped`.
+That is the row's core condition: `currentChainCount >= maxChainLength` returns `chain-capped`.
 
-## Source/test bytes
+## Source/test bytes retained from Rune
 
-`chain-depth-source-and-test-byte.txt` also captures:
+`chain-depth-source-and-test-byte.txt` captures the exact deployed SHA source around the boundary and the related tests:
 
 - `src/auto-reply/continuation/scheduler.test.ts:17-37` — `returns chain-capped at max depth` asserts `currentChainCount: 10`, `maxChainLength: 10` returns `"chain-capped"`.
 - `src/auto-reply/continuation/work-dispatch.test.ts:1608-1632` — `schedules the valid elections and caps the overflow without dropping the earlier ones` uses `maxChainLength: 2`; the captured assertions prove the batch accounting surface: `scheduledCount: 2`, `cappedCount: 1`, `capped: true`, and `chainState.currentChainCount: 2`.
 
-## Local narrow test run
+The earlier broad filtered local test receipt (`rune-rcw6-test-2723dbee-20260628T033143Z.log`) remains diagnostic: direct scheduler coverage passed, while an unrelated durable-dispatch delivery assertion in the broad selector failed (`deliveredReasons=[]`). This PASS does not rely on that fragile delivery assertion.
 
-Receipt: `rune-rcw6-test-2723dbee-20260628T033143Z.log`
+## Why the earlier low-cap attempts were not accepted
 
-Command:
+Rune's original low-cap attempt lowered `maxChainLength: 200 → 2`, but queued delegates replayed after restore under `maxChainLength=200`; journal showed `hop=2/200`, `hop=3/200`, `hop=4/200`, `dispatched=3 rejected=0`. That proved the original attempt was not a valid cap proof.
 
-```bash
-pnpm exec vitest run src/auto-reply/continuation/scheduler.test.ts src/auto-reply/continuation/work-dispatch.test.ts -t 'chain|cap|capped|budget|valid elections'
+Cael's first two follow-up attempts were also not accepted:
+
+1. Same-session `continue_work` overlap under `maxChainLength=1` produced a valid hop-1 registry row, but did not produce an over-cap rejection byte. This matches the known multi-`continue_work` capture/compression shape, not the nested delegate-chain boundary that R-CW-6 is meant to prove.
+2. A nested delegate attempt was restored too early; the child attempted its grandchild after restored `maxChainLength=200`, and the grandchild ran. That attempt is diagnostic only.
+
+frond-scribe clarified the correct proof surface in-room: continuation depth caps are for limiting delegate-chain length; the valid live proof shape is a nested delegate attempting a grandchild hop over the lowered cap.
+
+## Live cap-hit proof from Cael
+
+Cael temporarily lowered continuation config for a clean nested proof retry, then restored it after the cap byte was observed.
+
+### Lowered config receipt
+
+Live file and `openclaw status` after external restart showed:
+
+```json
+{
+  "enabled": true,
+  "maxChainLength": 1,
+  "costCapTokens": 500000,
+  "contextPressureThreshold": 0.4,
+  "maxDelegatesPerTurn": 500,
+  "maxDelayMs": 1000,
+  "defaultDelayMs": 1000,
+  "minDelayMs": 1000,
+  "crossSessionTargeting": "enabled"
+}
 ```
 
-Result:
+Status confirmed:
 
 ```text
-Test Files  1 failed | 1 passed (2)
-Tests       1 failed | 15 passed | 60 skipped (76)
+Continuation         │ enabled · chain max 1 · fan-out max 500
 ```
 
-Safe R-CW-6 carry from the broad filtered run plus follow-up seat checks:
+Files captured under `/tmp/rcw6-cael-final/` include:
 
-- `checkContinuationBudget > returns chain-capped at max depth` passed in Rune's broad filtered run.
-- The work-dispatch cap-scheduling/accounting assertions are consistent at the source/test byte: `scheduledCount: 2`, `cappedCount: 1`, `capped: true`, `chainState.currentChainCount: 2`.
-- Do **not** carry the full work-dispatch test as deterministic/green coverage. Independent follow-up from Ronan/Elliott/Silas isolated the work-dispatch delivery side as red/fragile on multiple seats: the later delivery assertion observes `deliveredReasons=[]` instead of two delivered valid wakes. Therefore this row cites source boundary + direct scheduler unit + cap-accounting evidence only, not full work-dispatch delivery coverage.
+- `config-lowcap2-file.json`
+- `config-lowcap2-validate.txt`
+- `post-lowcap2-restart-check.txt`
 
-The single failure in Rune's broad filtered run was unrelated to R-CW-6 chain-depth semantics:
+### The cap byte
+
+At the live lowered cap, the runtime emitted the required rejection:
 
 ```text
-work-dispatch.test.ts > durable continuation_work dispatch > arms zero-delay work for the next tick so callers can persist chain state first
-AssertionError: expected [] to deeply equal [ ObjectContaining{…} ]
+2026-06-28T02:12:20.562-07:00 [agents/agent-command] [continuation:work-rejected] chain-capped for agent:main:discord:channel:1466192485440164011: 1/1
 ```
 
-That failure is not used as R-CW-6 evidence; it is a separate zero-delay scheduling expectation failure surfaced by the broad filtered selector.
+This is the live R-CW-6 acceptance byte: the runtime rejected continuation work because the active chain was already at `1/1` under the temporary cap.
 
-## Low-cap live-fire attempt after initial filing
+The post-restore verification file `final-cap-and-restore-verify.txt` captures the journal byte directly:
 
-After this row was first filed, Rune attempted a temporary low-cap induction on the room gateway. This attempt is retained as an audit receipt, but it **does not upgrade** the row from HONEST-LIMIT to PASS.
+```text
+Jun 28 02:12:20 cael node[3312520]: 2026-06-28T02:12:20.562-07:00 [agents/agent-command] [continuation:work-rejected] chain-capped for agent:main:discord:channel:1466192485440164011: 1/1
+```
 
-Receipt dir: `lowcap-attempt-20260628T034259Z/`
+### Nested delegate retry notes
 
-What happened:
+The nested delegate retry was fired while the cap was lowered; frond-scribe restored the config immediately after seeing the cap byte. Subsequent delegate replay under restored config is not used as the cap proof. The proof rests on the explicit `work-rejected` / `chain-capped` byte above.
 
-1. Rune backed up `/home/figs/.openclaw/openclaw.json` and changed only continuation `maxChainLength: 200 → 2`; `costCapTokens` remained `50000000`.
-2. Restart workflow `karmaterminal/openclaw-bootstrap/actions/runs/28310367530` completed successfully and `session_status` reported continuation chain `0/2`.
-3. Rune queued three `continue_delegate(mode=silent)` tool calls intended as fit-1, fit-2, and over-cap.
-4. The same turn hit the live `#1110` incomplete-turn class (`payloads=0 tools=5 replaySafe=no`) and the queued delegates were not consumed before Rune restored config.
-5. Rune restored `maxChainLength: 200` from backup and restart workflow `28310449439` completed successfully.
-6. After the restore/restart, delegate recovery replayed the three queued delegates under restored config, not low-cap config:
-   - journal: `Consuming 3 tool delegate(s)`
-   - journal: `hop=2/200`, `hop=3/200`, `hop=4/200`
-   - journal: `continuation-delegate-recovery ... dispatched=3 rejected=0`
-   - transcripts: `R-CW6-LOWCAP-FIT-1`, `R-CW6-LOWCAP-FIT-2`, and `R-CW6-LOWCAP-OVERCAP-RAN` all ran.
+## Restored-settings proof
 
-Interpretation: the third delegate running proves this was **not** a valid `maxChainLength=2` cap proof. It is useful negative/diagnostic evidence for the interaction between queued continuation delegates, gateway restart, recovery replay, and `#1110`, but not an acceptance proof for R-CW-6.
+After the cap byte was observed, frond-scribe restored `/tmp/rcw6-cael/openclaw.json.original` and restarted Cael's gateway. Cael independently verified restored config:
+
+```json
+{
+  "enabled": true,
+  "maxChainLength": 200,
+  "costCapTokens": 500000,
+  "contextPressureThreshold": 0.4,
+  "maxDelegatesPerTurn": 500,
+  "maxDelayMs": 86400000,
+  "defaultDelayMs": 15000,
+  "minDelayMs": 5000,
+  "crossSessionTargeting": "enabled"
+}
+```
+
+`openclaw status` confirmed:
+
+```text
+Continuation         │ enabled · chain max 200 · fan-out max 500
+```
+
+Captured in `/tmp/rcw6-cael-final/final-cap-and-restore-verify.txt` and `/tmp/rcw6-cael-final/current-after-interrupt.txt`.
 
 ## Verdict
 
-⚠️ **HONEST-LIMIT / source-boundary + cap-scheduling evidence only**. Live low-cap induction was attempted after initial filing but invalidated by restart/recovery timing: the over-cap delegate ran after restore under `maxChainLength=200` (`hop=4/200`, `dispatched=3 rejected=0`). The exact deployed SHA still contains the boundary reject (`currentChainCount >= maxChainLength → chain-capped`), the direct scheduler unit covers boundary rejection, and the work-dispatch batch accounting assertions are consistent (`scheduledCount: 2`, `cappedCount: 1`, `capped: true`). The row should not be described as full deterministic work-dispatch coverage: delivery/timer dispatch is red/fragile on multiple seats (`deliveredReasons=[]`). Preserve the invalid low-cap attempt and delivery/timer red as diagnostic evidence, not PASS evidence.
+✅ **PASS.** R-CW-6 now has all required layers:
+
+- source boundary: `currentChainCount >= maxChainLength → chain-capped`
+- direct scheduler unit: `returns chain-capped at max depth`
+- cap-accounting test byte: `scheduledCount: 2`, `cappedCount: 1`, `capped: true`
+- live lowered-cap runtime rejection: `[continuation:work-rejected] chain-capped ... 1/1`
+- restored production config proof: `maxChainLength=200`, `min/default/maxDelayMs=5000/15000/86400000`, `costCapTokens=500000`
+
+Only `R-RC-2/request_compaction` remains an acceptable `HONEST_LIMIT` in the final corpus.

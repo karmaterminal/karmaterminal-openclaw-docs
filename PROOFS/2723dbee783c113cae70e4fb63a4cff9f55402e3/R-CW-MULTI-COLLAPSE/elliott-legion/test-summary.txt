@@ -1,0 +1,13 @@
+Command:
+  cd /home/figs/flesh_beast_tmp/openclaw
+  node scripts/run-vitest.mjs run src/auto-reply/continuation/work-dispatch.test.ts src/agents/command/attempt-execution.continue-work-opts.test.ts
+
+Result:
+  PASS — 2 Vitest project shards passed in 25.48s
+  auto-reply: src/auto-reply/continuation/work-dispatch.test.ts — 71 tests passed
+  agents: src/agents/command/attempt-execution.continue-work-opts.test.ts — 15 tests passed
+
+Initial incorrect command, preserved for methodology:
+  node scripts/run-vitest.mjs run --config test/vitest/vitest.unit.config.ts ...
+  Result: no test files found because that unit config excludes src/auto-reply/** and src/agents/**.
+  Corrected by using scripts/run-vitest.mjs without forcing the wrong project config, which selected vitest.auto-reply.config.ts and vitest.agents.config.ts.

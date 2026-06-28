@@ -56,18 +56,27 @@
       "traces": 1,
       "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CD-2/ronan-dgx/EVIDENCE.md",
       "note": "continue_delegate(mode=\"silent-wake\") schedule → child spawn → silent return → parent wake; trace 4bf92f3577b34da6a3ce929d0e0e4736"
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "owner": "🕯 emeric (emeric-nuc)",
+      "dir": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CONFIG-DEFAULTS/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3/R-CONFIG-DEFAULTS/emeric-nuc/EVIDENCE.md",
+      "note": "continuation runtime defaults byte-present in source at deployed SHA; config.test.ts 18/18 passed; live fleet overrides documented"
     }
   ],
   "rollup": {
-    "total_rows": 5,
-    "pass": 4,
+    "total_rows": 6,
+    "pass": 5,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Fresh PROOFS corpus opened after fleet deploy receipts green for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Silas R-RC-1 PASS filed; Elliott R-CD-1 tool-form default continue_delegate PASS filed; Ronan R-CD-2 PASS filed; Rune R-CW-6 honest-limit/source-boundary + cap-scheduling evidence filed with invalid low-cap attempt and multi-seat work-dispatch delivery/timer red preserved as diagnostic receipts; Rune R-CW-7 PASS filed for typed continue_delegate traceparent propagation with Tempo trace under supplied trace id 2723dbee000000000000000000000007. Remaining rows are expected from their owning seats.",
+  "disposition_note": "Fresh PROOFS corpus opened after fleet deploy receipts green for exact deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3. Silas R-RC-1 PASS filed; Elliott R-CD-1 tool-form default continue_delegate PASS filed; Ronan R-CD-2 PASS filed; Rune R-CW-6 honest-limit/source-boundary + cap-scheduling evidence filed with invalid low-cap attempt and multi-seat work-dispatch delivery/timer red preserved as diagnostic receipts; Rune R-CW-7 PASS filed for typed continue_delegate traceparent propagation with Tempo trace under supplied trace id 2723dbee000000000000000000000007. Emeric R-CONFIG-DEFAULTS PASS filed from emeric-nuc: source defaults + config.test.ts 18/18 + build-info SHA match; no timing/compaction-dependent live fire. Remaining rows are expected from their owning seats.",
   "generated": "2026-06-27",
-  "generated_by": "elliott-legion"
+  "generated_by": "emeric-nuc"
 }

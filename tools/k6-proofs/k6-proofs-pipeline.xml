@@ -4,7 +4,7 @@
   Domain: Continuation feature behavioral proof automation
   
   Use: Machine-actor navigation when building/running/verifying proof rows.
-  Companion: k6-proofs/skill/SKILL.md (human-readable, detailed)
+  Companion: tools/k6-proofs/skill/SKILL.md (human-readable, detailed)
   
   One-shot parse: a model loads this whole and knows which row, what to fire,
   how to verify, and where artifacts land — no line-by-line scanning.
@@ -21,8 +21,8 @@
     <Component id="loki" url="http://loki.dandelion.cult" port="80" host="silas-k3s"/>
     <Component id="tempo" url="http://tempo.dandelion.cult" port="80" host="silas-k3s"/>
     <Component id="gateway" url="http://127.0.0.1:18789" path="/health" expect="ok:true"/>
-    <Component id="harness" repo="karmaterminal/karmaterminal-openclaw-docs" path="k6-proofs/"/>
-    <Component id="runner" path="k6-proofs/run-proof.sh" auto-detects="sha,seat,prometheus-url"/>
+    <Component id="harness" repo="karmaterminal/karmaterminal-openclaw-docs" path="tools/k6-proofs/"/>
+    <Component id="runner" path="tools/k6-proofs/run-proof.sh" auto-detects="sha,seat,prometheus-url"/>
   </Infrastructure>
 
   <!-- ═══════════════════════════════════════════════════════════════
@@ -30,12 +30,12 @@
        ═══════════════════════════════════════════════════════════════ -->
   <Pipeline>
     <Step order="1" id="preflight">
-      <Action>./run-proof.sh preflight</Action>
+      <Action>./tools/k6-proofs/run-proof.sh preflight</Action>
       <Verifies>Gateway alive, Tempo reachable, Loki reachable, Prometheus accepting writes</Verifies>
       <FailAction>Do not proceed — infrastructure not ready</FailAction>
     </Step>
     <Step order="2" id="fire-row">
-      <Action>./run-proof.sh r-{row-name}</Action>
+      <Action>./tools/k6-proofs/run-proof.sh r-{scenario-basename}</Action>
       <Metrics>Auto-ship to Prometheus via Remote Write</Metrics>
       <Output>r-{row-name}-summary.json</Output>
     </Step>
@@ -45,8 +45,8 @@
       <Destination>PROOFS/{SHA}/R-{ROW-NAME}/</Destination>
     </Step>
     <Step order="4" id="commit">
-      <Action>git add PROOFS/{SHA}/; git commit; git push origin main</Action>
-      <Constraint>Proofs land on main directly (no branch/PR detour per figs directive)</Constraint>
+      <Action>Review generated artifacts, add PROOFS/{SHA}/... intentionally, then commit/push through the current coordination lane</Action>
+      <Constraint>Proof artifacts may land direct-to-main when explicitly coordinated; harness/docs changes use normal PR review.</Constraint>
     </Step>
   </Pipeline>
 
@@ -206,9 +206,9 @@
       <Rule>Cap-exhaustion rows MUST be proven by actually hitting the cap</Rule>
       <Procedure>Lower caps → reload gateway → fire → verify reject → restore → reload</Procedure>
     </Mandate>
-    <Mandate id="corpus-direct">
-      <Rule>Proofs land on main directly — no branch/PR detour</Rule>
-      <Path>PROOFS/{CANDIDATE_SHA}/R-{ROW-NAME}/EVIDENCE.md</Path>
+    <Mandate id="corpus-fold">
+      <Rule>Proof artifacts fold only after review/coordination; docs and harness changes use normal PR review</Rule>
+      <Path>PROOFS/{CANDIDATE_SHA}/R-{ROW-NAME}/{seat}/EVIDENCE.md</Path>
     </Mandate>
     <Mandate id="nonce-correlation">
       <Rule>Use unique nonces and idempotency keys per proof-fire</Rule>

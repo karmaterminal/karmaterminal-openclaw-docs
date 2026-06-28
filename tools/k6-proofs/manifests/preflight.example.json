@@ -14,12 +14,18 @@
     "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
   },
   "scenario": {
-    "name": "preflight inventory",
+    "name": "preflight",
     "description": "Authenticate/read-only gateway inventory: health/status, sessions.list, tools.effective. Offline mode validates manifest shape without gateway traffic.",
-    "methods": ["health", "status", "sessions.list", "tools.effective"],
-    "status": "scaffold",
+    "methods": [
+      "health",
+      "status",
+      "sessions.list",
+      "tools.effective"
+    ],
+    "status": "runnable",
     "expectedFile": "preflight.js",
-    "registryNotes": "No runnable preflight.js exists yet; this manifest remains a preflight scaffold/example until that file lands."
+    "registryNotes": "Runnable read-only preflight scenario exists at tools/k6-proofs/scenarios/preflight.js.",
+    "file": "preflight"
   },
   "expectedReceipts": [
     {

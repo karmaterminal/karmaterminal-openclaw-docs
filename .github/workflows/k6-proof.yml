@@ -20,14 +20,17 @@ on:
   workflow_dispatch:
     inputs:
       scenario:
-        description: "Scenario file under tools/k6-proofs/scenarios/ (without path)"
+        description: "Scenario basename under tools/k6-proofs/scenarios/ (without .js)"
         required: true
         type: choice
-        default: preflight.js
+        default: preflight
         options:
-          - preflight.js
-          - r-cd-1-typed-delegate.js
-          - r-cd-token-bracket-delegate.js
+          - preflight
+          - r-cd-2-silent-wake
+          - r-cd-4-target-session-key
+          - r-cd-chained-depth-2
+          - r-cw-1
+          - r-cw
       row:
         description: "Row id for evidence (e.g. R-CD-1, R-CD-TOKEN). Ignored when dry_run=true."
         required: false
@@ -92,7 +95,11 @@ jobs:
           MANIFEST_PATH: ${{ github.event.inputs.manifest_path }}
         run: |
           set -euo pipefail
-          scenario_file="tools/k6-proofs/scenarios/${SCENARIO}"
+          if printf '%s' "$SCENARIO" | grep -Eq '/|\.js$'; then
+            echo "::error::scenario must be a basename without path or .js suffix: $SCENARIO"
+            exit 1
+          fi
+          scenario_file="tools/k6-proofs/scenarios/${SCENARIO}.js"
           if [ ! -f "$scenario_file" ]; then
             echo "::error::scenario file not found: $scenario_file"
             exit 1
@@ -125,6 +132,27 @@ jobs:
           sudo apt-get install -y k6
           k6 version
 
+      - name: Seat readiness preflight
+        env:
+          OPENCLAW_GATEWAY_WS: ${{ github.event.inputs.gateway_ws }}
+          OPENCLAW_SESSION_KEY: ${{ github.event.inputs.session_key }}
+          OPENCLAW_CANDIDATE_SHA: ${{ github.event.inputs.candidate_sha }}
+          OPENCLAW_SEAT_NAME: ${{ github.event.inputs.seat }}
+          OPENCLAW_EXPECTED_K6_VERSION: v2.0.0
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          export OPENCLAW_GATEWAY_TOKEN=$(python3 -c "import json, os; print(json.load(open(os.path.expanduser('~/.openclaw/openclaw.json')))['gateway']['auth']['token'])")
+          set +x
+          set -euo pipefail
+          if ! node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json | tee /tmp/seat-readiness.json; then
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "::warning::seat readiness preflight did not pass; dry_run continues, but output is not proof-standard"
+              exit 0
+            fi
+            echo "::error::seat readiness preflight did not pass; inspect /tmp/seat-readiness.json before treating k6 output as proof-standard"
+            exit 1
+          fi
+
       - name: Run k6 scenario
         # Token is injected ONLY here, ONLY as env. Never echoed; runner masks
         # registered secrets in logs, and we keep `set +x` so the env line is
@@ -137,7 +165,7 @@ jobs:
           OPENCLAW_ROW_MANIFEST: ${{ github.event.inputs.manifest_path }}
           SCENARIO: ${{ github.event.inputs.scenario }}
         run: |
-          export OPENCLAW_GATEWAY_TOKEN="$(python3 -c 'import json, os; print(json.load(open(os.path.expanduser(\"~/.openclaw/openclaw.json\")))[\"gateway\"][\"auth\"][\"token\"])')"
+          export OPENCLAW_GATEWAY_TOKEN=$(python3 -c "import json, os; print(json.load(open(os.path.expanduser('~/.openclaw/openclaw.json')))['gateway']['auth']['token'])")
           set +x
           set -euo pipefail
           if [ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]; then
@@ -147,7 +175,7 @@ jobs:
           mkdir -p /tmp/k6-out
           # tee to a file for the evidence post-processor; k6's own stdout is the
           # human log. The token is never printed by k6 or by us.
-          k6 run "tools/k6-proofs/scenarios/${SCENARIO}" 2>&1 | tee /tmp/k6-out/run.txt
+          k6 run "tools/k6-proofs/scenarios/${SCENARIO}.js" 2>&1 | tee /tmp/k6-out/run.txt
           echo "k6 run complete"
 
       - name: Write evidence artifacts

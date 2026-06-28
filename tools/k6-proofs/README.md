@@ -50,6 +50,13 @@ node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \
 See [`docs/GOLDEN-PATH.md`](docs/GOLDEN-PATH.md). Output remains
 `PASS-candidate` / review-required and must not be folded automatically.
 
+### 0a. Seat readiness preflight (public-safe)
+
+Before treating a live k6 row as proof-standard, record the seat/tooling readiness receipt.
+The helper prints secret-presence booleans only, never token values. Exit 0 means
+`PASS-candidate`; non-zero means `HONEST-LIMIT-candidate`. The workflow runs this
+check before live proof rows and allows dry-runs to continue with a warning.
+
 ### 1. Preflight check
 
 ```bash
@@ -180,6 +187,9 @@ node tools/k6-proofs/scripts/validate-corpus.mjs --index --json
 
 # Validate row-manifest scenario registry status vs runnable scenario files
 node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
+
+# Validate workflow_dispatch scenario choices against runnable scenario files
+node tools/k6-proofs/scripts/check-scenario-alignment.mjs
 ```
 
 Checks: JSON parse, schema sanity (`openclaw.proofs.index.v1` /

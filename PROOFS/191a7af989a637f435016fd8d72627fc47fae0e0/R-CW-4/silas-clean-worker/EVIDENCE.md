@@ -44,4 +44,4 @@ This worker scheduled a local continuation retest with marker:
 SILAS-R-CW4-20260627T2357PDT
 ```
 
-The local retest later produced visible wake metadata for A and B: `Turn 1/200` followed by `Turn 2/200`, both with `Chain started at 2026-06-28T06:53:37.227Z`. That is useful evidence of wake continuity at the visible metadata layer, but it still does not expose `chain.id` or `chain.step.remaining`. A hop C was scheduled; unless it exposes those proof bytes or correlated gateway/Tempo spans for the same chain, the honest classification remains `HONEST_LIMIT`.
+The local retest later produced visible wake metadata for A and B: `Turn 1/200` followed by `Turn 2/200`, both with `Chain started at 2026-06-28T06:53:37.227Z`. That is useful evidence of wake continuity at the visible metadata layer, but it still does not expose `chain.id` or `chain.step.remaining`. Hop C later arrived as `Turn 1/200` with a different `Chain started at` timestamp (`2026-06-28T06:54:01.916Z`), and still exposed no `chain.id` or `chain.step.remaining`. That strengthens the HONEST_LIMIT conclusion: visible wake/turn text is not sufficient to prove same-chain depth decrement.

@@ -66,3 +66,15 @@ Hop C scheduling result:
   "traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-2222222222222222-00"
 }
 ```
+
+## Hop C wake receipt
+
+The hop C wake receipt arrived after the hop B update:
+
+```text
+[continuation:wake] Turn 1/200. Chain started at 2026-06-28T06:54:01.916Z. Accumulated tokens: 390140. The agent elected to continue working. Reason: R-CW-4 clean retest marker=SILAS-RCW4-20260627T2357PDT hop=C final discriminator check; A Turn 1/200 and B Turn 2/200 share chain started 2026-06-28T06:53:37.227Z but still no chain.id/chain.step.remaining
+```
+
+Interpretation: hop C did **not** continue the visible A/B chain. It arrived as `Turn 1/200` with a different visible `Chain started at` timestamp (`2026-06-28T06:54:01.916Z` vs A/B `2026-06-28T06:53:37.227Z`). It also still exposed no opaque `chain.id` and no `chain.step.remaining`.
+
+This strengthens, rather than weakens, the HONEST_LIMIT classification: the local retest demonstrates that visible wake text can show continuity for A/B, but C can restart visibly, and none of the receipts provide the chain/depth proof byte needed for R-CW-4 PASS.

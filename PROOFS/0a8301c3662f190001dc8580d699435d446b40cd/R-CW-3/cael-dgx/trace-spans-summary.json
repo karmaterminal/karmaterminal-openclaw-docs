@@ -1,0 +1,31 @@
+[
+  {
+    "name": "continuation.work",
+    "attrs": [
+      {
+        "key": "delay.ms",
+        "value": {
+          "intValue": "5000"
+        }
+      },
+      {
+        "key": "chain.step.remaining",
+        "value": {
+          "intValue": "199"
+        }
+      },
+      {
+        "key": "chain.id",
+        "value": {
+          "stringValue": "daed0a01-9f91-466c-b404-37a72f12cb95"
+        }
+      },
+      {
+        "key": "reason.preview",
+        "value": {
+          "stringValue": "R-CW-1-R-CW-3-CAEL-2723dbee-unique-1520644643887251639-reason-field-proof"
+        }
+      }
+    ]
+  }
+]

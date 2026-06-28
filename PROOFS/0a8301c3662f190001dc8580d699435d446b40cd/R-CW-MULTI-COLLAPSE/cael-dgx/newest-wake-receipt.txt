@@ -1,0 +1,5 @@
+marker=RCW_COLLAPSE_CAEL_1782635391621
+receipt=newest-driven
+wake_ts=2026-06-28T01:30:41-07:00
+reason=RCW_COLLAPSE_CAEL_1782635391621 NEWEST should drive
+note=Received continuation wake Turn 102/200 after system continuation-note folded 1 stale wake into newest election.

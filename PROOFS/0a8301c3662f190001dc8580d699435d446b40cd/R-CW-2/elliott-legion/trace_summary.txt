@@ -1,0 +1,11 @@
+span.name=continuation.work
+service.name=elliott-prince
+host.name=elliott
+process.pid=1529184
+traceId=JyPb7gAAAAAAAAAAAAAMAg==
+spanId=tWtkwDrszYw=
+startTimeUnixNano=1782622857034000000
+chain.id=4e930ac7-29e1-47d0-bd3b-70ec37b0ca71
+chain.step.remaining=199
+delay.ms=0
+reason.preview=R-CW-2 PROOF for PROOFS/2723dbee783c113cae70e4fb63a4cff9f55402e3 from Elliott: d

@@ -1,0 +1,7 @@
+marker=RCW_DELEGATE_CHILD_LIVE_2723_CAEL_1782632760
+phase=hop2-EXECUTED
+created_at=2026-06-28T00:46:54-07:00
+visible_continuation_wake_metadata=[Sun 2026-06-28 00:46 PDT] [continuation:wake] Turn 1/200. Chain started at 2026-06-28T07:46:45.845Z. Accumulated tokens: 8379. The agent elected to continue working. Reason: RCW_DELEGATE_CHILD_LIVE_2723_CAEL_1782632760 hop2 execute receipt required
+session=agent:main:subagent:continuation-6e695c381b45a253c3d3e93c86ecbc16
+sessionId=c0cf2283-b599-4ae0-98b7-91c8bcb2266a
+host=cael

@@ -1,0 +1,109 @@
+{
+  "schema": "openclaw.proofs.trace-redaction.v1",
+  "candidate_sha": "0ab5f5e71f333ea4621262239f314a7d39ddee7c",
+  "row": "R-TRACE-REDACTION-1121",
+  "sentinel_description": "fake GitHub-token-shaped sentinel; literal value intentionally not repeated in this JSON",
+  "exported_span_count": 5,
+  "spans": [
+    {
+      "name": "continuation.work",
+      "attributes": {
+        "delay.ms": 1000,
+        "chain.step.remaining": 4,
+        "chain.id": "chain-work",
+        "reason.present": true,
+        "reason.length": 50,
+        "reason.hash": "9672f48b989413d2",
+        "reason.redacted": false
+      },
+      "assertions": {
+        "raw_reason_preview_omitted": true,
+        "sentinel_absent_from_exported_attributes": true,
+        "reason_metadata_present": true
+      }
+    },
+    {
+      "name": "continuation.delegate.dispatch",
+      "attributes": {
+        "delay.ms": 0,
+        "chain.step.remaining": 3,
+        "delegate.delivery": "immediate",
+        "chain.id": "chain-delegate",
+        "delegate.mode": "silent",
+        "reason.present": true,
+        "reason.length": 57,
+        "reason.hash": "10f453b4dec633f4",
+        "reason.redacted": false
+      },
+      "assertions": {
+        "raw_reason_preview_omitted": true,
+        "sentinel_absent_from_exported_attributes": true,
+        "reason_metadata_present": true
+      }
+    },
+    {
+      "name": "continuation.disabled",
+      "attributes": {
+        "chain.step.remaining": 2,
+        "disabled.reason": "cap.chain",
+        "signal.kind": "tool-delegate",
+        "continuation.disabled": true,
+        "chain.id": "chain-disabled",
+        "delegate.delivery": "timer",
+        "delegate.mode": "silent-wake",
+        "reason.present": true,
+        "reason.length": 58,
+        "reason.hash": "88a864d9a7ecf097",
+        "reason.redacted": false
+      },
+      "assertions": {
+        "raw_reason_preview_omitted": true,
+        "sentinel_absent_from_exported_attributes": true,
+        "reason_metadata_present": true
+      }
+    },
+    {
+      "name": "continuation.delegate.fire",
+      "attributes": {
+        "chain.id": "chain-fire",
+        "chain.step.remaining": 1,
+        "delay.ms": 1000,
+        "fire.deferred_ms": 1010,
+        "delegate.delivery": "timer",
+        "delegate.mode": "normal",
+        "reason.present": true,
+        "reason.length": 55,
+        "reason.hash": "3d5eeead52d22d7a",
+        "reason.redacted": false
+      },
+      "assertions": {
+        "raw_reason_preview_omitted": true,
+        "sentinel_absent_from_exported_attributes": true,
+        "reason_metadata_present": true
+      }
+    },
+    {
+      "name": "continuation.work.fire",
+      "attributes": {
+        "chain.id": "chain-work-fire",
+        "chain.step.remaining": 0,
+        "delay.ms": 2000,
+        "fire.deferred_ms": 2020,
+        "reason.present": true,
+        "reason.length": 53,
+        "reason.hash": "68c19c7cc1d52bba",
+        "reason.redacted": false
+      },
+      "assertions": {
+        "raw_reason_preview_omitted": true,
+        "sentinel_absent_from_exported_attributes": true,
+        "reason_metadata_present": true
+      }
+    }
+  ],
+  "aggregate_assertions": {
+    "no_reason_preview_attribute": true,
+    "sentinel_absent_from_all_exported_attributes": true,
+    "reason_hash_present_on_all_reason_spans": true
+  }
+}

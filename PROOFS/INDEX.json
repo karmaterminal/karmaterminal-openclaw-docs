@@ -1,11 +1,11 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "d3d1e5a52d0c7803236abd3258775bc4e33ef6f4",
-  "current_sha_short": "d3d1e5a5",
-  "build_string": "OpenClaw continuation PR #85651 (d3d1e5a) — trace-redaction candidate with lint-only test cleanup, corpus transposed from 0ab5f5e",
-  "corpus_path": "PROOFS/d3d1e5a52d0c7803236abd3258775bc4e33ef6f4/",
-  "manifest_path": "PROOFS/d3d1e5a52d0c7803236abd3258775bc4e33ef6f4/proofs-manifest.json",
+  "current_sha": "0a8301c3662f190001dc8580d699435d446b40cd",
+  "current_sha_short": "0a8301c3",
+  "build_string": "OpenClaw continuation PR #85651 (0a8301c) — trace-redaction candidate with tsgo/oxlint test cleanup, corpus transposed from d3d1e5a",
+  "corpus_path": "PROOFS/0a8301c3662f190001dc8580d699435d446b40cd/",
+  "manifest_path": "PROOFS/0a8301c3662f190001dc8580d699435d446b40cd/proofs-manifest.json",
   "rollup": {
     "total_rows": 28,
     "pass": 27,
@@ -15,10 +15,10 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "TRANSPOSED corpus for PR-presentation SHA d3d1e5a52d0c7803236abd3258775bc4e33ef6f4. Evidence for R-TRACE-REDACTION-1121 was generated at 0ab5f5e71f333ea4621262239f314a7d39ddee7c; diff to d3d1e5a52d0c7803236abd3258775bc4e33ef6f4 is a test-only oxlint cleanup (no behavior change). Full corpus is copied locally under this SHA for clawsweeper locality. Final rollup remains 28 rows = 27 PASS + 1 accepted HONEST_LIMIT (R-RC-2), 0 partial/thin/fail/missing.",
+  "disposition_note": "TRANSPOSED corpus for PR-presentation SHA 0a8301c3662f190001dc8580d699435d446b40cd. Evidence for R-TRACE-REDACTION-1121 was generated at d3d1e5a52d0c7803236abd3258775bc4e33ef6f4 ancestry; diff to 0a8301c3662f190001dc8580d699435d446b40cd is a test-only tsgo/oxlint cleanup (no behavior change). Full corpus is copied locally under this SHA for clawsweeper locality. Final rollup remains 28 rows = 27 PASS + 1 accepted HONEST_LIMIT (R-RC-2), 0 partial/thin/fail/missing.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-06-28",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
-  "capture_sha": "d3d1e5a52d0c7803236abd3258775bc4e33ef6f4",
-  "carried_from": "0ab5f5e71f333ea4621262239f314a7d39ddee7c"
+  "capture_sha": "0a8301c3662f190001dc8580d699435d446b40cd",
+  "carried_from": "d3d1e5a52d0c7803236abd3258775bc4e33ef6f4"
 }

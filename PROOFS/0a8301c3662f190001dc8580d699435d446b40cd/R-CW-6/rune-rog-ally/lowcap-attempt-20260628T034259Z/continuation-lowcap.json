@@ -1,0 +1,17 @@
+{
+  "agents": {
+    "defaults": {
+      "continuation": {
+        "enabled": true,
+        "maxChainLength": 2,
+        "costCapTokens": 50000000,
+        "contextPressureThreshold": 0.4,
+        "crossSessionTargeting": "enabled",
+        "defaultDelayMs": 15000,
+        "maxDelayMs": 86400000,
+        "maxDelegatesPerTurn": 500,
+        "minDelayMs": 5000
+      }
+    }
+  }
+}

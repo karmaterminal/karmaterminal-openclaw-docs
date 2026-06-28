@@ -1,0 +1,11 @@
+openclaw_sha=2723dbee783c113cae70e4fb63a4cff9f55402e3
+command=pnpm exec vitest run src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts --pool=forks --maxWorkers=1 --no-fileParallelism --reporter=verbose
+ RUN  v4.1.8 /tmp/oc-p81-static-2723dbee783c113cae70e4fb63a4cff9f55402e3
+ ✓  auto-reply  ../../src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts > cost-cap exhaustion mid-chain > allows dispatch when accumulatedChainTokens is 1 below costCapTokens 89ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts > cost-cap exhaustion mid-chain > rejects dispatch when accumulatedChainTokens exceeds costCapTokens by 1 2ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts > cost-cap exhaustion mid-chain > rejects all remaining queued delegates once cost cap is crossed 1ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts > cost-cap exhaustion mid-chain > marks TaskFlow records as failed for cost-cap-rejected delegates 1ms
+ ✓  auto-reply  ../../src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts > cost-cap exhaustion mid-chain > rejects at exact boundary (accumulatedChainTokens === costCapTokens is NOT over) 1ms
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Duration  3.85s (transform 2.98s, setup 445ms, import 3.20s, tests 97ms, environment 0ms)

@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "result": {
+    "hash": "f1ee37ac8b01b89ca57fa9b84d972bee80e61ca9846e5a70ac5f8095ea34c38e",
+    "path": "agents.defaults.continuation.crossSessionTargeting",
+    "config": "enabled"
+  }
+}

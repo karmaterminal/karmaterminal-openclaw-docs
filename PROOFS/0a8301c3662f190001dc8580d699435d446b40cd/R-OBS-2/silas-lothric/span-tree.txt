@@ -1,0 +1,11 @@
+Trace ID: 2723dbee000000000000000000000007
+Span count: 8
+
+- continuation.work | host=rune | reason.preview=Collect the R-CW-7 2723dbee silent-wake delegate result/trace, write evidence ro
+- continuation.delegate.dispatch | host=rune | delegate.mode=silent-wake | reason.preview=R-CW-7 proof shard for deployed SHA 2723dbee783c113cae70e4fb63a4cff9f55402e3 on 
+  - openclaw.harness.run | host=rune | openclaw.provider=github-copilot | openclaw.model=gpt-5.5
+    - openclaw.run | host=rune | openclaw.provider=github-copilot | openclaw.model=gpt-5.5
+      - openclaw.context.assembled | host=rune | openclaw.provider=github-copilot | openclaw.model=gpt-5.5
+      - openclaw.model.call | host=rune | openclaw.provider=github-copilot | openclaw.model=gpt-5.5
+  - continuation.queue.fanout | host=rune | fanout.mode=tree
+  - continuation.queue.drain | host=rune | queue.drained_continuation_count=0

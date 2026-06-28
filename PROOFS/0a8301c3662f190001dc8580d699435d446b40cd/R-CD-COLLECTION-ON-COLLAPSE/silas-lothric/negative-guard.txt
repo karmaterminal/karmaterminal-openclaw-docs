@@ -1,0 +1,9 @@
+Negative guard 1: invalid mixed targeting did not schedule a C leaf.
+- B1 child returned B_SENTINEL_RCD_COLLECTION_2723DBEE_20260628T0655Z.
+- continue_delegate rejected the request: "fanoutMode cannot be combined with targetSessionKey or targetSessionKeys".
+- No C sentinel for the B1 nonce appeared in the root A steering queue.
+
+Negative guard 2: B2 used fanoutMode=tree only.
+- B2 final arrived first with B_SENTINEL_RCD_COLLECTION_2723DBEE_RETRY2_20260628T0658Z and dispatch status scheduled.
+- Delayed C returned later to root A with matching retry2 nonce and visible requester chain B2 -> continuation leaf.
+- The root-collected C receipt proves the leaf was not delivered only to collapsed B.

@@ -1,0 +1,7 @@
+trace_id=00000000000000000000000000000021
+spans observed from Tempo export:
+- continuation.delegate.dispatch (delegate.mode=silent-wake, delay.ms=0, fanout.mode=tree, chain.step.remaining=199)
+- openclaw.harness.run (provider=github-copilot, model=gpt-5.5, outcome=completed)
+- openclaw.run (provider=github-copilot, model=gpt-5.5, outcome=completed)
+- continuation.queue.fanout (recipient_count=1, delivered_count=1, fanout.mode=tree)
+- continuation.queue.drain (queue.drained_count=1)

@@ -1,0 +1,1 @@
+Jun 29 15:05:37 ronan node[1974053]: 2026-06-29T15:05:37.762-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=silent-wake session=agent:main:discord:channel:1466192485440164011 task=Run live test for R-CD-2 (`continue_delegate(mode="silent-wake")` schedule → child spawn → silent return → parent wake

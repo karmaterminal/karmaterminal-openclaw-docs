@@ -1,0 +1,1 @@
+Jun 29 15:07:29 ronan node[1974053]: 2026-06-29T15:07:29.161-07:00 [subagent-chain-hop] Accumulated 3867 tokens from agent:main:subagent:continuation-08552a2073939b224db725a2483afe4b to parent chain cost

@@ -1,0 +1,33 @@
+{
+  "proof": {
+    "row": "R-CONFIG-INTERSESSION",
+    "verdict": "PASS",
+    "seat": "rune-rog-ally",
+    "capturedAt": "2026-06-29T23:07:17.794Z",
+    "candidateSha": "575a46b61d4efeb4600ead64f13e63e1f9021d44",
+    "candidateShort": "575a46b61d4e",
+    "cliVersion": "OpenClaw 2026.6.10 (575a46b)",
+    "command": "openclaw gateway call config.get --params {} --json",
+    "assertion": "Live gateway config exposes agents.defaults.continuation.crossSessionTargeting as enabled on the deployed 575a46b build."
+  },
+  "receipt": {
+    "ok": true,
+    "hash": "26d40f8af9d2e1751b6b365415be1f0ee31c434d016c3021541597d678b70572",
+    "path": "/home/figs/.openclaw/openclaw.json",
+    "exists": true,
+    "valid": true,
+    "agentsDefaultsContinuation": {
+      "enabled": true,
+      "defaultDelayMs": 15000,
+      "minDelayMs": 5000,
+      "maxDelayMs": 86400000,
+      "maxChainLength": 200,
+      "costCapTokens": 50000000,
+      "maxDelegatesPerTurn": 500,
+      "crossSessionTargeting": "enabled",
+      "contextPressureThreshold": 0.4,
+      "earlyWarningBand": 0.3125
+    },
+    "crossSessionTargeting": "enabled"
+  }
+}

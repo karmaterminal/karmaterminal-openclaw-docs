@@ -13,6 +13,7 @@
     "manifest.json",
     "frond-scribe/EVIDENCE.md",
     "frond-scribe/unit/focused-session-accessor-skillsSnapshot.log",
+    "frond-scribe/unit/p2-normalization-targeted-gates.log",
     "frond-scribe/before/ronan-runtime-summary.txt",
     "frond-scribe/before/ronan-session-metadata.json",
     "frond-scribe/before/ronan-reply-init-conflict-journal.log",
@@ -20,7 +21,8 @@
     "frond-scribe/after/ronan-after-frond-build-journal.log"
   ],
   "runtime": {
-    "fixSha": "b86fcb3d586abff36babbbc753899009e17de06f",
+    "fixSha": "eac364a8f3c5c7c34ba3570c63e24538f8a6d4da",
+    "ronanDeployedFixSha": "b86fcb3d586abff36babbbc753899009e17de06f",
     "frondBuildSha": "aac566b912321889b9f66a99204b5725107764a9",
     "frondBuildBranch": "frond-build/20260628/assembly-plus-96699-ronan-rescue",
     "seat": "ronan"

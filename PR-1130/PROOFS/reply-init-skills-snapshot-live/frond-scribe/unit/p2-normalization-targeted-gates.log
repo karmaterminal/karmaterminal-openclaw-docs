@@ -1,0 +1,22 @@
+$ git -C /home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-96699-reply-init-skills-snapshot rev-parse HEAD
+eac364a8f3c5c7c34ba3570c63e24538f8a6d4da
+
+$ node scripts/run-vitest.mjs run src/config/sessions/session-accessor.test.ts
+PASS: 59 tests passed.
+
+$ node scripts/run-vitest.mjs run src/config/sessions/store.skills-stripping.test.ts
+PASS: 18 tests passed.
+
+$ node scripts/run-vitest.mjs run src/auto-reply/reply/session.test.ts
+PASS: 124 tests passed.
+
+$ node scripts/run-oxlint-shards.mjs --only=core --split-core
+PASS: core oxlint shards passed.
+
+$ CI=true pnpm tsgo:core:test
+PASS: core test TypeScript compile passed.
+
+Notes:
+- This current-head gate run covers the P2 follow-up on openclaw/openclaw#97642.
+- The regression test now includes a runtime-only skillsSnapshot.resolvedSkills cache on the hydrated writer entry.
+- createReplySessionInitializationRevision now normalizes through the durable session-entry shape before promptRef projection.

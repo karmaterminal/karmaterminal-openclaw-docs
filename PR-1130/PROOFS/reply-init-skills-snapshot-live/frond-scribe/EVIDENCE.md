@@ -2,12 +2,13 @@
 
 ## Verdict
 
-**PASS-CANDIDATE for the #1130 / upstream #97642 reply-init fix.**
+**PASS-CANDIDATE for the #1130 / upstream #97642 reply-init fix at current PR head `eac364a8f3c5c7c34ba3570c63e24538f8a6d4da`.**
 
 The proof has two parts:
 
 1. A focused unit test proves the logic error and confirms the fix: persisted `skillsSnapshot.promptRef` and hydrated `skillsSnapshot.prompt` no longer produce a false reply-init `stale-snapshot`.
-2. Ronan before/after runtime logs show the live symptom before deploy and no `reply session initialization conflicted` lines in the captured post-deploy window after installing frond-build `aac566b912321889b9f66a99204b5725107764a9`.
+2. The P2 refinement extends that same proof to include runtime-only `skillsSnapshot.resolvedSkills`, and the revision helper now derives from the full normalized persisted-entry shape.
+3. Ronan before/after runtime logs show the live symptom before deploy and no `reply session initialization conflicted` lines in the captured post-deploy window after installing frond-build `aac566b912321889b9f66a99204b5725107764a9`.
 
 This is a PR-specific rescue proof. It is **not** the continuation GATES corpus and does not update top-level `PROOFS/INDEX.json`.
 
@@ -16,7 +17,8 @@ This is a PR-specific rescue proof. It is **not** the continuation GATES corpus 
 - Fork PR: `karmaterminal/openclaw#1130`
 - Upstream PR: `openclaw/openclaw#97642`
 - Upstream issue: `openclaw/openclaw#96698`
-- Fix SHA: `b86fcb3d586abff36babbbc753899009e17de06f`
+- Current fix SHA: `eac364a8f3c5c7c34ba3570c63e24538f8a6d4da`
+- Ronan deployed fix SHA: `b86fcb3d586abff36babbbc753899009e17de06f`
 - Ronan frond-build SHA: `aac566b912321889b9f66a99204b5725107764a9`
 - Ronan frond-build branch: `frond-build/20260628/assembly-plus-96699-ronan-rescue`
 
@@ -32,7 +34,19 @@ Result: one focused test passed on the #1130 branch. See:
 
 - `unit/focused-session-accessor-skillsSnapshot.log`
 
-The test creates a persisted prompt-ref session entry, reloads it through hydration, then verifies reply-session initialization commits successfully instead of returning false `stale-snapshot`.
+The test creates a persisted prompt-ref session entry, reloads it through hydration, injects a runtime-only `resolvedSkills` cache on the writer entry, then verifies reply-session initialization commits successfully instead of returning false `stale-snapshot`.
+
+P2 follow-up gates at current head `eac364a8f3c5c7c34ba3570c63e24538f8a6d4da`:
+
+- `node scripts/run-vitest.mjs run src/config/sessions/session-accessor.test.ts`
+- `node scripts/run-vitest.mjs run src/config/sessions/store.skills-stripping.test.ts`
+- `node scripts/run-vitest.mjs run src/auto-reply/reply/session.test.ts`
+- `node scripts/run-oxlint-shards.mjs --only=core --split-core`
+- `CI=true pnpm tsgo:core:test`
+
+Result: all passed. See:
+
+- `unit/p2-normalization-targeted-gates.log`
 
 ## Ronan before evidence
 
@@ -71,4 +85,5 @@ The post-deploy captured journal contains no `reply session initialization confl
 
 - The post-deploy capture is a smoke window, not a long-duration soak.
 - The after window had no recorded `message processed` lines, so the live proof is strongest on symptom cessation plus clean runtime/task state, not on a fresh post-deploy two-message Discord conversation.
+- The Ronan frond-build evidence was captured before the P2 `resolvedSkills` refinement; that refinement is covered by the current-head unit/type/lint gates above.
 - Full-suite runs for #1130 hit unrelated baseline/environment/catalog failures outside this session-store fix; targeted tests passed.

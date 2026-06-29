@@ -1,0 +1,22 @@
+{
+  "rowId": "R-OBS-status",
+  "capture_sha": "787c5f928e",
+  "seat": "emeric-nuc",
+  "transport": "websocket",
+  "mutates": false,
+  "observed": {
+    "observerReceipt": "Captured from emeric-nuc via k6 session.control payload",
+    "tempoTraceId": null
+  },
+  "redacted_events": [
+    {
+      "type": "error",
+      "status": "FAIL",
+      "code": "INVALID_STATE",
+      "kind": "error",
+      "error_class": "AssertionError",
+      "_redacted": true
+    }
+  ],
+  "status": "FAIL"
+}

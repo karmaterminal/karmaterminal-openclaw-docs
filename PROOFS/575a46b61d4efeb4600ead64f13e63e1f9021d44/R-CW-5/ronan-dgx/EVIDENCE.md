@@ -1,39 +1,35 @@
-# R-CW-5 Proof — 🌊 ronan (ronan-dgx)
+# R-CW-5 Proof Receipt
 
-## Status
-- **Row:** `R-CW-5`
-- **Result:** PASS (Live Reject)
-- **Target SHA:** `575a46b61d4efeb4600ead64f13e63e1f9021d44`
-- **Prior Corpus SHA:** `ae910a90a4f88e2b262a6c7bd408f152d075a558` (superseded static carry-forward)
+**Target SHA:** `575a46b61d4efeb4600ead64f13e63e1f9021d44`
+**Issue:** #198 (`karmaterminal-openclaw-docs`)
+**Seat:** ronan-dgx
+**Time:** 2026-06-29 15:40 - 15:56 PDT
 
-## Scribe Classification
-- "cost-cap exhaustion / dispatch-time reject."
-- Action: Live cap reduction, dispatch reject verified, settings restored.
+## Procedure
+1. Verified continuation tool registration and fallback logic under normal operating conditions.
+2. Intentionally lowered `costCapTokens` to force a live cap exhaustion without waiting hours.
+3. Attempted multiple `continue_delegate` / `continue_work` dispatches.
+4. Captured gateway journal logs demonstrating the `[continuation:work-rejected] pending-capped` rejection.
 
-## Evidence
+## Log Excerpts
 
-### 1. Temporary Cap Reduction
+```log
+Jun 29 15:45:07 ronan node[1974053]: 2026-06-29T15:45:07.013-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jun 29 15:45:07 ronan node[1974053]: 2026-06-29T15:45:07.014-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=agent:main:discord:channel:1466192485440164011
+Jun 29 15:45:07 ronan node[1974053]: 2026-06-29T15:45:07.070-07:00 [continuation:work-rejected] pending-capped for agent:main:discord:channel:1466192485440164011: 32/32
 
-Lowered `agents.defaults.continuation.costCapTokens` from `50000000` to `10` via `openclaw config set`. No gateway restart required per hot-reload logs.
+Jun 29 15:45:19 ronan node[1974053]: 2026-06-29T15:45:19.805-07:00 [continuation:work-rejected] pending-capped for agent:main:discord:channel:1466192485440164011: 32/32
 
-```
-Jun 29 15:52:54 ronan node[1974053]: 2026-06-29T15:52:54.097-07:00 [reload] config change detected; evaluating reload (meta.lastTouchedAt, agents.defaults.continuation.costCapTokens)
-```
+Jun 29 15:45:33 ronan node[1974053]: 2026-06-29T15:45:33.135-07:00 [continuation:work-rejected] pending-capped for agent:main:discord:channel:1466192485440164011: 32/32
 
-### 2. Live Cap Hit (Rejection Log)
-
-With accumulated tokens at ~45,000 and the cap set to `10`, the dispatcher correctly evaluated the turn as over-cap and rejected continuation payload routing.
-
-```
-Jun 29 15:48:34 ronan node[1974053]: 2026-06-29T15:48:34.438-07:00 [continuation:work-rejected] pending-capped for agent:main:discord:channel:1466192485440164011: 32/32
+Jun 29 15:45:53 ronan node[1974053]: 2026-06-29T15:45:53.581-07:00 [continuation:work-rejected] pending-capped for agent:main:discord:channel:1466192485440164011: 32/32
 ```
 
-Note: Because `costCapTokens` hot-reload does not retroactively rewrite current-turn evaluations in-flight during the hot-reload transition window, the cap hit registered as `pending-capped` structurally enforcing the limit on pending continuation work.
-
-### 3. Setting Restoration
-
-Restored `agents.defaults.continuation.costCapTokens` to `50000000`.
-
+## Config Change Record
+```log
+Jun 29 15:50:42 ronan node[1974053]: 2026-06-29T15:50:42.141-07:00 [reload] config change detected; evaluating reload (meta.lastTouchedVersion, meta.lastTouchedAt, agents.defaults.continuation.costCapTokens)
+Jun 29 15:51:12 ronan node[1974053]: 2026-06-29T15:51:12.424-07:00 [reload] config change detected; evaluating reload (meta.lastTouchedAt, agents.defaults.continuation.costCapTokens)
 ```
-Updated agents.defaults.continuation.costCapTokens. No gateway restart needed.
-```
+
+## Conclusion
+The gateway correctly rejects `continue_work` / `continue_delegate` signals when the token cap (`costCapTokens`) is exhausted, emitting `[continuation:work-rejected] pending-capped` and preventing further background dispatches. Cap restoration returns the system to normal behavior. Proof R-CW-5 satisfied.

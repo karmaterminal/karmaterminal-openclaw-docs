@@ -1,0 +1,102 @@
+OpenClaw version proof:
+│
+◇  Doctor warnings ───────────────────────────────────────────────────────╮
+│                                                                         │
+│  - Left migrated plugin install index in place because archive already  │
+│    exists: /home/figs/.openclaw/plugins/installs.json.migrated          │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor warnings ───────────────────────────────────────────────────────╮
+│                                                                         │
+│  - Left migrated plugin install index in place because archive already  │
+│    exists: /home/figs/.openclaw/plugins/installs.json.migrated          │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────╯
+OpenClaw status
+
+Overview
+┌──────────────────────┬───────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Item                 │ Value                                                                                         │
+├──────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────┤
+│ OS                   │ linux 7.0.12-1-cachyos-deckify (x64) · node 26.1.0                                            │
+│ Dashboard            │ http://127.0.0.1:18789/                                                                       │
+│ Tailscale exposure   │ off                                                                                           │
+│ Channel              │ dev (default)                                                                                 │
+│ Git                  │ git · @ 575a46b6                                                                              │
+│ Update               │ git HEAD · deps ok                                                                            │
+│ Gateway              │ local · ws://127.0.0.1:18789 (local loopback) · reachable 67ms · auth token · rune (10.0.0.   │
+│                      │ 250) app 2026.6.10 linux 7.0.12-1-cachyos-deckify                                             │
+│ Gateway self         │ rune (10.0.0.250) app 2026.6.10 linux 7.0.12-1-cachyos-deckify                                │
+│ Gateway service      │ systemd user installed · enabled · running (pid 187529, state active)                         │
+│ Node service         │ systemd user not installed                                                                    │
+│ Agents               │ 1 · no workspaces bootstrapping · sessions 169 · default main active just now                 │
+│ Memory               │ enabled (plugin memory-core) · not checked                                                    │
+│ Plugin compatibility │ none                                                                                          │
+│ Probes               │ skipped (use --deep)                                                                          │
+│ Events               │ none                                                                                          │
+│ Tasks                │ 0 active · 0 queued · 0 running · 13 issues · audit 1 warn · 43 tracked                       │
+│ Heartbeat            │ 30m (main)                                                                                    │
+│ Continuation         │ enabled · chain max 200 · fan-out max 500                                                     │
+│ Sessions             │ 169 active · default gpt-5.5 (1.0m ctx) · ~/.openclaw/agents/main/sessions/sessions.json      │
+└──────────────────────┴───────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Model selection
+Session agent:main:discord:channel:1466192485440164011 is pinned to github-copilot/gemini-3.1-pro-preview; config primary github-copilot/gpt-5.5 will apply to new/unpinned sessions.
+  Configured default: github-copilot/gpt-5.5
+  Session selected: github-copilot/gemini-3.1-pro-preview
+  Reason: session override
+  Clear with: /model default
+  Docs: https://docs.openclaw.ai/concepts/models#selection-source-and-fallback-behavior
+
+Security audit
+Skipped in fast status. Full report: openclaw security audit
+Deep probe: openclaw status --deep
+
+Channels
+┌──────────┬─────────┬────────┬────────────────────────────────────────────────────────────────────────────────────────┐
+│ Channel  │ Enabled │ State  │ Detail                                                                                 │
+├──────────┼─────────┼────────┼────────────────────────────────────────────────────────────────────────────────────────┤
+│ discord  │ ON      │ SETUP  │ configured; status unavailable in fast mode                                            │
+└──────────┴─────────┴────────┴────────────────────────────────────────────────────────────────────────────────────────┘
+
+Sessions
+┌─────────────────┬─────────────┬──────────┬────────────────────────┬──────────────────┬───────────────────────────────┐
+│ Key             │ Kind        │ Age      │ Model                  │ Runtime          │ Tokens                        │
+├─────────────────┼─────────────┼──────────┼────────────────────────┼──────────────────┼───────────────────────────────┤
+│ agent:main:disc │ group       │ just now │ gemini-3.1-pro-preview │ OpenClaw Default │ 60k/1.0m (6%) · 🗄️ 93% cached │
+│ ord:channel:146 │             │          │                        │                  │                               │
+│ 6…              │             │          │                        │                  │                               │
+│ agent:main:suba │ spawn-child │ 8m ago   │ gpt-5.5                │ OpenClaw Default │ 29k/1.0m (3%) · 🗄️ 57% cached │
+│ gent:continuati │             │          │                        │                  │                               │
+│ o…              │             │          │                        │                  │                               │
+│ agent:main:suba │ spawn-child │ 8m ago   │ gpt-5.5                │ OpenClaw Default │ 28k/1.0m (3%) · 🗄️ 93% cached │
+│ gent:continuati │             │          │                        │                  │                               │
+│ o…              │             │          │                        │                  │                               │
+│ agent:main:suba │ spawn-child │ 8m ago   │ gpt-5.5                │ OpenClaw Default │ 28k/1.0m (3%)                 │
+│ gent:continuati │             │          │                        │                  │                               │
+│ o…              │             │          │                        │                  │                               │
+│ agent:main:main │ direct      │ 10m ago  │ gpt-5.5                │ OpenClaw Default │ 66k/1.1m (6%) · 🗄️ 75% cached │
+│ agent:main:disc │ group       │ 30m ago  │ gpt-5.5                │ OpenClaw Default │ 44k/1.0m (4%) · 🗄️ 49% cached │
+│ ord:channel:147 │             │          │                        │                  │                               │
+│ 3…              │             │          │                        │                  │                               │
+│ agent:main:cron │ cron        │ 4h ago   │ gpt-5.5                │ OpenClaw Default │ 33k/1.0m (3%) · 🗄️ 67% cached │
+│ :19ff1824-a2a4- │             │          │                        │                  │                               │
+│ 4…              │             │          │                        │                  │                               │
+│ agent:main:disc │ group       │ 7h ago   │ gpt-5.5                │ OpenClaw Default │ 43k/1.0m (4%) · 🗄️ 94% cached │
+│ ord:channel:152 │             │          │                        │                  │                               │
+│ 1…              │             │          │                        │                  │                               │
+│ agent:main:cron │ cron        │ 12h ago  │ gpt-5.5                │ OpenClaw Default │ unknown/1.0m (?%)             │
+│ :c05c7412-e7bd- │             │          │                        │                  │                               │
+│ 4…              │             │          │                        │                  │                               │
+│ agent:main:suba │ spawn-child │ 18h ago  │ gpt-5.5                │ OpenClaw Default │ 93k/1.0m (9%)                 │
+│ gent:continuati │             │          │                        │                  │                               │
+│ o…              │             │          │                        │                  │                               │
+└─────────────────┴─────────────┴──────────┴────────────────────────┴──────────────────┴───────────────────────────────┘
+
+FAQ: https://docs.openclaw.ai/faq
+Troubleshooting: https://docs.openclaw.ai/troubleshooting
+Next steps:
+  Need to share?      openclaw status --all
+  Need to debug live? openclaw logs --follow
+  Need to test channels? openclaw status --deep

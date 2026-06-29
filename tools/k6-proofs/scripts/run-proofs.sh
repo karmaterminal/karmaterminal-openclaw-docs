@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Seat-aware row-list runner for Project 81 / k6-proofs
-# References: #178 / #106 / #119
+# References: #178 / #106 / #119 / #179
 #
 # Usage:
 #   cd tools/k6-proofs
@@ -56,6 +56,15 @@ if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then
   fi
 fi
 
+# Fetch deployed runtime build stamp explicitly (do not collapse into CANDIDATE_SHA)
+DEPLOYED_BUILD_STAMP="unknown"
+if [[ -f ~/.openclaw/openclaw.json ]]; then
+  if openclaw version --json >/dev/null 2>&1; then
+    DEPLOYED_BUILD_STAMP="$(openclaw version --json | jq -r '.build.sha // empty')"
+  fi
+fi
+export OPENCLAW_RUNTIME_BUILD_SHA="$DEPLOYED_BUILD_STAMP"
+
 # Resolve Session Key
 if [[ -z "${OPENCLAW_SESSION_KEY:-}" ]]; then
   echo "Resolving session key for selector: $SESSION_SELECTOR"
@@ -65,11 +74,18 @@ fi
 echo "=========================================================="
 echo "Project 81: Seat-Aware k6 Proof Runner"
 echo "Seat: $OPENCLAW_SEAT_NAME"
-echo "Target SHA: $OPENCLAW_CANDIDATE_SHA"
+echo "Target Candidate SHA: $OPENCLAW_CANDIDATE_SHA"
+echo "Deployed Runtime SHA: $OPENCLAW_RUNTIME_BUILD_SHA"
 echo "Session: $OPENCLAW_SESSION_KEY"
 echo "Rows: $ROWS"
 echo "Dry Run: $DRY_RUN"
 echo "=========================================================="
+
+# Check for Live Bridge alignment (candidate vs deployed runtime)
+if [[ "$DRY_RUN" == "false" && "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_BUILD_SHA" ]]; then
+  echo "WARNING: Candidate SHA ($OPENCLAW_CANDIDATE_SHA) does not match Deployed Runtime SHA ($OPENCLAW_RUNTIME_BUILD_SHA)."
+  echo "Unless this is a known stale-stamp or you have proven a rebuild bridge, live proofs will be marked HONEST-LIMIT / negative-partial."
+fi
 
 IFS=',' read -ra ROW_ARRAY <<< "$ROWS"
 

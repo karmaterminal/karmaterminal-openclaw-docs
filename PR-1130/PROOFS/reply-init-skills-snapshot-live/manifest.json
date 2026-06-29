@@ -8,9 +8,9 @@
   ],
   "relatedIssue": "openclaw/openclaw#96698",
   "runtime": {
-    "fixSha": "eac364a8f3e79f2c1481503246a47b93b915dd23",
-    "ronanDeployedFixSha": "b86fcb3d586abff36babbbc753899009e17de06f",
-    "frondBuildSha": "aac566b912321889b9f66a99204b5725107764a9",
+    "fixSha": "794ee30138629605eb7759dc1e5a26b3f67dcf2a",
+    "ronanDeployedFixSha": "dd0f29e9598ca26588228596f4c4c733e6e8840f",
+    "frondBuildSha": "dd0f29e9598ca26588228596f4c4c733e6e8840f",
     "frondBuildBranch": "frond-build/20260628/assembly-plus-96699-ronan-rescue",
     "seat": "ronan"
   },
@@ -26,9 +26,10 @@
         "frond-scribe/unit/p2-normalization-targeted-gates.log",
         "frond-scribe/before/ronan-reply-init-conflict-journal.log",
         "frond-scribe/after/ronan-after-frond-build-summary.txt",
-        "frond-scribe/after/ronan-after-frond-build-journal.log"
+        "frond-scribe/after/ronan-after-frond-build-journal.log",
+        "frond-scribe/after/ronan-post-p2-two-message-live-output.log"
       ],
-      "summary": "Unit proof plus Ronan before/after runtime evidence for false reply-init stale-snapshot fix."
+      "summary": "Unit proof plus Ronan before/after runtime evidence and copied live output showing consecutive Discord actions after the fix without reply-init conflict."
     }
   ],
   "rollup": {

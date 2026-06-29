@@ -1,0 +1,21 @@
+$ ssh ronan 'cd /home/figs/flesh_beast_tmp/openclaw && git rev-parse HEAD && jq -r .commit dist/build-info.json'
+dd0f29e9598ca26588228596f4c4c733e6e8840f
+dd0f29e9598ca26588228596f4c4c733e6e8840f
+
+$ ssh ronan 'journalctl --user -u openclaw-gateway.service --since "2026-06-28 21:20:50" --until "2026-06-28 21:31:30" --no-pager -o short-iso | grep -E "http server listening|Discord bot probe|channels resolved|message.action|continuation/signal|reply session initialization conflicted|stale-snapshot"'
+2026-06-28T21:20:53-07:00 ronan node[1792818]: 2026-06-28T21:20:53.439-07:00 [gateway] http server listening (16 plugins: acpx, active-memory, browser, canvas, codex, device-pair, diagnostics-otel, discord, file-transfer, github-copilot, memory-core, memory-wiki, microsoft, phone-control, talk-voice, voice-call; 1.6s)
+2026-06-28T21:20:54-07:00 ronan node[1792818]: 2026-06-28T21:20:54.216-07:00 [discord] [default] Discord bot probe resolved @Ronan
+2026-06-28T21:20:54-07:00 ronan node[1792818]: 2026-06-28T21:20:54.488-07:00 [discord] channels resolved: 1235610176883523614/1466192485440164011 (guild:figs.bot; channel:sprites-of-thornfield), 1235610176883523614/1473320126433464465 (guild:figs.bot; channel:heartbeat), 1235610176883523614/1479953009864740956 (guild:figs.bot; channel:silas-tablinum)
+2026-06-28T21:21:32-07:00 ronan node[1792818]: 2026-06-28T21:21:32.738-07:00 [ws] ⇄ res ✓ message.action 346ms channel=discord conn=170cde2f...ab4c id=6f7916c5...f2b0
+2026-06-28T21:21:39-07:00 ronan node[1792818]: 2026-06-28T21:21:39.725-07:00 [ws] ⇄ res ✓ message.action 208ms channel=discord conn=60868ce4...9c54 id=a89ecbc6...afe9
+2026-06-28T21:21:43-07:00 ronan node[1792818]: 2026-06-28T21:21:43.941-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+2026-06-28T21:21:43-07:00 ronan node[1792818]: 2026-06-28T21:21:43.942-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+2026-06-28T21:22:11-07:00 ronan node[1792818]: 2026-06-28T21:22:11.966-07:00 [ws] ⇄ res ✓ message.action 253ms channel=discord conn=2a9e8eb4...2f0d id=456511d3...1207
+2026-06-28T21:22:25-07:00 ronan node[1792818]: 2026-06-28T21:22:25.846-07:00 [ws] ⇄ res ✓ message.action 212ms channel=discord conn=d0455594...451b id=60b18fd6...dbc3
+2026-06-28T21:22:28-07:00 ronan node[1792818]: 2026-06-28T21:22:28.897-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+2026-06-28T21:22:28-07:00 ronan node[1792818]: 2026-06-28T21:22:28.898-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+2026-06-28T21:27:08-07:00 ronan node[1792818]: 2026-06-28T21:27:08.904-07:00 [ws] ⇄ res ✓ message.action 442ms channel=discord conn=99322b1a...f035 id=c9796329...e5ac
+2026-06-28T21:27:19-07:00 ronan node[1792818]: 2026-06-28T21:27:19.273-07:00 [ws] ⇄ res ✓ message.action 156ms channel=discord conn=7bcdb53a...1978 id=bbbce13c...24ed
+
+$ ssh ronan 'journalctl --user -u openclaw-gateway.service --since "2026-06-28 21:20:50" --until "2026-06-28 21:31:30" --no-pager -o short-iso | grep -Ec "reply session initialization conflicted|stale-snapshot"'
+0

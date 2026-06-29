@@ -49,7 +49,7 @@ export function loadManifestFromEnv() {
     return null;
   }
   // k6 open() reads at init time
-  const raw = open(manifestPath);
+  const raw = open(manifestPath.startsWith('/') ? manifestPath : '../'+manifestPath);
   const parsed = JSON.parse(raw);
   return resolveManifest(parsed);
 }
@@ -83,7 +83,7 @@ export function validateManifest(manifest) {
     if (safety.requiresLiveGatewayToken && manifest.transport === 'offline') {
       errors.push('offline transport cannot require a live gateway token');
     }
-    if (safety.classification === 'k6-runnable' && manifest.scenario?.status !== 'runnable') {
+    if (safety.classification === 'k6-runnable' && manifest.scenario && manifest.scenario.status !== 'runnable') {
       errors.push('liveRunSafety.classification=k6-runnable requires scenario.status=runnable');
     }
     if (!Array.isArray(safety.requiredReceipts) || safety.requiredReceipts.length === 0) {

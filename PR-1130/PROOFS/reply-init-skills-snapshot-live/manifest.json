@@ -1,0 +1,42 @@
+{
+  "schema": "openclaw.pr_proof.manifest.v1",
+  "proofId": "PR-1130-reply-init-skills-snapshot-live",
+  "title": "PR #1130 / upstream #97642 reply-init skillsSnapshot false stale-snapshot proof",
+  "relatedPullRequests": [
+    "karmaterminal/openclaw#1130",
+    "openclaw/openclaw#97642"
+  ],
+  "relatedIssue": "openclaw/openclaw#96698",
+  "runtime": {
+    "fixSha": "b86fcb3d586abff36babbbc753899009e17de06f",
+    "frondBuildSha": "aac566b912321889b9f66a99204b5725107764a9",
+    "frondBuildBranch": "frond-build/20260628/assembly-plus-96699-ronan-rescue",
+    "seat": "ronan"
+  },
+  "rows": [
+    {
+      "row": "R-96699-REPLY-INIT-SKILLS-SNAPSHOT",
+      "owner": "frond-scribe",
+      "status": "PASS-CANDIDATE",
+      "dir": "frond-scribe",
+      "evidence": [
+        "frond-scribe/EVIDENCE.md",
+        "frond-scribe/unit/focused-session-accessor-skillsSnapshot.log",
+        "frond-scribe/before/ronan-reply-init-conflict-journal.log",
+        "frond-scribe/after/ronan-after-frond-build-summary.txt",
+        "frond-scribe/after/ronan-after-frond-build-journal.log"
+      ],
+      "summary": "Unit proof plus Ronan before/after runtime evidence for false reply-init stale-snapshot fix."
+    }
+  ],
+  "rollup": {
+    "totalRows": 1,
+    "pass": 1,
+    "partial": 0,
+    "fail": 0,
+    "honestLimit": 0,
+    "missing": 0
+  },
+  "generated": "2026-06-28",
+  "generatedBy": "frond-scribe"
+}

@@ -1,0 +1,49 @@
+{
+  "captured_at": "2026-06-28T19:43:26.870752",
+  "rows": [
+    {
+      "deliveryContext": {
+        "accountId": "default",
+        "channel": "discord",
+        "to": "channel:1466192485440164011"
+      },
+      "endedAt": 1782695463274,
+      "key": "agent:main:discord:channel:1466192485440164011:quarantined-by-scribe:20260628-181146",
+      "model": "gpt-5.5",
+      "modelOverride": null,
+      "modelProvider": "github-copilot",
+      "providerOverride": null,
+      "residueKeys": [
+        "deliveryContext"
+      ],
+      "runtimeMs": 17583,
+      "sessionFileBasename": "6b05de2e-fbb9-4bb6-ac28-e06e18b74130.jsonl",
+      "sessionId": "6b05de2e-fbb9-4bb6-ac28-e06e18b74130",
+      "sessionStartedAt": 1782695233838,
+      "status": "done",
+      "updatedAt": 1782695463315
+    },
+    {
+      "deliveryContext": {
+        "accountId": "default",
+        "channel": "discord",
+        "to": "channel:1466192485440164011"
+      },
+      "endedAt": 1782696209026,
+      "key": "agent:main:discord:channel:1466192485440164011",
+      "model": "gemini-3.1-pro-preview",
+      "modelOverride": "gemini-3.1-pro-preview",
+      "modelProvider": "github-copilot",
+      "providerOverride": "github-copilot",
+      "residueKeys": [
+        "deliveryContext"
+      ],
+      "runtimeMs": 10392,
+      "sessionFileBasename": "17302dd0-e050-437f-acff-55d3d53cde76.jsonl",
+      "sessionId": "17302dd0-e050-437f-acff-55d3d53cde76",
+      "sessionStartedAt": 1782695519024,
+      "status": "done",
+      "updatedAt": 1782696209061
+    }
+  ]
+}

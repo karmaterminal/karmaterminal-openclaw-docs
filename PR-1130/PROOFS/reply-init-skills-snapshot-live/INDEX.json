@@ -1,0 +1,37 @@
+{
+  "schema": "openclaw.pr_proof.index.v1",
+  "proofId": "PR-1130-reply-init-skills-snapshot-live",
+  "title": "Live rescue proof for reply-init skillsSnapshot false stale-snapshot fix",
+  "relatedPullRequests": [
+    "karmaterminal/openclaw#1130",
+    "openclaw/openclaw#97642"
+  ],
+  "relatedIssue": "openclaw/openclaw#96698",
+  "currentPath": "PR-1130/PROOFS/reply-init-skills-snapshot-live/",
+  "manifest": "manifest.json",
+  "evidenceFiles": [
+    "manifest.json",
+    "frond-scribe/EVIDENCE.md",
+    "frond-scribe/unit/focused-session-accessor-skillsSnapshot.log",
+    "frond-scribe/before/ronan-runtime-summary.txt",
+    "frond-scribe/before/ronan-session-metadata.json",
+    "frond-scribe/before/ronan-reply-init-conflict-journal.log",
+    "frond-scribe/after/ronan-after-frond-build-summary.txt",
+    "frond-scribe/after/ronan-after-frond-build-journal.log"
+  ],
+  "runtime": {
+    "fixSha": "b86fcb3d586abff36babbbc753899009e17de06f",
+    "frondBuildSha": "aac566b912321889b9f66a99204b5725107764a9",
+    "frondBuildBranch": "frond-build/20260628/assembly-plus-96699-ronan-rescue",
+    "seat": "ronan"
+  },
+  "rollup": {
+    "totalRows": 1,
+    "pass": 1,
+    "partial": 0,
+    "fail": 0,
+    "honestLimit": 0,
+    "missing": 0
+  },
+  "note": "PR-scoped proof corpus. Does not alter continuation PROOFS/INDEX.json."
+}

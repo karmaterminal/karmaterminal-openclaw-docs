@@ -1,0 +1,58 @@
+$ node scripts/run-vitest.mjs run src/config/sessions/session-accessor.test.ts -t skillsSnapshot
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.8 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-96699-reply-init-skills-snapshot[39m
+
+ [32m✓[39m [30m[42m runtime-config [49m[39m ../../src/config/sessions/session-accessor.test.ts [2m([22m[2m59 tests[22m[2m | [22m[33m58 skipped[39m[2m)[22m[32m 18[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[2m | [22m[33m58 skipped[39m[90m (59)[39m
+[2m   Start at [22m 20:24:11
+[2m   Duration [22m 1.23s[2m (transform 684ms, setup 20ms, import 1.08s, tests 18ms, environment 0ms)[22m
+

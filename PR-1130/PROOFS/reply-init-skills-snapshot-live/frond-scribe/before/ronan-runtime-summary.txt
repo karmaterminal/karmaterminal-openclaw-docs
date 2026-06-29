@@ -1,0 +1,8 @@
+captured_at=2026-06-28T19:43:22-07:00
+gateway=inactive
+mainpid=0
+repo_head=0a8301c3662f190001dc8580d699435d446b40cd
+branch=ronan/20260628/k6-proof-runner-smoke
+openclaw_version=OpenClaw 2026.6.10 (0a8301c)
+build_info={"version":"2026.6.10","commit":"64324505fcb8be367abe91234bbb811b005466b4","builtAt":"2026-06-28T08:01:08.648Z"}
+tasks={"count":12,"byStatus":[{"status":"failed","count":2},{"status":"succeeded","count":10}],"nonterminal":0}

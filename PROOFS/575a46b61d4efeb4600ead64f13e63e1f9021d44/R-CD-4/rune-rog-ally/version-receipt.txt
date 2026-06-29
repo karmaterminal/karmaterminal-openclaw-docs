@@ -1,0 +1,7 @@
+OpenClaw source worktree: /home/figs/flesh_beast_tmp/openclaw
+Verified ref: 575a46b61d4efeb4600ead64f13e63e1f9021d44
+Command: git -C /home/figs/flesh_beast_tmp/openclaw rev-parse HEAD
+Output: 575a46b61d4efeb4600ead64f13e63e1f9021d44
+Commit: 575a46b61d Merge remote-tracking branch 'origin/codeagent/1132-ci-red-cleanup' into frond-scribe/20260624/assembly-continuation-followons
+Seat: rune-rog-ally
+Timestamp: 2026-06-29T23:15Z

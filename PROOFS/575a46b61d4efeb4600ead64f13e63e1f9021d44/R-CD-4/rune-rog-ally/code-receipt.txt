@@ -1,0 +1,18 @@
+src/agents/tools/continue-delegate-tool.ts @ 575a46b61d4efeb4600ead64f13e63e1f9021d44
+
+  const targetSessionKey = readStringParam(params, "targetSessionKey");
+  const targetSessionKeys = readStrictStringArrayParam(params, "targetSessionKeys");
+  const fanoutModeRaw = readStringParam(params, "fanoutMode");
+  const fanoutMode = fanoutModeRaw?.toLowerCase();
+  if (fanoutMode && !FANOUT_MODES.includes(fanoutMode as (typeof FANOUT_MODES)[number])) {
+    throw new ToolInputError(
+      `Unknown fanoutMode "${fanoutMode}". Valid fanout modes: ${FANOUT_MODES.join(", ")}`,
+    );
+  }
+  if (fanoutMode && (targetSessionKey || (targetSessionKeys && targetSessionKeys.length > 0))) {
+    throw new ToolInputError(
+      "fanoutMode cannot be combined with targetSessionKey or targetSessionKeys.",
+    );
+  }
+
+Test: src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts case 12 asserts the schema conflict takes precedence over policy rejection and no delegate is enqueued.

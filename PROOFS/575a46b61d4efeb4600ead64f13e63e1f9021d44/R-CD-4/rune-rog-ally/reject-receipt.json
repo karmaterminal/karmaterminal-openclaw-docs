@@ -1,0 +1,11 @@
+{
+  "status": "error",
+  "tool": "continue_delegate",
+  "error": "fanoutMode cannot be combined with targetSessionKey or targetSessionKeys.",
+  "call_shape": {
+    "mode": "silent",
+    "targetSessionKey": "agent:main:discord:channel:1466192485440164011",
+    "fanoutMode": "tree",
+    "task": "R-CD-4-575a46b61d4e invalid-combination proof child SHOULD NOT SPAWN because fanoutMode+targetSessionKey must reject."
+  }
+}

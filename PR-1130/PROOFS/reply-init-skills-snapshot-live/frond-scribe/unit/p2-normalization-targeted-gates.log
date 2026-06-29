@@ -1,5 +1,5 @@
 $ git -C /home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-96699-reply-init-skills-snapshot rev-parse HEAD
-eac364a8f3c5c7c34ba3570c63e24538f8a6d4da
+eac364a8f3e79f2c1481503246a47b93b915dd23
 
 $ node scripts/run-vitest.mjs run src/config/sessions/session-accessor.test.ts
 PASS: 59 tests passed.

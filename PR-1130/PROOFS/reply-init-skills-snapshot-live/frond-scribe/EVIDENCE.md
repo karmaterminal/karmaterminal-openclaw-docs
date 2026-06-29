@@ -2,7 +2,7 @@
 
 ## Verdict
 
-**PASS-CANDIDATE for the #1130 / upstream #97642 reply-init fix at current PR head `eac364a8f3c5c7c34ba3570c63e24538f8a6d4da`.**
+**PASS-CANDIDATE for the #1130 / upstream #97642 reply-init fix at current PR head `eac364a8f3e79f2c1481503246a47b93b915dd23`.**
 
 The proof has two parts:
 
@@ -17,7 +17,7 @@ This is a PR-specific rescue proof. It is **not** the continuation GATES corpus 
 - Fork PR: `karmaterminal/openclaw#1130`
 - Upstream PR: `openclaw/openclaw#97642`
 - Upstream issue: `openclaw/openclaw#96698`
-- Current fix SHA: `eac364a8f3c5c7c34ba3570c63e24538f8a6d4da`
+- Current fix SHA: `eac364a8f3e79f2c1481503246a47b93b915dd23`
 - Ronan deployed fix SHA: `b86fcb3d586abff36babbbc753899009e17de06f`
 - Ronan frond-build SHA: `aac566b912321889b9f66a99204b5725107764a9`
 - Ronan frond-build branch: `frond-build/20260628/assembly-plus-96699-ronan-rescue`
@@ -36,7 +36,7 @@ Result: one focused test passed on the #1130 branch. See:
 
 The test creates a persisted prompt-ref session entry, reloads it through hydration, injects a runtime-only `resolvedSkills` cache on the writer entry, then verifies reply-session initialization commits successfully instead of returning false `stale-snapshot`.
 
-P2 follow-up gates at current head `eac364a8f3c5c7c34ba3570c63e24538f8a6d4da`:
+P2 follow-up gates at current head `eac364a8f3e79f2c1481503246a47b93b915dd23`:
 
 - `node scripts/run-vitest.mjs run src/config/sessions/session-accessor.test.ts`
 - `node scripts/run-vitest.mjs run src/config/sessions/store.skills-stripping.test.ts`

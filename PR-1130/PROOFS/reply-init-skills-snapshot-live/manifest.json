@@ -8,7 +8,7 @@
   ],
   "relatedIssue": "openclaw/openclaw#96698",
   "runtime": {
-    "fixSha": "eac364a8f3c5c7c34ba3570c63e24538f8a6d4da",
+    "fixSha": "eac364a8f3e79f2c1481503246a47b93b915dd23",
     "ronanDeployedFixSha": "b86fcb3d586abff36babbbc753899009e17de06f",
     "frondBuildSha": "aac566b912321889b9f66a99204b5725107764a9",
     "frondBuildBranch": "frond-build/20260628/assembly-plus-96699-ronan-rescue",

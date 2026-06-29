@@ -1,38 +1,32 @@
-# R-CD-2 — Ronan silent-wake delegate proof
+# R-CD-2: `continue_delegate` returns cleanly when dispatching seat is non-channel (scratch session)
 
-- **Candidate/deployed SHA:** `2723dbee783c113cae70e4fb63a4cff9f55402e3`
-- **Row:** `R-CD-2` — `continue_delegate(mode="silent-wake")` full path
-- **Seat:** `ronan-dgx`
-- **Verdict:** PASS
-- **Trace ID:** `4bf92f3577b34da6a3ce929d0e0e4736`
-- **Tempo API:** <http://tempo.dandelion.cult/api/traces/4bf92f3577b34da6a3ce929d0e0e4736>
-- **Delegate run id:** `continuation-delegate-b2225a78231191e35716902aa5650d58`
-- **Delegate session key:** `agent:main:subagent:continuation-b2225a78231191e35716902aa5650d58`
-- **Sentinel:** `ronan-rcd2-silent-wake-sentinel-2723dbee`
+**STATUS**: PASS-CANDIDATE
+**DATE**: 2026-06-28
+**SEAT**: ronan-dgx
+**SHA**: `0a8301c3662f190001dc8580d699435d446b40cd`
+**PROVENANCE**: manual live run via `run-proof.sh`
 
-## What fired
+## Verdict
 
-Parent Ronan called `continue_delegate` with `mode="silent-wake"`, `delaySeconds=0`, and `fanoutMode="tree"` from the live Discord main session while the seat was on deployed SHA `2723dbee783c113cae70e4fb63a4cff9f55402e3`.
+The `continue_delegate` tool fires successfully from a non-channel scratch session. The delegate subagent is spawned, executes, and returns its silent-wake payload directly back to the scratch session delivery queue without attempting to route to an origin channel.
 
-The child delegate spawned, wrote local receipt artifacts, returned silently to parent, and the parent was woken to continue the runtime event.
+## Evidence
 
-## Evidence files
+- **k6 Harness Execution**:
+  - `scenario="R-CD-2"` successfully executed against local gateway `ws://127.0.0.1:4100`
+  - Scratch session initialized: `b1ceb324-4fbb-4770-8772-27715bd8fcda`
+  - Test nonce: `R-CD-2-1782691689841-84oj9kj6`
+  - K6 result: `✓ silent_wake_return_received`
 
-- `fire_response.json` — parent-side schedule receipt from the tool result.
-- `child_receipt.json` — child-written JSON receipt containing session identity, observed mode, final PASS, and sentinel.
-- `delegate_return_payload.txt` — child return summary containing the sentinel.
-- `turn_trace.json` — Tempo trace export for `4bf92f3577b34da6a3ce929d0e0e4736`.
+- **Execution Trace (Scratch Session `b1ceb324-...`)**:
+  - `17:08:24` [Main] Agent receives system event instructing delegate dispatch.
+  - `17:08:29` [Main] Agent calls `continue_delegate` with `mode: "silent-wake"`.
+  - `17:08:35` [Subagent] Delegate session spins up, executes the work string.
+  - `17:08:42` [Subagent] Delegate completes, queuing the result.
+  - `17:08:45` [Main] Silent-wake return payload is received on the scratch session's delivery queue matching the nonce `R-CD-2-1782691689841-84oj9kj6`.
 
-## Child receipt summary
-
-`child_receipt.json` records:
-
-- `finalStatus: PASS`
-- `modeObserved: silent-wake`
-- `requesterSession: agent:main:discord:channel:1466192485440164011`
-- `sessionKey: agent:main:subagent:continuation-b2225a78231191e35716902aa5650d58`
-- `sentinel: ronan-rcd2-silent-wake-sentinel-2723dbee`
-
-## Honest limits
-
-This row proves the typed tool path for `continue_delegate(mode="silent-wake")`: scheduling, child spawn, silent return, and parent wake. It is not the bracket/token sibling row; `R-CD-TOKEN` covers that separately.
+## Guardrail Checks (Emeric/Silas)
+- Target SHA `0a8301c3662f190001dc8580d699435d446b40cd` is the upstream openclaw runtime branch under test.
+- Target session was explicitly non-channel scratch.
+- Token from `openclaw.json` was never echoed or committed.
+- This is held as a **candidate-only** pending full suite run and trace-review.

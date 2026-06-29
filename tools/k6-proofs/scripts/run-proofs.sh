@@ -22,7 +22,7 @@ while [[ "$#" -gt 0 ]]; do
     *)
       if [[ -z "$ROWS" ]]; then
         ROWS="$1"
-      elif [[ -z "$CANDIDATE_SHA" ]]; then
+      elif [[ -z "$CANDIDATE_SHA" && -z "${OPENCLAW_CANDIDATE_SHA:-}" ]]; then
         CANDIDATE_SHA="$1"
       else
         echo "Unknown argument: $1"
@@ -38,15 +38,15 @@ if [[ -z "$ROWS" ]]; then
   exit 1
 fi
 
-if [[ -z "$CANDIDATE_SHA" ]]; then
+if [[ -z "$CANDIDATE_SHA" && -z "${OPENCLAW_CANDIDATE_SHA:-}" ]]; then
   CANDIDATE_SHA="$(git rev-parse HEAD 2>/dev/null || echo 'unknown')"
 fi
 
-export OPENCLAW_CANDIDATE_SHA="${CANDIDATE_SHA}"
+if [[ -n "$CANDIDATE_SHA" ]]; then export OPENCLAW_CANDIDATE_SHA="${CANDIDATE_SHA}"; fi
 export OPENCLAW_SEAT_NAME="$(hostname)"
 
 # Local Gateway Auth extraction (never logged/committed)
-if [[ -f ~/.openclaw/openclaw.json ]]; then
+if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" && -f ~/.openclaw/openclaw.json ]]; then
   export OPENCLAW_GATEWAY_TOKEN="$(jq -r '.auth.operatorToken // empty' ~/.openclaw/openclaw.json)"
 fi
 if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then

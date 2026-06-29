@@ -1,0 +1,12 @@
+{
+  "rowId": "R-CONFIG-DEFAULTS",
+  "capture_sha": "575a46b61d4efeb4600ead64f13e63e1f9021d44",
+  "seat": "emeric-nuc",
+  "timestamp": "2026-06-29T22:28:12Z",
+  "verdict": "PASS-CANDIDATE",
+  "evidence": {
+    "source_defaults": "Continuation schema runtime defaults to maxDepth: 200, maxTotalCostUsd: 10, minDelayMs: 0, maxDelayMs: 300000. Verified via openclaw status 'Continuation: enabled · chain max 200'.",
+    "live_status_receipt": "openclaw status output confirms: 'Continuation │ enabled · chain max 200 · fan-out max 500'. Config overrides omitted (jq .continuation returned null), meaning live defaults govern.",
+    "deployed_version": "openclaw status confirms app 2026.6.10, git @ 575a46b6"
+  }
+}

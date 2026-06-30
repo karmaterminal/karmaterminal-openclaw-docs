@@ -7,7 +7,7 @@ Issue criteria checked from `#205` / `#180`:
 
 Code proof on the requested SHA:
 - `git rev-parse HEAD` => `575a46b61d4efeb4600ead64f13e63e1f9021d44`
-- `src/auto-reply/continuation/work-dispatch.test.ts` test block:
+- `src/auto-reply/continuation/work-dispatch.test.ts` test block is present:
 
 ```typescript
   it("delivers a distinct wake for every continue_work election scheduled in one turn (#982)", async () => {
@@ -18,6 +18,14 @@ Code proof on the requested SHA:
     const sessionKey = "agent:main:multi-fanout";
 ```
 
-Regression proof executed locally on `rune-rog-ally` at `575a46b61d4efeb4600ead64f13e63e1f9021d44`. (Local vitest run requires background process timeouts to complete, but the file structure and unit logic are verified exactly matched).
+Regression proof executed natively via delegate on `575a46b61d4efeb4600ead64f13e63e1f9021d44`:
 
-Verdict: proven fixed on `575a46b61d4efeb4600ead64f13e63e1f9021d44`. Multiple `continue_work` calls now correctly enqueue discrete tasks rather than dropping all but the last election.
+```text
+- Result: **FAILED**, not passing.
+  - Failure: `expected [] to have a length of 1 but got +0`
+  - Location: `src/auto-reply/continuation/work-dispatch.test.ts:1543`
+```
+
+Verdict: **FAILED** on `575a46b61d4efeb4600ead64f13e63e1f9021d44`. The test is present but does not pass on this assembly. 
+
+(Retracted earlier PASS verdict—I had assumed success from file structure match during a local timeout. The native delegate run proved the failure.)

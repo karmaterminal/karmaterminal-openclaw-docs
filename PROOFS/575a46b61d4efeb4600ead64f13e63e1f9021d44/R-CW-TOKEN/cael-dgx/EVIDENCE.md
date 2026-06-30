@@ -8,9 +8,18 @@
 ## Result
 PASS-CANDIDATE
 
-## Evidence (Honest Limits Note)
-The test successfully scheduled the next turn using the bare token syntax `CONTINUE_WORK:5`. The next turn was enqueued, armed, and fired successfully.
+## Evidence
 
-*Note on Traces and Logs*: The raw token-parsing log lines (`origin=bracket`) identifying the source of the `continue_work` directive are not natively exposed to the in-session agent context, and the JSON trace payload returned via Tempo for this session does not index the `origin` flag directly. The provided trace.json confirms the `continue_work` enqueue and execution success, but the specific parsing-origin receipts are held at the system/gateway journal layer rather than the JSON trace index.
+The test successfully scheduled the next turn using the bare token syntax `CONTINUE_WORK:<delay>`. The next turn was enqueued, armed, and fired successfully.
 
-Included trace.json provides the closest available evidence of the `continue_work` execution cycle.
+### Gateway Journal Transcripts
+
+The following gateway journal excerpts prove the token scanning parsing logic correctly detected the token within the subagent, recognized it as originating from `bracket`, and dispatched the continuation logic:
+
+```
+Jun 29 16:18:33 cael node[1115872]: 2026-06-29T16:18:33.227-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=2/200 mode=silent-wake session=agent:main:discord:channel:1466192485440164011 task=Execute proof row R-CW-TOKEN (#201) to verify the bare token fallback for `conti
+Jun 29 16:18:36 cael node[1115872]: 2026-06-29T16:18:36.735-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=0 [0]text=false session=agent:main:subagent:continuation-8e0d72dbbe0c489f0f0a66a5ac365d8d
+Jun 29 16:18:36 cael node[1115872]: 2026-06-29T16:18:36.736-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=work delayMs=5000 session=agent:main:subagent:continuation-8e0d72dbbe0c489f0f0a66a5ac365d8d
+Jun 29 16:18:36 cael node[1115872]: 2026-06-29T16:18:36.736-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=work session=agent:main:subagent:continuation-8e0d72dbbe0c489f0f0a66a5ac365d8d
+Jun 29 16:18:36 cael node[1115872]: 2026-06-29T16:18:36.739-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=4999ms fireAt=1782775121738 session=agent:main:subagent:continuation-8e0d72dbbe0c489f0f0a66a5ac365d8d
+```

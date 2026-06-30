@@ -1,0 +1,57 @@
+Scope: all 156 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 0, reused 1, downloaded 0, added 0
+Packages: +4 -186
++-------------------------------------------------------------------------------
+Progress: resolved 0, reused 189, downloaded 0, added 4, done
+
+. preinstall$ node scripts/preinstall-package-manager-warning.mjs
+. preinstall: Done
+. postinstall$ node scripts/postinstall-bundled-plugins.mjs
+. postinstall: Done
+. prepare$ node scripts/prepare-git-hooks.mjs
+. prepare: Done
+Done in 1.3s using pnpm v11.2.2
+$ node scripts/test-projects.mjs src/auto-reply/continuation/ --run
+[test] starting test/vitest/vitest.unit-fast.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.8 [39m[90m/home/figs/flesh_beast_tmp/openclaw[39m
+
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/continuation/scheduler.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/continuation/signal.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/continuation/context-pressure.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/auto-reply/continuation/leaf-key-orphan-empirical.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[32m37 passed[39m[22m[90m (37)[39m
+[2m   Start at [22m 18:10:06
+[2m   Duration [22m 438ms[2m (transform 715ms, setup 0ms, import 1.05s, tests 27ms, environment 0ms)[22m
+
+[test] starting test/vitest/vitest.auto-reply.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.8 [39m[90m/home/figs/flesh_beast_tmp/openclaw[39m
+
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/work-dispatch.test.ts [2m([22m[2m71 tests[22m[2m)[22m[32m 169[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/delegate-store.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/volatile-map-allowlist.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 110[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/cross-session-targeting.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 83[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/delegate-dispatch-post-compaction.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/nonexistent-target-session-delivery.race.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/delegate-dispatch.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/cross-session-targeting.nonexistent-target.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/trace-context-propagation.integration.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/delegate-dispatch.fanout-error-isolation.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/post-compaction-release.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 105[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/config.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/types.mode-shape.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 84[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/state.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/delegate-mid-run-compaction-survival.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 78[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m17 passed[39m[22m[90m (17)[39m
+[2m      Tests [22m [1m[32m280 passed[39m[22m[90m (280)[39m
+[2m   Start at [22m 18:10:08
+[2m   Duration [22m 2.10s[2m (transform 4.84s, setup 816ms, import 6.15s, tests 842ms, environment 1ms)[22m
+
+[test] passed 2 Vitest shards in 6.78s

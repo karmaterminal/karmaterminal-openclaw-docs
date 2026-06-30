@@ -1,0 +1,639 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.6.9",
+    "lastTouchedAt": "2026-06-24T03:40:56.591Z"
+  },
+  "wizard": {
+    "lastRunAt": "2026-06-24T03:40:56.377Z",
+    "lastRunVersion": "2026.6.9",
+    "lastRunCommand": "doctor",
+    "lastRunMode": "local"
+  },
+  "agents": {
+    "defaults": {
+      "userTimezone": "America/Los_Angeles",
+      "envelopeTimezone": "America/Los_Angeles",
+      "envelopeTimestamp": "on",
+      "envelopeElapsed": "on",
+      "model": {
+        "primary": "github-copilot/gpt-5.5",
+        "fallbacks": [
+          "github-copilot/gemini-3.1-pro-preview"
+        ]
+      },
+      "imageModel": {
+        "primary": "github-copilot/gemini-3.1-pro-preview",
+        "fallbacks": [
+          "github-copilot/gpt-5.4",
+          "openai/gpt-5.5",
+          "openai/gpt-5.4"
+        ]
+      },
+      "workspace": "/home/figs/.openclaw-data/workspace",
+      "memorySearch": {
+        "enabled": true,
+        "provider": "github-copilot",
+        "fallback": "none",
+        "local": {
+          "modelPath": "/home/figs/.node-llama-cpp/models/hf_ggml-org_embeddinggemma-300m-qat-Q8_0.gguf"
+        },
+        "query": {
+          "maxResults": 16,
+          "hybrid": {
+            "enabled": true,
+            "vectorWeight": 0.7,
+            "textWeight": 0.3,
+            "mmr": {
+              "enabled": true,
+              "lambda": 0.7
+            },
+            "temporalDecay": {
+              "enabled": true,
+              "halfLifeDays": 30
+            }
+          }
+        },
+        "cache": {
+          "enabled": true,
+          "maxEntries": 50000
+        },
+        "store": {
+          "vector": {
+            "enabled": true
+          }
+        }
+      },
+      "contextPruning": {
+        "mode": "cache-ttl",
+        "ttl": "1h"
+      },
+      "compaction": {
+        "mode": "safeguard",
+        "notifyUser": true,
+        "timeoutSeconds": 600,
+        "maxHistoryShare": 0.3,
+        "recentTurnsPreserve": 5,
+        "reserveTokensFloor": 100000,
+        "truncateAfterCompaction": true,
+        "memoryFlush": {
+          "enabled": true
+        }
+      },
+      "thinkingDefault": "high",
+      "params": {
+        "text_verbosity": "high"
+      },
+      "blockStreamingDefault": "off",
+      "heartbeat": {
+        "every": "30m"
+      },
+      "maxConcurrent": 14,
+      "subagents": {
+        "maxConcurrent": 16,
+        "maxSpawnDepth": 5
+      },
+      "continuation": {
+        "enabled": true,
+        "maxChainLength": 200,
+        "costCapTokens": 50000000,
+        "maxDelegatesPerTurn": 500,
+        "contextPressureThreshold": 0.4,
+        "maxDelayMs": 86400000,
+        "defaultDelayMs": 15000,
+        "minDelayMs": 5000,
+        "crossSessionTargeting": "enabled"
+      },
+      "contextTokens": 1000000,
+      "blockStreamingBreak": "message_end",
+      "models": {
+        "github-copilot/claude-opus-4.7": {
+          "params": {
+            "thinking": "high"
+          }
+        },
+        "github-copilot/claude-opus-4.7-1m-internal": {
+          "params": {
+            "thinking": "high"
+          }
+        },
+        "openai/gpt-5.5": {
+          "agentRuntime": {
+            "id": "codex"
+          }
+        }
+      },
+      "bootstrapMaxChars": 100000,
+      "bootstrapTotalMaxChars": 500000,
+      "verboseDefault": "off"
+    },
+    "list": [
+      {
+        "id": "main",
+        "identity": {
+          "name": "the dandelion cult - elliott"
+        }
+      }
+    ]
+  },
+  "tools": {
+    "media": {
+      "audio": {
+        "enabled": true,
+        "maxBytes": 20971520
+      }
+    },
+    "exec": {
+      "host": "gateway",
+      "security": "full",
+      "ask": "off"
+    },
+    "profile": "full",
+    "web": {
+      "search": {
+        "provider": "codex",
+        "enabled": true,
+        "openaiCodex": {}
+      },
+      "fetch": {
+        "enabled": true
+      }
+    }
+  },
+  "messages": {
+    "tts": {
+      "auto": "off",
+      "provider": "microsoft"
+    },
+    "queue": {
+      "mode": "steer",
+      "debounceMs": 250,
+      "cap": 10,
+      "drop": "old",
+      "byChannel": {
+        "discord": "collect"
+      },
+      "debounceMsByChannel": {
+        "discord": 45000
+      }
+    },
+    "groupChat": {
+      "visibleReplies": "message_tool",
+      "unmentionedInbound": "room_event",
+      "historyLimit": 8
+    },
+    "inbound": {
+      "debounceMs": 0,
+      "byChannel": {
+        "discord": 3000
+      }
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerAllowFrom": [
+      "discord:1475311338879189142",
+      "discord:1465874306168000705",
+      "discord:1508324617444655225",
+      "discord:1122611838010535946",
+      "discord:1495281313526059018",
+      "discord:1477180909848629301",
+      "discord:1474269301715501178",
+      "discord:1508328832783089734"
+    ],
+    "config": true,
+    "debug": true,
+    "useAccessGroups": true,
+    "ownerDisplay": "raw",
+    "allowFrom": {
+      "discord": [
+        "1475311338879189142",
+        "1465874306168000705",
+        "1508324617444655225",
+        "1122611838010535946",
+        "1495281313526059018",
+        "1477180909848629301",
+        "1474269301715501178",
+        "1508328832783089734"
+      ]
+    }
+  },
+  "channels": {
+    "discord": {
+      "enabled": true,
+      "allowBots": true,
+      "groupPolicy": "allowlist",
+      "actions": {
+        "reactions": true,
+        "permissions": true,
+        "messages": true,
+        "roles": true,
+        "voiceStatus": true,
+        "moderation": true,
+        "channels": true,
+        "presence": true,
+        "stickers": true,
+        "polls": true,
+        "threads": true,
+        "pins": true,
+        "search": true,
+        "memberInfo": true,
+        "roleInfo": true,
+        "channelInfo": true,
+        "events": true,
+        "emojiUploads": true,
+        "stickerUploads": true
+      },
+      "dmPolicy": "open",
+      "allowFrom": [
+        "*"
+      ],
+      "execApprovals": {
+        "enabled": false,
+        "target": "dm"
+      },
+      "ui": {
+        "components": {
+          "accentColor": "#5865F2"
+        }
+      },
+      "responsePrefix": "",
+      "token": "[REDACTED]",
+      "guilds": {
+        "1235610176883523614": {
+          "requireMention": false,
+          "channels": {
+            "1466192485440164011": {
+              "requireMention": false
+            },
+            "1473320126433464465": {
+              "requireMention": false
+            },
+            "1479953009864740956": {
+              "requireMention": false
+            }
+          }
+        }
+      },
+      "streaming": {
+        "mode": "off",
+        "preview": {
+          "toolProgress": false,
+          "commandText": "status"
+        },
+        "progress": {
+          "toolProgress": false,
+          "commandText": "status"
+        },
+        "block": {
+          "enabled": false
+        }
+      },
+      "threadBindings": {
+        "enabled": true,
+        "spawnSessions": true
+      },
+      "dm": {
+        "enabled": true,
+        "groupEnabled": true
+      },
+      "agentComponents": {
+        "enabled": true
+      },
+      "voice": {
+        "enabled": true,
+        "daveEncryption": true
+      },
+      "intents": {
+        "presence": true,
+        "guildMembers": true
+      },
+      "replyToMode": "batched",
+      "pluralkit": {
+        "enabled": true
+      },
+      "commands": {
+        "native": "auto",
+        "nativeSkills": "auto"
+      },
+      "slashCommand": {
+        "ephemeral": false
+      },
+      "configWrites": true,
+      "ackReaction": "",
+      "historyLimit": 8,
+      "dmHistoryLimit": 6
+    }
+  },
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "loopback",
+    "auth": {
+      "mode": "token",
+      "token": "[REDACTED]"
+    }
+  },
+  "plugins": {
+    "entries": {
+      "discord": {
+        "enabled": true
+      },
+      "anthropic": {
+        "enabled": true
+      },
+      "openai": {
+        "enabled": true
+      },
+      "codex": {
+        "enabled": true
+      },
+      "github-copilot": {
+        "enabled": true
+      },
+      "diagnostics-otel": {
+        "enabled": true
+      },
+      "memory-wiki": {
+        "enabled": true,
+        "config": {
+          "vaultMode": "bridge",
+          "vault": {
+            "path": "/home/figs/.openclaw/wiki/main",
+            "renderMode": "obsidian"
+          },
+          "bridge": {
+            "enabled": true,
+            "readMemoryArtifacts": true,
+            "indexDreamReports": true,
+            "indexDailyNotes": true,
+            "indexMemoryRoot": true,
+            "followMemoryEvents": true
+          },
+          "render": {
+            "createDashboards": false
+          },
+          "context": {
+            "includeCompiledDigestPrompt": false
+          }
+        }
+      },
+      "active-memory": {
+        "enabled": true,
+        "config": {
+          "enabled": true,
+          "agents": [
+            "main"
+          ],
+          "allowedChatTypes": [
+            "direct"
+          ],
+          "modelFallback": "github-copilot/gpt-5.5",
+          "queryMode": "recent",
+          "promptStyle": "balanced",
+          "timeoutMs": 15000,
+          "maxSummaryChars": 1000,
+          "persistTranscripts": false,
+          "logging": true,
+          "setupGraceTimeoutMs": 30000
+        }
+      },
+      "searxng": {
+        "config": {
+          "webSearch": {
+            "baseUrl": "http://localhost:8888"
+          }
+        },
+        "enabled": true
+      },
+      "memory-core": {
+        "config": {
+          "dreaming": {
+            "enabled": true,
+            "frequency": "0 3 * * *",
+            "model": "github-copilot/gpt-5.5",
+            "phases": {
+              "deep": {
+                "maxPromotedSnippetTokens": 160
+              }
+            }
+          }
+        },
+        "enabled": true,
+        "subagent": {
+          "allowModelOverride": true,
+          "allowedModels": [
+            "github-copilot/gpt-5.5"
+          ]
+        }
+      },
+      "microsoft": {
+        "enabled": true
+      }
+    },
+    "load": {
+      "paths": []
+    }
+  },
+  "skills": {
+    "entries": {
+      "1password": {
+        "enabled": false
+      },
+      "apple-notes": {
+        "enabled": false
+      },
+      "apple-reminders": {
+        "enabled": false
+      },
+      "bear-notes": {
+        "enabled": false
+      },
+      "blogwatcher": {
+        "enabled": false
+      },
+      "blucli": {
+        "enabled": false
+      },
+      "camsnap": {
+        "enabled": false
+      },
+      "clawhub": {
+        "enabled": false
+      },
+      "coding-agent": {
+        "enabled": false
+      },
+      "discord": {
+        "enabled": false
+      },
+      "eightctl": {
+        "enabled": false
+      },
+      "gemini": {
+        "enabled": false
+      },
+      "gifgrep": {
+        "enabled": false
+      },
+      "gog": {
+        "enabled": false
+      },
+      "goplaces": {
+        "enabled": false
+      },
+      "himalaya": {
+        "enabled": false
+      },
+      "imsg": {
+        "enabled": false
+      },
+      "mcporter": {
+        "enabled": false
+      },
+      "model-usage": {
+        "enabled": false
+      },
+      "nano-pdf": {
+        "enabled": false
+      },
+      "obsidian": {
+        "enabled": false
+      },
+      "openai-whisper": {
+        "enabled": false
+      },
+      "openai-whisper-api": {
+        "enabled": false
+      },
+      "openhue": {
+        "enabled": false
+      },
+      "oracle": {
+        "enabled": false
+      },
+      "ordercli": {
+        "enabled": false
+      },
+      "peekaboo": {
+        "enabled": false
+      },
+      "qqbot-channel": {
+        "enabled": false
+      },
+      "qqbot-media": {
+        "enabled": false
+      },
+      "qqbot-remind": {
+        "enabled": false
+      },
+      "sag": {
+        "enabled": false
+      },
+      "sherpa-onnx-tts": {
+        "enabled": false
+      },
+      "slack": {
+        "enabled": false
+      },
+      "songsee": {
+        "enabled": false
+      },
+      "sonoscli": {
+        "enabled": false
+      },
+      "spotify-player": {
+        "enabled": false
+      },
+      "summarize": {
+        "enabled": false
+      },
+      "things-mac": {
+        "enabled": false
+      },
+      "tmux": {
+        "enabled": false
+      },
+      "trello": {
+        "enabled": false
+      },
+      "voice-call": {
+        "enabled": false
+      },
+      "wacli": {
+        "enabled": false
+      },
+      "xurl": {
+        "enabled": false
+      }
+    }
+  },
+  "auth": {
+    "profiles": {
+      "github-copilot:github": {
+        "provider": "github-copilot",
+        "mode": "token"
+      }
+    }
+  },
+  "diagnostics": {
+    "otel": {
+      "enabled": true,
+      "endpoint": "http://otel.dandelion.cult:4318",
+      "traces": true,
+      "metrics": true,
+      "serviceName": "elliott-prince",
+      "protocol": "http/protobuf"
+    },
+    "stuckSessionAbortMs": 1200000
+  },
+  "models": {
+    "providers": {
+      "github-copilot": {
+        "timeoutSeconds": 180,
+        "api": "openai-responses",
+        "models": [
+          {
+            "id": "gpt-5.5",
+            "api": "openai-responses",
+            "name": "GPT-5.5",
+            "reasoning": true,
+            "contextWindow": 1050000,
+            "maxTokens": 128000
+          },
+          {
+            "id": "claude-opus-4.8",
+            "name": "Claude Opus 4.8 (1M internal)",
+            "contextWindow": 1000000,
+            "api": "anthropic-messages"
+          },
+          {
+            "id": "claude-opus-4.6",
+            "name": "Claude Opus 4.6",
+            "contextWindow": 1000000,
+            "api": "anthropic-messages"
+          },
+          {
+            "id": "gemini-3.1-pro-preview",
+            "name": "Gemini 3.1 Pro",
+            "api": "openai-completions",
+            "contextWindow": 1000000,
+            "reasoning": false,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
+  }
+}

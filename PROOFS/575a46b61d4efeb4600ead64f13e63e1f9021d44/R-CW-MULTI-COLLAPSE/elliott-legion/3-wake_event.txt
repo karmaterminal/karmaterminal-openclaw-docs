@@ -1,0 +1,1 @@
+[Mon 2026-06-29 19:21 PDT] [continuation:wake] Turn 1/200. Chain started at 2026-06-29T22:40:25.180Z. Accumulated tokens: 41560. The agent elected to continue working. Reason: R-CW-MULTI-COLLAPSE testing — injecting overlapping wakes to trigger stale fold limit. Nonce: RCWM-575a46-8810.

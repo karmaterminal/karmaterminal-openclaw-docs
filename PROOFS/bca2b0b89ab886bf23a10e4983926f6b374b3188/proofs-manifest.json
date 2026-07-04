@@ -101,7 +101,7 @@
         "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/version-status.txt"
       ],
       "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/EVIDENCE.md",
-      "note": "synthetic DB-seeded stale/new same-session continuation rows: old rerun3 row superseded after 56186ms stale backlog; newest rerun3 row granted; config restored byte-identically. Exact-chain Tempo work-fire/queue-drain JSON saved; hop 101/102 values are explicit synthetic metadata, not realistic chain-depth evidence."
+      "note": "synthetic DB-seeded stale/new same-session continuation rows: old rerun3 row superseded after 56186ms stale backlog; newest rerun3 row granted once durably. Journal has two newest work-wake lines because the restore restart interrupted the first wake before terminal durable grant; recovery replayed the still-not-terminal row and the second fire recorded the durable grant. Exact-chain Tempo work-fire/queue-drain JSON saved; hop 101/102 values are explicit synthetic metadata, not realistic chain-depth evidence."
     },
     {
       "row": "R-CD-COLLECTION-ON-COLLAPSE",

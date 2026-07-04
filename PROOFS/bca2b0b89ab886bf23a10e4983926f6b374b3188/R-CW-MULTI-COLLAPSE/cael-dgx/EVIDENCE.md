@@ -81,6 +81,24 @@ Prior reason: "RCW_MULTI_COLLAPSE_BCA2B0B_CAEL_20260704_0733_RERUN3 NEWEST shoul
 
 Again: the `102/200` label is synthetic row metadata, not realistic chain-depth evidence.
 
+### Duplicate wake-line classification
+
+The journal contains **two** `work-wake hop=102/200` lines for the newest row:
+
+- `08:04:39.512` — first wake attempt after the old row was folded.
+- `08:05:39.520` — second wake attempt after the restore restart/recovery path re-armed the same row.
+
+Classification: **restore-restart-interrupted first wake, with a single durable terminal grant**.
+
+The restore workflow restarted the gateway at `08:04:57`, after the first wake line but before the newest row had recorded a terminal durable grant. Recovery then replayed the still-not-terminal newest row, re-armed the hedge at the same `fireAt=1783177539504`, and fired it again at `08:05:39`. The final durable row state records only the second fire as the grant:
+
+- `releasedAt: 1783177539510`
+- `deliveredAt: 1783177546863`
+- `turnGrantedAt: 1783177546863`
+- `disposition: granted`
+
+So this evidence is **not** claiming “exactly one wake log line” or “no duplicate wake attempt.” It claims: old stale row collapsed as superseded; newest row eventually granted exactly one durable terminal grant; the duplicate newest wake attempt was caused by the deliberate restore restart occurring between wake emission and durable terminalization. This is a caveat on the invasive proof method, not a second durable grant.
+
 ### Terminal durable rows
 
 `final-terminal-sqlite.txt` and `flow-runs-final.json` show the final durable state:

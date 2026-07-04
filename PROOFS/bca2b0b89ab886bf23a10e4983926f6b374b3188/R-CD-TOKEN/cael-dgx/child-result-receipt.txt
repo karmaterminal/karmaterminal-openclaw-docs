@@ -1,0 +1,5 @@
+Subagent child result received by parent:
+RCD_TOKEN_BCA2B0B_CAEL_20260704_0932_CHILD_RETURNED
+
+Child session key: agent:main:subagent:05645cb7-59b6-4371-af2f-6e96d9c6a783
+Child session id: d0d98d46-f913-4997-b371-df46dc1884e8

@@ -6,18 +6,18 @@
   "build_string": "OpenClaw 2026.6.11 (bca2b0b)",
   "fire_type": "fresh-fire",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "generated": "2026-07-04T16:24:00Z",
+  "generated": "2026-07-04T16:38:00Z",
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
     "total_rows": 28,
-    "pass": 10,
+    "pass": 11,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 17
+    "missing": 16
   },
-  "notes": "IN-PROGRESS corpus. R-CW-TOKEN added as PASS: terminal bare CONTINUE_WORK:5 fallback produced a same-session continuation wake and executed the wake marker. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
+  "notes": "IN-PROGRESS corpus. R-CD-TOKEN added as PASS: terminal bracket CONTINUE_DELEGATE fallback parsed as origin=bracket kind=delegate, spawned a subagent, and returned the requested sentinel. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
   "rows": [
     {
       "row": "R-RC-1",
@@ -288,11 +288,27 @@
     },
     {
       "row": "R-CD-TOKEN",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-TOKEN/",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/236",
-      "traces": [],
-      "supporting_docs": []
+      "traces": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-TOKEN/cael-dgx/tempo/trace-delegate-dispatch-child-30ed6e3e34825ef465f1a0c368cdee73.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-TOKEN/cael-dgx/tempo/trace-source-turn-25d84d10f6d8fd96309b8fc7141fafa4.json"
+      ],
+      "supporting_docs": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-TOKEN/cael-dgx/EVIDENCE.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-TOKEN/cael-dgx/source-token-surface.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-TOKEN/cael-dgx/journal-delegate-lines.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-TOKEN/cael-dgx/flow-runs.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-TOKEN/cael-dgx/task-runs.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-TOKEN/cael-dgx/child-result-receipt.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-TOKEN/cael-dgx/child-trajectory-sentinel-excerpts.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-TOKEN/cael-dgx/tempo/trace-delegate-dispatch-child-summary.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-TOKEN/cael-dgx/tempo/trace-source-turn-summary.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-TOKEN/cael-dgx/version.txt"
+      ],
+      "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-TOKEN/cael-dgx/EVIDENCE.md",
+      "note": "PASS: terminal bracket CONTINUE_DELEGATE fallback parsed as origin=bracket kind=delegate; parent flow 38fc5365-8b31-43ea-962f-8c3651716303 succeeded; subagent task ad5b18d7-6858-4b2f-a06d-dc2c57b04092 delivered sentinel RCD_TOKEN_BCA2B0B_CAEL_20260704_0932_CHILD_RETURNED."
     },
     {
       "row": "R-CW-TOKEN",

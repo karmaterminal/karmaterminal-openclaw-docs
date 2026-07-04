@@ -1,0 +1,14 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.8 [39m[90m/tmp/oc-proofs-234-bca2b0b/openclaw-src[39m
+
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts[2m > [22mcost-cap exhaustion mid-chain[2m > [22mallows dispatch when accumulatedChainTokens is 1 below costCapTokens[32m 83[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts[2m > [22mcost-cap exhaustion mid-chain[2m > [22mrejects dispatch when accumulatedChainTokens exceeds costCapTokens by 1[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts[2m > [22mcost-cap exhaustion mid-chain[2m > [22mrejects all remaining queued delegates once cost cap is crossed[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts[2m > [22mcost-cap exhaustion mid-chain[2m > [22mmarks TaskFlow records as failed for cost-cap-rejected delegates[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts[2m > [22mcost-cap exhaustion mid-chain[2m > [22mrejects at exact boundary (accumulatedChainTokens === costCapTokens is NOT over)[32m 1[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m   Start at [22m 10:23:42
+[2m   Duration [22m 3.85s[2m (transform 3.30s, setup 286ms, import 3.38s, tests 88ms, environment 0ms)[22m
+

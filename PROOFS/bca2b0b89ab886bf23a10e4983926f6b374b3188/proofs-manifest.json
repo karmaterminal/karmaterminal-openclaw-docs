@@ -6,18 +6,18 @@
   "build_string": "OpenClaw 2026.6.11 (bca2b0b)",
   "fire_type": "fresh-fire",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "generated": "2026-07-04T17:18:00Z",
+  "generated": "2026-07-04T17:27:00Z",
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
     "total_rows": 28,
-    "pass": 14,
+    "pass": 15,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 13
+    "missing": 12
   },
-  "notes": "IN-PROGRESS corpus. R-CW-2 added as PASS: typed continue_work(delaySeconds=0) scheduled immediate same-session work, persisted a flow row, emitted delay.ms=0 continuation.work / continuation.work.fire spans, and granted the wake with chain counter hop 1/200. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
+  "notes": "IN-PROGRESS corpus. R-CW-5 added as PASS: source/test proof for cost-cap exhaustion at bca2b0b; no live config mutation or live over-budget dispatch. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
   "rows": [
     {
       "row": "R-RC-1",
@@ -305,11 +305,25 @@
     },
     {
       "row": "R-CW-5",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-5/",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/234",
       "traces": [],
-      "supporting_docs": []
+      "supporting_docs": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-5/cael-dgx/EVIDENCE.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-5/cael-dgx/source-git-status.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-5/cael-dgx/runtime-version.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-5/cael-dgx/scheduler-source.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-5/cael-dgx/scheduler-test.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-5/cael-dgx/delegate-dispatch-cost-cap-source.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-5/cael-dgx/delegate-dispatch-cost-cap-exhaustion-test.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-5/cael-dgx/subagent-announce-bracket-cost-cap-source.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-5/cael-dgx/subagent-announce-tool-cost-cap-source.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-5/cael-dgx/vitest-delegate-dispatch-cost-cap-exhaustion.log",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-5/cael-dgx/vitest-chain-guard-cost-cap.log"
+      ],
+      "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-5/cael-dgx/EVIDENCE.md",
+      "note": "PASS: static/source + unit-test proof. Dedicated delegate-dispatch cost-cap exhaustion suite passed 5/5 and announce-side cost-cap boundary tests passed 2/2 selected at bca2b0b; no live config mutation or live over-budget dispatch."
     },
     {
       "row": "R-CD-3",

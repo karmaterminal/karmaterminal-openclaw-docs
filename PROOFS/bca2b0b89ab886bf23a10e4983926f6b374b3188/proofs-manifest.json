@@ -6,18 +6,18 @@
   "build_string": "OpenClaw 2026.6.11 (bca2b0b)",
   "fire_type": "fresh-fire",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "generated": "2026-07-04T15:46:00Z",
+  "generated": "2026-07-04T16:20:00Z",
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
     "total_rows": 28,
-    "pass": 8,
+    "pass": 9,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 19
+    "missing": 18
   },
-  "notes": "IN-PROGRESS corpus. R-RC-2 added as HONEST_LIMIT for below-threshold request_compaction guard on live Cael session; remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
+  "notes": "IN-PROGRESS corpus. R-CW-MULTI added as PASS for clarified observed fanout/collapse semantics: three rows captured, A granted, B/C folded-active into the active wake turn. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
   "rows": [
     {
       "row": "R-RC-1",
@@ -326,11 +326,26 @@
     },
     {
       "row": "R-CW-MULTI",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI/",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/239",
-      "traces": [],
-      "supporting_docs": []
+      "traces": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI/cael-dgx/tempo/trace-958e0b039d3d1aa2da887f956f976c0.json"
+      ],
+      "supporting_docs": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI/cael-dgx/EVIDENCE.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI/cael-dgx/source-tool-receipts.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI/cael-dgx/flow-runs-final.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI/cael-dgx/wake-and-folded-receipts.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI/cael-dgx/discord-wake-marker-receipt.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI/cael-dgx/journal-continuation-lines.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI/cael-dgx/journal-window.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI/cael-dgx/tempo/trace-summary.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI/cael-dgx/tempo/continue-work-traces.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI/cael-dgx/version.txt"
+      ],
+      "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI/cael-dgx/EVIDENCE.md",
+      "note": "PASS for clarified observed fanout/collapse semantics: three typed continue_work elections in one turn produced three durable rows; A granted and emitted A_WAKE; B/C matured while A turn was active and folded-active, so no B_WAKE/C_WAKE invented. No product bug filed; docs#246 covers silent-return + waking-return overlap gap."
     }
   ]
 }

@@ -1,11 +1,11 @@
-# R-CD-CHAINED-DEPTH-2 — depth-2 delegate chain with return-surface gap (cael-dgx)
+# R-CD-CHAINED-DEPTH-2 — depth-2 delegate chain with depth-1 post-leaf return (cael-dgx)
 
 Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/215  
 Method lock: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/215#issuecomment-4883600973  
 Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`  
 Build: `OpenClaw 2026.6.11 (bca2b0b)`  
 Seat: Cael / `cael-dgx`  
-Verdict: ⚠️ PARTIAL — depth-2 reach proven; required return-through-depth-1/root-wake surface not proven.
+Verdict: ✅ PASS — superseding rerun `RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403` proves the missing depth-1 post-leaf return surface.
 
 ## Scope
 
@@ -13,153 +13,175 @@ The method lock requires a fresh live delegate chain:
 
 1. root/main typed `continue_delegate(mode=silent-wake, fanoutMode=tree)` spawns depth-1 dispatcher;
 2. depth-1 dispatcher typed `continue_delegate(mode=silent-wake, fanoutMode=tree)` spawns depth-2 leaf;
-3. depth-2 leaf returns unique sentinel;
+3. depth-2 leaf returns a unique sentinel;
 4. depth-1 returns after seeing the depth-2 sentinel;
 5. parent/root receives enough return/fanout byte to prove the depth-2 leaf result routed back through depth-1 to parent/root.
 
-This run proves steps 1–3 and the durable/trace mapping for both delegate edges. It does **not** prove steps 4–5: the depth-1 dispatcher returned a waiting/scheduled message before the depth-2 leaf completed, and root/main did not receive a post-leaf wake/result surface with the leaf sentinel.
+The first captured run `RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1245` proved depth reached but not the return surface. It is preserved in the original row receipts and `non-proof/`/old receipts. The later rerun `RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403` was planned with a depth-1 `continue_work` wake fallback and proves the full method.
 
-## Sentinels / sessions
+## Passing rerun: sentinels / sessions
 
-- Sentinel prefix: `RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1245`
-- Depth-2 leaf sentinel: `RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1245_LEAF_REACHED`
-- Depth-1 session: `agent:main:subagent:continuation-c3fc07a37b4995fa003634edab8aaaf0`
-- Depth-2 session: `agent:main:subagent:continuation-d571a5f0013f50a822605e3ea7010631`
+- Rerun prefix: `RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403`
+- Depth-2 leaf sentinel: `RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403_LEAF_REACHED`
+- Depth-1 final sentinel: `RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403_DEPTH1_SAW_LEAF_AND_RETURNED`
+- Root/main session: `agent:main:discord:channel:1466192485440164011`
+- Depth-1 session: `agent:main:subagent:continuation-da93564939a220c4c9b2c91518a429da`
+- Depth-2 session: `agent:main:subagent:continuation-10a07b0e2f691340cdf0c14924294a95`
+- Depth-2 session id/run id from leaf: `84f84bd4-156e-462e-a0cc-161dfc63ab20`
+- Shared trace id: `50bc5319a8b0f6afed56282aeddb5950`
 
-## What passed
+Passing rerun receipts live under:
+
+```text
+rerun-1403-pass/
+```
+
+## What passed in rerun 1403
 
 ### Root -> depth-1 delegate edge
 
-`db/flow-rows-full.pretty.json` records the root/main delegate flow:
+`rerun-1403-pass/db/flow-rows-concise.json` records the root/main delegate flow:
 
-- flow id: `05ffffb7-2b9c-4d8e-a74e-6c09d8209069`
+- flow id: `499e768e-cfc1-461a-a2db-a92782e4cb59`
 - owner: `agent:main:discord:channel:1466192485440164011`
+- controller: `core/continuation-delegate`
 - status: `succeeded`
+- `delayMs: 0`
 - `fanoutMode: "tree"`
-- traceparent: `00-549a10a8592e384a0e53f407e2d5556b-2828d0b828ddbcf8-01`
-- child session: `agent:main:subagent:continuation-c3fc07a37b4995fa003634edab8aaaf0`
+- child session: `agent:main:subagent:continuation-da93564939a220c4c9b2c91518a429da`
+- traceparent: `00-50bc5319a8b0f6afed56282aeddb5950-739e2ee3afd998f5-01`
 
-`db/task-rows.json` records the depth-1 subagent task:
+`rerun-1403-pass/db/task-rows-concise.json` records the depth-1 task:
 
-- task id: `a1864699-3a53-4f55-a759-19128ac4dfd6`
-- source/run id: `continuation-delegate-c3fc07a37b4995fa003634edab8aaaf0`
+- source/run id: `continuation-delegate-da93564939a220c4c9b2c91518a429da`
+- requester: `agent:main:discord:channel:1466192485440164011`
+- child session: `agent:main:subagent:continuation-da93564939a220c4c9b2c91518a429da`
 - status: `succeeded`
 - delivery status: `delivered`
-- child sessions include the depth-2 session (also visible in `subagents` output captured in the live session context).
 
 ### Depth-1 -> depth-2 delegate edge
 
-The depth-1 transcript `sessions/depth1-dispatcher-session.jsonl` records a typed `continue_delegate` tool call and successful scheduling result. Its readable excerpt (`sessions/depth1-readable.tsv`) includes:
+Depth-1 transcript `rerun-1403-pass/sessions/depth1-session.jsonl` records a typed `continue_delegate` call with:
 
-```text
-RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1245
-DEPTH1_DISPATCHER_WAITING_FOR_LEAF_RESULT
-typed continue_delegate(mode=silent-wake, fanoutMode=tree) scheduled exactly once.
+```json
+{
+  "delaySeconds": 0,
+  "mode": "silent-wake",
+  "fanoutMode": "tree"
+}
 ```
 
-`db/flow-rows-full.pretty.json` records the depth-1 child delegate flow:
+The depth-1 schedule receipt was:
 
-- flow id: `4d04b051-96d7-4e54-ab8f-9abdfbf936e2`
-- owner: `agent:main:subagent:continuation-c3fc07a37b4995fa003634edab8aaaf0`
+```text
+continue_delegate.status=scheduled
+mode=silent-wake
+delaySeconds=0
+delegateIndex=1
+delegatesThisTurn=1
+fanoutMode=tree
+```
+
+`rerun-1403-pass/db/flow-rows-concise.json` records the depth-1 child delegate flow:
+
+- flow id: `cbb307e9-8291-426c-bfa3-ebddf3c1a956`
+- owner: `agent:main:subagent:continuation-da93564939a220c4c9b2c91518a429da`
+- controller: `core/continuation-delegate`
 - status: `succeeded`
+- `delayMs: 0`
 - `fanoutMode: "tree"`
-- child session: `agent:main:subagent:continuation-d571a5f0013f50a822605e3ea7010631`
+- child session: `agent:main:subagent:continuation-10a07b0e2f691340cdf0c14924294a95`
 
-`db/task-rows.json` records the depth-2 task:
+### Depth-2 leaf reached
 
-- task id: `70650c44-71ec-403e-aef6-7c21af501293`
-- source/run id: `continuation-delegate-d571a5f0013f50a822605e3ea7010631`
-- requester: `agent:main:subagent:continuation-c3fc07a37b4995fa003634edab8aaaf0`
-- child session: `agent:main:subagent:continuation-d571a5f0013f50a822605e3ea7010631`
+`rerun-1403-pass/sessions/depth2-leaf-session.jsonl` records the depth-2 response:
+
+```text
+RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403_LEAF_REACHED session=agent:main:subagent:continuation-10a07b0e2f691340cdf0c14924294a95 sessionId=84f84bd4-156e-462e-a0cc-161dfc63ab20
+```
+
+`rerun-1403-pass/db/task-rows-concise.json` records the leaf task:
+
+- source/run id: `continuation-delegate-10a07b0e2f691340cdf0c14924294a95`
+- requester: `agent:main:subagent:continuation-da93564939a220c4c9b2c91518a429da`
+- child session: `agent:main:subagent:continuation-10a07b0e2f691340cdf0c14924294a95`
 - status: `succeeded`
 - delivery status: `delivered`
 - progress summary contains the depth-2 leaf sentinel.
 
-### Depth-2 leaf reached
+### Depth-1 returned after seeing the leaf
 
-`sessions/depth2-leaf-session.jsonl` records the leaf task and response. The response contains:
+The earlier partial attempt failed because depth-1 returned immediately after scheduling. The rerun explicitly avoided that by scheduling a same-session `continue_work` wake for depth-1 after the leaf schedule receipt:
 
-```text
-RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1245_LEAF_REACHED
-session: agent:main:subagent:continuation-d571a5f0013f50a822605e3ea7010631
-```
+- depth-1 continuation-work flow: `a697dc24-09b2-4275-8e38-eb581509f3d5`
+- owner: `agent:main:subagent:continuation-da93564939a220c4c9b2c91518a429da`
+- status: `succeeded`
+- reason: `wake depth1 to verify depth2 leaf sentinel and return final proof sentinel`
+- delivered/granted after the depth-2 leaf return.
 
-The gateway journal excerpt `journal/delegate-chain-filtered.log` also records:
-
-```text
-RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1245_LEAF_REACHED
-session: agent:main:subagent:continuation-d571a5f0013f50a822605e3ea7010631
-```
-
-### Tempo trace
-
-Tempo trace JSON is saved at:
+Depth-1 then inspected its child and returned the final proof sentinel:
 
 ```text
-tempo/trace-549a10a8592e384a0e53f407e2d5556b.json
+RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403_DEPTH1_SAW_LEAF_AND_RETURNED
+
+prefix=RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403
+leaf_sentinel=RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403_LEAF_REACHED
+leaf_observed=true
+child_runId=continuation-delegate-10a07b0e2f691340cdf0c14924294a95
+child_sessionKey=agent:main:subagent:continuation-10a07b0e2f691340cdf0c14924294a95
+child_sessionId=84f84bd4-156e-462e-a0cc-161dfc63ab20
+verification_method=subagents.list_once_then_sessions_history_child
+proof_status=final_success
 ```
 
-`tempo/trace-summary.json` contains:
+This final response appears in `rerun-1403-pass/sessions/depth1-session.jsonl` after the continuation-work wake, and root/main observed the same final response in `rerun-1403-pass/main/root-observation.md`.
 
-- 26 spans total
-- `continuation.delegate.dispatch`: 2
-- `openclaw.harness.run`: 3
-- `openclaw.run`: 3
-- `openclaw.tool.execution`: 4
-- `continuation.queue.fanout`: 1
-- `continuation.queue.drain`: 1
+### Ordering bytes
 
-The important span summary shows:
+Ordering from the journal and durable rows:
 
-- root `openclaw.tool.execution` for `continue_delegate`;
-- first `continuation.delegate.dispatch` with `delegate.mode=silent-wake`, `delegate.delivery=immediate`;
-- depth-1 `openclaw.harness.run` / `openclaw.run`;
-- depth-1 `openclaw.tool.execution` for `continue_delegate`;
-- second `continuation.delegate.dispatch` with `delegate.mode=silent-wake`, `delegate.delivery=immediate`;
-- depth-2 `openclaw.harness.run` / `openclaw.run`;
-- `continuation.queue.fanout` and `continuation.queue.drain`.
+1. Depth-1 first turn emitted `WAITING_NOT_FINAL ... leaf_observed=false`.
+2. Depth-1 spawned depth-2 at `14:03:36`.
+3. Depth-2 returned leaf sentinel at `14:03:47`.
+4. Depth-1 `continue_work` woke at `14:03:48`.
+5. Depth-1 final response containing `DEPTH1_SAW_LEAF_AND_RETURNED` was produced in the wake turn and persisted in the depth-1 session transcript.
 
-## What did not pass
+So the final depth-1 result happened after the depth-2 leaf result, satisfying the missing return surface.
 
-The method lock requires: “The depth-1 dispatcher returns after seeing the depth-2 sentinel; the parent/root should receive enough return/fanout byte to prove the depth-2 leaf was reached through the depth-1 child, not directly from root.”
+## Tempo trace
 
-This run does not meet that bar.
+Machine-readable Tempo JSON is saved at:
 
-Observed gap:
-
-- depth-1 returned `DEPTH1_DISPATCHER_WAITING_FOR_LEAF_RESULT` before the leaf completed;
-- journal shows `[continuation:targeted-return] Delivered to agent:main:discord:channel:1466192485440164011 from agent:main:subagent:continuation-c3fc07a37b4995fa003634edab8aaaf0` at `12:45:44`, before the depth-2 leaf sentinel at `12:45:47`;
-- no later journal return line shows the depth-2 leaf sentinel routed back to root/main;
-- root/main did not wake/surface with the leaf sentinel after the leaf completed.
-
-`evaluation.json` records the resulting truth table:
-
-```json
-{
-  "rootToDepth1FlowSucceeded": true,
-  "depth1TypedContinueDelegateObserved": true,
-  "depth1ToDepth2FlowSucceeded": true,
-  "depth2LeafSentinelObserved": true,
-  "depth1ReturnedAfterSeeingLeaf": false,
-  "rootReceivedLeafResult": false,
-  "rootWakeAfterLeaf": false,
-  "depth1ReturnSurface": "DEPTH1_DISPATCHER_WAITING_FOR_LEAF_RESULT",
-  "targetReturnBeforeLeafCompletion": true
-}
+```text
+rerun-1403-pass/tempo/trace-50bc5319a8b0f6afed56282aeddb5950.json
 ```
 
-## Excluded/non-proof rerun
+`rerun-1403-pass/tempo/trace-summary.json` preserves the span summary. The single trace ties the root delegate, depth-1 delegate, depth-2 run, and depth-1 `continue_work` wake through the same runtime traceparent.
 
-I attempted a cleaner rerun with depth-1 instructed to use `continue_delegate(mode=normal, fanoutMode=tree)` so the depth-1 child could observe a visible depth-2 result before returning. That rerun is preserved under `non-proof/` and is not counted:
+## Preserved earlier partial attempt
 
-- flow: `de60d463-1eb5-45eb-81c6-7587407d243d`
-- status: `failed`
-- current step: `Delegate spawn failed`
-- blocked summary: `Tool delegate rejected: cost-capped.`
-- journal: `Chain cost 1352109/500000 — capped`
+The original `RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1245` receipts remain in the row directory. That attempt is still useful negative/partial evidence:
 
-This is excluded because no child spawned.
+- it proved root→depth1 and depth1→depth2 typed delegate edges;
+- it proved the depth-2 leaf reached;
+- it did **not** prove depth-1 returned after seeing the depth-2 sentinel.
+
+The rerun `1403` supersedes the row verdict because it closes exactly that missing surface.
+
+## Supporting receipts
+
+- `comment-4883600973.json` — method lock from docs#215.
+- `rerun-1403-pass/evaluation.json` — machine-readable verdict flags.
+- `rerun-1403-pass/runtime-version.txt` and `source/source-sha-status.txt` — build/source receipts.
+- `rerun-1403-pass/db/flow-rows*.json` and schemas — durable flow rows.
+- `rerun-1403-pass/db/task-rows*.json` and schemas — durable task rows.
+- `rerun-1403-pass/sessions/depth1-session.jsonl` — depth-1 typed delegate, wait-not-final first turn, continuation-work wake, child history lookup, final proof sentinel.
+- `rerun-1403-pass/sessions/depth2-leaf-session.jsonl` — depth-2 leaf sentinel.
+- `rerun-1403-pass/journal/window.log` / `filtered.log` — delegate spawn, leaf return, depth-1 continuation-work wake.
+- `rerun-1403-pass/main/root-observation.md` — bounded root/main observation of final depth-1 and depth-2 replies.
+- `rerun-1403-pass/tempo/trace-50bc5319a8b0f6afed56282aeddb5950.json` and `trace-summary.json` — machine-readable Tempo receipt.
+- original attempt receipts in the row root and `non-proof/` — preserved for audit history.
 
 ## Verdict
 
-⚠️ PARTIAL. The live chain reached depth 2 through the depth-1 child with two successful typed `continue_delegate` edges, durable flow/task rows, session transcripts, journal bytes, and Tempo spans. The required return surface did **not** complete: depth-1 did not return after seeing the depth-2 sentinel, and root/main did not receive a post-leaf wake/result with the sentinel. This should not be counted as PASS for `R-CD-CHAINED-DEPTH-2` until a clean run proves the return-through-depth-1/root surface.
+✅ PASS — rerun `RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403` proves the full depth-2 chain on deployed `OpenClaw 2026.6.11 (bca2b0b)`: root spawned depth-1, depth-1 spawned depth-2 with typed `continue_delegate`, depth-2 returned the leaf sentinel, depth-1 woke after the leaf and returned a final sentinel containing the observed leaf result, and root/main observed that depth-1 final response. Durable flow/task rows, transcripts, journal receipts, and Tempo JSON are preserved.

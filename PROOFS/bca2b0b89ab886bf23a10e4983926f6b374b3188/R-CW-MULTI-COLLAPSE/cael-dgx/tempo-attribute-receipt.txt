@@ -1,0 +1,9 @@
+Exact-chain Tempo traces found after late bounded search (`start=1783177440&end=1783177620`):
+
+- `fcfddd0996c2d28125c99e9f7b52ad90` — `continuation.work.fire`, `startTimeUnixNano=1783177479511000000`, `chain.id=29fa6c15-2dc9-409f-bf48-138e73667da5`, `chain.step.remaining=98`, `delay.ms=1000`, `fire.deferred_ms=13191`, `reason.length=72`, `reason.hash=7117359a81fb82ba`.
+- `e6f5f835cea3a3568b183f4675d44a60` — duplicate/stale `continuation.work.fire`, `startTimeUnixNano=1783177539518000000`, same `chain.id=29fa6c15-2dc9-409f-bf48-138e73667da5`, `chain.step.remaining=98`, `delay.ms=1000`, `fire.deferred_ms=73197`, same `reason.length=72`, same `reason.hash=7117359a81fb82ba`.
+- `a091817cb7a9e86e723d52ca6b3a575d` — `continuation.queue.drain`, `queue.drained_count=1`, `queue.drained_continuation_count=0`, immediately after first work fire.
+- `68d165c2ad88458bebe39c5d5f799032` — `continuation.queue.drain`, `queue.drained_count=0`, `queue.drained_continuation_count=0`, after duplicate/stale fire.
+- `7d0e3c49b867074fd873023a16224eec` — earlier `continuation.queue.drain`, `queue.drained_count=0`, `queue.drained_continuation_count=0`.
+
+The work-fire traces carry the exact proof chain id but not raw flow ids or raw reason text; durable `flow_runs` receipts carry the exact old/new flow ids and reasons. The `chain.step.remaining=98` value derives from the synthetic DB-seeded `hop:102` metadata and is not claimed as realistic chain-depth evidence.

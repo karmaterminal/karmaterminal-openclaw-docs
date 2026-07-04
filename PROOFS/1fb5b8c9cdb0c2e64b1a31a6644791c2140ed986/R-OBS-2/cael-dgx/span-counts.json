@@ -1,0 +1,25 @@
+{
+  "traceIds": [
+    "DPF+oLfqt6XpmPalgee1vw=="
+  ],
+  "traceIdsHex": [
+    "0cf17ea0b7eab7a5e998f6a581e7b5bf"
+  ],
+  "spanCount": 46,
+  "rootCount": 1,
+  "orphanCount": 0,
+  "spanNameCounts": {
+    "openclaw.message.processed": 1,
+    "openclaw.harness.run": 5,
+    "openclaw.run": 5,
+    "openclaw.context.assembled": 5,
+    "openclaw.model.call": 14,
+    "openclaw.tool.execution": 9,
+    "openclaw.message.delivery": 1,
+    "continuation.work": 1,
+    "openclaw.model.usage": 2,
+    "continuation.delegate.dispatch": 1,
+    "continuation.queue.fanout": 1,
+    "continuation.queue.drain": 1
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "tool":"continue_work",
+  "reason":"R-CW-2 proof marker RCW2_BCA2B0B_CAEL_20260704_1015_IMMEDIATE: typed continue_work delaySeconds=0 immediate same-session wake and chain counter",
+  "delaySeconds":0,
+  "receipt":{"status":"scheduled","delaySeconds":0}
+}

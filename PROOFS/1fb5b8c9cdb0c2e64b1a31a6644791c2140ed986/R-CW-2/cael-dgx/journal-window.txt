@@ -1,0 +1,13 @@
+Jul 04 10:14:51 cael node[2314233]: 2026-07-04T10:14:51.160-07:00 [agent/embedded] [prompt-cache] cache read dropped 376832 -> 125440 for github-copilot/gpt-5.5 via session-custom; no tracked cache input change
+Jul 04 10:14:51 cael node[2314233]: 2026-07-04T10:14:51.273-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:main
+Jul 04 10:14:51 cael node[2314233]: 2026-07-04T10:14:51.274-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:main
+Jul 04 10:15:10 cael node[2314233]: 2026-07-04T10:15:10.775-07:00 [agent/embedded] [prompt-cache] cache read dropped 975360 -> 444928 for github-copilot/gpt-5.5 via session-custom; systemPrompt(system prompt digest changed)
+Jul 04 10:15:10 cael node[2314233]: 2026-07-04T10:15:10.952-07:00 [continuation/signal] [continuation:trace] bracket-parse skipped: empty payloads session=agent:main:discord:channel:1466192485440164011
+Jul 04 10:15:10 cael node[2314233]: 2026-07-04T10:15:10.953-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=agent:main:discord:channel:1466192485440164011
+Jul 04 10:15:10 cael node[2314233]: 2026-07-04T10:15:10.988-07:00 [continuation:work-parked-on-turn-end] session=agent:main:discord:channel:1466192485440164011 hop=1 reasonCategory=follow-up-work
+Jul 04 10:15:10 cael node[2314233]: 2026-07-04T10:15:10.989-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-armed] trigger=reply-run-ended session=agent:main:discord:channel:1466192485440164011
+Jul 04 10:15:10 cael node[2314233]: 2026-07-04T10:15:10.992-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=86399996ms fireAt=1783271710987 session=agent:main:discord:channel:1466192485440164011
+Jul 04 10:15:11 cael node[2314233]: 2026-07-04T10:15:11.013-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-fired] trigger=reply-run-ended waitMs=24 session=agent:main:discord:channel:1466192485440164011
+Jul 04 10:15:11 cael node[2314233]: 2026-07-04T10:15:11.018-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59998ms fireAt=1783185371015 session=agent:main:discord:channel:1466192485440164011
+Jul 04 10:15:11 cael node[2314233]: 2026-07-04T10:15:11.019-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011 reasonCategory=follow-up-work
+Jul 04 10:15:11 cael node[2314233]: 2026-07-04T10:15:11.024-07:00 [turn/kernel] visible channel turn dispatched with no queued reply payloads: channel=discord messageId=unknown sessionKey=agent:main:discord:channel:1466192485440164011

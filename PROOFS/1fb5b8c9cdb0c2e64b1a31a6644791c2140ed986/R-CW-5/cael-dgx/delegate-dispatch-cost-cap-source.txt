@@ -1,0 +1,46 @@
+  1090	        disabledReason: "policy.cross_session_targeting",
+  1091	        signalKind: "tool-delegate",
+  1092	        delegateDelivery: "immediate",
+  1093	        delegateMode: "post-compaction",
+  1094	        reason: delegate.task,
+  1095	        log: (message) => postCompactionLog.warn(message),
+  1096	      });
+  1097	      markTerminalRejected(
+  1098	        delegate,
+  1099	        "Post-compaction delegate rejected: cross-session targeting is disabled by policy.",
+  1100	      );
+  1101	      continue;
+  1102	    }
+  1103	
+  1104	    const budgetCheck = checkContinuationBudget({
+  1105	      chainState: {
+  1106	        currentChainCount,
+  1107	        chainStartedAt,
+  1108	        accumulatedChainTokens,
+  1109	      },
+  1110	      config,
+  1111	      sessionKey,
+  1112	    });
+  1113	    if (budgetCheck) {
+  1114	      const disabledReason = budgetCheck === "chain-capped" ? "cap.chain" : "cap.cost";
+  1115	      const summary =
+  1116	        budgetCheck === "chain-capped"
+  1117	          ? `chain length ${config.maxChainLength} reached`
+  1118	          : `cost cap exceeded (${accumulatedChainTokens} > ${config.costCapTokens})`;
+  1119	      postCompactionLog.warn(
+  1120	        `[continuation:post-compaction-policy-rejected] ${disabledReason} session=${sessionKey} task=${delegate.task.slice(0, 80)}`,
+  1121	      );
+  1122	      enqueueSystemEvent(
+  1123	        `[continuation] Post-compaction delegate rejected: ${summary}. Task: ${formatDelegateTaskForSystemEvent(delegate.task)}`,
+  1124	        { sessionKey, trusted: true },
+  1125	      );
+  1126	      emitContinuationDisabledSpan({
+  1127	        chainId: undefined,
+  1128	        chainStepRemaining: Math.max(0, config.maxChainLength - currentChainCount),
+  1129	        disabledReason,
+  1130	        signalKind: "tool-delegate",
+  1131	        delegateDelivery: "immediate",
+  1132	        delegateMode: "post-compaction",
+  1133	        reason: delegate.task,
+  1134	        log: (message) => postCompactionLog.warn(message),
+  1135	      });

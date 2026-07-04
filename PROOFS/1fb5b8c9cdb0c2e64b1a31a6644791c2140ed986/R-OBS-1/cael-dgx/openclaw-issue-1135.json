@@ -1,0 +1,1 @@
+{"labels":[{"color":"0066FF","description":"Continuation feature","id":"LA_kwDORVuSCM8AAAACe5yxMw","name":"continuation"}],"number":1135,"state":"OPEN","title":"continuation scheduler can churn requests-in-flight off-board flows and wedge gateway","url":"https://github.com/karmaterminal/openclaw/issues/1135"}

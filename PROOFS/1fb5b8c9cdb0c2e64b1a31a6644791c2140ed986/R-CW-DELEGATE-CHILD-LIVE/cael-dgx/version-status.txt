@@ -1,0 +1,7 @@
+OpenClaw 2026.6.11 (bca2b0b)
+
+bca2b0b89ab886bf23a10e4983926f6b374b3188
+
+bca2b0b89ab Merge remote-tracking branch 'upstream/main' into scribe/20260703/assembly-1159-main-backmerge
+
+2026-07-04T07:30:53-07:00

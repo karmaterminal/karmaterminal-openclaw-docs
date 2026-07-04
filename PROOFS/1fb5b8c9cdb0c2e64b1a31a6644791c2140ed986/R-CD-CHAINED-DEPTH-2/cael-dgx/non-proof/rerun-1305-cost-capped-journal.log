@@ -1,0 +1,6 @@
+Jul 04 13:03:56 cael node[2519116]: 2026-07-04T13:03:56.421-07:00 [continuation/signal] [continuation:trace] bracket-parse skipped: empty payloads session=agent:main:discord:channel:1466192485440164011
+Jul 04 13:03:56 cael node[2519116]: 2026-07-04T13:03:56.421-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jul 04 13:03:56 cael node[2519116]: 2026-07-04T13:03:56.462-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session agent:main:discord:channel:1466192485440164011
+Jul 04 13:03:56 cael node[2519116]: 2026-07-04T13:03:56.465-07:00 [continuation/scheduler] [continuation] Chain cost 1352109/500000 — capped for session agent:main:discord:channel:1466192485440164011
+Jul 04 13:03:56 cael node[2519116]: 2026-07-04T13:03:56.466-07:00 [continuation/delegate-dispatch] [continuation:delegate-rejected] cost-capped task=R-CD-CHAINED-DEPTH-2 clean rerun for docs#215 / candidate bca2b0b89ab886bf23a10e session=agent:main:discord:channel:1466192485440164011
+Jul 04 13:03:56 cael node[2519116]: 2026-07-04T13:03:56.492-07:00 [turn/kernel] visible channel turn dispatched with no queued reply payloads: channel=discord messageId=unknown sessionKey=agent:main:discord:channel:1466192485440164011

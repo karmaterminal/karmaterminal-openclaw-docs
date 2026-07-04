@@ -6,7 +6,7 @@
   "build_string": "OpenClaw 2026.6.11 (bca2b0b)",
   "fire_type": "fresh-fire",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "generated": "2026-07-04T15:40:00Z",
+  "generated": "2026-07-04T15:46:00Z",
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
     "total_rows": 28,
@@ -14,10 +14,10 @@
     "partial": 0,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 0,
-    "missing": 20
+    "honest_limit": 1,
+    "missing": 19
   },
-  "notes": "IN-PROGRESS corpus. R-CD-3 added as typed post-compaction delegate queued-for-compaction proof; remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
+  "notes": "IN-PROGRESS corpus. R-RC-2 added as HONEST_LIMIT for below-threshold request_compaction guard on live Cael session; remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
   "rows": [
     {
       "row": "R-RC-1",
@@ -304,11 +304,25 @@
     },
     {
       "row": "R-RC-2",
-      "state": "missing",
+      "state": "honest_limit",
       "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-2/",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/238",
-      "traces": [],
-      "supporting_docs": []
+      "traces": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-2/cael-dgx/tempo/trace-7c90ab549eea6578bf5e58b2eed3dd9.json"
+      ],
+      "supporting_docs": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-2/cael-dgx/EVIDENCE.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-2/cael-dgx/session-status.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-2/cael-dgx/request-compaction-receipt.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-2/cael-dgx/tempo/trace-summary.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-2/cael-dgx/tempo/request-compaction-traces.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-2/cael-dgx/version.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-2/cael-dgx/journal-window.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-2/cael-dgx/journal-marker-lines.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-2/cael-dgx/journal-compaction-lines.txt"
+      ],
+      "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-2/cael-dgx/EVIDENCE.md",
+      "note": "HONEST_LIMIT: pre-fire session_status showed 17% context, below 70% threshold; single request_compaction call rejected with guard=context_threshold. No context stuffing or repeated requests."
     },
     {
       "row": "R-CW-MULTI",

@@ -1,0 +1,4 @@
+{"type":"context.compiled","ts":"2026-07-04T16:42:53.385Z","seq":3,"data":{"assistantTexts":null,"finalStatus":null,"terminalSummary":null},"content":null}
+{"type":"prompt.submitted","ts":"2026-07-04T16:42:53.393Z","seq":4,"data":{"assistantTexts":null,"finalStatus":null,"terminalSummary":null},"content":null}
+{"type":"model.completed","ts":"2026-07-04T16:42:56.149Z","seq":5,"data":{"assistantTexts":["RCD2_BCA2B0B_CAEL_20260704_0942_CHILD_SILENT_WAKE_RETURNED"],"finalStatus":null,"terminalSummary":null},"content":null}
+{"type":"trace.artifacts","ts":"2026-07-04T16:42:56.149Z","seq":6,"data":{"assistantTexts":["RCD2_BCA2B0B_CAEL_20260704_0942_CHILD_SILENT_WAKE_RETURNED"],"finalStatus":"success","terminalSummary":null},"content":null}

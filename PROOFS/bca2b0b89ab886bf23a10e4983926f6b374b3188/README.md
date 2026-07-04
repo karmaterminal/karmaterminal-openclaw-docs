@@ -18,7 +18,7 @@ Status: **IN PROGRESS**. The proof board is populated in Project 83 from the pri
 |---|---:|---|
 | R-RC-1 | [#212](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/212) | missing |
 | R-CW-DELEGATE-CHILD-LIVE | [#213](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/213) | missing |
-| R-TRACE-REDACTION-1121 | [#214](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/214) | missing |
+| R-TRACE-REDACTION-1121 | [#214](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/214) | pass |
 | R-CD-CHAINED-DEPTH-2 | [#215](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/215) | missing |
 | R-CW-MULTI-COLLAPSE | [#216](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/216) | missing |
 | R-CD-COLLECTION-ON-COLLAPSE | [#217](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/217) | missing |
@@ -30,8 +30,8 @@ Status: **IN PROGRESS**. The proof board is populated in Project 83 from the pri
 | R-CD-2 | [#223](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/223) | missing |
 | R-CD-SILENT | [#224](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/224) | missing |
 | R-CD-4 | [#225](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/225) | missing |
-| R-CONFIG-DEFAULTS | [#226](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/226) | missing |
-| R-CONFIG-INTERSESSION | [#227](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/227) | missing |
+| R-CONFIG-DEFAULTS | [#226](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/226) | pass |
+| R-CONFIG-INTERSESSION | [#227](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/227) | pass |
 | R-OBS-1 | [#228](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/228) | missing |
 | R-CW-1 | [#229](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/229) | missing |
 | R-CW-2 | [#230](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/230) | missing |

@@ -10,18 +10,18 @@
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
     "total_rows": 28,
-    "pass": 0,
+    "pass": 3,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 28
+    "missing": 25
   },
-  "notes": "IN-PROGRESS corpus initialized after Cael exact-SHA deploy and smoke. Rows begin missing until row-specific evidence and Tempo JSON are captured.",
+  "notes": "IN-PROGRESS corpus initialized after Cael exact-SHA deploy and smoke. First source/config rows are filed; remaining rows stay missing until row-specific evidence and Tempo JSON are captured.",
   "rows": [
     { "row": "R-RC-1", "state": "missing", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-1/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/212", "traces": [], "supporting_docs": [] },
     { "row": "R-CW-DELEGATE-CHILD-LIVE", "state": "missing", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-CHILD-LIVE/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/213", "traces": [], "supporting_docs": [] },
-    { "row": "R-TRACE-REDACTION-1121", "state": "missing", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-TRACE-REDACTION-1121/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/214", "traces": [], "supporting_docs": [] },
+    { "row": "R-TRACE-REDACTION-1121", "state": "pass", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-TRACE-REDACTION-1121/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/214", "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-TRACE-REDACTION-1121/EVIDENCE.md", "traces": [], "supporting_docs": [] },
     { "row": "R-CD-CHAINED-DEPTH-2", "state": "missing", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-CHAINED-DEPTH-2/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/215", "traces": [], "supporting_docs": [] },
     { "row": "R-CW-MULTI-COLLAPSE", "state": "missing", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/216", "traces": [], "supporting_docs": [] },
     { "row": "R-CD-COLLECTION-ON-COLLAPSE", "state": "missing", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-COLLECTION-ON-COLLAPSE/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/217", "traces": [], "supporting_docs": [] },
@@ -33,8 +33,8 @@
     { "row": "R-CD-2", "state": "missing", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-2/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/223", "traces": [], "supporting_docs": [] },
     { "row": "R-CD-SILENT", "state": "missing", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-SILENT/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/224", "traces": [], "supporting_docs": [] },
     { "row": "R-CD-4", "state": "missing", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-4/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/225", "traces": [], "supporting_docs": [] },
-    { "row": "R-CONFIG-DEFAULTS", "state": "missing", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CONFIG-DEFAULTS/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/226", "traces": [], "supporting_docs": [] },
-    { "row": "R-CONFIG-INTERSESSION", "state": "missing", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CONFIG-INTERSESSION/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/227", "traces": [], "supporting_docs": [] },
+    { "row": "R-CONFIG-DEFAULTS", "state": "pass", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CONFIG-DEFAULTS/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/226", "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CONFIG-DEFAULTS/EVIDENCE.md", "traces": [], "supporting_docs": [] },
+    { "row": "R-CONFIG-INTERSESSION", "state": "pass", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CONFIG-INTERSESSION/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/227", "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CONFIG-INTERSESSION/EVIDENCE.md", "traces": [], "supporting_docs": [] },
     { "row": "R-OBS-1", "state": "missing", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-OBS-1/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/228", "traces": [], "supporting_docs": [] },
     { "row": "R-CW-1", "state": "missing", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-1/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/229", "traces": [], "supporting_docs": [] },
     { "row": "R-CW-2", "state": "missing", "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-2/", "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/230", "traces": [], "supporting_docs": [] },

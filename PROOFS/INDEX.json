@@ -9,16 +9,16 @@
   "readme_path": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/README.md",
   "rollup": {
     "total_rows": 28,
-    "pass": 7,
+    "pass": 8,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 21
+    "missing": 20
   },
-  "disposition_note": "IN-PROGRESS corpus after exact-SHA Cael deploy and smoke; R-CD-SILENT, R-CW-3, R-CW-DELEGATE-CHILD-LIVE, and synthetic-method R-CW-MULTI-COLLAPSE live rows added by cael-dgx.",
+  "disposition_note": "IN-PROGRESS corpus after exact-SHA Cael deploy and smoke; R-CD-3, R-CD-SILENT, R-CW-3, R-CW-DELEGATE-CHILD-LIVE, and synthetic-method R-CW-MULTI-COLLAPSE live rows added by cael-dgx.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-07-04T15:20:24Z",
+  "generated": "2026-07-04T15:40:00Z",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
   "capture_sha": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
   "carried_from": null

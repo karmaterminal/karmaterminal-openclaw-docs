@@ -2,7 +2,7 @@
 
 Candidate: `OpenClaw 2026.6.11 (bca2b0b)` deployed to Cael.
 
-Status: **IN PROGRESS**. Current rollup: 7 pass / 21 missing. The proof board is populated in Project 83 from the prior Project 82 row template. Rows start as `missing` until Cael + frond-scribe agree the exact test form, fire the row, capture receipts, and attach the required Tempo JSON where applicable.
+Status: **IN PROGRESS**. Current rollup: 8 pass / 20 missing. The proof board is populated in Project 83 from the prior Project 82 row template. Rows start as `missing` until Cael + frond-scribe agree the exact test form, fire the row, capture receipts, and attach the required Tempo JSON where applicable.
 
 ## Deployment receipt
 
@@ -39,7 +39,7 @@ Status: **IN PROGRESS**. Current rollup: 7 pass / 21 missing. The proof board is
 | R-REGRESSION-TRAP-TESTS | [#232](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/232) | missing |
 | R-OBS-2 | [#233](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/233) | missing |
 | R-CW-5 | [#234](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/234) | missing |
-| R-CD-3 | [#235](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/235) | missing |
+| R-CD-3 | [#235](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/235) | pass |
 | R-CD-TOKEN | [#236](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/236) | missing |
 | R-CW-TOKEN | [#237](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/237) | missing |
 | R-RC-2 | [#238](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/238) | missing |

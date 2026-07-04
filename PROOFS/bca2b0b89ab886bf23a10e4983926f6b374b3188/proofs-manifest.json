@@ -6,18 +6,18 @@
   "build_string": "OpenClaw 2026.6.11 (bca2b0b)",
   "fire_type": "fresh-fire",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "generated": "2026-07-04T15:20:24Z",
+  "generated": "2026-07-04T15:40:00Z",
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
     "total_rows": 28,
-    "pass": 7,
+    "pass": 8,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 21
+    "missing": 20
   },
-  "notes": "IN-PROGRESS corpus. R-CW-MULTI-COLLAPSE added as a synthetic DB-seeded stale/new same-session continuation collapse proof; hop 101/102 are caveated as synthetic metadata, not chain-depth evidence. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
+  "notes": "IN-PROGRESS corpus. R-CD-3 added as typed post-compaction delegate queued-for-compaction proof; remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
   "rows": [
     {
       "row": "R-RC-1",
@@ -267,11 +267,24 @@
     },
     {
       "row": "R-CD-3",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-3/",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/235",
-      "traces": [],
-      "supporting_docs": []
+      "traces": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-3/cael-dgx/tempo/trace-461a2847af147a216a86af077010996b.json"
+      ],
+      "supporting_docs": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-3/cael-dgx/EVIDENCE.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-3/cael-dgx/tool-receipt.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-3/cael-dgx/flow-runs-marker.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-3/cael-dgx/tempo/trace-summary.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-3/cael-dgx/version.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-3/cael-dgx/journal-window.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-3/cael-dgx/journal-marker-lines.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-3/cael-dgx/journal-delegate-lines.txt"
+      ],
+      "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-3/cael-dgx/EVIDENCE.md",
+      "note": "typed continue_delegate(mode=post-compaction) accepted and staged one durable row: status=queued, current_step=Staged for release after compaction, postCompaction=true, controller_id=core/continuation-post-compaction. Expected byte is queued-for-compaction; no forced compaction seam required."
     },
     {
       "row": "R-CD-TOKEN",

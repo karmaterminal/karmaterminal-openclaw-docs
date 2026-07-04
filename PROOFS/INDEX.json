@@ -9,16 +9,16 @@
   "readme_path": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/README.md",
   "rollup": {
     "total_rows": 28,
-    "pass": 22,
+    "pass": 23,
     "partial": 0,
     "thin": 1,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 4
+    "missing": 3
   },
-  "disposition_note": "IN-PROGRESS corpus after exact-SHA Cael deploy and smoke; R-CW-7 recorded as THIN because public model-facing continue_delegate cannot accept deterministic W3C traceparent; ordinary runtime-context trace linkage observed; R-RC-2 honest_limit.",
+  "disposition_note": "IN-PROGRESS corpus after exact-SHA Cael deploy and smoke; R-CW-6 PASS added via source+direct-harness chain-cap proof; R-CW-7 THIN; R-RC-2 honest_limit.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-07-04T19:25:00Z",
+  "generated": "2026-07-04T19:35:00Z",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
   "capture_sha": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
   "carried_from": null

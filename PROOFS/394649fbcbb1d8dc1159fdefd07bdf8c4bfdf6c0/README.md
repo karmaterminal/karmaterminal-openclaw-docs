@@ -2,7 +2,7 @@
 
 Candidate: `OpenClaw 2026.6.11 (394649f)` transposed from the Cael live-fire corpus at `bca2b0b89ab886bf23a10e4983926f6b374b3188`.
 
-Status: **COMPLETE + supplemental #246**. Current rollup: 27 pass / 0 partial / 1 thin / 1 honest_limit / 0 missing. The proof board is populated in Project 83 from the prior Project 82 row template. Rows start as `missing` until Cael + frond-scribe agree the exact test form, fire the row, capture receipts, and attach the required Tempo JSON where applicable.
+Status: **COMPLETE + supplemental #246 / TRANSPOSED**. Current rollup: 27 pass / 0 partial / 1 thin / 1 honest_limit / 0 missing. The proof board was populated in Project 83 from the prior Project 82 row template. Raw row receipts were fired on `bca2b0b89ab886bf23a10e4983926f6b374b3188`; this corpus carries them to `394649fbcbb1d8dc1159fdefd07bdf8c4bfdf6c0` after safe upstream-backmerge gates.
 
 ## Transposition receipt
 
@@ -15,7 +15,7 @@ Status: **COMPLETE + supplemental #246**. Current rollup: 27 pass / 0 partial / 
 - Raw row evidence files remain byte-honest live-fire receipts from `bca2b0b`; path references in `proofs-manifest.json` point at this transposed corpus for clawsweeper navigation.
 - Gate logs: `PROOFS/394649fbcbb1d8dc1159fdefd07bdf8c4bfdf6c0/gates/`
 
-## Deployment receipt
+## Carried live-fire deployment receipt
 
 - Assembly branch: `frond-scribe/20260624/assembly-continuation-followons`
 - Candidate SHA: `394649fbcbb1d8dc1159fdefd07bdf8c4bfdf6c0` (transposed from live-fire `bca2b0b89ab886bf23a10e4983926f6b374b3188`)

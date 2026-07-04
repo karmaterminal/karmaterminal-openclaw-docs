@@ -1,0 +1,156 @@
+[
+  {
+    "flow_id": "499e768e-cfc1-461a-a2db-a92782e4cb59",
+    "owner_key": "agent:main:discord:channel:1466192485440164011",
+    "controller_id": "core/continuation-delegate",
+    "status": "succeeded",
+    "current_step": "Accepted by continuation subagent",
+    "created_at": 1783198986453,
+    "updated_at": 1783198995873,
+    "ended_at": 1783198995873,
+    "state": {
+      "kind": "continuation_delegate",
+      "mode": null,
+      "silentWake": true,
+      "delayMs": 0,
+      "fanoutMode": "tree",
+      "traceparent": "00-50bc5319a8b0f6afed56282aeddb5950-739e2ee3afd998f5-01",
+      "chainId": null,
+      "childSessionKey": "agent:main:subagent:continuation-da93564939a220c4c9b2c91518a429da",
+      "releasedAt": 1783198995706,
+      "reason": null
+    }
+  },
+  {
+    "flow_id": "62881183-8f0e-4900-94b4-5c75f3c1f16f",
+    "owner_key": "agent:main:discord:channel:1466192485440164011",
+    "controller_id": "core/continuation-work",
+    "status": "running",
+    "current_step": "Released to continuation wake scheduler",
+    "created_at": 1783198995676,
+    "updated_at": 1783199056010,
+    "ended_at": null,
+    "state": {
+      "kind": "continuation_work",
+      "mode": null,
+      "silentWake": null,
+      "delayMs": 60000,
+      "fanoutMode": null,
+      "traceparent": "00-50bc5319a8b0f6afed56282aeddb5950-739e2ee3afd998f5-01",
+      "chainId": "68f9a96d-87a5-44e1-a561-a55573669176",
+      "childSessionKey": null,
+      "releasedAt": 1783199056010,
+      "reason": "Collect R-CD-CHAINED-DEPTH-2 rerun depth1/depth2 results and package/pass-or-gap after planned wait/yield shape."
+    }
+  },
+  {
+    "flow_id": "5d3e1402-dea1-4066-99d3-41f650ee8b96",
+    "owner_key": "agent:main:discord:channel:1466192485440164011",
+    "controller_id": null,
+    "status": "succeeded",
+    "current_step": null,
+    "created_at": 1783198995844,
+    "updated_at": 1783199016244,
+    "ended_at": 1783199016244,
+    "state": {
+      "kind": null,
+      "mode": null,
+      "silentWake": null,
+      "delayMs": null,
+      "fanoutMode": null,
+      "traceparent": null,
+      "chainId": null,
+      "childSessionKey": null,
+      "releasedAt": null,
+      "reason": null
+    }
+  },
+  {
+    "flow_id": "cbb307e9-8291-426c-bfa3-ebddf3c1a956",
+    "owner_key": "agent:main:subagent:continuation-da93564939a220c4c9b2c91518a429da",
+    "controller_id": "core/continuation-delegate",
+    "status": "succeeded",
+    "current_step": "Accepted by continuation subagent",
+    "created_at": 1783199007045,
+    "updated_at": 1783199016722,
+    "ended_at": 1783199016722,
+    "state": {
+      "kind": "continuation_delegate",
+      "mode": null,
+      "silentWake": true,
+      "delayMs": 0,
+      "fanoutMode": "tree",
+      "traceparent": "00-50bc5319a8b0f6afed56282aeddb5950-739e2ee3afd998f5-01",
+      "chainId": null,
+      "childSessionKey": "agent:main:subagent:continuation-10a07b0e2f691340cdf0c14924294a95",
+      "releasedAt": 1783199016547,
+      "reason": null
+    }
+  },
+  {
+    "flow_id": "a697dc24-09b2-4275-8e38-eb581509f3d5",
+    "owner_key": "agent:main:subagent:continuation-da93564939a220c4c9b2c91518a429da",
+    "controller_id": "core/continuation-work",
+    "status": "succeeded",
+    "current_step": "Same-session continuation turn granted",
+    "created_at": 1783199016195,
+    "updated_at": 1783199045673,
+    "ended_at": 1783199045673,
+    "state": {
+      "kind": "continuation_work",
+      "mode": null,
+      "silentWake": null,
+      "delayMs": 12000,
+      "fanoutMode": null,
+      "traceparent": "00-50bc5319a8b0f6afed56282aeddb5950-739e2ee3afd998f5-01",
+      "chainId": null,
+      "childSessionKey": null,
+      "releasedAt": 1783199028198,
+      "reason": "wake depth1 to verify depth2 leaf sentinel and return final proof sentinel"
+    }
+  },
+  {
+    "flow_id": "a58cb68e-74e0-4563-90ca-b76456c23b9c",
+    "owner_key": "agent:main:subagent:continuation-da93564939a220c4c9b2c91518a429da",
+    "controller_id": null,
+    "status": "succeeded",
+    "current_step": null,
+    "created_at": 1783199016685,
+    "updated_at": 1783199027330,
+    "ended_at": 1783199027330,
+    "state": {
+      "kind": null,
+      "mode": null,
+      "silentWake": null,
+      "delayMs": null,
+      "fanoutMode": null,
+      "traceparent": null,
+      "chainId": null,
+      "childSessionKey": null,
+      "releasedAt": null,
+      "reason": null
+    }
+  },
+  {
+    "flow_id": "11b9af78-db79-4655-9fa2-2383fe818b18",
+    "owner_key": "agent:main:discord:channel:1466192485440164011",
+    "controller_id": "core/continuation-work",
+    "status": "queued",
+    "current_step": "Anchored same-session continuation wake to electing turn finalization",
+    "created_at": 1783199040403,
+    "updated_at": 1783199040445,
+    "ended_at": null,
+    "state": {
+      "kind": "continuation_work",
+      "mode": null,
+      "silentWake": null,
+      "delayMs": 60000,
+      "fanoutMode": null,
+      "traceparent": "00-50bc5319a8b0f6afed56282aeddb5950-739e2ee3afd998f5-01",
+      "chainId": "68f9a96d-87a5-44e1-a561-a55573669176",
+      "childSessionKey": null,
+      "releasedAt": null,
+      "reason": "Continue R-CD-CHAINED-DEPTH-2 14:03 clean rerun collection/packaging after depth1 continue_work fallback."
+    }
+  }
+]

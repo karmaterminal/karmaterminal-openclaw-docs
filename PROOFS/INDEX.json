@@ -11,14 +11,14 @@
     "total_rows": 28,
     "pass": 22,
     "partial": 0,
-    "thin": 0,
+    "thin": 1,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 5
+    "missing": 4
   },
-  "disposition_note": "IN-PROGRESS corpus after exact-SHA Cael deploy and smoke; R-CD-1 recorded as PASS; R-RC-2 honest_limit.",
+  "disposition_note": "IN-PROGRESS corpus after exact-SHA Cael deploy and smoke; R-CW-7 recorded as THIN because public model-facing continue_delegate cannot accept deterministic W3C traceparent; ordinary runtime-context trace linkage observed; R-RC-2 honest_limit.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-07-04T18:58:00Z",
+  "generated": "2026-07-04T19:25:00Z",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
   "capture_sha": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
   "carried_from": null

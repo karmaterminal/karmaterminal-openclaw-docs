@@ -6,18 +6,18 @@
   "build_string": "OpenClaw 2026.6.11 (bca2b0b)",
   "fire_type": "fresh-fire",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "generated": "2026-07-04T16:20:00Z",
+  "generated": "2026-07-04T16:24:00Z",
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
     "total_rows": 28,
-    "pass": 9,
+    "pass": 10,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 18
+    "missing": 17
   },
-  "notes": "IN-PROGRESS corpus. R-CW-MULTI added as PASS for clarified observed fanout/collapse semantics: three rows captured, A granted, B/C folded-active into the active wake turn. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
+  "notes": "IN-PROGRESS corpus. R-CW-TOKEN added as PASS: terminal bare CONTINUE_WORK:5 fallback produced a same-session continuation wake and executed the wake marker. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
   "rows": [
     {
       "row": "R-RC-1",
@@ -296,11 +296,27 @@
     },
     {
       "row": "R-CW-TOKEN",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-TOKEN/",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/237",
-      "traces": [],
-      "supporting_docs": []
+      "traces": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-TOKEN/cael-dgx/tempo/trace-token-wake-161188a44d7b1f3bfe885b4b243e672f.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-TOKEN/cael-dgx/tempo/trace-parent-wake-6a705ab942082d20b11af5320774c5e8.json"
+      ],
+      "supporting_docs": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-TOKEN/cael-dgx/EVIDENCE.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-TOKEN/cael-dgx/source-token-surface.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-TOKEN/cael-dgx/wake-receipt.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-TOKEN/cael-dgx/wake-executed-marker-receipt.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-TOKEN/cael-dgx/flow-runs.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-TOKEN/cael-dgx/journal-token-continuation-lines.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-TOKEN/cael-dgx/journal-window.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-TOKEN/cael-dgx/tempo/trace-token-wake-summary.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-TOKEN/cael-dgx/tempo/continuation-work-traces.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-TOKEN/cael-dgx/version.txt"
+      ],
+      "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-TOKEN/cael-dgx/EVIDENCE.md",
+      "note": "PASS: terminal bare CONTINUE_WORK:5 in finalized assistant text produced continuation work flow 417397ce-f39e-4c1d-892b-fa576dd01515 and a granted wake at hop 2; wake marker RCW_TOKEN_BCA2B0B_CAEL_20260704_0917_WAKE_EXECUTED emitted."
     },
     {
       "row": "R-RC-2",

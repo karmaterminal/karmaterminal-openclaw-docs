@@ -1,0 +1,58 @@
+[
+  {
+    "flow_id": "71dfbc70-114f-4acf-9983-df7a8ea38e9d",
+    "status": "succeeded",
+    "current_step": "Same-session continuation turn granted",
+    "created_at": 1783181785652,
+    "updated_at": 1783181807754,
+    "ended_at": 1783181807754,
+    "state_json": {
+      "kind": "continuation_work",
+      "sessionKey": "agent:main:discord:channel:1466192485440164011",
+      "hop": 1,
+      "delayMs": 5000,
+      "electedAt": 1783181785652,
+      "dueAt": 1783181790689,
+      "maxChainLength": 200,
+      "chainStartedAt": 1783181359662,
+      "accumulatedChainTokens": 72150,
+      "chainId": "81c5854a-a4ec-4b37-ac38-40b2e834d53e",
+      "anchorFinalizedAt": 1783181785689,
+      "originRunId": "d78156e8-5e11-4b94-abfb-d6715c62d5fc",
+      "originTurnId": "41d9a673-87d9-4784-b7a2-b5b207295fd4",
+      "releasedAt": 1783181790693,
+      "deliveredAt": 1783181807753,
+      "disposition": "granted",
+      "succeeded": {
+        "point": "optimal",
+        "durability": "durable"
+      },
+      "turnGrantedAt": 1783181807754,
+      "busySkipCount": 0
+    }
+  },
+  {
+    "flow_id": "417397ce-f39e-4c1d-892b-fa576dd01515",
+    "status": "running",
+    "current_step": "Released to continuation wake scheduler",
+    "created_at": 1783181807703,
+    "updated_at": 1783181812752,
+    "ended_at": null,
+    "state_json": {
+      "kind": "continuation_work",
+      "sessionKey": "agent:main:discord:channel:1466192485440164011",
+      "hop": 2,
+      "delayMs": 5000,
+      "electedAt": 1783181807703,
+      "dueAt": 1783181812748,
+      "maxChainLength": 200,
+      "chainStartedAt": 1783181359662,
+      "accumulatedChainTokens": 211969,
+      "chainId": "81c5854a-a4ec-4b37-ac38-40b2e834d53e",
+      "anchorFinalizedAt": 1783181807748,
+      "originRunId": "80307086-344f-4987-9966-0976e264be52",
+      "originTurnId": "41d9a673-87d9-4784-b7a2-b5b207295fd4",
+      "releasedAt": 1783181812752
+    }
+  }
+]

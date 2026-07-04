@@ -1,12 +1,12 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
-  "current_sha_short": "bca2b0b",
-  "build_string": "OpenClaw 2026.6.11 (bca2b0b) \u2014 post-#1159 assembly proof cycle on Cael",
-  "corpus_path": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/",
-  "manifest_path": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/proofs-manifest.json",
-  "readme_path": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/README.md",
+  "current_sha": "394649fbcbb1d8dc1159fdefd07bdf8c4bfdf6c0",
+  "current_sha_short": "394649f",
+  "build_string": "OpenClaw 2026.6.11 (394649f) — transposed post-backmerge proof corpus; raw live-fire capture from bca2b0b",
+  "corpus_path": "PROOFS/394649fbcbb1d8dc1159fdefd07bdf8c4bfdf6c0/",
+  "manifest_path": "PROOFS/394649fbcbb1d8dc1159fdefd07bdf8c4bfdf6c0/proofs-manifest.json",
+  "readme_path": "PROOFS/394649fbcbb1d8dc1159fdefd07bdf8c4bfdf6c0/README.md",
   "rollup": {
     "total_rows": 29,
     "pass": 27,
@@ -16,10 +16,10 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Current bca2b0b corpus plus supplemental docs#246 R-CD-RETURN-OVERLAP row: 27 pass / 0 partial / 1 thin / 1 honest_limit / 0 missing across 29 rows.",
+  "disposition_note": "COMPLETE transposed corpus for candidate 394649f; raw row evidence was captured on bca2b0b and carried after safe upstream backmerge gates.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-07-04T21:15:00Z",
+  "generated": "2026-07-04T22:54:05Z",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
-  "capture_sha": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
-  "carried_from": null
+  "capture_sha": "394649fbcbb1d8dc1159fdefd07bdf8c4bfdf6c0",
+  "carried_from": "bca2b0b89ab886bf23a10e4983926f6b374b3188"
 }

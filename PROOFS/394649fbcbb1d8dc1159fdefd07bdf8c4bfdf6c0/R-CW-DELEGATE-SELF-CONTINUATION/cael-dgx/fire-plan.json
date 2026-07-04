@@ -1,0 +1,8 @@
+{
+  "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+  "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/222",
+  "candidate": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
+  "seat": "cael-dgx",
+  "sentinel": "R-CW-DELEGATE-SELF-CONTINUATION-BCA2B0B-CAEL-20260704-1107",
+  "expected": "parent continue_delegate(mode=silent-wake) spawns child; child returns sentinel to parent; parent receives silent-wake continuation; capture tool receipt, delegate return context, subagent/TaskFlow state, and Tempo trace"
+}

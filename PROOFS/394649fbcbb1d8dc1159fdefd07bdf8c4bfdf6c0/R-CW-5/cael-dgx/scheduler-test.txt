@@ -1,0 +1,67 @@
+     1	import { describe, expect, it } from "vitest";
+     2	import { checkContinuationBudget } from "./scheduler.js";
+     3	import type { ContinuationRuntimeConfig } from "./types.js";
+     4	
+     5	const baseConfig: ContinuationRuntimeConfig = {
+     6	  enabled: true,
+     7	  defaultDelayMs: 15_000,
+     8	  minDelayMs: 5_000,
+     9	  maxDelayMs: 300_000,
+    10	  maxChainLength: 10,
+    11	  costCapTokens: 500_000,
+    12	  maxDelegatesPerTurn: 5,
+    13	  maxPendingWork: 32,
+    14	  crossSessionTargeting: "disabled",
+    15	};
+    16	
+    17	describe("checkContinuationBudget", () => {
+    18	  it("returns null when under budget", () => {
+    19	    expect(
+    20	      checkContinuationBudget({
+    21	        chainState: { currentChainCount: 3, chainStartedAt: 0, accumulatedChainTokens: 100_000 },
+    22	        config: baseConfig,
+    23	        sessionKey: "test",
+    24	      }),
+    25	    ).toBeNull();
+    26	  });
+    27	
+    28	  it("returns chain-capped at max depth", () => {
+    29	    expect(
+    30	      checkContinuationBudget({
+    31	        chainState: { currentChainCount: 10, chainStartedAt: 0, accumulatedChainTokens: 0 },
+    32	        config: baseConfig,
+    33	        sessionKey: "test",
+    34	      }),
+    35	    ).toBe("chain-capped");
+    36	  });
+    37	
+    38	  it("returns cost-capped over budget", () => {
+    39	    expect(
+    40	      checkContinuationBudget({
+    41	        chainState: { currentChainCount: 0, chainStartedAt: 0, accumulatedChainTokens: 600_000 },
+    42	        config: baseConfig,
+    43	        sessionKey: "test",
+    44	      }),
+    45	    ).toBe("cost-capped");
+    46	  });
+    47	
+    48	  it("allows continuation when accumulated tokens equal costCapTokens exactly", () => {
+    49	    expect(
+    50	      checkContinuationBudget({
+    51	        chainState: { currentChainCount: 0, chainStartedAt: 0, accumulatedChainTokens: 500_000 },
+    52	        config: baseConfig,
+    53	        sessionKey: "test",
+    54	      }),
+    55	    ).toBeNull();
+    56	  });
+    57	
+    58	  it("does not cost-cap when costCapTokens is 0", () => {
+    59	    expect(
+    60	      checkContinuationBudget({
+    61	        chainState: { currentChainCount: 0, chainStartedAt: 0, accumulatedChainTokens: 999_999 },
+    62	        config: { ...baseConfig, costCapTokens: 0 },
+    63	        sessionKey: "test",
+    64	      }),
+    65	    ).toBeNull();
+    66	  });
+    67	});

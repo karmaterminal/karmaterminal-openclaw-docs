@@ -1,0 +1,14 @@
+Continuation wake from bare token fallback:
+Turn 2/200
+Chain started at: 2026-07-04T16:09:19.662Z
+Origin run: 80307086-344f-4987-9966-0976e264be52
+Origin turn: 41d9a673-87d9-4784-b7a2-b5b207295fd4
+Elected at: 2026-07-04T16:16:47.703Z
+Electing turn finalized at: 2026-07-04T16:16:47.748Z
+Due at: 2026-07-04T16:16:52.748Z
+Overdue by: 8ms
+Delivered at: 2026-07-04T16:16:52.756Z
+Disposition: granted
+Chain: 81c5854a-a4ec-4b37-ac38-40b2e834d53e hop 2/200
+Flow: 417397ce-f39e-4c1d-892b-fa576dd01515
+Prior reason: (none)

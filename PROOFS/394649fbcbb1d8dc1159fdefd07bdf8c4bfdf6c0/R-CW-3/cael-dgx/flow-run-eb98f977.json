@@ -1,0 +1,25 @@
+{
+  "flow_id": "eb98f977-a29d-4ee7-a1bb-fc86baac8d67",
+  "status": "running",
+  "created_at": 1783174050699,
+  "updated_at": 1783174055743,
+  "chain_id": "74b5a080-dabd-4a84-8361-fefb72590e48",
+  "state": {
+    "kind": "continuation_work",
+    "sessionKey": "agent:main:discord:channel:1466192485440164011",
+    "hop": 1,
+    "delayMs": 5000,
+    "electedAt": 1783174050699,
+    "dueAt": 1783174055737,
+    "maxChainLength": 200,
+    "chainStartedAt": 1783174050696,
+    "accumulatedChainTokens": 106857,
+    "reason": "PROOF R-CW-3 bca2b0b expected-byte lock: RCW3_BCA2B0B_CAEL_20260704_0706_REASON_PREVIEW. On wake, verify continuation.work reason.preview/receipt trace includes this marker, capture Tempo trace JSON, and prepare docs evidence for issue #231.",
+    "chainId": "74b5a080-dabd-4a84-8361-fefb72590e48",
+    "traceparent": "00-08a18fa28d52416398893c3a242a9e63-edf90d3c34614a66-01",
+    "anchorFinalizedAt": 1783174050737,
+    "originRunId": "0969a6ac-5417-49db-976b-da7367c869ed",
+    "originTurnId": "377148b2-25d3-4d95-8ca1-2d6a7dacdff9",
+    "releasedAt": 1783174055743
+  }
+}

@@ -1,0 +1,16 @@
+[continuation/scheduler] [continuation] Chain depth 200/200 — capped for session agent:main:rcw6-harness-boundary
+{
+  "result": {
+    "scheduled": false,
+    "capped": true,
+    "chainState": {
+      "currentChainCount": 200,
+      "chainStartedAt": 1783193300000,
+      "accumulatedChainTokens": 0,
+      "chainId": "rcw6-harness-boundary-chain"
+    }
+  },
+  "logs": [
+    "[continuation:work-rejected] chain-capped for agent:main:rcw6-harness-boundary: 200/200"
+  ]
+}

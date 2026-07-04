@@ -1,0 +1,17 @@
+{
+  "row": "R-CD-CHAINED-DEPTH-2",
+  "candidate": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
+  "sentinelPrefix": "RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403",
+  "depth2LeafSentinel": "RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403_LEAF_REACHED",
+  "depth1FinalSentinel": "RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403_DEPTH1_SAW_LEAF_AND_RETURNED",
+  "rootToDepth1TypedContinueDelegate": true,
+  "depth1TypedContinueDelegateObserved": true,
+  "depth1ScheduledContinueWorkWakeFallback": true,
+  "depth2LeafReached": true,
+  "depth1ReturnedAfterSeeingLeaf": true,
+  "rootObservedDepth1FinalWithLeaf": true,
+  "durableFlowRowsSucceeded": true,
+  "durableTaskRowsSucceeded": true,
+  "tempoTraceSaved": true,
+  "verdict": "PASS"
+}

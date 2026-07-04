@@ -1,0 +1,46 @@
+              // they can charge this hop; rejected/failed bracket spawns do not
+              // consume the child's chain budget.
+              bracketDelegateReservedCurrentHop = await doChainSpawn();
+            }
+          }
+        }
+      }
+
+      // --- Tool-dispatched delegates from subagent (parallel to bracket delegates above) ---
+      let postBracketChildDrainArmed = false;
+      if (toolDelegates.length > 0 && isContinuationChainDelegate) {
+        const {
+          maxChainLength: toolMaxChainLength,
+          costCapTokens: toolCostCapTokens,
+          crossSessionTargeting: toolCrossSessionTargeting,
+        } = subagentAnnounceDeps.resolveContinuationRuntimeConfig(cfg);
+        const hopMatch = childTask.match(CONTINUATION_CHAIN_HOP_PATTERN);
+        const childChainHop = hopMatch ? Number.parseInt(hopMatch[1], 10) : 0;
+        // Use the current-chain reservation flag captured before findings was
+        // mutated. A post-compaction bracket delegate is only staged for a later
+        // compaction seam, so it must not charge the child chain's tool delegates now.
+        const bracketConsumedHop = bracketDelegateReservedCurrentHop ? 1 : 0;
+        let toolHopBase = childChainHop + bracketConsumedHop;
+
+        const parentWasSilent = params.silentAnnounce === true;
+
+        let toolDelegateIdx = 0;
+        for (const toolDelegate of toolDelegates) {
+          const nextToolHop = toolHopBase + 1;
+
+          if (nextToolHop > toolMaxChainLength) {
+            const remaining = toolDelegates.length - toolDelegateIdx;
+            const summary = `Tool delegate rejected: chain length ${nextToolHop} exceeds maxChainLength ${toolMaxChainLength}.`;
+            defaultRuntime.log(
+              `[subagent-chain-hop] Tool delegate chain length ${nextToolHop} > ${toolMaxChainLength}, rejecting from ${params.childSessionKey}. ${remaining} delegate(s) dropped.`,
+            );
+            for (const dropped of toolDelegates.slice(toolDelegateIdx)) {
+              markPendingDelegateFailed(dropped, summary, "Delegate rejected");
+            }
+            break;
+          }
+
+          const parentEntryForTool = readSessionEntryByKey(targetRequesterSessionKey);
+          const storedToolChainTokens = parentEntryForTool?.continuationChainTokens ?? 0;
+          // Same definitive fold as the bracket guard: parentChainTokensToFold is
+          // 0 when the parent persist landed (storedToolChainTokens already

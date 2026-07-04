@@ -1,0 +1,13 @@
+   130	    expect(overflow.reason).toBe(
+   131	      "would exceed maxDelegatesPerTurn cap (5/5 already scheduled this turn)",
+   132	    );
+   133	  });
+   134	
+   135	  it("does not expose diagnostic traceparent as a model-facing parameter", () => {
+   136	    const tool = createContinueDelegateTool({ agentSessionKey: "test-session" });
+   137	
+   138	    expect(JSON.stringify(tool.parameters)).not.toContain("traceparent");
+   139	  });
+   140	
+   141	  it("resets the per-turn budget at the provider-turn boundary for the same tool instance", async () => {
+   142	    setRuntimeConfigSnapshot({

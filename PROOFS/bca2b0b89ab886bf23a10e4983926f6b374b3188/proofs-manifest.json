@@ -6,26 +6,40 @@
   "build_string": "OpenClaw 2026.6.11 (bca2b0b)",
   "fire_type": "fresh-fire",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "generated": "2026-07-04T17:27:00Z",
+  "generated": "2026-07-04T17:31:00Z",
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
     "total_rows": 28,
-    "pass": 15,
+    "pass": 16,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 12
+    "missing": 11
   },
-  "notes": "IN-PROGRESS corpus. R-CW-5 added as PASS: source/test proof for cost-cap exhaustion at bca2b0b; no live config mutation or live over-budget dispatch. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
+  "notes": "IN-PROGRESS corpus. R-RC-1 added as PASS: request_compaction rejected below threshold with guard=context_threshold at 19% < 70%, with Tempo tool trace. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
   "rows": [
     {
       "row": "R-RC-1",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-1/",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/212",
-      "traces": [],
-      "supporting_docs": []
+      "traces": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-1/cael-dgx/tempo/trace-request-compaction-c168c17b03e5ff70192863b721a57276.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-1/cael-dgx/tempo/trace-precheck-context-155215d3356672c1cf26fbde5bfc9343.json"
+      ],
+      "supporting_docs": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-1/cael-dgx/EVIDENCE.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-1/cael-dgx/request-compaction-receipt.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-1/cael-dgx/session-status-receipt.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-1/cael-dgx/discord-status-receipts.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-1/cael-dgx/tempo/trace-request-compaction-summary.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-1/cael-dgx/tempo/trace-precheck-context-summary.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-1/cael-dgx/journal-window.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-1/cael-dgx/version.txt"
+      ],
+      "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-RC-1/cael-dgx/EVIDENCE.md",
+      "note": "PASS: request_compaction returned structured rejection guard=context_threshold with contextUsage=19 and threshold=70; no compaction fired."
     },
     {
       "row": "R-CW-DELEGATE-CHILD-LIVE",

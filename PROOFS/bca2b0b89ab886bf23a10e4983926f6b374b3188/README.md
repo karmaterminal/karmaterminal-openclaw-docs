@@ -2,7 +2,7 @@
 
 Candidate: `OpenClaw 2026.6.11 (bca2b0b)` deployed to Cael.
 
-Status: **IN PROGRESS**. Current rollup: 5 pass / 23 missing. The proof board is populated in Project 83 from the prior Project 82 row template. Rows start as `missing` until Cael + frond-scribe agree the exact test form, fire the row, capture receipts, and attach the required Tempo JSON where applicable.
+Status: **IN PROGRESS**. Current rollup: 6 pass / 22 missing. The proof board is populated in Project 83 from the prior Project 82 row template. Rows start as `missing` until Cael + frond-scribe agree the exact test form, fire the row, capture receipts, and attach the required Tempo JSON where applicable.
 
 ## Deployment receipt
 
@@ -17,7 +17,7 @@ Status: **IN PROGRESS**. Current rollup: 5 pass / 23 missing. The proof board is
 | Row | Issue | State |
 |---|---:|---|
 | R-RC-1 | [#212](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/212) | missing |
-| R-CW-DELEGATE-CHILD-LIVE | [#213](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/213) | missing |
+| R-CW-DELEGATE-CHILD-LIVE | [#213](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/213) | pass |
 | R-TRACE-REDACTION-1121 | [#214](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/214) | pass |
 | R-CD-CHAINED-DEPTH-2 | [#215](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/215) | missing |
 | R-CW-MULTI-COLLAPSE | [#216](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/216) | missing |

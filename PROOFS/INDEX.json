@@ -3,22 +3,22 @@
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
   "current_sha": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
   "current_sha_short": "bca2b0b",
-  "build_string": "OpenClaw 2026.6.11 (bca2b0b) \u2014 post-#1159 assembly proof cycle on Cael",
+  "build_string": "OpenClaw 2026.6.11 (bca2b0b) — post-#1159 assembly proof cycle on Cael",
   "corpus_path": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/",
   "manifest_path": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/proofs-manifest.json",
   "readme_path": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/README.md",
   "rollup": {
     "total_rows": 28,
-    "pass": 5,
+    "pass": 6,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 23
+    "missing": 22
   },
-  "disposition_note": "IN-PROGRESS corpus after exact-SHA Cael deploy and smoke; R-CD-SILENT and R-CW-3 live rows added by cael-dgx.",
+  "disposition_note": "IN-PROGRESS corpus after exact-SHA Cael deploy and smoke; R-CD-SILENT, R-CW-3, and R-CW-DELEGATE-CHILD-LIVE live rows added by cael-dgx.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-07-04T14:25:00Z",
+  "generated": "2026-07-04T14:36:00Z",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
   "capture_sha": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
   "carried_from": null

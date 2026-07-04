@@ -1,8 +1,8 @@
 drift-cure-gate: upstream/main  HEAD=HEAD  base=efe4a59ceb7  PRcreate=600bb4a676b
-files examined: 350
+files examined: 352
 
-  GENUINE        130
-  MIXED-CLOBBER  94
+  GENUINE        128
+  MIXED-CLOBBER  98
   SAFE-NEW       126
 
 == FROZEN-STALE (high-confidence pure clobber; re-sync to upstream) ==
@@ -12,11 +12,14 @@ files examined: 350
     134  src/auto-reply/reply/agent-runner.ts                 ?
      52  src/infra/diagnostic-trace-context.ts                ?
      29  src/agents/subagent-announce.ts                      ?
-     21  src/auto-reply/reply/agent-runner-execution.ts       ?
+     26  src/auto-reply/reply/followup-runner.test.ts         6445a0632d3 feat(cli): render claude CLI native thinking w
+     26  src/agents/embedded-agent-runner/run/attempt.ts      4682364fa6f fix(agents): compact on aggregate tool-result 
+     23  src/auto-reply/reply/agent-runner-execution.ts       ?
      19  apps/shared/OpenClawKit/Tests/OpenClawKitTests/ChatMarkdownDisplayPreprocessorTests.swift ?
      18  extensions/raft/src/gateway.test.ts                  ?
      17  extensions/matrix/src/matrix/monitor/handler.test.ts ?
      11  src/infra/heartbeat-runner.ts                        ?
+     10  src/auto-reply/reply/agent-runner-execution.test.ts  6445a0632d3 feat(cli): render claude CLI native thinking w
       9  src/logging/diagnostic.ts                            ?
       9  src/infra/session-delivery-queue-storage.ts          ?
       9  src/agents/subagent-spawn.ts                         ?
@@ -32,6 +35,7 @@ files examined: 350
       5  src/plugin-sdk/system-event-runtime.ts               ?
       5  src/plugin-sdk/provider-catalog-live-runtime.ts      ?
       5  src/infra/system-events.ts                           ?
+      5  src/auto-reply/reply/followup-runner.ts              ?
       5  src/agents/subagent-run-liveness.ts                  ?
       5  src/agents/embedded-agent-runner/compact.ts          ?
       4  src/infra/state-migrations.ts                        ?
@@ -43,7 +47,6 @@ files examined: 350
       3  src/tasks/task-flow-registry.audit.test.ts           ?
       3  src/plugins/wired-hooks-compaction.test.ts           ?
       3  src/auto-reply/reply/get-reply.ts                    ?
-      3  src/auto-reply/reply/followup-runner.ts              ?
       3  src/agents/subagent-spawn.test-helpers.ts            ?
       3  scripts/e2e/secret-provider-integrations.mjs         ?
       3  extensions/raft/src/accounts.ts                      ?
@@ -61,6 +64,7 @@ files examined: 350
       2  src/agents/subagent-registry-run-manager.ts          ?
       2  src/agents/subagent-announce.test.ts                 ?
       2  src/agents/shell-snapshot.ts                         ?
+      2  src/agents/embedded-agent-runner/run.ts              4682364fa6f fix(agents): compact on aggregate tool-result 
       2  src/agents/embedded-agent-runner/compact-reasons.ts  ?
       2  src/agents/agent-hooks/compaction-safeguard.ts       ?
       2  scripts/protocol-gen.ts                              ?
@@ -103,4 +107,4 @@ files examined: 350
       1  docs/tools/thinking.md                               ?
       1  docs/tools/subagents.md                              ?
 
-full TSV: ./gate-out/classification.tsv
+full TSV: /tmp/gates-1f8839f-20260704T234811Z/gate-2.7/classification.tsv

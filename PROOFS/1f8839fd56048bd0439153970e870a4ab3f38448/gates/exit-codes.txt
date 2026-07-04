@@ -1,0 +1,6 @@
+feature_cores_vs_pr_head_exit=1
+feature_cores_vs_proof_sha_exit=1
+drift_cure_exit=0
+upstream_touched_tests=673
+differing_or_absent_tests=504
+log_dir=/tmp/gates-1f8839f-20260704T234811Z

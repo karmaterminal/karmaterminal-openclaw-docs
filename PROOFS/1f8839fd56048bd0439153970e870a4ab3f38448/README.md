@@ -1,24 +1,24 @@
-# OpenClaw proof corpus — 394649fbcbb1d8dc1159fdefd07bdf8c4bfdf6c0
+# OpenClaw proof corpus — 1f8839fd56048bd0439153970e870a4ab3f38448
 
-Candidate: `OpenClaw 2026.6.11 (394649f)` transposed from the Cael live-fire corpus at `bca2b0b89ab886bf23a10e4983926f6b374b3188`.
+Candidate: `OpenClaw 2026.6.11 (1f8839f)` full-copy transposed from the Cael live-fire corpus at `bca2b0b89ab886bf23a10e4983926f6b374b3188`.
 
-Status: **COMPLETE + supplemental #246 / TRANSPOSED**. Current rollup: 27 pass / 0 partial / 1 thin / 1 honest_limit / 0 missing. The proof board was populated in Project 83 from the prior Project 82 row template. Raw row receipts were fired on `bca2b0b89ab886bf23a10e4983926f6b374b3188`; this corpus carries them to `394649fbcbb1d8dc1159fdefd07bdf8c4bfdf6c0` after safe upstream-backmerge gates.
+Status: **COMPLETE + supplemental #246 / FULL-COPY TRANSPOSED**. Current rollup: 27 pass / 0 partial / 1 thin / 1 honest_limit / 0 missing. The proof board was populated in Project 83 from the prior Project 82 row template. Raw row receipts were fired on `bca2b0b89ab886bf23a10e4983926f6b374b3188`; this full copied corpus carries them to `1f8839fd56048bd0439153970e870a4ab3f38448` for clawsweeper exact-SHA navigation.
 
 ## Transposition receipt
 
 - Carried-from live-fire SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`
-- Transposed candidate SHA: `394649fbcbb1d8dc1159fdefd07bdf8c4bfdf6c0`
-- Safe backmerge branch: `scribe/20260704/assembly-upstream-drift-backmerge`
+- Transposed candidate SHA: `1f8839fd56048bd0439153970e870a4ab3f38448`
+- Safe assembly branch: `scribe/20260704/assembly-upstream-drift-backmerge`
+- CI run: `karmaterminal/openclaw-bootstrap/actions/runs/28723491989`
 - Review-only PR: `karmaterminal/openclaw#1163`
 - Gate 2.7 frozen-wall: exit 0, 0 FROZEN-STALE; mixed-clobber queue preserved/covered by focused tests plus sanctioned CI.
-- Gate 2.5 differing upstream-touched tests were enumerated; upstream-deleted rows are absent in candidate too.
-- Raw row evidence files remain byte-honest live-fire receipts from `bca2b0b`; path references in `proofs-manifest.json` point at this transposed corpus for clawsweeper navigation.
-- Gate logs: `PROOFS/394649fbcbb1d8dc1159fdefd07bdf8c4bfdf6c0/gates/`
+- Gate logs: `PROOFS/1f8839fd56048bd0439153970e870a4ab3f38448/gates/`
+- Corpus shape: full copied row corpus under this exact SHA, not symlinks/link-only references.
 
 ## Carried live-fire deployment receipt
 
 - Assembly branch: `frond-scribe/20260624/assembly-continuation-followons`
-- Candidate SHA: `394649fbcbb1d8dc1159fdefd07bdf8c4bfdf6c0` (transposed from live-fire `bca2b0b89ab886bf23a10e4983926f6b374b3188`)
+- Candidate SHA: `1f8839fd56048bd0439153970e870a4ab3f38448` (full-copy transposed from live-fire `bca2b0b89ab886bf23a10e4983926f6b374b3188`)
 - Deploy run: `karmaterminal/openclaw-bootstrap/actions/runs/28699830297`
 - Deployed host: Cael (`cael-dgx`)
 - Smoke: service active, build-info commit exactly `bca2b0b89ab886bf23a10e4983926f6b374b3188`, `openclaw --version` = `OpenClaw 2026.6.11 (bca2b0b)`, gateway reachable, tasks `0 active / 0 queued / 0 running`, no immediate requests-in-flight / skip / model-error loop in the first 10m journal window.

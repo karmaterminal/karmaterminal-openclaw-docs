@@ -1,7 +1,7 @@
 Gate 2 — feature-cores byte-identity check
   PR_HEAD:   600bb4a676b
-  CANDIDATE: 394649fbcbb
-  CORES:     /home/figs/flesh_beast_best_beast/openclaw-bootstrap/tools/drift-cure-gate.primitive-cores.txt
+  CANDIDATE: 1f8839fd560
+  CORES:     ../../openclaw-bootstrap/tools/drift-cure-gate.primitive-cores.txt
 
   PASS: src/agents/openclaw-tools.ts
   PASS: src/agents/tools/continue-work-tool.ts
@@ -303,8 +303,8 @@ Gate 2 — feature-cores byte-identity check
   FAIL: ui/src/ui/controllers/config.ts (present in PR-head, absent in candidate — file deleted!)
   PASS: apps/macos/Sources/OpenClaw/NodeMode/MacNodeRuntime.swift
 
-/home/figs/flesh_beast_best_beast/openclaw-bootstrap/tools/feature-cores-byte-check.sh: line 140: empty_patterns: unbound variable
-/home/figs/flesh_beast_best_beast/openclaw-bootstrap/tools/feature-cores-byte-check.sh: line 141: empty_patterns: unbound variable
+/home/figs/flesh_beast_best_beast/source/openclaw-bootstrap/tools/feature-cores-byte-check.sh: line 140: empty_patterns: unbound variable
+/home/figs/flesh_beast_best_beast/source/openclaw-bootstrap/tools/feature-cores-byte-check.sh: line 141: empty_patterns: unbound variable
 Gate 2 FAIL — 26 file(s) differ. LGTM-substrate broken.
 
 Failed files:

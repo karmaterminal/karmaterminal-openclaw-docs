@@ -9,16 +9,16 @@
   "readme_path": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/README.md",
   "rollup": {
     "total_rows": 28,
-    "pass": 17,
+    "pass": 18,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 10
+    "missing": 9
   },
-  "disposition_note": "IN-PROGRESS corpus after exact-SHA Cael deploy and smoke; R-REGRESSION-TRAP-TESTS recorded as PASS; R-RC-2 honest_limit; multiple live rows added by cael-dgx.",
+  "disposition_note": "IN-PROGRESS corpus after exact-SHA Cael deploy and smoke; R-OBS-1 recorded as PASS; R-RC-2 honest_limit; live continuation/delegate rows held while openclaw#1135 remains open.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-07-04T17:37:00Z",
+  "generated": "2026-07-04T17:58:00Z",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
   "capture_sha": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
   "carried_from": null

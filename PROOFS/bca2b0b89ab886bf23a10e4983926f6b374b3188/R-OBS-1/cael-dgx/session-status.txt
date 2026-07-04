@@ -1,0 +1,20 @@
+🦞 OpenClaw 2026.6.11 (bca2b0b)
+⏱️ Uptime: gateway 2h 1m · system 41d 22h
+🧠 Model: github-copilot/gpt-5.5 · 🔑 token (github-copilot:github)
+🔄 Fallbacks: github-copilot/gemini-3.1-pro-preview
+🧮 Tokens: 274k in / 1.5k out · 💵 Cost: $0.0000
+🗄️ Cache: 38% hit · 172k cached, 0 new
+📚 Context: 173k/1.0m (17%) · 🧹 Compactions: 2
+🧵 Session: agent:main:discord:channel:1466192485440164011 • duration 2h 27m • updated just now
+🔄 Continuation: chain 0/200 | 1 post-compaction staged
+⚙️ Execution: direct · Runtime: OpenClaw Default · Think: high · Fast: off · elevated
+🔌 Plugins: OK
+🔊 Voice: inbound · provider=microsoft · limit=1500 · summary=on
+👥 Activation: mention · 🪢 Queue: collect (depth 0)
+
+Route context:
+{
+  "origin": {"provider":"discord","accountId":"default"},
+  "active": {"channel":"discord","to":"channel:1466192485440164011","accountId":"default"},
+  "deliveryContext": {"channel":"discord","to":"channel:1466192485440164011","accountId":"default"}
+}

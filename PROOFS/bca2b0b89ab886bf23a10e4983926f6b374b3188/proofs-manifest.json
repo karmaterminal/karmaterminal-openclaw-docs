@@ -6,18 +6,18 @@
   "build_string": "OpenClaw 2026.6.11 (bca2b0b)",
   "fire_type": "fresh-fire",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "generated": "2026-07-04T19:45:00Z",
+  "generated": "2026-07-04T20:20:00Z",
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
     "total_rows": 28,
     "pass": 24,
-    "partial": 0,
+    "partial": 1,
     "thin": 1,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 2
+    "missing": 1
   },
-  "notes": "IN-PROGRESS corpus. R-OBS-2 added as PASS: committed R-CW-7 Tempo trace normalized into trace-tree.json and span-tree.txt; 46 spans, one root, zero orphans, required delegate/child/fanout/drain lineage present. R-CW-7 remains THIN; R-RC-2 remains honest_limit.",
+  "notes": "IN-PROGRESS corpus. R-CD-CHAINED-DEPTH-2 added as PARTIAL: depth-2 reached through depth-1 with two successful delegate edges, transcripts, flow rows, and Tempo; return-through-depth-1/root post-leaf surface not proven. R-CW-7 remains THIN; R-RC-2 remains honest_limit.",
   "rows": [
     {
       "row": "R-RC-1",
@@ -76,11 +76,27 @@
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2",
-      "state": "missing",
+      "state": "partial",
       "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-CHAINED-DEPTH-2/",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/215",
-      "traces": [],
-      "supporting_docs": []
+      "traces": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-CHAINED-DEPTH-2/cael-dgx/tempo/trace-549a10a8592e384a0e53f407e2d5556b.json"
+      ],
+      "supporting_docs": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-CHAINED-DEPTH-2/cael-dgx/EVIDENCE.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-CHAINED-DEPTH-2/cael-dgx/evaluation.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-CHAINED-DEPTH-2/cael-dgx/runtime-version.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-CHAINED-DEPTH-2/cael-dgx/comment-4883600973.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-CHAINED-DEPTH-2/cael-dgx/db/flow-rows-full.pretty.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-CHAINED-DEPTH-2/cael-dgx/db/task-rows.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-CHAINED-DEPTH-2/cael-dgx/sessions/depth1-dispatcher-session.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-CHAINED-DEPTH-2/cael-dgx/sessions/depth2-leaf-session.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-CHAINED-DEPTH-2/cael-dgx/journal/delegate-chain-filtered.log",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-CHAINED-DEPTH-2/cael-dgx/tempo/trace-summary.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-CHAINED-DEPTH-2/cael-dgx/non-proof/rerun-1305-cost-capped-flow.json"
+      ],
+      "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-CHAINED-DEPTH-2/cael-dgx/EVIDENCE.md",
+      "note": "PARTIAL: depth-2 leaf reached through depth-1 via two successful typed continue_delegate edges with flow/task rows, transcripts, journal, and Tempo; required post-leaf return-through-depth-1/root surface not proven."
     },
     {
       "row": "R-CW-MULTI-COLLAPSE",

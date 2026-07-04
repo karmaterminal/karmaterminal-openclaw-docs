@@ -3,22 +3,22 @@
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
   "current_sha": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
   "current_sha_short": "bca2b0b",
-  "build_string": "OpenClaw 2026.6.11 (bca2b0b) — post-#1159 assembly proof cycle on Cael",
+  "build_string": "OpenClaw 2026.6.11 (bca2b0b) \u2014 post-#1159 assembly proof cycle on Cael",
   "corpus_path": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/",
   "manifest_path": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/proofs-manifest.json",
   "readme_path": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/README.md",
   "rollup": {
     "total_rows": 28,
-    "pass": 24,
+    "pass": 25,
     "partial": 1,
     "thin": 1,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 1
+    "missing": 0
   },
-  "disposition_note": "IN-PROGRESS corpus after exact-SHA Cael deploy and smoke; R-CD-CHAINED-DEPTH-2 PARTIAL added: depth-2 reached but return-through-depth-1/root post-leaf surface not proven; R-CW-7 THIN; R-RC-2 honest_limit.",
+  "disposition_note": "COMPLETE corpus after exact-SHA Cael deploy and smoke; R-CD-COLLECTION-ON-COLLAPSE PASS added: A spawned B, B finalized before delayed C, and tree fanout delivered C to B + root/main; R-CD-CHAINED-DEPTH-2 PARTIAL; R-CW-7 THIN; R-RC-2 honest_limit; no missing rows.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-07-04T20:20:00Z",
+  "generated": "2026-07-04T20:45:00Z",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
   "capture_sha": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
   "carried_from": null

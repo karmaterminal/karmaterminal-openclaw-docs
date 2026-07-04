@@ -2,7 +2,7 @@
 
 Candidate: `OpenClaw 2026.6.11 (bca2b0b)` deployed to Cael.
 
-Status: **IN PROGRESS**. Current rollup: 24 pass / 1 partial / 1 thin / 1 honest_limit / 1 missing. The proof board is populated in Project 83 from the prior Project 82 row template. Rows start as `missing` until Cael + frond-scribe agree the exact test form, fire the row, capture receipts, and attach the required Tempo JSON where applicable.
+Status: **COMPLETE**. Current rollup: 25 pass / 1 partial / 1 thin / 1 honest_limit / 0 missing. The proof board is populated in Project 83 from the prior Project 82 row template. Rows start as `missing` until Cael + frond-scribe agree the exact test form, fire the row, capture receipts, and attach the required Tempo JSON where applicable.
 
 ## Deployment receipt
 
@@ -21,7 +21,7 @@ Status: **IN PROGRESS**. Current rollup: 24 pass / 1 partial / 1 thin / 1 honest
 | R-TRACE-REDACTION-1121 | [#214](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/214) | pass |
 | R-CD-CHAINED-DEPTH-2 | [#215](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/215) | partial |
 | R-CW-MULTI-COLLAPSE | [#216](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/216) | pass |
-| R-CD-COLLECTION-ON-COLLAPSE | [#217](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/217) | missing |
+| R-CD-COLLECTION-ON-COLLAPSE | [#217](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/217) | pass |
 | R-CD-1 | [#218](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/218) | pass |
 | R-CW-6 | [#219](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/219) | pass |
 | R-CW-7 | [#220](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/220) | thin |
@@ -53,3 +53,7 @@ Before a row is fired, Cael + frond-scribe agree the exact test form and expecte
 
 `R-CW-MULTI-COLLAPSE` is a synthetic DB-seeded proof. Its `hop:101/102` values are not realistic chain-depth evidence; they are explicit row metadata carried through the wake banner. The row claims only stale-old-row supersession, newest-row grant, terminal durable state, and byte-identical config restore.
 
+
+### R-CD-COLLECTION-ON-COLLAPSE receipt
+
+`R-CD-COLLECTION-ON-COLLAPSE` is PASS for the fresh Cael live-fire `RCD_COLLECTION_BCA2B0B_CAEL_20260704_1316`: root/main spawned detached B, B used typed `continue_delegate(mode=normal, delaySeconds=7, fanoutMode=tree)`, B finalized before delayed C existed/started/returned, C returned the unique sentinel, and the gateway journal recorded tree-fanout targeted return to both B and `agent:main:discord:channel:1466192485440164011`. Machine-readable Tempo JSON is saved under the row directory.

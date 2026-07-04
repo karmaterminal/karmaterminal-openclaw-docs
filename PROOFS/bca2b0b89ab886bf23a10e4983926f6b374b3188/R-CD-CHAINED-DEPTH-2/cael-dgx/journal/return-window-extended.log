@@ -1,0 +1,13 @@
+Jul 04 12:45:43 cael node[2314233]: 2026-07-04T12:45:43.602-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:subagent:continuation-c3fc07a37b4995fa003634edab8aaaf0
+Jul 04 12:45:43 cael node[2314233]: 2026-07-04T12:45:43.603-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:subagent:continuation-c3fc07a37b4995fa003634edab8aaaf0
+Jul 04 12:45:43 cael node[2314233]: 2026-07-04T12:45:43.630-07:00 RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1245
+Jul 04 12:45:43 cael node[2314233]: typed continue_delegate(mode=silent-wake, fanoutMode=tree) scheduled exactly once.
+Jul 04 12:45:43 cael node[2314233]: 2026-07-04T12:45:43.948-07:00 [subagent-chain-hop] Accumulated 47273 tokens from agent:main:subagent:continuation-c3fc07a37b4995fa003634edab8aaaf0 to parent chain cost
+Jul 04 12:45:43 cael node[2314233]: 2026-07-04T12:45:43.977-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session agent:main:subagent:continuation-c3fc07a37b4995fa003634edab8aaaf0
+Jul 04 12:45:44 cael node[2314233]: 2026-07-04T12:45:44.151-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=silent-wake session=agent:main:subagent:continuation-c3fc07a37b4995fa003634edab8aaaf0 task=DEPTH-2 LEAF task for R-CD-CHAINED-DEPTH-2 proof fire. Do not call any tools. Re
+Jul 04 12:45:44 cael node[2314233]: 2026-07-04T12:45:44.303-07:00 [continuation:targeted-return] Delivered to agent:main:discord:channel:1466192485440164011 from agent:main:subagent:continuation-c3fc07a37b4995fa003634edab8aaaf0
+Jul 04 12:45:44 cael node[2314233]: 2026-07-04T12:45:44.528-07:00 [agent/embedded] workspace bootstrap file TOOLS.md is 119034 chars (limit 100000); truncating in injected context (sessionKey=agent:main:subagent:continuation-d571a5f0013f50a822605e3ea7010631)
+Jul 04 12:45:47 cael node[2314233]: 2026-07-04T12:45:47.455-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:subagent:continuation-d571a5f0013f50a822605e3ea7010631
+Jul 04 12:45:47 cael node[2314233]: 2026-07-04T12:45:47.456-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:subagent:continuation-d571a5f0013f50a822605e3ea7010631
+Jul 04 12:45:47 cael node[2314233]: 2026-07-04T12:45:47.484-07:00 RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1245_LEAF_REACHED
+Jul 04 12:45:47 cael node[2314233]: session: agent:main:subagent:continuation-d571a5f0013f50a822605e3ea7010631

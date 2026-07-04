@@ -9,14 +9,14 @@
   "readme_path": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/README.md",
   "rollup": {
     "total_rows": 28,
-    "pass": 3,
+    "pass": 4,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 25
+    "missing": 24
   },
-  "disposition_note": "IN-PROGRESS corpus initialized after exact-SHA Cael deploy and smoke. First source/config rows are filed; remaining rows stay missing until row-specific evidence and Tempo JSON are captured.",
+  "disposition_note": "IN-PROGRESS corpus after exact-SHA Cael deploy and smoke; R-CD-SILENT live silent delegate row added by cael-dgx.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-07-04T08:15:00Z",
   "generated_by": "frond-scribe (copilot, corpus-manager)",

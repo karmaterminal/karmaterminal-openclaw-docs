@@ -9,16 +9,16 @@
   "readme_path": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/README.md",
   "rollup": {
     "total_rows": 28,
-    "pass": 23,
+    "pass": 24,
     "partial": 0,
     "thin": 1,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 3
+    "missing": 2
   },
-  "disposition_note": "IN-PROGRESS corpus after exact-SHA Cael deploy and smoke; R-CW-6 PASS added via source+direct-harness chain-cap proof; R-CW-7 THIN; R-RC-2 honest_limit.",
+  "disposition_note": "IN-PROGRESS corpus after exact-SHA Cael deploy and smoke; R-OBS-2 PASS added by normalizing the committed R-CW-7 trace into trace-tree.json/span-tree.txt; R-CW-7 THIN; R-RC-2 honest_limit.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-07-04T19:35:00Z",
+  "generated": "2026-07-04T19:45:00Z",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
   "capture_sha": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
   "carried_from": null

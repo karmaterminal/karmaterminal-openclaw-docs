@@ -6,18 +6,18 @@
   "build_string": "OpenClaw 2026.6.11 (bca2b0b)",
   "fire_type": "fresh-fire",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "generated": "2026-07-04T19:35:00Z",
+  "generated": "2026-07-04T19:45:00Z",
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
     "total_rows": 28,
-    "pass": 23,
+    "pass": 24,
     "partial": 0,
     "thin": 1,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 3
+    "missing": 2
   },
-  "notes": "IN-PROGRESS corpus. R-CW-6 added as PASS via safe source+direct-harness proof at bca2b0b: currentChainCount=maxChainLength returns scheduled:false/capped:true and logs work-rejected chain-capped before durable enqueue/wake. R-CW-7 remains THIN; R-RC-2 remains honest_limit.",
+  "notes": "IN-PROGRESS corpus. R-OBS-2 added as PASS: committed R-CW-7 Tempo trace normalized into trace-tree.json and span-tree.txt; 46 spans, one root, zero orphans, required delegate/child/fanout/drain lineage present. R-CW-7 remains THIN; R-RC-2 remains honest_limit.",
   "rows": [
     {
       "row": "R-RC-1",
@@ -429,11 +429,24 @@
     },
     {
       "row": "R-OBS-2",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-OBS-2/",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/233",
-      "traces": [],
-      "supporting_docs": []
+      "traces": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-OBS-2/cael-dgx/trace/source-trace-0cf17ea0b7eab7a5e998f6a581e7b5bf.json"
+      ],
+      "supporting_docs": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-OBS-2/cael-dgx/EVIDENCE.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-OBS-2/cael-dgx/comment-4883587663.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-OBS-2/cael-dgx/runtime-version.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-OBS-2/cael-dgx/generated/generate-trace-tree.mjs",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-OBS-2/cael-dgx/trace-tree.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-OBS-2/cael-dgx/span-tree.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-OBS-2/cael-dgx/span-counts.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-7/cael-dgx/tempo/trace-0cf17ea0b7eab7a5e998f6a581e7b5bf.json"
+      ],
+      "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-OBS-2/cael-dgx/EVIDENCE.md",
+      "note": "PASS: normalized committed R-CW-7 trace 0cf17ea0b7eab7a5e998f6a581e7b5bf into trace-tree.json + span-tree.txt; 46 spans, one root, zero orphans; delegate dispatch, child run, fanout, and drain lineage present."
     },
     {
       "row": "R-CW-5",

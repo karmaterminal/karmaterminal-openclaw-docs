@@ -1,0 +1,2926 @@
+{
+  "traceIds": [
+    "DPF+oLfqt6XpmPalgee1vw=="
+  ],
+  "traceIdsHex": [
+    "0cf17ea0b7eab7a5e998f6a581e7b5bf"
+  ],
+  "spanCount": 46,
+  "rootCount": 1,
+  "orphanCount": 0,
+  "spanNameCounts": {
+    "openclaw.message.processed": 1,
+    "openclaw.harness.run": 5,
+    "openclaw.run": 5,
+    "openclaw.context.assembled": 5,
+    "openclaw.model.call": 14,
+    "openclaw.tool.execution": 9,
+    "openclaw.message.delivery": 1,
+    "continuation.work": 1,
+    "openclaw.model.usage": 2,
+    "continuation.delegate.dispatch": 1,
+    "continuation.queue.fanout": 1,
+    "continuation.queue.drain": 1
+  },
+  "roots": [
+    {
+      "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+      "spanId": "NWm2yWmAnA4=",
+      "parentSpanId": null,
+      "name": "openclaw.message.processed",
+      "kind": "SPAN_KIND_INTERNAL",
+      "startTimeUnixNano": "1783192079474000000",
+      "endTimeUnixNano": "1783192124087000000",
+      "durationNs": "44613000000",
+      "attributes": {
+        "openclaw.channel": "discord",
+        "openclaw.source": "replyResolver",
+        "openclaw.outcome": "completed"
+      },
+      "status": {},
+      "resource": {
+        "host.name": "cael",
+        "host.arch": "arm64",
+        "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+        "process.pid": 2314233,
+        "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+        "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+        "process.command_args": {
+          "values": [
+            {
+              "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+            },
+            {
+              "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+            },
+            {
+              "stringValue": "gateway"
+            },
+            {
+              "stringValue": "--port"
+            },
+            {
+              "stringValue": "18789"
+            }
+          ]
+        },
+        "process.runtime.version": "25.9.0",
+        "process.runtime.name": "nodejs",
+        "process.runtime.description": "Node.js",
+        "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+        "process.owner": "figs",
+        "service.name": "cael-prince"
+      },
+      "scope": {
+        "name": "openclaw"
+      },
+      "children": [
+        {
+          "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+          "spanId": "8ok0cyna3cc=",
+          "parentSpanId": "NWm2yWmAnA4=",
+          "name": "openclaw.harness.run",
+          "kind": "SPAN_KIND_INTERNAL",
+          "startTimeUnixNano": "1783192079611000000",
+          "endTimeUnixNano": "1783192123969000000",
+          "durationNs": "44358000000",
+          "attributes": {
+            "openclaw.harness.id": "openclaw",
+            "openclaw.harness.plugin": "unknown",
+            "openclaw.provider": "github-copilot",
+            "openclaw.model": "gpt-5.5",
+            "openclaw.channel": "discord",
+            "openclaw.outcome": "completed",
+            "openclaw.harness.items.started": 6,
+            "openclaw.harness.items.completed": 6,
+            "openclaw.harness.items.active": 0
+          },
+          "status": {},
+          "resource": {
+            "host.name": "cael",
+            "host.arch": "arm64",
+            "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+            "process.pid": 2314233,
+            "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.command_args": {
+              "values": [
+                {
+                  "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                },
+                {
+                  "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                },
+                {
+                  "stringValue": "gateway"
+                },
+                {
+                  "stringValue": "--port"
+                },
+                {
+                  "stringValue": "18789"
+                }
+              ]
+            },
+            "process.runtime.version": "25.9.0",
+            "process.runtime.name": "nodejs",
+            "process.runtime.description": "Node.js",
+            "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+            "process.owner": "figs",
+            "service.name": "cael-prince"
+          },
+          "scope": {
+            "name": "openclaw"
+          },
+          "children": [
+            {
+              "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+              "spanId": "yvGkIzoZC7I=",
+              "parentSpanId": "8ok0cyna3cc=",
+              "name": "openclaw.run",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783192079613000000",
+              "endTimeUnixNano": "1783192123969000000",
+              "durationNs": "44356000000",
+              "attributes": {
+                "openclaw.provider": "github-copilot",
+                "openclaw.model": "gpt-5.5",
+                "openclaw.channel": "discord",
+                "openclaw.trigger": "user",
+                "openclaw.outcome": "completed"
+              },
+              "status": {},
+              "resource": {
+                "host.name": "cael",
+                "host.arch": "arm64",
+                "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                "process.pid": 2314233,
+                "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                "process.command_args": {
+                  "values": [
+                    {
+                      "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                    },
+                    {
+                      "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                    },
+                    {
+                      "stringValue": "gateway"
+                    },
+                    {
+                      "stringValue": "--port"
+                    },
+                    {
+                      "stringValue": "18789"
+                    }
+                  ]
+                },
+                "process.runtime.version": "25.9.0",
+                "process.runtime.name": "nodejs",
+                "process.runtime.description": "Node.js",
+                "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                "process.owner": "figs",
+                "service.name": "cael-prince"
+              },
+              "scope": {
+                "name": "openclaw"
+              },
+              "children": [
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "JUbvqxEoIhw=",
+                  "parentSpanId": "yvGkIzoZC7I=",
+                  "name": "openclaw.context.assembled",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192079851000000",
+                  "endTimeUnixNano": "1783192079851000000",
+                  "durationNs": "0",
+                  "attributes": {
+                    "openclaw.context.message_count": 81,
+                    "openclaw.context.history_text_chars": 147171,
+                    "openclaw.context.history_image_blocks": 0,
+                    "openclaw.context.max_message_text_chars": 63747,
+                    "openclaw.context.system_prompt_chars": 207594,
+                    "openclaw.context.prompt_chars": 21,
+                    "openclaw.context.prompt_images": 0,
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "openclaw.channel": "discord",
+                    "openclaw.trigger": "user",
+                    "openclaw.context.token_budget": 1000000,
+                    "openclaw.context.reserve_tokens": 100000
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "p/SsBSP8xmA=",
+                  "parentSpanId": "yvGkIzoZC7I=",
+                  "name": "openclaw.model.call",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192079891000000",
+                  "endTimeUnixNano": "1783192088016000000",
+                  "durationNs": "8125000000",
+                  "attributes": {
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "gen_ai.system": "github-copilot",
+                    "gen_ai.request.model": "gpt-5.5",
+                    "gen_ai.operation.name": "chat",
+                    "openclaw.api": "openai-responses",
+                    "openclaw.transport": "auto",
+                    "openclaw.model_call.prompt.input_messages_count": 82,
+                    "openclaw.model_call.prompt.input_messages_chars": 303201,
+                    "openclaw.model_call.prompt.system_prompt_chars": 207594,
+                    "openclaw.model_call.prompt.tool_definitions_count": 47,
+                    "openclaw.model_call.prompt.tool_definitions_chars": 73261,
+                    "openclaw.model_call.prompt.total_chars": 584056,
+                    "openclaw.model_call.request_bytes": 548122,
+                    "openclaw.model_call.response_bytes": 8043,
+                    "openclaw.model_call.time_to_first_byte_ms": 4669,
+                    "openclaw.model_call.usage.input_tokens": 82113,
+                    "openclaw.model_call.usage.output_tokens": 536,
+                    "openclaw.model_call.usage.cache_read_input_tokens": 71168,
+                    "openclaw.model_call.usage.prompt_tokens": 153281,
+                    "openclaw.model_call.usage.total_tokens": 153817,
+                    "gen_ai.usage.input_tokens": 153281,
+                    "gen_ai.usage.output_tokens": 536,
+                    "gen_ai.usage.cache_read.input_tokens": 71168
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "dY4V4yXkTuc=",
+                  "parentSpanId": "yvGkIzoZC7I=",
+                  "name": "openclaw.tool.execution",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192088084000000",
+                  "endTimeUnixNano": "1783192088754000000",
+                  "durationNs": "670000000",
+                  "attributes": {
+                    "openclaw.toolName": "message",
+                    "openclaw.tool.source": "core",
+                    "gen_ai.tool.name": "message",
+                    "openclaw.tool.params.kind": "object"
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "MuU9bM+4vJY=",
+                  "parentSpanId": "yvGkIzoZC7I=",
+                  "name": "openclaw.model.call",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192088841000000",
+                  "endTimeUnixNano": "1783192096970000000",
+                  "durationNs": "8129000000",
+                  "attributes": {
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "gen_ai.system": "github-copilot",
+                    "gen_ai.request.model": "gpt-5.5",
+                    "gen_ai.operation.name": "chat",
+                    "openclaw.api": "openai-responses",
+                    "openclaw.transport": "auto",
+                    "openclaw.model_call.prompt.input_messages_count": 84,
+                    "openclaw.model_call.prompt.input_messages_chars": 308437,
+                    "openclaw.model_call.prompt.system_prompt_chars": 207594,
+                    "openclaw.model_call.prompt.tool_definitions_count": 47,
+                    "openclaw.model_call.prompt.tool_definitions_chars": 73261,
+                    "openclaw.model_call.prompt.total_chars": 589292,
+                    "openclaw.model_call.request_bytes": 551613,
+                    "openclaw.model_call.response_bytes": 5201,
+                    "openclaw.model_call.time_to_first_byte_ms": 3345,
+                    "openclaw.model_call.usage.input_tokens": 934,
+                    "openclaw.model_call.usage.output_tokens": 377,
+                    "openclaw.model_call.usage.cache_read_input_tokens": 153088,
+                    "openclaw.model_call.usage.prompt_tokens": 154022,
+                    "openclaw.model_call.usage.total_tokens": 154399,
+                    "gen_ai.usage.input_tokens": 154022,
+                    "gen_ai.usage.output_tokens": 377,
+                    "gen_ai.usage.cache_read.input_tokens": 153088
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "9W8UEK5LvSk=",
+                  "parentSpanId": "yvGkIzoZC7I=",
+                  "name": "openclaw.tool.execution",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192096998000000",
+                  "endTimeUnixNano": "1783192098500000000",
+                  "durationNs": "1502000000",
+                  "attributes": {
+                    "openclaw.toolName": "exec",
+                    "openclaw.tool.source": "core",
+                    "gen_ai.tool.name": "exec",
+                    "openclaw.tool.params.kind": "object"
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "AFLIXLPeu9c=",
+                  "parentSpanId": "yvGkIzoZC7I=",
+                  "name": "openclaw.model.call",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192098530000000",
+                  "endTimeUnixNano": "1783192108530000000",
+                  "durationNs": "10000000000",
+                  "attributes": {
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "gen_ai.system": "github-copilot",
+                    "gen_ai.request.model": "gpt-5.5",
+                    "gen_ai.operation.name": "chat",
+                    "openclaw.api": "openai-responses",
+                    "openclaw.transport": "auto",
+                    "openclaw.model_call.prompt.input_messages_count": 86,
+                    "openclaw.model_call.prompt.input_messages_chars": 317008,
+                    "openclaw.model_call.prompt.system_prompt_chars": 207594,
+                    "openclaw.model_call.prompt.tool_definitions_count": 47,
+                    "openclaw.model_call.prompt.tool_definitions_chars": 73261,
+                    "openclaw.model_call.prompt.total_chars": 597863,
+                    "openclaw.model_call.request_bytes": 558122,
+                    "openclaw.model_call.response_bytes": 3177,
+                    "openclaw.model_call.time_to_first_byte_ms": 8861,
+                    "openclaw.model_call.usage.input_tokens": 2237,
+                    "openclaw.model_call.usage.output_tokens": 547,
+                    "openclaw.model_call.usage.cache_read_input_tokens": 153600,
+                    "openclaw.model_call.usage.prompt_tokens": 155837,
+                    "openclaw.model_call.usage.total_tokens": 156384,
+                    "gen_ai.usage.input_tokens": 155837,
+                    "gen_ai.usage.output_tokens": 547,
+                    "gen_ai.usage.cache_read.input_tokens": 153600
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "WQ+f1deyDno=",
+                  "parentSpanId": "yvGkIzoZC7I=",
+                  "name": "openclaw.tool.execution",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192108558000000",
+                  "endTimeUnixNano": "1783192108613000000",
+                  "durationNs": "55000000",
+                  "attributes": {
+                    "openclaw.toolName": "exec",
+                    "openclaw.tool.source": "core",
+                    "gen_ai.tool.name": "exec",
+                    "openclaw.tool.params.kind": "object"
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "amICSa60Pz8=",
+                  "parentSpanId": "yvGkIzoZC7I=",
+                  "name": "openclaw.model.call",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192108658000000",
+                  "endTimeUnixNano": "1783192118161000000",
+                  "durationNs": "9503000000",
+                  "attributes": {
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "gen_ai.system": "github-copilot",
+                    "gen_ai.request.model": "gpt-5.5",
+                    "gen_ai.operation.name": "chat",
+                    "openclaw.api": "openai-responses",
+                    "openclaw.transport": "auto",
+                    "openclaw.model_call.prompt.input_messages_count": 88,
+                    "openclaw.model_call.prompt.input_messages_chars": 345887,
+                    "openclaw.model_call.prompt.system_prompt_chars": 207594,
+                    "openclaw.model_call.prompt.tool_definitions_count": 47,
+                    "openclaw.model_call.prompt.tool_definitions_chars": 73261,
+                    "openclaw.model_call.prompt.total_chars": 626742,
+                    "openclaw.model_call.request_bytes": 584913,
+                    "openclaw.model_call.response_bytes": 2994,
+                    "openclaw.model_call.time_to_first_byte_ms": 8939,
+                    "openclaw.model_call.usage.input_tokens": 6749,
+                    "openclaw.model_call.usage.output_tokens": 565,
+                    "openclaw.model_call.usage.cache_read_input_tokens": 155648,
+                    "openclaw.model_call.usage.prompt_tokens": 162397,
+                    "openclaw.model_call.usage.total_tokens": 162962,
+                    "gen_ai.usage.input_tokens": 162397,
+                    "gen_ai.usage.output_tokens": 565,
+                    "gen_ai.usage.cache_read.input_tokens": 155648
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "8dXWaqgGge4=",
+                  "parentSpanId": "yvGkIzoZC7I=",
+                  "name": "openclaw.tool.execution",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192118186000000",
+                  "endTimeUnixNano": "1783192118187000000",
+                  "durationNs": "1000000",
+                  "attributes": {
+                    "openclaw.toolName": "continue_work",
+                    "openclaw.tool.source": "core",
+                    "gen_ai.tool.name": "continue_work",
+                    "openclaw.tool.params.kind": "object"
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "4BGQ71zrrwY=",
+                  "parentSpanId": "yvGkIzoZC7I=",
+                  "name": "openclaw.model.call",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192118218000000",
+                  "endTimeUnixNano": "1783192123797000000",
+                  "durationNs": "5579000000",
+                  "attributes": {
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "gen_ai.system": "github-copilot",
+                    "gen_ai.request.model": "gpt-5.5",
+                    "gen_ai.operation.name": "chat",
+                    "openclaw.api": "openai-responses",
+                    "openclaw.transport": "auto",
+                    "openclaw.model_call.prompt.input_messages_count": 90,
+                    "openclaw.model_call.prompt.input_messages_chars": 348455,
+                    "openclaw.model_call.prompt.system_prompt_chars": 207594,
+                    "openclaw.model_call.prompt.tool_definitions_count": 47,
+                    "openclaw.model_call.prompt.tool_definitions_chars": 73261,
+                    "openclaw.model_call.prompt.total_chars": 629310,
+                    "openclaw.model_call.request_bytes": 585372,
+                    "openclaw.model_call.response_bytes": 3267,
+                    "openclaw.model_call.time_to_first_byte_ms": 2768,
+                    "openclaw.model_call.usage.input_tokens": 169,
+                    "openclaw.model_call.usage.output_tokens": 139,
+                    "openclaw.model_call.usage.cache_read_input_tokens": 162304,
+                    "openclaw.model_call.usage.prompt_tokens": 162473,
+                    "openclaw.model_call.usage.total_tokens": 162612,
+                    "gen_ai.usage.input_tokens": 162473,
+                    "gen_ai.usage.output_tokens": 139,
+                    "gen_ai.usage.cache_read.input_tokens": 162304
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+              "spanId": "y3Z/NjKVGbg=",
+              "parentSpanId": "8ok0cyna3cc=",
+              "name": "openclaw.message.delivery",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783192088111000000",
+              "endTimeUnixNano": "1783192088650000000",
+              "durationNs": "539000000",
+              "attributes": {
+                "openclaw.channel": "discord",
+                "openclaw.delivery.kind": "other",
+                "openclaw.outcome": "completed",
+                "openclaw.delivery.result_count": 1
+              },
+              "status": {},
+              "resource": {
+                "host.name": "cael",
+                "host.arch": "arm64",
+                "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                "process.pid": 2314233,
+                "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                "process.command_args": {
+                  "values": [
+                    {
+                      "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                    },
+                    {
+                      "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                    },
+                    {
+                      "stringValue": "gateway"
+                    },
+                    {
+                      "stringValue": "--port"
+                    },
+                    {
+                      "stringValue": "18789"
+                    }
+                  ]
+                },
+                "process.runtime.version": "25.9.0",
+                "process.runtime.name": "nodejs",
+                "process.runtime.description": "Node.js",
+                "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                "process.owner": "figs",
+                "service.name": "cael-prince"
+              },
+              "scope": {
+                "name": "openclaw"
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+          "spanId": "0lTmQyISnr4=",
+          "parentSpanId": "NWm2yWmAnA4=",
+          "name": "continuation.work",
+          "kind": "SPAN_KIND_INTERNAL",
+          "startTimeUnixNano": "1783192124062000000",
+          "endTimeUnixNano": "1783192124062010112",
+          "durationNs": "10112",
+          "attributes": {
+            "delay.ms": 0,
+            "chain.step.remaining": 199,
+            "chain.id": "67146ffa-e4e0-4c1d-a710-8081e83d31b8",
+            "reason.present": true,
+            "reason.length": 128,
+            "reason.hash": "da3a2d541d452f65",
+            "reason.redacted": false
+          },
+          "status": {
+            "code": "STATUS_CODE_OK"
+          },
+          "resource": {
+            "host.name": "cael",
+            "host.arch": "arm64",
+            "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+            "process.pid": 2314233,
+            "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.command_args": {
+              "values": [
+                {
+                  "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                },
+                {
+                  "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                },
+                {
+                  "stringValue": "gateway"
+                },
+                {
+                  "stringValue": "--port"
+                },
+                {
+                  "stringValue": "18789"
+                }
+              ]
+            },
+            "process.runtime.version": "25.9.0",
+            "process.runtime.name": "nodejs",
+            "process.runtime.description": "Node.js",
+            "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+            "process.owner": "figs",
+            "service.name": "cael-prince"
+          },
+          "scope": {
+            "name": "openclaw.continuation"
+          },
+          "children": []
+        },
+        {
+          "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+          "spanId": "XLmM+Iyi2y8=",
+          "parentSpanId": "NWm2yWmAnA4=",
+          "name": "openclaw.model.usage",
+          "kind": "SPAN_KIND_INTERNAL",
+          "startTimeUnixNano": "1783192124191000000",
+          "endTimeUnixNano": "1783192169519000000",
+          "durationNs": "45328000000",
+          "attributes": {
+            "openclaw.channel": "system",
+            "openclaw.agent": "main",
+            "openclaw.provider": "github-copilot",
+            "openclaw.model": "gpt-5.5",
+            "openclaw.tokens.input": 111493,
+            "openclaw.tokens.output": 2266,
+            "openclaw.tokens.cache_read": 772096,
+            "openclaw.tokens.cache_write": 0,
+            "openclaw.tokens.total": 181360,
+            "gen_ai.system": "github-copilot",
+            "gen_ai.request.model": "gpt-5.5",
+            "gen_ai.operation.name": "chat",
+            "gen_ai.usage.input_tokens": 883589,
+            "gen_ai.usage.output_tokens": 2266,
+            "gen_ai.usage.cache_read.input_tokens": 772096
+          },
+          "status": {},
+          "resource": {
+            "host.name": "cael",
+            "host.arch": "arm64",
+            "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+            "process.pid": 2314233,
+            "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.command_args": {
+              "values": [
+                {
+                  "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                },
+                {
+                  "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                },
+                {
+                  "stringValue": "gateway"
+                },
+                {
+                  "stringValue": "--port"
+                },
+                {
+                  "stringValue": "18789"
+                }
+              ]
+            },
+            "process.runtime.version": "25.9.0",
+            "process.runtime.name": "nodejs",
+            "process.runtime.description": "Node.js",
+            "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+            "process.owner": "figs",
+            "service.name": "cael-prince"
+          },
+          "scope": {
+            "name": "openclaw"
+          },
+          "children": []
+        },
+        {
+          "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+          "spanId": "OLAbU5ton04=",
+          "parentSpanId": "NWm2yWmAnA4=",
+          "name": "openclaw.harness.run",
+          "kind": "SPAN_KIND_INTERNAL",
+          "startTimeUnixNano": "1783192124234000000",
+          "endTimeUnixNano": "1783192169457000000",
+          "durationNs": "45223000000",
+          "attributes": {
+            "openclaw.harness.id": "openclaw",
+            "openclaw.harness.plugin": "unknown",
+            "openclaw.provider": "github-copilot",
+            "openclaw.model": "gpt-5.5",
+            "openclaw.channel": "system",
+            "openclaw.outcome": "completed",
+            "openclaw.harness.items.started": 6,
+            "openclaw.harness.items.completed": 6,
+            "openclaw.harness.items.active": 0
+          },
+          "status": {},
+          "resource": {
+            "host.name": "cael",
+            "host.arch": "arm64",
+            "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+            "process.pid": 2314233,
+            "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.command_args": {
+              "values": [
+                {
+                  "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                },
+                {
+                  "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                },
+                {
+                  "stringValue": "gateway"
+                },
+                {
+                  "stringValue": "--port"
+                },
+                {
+                  "stringValue": "18789"
+                }
+              ]
+            },
+            "process.runtime.version": "25.9.0",
+            "process.runtime.name": "nodejs",
+            "process.runtime.description": "Node.js",
+            "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+            "process.owner": "figs",
+            "service.name": "cael-prince"
+          },
+          "scope": {
+            "name": "openclaw"
+          },
+          "children": [
+            {
+              "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+              "spanId": "B5cNSMJmSL0=",
+              "parentSpanId": "OLAbU5ton04=",
+              "name": "openclaw.run",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783192124236000000",
+              "endTimeUnixNano": "1783192169456000000",
+              "durationNs": "45220000000",
+              "attributes": {
+                "openclaw.provider": "github-copilot",
+                "openclaw.model": "gpt-5.5",
+                "openclaw.channel": "system",
+                "openclaw.trigger": "heartbeat",
+                "openclaw.outcome": "completed"
+              },
+              "status": {},
+              "resource": {
+                "host.name": "cael",
+                "host.arch": "arm64",
+                "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                "process.pid": 2314233,
+                "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                "process.command_args": {
+                  "values": [
+                    {
+                      "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                    },
+                    {
+                      "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                    },
+                    {
+                      "stringValue": "gateway"
+                    },
+                    {
+                      "stringValue": "--port"
+                    },
+                    {
+                      "stringValue": "18789"
+                    }
+                  ]
+                },
+                "process.runtime.version": "25.9.0",
+                "process.runtime.name": "nodejs",
+                "process.runtime.description": "Node.js",
+                "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                "process.owner": "figs",
+                "service.name": "cael-prince"
+              },
+              "scope": {
+                "name": "openclaw"
+              },
+              "children": [
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "SWmtGQOoxxE=",
+                  "parentSpanId": "B5cNSMJmSL0=",
+                  "name": "openclaw.context.assembled",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192124383000000",
+                  "endTimeUnixNano": "1783192124383000000",
+                  "durationNs": "0",
+                  "attributes": {
+                    "openclaw.context.message_count": 85,
+                    "openclaw.context.history_text_chars": 179041,
+                    "openclaw.context.history_image_blocks": 0,
+                    "openclaw.context.max_message_text_chars": 63747,
+                    "openclaw.context.system_prompt_chars": 206245,
+                    "openclaw.context.prompt_chars": 838,
+                    "openclaw.context.prompt_images": 0,
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "openclaw.channel": "system",
+                    "openclaw.trigger": "heartbeat",
+                    "openclaw.context.token_budget": 1000000,
+                    "openclaw.context.reserve_tokens": 100000
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "8X7z8ootxuE=",
+                  "parentSpanId": "B5cNSMJmSL0=",
+                  "name": "openclaw.model.call",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192124424000000",
+                  "endTimeUnixNano": "1783192136109000000",
+                  "durationNs": "11685000000",
+                  "attributes": {
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "gen_ai.system": "github-copilot",
+                    "gen_ai.request.model": "gpt-5.5",
+                    "gen_ai.operation.name": "chat",
+                    "openclaw.api": "openai-responses",
+                    "openclaw.transport": "auto",
+                    "openclaw.model_call.prompt.input_messages_count": 86,
+                    "openclaw.model_call.prompt.input_messages_chars": 337630,
+                    "openclaw.model_call.prompt.system_prompt_chars": 206245,
+                    "openclaw.model_call.prompt.tool_definitions_count": 47,
+                    "openclaw.model_call.prompt.tool_definitions_chars": 72773,
+                    "openclaw.model_call.prompt.total_chars": 616648,
+                    "openclaw.model_call.request_bytes": 578254,
+                    "openclaw.model_call.response_bytes": 3876,
+                    "openclaw.model_call.time_to_first_byte_ms": 10365,
+                    "openclaw.model_call.usage.input_tokens": 90384,
+                    "openclaw.model_call.usage.output_tokens": 641,
+                    "openclaw.model_call.usage.cache_read_input_tokens": 70656,
+                    "openclaw.model_call.usage.prompt_tokens": 161040,
+                    "openclaw.model_call.usage.total_tokens": 161681,
+                    "gen_ai.usage.input_tokens": 161040,
+                    "gen_ai.usage.output_tokens": 641,
+                    "gen_ai.usage.cache_read.input_tokens": 70656
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "C2Vu4IVr4gg=",
+                  "parentSpanId": "B5cNSMJmSL0=",
+                  "name": "openclaw.tool.execution",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192136137000000",
+                  "endTimeUnixNano": "1783192136258000000",
+                  "durationNs": "121000000",
+                  "attributes": {
+                    "openclaw.toolName": "exec",
+                    "openclaw.tool.source": "core",
+                    "gen_ai.tool.name": "exec",
+                    "openclaw.tool.params.kind": "object"
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "xY/y6O6GXDY=",
+                  "parentSpanId": "B5cNSMJmSL0=",
+                  "name": "openclaw.model.call",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192136363000000",
+                  "endTimeUnixNano": "1783192145447000000",
+                  "durationNs": "9084000000",
+                  "attributes": {
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "gen_ai.system": "github-copilot",
+                    "gen_ai.request.model": "gpt-5.5",
+                    "gen_ai.operation.name": "chat",
+                    "openclaw.api": "openai-responses",
+                    "openclaw.transport": "auto",
+                    "openclaw.model_call.prompt.input_messages_count": 88,
+                    "openclaw.model_call.prompt.input_messages_chars": 412887,
+                    "openclaw.model_call.prompt.system_prompt_chars": 206245,
+                    "openclaw.model_call.prompt.tool_definitions_count": 47,
+                    "openclaw.model_call.prompt.tool_definitions_chars": 72773,
+                    "openclaw.model_call.prompt.total_chars": 691905,
+                    "openclaw.model_call.request_bytes": 651443,
+                    "openclaw.model_call.response_bytes": 3706,
+                    "openclaw.model_call.time_to_first_byte_ms": 7934,
+                    "openclaw.model_call.usage.input_tokens": 19006,
+                    "openclaw.model_call.usage.output_tokens": 623,
+                    "openclaw.model_call.usage.cache_read_input_tokens": 160768,
+                    "openclaw.model_call.usage.prompt_tokens": 179774,
+                    "openclaw.model_call.usage.total_tokens": 180397,
+                    "gen_ai.usage.input_tokens": 179774,
+                    "gen_ai.usage.output_tokens": 623,
+                    "gen_ai.usage.cache_read.input_tokens": 160768
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "ibnZRQvqGNk=",
+                  "parentSpanId": "B5cNSMJmSL0=",
+                  "name": "openclaw.tool.execution",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192145472000000",
+                  "endTimeUnixNano": "1783192145512000000",
+                  "durationNs": "40000000",
+                  "attributes": {
+                    "openclaw.toolName": "exec",
+                    "openclaw.tool.source": "core",
+                    "gen_ai.tool.name": "exec",
+                    "openclaw.tool.params.kind": "object"
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "dpZcPr2Cvgc=",
+                  "parentSpanId": "B5cNSMJmSL0=",
+                  "name": "openclaw.model.call",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192145577000000",
+                  "endTimeUnixNano": "1783192159301000000",
+                  "durationNs": "13724000000",
+                  "attributes": {
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "gen_ai.system": "github-copilot",
+                    "gen_ai.request.model": "gpt-5.5",
+                    "gen_ai.operation.name": "chat",
+                    "openclaw.api": "openai-responses",
+                    "openclaw.transport": "auto",
+                    "openclaw.model_call.prompt.input_messages_count": 90,
+                    "openclaw.model_call.prompt.input_messages_chars": 417488,
+                    "openclaw.model_call.prompt.system_prompt_chars": 206245,
+                    "openclaw.model_call.prompt.tool_definitions_count": 47,
+                    "openclaw.model_call.prompt.tool_definitions_chars": 72773,
+                    "openclaw.model_call.prompt.total_chars": 696506,
+                    "openclaw.model_call.request_bytes": 653964,
+                    "openclaw.model_call.response_bytes": 3893,
+                    "openclaw.model_call.time_to_first_byte_ms": 10747,
+                    "openclaw.model_call.usage.input_tokens": 1005,
+                    "openclaw.model_call.usage.output_tokens": 665,
+                    "openclaw.model_call.usage.cache_read_input_tokens": 179712,
+                    "openclaw.model_call.usage.prompt_tokens": 180717,
+                    "openclaw.model_call.usage.total_tokens": 181382,
+                    "gen_ai.usage.input_tokens": 180717,
+                    "gen_ai.usage.output_tokens": 665,
+                    "gen_ai.usage.cache_read.input_tokens": 179712
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "SuELA7R6eoY=",
+                  "parentSpanId": "B5cNSMJmSL0=",
+                  "name": "openclaw.tool.execution",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192159330000000",
+                  "endTimeUnixNano": "1783192159331000000",
+                  "durationNs": "1000000",
+                  "attributes": {
+                    "openclaw.toolName": "continue_delegate",
+                    "openclaw.tool.source": "core",
+                    "gen_ai.tool.name": "continue_delegate",
+                    "openclaw.tool.params.kind": "object"
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "Y5ZUCVicl9A=",
+                  "parentSpanId": "B5cNSMJmSL0=",
+                  "name": "openclaw.model.call",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192159367000000",
+                  "endTimeUnixNano": "1783192163464000000",
+                  "durationNs": "4097000000",
+                  "attributes": {
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "gen_ai.system": "github-copilot",
+                    "gen_ai.request.model": "gpt-5.5",
+                    "gen_ai.operation.name": "chat",
+                    "openclaw.api": "openai-responses",
+                    "openclaw.transport": "auto",
+                    "openclaw.model_call.prompt.input_messages_count": 92,
+                    "openclaw.model_call.prompt.input_messages_chars": 420599,
+                    "openclaw.model_call.prompt.system_prompt_chars": 206245,
+                    "openclaw.model_call.prompt.tool_definitions_count": 47,
+                    "openclaw.model_call.prompt.tool_definitions_chars": 72773,
+                    "openclaw.model_call.prompt.total_chars": 699617,
+                    "openclaw.model_call.request_bytes": 654980,
+                    "openclaw.model_call.response_bytes": 2618,
+                    "openclaw.model_call.time_to_first_byte_ms": 3658,
+                    "openclaw.model_call.usage.input_tokens": 730,
+                    "openclaw.model_call.usage.output_tokens": 81,
+                    "openclaw.model_call.usage.cache_read_input_tokens": 180224,
+                    "openclaw.model_call.usage.prompt_tokens": 180954,
+                    "openclaw.model_call.usage.total_tokens": 181035,
+                    "gen_ai.usage.input_tokens": 180954,
+                    "gen_ai.usage.output_tokens": 81,
+                    "gen_ai.usage.cache_read.input_tokens": 180224
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "de+YnfYFTbY=",
+                  "parentSpanId": "B5cNSMJmSL0=",
+                  "name": "openclaw.tool.execution",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192163489000000",
+                  "endTimeUnixNano": "1783192163490000000",
+                  "durationNs": "1000000",
+                  "attributes": {
+                    "openclaw.toolName": "subagents",
+                    "openclaw.tool.source": "core",
+                    "gen_ai.tool.name": "subagents",
+                    "openclaw.tool.params.kind": "object"
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "Z20BA0fYlGA=",
+                  "parentSpanId": "B5cNSMJmSL0=",
+                  "name": "openclaw.model.call",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192163528000000",
+                  "endTimeUnixNano": "1783192169257000000",
+                  "durationNs": "5729000000",
+                  "attributes": {
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "gen_ai.system": "github-copilot",
+                    "gen_ai.request.model": "gpt-5.5",
+                    "gen_ai.operation.name": "chat",
+                    "openclaw.api": "openai-responses",
+                    "openclaw.transport": "auto",
+                    "openclaw.model_call.prompt.input_messages_count": 94,
+                    "openclaw.model_call.prompt.input_messages_chars": 423352,
+                    "openclaw.model_call.prompt.system_prompt_chars": 206245,
+                    "openclaw.model_call.prompt.tool_definitions_count": 47,
+                    "openclaw.model_call.prompt.tool_definitions_chars": 72773,
+                    "openclaw.model_call.prompt.total_chars": 702370,
+                    "openclaw.model_call.request_bytes": 655630,
+                    "openclaw.model_call.response_bytes": 4716,
+                    "openclaw.model_call.time_to_first_byte_ms": 2604,
+                    "openclaw.model_call.usage.input_tokens": 368,
+                    "openclaw.model_call.usage.output_tokens": 256,
+                    "openclaw.model_call.usage.cache_read_input_tokens": 180736,
+                    "openclaw.model_call.usage.prompt_tokens": 181104,
+                    "openclaw.model_call.usage.total_tokens": 181360,
+                    "gen_ai.usage.input_tokens": 181104,
+                    "gen_ai.usage.output_tokens": 256,
+                    "gen_ai.usage.cache_read.input_tokens": 180736
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+          "spanId": "WwwdFoL9PKo=",
+          "parentSpanId": "NWm2yWmAnA4=",
+          "name": "continuation.delegate.dispatch",
+          "kind": "SPAN_KIND_INTERNAL",
+          "startTimeUnixNano": "1783192169526000000",
+          "endTimeUnixNano": "1783192169731722261",
+          "durationNs": "205722261",
+          "attributes": {
+            "delay.ms": 0,
+            "chain.step.remaining": 198,
+            "delegate.delivery": "immediate",
+            "chain.id": "67146ffa-e4e0-4c1d-a710-8081e83d31b8",
+            "delegate.mode": "silent-wake",
+            "reason.present": true,
+            "reason.length": 323,
+            "reason.hash": "4104cc139989623f",
+            "reason.redacted": false
+          },
+          "status": {
+            "code": "STATUS_CODE_OK"
+          },
+          "resource": {
+            "host.name": "cael",
+            "host.arch": "arm64",
+            "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+            "process.pid": 2314233,
+            "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.command_args": {
+              "values": [
+                {
+                  "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                },
+                {
+                  "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                },
+                {
+                  "stringValue": "gateway"
+                },
+                {
+                  "stringValue": "--port"
+                },
+                {
+                  "stringValue": "18789"
+                }
+              ]
+            },
+            "process.runtime.version": "25.9.0",
+            "process.runtime.name": "nodejs",
+            "process.runtime.description": "Node.js",
+            "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+            "process.owner": "figs",
+            "service.name": "cael-prince"
+          },
+          "scope": {
+            "name": "openclaw.continuation"
+          },
+          "children": [
+            {
+              "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+              "spanId": "7c7AaP9uVyA=",
+              "parentSpanId": "WwwdFoL9PKo=",
+              "name": "openclaw.harness.run",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783192170120000000",
+              "endTimeUnixNano": "1783192186207000000",
+              "durationNs": "16087000000",
+              "attributes": {
+                "openclaw.harness.id": "openclaw",
+                "openclaw.harness.plugin": "unknown",
+                "openclaw.provider": "github-copilot",
+                "openclaw.model": "gpt-5.5",
+                "openclaw.channel": "webchat",
+                "openclaw.outcome": "completed",
+                "openclaw.harness.items.started": 0,
+                "openclaw.harness.items.completed": 0,
+                "openclaw.harness.items.active": 0
+              },
+              "status": {},
+              "resource": {
+                "host.name": "cael",
+                "host.arch": "arm64",
+                "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                "process.pid": 2314233,
+                "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                "process.command_args": {
+                  "values": [
+                    {
+                      "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                    },
+                    {
+                      "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                    },
+                    {
+                      "stringValue": "gateway"
+                    },
+                    {
+                      "stringValue": "--port"
+                    },
+                    {
+                      "stringValue": "18789"
+                    }
+                  ]
+                },
+                "process.runtime.version": "25.9.0",
+                "process.runtime.name": "nodejs",
+                "process.runtime.description": "Node.js",
+                "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                "process.owner": "figs",
+                "service.name": "cael-prince"
+              },
+              "scope": {
+                "name": "openclaw"
+              },
+              "children": [
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "PxqMW3YCN2w=",
+                  "parentSpanId": "7c7AaP9uVyA=",
+                  "name": "openclaw.run",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192170122000000",
+                  "endTimeUnixNano": "1783192186207000000",
+                  "durationNs": "16085000000",
+                  "attributes": {
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "openclaw.channel": "webchat",
+                    "openclaw.trigger": "user",
+                    "openclaw.outcome": "completed"
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": [
+                    {
+                      "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                      "spanId": "jf7xqgPCZS4=",
+                      "parentSpanId": "PxqMW3YCN2w=",
+                      "name": "openclaw.context.assembled",
+                      "kind": "SPAN_KIND_INTERNAL",
+                      "startTimeUnixNano": "1783192179209000000",
+                      "endTimeUnixNano": "1783192179209000000",
+                      "durationNs": "0",
+                      "attributes": {
+                        "openclaw.context.message_count": 0,
+                        "openclaw.context.history_text_chars": 0,
+                        "openclaw.context.history_image_blocks": 0,
+                        "openclaw.context.max_message_text_chars": 0,
+                        "openclaw.context.system_prompt_chars": 139563,
+                        "openclaw.context.prompt_chars": 578,
+                        "openclaw.context.prompt_images": 0,
+                        "openclaw.provider": "github-copilot",
+                        "openclaw.model": "gpt-5.5",
+                        "openclaw.channel": "webchat",
+                        "openclaw.trigger": "user",
+                        "openclaw.context.token_budget": 1000000,
+                        "openclaw.context.reserve_tokens": 100000
+                      },
+                      "status": {},
+                      "resource": {
+                        "host.name": "cael",
+                        "host.arch": "arm64",
+                        "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                        "process.pid": 2314233,
+                        "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                        "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                        "process.command_args": {
+                          "values": [
+                            {
+                              "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                            },
+                            {
+                              "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                            },
+                            {
+                              "stringValue": "gateway"
+                            },
+                            {
+                              "stringValue": "--port"
+                            },
+                            {
+                              "stringValue": "18789"
+                            }
+                          ]
+                        },
+                        "process.runtime.version": "25.9.0",
+                        "process.runtime.name": "nodejs",
+                        "process.runtime.description": "Node.js",
+                        "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                        "process.owner": "figs",
+                        "service.name": "cael-prince"
+                      },
+                      "scope": {
+                        "name": "openclaw"
+                      },
+                      "children": []
+                    },
+                    {
+                      "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                      "spanId": "qENkVUUxzNg=",
+                      "parentSpanId": "PxqMW3YCN2w=",
+                      "name": "openclaw.model.call",
+                      "kind": "SPAN_KIND_INTERNAL",
+                      "startTimeUnixNano": "1783192179241000000",
+                      "endTimeUnixNano": "1783192186185000000",
+                      "durationNs": "6944000000",
+                      "attributes": {
+                        "openclaw.provider": "github-copilot",
+                        "openclaw.model": "gpt-5.5",
+                        "gen_ai.system": "github-copilot",
+                        "gen_ai.request.model": "gpt-5.5",
+                        "gen_ai.operation.name": "chat",
+                        "openclaw.api": "openai-responses",
+                        "openclaw.transport": "auto",
+                        "openclaw.model_call.prompt.input_messages_count": 1,
+                        "openclaw.model_call.prompt.input_messages_chars": 667,
+                        "openclaw.model_call.prompt.system_prompt_chars": 139563,
+                        "openclaw.model_call.prompt.tool_definitions_count": 41,
+                        "openclaw.model_call.prompt.tool_definitions_chars": 48611,
+                        "openclaw.model_call.prompt.total_chars": 188841,
+                        "openclaw.model_call.request_bytes": 191467,
+                        "openclaw.model_call.response_bytes": 2515,
+                        "openclaw.model_call.time_to_first_byte_ms": 6342,
+                        "openclaw.model_call.usage.input_tokens": 40756,
+                        "openclaw.model_call.usage.output_tokens": 338,
+                        "openclaw.model_call.usage.cache_read_input_tokens": 5632,
+                        "openclaw.model_call.usage.prompt_tokens": 46388,
+                        "openclaw.model_call.usage.total_tokens": 46726,
+                        "gen_ai.usage.input_tokens": 46388,
+                        "gen_ai.usage.output_tokens": 338,
+                        "gen_ai.usage.cache_read.input_tokens": 5632
+                      },
+                      "status": {},
+                      "resource": {
+                        "host.name": "cael",
+                        "host.arch": "arm64",
+                        "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                        "process.pid": 2314233,
+                        "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                        "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                        "process.command_args": {
+                          "values": [
+                            {
+                              "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                            },
+                            {
+                              "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                            },
+                            {
+                              "stringValue": "gateway"
+                            },
+                            {
+                              "stringValue": "--port"
+                            },
+                            {
+                              "stringValue": "18789"
+                            }
+                          ]
+                        },
+                        "process.runtime.version": "25.9.0",
+                        "process.runtime.name": "nodejs",
+                        "process.runtime.description": "Node.js",
+                        "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                        "process.owner": "figs",
+                        "service.name": "cael-prince"
+                      },
+                      "scope": {
+                        "name": "openclaw"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "CX/ugCzDcqc=",
+                  "parentSpanId": "7c7AaP9uVyA=",
+                  "name": "openclaw.harness.run",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192170376000000",
+                  "endTimeUnixNano": "1783192179158000000",
+                  "durationNs": "8782000000",
+                  "attributes": {
+                    "openclaw.harness.id": "openclaw",
+                    "openclaw.harness.plugin": "unknown",
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "openclaw.channel": "webchat",
+                    "openclaw.outcome": "completed",
+                    "openclaw.harness.items.started": 1,
+                    "openclaw.harness.items.completed": 1,
+                    "openclaw.harness.items.active": 0
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": [
+                    {
+                      "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                      "spanId": "xpH5xpTv/P0=",
+                      "parentSpanId": "CX/ugCzDcqc=",
+                      "name": "openclaw.run",
+                      "kind": "SPAN_KIND_INTERNAL",
+                      "startTimeUnixNano": "1783192170395000000",
+                      "endTimeUnixNano": "1783192179158000000",
+                      "durationNs": "8763000000",
+                      "attributes": {
+                        "openclaw.provider": "github-copilot",
+                        "openclaw.model": "gpt-5.5",
+                        "openclaw.channel": "webchat",
+                        "openclaw.trigger": "manual",
+                        "openclaw.outcome": "completed"
+                      },
+                      "status": {},
+                      "resource": {
+                        "host.name": "cael",
+                        "host.arch": "arm64",
+                        "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                        "process.pid": 2314233,
+                        "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                        "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                        "process.command_args": {
+                          "values": [
+                            {
+                              "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                            },
+                            {
+                              "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                            },
+                            {
+                              "stringValue": "gateway"
+                            },
+                            {
+                              "stringValue": "--port"
+                            },
+                            {
+                              "stringValue": "18789"
+                            }
+                          ]
+                        },
+                        "process.runtime.version": "25.9.0",
+                        "process.runtime.name": "nodejs",
+                        "process.runtime.description": "Node.js",
+                        "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                        "process.owner": "figs",
+                        "service.name": "cael-prince"
+                      },
+                      "scope": {
+                        "name": "openclaw"
+                      },
+                      "children": [
+                        {
+                          "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                          "spanId": "dIOuTUtHcVY=",
+                          "parentSpanId": "xpH5xpTv/P0=",
+                          "name": "openclaw.context.assembled",
+                          "kind": "SPAN_KIND_INTERNAL",
+                          "startTimeUnixNano": "1783192170547000000",
+                          "endTimeUnixNano": "1783192170547000000",
+                          "durationNs": "0",
+                          "attributes": {
+                            "openclaw.context.message_count": 0,
+                            "openclaw.context.history_text_chars": 0,
+                            "openclaw.context.history_image_blocks": 0,
+                            "openclaw.context.max_message_text_chars": 0,
+                            "openclaw.context.system_prompt_chars": 7409,
+                            "openclaw.context.prompt_chars": 5040,
+                            "openclaw.context.prompt_images": 0,
+                            "openclaw.provider": "github-copilot",
+                            "openclaw.model": "gpt-5.5",
+                            "openclaw.channel": "webchat",
+                            "openclaw.trigger": "manual",
+                            "openclaw.context.token_budget": 1000000,
+                            "openclaw.context.reserve_tokens": 100000
+                          },
+                          "status": {},
+                          "resource": {
+                            "host.name": "cael",
+                            "host.arch": "arm64",
+                            "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                            "process.pid": 2314233,
+                            "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                            "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                            "process.command_args": {
+                              "values": [
+                                {
+                                  "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                                },
+                                {
+                                  "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                                },
+                                {
+                                  "stringValue": "gateway"
+                                },
+                                {
+                                  "stringValue": "--port"
+                                },
+                                {
+                                  "stringValue": "18789"
+                                }
+                              ]
+                            },
+                            "process.runtime.version": "25.9.0",
+                            "process.runtime.name": "nodejs",
+                            "process.runtime.description": "Node.js",
+                            "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                            "process.owner": "figs",
+                            "service.name": "cael-prince"
+                          },
+                          "scope": {
+                            "name": "openclaw"
+                          },
+                          "children": []
+                        },
+                        {
+                          "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                          "spanId": "TaL31R+yQXw=",
+                          "parentSpanId": "xpH5xpTv/P0=",
+                          "name": "openclaw.model.call",
+                          "kind": "SPAN_KIND_INTERNAL",
+                          "startTimeUnixNano": "1783192170553000000",
+                          "endTimeUnixNano": "1783192174173000000",
+                          "durationNs": "3620000000",
+                          "attributes": {
+                            "openclaw.provider": "github-copilot",
+                            "openclaw.model": "gpt-5.5",
+                            "gen_ai.system": "github-copilot",
+                            "gen_ai.request.model": "gpt-5.5",
+                            "gen_ai.operation.name": "chat",
+                            "openclaw.api": "openai-responses",
+                            "openclaw.transport": "auto",
+                            "openclaw.model_call.prompt.input_messages_count": 1,
+                            "openclaw.model_call.prompt.input_messages_chars": 5192,
+                            "openclaw.model_call.prompt.system_prompt_chars": 7409,
+                            "openclaw.model_call.prompt.tool_definitions_count": 2,
+                            "openclaw.model_call.prompt.tool_definitions_chars": 1490,
+                            "openclaw.model_call.prompt.total_chars": 14091,
+                            "openclaw.model_call.request_bytes": 14388,
+                            "openclaw.model_call.response_bytes": 3164,
+                            "openclaw.model_call.time_to_first_byte_ms": 1821,
+                            "openclaw.model_call.usage.input_tokens": 3000,
+                            "openclaw.model_call.usage.output_tokens": 152,
+                            "openclaw.model_call.usage.prompt_tokens": 3000,
+                            "openclaw.model_call.usage.total_tokens": 3152,
+                            "gen_ai.usage.input_tokens": 3000,
+                            "gen_ai.usage.output_tokens": 152
+                          },
+                          "status": {},
+                          "resource": {
+                            "host.name": "cael",
+                            "host.arch": "arm64",
+                            "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                            "process.pid": 2314233,
+                            "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                            "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                            "process.command_args": {
+                              "values": [
+                                {
+                                  "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                                },
+                                {
+                                  "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                                },
+                                {
+                                  "stringValue": "gateway"
+                                },
+                                {
+                                  "stringValue": "--port"
+                                },
+                                {
+                                  "stringValue": "18789"
+                                }
+                              ]
+                            },
+                            "process.runtime.version": "25.9.0",
+                            "process.runtime.name": "nodejs",
+                            "process.runtime.description": "Node.js",
+                            "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                            "process.owner": "figs",
+                            "service.name": "cael-prince"
+                          },
+                          "scope": {
+                            "name": "openclaw"
+                          },
+                          "children": []
+                        },
+                        {
+                          "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                          "spanId": "55rNa+Y2Fjw=",
+                          "parentSpanId": "xpH5xpTv/P0=",
+                          "name": "openclaw.tool.execution",
+                          "kind": "SPAN_KIND_INTERNAL",
+                          "startTimeUnixNano": "1783192174188000000",
+                          "endTimeUnixNano": "1783192177936000000",
+                          "durationNs": "3748000000",
+                          "attributes": {
+                            "openclaw.toolName": "memory_search",
+                            "openclaw.tool.source": "plugin",
+                            "gen_ai.tool.name": "memory_search",
+                            "openclaw.tool.owner": "memory-core",
+                            "openclaw.tool.params.kind": "object"
+                          },
+                          "status": {},
+                          "resource": {
+                            "host.name": "cael",
+                            "host.arch": "arm64",
+                            "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                            "process.pid": 2314233,
+                            "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                            "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                            "process.command_args": {
+                              "values": [
+                                {
+                                  "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                                },
+                                {
+                                  "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                                },
+                                {
+                                  "stringValue": "gateway"
+                                },
+                                {
+                                  "stringValue": "--port"
+                                },
+                                {
+                                  "stringValue": "18789"
+                                }
+                              ]
+                            },
+                            "process.runtime.version": "25.9.0",
+                            "process.runtime.name": "nodejs",
+                            "process.runtime.description": "Node.js",
+                            "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                            "process.owner": "figs",
+                            "service.name": "cael-prince"
+                          },
+                          "scope": {
+                            "name": "openclaw"
+                          },
+                          "children": []
+                        },
+                        {
+                          "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                          "spanId": "Qc7OkhktkKo=",
+                          "parentSpanId": "xpH5xpTv/P0=",
+                          "name": "openclaw.model.call",
+                          "kind": "SPAN_KIND_INTERNAL",
+                          "startTimeUnixNano": "1783192177968000000",
+                          "endTimeUnixNano": "1783192179134000000",
+                          "durationNs": "1166000000",
+                          "attributes": {
+                            "openclaw.provider": "github-copilot",
+                            "openclaw.model": "gpt-5.5",
+                            "gen_ai.system": "github-copilot",
+                            "gen_ai.request.model": "gpt-5.5",
+                            "gen_ai.operation.name": "chat",
+                            "openclaw.api": "openai-responses",
+                            "openclaw.transport": "auto",
+                            "openclaw.model_call.prompt.input_messages_count": 3,
+                            "openclaw.model_call.prompt.input_messages_chars": 13905,
+                            "openclaw.model_call.prompt.system_prompt_chars": 7409,
+                            "openclaw.model_call.prompt.tool_definitions_count": 2,
+                            "openclaw.model_call.prompt.tool_definitions_chars": 1490,
+                            "openclaw.model_call.prompt.total_chars": 22804,
+                            "openclaw.model_call.request_bytes": 21041,
+                            "openclaw.model_call.response_bytes": 1385,
+                            "openclaw.model_call.time_to_first_byte_ms": 1079,
+                            "openclaw.model_call.usage.input_tokens": 2553,
+                            "openclaw.model_call.usage.output_tokens": 5,
+                            "openclaw.model_call.usage.cache_read_input_tokens": 2560,
+                            "openclaw.model_call.usage.prompt_tokens": 5113,
+                            "openclaw.model_call.usage.total_tokens": 5118,
+                            "gen_ai.usage.input_tokens": 5113,
+                            "gen_ai.usage.output_tokens": 5,
+                            "gen_ai.usage.cache_read.input_tokens": 2560
+                          },
+                          "status": {},
+                          "resource": {
+                            "host.name": "cael",
+                            "host.arch": "arm64",
+                            "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                            "process.pid": 2314233,
+                            "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                            "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                            "process.command_args": {
+                              "values": [
+                                {
+                                  "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                                },
+                                {
+                                  "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                                },
+                                {
+                                  "stringValue": "gateway"
+                                },
+                                {
+                                  "stringValue": "--port"
+                                },
+                                {
+                                  "stringValue": "18789"
+                                }
+                              ]
+                            },
+                            "process.runtime.version": "25.9.0",
+                            "process.runtime.name": "nodejs",
+                            "process.runtime.description": "Node.js",
+                            "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                            "process.owner": "figs",
+                            "service.name": "cael-prince"
+                          },
+                          "scope": {
+                            "name": "openclaw"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+          "spanId": "kpgHxLEOcU8=",
+          "parentSpanId": "NWm2yWmAnA4=",
+          "name": "continuation.queue.fanout",
+          "kind": "SPAN_KIND_INTERNAL",
+          "startTimeUnixNano": "1783192186540000000",
+          "endTimeUnixNano": "1783192186540027392",
+          "durationNs": "27392",
+          "attributes": {
+            "fanout.recipient_count": 1,
+            "fanout.delivered_count": 1,
+            "fanout.recipient.session_key_hashes": {
+              "values": [
+                {
+                  "stringValue": "0fe728af042a"
+                }
+              ]
+            },
+            "fanout.recipient.outcomes": {
+              "values": [
+                {
+                  "stringValue": "delivered"
+                }
+              ]
+            },
+            "fanout.mode": "tree",
+            "chain.step.remaining": 198
+          },
+          "status": {
+            "code": "STATUS_CODE_OK"
+          },
+          "resource": {
+            "host.name": "cael",
+            "host.arch": "arm64",
+            "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+            "process.pid": 2314233,
+            "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.command_args": {
+              "values": [
+                {
+                  "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                },
+                {
+                  "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                },
+                {
+                  "stringValue": "gateway"
+                },
+                {
+                  "stringValue": "--port"
+                },
+                {
+                  "stringValue": "18789"
+                }
+              ]
+            },
+            "process.runtime.version": "25.9.0",
+            "process.runtime.name": "nodejs",
+            "process.runtime.description": "Node.js",
+            "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+            "process.owner": "figs",
+            "service.name": "cael-prince"
+          },
+          "scope": {
+            "name": "openclaw.continuation"
+          },
+          "children": []
+        },
+        {
+          "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+          "spanId": "wwb3wWHoKic=",
+          "parentSpanId": "NWm2yWmAnA4=",
+          "name": "continuation.queue.drain",
+          "kind": "SPAN_KIND_INTERNAL",
+          "startTimeUnixNano": "1783192200953000000",
+          "endTimeUnixNano": "1783192200953013120",
+          "durationNs": "13120",
+          "attributes": {
+            "queue.drained_count": 2,
+            "queue.drained_continuation_count": 1
+          },
+          "status": {
+            "code": "STATUS_CODE_OK"
+          },
+          "resource": {
+            "host.name": "cael",
+            "host.arch": "arm64",
+            "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+            "process.pid": 2314233,
+            "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.command_args": {
+              "values": [
+                {
+                  "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                },
+                {
+                  "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                },
+                {
+                  "stringValue": "gateway"
+                },
+                {
+                  "stringValue": "--port"
+                },
+                {
+                  "stringValue": "18789"
+                }
+              ]
+            },
+            "process.runtime.version": "25.9.0",
+            "process.runtime.name": "nodejs",
+            "process.runtime.description": "Node.js",
+            "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+            "process.owner": "figs",
+            "service.name": "cael-prince"
+          },
+          "scope": {
+            "name": "openclaw.continuation"
+          },
+          "children": []
+        },
+        {
+          "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+          "spanId": "Xdn5NNHW1p4=",
+          "parentSpanId": "NWm2yWmAnA4=",
+          "name": "openclaw.model.usage",
+          "kind": "SPAN_KIND_INTERNAL",
+          "startTimeUnixNano": "1783192200960000000",
+          "endTimeUnixNano": "1783192205295000000",
+          "durationNs": "4335000000",
+          "attributes": {
+            "openclaw.channel": "heartbeat",
+            "openclaw.agent": "main",
+            "openclaw.provider": "github-copilot",
+            "openclaw.model": "gpt-5.5",
+            "openclaw.tokens.input": 73178,
+            "openclaw.tokens.output": 9,
+            "openclaw.tokens.cache_read": 64512,
+            "openclaw.tokens.cache_write": 0,
+            "openclaw.tokens.total": 137699,
+            "gen_ai.system": "github-copilot",
+            "gen_ai.request.model": "gpt-5.5",
+            "gen_ai.operation.name": "chat",
+            "gen_ai.usage.input_tokens": 137690,
+            "gen_ai.usage.output_tokens": 9,
+            "gen_ai.usage.cache_read.input_tokens": 64512
+          },
+          "status": {},
+          "resource": {
+            "host.name": "cael",
+            "host.arch": "arm64",
+            "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+            "process.pid": 2314233,
+            "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.command_args": {
+              "values": [
+                {
+                  "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                },
+                {
+                  "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                },
+                {
+                  "stringValue": "gateway"
+                },
+                {
+                  "stringValue": "--port"
+                },
+                {
+                  "stringValue": "18789"
+                }
+              ]
+            },
+            "process.runtime.version": "25.9.0",
+            "process.runtime.name": "nodejs",
+            "process.runtime.description": "Node.js",
+            "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+            "process.owner": "figs",
+            "service.name": "cael-prince"
+          },
+          "scope": {
+            "name": "openclaw"
+          },
+          "children": []
+        },
+        {
+          "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+          "spanId": "5/Nuil3Ou7c=",
+          "parentSpanId": "NWm2yWmAnA4=",
+          "name": "openclaw.harness.run",
+          "kind": "SPAN_KIND_INTERNAL",
+          "startTimeUnixNano": "1783192201029000000",
+          "endTimeUnixNano": "1783192205240000000",
+          "durationNs": "4211000000",
+          "attributes": {
+            "openclaw.harness.id": "openclaw",
+            "openclaw.harness.plugin": "unknown",
+            "openclaw.provider": "github-copilot",
+            "openclaw.model": "gpt-5.5",
+            "openclaw.channel": "discord",
+            "openclaw.outcome": "completed",
+            "openclaw.harness.items.started": 0,
+            "openclaw.harness.items.completed": 0,
+            "openclaw.harness.items.active": 0
+          },
+          "status": {},
+          "resource": {
+            "host.name": "cael",
+            "host.arch": "arm64",
+            "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+            "process.pid": 2314233,
+            "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+            "process.command_args": {
+              "values": [
+                {
+                  "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                },
+                {
+                  "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                },
+                {
+                  "stringValue": "gateway"
+                },
+                {
+                  "stringValue": "--port"
+                },
+                {
+                  "stringValue": "18789"
+                }
+              ]
+            },
+            "process.runtime.version": "25.9.0",
+            "process.runtime.name": "nodejs",
+            "process.runtime.description": "Node.js",
+            "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+            "process.owner": "figs",
+            "service.name": "cael-prince"
+          },
+          "scope": {
+            "name": "openclaw"
+          },
+          "children": [
+            {
+              "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+              "spanId": "iVEMZmvj634=",
+              "parentSpanId": "5/Nuil3Ou7c=",
+              "name": "openclaw.run",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783192201031000000",
+              "endTimeUnixNano": "1783192205239000000",
+              "durationNs": "4208000000",
+              "attributes": {
+                "openclaw.provider": "github-copilot",
+                "openclaw.model": "gpt-5.5",
+                "openclaw.channel": "discord",
+                "openclaw.trigger": "heartbeat",
+                "openclaw.outcome": "completed"
+              },
+              "status": {},
+              "resource": {
+                "host.name": "cael",
+                "host.arch": "arm64",
+                "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                "process.pid": 2314233,
+                "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                "process.command_args": {
+                  "values": [
+                    {
+                      "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                    },
+                    {
+                      "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                    },
+                    {
+                      "stringValue": "gateway"
+                    },
+                    {
+                      "stringValue": "--port"
+                    },
+                    {
+                      "stringValue": "18789"
+                    }
+                  ]
+                },
+                "process.runtime.version": "25.9.0",
+                "process.runtime.name": "nodejs",
+                "process.runtime.description": "Node.js",
+                "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                "process.owner": "figs",
+                "service.name": "cael-prince"
+              },
+              "scope": {
+                "name": "openclaw"
+              },
+              "children": [
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "QqVPQNPIlfU=",
+                  "parentSpanId": "iVEMZmvj634=",
+                  "name": "openclaw.context.assembled",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192201191000000",
+                  "endTimeUnixNano": "1783192201191000000",
+                  "durationNs": "0",
+                  "attributes": {
+                    "openclaw.context.message_count": 77,
+                    "openclaw.context.history_text_chars": 155271,
+                    "openclaw.context.history_image_blocks": 0,
+                    "openclaw.context.max_message_text_chars": 64000,
+                    "openclaw.context.system_prompt_chars": 209001,
+                    "openclaw.context.prompt_chars": 2696,
+                    "openclaw.context.prompt_images": 0,
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "openclaw.channel": "discord",
+                    "openclaw.trigger": "heartbeat",
+                    "openclaw.context.token_budget": 1000000,
+                    "openclaw.context.reserve_tokens": 100000
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                },
+                {
+                  "traceId": "DPF+oLfqt6XpmPalgee1vw==",
+                  "spanId": "BKINpMMOx4U=",
+                  "parentSpanId": "iVEMZmvj634=",
+                  "name": "openclaw.model.call",
+                  "kind": "SPAN_KIND_INTERNAL",
+                  "startTimeUnixNano": "1783192201237000000",
+                  "endTimeUnixNano": "1783192205028000000",
+                  "durationNs": "3791000000",
+                  "attributes": {
+                    "openclaw.provider": "github-copilot",
+                    "openclaw.model": "gpt-5.5",
+                    "gen_ai.system": "github-copilot",
+                    "gen_ai.request.model": "gpt-5.5",
+                    "gen_ai.operation.name": "chat",
+                    "openclaw.api": "openai-responses",
+                    "openclaw.transport": "auto",
+                    "openclaw.model_call.prompt.input_messages_count": 78,
+                    "openclaw.model_call.prompt.input_messages_chars": 286699,
+                    "openclaw.model_call.prompt.system_prompt_chars": 209001,
+                    "openclaw.model_call.prompt.tool_definitions_count": 47,
+                    "openclaw.model_call.prompt.tool_definitions_chars": 73043,
+                    "openclaw.model_call.prompt.total_chars": 568743,
+                    "openclaw.model_call.request_bytes": 534120,
+                    "openclaw.model_call.response_bytes": 1413,
+                    "openclaw.model_call.time_to_first_byte_ms": 3392,
+                    "openclaw.model_call.usage.input_tokens": 73178,
+                    "openclaw.model_call.usage.output_tokens": 9,
+                    "openclaw.model_call.usage.cache_read_input_tokens": 64512,
+                    "openclaw.model_call.usage.prompt_tokens": 137690,
+                    "openclaw.model_call.usage.total_tokens": 137699,
+                    "gen_ai.usage.input_tokens": 137690,
+                    "gen_ai.usage.output_tokens": 9,
+                    "gen_ai.usage.cache_read.input_tokens": 64512
+                  },
+                  "status": {},
+                  "resource": {
+                    "host.name": "cael",
+                    "host.arch": "arm64",
+                    "host.id": "be85162a2c4d4394891ae42692e8ddbc",
+                    "process.pid": 2314233,
+                    "process.executable.name": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.executable.path": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+                    "process.command_args": {
+                      "values": [
+                        {
+                          "stringValue": "/home/figs/.nvm/versions/node/v25.9.0/bin/node"
+                        },
+                        {
+                          "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                        },
+                        {
+                          "stringValue": "gateway"
+                        },
+                        {
+                          "stringValue": "--port"
+                        },
+                        {
+                          "stringValue": "18789"
+                        }
+                      ]
+                    },
+                    "process.runtime.version": "25.9.0",
+                    "process.runtime.name": "nodejs",
+                    "process.runtime.description": "Node.js",
+                    "process.command": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js",
+                    "process.owner": "figs",
+                    "service.name": "cael-prince"
+                  },
+                  "scope": {
+                    "name": "openclaw"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

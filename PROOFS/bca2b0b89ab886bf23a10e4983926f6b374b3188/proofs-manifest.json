@@ -6,18 +6,18 @@
   "build_string": "OpenClaw 2026.6.11 (bca2b0b)",
   "fire_type": "fresh-fire",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "generated": "2026-07-04T14:36:00Z",
+  "generated": "2026-07-04T15:20:24Z",
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
     "total_rows": 28,
-    "pass": 6,
+    "pass": 7,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 22
+    "missing": 21
   },
-  "notes": "IN-PROGRESS corpus. R-CW-DELEGATE-CHILD-LIVE added as a live normal-delegate child self-continuation proof; remaining rows stay missing until row-specific evidence and Tempo JSON are captured.",
+  "notes": "IN-PROGRESS corpus. R-CW-MULTI-COLLAPSE added as a synthetic DB-seeded stale/new same-session continuation collapse proof; hop 101/102 are caveated as synthetic metadata, not chain-depth evidence. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
   "rows": [
     {
       "row": "R-RC-1",
@@ -70,11 +70,38 @@
     },
     {
       "row": "R-CW-MULTI-COLLAPSE",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/216",
-      "traces": [],
-      "supporting_docs": []
+      "traces": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-trace-work-fire-fcfddd0996c2d28125c99e9f7b52ad90.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-trace-work-fire-e6f5f835cea3a3568b183f4675d44a60.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-trace-queue-drain-a091817cb7a9e86e723d52ca6b3a575d.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-trace-queue-drain-68d165c2ad88458bebe39c5d5f799032.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-trace-queue-drain-7d0e3c49b867074fd873023a16224eec.json"
+      ],
+      "supporting_docs": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/EVIDENCE.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/config-active-lowered-file.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/config-original-before-rerun3.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/config-restored-active-file.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/final-queued-running.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/final-terminal-sqlite.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/flow-runs-final.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/insert-vars.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/journal-continuation-window.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/post-insert-sqlite.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/restart-runs-drive-complete.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/restart-runs-lower-complete.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/restart-runs-restore-complete.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/restore-verified-sha256.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-attribute-receipt.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-search-late/matching-traces.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-search/matching-traces.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/version-status.txt"
+      ],
+      "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI-COLLAPSE/cael-dgx/EVIDENCE.md",
+      "note": "synthetic DB-seeded stale/new same-session continuation rows: old rerun3 row superseded after 56186ms stale backlog; newest rerun3 row granted once durably. Journal has two newest work-wake lines because the restore restart interrupted the first wake before terminal durable grant; recovery replayed the still-not-terminal row and the second fire recorded the durable grant. Exact-chain Tempo work-fire/queue-drain JSON saved; hop 101/102 values are explicit synthetic metadata, not realistic chain-depth evidence."
     },
     {
       "row": "R-CD-COLLECTION-ON-COLLAPSE",

@@ -2,7 +2,7 @@
 
 Candidate: `OpenClaw 2026.6.11 (bca2b0b)` deployed to Cael.
 
-Status: **IN PROGRESS**. Current rollup: 6 pass / 22 missing. The proof board is populated in Project 83 from the prior Project 82 row template. Rows start as `missing` until Cael + frond-scribe agree the exact test form, fire the row, capture receipts, and attach the required Tempo JSON where applicable.
+Status: **IN PROGRESS**. Current rollup: 7 pass / 21 missing. The proof board is populated in Project 83 from the prior Project 82 row template. Rows start as `missing` until Cael + frond-scribe agree the exact test form, fire the row, capture receipts, and attach the required Tempo JSON where applicable.
 
 ## Deployment receipt
 
@@ -20,7 +20,7 @@ Status: **IN PROGRESS**. Current rollup: 6 pass / 22 missing. The proof board is
 | R-CW-DELEGATE-CHILD-LIVE | [#213](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/213) | pass |
 | R-TRACE-REDACTION-1121 | [#214](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/214) | pass |
 | R-CD-CHAINED-DEPTH-2 | [#215](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/215) | missing |
-| R-CW-MULTI-COLLAPSE | [#216](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/216) | missing |
+| R-CW-MULTI-COLLAPSE | [#216](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/216) | pass |
 | R-CD-COLLECTION-ON-COLLAPSE | [#217](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/217) | missing |
 | R-CD-1 | [#218](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/218) | missing |
 | R-CW-6 | [#219](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/219) | missing |
@@ -28,7 +28,7 @@ Status: **IN PROGRESS**. Current rollup: 6 pass / 22 missing. The proof board is
 | R-CW-DELEGATE-TOKEN | [#221](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/221) | missing |
 | R-CW-DELEGATE-SELF-CONTINUATION | [#222](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/222) | missing |
 | R-CD-2 | [#223](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/223) | missing |
-| R-CD-SILENT | [#224](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/224) | missing |
+| R-CD-SILENT | [#224](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/224) | pass |
 | R-CD-4 | [#225](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/225) | missing |
 | R-CONFIG-DEFAULTS | [#226](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/226) | pass |
 | R-CONFIG-INTERSESSION | [#227](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/227) | pass |
@@ -48,3 +48,8 @@ Status: **IN PROGRESS**. Current rollup: 6 pass / 22 missing. The proof board is
 ## Required evidence form
 
 Before a row is fired, Cael + frond-scribe agree the exact test form and expected byte. A row can only advance from `missing` after its evidence directory contains row-specific receipts. Continuation/delegate/compaction rows require machine-readable Tempo trace JSON, not screenshots alone.
+
+### R-CW-MULTI-COLLAPSE caveat
+
+`R-CW-MULTI-COLLAPSE` is a synthetic DB-seeded proof. Its `hop:101/102` values are not realistic chain-depth evidence; they are explicit row metadata carried through the wake banner. The row claims only stale-old-row supersession, newest-row grant, terminal durable state, and byte-identical config restore.
+

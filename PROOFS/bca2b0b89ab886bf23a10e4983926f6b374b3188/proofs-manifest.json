@@ -6,18 +6,18 @@
   "build_string": "OpenClaw 2026.6.11 (bca2b0b)",
   "fire_type": "fresh-fire",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "generated": "2026-07-04T17:13:00Z",
+  "generated": "2026-07-04T17:18:00Z",
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
     "total_rows": 28,
-    "pass": 13,
+    "pass": 14,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 14
+    "missing": 13
   },
-  "notes": "IN-PROGRESS corpus. R-CW-1 added as PASS: typed continue_work() scheduled same-session work, persisted a flow row, emitted continuation.work / continuation.work.fire spans, and granted the wake. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
+  "notes": "IN-PROGRESS corpus. R-CW-2 added as PASS: typed continue_work(delaySeconds=0) scheduled immediate same-session work, persisted a flow row, emitted delay.ms=0 continuation.work / continuation.work.fire spans, and granted the wake with chain counter hop 1/200. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
   "rows": [
     {
       "row": "R-RC-1",
@@ -250,11 +250,26 @@
     },
     {
       "row": "R-CW-2",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-2/",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/230",
-      "traces": [],
-      "supporting_docs": []
+      "traces": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-2/cael-dgx/tempo/trace-source-work-92f2a184a3dfce5fcf6f3ffccadce14c.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-2/cael-dgx/tempo/trace-work-fire-9143f2730f7add73f5d972d71c848bcc.json"
+      ],
+      "supporting_docs": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-2/cael-dgx/EVIDENCE.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-2/cael-dgx/source-tool-receipt.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-2/cael-dgx/wake-receipt.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-2/cael-dgx/flow-runs.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-2/cael-dgx/journal-work-lines.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-2/cael-dgx/discord-wake-note-receipt.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-2/cael-dgx/tempo/trace-source-work-summary.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-2/cael-dgx/tempo/trace-work-fire-summary.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-2/cael-dgx/version.txt"
+      ],
+      "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-2/cael-dgx/EVIDENCE.md",
+      "note": "PASS: typed continue_work(delaySeconds=0) flow e2683c8c-1d4b-44c2-974d-95f03d1ef47b scheduled an immediate same-session wake, emitted delay.ms=0 continuation.work and continuation.work.fire spans, and granted hop 1/200 on chain 85f98bf9-b9c3-493a-b8e2-2a21c6d557a5."
     },
     {
       "row": "R-CW-3",

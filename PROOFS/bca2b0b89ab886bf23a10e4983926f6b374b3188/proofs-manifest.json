@@ -6,18 +6,18 @@
   "build_string": "OpenClaw 2026.6.11 (bca2b0b)",
   "fire_type": "fresh-fire",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "generated": "2026-07-04T18:12:00Z",
+  "generated": "2026-07-04T18:21:00Z",
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
     "total_rows": 28,
-    "pass": 19,
+    "pass": 20,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 8
+    "missing": 7
   },
-  "notes": "IN-PROGRESS corpus. R-CD-4 added as PASS (guard-side): continue_delegate rejects fanoutMode combined with targetSessionKey before enqueue/spawn; no matching TaskFlow row or recent child observed. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
+  "notes": "IN-PROGRESS corpus. R-CW-DELEGATE-SELF-CONTINUATION added as PASS for functional parent delegate + child self-continuation behavior; mirrored TaskFlow child-row provenance anomaly filed as karmaterminal/openclaw#1162. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
   "rows": [
     {
       "row": "R-RC-1",
@@ -159,11 +159,27 @@
     },
     {
       "row": "R-CW-DELEGATE-SELF-CONTINUATION",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-SELF-CONTINUATION/",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/222",
-      "traces": [],
-      "supporting_docs": []
+      "traces": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/tempo/trace-d541625dba5c25046db540055076910f.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/tempo/trace-6e355cbe092521b91dca3cf594610b01.json"
+      ],
+      "supporting_docs": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/EVIDENCE.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/delegate-tool-receipt.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/subagent-list-recent.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/subagent-history-excerpt.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/flow-runs-matching-full.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/journal-continuation-excerpt.log",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/runtime-issue/openclaw-issue-1162.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/runtime-issue/runtime-issue-1162-body.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/tempo/candidate-traces.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/source/source-sha.txt"
+      ],
+      "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/EVIDENCE.md",
+      "note": "PASS functional path: parent silent-wake delegate spawned child; child continue_work delivered hop 1/200 and returned sentinel. Mirrored TaskFlow row anomaly filed as openclaw#1162."
     },
     {
       "row": "R-CD-2",

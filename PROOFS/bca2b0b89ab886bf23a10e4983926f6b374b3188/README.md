@@ -2,7 +2,7 @@
 
 Candidate: `OpenClaw 2026.6.11 (bca2b0b)` deployed to Cael.
 
-Status: **IN PROGRESS**. Current rollup: 20 pass / 1 honest_limit / 7 missing. The proof board is populated in Project 83 from the prior Project 82 row template. Rows start as `missing` until Cael + frond-scribe agree the exact test form, fire the row, capture receipts, and attach the required Tempo JSON where applicable.
+Status: **IN PROGRESS**. Current rollup: 21 pass / 1 honest_limit / 6 missing. The proof board is populated in Project 83 from the prior Project 82 row template. Rows start as `missing` until Cael + frond-scribe agree the exact test form, fire the row, capture receipts, and attach the required Tempo JSON where applicable.
 
 ## Deployment receipt
 
@@ -25,7 +25,7 @@ Status: **IN PROGRESS**. Current rollup: 20 pass / 1 honest_limit / 7 missing. T
 | R-CD-1 | [#218](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/218) | missing |
 | R-CW-6 | [#219](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/219) | missing |
 | R-CW-7 | [#220](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/220) | missing |
-| R-CW-DELEGATE-TOKEN | [#221](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/221) | missing |
+| R-CW-DELEGATE-TOKEN | [#221](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/221) | pass |
 | R-CW-DELEGATE-SELF-CONTINUATION | [#222](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/222) | pass |
 | R-CD-2 | [#223](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/223) | pass |
 | R-CD-SILENT | [#224](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/224) | pass |

@@ -6,18 +6,18 @@
   "build_string": "OpenClaw 2026.6.11 (bca2b0b)",
   "fire_type": "fresh-fire",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "generated": "2026-07-04T18:21:00Z",
+  "generated": "2026-07-04T18:42:00Z",
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
     "total_rows": 28,
-    "pass": 20,
+    "pass": 21,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 7
+    "missing": 6
   },
-  "notes": "IN-PROGRESS corpus. R-CW-DELEGATE-SELF-CONTINUATION added as PASS for functional parent delegate + child self-continuation behavior; mirrored TaskFlow child-row provenance anomaly filed as karmaterminal/openclaw#1162. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
+  "notes": "IN-PROGRESS corpus. R-CW-DELEGATE-TOKEN added as PASS: parent typed delegate spawned child; child bare CONTINUE_WORK:5 token parsed as bracket/work; real second child wake granted; sentinel returned. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
   "rows": [
     {
       "row": "R-RC-1",
@@ -151,11 +151,30 @@
     },
     {
       "row": "R-CW-DELEGATE-TOKEN",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/221",
-      "traces": [],
-      "supporting_docs": []
+      "traces": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/tempo/trace-a0ead7f17dd741d27224bd5e7d08b4e5.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/tempo/trace-782ef41852545ac6c8a89dcc35f2055.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/tempo/trace-5085205dfadcad4696b8c679af560386.json"
+      ],
+      "supporting_docs": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/EVIDENCE.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/child-transcript-tool-audit.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/comment-4883375511.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/delegate-tool-receipt.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/flow-runs-matching-full.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/journal-continuation-excerpt.log",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/journal-post-wake-excerpt.log",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/source/source-sha.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/subagent-history-excerpt.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/subagent-list-recent.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/tempo-child-tool-audit.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/tempo/candidate-traces.txt"
+      ],
+      "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-DELEGATE-TOKEN/cael-dgx/EVIDENCE.md",
+      "note": "PASS: child emitted bare CONTINUE_WORK:5 token; journal shows origin=bracket kind=work; child received real hop 1/200 wake and returned sentinel; no typed child continue_work tool call used."
     },
     {
       "row": "R-CW-DELEGATE-SELF-CONTINUATION",

@@ -6,18 +6,18 @@
   "build_string": "OpenClaw 2026.6.11 (bca2b0b)",
   "fire_type": "fresh-fire",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "generated": "2026-07-04T16:38:00Z",
+  "generated": "2026-07-04T17:07:00Z",
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
     "total_rows": 28,
-    "pass": 11,
+    "pass": 12,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 16
+    "missing": 15
   },
-  "notes": "IN-PROGRESS corpus. R-CD-TOKEN added as PASS: terminal bracket CONTINUE_DELEGATE fallback parsed as origin=bracket kind=delegate, spawned a subagent, and returned the requested sentinel. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
+  "notes": "IN-PROGRESS corpus. R-CD-2 added as PASS: typed continue_delegate(mode=silent-wake) spawned a child, returned the sentinel, delivered targeted back to parent, and woke/continued with returned context available. Remaining rows stay missing until row-specific evidence and Tempo JSON where applicable are captured.",
   "rows": [
     {
       "row": "R-RC-1",
@@ -153,11 +153,27 @@
     },
     {
       "row": "R-CD-2",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-2/",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/223",
-      "traces": [],
-      "supporting_docs": []
+      "traces": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-2/cael-dgx/tempo/trace-silent-wake-26e537f763d25d92d55b4d2014952344.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-2/cael-dgx/tempo/trace-parent-wake-followup-9035479ee03f052640a588613d21e33b.json"
+      ],
+      "supporting_docs": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-2/cael-dgx/EVIDENCE.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-2/cael-dgx/source-tool-receipt.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-2/cael-dgx/flow-runs.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-2/cael-dgx/task-runs.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-2/cael-dgx/parent-return-receipt.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-2/cael-dgx/child-trajectory-sentinel-excerpts.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-2/cael-dgx/journal-delegate-lines.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-2/cael-dgx/tempo/trace-silent-wake-summary.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-2/cael-dgx/tempo/trace-parent-wake-followup-summary.jsonl",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-2/cael-dgx/version.txt"
+      ],
+      "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-2/cael-dgx/EVIDENCE.md",
+      "note": "PASS: typed continue_delegate(mode=silent-wake) flow 2f59240d-6cc3-4aa1-a309-d0d92d50852a spawned child task e25656bd-e6a2-4092-8cb9-afa6c1ad280f; child returned RCD2_BCA2B0B_CAEL_20260704_0942_CHILD_SILENT_WAKE_RETURNED; targeted return delivered to parent session."
     },
     {
       "row": "R-CD-SILENT",

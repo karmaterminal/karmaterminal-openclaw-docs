@@ -9,15 +9,15 @@
   "generated": "2026-07-04T21:15:00Z",
   "generated_by": "frond-scribe (copilot)",
   "rollup": {
-    "total_rows": 28,
-    "pass": 26,
+    "total_rows": 29,
+    "pass": 27,
     "partial": 0,
     "thin": 1,
     "fail": 0,
     "honest_limit": 1,
     "missing": 0
   },
-  "notes": "COMPLETE corpus. R-CD-CHAINED-DEPTH-2 superseding rerun added as PASS: depth-1 used continue_work wake fallback after spawning depth-2, observed the leaf sentinel, then returned the final depth-1 proof sentinel to root/main. R-CD-COLLECTION-ON-COLLAPSE PASS; R-CW-7 remains THIN pending rewritten traceparent method; R-RC-2 remains honest_limit.",
+  "notes": "COMPLETE corpus. R-CD-CHAINED-DEPTH-2 superseding rerun added as PASS: depth-1 used continue_work wake fallback after spawning depth-2, observed the leaf sentinel, then returned the final depth-1 proof sentinel to root/main. R-CD-COLLECTION-ON-COLLAPSE PASS; R-CW-7 remains THIN pending rewritten traceparent method; R-RC-2 remains honest_limit. R-CD-RETURN-OVERLAP added as PASS-with-caveat for docs#246: both silent and silent-wake returns delivered to root in overlap/collapse window; no isolated wake-causality claim.",
   "rows": [
     {
       "row": "R-RC-1",
@@ -628,6 +628,25 @@
       ],
       "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CW-MULTI/cael-dgx/EVIDENCE.md",
       "note": "PASS for clarified observed fanout/collapse semantics: three typed continue_work elections in one turn produced three durable rows; A granted and emitted A_WAKE; B/C matured while A turn was active and folded-active, so no B_WAKE/C_WAKE invented. No product bug filed; docs#246 covers silent-return + waking-return overlap gap."
+    },
+    {
+      "row": "R-CD-RETURN-OVERLAP",
+      "state": "pass",
+      "dir": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-RETURN-OVERLAP/",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/246",
+      "traces": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-RETURN-OVERLAP/cael-dgx/tempo/trace-0d676f84623ebfe6499a324d039ee050.json"
+      ],
+      "supporting_docs": [
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-RETURN-OVERLAP/cael-dgx/EVIDENCE.md",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-RETURN-OVERLAP/cael-dgx/db/flow-rows-concise.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-RETURN-OVERLAP/cael-dgx/db/task-rows-concise.json",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-RETURN-OVERLAP/cael-dgx/journal/journal-filtered.log",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-RETURN-OVERLAP/cael-dgx/main/session-prefix-grep.txt",
+        "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-RETURN-OVERLAP/cael-dgx/source/source-receipt.txt"
+      ],
+      "evidence_doc": "PROOFS/bca2b0b89ab886bf23a10e4983926f6b374b3188/R-CD-RETURN-OVERLAP/cael-dgx/EVIDENCE.md",
+      "note": "PASS with wake-causality caveat: silent + silent-wake delegate returns both delivered to root in the overlap/collapse window; no lost silent return, no orphan, no duplicate wake storm, no invented child execution. Does not claim silent-wake was sole cause of an isolated fresh root generation because root was active/continuation work was in flight."
     }
   ]
 }

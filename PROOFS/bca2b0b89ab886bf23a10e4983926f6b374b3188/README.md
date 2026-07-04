@@ -2,7 +2,7 @@
 
 Candidate: `OpenClaw 2026.6.11 (bca2b0b)` deployed to Cael.
 
-Status: **COMPLETE**. Current rollup: 26 pass / 0 partial / 1 thin / 1 honest_limit / 0 missing. The proof board is populated in Project 83 from the prior Project 82 row template. Rows start as `missing` until Cael + frond-scribe agree the exact test form, fire the row, capture receipts, and attach the required Tempo JSON where applicable.
+Status: **COMPLETE + supplemental #246**. Current rollup: 27 pass / 0 partial / 1 thin / 1 honest_limit / 0 missing. The proof board is populated in Project 83 from the prior Project 82 row template. Rows start as `missing` until Cael + frond-scribe agree the exact test form, fire the row, capture receipts, and attach the required Tempo JSON where applicable.
 
 ## Deployment receipt
 
@@ -44,6 +44,7 @@ Status: **COMPLETE**. Current rollup: 26 pass / 0 partial / 1 thin / 1 honest_li
 | R-CW-TOKEN | [#237](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/237) | pass |
 | R-RC-2 | [#238](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/238) | honest_limit |
 | R-CW-MULTI | [#239](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/239) | pass |
+| R-CD-RETURN-OVERLAP | [#246](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/246) | pass |
 
 ## Required evidence form
 
@@ -61,3 +62,7 @@ Before a row is fired, Cael + frond-scribe agree the exact test form and expecte
 ### R-CD-CHAINED-DEPTH-2 superseding rerun
 
 `R-CD-CHAINED-DEPTH-2` is PASS after rerun `RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403`: root/main spawned depth-1; depth-1 spawned depth-2 with typed `continue_delegate(mode=silent-wake, fanoutMode=tree)`; depth-2 returned the leaf sentinel; depth-1 woke via its own `continue_work`, inspected the child result, and returned `RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403_DEPTH1_SAW_LEAF_AND_RETURNED` containing the observed leaf. The earlier partial attempt remains preserved for audit history.
+
+### R-CD-RETURN-OVERLAP supplemental receipt
+
+`R-CD-RETURN-OVERLAP` is PASS-with-caveat for fresh Cael live-fire `RCD_RETURN_OVERLAP_BCA2B0B_CAEL_20260704_1521`: a typed `continue_delegate(mode="silent", fanoutMode="tree")` and typed `continue_delegate(mode="silent-wake", fanoutMode="tree")` returned distinct markers to the same root window. Durable flow/task rows and journal receipts show both returns delivered to `agent:main:discord:channel:1466192485440164011`; no lost silent return, orphaned return, duplicate wake storm, or invented child execution was observed. Caveat: root was already active / continuation work was in flight, so this row does not claim the waking return was the sole cause of an isolated new generation; it documents the intended overlap/collapse collection behavior. Machine-readable Tempo JSON is saved under the row directory.

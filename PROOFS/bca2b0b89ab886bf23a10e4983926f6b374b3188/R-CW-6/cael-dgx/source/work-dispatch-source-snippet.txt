@@ -1,0 +1,103 @@
+  1070	    }
+  1071	  }
+  1072	  return { dispatched, failed, reaped };
+  1073	}
+  1074	
+  1075	export async function scheduleContinuationWork(params: {
+  1076	  sessionKey: string;
+  1077	  chainState: ChainState;
+  1078	  request: { delaySeconds: number; reason: string; traceparent?: string };
+  1079	  config: ContinuationRuntimeConfig;
+  1080	  parentRunId?: string;
+  1081	  originRunId?: string;
+  1082	  originTurnId?: string;
+  1083	  log?: (message: string) => void;
+  1084	}): Promise<{ scheduled: boolean; capped: boolean; chainState: ChainState }> {
+  1085	  const budgetCheck = checkContinuationBudget({
+  1086	    chainState: params.chainState,
+  1087	    config: params.config,
+  1088	    sessionKey: params.sessionKey,
+  1089	  });
+  1090	  if (budgetCheck) {
+  1091	    params.log?.(
+  1092	      `[continuation:work-rejected] ${budgetCheck} for ${params.sessionKey}: ${params.chainState.currentChainCount}/${params.config.maxChainLength}`,
+  1093	    );
+  1094	    return { scheduled: false, capped: true, chainState: params.chainState };
+  1095	  }
+  1096	
+  1097	  // #986 Guard 1: per-session concurrent pending-work cap. Orthogonal to the
+  1098	  // chain-depth cap above — this bounds how many undelivered wakes may coexist
+  1099	  // (the multi-continue_work flood foot-gun). Enforced at enqueue so a flood can
+  1100	  // never pile up beyond the cap regardless of chain depth. Treated as a cap
+  1101	  // (capped: true) so the batch ends early with partial-success preserved.
+  1102	  // Counts only QUEUED (future) wakes — not the currently-driving `running`
+  1103	  // flow — so a serial chain at maxPendingWork:1 can still schedule its own
+  1104	  // successor (the active wake is excluded; see queuedPendingWorkCount).
+  1105	  const pending = queuedPendingWorkCount(params.sessionKey);
+  1106	  if (pending >= params.config.maxPendingWork) {
+  1107	    params.log?.(
+  1108	      `[continuation:work-rejected] pending-capped for ${params.sessionKey}: ${pending}/${params.config.maxPendingWork}`,
+  1109	    );
+  1110	    return { scheduled: false, capped: true, chainState: params.chainState };
+  1111	  }
+  1112	
+  1113	  const hop = params.chainState.currentChainCount + 1;
+  1114	  const delayMs = clampDelayMs(params.request.delaySeconds * 1000, params.config);
+  1115	  const electedAt = Date.now();
+  1116	  const dueAt = electedAt + delayMs;
+  1117	  const nextState: ChainState = {
+  1118	    currentChainCount: hop,
+  1119	    chainStartedAt: params.chainState.chainStartedAt,
+  1120	    accumulatedChainTokens: params.chainState.accumulatedChainTokens,
+  1121	    ...(params.chainState.chainId ? { chainId: params.chainState.chainId } : {}),
+  1122	  };
+  1123	
+  1124	  // #1135/#1153: any continue_work captured while the electing turn is still
+  1125	  // active anchors to that turn's finalization, not the tool-call timestamp or a
+  1126	  // later unrelated turn. `reason` remains provenance/rate metadata, never an
+  1127	  // admission gate.
+  1128	  const { replyRunRegistry } = await importReplyRunRegistry();
+  1129	  const electingTurnActive = replyRunRegistry.isActive(params.sessionKey);
+  1130	  const recoveryHedgeAt = electedAt + params.config.maxDelayMs;
+  1131	  const idleRetry = electingTurnActive
+  1132	    ? ({
+  1133	        trigger: "reply-run-ended" as const,
+  1134	        reasonCategory: classifyContinuationWorkReason(params.request.reason),
+  1135	        armedAt: electedAt,
+  1136	      } satisfies PendingContinuationWork["idleRetry"])
+  1137	    : undefined;
+  1138	
+  1139	  const work: PendingContinuationWork = {
+  1140	    sessionKey: params.sessionKey,
+  1141	    hop,
+  1142	    delayMs,
+  1143	    electedAt,
+  1144	    // Anchor-pending work fires on the lifecycle event; dueAt is only the slow
+  1145	    // lost-event hedge until finalization computes the semantic dueAt.
+  1146	    dueAt: electingTurnActive ? recoveryHedgeAt : dueAt,
+  1147	    maxChainLength: params.config.maxChainLength,
+  1148	    chainStartedAt: params.chainState.chainStartedAt,
+  1149	    accumulatedChainTokens: params.chainState.accumulatedChainTokens,
+  1150	    ...(params.request.reason ? { reason: params.request.reason } : {}),
+  1151	    ...(params.parentRunId ? { parentRunId: params.parentRunId } : {}),
+  1152	    ...(params.chainState.chainId ? { chainId: params.chainState.chainId } : {}),
+  1153	    ...(params.request.traceparent ? { traceparent: params.request.traceparent } : {}),
+  1154	    ...(params.originRunId ? { originRunId: params.originRunId } : {}),
+  1155	    ...(params.originTurnId ? { originTurnId: params.originTurnId } : {}),
+  1156	    ...(electingTurnActive ? { anchorPending: true } : { anchorFinalizedAt: electedAt }),
+  1157	    ...(idleRetry ? { idleRetry } : {}),
+  1158	  };
+  1159	  const enqueued = enqueuePendingWork(work);
+  1160	  if (!enqueued) {
+  1161	    return { scheduled: false, capped: false, chainState: params.chainState };
+  1162	  }
+  1163	  emitContinuationWorkSpan({
+  1164	    chainId: params.chainState.chainId,
+  1165	    chainStepRemaining: params.config.maxChainLength - hop,
+  1166	    delayMs,
+  1167	    reason: params.request.reason,
+  1168	    traceparent: params.request.traceparent,
+  1169	    log: (message) => params.log?.(message),
+  1170	  });
+  1171	  if (electingTurnActive) {
+  1172	    params.log?.(

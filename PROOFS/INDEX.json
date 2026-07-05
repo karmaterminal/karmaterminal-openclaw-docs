@@ -1,12 +1,12 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "4a533db27cc867c0b04e2a904ae6a50297f30e04",
-  "current_sha_short": "4a533db",
-  "build_string": "OpenClaw 2026.6.11 (4a533db) — full copied post-plugin-SDK-budget-correction proof corpus; raw live-fire capture from bca2b0b; 11d7c63 was superseded by the wildcard budget-pin correction",
-  "corpus_path": "PROOFS/4a533db27cc867c0b04e2a904ae6a50297f30e04/",
-  "manifest_path": "PROOFS/4a533db27cc867c0b04e2a904ae6a50297f30e04/proofs-manifest.json",
-  "readme_path": "PROOFS/4a533db27cc867c0b04e2a904ae6a50297f30e04/README.md",
+  "current_sha": "f08ec7d2ca414f7965a9ddad8ec0bc97a2ad1d55",
+  "current_sha_short": "f08ec7d",
+  "build_string": "OpenClaw 2026.6.11 (f08ec7d) — full copied post-3f380 upstream-drift proof corpus; raw live-fire capture from bca2b0b; 4a533db was superseded by the Swift/UI upstream drift absorb",
+  "corpus_path": "PROOFS/f08ec7d2ca414f7965a9ddad8ec0bc97a2ad1d55/",
+  "manifest_path": "PROOFS/f08ec7d2ca414f7965a9ddad8ec0bc97a2ad1d55/proofs-manifest.json",
+  "readme_path": "PROOFS/f08ec7d2ca414f7965a9ddad8ec0bc97a2ad1d55/README.md",
   "rollup": {
     "total_rows": 29,
     "pass": 27,
@@ -16,10 +16,10 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "COMPLETE full copied transposed corpus for candidate 4a533db; raw row evidence was captured on bca2b0b and carried through 11d7c63. 11d7c63 exact-SHA fanout exposed a branch-owned plugin SDK wildcard budget pin mismatch; upstream/main passes the same plugin-sdk-surface-report test. The branch-owned fix advanced the safe assembly to 4a533db. Gate 2.7 exits 0 with no FROZEN-STALE.",
+  "disposition_note": "COMPLETE full copied transposed corpus for candidate f08ec7d; raw row evidence was captured on bca2b0b and carried through 4a533db. Fresh upstream/main advanced to 3f380635 and conflicted only in ChatMarkdownDisplayPreprocessorTests.swift; the safe assembly took upstream's Swift test shape because fenced/table handling moved to ChatMarkdownBlockSegmenter. f08ec7d passes the targeted plugin SDK, docs map, native i18n, and diff checks. Gate 2.7 exits 0 with no FROZEN-STALE.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
-  "capture_sha": "4a533db27cc867c0b04e2a904ae6a50297f30e04",
+  "capture_sha": "f08ec7d2ca414f7965a9ddad8ec0bc97a2ad1d55",
   "carried_from": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
-  "generated": "2026-07-05T18:37:46Z"
+  "generated": "2026-07-05T18:45:08Z"
 }

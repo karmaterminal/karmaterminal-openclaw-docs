@@ -1,0 +1,10 @@
+Jul 04 11:52:18 cael node[2314233]: 2026-07-04T11:52:18.770-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:18 cael node[2314233]: 2026-07-04T11:52:18.771-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:18 cael node[2314233]: 2026-07-04T11:52:18.812-07:00 [continuation:work-parked-on-turn-end] session=agent:main:discord:channel:1466192485440164011 hop=2 reasonCategory=follow-up-work
+Jul 04 11:52:18 cael node[2314233]: 2026-07-04T11:52:18.814-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-armed] trigger=reply-run-ended session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:18 cael node[2314233]: 2026-07-04T11:52:18.816-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=86399996ms fireAt=1783277538812 session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:18 cael node[2314233]: 2026-07-04T11:52:18.852-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-fired] trigger=reply-run-ended waitMs=38 session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:18 cael node[2314233]: 2026-07-04T11:52:18.857-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=14996ms fireAt=1783191153852 session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:33 cael node[2314233]: 2026-07-04T11:52:33.855-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:33 cael node[2314233]: 2026-07-04T11:52:33.873-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59985ms fireAt=1783191213857 session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:33 cael node[2314233]: 2026-07-04T11:52:33.874-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=2/200 session=agent:main:discord:channel:1466192485440164011 reasonCategory=follow-up-work

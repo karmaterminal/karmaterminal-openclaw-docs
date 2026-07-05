@@ -1,0 +1,2 @@
+bca2b0b89ab886bf23a10e4983926f6b374b3188:src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts:178:      "fanoutMode cannot be combined with targetSessionKey or targetSessionKeys.",
+bca2b0b89ab886bf23a10e4983926f6b374b3188:src/agents/tools/continue-delegate-tool.ts:188:          "fanoutMode cannot be combined with targetSessionKey or targetSessionKeys. " +

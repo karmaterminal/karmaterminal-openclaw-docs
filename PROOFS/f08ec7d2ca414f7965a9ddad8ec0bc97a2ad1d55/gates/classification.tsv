@@ -1,0 +1,355 @@
+class	dropped_lines	file	detail
+GENUINE	0	apps/shared/OpenClawKit/Sources/OpenClawKit/Resources/tool-display.json	-
+GENUINE	0	docs/.i18n/glossary.zh-CN.json	-
+SAFE-NEW	0	docs/design/continue-work-signal-v2.md	-
+GENUINE	0	docs/docs_map.md	-
+MIXED-CLOBBER	2	docs/tools/subagents.md	f7d7148cf04 docs: rewrite published docs grounded in curre
+MIXED-CLOBBER	1	docs/tools/thinking.md	2b75806197a feat: forward-port fast talks auto mode (#8510
+GENUINE	0	extensions/codex/harness.test.ts	-
+GENUINE	0	extensions/codex/provider.test.ts	-
+MIXED-CLOBBER	1	extensions/codex/src/app-server/dynamic-tools.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	extensions/copilot/src/compaction-bridge.ts	-
+GENUINE	0	extensions/diagnostics-otel/api.ts	-
+SAFE-NEW	0	extensions/diagnostics-otel/src/continuation-tracer-adapter.test.ts	-
+SAFE-NEW	0	extensions/diagnostics-otel/src/continuation-tracer-adapter.ts	-
+MIXED-CLOBBER	1	extensions/diagnostics-otel/src/service.test.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	6	extensions/diagnostics-otel/src/service.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	extensions/google-meet/src/oauth.test.ts	-
+MIXED-CLOBBER	1	extensions/google-meet/src/oauth.ts	38ab207591e fix(google-meet): fall back to manual OAuth pa
+GENUINE	0	extensions/imessage/src/monitor.watch-subscribe-retry.test.ts	-
+MIXED-CLOBBER	17	extensions/matrix/src/matrix/monitor/handler.test.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	1	extensions/mattermost/src/mattermost/slash-commands.ts	2b92706dcfa feat(mattermost): register /oc_queue as a nati
+GENUINE	0	extensions/ollama/provider-discovery.test.ts	-
+MIXED-CLOBBER	3	extensions/raft/src/accounts.ts	2b50bbf1526 feat(raft): add wake bridge channel
+GENUINE	0	extensions/raft/src/channel.ts	-
+MIXED-CLOBBER	8	extensions/raft/src/config-schema.ts	2b50bbf1526 feat(raft): add wake bridge channel
+MIXED-CLOBBER	18	extensions/raft/src/gateway.test.ts	2b50bbf1526 feat(raft): add wake bridge channel
+MIXED-CLOBBER	1	extensions/raft/src/setup.ts	2b50bbf1526 feat(raft): add wake bridge channel
+MIXED-CLOBBER	6	extensions/slack/src/monitor/message-handler/prepare.test.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	extensions/telegram/src/bot.create-telegram-bot.test-harness.ts	-
+GENUINE	0	extensions/telegram/src/bot.create-telegram-bot.test.ts	-
+GENUINE	0	extensions/voice-call/index.test.ts	-
+GENUINE	0	packages/agent-core/src/agent-loop.test.ts	-
+GENUINE	0	packages/agent-core/src/agent-loop.ts	-
+SAFE-NEW	0	packages/gateway-protocol/src/protocol-boundary.guard.test.ts	-
+GENUINE	0	packages/gateway-protocol/src/schema.ts	-
+SAFE-NEW	0	packages/gateway-protocol/src/schema/agent.schema.test.ts	-
+MIXED-CLOBBER	1	packages/gateway-protocol/src/schema/agent.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+SAFE-NEW	0	packages/gateway-protocol/src/schema/internal-fields.ts	-
+MIXED-CLOBBER	1	scripts/deadcode-unused-files.allowlist.mjs	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	scripts/lib/ci-node-test-plan.mjs	-
+GENUINE	0	scripts/lib/codex-app-server-protocol-source.ts	-
+MIXED-CLOBBER	5	scripts/plugin-sdk-surface-report.mjs	862de9f1a1c fix(pairing): advertise reachable Tailnet rout
+MIXED-CLOBBER	1	scripts/protocol-gen-swift.ts	adb9abe7215 chore(deadcode): collapse stale provider regis
+MIXED-CLOBBER	2	scripts/protocol-gen.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	2	src/agents/agent-hooks/compaction-safeguard.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/agents/agent-tools.policy.ts	-
+GENUINE	0	src/agents/agent-tools.ts	-
+GENUINE	0	src/agents/cli-runner/helpers.ts	-
+GENUINE	0	src/agents/command/attempt-execution.cli.test.ts	-
+SAFE-NEW	0	src/agents/command/attempt-execution.continue-work-opts.test.ts	-
+SAFE-NEW	0	src/agents/command/attempt-execution.continue-work-token.test.ts	-
+SAFE-NEW	0	src/agents/command/attempt-execution.request-compaction-opts.test.ts	-
+MIXED-CLOBBER	146	src/agents/command/attempt-execution.ts	adb9abe7215 chore(deadcode): collapse stale provider regis
+GENUINE	0	src/agents/command/types.ts	-
+SAFE-NEW	0	src/agents/compaction-attribution.test.ts	-
+SAFE-NEW	0	src/agents/compaction-attribution.ts	-
+GENUINE	0	src/agents/embedded-agent-runner/compact-reasons.test.ts	-
+MIXED-CLOBBER	2	src/agents/embedded-agent-runner/compact-reasons.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/agents/embedded-agent-runner/compact.hooks.harness.ts	-
+GENUINE	0	src/agents/embedded-agent-runner/compact.hooks.test.ts	-
+MIXED-CLOBBER	5	src/agents/embedded-agent-runner/compact.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	1	src/agents/embedded-agent-runner/compact.types.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+SAFE-NEW	0	src/agents/embedded-agent-runner/run.continuation-opts-forward.test.ts	-
+GENUINE	0	src/agents/embedded-agent-runner/run.overflow-compaction.harness.ts	-
+GENUINE	0	src/agents/embedded-agent-runner/run.overflow-compaction.loop.test.ts	-
+GENUINE	0	src/agents/embedded-agent-runner/run.ts	-
+GENUINE	0	src/agents/embedded-agent-runner/run/assistant-failover.ts	-
+GENUINE	0	src/agents/embedded-agent-runner/run/attempt-tool-construction-plan.ts	-
+GENUINE	0	src/agents/embedded-agent-runner/run/attempt.ts	-
+MIXED-CLOBBER	1	src/agents/embedded-agent-runner/run/failover-policy.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/agents/embedded-agent-runner/run/params.ts	-
+GENUINE	0	src/agents/embedded-agent-runner/system-prompt.ts	-
+MIXED-CLOBBER	1	src/agents/embedded-agent-subscribe.handlers.compaction.runtime.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	1	src/agents/embedded-agent-subscribe.handlers.compaction.test.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	6	src/agents/embedded-agent-subscribe.handlers.compaction.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	1	src/agents/embedded-agent-subscribe.tools.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+SAFE-NEW	0	src/agents/openclaw-tools.continuation-misconfig-warn.test.ts	-
+SAFE-NEW	0	src/agents/openclaw-tools.continuation-registration.test.ts	-
+MIXED-CLOBBER	1	src/agents/openclaw-tools.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/agents/sessions/agent-session.ts	-
+MIXED-CLOBBER	1	src/agents/shell-snapshot.test.ts	08b7fddf804 test: centralize shell snapshot env
+GENUINE	0	src/agents/shell-snapshot.ts	-
+GENUINE	0	src/agents/subagent-announce-delivery.ts	-
+SAFE-NEW	0	src/agents/subagent-announce.chain-guard.test.ts	-
+SAFE-NEW	0	src/agents/subagent-announce.continuation-drain.test.ts	-
+SAFE-NEW	0	src/agents/subagent-announce.continuation-parity-gate.test.ts	-
+SAFE-NEW	0	src/agents/subagent-announce.continuation-tool-delegate-commit.test.ts	-
+SAFE-NEW	0	src/agents/subagent-announce.continuation.runtime.test.ts	-
+SAFE-NEW	0	src/agents/subagent-announce.continuation.runtime.ts	-
+SAFE-NEW	0	src/agents/subagent-announce.continuation.test.ts	-
+SAFE-NEW	0	src/agents/subagent-announce.crosssession-gate.test.ts	-
+MIXED-CLOBBER	1	src/agents/subagent-announce.format.e2e.test.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+SAFE-NEW	0	src/agents/subagent-announce.postcompaction-route.test.ts	-
+GENUINE	0	src/agents/subagent-announce.registry.runtime.ts	-
+MIXED-CLOBBER	1	src/agents/subagent-announce.runtime.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+SAFE-NEW	0	src/agents/subagent-announce.self-continuation.test.ts	-
+SAFE-NEW	0	src/agents/subagent-announce.silent-wake.test.ts	-
+SAFE-NEW	0	src/agents/subagent-announce.spawn-reject-obs.test.ts	-
+SAFE-NEW	0	src/agents/subagent-announce.targeted-return.integration.test.ts	-
+GENUINE	0	src/agents/subagent-announce.test-support.ts	-
+MIXED-CLOBBER	2	src/agents/subagent-announce.test.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	1	src/agents/subagent-announce.timeout.test.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	29	src/agents/subagent-announce.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+SAFE-NEW	0	src/agents/subagent-continuation-ids.ts	-
+GENUINE	0	src/agents/subagent-registry-announce-read.ts	-
+GENUINE	0	src/agents/subagent-registry-lifecycle.test.ts	-
+MIXED-CLOBBER	1	src/agents/subagent-registry-lifecycle.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	1	src/agents/subagent-registry-queries.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/agents/subagent-registry-read.ts	-
+MIXED-CLOBBER	2	src/agents/subagent-registry-run-manager.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/agents/subagent-registry-runtime.ts	-
+SAFE-NEW	0	src/agents/subagent-registry-spawn-runtime.ts	-
+GENUINE	0	src/agents/subagent-registry.lifecycle-retry-grace.e2e.test.ts	-
+GENUINE	0	src/agents/subagent-registry.persistence.test.ts	-
+GENUINE	0	src/agents/subagent-registry.test.ts	-
+MIXED-CLOBBER	1	src/agents/subagent-registry.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/agents/subagent-registry.types.ts	-
+GENUINE	0	src/agents/subagent-run-liveness.test.ts	-
+MIXED-CLOBBER	5	src/agents/subagent-run-liveness.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+SAFE-NEW	0	src/agents/subagent-session-cleanup.test.ts	-
+MIXED-CLOBBER	2	src/agents/subagent-session-cleanup.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/agents/subagent-spawn.model-session.test.ts	-
+MIXED-CLOBBER	3	src/agents/subagent-spawn.test-helpers.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	1	src/agents/subagent-spawn.test.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	7	src/agents/subagent-spawn.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/agents/subagent-system-prompt.ts	-
+SAFE-NEW	0	src/agents/subagent-traceparent-handoff.ts	-
+SAFE-NEW	0	src/agents/system-prompt.continuation.test.ts	-
+GENUINE	0	src/agents/system-prompt.test.ts	-
+GENUINE	0	src/agents/system-prompt.ts	-
+GENUINE	0	src/agents/tool-display-config.ts	-
+GENUINE	0	src/agents/tools-effective-inventory.test.ts	-
+GENUINE	0	src/agents/tools-effective-inventory.ts	-
+SAFE-NEW	0	src/agents/tools/continuation-inventory-opts.test.ts	-
+SAFE-NEW	0	src/agents/tools/continuation-inventory-opts.ts	-
+SAFE-NEW	0	src/agents/tools/continuation-tools-registration.test.ts	-
+SAFE-NEW	0	src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts	-
+SAFE-NEW	0	src/agents/tools/continue-delegate-tool.test.ts	-
+SAFE-NEW	0	src/agents/tools/continue-delegate-tool.ts	-
+SAFE-NEW	0	src/agents/tools/continue-work-tool.boundary.test.ts	-
+SAFE-NEW	0	src/agents/tools/continue-work-tool.test.ts	-
+SAFE-NEW	0	src/agents/tools/continue-work-tool.ts	-
+SAFE-NEW	0	src/agents/tools/request-compaction-tool.callsite-threading.test.ts	-
+SAFE-NEW	0	src/agents/tools/request-compaction-tool.classifier-emission.test.ts	-
+SAFE-NEW	0	src/agents/tools/request-compaction-tool.test.ts	-
+SAFE-NEW	0	src/agents/tools/request-compaction-tool.ts	-
+SAFE-NEW	0	src/agents/tools/request-compaction-tool.volitional-threading.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation-delegate-store.ordering.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation-delegate-store.post-compaction-substrate.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation-delegate-store.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation-delegate-store.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/config.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/config.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/context-pressure.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/context-pressure.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/continuation-return-delivery-dedupe-ack.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/cross-session-targeting.nonexistent-target.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/cross-session-targeting.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/delegate-dispatch-post-compaction.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/delegate-dispatch.fanout-error-isolation.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/delegate-dispatch.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/delegate-dispatch.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/delegate-mid-run-compaction-survival.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/delegate-store.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/delegate-store.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/delegate-turn-admission.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/lazy.runtime.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/leaf-key-orphan-empirical.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/nonexistent-target-session-delivery.race.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/post-compaction-durable-handoff.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/post-compaction-release.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/post-compaction-release.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/rfc-contract.scenario.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/scheduler.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/scheduler.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/signal.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/signal.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/state.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/state.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/targeting-pure.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/targeting.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/trace-context-propagation.integration.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/types.mode-shape.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/types.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/volatile-map-allowlist.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/work-dispatch.test.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/work-dispatch.ts	-
+SAFE-NEW	0	src/auto-reply/continuation/work-store.ts	-
+GENUINE	0	src/auto-reply/get-reply-options.types.ts	-
+SAFE-NEW	0	src/auto-reply/reply/agent-runner-execution.context-usage.test.ts	-
+SAFE-NEW	0	src/auto-reply/reply/agent-runner-execution.release-queued-compaction.test.ts	-
+GENUINE	0	src/auto-reply/reply/agent-runner-execution.test.ts	-
+MIXED-CLOBBER	21	src/auto-reply/reply/agent-runner-execution.ts	adb9abe7215 chore(deadcode): collapse stale provider regis
+GENUINE	0	src/auto-reply/reply/agent-runner-session-reset.ts	-
+SAFE-NEW	0	src/auto-reply/reply/agent-runner.continuation-delegate-fire-span.test.ts	-
+SAFE-NEW	0	src/auto-reply/reply/agent-runner.continuation-delegate-reject-obs.test.ts	-
+SAFE-NEW	0	src/auto-reply/reply/agent-runner.continuation-postcompaction-autocompaction.test.ts	-
+SAFE-NEW	0	src/auto-reply/reply/agent-runner.continuation-postcompaction-staging.test.ts	-
+SAFE-NEW	0	src/auto-reply/reply/agent-runner.continuation-span-uniformity.test.ts	-
+SAFE-NEW	0	src/auto-reply/reply/agent-runner.continuation-work-span.test.ts	-
+SAFE-NEW	0	src/auto-reply/reply/agent-runner.finally-drain-hardening.test.ts	-
+GENUINE	0	src/auto-reply/reply/agent-runner.misc.runreplyagent.test.ts	-
+MIXED-CLOBBER	132	src/auto-reply/reply/agent-runner.ts	adb9abe7215 chore(deadcode): collapse stale provider regis
+GENUINE	0	src/auto-reply/reply/commands-status.test.ts	-
+GENUINE	0	src/auto-reply/reply/commands-system-prompt.test.ts	-
+GENUINE	0	src/auto-reply/reply/commands-system-prompt.ts	-
+SAFE-NEW	0	src/auto-reply/reply/context-pressure.integration.test.ts	-
+SAFE-NEW	0	src/auto-reply/reply/context-pressure.test.ts	-
+SAFE-NEW	0	src/auto-reply/reply/cot-frame.test.ts	-
+SAFE-NEW	0	src/auto-reply/reply/cot-frame.ts	-
+GENUINE	0	src/auto-reply/reply/directive-handling.parse.ts	-
+GENUINE	0	src/auto-reply/reply/followup-runner.test.ts	-
+MIXED-CLOBBER	3	src/auto-reply/reply/followup-runner.ts	adb9abe7215 chore(deadcode): collapse stale provider regis
+MIXED-CLOBBER	1	src/auto-reply/reply/get-reply-run.media-only.test.ts	adb9abe7215 chore(deadcode): collapse stale provider regis
+GENUINE	0	src/auto-reply/reply/get-reply-run.ts	-
+GENUINE	0	src/auto-reply/reply/get-reply.before-agent-reply.test.ts	-
+MIXED-CLOBBER	3	src/auto-reply/reply/get-reply.ts	bd479958c04 feat(plugin-sdk): add extensible channel ident
+SAFE-NEW	0	src/auto-reply/reply/no-op-rearm-guard.test.ts	-
+SAFE-NEW	0	src/auto-reply/reply/no-op-rearm-guard.ts	-
+SAFE-NEW	0	src/auto-reply/reply/normalize-reply.cot-frame.test.ts	-
+GENUINE	0	src/auto-reply/reply/normalize-reply.ts	-
+SAFE-NEW	0	src/auto-reply/reply/post-compaction-context-failure.test.ts	-
+SAFE-NEW	0	src/auto-reply/reply/post-compaction-delegate-dispatch.test.ts	-
+SAFE-NEW	0	src/auto-reply/reply/post-compaction-delegate-dispatch.ts	-
+GENUINE	0	src/auto-reply/reply/queue.collect.test.ts	-
+GENUINE	0	src/auto-reply/reply/queue.test-helpers.ts	-
+GENUINE	0	src/auto-reply/reply/queue/drain.ts	-
+GENUINE	0	src/auto-reply/reply/queue/types.ts	-
+GENUINE	0	src/auto-reply/reply/reply-state.test.ts	-
+SAFE-NEW	0	src/auto-reply/reply/run-provenance.test.ts	-
+SAFE-NEW	0	src/auto-reply/reply/run-provenance.ts	-
+SAFE-NEW	0	src/auto-reply/reply/session-system-events.test.ts	-
+MIXED-CLOBBER	8	src/auto-reply/reply/session-system-events.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+SAFE-NEW	0	src/auto-reply/reply/session-updates.compaction.test.ts	-
+MIXED-CLOBBER	2	src/auto-reply/reply/session-updates.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/auto-reply/reply/session.test.ts	-
+GENUINE	0	src/auto-reply/status.test.ts	-
+SAFE-NEW	0	src/auto-reply/tokens.continuation.test.ts	-
+MIXED-CLOBBER	8	src/auto-reply/tokens.test.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/auto-reply/tokens.ts	-
+GENUINE	0	src/auto-reply/types.ts	-
+GENUINE	0	src/cli/config-cli.test.ts	-
+GENUINE	0	src/cli/daemon-cli/install.integration.test.ts	-
+GENUINE	0	src/cli/daemon-cli/install.test.ts	-
+GENUINE	0	src/cli/daemon-cli/lifecycle-core.config-guard.test.ts	-
+MIXED-CLOBBER	4	src/cli/gateway-cli/run.option-collisions.test.ts	bbb744269fc test: make the local pnpm test gate green on m
+MIXED-CLOBBER	1	src/cli/logs-cli.test.ts	bd5bf4820ab fix(cli): retry logs.tail after journal fallba
+GENUINE	0	src/cli/program/register.agent.test.ts	-
+GENUINE	0	src/cli/update-cli.test.ts	-
+MIXED-CLOBBER	4	src/commands/configure.commands.ts	105a30b5a50 fix(config): fail closed when configure runs w
+GENUINE	0	src/commands/doctor/shared/active-tool-schema-warnings.ts	-
+GENUINE	0	src/commands/status-overview-rows.ts	-
+GENUINE	0	src/commands/status.command-report-data.ts	-
+SAFE-NEW	0	src/commands/status.continuation-banner.test.ts	-
+GENUINE	0	src/config/config.agent-concurrency-defaults.test.ts	-
+MIXED-CLOBBER	1	src/config/sessions/artifacts.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/config/sessions/entry-freshness.test.ts	-
+GENUINE	0	src/config/sessions/session-accessor.ts	-
+SAFE-NEW	0	src/config/sessions/store.continuation-merge.test.ts	-
+MIXED-CLOBBER	2	src/config/sessions/types.ts	adb9abe7215 chore(deadcode): collapse stale provider regis
+GENUINE	0	src/config/types.agent-defaults.ts	-
+MIXED-CLOBBER	2	src/config/zod-schema.agent-defaults.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+SAFE-NEW	0	src/config/zod-schema.continuation.test.ts	-
+GENUINE	0	src/flows/doctor-core-checks.runtime.ts	-
+GENUINE	0	src/gateway/config-reload.test.ts	-
+SAFE-NEW	0	src/gateway/mcp-http.runtime.test.ts	-
+MIXED-CLOBBER	1	src/gateway/mcp-http.runtime.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/gateway/mcp-http.test.ts	-
+GENUINE	0	src/gateway/server-methods/agent.test.ts	-
+MIXED-CLOBBER	2	src/gateway/server-methods/agent.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/gateway/server-methods/sessions.ts	-
+MIXED-CLOBBER	2	src/gateway/server-restart-sentinel.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/gateway/server-runtime-services.test.ts	-
+GENUINE	0	src/gateway/server-runtime-services.ts	-
+GENUINE	0	src/gateway/server.sessions.compaction.test.ts	-
+MIXED-CLOBBER	2	src/gateway/session-compaction-checkpoints.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/gateway/tool-resolution.test.ts	-
+GENUINE	0	src/gateway/tool-resolution.ts	-
+GENUINE	0	src/hooks/llm-slug-generator.ts	-
+SAFE-NEW	0	src/infra/continuation-tracer.test.ts	-
+SAFE-NEW	0	src/infra/continuation-tracer.ts	-
+GENUINE	0	src/infra/diagnostic-events.ts	-
+SAFE-NEW	0	src/infra/diagnostic-trace-context-pure.ts	-
+GENUINE	0	src/infra/diagnostic-trace-context.test.ts	-
+MIXED-CLOBBER	52	src/infra/diagnostic-trace-context.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	1	src/infra/exec-authorization-render.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	1	src/infra/heartbeat-reason.test.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	1	src/infra/heartbeat-reason.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+SAFE-NEW	0	src/infra/heartbeat-runner.delegate-return.test.ts	-
+GENUINE	0	src/infra/heartbeat-runner.returns-default-unset.test.ts	-
+MIXED-CLOBBER	11	src/infra/heartbeat-runner.ts	305fa9c4ddb fix(heartbeat): clear pendingFinalDelivery* on
+GENUINE	0	src/infra/heartbeat-wake.test.ts	-
+MIXED-CLOBBER	2	src/infra/heartbeat-wake.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/infra/http-body.response.test.ts	-
+GENUINE	0	src/infra/http-body.ts	-
+GENUINE	0	src/infra/outbound/message.ts	-
+GENUINE	0	src/infra/restart-sentinel.ts	-
+SAFE-NEW	0	src/infra/secure-random-chain-id.test.ts	-
+GENUINE	0	src/infra/secure-random.ts	-
+SAFE-NEW	0	src/infra/session-cost-usage.discoverAllSessions.test.ts	-
+MIXED-CLOBBER	2	src/infra/session-cost-usage.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	4	src/infra/session-delivery-queue-recovery.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	9	src/infra/session-delivery-queue-storage.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	1	src/infra/session-delivery-queue.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+SAFE-NEW	0	src/infra/session-keys.ts	-
+GENUINE	0	src/infra/state-migrations.ts	-
+GENUINE	0	src/infra/system-events.test.ts	-
+MIXED-CLOBBER	5	src/infra/system-events.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/llm/utils/oauth/anthropic.test.ts	-
+SAFE-NEW	0	src/logging/diagnostic-continuation-queues.ts	-
+GENUINE	0	src/logging/diagnostic-stability.ts	-
+MIXED-CLOBBER	7	src/logging/diagnostic.test.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	9	src/logging/diagnostic.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	1	src/plugin-sdk/channel-runtime.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/plugin-sdk/diagnostic-runtime.ts	-
+MIXED-CLOBBER	1	src/plugin-sdk/infra-runtime.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/plugin-sdk/provider-catalog-live-runtime.test.ts	-
+MIXED-CLOBBER	4	src/plugin-sdk/provider-catalog-live-runtime.ts	4d292caaa42 fix(plugin-sdk): follow paginated live model c
+MIXED-CLOBBER	5	src/plugin-sdk/system-event-runtime.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	2	src/plugins/openai-compatible-embedding-provider.test.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	1	src/plugins/runtime/runtime-system.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/plugins/session-entry-slot-keys.ts	-
+GENUINE	0	src/plugins/setup-registry.test.ts	-
+MIXED-CLOBBER	3	src/plugins/wired-hooks-compaction.test.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/process/command-queue.test.ts	-
+GENUINE	0	src/process/command-queue.ts	-
+GENUINE	0	src/skills/runtime/tool-dispatch.ts	-
+GENUINE	0	src/state/openclaw-state-db.generated.d.ts	-
+GENUINE	0	src/state/openclaw-state-db.ts	-
+GENUINE	0	src/state/openclaw-state-schema.generated.ts	-
+GENUINE	0	src/state/openclaw-state-schema.sql	-
+GENUINE	0	src/status/status-message.ts	-
+GENUINE	0	src/status/status-text.ts	-
+MIXED-CLOBBER	3	src/tasks/task-flow-registry.audit.test.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	src/tasks/task-flow-registry.store.sqlite.ts	-
+GENUINE	0	src/tasks/task-flow-registry.test.ts	-
+GENUINE	0	src/tasks/task-flow-registry.ts	-
+GENUINE	0	src/tasks/task-flow-registry.types.ts	-
+GENUINE	0	src/tasks/task-flow-runtime-internal.ts	-
+GENUINE	0	src/tasks/task-registry.test.ts	-
+MIXED-CLOBBER	1	test/helpers/agents/prompt-composition-scenarios.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	test/scripts/ensure-playwright-chromium.test.ts	-
+GENUINE	0	test/scripts/install-sh.test.ts	-
+MIXED-CLOBBER	3	test/scripts/kitchen-sink-rpc-walk.test.ts	1f484a8dbde test: speed up and stabilize full suite
+GENUINE	0	test/scripts/lint-suppressions.test.ts	-
+GENUINE	0	test/scripts/package-mac-app.test.ts	-
+GENUINE	0	test/setup-openclaw-runtime.ts	-
+SAFE-NEW	0	test/setup.extension-active-memory.ts	-
+MIXED-CLOBBER	1	test/vitest-scoped-config.test.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+SAFE-NEW	0	test/vitest/hermetic-openclaw-env.ts	-
+MIXED-CLOBBER	1	test/vitest/vitest.extension-active-memory.config.ts	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+MIXED-CLOBBER	1	test/vitest/vitest.test-shards.mjs	4cb94cc2cf2 fix: keep trusted policies with hook registry 
+GENUINE	0	tsdown.config.ts	-

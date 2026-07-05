@@ -5,7 +5,7 @@
 #
 # Usage:
 #   cd tools/k6-proofs
-#   ./scripts/run-proofs.sh [--dry-run] [R-CD-2,R-CD-4] [candidate_sha]
+#   ./scripts/run-proofs.sh [--dry-run] [--out-dir /tmp/k6-proof-runs] [R-CD-2,R-CD-4] [candidate_sha]
 
 set -euo pipefail
 
@@ -13,12 +13,14 @@ DRY_RUN=true
 ROWS=""
 CANDIDATE_SHA=""
 SESSION_SELECTOR="discord-channel:1466192485440164011"
+OUT_ROOT="${K6_PROOF_OUT_DIR:-/tmp/k6-proof-runs}"
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     --dry-run) DRY_RUN=true; shift ;;
     --live) DRY_RUN=false; shift ;;
     --session) SESSION_SELECTOR="$2"; shift 2 ;;
+    --out-dir) OUT_ROOT="$2"; shift 2 ;;
     *)
       if [[ -z "$ROWS" ]]; then
         ROWS="$1"
@@ -77,6 +79,7 @@ echo "Seat: $OPENCLAW_SEAT_NAME"
 echo "Target Candidate SHA: $OPENCLAW_CANDIDATE_SHA"
 echo "Deployed Runtime SHA: $OPENCLAW_RUNTIME_BUILD_SHA"
 echo "Session: $OPENCLAW_SESSION_KEY"
+echo "Artifact root: $OUT_ROOT"
 if [[ "$ROWS" == "all" ]]; then
   ROWS="$(for f in manifests/*.json; do jq -r 'select(.scenario.status == "runnable") | .rowId' "$f"; done | paste -sd, -)"
 fi
@@ -101,7 +104,7 @@ IFS=',' read -ra ROW_ARRAY <<< "$ROWS"
 for ROW_ID in "${ROW_ARRAY[@]}"; do
   # Normalize row ID
   ROW_ID="$(echo "$ROW_ID" | tr '[:lower:]' '[:upper:]')"
-  
+
   # Find manifest (case-insensitive so lowercase preflight still works)
   MANIFEST_FILE=""
   for f in manifests/*.json; do
@@ -148,12 +151,62 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
   else
     echo "[$ROW_ID] RUNNING..."
     export OPENCLAW_ROW_MANIFEST="$MANIFEST_FILE"
-    
-    # Actually run k6
-    k6 run "scenarios/$SCENARIO_FILE"
-    
+
+    RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-$(printf '%s' "$ROW_ID" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
+    RUN_DIR="$OUT_ROOT/$OPENCLAW_CANDIDATE_SHA/$ROW_ID/$OPENCLAW_SEAT_NAME/$RUN_ID"
+    mkdir -p "$RUN_DIR"
+    touch "$RUN_DIR/.started"
+    cp "$MANIFEST_FILE" "$RUN_DIR/row-manifest.json"
+    jq -n \
+      --arg row "$ROW_ID" \
+      --arg scenario "$SCENARIO_FILE" \
+      --arg candidate "$OPENCLAW_CANDIDATE_SHA" \
+      --arg runtime "$OPENCLAW_RUNTIME_BUILD_SHA" \
+      --arg seat "$OPENCLAW_SEAT_NAME" \
+      --arg session "$OPENCLAW_SESSION_KEY" \
+      --arg started "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionKey:$session, startedAt:$started}' \
+      > "$RUN_DIR/runner-metadata.json"
+
+    set +e
+    k6 run "scenarios/$SCENARIO_FILE" 2>&1 | tee "$RUN_DIR/k6.log"
+    k6_rc=${PIPESTATUS[0]}
+    set -e
+
+    find . -maxdepth 1 -type f -name '*summary.json' -newer "$RUN_DIR/.started" -print -exec mv {} "$RUN_DIR" \;
+    grep -E '(_EVIDENCE|=== K6-PROOF-EVIDENCE ===)' "$RUN_DIR/k6.log" > "$RUN_DIR/evidence-lines.log" || true
+    python3 - "$RUN_DIR/evidence-lines.log" "$RUN_DIR/evidence.jsonl" <<'PY_EVIDENCE_JSONL'
+import json
+import re
+import sys
+from pathlib import Path
+
+src = Path(sys.argv[1])
+dst = Path(sys.argv[2])
+out = []
+if src.exists():
+    for line in src.read_text().splitlines():
+        match = re.search(r'msg="(?:[A-Z0-9_]+_EVIDENCE )?(\{.*\})"(?: source=|$)', line)
+        if not match:
+            continue
+        raw = match.group(1).replace(r'\"', '"')
+        try:
+            out.append(json.loads(raw))
+        except json.JSONDecodeError:
+            pass
+dst.write_text(''.join(json.dumps(obj, sort_keys=True) + '\n' for obj in out))
+PY_EVIDENCE_JSONL
+    jq -n --argjson rc "$k6_rc" --arg ended "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '{k6ExitCode:$rc, endedAt:$ended}' > "$RUN_DIR/run-result.json"
+    rm -f "$RUN_DIR/.started"
+
+    echo "[$ROW_ID] ARTIFACTS: $RUN_DIR"
+    if [[ "$k6_rc" -ne 0 ]]; then
+      echo "[$ROW_ID] FAILED with k6 exit code $k6_rc. Artifacts preserved."
+      exit "$k6_rc"
+    fi
+
     echo "[$ROW_ID] COMPLETED."
-    
+
     # Observability hints
     echo "Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted."
   fi

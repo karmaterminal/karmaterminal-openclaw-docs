@@ -29,8 +29,7 @@ Live read-only smoke:
 cd tools/k6-proofs
 OPENCLAW_GATEWAY_TOKEN=*** \
 OPENCLAW_SESSION_KEY=<target-session-key> \
-  ./scripts/run-proofs.sh --live R-OBS-status <candidate-sha> \
-  2>&1 | tee /tmp/r-obs-status-k6.log
+  ./scripts/run-proofs.sh --live --out-dir /tmp/k6-proof-runs R-OBS-status <candidate-sha>
 ```
 
 Direct k6 form:
@@ -53,8 +52,8 @@ OPENCLAW_CANDIDATE_SHA=<candidate-sha> \
 
 ## Manual collection still needed
 
-- Save `/tmp/r-obs-status-k6.log`.
-- Save `tools/k6-proofs/r-obs-status-summary.json` if generated; move it into the candidate artifact directory, do not leave it untracked at repo root.
+- Save the runner artifact directory; it contains `k6.log`, `row-manifest.json`, `runner-metadata.json`, `run-result.json`, `evidence-lines.log`, and generated summary JSON when present.
+- Summary JSON is moved into the runner artifact directory automatically for live runs.
 - If the status payload includes a traceparent/trace id, fetch Tempo JSON and store it under `PROOFS/<sha>/R-OBS-status/<seat>/tempo/`.
 - If no trace id is emitted, record that explicitly; for status-only rows this is a receipt limitation, not automatically a product failure.
 

@@ -73,7 +73,20 @@ Use this directory as the accumulator. When a scaffold row becomes runnable, add
      ./scripts/run-proofs.sh --live <ROW> <candidate-sha>
    ```
 
-5. Preserve candidate output. A k6 PASS-candidate is not a folded proof by itself. Gather the row-specific manual receipts listed in the row runbook.
+5. Preserve candidate output. For live runs, `run-proofs.sh` writes artifacts under `--out-dir` (default `/tmp/k6-proof-runs`):
+
+   ```text
+   <out-dir>/<candidate-sha>/<ROW>/<seat>/<timestamp-row>/
+   ├── row-manifest.json
+   ├── runner-metadata.json
+   ├── k6.log
+   ├── evidence-lines.log
+   ├── evidence.jsonl
+   ├── run-result.json
+   └── *summary.json
+   ```
+
+   A k6 PASS-candidate is not a folded proof by itself. Gather the row-specific manual receipts listed in the row runbook.
 
 ## Shared manual receipts
 

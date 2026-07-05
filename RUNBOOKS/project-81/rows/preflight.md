@@ -53,8 +53,8 @@ OPENCLAW_CANDIDATE_SHA=<candidate-sha> \
 
 ## Manual collection still needed
 
-- Save raw k6 stdout.
-- Save generated summary JSON if using `handleSummary`/postprocess path.
+- Save raw k6 stdout (`k6.log` under the runner artifact directory).
+- Save generated summary JSON; the runner now moves `*summary.json` into the artifact directory for live runs.
 - Save `seat-readiness.json` for live fold candidates.
 - If folded into corpus, keep it as candidate evidence; preflight alone is not a product behavior proof.
 

@@ -47,7 +47,7 @@ export OPENCLAW_SEAT_NAME="$(hostname)"
 
 # Local Gateway Auth extraction (never logged/committed)
 if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" && -f ~/.openclaw/openclaw.json ]]; then
-  export OPENCLAW_GATEWAY_TOKEN="$(jq -r '.auth.operatorToken // empty' ~/.openclaw/openclaw.json)"
+  export OPENCLAW_GATEWAY_TOKEN="$(jq -r '.gateway.auth.token // .auth.operatorToken // empty' ~/.openclaw/openclaw.json)"
 fi
 if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then
   echo "Warning: OPENCLAW_GATEWAY_TOKEN not found in local config."
@@ -77,6 +77,15 @@ echo "Seat: $OPENCLAW_SEAT_NAME"
 echo "Target Candidate SHA: $OPENCLAW_CANDIDATE_SHA"
 echo "Deployed Runtime SHA: $OPENCLAW_RUNTIME_BUILD_SHA"
 echo "Session: $OPENCLAW_SESSION_KEY"
+if [[ "$ROWS" == "all" ]]; then
+  ROWS="$(for f in manifests/*.json; do jq -r 'select(.scenario.status == "runnable") | .rowId' "$f"; done | paste -sd, -)"
+fi
+
+if [[ -z "$ROWS" ]]; then
+  echo "No runnable rows found."
+  exit 1
+fi
+
 echo "Rows: $ROWS"
 echo "Dry Run: $DRY_RUN"
 echo "=========================================================="
@@ -93,10 +102,10 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
   # Normalize row ID
   ROW_ID="$(echo "$ROW_ID" | tr '[:lower:]' '[:upper:]')"
   
-  # Find manifest
+  # Find manifest (case-insensitive so lowercase preflight still works)
   MANIFEST_FILE=""
   for f in manifests/*.json; do
-    if grep -q "\"rowId\": \"$ROW_ID\"" "$f"; then
+    if jq -e --arg row "$ROW_ID" '(.rowId | ascii_upcase) == $row' "$f" >/dev/null; then
       MANIFEST_FILE="$(pwd)/$f" # Absolute path
       break
     fi
@@ -107,7 +116,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     continue
   fi
 
-  SCENARIO_FILE=$(jq -r '.scenario.file' "$MANIFEST_FILE")
+  SCENARIO_FILE=$(jq -r '.scenario.file // .scenario.name // empty' "$MANIFEST_FILE")
   SCENARIO_STATUS=$(jq -r '.scenario.status' "$MANIFEST_FILE")
   LIVE_SAFETY=$(jq -r '.liveRunSafety.classification // "unknown"' "$MANIFEST_FILE")
 
@@ -115,12 +124,17 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
   echo "----------------------------------------"
   echo "Row: $ROW_ID"
   echo "Manifest: $MANIFEST_FILE"
-  echo "Scenario: scenarios/$SCENARIO_FILE"
+  echo "Scenario: ${SCENARIO_FILE:+scenarios/$SCENARIO_FILE}"
   echo "Status: $SCENARIO_STATUS"
   echo "Live Safety: $LIVE_SAFETY"
 
   if [[ "$SCENARIO_STATUS" != "runnable" ]]; then
     echo "[$ROW_ID] SKIPPED: Scenario status is $SCENARIO_STATUS (not runnable)."
+    continue
+  fi
+
+  if [[ -z "$SCENARIO_FILE" || ! -f "scenarios/$SCENARIO_FILE" ]]; then
+    echo "[$ROW_ID] SKIPPED: runnable scenario file missing: scenarios/$SCENARIO_FILE"
     continue
   fi
 

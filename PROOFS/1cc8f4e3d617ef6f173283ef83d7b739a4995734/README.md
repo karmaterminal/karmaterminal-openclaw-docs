@@ -4,6 +4,8 @@ Candidate: `OpenClaw 2026.6.11 (1cc8f4e)` full-copy transposed from the Cael liv
 
 Status: **COMPLETE + supplemental #246 / FULL-COPY TRANSPOSED**. Current rollup: 28 pass / 0 partial / 0 thin / 1 honest_limit / 0 missing. The proof board was populated in Project 83 from the prior Project 82 row template. Raw row receipts were fired on `bca2b0b89ab886bf23a10e4983926f6b374b3188`; this full copied corpus carries them to `1cc8f4e3d617ef6f173283ef83d7b739a4995734` for clawsweeper exact-SHA navigation after the prior presentation candidate was superseded by the validation-loop terminal diagnostic fix plus upstream/main@04857c78ee7 and @a04b6ced4f9 drift absorbs.
 
+ClawSweeper short path: read [`CLAW-SWEEPER-DIRECT-DIGEST.md`](./CLAW-SWEEPER-DIRECT-DIGEST.md) for the direct interpretation of complex/caveated rows before following older issue history or superseded attempts.
+
 ## Transposition receipt
 
 - Carried-from live-fire SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`

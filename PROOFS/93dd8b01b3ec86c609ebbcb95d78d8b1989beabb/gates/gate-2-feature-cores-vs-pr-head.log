@@ -1,6 +1,6 @@
 Gate 2 — feature-cores byte-identity check
   PR_HEAD:   600bb4a676b
-  CANDIDATE: e0b03d9d560
+  CANDIDATE: 93dd8b0d560
   CORES:     ../../openclaw-bootstrap/tools/drift-cure-gate.primitive-cores.txt
 
   PASS: src/agents/openclaw-tools.ts

@@ -1,0 +1,653 @@
+{
+  "build_string": "OpenClaw 2026.6.11 (93dd8b0) — transposed from bca2b0b proof corpus after #1163/#1165 P2 fold, upstream-drift backmerge, and SDK-budget CI fix, docs-map refresh, and deterministic compact-small post-compaction release fixture fix and upstream/main backmerge",
+  "capture_sha": "93dd8b01b3ec86c609ebbcb95d78d8b1989beabb",
+  "fire_type": "transposed-fresh-fire-corpus",
+  "generated": "2026-07-05T04:43:13Z",
+  "generated_by": "frond-scribe (copilot)",
+  "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
+  "notes": "TRANSPOSED corpus: raw row evidence was fired on bca2b0b; this full copied corpus is carried to 93dd8b0 after the #1163/#1165 P2 fold, upstream-drift backmerge, and SDK-budget CI fix, docs-map refresh, and deterministic compact-small post-compaction release fixture fix and upstream/main backmerge. PR CI is queued for the exact candidate SHA. Gate logs are in gates/. COMPLETE corpus. R-CD-CHAINED-DEPTH-2 superseding rerun added as PASS: depth-1 used continue_work wake fallback after spawning depth-2, observed the leaf sentinel, then returned the final depth-1 proof sentinel to root/main. R-CD-COLLECTION-ON-COLLAPSE PASS; R-CW-7 remains THIN pending rewritten traceparent method; R-RC-2 remains honest_limit. R-CD-RETURN-OVERLAP added as PASS-with-caveat for docs#246: both silent and silent-wake returns delivered to root in overlap/collapse window; no isolated wake-causality claim.",
+  "rollup": {
+    "fail": 0,
+    "honest_limit": 1,
+    "missing": 0,
+    "partial": 0,
+    "pass": 27,
+    "thin": 1,
+    "total_rows": 29
+  },
+  "rows": [
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-1/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-1/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/212",
+      "note": "PASS: request_compaction returned structured rejection guard=context_threshold with contextUsage=19 and threshold=70; no compaction fired.",
+      "row": "R-RC-1",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-1/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-1/cael-dgx/request-compaction-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-1/cael-dgx/session-status-receipt.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-1/cael-dgx/discord-status-receipts.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-1/cael-dgx/tempo/trace-request-compaction-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-1/cael-dgx/tempo/trace-precheck-context-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-1/cael-dgx/journal-window.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-1/cael-dgx/version.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-1/cael-dgx/tempo/trace-request-compaction-c168c17b03e5ff70192863b721a57276.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-1/cael-dgx/tempo/trace-precheck-context-155215d3356672c1cf26fbde5bfc9343.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-CHILD-LIVE/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/213",
+      "note": "normal delegate child wrote hop1, scheduled its own continue_work without sessions_yield, received child continuation wake, and wrote hop2-EXECUTED after wake; parent dispatch and child work-fire Tempo JSON saved.",
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/hop1.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/hop2.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/verifier-receipt.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/flow-runs.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/28335628-9400-4a8e-9d74-69570d44b1b0-filtered.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/28335628-9400-4a8e-9d74-69570d44b1b0.trajectory-filtered.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/tempo-attribute-receipt.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/journal-continuation-window.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/version-status.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/tempo-trace-parent-delegate-e9e66ffebfa3f0acad6c53f6d9ddfd96.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/tempo-trace-child-work-b8cffa7170fd298491edacb3c7ffd84d.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-TRACE-REDACTION-1121/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-TRACE-REDACTION-1121/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/214",
+      "row": "R-TRACE-REDACTION-1121",
+      "state": "pass",
+      "supporting_docs": [],
+      "traces": []
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/215",
+      "note": "PASS: rerun 1403 proves depth-1 returned after observing depth-2 leaf; earlier partial attempt retained for audit history.",
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/evaluation.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/runtime-version.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/comment-4883600973.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/db/flow-rows-full.pretty.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/db/task-rows.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/sessions/depth1-dispatcher-session.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/sessions/depth2-leaf-session.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/journal/delegate-chain-filtered.log",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/tempo/trace-summary.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/non-proof/rerun-1305-cost-capped-flow.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/rerun-1403-pass/evaluation.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/rerun-1403-pass/db/flow-rows-concise.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/rerun-1403-pass/db/flow-rows.pretty.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/rerun-1403-pass/db/task-rows-concise.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/rerun-1403-pass/db/task-rows.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/rerun-1403-pass/sessions/depth1-session.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/rerun-1403-pass/sessions/depth2-leaf-session.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/rerun-1403-pass/journal/filtered.log",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/rerun-1403-pass/main/root-observation.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/rerun-1403-pass/tempo/trace-summary.json"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/tempo/trace-549a10a8592e384a0e53f407e2d5556b.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-CHAINED-DEPTH-2/cael-dgx/rerun-1403-pass/tempo/trace-50bc5319a8b0f6afed56282aeddb5950.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/216",
+      "note": "synthetic DB-seeded stale/new same-session continuation rows: old rerun3 row superseded after 56186ms stale backlog; newest rerun3 row granted once durably. Journal has two newest work-wake lines because the restore restart interrupted the first wake before terminal durable grant; recovery replayed the still-not-terminal row and the second fire recorded the durable grant. Exact-chain Tempo work-fire/queue-drain JSON saved; hop 101/102 values are explicit synthetic metadata, not realistic chain-depth evidence.",
+      "row": "R-CW-MULTI-COLLAPSE",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/config-active-lowered-file.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/config-original-before-rerun3.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/config-restored-active-file.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/final-queued-running.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/final-terminal-sqlite.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/flow-runs-final.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/insert-vars.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/journal-continuation-window.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/post-insert-sqlite.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/restart-runs-drive-complete.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/restart-runs-lower-complete.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/restart-runs-restore-complete.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/restore-verified-sha256.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-attribute-receipt.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-search-late/matching-traces.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-search/matching-traces.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/version-status.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-trace-work-fire-fcfddd0996c2d28125c99e9f7b52ad90.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-trace-work-fire-e6f5f835cea3a3568b183f4675d44a60.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-trace-queue-drain-a091817cb7a9e86e723d52ca6b3a575d.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-trace-queue-drain-68d165c2ad88458bebe39c5d5f799032.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-trace-queue-drain-7d0e3c49b867074fd873023a16224eec.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/217",
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/evaluation.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/comment-4883680115.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/runtime-version.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/source/source-sha-status.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/flow-rows-concise.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/flow-rows.pretty.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/task-rows-concise.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/task-rows.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/journal/load-bearing-lines.log",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/journal/filtered.log",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/main/root-collection-receipt.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/sessions/e4a1f112-d9ed-4061-9081-59092fd35c0e.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/sessions/ea37bf7c-288d-49ce-8f41-e347b86c554d.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/tempo/trace-summary.json"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/tempo/trace-ecda443e0038fb9a38fc33a8b98d7d02.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-1/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-1/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/218",
+      "note": "PASS: typed continue_delegate(mode=silent-wake, fanoutMode=tree) spawned child continuation-8fbf0b808c159191b30c51ad4c3e3fbc; durable delegate and mirrored child rows succeeded; child returned sentinel; journal records targeted return and no child token/continuation signal.",
+      "row": "R-CD-1",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-1/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-1/cael-dgx/comment-4883463160.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-1/cael-dgx/delegate-tool-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-1/cael-dgx/subagent-list-recent.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-1/cael-dgx/subagent-history-excerpt.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-1/cael-dgx/flow-runs-matching-full.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-1/cael-dgx/journal-delegate-excerpt.log",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-1/cael-dgx/tempo/trace-f0556cccabf29a53630960719973dea3-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-1/cael-dgx/source/source-sha.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-1/cael-dgx/tempo/trace-f0556cccabf29a53630960719973dea3.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-6/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-6/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/219",
+      "note": "PASS: source+direct-harness proof at 93dd8b0; currentChainCount=200/maxChainLength=200 returns scheduled:false/capped:true and logs work-rejected chain-capped before durable enqueue/wake. No live config mutation.",
+      "row": "R-CW-6",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-6/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-6/cael-dgx/comment-4883552643.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-6/cael-dgx/runtime-version.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-6/cael-dgx/source/source-sha.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-6/cael-dgx/source/source-commit.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-6/cael-dgx/source/scheduler-source-snippet.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-6/cael-dgx/source/work-dispatch-source-snippet.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-6/cael-dgx/source/scheduler-test-snippet.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-6/cael-dgx/harness/scheduler-boundary-harness.mjs",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-6/cael-dgx/harness/scheduler-boundary-harness.log",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-6/cael-dgx/non-proof/work-dispatch-chain-cap-test-dirty.log"
+      ],
+      "traces": []
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/220",
+      "note": "THIN: docs#220 explicit traceparent method cannot be satisfied through public model-facing continue_delegate schema on 93dd8b0; ordinary delegate spawned/returned and runtime-derived traceparent linked parent tool execution, delegate dispatch, child run, and queue drain.",
+      "row": "R-CW-7",
+      "state": "thin",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/cael-dgx/comment-4883507771.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/cael-dgx/delegate-tool-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/cael-dgx/flow-runs-matching-full.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/cael-dgx/flow-traceparents.tsv",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/cael-dgx/subagent-history-excerpt.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/cael-dgx/journal-continuation-excerpt.log",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/cael-dgx/schema/agent-schema-traceparent-snippet.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/cael-dgx/schema/agent-schema-test-public-omits-traceparent.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/cael-dgx/schema/continue-delegate-public-keys-test.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/cael-dgx/tempo/trace-0cf17ea0b7eab7a5e998f6a581e7b5bf-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/cael-dgx/source/source-sha.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/cael-dgx/tempo/trace-0cf17ea0b7eab7a5e998f6a581e7b5bf.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/221",
+      "note": "PASS: child emitted bare CONTINUE_WORK:5 token; journal shows origin=bracket kind=work; child received real hop 1/200 wake and returned sentinel; no typed child continue_work tool call used.",
+      "row": "R-CW-DELEGATE-TOKEN",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/child-transcript-tool-audit.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/comment-4883375511.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/delegate-tool-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/flow-runs-matching-full.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/journal-continuation-excerpt.log",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/journal-post-wake-excerpt.log",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/source/source-sha.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/subagent-history-excerpt.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/subagent-list-recent.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/tempo-child-tool-audit.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/tempo/candidate-traces.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/tempo/trace-a0ead7f17dd741d27224bd5e7d08b4e5.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/tempo/trace-782ef41852545ac6c8a89dcc35f2055.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-TOKEN/cael-dgx/tempo/trace-5085205dfadcad4696b8c679af560386.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-SELF-CONTINUATION/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/222",
+      "note": "PASS functional path: parent silent-wake delegate spawned child; child continue_work delivered hop 1/200 and returned sentinel. Mirrored TaskFlow row anomaly filed as openclaw#1162.",
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/delegate-tool-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/subagent-list-recent.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/subagent-history-excerpt.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/flow-runs-matching-full.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/journal-continuation-excerpt.log",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/runtime-issue/openclaw-issue-1162.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/runtime-issue/runtime-issue-1162-body.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/tempo/candidate-traces.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/source/source-sha.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/tempo/trace-d541625dba5c25046db540055076910f.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/tempo/trace-6e355cbe092521b91dca3cf594610b01.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-2/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-2/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/223",
+      "note": "PASS: typed continue_delegate(mode=silent-wake) flow 2f59240d-6cc3-4aa1-a309-d0d92d50852a spawned child task e25656bd-e6a2-4092-8cb9-afa6c1ad280f; child returned RCD2_BCA2B0B_CAEL_20260704_0942_CHILD_SILENT_WAKE_RETURNED; targeted return delivered to parent session.",
+      "row": "R-CD-2",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-2/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-2/cael-dgx/source-tool-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-2/cael-dgx/flow-runs.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-2/cael-dgx/task-runs.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-2/cael-dgx/parent-return-receipt.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-2/cael-dgx/child-trajectory-sentinel-excerpts.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-2/cael-dgx/journal-delegate-lines.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-2/cael-dgx/tempo/trace-silent-wake-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-2/cael-dgx/tempo/trace-parent-wake-followup-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-2/cael-dgx/version.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-2/cael-dgx/tempo/trace-silent-wake-26e537f763d25d92d55b4d2014952344.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-2/cael-dgx/tempo/trace-parent-wake-followup-9035479ee03f052640a588613d21e33b.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-SILENT/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-SILENT/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/224",
+      "note": "continue_delegate(mode=silent) spawned child, returned sentinel, delivered targeted enrichment, and child trajectory shows no messaging-tool send; no Tempo traceparent surfaced.",
+      "row": "R-CD-SILENT",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-SILENT/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-SILENT/cael-dgx/journal-filtered.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-SILENT/cael-dgx/child-session-excerpt.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-SILENT/cael-dgx/child-trajectory-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-SILENT/cael-dgx/version-status.txt"
+      ],
+      "traces": []
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-4/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-4/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/225",
+      "note": "PASS guard-side: invalid continue_delegate routing with fanoutMode plus targetSessionKey returned structured error; trace shows continue_delegate errorCode=400; no matching TaskFlow row or recent child spawned.",
+      "row": "R-CD-4",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-4/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-4/cael-dgx/tool-input-redacted.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-4/cael-dgx/invalid-combination-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-4/cael-dgx/version.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-4/cael-dgx/flow-runs-matching-rcd4-count.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-4/cael-dgx/flow-runs-matching-rcd4.tsv",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-4/cael-dgx/subagents-recent.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-4/cael-dgx/tempo/trace-continue-delegate-rejection-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-4/cael-dgx/source/source-sha.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-4/cael-dgx/source/fanout-target-guard-grep.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-4/cael-dgx/source/continue-delegate-tool-guard-excerpt.ts",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-4/cael-dgx/source/continue-delegate-crosssession-gate-test-excerpt.ts"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-4/cael-dgx/tempo/trace-continue-delegate-rejection-1dae0e0bb79f3460e3ea9293699a9a7b.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CONFIG-DEFAULTS/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CONFIG-DEFAULTS/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/226",
+      "row": "R-CONFIG-DEFAULTS",
+      "state": "pass",
+      "supporting_docs": [],
+      "traces": []
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CONFIG-INTERSESSION/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CONFIG-INTERSESSION/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/227",
+      "row": "R-CONFIG-INTERSESSION",
+      "state": "pass",
+      "supporting_docs": [],
+      "traces": []
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-1/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-1/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/228",
+      "note": "PASS: session_status card showed build 93dd8b0, context/session, continuation chain 0/200, 1 post-compaction staged, plugins OK, queue collect depth 0, and Discord route context; no live continuation behavior fired.",
+      "row": "R-OBS-1",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-1/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-1/cael-dgx/session-status.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-1/cael-dgx/version.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-1/cael-dgx/discord-claim-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-1/cael-dgx/openclaw-issue-1135.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-1/cael-dgx/tempo/trace-session-status-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-1/cael-dgx/tempo/trace-precheck-summary.jsonl"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-1/cael-dgx/tempo/trace-session-status-7b046c30b612b3373c0351e2b39b2273.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-1/cael-dgx/tempo/trace-precheck-d8733872982c589de83b65501fa4c8df.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-1/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-1/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/229",
+      "note": "PASS: typed continue_work() flow f0ce36d5-dfb7-4314-90ad-c945f95a4569 scheduled a 5s same-session wake, emitted continuation.work and continuation.work.fire spans, and granted hop 1/200 wake on chain 8ea6db6e-2355-4374-8875-718dc12358a0.",
+      "row": "R-CW-1",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-1/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-1/cael-dgx/source-tool-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-1/cael-dgx/wake-receipt.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-1/cael-dgx/flow-runs.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-1/cael-dgx/journal-work-lines.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-1/cael-dgx/discord-wake-note-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-1/cael-dgx/tempo/trace-source-work-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-1/cael-dgx/tempo/trace-work-fire-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-1/cael-dgx/version.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-1/cael-dgx/tempo/trace-source-work-862f9731c3ab97cbe637067481247514.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-1/cael-dgx/tempo/trace-work-fire-614f85df8a95982fda79d663c1b54522.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-2/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-2/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/230",
+      "note": "PASS: typed continue_work(delaySeconds=0) flow e2683c8c-1d4b-44c2-974d-95f03d1ef47b scheduled an immediate same-session wake, emitted delay.ms=0 continuation.work and continuation.work.fire spans, and granted hop 1/200 on chain 85f98bf9-b9c3-493a-b8e2-2a21c6d557a5.",
+      "row": "R-CW-2",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-2/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-2/cael-dgx/source-tool-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-2/cael-dgx/wake-receipt.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-2/cael-dgx/flow-runs.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-2/cael-dgx/journal-work-lines.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-2/cael-dgx/discord-wake-note-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-2/cael-dgx/tempo/trace-source-work-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-2/cael-dgx/tempo/trace-work-fire-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-2/cael-dgx/version.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-2/cael-dgx/tempo/trace-source-work-92f2a184a3dfce5fcf6f3ffccadce14c.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-2/cael-dgx/tempo/trace-work-fire-9143f2730f7add73f5d972d71c848bcc.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-3/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-3/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/231",
+      "note": "continue_work fired with locked marker; live continuation.work.fire trace exports safe reason attributes (present/length/hash) and no raw reason.preview per 93dd8b0 redaction contract.",
+      "row": "R-CW-3",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-3/cael-dgx/flow-run-eb98f977.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-3/cael-dgx/journal-continuation-window.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-3/cael-dgx/version-status.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-3/cael-dgx/tempo-trace-6dde0abcff5b67721699c708995512e1.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-REGRESSION-TRAP-TESTS/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-REGRESSION-TRAP-TESTS/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/232",
+      "note": "PASS: exact-SHA regression trap command passed 31/31 (continuation inventory opts 5/5 + registration/misconfig 26/26); no live behavior fired, so no Tempo trace by row design.",
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-REGRESSION-TRAP-TESTS/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-REGRESSION-TRAP-TESTS/cael-dgx/source-git-status.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-REGRESSION-TRAP-TESTS/cael-dgx/runtime-version.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-REGRESSION-TRAP-TESTS/cael-dgx/test-inventory.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-REGRESSION-TRAP-TESTS/cael-dgx/regression-trap.log"
+      ],
+      "traces": []
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-2/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-2/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/233",
+      "note": "PASS: normalized committed R-CW-7 trace 0cf17ea0b7eab7a5e998f6a581e7b5bf into trace-tree.json + span-tree.txt; 46 spans, one root, zero orphans; delegate dispatch, child run, fanout, and drain lineage present.",
+      "row": "R-OBS-2",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-2/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-2/cael-dgx/comment-4883587663.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-2/cael-dgx/runtime-version.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-2/cael-dgx/generated/generate-trace-tree.mjs",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-2/cael-dgx/trace-tree.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-2/cael-dgx/span-tree.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-2/cael-dgx/span-counts.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-7/cael-dgx/tempo/trace-0cf17ea0b7eab7a5e998f6a581e7b5bf.json"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-OBS-2/cael-dgx/trace/source-trace-0cf17ea0b7eab7a5e998f6a581e7b5bf.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-5/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-5/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/234",
+      "note": "PASS: static/source + unit-test proof. Dedicated delegate-dispatch cost-cap exhaustion suite passed 5/5 and announce-side cost-cap boundary tests passed 2/2 selected at 93dd8b0; no live config mutation or live over-budget dispatch.",
+      "row": "R-CW-5",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-5/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-5/cael-dgx/source-git-status.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-5/cael-dgx/runtime-version.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-5/cael-dgx/scheduler-source.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-5/cael-dgx/scheduler-test.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-5/cael-dgx/delegate-dispatch-cost-cap-source.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-5/cael-dgx/delegate-dispatch-cost-cap-exhaustion-test.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-5/cael-dgx/subagent-announce-bracket-cost-cap-source.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-5/cael-dgx/subagent-announce-tool-cost-cap-source.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-5/cael-dgx/vitest-delegate-dispatch-cost-cap-exhaustion.log",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-5/cael-dgx/vitest-chain-guard-cost-cap.log"
+      ],
+      "traces": []
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-3/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-3/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/235",
+      "note": "typed continue_delegate(mode=post-compaction) accepted and staged one durable row: status=queued, current_step=Staged for release after compaction, postCompaction=true, controller_id=core/continuation-post-compaction. Expected byte is queued-for-compaction; no forced compaction seam required.",
+      "row": "R-CD-3",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-3/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-3/cael-dgx/tool-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-3/cael-dgx/flow-runs-marker.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-3/cael-dgx/tempo/trace-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-3/cael-dgx/version.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-3/cael-dgx/journal-window.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-3/cael-dgx/journal-marker-lines.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-3/cael-dgx/journal-delegate-lines.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-3/cael-dgx/tempo/trace-461a2847af147a216a86af077010996b.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-TOKEN/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-TOKEN/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/236",
+      "note": "PASS: terminal bracket CONTINUE_DELEGATE fallback parsed as origin=bracket kind=delegate; parent flow 38fc5365-8b31-43ea-962f-8c3651716303 succeeded; subagent task ad5b18d7-6858-4b2f-a06d-dc2c57b04092 delivered sentinel RCD_TOKEN_BCA2B0B_CAEL_20260704_0932_CHILD_RETURNED.",
+      "row": "R-CD-TOKEN",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-TOKEN/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-TOKEN/cael-dgx/source-token-surface.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-TOKEN/cael-dgx/journal-delegate-lines.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-TOKEN/cael-dgx/flow-runs.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-TOKEN/cael-dgx/task-runs.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-TOKEN/cael-dgx/child-result-receipt.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-TOKEN/cael-dgx/child-trajectory-sentinel-excerpts.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-TOKEN/cael-dgx/tempo/trace-delegate-dispatch-child-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-TOKEN/cael-dgx/tempo/trace-source-turn-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-TOKEN/cael-dgx/version.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-TOKEN/cael-dgx/tempo/trace-delegate-dispatch-child-30ed6e3e34825ef465f1a0c368cdee73.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-TOKEN/cael-dgx/tempo/trace-source-turn-25d84d10f6d8fd96309b8fc7141fafa4.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-TOKEN/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-TOKEN/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/237",
+      "note": "PASS: terminal bare CONTINUE_WORK:5 in finalized assistant text produced continuation work flow 417397ce-f39e-4c1d-892b-fa576dd01515 and a granted wake at hop 2; wake marker RCW_TOKEN_BCA2B0B_CAEL_20260704_0917_WAKE_EXECUTED emitted.",
+      "row": "R-CW-TOKEN",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-TOKEN/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-TOKEN/cael-dgx/source-token-surface.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-TOKEN/cael-dgx/wake-receipt.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-TOKEN/cael-dgx/wake-executed-marker-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-TOKEN/cael-dgx/flow-runs.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-TOKEN/cael-dgx/journal-token-continuation-lines.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-TOKEN/cael-dgx/journal-window.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-TOKEN/cael-dgx/tempo/trace-token-wake-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-TOKEN/cael-dgx/tempo/continuation-work-traces.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-TOKEN/cael-dgx/version.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-TOKEN/cael-dgx/tempo/trace-token-wake-161188a44d7b1f3bfe885b4b243e672f.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-TOKEN/cael-dgx/tempo/trace-parent-wake-6a705ab942082d20b11af5320774c5e8.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-2/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-2/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/238",
+      "note": "HONEST_LIMIT: pre-fire session_status showed 17% context, below 70% threshold; single request_compaction call rejected with guard=context_threshold. No context stuffing or repeated requests.",
+      "row": "R-RC-2",
+      "state": "honest_limit",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-2/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-2/cael-dgx/session-status.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-2/cael-dgx/request-compaction-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-2/cael-dgx/tempo/trace-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-2/cael-dgx/tempo/request-compaction-traces.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-2/cael-dgx/version.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-2/cael-dgx/journal-window.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-2/cael-dgx/journal-marker-lines.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-2/cael-dgx/journal-compaction-lines.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-RC-2/cael-dgx/tempo/trace-7c90ab549eea6578bf5e58b2eed3dd9.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/239",
+      "note": "PASS for clarified observed fanout/collapse semantics: three typed continue_work elections in one turn produced three durable rows; A granted and emitted A_WAKE; B/C matured while A turn was active and folded-active, so no B_WAKE/C_WAKE invented. No product bug filed; docs#246 covers silent-return + waking-return overlap gap.",
+      "row": "R-CW-MULTI",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI/cael-dgx/source-tool-receipts.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI/cael-dgx/flow-runs-final.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI/cael-dgx/wake-and-folded-receipts.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI/cael-dgx/discord-wake-marker-receipt.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI/cael-dgx/journal-continuation-lines.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI/cael-dgx/journal-window.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI/cael-dgx/tempo/trace-summary.jsonl",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI/cael-dgx/tempo/continue-work-traces.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI/cael-dgx/version.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CW-MULTI/cael-dgx/tempo/trace-958e0b039d3d1aa2da887f956f976c0.json"
+      ]
+    },
+    {
+      "dir": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-RETURN-OVERLAP/",
+      "evidence_doc": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-RETURN-OVERLAP/cael-dgx/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/246",
+      "note": "PASS with wake-causality caveat: silent + silent-wake delegate returns both delivered to root in the overlap/collapse window; no lost silent return, no orphan, no duplicate wake storm, no invented child execution. Does not claim silent-wake was sole cause of an isolated fresh root generation because root was active/continuation work was in flight.",
+      "row": "R-CD-RETURN-OVERLAP",
+      "state": "pass",
+      "supporting_docs": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-RETURN-OVERLAP/cael-dgx/EVIDENCE.md",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-RETURN-OVERLAP/cael-dgx/db/flow-rows-concise.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-RETURN-OVERLAP/cael-dgx/db/task-rows-concise.json",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-RETURN-OVERLAP/cael-dgx/journal/journal-filtered.log",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-RETURN-OVERLAP/cael-dgx/main/session-prefix-grep.txt",
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-RETURN-OVERLAP/cael-dgx/source/source-receipt.txt"
+      ],
+      "traces": [
+        "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/R-CD-RETURN-OVERLAP/cael-dgx/tempo/trace-0d676f84623ebfe6499a324d039ee050.json"
+      ]
+    }
+  ],
+  "schema": "openclaw.proofs.manifest.v1",
+  "sha_short": "93dd8b0",
+  "ship_sha": "93dd8b01b3ec86c609ebbcb95d78d8b1989beabb",
+  "carried_from": "bca2b0b89ab886bf23a10e4983926f6b374b3188"
+}

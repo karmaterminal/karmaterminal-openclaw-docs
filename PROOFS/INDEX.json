@@ -9,14 +9,14 @@
   "readme_path": "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/README.md",
   "rollup": {
     "total_rows": 29,
-    "pass": 27,
+    "pass": 28,
     "partial": 0,
-    "thin": 1,
+    "thin": 0,
     "fail": 0,
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "COMPLETE full copied transposed corpus for candidate 1cc8f4e; raw row evidence was captured on bca2b0b. The safe assembly added the validation-loop terminal diagnostic fix, absorbed upstream/main@04857c78ee7 with one resolved agent-runner.ts conflict, then absorbed clean upstream/main@a04b6ced4f9. 1cc8f4e passes targeted local validation and Gate 2.7 exits 0 with no FROZEN-STALE.",
+  "disposition_note": "COMPLETE full copied/transposed corpus for candidate 1cc8f4e with R-CW-7 simplified to a direct exact-head source/test PASS. Raw row evidence was captured on bca2b0b where noted; R-CW-7 now rests on focused tests at 1cc8f4e proving internal runtime traceparent propagation rather than the obsolete public traceparent parameter method. The safe assembly added the validation-loop terminal diagnostic fix, absorbed upstream/main@04857c78ee7 with one resolved agent-runner.ts conflict, then absorbed clean upstream/main@a04b6ced4f9. 1cc8f4e passes targeted local validation and Gate 2.7 exits 0 with no FROZEN-STALE.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
   "capture_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",

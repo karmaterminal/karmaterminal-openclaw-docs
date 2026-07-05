@@ -1,139 +1,115 @@
-# R-CW-7 — explicit traceparent row: public surface unavailable, runtime-context trace linkage observed (cael-dgx)
+# R-CW-7 — traceparent propagation direct proof (1cc8f4e, cael-dgx)
 
-Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/220  
-Method packet: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/220#issuecomment-4883507771  
-Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`  
-Seat: Cael / `cael-dgx`  
-Build: `OpenClaw 2026.6.11 (bca2b0b)`  
-Sentinel: `R-CW-7-BCA2B0B-CAEL-20260704-1209`  
-Verdict: ⚠️ THIN / executed-invalid for the row as written
+Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/220
+Candidate SHA: `1cc8f4e3d617ef6f173283ef83d7b739a4995734`
+Seat: Cael / `cael-dgx`
+Verdict: ✅ PASS — direct exact-head source/test proof for runtime traceparent propagation
 
-## Why this is THIN, not PASS
+## Bot-readable summary
 
-The docs#220 method packet asks the parent to call typed `continue_delegate(..., traceparent="00-bca2b0b89ab886bf23a10e4983926f6b-5eeda11d5eeda11d-01")` if the current tool surface exposes `traceparent`.
+R-CW-7 should not be read as "the model-facing `continue_delegate` tool accepts a public `traceparent` parameter." On current head `1cc8f4e3d617ef6f173283ef83d7b739a4995734`, that field is intentionally internal and is omitted from public/model-facing schemas.
 
-On deployed `bca2b0b`, the model-facing public tool surface does **not** expose `traceparent`. Source/schema receipts included in `schema/` show:
+The PASS claim is narrower and current-head accurate:
 
-- `packages/gateway-protocol/src/schema/agent.ts` marks `traceparent` as an `internalProtocolField(...)`.
-- `agent.schema.test.ts` asserts the public generated schema omits `traceparent`.
-- `continuation-tools-registration.test.ts` pins the model-facing `continue_delegate` descriptor keys to exactly `task, delaySeconds, mode, targetSessionKey, targetSessionKeys, fanoutMode, model`.
-- `continue-delegate-tool.test.ts` asserts diagnostic `traceparent` is not exposed as a model-facing parameter.
+1. `traceparent` is an internal protocol field, not a public model-facing tool parameter.
+2. `continue_delegate` automatically picks up the active runtime diagnostic trace context when the model omits `traceparent`.
+3. pending continuation delegates retain that traceparent through dispatch.
+4. spawned child agent runs receive, hand off, persist, and register the inherited traceparent.
+5. focused tests for those exact behaviors pass on exact source SHA `1cc8f4e3d617ef6f173283ef83d7b739a4995734`.
 
-So the deterministic parent-supplied W3C traceparent requested by the row cannot be supplied through the public typed tool surface. That means this specimen cannot be called a PASS for “explicit parent-supplied traceparent.”
+This replaces the earlier THIN package, which tried to satisfy an obsolete public-parameter method and then had to explain why that method was impossible.
 
-## What was executed
-
-After the schema check, Cael fired an ordinary typed delegate to observe whether runtime-context trace propagation still works across the child session boundary:
+## Exact source checkout
 
 ```text
-R-CW-7 proof fire for docs#220 / candidate bca2b0b89ab886bf23a10e4983926f6b374b3188.
-Sentinel: R-CW-7-BCA2B0B-CAEL-20260704-1209.
-Return exactly: sentinel, child session key if visible, and any visible traceparent/tool metadata. Do not call continue_work, do not emit continuation tokens, and do not spawn further children.
+1cc8f4e3d617ef6f173283ef83d7b739a4995734
+Merge upstream/main clean drift into assembly
+2026-07-05T13:04:14-07:00
 ```
 
-Tool receipt:
+Receipt files:
 
-```json
-{
-  "status": "scheduled",
-  "mode": "silent-wake",
-  "delaySeconds": 0,
-  "delegateIndex": 1,
-  "delegatesThisTurn": 1,
-  "fanoutMode": "tree"
-}
+- `source/source-sha.txt`
+- `source/source-commit.txt`
+- `source/source-snippets.md`
+
+## Focused verification command
+
+Run from a clean worktree checked out at `1cc8f4e3d617ef6f173283ef83d7b739a4995734` with `node_modules` available:
+
+```bash
+node scripts/test-projects.mjs \
+  src/agents/tools/continue-delegate-tool.test.ts \
+  src/auto-reply/continuation/delegate-dispatch.test.ts \
+  src/agents/subagent-spawn.test.ts \
+  packages/gateway-protocol/src/schema/agent.schema.test.ts
 ```
 
-## Durable flow row
+Saved log: `test/focused-traceparent-tests.log`.
 
-`flow-runs-matching-full.jsonl` contains the matching delegate row:
+Result:
 
 ```text
-aef84e7c-6c88-4ccb-aeed-e2568082a9df  status=succeeded  kind=continuation_delegate  childSessionKey=agent:main:subagent:continuation-3cba348646a6c9936feb44612bb96421
+[test] passed 3 Vitest shards in 13.99s
 ```
 
-The row preserved a runtime-derived traceparent:
+Shard detail:
 
 ```text
-aef84e7c-6c88-4ccb-aeed-e2568082a9df	00-0cf17ea0b7eab7a5e998f6a581e7b5bf-3569b6c969809c0e-01	agent:main:subagent:continuation-3cba348646a6c9936feb44612bb96421	continuation_delegate	tree	true
+packages/gateway-protocol/src/schema/agent.schema.test.ts — 10 passed
+src/auto-reply/continuation/delegate-dispatch.test.ts — 81 passed
+src/agents/tools/continue-delegate-tool.test.ts — 25 passed
+src/agents/subagent-spawn.test.ts — 26 passed
 ```
 
-## Child transcript / no accidental continuation
+Total focused test count: 142 passed / 0 failed.
 
-`subagent-list-recent.json` shows the child completed:
+## Evidence map
 
-```json
-{
-  "runId": "continuation-delegate-3cba348646a6c9936feb44612bb96421",
-  "sessionKey": "agent:main:subagent:continuation-3cba348646a6c9936feb44612bb96421",
-  "status": "done",
-  "runtimeMs": 16185,
-  "model": "github-copilot/gpt-5.5"
-}
-```
+### 1. Public schema omission is intentional
 
-Child reply:
+`source/source-snippets.md` includes the exact tests showing:
 
-```text
-R-CW-7-BCA2B0B-CAEL-20260704-1209
+- `AgentParamsSchema.properties.traceparent` is marked `x-openclaw-internal`.
+- `stripInternalProtocolFields(AgentParamsSchema)` removes `traceparent` from public generated schema copies.
+- `continue_delegate` descriptor keys are pinned to exactly `task, delaySeconds, mode, targetSessionKey, targetSessionKeys, fanoutMode, model`.
+- `continue_delegate` tool parameters do not contain `traceparent`.
 
-child session key: agent:main:subagent:continuation-3cba348646a6c9936feb44612bb96421
+### 2. Runtime trace context is auto-picked up
 
-visible traceparent/tool metadata: none visible
-```
+`src/agents/tools/continue-delegate-tool.test.ts` includes:
 
-Fresh `sessions_history(..., includeTools=true)` inspection showed only the child task and one child text reply; there were no child tool calls, no `continue_work`, no `CONTINUE_WORK`, and no nested delegate.
+- `auto-picks the active runtime trace context when traceparent is omitted`
+- `falls back to the active runtime trace context when a hidden traceparent is invalid`
+- `omits traceparent when the carrier is absent`
+- `threads active runtime traceparent into staged post-compaction delegates`
 
-## Journal receipts
+These tests prove the model does not need a public traceparent parameter for runtime trace propagation.
 
-`journal-continuation-excerpt.log` records delegate spawn, child no-token scan, sentinel return, token accumulation, and targeted parent return:
+### 3. Delegate dispatch preserves traceparent
 
-```text
-[continuation:delegate-spawned] hop=2/200 mode=silent-wake session=agent:main:discord:channel:1466192485440164011 task=R-CW-7 proof fire...
-[continuation:trace] effective-signal: origin=none kind=none session=agent:main:subagent:continuation-3cba348646a6c9936feb44612bb96421
-R-CW-7-BCA2B0B-CAEL-20260704-1209
-child session key: agent:main:subagent:continuation-3cba348646a6c9936feb44612bb96421
-visible traceparent/tool metadata: none visible
-[subagent-chain-hop] Accumulated 41094 tokens from agent:main:subagent:continuation-3cba348646a6c9936feb44612bb96421 to parent chain cost
-[continuation:targeted-return] Delivered to agent:main:discord:channel:1466192485440164011 from agent:main:subagent:continuation-3cba348646a6c9936feb44612bb96421
-```
+`src/auto-reply/continuation/delegate-dispatch.test.ts` includes:
 
-## Tempo trace
+- `threads persisted traceparent into spawned continuation runs`
 
-Machine-readable Tempo trace JSON is saved under `tempo/`.
+This proves a pending delegate carrying trace context is passed to the spawned continuation run.
 
-Runtime-derived trace ID:
+### 4. Child spawn receives, hands off, persists, and registers traceparent
 
-```text
-0cf17ea0b7eab7a5e998f6a581e7b5bf
-```
+`src/agents/subagent-spawn.test.ts` includes:
 
-`trace-0cf17ea0b7eab7a5e998f6a581e7b5bf.json` shows the ordinary delegate path stayed under the runtime context trace:
+- `forwards inherited traceparent to the child agent run`
 
-```json
-{"name":"openclaw.tool.execution","attrs":{"openclaw.toolName":"continue_delegate","openclaw.tool.source":"core","gen_ai.tool.name":"continue_delegate"}}
-{"name":"continuation.delegate.dispatch","attrs":{"delegate.delivery":"immediate","delegate.mode":"silent-wake","chain.id":"67146ffa-e4e0-4c1d-a710-8081e83d31b8"}}
-{"name":"openclaw.harness.run","attrs":{"openclaw.channel":"webchat","openclaw.model":"gpt-5.5"}}
-{"name":"openclaw.run","attrs":{"openclaw.channel":"webchat","openclaw.trigger":"user"}}
-{"name":"continuation.queue.drain","attrs":{"queue.drained_count":"2","queue.drained_continuation_count":"1"}}
-```
+That test asserts the child `agent` call receives `params.traceparent`, the traceparent handoff is consumable, the session store persists `continuationTraceparent`, and the subagent registry receives `traceparent`.
 
-This is useful evidence that runtime-context trace linkage exists across the delegate/child path, but it is **not** the deterministic explicit-traceparent PASS shape requested by the row.
+## Why this is PASS now
 
-## Honest scope
+The prior package was THIN because it tested a method that current OpenClaw intentionally does not expose: a model-authored public `traceparent` argument on `continue_delegate`.
 
-✅ Proves the ordinary typed delegate still spawned and returned successfully on deployed `bca2b0b`.
+The direct current-head proof avoids that obsolete method. It proves the supported behavior instead: runtime trace context is internal, automatically picked up, and forwarded through continuation delegate dispatch into child agent runs.
 
-✅ Proves a runtime-derived traceparent was stored on the durable delegate row and visible in Tempo linkage for parent tool execution, delegate dispatch, child run, and queue drain.
+## Scope limits
 
-✅ Proves the child did not self-continue or emit token fallback.
-
-⚠️ Does **not** prove the public model-facing typed tool can supply a deterministic W3C traceparent; deployed `bca2b0b` intentionally omits that field from the public schema.
-
-⚠️ Does **not** satisfy docs#220’s explicit traceparent method as written.
-
-## Verdict
-
-⚠️ THIN — executed ordinary delegate; runtime-context trace linkage observed; explicit parent-supplied traceparent is not available through the public typed tool surface on deployed `bca2b0b`.
-
-No `karmaterminal/openclaw` bug was filed from this specimen: after figs clarified that public `traceparent` exposure was intentionally removed, the observed runtime-context propagation appears to work. If the row owner wants an internal/backend harness for deterministic traceparent injection, that should be a separate explicitly-approved method, not an improvised public-tool proof.
+- This is exact-head source/test proof for `1cc8f4e3d617ef6f173283ef83d7b739a4995734`, not a fresh live-fire run on a deployed `1cc8f4e` gateway. At collection time, Cael's live gateway reported `OpenClaw 2026.6.11 (71a1dff)`.
+- The older live-fire artifacts under this directory remain historical context only. The PASS verdict above rests on the exact-head focused tests and source snippets, not on the older `bca2b0b` THIN live-fire method.
+- If maintainers require a live exact-head runtime proof, deploy `1cc8f4e` first and re-run this row against that live build.

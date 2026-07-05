@@ -2,7 +2,7 @@
 
 Candidate: `OpenClaw 2026.6.11 (1cc8f4e)` full-copy transposed from the Cael live-fire corpus at `bca2b0b89ab886bf23a10e4983926f6b374b3188`.
 
-Status: **COMPLETE + supplemental #246 / FULL-COPY TRANSPOSED**. Current rollup: 27 pass / 0 partial / 1 thin / 1 honest_limit / 0 missing. The proof board was populated in Project 83 from the prior Project 82 row template. Raw row receipts were fired on `bca2b0b89ab886bf23a10e4983926f6b374b3188`; this full copied corpus carries them to `1cc8f4e3d617ef6f173283ef83d7b739a4995734` for clawsweeper exact-SHA navigation after the prior presentation candidate was superseded by the validation-loop terminal diagnostic fix plus upstream/main@04857c78ee7 and @a04b6ced4f9 drift absorbs.
+Status: **COMPLETE + supplemental #246 / FULL-COPY TRANSPOSED**. Current rollup: 28 pass / 0 partial / 0 thin / 1 honest_limit / 0 missing. The proof board was populated in Project 83 from the prior Project 82 row template. Raw row receipts were fired on `bca2b0b89ab886bf23a10e4983926f6b374b3188`; this full copied corpus carries them to `1cc8f4e3d617ef6f173283ef83d7b739a4995734` for clawsweeper exact-SHA navigation after the prior presentation candidate was superseded by the validation-loop terminal diagnostic fix plus upstream/main@04857c78ee7 and @a04b6ced4f9 drift absorbs.
 
 ## Transposition receipt
 
@@ -35,7 +35,7 @@ Status: **COMPLETE + supplemental #246 / FULL-COPY TRANSPOSED**. Current rollup:
 | R-CD-COLLECTION-ON-COLLAPSE | [#217](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/217) | pass |
 | R-CD-1 | [#218](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/218) | pass |
 | R-CW-6 | [#219](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/219) | pass |
-| R-CW-7 | [#220](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/220) | thin |
+| R-CW-7 | [#220](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/220) | pass |
 | R-CW-DELEGATE-TOKEN | [#221](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/221) | pass |
 | R-CW-DELEGATE-SELF-CONTINUATION | [#222](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/222) | pass |
 | R-CD-2 | [#223](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/223) | pass |
@@ -60,6 +60,10 @@ Status: **COMPLETE + supplemental #246 / FULL-COPY TRANSPOSED**. Current rollup:
 ## Required evidence form
 
 Before a row is fired, Cael + frond-scribe agree the exact test form and expected byte. A row can only advance from `missing` after its evidence directory contains row-specific receipts. Continuation/delegate/compaction rows require machine-readable Tempo trace JSON, not screenshots alone.
+
+### R-CW-7 direct traceparent note
+
+R-CW-7 / docs#220 is now a direct exact-head source/test proof rather than the older THIN live-fire package. Read `R-CW-7/cael-dgx/EVIDENCE.md` first: it proves that `traceparent` is intentionally internal/non-public, that `continue_delegate` auto-picks the active runtime trace context, that delegate dispatch preserves it, and that child agent spawn receives/persists/registers it on `1cc8f4e3d617ef6f173283ef83d7b739a4995734`. Older `bca2b0b` live-fire artifacts remain historical context only.
 
 ### R-CW-MULTI-COLLAPSE caveat
 

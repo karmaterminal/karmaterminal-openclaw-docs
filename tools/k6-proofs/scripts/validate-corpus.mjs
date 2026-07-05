@@ -234,8 +234,14 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
   );
 
   const onDiskRowDirs = listSubdirs(shaDir) || [];
+  const supportDirs = new Set(['gates']);
+  const ignoredSupportDirs = [];
   const orphanDirs = [];
   for (const sub of onDiskRowDirs) {
+    if (supportDirs.has(sub)) {
+      ignoredSupportDirs.push(`PROOFS/${sha}/${sub}/`);
+      continue;
+    }
     const candidate = join('PROOFS', sha, sub);
     if (!declaredDirs.has(candidate)) {
       orphanDirs.push(`PROOFS/${sha}/${sub}/`);
@@ -246,7 +252,7 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
     'no-orphan-row-dirs',
     orphanDirs.length === 0,
     orphanDirs.length === 0
-      ? `${onDiskRowDirs.length} on-disk row dirs all referenced`
+      ? `${onDiskRowDirs.length - ignoredSupportDirs.length} on-disk row dirs all referenced; ignored support dirs: ${ignoredSupportDirs.length ? ignoredSupportDirs.join(', ') : 'none'}`
       : `orphans: ${orphanDirs.join(', ')}`,
   );
 

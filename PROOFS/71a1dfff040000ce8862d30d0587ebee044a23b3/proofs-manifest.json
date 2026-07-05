@@ -164,7 +164,8 @@
       ],
       "traces": [
         "PROOFS/71a1dfff040000ce8862d30d0587ebee044a23b3/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/tempo/trace-ecda443e0038fb9a38fc33a8b98d7d02.json"
-      ]
+      ],
+      "evidence_doc": "PROOFS/71a1dfff040000ce8862d30d0587ebee044a23b3/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/EVIDENCE.md"
     },
     {
       "dir": "PROOFS/71a1dfff040000ce8862d30d0587ebee044a23b3/R-CD-1/",

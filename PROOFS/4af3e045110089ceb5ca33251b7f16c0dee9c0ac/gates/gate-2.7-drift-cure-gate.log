@@ -10,6 +10,7 @@ files examined: 352
 == MIXED-CLOBBER (ranked by dropped post-fork upstream lines; triage top-down) ==
     147  src/agents/command/attempt-execution.ts              ?
     134  src/auto-reply/reply/agent-runner.ts                 ?
+     72  extensions/slack/src/monitor/message-handler/prepare.test.ts fe8234621e5 Fail closed when Slack mention detection is un
      52  src/infra/diagnostic-trace-context.ts                ?
      29  src/agents/subagent-announce.ts                      ?
      21  src/auto-reply/reply/agent-runner-execution.ts       ?
@@ -27,19 +28,18 @@ files examined: 352
       8  extensions/raft/src/config-schema.ts                 ?
       7  src/logging/diagnostic.test.ts                       ?
       6  src/agents/embedded-agent-subscribe.handlers.compaction.ts ?
-      6  extensions/slack/src/monitor/message-handler/prepare.test.ts ?
       6  extensions/diagnostics-otel/src/service.ts           ?
       5  src/plugin-sdk/system-event-runtime.ts               ?
       5  src/plugin-sdk/provider-catalog-live-runtime.ts      ?
       5  src/infra/system-events.ts                           ?
       5  src/agents/subagent-run-liveness.ts                  ?
       5  src/agents/embedded-agent-runner/compact.ts          ?
+      5  scripts/plugin-sdk-surface-report.mjs                6c53dfa1df9 refactor(infra): consolidate bounded HTTP body
       4  src/infra/state-migrations.ts                        ?
       4  src/infra/session-delivery-queue-recovery.ts         ?
       4  src/infra/session-cost-usage.ts                      ?
       4  src/commands/configure.commands.ts                   ?
       4  src/cli/gateway-cli/run.option-collisions.test.ts    bbb744269fc test: make the local pnpm test gate green on m
-      4  scripts/plugin-sdk-surface-report.mjs                ?
       3  src/tasks/task-flow-registry.audit.test.ts           ?
       3  src/plugins/wired-hooks-compaction.test.ts           ?
       3  src/auto-reply/reply/get-reply.ts                    ?
@@ -103,4 +103,4 @@ files examined: 352
       1  docs/tools/thinking.md                               ?
       1  docs/tools/subagents.md                              ?
 
-full TSV: /tmp/tmp.NqltP18AXj/classification.tsv
+full TSV: /tmp/tmp.NLXox0BoOP/classification.tsv

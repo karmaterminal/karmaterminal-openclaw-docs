@@ -24,7 +24,7 @@ GENUINE	0	extensions/raft/src/channel.ts	-
 MIXED-CLOBBER	8	extensions/raft/src/config-schema.ts	?
 MIXED-CLOBBER	18	extensions/raft/src/gateway.test.ts	?
 MIXED-CLOBBER	1	extensions/raft/src/setup.ts	?
-MIXED-CLOBBER	6	extensions/slack/src/monitor/message-handler/prepare.test.ts	?
+MIXED-CLOBBER	72	extensions/slack/src/monitor/message-handler/prepare.test.ts	fe8234621e5 Fail closed when Slack mention detection is un
 GENUINE	0	extensions/telegram/src/bot.create-telegram-bot.test-harness.ts	-
 GENUINE	0	extensions/telegram/src/bot.create-telegram-bot.test.ts	-
 GENUINE	0	extensions/voice-call/index.test.ts	-
@@ -39,7 +39,7 @@ MIXED-CLOBBER	1	scripts/deadcode-unused-files.allowlist.mjs	?
 MIXED-CLOBBER	3	scripts/e2e/secret-provider-integrations.mjs	?
 GENUINE	0	scripts/lib/ci-node-test-plan.mjs	-
 GENUINE	0	scripts/lib/codex-app-server-protocol-source.ts	-
-MIXED-CLOBBER	4	scripts/plugin-sdk-surface-report.mjs	?
+MIXED-CLOBBER	5	scripts/plugin-sdk-surface-report.mjs	6c53dfa1df9 refactor(infra): consolidate bounded HTTP body
 MIXED-CLOBBER	1	scripts/protocol-gen-swift.ts	?
 MIXED-CLOBBER	2	scripts/protocol-gen.ts	?
 MIXED-CLOBBER	2	src/agents/agent-hooks/compaction-safeguard.ts	?

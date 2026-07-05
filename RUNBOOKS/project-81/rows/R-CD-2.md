@@ -91,3 +91,36 @@ After the first detector chop, a live run against `OPENCLAW_SESSION_KEY=main` pr
 - `agent_turn_observed=false` only because this target session emitted generic `agent` events rather than an early `session.message` before the delayed wake.
 
 Chop applied after that test: generic `agent` lifecycle events after `sessions.send` now count as dispatch-agent activity, and a delayed parent wake candidate also implies the agent turn occurred. This should make the row's remaining PASS/partial boundary about the delegate return evidence, not about which event flavor the target session emits.
+
+## Disposable target-session mode
+
+For repeatability testing, prefer a disposable non-Discord session so the harness does not inject proof prompts into `#sprites` or depend on the active main lane's unrelated event traffic:
+
+```bash
+cd tools/k6-proofs
+OPENCLAW_CREATE_DISPOSABLE_SESSION=true \
+OPENCLAW_MIN_DELEGATE_DELAY_MS=5000 \
+  ./scripts/run-proofs.sh --live --out-dir /tmp/k6-proof-runs R-CD-2 <candidate-sha>
+```
+
+The scenario creates a session via `sessions.create`, subscribes to that created key, then runs the normal `sessions.send` / `continue_delegate(mode="silent-wake")` path against the disposable key. Artifact evidence includes `session_created`, `created_session_key`, and the final `sessionKey` actually used.
+
+## Repeatability note — 2026-07-05 disposable mode
+
+Disposable mode was validated with three consecutive live runs using:
+
+```bash
+OPENCLAW_CREATE_DISPOSABLE_SESSION=true \
+OPENCLAW_MIN_DELEGATE_DELAY_MS=5000 \
+  ./scripts/run-proofs.sh --live --out-dir /tmp/p81-rcd2-disposable-repeat R-CD-2 71a1dfff040000ce8862d30d0587ebee044a23b3
+```
+
+Results:
+
+```text
+run=1 rc=0 verdict=PASS-candidate failures=0 duration_avg=9084ms  evidence=session_created/tool_accepted/agent_turn/parent_wake true, channel_message false
+run=2 rc=0 verdict=PASS-candidate failures=0 duration_avg=7230ms  evidence=session_created/tool_accepted/agent_turn/parent_wake true, channel_message false
+run=3 rc=0 verdict=PASS-candidate failures=0 duration_avg=14359ms evidence=session_created/tool_accepted/agent_turn/parent_wake true, channel_message false
+```
+
+This makes the row mechanically repeatable as a `PASS-candidate` without touching the live Discord room. Remaining manual fold work is trace/session receipt review, not execution of the scenario itself.

@@ -66,7 +66,9 @@ function invocationCfg() {
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
-  const sessionKey = manifest && manifest.sessionKey || __ENV.OPENCLAW_SESSION_KEY || DEFAULTS.sessionKey;
+  const requestedSessionKey = manifest && manifest.sessionKey || __ENV.OPENCLAW_SESSION_KEY || DEFAULTS.sessionKey;
+  let sessionKey = requestedSessionKey;
+  const createDisposableSession = (__ENV.OPENCLAW_CREATE_DISPOSABLE_SESSION || '').toLowerCase() === 'true';
   const seat = manifest && manifest.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CD-2');
 
@@ -89,6 +91,9 @@ export default function () {
     nonce: rowNonce,
     seat,
     sessionKey,
+    requestedSessionKey,
+    session_created: false,
+    created_session_key: null,
     candidateSha: manifest && manifest.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
     // Required receipts
@@ -112,16 +117,12 @@ export default function () {
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
+    function startProofFlow(socket) {
+      // Subscribe to parent session messages to detect wake + verify no channel delivery.
+      // Protocol: sessions.messages.subscribe uses 'key' not 'sessionKey'.
+      tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
 
-      // Subscribe to parent session messages to detect wake + verify no channel delivery
-      // Protocol: sessions.messages.subscribe uses 'key' not 'sessionKey'
-      socket.setTimeout(() => {
-        tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
-      }, 500);
-
-      // Fire continue_delegate via sessions.send — instructs the agent to call the tool
+      // Fire continue_delegate via sessions.send — instructs the agent to call the tool.
       // NOTE: tools.invoke at the RPC layer accepts the call but continuation tools
       // are agent-side (execute inside an agent turn). sessions.send triggers an actual
       // agent turn that can call the tool, which is the E2E proof path.
@@ -134,15 +135,31 @@ export default function () {
           message: agentInstruction,
           idempotencyKey: `${inv.idempotencyKeyPrefix}-${rowNonce}`,
         });
-      }, 1000);
+      }, 500);
 
-      // Poll task ledger — check mode field
+      // Poll task ledger — check mode field.
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 5000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 15000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 30000);
 
-      // Extended wait for silent-wake (child must complete + parent must wake)
+      // Extended wait for silent-wake (child must complete + parent must wake).
       socket.setTimeout(() => socket.close(), 90000);
+    }
+
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+
+      if (createDisposableSession) {
+        socket.setTimeout(() => {
+          const disposableKey = `r-cd-2-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+          tracker.send(socket, 'sessions.create', {
+            key: disposableKey,
+            label: `k6 R-CD-2 ${rowNonce}`,
+          });
+        }, 250);
+      } else {
+        socket.setTimeout(() => startProofFlow(socket), 500);
+      }
     });
 
     socket.on('message', (raw) => {
@@ -158,6 +175,21 @@ export default function () {
           ok: classified.ok !== undefined ? classified.ok : null,
           data: classified.payload ? redactEvent(classified.payload) : null,
         });
+
+        if (classified.kind === 'response' && classified.method === 'sessions.create') {
+          if (classified.ok && classified.payload) {
+            sessionKey = classified.payload.key || sessionKey;
+            evidence.sessionKey = sessionKey;
+            evidence.session_created = true;
+            evidence.created_session_key = sessionKey;
+            console.log(`✓ disposable session created: ${sessionKey}`);
+            startProofFlow(socket);
+          } else {
+            console.error(`✗ sessions.create rejected: ${JSON.stringify(classified.error)}`);
+            failures.add(1);
+            socket.close();
+          }
+        }
 
         // Check sessions.send accepted (agent turn triggered)
         if (classified.kind === 'response' && classified.method === 'sessions.send') {
@@ -278,7 +310,8 @@ export default function () {
   }
 
   // Verdict — PASS when: turn triggered + events flowing + no channel delivery
-  const passed = evidence.tool_accepted && evidence.agent_turn_observed &&
+  const passed = (!createDisposableSession || evidence.session_created) &&
+    evidence.tool_accepted && evidence.agent_turn_observed &&
     evidence.parent_wake_observed && !evidence.channel_message_observed;
 
   console.log(`R_CD_2_EVIDENCE ${JSON.stringify(evidence)}`);

@@ -1,12 +1,12 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "f08ec7d2ca414f7965a9ddad8ec0bc97a2ad1d55",
-  "current_sha_short": "f08ec7d",
-  "build_string": "OpenClaw 2026.6.11 (f08ec7d) — full copied post-3f380 upstream-drift proof corpus; raw live-fire capture from bca2b0b; 4a533db was superseded by the Swift/UI upstream drift absorb",
-  "corpus_path": "PROOFS/f08ec7d2ca414f7965a9ddad8ec0bc97a2ad1d55/",
-  "manifest_path": "PROOFS/f08ec7d2ca414f7965a9ddad8ec0bc97a2ad1d55/proofs-manifest.json",
-  "readme_path": "PROOFS/f08ec7d2ca414f7965a9ddad8ec0bc97a2ad1d55/README.md",
+  "current_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+  "current_sha_short": "1cc8f4e",
+  "build_string": "OpenClaw 2026.6.11 (1cc8f4e) — full copied post-04857c/a04b6 upstream-drift proof corpus; raw live-fire capture from bca2b0b; the prior presentation candidate was superseded by the validation-loop terminal diagnostic fix and current upstream drift absorbs",
+  "corpus_path": "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/",
+  "manifest_path": "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/proofs-manifest.json",
+  "readme_path": "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/README.md",
   "rollup": {
     "total_rows": 29,
     "pass": 27,
@@ -16,10 +16,10 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "COMPLETE full copied transposed corpus for candidate f08ec7d; raw row evidence was captured on bca2b0b and carried through 4a533db. Fresh upstream/main advanced to 3f380635 and conflicted only in ChatMarkdownDisplayPreprocessorTests.swift; the safe assembly took upstream's Swift test shape because fenced/table handling moved to ChatMarkdownBlockSegmenter. f08ec7d passes the targeted plugin SDK, docs map, native i18n, and diff checks. Gate 2.7 exits 0 with no FROZEN-STALE.",
+  "disposition_note": "COMPLETE full copied transposed corpus for candidate 1cc8f4e; raw row evidence was captured on bca2b0b. The safe assembly added the validation-loop terminal diagnostic fix, absorbed upstream/main@04857c78ee7 with one resolved agent-runner.ts conflict, then absorbed clean upstream/main@a04b6ced4f9. 1cc8f4e passes targeted local validation and Gate 2.7 exits 0 with no FROZEN-STALE.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
-  "capture_sha": "f08ec7d2ca414f7965a9ddad8ec0bc97a2ad1d55",
+  "capture_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
   "carried_from": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
-  "generated": "2026-07-05T18:45:08Z"
+  "generated": "2026-07-05T20:03:02Z"
 }

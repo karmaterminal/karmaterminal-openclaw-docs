@@ -1,0 +1,29 @@
+Jul 04 11:51:36 cael node[2314233]: 2026-07-04T11:51:36.114-07:00 [continuation/signal] [continuation:trace] bracket-parse skipped: empty payloads session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:51:36 cael node[2314233]: 2026-07-04T11:51:36.114-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:51:36 cael node[2314233]: 2026-07-04T11:51:36.170-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session agent:main:discord:channel:1466192485440164011
+Jul 04 11:51:36 cael node[2314233]: 2026-07-04T11:51:36.338-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=silent-wake session=agent:main:discord:channel:1466192485440164011 task=R-CD-1 proof fire for docs#218 / candidate bca2b0b89ab886bf23a10e4983926f6b374b3
+Jul 04 11:51:36 cael node[2314233]: 2026-07-04T11:51:36.464-07:00 [turn/kernel] visible channel turn dispatched with no queued reply payloads: channel=discord messageId=unknown sessionKey=agent:main:discord:channel:1466192485440164011
+Jul 04 11:51:36 cael node[2314233]: 2026-07-04T11:51:36.647-07:00 [ws] ⇄ res ✓ logs.tail 56ms conn=3f750f06…dea0 id=78a220c6…c3c0
+Jul 04 11:51:36 cael node[2314233]: 2026-07-04T11:51:36.682-07:00 [agents/tool-policy] tool policy removed 5 tool(s) via subagent tools.deny: agents_list, cron, gateway, session_status, sessions_send; matched agents_list, cron, gateway, session_status, sessions_send
+Jul 04 11:51:36 cael node[2314233]: 2026-07-04T11:51:36.694-07:00 [agent/embedded] workspace bootstrap file TOOLS.md is 119034 chars (limit 100000); truncating in injected context (sessionKey=agent:main:subagent:continuation-8fbf0b808c159191b30c51ad4c3e3fbc)
+Jul 04 11:51:42 cael node[2314233]: 2026-07-04T11:51:42.628-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:subagent:continuation-8fbf0b808c159191b30c51ad4c3e3fbc
+Jul 04 11:51:42 cael node[2314233]: 2026-07-04T11:51:42.628-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:subagent:continuation-8fbf0b808c159191b30c51ad4c3e3fbc
+Jul 04 11:51:42 cael node[2314233]: 2026-07-04T11:51:42.660-07:00 sentinel: R-CD-1-BCA2B0B-CAEL-20260704-1152
+Jul 04 11:51:42 cael node[2314233]: child session key: agent:main:subagent:continuation-8fbf0b808c159191b30c51ad4c3e3fbc
+Jul 04 11:51:42 cael node[2314233]: model/runtime: github-copilot/gpt-5.5 / Runtime: agent=main | sessionId=35e7c056-a3a2-41c6-ab50-2bdcf5ce4e44 | host=cael | repo=/home/figs/.openclaw/workspace | os=Linux 6.17.0-1018-nvidia (arm64) | node=v25.9.0 | channel=discord | thinking=off
+Jul 04 11:51:42 cael node[2314233]: traceparent/tool metadata: none visible
+Jul 04 11:51:42 cael node[2314233]: 2026-07-04T11:51:42.661-07:00 [agent] run continuation-delegate-8fbf0b808c159191b30c51ad4c3e3fbc ended with stopReason=stop
+Jul 04 11:51:42 cael node[2314233]: 2026-07-04T11:51:42.678-07:00 [ws] ⇄ res ✓ agent.wait 6221ms conn=250247f7…228b id=d68431ab…4e81
+Jul 04 11:51:42 cael node[2314233]: 2026-07-04T11:51:42.976-07:00 [subagent-chain-hop] Accumulated 46994 tokens from agent:main:subagent:continuation-8fbf0b808c159191b30c51ad4c3e3fbc to parent chain cost
+Jul 04 11:51:43 cael node[2314233]: 2026-07-04T11:51:43.012-07:00 [continuation:targeted-return] Delivered to agent:main:discord:channel:1466192485440164011 from agent:main:subagent:continuation-8fbf0b808c159191b30c51ad4c3e3fbc
+Jul 04 11:52:18 cael node[2314233]: 2026-07-04T11:52:18.622-07:00 [agent/embedded] [prompt-cache] cache read dropped 878592 -> 144384 for github-copilot/gpt-5.5 via session-custom; systemPrompt(system prompt digest changed)
+Jul 04 11:52:18 cael node[2314233]: 2026-07-04T11:52:18.770-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:18 cael node[2314233]: 2026-07-04T11:52:18.771-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:18 cael node[2314233]: 2026-07-04T11:52:18.812-07:00 [continuation:work-parked-on-turn-end] session=agent:main:discord:channel:1466192485440164011 hop=2 reasonCategory=follow-up-work
+Jul 04 11:52:18 cael node[2314233]: 2026-07-04T11:52:18.814-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-armed] trigger=reply-run-ended session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:18 cael node[2314233]: 2026-07-04T11:52:18.816-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=86399996ms fireAt=1783277538812 session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:18 cael node[2314233]: 2026-07-04T11:52:18.852-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-fired] trigger=reply-run-ended waitMs=38 session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:18 cael node[2314233]: 2026-07-04T11:52:18.857-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=14996ms fireAt=1783191153852 session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:33 cael node[2314233]: 2026-07-04T11:52:33.855-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:33 cael node[2314233]: 2026-07-04T11:52:33.873-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59985ms fireAt=1783191213857 session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:52:33 cael node[2314233]: 2026-07-04T11:52:33.874-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=2/200 session=agent:main:discord:channel:1466192485440164011 reasonCategory=follow-up-work

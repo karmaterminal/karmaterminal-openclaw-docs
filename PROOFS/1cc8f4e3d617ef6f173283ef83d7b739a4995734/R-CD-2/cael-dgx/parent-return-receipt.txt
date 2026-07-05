@@ -1,0 +1,8 @@
+Silent-wake delegate returned to parent session.
+Sentinel received by parent:
+RCD2_BCA2B0B_CAEL_20260704_0942_CHILD_SILENT_WAKE_RETURNED
+
+Child session key: agent:main:subagent:continuation-6f9fffcd06e1c8bad0f6dee74fd1a1e8
+Task id: e25656bd-e6a2-4092-8cb9-afa6c1ad280f
+Parent delegate flow: 2f59240d-6cc3-4aa1-a309-d0d92d50852a
+Parent task flow: efe70ff7-cb3e-4a33-a201-7b807f55b931

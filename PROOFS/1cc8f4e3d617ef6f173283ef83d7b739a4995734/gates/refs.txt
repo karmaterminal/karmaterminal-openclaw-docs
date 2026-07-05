@@ -1,0 +1,4 @@
+upstream/main a04b6ced4f96ada314b859c667cd0ba66a1055b6
+candidate 1cc8f4e3d617ef6f173283ef83d7b739a4995734
+pr-create 9a7092649eb25d6e70937267b0879f8e3d0c4e51
+safe-branch scribe/20260704/assembly-upstream-drift-backmerge

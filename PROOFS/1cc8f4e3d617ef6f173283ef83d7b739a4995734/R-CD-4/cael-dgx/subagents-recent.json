@@ -1,0 +1,11 @@
+{
+  "status":"ok",
+  "action":"list",
+  "requesterSessionKey":"agent:main:discord:channel:1466192485440164011",
+  "callerSessionKey":"agent:main:discord:channel:1466192485440164011",
+  "callerIsSubagent":false,
+  "total":84,
+  "active":[],
+  "recent":[],
+  "text":"active subagents:\n(none)\n\nrecent (last 10m):\n(none)"
+}

@@ -1,0 +1,66 @@
+[
+  {
+    "flow_id": "05ffffb7-2b9c-4d8e-a74e-6c09d8209069",
+    "owner_key": "agent:main:discord:channel:1466192485440164011",
+    "controller_id": "core/continuation-delegate",
+    "status": "succeeded",
+    "current_step": "Accepted by continuation subagent",
+    "created_at": 1783194329486,
+    "updated_at": 1783194334972,
+    "ended_at": 1783194334972,
+    "state_json": {
+      "kind": "continuation_delegate",
+      "task": "R-CD-CHAINED-DEPTH-2 proof fire for docs#215 / candidate bca2b0b89ab886bf23a10e4983926f6b374b3188.\n\nYou are the DEPTH-1 DISPATCHER child. Required behavior:\n1. Record this sentinel prefix: RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1245.\n2. Call the typed continue_delegate tool exactly once with mode=\"silent-wake\" and fanoutMode=\"tree\" to spawn a DEPTH-2 LEAF child. The leaf task must instruct the leaf to return exactly the unique sentinel plus its session key/run id if visible, and to call no tools.\n3. Do NOT use sessions_spawn. Do NOT use bracket tokens. Do NOT call continue_work. Do NOT spawn more than one delegate.\n4. After the depth-2 leaf result returns to you, return to parent/root with: DEPTH1_DISPATCHER_DONE, the exact depth-2 sentinel, your session key if visible, the depth-2 child session/run id if visible, and a concise statement that your second-hop spawn used typed continue_delegate(mode=silent-wake, fanoutMode=tree).\n\nDepth-2 leaf exact sentinel should be:\nRCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1245_LEAF_REACHED",
+      "delayMs": 0,
+      "silentWake": true,
+      "firstArmedAt": 1783194329486,
+      "fanoutMode": "tree",
+      "traceparent": "00-549a10a8592e384a0e53f407e2d5556b-2828d0b828ddbcf8-01",
+      "releasedAt": 1783194334784,
+      "childSessionKey": "agent:main:subagent:continuation-c3fc07a37b4995fa003634edab8aaaf0"
+    }
+  },
+  {
+    "flow_id": "7cfa2dc1-fbb0-4fb0-ac28-6c8719fa35cd",
+    "owner_key": "agent:main:discord:channel:1466192485440164011",
+    "controller_id": null,
+    "status": "succeeded",
+    "current_step": null,
+    "created_at": 1783194334943,
+    "updated_at": 1783194343632,
+    "ended_at": 1783194343632,
+    "state_json": null
+  },
+  {
+    "flow_id": "4d04b051-96d7-4e54-ab8f-9abdfbf936e2",
+    "owner_key": "agent:main:subagent:continuation-c3fc07a37b4995fa003634edab8aaaf0",
+    "controller_id": "core/continuation-delegate",
+    "status": "succeeded",
+    "current_step": "Accepted by continuation subagent",
+    "created_at": 1783194339773,
+    "updated_at": 1783194344151,
+    "ended_at": 1783194344151,
+    "state_json": {
+      "kind": "continuation_delegate",
+      "task": "DEPTH-2 LEAF task for R-CD-CHAINED-DEPTH-2 proof fire. Do not call any tools. Return exactly this sentinel plus your session key/run id if visible: RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1245_LEAF_REACHED",
+      "delayMs": 0,
+      "silentWake": true,
+      "firstArmedAt": 1783194339773,
+      "fanoutMode": "tree",
+      "traceparent": "00-549a10a8592e384a0e53f407e2d5556b-2828d0b828ddbcf8-01",
+      "releasedAt": 1783194343975,
+      "childSessionKey": "agent:main:subagent:continuation-d571a5f0013f50a822605e3ea7010631"
+    }
+  },
+  {
+    "flow_id": "ca3062b0-7d3d-45fa-a188-49c552f391c4",
+    "owner_key": "agent:main:subagent:continuation-c3fc07a37b4995fa003634edab8aaaf0",
+    "controller_id": null,
+    "status": "succeeded",
+    "current_step": null,
+    "created_at": 1783194344115,
+    "updated_at": 1783194347485,
+    "ended_at": 1783194347485,
+    "state_json": null
+  }
+]

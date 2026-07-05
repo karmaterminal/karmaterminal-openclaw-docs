@@ -1,0 +1,9 @@
+{
+  "row": "R-CW-DELEGATE-TOKEN",
+  "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/221",
+  "comment": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/221#issuecomment-4883375511",
+  "candidate": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
+  "seat": "cael-dgx",
+  "sentinel": "R-CW-DELEGATE-TOKEN-BCA2B0B-CAEL-20260704-1122",
+  "expected": "parent typed continue_delegate spawns child; child final text emits bare CONTINUE_WORK:5 token without typed continue_work; parser drives second child turn; child returns sentinel; capture parser/journal origin=token and Tempo work/fire trace"
+}

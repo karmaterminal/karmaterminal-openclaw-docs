@@ -1,0 +1,5 @@
+OpenClaw 2026.6.11 (bca2b0b)
+Context: 168k/1.0m (17%)
+Session: agent:main:discord:channel:1466192485440164011
+Continuation: chain 0/200 | 1 post-compaction staged
+Captured before R-RC-2 request_compaction fire.

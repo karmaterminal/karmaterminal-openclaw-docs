@@ -1,0 +1,24 @@
+{
+  "status":"ok",
+  "action":"list",
+  "requesterSessionKey":"agent:main:discord:channel:1466192485440164011",
+  "callerSessionKey":"agent:main:discord:channel:1466192485440164011",
+  "callerIsSubagent":false,
+  "total":85,
+  "active":[],
+  "recent":[{
+    "index":1,
+    "runId":"continuation-delegate-65274026fc63c687439faeba7119aeba",
+    "sessionKey":"agent:main:subagent:continuation-65274026fc63c687439faeba7119aeba",
+    "label":"[continuation:chain-hop:1] Delegated task (turn...",
+    "task":"[continuation:chain-hop:1] Delegated task (turn 1/200): R-CW-DELEGATE-SE...",
+    "status":"done",
+    "pendingDescendants":0,
+    "runtime":"21s",
+    "runtimeMs":21176,
+    "model":"github-copilot/gpt-5.5",
+    "totalTokens":47606,
+    "startedAt":1783188490632,
+    "endedAt":1783188512037
+  }]
+}

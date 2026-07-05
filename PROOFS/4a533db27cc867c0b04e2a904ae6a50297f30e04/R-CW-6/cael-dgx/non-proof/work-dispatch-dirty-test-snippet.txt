@@ -1,0 +1,46 @@
+  2095	      expect.objectContaining({
+  2096	        context: expect.objectContaining({ Body: expect.stringContaining("delayed batch work") }),
+  2097	      }),
+  2098	    ]);
+  2099	  });
+  2100	
+  2101	  it("schedules the valid elections and caps the overflow without dropping the earlier ones", async () => {
+  2102	    // Partial-success is load-bearing: when the cumulative chain cap rejects a
+  2103	    // later election, the earlier valid ones must still schedule and deliver.
+  2104	    const sessionKey = "agent:main:partial-cap";
+  2105	    mockSessionStore[sessionKey] = { sessionKey };
+  2106	    const cappedConfig = { ...config, maxChainLength: 2 } satisfies ContinuationRuntimeConfig;
+  2107	
+  2108	    const batch = await scheduleContinuationWorkBatch({
+  2109	      sessionKey,
+  2110	      chainState: {
+  2111	        currentChainCount: 0,
+  2112	        chainStartedAt: Date.now(),
+  2113	        accumulatedChainTokens: 0,
+  2114	        chainId: "chain-partial",
+  2115	      },
+  2116	      requests: [
+  2117	        { reason: "fit-1", delaySeconds: 1 },
+  2118	        { reason: "fit-2", delaySeconds: 1 },
+  2119	        { reason: "over-cap", delaySeconds: 1 },
+  2120	      ],
+  2121	      config: cappedConfig,
+  2122	      parentRunId: "run-partial",
+  2123	    });
+  2124	
+  2125	    expect(batch).toMatchObject({ scheduledCount: 2, cappedCount: 1, capped: true });
+  2126	    expect(batch.chainState.currentChainCount).toBe(2);
+  2127	
+  2128	    await vi.advanceTimersByTimeAsync(1_000);
+  2129	    await flushTimers();
+  2130	
+  2131	    const deliveredReasons = turnGrants.map(
+  2132	      (grant) => (grant as { context: { Body: string } }).context.Body,
+  2133	    );
+  2134	    expect(deliveredReasons).toHaveLength(2);
+  2135	    expect(deliveredReasons.some((body) => body.includes("fit-1"))).toBe(true);
+  2136	    expect(deliveredReasons.some((body) => body.includes("fit-2"))).toBe(true);
+  2137	    expect(deliveredReasons.some((body) => body.includes("over-cap"))).toBe(false);
+  2138	  });
+  2139	
+  2140	  it("does not let a hedge reclaim freshly running continuation work", async () => {

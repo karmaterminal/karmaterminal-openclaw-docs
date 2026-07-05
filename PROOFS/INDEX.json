@@ -1,12 +1,12 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "5f73b3a743355fa86771a3e4bb825c8d430e9a07",
-  "current_sha_short": "5f73b3a",
-  "build_string": "OpenClaw 2026.6.11 (5f73b3a) — full copied post-1163/1165, upstream-drift, SDK-budget, docs-map, and compact-small fixture proof corpus; raw live-fire capture from bca2b0b",
-  "corpus_path": "PROOFS/5f73b3a743355fa86771a3e4bb825c8d430e9a07/",
-  "manifest_path": "PROOFS/5f73b3a743355fa86771a3e4bb825c8d430e9a07/proofs-manifest.json",
-  "readme_path": "PROOFS/5f73b3a743355fa86771a3e4bb825c8d430e9a07/README.md",
+  "current_sha": "e0b03d90b19440afb62ee2c030ae1f9cd90c27fe",
+  "current_sha_short": "e0b03d9",
+  "build_string": "OpenClaw 2026.6.11 (e0b03d9) — full copied post-1163/1165, upstream-drift, SDK-budget, docs-map, and compact-small fixture proof corpus; raw live-fire capture from bca2b0b",
+  "corpus_path": "PROOFS/e0b03d90b19440afb62ee2c030ae1f9cd90c27fe/",
+  "manifest_path": "PROOFS/e0b03d90b19440afb62ee2c030ae1f9cd90c27fe/proofs-manifest.json",
+  "readme_path": "PROOFS/e0b03d90b19440afb62ee2c030ae1f9cd90c27fe/README.md",
   "rollup": {
     "total_rows": 29,
     "pass": 27,
@@ -16,10 +16,10 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "COMPLETE full copied transposed corpus for candidate 5f73b3a; raw row evidence was captured on bca2b0b and carried after the #1163/#1165 P2 fold, upstream-drift backmerge, and SDK-budget CI fix, docs-map refresh, and deterministic compact-small no-delegate fixture fix. PR CI is queued for the exact candidate SHA.",
+  "disposition_note": "COMPLETE full copied transposed corpus for candidate e0b03d9; raw row evidence was captured on bca2b0b and carried after the #1163/#1165 P2 fold, upstream-drift backmerge, and SDK-budget CI fix, docs-map refresh, and deterministic compact-small post-compaction release fixture fix. Full PR CI was not yet created by GitHub for this exact candidate at transpose time.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-07-05T04:10:51Z",
+  "generated": "2026-07-05T04:38:33Z",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
-  "capture_sha": "5f73b3a743355fa86771a3e4bb825c8d430e9a07",
+  "capture_sha": "e0b03d90b19440afb62ee2c030ae1f9cd90c27fe",
   "carried_from": "bca2b0b89ab886bf23a10e4983926f6b374b3188"
 }

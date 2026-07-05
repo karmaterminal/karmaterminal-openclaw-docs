@@ -4,14 +4,14 @@
   "fire_type": "transposed-fresh-fire-corpus",
   "generated_by": "frond-scribe (copilot)",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
-  "notes": "TRANSPOSED corpus: raw row evidence was fired on bca2b0b; this full copied corpus is carried to 1cc8f4e after the prior presentation candidate was superseded by the branch-owned validation-loop terminal diagnostic fix plus upstream/main@04857c78ee7 and @a04b6ced4f9 drift absorbs. Targeted local checks passed: exact tui-pty validation-loop abort diagnostic case, embedded-agent subscribe lifecycle/messages tests, embedded backend tests, tool-error-summary tests, agent-runner execution/payload/e2e tests, cron store, UI chat-message, affected tooling shards, docs map check, native i18n check, plugin SDK surface --check, and git diff --check. Gate logs are in gates/ and show 0 FROZEN-STALE with counts 127 SAFE-NEW / 143 GENUINE / 89 MIXED-CLOBBER. COMPLETE corpus. R-CD-CHAINED-DEPTH-2 superseding rerun remains PASS; R-CD-COLLECTION-ON-COLLAPSE PASS; R-CW-7 remains THIN pending rewritten traceparent method; R-RC-2 remains honest_limit. R-CD-RETURN-OVERLAP remains PASS-with-caveat for docs#246.",
+  "notes": "TRANSPOSED corpus: raw row evidence was fired on bca2b0b; this full copied corpus is carried to 1cc8f4e after the prior presentation candidate was superseded by the branch-owned validation-loop terminal diagnostic fix plus upstream/main@04857c78ee7 and @a04b6ced4f9 drift absorbs. Targeted local checks passed: exact tui-pty validation-loop abort diagnostic case, embedded-agent subscribe lifecycle/messages tests, embedded backend tests, tool-error-summary tests, agent-runner execution/payload/e2e tests, cron store, UI chat-message, affected tooling shards, docs map check, native i18n check, plugin SDK surface --check, and git diff --check. Gate logs are in gates/ and show 0 FROZEN-STALE with counts 127 SAFE-NEW / 143 GENUINE / 89 MIXED-CLOBBER. COMPLETE corpus. R-CD-CHAINED-DEPTH-2 superseding rerun remains PASS; R-CD-COLLECTION-ON-COLLAPSE PASS; R-CW-7 direct exact-head source/test proof is PASS; R-RC-2 remains honest_limit. R-CD-RETURN-OVERLAP remains PASS-with-caveat for docs#246.",
   "rollup": {
     "fail": 0,
     "honest_limit": 1,
     "missing": 0,
     "partial": 0,
-    "pass": 27,
-    "thin": 1,
+    "pass": 28,
+    "thin": 0,
     "total_rows": 29
   },
   "rows": [
@@ -215,26 +215,17 @@
       "dir": "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/",
       "evidence_doc": "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/EVIDENCE.md",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/220",
-      "note": "THIN: docs#220 explicit traceparent method cannot be satisfied through public model-facing continue_delegate schema on 1cc8f4e; ordinary delegate spawned/returned and runtime-derived traceparent linked parent tool execution, delegate dispatch, child run, and queue drain.",
+      "note": "PASS: exact-head focused tests prove supported traceparent behavior on 1cc8f4e: traceparent remains internal/non-public, continue_delegate auto-picks runtime trace context, delegate dispatch preserves it, and child agent spawn receives/persists/registers it. This replaces the older THIN public-parameter method.",
       "row": "R-CW-7",
-      "state": "thin",
+      "state": "pass",
       "supporting_docs": [
         "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/EVIDENCE.md",
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/comment-4883507771.json",
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/delegate-tool-receipt.json",
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/flow-runs-matching-full.jsonl",
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/flow-traceparents.tsv",
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/subagent-history-excerpt.md",
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/journal-continuation-excerpt.log",
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/schema/agent-schema-traceparent-snippet.txt",
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/schema/agent-schema-test-public-omits-traceparent.txt",
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/schema/continue-delegate-public-keys-test.txt",
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/tempo/trace-0cf17ea0b7eab7a5e998f6a581e7b5bf-summary.jsonl",
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/source/source-sha.txt"
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/source/source-sha.txt",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/source/source-commit.txt",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/source/source-snippets.md",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/test/focused-traceparent-tests.log"
       ],
-      "traces": [
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/tempo/trace-0cf17ea0b7eab7a5e998f6a581e7b5bf.json"
-      ]
+      "traces": []
     },
     {
       "dir": "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/",

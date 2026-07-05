@@ -4,19 +4,28 @@
   "issue": 104,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-emeric-nuc}",
-  "sessionKey": "${OPENCLAW_SESSION_KEY:***-obs}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
   "transport": "ws-status-probe",
   "toolSurface": "read-only",
   "mutates": false,
   "timeoutSeconds": 60,
   "scenario": {
-    "status": "scaffold",
-    "expectedFile": "r-obs-status.js",
-    "registryNotes": "No runnable observer/status scenario exists yet; this read-only manifest is scaffolded until a dedicated runner lands."
+    "status": "runnable",
+    "file": "r-obs-status.js",
+    "name": "r-obs-status",
+    "description": "Read-only gateway status/observer receipt check."
   },
   "expectedReceipts": [
-    { "name": "tempo-trace-id", "required": true, "description": "Tempo trace ID generated and resolvable" },
-    { "name": "observer-receipt", "required": true, "description": "Observer/status receipt intact" }
+    {
+      "name": "tempo-trace-id",
+      "required": true,
+      "description": "Tempo trace ID generated and resolvable"
+    },
+    {
+      "name": "observer-receipt",
+      "required": true,
+      "description": "Observer/status receipt intact"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",
@@ -29,5 +38,18 @@
     "candidateOnly": true,
     "foldRequiresReview": true,
     "notes": "Observer status row. Read-only."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "observer-receipt"
+    ],
+    "foldRequiresReview": true
   }
 }

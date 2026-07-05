@@ -207,6 +207,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-CD-MODEL-TOKEN | planned `r-cd-model-token` | bracket-token | Scaffold; bracket `model=` modifier parse + observed child model byte |
 | R-CD-MODEL-CHAINED-ALT | planned `r-cd-model-chained-alt` | typed-tool | Scaffold; depth-2 delegate observes explicit alternate model |
 | R-CW-1 | `r-cw-1` | typed-tool | Candidate; continue_work schedule + wake |
+| R-OBS-status | `r-obs-status` | read-only | Candidate; gateway status/observer receipt check |
 | R-CW overview | `r-cw` | read-only/infrastructure | Candidate; combined continue_work infrastructure check |
 
 Other manifests may be `scaffold` or `construct-only`: they are tracked rows,

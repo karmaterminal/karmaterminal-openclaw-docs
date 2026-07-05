@@ -1,0 +1,9 @@
+candidate=93dd8b01b3ec86c609ebbcb95d78d8b1989beabb
+upstream=c2fc7aa28a4974b1e63ce6698070cf002e8246d3
+pr_head=600bb4a676b31861911f9ca803a2f8be1736e02d
+proof_sha=bca2b0b89ab886bf23a10e4983926f6b374b3188
+ci_run=28729776503
+review_pr=karmaterminal/openclaw#1163
+--- ancestor checks ---
+upstream_ancestor=no
+pr_head_ancestor=yes

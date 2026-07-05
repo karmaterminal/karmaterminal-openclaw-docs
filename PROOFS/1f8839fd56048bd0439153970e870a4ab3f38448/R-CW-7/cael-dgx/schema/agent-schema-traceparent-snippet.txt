@@ -1,0 +1,21 @@
+   250	    disableMessageTool: Type.Optional(Type.Boolean()),
+   251	    voiceWakeTrigger: Type.Optional(Type.String()),
+   252	    idempotencyKey: NonEmptyString,
+   253	    label: Type.Optional(SessionLabelString),
+   254	    drainsContinuationDelegateQueue: internalProtocolField(
+   255	      Type.Optional(
+   256	        Type.Boolean({
+   257	          description:
+   258	            "Internal continuation runner knob; omitted from public generated protocol artifacts.",
+   259	        }),
+   260	      ),
+   261	    ),
+   262	    traceparent: internalProtocolField(
+   263	      Type.Optional(
+   264	        Type.String({
+   265	          description:
+   266	            "Internal continuation trace context for inherited child agent runs; omitted from public generated protocol artifacts.",
+   267	          pattern: DIAGNOSTIC_TRACEPARENT_PATTERN,
+   268	        }),
+   269	      ),
+   270	    ),

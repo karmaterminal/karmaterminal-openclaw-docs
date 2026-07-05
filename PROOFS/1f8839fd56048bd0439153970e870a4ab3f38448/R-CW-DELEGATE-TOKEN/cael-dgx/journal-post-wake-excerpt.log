@@ -1,0 +1,8 @@
+Jul 04 11:22:37 cael node[2314233]: 2026-07-04T11:22:37.857-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:subagent:continuation-e9f996fc51ca332b1fa86217cf72090e
+Jul 04 11:22:37 cael node[2314233]: 2026-07-04T11:22:37.859-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=60000ms fireAt=1783189417858 session=agent:main:subagent:continuation-e9f996fc51ca332b1fa86217cf72090e
+Jul 04 11:22:37 cael node[2314233]: 2026-07-04T11:22:37.860-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:subagent:continuation-e9f996fc51ca332b1fa86217cf72090e reasonCategory=unknown
+Jul 04 11:22:44 cael node[2314233]: 2026-07-04T11:22:44.782-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:subagent:continuation-e9f996fc51ca332b1fa86217cf72090e
+Jul 04 11:22:44 cael node[2314233]: 2026-07-04T11:22:44.783-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:subagent:continuation-e9f996fc51ca332b1fa86217cf72090e
+Jul 04 11:23:05 cael node[2314233]: 2026-07-04T11:23:05.357-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:23:05 cael node[2314233]: 2026-07-04T11:23:05.357-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jul 04 11:23:37 cael node[2314233]: 2026-07-04T11:23:37.860-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:subagent:continuation-e9f996fc51ca332b1fa86217cf72090e

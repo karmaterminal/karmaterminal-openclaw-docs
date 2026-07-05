@@ -1,0 +1,6 @@
+{
+  "tool":"continue_work",
+  "reason":"R-CW-1 proof marker RCW1_BCA2B0B_CAEL_20260704_1009_TYPED_TOOL: typed continue_work same-session election, package after wake if granted",
+  "delaySeconds":5,
+  "receipt":{"status":"scheduled","delaySeconds":5}
+}

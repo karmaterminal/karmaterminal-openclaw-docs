@@ -1,0 +1,110 @@
+drift-cure-gate: upstream/main  HEAD=HEAD  base=efe4a59ceb7  PRcreate=600bb4a676b
+files examined: 352
+
+  GENUINE        128
+  MIXED-CLOBBER  98
+  SAFE-NEW       126
+
+== FROZEN-STALE (high-confidence pure clobber; re-sync to upstream) ==
+
+== MIXED-CLOBBER (ranked by dropped post-fork upstream lines; triage top-down) ==
+    147  src/agents/command/attempt-execution.ts              ?
+    134  src/auto-reply/reply/agent-runner.ts                 ?
+     52  src/infra/diagnostic-trace-context.ts                ?
+     29  src/agents/subagent-announce.ts                      ?
+     26  src/auto-reply/reply/followup-runner.test.ts         6445a0632d3 feat(cli): render claude CLI native thinking w
+     26  src/agents/embedded-agent-runner/run/attempt.ts      4682364fa6f fix(agents): compact on aggregate tool-result 
+     23  src/auto-reply/reply/agent-runner-execution.ts       ?
+     19  apps/shared/OpenClawKit/Tests/OpenClawKitTests/ChatMarkdownDisplayPreprocessorTests.swift ?
+     18  extensions/raft/src/gateway.test.ts                  ?
+     17  extensions/matrix/src/matrix/monitor/handler.test.ts ?
+     11  src/infra/heartbeat-runner.ts                        ?
+     10  src/auto-reply/reply/agent-runner-execution.test.ts  6445a0632d3 feat(cli): render claude CLI native thinking w
+      9  src/logging/diagnostic.ts                            ?
+      9  src/infra/session-delivery-queue-storage.ts          ?
+      9  src/agents/subagent-spawn.ts                         ?
+      8  test/scripts/kitchen-sink-rpc-walk.test.ts           ?
+      8  src/auto-reply/tokens.test.ts                        ?
+      8  src/auto-reply/reply/session-system-events.ts        ?
+      8  src/agents/subagent-spawn.model-session.test.ts      ?
+      8  extensions/raft/src/config-schema.ts                 ?
+      7  src/logging/diagnostic.test.ts                       ?
+      6  src/agents/embedded-agent-subscribe.handlers.compaction.ts ?
+      6  extensions/slack/src/monitor/message-handler/prepare.test.ts ?
+      6  extensions/diagnostics-otel/src/service.ts           ?
+      5  src/plugin-sdk/system-event-runtime.ts               ?
+      5  src/plugin-sdk/provider-catalog-live-runtime.ts      ?
+      5  src/infra/system-events.ts                           ?
+      5  src/auto-reply/reply/followup-runner.ts              ?
+      5  src/agents/subagent-run-liveness.ts                  ?
+      5  src/agents/embedded-agent-runner/compact.ts          ?
+      4  src/infra/state-migrations.ts                        ?
+      4  src/infra/session-delivery-queue-recovery.ts         ?
+      4  src/infra/session-cost-usage.ts                      ?
+      4  src/commands/configure.commands.ts                   ?
+      4  src/cli/gateway-cli/run.option-collisions.test.ts    bbb744269fc test: make the local pnpm test gate green on m
+      4  scripts/plugin-sdk-surface-report.mjs                6c53dfa1df9 refactor(infra): consolidate bounded HTTP body
+      3  src/tasks/task-flow-registry.audit.test.ts           ?
+      3  src/plugins/wired-hooks-compaction.test.ts           ?
+      3  src/auto-reply/reply/get-reply.ts                    ?
+      3  src/agents/subagent-spawn.test-helpers.ts            ?
+      3  scripts/e2e/secret-provider-integrations.mjs         ?
+      3  extensions/raft/src/accounts.ts                      ?
+      3  extensions/ollama/provider-discovery.test.ts         ?
+      2  test/scripts/ensure-playwright-chromium.test.ts      ?
+      2  src/plugins/openai-compatible-embedding-provider.test.ts ?
+      2  src/infra/heartbeat-wake.ts                          ?
+      2  src/gateway/session-compaction-checkpoints.ts        ?
+      2  src/gateway/server-restart-sentinel.ts               ?
+      2  src/gateway/server-methods/agent.ts                  ?
+      2  src/config/zod-schema.agent-defaults.ts              ?
+      2  src/config/sessions/types.ts                         ?
+      2  src/auto-reply/reply/session-updates.ts              ?
+      2  src/agents/subagent-session-cleanup.ts               ?
+      2  src/agents/subagent-registry-run-manager.ts          ?
+      2  src/agents/subagent-announce.test.ts                 ?
+      2  src/agents/shell-snapshot.ts                         ?
+      2  src/agents/embedded-agent-runner/run.ts              4682364fa6f fix(agents): compact on aggregate tool-result 
+      2  src/agents/embedded-agent-runner/compact-reasons.ts  ?
+      2  src/agents/agent-hooks/compaction-safeguard.ts       ?
+      2  scripts/protocol-gen.ts                              ?
+      2  extensions/codex/src/app-server/dynamic-tools.ts     ?
+      1  test/vitest/vitest.test-shards.mjs                   ?
+      1  test/vitest/vitest.extension-active-memory.config.ts ?
+      1  test/vitest-scoped-config.test.ts                    ?
+      1  test/helpers/agents/prompt-composition-scenarios.ts  ?
+      1  src/plugins/runtime/runtime-system.ts                ?
+      1  src/plugin-sdk/infra-runtime.ts                      ?
+      1  src/plugin-sdk/channel-runtime.ts                    ?
+      1  src/infra/session-delivery-queue.ts                  ?
+      1  src/infra/heartbeat-reason.ts                        ?
+      1  src/infra/heartbeat-reason.test.ts                   ?
+      1  src/infra/exec-authorization-render.ts               ?
+      1  src/gateway/mcp-http.runtime.ts                      ?
+      1  src/config/sessions/artifacts.ts                     ?
+      1  src/auto-reply/reply/get-reply-run.media-only.test.ts ?
+      1  src/agents/subagent-spawn.test.ts                    ?
+      1  src/agents/subagent-registry.ts                      ?
+      1  src/agents/subagent-registry-queries.ts              ?
+      1  src/agents/subagent-registry-lifecycle.ts            ?
+      1  src/agents/subagent-announce.timeout.test.ts         ?
+      1  src/agents/subagent-announce.runtime.ts              ?
+      1  src/agents/subagent-announce.format.e2e.test.ts      ?
+      1  src/agents/shell-snapshot.test.ts                    ?
+      1  src/agents/openclaw-tools.ts                         ?
+      1  src/agents/embedded-agent-subscribe.tools.ts         ?
+      1  src/agents/embedded-agent-subscribe.handlers.compaction.test.ts ?
+      1  src/agents/embedded-agent-subscribe.handlers.compaction.runtime.ts ?
+      1  src/agents/embedded-agent-runner/run/failover-policy.ts ?
+      1  src/agents/embedded-agent-runner/compact.types.ts    ?
+      1  scripts/protocol-gen-swift.ts                        ?
+      1  scripts/deadcode-unused-files.allowlist.mjs          ?
+      1  packages/gateway-protocol/src/schema/agent.ts        ?
+      1  extensions/raft/src/setup.ts                         ?
+      1  extensions/mattermost/src/mattermost/slash-commands.ts ?
+      1  extensions/diagnostics-otel/src/service.test.ts      ?
+      1  extensions/codex/harness.test.ts                     ?
+      1  docs/tools/thinking.md                               ?
+      1  docs/tools/subagents.md                              ?
+
+full TSV: /tmp/gates-1f8839f-20260704T234811Z/gate-2.7/classification.tsv

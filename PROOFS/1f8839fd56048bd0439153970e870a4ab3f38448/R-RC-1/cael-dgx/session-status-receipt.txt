@@ -1,0 +1,4 @@
+OpenClaw 2026.6.11 (bca2b0b)
+Context: 186k/1.0m (19%)
+Continuation: chain 0/200 | 1 post-compaction staged
+Session: agent:main:discord:channel:1466192485440164011

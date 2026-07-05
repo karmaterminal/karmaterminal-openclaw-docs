@@ -1,0 +1,28 @@
+[
+  {
+    "flow_id": "e2683c8c-1d4b-44c2-974d-95f03d1ef47b",
+    "status": "running",
+    "current_step": "Released to continuation wake scheduler",
+    "created_at": 1783185310987,
+    "updated_at": 1783185311015,
+    "ended_at": null,
+    "state_json": {
+      "kind": "continuation_work",
+      "sessionKey": "agent:main:discord:channel:1466192485440164011",
+      "hop": 1,
+      "delayMs": 0,
+      "electedAt": 1783185310987,
+      "dueAt": 1783185311013,
+      "maxChainLength": 200,
+      "chainStartedAt": 1783185290747,
+      "accumulatedChainTokens": 130932,
+      "reason": "R-CW-2 proof marker RCW2_BCA2B0B_CAEL_20260704_1015_IMMEDIATE: typed continue_work delaySeconds=0 immediate same-session wake and chain counter",
+      "chainId": "85f98bf9-b9c3-493a-b8e2-2a21c6d557a5",
+      "traceparent": "00-92f2a184a3dfce5fcf6f3ffccadce14c-4e51c82b1e96123d-01",
+      "anchorFinalizedAt": 1783185311013,
+      "originRunId": "14461544-dc75-4843-9aa4-f66e994e2cb1",
+      "originTurnId": "41d9a673-87d9-4784-b7a2-b5b207295fd4",
+      "releasedAt": 1783185311015
+    }
+  }
+]

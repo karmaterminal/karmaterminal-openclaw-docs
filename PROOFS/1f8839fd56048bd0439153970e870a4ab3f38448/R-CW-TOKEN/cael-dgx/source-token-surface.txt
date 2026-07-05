@@ -1,0 +1,5 @@
+Taking `R-CW-TOKEN` next. I’ll test the bare fallback token path exactly, with marker `RCW_TOKEN_BCA2B0B_CAEL_20260704_0917`, and I’ll only claim it if the parser/scheduler/wake byte fires from the token surface.
+
+RCW_TOKEN_BCA2B0B_CAEL_20260704_0917 fire marker.
+
+CONTINUE_WORK:5

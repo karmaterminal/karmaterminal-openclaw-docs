@@ -1,0 +1,15 @@
+{
+  "row": "R-CD-CHAINED-DEPTH-2",
+  "candidate": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
+  "verdict": "PASS",
+  "supersedingRun": "RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403",
+  "previousPartialRun": "RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1245",
+  "rootToDepth1FlowSucceeded": true,
+  "depth1TypedContinueDelegateObserved": true,
+  "depth1ToDepth2FlowSucceeded": true,
+  "depth2LeafSentinelObserved": true,
+  "depth1ReturnedAfterSeeingLeaf": true,
+  "rootObservedDepth1FinalWithLeaf": true,
+  "depth1ReturnSurface": "RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403_DEPTH1_SAW_LEAF_AND_RETURNED",
+  "traceId": "50bc5319a8b0f6afed56282aeddb5950"
+}

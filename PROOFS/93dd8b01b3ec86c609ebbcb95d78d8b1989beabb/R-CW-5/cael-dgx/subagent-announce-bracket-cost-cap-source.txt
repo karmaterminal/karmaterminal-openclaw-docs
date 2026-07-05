@@ -1,0 +1,56 @@
+          );
+        } else {
+          const { maxChainLength, costCapTokens, minDelayMs, maxDelayMs, crossSessionTargeting } =
+            subagentAnnounceDeps.resolveContinuationRuntimeConfig(cfg);
+
+          const hopMatch = childTask.match(CONTINUATION_CHAIN_HOP_PATTERN);
+          const childChainHop = hopMatch ? Number.parseInt(hopMatch[1], 10) : 0;
+          const nextChainHop = childChainHop + 1;
+
+          let chainGuardResult:
+            | { allowed: false; reason: "chain-length"; chainCount: number; maxChainLength: number }
+            | { allowed: false; reason: "cost-cap"; chainTokens: number; costCapTokens: number }
+            | { allowed: true; nextChainHop: number };
+
+          if (childChainHop >= maxChainLength) {
+            chainGuardResult = {
+              allowed: false,
+              reason: "chain-length",
+              chainCount: nextChainHop,
+              maxChainLength,
+            };
+          } else {
+            const parentEntry = readSessionEntryByKey(targetRequesterSessionKey);
+            const storedChainTokens = parentEntry?.continuationChainTokens ?? 0;
+            // storedChainTokens already includes this run's tokens when the
+            // parent accumulation persist succeeded (parentChainTokensToFold === 0).
+            // If that persist FAILED, the entry is stale and parentChainTokensToFold
+            // carries the run cost so the guard still enforces against the post-run
+            // total — never guessed from a `stored >= run` heuristic that
+            // under-enforces when the stale prior chain cost already exceeds the
+            // run cost (#1144).
+            const parentChainTokens = storedChainTokens + parentChainTokensToFold;
+            if (costCapTokens > 0 && parentChainTokens > costCapTokens) {
+              chainGuardResult = {
+                allowed: false,
+                reason: "cost-cap",
+                chainTokens: parentChainTokens,
+                costCapTokens,
+              };
+            } else {
+              chainGuardResult = { allowed: true, nextChainHop };
+            }
+          }
+
+          if (!chainGuardResult.allowed) {
+            if (chainGuardResult.reason === "chain-length") {
+              defaultRuntime.log(
+                `[subagent-chain-hop] Chain length ${chainGuardResult.chainCount} > ${chainGuardResult.maxChainLength}, rejecting hop from ${params.childSessionKey}`,
+              );
+            } else {
+              defaultRuntime.log(
+                `[subagent-chain-hop] Cost cap exceeded (${chainGuardResult.chainTokens} > ${chainGuardResult.costCapTokens}), rejecting hop from ${params.childSessionKey}`,
+              );
+            }
+          } else {
+            const doChainSpawn = async (): Promise<boolean> => {

@@ -1,0 +1,2 @@
+bca2b0b89ab886bf23a10e4983926f6b374b3188
+bca2b0b89ab (HEAD, origin/scribe/20260703/assembly-1159-main-backmerge, origin/frond-scribe/20260624/assembly-continuation-followons) Merge remote-tracking branch 'upstream/main' into scribe/20260703/assembly-1159-main-backmerge

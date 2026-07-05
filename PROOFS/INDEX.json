@@ -1,12 +1,12 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "93dd8b01b3ec86c609ebbcb95d78d8b1989beabb",
-  "current_sha_short": "93dd8b0",
-  "build_string": "OpenClaw 2026.6.11 (93dd8b0) — full copied post-1163/1165, upstream-drift, SDK-budget, docs-map, and compact-small fixture proof corpus; raw live-fire capture from bca2b0b",
-  "corpus_path": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/",
-  "manifest_path": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/proofs-manifest.json",
-  "readme_path": "PROOFS/93dd8b01b3ec86c609ebbcb95d78d8b1989beabb/README.md",
+  "current_sha": "71a1dfff040000ce8862d30d0587ebee044a23b3",
+  "current_sha_short": "71a1dff",
+  "build_string": "OpenClaw 2026.6.11 (71a1dff) — full copied post-1166 bracket-delegate sanitizer, upstream-drift, SDK-budget, docs-map, compact-small fixture, and upstream/main backmerge proof corpus; raw live-fire capture from bca2b0b",
+  "corpus_path": "PROOFS/71a1dfff040000ce8862d30d0587ebee044a23b3/",
+  "manifest_path": "PROOFS/71a1dfff040000ce8862d30d0587ebee044a23b3/proofs-manifest.json",
+  "readme_path": "PROOFS/71a1dfff040000ce8862d30d0587ebee044a23b3/README.md",
   "rollup": {
     "total_rows": 29,
     "pass": 27,
@@ -16,10 +16,10 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "COMPLETE full copied transposed corpus for candidate 93dd8b0; raw row evidence was captured on bca2b0b and carried after the #1163/#1165 P2 fold, upstream-drift backmerge, and SDK-budget CI fix, docs-map refresh, and deterministic compact-small post-compaction release fixture fix and upstream/main backmerge. PR CI is queued for the exact candidate SHA.",
+  "disposition_note": "COMPLETE full copied transposed corpus for candidate 71a1dff; raw row evidence was captured on bca2b0b and carried after the #1163/#1165 P2 fold, upstream-drift backmerge, SDK-budget CI fix, docs-map refresh, deterministic compact-small post-compaction release fixture fix, upstream/main backmerge, and #1166 bracket-delegate trusted-echo sanitizer. PR CI is queued for the exact candidate SHA.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-07-05T04:43:13Z",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
-  "capture_sha": "93dd8b01b3ec86c609ebbcb95d78d8b1989beabb",
-  "carried_from": "bca2b0b89ab886bf23a10e4983926f6b374b3188"
+  "capture_sha": "71a1dfff040000ce8862d30d0587ebee044a23b3",
+  "carried_from": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
+  "generated": "2026-07-05T05:41:14Z"
 }

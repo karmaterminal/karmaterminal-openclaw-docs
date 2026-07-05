@@ -1,0 +1,5 @@
+{
+  "status": "error",
+  "tool": "continue_delegate",
+  "error": "fanoutMode cannot be combined with targetSessionKey or targetSessionKeys. For a targeted return, use targetSessionKey or targetSessionKeys and omit fanoutMode. For tree/all fanout, use fanoutMode and omit explicit target keys."
+}

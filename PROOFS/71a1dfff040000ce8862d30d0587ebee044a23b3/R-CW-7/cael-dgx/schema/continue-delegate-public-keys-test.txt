@@ -1,0 +1,16 @@
+   170	      "mode",
+   171	      "targetSessionKey",
+   172	      "targetSessionKeys",
+   173	      "fanoutMode",
+   174	      "model",
+   175	    ].toSorted();
+   176	    const actualKeys = Object.keys(properties).toSorted();
+   177	    expect(
+   178	      actualKeys,
+   179	      `continue_delegate descriptor must advertise exactly [task, delaySeconds, mode, targetSessionKey, targetSessionKeys, fanoutMode, model]; got [${actualKeys.join(", ")}]`,
+   180	    ).toEqual(expectedKeys);
+   181	
+   182	    // task is required (model-facing contract).
+   183	    expect(params.required).toContain("task");
+   184	
+   185	    // mode enum must include the four canonical values.

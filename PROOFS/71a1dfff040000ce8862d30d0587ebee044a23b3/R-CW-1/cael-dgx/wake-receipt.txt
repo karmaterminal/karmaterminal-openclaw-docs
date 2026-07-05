@@ -1,0 +1,15 @@
+Continuation wake from typed continue_work:
+Turn 1/200
+Chain started at: 2026-07-04T17:04:52.540Z
+Accumulated tokens: 120214
+Origin run: 22e0d676-bcb7-4e1d-894d-b5249ca4a3c6
+Origin turn: 41d9a673-87d9-4784-b7a2-b5b207295fd4
+Elected at: 2026-07-04T17:09:27.680Z
+Electing turn finalized at: 2026-07-04T17:09:27.708Z
+Due at: 2026-07-04T17:09:32.708Z
+Overdue by: 17ms
+Delivered at: 2026-07-04T17:09:32.725Z
+Disposition: granted
+Chain: 8ea6db6e-2355-4374-8875-718dc12358a0 hop 1/200
+Flow: f0ce36d5-dfb7-4314-90ad-c945f95a4569
+Prior reason: R-CW-1 proof marker RCW1_BCA2B0B_CAEL_20260704_1009_TYPED_TOOL: typed continue_work same-session election, package after wake if granted

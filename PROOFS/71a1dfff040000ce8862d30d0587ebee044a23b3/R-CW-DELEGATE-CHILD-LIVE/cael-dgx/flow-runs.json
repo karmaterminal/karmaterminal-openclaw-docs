@@ -1,0 +1,92 @@
+[
+  {
+    "flow_id": "fe788ca4-90de-476f-9039-f42503547e36",
+    "status": "succeeded",
+    "created_at": 1783174855588,
+    "updated_at": 1783175148318,
+    "chain_id": "5e7d4ef1-ea42-495b-82b4-14445b146dd9",
+    "state": {
+      "kind": "continuation_work",
+      "sessionKey": "agent:main:discord:channel:1466192485440164011",
+      "hop": 1,
+      "delayMs": 180000,
+      "electedAt": 1783174855588,
+      "dueAt": 1783175036011,
+      "maxChainLength": 200,
+      "chainStartedAt": 1783174256074,
+      "accumulatedChainTokens": 52166,
+      "reason": "R-CW-DELEGATE-CHILD-LIVE check at 3m: verify child marker RCW_DELEGATE_CHILD_LIVE_BCA2B0B_CAEL_20260704_0719 produced hop1 and hop2-EXECUTED files under /tmp/rcw-delegate-child-live-bca2b0b-cael-20260704-0719, then capture receipts/trace/journal and package docs#213 evidence.",
+      "chainId": "5e7d4ef1-ea42-495b-82b4-14445b146dd9",
+      "traceparent": "00-e9e66ffebfa3f0acad6c53f6d9ddfd96-16a68144007e5459-01",
+      "anchorFinalizedAt": 1783174856011,
+      "originRunId": "a32cb40d-ac95-44fb-83a9-f07e2001f92e",
+      "originTurnId": "377148b2-25d3-4d95-8ca1-2d6a7dacdff9",
+      "releasedAt": 1783175036016,
+      "deliveredAt": 1783175148318,
+      "disposition": "granted",
+      "succeeded": {
+        "point": "optimal",
+        "durability": "durable"
+      },
+      "turnGrantedAt": 1783175148318,
+      "busySkipCount": 0
+    }
+  },
+  {
+    "flow_id": "57553631-5d45-4aac-bb5e-fddcf31ca63d",
+    "status": "succeeded",
+    "created_at": 1783174876017,
+    "updated_at": 1783174892312,
+    "chain_id": null,
+    "state": {
+      "kind": "continuation_work",
+      "sessionKey": "agent:main:subagent:continuation-1e5c31ad4a0cee60278f1200706b0b3e",
+      "hop": 1,
+      "delayMs": 5000,
+      "electedAt": 1783174876017,
+      "dueAt": 1783174881017,
+      "maxChainLength": 200,
+      "chainStartedAt": 1783174876017,
+      "accumulatedChainTokens": 48356,
+      "reason": "R-CW-DELEGATE-CHILD-LIVE hop2 wake marker RCW_DELEGATE_CHILD_LIVE_BCA2B0B_CAEL_20260704_0719",
+      "traceparent": "00-e9e66ffebfa3f0acad6c53f6d9ddfd96-16a68144007e5459-01",
+      "anchorFinalizedAt": 1783174876017,
+      "originRunId": "continuation-delegate-1e5c31ad4a0cee60278f1200706b0b3e",
+      "originTurnId": "28335628-9400-4a8e-9d74-69570d44b1b0",
+      "releasedAt": 1783174881020,
+      "deliveredAt": 1783174892311,
+      "disposition": "granted",
+      "succeeded": {
+        "point": "optimal",
+        "durability": "durable"
+      },
+      "turnGrantedAt": 1783174892312,
+      "busySkipCount": 0
+    }
+  },
+  {
+    "flow_id": "8e6ad380-3560-4f69-a21f-e5f999cd4760",
+    "status": "running",
+    "created_at": 1783175148272,
+    "updated_at": 1783175328318,
+    "chain_id": "5e7d4ef1-ea42-495b-82b4-14445b146dd9",
+    "state": {
+      "kind": "continuation_work",
+      "sessionKey": "agent:main:discord:channel:1466192485440164011",
+      "hop": 3,
+      "delayMs": 180000,
+      "electedAt": 1783175148272,
+      "dueAt": 1783175328313,
+      "maxChainLength": 200,
+      "chainStartedAt": 1783174256074,
+      "accumulatedChainTokens": 192668,
+      "reason": "R-CW-DELEGATE-CHILD-LIVE packaging follow-through: package docs#213 evidence/trace/session excerpts for marker RCW_DELEGATE_CHILD_LIVE_BCA2B0B_CAEL_20260704_0719, open PR or report blocker.",
+      "chainId": "5e7d4ef1-ea42-495b-82b4-14445b146dd9",
+      "traceparent": "00-e9e66ffebfa3f0acad6c53f6d9ddfd96-16a68144007e5459-01",
+      "anchorFinalizedAt": 1783175148313,
+      "originRunId": "a4e479f1-e76b-439f-b296-5830b68989b3",
+      "originTurnId": "377148b2-25d3-4d95-8ca1-2d6a7dacdff9",
+      "releasedAt": 1783175328318
+    }
+  }
+]

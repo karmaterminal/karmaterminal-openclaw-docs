@@ -1,12 +1,12 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "16b8d3c94a4b08f5b47d6e8c699dc9d37860db74",
-  "current_sha_short": "16b8d3c",
-  "build_string": "OpenClaw 2026.6.11 (16b8d3c) — full copied post-1163/1165, upstream-drift, and SDK-budget proof corpus; raw live-fire capture from bca2b0b",
-  "corpus_path": "PROOFS/16b8d3c94a4b08f5b47d6e8c699dc9d37860db74/",
-  "manifest_path": "PROOFS/16b8d3c94a4b08f5b47d6e8c699dc9d37860db74/proofs-manifest.json",
-  "readme_path": "PROOFS/16b8d3c94a4b08f5b47d6e8c699dc9d37860db74/README.md",
+  "current_sha": "1aba291f8230bc29c56e3e22bda21911b27c36a6",
+  "current_sha_short": "1aba291f",
+  "build_string": "OpenClaw 2026.6.11 (1aba291f) — full copied post-1163/1165, upstream-drift, SDK-budget, docs-map, and compact-small fixture proof corpus; raw live-fire capture from bca2b0b",
+  "corpus_path": "PROOFS/1aba291f8230bc29c56e3e22bda21911b27c36a6/",
+  "manifest_path": "PROOFS/1aba291f8230bc29c56e3e22bda21911b27c36a6/proofs-manifest.json",
+  "readme_path": "PROOFS/1aba291f8230bc29c56e3e22bda21911b27c36a6/README.md",
   "rollup": {
     "total_rows": 29,
     "pass": 27,
@@ -16,10 +16,10 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "COMPLETE full copied transposed corpus for candidate 16b8d3c; raw row evidence was captured on bca2b0b and carried after the #1163/#1165 P2 fold, upstream-drift backmerge, and SDK-budget CI fix. Exact CI run 28726543652 is in progress.",
+  "disposition_note": "COMPLETE full copied transposed corpus for candidate 1aba291f; raw row evidence was captured on bca2b0b and carried after the #1163/#1165 P2 fold, upstream-drift backmerge, and SDK-budget CI fix, docs-map refresh, and compact-small fixture isolation fix. PR CI is rerunning on the exact candidate SHA.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-07-05T02:08:47Z",
+  "generated": "2026-07-05T03:54:47Z",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
-  "capture_sha": "16b8d3c94a4b08f5b47d6e8c699dc9d37860db74",
+  "capture_sha": "1aba291f8230bc29c56e3e22bda21911b27c36a6",
   "carried_from": "bca2b0b89ab886bf23a10e4983926f6b374b3188"
 }

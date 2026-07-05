@@ -1,12 +1,12 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "1aba291f8230bc29c56e3e22bda21911b27c36a6",
-  "current_sha_short": "1aba291f",
-  "build_string": "OpenClaw 2026.6.11 (1aba291f) — full copied post-1163/1165, upstream-drift, SDK-budget, docs-map, and compact-small fixture proof corpus; raw live-fire capture from bca2b0b",
-  "corpus_path": "PROOFS/1aba291f8230bc29c56e3e22bda21911b27c36a6/",
-  "manifest_path": "PROOFS/1aba291f8230bc29c56e3e22bda21911b27c36a6/proofs-manifest.json",
-  "readme_path": "PROOFS/1aba291f8230bc29c56e3e22bda21911b27c36a6/README.md",
+  "current_sha": "5f73b3a743355fa86771a3e4bb825c8d430e9a07",
+  "current_sha_short": "5f73b3a",
+  "build_string": "OpenClaw 2026.6.11 (5f73b3a) — full copied post-1163/1165, upstream-drift, SDK-budget, docs-map, and compact-small fixture proof corpus; raw live-fire capture from bca2b0b",
+  "corpus_path": "PROOFS/5f73b3a743355fa86771a3e4bb825c8d430e9a07/",
+  "manifest_path": "PROOFS/5f73b3a743355fa86771a3e4bb825c8d430e9a07/proofs-manifest.json",
+  "readme_path": "PROOFS/5f73b3a743355fa86771a3e4bb825c8d430e9a07/README.md",
   "rollup": {
     "total_rows": 29,
     "pass": 27,
@@ -16,10 +16,10 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "COMPLETE full copied transposed corpus for candidate 1aba291f; raw row evidence was captured on bca2b0b and carried after the #1163/#1165 P2 fold, upstream-drift backmerge, and SDK-budget CI fix, docs-map refresh, and compact-small fixture isolation fix. PR CI is rerunning on the exact candidate SHA.",
+  "disposition_note": "COMPLETE full copied transposed corpus for candidate 5f73b3a; raw row evidence was captured on bca2b0b and carried after the #1163/#1165 P2 fold, upstream-drift backmerge, and SDK-budget CI fix, docs-map refresh, and deterministic compact-small no-delegate fixture fix. PR CI is queued for the exact candidate SHA.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-07-05T03:54:47Z",
+  "generated": "2026-07-05T04:10:51Z",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
-  "capture_sha": "1aba291f8230bc29c56e3e22bda21911b27c36a6",
+  "capture_sha": "5f73b3a743355fa86771a3e4bb825c8d430e9a07",
   "carried_from": "bca2b0b89ab886bf23a10e4983926f6b374b3188"
 }

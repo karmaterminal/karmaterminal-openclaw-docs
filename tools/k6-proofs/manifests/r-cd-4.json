@@ -17,7 +17,8 @@
     "name": "r-cd-4-target-session-key",
     "description": "continue_delegate with targetSessionKey: delegate return lands in a SPECIFIED target session, not the dispatching session. Cross-session targeted delivery.",
     "methods": [
-      "tools.invoke",
+      "sessions.create",
+      "sessions.send",
       "sessions.messages.subscribe",
       "tasks.list"
     ],
@@ -34,34 +35,39 @@
   },
   "expectedReceipts": [
     {
-      "name": "tool-invoke-accepted",
+      "name": "parent-session-created",
       "required": true,
-      "description": "Gateway accepted continue_delegate with targetSessionKey"
+      "description": "Disposable parent session was created via sessions.create when disposable mode is enabled"
+    },
+    {
+      "name": "target-session-created",
+      "required": true,
+      "description": "Disposable target session was created via sessions.create when disposable mode is enabled"
+    },
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the dispatching sessions.send request that asks the agent to call continue_delegate with targetSessionKey"
+    },
+    {
+      "name": "target-return-event",
+      "required": true,
+      "description": "A delayed return/wake event arrives in the TARGET session"
+    },
+    {
+      "name": "no-parent-return",
+      "required": true,
+      "description": "Dispatching parent session does NOT receive the delayed return/wake"
     },
     {
       "name": "task-ledger-entry",
       "required": false,
-      "description": "Optional extra context only; target-session proof must use subscribed session events rather than the generic TaskFlow task ledger"
-    },
-    {
-      "name": "child-completes",
-      "required": true,
-      "description": "Child delegate completes its task"
-    },
-    {
-      "name": "return-lands-in-target",
-      "required": true,
-      "description": "Delegate return arrives in the TARGET session (not the dispatching session)"
-    },
-    {
-      "name": "no-return-to-parent",
-      "required": true,
-      "description": "Dispatching session does NOT receive the return (delivery went to target)"
+      "description": "Optional context only; continue_delegate may not appear in generic TaskFlow task ledger"
     },
     {
       "name": "trace-id",
       "required": false,
-      "description": "Trace ID for Tempo correlation"
+      "description": "Trace ID for Tempo correlation when emitted"
     }
   ],
   "artifactDestination": {
@@ -75,5 +81,25 @@
     "candidateOnly": true,
     "foldRequiresReview": true,
     "notes": "Cross-session targeted return. PASS-candidate when: (1) dispatch accepted with targetSessionKey, (2) return lands in TARGET session, (3) dispatching session does NOT receive the return. A nonce-correlated tasks.list row is optional because continue_delegate uses pending-delegate/subagent surfaces, not the generic task registry."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "parent-session-created",
+      "target-session-created",
+      "dispatch-accepted",
+      "target-return-event",
+      "no-parent-return",
+      "trace-id"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true for repeatability; explicit OPENCLAW_TARGET_SESSION_KEY still supported for reviewed manual runs."
   }
 }

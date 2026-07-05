@@ -52,3 +52,36 @@ OPENCLAW_CANDIDATE_SHA=<candidate-sha> \
 ## Fold guidance
 
 PASS requires target receipt and no parent receipt for the return. Before unattended runner use, add `liveRunSafety` to the manifest with `requiresTargetSessionKey=true` and `sameSessionConcurrencySafe=false`.
+
+## Disposable parent/target mode
+
+For repeatability, prefer disposable parent and target sessions instead of using the live coordination session:
+
+```bash
+cd tools/k6-proofs
+OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true \
+OPENCLAW_MIN_DELEGATE_DELAY_MS=5000 \
+  ./scripts/run-proofs.sh --live --out-dir /tmp/k6-proof-runs R-CD-4 <candidate-sha>
+```
+
+The scenario creates two sessions with `sessions.create`, subscribes to both, sends the dispatch prompt to the disposable parent, and asks that parent to call `continue_delegate(mode="silent-wake", targetSessionKey=<disposable-target>)`. Evidence includes created session keys, dispatch acceptance, target return/wake, and absence of parent return/wake.
+
+## Repeatability note — 2026-07-05 disposable mode
+
+Disposable parent/target mode was validated with three consecutive live runs:
+
+```bash
+OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true \
+OPENCLAW_MIN_DELEGATE_DELAY_MS=5000 \
+  ./scripts/run-proofs.sh --live --out-dir /tmp/p81-rcd4-disposable-repeat R-CD-4 71a1dfff040000ce8862d30d0587ebee044a23b3
+```
+
+Results:
+
+```text
+run=1 rc=0 verdict=PASS-candidate failures=0 duration_avg=8955ms  evidence=parent_created/target_created/tool_accepted/agent_turn/return_target true, return_parent false
+run=2 rc=0 verdict=PASS-candidate failures=0 duration_avg=12435ms evidence=parent_created/target_created/tool_accepted/agent_turn/return_target true, return_parent false
+run=3 rc=0 verdict=PASS-candidate failures=0 duration_avg=14636ms evidence=parent_created/target_created/tool_accepted/agent_turn/return_target true, return_parent false
+```
+
+This makes the positive targeted-return row mechanically repeatable as `PASS-candidate`. The older guard-side proof for invalid `fanoutMode + targetSessionKey` remains valid but is a different row shape; this scenario now covers the positive targeted-return path.

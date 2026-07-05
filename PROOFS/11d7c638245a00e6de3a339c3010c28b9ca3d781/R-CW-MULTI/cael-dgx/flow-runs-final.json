@@ -1,0 +1,106 @@
+[
+  {
+    "flow_id": "2e235f25-326b-4ebe-aab5-1b7c5cc154fd",
+    "status": "succeeded",
+    "current_step": "Same-session continuation turn granted",
+    "created_at": 1783179989452,
+    "updated_at": 1783180081308,
+    "ended_at": 1783180081308,
+    "state_json": {
+      "kind": "continuation_work",
+      "sessionKey": "agent:main:discord:channel:1466192485440164011",
+      "hop": 1,
+      "delayMs": 5000,
+      "electedAt": 1783179989452,
+      "dueAt": 1783179994489,
+      "maxChainLength": 200,
+      "chainStartedAt": 1783177466903,
+      "accumulatedChainTokens": 67072,
+      "reason": "RCW_MULTI_BCA2B0B_CAEL_20260704_0846_A typed multi-continue_work proof election A; expected distinct wake marker A_WAKE if fan-out works",
+      "chainId": "3bb8e24a-c1e1-4bbd-af77-968a1f03c744",
+      "traceparent": "00-0958e0b039d3d1aa2da887f956f976c0-b4fbc1cae5dcdfe6-01",
+      "anchorFinalizedAt": 1783179989489,
+      "originRunId": "c4169aed-edf6-4cd2-8001-4ca55697dcd2",
+      "originTurnId": "41d9a673-87d9-4784-b7a2-b5b207295fd4",
+      "releasedAt": 1783179994493,
+      "deliveredAt": 1783180081308,
+      "disposition": "granted",
+      "succeeded": {
+        "point": "optimal",
+        "durability": "durable"
+      },
+      "turnGrantedAt": 1783180081308,
+      "busySkipCount": 0
+    }
+  },
+  {
+    "flow_id": "ee8fd1ff-73a7-447c-a0de-75e8377a6950",
+    "status": "succeeded",
+    "current_step": "folded-into-active-turn: matured while a later turn was active",
+    "created_at": 1783179989458,
+    "updated_at": 1783180004595,
+    "ended_at": 1783180004595,
+    "state_json": {
+      "kind": "continuation_work",
+      "sessionKey": "agent:main:discord:channel:1466192485440164011",
+      "hop": 2,
+      "delayMs": 10000,
+      "electedAt": 1783179989458,
+      "dueAt": 1783179999489,
+      "maxChainLength": 200,
+      "chainStartedAt": 1783177466903,
+      "accumulatedChainTokens": 67072,
+      "reason": "RCW_MULTI_BCA2B0B_CAEL_20260704_0846_B typed multi-continue_work proof election B; expected distinct wake marker B_WAKE if fan-out works",
+      "chainId": "3bb8e24a-c1e1-4bbd-af77-968a1f03c744",
+      "traceparent": "00-0958e0b039d3d1aa2da887f956f976c0-b4fbc1cae5dcdfe6-01",
+      "anchorFinalizedAt": 1783179989489,
+      "originRunId": "c4169aed-edf6-4cd2-8001-4ca55697dcd2",
+      "originTurnId": "41d9a673-87d9-4784-b7a2-b5b207295fd4",
+      "releasedAt": 1783179999493,
+      "foldedAt": 1783180004593,
+      "overdueByMs": 7,
+      "disposition": "folded-active",
+      "busySkipCount": 0,
+      "succeeded": {
+        "point": "optimal",
+        "durability": "durable"
+      },
+      "turnGrantedAt": 1783180004595
+    }
+  },
+  {
+    "flow_id": "78efa76f-e2ca-42df-b1f7-42e88ce36728",
+    "status": "succeeded",
+    "current_step": "folded-into-active-turn: matured while a later turn was active",
+    "created_at": 1783179989462,
+    "updated_at": 1783180004600,
+    "ended_at": 1783180004600,
+    "state_json": {
+      "kind": "continuation_work",
+      "sessionKey": "agent:main:discord:channel:1466192485440164011",
+      "hop": 3,
+      "delayMs": 15000,
+      "electedAt": 1783179989462,
+      "dueAt": 1783180004489,
+      "maxChainLength": 200,
+      "chainStartedAt": 1783177466903,
+      "accumulatedChainTokens": 67072,
+      "reason": "RCW_MULTI_BCA2B0B_CAEL_20260704_0846_C typed multi-continue_work proof election C; expected distinct wake marker C_WAKE if fan-out works",
+      "chainId": "3bb8e24a-c1e1-4bbd-af77-968a1f03c744",
+      "traceparent": "00-0958e0b039d3d1aa2da887f956f976c0-b4fbc1cae5dcdfe6-01",
+      "anchorFinalizedAt": 1783179989489,
+      "originRunId": "c4169aed-edf6-4cd2-8001-4ca55697dcd2",
+      "originTurnId": "41d9a673-87d9-4784-b7a2-b5b207295fd4",
+      "releasedAt": 1783180004493,
+      "foldedAt": 1783180004599,
+      "overdueByMs": 6,
+      "disposition": "folded-active",
+      "busySkipCount": 0,
+      "succeeded": {
+        "point": "optimal",
+        "durability": "durable"
+      },
+      "turnGrantedAt": 1783180004600
+    }
+  }
+]

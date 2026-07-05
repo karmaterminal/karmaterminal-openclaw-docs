@@ -1,0 +1,11 @@
+{
+  "runId":"continuation-delegate-8fbf0b808c159191b30c51ad4c3e3fbc",
+  "sessionKey":"agent:main:subagent:continuation-8fbf0b808c159191b30c51ad4c3e3fbc",
+  "status":"done",
+  "pendingDescendants":0,
+  "runtime":"6s",
+  "runtimeMs":6061,
+  "model":"github-copilot/gpt-5.5",
+  "startedAt":1783191096309,
+  "endedAt":1783191102662
+}

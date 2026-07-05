@@ -1,0 +1,96 @@
+OpenClaw 2026.6.11 (bca2b0b)
+
+OpenClaw status
+
+Overview
+┌──────────────────────┬───────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Item                 │ Value                                                                                         │
+├──────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────┤
+│ OS                   │ linux 6.17.0-1018-nvidia (arm64) · node 25.9.0                                                │
+│ Dashboard            │ http://127.0.0.1:18789/                                                                       │
+│ Tailscale exposure   │ off                                                                                           │
+│ Channel              │ dev (default)                                                                                 │
+│ Git                  │ git · @ bca2b0b8                                                                              │
+│ Update               │ git HEAD · deps stale                                                                         │
+│ Gateway              │ local · ws://127.0.0.1:18789 (local loopback) · reachable 99ms · auth token · cael (10.0.0.   │
+│                      │ 148) app 2026.6.11 linux 6.17.0-1018-nvidia                                                   │
+│ Gateway self         │ cael (10.0.0.148) app 2026.6.11 linux 6.17.0-1018-nvidia                                      │
+│ Gateway service      │ systemd user installed · enabled · running (pid 2267720, state active)                        │
+│ Node service         │ systemd user not installed                                                                    │
+│ Agents               │ 1 · no workspaces bootstrapping · sessions 126 · default main active 1m ago                   │
+│ Memory               │ enabled (plugin memory-core) · not checked                                                    │
+│ Plugin compatibility │ none                                                                                          │
+│ Probes               │ skipped (use --deep)                                                                          │
+│ Events               │ none                                                                                          │
+│ Tasks                │ 0 active · 0 queued · 0 running · 10 issues · audit clean · 108 tracked                       │
+│ Heartbeat            │ 30m (main)                                                                                    │
+│ Continuation         │ enabled · chain max 200 · fan-out max 500                                                     │
+│ Sessions             │ 126 active · default gpt-5.5 (1.0m ctx) · ~/.openclaw/agents/main/sessions/sessions.json      │
+└──────────────────────┴───────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Model selection
+Session agent:main:subagent:da9aa4d0-c0a6-4be6-aef4-9d1… is pinned to openai/gpt-5.4; config primary github-copilot/gpt-5.5 will apply to new/unpinned sessions.
+  Configured default: github-copilot/gpt-5.5
+  Session selected: openai/gpt-5.4
+  Reason: session override
+  Clear with: /model default
+  Docs: https://docs.openclaw.ai/concepts/models#selection-source-and-fallback-behavior
+Session agent:main:subagent:continuation-9ffa6e0ac1af1b… is pinned to github-copilot/gemini-3.1-pro-preview; config primary github-copilot/gpt-5.5 will apply to new/unpinned sessions.
+  Configured default: github-copilot/gpt-5.5
+  Session selected: github-copilot/gemini-3.1-pro-preview
+  Reason: session override
+  Clear with: /model default
+  Docs: https://docs.openclaw.ai/concepts/models#selection-source-and-fallback-behavior
+
+Security audit
+Skipped in fast status. Full report: openclaw security audit
+Deep probe: openclaw status --deep
+
+Channels
+┌──────────┬─────────┬────────┬────────────────────────────────────────────────────────────────────────────────────────┐
+│ Channel  │ Enabled │ State  │ Detail                                                                                 │
+├──────────┼─────────┼────────┼────────────────────────────────────────────────────────────────────────────────────────┤
+│ discord  │ ON      │ SETUP  │ configured; status unavailable in fast mode                                            │
+└──────────┴─────────┴────────┴────────────────────────────────────────────────────────────────────────────────────────┘
+
+Sessions
+┌────────────────┬─────────────┬─────────┬────────────────────────┬──────────────────┬─────────────────────────────────┐
+│ Key            │ Kind        │ Age     │ Model                  │ Runtime          │ Tokens                          │
+├────────────────┼─────────────┼─────────┼────────────────────────┼──────────────────┼─────────────────────────────────┤
+│ agent:main:dis │ group       │ 1m ago  │ gpt-5.5                │ OpenClaw Default │ 87k/1.0m (9%) · 🗄️ 82% cached   │
+│ cord:channel:1 │             │         │                        │                  │                                 │
+│ 466…           │             │         │                        │                  │                                 │
+│ agent:main:mai │ direct      │ 4m ago  │ gpt-5.5                │ OpenClaw Default │ 126k/1.0m (13%) · 🗄️ 97% cached │
+│ n              │             │         │                        │                  │                                 │
+│ agent:main:sub │ spawn-child │ 58m ago │ gpt-5.5                │ OpenClaw Default │ 48k/1.0m (5%)                   │
+│ agent:continua │             │         │                        │                  │                                 │
+│ tio…           │             │         │                        │                  │                                 │
+│ agent:main:cro │ cron        │ 5h ago  │ gpt-5.5                │ OpenClaw Default │ unknown/1.0m (?%)               │
+│ n:01fd9e0a-    │             │         │                        │                  │                                 │
+│ df11-4…        │             │         │                        │                  │                                 │
+│ agent:main:sub │ spawn-child │ 7h ago  │ gpt-5.5                │ OpenClaw Default │ 47k/1.0m (5%)                   │
+│ agent:continua │             │         │                        │                  │                                 │
+│ tio…           │             │         │                        │                  │                                 │
+│ agent:main:sub │ spawn-child │ 14h ago │ gpt-5.4                │ OpenAI Codex     │ 94k/272k (35%) · 🗄️ 99% cached  │
+│ agent:da9aa4d0 │             │         │                        │                  │                                 │
+│ -c0…           │             │         │                        │                  │                                 │
+│ agent:main:sub │ spawn-child │ 18h ago │ gpt-5.5                │ OpenClaw Default │ 114k/1.0m (11%) · 🗄️ 89% cached │
+│ agent:continua │             │         │                        │                  │                                 │
+│ tio…           │             │         │                        │                  │                                 │
+│ agent:main:sub │ spawn-child │ 35h ago │ gpt-5.6-terra          │ OpenAI Codex     │ unknown/372k (?%)               │
+│ agent:continua │             │         │                        │                  │                                 │
+│ tio…           │             │         │                        │                  │                                 │
+│ agent:main:sub │ spawn-child │ 35h ago │ gpt-5.6-terra          │ OpenAI Codex     │ unknown/372k (?%)               │
+│ agent:continua │             │         │                        │                  │                                 │
+│ tio…           │             │         │                        │                  │                                 │
+│ agent:main:sub │ spawn-child │ 35h ago │ gemini-3.1-pro-preview │ OpenClaw Default │ 49k/1.0m (5%)                   │
+│ agent:continua │             │         │                        │                  │                                 │
+│ tio…           │             │         │                        │                  │                                 │
+└────────────────┴─────────────┴─────────┴────────────────────────┴──────────────────┴─────────────────────────────────┘
+
+FAQ: https://docs.openclaw.ai/faq
+Troubleshooting: https://docs.openclaw.ai/troubleshooting
+Next steps:
+  Need to share?      openclaw status --all
+  Need to debug live? openclaw logs --follow
+  Need to test channels? openclaw status --deep

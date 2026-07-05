@@ -1,0 +1,8 @@
+{
+  "tool":"continue_delegate",
+  "task":"R-CD-2 proof child. Return exactly this sentinel and nothing else: RCD2_BCA2B0B_CAEL_20260704_0942_CHILD_SILENT_WAKE_RETURNED",
+  "delaySeconds":0,
+  "mode":"silent-wake",
+  "fanoutMode":"tree",
+  "receipt":{"status":"scheduled","mode":"silent-wake","delaySeconds":0,"delegateIndex":1,"delegatesThisTurn":1,"fanoutMode":"tree"}
+}

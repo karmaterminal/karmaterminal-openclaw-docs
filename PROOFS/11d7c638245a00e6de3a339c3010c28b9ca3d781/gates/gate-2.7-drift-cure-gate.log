@@ -1,0 +1,101 @@
+drift-cure-gate: upstream/main  HEAD=HEAD  base=b22c36f1125  PRcreate=9a7092649eb
+files examined: 355
+
+  GENUINE        139
+  MIXED-CLOBBER  89
+  SAFE-NEW       127
+
+== FROZEN-STALE (high-confidence pure clobber; re-sync to upstream) ==
+
+== MIXED-CLOBBER (ranked by dropped post-fork upstream lines; triage top-down) ==
+    146  src/agents/command/attempt-execution.ts              adb9abe7215 chore(deadcode): collapse stale provider regis
+    132  src/auto-reply/reply/agent-runner.ts                 adb9abe7215 chore(deadcode): collapse stale provider regis
+     52  src/infra/diagnostic-trace-context.ts                4cb94cc2cf2 fix: keep trusted policies with hook registry 
+     29  src/agents/subagent-announce.ts                      4cb94cc2cf2 fix: keep trusted policies with hook registry 
+     21  src/auto-reply/reply/agent-runner-execution.ts       adb9abe7215 chore(deadcode): collapse stale provider regis
+     19  apps/shared/OpenClawKit/Tests/OpenClawKitTests/ChatMarkdownDisplayPreprocessorTests.swift 47845e16511 Preserve chat soft line breaks on iOS (#98304)
+     18  extensions/raft/src/gateway.test.ts                  2b50bbf1526 feat(raft): add wake bridge channel
+     17  extensions/matrix/src/matrix/monitor/handler.test.ts 4cb94cc2cf2 fix: keep trusted policies with hook registry 
+     11  src/infra/heartbeat-runner.ts                        305fa9c4ddb fix(heartbeat): clear pendingFinalDelivery* on
+      9  src/logging/diagnostic.ts                            4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      9  src/infra/session-delivery-queue-storage.ts          4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      8  src/auto-reply/tokens.test.ts                        4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      8  src/auto-reply/reply/session-system-events.ts        4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      8  extensions/raft/src/config-schema.ts                 2b50bbf1526 feat(raft): add wake bridge channel
+      7  src/logging/diagnostic.test.ts                       4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      7  src/agents/subagent-spawn.ts                         4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      6  src/agents/embedded-agent-subscribe.handlers.compaction.ts 4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      6  extensions/slack/src/monitor/message-handler/prepare.test.ts 4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      6  extensions/diagnostics-otel/src/service.ts           4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      5  src/plugin-sdk/system-event-runtime.ts               4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      5  src/infra/system-events.ts                           4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      5  src/agents/subagent-run-liveness.ts                  4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      5  src/agents/embedded-agent-runner/compact.ts          4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      4  src/plugin-sdk/provider-catalog-live-runtime.ts      4d292caaa42 fix(plugin-sdk): follow paginated live model c
+      4  src/infra/session-delivery-queue-recovery.ts         4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      4  src/commands/configure.commands.ts                   105a30b5a50 fix(config): fail closed when configure runs w
+      4  src/cli/gateway-cli/run.option-collisions.test.ts    bbb744269fc test: make the local pnpm test gate green on m
+      4  scripts/plugin-sdk-surface-report.mjs                862de9f1a1c fix(pairing): advertise reachable Tailnet rout
+      3  test/scripts/kitchen-sink-rpc-walk.test.ts           1f484a8dbde test: speed up and stabilize full suite
+      3  src/tasks/task-flow-registry.audit.test.ts           4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      3  src/plugins/wired-hooks-compaction.test.ts           4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      3  src/auto-reply/reply/get-reply.ts                    bd479958c04 feat(plugin-sdk): add extensible channel ident
+      3  src/auto-reply/reply/followup-runner.ts              adb9abe7215 chore(deadcode): collapse stale provider regis
+      3  src/agents/subagent-spawn.test-helpers.ts            4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      3  extensions/raft/src/accounts.ts                      2b50bbf1526 feat(raft): add wake bridge channel
+      2  src/plugins/openai-compatible-embedding-provider.test.ts 4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      2  src/infra/session-cost-usage.ts                      4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      2  src/infra/heartbeat-wake.ts                          4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      2  src/gateway/session-compaction-checkpoints.ts        4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      2  src/gateway/server-restart-sentinel.ts               4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      2  src/gateway/server-methods/agent.ts                  4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      2  src/config/zod-schema.agent-defaults.ts              4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      2  src/config/sessions/types.ts                         adb9abe7215 chore(deadcode): collapse stale provider regis
+      2  src/auto-reply/reply/session-updates.ts              4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      2  src/agents/subagent-session-cleanup.ts               4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      2  src/agents/subagent-registry-run-manager.ts          4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      2  src/agents/subagent-announce.test.ts                 4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      2  src/agents/embedded-agent-runner/compact-reasons.ts  4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      2  src/agents/agent-hooks/compaction-safeguard.ts       4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      2  scripts/protocol-gen.ts                              4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      2  docs/tools/subagents.md                              f7d7148cf04 docs: rewrite published docs grounded in curre
+      1  test/vitest/vitest.test-shards.mjs                   4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  test/vitest/vitest.extension-active-memory.config.ts 4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  test/vitest-scoped-config.test.ts                    4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  test/helpers/agents/prompt-composition-scenarios.ts  4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/plugins/runtime/runtime-system.ts                4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/plugin-sdk/infra-runtime.ts                      4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/plugin-sdk/channel-runtime.ts                    4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/infra/session-delivery-queue.ts                  4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/infra/heartbeat-reason.ts                        4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/infra/heartbeat-reason.test.ts                   4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/infra/exec-authorization-render.ts               4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/gateway/mcp-http.runtime.ts                      4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/config/sessions/artifacts.ts                     4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/cli/logs-cli.test.ts                             bd5bf4820ab fix(cli): retry logs.tail after journal fallba
+      1  src/auto-reply/reply/get-reply-run.media-only.test.ts adb9abe7215 chore(deadcode): collapse stale provider regis
+      1  src/agents/subagent-spawn.test.ts                    4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/agents/subagent-registry.ts                      4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/agents/subagent-registry-queries.ts              4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/agents/subagent-registry-lifecycle.ts            4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/agents/subagent-announce.timeout.test.ts         4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/agents/subagent-announce.runtime.ts              4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/agents/subagent-announce.format.e2e.test.ts      4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/agents/shell-snapshot.test.ts                    08b7fddf804 test: centralize shell snapshot env
+      1  src/agents/openclaw-tools.ts                         4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/agents/embedded-agent-subscribe.tools.ts         4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/agents/embedded-agent-subscribe.handlers.compaction.test.ts 4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/agents/embedded-agent-subscribe.handlers.compaction.runtime.ts 4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/agents/embedded-agent-runner/run/failover-policy.ts 4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  src/agents/embedded-agent-runner/compact.types.ts    4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  scripts/protocol-gen-swift.ts                        adb9abe7215 chore(deadcode): collapse stale provider regis
+      1  scripts/deadcode-unused-files.allowlist.mjs          4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  packages/gateway-protocol/src/schema/agent.ts        4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  extensions/raft/src/setup.ts                         2b50bbf1526 feat(raft): add wake bridge channel
+      1  extensions/mattermost/src/mattermost/slash-commands.ts 2b92706dcfa feat(mattermost): register /oc_queue as a nati
+      1  extensions/google-meet/src/oauth.ts                  38ab207591e fix(google-meet): fall back to manual OAuth pa
+      1  extensions/diagnostics-otel/src/service.test.ts      4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  extensions/codex/src/app-server/dynamic-tools.ts     4cb94cc2cf2 fix: keep trusted policies with hook registry 
+      1  docs/tools/thinking.md                               2b75806197a feat: forward-port fast talks auto mode (#8510
+
+full TSV: ./gate-out/classification.tsv

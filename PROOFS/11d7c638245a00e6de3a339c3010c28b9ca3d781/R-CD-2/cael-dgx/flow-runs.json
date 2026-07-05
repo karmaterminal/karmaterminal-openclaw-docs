@@ -1,0 +1,30 @@
+[
+  {
+    "flow_id": "2f59240d-6cc3-4aa1-a309-d0d92d50852a",
+    "status": "succeeded",
+    "current_step": "Accepted by continuation subagent",
+    "created_at": 1783183369631,
+    "updated_at": 1783183373032,
+    "ended_at": 1783183373032,
+    "state_json": {
+      "kind": "continuation_delegate",
+      "task": "R-CD-2 proof child. Return exactly this sentinel and nothing else: RCD2_BCA2B0B_CAEL_20260704_0942_CHILD_SILENT_WAKE_RETURNED",
+      "delayMs": 0,
+      "silentWake": true,
+      "firstArmedAt": 1783183369631,
+      "fanoutMode": "tree",
+      "traceparent": "00-26e537f763d25d92d55b4d2014952344-511711838c3a0b2a-01",
+      "releasedAt": 1783183372832,
+      "childSessionKey": "agent:main:subagent:continuation-6f9fffcd06e1c8bad0f6dee74fd1a1e8"
+    }
+  },
+  {
+    "flow_id": "efe70ff7-cb3e-4a33-a201-7b807f55b931",
+    "status": "succeeded",
+    "current_step": null,
+    "created_at": 1783183372994,
+    "updated_at": 1783183376198,
+    "ended_at": 1783183376198,
+    "state_json": "null (null) only strings can be parsed"
+  }
+]

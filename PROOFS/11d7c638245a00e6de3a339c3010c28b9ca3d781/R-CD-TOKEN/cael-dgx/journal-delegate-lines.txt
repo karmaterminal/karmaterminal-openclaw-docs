@@ -1,0 +1,9 @@
+Jul 04 09:31:23 cael node[2314233]: 2026-07-04T09:31:23.518-07:00 [continuation/signal] [continuation:trace] payload-scan: count=2 bracketIdx=0 [0]text=true [1]text=true session=agent:main:discord:channel:1466192485440164011
+Jul 04 09:31:23 cael node[2314233]: 2026-07-04T09:31:23.519-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=delegate delayMs=default session=agent:main:discord:channel:1466192485440164011
+Jul 04 09:31:23 cael node[2314233]: 2026-07-04T09:31:23.520-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=delegate session=agent:main:discord:channel:1466192485440164011
+Jul 04 09:31:24 cael node[2314233]: 2026-07-04T09:31:24.092-07:00 [agents/tool-policy] tool policy removed 5 tool(s) via subagent tools.deny: agents_list, cron, gateway, session_status, sessions_send; matched agents_list, cron, gateway, session_status, sessions_send
+Jul 04 09:31:24 cael node[2314233]: 2026-07-04T09:31:24.101-07:00 [agent/embedded] workspace bootstrap file TOOLS.md is 119034 chars (limit 100000); truncating in injected context (sessionKey=agent:main:subagent:05645cb7-59b6-4371-af2f-6e96d9c6a783)
+Jul 04 09:31:27 cael node[2314233]: 2026-07-04T09:31:27.132-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:subagent:05645cb7-59b6-4371-af2f-6e96d9c6a783
+Jul 04 09:31:27 cael node[2314233]: 2026-07-04T09:31:27.133-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:subagent:05645cb7-59b6-4371-af2f-6e96d9c6a783
+Jul 04 09:31:27 cael node[2314233]: 2026-07-04T09:31:27.169-07:00 RCD_TOKEN_BCA2B0B_CAEL_20260704_0932_CHILD_RETURNED
+Jul 04 09:31:27 cael node[2314233]: 2026-07-04T09:31:27.491-07:00 [subagent-chain-hop] Accumulated 46487 tokens from agent:main:subagent:05645cb7-59b6-4371-af2f-6e96d9c6a783 to parent chain cost

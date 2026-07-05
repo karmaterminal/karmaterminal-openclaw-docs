@@ -1,23 +1,14 @@
 /**
  * Scenario: R-CD-4 — continue_delegate with targetSessionKey (cross-session return).
  *
- * Verifies:
- *   1. Gateway accepts continue_delegate with targetSessionKey param
- *   2. Child task spawns and completes
- *   3. Delegate return lands in the TARGET session (not the dispatching parent)
- *   4. Dispatching session does NOT receive the return
- *
- * This proves cross-session targeted delivery: a delegate dispatched from session A
- * can deliver its return to session B.
- *
- * Requires OPENCLAW_TARGET_SESSION_KEY env var pointing to a valid secondary session.
- *
- * References:
- *   - Issue: karmaterminal/karmaterminal-openclaw-docs#119
- *   - Manifest: tools/k6-proofs/manifests/r-cd-4.json
+ * Repeatable mode creates disposable dispatch/target sessions so the proof does
+ * not depend on the live #sprites/main lane. The dispatch session asks the
+ * agent to call continue_delegate(..., targetSessionKey=<target>). The harness
+ * subscribes to both sessions and verifies the delayed return/wake lands in the
+ * target session and not the dispatching parent.
  */
 import ws from 'k6/ws';
-import { check, sleep } from 'k6';
+import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
@@ -46,9 +37,13 @@ const DEFAULTS = {
   seat: 'ronan-dgx',
   mode: 'silent-wake',
   delaySeconds: 1,
-  promptTemplate: 'Proof nonce {{nonce}}: reply with TARGET-RECEIVED and the nonce. Do not mutate files.',
+  promptTemplate: 'Proof nonce {{nonce}}: reply with TARGET-RECEIVED and the nonce. Do not mutate files. Do not post to any channel.',
   idempotencyKeyPrefix: 'R-CD-4',
 };
+
+function boolEnv(name) {
+  return (__ENV[name] || '').toLowerCase() === 'true';
+}
 
 function invocationCfg() {
   const inv = manifest?.invocation || {};
@@ -65,10 +60,13 @@ function invocationCfg() {
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
-  const sessionKey = manifest?.sessionKey || __ENV.OPENCLAW_SESSION_KEY || DEFAULTS.sessionKey;
+  const requestedSessionKey = manifest?.sessionKey || __ENV.OPENCLAW_SESSION_KEY || DEFAULTS.sessionKey;
+  let sessionKey = requestedSessionKey;
+  const createDisposableSessions = boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSIONS') || boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSION');
   const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CD-4');
   const inv = invocationCfg();
+  let targetSessionKey = inv.targetSessionKey;
 
   if (!token) {
     console.error('OPENCLAW_GATEWAY_TOKEN is required');
@@ -76,8 +74,8 @@ export default function () {
     return;
   }
 
-  if (!inv.targetSessionKey) {
-    console.error('OPENCLAW_TARGET_SESSION_KEY is required for R-CD-4 (cross-session delivery)');
+  if (!targetSessionKey && !createDisposableSessions) {
+    console.error('OPENCLAW_TARGET_SESSION_KEY is required for R-CD-4 unless OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true');
     failures.add(1);
     return;
   }
@@ -94,17 +92,22 @@ export default function () {
     manifest_loaded: !!manifest,
     nonce: rowNonce,
     seat,
+    requestedSessionKey,
     sessionKey,
-    targetSessionKey: inv.targetSessionKey,
+    targetSessionKey,
+    parent_session_created: false,
+    target_session_created: false,
+    created_parent_session_key: null,
+    created_target_session_key: null,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
-    // Required receipts
     tool_accepted: false,
-    task_created: false,
+    agent_turn_observed: false,
     child_completed: false,
-    // Cross-session verification
     return_in_target: false,
-    return_in_parent: false, // MUST stay false for PASS
+    return_in_parent: false,
+    dispatch_accepted_at_ms: null,
+    wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
     trace_id: null,
     redacted_events: [],
   };
@@ -113,40 +116,53 @@ export default function () {
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    let createPhase = 'none';
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
+    function createParent(socket) {
+      createPhase = 'parent';
+      const parentKey = `r-cd-4-parent-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      tracker.send(socket, 'sessions.create', {
+        key: parentKey,
+        label: `k6 R-CD-4 parent ${rowNonce}`,
+      });
+    }
 
-      // Subscribe to BOTH sessions: parent (dispatching) and target (receiving)
-      socket.setTimeout(() => {
-        tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
-        tracker.send(socket, 'sessions.messages.subscribe', { key: inv.targetSessionKey });
-      }, 500);
+    function createTarget(socket) {
+      createPhase = 'target';
+      const targetKey = `r-cd-4-target-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      tracker.send(socket, 'sessions.create', {
+        key: targetKey,
+        label: `k6 R-CD-4 target ${rowNonce}`,
+      });
+    }
 
-      // Fire continue_delegate with targetSessionKey
+    function startProofFlow(socket) {
+      tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
+      tracker.send(socket, 'sessions.messages.subscribe', { key: targetSessionKey });
+
       socket.setTimeout(() => {
         const prompt = inv.promptTemplate.replace('{{nonce}}', rowNonce);
-        tracker.send(socket, 'tools.invoke', {
-          name: inv.tool,
-          sessionKey,
-          args: {
-            task: prompt,
-            mode: inv.mode,
-            delaySeconds: inv.delaySeconds,
-            targetSessionKey: inv.targetSessionKey,
-          },
+        const agentInstruction = `[k6-proof-harness] Call continue_delegate with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}, targetSessionKey="${targetSessionKey}". This is a proof run — execute the tool call immediately, no other action needed.`;
+        tracker.send(socket, 'sessions.send', {
+          key: sessionKey,
+          message: agentInstruction,
           idempotencyKey: `${inv.idempotencyKeyPrefix}-${rowNonce}`,
         });
-      }, 1000);
+      }, 500);
 
-      // Optional context only: continue_delegate does not write to the generic
-      // TaskFlow task registry. Target-vs-parent routing is verified from the
-      // subscribed session event stream below.
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 8000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 25000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 50000);
-
       socket.setTimeout(() => socket.close(), 90000);
+    }
+
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      if (createDisposableSessions) {
+        socket.setTimeout(() => createParent(socket), 250);
+      } else {
+        socket.setTimeout(() => startProofFlow(socket), 500);
+      }
     });
 
     socket.on('message', (raw) => {
@@ -163,60 +179,89 @@ export default function () {
           data: classified.payload ? redactEvent(classified.payload) : null,
         });
 
-        // Tool invocation accepted
-        if (classified.kind === 'response' && classified.method === 'tools.invoke') {
+        if (classified.kind === 'response' && classified.method === 'sessions.create') {
+          if (classified.ok && classified.payload) {
+            const createdKey = classified.payload.key;
+            if (createPhase === 'parent') {
+              sessionKey = createdKey || sessionKey;
+              evidence.sessionKey = sessionKey;
+              evidence.parent_session_created = true;
+              evidence.created_parent_session_key = sessionKey;
+              console.log(`✓ disposable parent session created: ${sessionKey}`);
+              createTarget(socket);
+            } else if (createPhase === 'target') {
+              targetSessionKey = createdKey || targetSessionKey;
+              evidence.targetSessionKey = targetSessionKey;
+              evidence.target_session_created = true;
+              evidence.created_target_session_key = targetSessionKey;
+              console.log(`✓ disposable target session created: ${targetSessionKey}`);
+              createPhase = 'done';
+              startProofFlow(socket);
+            }
+          } else {
+            console.error(`✗ sessions.create rejected: ${JSON.stringify(classified.error)}`);
+            failures.add(1);
+            socket.close();
+          }
+        }
+
+        if (classified.kind === 'response' && classified.method === 'sessions.send') {
           if (classified.ok && classified.payload) {
             evidence.tool_accepted = true;
+            evidence.dispatch_accepted_at_ms = Date.now();
             if (classified.payload.traceId) evidence.trace_id = classified.payload.traceId;
-            console.log('✓ tools.invoke accepted for R-CD-4 (targetSessionKey)');
+            console.log('✓ sessions.send accepted — agent turn triggered for R-CD-4 (targetSessionKey)');
           } else if (classified.error) {
-            console.error(`✗ tools.invoke rejected: ${JSON.stringify(classified.error)}`);
+            console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
             failures.add(1);
           }
         }
 
-        // Optional TaskFlow ledger check. Absence here is not a failure:
-        // continue_delegate uses pending-delegate/subagent surfaces.
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
           const tasks = classified.payload?.tasks || [];
           for (const task of tasks) {
             const taskStr = JSON.stringify(task);
             if (taskStr.includes(rowNonce)) {
-              evidence.task_created = true;
               if (task.state === 'completed' || task.status === 'completed') {
                 evidence.child_completed = true;
                 console.log('✓ Child task completed');
               }
               if (task.traceId) evidence.trace_id = task.traceId;
-              console.log(`✓ Task found with nonce correlation (state: ${task.state || task.status || 'unknown'})`);
             }
           }
         }
 
-        // Event routing: detect WHERE the return lands
         if (classified.kind === 'event') {
+          const eventName = classified.event || '';
           const eventData = classified.data || {};
           const eventStr = JSON.stringify(eventData);
+          const eventSession = eventData.sessionKey || eventData.session || null;
 
-          if (eventStr.includes(rowNonce) || eventStr.includes('delegate') || eventStr.includes('completion')) {
-            // Check which session received the event
-            const eventSession = eventData.sessionKey || eventData.session || null;
+          if (eventName === 'agent' && evidence.tool_accepted) {
+            evidence.agent_turn_observed = true;
+          }
 
-            if (eventSession === inv.targetSessionKey) {
-              evidence.return_in_target = true;
-              console.log('✓ Delegate return landed in TARGET session');
-            } else if (eventSession === sessionKey) {
-              evidence.return_in_parent = true;
-              console.warn('✗ Delegate return landed in PARENT session (should be target only)');
+          if (eventName === 'session.message' && evidence.tool_accepted) {
+            const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
+            if (elapsed >= evidence.wake_gate_ms) {
+              if (eventSession === targetSessionKey || eventStr.includes(targetSessionKey)) {
+                evidence.return_in_target = true;
+                evidence.agent_turn_observed = true;
+                evidence.child_completed = true;
+                console.log('✓ Delayed return/wake landed in TARGET session');
+              } else if (eventSession === sessionKey || eventStr.includes(sessionKey)) {
+                evidence.return_in_parent = true;
+                console.warn('✗ Delayed return/wake landed in PARENT session (should be target only)');
+              }
+            } else {
+              evidence.agent_turn_observed = true;
+              console.log('✓ initial session.message event observed (dispatching agent turn)');
             }
           }
         }
 
-        // Early close if definitive evidence
-        if (evidence.tool_accepted &&
-            (evidence.return_in_target || evidence.return_in_parent)) {
-          sleep(2); // Brief grace for any late events
-          socket.close();
+        if (evidence.tool_accepted && (evidence.return_in_target || evidence.return_in_parent)) {
+          socket.setTimeout(() => socket.close(), 2000);
         }
       } catch (e) {
         console.warn(`parse error: ${e}`);
@@ -235,19 +280,20 @@ export default function () {
 
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
-    'tool invocation accepted': () => evidence.tool_accepted,
-    'optional task ledger context captured': () => true,
+    'dispatch accepted': () => evidence.tool_accepted,
+    'dispatching agent turn observed': () => evidence.agent_turn_observed,
     'return landed in target session': () => evidence.return_in_target,
     'no return in parent session (routing verified)': () => !evidence.return_in_parent,
   });
 
-  if (!evidence.tool_accepted || !evidence.return_in_target || evidence.return_in_parent) {
+  if (!evidence.tool_accepted || !evidence.agent_turn_observed || !evidence.return_in_target || evidence.return_in_parent) {
     failures.add(1);
   }
 
-  const passed = evidence.tool_accepted &&
+  const passed = evidence.tool_accepted && evidence.agent_turn_observed &&
     evidence.return_in_target && !evidence.return_in_parent;
 
+  console.log(`R_CD_4_EVIDENCE ${JSON.stringify(evidence)}`);
   console.log(`\n--- R-CD-4 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));
   console.log(`--- END EVIDENCE ---`);

@@ -188,11 +188,18 @@ export default function () {
           }
         }
 
-        // Detect parent wake via session.message + agent events
+        // Detect dispatch progress and parent wake via session/agent events.
         if (classified.kind === 'event') {
           const eventName = classified.event || '';
           const eventData = classified.data || {};
           const eventStr = JSON.stringify(eventData);
+
+          // Some target sessions emit generic agent lifecycle events rather than
+          // an early session.message before the delayed wake. Count these as the
+          // dispatching agent turn, not as the silent-wake return.
+          if (eventName === 'agent' && evidence.tool_accepted) {
+            evidence.agent_turn_observed = true;
+          }
 
           // session.message events immediately after sessions.send are the dispatching
           // agent turn, not the silent-wake return.  The delegate delay is clamped
@@ -201,6 +208,7 @@ export default function () {
             const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
             if (elapsed >= evidence.wake_gate_ms) {
               evidence.parent_wake_observed = true;
+              evidence.agent_turn_observed = true;
               console.log('✓ delayed session.message event observed (silent-wake return candidate)');
             } else {
               evidence.agent_turn_observed = true;

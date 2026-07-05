@@ -29,8 +29,7 @@ Live candidate run:
 cd tools/k6-proofs
 OPENCLAW_GATEWAY_TOKEN=*** \
 OPENCLAW_SESSION_KEY=<target-session-key> \
-  ./scripts/run-proofs.sh --live R-CD-2 <candidate-sha> \
-  2>&1 | tee /tmp/r-cd-2-k6.log
+  ./scripts/run-proofs.sh --live --out-dir /tmp/k6-proof-runs R-CD-2 <candidate-sha>
 ```
 
 Direct k6 form:

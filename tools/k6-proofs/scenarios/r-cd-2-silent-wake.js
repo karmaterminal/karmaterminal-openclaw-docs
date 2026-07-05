@@ -53,11 +53,11 @@ const DEFAULTS = {
 };
 
 function invocationCfg() {
-  const inv = manifest?.invocation || {};
+  const inv = manifest && manifest.invocation || {};
   return {
     tool: inv.tool || 'continue_delegate',
     mode: inv.mode || __ENV.OPENCLAW_DELEGATE_MODE || DEFAULTS.mode,
-    delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds),
+    delaySeconds: Number(inv.delaySeconds !== undefined ? inv.delaySeconds : (__ENV.OPENCLAW_DELAY_SECONDS !== undefined ? __ENV.OPENCLAW_DELAY_SECONDS : DEFAULTS.delaySeconds)),
     promptTemplate: inv.promptTemplate || DEFAULTS.promptTemplate,
     idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix,
   };
@@ -66,8 +66,8 @@ function invocationCfg() {
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
-  const sessionKey = manifest?.sessionKey || __ENV.OPENCLAW_SESSION_KEY || DEFAULTS.sessionKey;
-  const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
+  const sessionKey = manifest && manifest.sessionKey || __ENV.OPENCLAW_SESSION_KEY || DEFAULTS.sessionKey;
+  const seat = manifest && manifest.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CD-2');
 
   if (!token) {
@@ -89,7 +89,7 @@ export default function () {
     nonce: rowNonce,
     seat,
     sessionKey,
-    candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
+    candidateSha: manifest && manifest.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
     // Required receipts
     tool_accepted: false,
@@ -159,7 +159,7 @@ export default function () {
         if (classified.kind === 'response' && classified.method === 'sessions.send') {
           if (classified.ok) {
             evidence.tool_accepted = true;
-            if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
+            if (classified.payload && classified.payload.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — agent turn triggered for R-CD-2 (mode=silent-wake)');
           } else if (classified.error) {
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
@@ -170,7 +170,7 @@ export default function () {
         // Optional TaskFlow ledger context. Absence here is not a failure:
         // continue_delegate uses pending-delegate/subagent surfaces.
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const tasks = classified.payload?.tasks || [];
+          const tasks = classified.payload && classified.payload.tasks || [];
           for (const task of tasks) {
             const taskStr = JSON.stringify(task);
             if (taskStr.includes(rowNonce)) {
@@ -259,7 +259,7 @@ export default function () {
 
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
-  const passRate = data.metrics.proof_failures?.values?.count === 0;
+  const passRate = data.metrics.proof_failures && data.metrics.proof_failures.values && data.metrics.proof_failures.values.count === 0;
   const summary = {
     row: 'R-CD-2',
     sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
@@ -267,8 +267,8 @@ export function handleSummary(data) {
     timestamp,
     verdict: passRate ? 'PASS-candidate' : 'PARTIAL-candidate',
     metrics: {
-      duration_ms: data.metrics.r_cd_2_duration?.values || null,
-      failures: data.metrics.proof_failures?.values?.count || 0,
+      duration_ms: data.metrics.r_cd_2_duration && data.metrics.r_cd_2_duration.values || null,
+      failures: data.metrics.proof_failures && data.metrics.proof_failures.values && data.metrics.proof_failures.values.count || 0,
     },
   };
 

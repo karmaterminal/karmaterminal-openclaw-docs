@@ -29,6 +29,7 @@ on:
           - r-cd-2-silent-wake
           - r-cd-4-target-session-key
           - r-cd-chained-depth-2
+          - r-obs-status
           - r-cw-1
           - r-cw
       row:

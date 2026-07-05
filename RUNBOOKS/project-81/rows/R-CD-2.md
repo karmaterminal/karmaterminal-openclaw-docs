@@ -79,3 +79,15 @@ Manual work still remaining for a folded PASS:
 - Prefer a throwaway/non-Discord target session for repeated live runs so harness injection does not surprise the coordination room.
 - Fetch/commit Tempo trace JSON when a trace id is emitted.
 - Confirm the delayed parent wake corresponds to the delegate return, not only the dispatching agent's initial turn.
+
+## Repeatability note — 2026-07-05 non-Discord `main` test
+
+After the first detector chop, a live run against `OPENCLAW_SESSION_KEY=main` produced a cleaner artifact but still `PARTIAL-candidate`:
+
+- `sessions.send` accepted.
+- delayed `session.message` after the 5s wake gate was observed.
+- no delegate-return channel delivery was observed (`channel_message_observed=false`).
+- `dispatch_channel_message_observed=true` was tracked separately and did not fail the row.
+- `agent_turn_observed=false` only because this target session emitted generic `agent` events rather than an early `session.message` before the delayed wake.
+
+Chop applied after that test: generic `agent` lifecycle events after `sessions.send` now count as dispatch-agent activity, and a delayed parent wake candidate also implies the agent turn occurred. This should make the row's remaining PASS/partial boundary about the delegate return evidence, not about which event flavor the target session emits.

@@ -1,12 +1,12 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "4af3e045110089ceb5ca33251b7f16c0dee9c0ac",
-  "current_sha_short": "4af3e04",
-  "build_string": "OpenClaw 2026.6.11 (4af3e04) — full copied post-1163/1165, upstream-drift, and SDK-budget proof corpus; raw live-fire capture from bca2b0b",
-  "corpus_path": "PROOFS/4af3e045110089ceb5ca33251b7f16c0dee9c0ac/",
-  "manifest_path": "PROOFS/4af3e045110089ceb5ca33251b7f16c0dee9c0ac/proofs-manifest.json",
-  "readme_path": "PROOFS/4af3e045110089ceb5ca33251b7f16c0dee9c0ac/README.md",
+  "current_sha": "3e9939be15f91fe09612ea25f53f653be18357f8",
+  "current_sha_short": "3e9939b",
+  "build_string": "OpenClaw 2026.6.11 (3e9939b) — full copied post-1163/1165, upstream-drift, and SDK-budget proof corpus; raw live-fire capture from bca2b0b",
+  "corpus_path": "PROOFS/3e9939be15f91fe09612ea25f53f653be18357f8/",
+  "manifest_path": "PROOFS/3e9939be15f91fe09612ea25f53f653be18357f8/proofs-manifest.json",
+  "readme_path": "PROOFS/3e9939be15f91fe09612ea25f53f653be18357f8/README.md",
   "rollup": {
     "total_rows": 29,
     "pass": 27,
@@ -16,10 +16,10 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "COMPLETE full copied transposed corpus for candidate 4af3e04; raw row evidence was captured on bca2b0b and carried after the #1163/#1165 P2 fold, upstream-drift backmerge, and SDK-budget CI fix. Exact CI run 28726543652 is in progress.",
+  "disposition_note": "COMPLETE full copied transposed corpus for candidate 3e9939b; raw row evidence was captured on bca2b0b and carried after the #1163/#1165 P2 fold, upstream-drift backmerge, and SDK-budget CI fix. Exact CI run 28727886409 is in progress.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-07-05T02:08:47Z",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
-  "capture_sha": "4af3e045110089ceb5ca33251b7f16c0dee9c0ac",
+  "capture_sha": "3e9939be15f91fe09612ea25f53f653be18357f8",
   "carried_from": "bca2b0b89ab886bf23a10e4983926f6b374b3188"
 }

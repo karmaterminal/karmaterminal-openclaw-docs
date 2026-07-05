@@ -3,4 +3,4 @@ feature_cores_vs_proof_sha_exit=1
 drift_cure_exit=0
 upstream_touched_tests=673
 differing_or_absent_tests=504
-log_dir=/tmp/gates-4af3e04-20260704T234811Z
+log_dir=/tmp/gates-3e9939b-20260704T234811Z

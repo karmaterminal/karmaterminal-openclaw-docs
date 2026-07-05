@@ -96,8 +96,12 @@ export default function () {
     task_created: false,
     task_mode: null,
     // Silent-wake specific
+    agent_turn_observed: false,
     parent_wake_observed: false,
+    dispatch_channel_message_observed: false,
     channel_message_observed: false, // MUST stay false for PASS
+    dispatch_accepted_at_ms: null,
+    wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
     child_session: null,
     trace_id: null,
     redacted_events: [],
@@ -159,6 +163,7 @@ export default function () {
         if (classified.kind === 'response' && classified.method === 'sessions.send') {
           if (classified.ok) {
             evidence.tool_accepted = true;
+            evidence.dispatch_accepted_at_ms = Date.now();
             if (classified.payload && classified.payload.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — agent turn triggered for R-CD-2 (mode=silent-wake)');
           } else if (classified.error) {
@@ -189,24 +194,40 @@ export default function () {
           const eventData = classified.data || {};
           const eventStr = JSON.stringify(eventData);
 
-          // session.message events after send = agent turn progressing
-          // For silent-wake: agent receives the instruction, calls continue_delegate,
-          // child fires, returns silently, parent gets a wake turn
+          // session.message events immediately after sessions.send are the dispatching
+          // agent turn, not the silent-wake return.  The delegate delay is clamped
+          // by the gateway, so only count a parent wake after the minimum delay.
           if (eventName === 'session.message' && evidence.tool_accepted) {
-            evidence.parent_wake_observed = true;
-            console.log('✓ session.message event observed (agent turn active/completing)');
+            const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
+            if (elapsed >= evidence.wake_gate_ms) {
+              evidence.parent_wake_observed = true;
+              console.log('✓ delayed session.message event observed (silent-wake return candidate)');
+            } else {
+              evidence.agent_turn_observed = true;
+              console.log('✓ initial session.message event observed (dispatching agent turn)');
+            }
           }
 
-          // Negative check: if we see a channel delivery, that breaks the silent contract
+          // Negative check: a channel delivery of the delegate return would break
+          // silent mode.  The dispatching agent instruction itself can appear as a
+          // chat/channel event in a live Discord-bound session; track it separately
+          // so the row does not confuse harness injection with delegate return.
           if (eventStr.includes('channel') && eventStr.includes('deliver') &&
               eventStr.includes(rowNonce)) {
-            evidence.channel_message_observed = true;
-            console.warn('✗ Channel delivery detected — silent mode violated!');
-            failures.add(1);
+            if (eventStr.includes('[k6-proof-harness]')) {
+              evidence.dispatch_channel_message_observed = true;
+              console.log('ℹ dispatch instruction channel event observed (not delegate return)');
+            } else {
+              evidence.channel_message_observed = true;
+              console.warn('✗ Delegate channel delivery detected — silent mode violated!');
+              failures.add(1);
+            }
           }
         }
 
-        // Early close if primary evidence is gathered; task ledger context is optional.
+        // Early close only after a delayed parent wake candidate is observed; task
+        // ledger context remains optional.  Do not close on the initial dispatch
+        // agent turn, or this row only proves sessions.send.
         if (evidence.tool_accepted && evidence.parent_wake_observed) {
           console.log('Primary silent-wake evidence gathered, closing early');
           socket.close();
@@ -235,11 +256,12 @@ export default function () {
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'agent turn triggered (sessions.send accepted)': () => evidence.tool_accepted,
-    'parent session active (session.message events)': () => evidence.parent_wake_observed,
+    'dispatching agent turn observed': () => evidence.agent_turn_observed,
+    'delayed parent wake candidate observed': () => evidence.parent_wake_observed,
     'no channel delivery (silent verified)': () => !evidence.channel_message_observed,
   });
 
-  if (!evidence.tool_accepted || !evidence.parent_wake_observed) {
+  if (!evidence.tool_accepted || !evidence.agent_turn_observed || !evidence.parent_wake_observed) {
     failures.add(1);
   }
   if (evidence.channel_message_observed) {
@@ -248,9 +270,10 @@ export default function () {
   }
 
   // Verdict — PASS when: turn triggered + events flowing + no channel delivery
-  const passed = evidence.tool_accepted &&
+  const passed = evidence.tool_accepted && evidence.agent_turn_observed &&
     evidence.parent_wake_observed && !evidence.channel_message_observed;
 
+  console.log(`R_CD_2_EVIDENCE ${JSON.stringify(evidence)}`);
   console.log(`\n--- R-CD-2 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));
   console.log(`--- END EVIDENCE ---`);

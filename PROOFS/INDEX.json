@@ -1,12 +1,12 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "1f8839fd56048bd0439153970e870a4ab3f38448",
-  "current_sha_short": "1f8839f",
-  "build_string": "OpenClaw 2026.6.11 (1f8839f) — full copied post-CI-fix proof corpus; raw live-fire capture from bca2b0b",
-  "corpus_path": "PROOFS/1f8839fd56048bd0439153970e870a4ab3f38448/",
-  "manifest_path": "PROOFS/1f8839fd56048bd0439153970e870a4ab3f38448/proofs-manifest.json",
-  "readme_path": "PROOFS/1f8839fd56048bd0439153970e870a4ab3f38448/README.md",
+  "current_sha": "67f5a6dd9df31a7fb59ac59a165b0801c51932cb",
+  "current_sha_short": "67f5a6d",
+  "build_string": "OpenClaw 2026.6.11 (67f5a6d) — full copied post-1163/1165-and-upstream-drift proof corpus; raw live-fire capture from bca2b0b",
+  "corpus_path": "PROOFS/67f5a6dd9df31a7fb59ac59a165b0801c51932cb/",
+  "manifest_path": "PROOFS/67f5a6dd9df31a7fb59ac59a165b0801c51932cb/proofs-manifest.json",
+  "readme_path": "PROOFS/67f5a6dd9df31a7fb59ac59a165b0801c51932cb/README.md",
   "rollup": {
     "total_rows": 29,
     "pass": 27,
@@ -16,10 +16,10 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "COMPLETE full copied transposed corpus for candidate 1f8839f; raw row evidence was captured on bca2b0b and carried after safe assembly CI fix.",
+  "disposition_note": "COMPLETE full copied transposed corpus for candidate 67f5a6d; raw row evidence was captured on bca2b0b and carried after the #1163/#1165 P2 fold plus upstream-drift backmerge. Exact CI run 28725712020 is in progress.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-07-04T23:49:17Z",
+  "generated": "2026-07-05T01:30:30Z",
   "generated_by": "frond-scribe (copilot, corpus-manager)",
-  "capture_sha": "1f8839fd56048bd0439153970e870a4ab3f38448",
+  "capture_sha": "67f5a6dd9df31a7fb59ac59a165b0801c51932cb",
   "carried_from": "bca2b0b89ab886bf23a10e4983926f6b374b3188"
 }

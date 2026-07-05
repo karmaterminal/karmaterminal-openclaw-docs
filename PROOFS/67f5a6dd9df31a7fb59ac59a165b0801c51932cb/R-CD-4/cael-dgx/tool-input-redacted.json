@@ -1,0 +1,9 @@
+{
+  "tool": "continue_delegate",
+  "intent": "R-CD-4 guard-side targeting proof only",
+  "delaySeconds": 0,
+  "mode": "silent",
+  "targetSessionKey": "agent:main:discord:channel:1466192485440164011",
+  "fanoutMode": "tree",
+  "expected": "structured validation error; no child spawn; no TaskFlow continuation row"
+}

@@ -1,0 +1,40 @@
+33 src/agents/tools/continuation-inventory-opts.test.ts
+4:describe("buildInventoryContinuationToolOpts", () => {
+5:  it("returns no opts when continuation is disabled", () => {
+9:  it("returns stub continueWorkOpts + requestCompactionOpts when enabled", () => {
+16:  it("stub getContextUsage returns null (no live usage on inventory paths)", () => {
+21:  it("stub requestContinuation throws a clear error (registered-but-not-runnable; no silent success)", () => {
+28:  it("stub triggerCompaction resolves to an inert rejection (no compaction fires)", async () => {
+161 src/agents/openclaw-tools.continuation-registration.test.ts
+54:describe("createOpenClawTools — continuation-tool registration visibility", () => {
+55:  it("registers no continuation tools when continuation.enabled is unset", () => {
+65:  it("registers no continuation tools when continuation.enabled is explicitly false", () => {
+78:  it("does not register request_compaction when continuation.enabled is true but requestCompactionOpts is missing", () => {
+95:  it("registers request_compaction when continuation.enabled is true AND requestCompactionOpts is provided", () => {
+113:  it("does not register request_compaction even with opts when continuation.enabled is unset", () => {
+124:  it("registers request_compaction with the expected tool surface (name + parameters present)", () => {
+141:  it("registers continuation tools at most once per createOpenClawTools call", () => {
+315 src/agents/tools/continuation-tools-registration.test.ts
+9:describe("continuation tool registration", { timeout: 240000 }, () => {
+21:  it("exposes continue_delegate on normal turns when continuation is enabled", () => {
+30:  it("exposes cross-session targeting fields on the continue_delegate schema descriptor", () => {
+47:  it("description documents the five continuation return targeting modes", () => {
+64:  it("hides continue_delegate when continuation is disabled", () => {
+76:  it("exposes continue_work when continuation is enabled and the runner wires it", () => {
+92:  it("exposes continue_delegate when drainsContinuationDelegateQueue is undefined (default normal turns)", () => {
+102:  it("exposes continue_delegate when drainsContinuationDelegateQueue is explicitly true (explicit drainers)", () => {
+112:  it("hides continue_delegate when drainsContinuationDelegateQueue is explicitly false (e.g. llm-slug-generator)", () => {
+148:  it("pins continue_delegate descriptor to mode enum and no boolean compatibility fields", () => {
+263:  describe("request_compaction registration truth-table", () => {
+270:    it("exposes request_compaction when continuation enabled AND requestCompactionOpts wired", () => {
+279:    it("hides request_compaction when continuation disabled (regardless of opts)", () => {
+291:    it("hides request_compaction when continuation enabled but opts omitted", () => {
+300:    it("descriptor name is stable across registrations", () => {
+181 src/agents/openclaw-tools.continuation-misconfig-warn.test.ts
+79:describe("createOpenClawTools — silent partial-registration guard", () => {
+84:  it("warns when continuation.enabled=true but neither continueWorkOpts nor requestCompactionOpts are supplied", () => {
+102:  it("does NOT warn when continuation is fully configured", () => {
+118:  it("does NOT warn when continuation.enabled is unset", () => {
+129:  it("does NOT warn when only continueWorkOpts is supplied (request_compaction will not register, but continue_work IS registered — partial-registration concern only fires when neither is supplied)", () => {
+149:  it("does NOT warn when continuation.enabled=true and stub inventory callbacks are supplied (register honestly, not suppress)", () => {
+164:  it("registers continue_work + request_compaction when stub inventory callbacks are supplied (catalog reflects full surface)", () => {

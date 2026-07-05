@@ -1,0 +1,12 @@
+Jul 04 10:09:27 cael node[2314233]: 2026-07-04T10:09:27.494-07:00 [agent/embedded] [prompt-cache] cache read dropped 1990144 -> 439296 for github-copilot/gpt-5.5 via session-custom; no tracked cache input change
+Jul 04 10:09:27 cael node[2314233]: 2026-07-04T10:09:27.620-07:00 [continuation/signal] [continuation:trace] bracket-parse skipped: empty payloads session=agent:main:discord:channel:1466192485440164011
+Jul 04 10:09:27 cael node[2314233]: 2026-07-04T10:09:27.621-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=agent:main:discord:channel:1466192485440164011
+Jul 04 10:09:27 cael node[2314233]: 2026-07-04T10:09:27.681-07:00 [continuation:work-parked-on-turn-end] session=agent:main:discord:channel:1466192485440164011 hop=1 reasonCategory=follow-up-work
+Jul 04 10:09:27 cael node[2314233]: 2026-07-04T10:09:27.683-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-armed] trigger=reply-run-ended session=agent:main:discord:channel:1466192485440164011
+Jul 04 10:09:27 cael node[2314233]: 2026-07-04T10:09:27.685-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=86399995ms fireAt=1783271367680 session=agent:main:discord:channel:1466192485440164011
+Jul 04 10:09:27 cael node[2314233]: 2026-07-04T10:09:27.708-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-fired] trigger=reply-run-ended waitMs=25 session=agent:main:discord:channel:1466192485440164011
+Jul 04 10:09:27 cael node[2314233]: 2026-07-04T10:09:27.713-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=4996ms fireAt=1783184972708 session=agent:main:discord:channel:1466192485440164011
+Jul 04 10:09:27 cael node[2314233]: 2026-07-04T10:09:27.713-07:00 [turn/kernel] visible channel turn dispatched with no queued reply payloads: channel=discord messageId=unknown sessionKey=agent:main:discord:channel:1466192485440164011
+Jul 04 10:09:32 cael node[2314233]: 2026-07-04T10:09:32.710-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:discord:channel:1466192485440164011
+Jul 04 10:09:32 cael node[2314233]: 2026-07-04T10:09:32.724-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59989ms fireAt=1783185032712 session=agent:main:discord:channel:1466192485440164011
+Jul 04 10:09:32 cael node[2314233]: 2026-07-04T10:09:32.724-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=agent:main:discord:channel:1466192485440164011 reasonCategory=follow-up-work

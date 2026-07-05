@@ -1,0 +1,67 @@
+traceIds: DPF+oLfqt6XpmPalgee1vw==
+traceIdsHex: 0cf17ea0b7eab7a5e998f6a581e7b5bf
+spanCount: 46
+rootCount: 1
+orphanCount: 0
+
+spanNameCounts:
+- continuation.delegate.dispatch: 1
+- continuation.queue.drain: 1
+- continuation.queue.fanout: 1
+- continuation.work: 1
+- openclaw.context.assembled: 5
+- openclaw.harness.run: 5
+- openclaw.message.delivery: 1
+- openclaw.message.processed: 1
+- openclaw.model.call: 14
+- openclaw.model.usage: 2
+- openclaw.run: 5
+- openclaw.tool.execution: 9
+
+tree:
+- openclaw.message.processed [span=NWm2yWmAnA4=] (channel=discord)
+  - openclaw.harness.run [span=8ok0cyna3cc= parent=NWm2yWmAnA4=] (channel=discord, model=gpt-5.5)
+    - openclaw.run [span=yvGkIzoZC7I= parent=8ok0cyna3cc=] (channel=discord, trigger=user, model=gpt-5.5)
+      - openclaw.context.assembled [span=JUbvqxEoIhw= parent=yvGkIzoZC7I=] (channel=discord, trigger=user, model=gpt-5.5)
+      - openclaw.model.call [span=p/SsBSP8xmA= parent=yvGkIzoZC7I=] (model=gpt-5.5)
+      - openclaw.tool.execution [span=dY4V4yXkTuc= parent=yvGkIzoZC7I=] (tool=message)
+      - openclaw.model.call [span=MuU9bM+4vJY= parent=yvGkIzoZC7I=] (model=gpt-5.5)
+      - openclaw.tool.execution [span=9W8UEK5LvSk= parent=yvGkIzoZC7I=] (tool=exec)
+      - openclaw.model.call [span=AFLIXLPeu9c= parent=yvGkIzoZC7I=] (model=gpt-5.5)
+      - openclaw.tool.execution [span=WQ+f1deyDno= parent=yvGkIzoZC7I=] (tool=exec)
+      - openclaw.model.call [span=amICSa60Pz8= parent=yvGkIzoZC7I=] (model=gpt-5.5)
+      - openclaw.tool.execution [span=8dXWaqgGge4= parent=yvGkIzoZC7I=] (tool=continue_work)
+      - openclaw.model.call [span=4BGQ71zrrwY= parent=yvGkIzoZC7I=] (model=gpt-5.5)
+    - openclaw.message.delivery [span=y3Z/NjKVGbg= parent=8ok0cyna3cc=] (channel=discord)
+  - continuation.work [span=0lTmQyISnr4= parent=NWm2yWmAnA4=] (chain.id=67146ffa-e4e0-4c1d-a710-8081e83d31b8)
+  - openclaw.model.usage [span=XLmM+Iyi2y8= parent=NWm2yWmAnA4=] (channel=system, model=gpt-5.5)
+  - openclaw.harness.run [span=OLAbU5ton04= parent=NWm2yWmAnA4=] (channel=system, model=gpt-5.5)
+    - openclaw.run [span=B5cNSMJmSL0= parent=OLAbU5ton04=] (channel=system, trigger=heartbeat, model=gpt-5.5)
+      - openclaw.context.assembled [span=SWmtGQOoxxE= parent=B5cNSMJmSL0=] (channel=system, trigger=heartbeat, model=gpt-5.5)
+      - openclaw.model.call [span=8X7z8ootxuE= parent=B5cNSMJmSL0=] (model=gpt-5.5)
+      - openclaw.tool.execution [span=C2Vu4IVr4gg= parent=B5cNSMJmSL0=] (tool=exec)
+      - openclaw.model.call [span=xY/y6O6GXDY= parent=B5cNSMJmSL0=] (model=gpt-5.5)
+      - openclaw.tool.execution [span=ibnZRQvqGNk= parent=B5cNSMJmSL0=] (tool=exec)
+      - openclaw.model.call [span=dpZcPr2Cvgc= parent=B5cNSMJmSL0=] (model=gpt-5.5)
+      - openclaw.tool.execution [span=SuELA7R6eoY= parent=B5cNSMJmSL0=] (tool=continue_delegate)
+      - openclaw.model.call [span=Y5ZUCVicl9A= parent=B5cNSMJmSL0=] (model=gpt-5.5)
+      - openclaw.tool.execution [span=de+YnfYFTbY= parent=B5cNSMJmSL0=] (tool=subagents)
+      - openclaw.model.call [span=Z20BA0fYlGA= parent=B5cNSMJmSL0=] (model=gpt-5.5)
+  - continuation.delegate.dispatch [span=WwwdFoL9PKo= parent=NWm2yWmAnA4=] (delegate.mode=silent-wake, delegate.delivery=immediate, chain.id=67146ffa-e4e0-4c1d-a710-8081e83d31b8)
+    - openclaw.harness.run [span=7c7AaP9uVyA= parent=WwwdFoL9PKo=] (channel=webchat, model=gpt-5.5)
+      - openclaw.run [span=PxqMW3YCN2w= parent=7c7AaP9uVyA=] (channel=webchat, trigger=user, model=gpt-5.5)
+        - openclaw.context.assembled [span=jf7xqgPCZS4= parent=PxqMW3YCN2w=] (channel=webchat, trigger=user, model=gpt-5.5)
+        - openclaw.model.call [span=qENkVUUxzNg= parent=PxqMW3YCN2w=] (model=gpt-5.5)
+      - openclaw.harness.run [span=CX/ugCzDcqc= parent=7c7AaP9uVyA=] (channel=webchat, model=gpt-5.5)
+        - openclaw.run [span=xpH5xpTv/P0= parent=CX/ugCzDcqc=] (channel=webchat, trigger=manual, model=gpt-5.5)
+          - openclaw.context.assembled [span=dIOuTUtHcVY= parent=xpH5xpTv/P0=] (channel=webchat, trigger=manual, model=gpt-5.5)
+          - openclaw.model.call [span=TaL31R+yQXw= parent=xpH5xpTv/P0=] (model=gpt-5.5)
+          - openclaw.tool.execution [span=55rNa+Y2Fjw= parent=xpH5xpTv/P0=] (tool=memory_search)
+          - openclaw.model.call [span=Qc7OkhktkKo= parent=xpH5xpTv/P0=] (model=gpt-5.5)
+  - continuation.queue.fanout [span=kpgHxLEOcU8= parent=NWm2yWmAnA4=]
+  - continuation.queue.drain [span=wwb3wWHoKic= parent=NWm2yWmAnA4=] (drained=2, continuations=1)
+  - openclaw.model.usage [span=Xdn5NNHW1p4= parent=NWm2yWmAnA4=] (channel=heartbeat, model=gpt-5.5)
+  - openclaw.harness.run [span=5/Nuil3Ou7c= parent=NWm2yWmAnA4=] (channel=discord, model=gpt-5.5)
+    - openclaw.run [span=iVEMZmvj634= parent=5/Nuil3Ou7c=] (channel=discord, trigger=heartbeat, model=gpt-5.5)
+      - openclaw.context.assembled [span=QqVPQNPIlfU= parent=iVEMZmvj634=] (channel=discord, trigger=heartbeat, model=gpt-5.5)
+      - openclaw.model.call [span=BKINpMMOx4U= parent=iVEMZmvj634=] (model=gpt-5.5)

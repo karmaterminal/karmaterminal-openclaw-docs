@@ -1,0 +1,21 @@
+{
+  "status":"ok",
+  "action":"list",
+  "requesterSessionKey":"agent:main:discord:channel:1466192485440164011",
+  "callerSessionKey":"agent:main:discord:channel:1466192485440164011",
+  "callerIsSubagent":false,
+  "total":86,
+  "active":[],
+  "recent":[{
+    "runId":"continuation-delegate-e9f996fc51ca332b1fa86217cf72090e",
+    "sessionKey":"agent:main:subagent:continuation-e9f996fc51ca332b1fa86217cf72090e",
+    "status":"done",
+    "pendingDescendants":0,
+    "runtime":"5s",
+    "runtimeMs":5079,
+    "model":"github-copilot/gpt-5.5",
+    "totalTokens":47365,
+    "startedAt":1783189347547,
+    "endedAt":1783189352898
+  }]
+}

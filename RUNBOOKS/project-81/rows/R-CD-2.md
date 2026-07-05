@@ -62,3 +62,20 @@ OPENCLAW_CANDIDATE_SHA=<candidate-sha> \
 ## Fold guidance
 
 PASS requires dispatch accepted, parent wake/return observed, no visible channel delivery from the silent delegate, and trace/session receipts reviewed. Run serially per target session.
+
+## Repeatability note — 2026-07-05 live lane test
+
+A live run against the Discord-bound `#sprites` session produced a useful `PARTIAL-candidate` artifact:
+
+- `sessions.send` accepted and triggered the dispatching agent turn.
+- The agent reached the tool surface and fired `continue_delegate(mode="silent-wake")`.
+- The runner artifact bundle was written under `/tmp/p81-rcd2-live-test1/.../R-CD-2/...`.
+- The old detector closed too early on the dispatching agent's initial `session.message` and treated a live channel/chat event containing the harness nonce as a silent-mode violation.
+
+Chop applied after that test: the scenario now distinguishes the dispatching agent turn from a delayed parent wake candidate, emits a parseable `R_CD_2_EVIDENCE` line, and tracks dispatch-channel events separately from delegate-return channel delivery.
+
+Manual work still remaining for a folded PASS:
+
+- Prefer a throwaway/non-Discord target session for repeated live runs so harness injection does not surprise the coordination room.
+- Fetch/commit Tempo trace JSON when a trace id is emitted.
+- Confirm the delayed parent wake corresponds to the delegate return, not only the dispatching agent's initial turn.

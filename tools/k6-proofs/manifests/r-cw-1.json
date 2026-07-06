@@ -16,10 +16,9 @@
   "scenario": {
     "name": "r-cw-1-tool-schedule-wake",
     "description": "Typed continue_work() tool-form schedule + wake. Fires continue_work with a reason, observes the scheduled work entry and wake event on the session.",
-    "methods": ["tools.invoke", "sessions.messages.subscribe"],
-    "status": "scaffold",
-    "expectedFile": "r-cw-1-tool-schedule-wake.js",
-    "registryNotes": "Legacy scenarios/r-cw-1.js exists but is an infrastructure-only check that does not load this manifest, so this manifest is not marked runnable."
+    "methods": ["sessions.create", "sessions.send", "sessions.messages.subscribe"],
+    "status": "runnable",
+    "file": "r-cw-1-tool-schedule-wake.js"
   },
   "invocation": {
     "tool": "continue_work",
@@ -44,5 +43,23 @@
     "candidateOnly": true,
     "foldRequiresReview": true,
     "notes": "Tool-form continue_work. PASS when accepted + wake delivered within timeout. candidateSha and seat resolved from env at runtime."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "tool-invoke-accepted",
+      "work-scheduled-event",
+      "work-woke-event",
+      "trace-id"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live continue_work schedule + wake row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). All three required receipts must be present for PASS-candidate; trace-id is soft."
   }
 }

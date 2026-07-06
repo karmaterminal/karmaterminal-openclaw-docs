@@ -120,9 +120,10 @@ export default function () {
       // Dispatch via sessions.send — triggers agent turn that calls continue_work.
       socket.setTimeout(() => {
         const agentInstruction =
-          `[k6-proof-harness] Call continue_work with: ` +
-          `reason="${reasonWithNonce}", delaySeconds=${inv.delaySeconds}. ` +
-          `Execute immediately. This is a proof run — no other action needed.`;
+          `[k6-proof-harness] Call continue_work with reason="${reasonWithNonce}" and delaySeconds=${inv.delaySeconds}. ` +
+          `After the continue_work tool result reports scheduled, reply exactly CW-SCHEDULED ${rowNonce}. ` +
+          `On the continuation wake, reply exactly CW-WOKE ${rowNonce}. ` +
+          `This is a proof run — no other action needed.`;
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
           message: agentInstruction,
@@ -204,42 +205,24 @@ export default function () {
           } else if (evidence.dispatch_accepted_at_ms) {
             const elapsedSinceDispatch = Date.now() - evidence.dispatch_accepted_at_ms;
 
-            // Scheduled receipt: rely on observable tool result/status signal, not
-            // a specific continuation.work.scheduled event name.
-            if (!evidence.continue_work_tool_result_scheduled && eventStr.includes(rowNonce) && (
-              eventStr.includes('status":"scheduled"') ||
-              eventStr.includes("status': 'scheduled'") ||
-              eventStr.includes('status: "scheduled"')
-            )) {
+            // Scheduled receipt: explicit assistant sentinel emitted only after
+            // the continue_work tool result reports scheduled.
+            if (!evidence.continue_work_tool_result_scheduled && eventStr.includes(`CW-SCHEDULED ${rowNonce}`)) {
               evidence.continue_work_tool_result_scheduled = true;
               evidence.scheduled_result_at_ms = Date.now();
               if (eventData.traceId) evidence.trace_id = eventData.traceId;
-              console.log(`✓ continue_work scheduled result observed: ${eventName}`);
+              console.log(`✓ CW-SCHEDULED sentinel observed: ${eventName}`);
             }
 
-            // Work-woke / session wake after scheduled delay
-            if (evidence.continue_work_tool_result_scheduled && !evidence.work_woke_event && (
-                eventName === 'continuation.work.woke' ||
-                eventName === 'session.wake' ||
-                eventName === 'session.message' ||
-                eventName === 'agent' ||
-                (eventStr.includes('wake') || eventStr.includes('woke'))
-            )) {
-              // Only count as wake if dispatched + delay has likely elapsed
+            // Wake receipt: explicit sentinel emitted by the continuation wake turn.
+            if (evidence.continue_work_tool_result_scheduled && !evidence.work_woke_event &&
+                eventStr.includes(`CW-WOKE ${rowNonce}`) &&
+                elapsedSinceDispatch >= (inv.delaySeconds * 1000)) {
               const elapsedSinceSchedule = evidence.scheduled_result_at_ms
                 ? Date.now() - evidence.scheduled_result_at_ms : 0;
-              if (elapsedSinceDispatch >= (inv.delaySeconds * 1000)) {
-                evidence.work_woke_event = true;
-                evidence.wake_delay_ms = elapsedSinceSchedule;
-                console.log(`✓ Wake event observed: ${eventName} (${elapsedSinceSchedule}ms after scheduled)`);
-              }
-            }
-
-            // Also count any nonce-correlated event after delay as evidence
-            if (!evidence.work_woke_event && eventStr.includes(rowNonce) &&
-                elapsedSinceDispatch >= (inv.delaySeconds * 1000)) {
               evidence.work_woke_event = true;
-              console.log('✓ Nonce-correlated wake event observed after delay');
+              evidence.wake_delay_ms = elapsedSinceSchedule;
+              console.log(`✓ CW-WOKE sentinel observed: ${eventName} (${elapsedSinceSchedule}ms after scheduled)`);
             }
           }
         }

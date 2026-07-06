@@ -28,7 +28,7 @@
   },
   "expectedReceipts": [
     { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted the continue_work tool invocation" },
-    { "name": "continue-work-tool-result-scheduled", "required": true, "description": "Post-dispatch non-harness event includes observable continue_work scheduled result (e.g., status:\"scheduled\") with nonce correlation" },
+    { "name": "continue-work-tool-result-scheduled", "required": true, "description": "Post-dispatch non-harness event includes explicit CW-SCHEDULED sentinel emitted after continue_work tool result reports scheduled" },
     { "name": "work-woke-event", "required": true, "description": "Session wake event delivered after delaySeconds" },
     { "name": "trace-id", "required": false, "description": "Trace ID from tool response for Tempo fetch" }
   ],
@@ -51,7 +51,7 @@
     "requiresCandidateSha": true,
     "requiresExternalAgentOrToolInvocation": true,
     "sameSessionConcurrencySafe": false,
-    "expectedArtifactClass": "PASS-candidate",
+    "expectedArtifactClass": "PARTIAL-candidate",
     "requiredReceipts": [
       "seat-readiness",
       "tool-invoke-accepted",
@@ -60,6 +60,6 @@
       "trace-id"
     ],
     "foldRequiresReview": true,
-    "notes": "Live continue_work schedule + wake row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore harness prompt echo and rely on observable scheduled tool result semantics."
+    "notes": "Live continue_work schedule + wake row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore harness prompt echo; PASS requires explicit CW-SCHEDULED and CW-WOKE sentinels emitted after tool result/wake; current live smoke may be PARTIAL if the disposable session does not deliver the continuation wake turn."
   }
 }

@@ -28,7 +28,7 @@
   },
   "expectedReceipts": [
     { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted the continue_work tool invocation" },
-    { "name": "work-scheduled-event", "required": true, "description": "continuation.work.scheduled event with reason field" },
+    { "name": "continue-work-tool-result-scheduled", "required": true, "description": "Post-dispatch non-harness event includes observable continue_work scheduled result (e.g., status:\"scheduled\") with nonce correlation" },
     { "name": "work-woke-event", "required": true, "description": "Session wake event delivered after delaySeconds" },
     { "name": "trace-id", "required": false, "description": "Trace ID from tool response for Tempo fetch" }
   ],
@@ -42,7 +42,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Tool-form continue_work. PASS when accepted + wake delivered within timeout. candidateSha and seat resolved from env at runtime."
+    "notes": "Tool-form continue_work. PASS-candidate requires dispatch accepted + observable scheduled tool result + wake event. Detector must ignore [k6-proof-harness] prompt echoes; do not require an event name that the seat does not emit."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -55,11 +55,11 @@
     "requiredReceipts": [
       "seat-readiness",
       "tool-invoke-accepted",
-      "work-scheduled-event",
+      "continue-work-tool-result-scheduled",
       "work-woke-event",
       "trace-id"
     ],
     "foldRequiresReview": true,
-    "notes": "Live continue_work schedule + wake row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). All three required receipts must be present for PASS-candidate; trace-id is soft."
+    "notes": "Live continue_work schedule + wake row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore harness prompt echo and rely on observable scheduled tool result semantics."
   }
 }

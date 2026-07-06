@@ -46,6 +46,7 @@ const DEFAULTS = {
   reason: 'k6-proof-R-CW-1',
   idempotencyKeyPrefix: 'R-CW-1',
 };
+const HARNESS_MARKER = '[k6-proof-harness]';
 
 function boolEnv(name) {
   return (__ENV[name] || '').toLowerCase() === 'true';
@@ -96,10 +97,10 @@ export default function () {
     started: new Date().toISOString(),
     // Required receipts
     tool_invoke_accepted: false,
-    work_scheduled_event: false,
+    continue_work_tool_result_scheduled: false,
     work_woke_event: false,
     dispatch_accepted_at_ms: null,
-    scheduled_at_ms: null,
+    scheduled_result_at_ms: null,
     wake_delay_ms: null,
     trace_id: null,
     redacted_events: [],
@@ -113,7 +114,7 @@ export default function () {
     const reasonWithNonce = inv.reason.replace(/\{\{nonce\}\}/g, rowNonce) + `-${rowNonce}`;
 
     function startProofFlow(socket) {
-      // Subscribe to session events — continuation.work.scheduled + wake surface.
+      // Subscribe to session events — scheduled result + wake surface.
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
 
       // Dispatch via sessions.send — triggers agent turn that calls continue_work.
@@ -198,54 +199,54 @@ export default function () {
           const eventName = classified.event || '';
           const eventData = classified.data || {};
           const eventStr = JSON.stringify(eventData);
+          if (eventStr.includes(HARNESS_MARKER)) {
+            console.log('ℹ Ignoring harness prompt echo event');
+          } else if (evidence.dispatch_accepted_at_ms) {
+            const elapsedSinceDispatch = Date.now() - evidence.dispatch_accepted_at_ms;
 
-          // Work-scheduled event: continuation.work.scheduled or similar
-          if (!evidence.work_scheduled_event && (
-              eventName === 'continuation.work.scheduled' ||
-              eventName === 'work.scheduled' ||
-              (eventStr.includes('scheduled') && (
-                eventStr.includes(reasonWithNonce) ||
-                eventStr.includes('continue_work') ||
-                eventStr.includes('continuation')
-              ))
-          )) {
-            evidence.work_scheduled_event = true;
-            evidence.scheduled_at_ms = Date.now();
-            if (eventData.traceId) evidence.trace_id = eventData.traceId;
-            console.log(`✓ Work-scheduled event observed: ${eventName}`);
-          }
-
-          // Work-woke / session wake after scheduled delay
-          if (evidence.work_scheduled_event && !evidence.work_woke_event && (
-              eventName === 'continuation.work.woke' ||
-              eventName === 'session.wake' ||
-              eventName === 'session.message' ||
-              eventName === 'agent' ||
-              (eventStr.includes('wake') || eventStr.includes('woke'))
-          )) {
-            // Only count as wake if dispatched + delay has likely elapsed
-            const elapsedSinceSchedule = evidence.scheduled_at_ms
-              ? Date.now() - evidence.scheduled_at_ms : 0;
-            const elapsedSinceDispatch = evidence.dispatch_accepted_at_ms
-              ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
-            if (elapsedSinceDispatch >= (inv.delaySeconds * 1000)) {
-              evidence.work_woke_event = true;
-              evidence.wake_delay_ms = elapsedSinceSchedule;
-              console.log(`✓ Wake event observed: ${eventName} (${elapsedSinceSchedule}ms after scheduled)`);
+            // Scheduled receipt: rely on observable tool result/status signal, not
+            // a specific continuation.work.scheduled event name.
+            if (!evidence.continue_work_tool_result_scheduled && eventStr.includes(rowNonce) && (
+              eventStr.includes('status":"scheduled"') ||
+              eventStr.includes("status': 'scheduled'") ||
+              eventStr.includes('status: "scheduled"') ||
+              (eventStr.includes(reasonWithNonce) && eventStr.includes('scheduled'))
+            )) {
+              evidence.continue_work_tool_result_scheduled = true;
+              evidence.scheduled_result_at_ms = Date.now();
+              if (eventData.traceId) evidence.trace_id = eventData.traceId;
+              console.log(`✓ continue_work scheduled result observed: ${eventName}`);
             }
-          }
 
-          // Also count any nonce-correlated event after delay as evidence
-          if (!evidence.work_woke_event && eventStr.includes(rowNonce) &&
-              evidence.dispatch_accepted_at_ms &&
-              Date.now() - evidence.dispatch_accepted_at_ms >= (inv.delaySeconds * 1000)) {
-            evidence.work_woke_event = true;
-            console.log(`✓ Nonce-correlated wake event observed after delay`);
+            // Work-woke / session wake after scheduled delay
+            if (evidence.continue_work_tool_result_scheduled && !evidence.work_woke_event && (
+                eventName === 'continuation.work.woke' ||
+                eventName === 'session.wake' ||
+                eventName === 'session.message' ||
+                eventName === 'agent' ||
+                (eventStr.includes('wake') || eventStr.includes('woke'))
+            )) {
+              // Only count as wake if dispatched + delay has likely elapsed
+              const elapsedSinceSchedule = evidence.scheduled_result_at_ms
+                ? Date.now() - evidence.scheduled_result_at_ms : 0;
+              if (elapsedSinceDispatch >= (inv.delaySeconds * 1000)) {
+                evidence.work_woke_event = true;
+                evidence.wake_delay_ms = elapsedSinceSchedule;
+                console.log(`✓ Wake event observed: ${eventName} (${elapsedSinceSchedule}ms after scheduled)`);
+              }
+            }
+
+            // Also count any nonce-correlated event after delay as evidence
+            if (!evidence.work_woke_event && eventStr.includes(rowNonce) &&
+                elapsedSinceDispatch >= (inv.delaySeconds * 1000)) {
+              evidence.work_woke_event = true;
+              console.log('✓ Nonce-correlated wake event observed after delay');
+            }
           }
         }
 
         // Early close when all required evidence collected
-        if (evidence.tool_invoke_accepted && evidence.work_scheduled_event && evidence.work_woke_event) {
+        if (evidence.tool_invoke_accepted && evidence.continue_work_tool_result_scheduled && evidence.work_woke_event) {
           console.log('All required R-CW-1 evidence gathered, closing early');
           socket.close();
         }
@@ -267,16 +268,16 @@ export default function () {
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'tool-invoke-accepted (sessions.send)': () => evidence.tool_invoke_accepted,
-    'work-scheduled-event observed': () => evidence.work_scheduled_event,
+    'continue_work scheduled result observed': () => evidence.continue_work_tool_result_scheduled,
     'work-woke-event observed': () => evidence.work_woke_event,
   });
 
-  if (!evidence.tool_invoke_accepted || !evidence.work_scheduled_event || !evidence.work_woke_event) {
+  if (!evidence.tool_invoke_accepted || !evidence.continue_work_tool_result_scheduled || !evidence.work_woke_event) {
     failures.add(1);
   }
 
   const passed = (!createDisposableSession || evidence.session_created) &&
-    evidence.tool_invoke_accepted && evidence.work_scheduled_event && evidence.work_woke_event;
+    evidence.tool_invoke_accepted && evidence.continue_work_tool_result_scheduled && evidence.work_woke_event;
 
   console.log(`\n--- R-CW-1 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));

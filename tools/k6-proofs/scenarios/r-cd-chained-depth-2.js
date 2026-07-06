@@ -18,7 +18,7 @@
  *   - Manifest: tools/k6-proofs/manifests/r-cd-chained-depth-2.json
  */
 import ws from 'k6/ws';
-import { check, sleep } from 'k6';
+import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
@@ -49,6 +49,8 @@ const DEFAULTS = {
   delaySeconds: 1,
   idempotencyKeyPrefix: 'R-CD-CHAIN',
 };
+const HARNESS_MARKER = '[k6-proof-harness]';
+const POST_DISPATCH_EVIDENCE_GATE_MS = Number(__ENV.OPENCLAW_MIN_CHAIN_EVIDENCE_DELAY_MS || 1500);
 
 function boolEnv(name) {
   return (__ENV[name] || '').toLowerCase() === 'true';
@@ -102,7 +104,10 @@ export default function () {
     parent_dispatch_accepted: false,
     child_spawned: false,
     grandchild_spawned: false,
+    child_done_sentinel: false,
+    grandchild_done_sentinel: false,
     chain_return_received: false,
+    dispatch_accepted_at_ms: null,
     // Depth tracking
     max_depth_observed: 0,
     child_session: null,
@@ -203,6 +208,7 @@ export default function () {
         if (classified.kind === 'response' && classified.method === 'sessions.send') {
           if (classified.ok) {
             evidence.parent_dispatch_accepted = true;
+            evidence.dispatch_accepted_at_ms = Date.now();
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — agent turn triggered for depth-2 chain');
           } else {
@@ -215,66 +221,57 @@ export default function () {
         // continue_delegate uses pending-delegate/subagent surfaces.
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
           const tasks = classified.payload?.tasks || [];
-          let childFound = false;
-          let grandchildFound = false;
-
           for (const task of tasks) {
             const taskStr = JSON.stringify(task);
-            // Detect child (depth-1): contains the chain nonce in its task body
-            if (taskStr.includes(chainNonce) && taskStr.includes('depth-1')) {
-              childFound = true;
-              evidence.child_spawned = true;
-              evidence.child_session = task.sessionKey || task.childSessionKey || null;
-              if (evidence.max_depth_observed < 1) evidence.max_depth_observed = 1;
+            if (!taskStr.includes(chainNonce)) continue;
+            if (!evidence.child_session && task.sessionKey && task.sessionKey !== sessionKey) {
+              evidence.child_session = task.sessionKey;
             }
-            // Detect grandchild (depth-2): contains "GRANDCHILD-DONE" or matches chain nonce
-            // but at a deeper level
-            if (taskStr.includes(chainNonce) && taskStr.includes('Grandchild')) {
-              grandchildFound = true;
-              evidence.grandchild_spawned = true;
-              evidence.grandchild_session = task.sessionKey || task.childSessionKey || null;
-              if (evidence.max_depth_observed < 2) evidence.max_depth_observed = 2;
+            if (!evidence.grandchild_session && task.childSessionKey && task.childSessionKey !== sessionKey) {
+              evidence.grandchild_session = task.childSessionKey;
             }
-            // Check completion state
-            if (taskStr.includes(chainNonce) &&
-                (task.state === 'completed' || task.status === 'completed')) {
-              // A completed task with our nonce = chain progression
-              console.log(`✓ Task completed: ${task.sessionKey || 'unknown'}`);
-            }
+            if (task.traceId) evidence.trace_id = task.traceId;
           }
-
-          if (childFound) console.log('✓ Child (depth-1) observed in task ledger');
-          if (grandchildFound) console.log('✓ Grandchild (depth-2) observed in task ledger');
         }
 
         // Chain progression on subscribed session events. These are the primary
         // public proof surface for continue_delegate chains; task registry rows
         // are only optional context.
         if (classified.kind === 'event') {
-          const eventStr = JSON.stringify(classified.data || {});
+          const eventData = classified.data || {};
+          const eventStr = JSON.stringify(eventData);
           if (eventStr.includes(chainNonce)) {
-            if (eventStr.includes('depth-1') || eventStr.includes('CHILD-DONE')) {
-              evidence.child_spawned = true;
-              if (evidence.max_depth_observed < 1) evidence.max_depth_observed = 1;
-              console.log('✓ Child/depth-1 event observed on session stream');
-            }
-            if (eventStr.includes('Grandchild') || eventStr.includes('GRANDCHILD-DONE')) {
-              evidence.grandchild_spawned = true;
-              if (evidence.max_depth_observed < 2) evidence.max_depth_observed = 2;
-              console.log('✓ Grandchild/depth-2 event observed on session stream');
-            }
-            if (eventStr.includes('delegate') || eventStr.includes('completion') ||
-                eventStr.includes('return') || eventStr.includes('CHILD-DONE') ||
-                eventStr.includes('GRANDCHILD-DONE')) {
-              evidence.chain_return_received = true;
-              console.log('✓ Chain return/progression received at parent session');
+            if (eventStr.includes(HARNESS_MARKER)) {
+              console.log('ℹ Ignoring harness prompt echo event');
+            } else if (evidence.parent_dispatch_accepted && evidence.dispatch_accepted_at_ms) {
+              const elapsed = Date.now() - evidence.dispatch_accepted_at_ms;
+              if (elapsed >= POST_DISPATCH_EVIDENCE_GATE_MS) {
+                if (eventStr.includes('CHILD-DONE')) {
+                  evidence.child_done_sentinel = true;
+                  evidence.child_spawned = true;
+                  if (evidence.max_depth_observed < 1) evidence.max_depth_observed = 1;
+                  console.log('✓ CHILD-DONE sentinel observed post-dispatch');
+                }
+                if (eventStr.includes('GRANDCHILD-DONE')) {
+                  evidence.grandchild_done_sentinel = true;
+                  evidence.grandchild_spawned = true;
+                  evidence.chain_return_received = true;
+                  if (evidence.max_depth_observed < 2) evidence.max_depth_observed = 2;
+                  console.log('✓ GRANDCHILD-DONE sentinel observed post-dispatch');
+                }
+                if (evidence.child_done_sentinel && evidence.grandchild_done_sentinel) {
+                  evidence.chain_return_received = true;
+                }
+              }
             }
           }
         }
 
-        // Early close if chain complete
-        if (evidence.parent_dispatch_accepted && evidence.child_spawned &&
-            evidence.grandchild_spawned && evidence.chain_return_received) {
+        // Early close only on strict post-dispatch sentinels.
+        if (evidence.parent_dispatch_accepted &&
+            evidence.child_done_sentinel &&
+            evidence.grandchild_done_sentinel &&
+            evidence.chain_return_received) {
           console.log('Full chain evidence gathered, closing early');
           socket.close();
         }
@@ -296,19 +293,21 @@ export default function () {
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'parent dispatch accepted': () => evidence.parent_dispatch_accepted,
-    'child (depth-1) spawned': () => evidence.child_spawned,
-    'grandchild (depth-2) spawned': () => evidence.grandchild_spawned,
+    'child sentinel observed post-dispatch': () => evidence.child_done_sentinel,
+    'grandchild sentinel observed post-dispatch': () => evidence.grandchild_done_sentinel,
     'chain return received at parent': () => evidence.chain_return_received,
     'max depth >= 2': () => evidence.max_depth_observed >= 2,
   });
 
-  if (!evidence.parent_dispatch_accepted || !evidence.child_spawned) {
+  if (!evidence.parent_dispatch_accepted || !evidence.child_done_sentinel || !evidence.grandchild_done_sentinel) {
     failures.add(1);
   }
 
   const passed = (!createDisposableSession || evidence.session_created) &&
-    evidence.parent_dispatch_accepted && evidence.child_spawned &&
-    evidence.grandchild_spawned && evidence.chain_return_received;
+    evidence.parent_dispatch_accepted &&
+    evidence.child_done_sentinel &&
+    evidence.grandchild_done_sentinel &&
+    evidence.chain_return_received;
 
   console.log(`\n--- R-CD-CHAINED-DEPTH-2 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));

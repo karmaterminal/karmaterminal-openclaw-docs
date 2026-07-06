@@ -16,16 +16,20 @@
   "scenario": {
     "name": "r-cw-delegate-self-continuation",
     "description": "Fires continue_delegate that internally calls continue_work — proves hop-2 woke inside a delegate child session. The delegate dispatches, the child fires its own continue_work, and the hop-2 turn executes.",
-    "methods": ["tools.invoke", "sessions.messages.subscribe", "tasks.list"],
-    "status": "scaffold",
-    "expectedFile": "r-cw-delegate-self-continuation.js",
-    "registryNotes": "No runnable row scenario file exists yet; this manifest is a registry contract only."
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "tasks.list"
+    ],
+    "status": "runnable",
+    "file": "r-cw-delegate-self-continuation.js"
   },
   "invocation": {
     "tool": "continue_delegate",
     "mode": "normal",
     "delaySeconds": 1,
-    "promptTemplate": "k6 proof R-CW-DELEGATE-SELF: after arriving, fire continue_work(reason='k6-self-continuation-{{nonce}}', delaySeconds=2). On hop-2 wake, report DONE with the nonce and your chain.step. Do not mutate files.",
+    "promptTemplate": "k6 proof R-CW-DELEGATE-SELF nonce {{nonce}}: after arriving, call continue_work(reason=\"k6-self-continuation-{{nonce}}\", delaySeconds=2). On hop-2 wake, reply with DONE and the nonce \"{{nonce}}\". Do not mutate files. Do not post to any channel.",
     "idempotencyKeyPrefix": "R-CW-DELEGATE-SELF"
   },
   "expectedReceipts": [
@@ -46,5 +50,24 @@
     "candidateOnly": true,
     "foldRequiresReview": true,
     "notes": "Delegate self-continuation: delegate child fires its own continue_work. PASS when child's hop-2 executes. Proves continue_work works INSIDE a delegate context (not just main session)."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "delegate-accepted",
+      "child-spawned",
+      "child-continue-work-accepted",
+      "child-hop-2-woke",
+      "parent-return"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Delegate self-continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). child-hop-2-woke and parent-return are soft; delegate-accepted + child-spawned + child-continue-work-accepted are required for PASS-candidate."
   }
 }

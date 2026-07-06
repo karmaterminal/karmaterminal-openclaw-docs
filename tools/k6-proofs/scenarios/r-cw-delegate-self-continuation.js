@@ -55,6 +55,8 @@ const DEFAULTS = {
   promptTemplate: 'k6 proof R-CW-DELEGATE-SELF nonce {{nonce}}: after arriving, call continue_work(reason="k6-self-continuation-{{nonce}}", delaySeconds=2). On hop-2 wake, reply with DONE and the nonce "{{nonce}}". Do not mutate files. Do not post to any channel.',
   idempotencyKeyPrefix: 'R-CW-DELEGATE-SELF',
 };
+const HARNESS_MARKER = '[k6-proof-harness]';
+const POST_DISPATCH_EVIDENCE_GATE_MS = Number(__ENV.OPENCLAW_MIN_DELEGATE_EVIDENCE_DELAY_MS || 1500);
 
 function boolEnv(name) {
   return (__ENV[name] || '').toLowerCase() === 'true';
@@ -216,18 +218,8 @@ export default function () {
           const tasks = classified.payload?.tasks || [];
           for (const task of tasks) {
             const taskStr = JSON.stringify(task);
-            if (taskStr.includes(rowNonce)) {
-              evidence.child_spawned = true;
-              if (taskStr.includes('continue_work') || taskStr.includes('DONE') ||
-                  taskStr.includes('hop-2') || taskStr.includes('k6-self-continuation')) {
-                evidence.child_continue_work_accepted = true;
-              }
-              if (taskStr.includes('DONE') && (task.state === 'completed' || task.status === 'completed')) {
-                evidence.child_hop_2_woke = true;
-              }
-              if (task.traceId) evidence.trace_id = task.traceId;
-              console.log(`✓ Task found with nonce: ${task.sessionKey || 'unknown'} state=${task.state || 'unknown'}`);
-            }
+            if (!taskStr.includes(rowNonce)) continue;
+            if (task.traceId) evidence.trace_id = task.traceId;
           }
         }
 
@@ -237,34 +229,35 @@ export default function () {
           const eventName = classified.event || '';
 
           if (eventStr.includes(rowNonce)) {
+            if (eventStr.includes(HARNESS_MARKER)) {
+              console.log('ℹ Ignoring harness prompt echo event');
+            } else if (evidence.delegate_accepted && evidence.dispatch_accepted_at_ms &&
+              (Date.now() - evidence.dispatch_accepted_at_ms) >= POST_DISPATCH_EVIDENCE_GATE_MS) {
             // Child spawned: nonce in delegate-related event
-            if (eventStr.includes('delegate') || eventStr.includes('child') ||
-                eventStr.includes('spawn') || eventName === 'delegate.started') {
               evidence.child_spawned = true;
-              console.log('✓ Child spawn event observed (delegate arrived)');
-            }
+              if (eventName === 'delegate.started' || eventName === 'delegate.return') {
+                console.log('✓ Delegate lifecycle event observed post-dispatch');
+              }
 
-            // Child fired continue_work
-            if (eventStr.includes('continue_work') || eventStr.includes('k6-self-continuation') ||
-                eventStr.includes('self-continuation')) {
-              evidence.child_continue_work_accepted = true;
-              console.log('✓ Child continue_work event observed');
-            }
+              // Child fired continue_work
+              if (eventStr.includes(`k6-self-continuation-${rowNonce}`) || eventStr.includes('status":"scheduled"')) {
+                evidence.child_continue_work_accepted = true;
+                console.log('✓ Child continue_work scheduled result observed post-dispatch');
+              }
 
-            // Child hop-2 woke: DONE + nonce in return
-            if (eventStr.includes('DONE') && eventStr.includes(rowNonce)) {
-              evidence.child_hop_2_woke = true;
-              console.log('✓ Child hop-2 wake: DONE + nonce observed');
-            }
+              // Child hop-2 woke: DONE + nonce in return
+              if (eventStr.includes('DONE') && eventStr.includes(rowNonce)) {
+                evidence.child_hop_2_woke = true;
+                console.log('✓ Child hop-2 wake: DONE + nonce observed post-dispatch');
+              }
 
-            // Parent return from delegate
-            if (eventStr.includes('return') || eventStr.includes('completion') ||
-                eventName === 'delegate.return' || eventName === 'session.message') {
-              const elapsed = evidence.dispatch_accepted_at_ms
-                ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
-              if (elapsed >= 3000) {
+              // Parent return from delegate
+              if (eventName === 'delegate.return' ||
+                eventStr.includes('return') ||
+                eventStr.includes('completion') ||
+                (eventName === 'session.message' && eventStr.includes(rowNonce))) {
                 evidence.parent_return = true;
-                console.log('✓ Parent return/wake event from delegate observed');
+                console.log('✓ Parent return event from delegate observed post-dispatch');
               }
             }
           }
@@ -294,13 +287,13 @@ export default function () {
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'delegate dispatch accepted (sessions.send)': () => evidence.delegate_accepted,
-    'child spawned (delegate arrived)': () => evidence.child_spawned,
-    'child continue_work accepted': () => evidence.child_continue_work_accepted,
+    'child spawned from post-dispatch event': () => evidence.child_spawned,
+    'child continue_work scheduled post-dispatch': () => evidence.child_continue_work_accepted,
     'child hop-2 woke (optional)': () => evidence.child_hop_2_woke,
     'parent return received': () => evidence.parent_return,
   });
 
-  if (!evidence.delegate_accepted || !evidence.child_spawned) {
+  if (!evidence.delegate_accepted || !evidence.child_spawned || !evidence.child_continue_work_accepted) {
     failures.add(1);
   }
 

@@ -33,9 +33,9 @@
     "idempotencyKeyPrefix": "R-CW-DELEGATE-SELF"
   },
   "expectedReceipts": [
-    { "name": "delegate-accepted", "required": true, "description": "continue_delegate accepted by gateway" },
-    { "name": "child-spawned", "required": true, "description": "Child session spawned for the delegate" },
-    { "name": "child-continue-work-accepted", "required": true, "description": "Child's own continue_work was accepted" },
+    { "name": "delegate-accepted", "required": true, "description": "sessions.send dispatch accepted (agent turn triggered)" },
+    { "name": "child-spawned", "required": true, "description": "Nonce-correlated non-harness event observed only after dispatch acceptance gate" },
+    { "name": "child-continue-work-accepted", "required": true, "description": "Post-dispatch non-harness evidence of scheduled continue_work (reason nonce or scheduled result)" },
     { "name": "child-hop-2-woke", "required": false, "description": "Child's hop-2 turn executed (DONE + nonce in return)" },
     { "name": "parent-return", "required": false, "description": "Delegate return event on parent session" }
   ],
@@ -49,7 +49,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Delegate self-continuation: delegate child fires its own continue_work. PASS when child's hop-2 executes. Proves continue_work works INSIDE a delegate context (not just main session)."
+    "notes": "Delegate self-continuation: delegate child fires its own continue_work. Detector must ignore [k6-proof-harness] prompt-echo events and count only post-dispatch evidence. PASS-candidate requires delegate-accepted + child-spawned + child-continue-work-accepted; hop-2 and parent-return remain soft but recommended."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -68,6 +68,6 @@
       "parent-return"
     ],
     "foldRequiresReview": true,
-    "notes": "Delegate self-continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). child-hop-2-woke and parent-return are soft; delegate-accepted + child-spawned + child-continue-work-accepted are required for PASS-candidate."
+    "notes": "Delegate self-continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore [k6-proof-harness] prompt echo; only post-dispatch evidence counts."
   }
 }

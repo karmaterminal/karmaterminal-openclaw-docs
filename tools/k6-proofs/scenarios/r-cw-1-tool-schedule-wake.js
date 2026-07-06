@@ -112,6 +112,7 @@ export default function () {
     const tracker = new RequestTracker();
     const inv = invocationCfg();
     const reasonWithNonce = inv.reason.replace(/\{\{nonce\}\}/g, rowNonce) + `-${rowNonce}`;
+    const wakeReason = `${reasonWithNonce} -- on continuation wake reply exactly CW-WOKE ${rowNonce}`;
 
     function startProofFlow(socket) {
       // Subscribe to session events — scheduled result + wake surface.
@@ -120,7 +121,7 @@ export default function () {
       // Dispatch via sessions.send — triggers agent turn that calls continue_work.
       socket.setTimeout(() => {
         const agentInstruction =
-          `[k6-proof-harness] Call continue_work with reason="${reasonWithNonce}" and delaySeconds=${inv.delaySeconds}. ` +
+          `[k6-proof-harness] Call continue_work with reason="${wakeReason}" and delaySeconds=${inv.delaySeconds}. ` +
           `After the continue_work tool result reports scheduled, reply exactly CW-SCHEDULED ${rowNonce}. ` +
           `On the continuation wake, reply exactly CW-WOKE ${rowNonce}. ` +
           `This is a proof run — no other action needed.`;

@@ -51,7 +51,7 @@
     "requiresCandidateSha": true,
     "requiresExternalAgentOrToolInvocation": true,
     "sameSessionConcurrencySafe": false,
-    "expectedArtifactClass": "PARTIAL-candidate",
+    "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
       "seat-readiness",
       "tool-invoke-accepted",
@@ -60,6 +60,6 @@
       "trace-id"
     ],
     "foldRequiresReview": true,
-    "notes": "Live continue_work schedule + wake row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore harness prompt echo; PASS requires explicit CW-SCHEDULED and CW-WOKE sentinels emitted after tool result/wake; current live smoke may be PARTIAL if the disposable session does not deliver the continuation wake turn."
+    "notes": "Live continue_work schedule + wake row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore harness prompt echo; PASS requires explicit CW-SCHEDULED and CW-WOKE sentinels; the scenario embeds the CW-WOKE instruction in the continue_work reason so the wake turn has the required sentinel instruction."
   }
 }

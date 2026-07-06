@@ -3,8 +3,8 @@
  *
  * Proves the typed continue_work() tool fires successfully and delivers:
  *   1. Gateway accepts the continue_work invocation (tool-invoke-accepted)
- *   2. A work-scheduled event (continuation.work.scheduled or equivalent)
- *      appears on the session stream
+ *   2. An observable scheduled tool-result/status signal appears on WS
+ *      (status:"scheduled" with nonce correlation)
  *   3. The session wakes after delaySeconds (work-woke-event)
  *
  * Repeatable mode: set OPENCLAW_CREATE_DISPOSABLE_SESSION=true to create a
@@ -209,8 +209,7 @@ export default function () {
             if (!evidence.continue_work_tool_result_scheduled && eventStr.includes(rowNonce) && (
               eventStr.includes('status":"scheduled"') ||
               eventStr.includes("status': 'scheduled'") ||
-              eventStr.includes('status: "scheduled"') ||
-              (eventStr.includes(reasonWithNonce) && eventStr.includes('scheduled'))
+              eventStr.includes('status: "scheduled"')
             )) {
               evidence.continue_work_tool_result_scheduled = true;
               evidence.scheduled_result_at_ms = Date.now();

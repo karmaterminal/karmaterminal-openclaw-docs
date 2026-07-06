@@ -4,13 +4,14 @@
  * Fires parent→child→grandchild chain and verifies the full return path.
  * The child is instructed to fire its OWN continue_delegate, creating a
  * depth-2 chain. The proof verifies:
- *   1. Parent dispatches (depth-0 → depth-1)
+ *   1. Parent dispatches (depth-0 → depth-1) via sessions.send (agent turn)
  *   2. Child spawns and fires its own delegate (depth-1 → depth-2)
  *   3. Grandchild spawns and completes
  *   4. Return propagates up-tree to parent
  *
- * This tests the gateway's chain-tracking, depth-limiting, and cost-cap
- * enforcement across linked dispatches.
+ * Repeatable mode: set OPENCLAW_CREATE_DISPOSABLE_SESSION=true to create a
+ * disposable parent session, so the proof does not touch the live #sprites/main
+ * Discord lane.
  *
  * References:
  *   - Issue: karmaterminal/karmaterminal-openclaw-docs#119
@@ -49,6 +50,10 @@ const DEFAULTS = {
   idempotencyKeyPrefix: 'R-CD-CHAIN',
 };
 
+function boolEnv(name) {
+  return (__ENV[name] || '').toLowerCase() === 'true';
+}
+
 function invocationCfg() {
   const inv = manifest?.invocation || {};
   return {
@@ -63,7 +68,9 @@ function invocationCfg() {
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
-  const sessionKey = manifest?.sessionKey || __ENV.OPENCLAW_SESSION_KEY || DEFAULTS.sessionKey;
+  const requestedSessionKey = manifest?.sessionKey || __ENV.OPENCLAW_SESSION_KEY || DEFAULTS.sessionKey;
+  let sessionKey = requestedSessionKey;
+  const createDisposableSession = boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSION') || boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSIONS');
   const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const chainNonce = nonce('R-CD-CHAIN');
 
@@ -80,18 +87,15 @@ export default function () {
     }
   }
 
-  // The child task instructs it to fire its OWN delegate (creating depth-2)
-  const grandchildTask = `Grandchild proof nonce ${chainNonce}: reply with GRANDCHILD-DONE and the nonce '${chainNonce}'. Do not mutate files. Do not post to any channel.`;
-  const childTask = `Chain proof nonce ${chainNonce}: you are a depth-1 delegate. ` +
-    `Use continue_delegate tool to fire a child with task: "${grandchildTask}" and mode "silent-wake". ` +
-    `After firing, reply with CHILD-DONE and the nonce '${chainNonce}'. Do not mutate files.`;
-
   const evidence = {
     row: 'R-CD-CHAINED-DEPTH-2',
     manifest_loaded: !!manifest,
     nonce: chainNonce,
     seat,
+    requestedSessionKey,
     sessionKey,
+    session_created: false,
+    created_session_key: null,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
     // Chain progression
@@ -112,32 +116,32 @@ export default function () {
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
+    function startProofFlow(socket) {
+      // Subscribe to parent session events — primary proof surface for chain progression.
+      tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
 
-      // Subscribe to parent session
-      socket.setTimeout(() => {
-        tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
-      }, 500);
-
-      // Fire the chain: parent dispatches child with chain-instruction
+      // Dispatch the chain via sessions.send — triggers an agent turn that calls
+      // continue_delegate. tools.invoke at the RPC layer does not execute agent-side
+      // tools; sessions.send is the correct E2E path.
       socket.setTimeout(() => {
         const inv = invocationCfg();
-        tracker.send(socket, 'tools.invoke', {
-          name: inv.tool,
-          sessionKey,
-          args: {
-            task: childTask,
-            mode: inv.mode,
-            delaySeconds: inv.delaySeconds,
-          },
+        const agentInstruction =
+          `[k6-proof-harness] Chain proof nonce ${chainNonce}. ` +
+          `Call continue_delegate with: mode="${inv.mode}", delaySeconds=${inv.delaySeconds}, ` +
+          `task="Chain proof nonce ${chainNonce}: you are depth-1. Call continue_delegate with mode=\\"${inv.mode}\\", ` +
+          `delaySeconds=${inv.delaySeconds}, ` +
+          `task=\\"Grandchild proof nonce ${chainNonce}: reply with GRANDCHILD-DONE and the nonce '${chainNonce}'. Do not mutate files. Do not post to any channel.\\". ` +
+          `After firing, reply with CHILD-DONE and the nonce '${chainNonce}'. Do not mutate files.", ` +
+          `idempotencyKey="${inv.idempotencyKeyPrefix}-${chainNonce}". ` +
+          `This is a proof run — execute the tool call immediately, no other action needed.`;
+        tracker.send(socket, 'sessions.send', {
+          key: sessionKey,
+          message: agentInstruction,
           idempotencyKey: `${inv.idempotencyKeyPrefix}-${chainNonce}`,
         });
-      }, 1000);
+      }, 500);
 
-      // Optional context only: continue_delegate does not write to the generic
-      // TaskFlow task registry. Chain progression is verified primarily from
-      // nonce-correlated subscribed session events.
+      // Optional context: poll task ledger at intervals.
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 8000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 20000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 40000);
@@ -145,8 +149,24 @@ export default function () {
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 90000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 120000);
 
-      // Extended timeout for chain completion
+      // Extended timeout for depth-2 chain completion.
       socket.setTimeout(() => socket.close(), 150000);
+    }
+
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+
+      if (createDisposableSession) {
+        socket.setTimeout(() => {
+          const disposableKey = `r-cd-chain-${chainNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+          tracker.send(socket, 'sessions.create', {
+            key: disposableKey,
+            label: `k6 R-CD-CHAINED-DEPTH-2 ${chainNonce}`,
+          });
+        }, 250);
+      } else {
+        socket.setTimeout(() => startProofFlow(socket), 500);
+      }
     });
 
     socket.on('message', (raw) => {
@@ -163,14 +183,30 @@ export default function () {
           data: classified.payload ? redactEvent(classified.payload) : null,
         });
 
-        // Parent dispatch accepted
-        if (classified.kind === 'response' && classified.method === 'tools.invoke') {
+        // Disposable session creation
+        if (classified.kind === 'response' && classified.method === 'sessions.create') {
+          if (classified.ok && classified.payload) {
+            sessionKey = classified.payload.key || sessionKey;
+            evidence.sessionKey = sessionKey;
+            evidence.session_created = true;
+            evidence.created_session_key = sessionKey;
+            console.log(`✓ disposable session created: ${sessionKey}`);
+            startProofFlow(socket);
+          } else {
+            console.error(`✗ sessions.create rejected: ${JSON.stringify(classified.error)}`);
+            failures.add(1);
+            socket.close();
+          }
+        }
+
+        // Parent dispatch accepted (sessions.send triggers agent turn)
+        if (classified.kind === 'response' && classified.method === 'sessions.send') {
           if (classified.ok) {
             evidence.parent_dispatch_accepted = true;
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
-            console.log('✓ Parent dispatch accepted (depth-0 → depth-1)');
+            console.log('✓ sessions.send accepted — agent turn triggered for depth-2 chain');
           } else {
-            console.error(`✗ Parent dispatch rejected: ${JSON.stringify(classified.error)}`);
+            console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
             failures.add(1);
           }
         }
@@ -270,7 +306,8 @@ export default function () {
     failures.add(1);
   }
 
-  const passed = evidence.parent_dispatch_accepted && evidence.child_spawned &&
+  const passed = (!createDisposableSession || evidence.session_created) &&
+    evidence.parent_dispatch_accepted && evidence.child_spawned &&
     evidence.grandchild_spawned && evidence.chain_return_received;
 
   console.log(`\n--- R-CD-CHAINED-DEPTH-2 EVIDENCE SUMMARY ---`);

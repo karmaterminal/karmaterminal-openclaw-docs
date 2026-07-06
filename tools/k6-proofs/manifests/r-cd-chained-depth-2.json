@@ -17,7 +17,8 @@
     "name": "r-cd-chained-depth-2",
     "description": "Depth-2 delegate chain: parent→child→grandchild→return path. Three sub-tests: (1) up-tree silent-wake, (2) inter-session return, (3) echo+broadcast via fanoutMode.",
     "methods": [
-      "tools.invoke",
+      "sessions.create",
+      "sessions.send",
       "sessions.messages.subscribe",
       "tasks.list"
     ],
@@ -84,5 +85,26 @@
     "candidateOnly": true,
     "foldRequiresReview": true,
     "notes": "Depth-2 chain proof. PASS-candidate when parent→child→grandchild→return completes with nonce correlation at each hop. Chain depth limit enforcement tested implicitly (depth-2 should succeed; gateway caps apply). Do not require tasks.list for child/grandchild spawn receipts; continue_delegate uses pending-delegate/subagent surfaces, not the generic task registry."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "parent-dispatch-accepted",
+      "child-spawns",
+      "child-fires-grandchild",
+      "grandchild-spawns",
+      "grandchild-returns",
+      "parent-receives-chain-return",
+      "trace-id"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live depth-2 chain row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability so the proof does not touch the live #sprites/main Discord lane. Serialize per target session (sameSessionConcurrencySafe=false). Treat generated output as PASS-candidate until required receipts are reviewed."
   }
 }

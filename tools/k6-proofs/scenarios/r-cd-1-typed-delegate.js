@@ -104,6 +104,7 @@ export default function () {
     started: new Date().toISOString(),
     // Required receipts
     tool_invoke_accepted: false,
+    delegate_scheduled_sentinel: false,
     parent_return_event: false,
     // Soft receipts
     task_ledger_entry_optional: false,
@@ -129,10 +130,10 @@ export default function () {
         const inv = invocationCfg();
         const task = inv.promptTemplate.replace(/\{\{nonce\}\}/g, rowNonce);
         const agentInstruction =
-          `[k6-proof-harness] Call continue_delegate with: ` +
-          `task="${task}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. ` +
+          `[k6-proof-harness] Call continue_delegate with task="${task}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. ` +
+          `After the continue_delegate tool result reports scheduled, reply exactly CD1-DELEGATE-SCHEDULED ${rowNonce}. ` +
           `idempotencyKey="${inv.idempotencyKeyPrefix}-${rowNonce}". ` +
-          `Execute immediately. This is a proof run — no other action needed.`;
+          `This is a proof run — no other action needed.`;
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
           message: agentInstruction,
@@ -232,15 +233,16 @@ export default function () {
           if (eventStr.includes(HARNESS_MARKER)) {
             console.log('ℹ Ignoring harness prompt echo event');
           } else {
-            // Completion/return event (required), post-dispatch gate.
-            if (eventStr.includes(rowNonce) && (
-                eventStr.includes('return') || eventStr.includes('completion') ||
-                eventStr.includes('DONE') || eventName === 'delegate.return' ||
-                (eventName === 'session.message' && evidence.dispatch_accepted_at_ms &&
-                 Date.now() - evidence.dispatch_accepted_at_ms >= evidence.wake_gate_ms)
-            )) {
+            // Parent scheduled sentinel emitted only after continue_delegate tool result.
+            if (eventStr.includes(`CD1-DELEGATE-SCHEDULED ${rowNonce}`)) {
+              evidence.delegate_scheduled_sentinel = true;
+              console.log(`✓ CD1-DELEGATE-SCHEDULED sentinel observed post-dispatch: ${eventName}`);
+            }
+
+            // Child return sentinel from delegate child arrival.
+            if (eventStr.includes(`CD1-DONE ${rowNonce}`) || eventName === 'delegate.return') {
               evidence.parent_return_event = true;
-              console.log(`✓ Parent return/completion event observed post-dispatch: ${eventName}`);
+              console.log(`✓ CD1-DONE/delegate return evidence observed post-dispatch: ${eventName}`);
             }
 
             // Channel message (soft — expected for mode=normal, unlike R-CD-2)
@@ -252,7 +254,7 @@ export default function () {
         }
 
         // Early close when required receipts collected
-        if (evidence.tool_invoke_accepted && evidence.parent_return_event) {
+        if (evidence.tool_invoke_accepted && evidence.delegate_scheduled_sentinel && evidence.parent_return_event) {
           console.log('Required R-CD-1 receipts gathered, closing early');
           socket.close();
         }
@@ -274,16 +276,17 @@ export default function () {
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'tool-invoke-accepted (sessions.send)': () => evidence.tool_invoke_accepted,
+    'delegate scheduled sentinel observed post-dispatch': () => evidence.delegate_scheduled_sentinel,
     'parent-return-event observed post-dispatch': () => evidence.parent_return_event,
     'task-ledger-entry optional context': () => true,
   });
 
-  if (!evidence.tool_invoke_accepted || !evidence.parent_return_event) {
+  if (!evidence.tool_invoke_accepted || !evidence.delegate_scheduled_sentinel || !evidence.parent_return_event) {
     failures.add(1);
   }
 
   const passed = (!createDisposableSession || evidence.session_created) &&
-    evidence.tool_invoke_accepted && evidence.parent_return_event;
+    evidence.tool_invoke_accepted && evidence.delegate_scheduled_sentinel && evidence.parent_return_event;
 
   console.log(`\n--- R-CD-1 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));

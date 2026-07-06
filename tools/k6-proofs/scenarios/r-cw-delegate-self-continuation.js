@@ -52,7 +52,7 @@ const DEFAULTS = {
   mode: 'normal',
   delaySeconds: 1,
   cwDelaySeconds: 2,
-  promptTemplate: 'k6 proof R-CW-DELEGATE-SELF nonce {{nonce}}: after arriving, call continue_work(reason="k6-self-continuation-{{nonce}}", delaySeconds=2). On hop-2 wake, reply with DONE and the nonce "{{nonce}}". Do not mutate files. Do not post to any channel.',
+  promptTemplate: 'k6 proof R-CW-DELEGATE-SELF nonce {{nonce}}: after arriving, call continue_work(reason="k6-self-continuation-{{nonce}}", delaySeconds=2). After the continue_work tool result reports scheduled, reply exactly CHILD-CW-SCHEDULED {{nonce}}. On hop-2 wake, reply exactly CHILD-HOP2-DONE {{nonce}}. Do not mutate files. Do not post to any channel.',
   idempotencyKeyPrefix: 'R-CW-DELEGATE-SELF',
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
@@ -240,17 +240,16 @@ export default function () {
                 console.log('✓ Delegate lifecycle/child-session signal observed post-dispatch');
               }
 
-              // Child fired continue_work
-              if (eventStr.includes('status":"scheduled"') &&
-                (eventStr.includes('continue_work') || eventStr.includes(`k6-self-continuation-${rowNonce}`))) {
+              // Child fired continue_work and emitted explicit sentinel only after scheduled tool result.
+              if (eventStr.includes(`CHILD-CW-SCHEDULED ${rowNonce}`)) {
                 evidence.child_continue_work_accepted = true;
-                console.log('✓ Child continue_work scheduled result observed post-dispatch');
+                console.log('✓ CHILD-CW-SCHEDULED sentinel observed post-dispatch');
               }
 
-              // Child hop-2 woke: DONE + nonce in return
-              if (eventStr.includes('DONE') && eventStr.includes(rowNonce)) {
+              // Child hop-2 woke: explicit sentinel from the continuation wake turn.
+              if (eventStr.includes(`CHILD-HOP2-DONE ${rowNonce}`)) {
                 evidence.child_hop_2_woke = true;
-                console.log('✓ Child hop-2 wake: DONE + nonce observed post-dispatch');
+                console.log('✓ CHILD-HOP2-DONE sentinel observed post-dispatch');
               }
 
               // Parent return from delegate

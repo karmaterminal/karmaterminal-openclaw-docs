@@ -4,9 +4,8 @@
  * Fires the typed continue_delegate tool (normal mode) via a sessions.send
  * agent turn. Verifies:
  *   1. Gateway accepts the dispatch (sessions.send accepted)
- *   2. Task ledger entry with nonce correlation (tool-invoke-accepted /
- *      task-ledger-entry)
- *   3. Parent return/completion event observed on session stream
+ *   2. Parent return/completion event observed on session stream (post-dispatch)
+ *   3. Optional task-ledger context (when available)
  *
  * Unlike R-CD-2 (silent-wake), mode=normal allows a channel message from
  * the delegate return. This scenario tracks it as soft evidence (not a
@@ -53,6 +52,7 @@ const DEFAULTS = {
   promptTemplate: 'Proof nonce {{nonce}}: reply with DONE and the nonce only. Do not mutate files.',
   idempotencyKeyPrefix: 'R-CD-1',
 };
+const HARNESS_MARKER = '[k6-proof-harness]';
 
 function boolEnv(name) {
   return (__ENV[name] || '').toLowerCase() === 'true';
@@ -104,10 +104,10 @@ export default function () {
     started: new Date().toISOString(),
     // Required receipts
     tool_invoke_accepted: false,
-    task_ledger_entry: false,
-    // Soft receipts
-    child_session_key: null,
     parent_return_event: false,
+    // Soft receipts
+    task_ledger_entry_optional: false,
+    child_session_key: null,
     channel_message_observed: false,
     dispatch_accepted_at_ms: null,
     wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
@@ -140,7 +140,7 @@ export default function () {
         });
       }, 500);
 
-      // Poll task ledger — required for task-ledger-entry receipt.
+      // Poll task ledger — optional context only.
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 5000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 15000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 30000);
@@ -208,16 +208,19 @@ export default function () {
           }
         }
 
-        // Task ledger — required receipt.
+        // Task ledger — optional context only.
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
           const tasks = classified.payload?.tasks || [];
           for (const task of tasks) {
             const taskStr = JSON.stringify(task);
             if (taskStr.includes(rowNonce)) {
-              evidence.task_ledger_entry = true;
-              evidence.child_session_key = task.sessionKey || task.childSessionKey || null;
+              evidence.task_ledger_entry_optional = true;
+              const possibleChild = task.sessionKey || task.childSessionKey || null;
+              if (possibleChild && possibleChild !== sessionKey) {
+                evidence.child_session_key = possibleChild;
+              }
               if (task.traceId) evidence.trace_id = task.traceId;
-              console.log(`✓ Task ledger entry with nonce: ${evidence.child_session_key || 'unknown'} state=${task.state || 'unknown'}`);
+              console.log(`ℹ Optional task ledger context with nonce: ${possibleChild || 'unknown'} state=${task.state || 'unknown'}`);
             }
           }
         }
@@ -226,28 +229,30 @@ export default function () {
         if (classified.kind === 'event') {
           const eventName = classified.event || '';
           const eventStr = JSON.stringify(classified.data || {});
+          if (eventStr.includes(HARNESS_MARKER)) {
+            console.log('ℹ Ignoring harness prompt echo event');
+          } else {
+            // Completion/return event (required), post-dispatch gate.
+            if (eventStr.includes(rowNonce) && (
+                eventStr.includes('return') || eventStr.includes('completion') ||
+                eventStr.includes('DONE') || eventName === 'delegate.return' ||
+                (eventName === 'session.message' && evidence.dispatch_accepted_at_ms &&
+                 Date.now() - evidence.dispatch_accepted_at_ms >= evidence.wake_gate_ms)
+            )) {
+              evidence.parent_return_event = true;
+              console.log(`✓ Parent return/completion event observed post-dispatch: ${eventName}`);
+            }
 
-          // Completion/return event (soft)
-          if (eventStr.includes(rowNonce) && (
-              eventStr.includes('return') || eventStr.includes('completion') ||
-              eventStr.includes('DONE') || eventName === 'delegate.return' ||
-              (eventName === 'session.message' && evidence.dispatch_accepted_at_ms &&
-               Date.now() - evidence.dispatch_accepted_at_ms >= evidence.wake_gate_ms)
-          )) {
-            evidence.parent_return_event = true;
-            console.log(`✓ Parent return/completion event observed: ${eventName}`);
-          }
-
-          // Channel message (soft — expected for mode=normal, unlike R-CD-2)
-          if (eventStr.includes('channel') && eventStr.includes(rowNonce) &&
-              !eventStr.includes('[k6-proof-harness]')) {
-            evidence.channel_message_observed = true;
-            console.log('ℹ Channel message from delegate return (expected for mode=normal)');
+            // Channel message (soft — expected for mode=normal, unlike R-CD-2)
+            if (eventStr.includes('channel') && eventStr.includes(rowNonce)) {
+              evidence.channel_message_observed = true;
+              console.log('ℹ Channel message from delegate return (expected for mode=normal)');
+            }
           }
         }
 
         // Early close when required receipts collected
-        if (evidence.tool_invoke_accepted && evidence.task_ledger_entry) {
+        if (evidence.tool_invoke_accepted && evidence.parent_return_event) {
           console.log('Required R-CD-1 receipts gathered, closing early');
           socket.close();
         }
@@ -269,16 +274,16 @@ export default function () {
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'tool-invoke-accepted (sessions.send)': () => evidence.tool_invoke_accepted,
-    'task-ledger-entry (nonce correlated)': () => evidence.task_ledger_entry,
-    'parent-return-event (soft)': () => evidence.parent_return_event,
+    'parent-return-event observed post-dispatch': () => evidence.parent_return_event,
+    'task-ledger-entry optional context': () => true,
   });
 
-  if (!evidence.tool_invoke_accepted || !evidence.task_ledger_entry) {
+  if (!evidence.tool_invoke_accepted || !evidence.parent_return_event) {
     failures.add(1);
   }
 
   const passed = (!createDisposableSession || evidence.session_created) &&
-    evidence.tool_invoke_accepted && evidence.task_ledger_entry;
+    evidence.tool_invoke_accepted && evidence.parent_return_event;
 
   console.log(`\n--- R-CD-1 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));

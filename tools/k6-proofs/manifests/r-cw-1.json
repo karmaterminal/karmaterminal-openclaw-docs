@@ -16,10 +16,9 @@
   "scenario": {
     "name": "r-cw-1-tool-schedule-wake",
     "description": "Typed continue_work() tool-form schedule + wake. Fires continue_work with a reason, observes the scheduled work entry and wake event on the session.",
-    "methods": ["tools.invoke", "sessions.messages.subscribe"],
-    "status": "scaffold",
-    "expectedFile": "r-cw-1-tool-schedule-wake.js",
-    "registryNotes": "Legacy scenarios/r-cw-1.js exists but is an infrastructure-only check that does not load this manifest, so this manifest is not marked runnable."
+    "methods": ["sessions.create", "sessions.send", "sessions.messages.subscribe"],
+    "status": "runnable",
+    "file": "r-cw-1-tool-schedule-wake.js"
   },
   "invocation": {
     "tool": "continue_work",
@@ -29,7 +28,7 @@
   },
   "expectedReceipts": [
     { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted the continue_work tool invocation" },
-    { "name": "work-scheduled-event", "required": true, "description": "continuation.work.scheduled event with reason field" },
+    { "name": "continue-work-tool-result-scheduled", "required": true, "description": "Post-dispatch non-harness event includes explicit CW-SCHEDULED sentinel emitted after continue_work tool result reports scheduled" },
     { "name": "work-woke-event", "required": true, "description": "Session wake event delivered after delaySeconds" },
     { "name": "trace-id", "required": false, "description": "Trace ID from tool response for Tempo fetch" }
   ],
@@ -43,6 +42,24 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Tool-form continue_work. PASS when accepted + wake delivered within timeout. candidateSha and seat resolved from env at runtime."
+    "notes": "Tool-form continue_work. PASS-candidate requires dispatch accepted + observable scheduled tool result + wake event. Detector must ignore [k6-proof-harness] prompt echoes; do not require an event name that the seat does not emit."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PARTIAL-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "tool-invoke-accepted",
+      "continue-work-tool-result-scheduled",
+      "work-woke-event",
+      "trace-id"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live continue_work schedule + wake row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore harness prompt echo; PASS requires explicit CW-SCHEDULED and CW-WOKE sentinels emitted after tool result/wake; current live smoke may be PARTIAL if the disposable session does not deliver the continuation wake turn."
   }
 }

@@ -58,11 +58,16 @@ if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then
   fi
 fi
 
-# Fetch deployed runtime build stamp explicitly (do not collapse into CANDIDATE_SHA)
-DEPLOYED_BUILD_STAMP="unknown"
-if [[ -f ~/.openclaw/openclaw.json ]]; then
+# Fetch deployed runtime build stamp explicitly (do not collapse into CANDIDATE_SHA).
+# Operators may provide OPENCLAW_RUNTIME_BUILD_SHA when they have an external deploy
+# receipt for the exact SHA. Otherwise prefer a structured CLI receipt when available
+# and fall back to the human version string (for example, "OpenClaw ... (1cc8f4e)").
+DEPLOYED_BUILD_STAMP="${OPENCLAW_RUNTIME_BUILD_SHA:-unknown}"
+if [[ "$DEPLOYED_BUILD_STAMP" == "unknown" && -f ~/.openclaw/openclaw.json ]]; then
   if openclaw version --json >/dev/null 2>&1; then
     DEPLOYED_BUILD_STAMP="$(openclaw version --json | jq -r '.build.sha // empty')"
+  elif openclaw --version >/dev/null 2>&1; then
+    DEPLOYED_BUILD_STAMP="$(openclaw --version | head -n 1)"
   fi
 fi
 export OPENCLAW_RUNTIME_BUILD_SHA="$DEPLOYED_BUILD_STAMP"
@@ -94,7 +99,7 @@ echo "Dry Run: $DRY_RUN"
 echo "=========================================================="
 
 # Check for Live Bridge alignment (candidate vs deployed runtime)
-if [[ "$DRY_RUN" == "false" && "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_BUILD_SHA" ]]; then
+if [[ "$DRY_RUN" == "false" && "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_BUILD_SHA" && "$OPENCLAW_RUNTIME_BUILD_SHA" != *"(${OPENCLAW_CANDIDATE_SHA:0:7})"* ]]; then
   echo "WARNING: Candidate SHA ($OPENCLAW_CANDIDATE_SHA) does not match Deployed Runtime SHA ($OPENCLAW_RUNTIME_BUILD_SHA)."
   echo "Unless this is a known stale-stamp or you have proven a rebuild bridge, live proofs will be marked HONEST-LIMIT / negative-partial."
 fi

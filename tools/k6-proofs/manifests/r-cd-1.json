@@ -16,23 +16,28 @@
   "scenario": {
     "name": "r-cd-1-typed-delegate",
     "description": "Typed continue_delegate() schedule/spawn/return. Fires a delegate with a nonce-only child task, observes task ledger entry and parent return.",
-    "methods": ["tools.invoke", "tasks.list", "sessions.messages.subscribe"],
-    "status": "scaffold",
-    "expectedFile": "r-cd-1-typed-delegate.js",
-    "registryNotes": "No runnable scenario file exists yet; this manifest is a registry contract only."
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "tasks.list"
+    ],
+    "status": "runnable",
+    "file": "r-cd-1-typed-delegate.js"
   },
   "invocation": {
     "tool": "continue_delegate",
     "mode": "normal",
     "delaySeconds": 1,
-    "promptTemplate": "Proof nonce {{nonce}}: reply with DONE and the nonce only. Do not mutate files.",
+    "promptTemplate": "Proof nonce {{nonce}}: reply exactly CD1-DONE {{nonce}} only after you arrive. Do not mutate files.",
     "idempotencyKeyPrefix": "R-CD-1"
   },
   "expectedReceipts": [
-    { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted the continue_delegate tool invocation" },
-    { "name": "task-ledger-entry", "required": true, "description": "Task created in ledger with nonce correlation" },
+    { "name": "tool-invoke-accepted", "required": true, "description": "sessions.send dispatch accepted (agent turn triggered for continue_delegate)" },
+    { "name": "task-ledger-entry", "required": false, "description": "Optional context only: generic task ledger row with nonce correlation (may be absent for continue_delegate)" },
     { "name": "child-session-key", "required": false, "description": "Child session key or run ID from task metadata" },
-    { "name": "parent-return-event", "required": false, "description": "Delegate completion/return event observed on parent session", "pathHint": "gateway-events.ndjson" },
+    { "name": "delegate-scheduled-sentinel", "required": true, "description": "Post-dispatch CD1-DELEGATE-SCHEDULED sentinel emitted after continue_delegate tool result reports scheduled" },
+    { "name": "parent-return-event", "required": true, "description": "Post-dispatch CD1-DONE or delegate.return evidence observed on parent session", "pathHint": "gateway-events.ndjson" },
     { "name": "trace-id", "required": false, "description": "Trace ID from tool response or task metadata for Tempo fetch" }
   ],
   "artifactDestination": {
@@ -45,6 +50,24 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Typed tool path. PASS-candidate when tool accepted + task created + nonce correlates. candidateSha and seat are resolved from env at runtime."
+    "notes": "Typed tool path. PASS-candidate when dispatch is accepted, CD1-DELEGATE-SCHEDULED is emitted after the tool result, and CD1-DONE/delegate.return is observed post-dispatch. task-ledger-entry is optional context only because continue_delegate often uses pending-delegate/subagent surfaces rather than generic tasks.list."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "tool-invoke-accepted",
+      "delegate-scheduled-sentinel",
+      "parent-return-event",
+      "trace-id"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Typed continue_delegate row (mode=normal). Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore [k6-proof-harness] prompt echo; require explicit CD1-DELEGATE-SCHEDULED and CD1-DONE/delegate.return evidence."
   }
 }

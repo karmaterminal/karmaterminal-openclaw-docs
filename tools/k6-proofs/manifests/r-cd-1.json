@@ -16,10 +16,14 @@
   "scenario": {
     "name": "r-cd-1-typed-delegate",
     "description": "Typed continue_delegate() schedule/spawn/return. Fires a delegate with a nonce-only child task, observes task ledger entry and parent return.",
-    "methods": ["tools.invoke", "tasks.list", "sessions.messages.subscribe"],
-    "status": "scaffold",
-    "expectedFile": "r-cd-1-typed-delegate.js",
-    "registryNotes": "No runnable scenario file exists yet; this manifest is a registry contract only."
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "tasks.list"
+    ],
+    "status": "runnable",
+    "file": "r-cd-1-typed-delegate.js"
   },
   "invocation": {
     "tool": "continue_delegate",
@@ -46,5 +50,24 @@
     "candidateOnly": true,
     "foldRequiresReview": true,
     "notes": "Typed tool path. PASS-candidate when tool accepted + task created + nonce correlates. candidateSha and seat are resolved from env at runtime."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "tool-invoke-accepted",
+      "task-ledger-entry",
+      "child-session-key",
+      "parent-return-event",
+      "trace-id"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Typed continue_delegate row (mode=normal). Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). tool-invoke-accepted + task-ledger-entry are required; child-session-key/parent-return-event/trace-id are soft."
   }
 }

@@ -135,8 +135,8 @@ export default function () {
           `Call continue_delegate with: mode="${inv.mode}", delaySeconds=${inv.delaySeconds}, ` +
           `task="Chain proof nonce ${chainNonce}: you are depth-1. Call continue_delegate with mode=\\"${inv.mode}\\", ` +
           `delaySeconds=${inv.delaySeconds}, ` +
-          `task=\\"Grandchild proof nonce ${chainNonce}: reply with GRANDCHILD-DONE and the nonce '${chainNonce}'. Do not mutate files. Do not post to any channel.\\". ` +
-          `After firing, reply with CHILD-DONE and the nonce '${chainNonce}'. Do not mutate files.", ` +
+          `task=\"Grandchild proof nonce ${chainNonce}: reply exactly GRANDCHILD-DONE ${chainNonce} only after you arrive. Do not mutate files. Do not post to any channel.\". ` +
+          `After the nested continue_delegate tool result reports scheduled, reply exactly CHILD-DONE ${chainNonce} CHILD-DELEGATE-SCHEDULED. Do not mutate files.", ` +
           `idempotencyKey="${inv.idempotencyKeyPrefix}-${chainNonce}". ` +
           `This is a proof run — execute the tool call immediately, no other action needed.`;
         tracker.send(socket, 'sessions.send', {
@@ -246,13 +246,13 @@ export default function () {
             } else if (evidence.parent_dispatch_accepted && evidence.dispatch_accepted_at_ms) {
               const elapsed = Date.now() - evidence.dispatch_accepted_at_ms;
               if (elapsed >= POST_DISPATCH_EVIDENCE_GATE_MS) {
-                if (eventStr.includes('CHILD-DONE')) {
+                if (eventStr.includes(`CHILD-DONE ${chainNonce} CHILD-DELEGATE-SCHEDULED`)) {
                   evidence.child_done_sentinel = true;
                   evidence.child_spawned = true;
                   if (evidence.max_depth_observed < 1) evidence.max_depth_observed = 1;
-                  console.log('✓ CHILD-DONE sentinel observed post-dispatch');
+                  console.log('✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch');
                 }
-                if (eventStr.includes('GRANDCHILD-DONE')) {
+                if (eventStr.includes(`GRANDCHILD-DONE ${chainNonce}`)) {
                   evidence.grandchild_done_sentinel = true;
                   evidence.grandchild_spawned = true;
                   evidence.chain_return_received = true;

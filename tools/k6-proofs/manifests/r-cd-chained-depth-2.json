@@ -34,7 +34,7 @@
     "tool": "continue_delegate",
     "mode": "silent-wake",
     "delaySeconds": 1,
-    "promptTemplate": "Proof chain nonce {{nonce}}: you are depth-1. Fire your own continue_delegate(mode='silent-wake', task='Grandchild nonce {{nonce}}: reply GRANDCHILD-DONE and the nonce. Do not mutate files.'). Then reply CHILD-DONE and the nonce.",
+    "promptTemplate": "Proof chain nonce {{nonce}}: you are depth-1. Fire your own continue_delegate(mode='silent-wake', task='Grandchild nonce {{nonce}}: reply exactly GRANDCHILD-DONE {{nonce}} only after you arrive. Do not mutate files.'). After the nested continue_delegate tool result reports scheduled, reply exactly CHILD-DONE {{nonce}} CHILD-DELEGATE-SCHEDULED.",
     "idempotencyKeyPrefix": "R-CD-CHAIN"
   },
   "expectedReceipts": [
@@ -46,7 +46,7 @@
     {
       "name": "child-spawns",
       "required": true,
-      "description": "Post-dispatch, non-harness session event contains strict CHILD-DONE sentinel"
+      "description": "Post-dispatch, non-harness session event contains strict CHILD-DONE {{nonce}} CHILD-DELEGATE-SCHEDULED sentinel"
     },
     {
       "name": "child-fires-grandchild",

@@ -34,10 +34,10 @@
   },
   "expectedReceipts": [
     { "name": "delegate-accepted", "required": true, "description": "sessions.send dispatch accepted (agent turn triggered)" },
-    { "name": "child-spawned", "required": true, "description": "Nonce-correlated non-harness event observed only after dispatch acceptance gate" },
-    { "name": "child-continue-work-accepted", "required": true, "description": "Post-dispatch non-harness evidence of scheduled continue_work (reason nonce or scheduled result)" },
-    { "name": "child-hop-2-woke", "required": false, "description": "Child's hop-2 turn executed (DONE + nonce in return)" },
-    { "name": "parent-return", "required": false, "description": "Delegate return event on parent session" }
+    { "name": "child-spawned", "required": false, "description": "Corroborative only: concrete delegate lifecycle/child-session signal (not arbitrary nonce event)" },
+    { "name": "child-continue-work-accepted", "required": true, "description": "Post-dispatch non-harness continue_work scheduled tool-result/status evidence (not prompt text alone)" },
+    { "name": "child-hop-2-woke", "required": true, "description": "Child's hop-2 turn executed (DONE + nonce in return)" },
+    { "name": "parent-return", "required": true, "description": "Delegate return event observed post-dispatch on parent session" }
   ],
   "artifactDestination": {
     "root": "PROOFS",
@@ -49,7 +49,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Delegate self-continuation: delegate child fires its own continue_work. Detector must ignore [k6-proof-harness] prompt-echo events and count only post-dispatch evidence. PASS-candidate requires delegate-accepted + child-spawned + child-continue-work-accepted; hop-2 and parent-return remain soft but recommended."
+    "notes": "Delegate self-continuation: detector must ignore [k6-proof-harness] prompt-echo events and count only post-dispatch evidence. PASS-candidate now requires delegate-accepted + child-continue-work-accepted + child-hop-2-woke + parent-return. child-spawned is corroborative only unless a concrete lifecycle signal is available."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -58,16 +58,15 @@
     "requiresCandidateSha": true,
     "requiresExternalAgentOrToolInvocation": true,
     "sameSessionConcurrencySafe": false,
-    "expectedArtifactClass": "PASS-candidate",
+    "expectedArtifactClass": "PARTIAL-candidate",
     "requiredReceipts": [
       "seat-readiness",
       "delegate-accepted",
-      "child-spawned",
       "child-continue-work-accepted",
       "child-hop-2-woke",
       "parent-return"
     ],
     "foldRequiresReview": true,
-    "notes": "Delegate self-continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore [k6-proof-harness] prompt echo; only post-dispatch evidence counts."
+    "notes": "Delegate self-continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore [k6-proof-harness] prompt echo; only post-dispatch evidence counts. Treat as PARTIAL-candidate by default until reliable child tool-result/hop-2 visibility is consistently demonstrated on seat."
   }
 }

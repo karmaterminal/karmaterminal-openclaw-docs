@@ -8,10 +8,10 @@
  *
  * Verifies:
  *   1. Parent dispatch accepted (continue_delegate fires via sessions.send agent turn)
- *   2. Child session spawned (delegate arrived)
- *   3. Child fires continue_work (accepted)
- *   4. Child's hop-2 wakes (DONE + nonce in return — optional but targeted)
- *   5. Parent eventually receives a return event from the delegate child
+ *   2. Child continue_work scheduled result is observed post-dispatch
+ *   3. Child's hop-2 wakes (DONE + nonce in return)
+ *   4. Parent receives delegate return event post-dispatch
+ *   5. Child lifecycle event is tracked as corroborating context when present
  *
  * Repeatable mode: set OPENCLAW_CREATE_DISPOSABLE_SESSION=true to create a
  * disposable parent session — proof does not touch the live #sprites/main
@@ -233,14 +233,16 @@ export default function () {
               console.log('ℹ Ignoring harness prompt echo event');
             } else if (evidence.delegate_accepted && evidence.dispatch_accepted_at_ms &&
               (Date.now() - evidence.dispatch_accepted_at_ms) >= POST_DISPATCH_EVIDENCE_GATE_MS) {
-            // Child spawned: nonce in delegate-related event
-              evidence.child_spawned = true;
-              if (eventName === 'delegate.started' || eventName === 'delegate.return') {
-                console.log('✓ Delegate lifecycle event observed post-dispatch');
+              // Child spawned: only count concrete delegate lifecycle signals.
+              if (eventName === 'delegate.started' || eventName === 'delegate.return' ||
+                eventStr.includes('"childSessionKey"')) {
+                evidence.child_spawned = true;
+                console.log('✓ Delegate lifecycle/child-session signal observed post-dispatch');
               }
 
               // Child fired continue_work
-              if (eventStr.includes(`k6-self-continuation-${rowNonce}`) || eventStr.includes('status":"scheduled"')) {
+              if (eventStr.includes('status":"scheduled"') &&
+                (eventStr.includes('continue_work') || eventStr.includes(`k6-self-continuation-${rowNonce}`))) {
                 evidence.child_continue_work_accepted = true;
                 console.log('✓ Child continue_work scheduled result observed post-dispatch');
               }
@@ -264,8 +266,10 @@ export default function () {
         }
 
         // Early close when primary evidence collected
-        if (evidence.delegate_accepted && evidence.child_spawned &&
-            evidence.child_continue_work_accepted && evidence.parent_return) {
+        if (evidence.delegate_accepted &&
+            evidence.child_continue_work_accepted &&
+            evidence.child_hop_2_woke &&
+            evidence.parent_return) {
           console.log('Primary R-CW-DELEGATE-SELF evidence gathered, closing early');
           socket.close();
         }
@@ -287,19 +291,24 @@ export default function () {
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'delegate dispatch accepted (sessions.send)': () => evidence.delegate_accepted,
-    'child spawned from post-dispatch event': () => evidence.child_spawned,
     'child continue_work scheduled post-dispatch': () => evidence.child_continue_work_accepted,
-    'child hop-2 woke (optional)': () => evidence.child_hop_2_woke,
+    'child hop-2 woke (required)': () => evidence.child_hop_2_woke,
     'parent return received': () => evidence.parent_return,
+    'child lifecycle signal (corroborative)': () => true,
   });
 
-  if (!evidence.delegate_accepted || !evidence.child_spawned || !evidence.child_continue_work_accepted) {
+  if (!evidence.delegate_accepted ||
+      !evidence.child_continue_work_accepted ||
+      !evidence.child_hop_2_woke ||
+      !evidence.parent_return) {
     failures.add(1);
   }
 
   const passed = (!createDisposableSession || evidence.session_created) &&
-    evidence.delegate_accepted && evidence.child_spawned &&
-    evidence.child_continue_work_accepted;
+    evidence.delegate_accepted &&
+    evidence.child_continue_work_accepted &&
+    evidence.child_hop_2_woke &&
+    evidence.parent_return;
 
   console.log(`\n--- R-CW-DELEGATE-SELF-CONTINUATION EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));

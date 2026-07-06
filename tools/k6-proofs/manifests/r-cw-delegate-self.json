@@ -58,7 +58,7 @@
     "requiresCandidateSha": true,
     "requiresExternalAgentOrToolInvocation": true,
     "sameSessionConcurrencySafe": false,
-    "expectedArtifactClass": "PARTIAL-candidate",
+    "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
       "seat-readiness",
       "delegate-accepted",
@@ -67,6 +67,6 @@
       "parent-return"
     ],
     "foldRequiresReview": true,
-    "notes": "Delegate self-continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore [k6-proof-harness] prompt echo; only post-dispatch evidence counts. Treat as PARTIAL-candidate by default until reliable child tool-result/hop-2 visibility is consistently demonstrated on seat."
+    "notes": "Delegate self-continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore [k6-proof-harness] prompt echo; only post-dispatch evidence counts. PASS requires explicit post-dispatch CHILD-CW-SCHEDULED, CHILD-HOP2-DONE, and parent-return evidence; otherwise fold as PARTIAL-candidate."
   }
 }

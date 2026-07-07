@@ -202,11 +202,25 @@ if src.exists():
 dst.write_text(''.join(json.dumps(obj, sort_keys=True) + '\n' for obj in out))
 PY_EVIDENCE_JSONL
     TRACE_STATUS="unknown"
+    TRACE_ID=""
+    TEMPO_TRACE_JSON=""
     REVIEW_PENDING_RECEIPTS='[]'
     if [[ -s "$RUN_DIR/evidence.jsonl" ]]; then
       if jq -e 'select(has("trace_id"))' "$RUN_DIR/evidence.jsonl" >/dev/null; then
-        if jq -e 'select((.trace_id // "") != "")' "$RUN_DIR/evidence.jsonl" >/dev/null; then
-          TRACE_STATUS="present"
+        TRACE_ID="$(jq -r 'select((.trace_id // "") != "") | .trace_id' "$RUN_DIR/evidence.jsonl" | head -n 1)"
+        if [[ -n "$TRACE_ID" ]]; then
+          TEMPO_TRACE_JSON="$RUN_DIR/tempo-trace-${TRACE_ID:0:12}.json"
+          if node scripts/fetch-tempo-trace.mjs --trace-id "$TRACE_ID" --out "$TEMPO_TRACE_JSON" > "$RUN_DIR/tempo-trace-receipt.json" 2> "$RUN_DIR/tempo-trace-error.log"; then
+            TRACE_STATUS="present"
+            echo "[$ROW_ID] TEMPO TRACE: $TEMPO_TRACE_JSON"
+          else
+            TRACE_STATUS="missing"
+            REVIEW_PENDING_RECEIPTS='["tempo-trace-json"]'
+            echo "[$ROW_ID] TEMPO TRACE FETCH FAILED; see $RUN_DIR/tempo-trace-error.log" >&2
+            if [[ "${OPENCLAW_PROOFS_K6_TEMPO_REQUIRED:-false}" == "true" ]]; then
+              exit 1
+            fi
+          fi
         else
           TRACE_STATUS="missing"
           REVIEW_PENDING_RECEIPTS='["tempo-trace-json"]'
@@ -217,8 +231,10 @@ PY_EVIDENCE_JSONL
       --argjson rc "$k6_rc" \
       --arg ended "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
       --arg traceStatus "$TRACE_STATUS" \
+      --arg traceId "$TRACE_ID" \
+      --arg tempoTraceJson "$TEMPO_TRACE_JSON" \
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
-      '{k6ExitCode:$rc, endedAt:$ended, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
+      '{k6ExitCode:$rc, endedAt:$ended, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end)}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
     METRICS_ARGS=(--run-dir "$RUN_DIR" --prometheus-out "$RUN_DIR/openclaw-proofs-k6.prom" --otlp-out "$RUN_DIR/openclaw-proofs-k6.otlp.json")
     if [[ -n "${OPENCLAW_PROOFS_K6_OTLP_ENDPOINT:-}" ]]; then

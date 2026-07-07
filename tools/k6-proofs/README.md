@@ -181,6 +181,23 @@ outcome, duration, proof-failure count, checks rate when present, receipt status
 and review-pending signal. It does not export session keys, prompt bodies, nonces,
 raw websocket events, tokens, or local private paths.
 
+## Tempo trace receipts
+
+When a live row emits a `trace_id`, `run-proofs.sh` now attempts to fetch the
+matching Tempo JSON from `TEMPO_BASE_URL` (default `http://tempo.dandelion.cult`)
+and saves it beside the candidate run artifacts as `tempo-trace-<trace>.json`.
+The fetch receipt is stored in `tempo-trace-receipt.json`; fetch failures are
+kept non-fatal by default and leave `tempo-trace-json` review-pending. Set
+`OPENCLAW_PROOFS_K6_TEMPO_REQUIRED=true` only when a missing trace JSON should
+fail the run.
+
+Manual fetch:
+
+```bash
+node tools/k6-proofs/scripts/fetch-tempo-trace.mjs \
+  --run-dir /tmp/k6-proof-runs/<sha>/<row>/<seat>/<run-id>
+```
+
 ## HTML run report
 
 `run-proofs.sh` writes a public-safe `report.html` at the selected run output root.

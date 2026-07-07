@@ -11,6 +11,8 @@ test('R-CW-4 uses runner-provisioned subagent sessions instead of custom main-la
   const source = await readFile(scenarioPath, 'utf8');
   assert.match(source, /function isRunnerProvisionedSession\(key\)/);
   assert.match(source, /includes\(':subagent:continuation-'\)/);
+  assert.match(source, /function disposableSubagentKey\(rowNonce\)/);
+  assert.match(source, /agent:main:subagent:continuation-r-cw-4-/);
   assert.match(
     source,
     /&& !isRunnerProvisionedSession\(requestedSessionKey\)/,
@@ -18,7 +20,8 @@ test('R-CW-4 uses runner-provisioned subagent sessions instead of custom main-la
   );
 });
 
-test('R-CW-4 manifest documents supplied-session preference', async () => {
+test('R-CW-4 manifest documents supplied-session and disposable-subagent preference', async () => {
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
   assert.match(manifest.scenario.registryNotes, /supplied runner-provisioned session/);
+  assert.match(manifest.liveRunSafety.notes, /agent:main:subagent:continuation-r-cw-4-/);
 });

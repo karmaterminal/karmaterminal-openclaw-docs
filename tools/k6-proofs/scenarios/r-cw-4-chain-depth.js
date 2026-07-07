@@ -16,6 +16,7 @@ const DEFAULTS = { sessionKey: 'main', seat: 'cael-dgx', delaySeconds: 5, idempo
 const HARNESS_MARKER = '[k6-proof-harness]';
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
 function isRunnerProvisionedSession(key) { return String(key || '').includes(':subagent:continuation-'); }
+function disposableSubagentKey(rowNonce) { return `agent:main:subagent:continuation-r-cw-4-${rowNonce}`.toLowerCase().replace(/[^a-z0-9:._-]/g, '-'); }
 function invocationCfg() { const inv = manifest?.invocation || {}; return { delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds), idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix }; }
 
 export default function () {
@@ -41,7 +42,7 @@ export default function () {
       }, 500);
       socket.setTimeout(() => socket.close(), Math.max(600000, (inv.delaySeconds * 4 + 360) * 1000));
     }
-    socket.on('open', () => { socket.send(connectFrame(token)); if (createDisposableSession) { socket.setTimeout(() => { const disposableKey = `r-cw-4-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'); tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-CW-4 ${rowNonce}` }); }, 250); } else socket.setTimeout(() => startProofFlow(socket), 500); });
+    socket.on('open', () => { socket.send(connectFrame(token)); if (createDisposableSession) { socket.setTimeout(() => { const disposableKey = disposableSubagentKey(rowNonce); tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-CW-4 ${rowNonce}` }); }, 250); } else socket.setTimeout(() => startProofFlow(socket), 500); });
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw); const classified = tracker.classify(msg);

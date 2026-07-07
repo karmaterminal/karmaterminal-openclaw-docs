@@ -69,7 +69,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Chain depth counter. PASS when 3 sequential hops show incrementing chain.step. Requires a session that can accept 3 sequential continue_work invocations."
+    "notes": "Chain depth counter. PASS when 3 sequential hops show incrementing chain.step. Use OPENCLAW_CREATE_DISPOSABLE_SESSION=true for an automatic proof subagent session, or supply an explicit reviewed session key."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -87,6 +87,6 @@
       "final-done"
     ],
     "foldRequiresReview": true,
-    "notes": "Sequential continue_work chain row. Prefer disposable session and serialize; do not run alongside other same-session continuation rows."
+    "notes": "Sequential continue_work chain row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true; when enabled the scenario creates an agent:main:subagent:continuation-r-cw-4-* proof session so broad runs do not depend on a hand-supplied session_selector. Serialize per target session; do not run alongside other same-session continuation rows."
   }
 }

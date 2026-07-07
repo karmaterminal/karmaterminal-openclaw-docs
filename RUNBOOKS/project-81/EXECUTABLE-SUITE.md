@@ -2,7 +2,7 @@
 
 Goal: give a reviewer or maintainer a small, repeatable path from a normal OpenClaw checkout to a candidate proof bundle.
 
-This quickstart intentionally covers only unattended `k6-runnable` rows. Rows marked `orchestration-required` stay out of the broad suite until a reviewed fixture exists.
+This quickstart intentionally covers only unattended `k6-runnable` rows. Rows marked `orchestration-required`, `scaffold`, or `construct-only` stay out of the broad suite until a reviewed fixture exists. The manifest catalog still records every current manual PROOFS row so the public surface explains the full 29-row corpus, not only the currently automated subset.
 
 ## 1. Install k6
 
@@ -98,6 +98,7 @@ node scripts/summarize-review-debt.mjs --run-root <run-root>
 node scripts/validate-corpus.mjs --current
 node scripts/check-manifest-scenarios.mjs
 node scripts/check-scenario-alignment.mjs
+node scripts/check-proof-row-manifests.mjs
 ```
 
 Fetch Tempo trace JSON when a row records a non-null trace id. If a row records `traceId: null`, treat trace JSON as unavailable review debt or an honest limit; do not invent a fetchable trace.

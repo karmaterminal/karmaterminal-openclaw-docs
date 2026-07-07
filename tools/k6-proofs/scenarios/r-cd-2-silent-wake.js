@@ -40,6 +40,7 @@ export const options = {
 
 const failures = new Counter('proof_failures');
 const duration = new Trend('r_cd_2_duration');
+let finalEvidence = null;
 
 // --- Manifest-driven config ---
 const manifest = loadManifestFromEnv();
@@ -285,6 +286,7 @@ export default function () {
 
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
+  finalEvidence = evidence;
   duration.add(evidence.duration_ms);
 
   // Checks — core evidence for silent-wake proof:
@@ -324,12 +326,26 @@ export default function () {
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
   const passRate = data.metrics.proof_failures && data.metrics.proof_failures.values && data.metrics.proof_failures.values.count === 0;
+  const traceId = finalEvidence && finalEvidence.trace_id || null;
   const summary = {
     row: 'R-CD-2',
     sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     seat: __ENV.OPENCLAW_SEAT_NAME || 'ronan-dgx',
     timestamp,
     verdict: passRate ? 'PASS-candidate' : 'PARTIAL-candidate',
+    candidateOnly: true,
+    foldRequiresReview: true,
+    observability: {
+      traceId,
+      traceJson: traceId ? 'pending-fetch' : 'missing',
+    },
+    review: {
+      status: traceId ? 'ready-for-human-review' : 'review-pending',
+      pendingReceipts: traceId ? [] : ['tempo-trace-json'],
+      notes: traceId
+        ? ['Trace id captured; fetch and attach Tempo trace JSON before canonical fold.']
+        : ['No trace_id was emitted by this candidate run; keep PASS-candidate as review-pending until trace JSON is fetched or the fold explicitly accepts trace-missing.'],
+    },
     metrics: {
       duration_ms: data.metrics.r_cd_2_duration && data.metrics.r_cd_2_duration.values || null,
       failures: data.metrics.proof_failures && data.metrics.proof_failures.values && data.metrics.proof_failures.values.count || 0,

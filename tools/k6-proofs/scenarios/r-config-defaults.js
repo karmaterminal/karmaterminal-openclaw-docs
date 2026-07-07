@@ -164,10 +164,12 @@ export default function () {
               console.log('ℹ Ignoring harness prompt echo event');
             } else if (eventStr.includes(`CONFIG-DEFAULTS ${rowNonce}`)) {
               evidence.config_read = true;
-              const enabled = eventStr.match(/ENABLED[^A-Za-z0-9]+(true|false)/)?.[1] || null;
-              const maxChain = eventStr.match(/MAXCHAIN[^0-9]+(\d+)/)?.[1] || null;
-              const maxDelegates = valueAfterLabel(eventStr, 'MAXDELEGATES');
-              const costCap = valueAfterLabel(eventStr, 'COSTCAP');
+              const sentinelIdx = eventStr.lastIndexOf(`CONFIG-DEFAULTS ${rowNonce}`);
+              const sentinelText = sentinelIdx === -1 ? eventStr : eventStr.slice(sentinelIdx);
+              const enabled = sentinelText.match(/ENABLED[^A-Za-z0-9]+(true|false)/)?.[1] || null;
+              const maxChain = sentinelText.match(/MAXCHAIN[^0-9]+(\d+)/)?.[1] || null;
+              const maxDelegates = valueAfterLabel(sentinelText, 'MAXDELEGATES');
+              const costCap = valueAfterLabel(sentinelText, 'COSTCAP');
               evidence.enabled = enabled === null ? null : enabled === 'true';
               evidence.max_chain_length = maxChain ? Number(maxChain) : null;
               evidence.max_delegates_per_turn_observed = maxDelegates !== null;

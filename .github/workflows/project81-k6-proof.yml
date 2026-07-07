@@ -89,12 +89,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cd tools/k6-proofs
-          node --check scripts/list-runnable-rows.mjs
-          node scripts/check-manifest-scenarios.mjs
-          node scripts/check-scenario-alignment.mjs
+          node --check tools/k6-proofs/scripts/list-runnable-rows.mjs
+          node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
+          node tools/k6-proofs/scripts/check-scenario-alignment.mjs
           if [[ "${{ inputs.rows }}" == "live-suite" ]]; then
-            rows="$(node scripts/list-runnable-rows.mjs --live-suite)"
+            rows="$(node tools/k6-proofs/scripts/list-runnable-rows.mjs --live-suite)"
           else
             rows="${{ inputs.rows }}"
           fi

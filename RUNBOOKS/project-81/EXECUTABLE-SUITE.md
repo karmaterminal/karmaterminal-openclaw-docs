@@ -59,7 +59,7 @@ The same public catalog also exposes a workflow in this repository:
 Actions -> project81-k6-proof
 ```
 
-Use `rows=live-suite` to resolve the unattended suite from manifests. Dry runs can use `ubuntu-latest`. Live runs need a runner that can reach the target OpenClaw gateway and has k6 installed; set the repository or fork secret `OPENCLAW_GATEWAY_TOKEN` and choose that runner label.
+Use `rows=live-suite` to resolve the unattended suite from manifests. Dry runs can use `ubuntu-latest`. Live runs need a runner that can reach the target OpenClaw gateway and has k6 installed; set the repository or fork secret `OPENCLAW_GATEWAY_TOKEN` and choose runner labels with `runner_labels_json`, for example `["self-hosted","cael"]`.
 
 ## 5. Dry-run row selection
 

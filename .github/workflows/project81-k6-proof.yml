@@ -14,23 +14,29 @@ on:
         default: "live-suite"
         type: string
       candidate_sha:
-        description: "40-char deployed OpenClaw candidate SHA"
-        required: true
+        description: "40-char deployed OpenClaw candidate SHA; required when dry_run=false"
+        required: false
+        default: ""
         type: string
       dry_run:
         description: "Dry run only; set false only when gateway env/secrets are configured"
         required: true
         default: true
         type: boolean
-      runner_label:
-        description: "GitHub runner label. Use a self-hosted OpenClaw host for live runs."
+      runner_labels_json:
+        description: 'JSON array for runs-on labels, e.g. ["self-hosted","cael"] or ["ubuntu-latest"]'
         required: true
-        default: "ubuntu-latest"
+        default: '["ubuntu-latest"]'
         type: string
       gateway_ws:
         description: "OpenClaw gateway WebSocket URL reachable from the runner"
         required: false
         default: "ws://127.0.0.1:18789"
+        type: string
+      session_selector:
+        description: "Scratch/non-channel session selector for live proof rows"
+        required: false
+        default: "main"
         type: string
       seat_name:
         description: "Seat/reviewer label recorded in artifacts"
@@ -68,12 +74,13 @@ concurrency:
 jobs:
   project81-k6-proof:
     name: project81 k6 proof
-    runs-on: ${{ inputs.runner_label }}
+    runs-on: ${{ fromJSON(inputs.runner_labels_json) }}
     timeout-minutes: 30
     env:
       OPENCLAW_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
       OPENCLAW_GATEWAY_WS: ${{ inputs.gateway_ws }}
       OPENCLAW_GATEWAY_TOKEN: ${{ secrets.OPENCLAW_GATEWAY_TOKEN }}
+      OPENCLAW_SESSION_KEY: ${{ inputs.session_selector }}
       OPENCLAW_SEAT_NAME: ${{ inputs.seat_name }}
       OPENCLAW_CREATE_DISPOSABLE_SESSION: ${{ inputs.create_disposable_sessions }}
       OPENCLAW_CREATE_DISPOSABLE_SESSIONS: ${{ inputs.create_disposable_sessions }}
@@ -87,15 +94,30 @@ jobs:
       - name: Validate catalog and resolve rows
         id: rows
         shell: bash
+        env:
+          ROWS_INPUT: ${{ inputs.rows }}
+          CANDIDATE_SHA_INPUT: ${{ inputs.candidate_sha }}
+          RUNNER_LABELS_JSON: ${{ inputs.runner_labels_json }}
+          DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
+          node -e 'const v=JSON.parse(process.env.RUNNER_LABELS_JSON); if (!Array.isArray(v) || !v.every(x => typeof x === "string" && x.length)) throw new Error("runner_labels_json must be a JSON array of non-empty strings")'
+          if [[ "$DRY_RUN" != "true" ]]; then
+            if [[ -z "$CANDIDATE_SHA_INPUT" ]] || ! printf '%s' "$CANDIDATE_SHA_INPUT" | grep -Eq '^[0-9a-f]{40}$'; then
+              echo "::error::candidate_sha must be a 40-char hex string when dry_run=false"
+              exit 1
+            fi
+          fi
           node --check tools/k6-proofs/scripts/list-runnable-rows.mjs
+          node --check tools/k6-proofs/scripts/summarize-review-debt.mjs
           node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
           node tools/k6-proofs/scripts/check-scenario-alignment.mjs
-          if [[ "${{ inputs.rows }}" == "live-suite" ]]; then
+          if [[ "$ROWS_INPUT" == "live-suite" ]]; then
             rows="$(node tools/k6-proofs/scripts/list-runnable-rows.mjs --live-suite)"
+          elif [[ "$ROWS_INPUT" == "all" ]]; then
+            rows="$(node tools/k6-proofs/scripts/list-runnable-rows.mjs)"
           else
-            rows="${{ inputs.rows }}"
+            rows="$ROWS_INPUT"
           fi
           test -n "$rows"
           echo "rows=$rows" >> "$GITHUB_OUTPUT"
@@ -121,7 +143,16 @@ jobs:
           if [[ "${{ inputs.metrics_push }}" != "true" ]]; then
             unset OPENCLAW_PROOFS_K6_OTLP_ENDPOINT
           fi
-          ./scripts/run-proofs.sh "$mode" "${{ steps.rows.outputs.rows }}"
+          ./scripts/run-proofs.sh "$mode" "${{ steps.rows.outputs.rows }}" "${OPENCLAW_CANDIDATE_SHA:-}"
+
+      - name: Summarize review debt
+        if: ${{ always() && !inputs.dry_run }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd tools/k6-proofs
+          mkdir -p "$K6_PROOF_OUT_DIR"
+          node scripts/summarize-review-debt.mjs --run-root "$K6_PROOF_OUT_DIR" | tee "$K6_PROOF_OUT_DIR/review-debt.txt"
 
       - name: Upload proof artifacts
         if: ${{ always() }}
@@ -130,3 +161,4 @@ jobs:
           name: project81-k6-proof-${{ github.run_id }}
           path: project81-k6-proof-artifacts/**
           if-no-files-found: warn
+          retention-days: 30

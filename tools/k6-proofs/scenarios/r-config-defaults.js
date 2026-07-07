@@ -42,6 +42,17 @@ function valueAfterLabel(text, label) {
   return tail.match(/(null|\d+)/i)?.[1] || null;
 }
 
+function parseConfigDefaultsSentinel(text, nonceValue) {
+  const sentinelIdx = text.lastIndexOf(`CONFIG-DEFAULTS ${nonceValue}`);
+  if (sentinelIdx === -1) return null;
+  const sentinelText = text.slice(sentinelIdx);
+  const enabled = sentinelText.match(/ENABLED[^A-Za-z0-9]+(true|false)/)?.[1] || null;
+  const maxChain = sentinelText.match(/MAXCHAIN[^0-9]+(\d+)/)?.[1] || null;
+  const maxDelegates = valueAfterLabel(sentinelText, 'MAXDELEGATES');
+  const costCap = valueAfterLabel(sentinelText, 'COSTCAP');
+  if (enabled === null || maxChain === null || maxDelegates === null || costCap === null) return null;
+  return { enabled, maxChain, maxDelegates, costCap };
+}
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
@@ -85,6 +96,8 @@ export default function () {
   };
 
   const started = Date.now();
+  const nonceEventText = [];
+  let loggedPartialSentinel = false;
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -162,26 +175,29 @@ export default function () {
           if (eventStr.includes(rowNonce)) {
             if (eventStr.includes(HARNESS_MARKER)) {
               console.log('ℹ Ignoring harness prompt echo event');
-            } else if (eventStr.includes(`CONFIG-DEFAULTS ${rowNonce}`)) {
-              evidence.config_read = true;
-              const sentinelIdx = eventStr.lastIndexOf(`CONFIG-DEFAULTS ${rowNonce}`);
-              const sentinelText = sentinelIdx === -1 ? eventStr : eventStr.slice(sentinelIdx);
-              const enabled = sentinelText.match(/ENABLED[^A-Za-z0-9]+(true|false)/)?.[1] || null;
-              const maxChain = sentinelText.match(/MAXCHAIN[^0-9]+(\d+)/)?.[1] || null;
-              const maxDelegates = valueAfterLabel(sentinelText, 'MAXDELEGATES');
-              const costCap = valueAfterLabel(sentinelText, 'COSTCAP');
-              evidence.enabled = enabled === null ? null : enabled === 'true';
-              evidence.max_chain_length = maxChain ? Number(maxChain) : null;
-              evidence.max_delegates_per_turn_observed = maxDelegates !== null;
-              evidence.max_delegates_per_turn = maxDelegates && maxDelegates.toLowerCase() !== 'null' ? Number(maxDelegates) : null;
-              evidence.cost_cap_tokens_observed = costCap !== null;
-              evidence.cost_cap_tokens = costCap && costCap.toLowerCase() !== 'null' ? Number(costCap) : null;
-              console.log(`✓ CONFIG-DEFAULTS sentinel observed: enabled=${enabled} maxChain=${maxChain} maxDelegates=${maxDelegates} costCap=${costCap}`);
-              socket.close();
+
             } else if (eventStr.includes(`CONFIG-DEFAULTS-FAIL ${rowNonce}`)) {
               console.error('✗ CONFIG-DEFAULTS-FAIL sentinel observed');
               failures.add(1);
               socket.close();
+            } else {
+              nonceEventText.push(eventStr);
+              const observedText = nonceEventText.join(' ');
+              const sentinel = parseConfigDefaultsSentinel(observedText, rowNonce);
+              if (sentinel) {
+                evidence.config_read = true;
+                evidence.enabled = sentinel.enabled === 'true';
+                evidence.max_chain_length = Number(sentinel.maxChain);
+                evidence.max_delegates_per_turn_observed = true;
+                evidence.max_delegates_per_turn = sentinel.maxDelegates.toLowerCase() !== 'null' ? Number(sentinel.maxDelegates) : null;
+                evidence.cost_cap_tokens_observed = true;
+                evidence.cost_cap_tokens = sentinel.costCap.toLowerCase() !== 'null' ? Number(sentinel.costCap) : null;
+                console.log(`✓ CONFIG-DEFAULTS sentinel observed: enabled=${sentinel.enabled} maxChain=${sentinel.maxChain} maxDelegates=${sentinel.maxDelegates} costCap=${sentinel.costCap}`);
+                socket.close();
+              } else if (eventStr.includes(`CONFIG-DEFAULTS ${rowNonce}`) && !loggedPartialSentinel) {
+                loggedPartialSentinel = true;
+                console.log('ℹ CONFIG-DEFAULTS sentinel prefix observed; waiting for complete streamed sentinel');
+              }
             }
           }
         }

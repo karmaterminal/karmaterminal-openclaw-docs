@@ -181,6 +181,25 @@ outcome, duration, proof-failure count, checks rate when present, receipt status
 and review-pending signal. It does not export session keys, prompt bodies, nonces,
 raw websocket events, tokens, or local private paths.
 
+## HTML run report
+
+`run-proofs.sh` writes a public-safe `report.html` at the selected run output root.
+It summarizes row, seat, candidate SHA, PASS/FAIL candidate outcome, review state,
+duration, receipt status, and relative artifact directories. Like the metrics
+exporter, it intentionally excludes session keys, prompts, nonces, raw events,
+raw responses, tokens, and private absolute paths.
+
+To render or refresh a report from an existing output root:
+
+```bash
+node tools/k6-proofs/scripts/render-run-report.mjs \
+  --root /tmp/k6-proof-runs \
+  --out /tmp/k6-proof-runs/report.html
+```
+
+The HTML report is a review aid only. It does not promote candidate artifacts into
+canonical `PROOFS/**` folds.
+
 ## Design principles
 
 ### Manifest-driven scenarios (data/logic separation)

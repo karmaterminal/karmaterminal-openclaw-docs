@@ -247,6 +247,16 @@ PY_EVIDENCE_JSONL
   fi
 done
 
+REPORT_PATH="$OUT_ROOT/report.html"
+if node scripts/render-run-report.mjs --root "$OUT_ROOT" --out "$REPORT_PATH" > "$OUT_ROOT/report-receipt.json" 2> "$OUT_ROOT/report-error.log"; then
+  echo "REPORT: $REPORT_PATH"
+else
+  echo "REPORT GENERATION FAILED; see $OUT_ROOT/report-error.log" >&2
+  if [[ "${OPENCLAW_PROOFS_K6_REPORT_REQUIRED:-false}" == "true" ]]; then
+    exit 1
+  fi
+fi
+
 echo ""
 echo "=========================================================="
 echo "Runner execution finished."

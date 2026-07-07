@@ -220,6 +220,18 @@ PY_EVIDENCE_JSONL
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
       '{k6ExitCode:$rc, endedAt:$ended, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
+    METRICS_ARGS=(--run-dir "$RUN_DIR" --prometheus-out "$RUN_DIR/openclaw-proofs-k6.prom" --otlp-out "$RUN_DIR/openclaw-proofs-k6.otlp.json")
+    if [[ -n "${OPENCLAW_PROOFS_K6_OTLP_ENDPOINT:-}" ]]; then
+      METRICS_ARGS+=(--push-otlp "$OPENCLAW_PROOFS_K6_OTLP_ENDPOINT")
+    fi
+    if node scripts/export-row-metrics.mjs "${METRICS_ARGS[@]}" > "$RUN_DIR/metrics-export.json"; then
+      echo "[$ROW_ID] METRICS: $RUN_DIR/openclaw-proofs-k6.prom"
+    else
+      echo "[$ROW_ID] METRICS EXPORT FAILED; see $RUN_DIR/metrics-export.json" >&2
+      if [[ "${OPENCLAW_PROOFS_K6_METRICS_REQUIRED:-false}" == "true" ]]; then
+        exit 1
+      fi
+    fi
     rm -f "$RUN_DIR/.started"
 
     echo "[$ROW_ID] ARTIFACTS: $RUN_DIR"

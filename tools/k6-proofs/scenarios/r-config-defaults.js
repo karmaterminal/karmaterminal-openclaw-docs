@@ -35,6 +35,13 @@ function boolEnv(name) {
   return (__ENV[name] || '').toLowerCase() === 'true';
 }
 
+function valueAfterLabel(text, label) {
+  const idx = text.indexOf(label);
+  if (idx === -1) return null;
+  const tail = text.slice(idx + label.length);
+  return tail.match(/(null|\d+)/i)?.[1] || null;
+}
+
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
@@ -159,16 +166,14 @@ export default function () {
               evidence.config_read = true;
               const enabled = eventStr.match(/ENABLED[^A-Za-z0-9]+(true|false)/)?.[1] || null;
               const maxChain = eventStr.match(/MAXCHAIN[^0-9]+(\d+)/)?.[1] || null;
-              const maxDelegatesMatch = eventStr.match(/MAXDELEGATES[^A-Za-z0-9]+(null|\d+)/);
-              const costCapMatch = eventStr.match(/COSTCAP[^A-Za-z0-9]+(null|\d+)/);
-              const maxDelegates = maxDelegatesMatch?.[1] || null;
-              const costCap = costCapMatch?.[1] || null;
+              const maxDelegates = valueAfterLabel(eventStr, 'MAXDELEGATES');
+              const costCap = valueAfterLabel(eventStr, 'COSTCAP');
               evidence.enabled = enabled === null ? null : enabled === 'true';
               evidence.max_chain_length = maxChain ? Number(maxChain) : null;
-              evidence.max_delegates_per_turn_observed = !!maxDelegatesMatch;
-              evidence.max_delegates_per_turn = maxDelegates && maxDelegates !== 'null' ? Number(maxDelegates) : null;
-              evidence.cost_cap_tokens_observed = !!costCapMatch;
-              evidence.cost_cap_tokens = costCap && costCap !== 'null' ? Number(costCap) : null;
+              evidence.max_delegates_per_turn_observed = maxDelegates !== null;
+              evidence.max_delegates_per_turn = maxDelegates && maxDelegates.toLowerCase() !== 'null' ? Number(maxDelegates) : null;
+              evidence.cost_cap_tokens_observed = costCap !== null;
+              evidence.cost_cap_tokens = costCap && costCap.toLowerCase() !== 'null' ? Number(costCap) : null;
               console.log(`✓ CONFIG-DEFAULTS sentinel observed: enabled=${enabled} maxChain=${maxChain} maxDelegates=${maxDelegates} costCap=${costCap}`);
               socket.close();
             } else if (eventStr.includes(`CONFIG-DEFAULTS-FAIL ${rowNonce}`)) {

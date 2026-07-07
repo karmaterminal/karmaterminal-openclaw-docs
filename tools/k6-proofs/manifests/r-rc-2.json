@@ -15,8 +15,16 @@
     "registryNotes": "No runnable request_compaction threshold-accept scenario exists yet; keep scaffolded until a serialized, human-confirmed runner lands."
   },
   "expectedReceipts": [
-    { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted request_compaction at >=70% threshold" },
-    { "name": "compaction-triggered", "required": true, "description": "Compaction cycle executed and rewrote session context" }
+    {
+      "name": "tool-invoke-accepted",
+      "required": true,
+      "description": "Gateway accepted request_compaction at >=70% threshold"
+    },
+    {
+      "name": "compaction-triggered",
+      "required": true,
+      "description": "Compaction cycle executed and rewrote session context"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",
@@ -29,5 +37,21 @@
     "candidateOnly": true,
     "foldRequiresReview": true,
     "notes": "Threshold Accept. SAFETY SEMANTICS: requiresHumanConfirmation: true, serialized: true. This row MUTATES session state and MUST NOT run in parallel with continuation/delegate rows."
+  },
+  "liveRunSafety": {
+    "classification": "orchestration-required",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": true,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "requiresHumanConfirmation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PARTIAL-candidate",
+    "requiredReceipts": [
+      "tool-invoke-accepted",
+      "compaction-triggered"
+    ],
+    "foldRequiresReview": true,
+    "notes": "request_compaction accept path mutates session context. Requires disposable high-context fixture or explicit threshold setup; never run against active main/work sessions."
   }
 }

@@ -16,7 +16,11 @@
   "scenario": {
     "name": "r-cw-5-cost-cap-reject",
     "description": "Cost-cap exhaustion: fires continue_work after artificially exhausting costCapTokens budget, verifies dispatch-time rejection with appropriate error.",
-    "methods": ["tools.invoke", "config.patch", "config.restore"],
+    "methods": [
+      "tools.invoke",
+      "config.patch",
+      "config.restore"
+    ],
     "status": "scaffold",
     "expectedFile": "r-cw-5-cost-cap-reject.js",
     "registryNotes": "No runnable row scenario file exists yet; config mutation/restoration semantics need a dedicated scenario before this becomes runnable."
@@ -33,9 +37,21 @@
     }
   },
   "expectedReceipts": [
-    { "name": "config-lowered", "required": true, "description": "costCapTokens set to 1 (exhausted boundary)" },
-    { "name": "tool-invoke-rejected", "required": true, "description": "continue_work rejected at dispatch with cost-cap exceeded error" },
-    { "name": "config-restored", "required": true, "description": "Original costCapTokens restored after proof" }
+    {
+      "name": "config-lowered",
+      "required": true,
+      "description": "costCapTokens set to 1 (exhausted boundary)"
+    },
+    {
+      "name": "tool-invoke-rejected",
+      "required": true,
+      "description": "continue_work rejected at dispatch with cost-cap exceeded error"
+    },
+    {
+      "name": "config-restored",
+      "required": true,
+      "description": "Original costCapTokens restored after proof"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",
@@ -47,6 +63,23 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Cost-cap boundary. PASS when rejection is delivered at the cap boundary. MUTATES config temporarily (costCapTokens→1 then restore). The reject IS the proof."
+    "notes": "Cost-cap boundary. PASS when rejection is delivered at the cap boundary. MUTATES config temporarily (costCapTokens\u21921 then restore). The reject IS the proof."
+  },
+  "liveRunSafety": {
+    "classification": "orchestration-required",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "requiresHumanConfirmation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PARTIAL-candidate",
+    "requiredReceipts": [
+      "config-lowered",
+      "tool-invoke-rejected",
+      "config-restored"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Config-mutating cost-cap boundary row. Do not expose as unattended k6-runnable on a live prince. Requires explicit mutation fixture or isolated gateway plus backup/restore."
   }
 }

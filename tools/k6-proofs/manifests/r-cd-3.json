@@ -16,7 +16,11 @@
   "scenario": {
     "name": "r-cd-3-post-compaction",
     "description": "continue_delegate(mode='post-compaction') event-triggered lifeboat. Fires a post-compaction delegate, triggers compaction, and verifies the delegate fires post-compaction and returns to the rehydrated session.",
-    "methods": ["tools.invoke", "tasks.list", "sessions.messages.subscribe"],
+    "methods": [
+      "tools.invoke",
+      "tasks.list",
+      "sessions.messages.subscribe"
+    ],
     "notes": "Requires context >70% to trigger compaction, OR the test must use a low compaction threshold configuration.",
     "status": "scaffold",
     "expectedFile": "r-cd-3-post-compaction.js",
@@ -34,12 +38,36 @@
     "notes": "post-compaction delegates only fire on a compaction event. The scenario either needs a session near compaction threshold, or must lower the threshold for testing purposes."
   },
   "expectedReceipts": [
-    { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted the continue_delegate(mode=post-compaction) tool invocation" },
-    { "name": "delegate-staged", "required": true, "description": "Delegate registered as post-compaction hook (not immediately spawned)" },
-    { "name": "compaction-triggered", "required": true, "description": "Compaction event fired (via request_compaction or natural pressure)" },
-    { "name": "delegate-fires-post-compaction", "required": true, "description": "Delegate spawns AFTER compaction completes (not before)" },
-    { "name": "return-reaches-post-compaction-session", "required": true, "description": "Delegate return lands in the post-compaction session with rehydrated context" },
-    { "name": "trace-id", "required": false, "description": "Trace ID for Tempo correlation" }
+    {
+      "name": "tool-invoke-accepted",
+      "required": true,
+      "description": "Gateway accepted the continue_delegate(mode=post-compaction) tool invocation"
+    },
+    {
+      "name": "delegate-staged",
+      "required": true,
+      "description": "Delegate registered as post-compaction hook (not immediately spawned)"
+    },
+    {
+      "name": "compaction-triggered",
+      "required": true,
+      "description": "Compaction event fired (via request_compaction or natural pressure)"
+    },
+    {
+      "name": "delegate-fires-post-compaction",
+      "required": true,
+      "description": "Delegate spawns AFTER compaction completes (not before)"
+    },
+    {
+      "name": "return-reaches-post-compaction-session",
+      "required": true,
+      "description": "Delegate return lands in the post-compaction session with rehydrated context"
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID for Tempo correlation"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",
@@ -51,6 +79,25 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Post-compaction lifeboat path. PASS-candidate when: (1) delegate staged, (2) compaction triggers, (3) delegate fires AFTER compaction, (4) return lands in post-compaction session. Timing order is critical: staged → compaction → fires → returns. Out-of-order = FAIL."
+    "notes": "Post-compaction lifeboat path. PASS-candidate when: (1) delegate staged, (2) compaction triggers, (3) delegate fires AFTER compaction, (4) return lands in post-compaction session. Timing order is critical: staged \u2192 compaction \u2192 fires \u2192 returns. Out-of-order = FAIL."
+  },
+  "liveRunSafety": {
+    "classification": "orchestration-required",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": true,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "requiresHumanConfirmation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PARTIAL-candidate",
+    "requiredReceipts": [
+      "tool-invoke-accepted",
+      "delegate-staged",
+      "compaction-triggered",
+      "delegate-fires-post-compaction",
+      "return-reaches-post-compaction-session"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Post-compaction lifeboat row requires deterministic compaction trigger and ordering evidence. Keep scaffold until fixture can prove staged -> compaction -> delegate fires -> return."
   }
 }

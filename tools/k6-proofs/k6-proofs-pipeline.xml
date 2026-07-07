@@ -228,7 +228,13 @@
     </Mandate>
     <Mandate id="caps-test">
       <Rule>Cap-exhaustion rows MUST be proven by actually hitting the cap</Rule>
-      <Procedure>Lower caps → reload gateway → fire → verify reject → restore → reload</Procedure>
+      <Procedure>Backup original config → lower caps (env-overridable row test value) → reload/restart gateway → fire → verify reject → restore original config → reload/restart gateway</Procedure>
+      <RestartCommand>Use OPENCLAW_GATEWAY_RESTART_CMD when set; default fixture command is `openclaw gateway restart --safe --wait 10s`.</RestartCommand>
+      <Constraint>Rows that mutate config or restart remain orchestration-required until backup/lower/fire/restore/restart receipts are emitted.</Constraint>
+    </Mandate>
+    <Mandate id="continuation-readiness">
+      <Rule>Live continuation proof batches MUST include a precursor seat-readiness receipt proving agents.defaults.continuation.enabled=true.</Rule>
+      <Reason>A disabled continuation subsystem is setup state/HONEST-LIMIT, not product behavior evidence.</Reason>
     </Mandate>
     <Mandate id="corpus-fold">
       <Rule>Proof artifacts fold only after review/coordination; docs and harness changes use normal PR review</Rule>

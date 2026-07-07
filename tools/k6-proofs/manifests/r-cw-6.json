@@ -40,6 +40,11 @@
   },
   "expectedReceipts": [
     {
+      "name": "seat-readiness-continuation-enabled",
+      "required": true,
+      "description": "Precursor seat-readiness report proves agents.defaults.continuation.enabled=true before config-mutating continuation proof"
+    },
+    {
       "name": "config-set-to-1",
       "required": true,
       "description": "maxChainLength set to 1 + gateway restart"
@@ -82,12 +87,13 @@
     "sameSessionConcurrencySafe": false,
     "expectedArtifactClass": "PARTIAL-candidate",
     "requiredReceipts": [
+      "seat-readiness-continuation-enabled",
       "config-set-to-1",
       "hop-1-accepted",
       "hop-2-rejected",
       "config-restored"
     ],
     "foldRequiresReview": true,
-    "notes": "Config + restart mutating maxChainLength boundary row. Only run against an isolated/fixture gateway or explicit human-approved live maintenance window."
+    "notes": "Config + restart mutating maxChainLength boundary row. Only run against an isolated/fixture gateway or explicit human-approved live maintenance window. Restart/reload command must come from OPENCLAW_GATEWAY_RESTART_CMD when set; default fixture command is `openclaw gateway restart --safe --wait 10s`. Requires a precursor seat-readiness receipt proving continuation.enabled=true."
   }
 }

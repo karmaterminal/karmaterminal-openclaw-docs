@@ -6,7 +6,7 @@
  * so a bad seat/tooling environment becomes HONEST-LIMIT-candidate instead of
  * being confused with product behavior.
  */
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -44,6 +44,16 @@ function commandOrNull(cmd, args) {
     return execFileSync(cmd, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
   } catch {
     return null;
+  }
+}
+
+function jsonCommandOrNull(cmd, args) {
+  const run = spawnSync(cmd, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  if (run.status !== 0) return { ok: false, data: null, error: 'command-failed' };
+  try {
+    return { ok: true, data: JSON.parse(run.stdout), error: null };
+  } catch {
+    return { ok: false, data: null, error: 'json-parse-failed' };
   }
 }
 
@@ -128,11 +138,25 @@ function redactRawVersion(rawVersion) {
   return rawVersion.replace(/(token|secret|password|authorization|bearer)=[^\s]+/gi, '$1=<redacted>');
 }
 
+function readContinuationConfig() {
+  const out = jsonCommandOrNull('openclaw', ['config', 'get', 'agents.defaults.continuation', '--json']);
+  const config = out.data && typeof out.data === 'object' ? out.data : null;
+  return {
+    mode: out.ok ? 'checked' : 'unavailable',
+    enabled: typeof config?.enabled === 'boolean' ? config.enabled : null,
+    maxChainLengthPresent: config && Object.prototype.hasOwnProperty.call(config, 'maxChainLength'),
+    maxDelegatesPerTurnPresent: config && Object.prototype.hasOwnProperty.call(config, 'maxDelegatesPerTurn'),
+    costCapTokensPresent: config && Object.prototype.hasOwnProperty.call(config, 'costCapTokens'),
+    error: out.error,
+  };
+}
+
 function printText(report) {
   console.log(`seat readiness: ${report.outcome}`);
   console.log(`policy: ${report.policy.name} ${report.policy.version}`);
   console.log(`k6: ${report.k6.version || 'missing'} at ${report.k6.path || '(not found)'} (expected ${report.expectedK6Version})`);
   console.log(`gateway: ${report.gateway.mode}; health=${report.gateway.healthReachable}; status=${report.gateway.statusReachable}; url=${report.gateway.url}`);
+  console.log(`continuation: ${report.continuation.mode}; enabled=${report.continuation.enabled}; defaults=${report.continuation.defaultsPresent}`);
   console.log(`candidate sha: ${report.candidate.valid40Hex ? 'valid' : 'missing/invalid'}`);
   console.log(`seat: ${report.seat.name}; session scope: ${report.session.scope}`);
   console.log(`concurrency: ${report.concurrency.safeToRunConcurrently ? 'safe' : 'serialized'} — ${report.concurrency.reason}`);
@@ -170,6 +194,9 @@ async function main() {
     };
   }
 
+  const continuation = readContinuationConfig();
+  continuation.defaultsPresent = Boolean(continuation.maxChainLengthPresent && continuation.maxDelegatesPerTurnPresent && continuation.costCapTokensPresent);
+
   const candidateSha = process.env.OPENCLAW_CANDIDATE_SHA || null;
   const env = envReport(policy);
   const requiredMissing = env.filter((e) => e.required && !e.present).map((e) => e.name);
@@ -178,12 +205,16 @@ async function main() {
   else if (!k6.matchesExpected) notes.push(`k6 version mismatch: expected ${expectedK6Version}, got ${k6.version}.`);
   if (gateway.mode === 'checked' && (!gateway.healthReachable || !gateway.statusReachable)) notes.push('gateway health/status not reachable from this seat.');
   if (gateway.mode === 'skipped-no-token') notes.push('gateway reachability skipped because OPENCLAW_GATEWAY_TOKEN is absent; token value was not printed.');
+  if (continuation.mode !== 'checked') notes.push('continuation config could not be read with openclaw config get agents.defaults.continuation --json.');
+  else if (continuation.enabled !== true) notes.push('agents.defaults.continuation.enabled is not true; live continuation proof rows must not run.');
+  else if (!continuation.defaultsPresent) notes.push('continuation config is missing one or more required default fields.');
   if (requiredMissing.length) notes.push(`missing required env: ${requiredMissing.join(', ')}.`);
 
   const valid40Hex = typeof candidateSha === 'string' && /^[0-9a-f]{40}$/.test(candidateSha);
   if (!valid40Hex) notes.push('OPENCLAW_CANDIDATE_SHA is missing or not a 40-char lowercase hex SHA.');
 
-  const pass = k6.ok && k6.matchesExpected && valid40Hex && requiredMissing.length === 0 && (gateway.mode !== 'checked' || (gateway.healthReachable && gateway.statusReachable));
+  const continuationReady = continuation.mode === 'checked' && continuation.enabled === true && continuation.defaultsPresent;
+  const pass = k6.ok && k6.matchesExpected && continuationReady && valid40Hex && requiredMissing.length === 0 && (gateway.mode !== 'checked' || (gateway.healthReachable && gateway.statusReachable));
 
   const report = {
     schema: 'openclaw.k6.seat-readiness.v1',
@@ -197,6 +228,7 @@ async function main() {
     expectedK6Version,
     k6,
     gateway,
+    continuation,
     candidate: { sha: candidateSha, valid40Hex },
     seat: {
       name: process.env.OPENCLAW_SEAT_NAME || policy.seat?.defaultName || 'unknown-seat',

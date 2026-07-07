@@ -1,7 +1,7 @@
 {
   "schema": "openclaw.k6.seat-readiness-policy.v1",
   "name": "k6 PROOFS seat readiness policy",
-  "version": "2026-06-27",
+  "version": "2026-07-07",
   "k6": {
     "expectedVersion": "v2.0.0",
     "binaryCandidates": [
@@ -59,6 +59,18 @@
       "required": false,
       "secret": false,
       "purpose": "manifest path for a specific row run"
+    },
+    {
+      "name": "OPENCLAW_GATEWAY_RESTART_CMD",
+      "required": false,
+      "secret": false,
+      "purpose": "optional self-contained restart command for config-mutating proof fixtures; default is documented as openclaw gateway restart --safe --wait 10s"
+    },
+    {
+      "name": "OPENCLAW_K6_COST_CAP_TEST_VALUE",
+      "required": false,
+      "secret": false,
+      "purpose": "optional low costCapTokens value for cost-cap boundary rows; default must be row-local and restored"
     }
   ],
   "concurrency": {

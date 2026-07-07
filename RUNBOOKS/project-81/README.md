@@ -119,7 +119,14 @@ Most continuation rows still need one or more of these after k6 runs:
     -o PROOFS/<sha>/<row>/<seat>/tempo/trace-<trace-id>.json
   ```
 
-Trace JSON should be committed with the candidate proof artifacts whenever available because internal Tempo URLs are not public maintainer receipts.
+Trace JSON should be committed with the candidate proof artifacts whenever available because internal Tempo URLs are not public maintainer receipts. Before fetching traces from a candidate bundle, summarize review debt so null trace ids are not mistaken for fetchable receipts:
+
+```bash
+node tools/k6-proofs/scripts/summarize-review-debt.mjs \
+  --run-root RUNBOOKS/project-81/candidate-runs/<sha>/<run-id>
+```
+
+If `tempo-trace-json` debt is reported as `tempo-trace-unfetchable`, the bundle emitted `traceId: null`; rerun with trace emission or explicitly accept trace-missing as an honest review limit before a canonical fold.
 
 ## What not to do
 

@@ -128,6 +128,31 @@ node tools/k6-proofs/scripts/evidence-writer.mjs \
 
 Writes candidate evidence into `PROOFS/<SHA>/R-CD-2/ronan-dgx/k6-run-<timestamp>/`.
 
+### 5. Recover delayed/session-history receipts
+
+Some rows can produce a non-zero live k6 result while the runtime receipts are
+still present in the target session history. Two known shapes:
+
+- the live WebSocket observation window closes before delayed continuation wakes
+  land (`R-CW-4`);
+- the live parser sees the sentinel but misses numeric/tool-result fields that
+  are present in the session transcript (`R-CONFIG-defaults`).
+
+For those rows, `recover-session-receipts.mjs` may emit a supplemental
+`PASS-candidate` only when **all required receipts are present** in
+`sessions.get` history. This is not an automatic green fold: preserve the
+original k6 stdout/summary and the recovery JSON together, and keep the result
+as candidate evidence until review.
+
+```bash
+OPENCLAW_GATEWAY_TOKEN="***" \
+  node tools/k6-proofs/scripts/recover-session-receipts.mjs \
+    --row R-CW-4 \
+    --session-key <target-session-key> \
+    --nonce <row-nonce> \
+    --out /tmp/r-cw-4-session-receipts.json
+```
+
 ## Metrics and dashboard contract
 
 Public-safe visualization fields for Project 81 live in [`METRICS.md`](./METRICS.md). Treat that file as the contract for Grafana / Prometheus / postprocess ingestion: candidate outcome, `proof_failures`, duration, receipt status, and review-pending state are allowed; tokens, session keys, prompts, nonces, raw events, and raw responses are not.

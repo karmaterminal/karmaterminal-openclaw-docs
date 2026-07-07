@@ -254,7 +254,7 @@ async function main() {
     messageCount: messages.length,
     receipts,
     outcome: receipts.every((r) => !r.required || r.status === 'present') ? 'PASS-candidate' : 'PARTIAL-candidate',
-    notes: 'Post-run recovery receipt from gateway sessions.get; useful when the live websocket observation window closes before delayed continuation wakes arrive.',
+    notes: 'Supplemental post-run receipt from gateway sessions.get. Use only with the original k6 stdout/summary preserved; this can upgrade a live-window PARTIAL/rc=99 to PASS-candidate when all required receipts are present, but it never folds final proof verdicts automatically.',
   };
   await mkdir(path.dirname(out), { recursive: true });
   await writeFile(out, JSON.stringify(result, null, 2) + '\n');

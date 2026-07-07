@@ -201,7 +201,25 @@ if src.exists():
             pass
 dst.write_text(''.join(json.dumps(obj, sort_keys=True) + '\n' for obj in out))
 PY_EVIDENCE_JSONL
-    jq -n --argjson rc "$k6_rc" --arg ended "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '{k6ExitCode:$rc, endedAt:$ended}' > "$RUN_DIR/run-result.json"
+    TRACE_STATUS="unknown"
+    REVIEW_PENDING_RECEIPTS='[]'
+    if [[ -s "$RUN_DIR/evidence.jsonl" ]]; then
+      if jq -e 'select(has("trace_id"))' "$RUN_DIR/evidence.jsonl" >/dev/null; then
+        if jq -e 'select((.trace_id // "") != "")' "$RUN_DIR/evidence.jsonl" >/dev/null; then
+          TRACE_STATUS="present"
+        else
+          TRACE_STATUS="missing"
+          REVIEW_PENDING_RECEIPTS='["tempo-trace-json"]'
+        fi
+      fi
+    fi
+    jq -n \
+      --argjson rc "$k6_rc" \
+      --arg ended "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+      --arg traceStatus "$TRACE_STATUS" \
+      --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
+      '{k6ExitCode:$rc, endedAt:$ended, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
+      > "$RUN_DIR/run-result.json"
     rm -f "$RUN_DIR/.started"
 
     echo "[$ROW_ID] ARTIFACTS: $RUN_DIR"

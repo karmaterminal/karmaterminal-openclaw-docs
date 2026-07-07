@@ -71,6 +71,13 @@ Minimum v1 shape:
   "reason": "k6 checks passed and proof_failures is zero; receipts still need human review",
   "candidateOnly": true,
   "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "missing"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": ["tempo-trace-json"]
+  },
   "metrics": {
     "proofFailures": 0,
     "checksRate": 1,
@@ -85,7 +92,7 @@ Minimum v1 shape:
 }
 ```
 
-Current post-processor output writes this v1 dashboard shape for manifest-driven runs: `scenario`, `toolSurface`, `transport`, `metrics`, `receipts`, and `failureClass` are normalized into `row-result.json` from the row manifest plus k6 summary / evidence summary. Dashboards may still ingest the minimal fields (`outcome`, `rowId`, `candidateSha`, `seat`, `runId`, `candidateOnly`, and `foldRequiresReview`) for older candidate runs, but new candidate artifacts should include the full v1 shape above.
+Current post-processor output writes this v1 dashboard shape for manifest-driven runs: `scenario`, `toolSurface`, `transport`, `metrics`, `receipts`, and `failureClass` are normalized into `row-result.json` from the row manifest plus k6 summary / evidence summary. Row-list runner artifacts may also include `observability.traceStatus` (`present`, `missing`, or `unknown`) plus `review.status` / `review.pendingReceipts` to keep trace-missing PASS candidates visibly review-pending instead of silently foldable. Dashboards may still ingest the minimal fields (`outcome`, `rowId`, `candidateSha`, `seat`, `runId`, `candidateOnly`, and `foldRequiresReview`) for older candidate runs, but new candidate artifacts should include the full v1 shape above.
 
 ## Prometheus metric names
 

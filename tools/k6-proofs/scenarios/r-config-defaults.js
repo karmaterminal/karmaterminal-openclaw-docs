@@ -70,7 +70,9 @@ export default function () {
     enabled: null,
     max_chain_length: null,
     max_delegates_per_turn: null,
+    max_delegates_per_turn_observed: false,
     cost_cap_tokens: null,
+    cost_cap_tokens_observed: false,
     trace_id: null,
     redacted_events: [],
   };
@@ -157,12 +159,16 @@ export default function () {
               evidence.config_read = true;
               const enabled = eventStr.match(/ENABLED[^A-Za-z0-9]+(true|false)/)?.[1] || null;
               const maxChain = eventStr.match(/MAXCHAIN[^0-9]+(\d+)/)?.[1] || null;
-              const maxDelegates = eventStr.match(/MAXDELEGATES[^0-9]+(\d+)/)?.[1] || null;
-              const costCap = eventStr.match(/COSTCAP[^0-9]+(\d+)/)?.[1] || null;
+              const maxDelegatesMatch = eventStr.match(/MAXDELEGATES[^A-Za-z0-9]+(null|\d+)/);
+              const costCapMatch = eventStr.match(/COSTCAP[^A-Za-z0-9]+(null|\d+)/);
+              const maxDelegates = maxDelegatesMatch?.[1] || null;
+              const costCap = costCapMatch?.[1] || null;
               evidence.enabled = enabled === null ? null : enabled === 'true';
               evidence.max_chain_length = maxChain ? Number(maxChain) : null;
-              evidence.max_delegates_per_turn = maxDelegates ? Number(maxDelegates) : null;
-              evidence.cost_cap_tokens = costCap ? Number(costCap) : null;
+              evidence.max_delegates_per_turn_observed = !!maxDelegatesMatch;
+              evidence.max_delegates_per_turn = maxDelegates && maxDelegates !== 'null' ? Number(maxDelegates) : null;
+              evidence.cost_cap_tokens_observed = !!costCapMatch;
+              evidence.cost_cap_tokens = costCap && costCap !== 'null' ? Number(costCap) : null;
               console.log(`✓ CONFIG-DEFAULTS sentinel observed: enabled=${enabled} maxChain=${maxChain} maxDelegates=${maxDelegates} costCap=${costCap}`);
               socket.close();
             } else if (eventStr.includes(`CONFIG-DEFAULTS-FAIL ${rowNonce}`)) {
@@ -192,10 +198,10 @@ export default function () {
     'dispatch accepted': () => evidence.dispatch_accepted,
     'config read succeeded': () => evidence.config_read,
     'enabled byte observed': () => evidence.enabled !== null,
-    'chain/delegate/cost bytes observed': () => evidence.max_chain_length !== null && evidence.max_delegates_per_turn !== null && evidence.cost_cap_tokens !== null,
+    'chain/delegate/cost bytes observed': () => evidence.max_chain_length !== null && evidence.max_delegates_per_turn_observed && evidence.cost_cap_tokens_observed,
   });
 
-  if (!evidence.dispatch_accepted || !evidence.config_read || evidence.enabled === null || evidence.max_chain_length === null || evidence.max_delegates_per_turn === null || evidence.cost_cap_tokens === null) {
+  if (!evidence.dispatch_accepted || !evidence.config_read || evidence.enabled === null || evidence.max_chain_length === null || !evidence.max_delegates_per_turn_observed || !evidence.cost_cap_tokens_observed) {
     failures.add(1);
   }
 

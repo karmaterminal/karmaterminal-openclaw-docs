@@ -10,13 +10,17 @@
  *   node tools/k6-proofs/scripts/validate-corpus.mjs --sha <40-char-sha>
  *   node tools/k6-proofs/scripts/validate-corpus.mjs --all
  *   node tools/k6-proofs/scripts/validate-corpus.mjs --index
+ *   node tools/k6-proofs/scripts/validate-corpus.mjs --current
  *   node tools/k6-proofs/scripts/validate-corpus.mjs --index --json
  *
  * Optional:
  *   --root <path>   PROOFS parent (defaults to CWD, matching sibling scripts).
  *   --json          Emit a machine-readable JSON result on stdout.
+ *   --strict        Make archival --all failures fatal. By default --all is
+ *                   informational; use --index/--current for current-board gating.
  *
- * Exit code is non-zero on any check failure; 0 on clean validation.
+ * Exit code is non-zero on current-board check failure; --all exits 0 unless
+ * --strict is supplied.
  */
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
@@ -59,7 +63,8 @@ function usage() {
       `  node tools/k6-proofs/scripts/validate-corpus.mjs --sha <40-char-sha>\n` +
       `  node tools/k6-proofs/scripts/validate-corpus.mjs --all\n` +
       `  node tools/k6-proofs/scripts/validate-corpus.mjs --index\n` +
-      `Options: --root <path>  --json`,
+      `  node tools/k6-proofs/scripts/validate-corpus.mjs --current\n` +
+      `Options: --root <path>  --json  --strict`,
   );
 }
 
@@ -339,6 +344,13 @@ function validateIndex(root) {
   return report;
 }
 
+function isLegacySchemaReport(report) {
+  if (!report || report.skipped) return false;
+  return (report.checks || []).some((c) =>
+    c.ok === false && (c.name === 'schema-manifest' || c.name === 'schema-manifest-capture-sha'),
+  );
+}
+
 function validateAll(root) {
   const proofsDir = join(root, 'PROOFS');
   const subs = listSubdirs(proofsDir) || [];
@@ -393,6 +405,7 @@ function main() {
   const wantJson = Boolean(args.json);
 
   let modeCount = 0;
+  if (args.current) args.index = true;
   if (args.sha) modeCount += 1;
   if (args.all) modeCount += 1;
   if (args.index) modeCount += 1;
@@ -418,17 +431,35 @@ function main() {
     if (!wantJson) console.log(renderReport(report));
   } else if (args.all) {
     const reports = validateAll(root);
+    let archivalFailed = false;
     for (const r of reports) {
       if (r.skipped) skipped += 1;
-      if (reportFailed(r)) failed = true;
+      if (reportFailed(r)) archivalFailed = true;
       if (!wantJson) console.log(renderReport(r));
     }
+    const validated = reports.length - skipped;
+    const okCount = reports.filter((r) => !r.skipped && !reportFailed(r)).length;
+    const failedReports = reports.filter((r) => !r.skipped && reportFailed(r)).length;
+    const legacySchemaReports = reports.filter(isLegacySchemaReport).length;
+    const archivalSummary = {
+      archival: true,
+      fatalOnlyWithStrict: true,
+      reportCount: reports.length,
+      validated,
+      ok: okCount,
+      skippedNoManifest: skipped,
+      failedReports,
+      legacySchemaReports,
+    };
+    failed = Boolean(args.strict) && archivalFailed;
     if (!wantJson) {
-      const validated = reports.length - skipped;
-      const okCount = reports.filter((r) => !r.skipped && !reportFailed(r)).length;
-      console.log(`\n--all summary: ${validated} validated (${okCount} OK), ${skipped} skipped (no manifest)`);
+      console.log(
+        `\n--all archival summary: ${validated} validated (${okCount} OK), ` +
+          `${failedReports} failed historical reports, ${legacySchemaReports} legacy-schema reports, ` +
+          `${skipped} skipped (no manifest). Use --index/--current for current-board gating; add --strict to make archival failures fatal.`,
+      );
     }
-    payload = { mode: 'all', root, reports };
+    payload = { mode: 'all', root, archivalSummary, archivalFailed, reports };
   } else {
     const report = validateIndex(root);
     failed = reportFailed(report);

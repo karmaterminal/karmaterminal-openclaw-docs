@@ -281,11 +281,15 @@ The corpus invariants enforced at fold time live in
 # Validate a single corpus dir (manifest + rollup tally + evidence + dirs)
 node tools/k6-proofs/scripts/validate-corpus.mjs --sha <40-char-sha>
 
-# Validate every PROOFS/<sha>/ that has a manifest; legacy short-SHA dirs are skipped
+# Archival sweep across PROOFS/<sha>/; reports skipped/legacy/failed historical dirs but exits 0 by default
 node tools/k6-proofs/scripts/validate-corpus.mjs --all
 
-# Validate PROOFS/INDEX.json consistency vs the manifest it points to
+# Strict archival sweep; exits non-zero if any historical manifest fails current invariants
+node tools/k6-proofs/scripts/validate-corpus.mjs --all --strict
+
+# Validate PROOFS/INDEX.json consistency vs the manifest it points to (current-board gate)
 node tools/k6-proofs/scripts/validate-corpus.mjs --index
+node tools/k6-proofs/scripts/validate-corpus.mjs --current
 
 # Machine-readable
 node tools/k6-proofs/scripts/validate-corpus.mjs --index --json
@@ -304,8 +308,11 @@ Checks: JSON parse, schema sanity (`openclaw.proofs.index.v1` /
 `openclaw.proofs.manifest.v1`), every declared `evidence_doc` and `rows[].dir`
 exists, no orphan row dirs, INDEX `rollup` tallies match the manifest `rows[].state`
 counts, manifest `capture_sha` matches its directory name, and no stale
-`pending_push` / `upload-blame` / `TODO-UPLOAD` wording. Exit code is non-zero
-on any failure; the script never mutates corpus data.
+`pending_push` / `upload-blame` / `TODO-UPLOAD` wording. `--index` / `--current`
+are the current-board gates and exit non-zero on failure. `--all` is archival by
+default: its JSON includes `archivalFailed` and `archivalSummary` for skipped,
+legacy-schema, and failed historical dirs, but it exits 0 unless `--strict` is
+supplied. The script never mutates corpus data.
 
 `check-manifest-scenarios.mjs` is the row-harness registry check: runnable
 manifests must point at an existing `tools/k6-proofs/scenarios/*.js`; rows with

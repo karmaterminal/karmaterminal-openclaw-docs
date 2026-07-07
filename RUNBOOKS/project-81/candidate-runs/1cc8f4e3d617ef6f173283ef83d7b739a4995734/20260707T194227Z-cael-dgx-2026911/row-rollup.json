@@ -1,0 +1,130 @@
+[
+  {
+    "row": "R-CD-1",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": "2026-07-07T19:42:44.796Z",
+    "seat": "cael",
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+    "row": "R-CD-2",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": "2026-07-07T19:42:59.917Z",
+    "seat": "cael",
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+    "row": "R-CD-4",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": "2026-07-07T19:43:09.916Z",
+    "seat": "cael",
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+    "row": "R-CD-CHAINED-DEPTH-2",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": "2026-07-07T19:43:27.756Z",
+    "seat": "cael",
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+    "row": "R-CD-MODEL-CHAINED-ALT",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": "2026-07-07T19:43:42.477Z",
+    "seat": "cael",
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+    "row": "R-CD-MODEL-DEFAULT",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": "2026-07-07T19:43:54.300Z",
+    "seat": "cael",
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+    "row": "R-CD-MODEL-TOKEN",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": "2026-07-07T19:44:11.718Z",
+    "seat": "cael",
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+    "row": "R-CD-MODEL-TOOL",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": "2026-07-07T19:44:36.355Z",
+    "seat": "cael",
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+    "row": "R-CD-TOKEN",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": "2026-07-07T19:44:59.550Z",
+    "seat": "cael",
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+    "row": "R-CONFIG-defaults",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": "2026-07-07T19:45:28.685Z",
+    "seat": "cael",
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+    "row": "R-CW-1",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": "2026-07-07T19:46:00.614Z",
+    "seat": "cael",
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+    "row": "R-CW-4",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": "2026-07-07T19:46:48.494Z",
+    "seat": "cael",
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+    "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": "2026-07-07T19:47:00.690Z",
+    "seat": "cael",
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+    "row": "R-CW-TOKEN",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": "2026-07-07T19:47:16.367Z",
+    "seat": "cael",
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+    "row": "R-OBS-status",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": null,
+    "seat": null,
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+    "row": "R-RC-1",
+    "verdict": "PASS-candidate",
+    "failures": 0,
+    "timestamp": "2026-07-07T19:47:44.227Z",
+    "seat": "cael",
+    "sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  }
+]

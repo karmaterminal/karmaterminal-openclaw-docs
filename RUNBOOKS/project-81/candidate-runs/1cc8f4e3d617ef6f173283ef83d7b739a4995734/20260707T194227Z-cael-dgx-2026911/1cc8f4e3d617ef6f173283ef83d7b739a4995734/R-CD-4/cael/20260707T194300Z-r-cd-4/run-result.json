@@ -1,0 +1,17 @@
+{
+  "k6ExitCode": 0,
+  "endedAt": "2026-07-07T19:43:10Z",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "missing",
+    "traceId": null,
+    "tempoTraceJson": null
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "tempo-trace-json"
+    ]
+  }
+}

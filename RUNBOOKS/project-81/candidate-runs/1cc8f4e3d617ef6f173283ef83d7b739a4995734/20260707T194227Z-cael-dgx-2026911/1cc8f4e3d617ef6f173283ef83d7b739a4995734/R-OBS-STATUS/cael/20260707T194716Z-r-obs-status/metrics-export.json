@@ -1,0 +1,21 @@
+{
+  "schema": "openclaw.k6.proof-metrics-export.v1",
+  "rowId": "R-OBS-STATUS",
+  "candidateSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+  "seat": "cael",
+  "outcome": "PASS-candidate",
+  "sampleCount": 6,
+  "metricNames": [
+    "openclaw_proofs_k6_run_total",
+    "openclaw_proofs_k6_proof_failures_total",
+    "openclaw_proofs_k6_candidate_pending_review",
+    "openclaw_proofs_k6_duration_ms",
+    "openclaw_proofs_k6_receipt_status"
+  ],
+  "prometheusOut": "/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/project81-k6/20260707T194227Z-cael-dgx-2026911/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-STATUS/cael/20260707T194716Z-r-obs-status/openclaw-proofs-k6.prom",
+  "otlpOut": "/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/project81-k6/20260707T194227Z-cael-dgx-2026911/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-STATUS/cael/20260707T194716Z-r-obs-status/openclaw-proofs-k6.otlp.json",
+  "push": {
+    "status": 200,
+    "ok": true
+  }
+}

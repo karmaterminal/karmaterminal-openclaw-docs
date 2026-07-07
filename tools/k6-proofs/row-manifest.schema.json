@@ -79,7 +79,7 @@
       "properties": {
         "classification": {
           "enum": ["static-preflight-only", "k6-runnable", "orchestration-required", "construct-only"],
-          "description": "Static/preflight-only rows never fire the live gateway; k6-runnable rows may be started by run-proof.sh; orchestration-required rows need an external agent/tool/human step; construct-only rows document planned/non-runnable proof contracts."
+          "description": "Static/preflight-only rows never fire the live gateway; k6-runnable rows may be started by run-proof.sh; orchestration-required rows need an external agent/tool/human step and are rejected by the live-run guard; construct-only rows document planned/non-runnable proof contracts and are also rejected by the live-run guard."
         },
         "requiresLiveGatewayToken": { "type": "boolean" },
         "requiresTargetSessionKey": { "type": "boolean" },

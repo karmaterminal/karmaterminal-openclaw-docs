@@ -24,7 +24,7 @@
     ],
     "status": "scaffold",
     "expectedFile": "r-cw-6-max-chain-length.js",
-    "registryNotes": "No runnable row scenario file exists yet; restart/restoration semantics need a dedicated scenario before this becomes runnable."
+    "registryNotes": "A scaffold scenario file exists and intentionally throws. Keep non-runnable until a promotion PR implements config backup/lower/restart/proof/restore/restart receipts and updates liveRunSafety.classification to k6-runnable."
   },
   "invocation": {
     "tool": "continue_work",
@@ -43,6 +43,16 @@
       "name": "seat-readiness-continuation-enabled",
       "required": true,
       "description": "Precursor seat-readiness report proves agents.defaults.continuation.enabled=true before config-mutating continuation proof"
+    },
+    {
+      "name": "original-config-captured",
+      "required": true,
+      "description": "Original agents.defaults.continuation.maxChainLength value captured verbatim before mutation and used as the restore source"
+    },
+    {
+      "name": "failure-safe-restore-armed",
+      "required": true,
+      "description": "Fixture records a finally/trap-style restore guard before mutation so the original maxChainLength value is restored and the gateway is restarted even if the proof fails or aborts"
     },
     {
       "name": "config-set-to-1",
@@ -88,12 +98,14 @@
     "expectedArtifactClass": "PARTIAL-candidate",
     "requiredReceipts": [
       "seat-readiness-continuation-enabled",
+      "original-config-captured",
+      "failure-safe-restore-armed",
       "config-set-to-1",
       "hop-1-accepted",
       "hop-2-rejected",
       "config-restored"
     ],
     "foldRequiresReview": true,
-    "notes": "Config + restart mutating maxChainLength boundary row. Only run against an isolated/fixture gateway or explicit human-approved live maintenance window. Restart/reload command must come from OPENCLAW_GATEWAY_RESTART_CMD when set; default fixture command is `openclaw gateway restart --safe --wait 10s`. Requires a precursor seat-readiness receipt proving continuation.enabled=true."
+    "notes": "Config + restart mutating maxChainLength boundary row. Current scaffold is blocked by live-run-guard because classification=orchestration-required. Only run against an isolated/fixture gateway or explicit human-approved live maintenance window. Fixture must capture original maxChainLength, set only the row-local maxChainLength=1 override, restore on failure, and record both restart receipts. Restart/reload command must come from OPENCLAW_GATEWAY_RESTART_CMD when set; default fixture command is `openclaw gateway restart --safe --wait 10s`. Requires a precursor seat-readiness receipt proving continuation.enabled=true/defaults present."
   }
 }

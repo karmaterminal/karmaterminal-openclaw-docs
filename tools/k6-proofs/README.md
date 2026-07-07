@@ -157,6 +157,30 @@ OPENCLAW_GATEWAY_TOKEN="***" \
 
 Public-safe visualization fields for Project 81 live in [`METRICS.md`](./METRICS.md). Treat that file as the contract for Grafana / Prometheus / postprocess ingestion: candidate outcome, `proof_failures`, duration, receipt status, and review-pending state are allowed; tokens, session keys, prompts, nonces, raw events, and raw responses are not.
 
+To turn a candidate artifact into the dashboard metric family, export from the
+normalized candidate row directory or from a `row-result.json` file:
+
+```bash
+node tools/k6-proofs/scripts/export-row-metrics.mjs \
+  --run-dir /tmp/k6-proof-runs/<sha>/<row>/<seat>/<run-id> \
+  --prometheus-out /tmp/openclaw-proofs-k6.prom \
+  --otlp-out /tmp/openclaw-proofs-k6.otlp.json
+```
+
+For live fleet ingestion, POST the same public-safe OTLP JSON to the existing
+collector endpoint (the collector remote-writes metrics to Prometheus):
+
+```bash
+node tools/k6-proofs/scripts/export-row-metrics.mjs \
+  --run-dir /tmp/k6-proof-runs/<sha>/<row>/<seat>/<run-id> \
+  --push-otlp http://10.0.0.99:4318/v1/metrics
+```
+
+The exporter emits only the `openclaw_proofs_k6_*` metric contract: row/seat/SHA,
+outcome, duration, proof-failure count, checks rate when present, receipt status,
+and review-pending signal. It does not export session keys, prompt bodies, nonces,
+raw websocket events, tokens, or local private paths.
+
 ## Design principles
 
 ### Manifest-driven scenarios (data/logic separation)

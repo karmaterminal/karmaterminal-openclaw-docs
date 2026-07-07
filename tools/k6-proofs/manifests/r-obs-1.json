@@ -1,0 +1,55 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-OBS-1",
+  "issue": 1135,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "offline",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 0,
+  "scenario": {
+    "name": "r-obs-1",
+    "description": "session status observability manual proof row. Registered to keep the executable-suite manifest catalog aligned with the 29-row manual proof corpus; not an unattended k6 scenario yet.",
+    "methods": [
+      "manual-corpus-review"
+    ],
+    "status": "construct-only",
+    "notes": "Construct-only registry entry. The current PROOFS corpus carries manual evidence for this row; promote to scaffold/runnable only after a reviewed k6 fixture exists."
+  },
+  "expectedReceipts": [
+    {
+      "name": "manual-row-corpus-receipt",
+      "required": true,
+      "description": "Current PROOFS/<sha> corpus contains reviewed manual evidence for this row."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-OBS-1",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "manual-corpus"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Catalog coverage entry only. Does not make the row runnable and does not change the canonical PROOFS corpus."
+  },
+  "liveRunSafety": {
+    "classification": "construct-only",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": false,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "construct-only",
+    "requiredReceipts": [
+      "manual-row-corpus-receipt"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Not included in --live-suite. This entry exists so every current manual proof row has an explicit manifest record."
+  }
+}

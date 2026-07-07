@@ -112,6 +112,7 @@ jobs:
           node --check tools/k6-proofs/scripts/summarize-review-debt.mjs
           node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
           node tools/k6-proofs/scripts/check-scenario-alignment.mjs
+          node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
           if [[ "$ROWS_INPUT" == "live-suite" ]]; then
             rows="$(node tools/k6-proofs/scripts/list-runnable-rows.mjs --live-suite)"
           elif [[ "$ROWS_INPUT" == "all" ]]; then

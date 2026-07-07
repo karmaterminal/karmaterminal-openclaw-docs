@@ -4,7 +4,8 @@
  *
  * This script is intentionally dependency-free so run-proof.sh and CI can call it
  * before k6 starts. It validates only the safety contract that affects live runs:
- * required env presence and same-session concurrency lock metadata.
+ * required env presence, direct-runnability classification, and same-session
+ * concurrency lock metadata.
  */
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -79,8 +80,16 @@ function safetyErrors(manifest, env = process.env) {
     errors.push('liveRunSafety.classification=k6-runnable requires scenario.status=runnable');
   }
 
+  if (safety.classification === 'orchestration-required') {
+    errors.push('liveRunSafety.classification=orchestration-required is not directly runnable by run-proof.sh; use an explicit orchestration fixture/maintenance window');
+  }
+
   if (safety.classification === 'construct-only' && manifest.scenario?.status === 'runnable') {
     errors.push('liveRunSafety.classification=construct-only cannot be paired with scenario.status=runnable');
+  }
+
+  if (safety.classification === 'construct-only') {
+    errors.push('liveRunSafety.classification=construct-only is not directly runnable by run-proof.sh');
   }
 
   if (safety.requiresExternalAgentOrToolInvocation && manifest.toolSurface === 'read-only') {

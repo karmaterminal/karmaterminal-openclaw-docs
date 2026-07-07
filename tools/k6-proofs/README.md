@@ -223,11 +223,13 @@ canonical `PROOFS/**` folds.
 Rows that lower continuation limits or restart the gateway must stay `orchestration-required` until their fixture emits the full receipt chain:
 
 1. capture the original config value;
-2. apply the row-local low test value;
+2. apply only the row-local low test value named by the manifest;
 3. reload/restart through the configured command;
 4. fire the proof;
-5. restore the original value;
+5. restore the original value even when the proof fails or aborts;
 6. reload/restart again and record the restore receipt.
+
+`run-proof.sh` fails closed for `orchestration-required` and `construct-only` manifests when `OPENCLAW_ROW_MANIFEST` is set. A config-mutating row must not become directly k6-runnable until a promotion PR changes the manifest to `scenario.status="runnable"` and `liveRunSafety.classification="k6-runnable"` with the receipt chain above implemented and tested.
 
 The default restart command for fixtures is:
 
@@ -235,9 +237,9 @@ The default restart command for fixtures is:
 openclaw gateway restart --safe --wait 10s
 ```
 
-Override it with `OPENCLAW_GATEWAY_RESTART_CMD` for nonstandard deployments. The command must be self-contained for the target seat; do not bake frond-specific SSH, service, or workflow names into public row logic.
+Override it with `OPENCLAW_GATEWAY_RESTART_CMD` for nonstandard deployments. The command must be self-contained for the target seat; do not bake frond-specific SSH, service, or workflow names into public row logic. If a fixture cannot safely restart/reload through that configured command, it must emit a blocked candidate artifact instead of mutating config.
 
-Cost-cap boundary rows should take their low test value from `OPENCLAW_K6_COST_CAP_TEST_VALUE` when set, with a documented default in the row fixture. They must restore the original cap before emitting a fold-reviewable candidate artifact.
+Cost-cap boundary rows should take their low test value from `OPENCLAW_K6_COST_CAP_TEST_VALUE` when set, with a documented row-local default. They must restore the original cap before emitting a fold-reviewable candidate artifact.
 
 ## Design principles
 

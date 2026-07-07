@@ -15,7 +15,7 @@
   ],
   "panels": [
     {
-      "title": "Candidate outcomes",
+      "title": "Provenance outcomes (all samples)",
       "type": "stat",
       "gridPos": {
         "h": 4,
@@ -29,7 +29,7 @@
           "legendFormat": "{{outcome}}"
         }
       ],
-      "description": "Counts candidate proof runs by normalized outcome."
+      "description": "Provenance view: counts all candidate proof samples, including red/partial history. Not a latest verdict."
     },
     {
       "title": "Pending human review",
@@ -42,11 +42,11 @@
       },
       "targets": [
         {
-          "expr": "sum(openclaw_proofs_k6_candidate_pending_review{candidate_sha=~\"$candidate_sha\", row_id=~\"$row_id\", seat=~\"$seat\"})",
+          "expr": "sum(openclaw_proofs_k6_candidate_pending_review{candidate_sha=~\"$candidate_sha\", row_id=~\"$row_id\", seat=~\"$seat\", fold_requires_review=\"true\"})",
           "legendFormat": "pending review"
         }
       ],
-      "description": "Candidate-only runs that still require fold review."
+      "description": "Fold-readiness queue: visual green means ready for human review, not canonical PROOFS fold."
     },
     {
       "title": "Proof failures",
@@ -105,7 +105,7 @@
       "description": "Outcome distribution by seat."
     },
     {
-      "title": "Row \u00d7 outcome matrix",
+      "title": "Current candidate by row / seat / run",
       "type": "table",
       "gridPos": {
         "h": 8,
@@ -115,11 +115,11 @@
       },
       "targets": [
         {
-          "expr": "sum by (row_id, outcome) (openclaw_proofs_k6_run_total{candidate_sha=~\"$candidate_sha\", seat=~\"$seat\"})",
-          "legendFormat": "{{row_id}} {{outcome}}"
+          "expr": "topk by (row_id, seat, candidate_sha) (1, max by (row_id, seat, candidate_sha, run_id, outcome, failure_class, fold_requires_review) (timestamp(openclaw_proofs_k6_run_total{candidate_sha=~\"$candidate_sha\", row_id=~\"$row_id\", seat=~\"$seat\"})))",
+          "legendFormat": "{{row_id}} {{seat}} {{run_id}} {{outcome}}"
         }
       ],
-      "description": "Rows grouped by outcome for the selected candidate SHA / seat."
+      "description": "Current-candidate view: latest run sample per row/seat/SHA, preserving outcome/failure labels."
     },
     {
       "title": "Duration by row",
@@ -192,7 +192,7 @@
           "legendFormat": "{{outcome}}"
         }
       ],
-      "description": "Recent candidate run volume by outcome."
+      "description": "Recent provenance volume by outcome. Historical red/partial samples are useful audit history, not necessarily current state."
     }
   ],
   "schemaVersion": 39,
@@ -263,7 +263,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "k6 PROOFS \u2014 Candidate Row Health",
+  "title": "k6 PROOFS — Candidate Row Health",
   "uid": "k6-proofs-candidate-row-health",
   "version": 2
 }

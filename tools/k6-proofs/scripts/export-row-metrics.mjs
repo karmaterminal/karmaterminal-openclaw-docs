@@ -215,8 +215,12 @@ function buildMetricSamples(result) {
     candidate_sha: safeLabelValue(result.candidateSha),
     scenario: safeLabelValue(result.scenario),
   };
-  const full = {
+  const runScoped = {
     ...base,
+    run_id: safeLabelValue(result.runId),
+  };
+  const full = {
+    ...runScoped,
     tool_surface: safeLabelValue(result.toolSurface),
     transport: safeLabelValue(result.transport),
     outcome: safeLabelValue(result.outcome),
@@ -230,15 +234,15 @@ function buildMetricSamples(result) {
 
   const samples = [
     { name: `${METRIC_PREFIX}_run_total`, type: 'sum', labels: full, value: 1, int: true },
-    { name: `${METRIC_PREFIX}_proof_failures_total`, type: 'sum', labels: { ...base, scenario: full.scenario, failure_class: full.failure_class }, value: Number(result.metrics?.proofFailures ?? 0), int: true },
-    { name: `${METRIC_PREFIX}_candidate_pending_review`, type: 'gauge', labels: { row_id: base.row_id, seat: base.seat, candidate_sha: base.candidate_sha, outcome: full.outcome }, value: pendingReview ? 1 : 0, int: true },
+    { name: `${METRIC_PREFIX}_proof_failures_total`, type: 'sum', labels: { ...runScoped, scenario: full.scenario, failure_class: full.failure_class }, value: Number(result.metrics?.proofFailures ?? 0), int: true },
+    { name: `${METRIC_PREFIX}_candidate_pending_review`, type: 'gauge', labels: { row_id: base.row_id, seat: base.seat, candidate_sha: base.candidate_sha, run_id: runScoped.run_id, outcome: full.outcome, fold_requires_review: full.fold_requires_review }, value: pendingReview ? 1 : 0, int: true },
   ];
 
   if (result.metrics?.durationMs !== null && result.metrics?.durationMs !== undefined) {
-    samples.push({ name: `${METRIC_PREFIX}_duration_ms`, type: 'gauge', labels: { ...base, outcome: full.outcome }, value: Number(result.metrics.durationMs), int: false });
+    samples.push({ name: `${METRIC_PREFIX}_duration_ms`, type: 'gauge', labels: { ...runScoped, outcome: full.outcome }, value: Number(result.metrics.durationMs), int: false });
   }
   if (result.metrics?.checksRate !== null && result.metrics?.checksRate !== undefined) {
-    samples.push({ name: `${METRIC_PREFIX}_checks_rate`, type: 'gauge', labels: base, value: Number(result.metrics.checksRate), int: false });
+    samples.push({ name: `${METRIC_PREFIX}_checks_rate`, type: 'gauge', labels: runScoped, value: Number(result.metrics.checksRate), int: false });
   }
 
   for (const receipt of result.receipts || []) {

@@ -4,6 +4,12 @@ Goal: give a reviewer or maintainer a small, repeatable path from a normal OpenC
 
 This quickstart intentionally covers only unattended `k6-runnable` rows. Rows marked `orchestration-required` stay out of the broad suite until a reviewed fixture exists.
 
+The proof catalog is broader than the unattended suite: it also carries construct-only manifests so every row in the current 29-row manual PROOFS corpus has an explicit manifest entry. To verify that row-map without running live proof traffic:
+
+```bash
+node tools/k6-proofs/scripts/check-current-corpus-manifest-coverage.mjs
+```
+
 ## 1. Install k6
 
 Install Grafana k6 using the upstream package for your OS:

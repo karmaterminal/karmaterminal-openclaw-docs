@@ -29,6 +29,14 @@ R-CD-1,R-CD-2,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFA
 
 `preflight` remains `static-preflight-only`: the runner performs seat-readiness preflight for live runs, but the preflight manifest row is intentionally skipped by live-run guard.
 
+The current canonical manual corpus has 29 rows under `PROOFS/INDEX.json`. The k6 manifest registry covers all 29: runnable/scaffold manifests for rows with executable fixtures, and `construct-only` manifests for rows that are currently manual-corpus receipts only. Check the coverage map with:
+
+```bash
+node tools/k6-proofs/scripts/check-current-corpus-manifest-coverage.mjs
+```
+
+`extraNonCorpusRows` in that report are supplemental automation rows that are not entries in the current 29-row manual corpus.
+
 Use this directory as the accumulator. When a scaffold row becomes runnable, add or update `RUNBOOKS/project-81/rows/<ROW>.md` in the same PR as the scenario/manifest change.
 
 ## Current runnable row runbooks

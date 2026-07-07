@@ -35,11 +35,27 @@ function boolEnv(name) {
   return (__ENV[name] || '').toLowerCase() === 'true';
 }
 
-function valueAfterLabel(text, label) {
-  const idx = text.indexOf(label);
-  if (idx === -1) return null;
-  const tail = text.slice(idx + label.length);
-  return tail.match(/(null|\d+)/i)?.[1] || null;
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function parseConfigSentinel(text, rowNonce) {
+  const pattern = new RegExp(
+    `CONFIG-DEFAULTS\\s+${escapeRegExp(rowNonce)}[\\s\\S]*?` +
+    `ENABLED[^A-Za-z0-9]+(true|false)[\\s\\S]*?` +
+    `MAXCHAIN[^A-Za-z0-9]+(null|\\d+)[\\s\\S]*?` +
+    `MAXDELEGATES[^A-Za-z0-9]+(null|\\d+)[\\s\\S]*?` +
+    `COSTCAP[^A-Za-z0-9]+(null|\\d+)`,
+    'i',
+  );
+  const match = text.match(pattern);
+  if (!match) return null;
+  return {
+    enabled: match[1],
+    maxChain: match[2],
+    maxDelegates: match[3],
+    costCap: match[4],
+  };
 }
 
 export default function () {
@@ -163,20 +179,19 @@ export default function () {
             if (eventStr.includes(HARNESS_MARKER)) {
               console.log('ℹ Ignoring harness prompt echo event');
             } else if (eventStr.includes(`CONFIG-DEFAULTS ${rowNonce}`)) {
+              const parsed = parseConfigSentinel(eventStr, rowNonce);
+              if (!parsed) {
+                console.log('ℹ Ignoring incomplete CONFIG-DEFAULTS sentinel candidate');
+                return;
+              }
               evidence.config_read = true;
-              const sentinelIdx = eventStr.lastIndexOf(`CONFIG-DEFAULTS ${rowNonce}`);
-              const sentinelText = sentinelIdx === -1 ? eventStr : eventStr.slice(sentinelIdx);
-              const enabled = sentinelText.match(/ENABLED[^A-Za-z0-9]+(true|false)/)?.[1] || null;
-              const maxChain = sentinelText.match(/MAXCHAIN[^0-9]+(\d+)/)?.[1] || null;
-              const maxDelegates = valueAfterLabel(sentinelText, 'MAXDELEGATES');
-              const costCap = valueAfterLabel(sentinelText, 'COSTCAP');
-              evidence.enabled = enabled === null ? null : enabled === 'true';
-              evidence.max_chain_length = maxChain ? Number(maxChain) : null;
-              evidence.max_delegates_per_turn_observed = maxDelegates !== null;
-              evidence.max_delegates_per_turn = maxDelegates && maxDelegates.toLowerCase() !== 'null' ? Number(maxDelegates) : null;
-              evidence.cost_cap_tokens_observed = costCap !== null;
-              evidence.cost_cap_tokens = costCap && costCap.toLowerCase() !== 'null' ? Number(costCap) : null;
-              console.log(`✓ CONFIG-DEFAULTS sentinel observed: enabled=${enabled} maxChain=${maxChain} maxDelegates=${maxDelegates} costCap=${costCap}`);
+              evidence.enabled = parsed.enabled === 'true';
+              evidence.max_chain_length = parsed.maxChain.toLowerCase() !== 'null' ? Number(parsed.maxChain) : null;
+              evidence.max_delegates_per_turn_observed = true;
+              evidence.max_delegates_per_turn = parsed.maxDelegates.toLowerCase() !== 'null' ? Number(parsed.maxDelegates) : null;
+              evidence.cost_cap_tokens_observed = true;
+              evidence.cost_cap_tokens = parsed.costCap.toLowerCase() !== 'null' ? Number(parsed.costCap) : null;
+              console.log(`✓ CONFIG-DEFAULTS sentinel observed: enabled=${parsed.enabled} maxChain=${parsed.maxChain} maxDelegates=${parsed.maxDelegates} costCap=${parsed.costCap}`);
               socket.close();
             } else if (eventStr.includes(`CONFIG-DEFAULTS-FAIL ${rowNonce}`)) {
               console.error('✗ CONFIG-DEFAULTS-FAIL sentinel observed');

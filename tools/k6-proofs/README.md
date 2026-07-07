@@ -199,6 +199,19 @@ node tools/k6-proofs/scripts/fetch-tempo-trace.mjs \
   --run-dir /tmp/k6-proof-runs/<sha>/<row>/<seat>/<run-id>
 ```
 
+When reviewing an existing candidate-run bundle, summarize pending review receipts
+before attempting Tempo fetches:
+
+```bash
+node tools/k6-proofs/scripts/summarize-review-debt.mjs \
+  --run-root RUNBOOKS/project-81/candidate-runs/<sha>/<run-id>
+```
+
+For `tempo-trace-json`, the summary distinguishes rows with a fetchable `traceId`
+from rows where `traceId` is null. Null trace ids cannot be fetched from Tempo;
+those rows need either a rerun with trace emission or an explicit fold decision
+accepting trace-missing as an honest review limit.
+
 ## HTML run report
 
 `run-proofs.sh` writes a public-safe `report.html` at the selected run output root.

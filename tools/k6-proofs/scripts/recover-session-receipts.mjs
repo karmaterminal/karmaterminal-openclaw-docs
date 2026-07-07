@@ -107,6 +107,34 @@ function evaluate(row, nonce, messages) {
     .map(toolResultObject)
     .filter((obj) => obj && obj.status === 'scheduled');
 
+  if (row === 'R-CONFIG-defaults') {
+    const configToolCalls = messages.flatMap(toolCalls).filter((c) => c.name === 'gateway');
+    const configToolResults = messages
+      .map(toolResultObject)
+      .filter((obj) => obj?.ok === true && obj?.result?.path === 'agents.defaults.continuation');
+    const sentinel = String(allText).match(new RegExp('CONFIG-DEFAULTS ' + nonce + ' ENABLED (true|false) MAXCHAIN (\\d+) MAXDELEGATES (\\d+) COSTCAP (\\d+)'));
+    return [
+      receipt('config-read-tool-call', true,
+        configToolCalls.some((c) => c.arguments?.action === 'config.get' && c.arguments?.path === 'agents.defaults.continuation') ? 'present' : 'missing'),
+      receipt('config-read-tool-result', true,
+        configToolResults.length > 0 ? 'present' : 'missing',
+        configToolResults[0]?.result?.config ? {
+          enabled: configToolResults[0].result.config.enabled,
+          maxChainLength: configToolResults[0].result.config.maxChainLength,
+          maxDelegatesPerTurn: configToolResults[0].result.config.maxDelegatesPerTurn,
+          costCapTokens: configToolResults[0].result.config.costCapTokens,
+        } : {}),
+      receipt('config-defaults-sentinel', true,
+        sentinel ? 'present' : 'missing',
+        sentinel ? {
+          enabled: sentinel[1] === 'true',
+          maxChainLength: Number(sentinel[2]),
+          maxDelegatesPerTurn: Number(sentinel[3]),
+          costCapTokens: Number(sentinel[4]),
+        } : {}),
+    ];
+  }
+
   if (row === 'R-CW-1') {
     return [
       receipt('tool-invoke-accepted', true, cwToolCalls.some((c) => JSON.stringify(c).includes(nonce)) ? 'present' : 'missing'),

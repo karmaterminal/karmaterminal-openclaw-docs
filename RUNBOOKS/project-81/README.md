@@ -19,6 +19,8 @@ cd tools/k6-proofs
 ./scripts/run-proofs.sh --dry-run all <candidate-sha>
 ```
 
+For an external/reviewer-facing path from “install k6” to “run the unattended suite,” use [EXECUTABLE-SUITE.md](EXECUTABLE-SUITE.md).
+
 As of the post-#306/#307 Project 81 surface, the broad live slice is:
 
 ```text

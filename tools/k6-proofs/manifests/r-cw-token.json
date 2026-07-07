@@ -16,10 +16,14 @@
   "scenario": {
     "name": "r-cw-token-bracket",
     "description": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives. Proves the token-form continuation works for subagents (the #952 row lineage).",
-    "methods": ["sessions.send", "sessions.messages.subscribe", "subagents.spawn"],
-    "status": "scaffold",
-    "expectedFile": "r-cw-token-bracket.js",
-    "registryNotes": "No runnable row scenario file exists yet; bracket-token continue_work coverage is scaffolded only."
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "subagents.spawn"
+    ],
+    "status": "runnable",
+    "registryNotes": "Local scratch conversion: runnable k6 scenario exercises lightContext sessions_spawn child emitting bare CONTINUE_WORK:N and requiring TOKEN-HOP2-DONE hop-2 sentinel.",
+    "file": "r-cw-token-bracket.js"
   },
   "seatClassExpectation": {
     "lightContext-subagent": "PASS-candidate",
@@ -27,10 +31,46 @@
     "reason": "CONTINUE_WORK bare token only fires from auto-delivered final-text (subagent-announce path). On main-session message-body delivery seats, the token scanner doesn't walk the payload. lightContext subagents auto-deliver → scanner fires → hop-2 drives."
   },
   "expectedReceipts": [
-    { "name": "subagent-spawned", "required": true, "description": "lightContext subagent spawned with continuation-instructing prompt" },
-    { "name": "token-emitted", "required": false, "description": "CONTINUE_WORK token observed in subagent final-text (may not surface in events)" },
-    { "name": "hop-2-executed", "required": true, "description": "Subagent's hop-2 turn fired (the continuation drove)" },
-    { "name": "parent-return", "required": false, "description": "Subagent result returned to parent" }
+    {
+      "name": "parent-dispatch-accepted",
+      "required": true,
+      "description": "sessions.send dispatch accepted for disposable parent session"
+    },
+    {
+      "name": "subagent-spawn-requested",
+      "required": true,
+      "description": "parent instructed to call sessions_spawn lightContext child"
+    },
+    {
+      "name": "subagent-spawn-accepted",
+      "required": true,
+      "description": "parent observed sessions_spawn acceptance/final sentinel"
+    },
+    {
+      "name": "token-emitted-or-stripped",
+      "required": true,
+      "description": "child first turn reached TOKEN-HOP1 and emitted/stripped bare CONTINUE_WORK:N token"
+    },
+    {
+      "name": "hop-2-executed",
+      "required": true,
+      "description": "TOKEN-HOP2-DONE sentinel from continuation wake/hop-2"
+    },
+    {
+      "name": "parent-return",
+      "required": true,
+      "description": "hop-2 result returned/observable on parent session"
+    },
+    {
+      "name": "journal-work-wake-hop-2",
+      "required": true,
+      "description": "Review receipt: journal [continuation:work-wake] for the child session; runtime labels the first child continuation wake as hop=1/200, which is the semantic hop-2 turn for this row"
+    },
+    {
+      "name": "tempo-trace",
+      "required": true,
+      "description": "Review receipt: Tempo trace for continuation.work.fire/work wake path"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",
@@ -43,5 +83,34 @@
     "candidateOnly": true,
     "foldRequiresReview": true,
     "notes": "Token/bracket CONTINUE_WORK path. PASS when hop-2 drives on the subagent. This is the #952 lineage proof — the lightContext bracket path that was broken pre-fix."
+  },
+  "invocation": {
+    "tool": "sessions_spawn",
+    "lightContext": true,
+    "tokenDelaySeconds": 5,
+    "taskNamePrefix": "r-cw-token",
+    "idempotencyKeyPrefix": "R-CW-TOKEN"
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "parent-dispatch-accepted",
+      "subagent-spawn-requested",
+      "subagent-spawn-accepted",
+      "token-emitted-or-stripped",
+      "hop-2-executed",
+      "parent-return",
+      "journal-work-wake-hop-2",
+      "tempo-trace"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Bare CONTINUE_WORK token row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. PASS requires TOKEN-HOP2-DONE plus journal [continuation:work-wake] for the child session (runtime records first child continuation wake as hop=1/200, the semantic hop-2 turn) and Tempo trace; parse/strip alone is insufficient."
   }
 }

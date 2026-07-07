@@ -89,10 +89,22 @@ Scenario names are **basenames without `.js`**, matching `run-proof.sh` and the
 GitHub Actions workflow choices. Current workflow-runnable basenames are:
 
 - `preflight`
+- `r-cd-1-typed-delegate`
 - `r-cd-2-silent-wake`
 - `r-cd-4-target-session-key`
 - `r-cd-chained-depth-2`
-- `r-cw-1`
+- `r-cd-model-default`
+- `r-cd-model-tool`
+- `r-cd-model-chained-alt`
+- `r-cd-model-token`
+- `r-cd-token-bracket-delegate`
+- `r-config-defaults`
+- `r-cw-1-tool-schedule-wake`
+- `r-cw-4-chain-depth`
+- `r-cw-delegate-self-continuation`
+- `r-cw-token-bracket`
+- `r-obs-status`
+- `r-rc-1`
 - `r-cw`
 
 Example:
@@ -115,6 +127,31 @@ node tools/k6-proofs/scripts/evidence-writer.mjs \
 ```
 
 Writes candidate evidence into `PROOFS/<SHA>/R-CD-2/ronan-dgx/k6-run-<timestamp>/`.
+
+### 5. Recover delayed/session-history receipts
+
+Some rows can produce a non-zero live k6 result while the runtime receipts are
+still present in the target session history. Two known shapes:
+
+- the live WebSocket observation window closes before delayed continuation wakes
+  land (`R-CW-4`);
+- the live parser sees the sentinel but misses numeric/tool-result fields that
+  are present in the session transcript (`R-CONFIG-defaults`).
+
+For those rows, `recover-session-receipts.mjs` may emit a supplemental
+`PASS-candidate` only when **all required receipts are present** in
+`sessions.get` history. This is not an automatic green fold: preserve the
+original k6 stdout/summary and the recovery JSON together, and keep the result
+as candidate evidence until review.
+
+```bash
+OPENCLAW_GATEWAY_TOKEN="***" \
+  node tools/k6-proofs/scripts/recover-session-receipts.mjs \
+    --row R-CW-4 \
+    --session-key <target-session-key> \
+    --nonce <row-nonce> \
+    --out /tmp/r-cw-4-session-receipts.json
+```
 
 ## Metrics and dashboard contract
 
@@ -198,16 +235,23 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | Row | Scenario | Surface | Expected outcome |
 |-----|----------|---------|-----------------|
 | preflight | `preflight` | read-only | Candidate; gateway/session/tool inventory check |
+| R-CD-1 | `r-cd-1-typed-delegate` | typed-tool | Candidate; continue_delegate schedule/spawn/return path |
 | R-CD-2 | `r-cd-2-silent-wake` | typed-tool | PASS-candidate when dispatch/session-events observed and no channel delivery appears |
 | R-CD-4 | `r-cd-4-target-session-key` | typed-tool | Candidate; verify target-vs-parent session events, not `tasks.list` |
 | R-CD-CHAINED-DEPTH-2 | `r-cd-chained-depth-2` | typed-tool | Candidate; verify nonce-correlated chain return on subscribed session stream |
+| R-CD-TOKEN | `r-cd-token-bracket-delegate` | bracket-token | Candidate; terminal `[[CONTINUE_DELEGATE: ...]]` from lightContext/raw final text schedules and returns |
+| R-CD-MODEL-DEFAULT | `r-cd-model-default` | typed-tool | Candidate; delegate inherits default provider/model without override |
+| R-CD-MODEL-TOOL | `r-cd-model-tool` | typed-tool | Candidate; explicit model override request byte must match observed child model byte |
+| R-CD-MODEL-CHAINED-ALT | `r-cd-model-chained-alt` | typed-tool | Candidate; depth-1 delegate schedules depth-2 delegate with explicit alternate model |
+| R-CD-MODEL-TOKEN | `r-cd-model-token` | bracket-token | Candidate; bracket `model=` modifier parse + observed child model byte |
 | R-CD-COLLECTION-ON-COLLAPSE | planned `r-cd-collection-on-collapse` | typed-tool | Scaffold; A→B→C detached-intermediate collapse with root collection + no-orphan guard |
-| R-CD-MODEL-DEFAULT | planned `r-cd-model-default` | mixed | Scaffold; tool + bracket/token no-override inheritance contrast row |
-| R-CD-MODEL-TOOL | planned `r-cd-model-tool` | typed-tool | Scaffold; explicit model override request byte must match observed child model byte |
-| R-CD-MODEL-TOKEN | planned `r-cd-model-token` | bracket-token | Scaffold; bracket `model=` modifier parse + observed child model byte |
-| R-CD-MODEL-CHAINED-ALT | planned `r-cd-model-chained-alt` | typed-tool | Scaffold; depth-2 delegate observes explicit alternate model |
-| R-CW-1 | `r-cw-1` | typed-tool | Candidate; continue_work schedule + wake |
+| R-CONFIG-defaults | `r-config-defaults` | read-only | Candidate; continuation config defaults/readiness check |
+| R-CW-1 | `r-cw-1-tool-schedule-wake` | typed-tool | Candidate; continue_work schedule + wake |
+| R-CW-4 | `r-cw-4-chain-depth` | typed-tool | Candidate; continue_work chain depth across multiple hops |
+| R-CW-DELEGATE-SELF-CONTINUATION | `r-cw-delegate-self-continuation` | typed-tool | Candidate; delegate child self-continuation path |
+| R-CW-TOKEN | `r-cw-token-bracket` | bracket-token | Candidate; bare `CONTINUE_WORK:N` from scanned final text drives hop-2 |
 | R-OBS-status | `r-obs-status` | read-only | Candidate; gateway status/observer receipt check |
+| R-RC-1 | `r-rc-1` | typed-tool | Candidate; request_compaction below-threshold structured rejection |
 | R-CW overview | `r-cw` | read-only/infrastructure | Candidate; combined continue_work infrastructure check |
 
 Other manifests may be `scaffold` or `construct-only`: they are tracked rows,

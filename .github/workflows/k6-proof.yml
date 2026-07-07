@@ -26,11 +26,23 @@ on:
         default: preflight
         options:
           - preflight
+          - r-cd-1-typed-delegate
           - r-cd-2-silent-wake
           - r-cd-4-target-session-key
           - r-cd-chained-depth-2
-          - r-obs-status
+          - r-cd-model-default
+          - r-cd-model-tool
+          - r-cd-model-chained-alt
+          - r-cd-model-token
+          - r-cd-token-bracket-delegate
+          - r-config-defaults
           - r-cw-1
+          - r-cw-1-tool-schedule-wake
+          - r-cw-4-chain-depth
+          - r-cw-delegate-self-continuation
+          - r-cw-token-bracket
+          - r-obs-status
+          - r-rc-1
           - r-cw
       row:
         description: "Row id for evidence (e.g. R-CD-1, R-CD-TOKEN). Ignored when dry_run=true."

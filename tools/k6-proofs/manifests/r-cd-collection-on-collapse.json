@@ -77,5 +77,24 @@
     "candidateOnly": true,
     "foldRequiresReview": true,
     "notes": "Scaffold/registry only until a human-reviewed live-fire design handles the mode=session detached intermediate and collapse trigger. Never fold as pass without root-collection and negative-orphan evidence."
+  },
+  "liveRunSafety": {
+    "classification": "orchestration-required",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "requiresHumanConfirmation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PARTIAL-candidate",
+    "requiredReceipts": [
+      "root-dispatch-accepted",
+      "intermediate-session-detached",
+      "grandchild-sentinel",
+      "root-collection",
+      "negative-orphan-guard"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Potentially runnable with disposable root/intermediate sessions, but collapse semantics need reviewed implementation before workflow exposure."
   }
 }

@@ -16,10 +16,14 @@
   "scenario": {
     "name": "r-cw-4-chain-depth",
     "description": "Chain depth hop counter: fires continue_work 3× in sequence, verifies hop increments from 1/200 → 3/200 in traced responses.",
-    "methods": ["tools.invoke", "sessions.messages.subscribe"],
-    "status": "scaffold",
+    "methods": [
+      "tools.invoke",
+      "sessions.messages.subscribe"
+    ],
+    "status": "runnable",
     "expectedFile": "r-cw-4-chain-depth.js",
-    "registryNotes": "No runnable row scenario file exists yet; this manifest is a registry contract only."
+    "registryNotes": "Local scratch conversion: runnable k6 scenario drives a disposable session through three sequential continue_work hops and final CW4-DONE sentinel.",
+    "file": "r-cw-4-chain-depth.js"
   },
   "invocation": {
     "tool": "continue_work",
@@ -29,10 +33,31 @@
     "idempotencyKeyPrefix": "R-CW-4"
   },
   "expectedReceipts": [
-    { "name": "hop-1-accepted", "required": true, "description": "First continue_work accepted, chain.step shows 1/N" },
-    { "name": "hop-2-accepted", "required": true, "description": "Second continue_work accepted after wake, chain.step shows 2/N" },
-    { "name": "hop-3-accepted", "required": true, "description": "Third continue_work accepted after wake, chain.step shows 3/N" },
-    { "name": "trace-ids", "required": false, "description": "Trace IDs from each hop for Tempo chain verification" }
+    {
+      "name": "hop-1-accepted",
+      "required": true,
+      "description": "First continue_work accepted, chain.step shows 1/N"
+    },
+    {
+      "name": "hop-2-accepted",
+      "required": true,
+      "description": "Second continue_work accepted after wake, chain.step shows 2/N"
+    },
+    {
+      "name": "hop-3-accepted",
+      "required": true,
+      "description": "Third continue_work accepted after wake, chain.step shows 3/N"
+    },
+    {
+      "name": "trace-ids",
+      "required": false,
+      "description": "Trace IDs from each hop for Tempo chain verification"
+    },
+    {
+      "name": "final-done",
+      "required": true,
+      "description": "Final continuation wake emitted CW4-DONE nonce sentinel"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",
@@ -45,5 +70,23 @@
     "candidateOnly": true,
     "foldRequiresReview": true,
     "notes": "Chain depth counter. PASS when 3 sequential hops show incrementing chain.step. Requires a session that can accept 3 sequential continue_work invocations."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "hop-1-accepted",
+      "hop-2-accepted",
+      "hop-3-accepted",
+      "final-done"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Sequential continue_work chain row. Prefer disposable session and serialize; do not run alongside other same-session continuation rows."
   }
 }

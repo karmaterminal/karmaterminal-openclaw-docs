@@ -1,0 +1,83 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-model-token.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 4m0s max duration (incl. graceful stop):
+              * r_cd_model_token: 1 iterations shared among 1 VUs (maxDuration: 3m30s, gracefulStop: 30s)
+
+time="2026-07-07T12:43:54-07:00" level=info msg="✓ disposable session created: agent:main:r-cd-model-token-r-cd-model-token-1783453434506-rmhh5vdc" source=console
+time="2026-07-07T12:43:55-07:00" level=info msg="✓ sessions.send accepted — parent agent turn triggered" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m01.0s/3m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m02.0s/3m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m03.0s/3m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m04.0s/3m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m05.0s/3m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m06.0s/3m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m07.0s/3m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m08.0s/3m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m09.0s/3m30s  0/1 shared iters
+time="2026-07-07T12:44:03-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m10.0s/3m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m11.0s/3m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m12.0s/3m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m13.0s/3m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m14.0s/3m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m15.0s/3m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m16.0s/3m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m17.0s/3m30s  0/1 shared iters
+time="2026-07-07T12:44:11-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-07T12:44:11-07:00" level=info msg="✓ bracket-token child turn observed" source=console
+time="2026-07-07T12:44:11-07:00" level=info msg="✓ bracket model modifier observed" source=console
+time="2026-07-07T12:44:11-07:00" level=info msg="✓ MODEL-TOKEN-DELEGATE-DONE return sentinel observed" source=console
+time="2026-07-07T12:44:11-07:00" level=info msg="All required R-CD-MODEL-TOKEN evidence gathered, closing early" source=console
+time="2026-07-07T12:44:11-07:00" level=info msg="\n--- R-CD-MODEL-TOKEN EVIDENCE SUMMARY ---" source=console
+time="2026-07-07T12:44:11-07:00" level=info msg="{\n  \"row\": \"R-CD-MODEL-TOKEN\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CD-MODEL-TOKEN-1783453434506-rmhh5vdc\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"agent:main:discord:channel:1466192485440164011\",\n  \"sessionKey\": \"agent:main:r-cd-model-token-r-cd-model-token-1783453434506-rmhh5vdc\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cd-model-token-r-cd-model-token-1783453434506-rmhh5vdc\",\n  \"candidateSha\": \"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\n  \"started\": \"2026-07-07T19:43:54.506Z\",\n  \"requested_model_byte\": \"gpt\",\n  \"prompt_injected\": true,\n  \"subagent_spawn_requested\": true,\n  \"subagent_spawn_accepted\": true,\n  \"bracket_token_observed\": true,\n  \"bracket_model_modifier_observed\": true,\n  \"child_session_observed\": true,\n  \"child_model_byte\": \"gpt\",\n  \"model_matches\": true,\n  \"return_payload\": true,\n  \"dispatch_accepted_at_ms\": 1783453435361,\n  \"child_session_key\": null,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783453434508,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453434509,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453434549,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453434832,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783453434853,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783453435361,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CD-MODEL-TOKEN-DISPATCH-R-CD-MODEL-TOKEN-1783453434506-rmhh5vdc\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783453435947,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453437050,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453437051,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453437238,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453437238,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453437239,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453437558,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453437558,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453437558,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453437573,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453437573,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453437617,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453437617,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453437617,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453439470,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453440042,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453440058,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453440790,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453440803,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453440831,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453443495,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453443554,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453443554,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453443767,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453443854,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453443857,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453446407,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453447547,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453447555,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453447586,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453448697,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453448697,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453448830,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453451105,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453451105,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453451382,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453451383,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453451383,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453451394,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453451394,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453451518,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453451518,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453451518,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453451543,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453451641,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453451655,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453451717,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-07T19:44:11.717Z\",\n  \"duration_ms\": 17211\n}" source=console
+time="2026-07-07T12:44:11-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-07T12:44:11-07:00" level=info msg="\n[R-CD-MODEL-TOKEN] VERDICT: PASS-candidate" source=console
+
+[R-CD-MODEL-TOKEN] Summary: PASS-candidate | SHA: 1cc8f4e3d617ef6f173283ef83d7b739a4995734 | Seat: cael
+
+running (0m17.2s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_model_token ✓ [ 100% ] 1 VUs  0m17.2s/3m30s  1/1 shared iters

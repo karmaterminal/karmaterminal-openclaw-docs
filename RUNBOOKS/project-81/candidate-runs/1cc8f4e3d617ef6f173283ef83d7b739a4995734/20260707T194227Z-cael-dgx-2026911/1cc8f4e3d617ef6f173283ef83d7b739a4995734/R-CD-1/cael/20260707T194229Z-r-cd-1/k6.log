@@ -1,0 +1,81 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-1-typed-delegate.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m0s max duration (incl. graceful stop):
+              * r_cd_1_typed_delegate: 1 iterations shared among 1 VUs (maxDuration: 2m30s, gracefulStop: 30s)
+
+time="2026-07-07T12:42:30-07:00" level=info msg="✓ disposable session created: agent:main:r-cd-1-r-cd-1-1783453349730-odmekp7i" source=console
+time="2026-07-07T12:42:30-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered (will call continue_delegate)" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m01.0s/2m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m02.0s/2m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m03.0s/2m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m04.0s/2m30s  0/1 shared iters
+time="2026-07-07T12:42:34-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m05.0s/2m30s  0/1 shared iters
+time="2026-07-07T12:42:35-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m06.0s/2m30s  0/1 shared iters
+time="2026-07-07T12:42:36-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m07.0s/2m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m08.0s/2m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m09.0s/2m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m10.0s/2m30s  0/1 shared iters
+time="2026-07-07T12:42:40-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: session.message" source=console
+time="2026-07-07T12:42:40-07:00" level=info msg="ℹ Channel message from delegate return (expected for mode=normal)" source=console
+time="2026-07-07T12:42:40-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: agent" source=console
+time="2026-07-07T12:42:40-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: agent" source=console
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m11.0s/2m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m12.0s/2m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m13.0s/2m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m14.0s/2m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m15.0s/2m30s  0/1 shared iters
+time="2026-07-07T12:42:44-07:00" level=info msg="✓ CD1-DELEGATE-SCHEDULED sentinel observed post-dispatch: session.message" source=console
+time="2026-07-07T12:42:44-07:00" level=info msg="ℹ Channel message from delegate return (expected for mode=normal)" source=console
+time="2026-07-07T12:42:44-07:00" level=info msg="Required R-CD-1 receipts gathered, closing early" source=console
+time="2026-07-07T12:42:44-07:00" level=info msg="\n--- R-CD-1 EVIDENCE SUMMARY ---" source=console
+time="2026-07-07T12:42:44-07:00" level=info msg="{\n  \"row\": \"R-CD-1\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CD-1-1783453349730-odmekp7i\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"agent:main:discord:channel:1466192485440164011\",\n  \"sessionKey\": \"agent:main:r-cd-1-r-cd-1-1783453349730-odmekp7i\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cd-1-r-cd-1-1783453349730-odmekp7i\",\n  \"candidateSha\": \"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\n  \"started\": \"2026-07-07T19:42:29.730Z\",\n  \"tool_invoke_accepted\": true,\n  \"delegate_scheduled_sentinel\": true,\n  \"parent_return_event\": true,\n  \"task_ledger_entry_optional\": false,\n  \"child_session_key\": null,\n  \"channel_message_observed\": true,\n  \"dispatch_accepted_at_ms\": 1783453350567,\n  \"wake_gate_ms\": 5000,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783453349731,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453349733,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453349773,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453349843,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453350039,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783453350058,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783453350058,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453350566,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CD-1-DISPATCH-R-CD-1-1783453349730-odmekp7i\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783453351150,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453354205,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453355431,\n      \"kind\": \"response\",\n      \"method\": \"tasks.list\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783453355485,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453355496,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453355526,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453356479,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453356479,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453356589,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453356620,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453360241,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453360262,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453360297,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453364310,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453364310,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453364697,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453364697,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453364697,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453364793,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-07T19:42:44.793Z\",\n  \"duration_ms\": 15063\n}" source=console
+time="2026-07-07T12:42:44-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-07T12:42:44-07:00" level=info msg="\n[R-CD-1] VERDICT: PASS-candidate" source=console
+
+[R-CD-1] Summary: PASS-candidate | SHA: 1cc8f4e3d617ef6f173283ef83d7b739a4995734 | Seat: cael
+
+running (0m15.1s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_1_typed_delegate ✓ [ 100% ] 1 VUs  0m15.1s/2m30s  1/1 shared iters

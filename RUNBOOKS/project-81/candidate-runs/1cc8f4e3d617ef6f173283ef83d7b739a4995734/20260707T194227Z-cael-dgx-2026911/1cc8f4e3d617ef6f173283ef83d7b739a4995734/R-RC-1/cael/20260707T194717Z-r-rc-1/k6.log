@@ -1,0 +1,107 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-rc-1.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m0s max duration (incl. graceful stop):
+              * r_rc_1_threshold_reject: 1 iterations shared among 1 VUs (maxDuration: 1m30s, gracefulStop: 30s)
+
+time="2026-07-07T12:47:17-07:00" level=warning msg="Manifest validation warnings: missing sessionKey" source=console
+time="2026-07-07T12:47:18-07:00" level=info msg="✓ disposable session created: agent:main:r-rc-1-r-rc-1-1783453637595-7b8t05dk" source=console
+time="2026-07-07T12:47:18-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for request_compaction reject" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m01.0s/1m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m02.0s/1m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m03.0s/1m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m04.0s/1m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m05.0s/1m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m06.0s/1m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m07.0s/1m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m08.0s/1m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m09.0s/1m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m10.0s/1m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m11.0s/1m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m12.0s/1m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m13.0s/1m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m14.0s/1m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m15.0s/1m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m16.0s/1m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m17.0s/1m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m18.0s/1m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m19.0s/1m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m20.0s/1m30s  0/1 shared iters
+time="2026-07-07T12:47:38-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m21.0s/1m30s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m22.0s/1m30s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m23.0s/1m30s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m24.0s/1m30s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m25.0s/1m30s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m26.0s/1m30s  0/1 shared iters
+time="2026-07-07T12:47:44-07:00" level=info msg="✓ RC1-REJECTED sentinel observed: guard=context_threshold context=unknown threshold=unknown" source=console
+time="2026-07-07T12:47:44-07:00" level=info msg="\n--- R-RC-1 EVIDENCE SUMMARY ---" source=console
+time="2026-07-07T12:47:44-07:00" level=info msg="{\n  \"row\": \"R-RC-1\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-RC-1-1783453637595-7b8t05dk\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"agent:main:discord:channel:1466192485440164011\",\n  \"sessionKey\": \"agent:main:r-rc-1-r-rc-1-1783453637595-7b8t05dk\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-rc-1-r-rc-1-1783453637595-7b8t05dk\",\n  \"candidateSha\": \"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\n  \"started\": \"2026-07-07T19:47:17.596Z\",\n  \"dispatch_accepted\": true,\n  \"tool_invoke_rejected\": true,\n  \"guard\": \"context_threshold\",\n  \"context_usage\": null,\n  \"threshold\": null,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783453637597,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453637601,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453637674,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453637778,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453637778,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453638041,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783453638099,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783453638187,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453638241,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453638581,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-RC-1-R-RC-1-1783453637595-7b8t05dk\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783453638928,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453638928,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453639120,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453639120,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453639120,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453639178,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453639178,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453639239,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453639239,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453639239,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453641181,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453641209,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453641965,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453643313,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453643324,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453643350,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453645758,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453645758,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453645915,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453645915,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453646105,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453646106,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453646106,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453646146,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453646233,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453646247,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453649903,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453649960,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453649960,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453650243,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453650288,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453650399,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453653269,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453653416,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453653416,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453653549,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453653549,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453653728,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453653728,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453653728,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453653766,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453653862,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453653879,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453654911,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453654930,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453655058,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453658008,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453658008,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453658274,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453658307,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453658363,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453661159,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453661190,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453661222,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453661836,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453663315,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453663329,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453663482,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453663916,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453663949,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453663949,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453663970,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783453664224,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-07T19:47:44.224Z\",\n  \"duration_ms\": 26628\n}" source=console
+time="2026-07-07T12:47:44-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-07T12:47:44-07:00" level=info msg="\n[R-RC-1] VERDICT: PASS-candidate" source=console
+
+[R-RC-1] Summary: PASS-candidate | SHA: 1cc8f4e3d617ef6f173283ef83d7b739a4995734 | Seat: cael
+
+running (0m26.6s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_rc_1_threshold_reject ✓ [ 100% ] 1 VUs  0m26.6s/1m30s  1/1 shared iters

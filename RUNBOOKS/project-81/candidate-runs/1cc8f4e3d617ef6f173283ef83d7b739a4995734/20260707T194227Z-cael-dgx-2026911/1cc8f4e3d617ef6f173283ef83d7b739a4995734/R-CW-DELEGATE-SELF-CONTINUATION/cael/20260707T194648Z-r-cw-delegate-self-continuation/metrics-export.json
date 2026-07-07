@@ -1,0 +1,21 @@
+{
+  "schema": "openclaw.k6.proof-metrics-export.v1",
+  "rowId": "R-CW-DELEGATE-SELF-CONTINUATION",
+  "candidateSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+  "seat": "cael",
+  "outcome": "PASS-candidate",
+  "sampleCount": 9,
+  "metricNames": [
+    "openclaw_proofs_k6_run_total",
+    "openclaw_proofs_k6_proof_failures_total",
+    "openclaw_proofs_k6_candidate_pending_review",
+    "openclaw_proofs_k6_duration_ms",
+    "openclaw_proofs_k6_receipt_status"
+  ],
+  "prometheusOut": "/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/project81-k6/20260707T194227Z-cael-dgx-2026911/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-SELF-CONTINUATION/cael/20260707T194648Z-r-cw-delegate-self-continuation/openclaw-proofs-k6.prom",
+  "otlpOut": "/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/project81-k6/20260707T194227Z-cael-dgx-2026911/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-SELF-CONTINUATION/cael/20260707T194648Z-r-cw-delegate-self-continuation/openclaw-proofs-k6.otlp.json",
+  "push": {
+    "status": 200,
+    "ok": true
+  }
+}

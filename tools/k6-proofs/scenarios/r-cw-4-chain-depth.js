@@ -15,6 +15,7 @@ const manifest = loadManifestFromEnv();
 const DEFAULTS = { sessionKey: 'main', seat: 'cael-dgx', delaySeconds: 5, idempotencyKeyPrefix: 'R-CW-4' };
 const HARNESS_MARKER = '[k6-proof-harness]';
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
+function isRunnerProvisionedSession(key) { return String(key || '').includes(':subagent:continuation-'); }
 function invocationCfg() { const inv = manifest?.invocation || {}; return { delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds), idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix }; }
 
 export default function () {
@@ -22,7 +23,7 @@ export default function () {
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
   const requestedSessionKey = manifest?.sessionKey || __ENV.OPENCLAW_SESSION_KEY || DEFAULTS.sessionKey;
   let sessionKey = requestedSessionKey;
-  const createDisposableSession = boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSION') || boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSIONS');
+  const createDisposableSession = (boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSION') || boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSIONS')) && !isRunnerProvisionedSession(requestedSessionKey);
   const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CW-4');
   if (!token) { console.error('OPENCLAW_GATEWAY_TOKEN is required'); failures.add(1); return; }

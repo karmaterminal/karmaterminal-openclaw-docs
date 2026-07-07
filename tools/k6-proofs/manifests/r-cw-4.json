@@ -22,7 +22,7 @@
     ],
     "status": "runnable",
     "expectedFile": "r-cw-4-chain-depth.js",
-    "registryNotes": "Local scratch conversion: runnable k6 scenario drives a disposable session through three sequential continue_work hops and final CW4-DONE sentinel.",
+    "registryNotes": "Runnable k6 scenario drives a supplied runner-provisioned session, or a disposable fallback session, through three sequential continue_work hops and final CW4-DONE sentinel.",
     "file": "r-cw-4-chain-depth.js"
   },
   "invocation": {

@@ -1,0 +1,133 @@
+name: project81-k6-proof
+run-name: project81-k6-proof ${{ inputs.rows }} dry=${{ inputs.dry_run }}
+
+# Public/self-hostable Project 81 proof runner.
+# Dry runs can execute on a generic GitHub runner. Live continuation rows need
+# a runner with network access to the target OpenClaw gateway and k6 installed.
+
+on:
+  workflow_dispatch:
+    inputs:
+      rows:
+        description: "Comma-separated row ids, 'all', or 'live-suite' for unattended k6-runnable rows"
+        required: true
+        default: "live-suite"
+        type: string
+      candidate_sha:
+        description: "40-char deployed OpenClaw candidate SHA"
+        required: true
+        type: string
+      dry_run:
+        description: "Dry run only; set false only when gateway env/secrets are configured"
+        required: true
+        default: true
+        type: boolean
+      runner_label:
+        description: "GitHub runner label. Use a self-hosted OpenClaw host for live runs."
+        required: true
+        default: "ubuntu-latest"
+        type: string
+      gateway_ws:
+        description: "OpenClaw gateway WebSocket URL reachable from the runner"
+        required: false
+        default: "ws://127.0.0.1:18789"
+        type: string
+      seat_name:
+        description: "Seat/reviewer label recorded in artifacts"
+        required: false
+        default: "external-reviewer"
+        type: string
+      create_disposable_sessions:
+        description: "Create disposable proof sessions for rows that support it"
+        required: true
+        default: true
+        type: boolean
+      metrics_push:
+        description: "Push public-safe proof metrics to OTLP endpoint during live runs"
+        required: true
+        default: false
+        type: boolean
+      metrics_otlp_endpoint:
+        description: "OTLP/HTTP metrics endpoint"
+        required: false
+        default: ""
+        type: string
+      openclaw_alt_model:
+        description: "Optional model override for model-override rows"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: project81-k6-proof-${{ github.ref }}-${{ inputs.rows }}-${{ inputs.dry_run }}
+  cancel-in-progress: false
+
+jobs:
+  project81-k6-proof:
+    name: project81 k6 proof
+    runs-on: ${{ inputs.runner_label }}
+    timeout-minutes: 30
+    env:
+      OPENCLAW_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+      OPENCLAW_GATEWAY_WS: ${{ inputs.gateway_ws }}
+      OPENCLAW_GATEWAY_TOKEN: ${{ secrets.OPENCLAW_GATEWAY_TOKEN }}
+      OPENCLAW_SEAT_NAME: ${{ inputs.seat_name }}
+      OPENCLAW_CREATE_DISPOSABLE_SESSION: ${{ inputs.create_disposable_sessions }}
+      OPENCLAW_CREATE_DISPOSABLE_SESSIONS: ${{ inputs.create_disposable_sessions }}
+      OPENCLAW_ALT_MODEL: ${{ inputs.openclaw_alt_model }}
+      OPENCLAW_PROOFS_K6_OTLP_ENDPOINT: ${{ inputs.metrics_otlp_endpoint }}
+      K6_PROOF_OUT_DIR: ${{ github.workspace }}/project81-k6-proof-artifacts
+    steps:
+      - name: Checkout proof catalog
+        uses: actions/checkout@v4
+
+      - name: Validate catalog and resolve rows
+        id: rows
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd tools/k6-proofs
+          node --check scripts/list-runnable-rows.mjs
+          node scripts/check-manifest-scenarios.mjs
+          node scripts/check-scenario-alignment.mjs
+          if [[ "${{ inputs.rows }}" == "live-suite" ]]; then
+            rows="$(node scripts/list-runnable-rows.mjs --live-suite)"
+          else
+            rows="${{ inputs.rows }}"
+          fi
+          test -n "$rows"
+          echo "rows=$rows" >> "$GITHUB_OUTPUT"
+          echo "Resolved rows: $rows"
+
+      - name: Check live prerequisites
+        if: ${{ !inputs.dry_run }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v k6 >/dev/null || { echo "k6 is required for live runs: https://grafana.com/docs/k6/latest/set-up/install-k6/"; exit 1; }
+          test -n "${OPENCLAW_GATEWAY_TOKEN:-}" || { echo "OPENCLAW_GATEWAY_TOKEN secret is required for live runs"; exit 1; }
+
+      - name: Run Project 81 proof suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd tools/k6-proofs
+          mode="--dry-run"
+          if [[ "${{ inputs.dry_run }}" == "false" ]]; then
+            mode="--live"
+          fi
+          if [[ "${{ inputs.metrics_push }}" != "true" ]]; then
+            unset OPENCLAW_PROOFS_K6_OTLP_ENDPOINT
+          fi
+          ./scripts/run-proofs.sh "$mode" "${{ steps.rows.outputs.rows }}"
+
+      - name: Upload proof artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: project81-k6-proof-${{ github.run_id }}
+          path: project81-k6-proof-artifacts/**
+          if-no-files-found: warn

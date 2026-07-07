@@ -51,10 +51,20 @@ This excludes static preflight and any `orchestration-required` rows. As of this
 R-CD-1,R-CD-2,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-TOKEN,R-CONFIG-defaults,R-CW-1,R-CW-4,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-TOKEN,R-OBS-status,R-RC-1
 ```
 
+## GitHub Actions option
+
+The same public catalog also exposes a workflow in this repository:
+
+```text
+Actions -> project81-k6-proof
+```
+
+Use `rows=live-suite` to resolve the unattended suite from manifests. Dry runs can use `ubuntu-latest`. Live runs need a runner that can reach the target OpenClaw gateway and has k6 installed; set the repository or fork secret `OPENCLAW_GATEWAY_TOKEN` and choose that runner label.
+
 ## 5. Dry-run row selection
 
 ```bash
-./scripts/run-proofs.sh --dry-run "$ROWS" "$OPENCLAW_CANDIDATE_SHA"
+./scripts/run-proofs.sh --dry-run "$ROWS"
 ```
 
 Dry-run verifies row discovery and artifact shape without mutating a live session.
@@ -66,7 +76,7 @@ Use disposable sessions unless you are deliberately proving behavior on a named 
 ```bash
 export OPENCLAW_CREATE_DISPOSABLE_SESSION=true
 export OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true
-./scripts/run-proofs.sh --live "$ROWS" "$OPENCLAW_CANDIDATE_SHA"
+./scripts/run-proofs.sh --live "$ROWS"
 ```
 
 Artifacts are written under `${K6_PROOF_OUT_DIR:-/tmp/k6-proof-runs}`:

@@ -347,6 +347,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-CW-4 | `r-cw-4-chain-depth` | typed-tool | Candidate; continue_work chain depth across multiple hops |
 | R-CW-DELEGATE-SELF-CONTINUATION | `r-cw-delegate-self-continuation` | typed-tool | Candidate; delegate child self-continuation path |
 | R-CW-TOKEN | `r-cw-token-bracket` | bracket-token | Candidate; bare `CONTINUE_WORK:N` from scanned final text drives hop-2 |
+| R-OBS-1 | `r-obs-1` | read-only | Candidate; status-card observability via session_status tool |
 | R-OBS-status | `r-obs-status` | read-only | Candidate; gateway status/observer receipt check |
 | R-RC-1 | `r-rc-1` | typed-tool | Candidate; request_compaction below-threshold structured rejection |
 | R-CW overview | `r-cw` | read-only/infrastructure | Candidate; combined continue_work infrastructure check |

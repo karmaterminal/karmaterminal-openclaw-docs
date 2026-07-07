@@ -45,10 +45,10 @@ ROWS="$(node scripts/list-runnable-rows.mjs --live-suite)"
 printf '%s\n' "$ROWS"
 ```
 
-This excludes static preflight and any `orchestration-required` rows. As of this catalog, it prints the 16-row broad live suite:
+This excludes static preflight and any `orchestration-required` rows. As of this catalog, it prints the 17-row broad live suite:
 
 ```text
-R-CD-1,R-CD-2,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-TOKEN,R-CONFIG-defaults,R-CW-1,R-CW-4,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-TOKEN,R-OBS-status,R-RC-1
+R-CD-1,R-CD-2,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-TOKEN,R-CONFIG-defaults,R-CW-1,R-CW-4,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-TOKEN,R-OBS-1,R-OBS-status,R-RC-1
 ```
 
 ## GitHub Actions option

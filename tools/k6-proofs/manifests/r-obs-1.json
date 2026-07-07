@@ -5,24 +5,47 @@
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
-  "transport": "offline",
-  "toolSurface": "read-only",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
   "mutates": false,
-  "timeoutSeconds": 0,
+  "timeoutSeconds": 90,
   "scenario": {
     "name": "r-obs-1",
-    "description": "session status observability manual proof row. Registered to keep the executable-suite manifest catalog aligned with the 29-row manual proof corpus; not an unattended k6 scenario yet.",
+    "description": "Session-status-card observability via the session_status tool. Creates a disposable session, asks the agent to call session_status, and verifies build/context/continuation-chain/route visibility by nonce-correlated sentinel.",
     "methods": [
-      "manual-corpus-review"
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "session_status"
     ],
-    "status": "construct-only",
-    "notes": "Construct-only registry entry. The current PROOFS corpus carries manual evidence for this row; promote to scaffold/runnable only after a reviewed k6 fixture exists."
+    "status": "runnable",
+    "file": "r-obs-1.js"
   },
   "expectedReceipts": [
     {
-      "name": "manual-row-corpus-receipt",
+      "name": "session-created",
+      "required": false,
+      "description": "Disposable proof session was created for the status-card read."
+    },
+    {
+      "name": "dispatch-accepted",
       "required": true,
-      "description": "Current PROOFS/<sha> corpus contains reviewed manual evidence for this row."
+      "description": "sessions.send accepted the agent turn that calls session_status."
+    },
+    {
+      "name": "status-card-sentinel",
+      "required": true,
+      "description": "Agent reply included OBS1-STATUS sentinel for the nonce."
+    },
+    {
+      "name": "build-context-chain-route-visible",
+      "required": true,
+      "description": "Sentinel confirms build/version, context usage, continuation chain/queue, and route/delivery context were visible in the status card."
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID from sessions.send or event payload when available."
     }
   ],
   "artifactDestination": {
@@ -35,21 +58,24 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Catalog coverage entry only. Does not make the row runnable and does not change the canonical PROOFS corpus."
+    "notes": "Read-only status-card observability row. PASS-candidate when dispatch is accepted and OBS1-STATUS sentinel reports build/context/chain/route visibility. Candidate artifacts require review before canonical fold."
   },
   "liveRunSafety": {
-    "classification": "construct-only",
-    "requiresLiveGatewayToken": false,
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
     "requiresTargetSessionKey": false,
-    "requiresCandidateSha": false,
-    "requiresExternalAgentOrToolInvocation": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
     "requiresHumanConfirmation": false,
     "sameSessionConcurrencySafe": true,
-    "expectedArtifactClass": "construct-only",
+    "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
-      "manual-row-corpus-receipt"
+      "seat-readiness",
+      "dispatch-accepted",
+      "status-card-sentinel",
+      "build-context-chain-route-visible"
     ],
     "foldRequiresReview": true,
-    "notes": "Not included in --live-suite. This entry exists so every current manual proof row has an explicit manifest record."
+    "notes": "Read-only session_status observability row. Uses a disposable session by default and does not fire continuation tools, delegates, config mutation, restart, or compaction."
   }
 }

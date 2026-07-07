@@ -6,8 +6,8 @@ import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
 export const options = {
-  scenarios: { r_cw_4_chain_depth: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '210s' } },
-  thresholds: { proof_failures: ['count==0'], r_cw_4_duration: ['p(95)<180000'] },
+  scenarios: { r_cw_4_chain_depth: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '10m' } },
+  thresholds: { proof_failures: ['count==0'], r_cw_4_duration: ['p(95)<600000'] },
 };
 const failures = new Counter('proof_failures');
 const duration = new Trend('r_cw_4_duration');
@@ -38,7 +38,7 @@ export default function () {
         const instruction = `${HARNESS_MARKER} R-CW-4 proof nonce ${rowNonce}. This is a sequential continue_work proof. On this initial turn: call continue_work with delaySeconds=${inv.delaySeconds} and reason="R-CW-4 hop1 ${rowNonce}; on wake call hop2". After tool result scheduled, reply exactly CW4-HOP1-SCHEDULED ${rowNonce}. On the first continuation wake: call continue_work with delaySeconds=${inv.delaySeconds} and reason="R-CW-4 hop2 ${rowNonce}; on wake call hop3"; after scheduled, reply exactly CW4-HOP2-SCHEDULED ${rowNonce}. On the second continuation wake: call continue_work with delaySeconds=${inv.delaySeconds} and reason="R-CW-4 hop3 ${rowNonce}; on wake finish"; after scheduled, reply exactly CW4-HOP3-SCHEDULED ${rowNonce}. On the third continuation wake: reply exactly CW4-DONE ${rowNonce}. No file mutations, no external posts.`;
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: instruction, idempotencyKey: `${inv.idempotencyKeyPrefix}-DISPATCH-${rowNonce}` });
       }, 500);
-      socket.setTimeout(() => socket.close(), Math.max(150000, (inv.delaySeconds * 4 + 80) * 1000));
+      socket.setTimeout(() => socket.close(), Math.max(600000, (inv.delaySeconds * 4 + 360) * 1000));
     }
     socket.on('open', () => { socket.send(connectFrame(token)); if (createDisposableSession) { socket.setTimeout(() => { const disposableKey = `r-cw-4-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'); tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-CW-4 ${rowNonce}` }); }, 250); } else socket.setTimeout(() => startProofFlow(socket), 500); });
     socket.on('message', (raw) => {

@@ -104,6 +104,18 @@ if [[ "$DRY_RUN" == "false" && "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_B
   echo "Unless this is a known stale-stamp or you have proven a rebuild bridge, live proofs will be marked HONEST-LIMIT / negative-partial."
 fi
 
+mkdir -p "$OUT_ROOT"
+SEAT_READINESS_JSON="$OUT_ROOT/seat-readiness.json"
+if [[ "$DRY_RUN" == "false" ]]; then
+  echo "Running seat-readiness preflight (k6/tooling/gateway/continuation config)..."
+  if ! node scripts/seat-readiness-preflight.mjs --json > "$SEAT_READINESS_JSON"; then
+    echo "SEAT READINESS FAILED: $SEAT_READINESS_JSON" >&2
+    jq -r '.outcome as $out | "outcome=\($out) continuation=\(.continuation.enabled) defaults=\(.continuation.defaultsPresent) notes=\(.notes|join("; "))"' "$SEAT_READINESS_JSON" >&2 || true
+    exit 1
+  fi
+  echo "SEAT READINESS: $SEAT_READINESS_JSON"
+fi
+
 IFS=',' read -ra ROW_ARRAY <<< "$ROWS"
 
 for ROW_ID in "${ROW_ARRAY[@]}"; do
@@ -162,6 +174,9 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     mkdir -p "$RUN_DIR"
     touch "$RUN_DIR/.started"
     cp "$MANIFEST_FILE" "$RUN_DIR/row-manifest.json"
+    if [[ -f "$SEAT_READINESS_JSON" ]]; then
+      cp "$SEAT_READINESS_JSON" "$RUN_DIR/seat-readiness.json"
+    fi
     jq -n \
       --arg row "$ROW_ID" \
       --arg scenario "$SCENARIO_FILE" \

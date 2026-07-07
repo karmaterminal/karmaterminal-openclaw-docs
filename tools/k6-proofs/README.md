@@ -302,6 +302,9 @@ node tools/k6-proofs/scripts/live-run-guard.mjs --manifest tools/k6-proofs/manif
 
 # Validate workflow scenario choices and row-manifest scenario alignment
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs
+
+# Export candidate artifact row-result.json files as Prometheus text exposition
+node tools/k6-proofs/scripts/export-prometheus-metrics.mjs --root PROOFS --out /tmp/openclaw-proofs-k6.prom
 ```
 
 Checks: JSON parse, schema sanity (`openclaw.proofs.index.v1` /

@@ -96,7 +96,7 @@ Current post-processor output writes this v1 dashboard shape for manifest-driven
 
 ## Prometheus metric names
 
-If ingestion uses Prometheus remote-write, OTLP-to-Prometheus, or a postprocess push step, use these metric names.
+If ingestion uses Prometheus remote-write, OTLP-to-Prometheus, or a postprocess push step, use these metric names. `tools/k6-proofs/scripts/export-prometheus-metrics.mjs` emits this text-exposition shape from candidate artifact directories and is the current low-toil bridge from `row-result.json` / k6 summaries into dashboard-ingestable metrics.
 
 ### `openclaw_proofs_k6_run_total`
 

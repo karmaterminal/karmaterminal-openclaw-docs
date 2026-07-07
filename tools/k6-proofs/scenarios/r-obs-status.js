@@ -29,6 +29,7 @@ export const options = {
 const failures = new Counter('proof_failures');
 const duration = new Trend('r_obs_status_duration');
 const manifest = loadManifestFromEnv();
+const rowId = manifest?.rowId || 'R-OBS-status';
 
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
@@ -51,7 +52,7 @@ export default function () {
   }
 
   const evidence = {
-    row: 'R-OBS-status',
+    row: rowId,
     manifest_loaded: !!manifest,
     seat,
     candidateSha,
@@ -135,7 +136,7 @@ export function handleSummary(data) {
   const failuresCount = failureMetric ? failureMetric.count : 0;
   return {
     'r-obs-status-summary.json': JSON.stringify({
-      row: 'R-OBS-status',
+      row: rowId,
       sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
       verdict: failuresCount === 0 ? 'PASS-candidate' : 'FAIL-candidate',
       metrics: {

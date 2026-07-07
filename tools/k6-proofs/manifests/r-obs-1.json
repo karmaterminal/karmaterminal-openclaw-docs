@@ -1,0 +1,66 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-OBS-1",
+  "issue": 228,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 60,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "status": "runnable",
+    "file": "r-obs-status.js",
+    "name": "r-obs-status",
+    "description": "Read-only status-card observability check for R-OBS-1."
+  },
+  "expectedReceipts": [
+    {
+      "name": "status-card",
+      "required": true,
+      "description": "Gateway status response is accepted and exposes the public-safe status surface."
+    },
+    {
+      "name": "observer-receipt",
+      "required": true,
+      "description": "Observer/status receipt is captured as candidate evidence."
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace id from status response when the gateway includes traceparent metadata."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-OBS-1",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "R-OBS-1 is non-mutating status-card observability. Generated k6 artifacts remain candidate-only until human review/fold."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "status-card",
+      "observer-receipt"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Read-only gateway status probe. It does not fire continuation/delegate tools, mutate config/state, or approach compaction threshold behavior."
+  }
+}

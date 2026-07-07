@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile, mkdtemp, rm, writeFile, chmod } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { mkdir } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 
 const repoRoot = new URL('../../../..', import.meta.url).pathname;
@@ -33,13 +34,20 @@ test('seat readiness policy keeps the k6 proof-standard version in one place', a
   assert.equal(parsed.k6.expectedVersion, 'v2.0.0');
   assert.ok(parsed.env.some((entry) => entry.name === 'OPENCLAW_GATEWAY_TOKEN' && entry.secret === true));
   assert.ok(parsed.env.some((entry) => entry.name === 'OPENCLAW_CANDIDATE_SHA' && entry.required === true));
+  assert.ok(parsed.env.some((entry) => entry.name === 'OPENCLAW_GATEWAY_RESTART_CMD' && entry.required === false));
+  assert.ok(parsed.env.some((entry) => entry.name === 'OPENCLAW_K6_COST_CAP_TEST_VALUE' && entry.required === false));
 });
 
 test('seat readiness JSON contains no env secret values and reports booleans only', async () => {
   await withTmp(async (dir) => {
     const fakeK6 = join(dir, 'k6');
+    const fakeOpenClawDir = join(dir, 'bin');
+    const fakeOpenClaw = join(fakeOpenClawDir, 'openclaw');
+    await mkdir(fakeOpenClawDir, { recursive: true });
     await writeFile(fakeK6, '#!/bin/sh\necho "k6 v2.0.0 (commit/test)"\n');
+    await writeFile(fakeOpenClaw, '#!/bin/sh\necho \'{"enabled":true,"maxChainLength":200,"maxDelegesPerTurn":500,"costCapTokens":500000}\' | sed s/Deleges/Delegates/\n');
     await chmod(fakeK6, 0o755);
+    await chmod(fakeOpenClaw, 0o755);
 
     const token = 'CANARY-TOKEN-VALUE-DO-NOT-PRINT';
     const run = runPreflight(['--json', '--no-gateway', '--expected-k6-version', 'v2.0.0'], {
@@ -49,6 +57,7 @@ test('seat readiness JSON contains no env secret values and reports booleans onl
       OPENCLAW_SEAT_NAME: 'unit-seat',
       OPENCLAW_SESSION_KEY: 'agent:main:discord:channel:test',
       OPENCLAW_GATEWAY_WS: 'ws://127.0.0.1:18789',
+      PATH: `${fakeOpenClawDir}:${process.env.PATH}`,
     });
 
     assert.equal(run.status, 0, run.stderr || run.stdout);
@@ -60,6 +69,9 @@ test('seat readiness JSON contains no env secret values and reports booleans onl
     assert.equal(report.k6.path, fakeK6);
     assert.equal(report.k6.version, 'v2.0.0');
     assert.equal(report.gateway.mode, 'skipped-by-flag');
+    assert.equal(report.continuation.mode, 'checked');
+    assert.equal(report.continuation.enabled, true);
+    assert.equal(report.continuation.defaultsPresent, true);
     const tokenEnv = report.env.find((entry) => entry.name === 'OPENCLAW_GATEWAY_TOKEN');
     assert.deepEqual(
       { present: tokenEnv.present, secret: tokenEnv.secret, value: tokenEnv.value },
@@ -69,9 +81,12 @@ test('seat readiness JSON contains no env secret values and reports booleans onl
   });
 });
 
-test('seat readiness schema tracks policy, checked k6 candidates, and env purposes', async () => {
+test('seat readiness schema tracks policy, continuation readiness, checked k6 candidates, and env purposes', async () => {
   const parsed = JSON.parse(await readFile(schema, 'utf8'));
   assert.ok(parsed.required.includes('policy'));
+  assert.ok(parsed.required.includes('continuation'));
+  assert.ok(parsed.properties.continuation.required.includes('enabled'));
+  assert.ok(parsed.properties.continuation.required.includes('defaultsPresent'));
   assert.ok(parsed.properties.k6.required.includes('checked'));
   assert.ok(parsed.properties.env.items.required.includes('purpose'));
 });

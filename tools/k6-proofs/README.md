@@ -69,11 +69,12 @@ The helper emits `openclaw.k6.seat-readiness.v1` JSON and never prints secret va
 - k6 binary path and version, compared to the centralized policy expectation (`tools/k6-proofs/seat-readiness.policy.json`; override with `OPENCLAW_EXPECTED_K6_VERSION` or `--expected-k6-version` only when the row issue says so)
 - every binary candidate checked (`/home/figs/bin/k6`, common system paths, and `K6_BIN` when set)
 - gateway health/status reachability shape
+- continuation config readiness from `openclaw config get agents.defaults.continuation --json`, including `enabled=true` and presence of `maxChainLength`, `maxDelegatesPerTurn`, and `costCapTokens`
 - candidate SHA validity, seat name/class, and coarse session scope
 - required env-var presence as booleans only, plus public-safe purpose strings from the policy
 - whether the check is safe to run concurrently
 
-If k6 is missing, the version differs, required env is absent, or gateway health/status is unreachable, treat row output as `HONEST-LIMIT-candidate` / setup failure until the seat is fixed. Do not fold it as product behavior evidence. Use `--no-gateway` only for offline docs/schema checks; live proof rows need a checked gateway.
+If k6 is missing, the version differs, continuation is disabled/missing, required env is absent, or gateway health/status is unreachable, treat row output as `HONEST-LIMIT-candidate` / setup failure until the seat is fixed. Do not fold it as product behavior evidence. Use `--no-gateway` only for offline docs/schema checks; live proof rows need a checked gateway and live continuation rows need continuation enabled.
 
 ### 2. Preflight check
 
@@ -216,6 +217,27 @@ node tools/k6-proofs/scripts/render-run-report.mjs \
 
 The HTML report is a review aid only. It does not promote candidate artifacts into
 canonical `PROOFS/**` folds.
+
+## Config-mutating rows and restart containment
+
+Rows that lower continuation limits or restart the gateway must stay `orchestration-required` until their fixture emits the full receipt chain:
+
+1. capture the original config value;
+2. apply the row-local low test value;
+3. reload/restart through the configured command;
+4. fire the proof;
+5. restore the original value;
+6. reload/restart again and record the restore receipt.
+
+The default restart command for fixtures is:
+
+```bash
+openclaw gateway restart --safe --wait 10s
+```
+
+Override it with `OPENCLAW_GATEWAY_RESTART_CMD` for nonstandard deployments. The command must be self-contained for the target seat; do not bake frond-specific SSH, service, or workflow names into public row logic.
+
+Cost-cap boundary rows should take their low test value from `OPENCLAW_K6_COST_CAP_TEST_VALUE` when set, with a documented default in the row fixture. They must restore the original cap before emitting a fold-reviewable candidate artifact.
 
 ## Design principles
 

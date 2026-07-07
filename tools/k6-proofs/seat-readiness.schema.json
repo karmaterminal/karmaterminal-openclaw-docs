@@ -12,6 +12,7 @@
     "expectedK6Version",
     "k6",
     "gateway",
+    "continuation",
     "candidate",
     "seat",
     "session",
@@ -257,6 +258,60 @@
         },
         "source": {
           "type": "string"
+        }
+      }
+    },
+    "continuation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "enabled",
+        "defaultsPresent",
+        "maxChainLengthPresent",
+        "maxDelegatesPerTurnPresent",
+        "costCapTokensPresent",
+        "error"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "checked",
+            "unavailable"
+          ]
+        },
+        "enabled": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "defaultsPresent": {
+          "type": "boolean"
+        },
+        "maxChainLengthPresent": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "maxDelegatesPerTurnPresent": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "costCapTokensPresent": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "error": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
       }
     }

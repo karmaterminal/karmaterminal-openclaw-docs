@@ -33,10 +33,17 @@
     "configOverride": {
       "path": "agents.defaults.continuation.costCapTokens",
       "testValue": 1,
-      "restoreAfter": true
+      "restoreAfter": true,
+      "testValueEnv": "OPENCLAW_K6_COST_CAP_TEST_VALUE",
+      "defaultTestValue": "1"
     }
   },
   "expectedReceipts": [
+    {
+      "name": "seat-readiness-continuation-enabled",
+      "required": true,
+      "description": "Precursor seat-readiness report proves agents.defaults.continuation.enabled=true before config-mutating continuation proof"
+    },
     {
       "name": "config-lowered",
       "required": true,
@@ -63,7 +70,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Cost-cap boundary. PASS when rejection is delivered at the cap boundary. MUTATES config temporarily (costCapTokens\u21921 then restore). The reject IS the proof."
+    "notes": "Cost-cap boundary. PASS when rejection is delivered at the cap boundary. MUTATES config temporarily (costCapTokens\u21921 then restore). The reject IS the proof. Low cap value must be env-overridable via OPENCLAW_K6_COST_CAP_TEST_VALUE and restored after proof."
   },
   "liveRunSafety": {
     "classification": "orchestration-required",
@@ -75,11 +82,12 @@
     "sameSessionConcurrencySafe": false,
     "expectedArtifactClass": "PARTIAL-candidate",
     "requiredReceipts": [
+      "seat-readiness-continuation-enabled",
       "config-lowered",
       "tool-invoke-rejected",
       "config-restored"
     ],
     "foldRequiresReview": true,
-    "notes": "Config-mutating cost-cap boundary row. Do not expose as unattended k6-runnable on a live prince. Requires explicit mutation fixture or isolated gateway plus backup/restore."
+    "notes": "Config-mutating cost-cap boundary row. Do not expose as unattended k6-runnable on a live prince. Requires explicit mutation fixture or isolated gateway plus backup/restore. Restart/reload command must come from OPENCLAW_GATEWAY_RESTART_CMD when set; default fixture command is `openclaw gateway restart --safe --wait 10s`. Requires a precursor seat-readiness receipt proving continuation.enabled=true."
   }
 }

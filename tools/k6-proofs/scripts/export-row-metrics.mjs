@@ -108,17 +108,20 @@ function receiptRowsFrom({ result, manifest, runResult }) {
   // than row-result receipts. Expose that as the contract receipt the dashboard
   // knows how to show.
   const traceStatus = runResult?.observability?.traceStatus || result?.observability?.traceStatus;
-  if (traceStatus === 'missing' && !receipts.some((r) => r.name === 'tempo-trace-json')) {
-    receipts.push({ name: 'tempo-trace-json', required: true, status: 'missing' });
-  } else if (traceStatus === 'present' && !receipts.some((r) => r.name === 'tempo-trace-json')) {
-    receipts.push({ name: 'tempo-trace-json', required: true, status: 'present' });
-  }
 
   for (const name of manifest?.liveRunSafety?.requiredReceipts || []) {
     const safe = safeLabelValue(name);
     if (!receipts.some((r) => r.name === safe)) {
       receipts.push({ name: safe, required: true, status: 'unknown' });
     }
+  }
+
+  if (traceStatus === 'missing') {
+    const existing = receipts.find((r) => r.name === 'tempo-trace-json' || r.name === 'trace-id');
+    if (existing) existing.status = 'missing';
+  } else if (traceStatus === 'present') {
+    const existing = receipts.find((r) => r.name === 'tempo-trace-json' || r.name === 'trace-id');
+    if (existing) existing.status = 'present';
   }
 
   return receipts;

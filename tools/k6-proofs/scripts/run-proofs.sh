@@ -220,6 +220,7 @@ PY_EVIDENCE_JSONL
     TRACE_ID=""
     TEMPO_TRACE_JSON=""
     REVIEW_PENDING_RECEIPTS='[]'
+    TRACE_REQUIRED="$(jq -r '((.liveRunSafety.requiredReceipts // []) | map(ascii_downcase) | any(. == "trace-id" or . == "tempo-trace-json"))' "$MANIFEST_FILE")"
     if [[ -s "$RUN_DIR/evidence.jsonl" ]]; then
       if jq -e 'select(has("trace_id"))' "$RUN_DIR/evidence.jsonl" >/dev/null; then
         TRACE_ID="$(jq -r 'select((.trace_id // "") != "") | .trace_id' "$RUN_DIR/evidence.jsonl" | head -n 1)"
@@ -230,7 +231,9 @@ PY_EVIDENCE_JSONL
             echo "[$ROW_ID] TEMPO TRACE: $TEMPO_TRACE_JSON"
           else
             TRACE_STATUS="missing"
-            REVIEW_PENDING_RECEIPTS='["tempo-trace-json"]'
+            if [[ "$TRACE_REQUIRED" == "true" ]]; then
+              REVIEW_PENDING_RECEIPTS='["tempo-trace-json"]'
+            fi
             echo "[$ROW_ID] TEMPO TRACE FETCH FAILED; see $RUN_DIR/tempo-trace-error.log" >&2
             if [[ "${OPENCLAW_PROOFS_K6_TEMPO_REQUIRED:-false}" == "true" ]]; then
               exit 1
@@ -238,7 +241,9 @@ PY_EVIDENCE_JSONL
           fi
         else
           TRACE_STATUS="missing"
-          REVIEW_PENDING_RECEIPTS='["tempo-trace-json"]'
+          if [[ "$TRACE_REQUIRED" == "true" ]]; then
+            REVIEW_PENDING_RECEIPTS='["tempo-trace-json"]'
+          fi
         fi
       fi
     fi

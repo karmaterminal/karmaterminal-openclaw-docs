@@ -507,7 +507,7 @@
       "dir": "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-3/",
       "evidence_doc": "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-3/cael-dgx/EVIDENCE.md",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/235",
-      "note": "typed continue_delegate(mode=post-compaction) accepted and staged one durable row: status=queued, current_step=Staged for release after compaction, postCompaction=true, controller_id=core/continuation-post-compaction. Expected byte is queued-for-compaction; no forced compaction seam required.",
+      "note": "typed continue_delegate(mode=post-compaction) accepted and staged one durable row: status=queued, current_step=Staged for release after compaction, postCompaction=true, controller_id=core/continuation-post-compaction. Expected byte is queued-for-compaction; no forced compaction seam required. Addendum 2026-07-07: natural auto-compaction seam observed on Cael; four previously staged post-compaction delegates dispatched after compaction and targeted returns landed in the post-compaction Discord session. See seam-fired-20260707/README.md.",
       "row": "R-CD-3",
       "state": "pass",
       "supporting_docs": [
@@ -518,7 +518,11 @@
         "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-3/cael-dgx/version.txt",
         "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-3/cael-dgx/journal-window.txt",
         "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-3/cael-dgx/journal-marker-lines.txt",
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-3/cael-dgx/journal-delegate-lines.txt"
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-3/cael-dgx/journal-delegate-lines.txt",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-3/cael-dgx/seam-fired-20260707/README.md",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-3/cael-dgx/seam-fired-20260707/journal-seam-window.txt",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-3/cael-dgx/seam-fired-20260707/journal-post-compaction-lines.txt",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-3/cael-dgx/seam-fired-20260707/version.txt"
       ],
       "traces": [
         "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-3/cael-dgx/tempo/trace-461a2847af147a216a86af077010996b.json"

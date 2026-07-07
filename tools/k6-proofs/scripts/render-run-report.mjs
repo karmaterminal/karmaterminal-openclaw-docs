@@ -93,7 +93,6 @@ function receiptSummary({ manifest, runResult, evidenceRows }) {
   if (traceStatus === 'missing') {
     const existing = receipts.find((r) => r.name === 'tempo-trace-json' || r.name === 'trace-id');
     if (existing) existing.status = 'missing';
-    else receipts.push({ name: 'tempo-trace-json', required: true, status: 'missing' });
   }
   const evidence = evidenceRows[0] || {};
   for (const receipt of receipts) {

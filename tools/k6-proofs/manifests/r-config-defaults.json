@@ -3,30 +3,65 @@
   "rowId": "R-CONFIG-defaults",
   "issue": 104,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
-  "seat": "${OPENCLAW_SEAT_NAME:-emeric-nuc}",
-  "sessionKey": "${OPENCLAW_SESSION_KEY:***-config}",
-  "transport": "http-tools-invoke",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
   "toolSurface": "read-only",
   "mutates": false,
   "timeoutSeconds": 60,
   "scenario": {
-    "status": "scaffold",
-    "expectedFile": "r-config-defaults.js",
-    "registryNotes": "No runnable config/defaults scenario exists yet; this read-only manifest is scaffolded until a dedicated runner lands."
+    "name": "r-config-defaults",
+    "description": "Read-only continuation config defaults via gateway config.get tool from a disposable session.",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe"
+    ],
+    "status": "runnable",
+    "file": "r-config-defaults.js"
   },
   "expectedReceipts": [
-    { "name": "config-read", "required": true, "description": "Configuration read successful" }
+    {
+      "name": "config-read",
+      "required": true,
+      "description": "Configuration read successful"
+    },
+    {
+      "name": "continuation-values",
+      "required": true,
+      "description": "Continuation enabled/maxChainLength/maxDelegatesPerTurn/costCapTokens bytes observed"
+    }
   ],
   "artifactDestination": {
     "root": "PROOFS",
     "sha": "${OPENCLAW_CANDIDATE_SHA}",
     "row": "R-CONFIG-defaults",
-    "seat": "${OPENCLAW_SEAT_NAME:-emeric-nuc}",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
     "runDirPrefix": "k6-run"
   },
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Config defaults intersession row. Read-only."
+    "notes": "Config defaults row. Read-only; k6 path drives gateway config.get through an agent turn and records continuation config bytes."
+  },
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "config-read",
+      "continuation-values"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Read-only agent-mediated config.get row; disposable session recommended but no continuation scheduling or config mutation."
   }
 }

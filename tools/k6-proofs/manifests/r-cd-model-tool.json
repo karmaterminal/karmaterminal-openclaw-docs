@@ -2,7 +2,7 @@
   "schema": "openclaw.k6.proof-row-manifest.v1",
   "issue": 140,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
-  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
   "transport": "websocket",
   "mutates": false,
@@ -20,9 +20,11 @@
       "sessions.send",
       "sessions.messages.subscribe"
     ],
-    "status": "scaffold",
+    "status": "runnable",
     "expectedFile": "r-cd-model-tool.js",
-    "notes": "Alternate-model rows are blocked on karmaterminal/openclaw#1103 until the child runtime observes the requested model instead of inheriting gpt-5.5."
+    "notes": "Alternate-model rows are blocked on karmaterminal/openclaw#1103 until the child runtime observes the requested model instead of inheriting gpt-5.5.",
+    "file": "r-cd-model-tool.js",
+    "registryNotes": "Local scratch conversion: runnable k6 scenario exercises typed continue_delegate with explicit model override; honest-limit if runtime observes fallback/inheritance."
   },
   "invocation": {
     "tool": "continue_delegate",
@@ -76,5 +78,24 @@
     "candidateOnly": true,
     "foldRequiresReview": true,
     "notes": "PASS-candidate only when requested model byte and observed child model byte match. If #1103 reproduces, fold as HONEST-LIMIT-candidate with the mismatch evidence, not as pass."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "HONEST-LIMIT-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "dispatch-accepted",
+      "requested-model-byte",
+      "child-session-observed",
+      "child-model-byte",
+      "return-payload"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Explicit model override row. If child observes fallback/inherited model, package as HONEST-LIMIT with mismatch evidence, not pass."
   }
 }

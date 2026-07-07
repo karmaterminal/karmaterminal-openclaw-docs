@@ -100,11 +100,13 @@ GitHub Actions workflow choices. Current workflow-runnable basenames are:
 - `r-cd-model-token`
 - `r-cd-token-bracket-delegate`
 - `r-config-defaults`
+- `r-config-intersession`
 - `r-cw-1-tool-schedule-wake`
 - `r-cw-4-chain-depth`
 - `r-cw-delegate-self-continuation`
 - `r-cw-token-bracket`
 - `r-obs-status`
+- `r-obs-2`
 - `r-rc-1`
 - `r-cw`
 

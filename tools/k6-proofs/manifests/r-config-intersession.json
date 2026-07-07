@@ -5,24 +5,31 @@
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
-  "transport": "offline",
+  "transport": "websocket",
   "toolSurface": "read-only",
   "mutates": false,
-  "timeoutSeconds": 0,
+  "timeoutSeconds": 60,
   "scenario": {
     "name": "r-config-intersession",
-    "description": "intersession configuration manual proof row. Registered to keep the executable-suite manifest catalog aligned with the 29-row manual proof corpus; not an unattended k6 scenario yet.",
+    "description": "Read-only continuation cross-session targeting config receipt via gateway config.get from a disposable session.",
     "methods": [
-      "manual-corpus-review"
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe"
     ],
-    "status": "construct-only",
-    "notes": "Construct-only registry entry. The current PROOFS corpus carries manual evidence for this row; promote to scaffold/runnable only after a reviewed k6 fixture exists."
+    "status": "runnable",
+    "file": "r-config-intersession.js"
   },
   "expectedReceipts": [
     {
-      "name": "manual-row-corpus-receipt",
+      "name": "config-read",
       "required": true,
-      "description": "Current PROOFS/<sha> corpus contains reviewed manual evidence for this row."
+      "description": "Configuration read successful"
+    },
+    {
+      "name": "cross-session-targeting",
+      "required": true,
+      "description": "agents.defaults.continuation.crossSessionTargeting byte observed"
     }
   ],
   "artifactDestination": {
@@ -35,21 +42,27 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Catalog coverage entry only. Does not make the row runnable and does not change the canonical PROOFS corpus."
+    "notes": "Config intersession row. Read-only; k6 path drives gateway config.get through an agent turn and records crossSessionTargeting."
   },
   "liveRunSafety": {
-    "classification": "construct-only",
-    "requiresLiveGatewayToken": false,
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
     "requiresTargetSessionKey": false,
-    "requiresCandidateSha": false,
+    "requiresCandidateSha": true,
     "requiresExternalAgentOrToolInvocation": false,
     "requiresHumanConfirmation": false,
     "sameSessionConcurrencySafe": true,
-    "expectedArtifactClass": "construct-only",
+    "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
-      "manual-row-corpus-receipt"
+      "seat-readiness",
+      "config-read",
+      "cross-session-targeting"
     ],
     "foldRequiresReview": true,
-    "notes": "Not included in --live-suite. This entry exists so every current manual proof row has an explicit manifest record."
+    "notes": "Read-only agent-mediated config.get row; disposable session recommended but no continuation scheduling or config mutation."
+  },
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
   }
 }

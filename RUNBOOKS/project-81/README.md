@@ -19,21 +19,35 @@ cd tools/k6-proofs
 ./scripts/run-proofs.sh --dry-run all <candidate-sha>
 ```
 
-As of docs `main@f99f2ea`, `all` expands to:
+As of the post-#306/#307 Project 81 surface, the broad live slice is:
 
 ```text
-preflight,R-CD-2,R-CD-4,R-CD-CHAINED-DEPTH-2,R-OBS-status
+R-CD-1,R-CD-2,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-TOKEN,R-CONFIG-defaults,R-CW-1,R-CW-4,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-TOKEN,R-OBS-status,R-RC-1
 ```
+
+`preflight` remains `static-preflight-only`: the runner performs seat-readiness preflight for live runs, but the preflight manifest row is intentionally skipped by live-run guard.
 
 Use this directory as the accumulator. When a scaffold row becomes runnable, add or update `RUNBOOKS/project-81/rows/<ROW>.md` in the same PR as the scenario/manifest change.
 
 ## Current runnable row runbooks
 
-- [preflight](rows/preflight.md)
+- [preflight](rows/preflight.md) — static preflight / seat-readiness helper
+- [R-CD-1](rows/R-CD-1.md)
 - [R-CD-2](rows/R-CD-2.md)
 - [R-CD-4](rows/R-CD-4.md)
 - [R-CD-CHAINED-DEPTH-2](rows/R-CD-CHAINED-DEPTH-2.md)
+- [R-CD-MODEL-CHAINED-ALT](rows/R-CD-MODEL-CHAINED-ALT.md)
+- [R-CD-MODEL-DEFAULT](rows/R-CD-MODEL-DEFAULT.md)
+- [R-CD-MODEL-TOKEN](rows/R-CD-MODEL-TOKEN.md)
+- [R-CD-MODEL-TOOL](rows/R-CD-MODEL-TOOL.md)
+- [R-CD-TOKEN](rows/R-CD-TOKEN.md)
+- [R-CONFIG-defaults](rows/R-CONFIG-defaults.md)
+- [R-CW-1](rows/R-CW-1.md)
+- [R-CW-4](rows/R-CW-4.md)
+- [R-CW-DELEGATE-SELF-CONTINUATION](rows/R-CW-DELEGATE-SELF-CONTINUATION.md)
+- [R-CW-TOKEN](rows/R-CW-TOKEN.md)
 - [R-OBS-status](rows/R-OBS-status.md)
+- [R-RC-1](rows/R-RC-1.md)
 
 ## Shared execution pattern
 

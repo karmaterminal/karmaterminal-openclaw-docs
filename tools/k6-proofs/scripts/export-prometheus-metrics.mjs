@@ -142,8 +142,12 @@ function normalizeRun(root, resultPath) {
     candidate_sha: candidateSha,
     scenario,
   };
-  const runLabels = {
+  const runScoped = {
     ...base,
+    run_id: runId,
+  };
+  const runLabels = {
+    ...runScoped,
     tool_surface: toolSurface,
     transport,
     outcome,
@@ -154,10 +158,10 @@ function normalizeRun(root, resultPath) {
 
   const lines = [];
   lines.push(metric('openclaw_proofs_k6_run_total', runLabels, 1));
-  lines.push(metric('openclaw_proofs_k6_proof_failures_total', { ...base, failure_class: failureClass }, proofFailures));
-  lines.push(metric('openclaw_proofs_k6_duration_ms', { ...base, outcome }, durationMs));
-  lines.push(metric('openclaw_proofs_k6_checks_rate', base, checksRate));
-  lines.push(metric('openclaw_proofs_k6_candidate_pending_review', { row_id: rowId, seat, candidate_sha: candidateSha, outcome }, candidateOnly && foldRequiresReview ? 1 : 0));
+  lines.push(metric('openclaw_proofs_k6_proof_failures_total', { ...runScoped, failure_class: failureClass }, proofFailures));
+  lines.push(metric('openclaw_proofs_k6_duration_ms', { ...runScoped, outcome }, durationMs));
+  lines.push(metric('openclaw_proofs_k6_checks_rate', runScoped, checksRate));
+  lines.push(metric('openclaw_proofs_k6_candidate_pending_review', { row_id: rowId, seat, candidate_sha: candidateSha, run_id: runId, outcome, fold_requires_review: boolLabel(foldRequiresReview) }, candidateOnly && foldRequiresReview ? 1 : 0));
 
   const receipts = Array.isArray(result.receipts) ? [...result.receipts] : [];
   const pending = result.review?.pendingReceipts || summary.review?.pendingReceipts || [];

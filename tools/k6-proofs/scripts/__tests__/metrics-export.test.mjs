@@ -57,8 +57,9 @@ test('exports row-result.json to the public-safe Prometheus/OTLP contract', asyn
     ]));
 
     const promText = await readFile(prom, 'utf8');
-    assert.match(promText, /openclaw_proofs_k6_run_total\{/);
+    assert.match(promText, /openclaw_proofs_k6_run_total\{[^\n]*run_id="k6-run-unit"/);
     assert.match(promText, /row_id="R-CD-2"/);
+    assert.match(promText, /openclaw_proofs_k6_candidate_pending_review\{[^\n]*run_id="k6-run-unit"[^\n]*fold_requires_review="true"[^\n]*\} 1/);
     assert.match(promText, /receipt_name="tempo-trace-json"/);
     assert.match(promText, /receipt_status="missing"\} 0/);
     assert.doesNotMatch(promText, /agent:main|Proof nonce|Authorization|TOKEN|\/tmp\//);
@@ -117,7 +118,8 @@ test('exports row-list runner directory and marks trace-missing as pending recei
     const receipt = JSON.parse(run.stdout);
     assert.equal(receipt.outcome, 'PASS-candidate');
     const promText = await readFile(prom, 'utf8');
-    assert.match(promText, /openclaw_proofs_k6_candidate_pending_review\{[^\n]*\} 1/);
+    assert.match(promText, /openclaw_proofs_k6_run_total\{[^\n]*run_id="20260707T133429Z-r-cd-2"/);
+    assert.match(promText, /openclaw_proofs_k6_candidate_pending_review\{[^\n]*run_id="20260707T133429Z-r-cd-2"[^\n]*fold_requires_review="true"[^\n]*\} 1/);
     assert.match(promText, /receipt_name="tempo-trace-json"/);
     assert.match(promText, /receipt_status="missing"\} 0/);
     assert.match(promText, /receipt_name="dispatch-accepted"[^\n]*receipt_status="present"[^\n]*\} 1/);

@@ -2,6 +2,16 @@
 
 This dashboard tracks the execution outcomes of Project 81 candidate runs, providing visibility into the public-safe k6 PROOFS metrics contract in `METRICS.md`. The committed dashboard JSON is the Prometheus/metric-contract view; static `row-result.json` artifacts remain the source format that post-processing and future exporters derive from.
 
+## Temporal contract
+
+The dashboard has three distinct views, and panel names/descriptions should keep them separate:
+
+- **Provenance view:** all samples, including red/partial history. This is audit history and should not be hidden.
+- **Current-candidate view:** group by `row_id`, `seat`, `candidate_sha`, and `run_id`, then select the newest receipt while preserving `outcome` / `failure_class`. This answers latest-candidate state, not all-time health.
+- **Fold-readiness view:** latest `PASS-candidate` plus artifact/report receipt, no required receipt missing/unknown for that `run_id`, and explicit human review signoff. If `fold_requires_review="true"`, visual green means “ready for review,” never “canonical.”
+
+Prometheus is not the merge button for canonical `PROOFS/**`; it is the review queue and provenance surface.
+
 ## 1. Panel List
 
 The dashboard consists of 10 panels designed to monitor run outcomes, performance durations, required artifacts (receipts), and human-review bottlenecks. 
@@ -32,7 +42,7 @@ The dashboard consists of 10 panels designed to monitor run outcomes, performanc
 * **Viz Type:** State Timeline (or filtered Table)
 * **Fields Read:** `candidateOnly`, `foldRequiresReview`, `generatedAt`
 * **Group By:** `rowId`, `candidateSha`
-* **Purpose:** Highlights specific rows where `candidateOnly == true` and `foldRequiresReview == true` that require human sign-off before being folded into the corpus.
+* **Purpose:** Highlights specific rows where `candidateOnly == true` and `foldRequiresReview == true` that require human sign-off before being folded into the corpus. Visual green here means ready for review, not canonical.
 
 ### Panel 5: Proof Failures by Tool Surface
 * **Title:** Proof Failure Hotspots

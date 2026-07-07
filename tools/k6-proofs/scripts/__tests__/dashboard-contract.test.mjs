@@ -47,6 +47,20 @@ test('committed Grafana dashboard uses the Project 81 public-safe metric contrac
   }
 });
 
+test('dashboard exposes temporal current-vs-provenance-vs-review semantics', async () => {
+  const dashboard = JSON.parse(await readFile(dashboardPath, 'utf8'));
+  const expressions = collectTargets(dashboard).map((target) => target.expr || '').join('\n');
+  const descriptions = dashboard.panels.map((panel) => `${panel.title}\n${panel.description || ''}`).join('\n');
+
+  assert.match(descriptions, /Provenance outcomes \(all samples\)/);
+  assert.match(descriptions, /Current-candidate view/);
+  assert.match(descriptions, /ready for human review, not canonical PROOFS fold/);
+  assert.match(expressions, /topk by \(row_id, seat, candidate_sha\)/);
+  assert.match(expressions, /timestamp\(openclaw_proofs_k6_run_total/);
+  assert.match(expressions, /run_id/);
+  assert.match(expressions, /fold_requires_review="true"/);
+});
+
 test('dashboard variables stay on public-safe proof labels', async () => {
   const dashboard = JSON.parse(await readFile(dashboardPath, 'utf8'));
   const variableNames = new Set((dashboard.templating?.list || []).map((item) => item.name));

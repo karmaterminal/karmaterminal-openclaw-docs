@@ -32,6 +32,7 @@ Allowed metric labels are low-cardinality and non-secret:
 - `tool_surface` — `typed-tool`, `bracket-token`, etc.
 - `transport` — `websocket`, etc.
 - `outcome` — `PASS-candidate`, `HONEST-LIMIT-candidate`, `FAIL-candidate`
+- `run_id` — proof-run artifact id; required for latest/current views and receipt joins
 - `candidate_only` — `true` / `false`
 - `fold_requires_review` — `true` / `false`
 - `receipt_name` — manifest receipt id, for example `tool-invoke-accepted`
@@ -52,6 +53,16 @@ Do **not** put these values in metric labels, logs intended for public artifacts
 - hostnames or IPs that are not already public-safe in the artifact corpus
 
 If a field is useful for debugging but not public-safe, store it only in private scratch, not in committed `PROOFS/` artifacts or exported metrics.
+
+## Temporal query contract
+
+Dashboards must keep three temporal meanings separate:
+
+1. **Provenance view** — show every emitted sample, including red, partial, and parser-history samples. This is audit history; do not collapse it into the latest verdict.
+2. **Current-candidate view** — group by `row_id`, `seat`, `candidate_sha`, and `run_id`, then select the most recent run sample while preserving its `outcome` / `failure_class` labels. This view answers “what is the latest candidate receipt for this row/seat/SHA?”
+3. **Fold-readiness view** — require all of: latest run `outcome="PASS-candidate"`, artifact/report receipt present, no required receipt missing/unknown for that `run_id`, and explicit human review signoff.
+
+`fold_requires_review="true"` overrides any visual green. A green panel means “ready for review,” not “canonical PROOFS fold.” Prometheus is an observability surface, not an accidental merge button.
 
 ## Artifact JSON fields
 
@@ -112,6 +123,7 @@ Labels:
 - `transport`
 - `outcome`
 - `candidate_only`
+- `run_id`
 - `fold_requires_review`
 - `failure_class`
 
@@ -126,6 +138,7 @@ Labels:
 - `row_id`
 - `seat`
 - `candidate_sha`
+- `run_id`
 - `scenario`
 - `failure_class`
 
@@ -140,6 +153,7 @@ Labels:
 - `row_id`
 - `seat`
 - `candidate_sha`
+- `run_id`
 - `scenario`
 - `outcome`
 
@@ -154,6 +168,7 @@ Labels:
 - `row_id`
 - `seat`
 - `candidate_sha`
+- `run_id`
 - `scenario`
 
 Value: 0..1.
@@ -177,7 +192,7 @@ Value:
 - `1` when `receipt_status="present"`
 - `0` when `receipt_status="missing"` or `"unknown"`
 
-Keep `run_id` only on receipt metrics where per-run drilling is useful; avoid adding it to high-volume counters.
+Keep `run_id` on per-run proof metrics so current-candidate and fold-readiness views can join outcomes to receipt state without treating historical red/partial samples as the current verdict.
 
 ### `openclaw_proofs_k6_candidate_pending_review`
 
@@ -188,7 +203,9 @@ Labels:
 - `row_id`
 - `seat`
 - `candidate_sha`
+- `run_id`
 - `outcome`
+- `fold_requires_review`
 
 Value:
 
@@ -212,9 +229,10 @@ Recommended panels:
 2. **Row × seat matrix** — latest outcome per row and seat.
 3. **Proof failures** — `proof_failures` by row / seat.
 4. **Duration / timeout watch** — p95 or latest `duration_ms` by row / seat.
-5. **Receipt completeness** — required receipt present/missing matrix.
-6. **Pending human review** — count of candidate-only runs not yet folded.
-7. **Recent runs table** — run id, generated time, SHA, row, seat, outcome, failure class.
+5. **Temporal current-candidate table** — latest run per `row_id` / `seat` / `candidate_sha` / `run_id`, preserving `outcome` semantics.
+6. **Receipt completeness** — required receipt present/missing matrix.
+7. **Pending human review** — count of candidate-only runs not yet folded.
+8. **Recent runs table** — run id, generated time, SHA, row, seat, outcome, failure class.
 
 ## Deployment surface
 

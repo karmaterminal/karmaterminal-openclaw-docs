@@ -42,8 +42,16 @@ if (!failures.length) {
   }
 }
 
+const proofRowUpperSet = new Set(proofRows.map((r) => r.toUpperCase()));
 const manifestByUpper = new Map(manifestRows.map((row) => [row.rowId.toUpperCase(), row]));
 const missing = proofRows.filter((row) => !manifestByUpper.has(row.toUpperCase()));
+
+// Manifest-only rows: in the live-suite manifest catalog but not yet in the canonical proof
+// board corpus (e.g. model-override rows, R-CW-4, R-OBS-status). These are k6-runnable
+// candidates pending a canonical fold — they are intentional, not gaps.
+const manifestOnly = manifestRows.filter(
+  (row) => row.rowId !== 'preflight' && !proofRowUpperSet.has(row.rowId.toUpperCase()),
+);
 
 if (missing.length) {
   failures.push(`proof rows missing manifest entries: ${missing.join(', ')}`);
@@ -54,6 +62,13 @@ console.log(`Proof rows: ${proofRows.length}`);
 console.log(`Manifest entries: ${manifestRows.length}`);
 if (missing.length) console.log(`Missing manifests: ${missing.join(', ')}`);
 else console.log('Missing manifests: 0');
+if (manifestOnly.length) {
+  console.log(
+    `Manifest-only (live-suite but not yet on proof board): ${manifestOnly.map((r) => r.rowId).join(', ')}`,
+  );
+} else {
+  console.log('Manifest-only rows: 0');
+}
 
 if (failures.length) {
   console.error('\nProof row manifest coverage check failed:');

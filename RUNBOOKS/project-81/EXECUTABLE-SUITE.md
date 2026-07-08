@@ -2,7 +2,7 @@
 
 Goal: give a reviewer or maintainer a small, repeatable path from a normal OpenClaw checkout to a candidate proof bundle.
 
-This quickstart intentionally covers only unattended `k6-runnable` rows. Rows marked `orchestration-required`, `scaffold`, or `construct-only` stay out of the broad suite until a reviewed fixture exists. The manifest catalog still records every current manual PROOFS row so the public surface explains the full 29-row corpus, not only the currently automated subset.
+This quickstart intentionally covers unattended `k6-runnable` rows. At this catalog floor the unattended suite resolves to 35 rows, but that does **not** mean 35 fresh live behavior captures: the suite includes live WebSocket rows, read-only/status rows, offline static committed-packet validators, and threshold/honest-limit canaries. Rows that still require an accepted-path fixture remain documented as review debt instead of being over-claimed.
 
 ## 1. Install k6
 
@@ -45,11 +45,13 @@ ROWS="$(node scripts/list-runnable-rows.mjs --live-suite)"
 printf '%s\n' "$ROWS"
 ```
 
-This excludes static preflight and any `orchestration-required` rows. As of this catalog, it prints the 19-row broad live suite:
+This excludes the static preflight helper. As of this catalog, it prints the 35-row unattended suite:
 
 ```text
-R-CD-1,R-CD-2,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-TOKEN,R-CONFIG-defaults,R-CONFIG-INTERSESSION,R-CW-1,R-CW-4,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-status,R-RC-1
+R-CD-1,R-CD-2,R-CD-3,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-COLLECTION-ON-COLLAPSE,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-RETURN-OVERLAP,R-CD-SILENT,R-CD-TOKEN,R-CONFIG-defaults,R-CONFIG-INTERSESSION,R-CW-1,R-CW-2,R-CW-3,R-CW-4,R-CW-5,R-CW-6,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI-COLLAPSE,R-CW-MULTI,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-status,R-RC-1,R-RC-2,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121
 ```
+
+Treat that list as a runnable review queue, not a single proof class. `transport=offline` rows parse committed proof packets; `HONEST-LIMIT-candidate` rows prove the safe reachable canary path when the full behavior needs a fixture.
 
 ## GitHub Actions option
 
@@ -103,12 +105,14 @@ node scripts/check-proof-row-manifests.mjs
 
 Fetch Tempo trace JSON when a row records a non-null trace id. If a row records `traceId: null`, treat trace JSON as unavailable review debt or an honest limit; do not invent a fetchable trace.
 
-## Held rows
+## Coverage caveats
 
-These rows are intentionally excluded from the broad unattended suite:
+No Project 81 proof row is currently hidden from `live-suite` because of a `scaffold`, `construct-only`, or `orchestration-required` manifest. `preflight` remains outside the suite because it is the static readiness helper.
 
-- `R-CD-3` — post-compaction seam lifecycle; staging is proven, full seam is captured as review addenda when naturally observed.
-- `R-CD-COLLECTION-ON-COLLAPSE` — detached intermediate/root collection semantics need reviewed fixture.
-- `R-CW-5` — cost-cap config mutation requires backup/restore and explicit confirmation.
-- `R-CW-6` — max-chain config mutation/restart requires backup/restore and explicit confirmation.
-- `R-RC-2` — request_compaction accept path mutates session context and must be serialized under human-confirmed fixture.
+Several rows are runnable only as bounded review candidates:
+
+- `R-CD-3` stages the post-compaction lifeboat and accepts threshold refusal as an honest limit; a naturally accepted compaction seam remains review debt until a fixture drives the over-threshold path.
+- `R-RC-2` proves delegated `request_compaction` reaches the child and returns a structured threshold rejection in ordinary disposable sessions; accepted compaction is a separate fixture problem.
+- `R-CD-COLLECTION-ON-COLLAPSE`, `R-CW-5`, `R-CW-6`, and `R-CW-MULTI-COLLAPSE` are static committed-packet validators. They make historical proof packets mechanically checkable; they do not mutate config or rerun the original live collapse/cost-cap/max-chain behavior.
+
+If a future PR adds an accepted-compaction or config-mutating live fixture, it must include backup/restore or isolated-temp-state receipts before claiming a fresh live PASS.

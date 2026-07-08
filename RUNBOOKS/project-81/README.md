@@ -21,17 +21,19 @@ cd tools/k6-proofs
 
 For an external/reviewer-facing path from “install k6” to “run the unattended suite,” use [EXECUTABLE-SUITE.md](EXECUTABLE-SUITE.md).
 
-As of the post-#306/#307 Project 81 surface, the broad live slice is:
+As of the current Project 81 surface, `list-runnable-rows --live-suite` resolves to 35 unattended rows:
 
 ```text
-R-CD-1,R-CD-2,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-SILENT,R-CD-TOKEN,R-CONFIG-defaults,R-CONFIG-INTERSESSION,R-CW-1,R-CW-2,R-CW-3,R-CW-4,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-status,R-RC-1
+R-CD-1,R-CD-2,R-CD-3,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-COLLECTION-ON-COLLAPSE,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-RETURN-OVERLAP,R-CD-SILENT,R-CD-TOKEN,R-CONFIG-defaults,R-CONFIG-INTERSESSION,R-CW-1,R-CW-2,R-CW-3,R-CW-4,R-CW-5,R-CW-6,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI-COLLAPSE,R-CW-MULTI,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-status,R-RC-1,R-RC-2,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121
 ```
+
+That count is a runner surface, not a proof-class claim. It includes fresh live WebSocket rows, read-only/status probes, offline static committed-packet validators, and threshold/honest-limit canaries. A `PASS-candidate` or `HONEST-LIMIT-candidate` still needs row-specific review before any canonical fold.
 
 `preflight` remains `static-preflight-only`: the runner performs seat-readiness preflight for live runs, but the preflight manifest row is intentionally skipped by live-run guard.
 
-Use this directory as the accumulator. When a scaffold row becomes runnable, add or update `RUNBOOKS/project-81/rows/<ROW>.md` in the same PR as the scenario/manifest change.
+Use this directory as the accumulator. When a scaffold row becomes runnable, add or update `RUNBOOKS/project-81/rows/<ROW>.md` or a fixture note in the same PR as the scenario/manifest change. Static committed-packet validators may stay manifest-driven when the manifest and executable-suite docs already describe the review caveat.
 
-## Current runnable row runbooks
+## Current row runbooks
 
 - [preflight](rows/preflight.md) — static preflight / seat-readiness helper
 - [R-CD-1](rows/R-CD-1.md)
@@ -56,6 +58,8 @@ Use this directory as the accumulator. When a scaffold row becomes runnable, add
 - [R-OBS-2](rows/R-OBS-2.md)
 - [R-OBS-status](rows/R-OBS-status.md)
 - [R-RC-1](rows/R-RC-1.md)
+
+Rows promoted as static committed-packet validators or honest-limit canaries may be runnable from manifests before they have a dedicated per-row runbook. In that case, use the manifest, `EXECUTABLE-SUITE.md`, and the generated candidate report as the review surface.
 
 ## Shared execution pattern
 

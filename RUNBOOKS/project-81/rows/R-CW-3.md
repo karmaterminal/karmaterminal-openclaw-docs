@@ -24,7 +24,7 @@ OPENCLAW_CREATE_DISPOSABLE_SESSION=true \
 
 - Dispatching `sessions.send` accepted.
 - Agent emits `CW3-SCHEDULED <nonce>` only after `continue_work` reports scheduled.
-- Continuation wake emits `CW3-WOKE <nonce>`.
+- Continuation wake emits `CW3-WOKE <nonce>`; the observer stays open up to 10 minutes because quiet/disposable seats can deliver the elected wake several minutes late under active-lane pressure.
 - Public k6 evidence drops the raw reason field/sentinel rather than committing it.
 
 ## Review collection still needed
@@ -55,4 +55,4 @@ R-CW-3 is not an unattended PASS row. The runner may execute it safely, but cano
 
 ## 2026-07-07 smoke note
 
-Disposable-session smoke on `ronan` accepted dispatch and observed `CW3-SCHEDULED`, but did not observe `CW3-WOKE` within the k6 window. This is partial only. Even with a wake, R-CW-3 remains `HONEST-LIMIT-candidate` until Tempo trace JSON is fetched/reviewed for safe reason attrs present and raw reason absent.
+Disposable-session smoke on `ronan` accepted dispatch and observed `CW3-SCHEDULED`, but did not observe `CW3-WOKE` within the original short k6 window. A later session-history receipt showed the elected wake landed about eight minutes late and emitted `CW3-WOKE`; the scenario now keeps the observer open for 10 minutes to reduce false PARTIALs from delayed continuation delivery. Even with a wake, R-CW-3 remains `HONEST-LIMIT-candidate` until Tempo trace JSON is fetched/reviewed for safe reason attrs present and raw reason absent.

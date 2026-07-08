@@ -2,12 +2,12 @@
   "candidateSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
   "child_model_byte": null,
   "child_model_source": null,
-  "child_session_observed": false,
+  "child_session_observed": true,
   "created_session_key": "agent:main:r-cd-model-tool-r-cd-model-tool-1783518974297-n5ete2li",
   "dispatch_accepted": true,
   "duration_ms": 180585,
   "ended": "2026-07-08T13:59:14.882Z",
-  "honest_limit_reason": null,
+  "honest_limit_reason": "model override github-copilot/claude-sonnet-4.6 is not allowed for agent main; child subagent failed before emitting a child model byte",
   "manifest_loaded": true,
   "model_matches": false,
   "nonce": "R-CD-MODEL-TOOL-1783518974297-n5ete2li",
@@ -21,5 +21,8 @@
   "sessionKey": "agent:main:r-cd-model-tool-r-cd-model-tool-1783518974297-n5ete2li",
   "session_created": true,
   "started": "2026-07-08T13:56:14.297Z",
-  "trace_id": null
+  "trace_id": null,
+  "child_session_key": "agent:main:subagent:continuation-e20df10abf2921994f444280446b9e24",
+  "child_run_status": "failed",
+  "child_error": "Error: Model override \"github-copilot/claude-sonnet-4.6\" is not allowed for agent \"main\"."
 }

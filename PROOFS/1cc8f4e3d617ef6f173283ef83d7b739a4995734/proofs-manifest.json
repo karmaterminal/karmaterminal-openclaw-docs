@@ -1,5 +1,5 @@
 {
-  "build_string": "OpenClaw 2026.6.11 (1cc8f4e) \u2014 transposed from bca2b0b proof corpus after 04857c/a04b6 upstream drift absorb and local validation-loop terminal diagnostic fix",
+  "build_string": "OpenClaw 2026.6.11 (1cc8f4e) — transposed from bca2b0b proof corpus after 04857c/a04b6 upstream drift absorb and local validation-loop terminal diagnostic fix",
   "capture_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
   "fire_type": "transposed-fresh-fire-corpus",
   "generated_by": "frond-scribe (copilot)",
@@ -7,9 +7,9 @@
   "notes": "TRANSPOSED corpus: raw row evidence was fired on bca2b0b; this full copied corpus is carried to 1cc8f4e after the prior presentation candidate was superseded by the branch-owned validation-loop terminal diagnostic fix plus upstream/main@04857c78ee7 and @a04b6ced4f9 drift absorbs. Targeted local checks passed: exact tui-pty validation-loop abort diagnostic case, embedded-agent subscribe lifecycle/messages tests, embedded backend tests, tool-error-summary tests, agent-runner execution/payload/e2e tests, cron store, UI chat-message, affected tooling shards, docs map check, native i18n check, plugin SDK surface --check, and git diff --check. Gate logs are in gates/ and show 0 FROZEN-STALE with counts 127 SAFE-NEW / 143 GENUINE / 89 MIXED-CLOBBER. COMPLETE corpus. R-CD-CHAINED-DEPTH-2 superseding rerun remains PASS; R-CD-COLLECTION-ON-COLLAPSE PASS; R-CW-7 direct exact-head source/test proof is PASS; R-RC-2 remains honest_limit. R-CD-RETURN-OVERLAP remains PASS-with-caveat for docs#246. Added 2026-07-08 Cael k6 live-candidate receipts for six manifest-only rows from artifact root /tmp/p81-six-live-20260708T135511Z; five are PASS-candidate and R-CD-MODEL-TOOL is partial pending observer/trace review.",
   "rollup": {
     "fail": 0,
-    "honest_limit": 1,
+    "honest_limit": 2,
     "missing": 0,
-    "partial": 1,
+    "partial": 0,
     "pass": 33,
     "thin": 0,
     "total_rows": 35
@@ -708,9 +708,9 @@
       "dir": "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-MODEL-TOOL/",
       "evidence_doc": "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-MODEL-TOOL/cael-dgx/EVIDENCE.md",
       "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/341",
-      "note": "PARTIAL-candidate: typed continue_delegate(model=github-copilot/claude-sonnet-4.6) parent scheduled, but observer did not see child session/model/return payload inside 180s.",
+      "note": "HONEST-LIMIT-candidate: typed continue_delegate(model=github-copilot/claude-sonnet-4.6) parent scheduled, but child subagent failed before model byte because the model override is not allowed for agent main; not a PASS.",
       "row": "R-CD-MODEL-TOOL",
-      "state": "partial",
+      "state": "honest_limit",
       "supporting_docs": [
         "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-MODEL-TOOL/cael-dgx/EVIDENCE.md",
         "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-MODEL-TOOL/cael-dgx/run-result.json",
@@ -719,7 +719,11 @@
         "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-MODEL-TOOL/cael-dgx/seat-readiness.json",
         "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-MODEL-TOOL/cael-dgx/evidence-summary.json",
         "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-MODEL-TOOL/cael-dgx/metrics-export.json",
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-MODEL-TOOL/cael-dgx/k6/k6.log"
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-MODEL-TOOL/cael-dgx/k6/k6.log",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-MODEL-TOOL/cael-dgx/model-not-allowed-diagnosis/README.md",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-MODEL-TOOL/cael-dgx/model-not-allowed-diagnosis/flow-runs-model-not-allowed.json",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-MODEL-TOOL/cael-dgx/model-not-allowed-diagnosis/subagent-runs-model-not-allowed.json",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-MODEL-TOOL/cael-dgx/model-not-allowed-diagnosis/task-runs-model-not-allowed.json"
       ],
       "traces": []
     },

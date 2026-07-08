@@ -75,7 +75,14 @@ export OPENCLAW_RUNTIME_BUILD_SHA="$DEPLOYED_BUILD_STAMP"
 # Resolve Session Key
 if [[ -z "${OPENCLAW_SESSION_KEY:-}" ]]; then
   echo "Resolving session key for selector: $SESSION_SELECTOR"
-  export OPENCLAW_SESSION_KEY="main" # Fallback/stub. In a full implementation this shells out to `openclaw sessions --json`
+  case "$SESSION_SELECTOR" in
+    main|agent:*)
+      export OPENCLAW_SESSION_KEY="$SESSION_SELECTOR"
+      ;;
+    *)
+      export OPENCLAW_SESSION_KEY="main" # Fallback/stub. In a full implementation this shells out to `openclaw sessions --json`
+      ;;
+  esac
 fi
 
 echo "=========================================================="

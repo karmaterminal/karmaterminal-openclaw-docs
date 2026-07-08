@@ -5,7 +5,7 @@
 #          ./run-proof.sh r-cd-1 --env GATEWAY_HOST=10.0.0.246
 #
 # Outputs:
-#   - Metrics → Prometheus (prometheus.dandelion.cult) → Grafana
+#   - Metrics → ${OPENCLAW_PROOFS_PROMETHEUS_RW_URL:-Prometheus remote write} → Grafana
 #   - Logs → stdout + Loki (via journal)
 #   - Summary → ./<scenario>-summary.json + report.html (if handleSummary defined)
 
@@ -45,13 +45,19 @@ fi
 SEAT="${OPENCLAW_SEAT_NAME:-${PROOF_SEAT:-$(hostname)}}"
 SHA="${OPENCLAW_CANDIDATE_SHA:-${PROOF_SHA:-$(openclaw --version 2>/dev/null | awk '{print $3}' | tr -d '()' || echo 'unknown')}}"
 
-# Prometheus Remote Write target
-PROM_URL="${K6_PROMETHEUS_RW_SERVER_URL:-http://prometheus.dandelion.cult/api/v1/write}"
+# Portable observability endpoints. Fleet defaults keep current prince behavior, while
+# OPENCLAW_PROOFS_* env vars let reviewers point the suite at their own stack.
+TEMPO_BASE_URL="${OPENCLAW_PROOFS_TEMPO_BASE_URL:-${TEMPO_BASE_URL:-http://tempo.dandelion.cult}}"
+LOKI_BASE_URL="${OPENCLAW_PROOFS_LOKI_BASE_URL:-${LOKI_BASE_URL:-http://loki.dandelion.cult}}"
+PROMETHEUS_BASE_URL="${OPENCLAW_PROOFS_PROMETHEUS_BASE_URL:-${PROMETHEUS_BASE_URL:-http://prometheus.dandelion.cult}}"
+PROM_URL="${OPENCLAW_PROOFS_PROMETHEUS_RW_URL:-${K6_PROMETHEUS_RW_SERVER_URL:-${PROMETHEUS_BASE_URL%/}/api/v1/write}}"
 
 echo "═══════════════════════════════════════════════════════"
 echo " k6 PROOFS: ${SCENARIO}"
 echo " Seat: ${SEAT} | SHA: ${SHA}"
-echo " Prometheus: ${PROM_URL}"
+echo " Prometheus RW: ${PROM_URL}"
+echo " Tempo: ${TEMPO_BASE_URL}"
+echo " Loki: ${LOKI_BASE_URL}"
 echo "═══════════════════════════════════════════════════════"
 
 exec k6 run "${SCENARIO_FILE}" \
@@ -61,4 +67,10 @@ exec k6 run "${SCENARIO_FILE}" \
   --env "OPENCLAW_CANDIDATE_SHA=${SHA}" \
   --env "OPENCLAW_SEAT_NAME=${SEAT}" \
   --env "K6_PROMETHEUS_RW_SERVER_URL=${PROM_URL}" \
+  --env "OPENCLAW_PROOFS_TEMPO_BASE_URL=${TEMPO_BASE_URL}" \
+  --env "TEMPO_BASE_URL=${TEMPO_BASE_URL}" \
+  --env "OPENCLAW_PROOFS_LOKI_BASE_URL=${LOKI_BASE_URL}" \
+  --env "LOKI_BASE_URL=${LOKI_BASE_URL}" \
+  --env "OPENCLAW_PROOFS_PROMETHEUS_BASE_URL=${PROMETHEUS_BASE_URL}" \
+  --env "PROMETHEUS_BASE_URL=${PROMETHEUS_BASE_URL}" \
   "$@"

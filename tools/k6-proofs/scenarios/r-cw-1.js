@@ -17,6 +17,7 @@
  *   GATEWAY_HOST  - gateway hostname (default: 127.0.0.1)
  *   GATEWAY_PORT  - gateway port (default: 18789)
  *   OPENCLAW_GATEWAY_TOKEN - operator auth token (required)
+ *   OPENCLAW_PROOFS_TEMPO_BASE_URL / TEMPO_BASE_URL - Tempo base URL for trace links/probes
  *   PROOF_SHA     - deployed SHA for report metadata
  *   PROOF_SEAT    - seat name for report metadata
  */
@@ -30,6 +31,7 @@ const GATEWAY_PORT = __ENV.GATEWAY_PORT || '18789';
 const GATEWAY_BASE = `http://${GATEWAY_HOST}:${GATEWAY_PORT}`;
 const PROOF_SHA = __ENV.PROOF_SHA || 'unknown';
 const PROOF_SEAT = __ENV.PROOF_SEAT || __ENV.HOSTNAME || 'cael-dgx';
+const TEMPO_BASE_URL = (__ENV.OPENCLAW_PROOFS_TEMPO_BASE_URL || __ENV.TEMPO_BASE_URL || `http://${__ENV.TEMPO_HOST || 'tempo.dandelion.cult'}`).replace(/\/+$/, '');
 
 // Custom metrics
 const cwAccepted = new Counter('r_cw_1_accepted');
@@ -92,8 +94,7 @@ export default function () {
   }
 
   // Step 3: Verify Tempo stack (for post-run trace pull)
-  const tempoHost = __ENV.TEMPO_HOST || 'tempo.dandelion.cult';
-  const tempoRes = http.get(`http://${tempoHost}/ready`, { timeout: '5s' });
+  const tempoRes = http.get(`${TEMPO_BASE_URL}/ready`, { timeout: '5s' });
   const tempoAlive = check(tempoRes, {
     '[R-CW-1] tempo reachable': (r) => r.status === 200 || r.status === 0,
   });
@@ -121,7 +122,7 @@ export default function () {
   console.log(`[R-CW-1] Proof nonce for correlation: ${proofNonce}`);
   console.log(`[R-CW-1] Post-run evidence:`);
   console.log(`[R-CW-1]   journal: journalctl --user -u openclaw-gateway --since "5min ago" | grep "continuation.work"`);
-  console.log(`[R-CW-1]   tempo: curl http://tempo.dandelion.cult/api/traces/<traceparent-from-tool-response>`);
+  console.log(`[R-CW-1]   tempo: curl ${TEMPO_BASE_URL}/api/traces/<traceparent-from-tool-response>`);
 
   cwAccepted.add(1);
   cwWoke.add(1);
@@ -144,7 +145,7 @@ export function handleSummary(data) {
     metrics: data.metrics,
     evidence: {
       journalGrep: 'journalctl --user -u openclaw-gateway --since "5min ago" | grep "continuation.work"',
-      tempoCorrelation: 'curl http://tempo.dandelion.cult/api/traces/<traceparent>',
+      tempoCorrelation: `curl ${TEMPO_BASE_URL}/api/traces/<traceparent>`,
     },
   };
 

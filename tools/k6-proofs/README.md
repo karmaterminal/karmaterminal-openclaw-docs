@@ -203,12 +203,21 @@ raw websocket events, tokens, or local private paths.
 ## Tempo trace receipts
 
 When a live row emits a `trace_id`, `run-proofs.sh` now attempts to fetch the
-matching Tempo JSON from `TEMPO_BASE_URL` (default `http://tempo.dandelion.cult`)
+matching Tempo JSON from `OPENCLAW_PROOFS_TEMPO_BASE_URL` / `TEMPO_BASE_URL` (fleet default `http://tempo.dandelion.cult`)
 and saves it beside the candidate run artifacts as `tempo-trace-<trace>.json`.
 The fetch receipt is stored in `tempo-trace-receipt.json`; fetch failures are
 kept non-fatal by default and leave `tempo-trace-json` review-pending. Set
 `OPENCLAW_PROOFS_K6_TEMPO_REQUIRED=true` only when a missing trace JSON should
 fail the run.
+
+Portable endpoint env vars for reviewer/fork runs:
+
+- `OPENCLAW_PROOFS_TEMPO_BASE_URL` (or legacy `TEMPO_BASE_URL`) — Tempo query base URL for trace fetches.
+- `OPENCLAW_PROOFS_LOKI_BASE_URL` (or legacy `LOKI_BASE_URL`) — Loki base URL for scenarios that probe log infra.
+- `OPENCLAW_PROOFS_PROMETHEUS_BASE_URL` — Prometheus query base URL.
+- `OPENCLAW_PROOFS_PROMETHEUS_RW_URL` (or legacy `K6_PROMETHEUS_RW_SERVER_URL`) — Prometheus remote-write endpoint for `run-proof.sh`.
+
+The dandelion.cult URLs are defaults for our fleet, not requirements for the methodology.
 
 Manual fetch:
 

@@ -93,3 +93,26 @@ test('can discover trace id from Tempo TraceQL search', async () => {
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('uses OPENCLAW_PROOFS_TEMPO_BASE_URL when --tempo-url is omitted', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'tempo-fetch-env-'));
+  try {
+    await withServer((req, res) => {
+      assert.equal(req.url, '/api/traces/1111222233334444');
+      res.setHeader('content-type', 'application/json');
+      res.end(JSON.stringify({ trace: { spans: [{ spanId: 'env' }] } }));
+    }, async (baseUrl) => {
+      const out = path.join(root, 'trace.json');
+      const run = await runNode(process.execPath, [script, '--trace-id', '1111222233334444', '--out', out], {
+        encoding: 'utf8',
+        env: { ...process.env, OPENCLAW_PROOFS_TEMPO_BASE_URL: baseUrl, TEMPO_BASE_URL: 'http://unused.invalid' },
+      });
+      const receipt = JSON.parse(run.stdout);
+      assert.equal(receipt.fetched, true);
+      assert.equal(receipt.traceId, '1111222233334444');
+      assert.equal(receipt.spans, 1);
+    });
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

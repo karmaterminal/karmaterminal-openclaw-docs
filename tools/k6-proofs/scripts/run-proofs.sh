@@ -72,6 +72,12 @@ if [[ "$DEPLOYED_BUILD_STAMP" == "unknown" && -f ~/.openclaw/openclaw.json ]]; t
 fi
 export OPENCLAW_RUNTIME_BUILD_SHA="$DEPLOYED_BUILD_STAMP"
 
+# Portable observability endpoints. Defaults preserve the dandelion fleet, but
+# reviewers can override without editing scripts or docs-local config.
+export OPENCLAW_PROOFS_TEMPO_BASE_URL="${OPENCLAW_PROOFS_TEMPO_BASE_URL:-${TEMPO_BASE_URL:-http://tempo.dandelion.cult}}"
+export OPENCLAW_PROOFS_LOKI_BASE_URL="${OPENCLAW_PROOFS_LOKI_BASE_URL:-${LOKI_BASE_URL:-http://loki.dandelion.cult}}"
+export OPENCLAW_PROOFS_PROMETHEUS_BASE_URL="${OPENCLAW_PROOFS_PROMETHEUS_BASE_URL:-${PROMETHEUS_BASE_URL:-http://prometheus.dandelion.cult}}"
+
 # Resolve Session Key
 if [[ -z "${OPENCLAW_SESSION_KEY:-}" ]]; then
   echo "Resolving session key for selector: $SESSION_SELECTOR"
@@ -245,7 +251,7 @@ PY_EVIDENCE_JSONL
         TRACE_ID="$(jq -r 'select((.trace_id // "") != "") | .trace_id' "$RUN_DIR/evidence.jsonl" | head -n 1)"
         if [[ -n "$TRACE_ID" ]]; then
           TEMPO_TRACE_JSON="$RUN_DIR/tempo-trace-${TRACE_ID:0:12}.json"
-          if node scripts/fetch-tempo-trace.mjs --trace-id "$TRACE_ID" --out "$TEMPO_TRACE_JSON" > "$RUN_DIR/tempo-trace-receipt.json" 2> "$RUN_DIR/tempo-trace-error.log"; then
+          if node scripts/fetch-tempo-trace.mjs --trace-id "$TRACE_ID" --tempo-url "$OPENCLAW_PROOFS_TEMPO_BASE_URL" --out "$TEMPO_TRACE_JSON" > "$RUN_DIR/tempo-trace-receipt.json" 2> "$RUN_DIR/tempo-trace-error.log"; then
             TRACE_STATUS="present"
             echo "[$ROW_ID] TEMPO TRACE: $TEMPO_TRACE_JSON"
           else

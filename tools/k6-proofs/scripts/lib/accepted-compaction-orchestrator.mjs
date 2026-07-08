@@ -13,6 +13,7 @@
  */
 
 import { chmodSync, existsSync, mkdirSync, realpathSync, writeFileSync } from 'node:fs';
+import { createServer as createHttpServer } from 'node:http';
 import { createServer } from 'node:net';
 import { homedir } from 'node:os';
 import path from 'node:path';
@@ -209,6 +210,7 @@ export function buildRedactedConfig({
   keepRecentTokens,
   reserveTokens,
   port,
+  mockProviderPort = '<mock-provider-port>',
 }) {
   const [provider, ...modelParts] = String(model || '').split('/');
   const modelName = modelParts.join('/') || 'default';
@@ -242,7 +244,7 @@ export function buildRedactedConfig({
     models: {
       providers: {
         [provider || 'fixture']: {
-          baseUrl: `http://127.0.0.1:<mock-provider-port>`,
+          baseUrl: `http://127.0.0.1:${mockProviderPort}`,
           api: 'openai-responses',
           models: {
             [modelName]: {
@@ -257,6 +259,97 @@ export function buildRedactedConfig({
 
 export function writeJsonArtifact(file, value, mode = 0o600) {
   writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`, { mode });
+}
+
+
+export async function startFixtureMockProvider({
+  host = '127.0.0.1',
+  createServerFn = createHttpServer,
+  now = () => new Date().toISOString(),
+} = {}) {
+  const requests = [];
+  const server = createServerFn((req, res) => {
+    const chunks = [];
+    req.on('data', (chunk) => chunks.push(chunk));
+    req.on('end', () => {
+      const body = Buffer.concat(chunks).toString('utf8');
+      requests.push({ method: req.method, url: req.url, bodyBytes: Buffer.byteLength(body), at: now() });
+      res.setHeader('content-type', 'application/json');
+      if (req.method === 'POST' && req.url === '/v1/responses') {
+        res.end(JSON.stringify({
+          id: 'resp_accepted_compaction_fixture',
+          object: 'response',
+          created_at: 0,
+          status: 'completed',
+          model: 'fixture/openai-compatible-local',
+          output: [{
+            id: 'msg_fixture',
+            type: 'message',
+            status: 'completed',
+            role: 'assistant',
+            content: [{ type: 'output_text', text: 'ACCEPTED_COMPACTION_FIXTURE_RESPONSE' }],
+          }],
+          usage: { input_tokens: 9000, output_tokens: 16, total_tokens: 9016 },
+        }));
+        return;
+      }
+      if (req.method === 'POST' && req.url === '/v1/chat/completions') {
+        res.end(JSON.stringify({
+          id: 'chatcmpl_accepted_compaction_fixture',
+          object: 'chat.completion',
+          created: 0,
+          model: 'fixture/openai-compatible-local',
+          choices: [{ index: 0, message: { role: 'assistant', content: 'ACCEPTED_COMPACTION_FIXTURE_RESPONSE' }, finish_reason: 'stop' }],
+          usage: { prompt_tokens: 9000, completion_tokens: 16, total_tokens: 9016 },
+        }));
+        return;
+      }
+      res.statusCode = 404;
+      res.end(JSON.stringify({ error: { message: 'fixture mock provider route not found' } }));
+    });
+  });
+
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen({ port: 0, host }, resolve);
+  });
+  server.unref();
+  const address = server.address();
+  if (!address || typeof address === 'string') {
+    server.close();
+    throw new Error('fixture mock provider failed to expose a TCP port');
+  }
+  return {
+    kind: 'fixture-mock-provider',
+    host,
+    port: address.port,
+    startedAt: now(),
+    requests,
+    server,
+    artifact: {
+      name: 'mock-provider.json',
+      body: {
+        schema: 'openclaw.project81.accepted-request-compaction.mock-provider.v1',
+        host,
+        port: address.port,
+        startedAt: now(),
+        routes: ['/v1/responses', '/v1/chat/completions'],
+        usageShape: 'deterministic-high-input-token-fixture',
+      },
+    },
+  };
+}
+
+export async function stopFixtureMockProvider(receipt, { now = () => new Date().toISOString() } = {}) {
+  if (!receipt?.server) return { stopped: false, reason: 'no mock provider server receipt', stoppedAt: now() };
+  await new Promise((resolve, reject) => {
+    receipt.server.close((error) => (error ? reject(error) : resolve()));
+  });
+  return {
+    stopped: true,
+    stoppedAt: now(),
+    requestCount: Array.isArray(receipt.requests) ? receipt.requests.length : null,
+  };
 }
 
 function ensureDir(dir) {
@@ -334,6 +427,11 @@ export async function runOrchestration({
     },
   };
 
+  const cleanupState = {
+    gatewayStopped: null,
+    mockProviderStopped: null,
+  };
+
   const finish = (outcome, phase, extra = {}) => {
     const cleanup = {
       schema: 'openclaw.project81.accepted-request-compaction.cleanup.v1',
@@ -343,8 +441,8 @@ export async function runOrchestration({
       retained: args.retainTmp,
       tempRoot: paths.root,
       productionConfigTouched: false,
-      gatewayStopped: null,
-      mockProviderStopped: null,
+      gatewayStopped: cleanupState.gatewayStopped,
+      mockProviderStopped: cleanupState.mockProviderStopped,
       finishedAt: now(),
     };
     emit('cleanup.json', cleanup);
@@ -386,7 +484,49 @@ export async function runOrchestration({
   }
   preflight.portCandidate = port;
 
-  // Phase 3: write redacted temp config (no secrets on disk)
+  const receipts = {};
+
+  const stopStartedMockProvider = async () => {
+    if (!receipts.startMockProvider || cleanupState.mockProviderStopped) return;
+    const stopped = await stopFixtureMockProvider(receipts.startMockProvider, { now });
+    cleanupState.mockProviderStopped = stopped;
+    emit('mock-provider-stop.json', {
+      schema: 'openclaw.project81.accepted-request-compaction.mock-provider-stop.v1',
+      ...stopped,
+    });
+  };
+
+  // Phase 3: start deterministic local mock provider before config write so
+  // the temp Gateway config can point at a real loopback baseUrl.
+  try {
+    const receipt = await liveSteps.startMockProvider({ args, paths, port, openclaw, receipts });
+    if (receipt && typeof receipt === 'object') {
+      receipts.startMockProvider = receipt;
+      preflight.mockProvider = { host: receipt.host ?? '127.0.0.1', port: receipt.port ?? null };
+      if (receipt.artifact) emit(receipt.artifact.name, receipt.artifact.body);
+    }
+  } catch (error) {
+    const reason = String(error?.message ?? error);
+    if (error && error.code === 'LIVE_NOT_IMPLEMENTED') {
+      emit('live-orchestration-not-yet-implemented.json', {
+        schema: 'openclaw.project81.accepted-request-compaction.honest-limit.v1',
+        step: 'startMockProvider',
+        reason,
+      });
+      emit('preflight-context.json', preflight);
+      return finish(NON_PASS_OUTCOMES.LIVE_SEND_NOT_IMPLEMENTED, 'mock-provider-start', { preflight });
+    }
+    emit('mock-provider-start-error.json', {
+      schema: 'openclaw.project81.accepted-request-compaction.phase-error.v1',
+      phase: 'mock-provider-start',
+      step: 'startMockProvider',
+      reason,
+    });
+    emit('preflight-context.json', preflight);
+    return finish(NON_PASS_OUTCOMES.MOCK_PROVIDER_START, 'mock-provider-start', { preflight });
+  }
+
+  // Phase 4: write redacted temp config (no secrets on disk)
   ensureDir(path.dirname(paths.configPath));
   const config = buildRedactedConfig({
     workspaceDir: paths.workspaceDir,
@@ -395,17 +535,16 @@ export async function runOrchestration({
     keepRecentTokens: args.keepRecentTokens,
     reserveTokens: args.reserveTokens,
     port,
+    mockProviderPort: receipts.startMockProvider?.port ?? '<mock-provider-port>',
   });
   writeJsonArtifact(paths.configPath, config);
   emit('temp-config.redacted.json', config);
   preflight.tempConfigPath = paths.configPath;
   emit('preflight-context.json', preflight);
 
-  // Phase 4+ live steps (mock provider start, gateway start, ...) are all
-  // stubbed. Each call maps its failure onto a classified outcome so callers
-  // never see a stack trace masquerading as an unclassified failure.
+  // Phase 5+ live steps. Each call maps its failure onto a classified outcome
+  // so callers never see a stack trace masquerading as an unclassified failure.
   const phaseMap = [
-    ['mock-provider-start', 'startMockProvider', NON_PASS_OUTCOMES.MOCK_PROVIDER_START],
     ['temp-gateway-start', 'startTempGateway', NON_PASS_OUTCOMES.TEMP_GATEWAY_START],
     ['force-context-budget', 'forceContextBudget', NON_PASS_OUTCOMES.CONTEXT_BUDGET],
     ['stage-lifeboat', 'stageLifeboat', NON_PASS_OUTCOMES.LIFEBOAT_MISSING],
@@ -415,7 +554,6 @@ export async function runOrchestration({
     ['verify-successor-sentinel', 'verifySuccessorSentinel', NON_PASS_OUTCOMES.SENTINEL_MISSING],
   ];
 
-  const receipts = {};
   for (const [phase, step, failureOutcome] of phaseMap) {
     try {
       const receipt = await liveSteps[step]({
@@ -440,6 +578,7 @@ export async function runOrchestration({
           step,
           reason,
         });
+        await stopStartedMockProvider();
         return finish(NON_PASS_OUTCOMES.LIVE_SEND_NOT_IMPLEMENTED, phase, {
           preflight,
         });
@@ -450,6 +589,7 @@ export async function runOrchestration({
         step,
         reason,
       });
+      await stopStartedMockProvider();
       return finish(failureOutcome, phase, { preflight });
     }
   }
@@ -461,5 +601,6 @@ export async function runOrchestration({
     schema: 'openclaw.project81.accepted-request-compaction.trace.v1',
     reason: 'trace validation not yet integrated in this increment',
   });
+  await stopStartedMockProvider();
   return finish(NON_PASS_OUTCOMES.LIVE_SEND_NOT_IMPLEMENTED, 'trace-validation', { preflight });
 }

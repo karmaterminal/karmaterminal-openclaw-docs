@@ -1,6 +1,6 @@
 # Accepted `request_compaction` fixture
 
-This fixture is the Project 81 scaffold for proving the **accepted** compaction path, separate from the existing threshold-rejection canaries (`R-RC-1` and ordinary `R-RC-2`). It is intentionally fail-closed: the current script emits a redacted plan/dry-run artifact only, and live execution refuses to start until reviewed isolated-Gateway orchestration lands.
+This fixture is the Project 81 scaffold for proving the **accepted** compaction path, separate from the existing threshold-rejection canaries (`R-RC-1` and ordinary `R-RC-2`). Live execution is gated behind an explicit review flag; today the runner implements preflight only, and the downstream phases (mock provider, temp Gateway spawn, `request_compaction` RPC, lifecycle wait, successor sentinel) live behind dependency-injected stubs so the follow-up review PR can wire them without a second refactor.
 
 ## Contract
 
@@ -37,22 +37,53 @@ The dry-run starts no Gateway and touches no production config. It writes:
 
 The plan artifact includes the required environment, receipt names, non-PASS classifications, and guardrails for the reviewed live implementation.
 
-## Live execution status
+## Live orchestration (preflight-only in this increment)
 
-`--run` is deliberately blocked in this PR. It requires `OPENCLAW_ACCEPTED_COMPACTION_FIXTURE=true`, a candidate SHA, and reviewed code that actually starts an isolated temp Gateway and collects the PASS receipts above. Until then, `--run` exits fail-closed before any Gateway is started.
+`--run` requires **three** independent signals so we never start a subprocess
+by accident:
+
+1. `OPENCLAW_ACCEPTED_COMPACTION_FIXTURE=true` — fixture opt-in.
+2. `OPENCLAW_CANDIDATE_SHA=<40-char-sha>` (or `--candidate-sha`).
+3. `--enable-live-orchestration` (or `OPENCLAW_ACCEPTED_COMPACTION_ENABLE_LIVE=true`) — **review gate**.
+
+Without the review gate, `--run` classifies as `HONEST-LIMIT-live-orchestration-review-gate`, exits 3, `pass:false`, and never spawns a subprocess.
+
+With the review gate, the runner executes the live orchestration state machine which today implements:
+
+- Preflight validation of the OpenClaw source dir (`--openclaw-dir` or `OPENCLAW_ACCEPTED_COMPACTION_OPENCLAW_DIR`). Directories that live inside any production marker (`~/.openclaw`, `~/flesh_beast_tmp/openclaw`) are refused with `BLOCKED-openclaw-dir-inside-production`. Reviewed source-only guards are required before the default hint directory may be used.
+- Free port allocation on 127.0.0.1 (releases the port immediately; the temp Gateway will re-bind when the live implementation lands).
+- Redacted temp config write to `<tempRoot>/config/openclaw.json`. The fixture token is never written to disk — the config carries `<REDACTED-fixture-token>`.
+- `preflight-context.json` receipt with candidate SHA, openclaw entrypoint, port candidate, and configured context budget.
+
+After preflight the state machine calls the mock-provider start step, which is currently unimplemented and causes the runner to classify as `HONEST-LIMIT-live-orchestration-preflight-only`, exit 3, `pass:false`. This is intentional: no PASS is possible from a preflight-only run.
+
+Example:
+
+```bash
+OPENCLAW_ACCEPTED_COMPACTION_FIXTURE=true \
+  node tools/k6-proofs/scripts/run-accepted-compaction-fixture.mjs \
+  --run \
+  --enable-live-orchestration \
+  --candidate-sha "$OPENCLAW_CANDIDATE_SHA" \
+  --openclaw-dir /path/to/openclaw-source-checkout \
+  --tmpdir /tmp/openclaw-p81-331-fixture \
+  --json
+```
 
 ## Required live env knobs
 
 The future live runner must make these explicit and redacted in artifacts:
 
 - `OPENCLAW_ACCEPTED_COMPACTION_FIXTURE=true`
+- `OPENCLAW_ACCEPTED_COMPACTION_ENABLE_LIVE=true` (review gate)
 - `OPENCLAW_ACCEPTED_COMPACTION_TMPDIR=<tmp>`
+- `OPENCLAW_ACCEPTED_COMPACTION_OPENCLAW_DIR=<source-dir>`
 - `OPENCLAW_CONFIG_PATH=<tmp>/config/openclaw.json`
 - `OPENCLAW_STATE_DIR=<tmp>/state`
 - `OPENCLAW_WORKSPACE_DIR=<tmp>/workspace`
-- `OPENCLAW_ACCEPTED_COMPACTION_PORT=<free-port>`
+- `OPENCLAW_ACCEPTED_COMPACTION_PORT=<free-port>` (0 = allocate during preflight)
 - `OPENCLAW_GATEWAY_WS=ws://127.0.0.1:<port>`
-- `OPENCLAW_GATEWAY_TOKEN=<fixture-token>`
+- `OPENCLAW_GATEWAY_TOKEN=<fixture-token>` (never written to disk)
 - `OPENCLAW_CANDIDATE_SHA=<40-char-sha>`
 - `OPENCLAW_ACCEPTED_COMPACTION_MODEL=<provider/model>`
 - `OPENCLAW_ACCEPTED_COMPACTION_CONTEXT_TOKENS=<small-cap>`
@@ -63,10 +94,17 @@ The future live runner must make these explicit and redacted in artifacts:
 
 ## Non-PASS outcomes
 
-The runner must classify non-PASS states instead of failing opaquely:
+The runner classifies non-PASS states instead of failing opaquely:
 
+- `HONEST-LIMIT-live-orchestration-review-gate`
+- `HONEST-LIMIT-live-orchestration-preflight-only`
 - `HONEST-LIMIT-local-model-unavailable`
+- `BLOCKED-openclaw-dir-missing`
+- `BLOCKED-openclaw-dir-inside-production`
+- `BLOCKED-openclaw-entrypoint-missing`
+- `BLOCKED-free-port-allocation`
 - `BLOCKED-temp-gateway-start`
+- `BLOCKED-mock-provider-start`
 - `BLOCKED-context-budget-not-forced`
 - `FAIL-request-compaction-rejected`
 - `FAIL-request-compaction-already-pending`
@@ -83,3 +121,5 @@ The runner must classify non-PASS states instead of failing opaquely:
 - No hosted frontier token burn to force pressure.
 - No PASS from threshold rejection.
 - No PASS unless the lifeboat crosses the actual compaction seam.
+- `--run` requires the `--enable-live-orchestration` review gate.
+- `openclaw-dir` inside production markers is refused until reviewed source-only guards land.

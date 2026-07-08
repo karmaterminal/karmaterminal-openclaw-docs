@@ -73,7 +73,7 @@ test('resolveOpenClawDir accepts dir with entrypoint outside production paths', 
   }
 });
 
-test('resolveOpenClawDir refuses dir inside production markers even when it exists', async () => {
+test('resolveOpenClawDir allows production-marker source dirs as source-only', async () => {
   // Simulate a fake production marker under a tmp dir and use custom markers.
   const root = await mkdtemp(join(tmpdir(), 'openclaw-orch-prod-'));
   try {
@@ -81,8 +81,9 @@ test('resolveOpenClawDir refuses dir inside production markers even when it exis
     await mkdir(fakeProduction, { recursive: true });
     await writeFile(join(fakeProduction, 'openclaw.mjs'), '// stub\n');
     const result = resolveOpenClawDir(fakeProduction, { markers: [fakeProduction] });
-    assert.equal(result.ok, false);
-    assert.equal(result.outcome, NON_PASS_OUTCOMES.OPENCLAW_DIR_PRODUCTION);
+    assert.equal(result.ok, true);
+    assert.equal(result.sourceOnly, true);
+    assert.equal(result.insideProductionMarker, true);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
@@ -104,7 +105,7 @@ test('buildRedactedConfig never emits provider or gateway secrets in cleartext',
     port: 12345,
   });
   const serialized = JSON.stringify(cfg);
-  assert.equal(cfg.gateway.token, '<REDACTED-fixture-token>');
+  assert.equal(cfg.gateway.auth.mode, 'none');
   assert.doesNotMatch(serialized, /sk-[a-zA-Z0-9]+/);
   assert.doesNotMatch(serialized, /api[_-]?key/i);
 });

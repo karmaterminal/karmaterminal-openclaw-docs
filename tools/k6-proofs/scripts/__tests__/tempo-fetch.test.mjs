@@ -64,3 +64,32 @@ test('can discover trace id from run-dir evidence.jsonl', async () => {
     await rm(root, { recursive: true, force: true });
   }
 });
+
+
+test('can discover trace id from Tempo TraceQL search', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'tempo-fetch-traceql-'));
+  try {
+    await withServer((req, res) => {
+      if (req.url.startsWith('/api/search?')) {
+        assert.match(req.url, /q=%7B\+\.chain\.id\+%3D\+%22chain-1%22\+%7D/);
+        res.setHeader('content-type', 'application/json');
+        res.end(JSON.stringify({ traces: [{ traceID: 'fedcba9876543210' }] }));
+        return;
+      }
+      assert.equal(req.url, '/api/traces/fedcba9876543210');
+      res.setHeader('content-type', 'application/json');
+      res.end(JSON.stringify({ trace: { spans: [{ spanId: 'abc' }, { spanId: 'def' }] } }));
+    }, async (baseUrl) => {
+      const out = path.join(root, 'trace.json');
+      const run = await runNode(process.execPath, [script, '--traceql', '{ .chain.id = "chain-1" }', '--tempo-url', baseUrl, '--start', '1783518200', '--end', '1783518400', '--out', out], { encoding: 'utf8' });
+      const receipt = JSON.parse(run.stdout);
+      assert.equal(receipt.fetched, true);
+      assert.equal(receipt.traceId, 'fedcba9876543210');
+      assert.equal(receipt.spans, 2);
+      const body = JSON.parse(await readFile(out, 'utf8'));
+      assert.equal(body.trace.spans.length, 2);
+    });
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

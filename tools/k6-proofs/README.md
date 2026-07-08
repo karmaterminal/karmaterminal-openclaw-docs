@@ -119,6 +119,7 @@ GitHub Actions workflow choices. Current workflow-runnable basenames are:
 - `r-trace-redaction-1121`
 - `r-obs-2`
 - `r-rc-1`
+- `r-rc-2-delegate-request-compaction`
 - `r-cw`
 
 Example:

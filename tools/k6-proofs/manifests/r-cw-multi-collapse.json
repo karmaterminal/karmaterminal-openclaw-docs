@@ -8,21 +8,27 @@
   "transport": "offline",
   "toolSurface": "read-only",
   "mutates": false,
-  "timeoutSeconds": 0,
+  "timeoutSeconds": 15,
   "scenario": {
-    "name": "r-cw-multi-collapse",
-    "description": "stale/new same-session continuation collapse manual proof row. Registered to keep the executable-suite manifest catalog aligned with the 29-row manual proof corpus; not an unattended k6 scenario yet.",
+    "name": "static-corpus-row-validator",
+    "description": "Static validator for committed synthetic stale/new continuation collapse proof receipts.",
     "methods": [
-      "manual-corpus-review"
+      "manual-corpus-review",
+      "static-artifact-parse"
     ],
-    "status": "construct-only",
-    "notes": "Construct-only registry entry. The current PROOFS corpus carries manual evidence for this row; promote to scaffold/runnable only after a reviewed k6 fixture exists."
+    "status": "runnable",
+    "file": "static-corpus-row-validator.js"
   },
   "expectedReceipts": [
     {
-      "name": "manual-row-corpus-receipt",
+      "name": "multi-collapse-artifacts",
       "required": true,
-      "description": "Current PROOFS/<sha> corpus contains reviewed manual evidence for this row."
+      "description": "Current PROOFS corpus receipts parse for this row."
+    },
+    {
+      "name": "stale-superseded-newest-granted-config-restored",
+      "required": true,
+      "description": "Committed evidence satisfies the row-specific PASS predicate."
     }
   ],
   "artifactDestination": {
@@ -35,21 +41,22 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Catalog coverage entry only. Does not make the row runnable and does not change the canonical PROOFS corpus."
+    "notes": "Static artifact validator for R-CW-MULTI-COLLAPSE. Validates committed corpus receipts; does not fire live behavior."
   },
   "liveRunSafety": {
-    "classification": "construct-only",
+    "classification": "k6-runnable",
     "requiresLiveGatewayToken": false,
     "requiresTargetSessionKey": false,
-    "requiresCandidateSha": false,
+    "requiresCandidateSha": true,
     "requiresExternalAgentOrToolInvocation": false,
     "requiresHumanConfirmation": false,
     "sameSessionConcurrencySafe": true,
-    "expectedArtifactClass": "construct-only",
+    "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
-      "manual-row-corpus-receipt"
+      "multi-collapse-artifacts",
+      "stale-superseded-newest-granted-config-restored"
     ],
     "foldRequiresReview": true,
-    "notes": "Not included in --live-suite. This entry exists so every current manual proof row has an explicit manifest record."
+    "notes": "Offline/static current-corpus validator; safe in broad suite because it does not connect to or mutate gateway state."
   }
 }

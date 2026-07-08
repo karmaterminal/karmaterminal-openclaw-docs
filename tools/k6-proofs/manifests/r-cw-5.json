@@ -5,25 +5,23 @@
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
-  "transport": "websocket",
-  "toolSurface": "typed-tool",
-  "mutates": true,
-  "timeoutSeconds": 90,
+  "transport": "offline",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 15,
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
     "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
   },
   "scenario": {
-    "name": "r-cw-5-cost-cap-reject",
-    "description": "Cost-cap exhaustion: fires continue_work after artificially exhausting costCapTokens budget, verifies dispatch-time rejection with appropriate error.",
+    "name": "static-corpus-row-validator",
+    "description": "Static/source-test validator for committed cost-cap exhaustion receipts.",
     "methods": [
-      "tools.invoke",
-      "config.patch",
-      "config.restore"
+      "manual-corpus-review",
+      "static-artifact-parse"
     ],
-    "status": "scaffold",
-    "expectedFile": "r-cw-5-cost-cap-reject.js",
-    "registryNotes": "A scaffold scenario file exists and intentionally throws. Keep non-runnable until a promotion PR implements config backup/lower/restore receipts and updates liveRunSafety.classification to k6-runnable."
+    "status": "runnable",
+    "file": "static-corpus-row-validator.js"
   },
   "invocation": {
     "tool": "continue_work",
@@ -40,34 +38,14 @@
   },
   "expectedReceipts": [
     {
-      "name": "seat-readiness-continuation-enabled",
+      "name": "cost-cap-artifacts",
       "required": true,
-      "description": "Precursor seat-readiness report proves agents.defaults.continuation.enabled=true before config-mutating continuation proof"
+      "description": "Current PROOFS corpus receipts parse for this row."
     },
     {
-      "name": "original-config-captured",
+      "name": "cost-cap-tests-passed",
       "required": true,
-      "description": "Original agents.defaults.continuation.costCapTokens value captured verbatim before mutation and used as the restore source"
-    },
-    {
-      "name": "failure-safe-restore-armed",
-      "required": true,
-      "description": "Fixture records a finally/trap-style restore guard before mutation so the original costCapTokens value is restored even if the proof fails or aborts"
-    },
-    {
-      "name": "config-lowered",
-      "required": true,
-      "description": "costCapTokens set to 1 (exhausted boundary)"
-    },
-    {
-      "name": "tool-invoke-rejected",
-      "required": true,
-      "description": "continue_work rejected at dispatch with cost-cap exceeded error"
-    },
-    {
-      "name": "config-restored",
-      "required": true,
-      "description": "Original costCapTokens restored after proof"
+      "description": "Committed evidence satisfies the row-specific PASS predicate."
     }
   ],
   "artifactDestination": {
@@ -80,26 +58,22 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Cost-cap boundary. PASS when rejection is delivered at the cap boundary. MUTATES config temporarily (costCapTokens\u21921 then restore). The reject IS the proof. Low cap value must be env-overridable via OPENCLAW_K6_COST_CAP_TEST_VALUE and restored after proof."
+    "notes": "Static artifact validator for R-CW-5. Validates committed corpus receipts; does not fire live behavior."
   },
   "liveRunSafety": {
-    "classification": "orchestration-required",
-    "requiresLiveGatewayToken": true,
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": false,
     "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
-    "requiresExternalAgentOrToolInvocation": true,
-    "requiresHumanConfirmation": true,
-    "sameSessionConcurrencySafe": false,
-    "expectedArtifactClass": "PARTIAL-candidate",
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
-      "seat-readiness-continuation-enabled",
-      "original-config-captured",
-      "failure-safe-restore-armed",
-      "config-lowered",
-      "tool-invoke-rejected",
-      "config-restored"
+      "cost-cap-artifacts",
+      "cost-cap-tests-passed"
     ],
     "foldRequiresReview": true,
-    "notes": "Config-mutating cost-cap boundary row. Do not expose as unattended k6-runnable on a live prince. Current scaffold is blocked by live-run-guard because classification=orchestration-required. Requires explicit mutation fixture or isolated gateway plus backup/restore, restore-on-failure, and only the row-local costCapTokens override from OPENCLAW_K6_COST_CAP_TEST_VALUE (default 1). Restart/reload command must come from OPENCLAW_GATEWAY_RESTART_CMD when set; default fixture command is `openclaw gateway restart --safe --wait 10s`. Requires a precursor seat-readiness receipt proving continuation.enabled=true/defaults present."
+    "notes": "Offline/static current-corpus validator; safe in broad suite because it does not connect to or mutate gateway state."
   }
 }

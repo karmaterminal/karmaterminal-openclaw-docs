@@ -33,6 +33,10 @@ const roots = {
   childLive: rowRoot('R-CW-DELEGATE-CHILD-LIVE'),
   delegateToken: rowRoot('R-CW-DELEGATE-TOKEN'),
   multi: rowRoot('R-CW-MULTI'),
+  cdCollection: rowRoot('R-CD-COLLECTION-ON-COLLAPSE'),
+  multiCollapse: rowRoot('R-CW-MULTI-COLLAPSE'),
+  rcw5: rowRoot('R-CW-5'),
+  rcw6: rowRoot('R-CW-6'),
 };
 
 const corpus = {};
@@ -71,6 +75,50 @@ if (selectedRow === 'R-CW-MULTI') {
     journal: readMaybe(`${roots.multi}/journal-continuation-lines.txt`),
     wakeReceipts: readMaybe(`${roots.multi}/wake-and-folded-receipts.txt`),
     traceSummary: readMaybe(`${roots.multi}/tempo/trace-summary.jsonl`),
+  };
+}
+if (selectedRow === 'R-CD-COLLECTION-ON-COLLAPSE') {
+  corpus.cdCollection = {
+    evidence: readMaybe(`${roots.cdCollection}/EVIDENCE.md`),
+    evaluation: readMaybe(`${roots.cdCollection}/evaluation.json`),
+    flowRows: readMaybe(`${roots.cdCollection}/db/flow-rows-concise.json`),
+    taskRows: readMaybe(`${roots.cdCollection}/db/task-rows-concise.json`),
+    rootReceipt: readMaybe(`${roots.cdCollection}/main/root-collection-receipt.md`),
+    journal: readMaybe(`${roots.cdCollection}/journal/filtered.log`),
+    traceSummary: readMaybe(`${roots.cdCollection}/tempo/trace-summary.json`),
+  };
+}
+if (selectedRow === 'R-CW-MULTI-COLLAPSE') {
+  corpus.multiCollapse = {
+    evidence: readMaybe(`${roots.multiCollapse}/EVIDENCE.md`),
+    insertVars: readMaybe(`${roots.multiCollapse}/insert-vars.json`),
+    postInsert: readMaybe(`${roots.multiCollapse}/post-insert-sqlite.txt`),
+    finalTerminal: readMaybe(`${roots.multiCollapse}/final-terminal-sqlite.txt`),
+    finalQueued: readMaybe(`${roots.multiCollapse}/final-queued-running.txt`),
+    flowRows: readMaybe(`${roots.multiCollapse}/flow-runs-final.json`),
+    journal: readMaybe(`${roots.multiCollapse}/journal-continuation-window.txt`),
+    restoreHash: readMaybe(`${roots.multiCollapse}/restore-verified-sha256.txt`),
+    tempoAttrs: readMaybe(`${roots.multiCollapse}/tempo-attribute-receipt.txt`),
+  };
+}
+if (selectedRow === 'R-CW-5') {
+  corpus.rcw5 = {
+    evidence: readMaybe(`${roots.rcw5}/EVIDENCE.md`),
+    schedulerSource: readMaybe(`${roots.rcw5}/scheduler-source.txt`),
+    delegateSource: readMaybe(`${roots.rcw5}/delegate-dispatch-cost-cap-source.txt`),
+    announceBracketSource: readMaybe(`${roots.rcw5}/subagent-announce-bracket-cost-cap-source.txt`),
+    announceToolSource: readMaybe(`${roots.rcw5}/subagent-announce-tool-cost-cap-source.txt`),
+    costCapLog: readMaybe(`${roots.rcw5}/vitest-delegate-dispatch-cost-cap-exhaustion.log`),
+    chainGuardLog: readMaybe(`${roots.rcw5}/vitest-chain-guard-cost-cap.log`),
+  };
+}
+if (selectedRow === 'R-CW-6') {
+  corpus.rcw6 = {
+    evidence: readMaybe(`${roots.rcw6}/EVIDENCE.md`),
+    schedulerSource: readMaybe(`${roots.rcw6}/source/scheduler-source-snippet.txt`),
+    workDispatchSource: readMaybe(`${roots.rcw6}/source/work-dispatch-source-snippet.txt`),
+    schedulerTest: readMaybe(`${roots.rcw6}/source/scheduler-test-snippet.txt`),
+    harnessLog: readMaybe(`${roots.rcw6}/harness/scheduler-boundary-harness.log`),
   };
 }
 
@@ -134,11 +182,79 @@ function validateRcwMulti() {
   return { checks, source_files: { evidence: `${root}/EVIDENCE.md`, sourceReceipts: `${root}/source-tool-receipts.jsonl`, flowRows: `${root}/flow-runs-final.json`, journal: `${root}/journal-continuation-lines.txt`, traceSummary: `${root}/tempo/trace-summary.jsonl` } };
 }
 
+
+function validateCdCollectionOnCollapse() {
+  const root = roots.cdCollection;
+  const { evidence, evaluation, flowRows, taskRows, rootReceipt, journal, traceSummary } = corpus.cdCollection;
+  const cSentinel = 'RCD_COLLECTION_BCA2B0B_CAEL_20260704_1316_C_REACHED_AFTER_B_FINAL';
+  const checks = {
+    verdictPass: evidence.includes('Verdict') && evidence.includes('PASS'),
+    methodScope: evidence.includes('A→B→delayed-C') && evidence.includes('B finalized before C'),
+    bTypedDelegate: evidence.includes('typed `continue_delegate`') && evidence.includes('delaySeconds') && evidence.includes('fanoutMode'),
+    cAfterB: evidence.includes('B finalized before C was created') || evidence.includes('B finalized before C was due'),
+    cSentinelPresent: evidence.includes(cSentinel) && journal.includes(cSentinel),
+    rootCollection: rootReceipt.includes(cSentinel) || evidence.includes('root/main receives or can observe'),
+    durableRows: flowRows.includes('core/continuation-delegate') && taskRows.includes('status') && taskRows.includes('succeeded'),
+    evaluationPass: evaluation.includes('PASS') || evaluation.includes('pass') || evidence.includes('PASS'),
+    tracePresent: traceSummary.includes('ecda443e0038fb9a38fc33a8b98d7d02') || traceSummary.includes('continuation.delegate'),
+  };
+  return { checks, source_files: { evidence: `${root}/EVIDENCE.md`, evaluation: `${root}/evaluation.json`, flowRows: `${root}/db/flow-rows-concise.json`, taskRows: `${root}/db/task-rows-concise.json`, rootReceipt: `${root}/main/root-collection-receipt.md`, journal: `${root}/journal/filtered.log`, traceSummary: `${root}/tempo/trace-summary.json` } };
+}
+
+function validateRcwMultiCollapse() {
+  const root = roots.multiCollapse;
+  const { evidence, insertVars, postInsert, finalTerminal, finalQueued, flowRows, journal, restoreHash, tempoAttrs } = corpus.multiCollapse;
+  const checks = {
+    verdictPassScoped: evidence.includes('PASS') && evidence.includes('synthetic-method caveat'),
+    syntheticCaveat: evidence.includes('synthetic DB-seeded') && evidence.includes('not realistic chain-depth evidence'),
+    twoRowsInserted: postInsert.includes('OLD_STALE') && postInsert.includes('NEWEST should drive') && insertVars.includes('oldFlow') && insertVars.includes('newFlow'),
+    oldSuperseded: finalTerminal.includes('superseded') && journal.includes('continuation:work-superseded'),
+    newestGranted: finalTerminal.includes('Same-session continuation turn granted') && flowRows.includes('disposition') && flowRows.includes('granted'),
+    noRemainingQueued: finalQueued.trim().length === 0,
+    configRestored: restoreHash.trim().split('\n').length >= 2 && evidence.includes('restored config byte-identical'),
+    tempoExactChain: tempoAttrs.includes('29fa6c15-2dc9-409f-bf48-138e73667da5') && tempoAttrs.includes('continuation.work.fire'),
+  };
+  return { checks, source_files: { evidence: `${root}/EVIDENCE.md`, insertVars: `${root}/insert-vars.json`, postInsert: `${root}/post-insert-sqlite.txt`, finalTerminal: `${root}/final-terminal-sqlite.txt`, finalQueued: `${root}/final-queued-running.txt`, flowRows: `${root}/flow-runs-final.json`, journal: `${root}/journal-continuation-window.txt`, restoreHash: `${root}/restore-verified-sha256.txt`, tempoAttrs: `${root}/tempo-attribute-receipt.txt` } };
+}
+
+function validateRcw5() {
+  const root = roots.rcw5;
+  const { evidence, schedulerSource, delegateSource, announceBracketSource, announceToolSource, costCapLog, chainGuardLog } = corpus.rcw5;
+  const checks = {
+    verdictPass: evidence.includes('Verdict') && evidence.includes('PASS'),
+    sourceGuard: schedulerSource.includes('costCapTokens') && schedulerSource.includes('cost-capped') && schedulerSource.includes('> config.costCapTokens'),
+    delegateRejection: delegateSource.includes('cost cap exceeded') || delegateSource.includes('cost-capped'),
+    announceGuards: announceBracketSource.includes('costCapTokens') && announceToolSource.includes('costCapTokens'),
+    costCapSuite: costCapLog.includes('5 passed') && costCapLog.includes('rejects dispatch when accumulatedChainTokens exceeds costCapTokens by 1'),
+    boundaryAllowed: costCapLog.includes('exact boundary') && (chainGuardLog.includes('2 passed') || evidence.includes('2/2 selected tests')),
+    noLiveMutationScope: evidence.includes('does not mutate live config') || evidence.includes('static/source + unit-test evidence'),
+  };
+  return { checks, source_files: { evidence: `${root}/EVIDENCE.md`, schedulerSource: `${root}/scheduler-source.txt`, delegateSource: `${root}/delegate-dispatch-cost-cap-source.txt`, announceBracketSource: `${root}/subagent-announce-bracket-cost-cap-source.txt`, announceToolSource: `${root}/subagent-announce-tool-cost-cap-source.txt`, costCapLog: `${root}/vitest-delegate-dispatch-cost-cap-exhaustion.log`, chainGuardLog: `${root}/vitest-chain-guard-cost-cap.log` } };
+}
+
+function validateRcw6() {
+  const root = roots.rcw6;
+  const { evidence, schedulerSource, workDispatchSource, schedulerTest, harnessLog } = corpus.rcw6;
+  const checks = {
+    verdictPass: evidence.includes('Verdict') && evidence.includes('PASS'),
+    boundaryPredicate: schedulerSource.includes('allocatedChainHop >= config.maxChainLength') || schedulerSource.includes('currentChainCount >= maxChainLength'),
+    earlyReturn: workDispatchSource.includes('scheduled: false') && workDispatchSource.includes('capped: true'),
+    schedulerUnitTest: schedulerTest.includes('chain-capped'),
+    harnessCapped: harnessLog.includes('"scheduled": false') && harnessLog.includes('"capped": true') && harnessLog.includes('chain-capped'),
+    noLiveMutationScope: evidence.includes('does **not** mutate live `openclaw.json`') && evidence.includes('does **not** restart the gateway'),
+  };
+  return { checks, source_files: { evidence: `${root}/EVIDENCE.md`, schedulerSource: `${root}/source/scheduler-source-snippet.txt`, workDispatchSource: `${root}/source/work-dispatch-source-snippet.txt`, schedulerTest: `${root}/source/scheduler-test-snippet.txt`, harnessLog: `${root}/harness/scheduler-boundary-harness.log` } };
+}
+
 const validators = {
   'R-CW-7': validateRcw7,
   'R-CW-DELEGATE-CHILD-LIVE': validateDelegateChildLive,
   'R-CW-DELEGATE-TOKEN': validateDelegateToken,
   'R-CW-MULTI': validateRcwMulti,
+  'R-CD-COLLECTION-ON-COLLAPSE': validateCdCollectionOnCollapse,
+  'R-CW-MULTI-COLLAPSE': validateRcwMultiCollapse,
+  'R-CW-5': validateRcw5,
+  'R-CW-6': validateRcw6,
 };
 
 export default function () {

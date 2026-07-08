@@ -16,13 +16,20 @@
        ═══════════════════════════════════════════════════════════════ -->
   <Infrastructure>
     <Component id="k6" location="/home/figs/bin/k6" version="2.0.0" seats="ronan-dgx"/>
-    <Component id="prometheus" url="http://prometheus.dandelion.cult" port="80" host="silas-k3s"/>
-    <Component id="grafana" url="http://grafana.dandelion.cult" port="80" host="silas-k3s"/>
-    <Component id="loki" url="http://loki.dandelion.cult" port="80" host="silas-k3s"/>
-    <Component id="tempo" url="http://tempo.dandelion.cult" port="80" host="silas-k3s"/>
+    <Component id="prometheus" urlEnv="OPENCLAW_PROOFS_PROMETHEUS_BASE_URL" defaultUrl="http://prometheus.dandelion.cult" port="80" host="fleet-default"/>
+    <Component id="grafana" urlEnv="OPENCLAW_PROOFS_GRAFANA_BASE_URL" defaultUrl="http://grafana.dandelion.cult" port="80" host="fleet-default"/>
+    <Component id="loki" urlEnv="OPENCLAW_PROOFS_LOKI_BASE_URL" defaultUrl="http://loki.dandelion.cult" port="80" host="fleet-default"/>
+    <Component id="tempo" urlEnv="OPENCLAW_PROOFS_TEMPO_BASE_URL" defaultUrl="http://tempo.dandelion.cult" port="80" host="fleet-default"/>
     <Component id="gateway" url="http://127.0.0.1:18789" path="/health" expect="ok:true"/>
     <Component id="harness" repo="karmaterminal/karmaterminal-openclaw-docs" path="tools/k6-proofs/"/>
-    <Component id="runner" path="tools/k6-proofs/run-proof.sh" auto-detects="sha,seat,prometheus-url"/>
+    <Component id="runner" path="tools/k6-proofs/run-proof.sh" auto-detects="sha,seat,observability-env"/>
+    <EndpointEnv>
+      <Var name="OPENCLAW_PROOFS_TEMPO_BASE_URL" fallback="TEMPO_BASE_URL" fleetDefault="http://tempo.dandelion.cult" purpose="Tempo query API for trace JSON receipts"/>
+      <Var name="OPENCLAW_PROOFS_LOKI_BASE_URL" fallback="LOKI_BASE_URL" fleetDefault="http://loki.dandelion.cult" purpose="Loki API for log correlation"/>
+      <Var name="OPENCLAW_PROOFS_PROMETHEUS_BASE_URL" fallback="PROMETHEUS_BASE_URL" fleetDefault="http://prometheus.dandelion.cult" purpose="Prometheus query API"/>
+      <Var name="OPENCLAW_PROOFS_PROMETHEUS_RW_URL" fallback="K6_PROMETHEUS_RW_SERVER_URL" fleetDefault="http://prometheus.dandelion.cult/api/v1/write" purpose="k6 Prometheus remote-write output"/>
+      <Var name="OPENCLAW_PROOFS_GRAFANA_BASE_URL" fleetDefault="http://grafana.dandelion.cult" purpose="Dashboard links only"/>
+    </EndpointEnv>
   </Infrastructure>
 
   <!-- ═══════════════════════════════════════════════════════════════
@@ -254,8 +261,8 @@
        ═══════════════════════════════════════════════════════════════ -->
   <Metrics>
     <Convention>Prefix all custom metrics with row name: r_cd_1_pass, r_cd_1_duration_ms, r_cd_1_pass_rate</Convention>
-    <Output endpoint="http://prometheus.dandelion.cult/api/v1/write" protocol="prometheus-remote-write"/>
-    <Query>curl "http://prometheus.dandelion.cult/api/v1/query?query=k6_{metric}"</Query>
+    <Output endpointEnv="OPENCLAW_PROOFS_PROMETHEUS_RW_URL" defaultEndpoint="${OPENCLAW_PROOFS_PROMETHEUS_BASE_URL:-http://prometheus.dandelion.cult}/api/v1/write" protocol="prometheus-remote-write"/>
+    <Query>curl "${OPENCLAW_PROOFS_PROMETHEUS_BASE_URL:-http://prometheus.dandelion.cult}/api/v1/query?query=k6_{metric}"</Query>
     <Dashboard path="k6-proofs/dashboards/k6-proofs.json" grafana-uid="k6-proofs-continuation"/>
   </Metrics>
 

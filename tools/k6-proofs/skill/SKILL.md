@@ -7,10 +7,10 @@ Build, run, and maintain k6 proof-row scenarios for the OpenClaw continuation fe
 
 ### Infrastructure (resolve per seat before proof-standard runs)
 - **k6** — proof-standard expectation is `v2.0.0`; run `node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json` on the target seat before folding evidence.
-- **Prometheus** — metrics store for candidate rows (fleet example: `prometheus.dandelion.cult`).
+- **Prometheus** — metrics store for candidate rows; set `OPENCLAW_PROOFS_PROMETHEUS_BASE_URL` / `OPENCLAW_PROOFS_PROMETHEUS_RW_URL` for non-fleet runs (fleet default: `prometheus.dandelion.cult`).
 - **Grafana** — dashboards (contract in `tools/k6-proofs/METRICS.md`; JSON in `tools/k6-proofs/dashboards/k6-proofs.json`).
-- **Loki** — log aggregation for nonce-correlated journal receipts.
-- **Tempo** — distributed tracing; raw trace JSON is the proof surface for continuation spans.
+- **Loki** — log aggregation for nonce-correlated journal receipts; set `OPENCLAW_PROOFS_LOKI_BASE_URL` for non-fleet runs.
+- **Tempo** — distributed tracing; raw trace JSON is the proof surface for continuation spans; set `OPENCLAW_PROOFS_TEMPO_BASE_URL` for non-fleet runs.
 - **Alloy / OTel Collector** — forwards logs and traces from seats into Loki/Tempo.
 
 ### Repo Structure

@@ -26,6 +26,16 @@ import { homedir, tmpdir } from 'node:os';
 import net from 'node:net';
 import path from 'node:path';
 import process from 'node:process';
+import {
+  NON_PASS_OUTCOMES,
+  PRODUCTION_PATH_MARKERS,
+  DEFAULT_OPENCLAW_SOURCE_DIR,
+  buildRedactedConfig,
+  makeUnimplementedLiveSteps,
+  startFixtureMockProvider,
+  normalizeSafePath as sharedNormalizeSafePath,
+  runOrchestration,
+} from './lib/accepted-compaction-orchestrator.mjs';
 
 const DEFAULT_CONTEXT_TOKENS = 12_000;
 const DEFAULT_KEEP_RECENT_TOKENS = 1_000;
@@ -48,10 +58,7 @@ const VALID_LIVE_OUTCOMES = new Set([
   'FAIL-sentinel-missing',
   'FAIL-cleanup',
 ]);
-const PRODUCTION_PATH_MARKERS = [
-  path.join(homedir(), '.openclaw'),
-  path.join(homedir(), 'flesh_beast_tmp', 'openclaw'),
-];
+
 
 function usage() {
   return `Usage: node tools/k6-proofs/scripts/run-accepted-compaction-fixture.mjs --plan [options]
@@ -103,6 +110,7 @@ function parseArgs(argv, env = process.env) {
     mode: null,
     json: false,
     retainTmp: env.OPENCLAW_ACCEPTED_COMPACTION_RETAIN_TMP === 'true',
+    enableLiveOrchestration: env.OPENCLAW_ACCEPTED_COMPACTION_ENABLE_LIVE === 'true',
     candidateSha: env.OPENCLAW_CANDIDATE_SHA || '',
     model: env.OPENCLAW_ACCEPTED_COMPACTION_MODEL || DEFAULT_MODEL,
     contextTokens: parsePositiveInteger(env.OPENCLAW_ACCEPTED_COMPACTION_CONTEXT_TOKENS || DEFAULT_CONTEXT_TOKENS, 'context tokens'),
@@ -133,6 +141,10 @@ function parseArgs(argv, env = process.env) {
     }
     if (arg === '--retain-tmp') {
       args.retainTmp = true;
+      continue;
+    }
+    if (arg === '--enable-live-orchestration') {
+      args.enableLiveOrchestration = true;
       continue;
     }
     if (arg === '--enable-live-orchestration') {
@@ -871,14 +883,33 @@ async function main() {
     port: await allocateLoopbackPort(args.port),
     gatewayToken: generateFixtureToken(),
   };
-  const execution = args.mode === 'plan'
-    ? await runPlanOnly(args, paths, runtime)
-    : await runLiveFailClosed(args, paths, runtime);
+  let execution;
+  if (args.mode === 'plan') {
+    execution = await runPlanOnly(args, paths, runtime);
+  } else if (!args.enableLiveOrchestration) {
+    const plan = buildPlan(args, paths, runtime);
+    const artifacts = buildArtifactState(args, paths, plan, runtime);
+    artifacts.cleanup.status = 'review-gate-blocked-before-start';
+    artifacts.outcome.outcome = NON_PASS_OUTCOMES.REVIEW_GATE;
+    artifacts.outcome.reason = '--run requires --enable-live-orchestration (or OPENCLAW_ACCEPTED_COMPACTION_ENABLE_LIVE=true) after review';
+    persistArtifacts(paths, plan, runtime, artifacts, args);
+    execution = {
+      exitCode: 3,
+      plan,
+      artifacts,
+      outcome: NON_PASS_OUTCOMES.REVIEW_GATE,
+      phase: 'preflight'
+    };
+  } else {
+    execution = await runLiveFailClosed(args, paths, runtime);
+  }
 
   const result = {
     ok: execution.exitCode === 0,
     mode: execution.plan.mode,
-    outcome: execution.artifacts.outcome.outcome,
+    outcome: execution.outcome || execution.artifacts?.outcome?.outcome,
+    phase: execution.phase,
+    pass: execution.artifacts?.outcome?.pass || false,
     artifactDir: paths.artifactDir,
     files: [
       'accepted-compaction-plan.json',
@@ -891,9 +922,16 @@ async function main() {
 
   if (args.json) console.log(JSON.stringify(result, null, 2));
   else {
-    console.log(`accepted request_compaction fixture ${args.mode}: ${execution.artifacts.outcome.outcome}`);
+    console.log(`accepted request_compaction fixture run: ${result.outcome}`);
+    if (result.phase) console.log(`phase reached: ${result.phase}`);
     console.log(`artifact dir: ${paths.artifactDir}`);
-    if (args.mode !== 'plan') console.error('accepted request_compaction seam remains fail-closed after isolated temp-Gateway startup');
+    if (args.mode !== 'plan') {
+       if (!args.enableLiveOrchestration) {
+          console.error('review gate: pass --enable-live-orchestration after review to run preflight');
+       } else {
+          console.error('accepted request_compaction seam remains fail-closed after isolated temp-Gateway startup');
+       }
+    }
   }
   return execution.exitCode;
 }

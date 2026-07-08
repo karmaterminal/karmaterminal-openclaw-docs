@@ -347,32 +347,49 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 
 ## Row coverage
 
-| Row | Scenario | Surface | Expected outcome |
-|-----|----------|---------|-----------------|
-| preflight | `preflight` | read-only | Candidate; gateway/session/tool inventory check |
-| R-CD-1 | `r-cd-1-typed-delegate` | typed-tool | Candidate; continue_delegate schedule/spawn/return path |
-| R-CD-2 | `r-cd-2-silent-wake` | typed-tool | PASS-candidate when dispatch/session-events observed and no channel delivery appears |
-| R-CD-4 | `r-cd-4-target-session-key` | typed-tool | Candidate; verify target-vs-parent session events, not `tasks.list` |
-| R-CD-CHAINED-DEPTH-2 | `r-cd-chained-depth-2` | typed-tool | Candidate; verify nonce-correlated chain return on subscribed session stream |
-| R-CD-TOKEN | `r-cd-token-bracket-delegate` | bracket-token | Candidate; terminal `[[CONTINUE_DELEGATE: ...]]` from lightContext/raw final text schedules and returns |
-| R-CD-MODEL-DEFAULT | `r-cd-model-default` | typed-tool | Candidate; delegate inherits default provider/model without override |
-| R-CD-MODEL-TOOL | `r-cd-model-tool` | typed-tool | Candidate; explicit model override request byte must match observed child model byte |
-| R-CD-MODEL-CHAINED-ALT | `r-cd-model-chained-alt` | typed-tool | Candidate; depth-1 delegate schedules depth-2 delegate with explicit alternate model |
-| R-CD-MODEL-TOKEN | `r-cd-model-token` | bracket-token | Candidate; bracket `model=` modifier parse + observed child model byte |
-| R-CD-COLLECTION-ON-COLLAPSE | planned `r-cd-collection-on-collapse` | typed-tool | Scaffold; A→B→C detached-intermediate collapse with root collection + no-orphan guard |
-| R-CONFIG-defaults | `r-config-defaults` | read-only | Candidate; continuation config defaults/readiness check |
-| R-CW-1 | `r-cw-1-tool-schedule-wake` | typed-tool | Candidate; continue_work schedule + wake |
-| R-CW-4 | `r-cw-4-chain-depth` | typed-tool | Candidate; continue_work chain depth across multiple hops |
-| R-CW-DELEGATE-SELF-CONTINUATION | `r-cw-delegate-self-continuation` | typed-tool | Candidate; delegate child self-continuation path |
-| R-CW-TOKEN | `r-cw-token-bracket` | bracket-token | Candidate; bare `CONTINUE_WORK:N` from scanned final text drives hop-2 |
-| R-OBS-1 | `r-obs-1` | read-only | Candidate; status-card observability via session_status tool |
-| R-OBS-status | `r-obs-status` | read-only | Candidate; gateway status/observer receipt check |
-| R-RC-1 | `r-rc-1` | typed-tool | Candidate; request_compaction below-threshold structured rejection |
-| R-CW overview | `r-cw` | read-only/infrastructure | Candidate; combined continue_work infrastructure check |
+`live-suite` currently resolves to 35 unattended rows. This table is generated from the manifest floor, but the outcome column is intentionally conservative: offline rows validate committed packets, and honest-limit rows do not become accepted-path proofs just because they are runnable.
 
-Other manifests may be `scaffold` or `construct-only`: they are tracked rows,
-but not workflow-runnable until a matching `tools/k6-proofs/scenarios/<name>.js`
-exists and the manifest is promoted to `scenario.status="runnable"`.
+| Row | Scenario | Surface | Expected outcome |
+|-----|----------|---------|------------------|
+| R-CD-1 | `r-cd-1-typed-delegate` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
+| R-CD-2 | `r-cd-2-silent-wake` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
+| R-CD-3 | `r-cd-3-post-compaction` | websocket/typed-tool | HONEST-LIMIT-candidate; reaches safe threshold/staging path, accepted compaction remains fixture-gated |
+| R-CD-4 | `r-cd-4-target-session-key` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
+| R-CD-CHAINED-DEPTH-2 | `r-cd-chained-depth-2` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
+| R-CD-COLLECTION-ON-COLLAPSE | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-CD-MODEL-CHAINED-ALT | `r-cd-model-chained-alt` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
+| R-CD-MODEL-DEFAULT | `r-cd-model-default` | websocket/mixed | PASS-candidate; runnable candidate requiring row review |
+| R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
+| R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | HONEST-LIMIT-candidate; model override reachability depends on allowed model/provider |
+| R-CD-RETURN-OVERLAP | `r-cd-return-overlap` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-CD-SILENT | `r-cd-silent` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
+| R-CD-TOKEN | `r-cd-token-bracket-delegate` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
+| R-CONFIG-INTERSESSION | `r-config-intersession` | websocket/read-only | PASS-candidate; runnable candidate requiring row review |
+| R-CONFIG-defaults | `r-config-defaults` | websocket/read-only | PASS-candidate; runnable candidate requiring row review |
+| R-CW-1 | `r-cw-1-tool-schedule-wake` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
+| R-CW-2 | `r-cw-2-immediate-wake` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
+| R-CW-3 | `r-cw-3-reason-telemetry` | websocket/typed-tool | HONEST-LIMIT-candidate; reason telemetry/redaction review may limit fold |
+| R-CW-4 | `r-cw-4-chain-depth` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
+| R-CW-5 | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-CW-6 | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-CW-7 | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-CW-DELEGATE-CHILD-LIVE | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-CW-DELEGATE-SELF-CONTINUATION | `r-cw-delegate-self-continuation` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
+| R-CW-DELEGATE-TOKEN | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-CW-MULTI | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-CW-MULTI-COLLAPSE | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-CW-TOKEN | `r-cw-token-bracket` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
+| R-OBS-1 | `r-obs-1` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
+| R-OBS-2 | `r-obs-2` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-OBS-status | `r-obs-status` | ws-status-probe/read-only | PASS-candidate; runnable candidate requiring row review |
+| R-RC-1 | `r-rc-1-threshold-reject` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
+| R-RC-2 | `r-rc-2-delegate-request-compaction` | websocket/typed-tool | HONEST-LIMIT-candidate; reaches safe threshold/staging path, accepted compaction remains fixture-gated |
+| R-REGRESSION-TRAP-TESTS | `r-regression-trap-tests` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-TRACE-REDACTION-1121 | `r-trace-redaction-1121` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+
+`preflight` remains `static-preflight-only` and is skipped by `--live-suite`; the runner still performs seat-readiness preflight for live runs.
+
+Future manifests may again be `scaffold`, `construct-only`, or `orchestration-required`. Such rows are tracked, but not workflow-runnable until a matching scenario exists and the manifest is promoted to `scenario.status="runnable"` plus `liveRunSafety.classification="k6-runnable"`.
 
 ## Guardrails
 

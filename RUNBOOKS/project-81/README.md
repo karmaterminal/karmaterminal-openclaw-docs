@@ -127,7 +127,7 @@ Most continuation rows still need one or more of these after k6 runs:
 - Tempo trace JSON, not just a trace URL:
 
   ```bash
-  curl -fsS "http://tempo.dandelion.cult/api/traces/<trace-id>" \
+  curl -fsS "${OPENCLAW_PROOFS_TEMPO_BASE_URL:-http://tempo.dandelion.cult}/api/traces/<trace-id>" \
     -o PROOFS/<sha>/<row>/<seat>/tempo/trace-<trace-id>.json
   ```
 

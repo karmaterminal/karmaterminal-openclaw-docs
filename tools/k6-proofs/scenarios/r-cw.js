@@ -28,6 +28,9 @@ const GATEWAY_PORT = __ENV.GATEWAY_PORT || '18789';
 const GATEWAY_BASE = `http://${GATEWAY_HOST}:${GATEWAY_PORT}`;
 const PROOF_SHA = __ENV.PROOF_SHA || 'unknown';
 const PROOF_SEAT = __ENV.PROOF_SEAT || __ENV.HOSTNAME || 'cael-dgx';
+const TEMPO_BASE_URL = (__ENV.OPENCLAW_PROOFS_TEMPO_BASE_URL || __ENV.TEMPO_BASE_URL || `http://${__ENV.TEMPO_HOST || 'tempo.dandelion.cult'}`).replace(/\/+$/, '');
+const LOKI_BASE_URL = (__ENV.OPENCLAW_PROOFS_LOKI_BASE_URL || __ENV.LOKI_BASE_URL || `http://${__ENV.LOKI_HOST || 'loki.dandelion.cult'}`).replace(/\/+$/, '');
+const PROMETHEUS_BASE_URL = (__ENV.OPENCLAW_PROOFS_PROMETHEUS_BASE_URL || __ENV.PROMETHEUS_BASE_URL || `http://${__ENV.PROM_HOST || 'prometheus.dandelion.cult'}`).replace(/\/+$/, '');
 
 // Metrics
 const checksRun = new Counter('r_cw_checks_run');
@@ -83,12 +86,8 @@ export default function () {
   }
 
   // 3. Observability stack checks (needed for R-CW-3, R-CW-7 trace correlation)
-  const tempoHost = __ENV.TEMPO_HOST || 'tempo.dandelion.cult';
-  const lokiHost = __ENV.LOKI_HOST || 'loki.dandelion.cult';
-  const promHost = __ENV.PROM_HOST || 'prometheus.dandelion.cult';
-
   checksRun.add(1);
-  const tempo = http.get(`http://${tempoHost}/ready`, { timeout: '5s' });
+  const tempo = http.get(`${TEMPO_BASE_URL}/ready`, { timeout: '5s' });
   const tempoOk = check(tempo, {
     '[R-CW] tempo ready (trace correlation)': (r) => r.status === 200,
   });
@@ -99,7 +98,7 @@ export default function () {
   }
 
   checksRun.add(1);
-  const loki = http.get(`http://${lokiHost}/ready`, { timeout: '5s' });
+  const loki = http.get(`${LOKI_BASE_URL}/ready`, { timeout: '5s' });
   const lokiOk = check(loki, {
     '[R-CW] loki ready (log correlation)': (r) => r.status === 200,
   });
@@ -107,7 +106,7 @@ export default function () {
   else console.warn(`[R-CW] Loki not ready — journal-based correlation available as fallback`);
 
   checksRun.add(1);
-  const prom = http.get(`http://${promHost}/-/ready`, { timeout: '5s' });
+  const prom = http.get(`${PROMETHEUS_BASE_URL}/-/ready`, { timeout: '5s' });
   const promOk = check(prom, {
     '[R-CW] prometheus ready (metrics destination)': (r) => r.status === 200,
   });

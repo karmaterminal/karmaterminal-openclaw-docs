@@ -10,12 +10,20 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-function usage() {
-  console.error('Usage: node fetch-tempo-trace.mjs (--trace-id <id> | --run-dir <dir> | --traceql <query>) [--tempo-url http://tempo.dandelion.cult] [--start <unix-seconds>] [--end <unix-seconds>] [--out trace.json]');
+const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
+
+function defaultTempoUrl(env = process.env) {
+  return env.OPENCLAW_PROOFS_TEMPO_BASE_URL || env.TEMPO_BASE_URL || DEFAULT_TEMPO_BASE_URL;
 }
 
-function parseArgs(argv) {
-  const out = { tempoUrl: process.env.TEMPO_BASE_URL || 'http://tempo.dandelion.cult' };
+function usage() {
+  console.error(`Usage: node fetch-tempo-trace.mjs (--trace-id <id> | --run-dir <dir> | --traceql <query>) [--tempo-url <base-url>] [--start <unix-seconds>] [--end <unix-seconds>] [--out trace.json]
+
+Tempo endpoint resolution: --tempo-url, else OPENCLAW_PROOFS_TEMPO_BASE_URL, else TEMPO_BASE_URL, else ${DEFAULT_TEMPO_BASE_URL}.`);
+}
+
+function parseArgs(argv, env = process.env) {
+  const out = { tempoUrl: defaultTempoUrl(env) };
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--trace-id' || arg === '--run-dir' || arg === '--traceql' || arg === '--tempo-url' || arg === '--start' || arg === '--end' || arg === '--out') {

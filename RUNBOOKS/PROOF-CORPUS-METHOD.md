@@ -187,16 +187,16 @@ For EACH continuation-tool fire (R-CW / R-CD / R-RC rows), capture the actual Gr
 
 Required evidence:
 - **Trace ID** emitted by the fire (visible in journal `[continuation:…]` log lines + tool-result payload)
-- **Tempo URL** pointing at the trace: `http://tempo.dandelion.cult/api/traces/<trace-id>`
+- **Tempo URL** pointing at the trace, parameterized by `${OPENCLAW_PROOFS_TEMPO_BASE_URL:-http://tempo.dandelion.cult}`: `<tempo-base>/api/traces/<trace-id>`
 - **Span hierarchy export JSON** from Tempo at `R-<row>/<descriptive>_trace.json`
 - **For chained / inter-session / post-compaction rows**: trace-parent stitching evidence across the spans (continuation.delegate.dispatch → child openclaw.run, etc.)
 
-Dead-simple Tempo HTTP API recipe (Tempo is reachable at `http://tempo.dandelion.cult` on port 80; DNS `10.0.0.99`):
+Dead-simple Tempo HTTP API recipe (Tempo is reachable on the dandelion fleet at `http://tempo.dandelion.cult` on port 80; portable runs should set `OPENCLAW_PROOFS_TEMPO_BASE_URL` to their Tempo query endpoint):
 
 1. Find your trace-id if it is not already in your journal `[continuation:…]` line / tool-result. Search your own seat's fires via TraceQL:
 
    ```bash
-   curl -sG http://tempo.dandelion.cult/api/search \
+   curl -sG ${OPENCLAW_PROOFS_TEMPO_BASE_URL:-http://tempo.dandelion.cult}/api/search \
      --data-urlencode 'q={ resource.service.name="<your-seat>-prince" && .gen_ai.tool.name="continue_delegate" }' \
      --data-urlencode "start=$(date -d '8 hours ago' +%s)" \
      --data-urlencode "end=$(date +%s)" \
@@ -208,7 +208,7 @@ Dead-simple Tempo HTTP API recipe (Tempo is reachable at `http://tempo.dandelion
 2. Export the full span-tree JSON. This one curl is the required span-hierarchy export:
 
    ```bash
-   curl -sS "http://tempo.dandelion.cult/api/traces/<TRACE_ID>" \
+   curl -sS "${OPENCLAW_PROOFS_TEMPO_BASE_URL:-http://tempo.dandelion.cult}/api/traces/<TRACE_ID>" \
      -o PROOFS/<FULL_SHA>/R-<row>/<descriptive>_trace.json
    ```
 

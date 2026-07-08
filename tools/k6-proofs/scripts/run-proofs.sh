@@ -24,7 +24,7 @@ while [[ "$#" -gt 0 ]]; do
     *)
       if [[ -z "$ROWS" ]]; then
         ROWS="$1"
-      elif [[ -z "$CANDIDATE_SHA" && -z "${OPENCLAW_CANDIDATE_SHA:-}" ]]; then
+      elif [[ -z "$CANDIDATE_SHA" ]]; then
         CANDIDATE_SHA="$1"
       else
         echo "Unknown argument: $1"
@@ -216,6 +216,18 @@ if src.exists():
             pass
 dst.write_text(''.join(json.dumps(obj, sort_keys=True) + '\n' for obj in out))
 PY_EVIDENCE_JSONL
+    EVIDENCE_JSON="null"
+    if [[ -s "$RUN_DIR/evidence.jsonl" ]]; then
+      EVIDENCE_JSON="$(jq -c 'del(.redacted_events)' "$RUN_DIR/evidence.jsonl" | head -n 1)"
+      if [[ -z "$EVIDENCE_JSON" ]]; then EVIDENCE_JSON="null"; fi
+    fi
+    SUMMARY_VERDICT="unknown"
+    SUMMARY_FILES_JSON="[]"
+    if find "$RUN_DIR" -maxdepth 1 -type f -name '*summary.json' | grep -q .; then
+      SUMMARY_FILES_JSON="$(find "$RUN_DIR" -maxdepth 1 -type f -name '*summary.json' -print0 | xargs -0 -r -n1 basename | jq -R . | jq -s .)"
+      SUMMARY_VERDICT="$(find "$RUN_DIR" -maxdepth 1 -type f -name '*summary.json' -print0 | xargs -0 -r jq -r 'select(.verdict != null) | .verdict' | head -n 1)"
+      if [[ -z "$SUMMARY_VERDICT" ]]; then SUMMARY_VERDICT="unknown"; fi
+    fi
     TRACE_STATUS="unknown"
     TRACE_ID=""
     TEMPO_TRACE_JSON=""
@@ -253,8 +265,11 @@ PY_EVIDENCE_JSONL
       --arg traceStatus "$TRACE_STATUS" \
       --arg traceId "$TRACE_ID" \
       --arg tempoTraceJson "$TEMPO_TRACE_JSON" \
+      --arg verdict "$SUMMARY_VERDICT" \
+      --argjson summaryFiles "$SUMMARY_FILES_JSON" \
+      --argjson evidence "$EVIDENCE_JSON" \
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
-      '{k6ExitCode:$rc, endedAt:$ended, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end)}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
+      '{k6ExitCode:$rc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end)}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
     METRICS_ARGS=(--run-dir "$RUN_DIR" --prometheus-out "$RUN_DIR/openclaw-proofs-k6.prom" --otlp-out "$RUN_DIR/openclaw-proofs-k6.otlp.json")
     if [[ -n "${OPENCLAW_PROOFS_K6_OTLP_ENDPOINT:-}" ]]; then

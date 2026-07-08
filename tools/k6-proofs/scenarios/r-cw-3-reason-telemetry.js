@@ -74,4 +74,35 @@ export default function () {
   console.log(`R_CW_3_EVIDENCE ${JSON.stringify(evidence)}`);
   console.log('\n--- R-CW-3 EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log(`\n[R-CW-3] VERDICT: ${passed ? 'HONEST-LIMIT-candidate' : 'PARTIAL-candidate'}`);
 }
-export function handleSummary(data) { const timestamp = new Date().toISOString(); const passRate = data.metrics.proof_failures?.values?.count === 0; const traceId = finalEvidence?.trace_id || null; const summary = { row: 'R-CW-3', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict: passRate ? 'HONEST-LIMIT-candidate' : 'PARTIAL-candidate', candidateOnly: true, foldRequiresReview: true, observability: { traceId, traceJson: traceId ? 'pending-fetch' : 'missing' }, review: { status: 'review-pending', pendingReceipts: ['tempo-trace-json', 'reason-telemetry-redaction-review'], notes: ['k6 proves dispatch/schedule/wake and keeps the raw reason out of public evidence.', 'Before folding PASS, fetch Tempo trace JSON and verify safe reason attributes are present while the raw reason sentinel is absent. If trace fetch is unavailable, keep this as HONEST-LIMIT-candidate.'] }, metrics: { duration_ms: data.metrics.r_cw_3_duration?.values || null, failures: data.metrics.proof_failures?.values?.count || 0 } }; return { stdout: `\n[R-CW-3] Summary: ${summary.verdict} | SHA: ${summary.sha} | Seat: ${summary.seat}\n`, 'r-cw-3-reason-telemetry-summary.json': JSON.stringify(summary, null, 2) }; }
+export function handleSummary(data) {
+  const timestamp = new Date().toISOString();
+  const failuresCount = data.metrics.proof_failures?.values?.count || 0;
+  const traceId = finalEvidence?.trace_id || null;
+  const verdict = failuresCount === 0 ? 'HONEST-LIMIT-candidate' : 'PARTIAL-candidate';
+  const pendingReceipts = ['reason-telemetry-redaction-review'];
+  if (!traceId) pendingReceipts.unshift('tempo-trace-json');
+  const notes = [
+    verdict === 'HONEST-LIMIT-candidate'
+      ? 'k6 proved dispatch/schedule/wake and kept the raw reason out of public evidence; fold still requires Tempo reason telemetry/redaction review.'
+      : 'This run did not prove the full schedule/wake path. Preserve k6.log/evidence and do not fold as PASS.',
+    traceId
+      ? 'Trace id captured; fetch Tempo trace JSON and verify safe reason attributes are present while the raw reason sentinel is absent.'
+      : 'No trace_id emitted. Keep this as HONEST-LIMIT/PARTIAL until trace JSON is fetched or trace-missing is explicitly accepted.',
+  ];
+  const summary = {
+    row: 'R-CW-3',
+    sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
+    seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx',
+    timestamp,
+    verdict,
+    candidateOnly: true,
+    foldRequiresReview: true,
+    evidenceJsonl: 'evidence.jsonl',
+    observability: { traceId, traceJson: traceId ? 'pending-fetch' : 'missing' },
+    review: { status: 'review-pending', pendingReceipts, notes },
+    metrics: { duration_ms: data.metrics.r_cw_3_duration?.values || null, failures: failuresCount },
+  };
+  return { stdout: `
+[R-CW-3] Summary: ${summary.verdict} | SHA: ${summary.sha} | Seat: ${summary.seat}
+`, 'r-cw-3-reason-telemetry-summary.json': JSON.stringify(summary, null, 2) };
+}

@@ -66,4 +66,33 @@ export default function () {
   console.log(`R_CW_2_EVIDENCE ${JSON.stringify(evidence)}`);
   console.log('\n--- R-CW-2 EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log(`\n[R-CW-2] VERDICT: ${passed ? 'PASS-candidate' : 'PARTIAL-candidate'}`);
 }
-export function handleSummary(data) { const timestamp = new Date().toISOString(); const passRate = data.metrics.proof_failures?.values?.count === 0; const traceId = finalEvidence?.trace_id || null; const summary = { row: 'R-CW-2', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict: passRate ? 'PASS-candidate' : 'PARTIAL-candidate', candidateOnly: true, foldRequiresReview: true, observability: { traceId, traceJson: traceId ? 'pending-fetch' : 'missing' }, review: { status: traceId ? 'ready-for-human-review' : 'review-pending', pendingReceipts: traceId ? [] : ['tempo-trace-json'], notes: traceId ? ['Trace id captured; fetch and attach Tempo trace JSON before canonical fold.'] : ['No trace_id emitted; keep PASS-candidate review-pending until trace JSON is fetched or trace-missing is explicitly accepted.'] }, metrics: { duration_ms: data.metrics.r_cw_2_duration?.values || null, failures: data.metrics.proof_failures?.values?.count || 0 } }; return { stdout: `\n[R-CW-2] Summary: ${summary.verdict} | SHA: ${summary.sha} | Seat: ${summary.seat}\n`, 'r-cw-2-immediate-wake-summary.json': JSON.stringify(summary, null, 2) }; }
+export function handleSummary(data) {
+  const timestamp = new Date().toISOString();
+  const failuresCount = data.metrics.proof_failures?.values?.count || 0;
+  const traceId = finalEvidence?.trace_id || null;
+  const verdict = failuresCount === 0 ? 'PASS-candidate' : 'PARTIAL-candidate';
+  const pendingReceipts = traceId ? [] : ['tempo-trace-json'];
+  const notes = traceId
+    ? ['Trace id captured; fetch and attach Tempo trace JSON before canonical fold.']
+    : [
+      verdict === 'PASS-candidate'
+        ? 'No trace_id emitted; keep PASS-candidate review-pending until trace JSON is fetched or trace-missing is explicitly accepted.'
+        : 'No trace_id emitted. This run is PARTIAL-candidate; preserve k6.log/evidence and do not fold as PASS without CW2-WOKE plus trace review or explicit trace-missing acceptance.',
+    ];
+  const summary = {
+    row: 'R-CW-2',
+    sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
+    seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx',
+    timestamp,
+    verdict,
+    candidateOnly: true,
+    foldRequiresReview: true,
+    evidenceJsonl: 'evidence.jsonl',
+    observability: { traceId, traceJson: traceId ? 'pending-fetch' : 'missing' },
+    review: { status: traceId && verdict === 'PASS-candidate' ? 'ready-for-human-review' : 'review-pending', pendingReceipts, notes },
+    metrics: { duration_ms: data.metrics.r_cw_2_duration?.values || null, failures: failuresCount },
+  };
+  return { stdout: `
+[R-CW-2] Summary: ${summary.verdict} | SHA: ${summary.sha} | Seat: ${summary.seat}
+`, 'r-cw-2-immediate-wake-summary.json': JSON.stringify(summary, null, 2) };
+}

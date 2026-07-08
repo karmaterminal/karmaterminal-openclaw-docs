@@ -1,0 +1,58 @@
+{
+  "schema": "openclaw.k6.r-cw-3-reason-telemetry-review.v1",
+  "generatedAt": "2026-07-08T14:35:29.022Z",
+  "runDir": "/tmp/p81-r-cw-3-live-long-20260708T134357Z/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/ronan/20260708T134400Z-r-cw-3",
+  "tempoTraceJson": "tempo-trace-518565900f34f7ba41bcbc3e415d1e1f.json",
+  "row": "R-CW-3",
+  "nonce": "R-CW-3-1783518240313-bjur2pje",
+  "traceId": null,
+  "verdict": "reason-telemetry-redaction-review-passed",
+  "checks": {
+    "row": {
+      "ok": true,
+      "evidence": "R-CW-3"
+    },
+    "dispatchAccepted": {
+      "ok": true,
+      "evidence": true
+    },
+    "scheduledSentinel": {
+      "ok": true,
+      "evidence": true
+    },
+    "wakeObserved": {
+      "ok": true,
+      "evidence": true
+    },
+    "publicArtifactRawReasonAbsent": {
+      "ok": true,
+      "evidence": true
+    },
+    "tempoTraceJson": {
+      "ok": true,
+      "evidence": "trace.json"
+    },
+    "safeReasonAttrsPresent": {
+      "ok": true,
+      "evidence": {
+        "reason.present": true,
+        "reason.length": true,
+        "reason.hash": true
+      }
+    },
+    "rawReasonAbsentFromTempo": {
+      "ok": true,
+      "evidence": {
+        "rawSentinelPrefixHits": 0,
+        "rawReasonPrefixHits": 0
+      }
+    }
+  },
+  "safeReasonAttributeKeys": [
+    "reason.hash",
+    "reason.length",
+    "reason.present",
+    "reason.redacted"
+  ],
+  "publicSafe": true
+}

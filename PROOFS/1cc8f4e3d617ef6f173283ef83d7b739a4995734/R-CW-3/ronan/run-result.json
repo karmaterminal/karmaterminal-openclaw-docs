@@ -1,0 +1,45 @@
+{
+  "k6ExitCode": 0,
+  "endedAt": "2026-07-08T13:45:54Z",
+  "verdict": "HONEST-LIMIT-candidate",
+  "summaryFiles": [
+    "r-cw-3-reason-telemetry-summary.json"
+  ],
+  "evidence": {
+    "candidateSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+    "created_session_key": "agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje",
+    "dispatch_accepted": true,
+    "dispatch_accepted_at_ms": 1783518241191,
+    "duration_ms": 113683,
+    "ended": "2026-07-08T13:45:53.996Z",
+    "manifest_loaded": true,
+    "nonce": "R-CW-3-1783518240313-bjur2pje",
+    "public_artifact_raw_reason_absent": true,
+    "requestedSessionKey": "main",
+    "row": "R-CW-3",
+    "scheduled_result_at_ms": 1783518259913,
+    "scheduled_sentinel": true,
+    "seat": "ronan",
+    "sessionKey": "agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje",
+    "session_created": true,
+    "started": "2026-07-08T13:44:00.313Z",
+    "tempo_assertion": "pending-review",
+    "trace_id": null,
+    "trace_id_source": null,
+    "wake_delay_ms": 94083,
+    "wake_observed": true
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "missing",
+    "traceId": null,
+    "tempoTraceJson": null
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "tempo-trace-json"
+    ]
+  }
+}

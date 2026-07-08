@@ -1,0 +1,369 @@
+
+         /\      Grafana   /‾‾/
+    /\  /  \     |\  __   /  /
+   /  \/    \    | |/ /  /   ‾‾\
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/
+
+
+     execution: local
+        script: scenarios/r-cw-3-reason-telemetry.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 10m30s max duration (incl. graceful stop):
+              * r_cw_3_reason_telemetry: 1 iterations shared among 1 VUs (maxDuration: 10m0s, gracefulStop: 30s)
+
+time="2026-07-08T06:44:00-07:00" level=info msg="✓ disposable session created: agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje" source=console
+time="2026-07-08T06:44:01-07:00" level=info msg="✓ sessions.send accepted — reason telemetry turn triggered" source=console
+
+running (00m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m01.0s/10m0s  0/1 shared iters
+
+running (00m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m02.0s/10m0s  0/1 shared iters
+
+running (00m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m03.0s/10m0s  0/1 shared iters
+
+running (00m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m04.0s/10m0s  0/1 shared iters
+
+running (00m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m05.0s/10m0s  0/1 shared iters
+
+running (00m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m06.0s/10m0s  0/1 shared iters
+
+running (00m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m07.0s/10m0s  0/1 shared iters
+
+running (00m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m08.0s/10m0s  0/1 shared iters
+
+running (00m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m09.0s/10m0s  0/1 shared iters
+
+running (00m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m10.0s/10m0s  0/1 shared iters
+
+running (00m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m11.0s/10m0s  0/1 shared iters
+
+running (00m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m12.0s/10m0s  0/1 shared iters
+
+running (00m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m13.0s/10m0s  0/1 shared iters
+
+running (00m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m14.0s/10m0s  0/1 shared iters
+
+running (00m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m15.0s/10m0s  0/1 shared iters
+
+running (00m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m16.0s/10m0s  0/1 shared iters
+
+running (00m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m17.0s/10m0s  0/1 shared iters
+
+running (00m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m18.0s/10m0s  0/1 shared iters
+
+running (00m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m19.0s/10m0s  0/1 shared iters
+time="2026-07-08T06:44:19-07:00" level=info msg="✓ CW3-SCHEDULED sentinel observed" source=console
+
+running (00m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m20.0s/10m0s  0/1 shared iters
+
+running (00m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m21.0s/10m0s  0/1 shared iters
+
+running (00m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m22.0s/10m0s  0/1 shared iters
+
+running (00m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m23.0s/10m0s  0/1 shared iters
+
+running (00m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m24.0s/10m0s  0/1 shared iters
+
+running (00m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m25.0s/10m0s  0/1 shared iters
+
+running (00m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m26.0s/10m0s  0/1 shared iters
+
+running (00m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m27.0s/10m0s  0/1 shared iters
+
+running (00m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m28.0s/10m0s  0/1 shared iters
+
+running (00m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m29.0s/10m0s  0/1 shared iters
+
+running (00m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m30.0s/10m0s  0/1 shared iters
+
+running (00m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m31.0s/10m0s  0/1 shared iters
+
+running (00m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m32.0s/10m0s  0/1 shared iters
+
+running (00m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m33.0s/10m0s  0/1 shared iters
+
+running (00m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m34.0s/10m0s  0/1 shared iters
+
+running (00m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m35.0s/10m0s  0/1 shared iters
+
+running (00m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m36.0s/10m0s  0/1 shared iters
+
+running (00m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m37.0s/10m0s  0/1 shared iters
+
+running (00m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m38.0s/10m0s  0/1 shared iters
+
+running (00m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m39.0s/10m0s  0/1 shared iters
+
+running (00m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m40.0s/10m0s  0/1 shared iters
+
+running (00m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m41.0s/10m0s  0/1 shared iters
+
+running (00m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m42.0s/10m0s  0/1 shared iters
+
+running (00m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m43.0s/10m0s  0/1 shared iters
+
+running (00m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m44.0s/10m0s  0/1 shared iters
+
+running (00m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m45.0s/10m0s  0/1 shared iters
+
+running (00m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m46.0s/10m0s  0/1 shared iters
+
+running (00m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m47.0s/10m0s  0/1 shared iters
+
+running (00m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m48.0s/10m0s  0/1 shared iters
+
+running (00m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m49.0s/10m0s  0/1 shared iters
+
+running (00m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m50.0s/10m0s  0/1 shared iters
+
+running (00m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m51.0s/10m0s  0/1 shared iters
+
+running (00m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m52.0s/10m0s  0/1 shared iters
+
+running (00m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m53.0s/10m0s  0/1 shared iters
+
+running (00m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m54.0s/10m0s  0/1 shared iters
+
+running (00m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m55.0s/10m0s  0/1 shared iters
+
+running (00m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m56.0s/10m0s  0/1 shared iters
+
+running (00m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m57.0s/10m0s  0/1 shared iters
+
+running (00m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m58.0s/10m0s  0/1 shared iters
+
+running (00m59.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m59.0s/10m0s  0/1 shared iters
+
+running (01m00.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m00.0s/10m0s  0/1 shared iters
+
+running (01m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m01.0s/10m0s  0/1 shared iters
+
+running (01m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m02.0s/10m0s  0/1 shared iters
+
+running (01m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m03.0s/10m0s  0/1 shared iters
+
+running (01m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m04.0s/10m0s  0/1 shared iters
+
+running (01m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m05.0s/10m0s  0/1 shared iters
+
+running (01m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m06.0s/10m0s  0/1 shared iters
+
+running (01m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m07.0s/10m0s  0/1 shared iters
+
+running (01m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m08.0s/10m0s  0/1 shared iters
+
+running (01m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m09.0s/10m0s  0/1 shared iters
+
+running (01m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m10.0s/10m0s  0/1 shared iters
+
+running (01m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m11.0s/10m0s  0/1 shared iters
+
+running (01m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m12.0s/10m0s  0/1 shared iters
+
+running (01m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m13.0s/10m0s  0/1 shared iters
+
+running (01m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m14.0s/10m0s  0/1 shared iters
+
+running (01m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m15.0s/10m0s  0/1 shared iters
+
+running (01m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m16.0s/10m0s  0/1 shared iters
+
+running (01m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m17.0s/10m0s  0/1 shared iters
+
+running (01m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m18.0s/10m0s  0/1 shared iters
+
+running (01m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m19.0s/10m0s  0/1 shared iters
+
+running (01m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m20.0s/10m0s  0/1 shared iters
+
+running (01m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m21.0s/10m0s  0/1 shared iters
+
+running (01m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m22.0s/10m0s  0/1 shared iters
+
+running (01m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m23.0s/10m0s  0/1 shared iters
+
+running (01m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m24.0s/10m0s  0/1 shared iters
+
+running (01m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m25.0s/10m0s  0/1 shared iters
+
+running (01m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m26.0s/10m0s  0/1 shared iters
+
+running (01m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m27.0s/10m0s  0/1 shared iters
+
+running (01m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m28.0s/10m0s  0/1 shared iters
+
+running (01m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m29.0s/10m0s  0/1 shared iters
+
+running (01m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m30.0s/10m0s  0/1 shared iters
+
+running (01m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m31.0s/10m0s  0/1 shared iters
+
+running (01m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m32.0s/10m0s  0/1 shared iters
+
+running (01m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m33.0s/10m0s  0/1 shared iters
+
+running (01m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m34.0s/10m0s  0/1 shared iters
+
+running (01m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m35.0s/10m0s  0/1 shared iters
+
+running (01m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m36.0s/10m0s  0/1 shared iters
+
+running (01m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m37.0s/10m0s  0/1 shared iters
+
+running (01m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m38.0s/10m0s  0/1 shared iters
+
+running (01m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m39.0s/10m0s  0/1 shared iters
+
+running (01m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m40.0s/10m0s  0/1 shared iters
+
+running (01m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m41.0s/10m0s  0/1 shared iters
+
+running (01m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m42.0s/10m0s  0/1 shared iters
+
+running (01m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m43.0s/10m0s  0/1 shared iters
+
+running (01m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m44.0s/10m0s  0/1 shared iters
+
+running (01m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m45.0s/10m0s  0/1 shared iters
+
+running (01m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m46.0s/10m0s  0/1 shared iters
+
+running (01m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m47.0s/10m0s  0/1 shared iters
+
+running (01m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m48.0s/10m0s  0/1 shared iters
+
+running (01m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m49.0s/10m0s  0/1 shared iters
+
+running (01m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m50.0s/10m0s  0/1 shared iters
+
+running (01m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m51.0s/10m0s  0/1 shared iters
+
+running (01m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m52.0s/10m0s  0/1 shared iters
+
+running (01m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  01m53.0s/10m0s  0/1 shared iters
+time="2026-07-08T06:45:53-07:00" level=info msg="✓ CW3-WOKE sentinel observed" source=console
+time="2026-07-08T06:45:53-07:00" level=info msg="Required R-CW-3 schedule/wake evidence gathered, closing early" source=console
+time="2026-07-08T06:45:53-07:00" level=info msg="R_CW_3_EVIDENCE {\"row\":\"R-CW-3\",\"manifest_loaded\":true,\"nonce\":\"R-CW-3-1783518240313-bjur2pje\",\"seat\":\"ronan\",\"requestedSessionKey\":\"main\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"session_created\":true,\"created_session_key\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"candidateSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"started\":\"2026-07-08T13:44:00.313Z\",\"dispatch_accepted\":true,\"scheduled_sentinel\":true,\"wake_observed\":true,\"public_artifact_raw_reason_absent\":true,\"tempo_assertion\":\"pending-review\",\"trace_id\":null,\"trace_id_source\":null,\"dispatch_accepted_at_ms\":1783518241191,\"scheduled_result_at_ms\":1783518259913,\"wake_delay_ms\":94083,\"redacted_events\":[{\"ts\":1783518240315,\"kind\":\"event\",\"method\":null,\"event\":\"connect.challenge\",\"ok\":null,\"data\":{\"ts\":1783518240315}},{\"ts\":1783518240316,\"kind\":\"other\",\"method\":null,\"event\":null,\"ok\":null,\"data\":{}},{\"ts\":1783518240392,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":{\"ok\":true,\"ts\":1783518240391}},{\"ts\":1783518240660,\"kind\":\"response\",\"method\":\"sessions.create\",\"event\":null,\"ok\":true,\"data\":{\"ok\":true}},{\"ts\":1783518240682,\"kind\":\"response\",\"method\":\"sessions.messages.subscribe\",\"event\":null,\"ok\":true,\"data\":{}},{\"ts\":1783518241191,\"kind\":\"response\",\"method\":\"sessions.send\",\"event\":null,\"ok\":true,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"status\":\"started\"}},{\"ts\":1783518241843,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrc4pmsa-f1230358\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje:active-memory:de97c89a9aee\",\"ts\":1783518241842}},{\"ts\":1783518248414,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrc4pmsa-f1230358\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje:active-memory:de97c89a9aee\",\"ts\":1783518248399}},{\"ts\":1783518250034,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":{\"ok\":true,\"ts\":1783518250033}},{\"ts\":1783518250053,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":{}},{\"ts\":1783518250086,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrc4pmsa-f1230358\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje:active-memory:de97c89a9aee\",\"ts\":1783518250074}},{\"ts\":1783518250098,\"kind\":\"event\",\"method\":null,\"event\":\"tick\",\"ok\":null,\"data\":{\"ts\":1783518250098}},{\"ts\":1783518251333,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrc4pmsa-f1230358\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje:active-memory:de97c89a9aee\",\"ts\":1783518251332}},{\"ts\":1783518251333,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrc4pmsa-f1230358\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje:active-memory:de97c89a9aee\",\"state\":\"final\"}},{\"ts\":1783518251475,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"ts\":1783518251474}},{\"ts\":1783518251519,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":{\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\"}},{\"ts\":1783518255687,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":{\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"status\":\"running\",\"startedAt\":1783518251474}},{\"ts\":1783518255714,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"ts\":1783518255692}},{\"ts\":1783518255742,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"ts\":1783518255733}},{\"ts\":1783518258812,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"ts\":1783518258812}},{\"ts\":1783518258812,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"state\":\"delta\"}},{\"ts\":1783518259338,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"ts\":1783518258813}},{\"ts\":1783518259338,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"ts\":1783518259337}},{\"ts\":1783518259338,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"state\":\"delta\"}},{\"ts\":1783518259851,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"ts\":1783518259410}},{\"ts\":1783518259851,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"ts\":1783518259850}},{\"ts\":1783518259851,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"state\":\"delta\"}},{\"ts\":1783518259913,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":{\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"status\":\"running\",\"startedAt\":1783518251474}},{\"ts\":1783518259916,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"ts\":1783518259851}},{\"ts\":1783518259916,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"ts\":1783518259915}},{\"ts\":1783518259964,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"ts\":1783518259964}},{\"ts\":1783518259965,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"state\":\"delta\"}},{\"ts\":1783518259965,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"state\":\"final\"}},{\"ts\":1783518278064,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":{\"ok\":true,\"ts\":1783518278063}},{\"ts\":1783518280099,\"kind\":\"event\",\"method\":null,\"event\":\"tick\",\"ok\":null,\"data\":{\"ts\":1783518280099}},{\"ts\":1783518305413,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":{\"ok\":true,\"ts\":1783518305412}},{\"ts\":1783518306837,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrc4r0yh-1de39fec\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf:active-memory:f6c94bac6c10\",\"ts\":1783518306837}},{\"ts\":1783518310099,\"kind\":\"event\",\"method\":null,\"event\":\"tick\",\"ok\":null,\"data\":{\"ts\":1783518310099}},{\"ts\":1783518311386,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrc4r0yh-1de39fec\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf:active-memory:f6c94bac6c10\",\"ts\":1783518311373}},{\"ts\":1783518312897,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":{\"ok\":true,\"ts\":1783518312897}},{\"ts\":1783518312914,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":{}},{\"ts\":1783518312946,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrc4r0yh-1de39fec\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf:active-memory:f6c94bac6c10\",\"ts\":1783518312936}},{\"ts\":1783518314420,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrc4r0yh-1de39fec\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf:active-memory:f6c94bac6c10\",\"ts\":1783518314420}},{\"ts\":1783518314420,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrc4r0yh-1de39fec\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf:active-memory:f6c94bac6c10\",\"state\":\"final\"}},{\"ts\":1783518314575,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"ts\":1783518314574}},{\"ts\":1783518319722,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"ts\":1783518319700}},{\"ts\":1783518319761,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"ts\":1783518319747}},{\"ts\":1783518322193,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"ts\":1783518322192}},{\"ts\":1783518322194,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"state\":\"delta\"}},{\"ts\":1783518322404,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"ts\":1783518322207}},{\"ts\":1783518322404,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"ts\":1783518322403}},{\"ts\":1783518322404,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"state\":\"delta\"}},{\"ts\":1783518322724,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"ts\":1783518322474}},{\"ts\":1783518322724,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"ts\":1783518322724}},{\"ts\":1783518322725,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"state\":\"delta\"}},{\"ts\":1783518322767,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"ts\":1783518322737}},{\"ts\":1783518322768,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"ts\":1783518322767}},{\"ts\":1783518322833,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"ts\":1783518322832}},{\"ts\":1783518322833,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"state\":\"delta\"}},{\"ts\":1783518322833,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\"state\":\"final\"}},{\"ts\":1783518338074,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":{\"ok\":true,\"ts\":1783518338073}},{\"ts\":1783518340100,\"kind\":\"event\",\"method\":null,\"event\":\"tick\",\"ok\":null,\"data\":{\"ts\":1783518340099}},{\"ts\":1783518353996,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":{\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\"status\":\"done\",\"startedAt\":1783518251474}}],\"ended\":\"2026-07-08T13:45:53.996Z\",\"duration_ms\":113683}" source=console
+time="2026-07-08T06:45:53-07:00" level=info msg="\n--- R-CW-3 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T06:45:53-07:00" level=info msg="{\n  \"row\": \"R-CW-3\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CW-3-1783518240313-bjur2pje\",\n  \"seat\": \"ronan\",\n  \"requestedSessionKey\": \"main\",\n  \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n  \"candidateSha\": \"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\n  \"started\": \"2026-07-08T13:44:00.313Z\",\n  \"dispatch_accepted\": true,\n  \"scheduled_sentinel\": true,\n  \"wake_observed\": true,\n  \"public_artifact_raw_reason_absent\": true,\n  \"tempo_assertion\": \"pending-review\",\n  \"trace_id\": null,\n  \"trace_id_source\": null,\n  \"dispatch_accepted_at_ms\": 1783518241191,\n  \"scheduled_result_at_ms\": 1783518259913,\n  \"wake_delay_ms\": 94083,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783518240315,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": {\n        \"ts\": 1783518240315\n      }\n    },\n    {\n      \"ts\": 1783518240316,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783518240392,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": {\n        \"ok\": true,\n        \"ts\": 1783518240391\n      }\n    },\n    {\n      \"ts\": 1783518240660,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783518240682,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783518241191,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783518241843,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrc4pmsa-f1230358\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje:active-memory:de97c89a9aee\",\n        \"ts\": 1783518241842\n      }\n    },\n    {\n      \"ts\": 1783518248414,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrc4pmsa-f1230358\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje:active-memory:de97c89a9aee\",\n        \"ts\": 1783518248399\n      }\n    },\n    {\n      \"ts\": 1783518250034,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": {\n        \"ok\": true,\n        \"ts\": 1783518250033\n      }\n    },\n    {\n      \"ts\": 1783518250053,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783518250086,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrc4pmsa-f1230358\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje:active-memory:de97c89a9aee\",\n        \"ts\": 1783518250074\n      }\n    },\n    {\n      \"ts\": 1783518250098,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": {\n        \"ts\": 1783518250098\n      }\n    },\n    {\n      \"ts\": 1783518251333,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrc4pmsa-f1230358\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje:active-memory:de97c89a9aee\",\n        \"ts\": 1783518251332\n      }\n    },\n    {\n      \"ts\": 1783518251333,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrc4pmsa-f1230358\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje:active-memory:de97c89a9aee\",\n        \"state\": \"final\"\n      }\n    },\n    {\n      \"ts\": 1783518251475,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"ts\": 1783518251474\n      }\n    },\n    {\n      \"ts\": 1783518251519,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": {\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\"\n      }\n    },\n    {\n      \"ts\": 1783518255687,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": {\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"status\": \"running\",\n        \"startedAt\": 1783518251474\n      }\n    },\n    {\n      \"ts\": 1783518255714,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"ts\": 1783518255692\n      }\n    },\n    {\n      \"ts\": 1783518255742,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"ts\": 1783518255733\n      }\n    },\n    {\n      \"ts\": 1783518258812,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"ts\": 1783518258812\n      }\n    },\n    {\n      \"ts\": 1783518258812,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"state\": \"delta\"\n      }\n    },\n    {\n      \"ts\": 1783518259338,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"ts\": 1783518258813\n      }\n    },\n    {\n      \"ts\": 1783518259338,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"ts\": 1783518259337\n      }\n    },\n    {\n      \"ts\": 1783518259338,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"state\": \"delta\"\n      }\n    },\n    {\n      \"ts\": 1783518259851,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"ts\": 1783518259410\n      }\n    },\n    {\n      \"ts\": 1783518259851,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"ts\": 1783518259850\n      }\n    },\n    {\n      \"ts\": 1783518259851,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"state\": \"delta\"\n      }\n    },\n    {\n      \"ts\": 1783518259913,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": {\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"status\": \"running\",\n        \"startedAt\": 1783518251474\n      }\n    },\n    {\n      \"ts\": 1783518259916,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"ts\": 1783518259851\n      }\n    },\n    {\n      \"ts\": 1783518259916,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"ts\": 1783518259915\n      }\n    },\n    {\n      \"ts\": 1783518259964,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"ts\": 1783518259964\n      }\n    },\n    {\n      \"ts\": 1783518259965,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"state\": \"delta\"\n      }\n    },\n    {\n      \"ts\": 1783518259965,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518240313-bjur2pje\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"state\": \"final\"\n      }\n    },\n    {\n      \"ts\": 1783518278064,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": {\n        \"ok\": true,\n        \"ts\": 1783518278063\n      }\n    },\n    {\n      \"ts\": 1783518280099,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": {\n        \"ts\": 1783518280099\n      }\n    },\n    {\n      \"ts\": 1783518305413,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": {\n        \"ok\": true,\n        \"ts\": 1783518305412\n      }\n    },\n    {\n      \"ts\": 1783518306837,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrc4r0yh-1de39fec\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf:active-memory:f6c94bac6c10\",\n        \"ts\": 1783518306837\n      }\n    },\n    {\n      \"ts\": 1783518310099,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": {\n        \"ts\": 1783518310099\n      }\n    },\n    {\n      \"ts\": 1783518311386,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrc4r0yh-1de39fec\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf:active-memory:f6c94bac6c10\",\n        \"ts\": 1783518311373\n      }\n    },\n    {\n      \"ts\": 1783518312897,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": {\n        \"ok\": true,\n        \"ts\": 1783518312897\n      }\n    },\n    {\n      \"ts\": 1783518312914,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783518312946,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrc4r0yh-1de39fec\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf:active-memory:f6c94bac6c10\",\n        \"ts\": 1783518312936\n      }\n    },\n    {\n      \"ts\": 1783518314420,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrc4r0yh-1de39fec\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf:active-memory:f6c94bac6c10\",\n        \"ts\": 1783518314420\n      }\n    },\n    {\n      \"ts\": 1783518314420,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrc4r0yh-1de39fec\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf:active-memory:f6c94bac6c10\",\n        \"state\": \"final\"\n      }\n    },\n    {\n      \"ts\": 1783518314575,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"ts\": 1783518314574\n      }\n    },\n    {\n      \"ts\": 1783518319722,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"ts\": 1783518319700\n      }\n    },\n    {\n      \"ts\": 1783518319761,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"ts\": 1783518319747\n      }\n    },\n    {\n      \"ts\": 1783518322193,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"ts\": 1783518322192\n      }\n    },\n    {\n      \"ts\": 1783518322194,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"state\": \"delta\"\n      }\n    },\n    {\n      \"ts\": 1783518322404,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"ts\": 1783518322207\n      }\n    },\n    {\n      \"ts\": 1783518322404,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"ts\": 1783518322403\n      }\n    },\n    {\n      \"ts\": 1783518322404,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"state\": \"delta\"\n      }\n    },\n    {\n      \"ts\": 1783518322724,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"ts\": 1783518322474\n      }\n    },\n    {\n      \"ts\": 1783518322724,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"ts\": 1783518322724\n      }\n    },\n    {\n      \"ts\": 1783518322725,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"state\": \"delta\"\n      }\n    },\n    {\n      \"ts\": 1783518322767,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"ts\": 1783518322737\n      }\n    },\n    {\n      \"ts\": 1783518322768,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"ts\": 1783518322767\n      }\n    },\n    {\n      \"ts\": 1783518322833,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"ts\": 1783518322832\n      }\n    },\n    {\n      \"ts\": 1783518322833,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"state\": \"delta\"\n      }\n    },\n    {\n      \"ts\": 1783518322833,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783518305325-l1emqhnf\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518305325-l1emqhnf\",\n        \"state\": \"final\"\n      }\n    },\n    {\n      \"ts\": 1783518338074,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": {\n        \"ok\": true,\n        \"ts\": 1783518338073\n      }\n    },\n    {\n      \"ts\": 1783518340100,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": {\n        \"ts\": 1783518340099\n      }\n    },\n    {\n      \"ts\": 1783518353996,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": {\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783518240313-bjur2pje\",\n        \"status\": \"done\",\n        \"startedAt\": 1783518251474\n      }\n    }\n  ],\n  \"ended\": \"2026-07-08T13:45:53.996Z\",\n  \"duration_ms\": 113683\n}" source=console
+time="2026-07-08T06:45:53-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T06:45:53-07:00" level=info msg="\n[R-CW-3] VERDICT: HONEST-LIMIT-candidate" source=console
+
+[R-CW-3] Summary: HONEST-LIMIT-candidate | SHA: 1cc8f4e3d617ef6f173283ef83d7b739a4995734 | Seat: ronan
+
+running (01m53.7s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry ✓ [ 100% ] 1 VUs  01m53.7s/10m0s  1/1 shared iters

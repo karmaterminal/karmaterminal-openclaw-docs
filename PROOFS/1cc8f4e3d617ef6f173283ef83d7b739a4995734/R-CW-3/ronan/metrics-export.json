@@ -1,0 +1,18 @@
+{
+  "schema": "openclaw.k6.proof-metrics-export.v1",
+  "rowId": "R-CW-3",
+  "candidateSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+  "seat": "ronan",
+  "outcome": "HONEST-LIMIT-candidate",
+  "sampleCount": 11,
+  "metricNames": [
+    "openclaw_proofs_k6_run_total",
+    "openclaw_proofs_k6_proof_failures_total",
+    "openclaw_proofs_k6_candidate_pending_review",
+    "openclaw_proofs_k6_duration_ms",
+    "openclaw_proofs_k6_receipt_status"
+  ],
+  "prometheusOut": "/tmp/p81-r-cw-3-live-long-20260708T134357Z/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/ronan/20260708T134400Z-r-cw-3/openclaw-proofs-k6.prom",
+  "otlpOut": "/tmp/p81-r-cw-3-live-long-20260708T134357Z/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/ronan/20260708T134400Z-r-cw-3/openclaw-proofs-k6.otlp.json",
+  "push": null
+}

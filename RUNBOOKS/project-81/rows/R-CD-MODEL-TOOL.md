@@ -9,7 +9,7 @@
 
 ## Purpose
 
-Typed continue_delegate with explicit model override; child reports requested model byte.
+Typed continue_delegate with explicit model override; child reports its runtime-context model byte. The requested model is deliberately omitted from the child task so the row cannot pass by prompt echo.
 
 ## Commands
 
@@ -24,7 +24,7 @@ Live candidate run:
 
 ```bash
 cd tools/k6-proofs
-OPENCLAW_GATEWAY_TOKEN=*** OPENCLAW_SESSION_KEY=<target-session-key> OPENCLAW_CREATE_DISPOSABLE_SESSION=true   ./scripts/run-proofs.sh --live R-CD-MODEL-TOOL <candidate-sha>
+OPENCLAW_GATEWAY_TOKEN=*** OPENCLAW_SESSION_KEY=<target-session-key> OPENCLAW_CREATE_DISPOSABLE_SESSION=true OPENCLAW_ALT_MODEL=<provider/model>   ./scripts/run-proofs.sh --live R-CD-MODEL-TOOL <candidate-sha>
 ```
 
 When using the GitHub Actions wrapper, include `R-CD-MODEL-TOOL` in the `rows` input and keep `create_disposable_sessions=true` for broad slices.
@@ -41,7 +41,8 @@ When using the GitHub Actions wrapper, include `R-CD-MODEL-TOOL` in the `rows` i
 - Preserve the full candidate-run artifact directory, not only the summary JSON.
 - Review `run-result.json` for `review.status` and `pendingReceipts`; trace/receipt-marker gaps make the row review-pending, not failed.
 - Fetch and commit Tempo trace JSON when a trace id is emitted.
-- For model rows, record the requested model byte and observed child model byte in the fold note.
+- For model rows, record the requested model byte and observed child runtime-context model byte in the fold note.
+- Confirm the child task did not include the requested model string; otherwise the run is echo-contaminated and cannot be folded as PASS.
 - For token/bracket rows, record the surface class used (raw final text vs message-body) because scanner availability is the proof boundary.
 
 ## Fold guidance
@@ -56,4 +57,4 @@ A k6 `PASS-candidate` is review input, not a canonical proof fold. Fold only aft
 
 ## Nuance / caveat
 
-If the child observes fallback/inherited model instead of the requested model, package as HONEST-LIMIT-candidate with mismatch evidence, not pass.
+If the child observes fallback/inherited/UNKNOWN model instead of the requested model, package as HONEST-LIMIT-candidate with mismatch evidence, not pass. A child self-report is only useful when the requested model was not present in the child prompt; otherwise it proves echo, not runtime selection.

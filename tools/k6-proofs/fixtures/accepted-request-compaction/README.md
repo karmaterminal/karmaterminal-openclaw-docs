@@ -65,6 +65,7 @@ The future live runner must make these explicit and redacted in artifacts:
 - `OPENCLAW_GATEWAY_TOKEN=<fixture-token>`
 - `OPENCLAW_CANDIDATE_SHA=<40-char-sha>`
 - `OPENCLAW_ACCEPTED_COMPACTION_MODEL=<provider/model>`
+- optional `OPENCLAW_ACCEPTED_COMPACTION_PROVIDER_BASE_URL=<local-openai-compatible-base-url>`
 - `OPENCLAW_ACCEPTED_COMPACTION_CONTEXT_TOKENS=<small-cap>`
 - `OPENCLAW_ACCEPTED_COMPACTION_KEEP_RECENT_TOKENS=<n>`
 - `OPENCLAW_ACCEPTED_COMPACTION_RESERVE_TOKENS=<n>`

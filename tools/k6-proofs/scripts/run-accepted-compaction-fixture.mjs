@@ -33,6 +33,7 @@ const DEFAULT_RESERVE_TOKENS = 2_000;
 const DEFAULT_TIMEOUT_MS = 180_000;
 const DEFAULT_PORT = 0;
 const DEFAULT_MODEL = 'fixture/openai-compatible-local';
+const DEFAULT_PROVIDER_BASE_URL = 'http://127.0.0.1:11434/v1';
 const DEFAULT_GATEWAY_PROBE_TIMEOUT_MS = 15_000;
 const DEFAULT_GATEWAY_STOP_TIMEOUT_MS = 10_000;
 const NON_PASS_EXIT_CODE = 3;
@@ -82,6 +83,7 @@ Environment defaults:
   OPENCLAW_ACCEPTED_COMPACTION_TIMEOUT_MS=<n>
   OPENCLAW_ACCEPTED_COMPACTION_PORT=<n>
   OPENCLAW_ACCEPTED_COMPACTION_RETAIN_TMP=true
+  OPENCLAW_ACCEPTED_COMPACTION_PROVIDER_BASE_URL=<url>
   OPENCLAW_ACCEPTED_COMPACTION_GATEWAY_CMD_JSON='["openclaw","gateway"]'`;
 }
 
@@ -250,6 +252,7 @@ function renderConfig(args, paths, runtime, { redactSecrets }) {
   const providerId = provider || 'fixture';
   const modelName = modelParts.join('/') || 'default';
   const gatewayToken = redactSecrets ? '<REDACTED-fixture-token>' : runtime.gatewayToken;
+  const providerBaseUrl = process.env.OPENCLAW_ACCEPTED_COMPACTION_PROVIDER_BASE_URL || DEFAULT_PROVIDER_BASE_URL;
 
   return {
     gateway: {
@@ -269,6 +272,7 @@ function renderConfig(args, paths, runtime, { redactSecrets }) {
     },
     agents: {
       defaults: {
+        model: args.model,
         workspace: paths.workspaceDir,
         continuation: {
           enabled: true,
@@ -290,11 +294,23 @@ function renderConfig(args, paths, runtime, { redactSecrets }) {
     models: {
       providers: {
         [providerId]: {
-          models: {
-            [modelName]: {
+          baseUrl: providerBaseUrl,
+          api: 'openai-completions',
+          auth: 'token',
+          apiKey: redactSecrets ? '<REDACTED-provider-secret>' : 'fixture-local-provider-token',
+          contextTokens: args.contextTokens,
+          models: [
+            {
+              id: modelName,
+              name: modelName,
+              reasoning: false,
+              input: ['text'],
+              cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+              contextWindow: args.contextTokens,
               contextTokens: args.contextTokens,
+              maxTokens: Math.max(512, args.reserveTokens),
             },
-          },
+          ],
         },
       },
     },

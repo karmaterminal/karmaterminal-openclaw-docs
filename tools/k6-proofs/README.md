@@ -94,6 +94,7 @@ GitHub Actions workflow choices. Current workflow-runnable basenames are:
 - `r-cd-2-silent-wake`
 - `r-cd-4-target-session-key`
 - `r-cd-chained-depth-2`
+- `r-cd-silent`
 - `r-cd-model-default`
 - `r-cd-model-tool`
 - `r-cd-model-chained-alt`
@@ -103,6 +104,8 @@ GitHub Actions workflow choices. Current workflow-runnable basenames are:
 - `r-config-defaults`
 - `r-config-intersession`
 - `r-cw-1-tool-schedule-wake`
+- `r-cw-2-immediate-wake`
+- `r-cw-3-reason-telemetry`
 - `r-cw-4-chain-depth`
 - `r-cw-delegate-self-continuation`
 - `r-cw-token-bracket`

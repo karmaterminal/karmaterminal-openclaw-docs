@@ -11,14 +11,14 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 function usage() {
-  console.error('Usage: node fetch-tempo-trace.mjs (--trace-id <id> | --run-dir <dir>) [--tempo-url http://tempo.dandelion.cult] [--out trace.json]');
+  console.error('Usage: node fetch-tempo-trace.mjs (--trace-id <id> | --run-dir <dir> | --traceql <query>) [--tempo-url http://tempo.dandelion.cult] [--start <unix-seconds>] [--end <unix-seconds>] [--out trace.json]');
 }
 
 function parseArgs(argv) {
   const out = { tempoUrl: process.env.TEMPO_BASE_URL || 'http://tempo.dandelion.cult' };
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
-    if (arg === '--trace-id' || arg === '--run-dir' || arg === '--tempo-url' || arg === '--out') {
+    if (arg === '--trace-id' || arg === '--run-dir' || arg === '--traceql' || arg === '--tempo-url' || arg === '--start' || arg === '--end' || arg === '--out') {
       const value = argv[i + 1];
       if (!value || value.startsWith('--')) throw new Error(`missing value for ${arg}`);
       out[arg.slice(2).replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = value;
@@ -53,6 +53,26 @@ async function traceIdFromRunDir(runDir) {
   throw new Error(`no trace_id found in ${evidencePath}`);
 }
 
+
+async function traceIdFromTraceql(baseUrl, traceql, { start, end } = {}) {
+  const query = String(traceql ?? '').trim();
+  if (!query) throw new Error('empty traceql query');
+  const root = String(baseUrl).replace(/\/+$/, '');
+  const params = { q: query, limit: '1' };
+  if (start) params.start = String(start);
+  if (end) params.end = String(end);
+  const url = `${root}/api/search?${new URLSearchParams(params)}`;
+  const response = await fetch(url, { headers: { accept: 'application/json' } });
+  const text = await response.text();
+  if (!response.ok) throw new Error(`Tempo search failed: HTTP ${response.status} ${response.statusText} ${text.slice(0, 240)}`.trim());
+  let json;
+  try { json = JSON.parse(text); }
+  catch { throw new Error(`Tempo search did not return JSON for query ${query}`); }
+  const traceId = json?.traces?.[0]?.traceID || json?.traces?.[0]?.traceId || json?.traces?.[0]?.trace_id;
+  if (!traceId) throw new Error(`Tempo search returned no traces for query ${query}`);
+  return safeTraceId(traceId);
+}
+
 async function fetchTrace(baseUrl, traceId) {
   const root = String(baseUrl).replace(/\/+$/, '');
   const url = `${root}/api/traces/${encodeURIComponent(traceId)}`;
@@ -68,8 +88,8 @@ async function fetchTrace(baseUrl, traceId) {
 async function main() {
   const args = parseArgs(process.argv);
   if (args.help) { usage(); return; }
-  if (args.traceId && args.runDir) throw new Error('choose --trace-id or --run-dir, not both');
-  const traceId = safeTraceId(args.traceId || await traceIdFromRunDir(args.runDir));
+  if ([args.traceId, args.runDir, args.traceql].filter(Boolean).length !== 1) throw new Error('choose exactly one of --trace-id, --run-dir, or --traceql');
+  const traceId = safeTraceId(args.traceId || (args.runDir ? await traceIdFromRunDir(args.runDir) : await traceIdFromTraceql(args.tempoUrl, args.traceql, { start: args.start, end: args.end })));
   const out = args.out
     ? path.resolve(args.out)
     : path.join(path.resolve(args.runDir || process.cwd()), `tempo-trace-${traceId.slice(0, 12)}.json`);

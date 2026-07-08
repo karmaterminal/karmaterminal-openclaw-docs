@@ -430,18 +430,22 @@
     },
     {
       "dir": "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/",
-      "evidence_doc": "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/cael-dgx/EVIDENCE.md",
-      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/231",
-      "note": "continue_work fired with locked marker; live continuation.work.fire trace exports safe reason attributes (present/length/hash) and no raw reason.preview per 1cc8f4e redaction contract.",
+      "evidence_doc": "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/ronan/EVIDENCE.md",
+      "issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/333",
+      "note": "continue_work dispatch/schedule/wake captured by Ronan live k6 at 1cc8f4e; TraceQL recovered Tempo trace 518565900f34f7ba41bcbc3e415d1e1f; reason telemetry redaction review passed with safe reason attrs present and raw reason absent.",
       "row": "R-CW-3",
       "state": "pass",
       "supporting_docs": [
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/cael-dgx/flow-run-eb98f977.json",
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/cael-dgx/journal-continuation-window.txt",
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/cael-dgx/version-status.txt"
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/ronan/run-result.json",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/ronan/r-cw-3-reason-telemetry-summary.json",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/ronan/evidence-lines.log",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/ronan/tempo-review-518565900f34f7ba41bcbc3e415d1e1f.json",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/ronan/runner-metadata.json",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/ronan/row-manifest.json",
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/ronan/seat-readiness.json"
       ],
       "traces": [
-        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/cael-dgx/tempo-trace-6dde0abcff5b67721699c708995512e1.json"
+        "PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-3/ronan/tempo-trace-518565900f34f7ba41bcbc3e415d1e1f.json"
       ]
     },
     {

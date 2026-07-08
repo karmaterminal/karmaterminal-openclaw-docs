@@ -92,6 +92,7 @@ GitHub Actions workflow choices. Current workflow-runnable basenames are:
 - `preflight`
 - `r-cd-1-typed-delegate`
 - `r-cd-2-silent-wake`
+- `r-cd-3-post-compaction`
 - `r-cd-4-target-session-key`
 - `r-cd-chained-depth-2`
 - `r-cd-silent`

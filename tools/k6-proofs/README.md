@@ -94,6 +94,10 @@ GitHub Actions workflow choices. Current workflow-runnable basenames are:
 - `r-cd-2-silent-wake`
 - `r-cd-3-post-compaction`
 - `r-cd-4-target-session-key`
+- `r-cd-collection-on-collapse`
+- `r-cw-5`
+- `r-cw-6`
+- `r-cw-multi-collapse`
 - `r-cd-chained-depth-2`
 - `r-cd-silent`
 - `r-cd-model-default`

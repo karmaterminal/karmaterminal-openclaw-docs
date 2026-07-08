@@ -2,7 +2,7 @@
 
 **SHA:** `1cc8f4e3d617ef6f173283ef83d7b739a4995734`
 **Seat:** Cael / `cael-dgx`
-**Verdict:** ⚠️ PARTIAL-candidate — not a PASS row
+**Verdict:** ⚠️ HONEST-LIMIT-candidate — model override refused by current agent allowlist; not a PASS row
 **Runtime stamp:** `OpenClaw 2026.6.11 (1cc8f4e)`
 **Docs runner head:** `29a7479b13810ac36a48455d221091573caf8be6`
 
@@ -37,6 +37,13 @@
 
 ## Review note
 
-This is a live PARTIAL-candidate receipt, not a PASS claim. It reduces fold burden by preserving k6 output, summarized evidence bytes, seat readiness, metrics, and trace-search breadcrumbs. Human/corpus review should decide whether this row is sufficient without Tempo JSON, or whether the scenario should emit a stronger trace identifier in a follow-up.
+This was initially packaged as a live PARTIAL-candidate receipt, not a PASS claim. Targeted post-run review found the concrete blocker: the requested model override was rejected by agent allowlisting before a child model byte could exist. The row is therefore folded as HONEST-LIMIT-candidate, with the original k6 artifacts plus the narrowed model-not-allowed diagnosis preserved for review.
 
-Partial reason: parent scheduled typed `continue_delegate(model="github-copilot/claude-sonnet-4.6")`, but the k6 observer did not see child session/model/return payload inside the 180s window. Keep this row separate from the five clean PASS-candidates until the observer or trace path is reviewed.
+Disposition update (2026-07-08): targeted session/DB review found this was not merely an observer-window miss. The delegate flow spawned a subagent, but the child failed before producing `MODEL-TOOL-CHILD` because model override `github-copilot/claude-sonnet-4.6` is not allowed for agent `main`. Keep this row as HONEST-LIMIT until the allowed-model/runtime override contract changes or a permitted alternate model proves the path. See `model-not-allowed-diagnosis/`.
+
+## Model-not-allowed diagnosis
+
+- `model-not-allowed-diagnosis/README.md`
+- `model-not-allowed-diagnosis/flow-runs-model-not-allowed.json`
+- `model-not-allowed-diagnosis/subagent-runs-model-not-allowed.json`
+- `model-not-allowed-diagnosis/task-runs-model-not-allowed.json`

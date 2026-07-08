@@ -1,7 +1,7 @@
 {
   "k6ExitCode": 99,
   "endedAt": "2026-07-08T13:59:15Z",
-  "verdict": "PARTIAL-candidate",
+  "verdict": "HONEST-LIMIT-candidate",
   "summaryFiles": [
     "r-cd-model-tool-summary.json"
   ],
@@ -14,7 +14,9 @@
     "tempoTraceJson": null
   },
   "review": {
-    "status": "ready-for-human-review",
-    "pendingReceipts": []
+    "status": "honest-limit-after-targeted-review",
+    "pendingReceipts": [],
+    "modelNotAllowedDiagnosis": "model-not-allowed-diagnosis/README.md",
+    "reason": "model override github-copilot/claude-sonnet-4.6 is not allowed for agent main; child subagent failed before emitting a child model byte"
   }
 }

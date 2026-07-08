@@ -107,6 +107,10 @@ GitHub Actions workflow choices. Current workflow-runnable basenames are:
 - `r-cw-2-immediate-wake`
 - `r-cw-3-reason-telemetry`
 - `r-cw-4-chain-depth`
+- `r-cw-7`
+- `r-cw-delegate-child-live`
+- `r-cw-delegate-token`
+- `r-cw-multi`
 - `r-cw-delegate-self-continuation`
 - `r-cw-token-bracket`
 - `r-obs-status`

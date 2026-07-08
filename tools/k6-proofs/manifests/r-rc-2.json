@@ -3,27 +3,50 @@
   "rowId": "R-RC-2",
   "issue": 104,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
-  "seat": "${OPENCLAW_SEAT_NAME:-emeric-nuc}",
-  "sessionKey": "${OPENCLAW_SESSION_KEY:***-rc-accept}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
   "transport": "websocket",
   "toolSurface": "typed-tool",
-  "mutates": true,
-  "timeoutSeconds": 120,
+  "mutates": false,
+  "timeoutSeconds": 150,
   "scenario": {
-    "status": "scaffold",
-    "expectedFile": "r-rc-2.js",
-    "registryNotes": "No runnable request_compaction threshold-accept scenario exists yet; keep scaffolded until a serialized, human-confirmed runner lands."
+    "name": "r-rc-2-delegate-request-compaction",
+    "description": "Parent fires continue_delegate to a child that calls request_compaction. Accepts actual compaction path or structured below-threshold rejection as environmental honest limit.",
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "continue_delegate",
+      "request_compaction-threshold-guard"
+    ],
+    "status": "runnable",
+    "file": "r-rc-2-delegate-request-compaction.js",
+    "notes": "Does not lower thresholds or mutate config. Default public/disposable outcome is expected to be REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD."
   },
   "expectedReceipts": [
     {
-      "name": "tool-invoke-accepted",
+      "name": "parent-dispatch-accepted",
       "required": true,
-      "description": "Gateway accepted request_compaction at >=70% threshold"
+      "description": "Gateway accepted parent sessions.send proof turn"
     },
     {
-      "name": "compaction-triggered",
+      "name": "delegate-requested",
       "required": true,
-      "description": "Compaction cycle executed and rewrote session context"
+      "description": "Parent agent was instructed to call continue_delegate(mode=normal)"
+    },
+    {
+      "name": "child-report-observed",
+      "required": true,
+      "description": "Delegate child returned a request_compaction result sentinel"
+    },
+    {
+      "name": "threshold-rejection-or-accepted-compaction",
+      "required": true,
+      "description": "Either structured context-threshold rejection or accepted/post-compaction path observed"
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID for gateway/session dispatch correlation when available"
     }
   ],
   "artifactDestination": {
@@ -36,22 +59,28 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Threshold Accept. SAFETY SEMANTICS: requiresHumanConfirmation: true, serialized: true. This row MUTATES session state and MUST NOT run in parallel with continuation/delegate rows."
+    "notes": "R-RC-2 is HONEST-LIMIT-candidate when the delegated child reaches request_compaction and receives a structured below-threshold rejection. A true accepted compaction path remains fixture-gated until reviewed tiny-context env/config exists."
   },
   "liveRunSafety": {
-    "classification": "orchestration-required",
+    "classification": "k6-runnable",
     "requiresLiveGatewayToken": true,
-    "requiresTargetSessionKey": true,
+    "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
-    "requiresExternalAgentOrToolInvocation": true,
-    "requiresHumanConfirmation": true,
-    "sameSessionConcurrencySafe": false,
-    "expectedArtifactClass": "PARTIAL-candidate",
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "HONEST-LIMIT-candidate",
     "requiredReceipts": [
-      "tool-invoke-accepted",
-      "compaction-triggered"
+      "parent-dispatch-accepted",
+      "delegate-requested",
+      "child-report-observed",
+      "threshold-rejection-or-accepted-compaction"
     ],
     "foldRequiresReview": true,
-    "notes": "request_compaction accept path mutates session context. Requires disposable high-context fixture or explicit threshold setup; never run against active main/work sessions."
+    "notes": "Runs in disposable session by default and delegates request_compaction to child. Does not mutate config; if compaction unexpectedly accepts, mutation is confined to proof child/session and result is review-gated."
+  },
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
   }
 }

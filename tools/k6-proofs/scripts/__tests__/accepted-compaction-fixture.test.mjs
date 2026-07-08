@@ -95,7 +95,7 @@ test('symlinked production paths are refused', async () => {
   }
 });
 
-test('run mode with opt-in still fails closed until orchestration is implemented', async () => {
+test('run mode with fixture opt-in but no --enable-live-orchestration classifies as review gate', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'openclaw-accepted-compaction-run-test-'));
   try {
     const run = runFixture(['--run', '--tmpdir', join(dir, 'fixture'), '--artifact-dir', join(dir, 'artifacts'), '--json'], {
@@ -104,9 +104,14 @@ test('run mode with opt-in still fails closed until orchestration is implemented
     assert.equal(run.status, 3, run.stderr || run.stdout);
     const parsed = JSON.parse(run.stdout);
     assert.equal(parsed.ok, false);
-    assert.equal(parsed.outcome, 'BLOCKED-live-orchestration-not-implemented');
+    assert.equal(parsed.pass, false);
+    assert.equal(parsed.outcome, 'HONEST-LIMIT-live-orchestration-review-gate');
     const outcome = JSON.parse(await readFile(join(dir, 'artifacts', 'outcome.json'), 'utf8'));
     assert.equal(outcome.pass, false);
+    assert.equal(outcome.outcome, 'HONEST-LIMIT-live-orchestration-review-gate');
+    assert.doesNotMatch(JSON.stringify(outcome), /secret-token-must-not-print/);
+    // No preflight artifact expected when the review gate blocks before orchestration runs.
+    await assert.rejects(readFile(join(dir, 'artifacts', 'preflight-context.json'), 'utf8'));
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
@@ -142,4 +147,112 @@ test('invalid candidate SHA is rejected when supplied', () => {
   const parsed = JSON.parse(run.stdout);
   assert.equal(parsed.ok, false);
   assert.match(parsed.error, /candidate SHA/);
+});
+
+test('run with --enable-live-orchestration but missing openclaw-dir classifies as BLOCKED-openclaw-dir-missing', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'openclaw-accepted-compaction-live-dir-missing-'));
+  try {
+    const missing = join(dir, 'no-such-openclaw-checkout');
+    const run = runFixture([
+      '--run',
+      '--enable-live-orchestration',
+      '--tmpdir', join(dir, 'fixture'),
+      '--artifact-dir', join(dir, 'artifacts'),
+      '--openclaw-dir', missing,
+      '--json',
+    ], {
+      OPENCLAW_ACCEPTED_COMPACTION_FIXTURE: 'true',
+    });
+    assert.equal(run.status, 3, run.stderr || run.stdout);
+    const parsed = JSON.parse(run.stdout);
+    assert.equal(parsed.pass, false);
+    assert.equal(parsed.outcome, 'BLOCKED-openclaw-dir-missing');
+    const preflight = JSON.parse(await readFile(join(dir, 'artifacts', 'preflight-context.json'), 'utf8'));
+    assert.equal(preflight.openclawDir, missing);
+    assert.equal(typeof preflight.error, 'string');
+    assert.doesNotMatch(JSON.stringify(preflight), /secret-token-must-not-print/);
+    assert.doesNotMatch(JSON.stringify(preflight), /openai-secret-must-not-print/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('run with --enable-live-orchestration refuses openclaw-dir inside production markers', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'openclaw-accepted-compaction-live-prod-dir-'));
+  try {
+    // The workorder hints at /home/figs/flesh_beast_tmp/openclaw as the source
+    // location. That path is inside a production marker; the runner must refuse
+    // it until reviewed source-only guards land.
+    const productionDir = join(process.env.HOME || '/home/figs', 'flesh_beast_tmp', 'openclaw');
+    const run = runFixture([
+      '--run',
+      '--enable-live-orchestration',
+      '--tmpdir', join(dir, 'fixture'),
+      '--artifact-dir', join(dir, 'artifacts'),
+      '--openclaw-dir', productionDir,
+      '--json',
+    ], {
+      OPENCLAW_ACCEPTED_COMPACTION_FIXTURE: 'true',
+    });
+    assert.equal(run.status, 3, run.stderr || run.stdout);
+    const parsed = JSON.parse(run.stdout);
+    assert.equal(parsed.pass, false);
+    assert.equal(parsed.outcome, 'BLOCKED-openclaw-dir-inside-production');
+    const outcome = JSON.parse(await readFile(join(dir, 'artifacts', 'outcome.json'), 'utf8'));
+    assert.equal(outcome.pass, false);
+    assert.equal(outcome.outcome, 'BLOCKED-openclaw-dir-inside-production');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('run with --enable-live-orchestration writes preflight-context, temp config, and honest-limit marker when live steps are unimplemented', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'openclaw-accepted-compaction-live-preflight-'));
+  try {
+    // Provide a fake openclaw source dir outside the production markers that
+    // contains a stub entrypoint file, so preflight succeeds.
+    const openclawDir = join(dir, 'openclaw-fake');
+    const { mkdir, writeFile } = await import('node:fs/promises');
+    await mkdir(openclawDir, { recursive: true });
+    await writeFile(join(openclawDir, 'openclaw.mjs'), '// stub\n');
+    const run = runFixture([
+      '--run',
+      '--enable-live-orchestration',
+      '--tmpdir', join(dir, 'fixture'),
+      '--artifact-dir', join(dir, 'artifacts'),
+      '--openclaw-dir', openclawDir,
+      '--json',
+    ], {
+      OPENCLAW_ACCEPTED_COMPACTION_FIXTURE: 'true',
+    });
+    assert.equal(run.status, 3, run.stderr || run.stdout);
+    const parsed = JSON.parse(run.stdout);
+    assert.equal(parsed.pass, false);
+    assert.equal(parsed.outcome, 'HONEST-LIMIT-live-orchestration-preflight-only');
+    assert.equal(parsed.phase, 'mock-provider-start');
+
+    const preflight = JSON.parse(await readFile(join(dir, 'artifacts', 'preflight-context.json'), 'utf8'));
+    assert.equal(preflight.openclawDir, openclawDir);
+    assert.equal(preflight.openclawEntrypoint, join(openclawDir, 'openclaw.mjs'));
+    assert.equal(typeof preflight.portCandidate, 'number');
+    assert.ok(preflight.portCandidate > 0, 'preflight allocated a positive port');
+
+    const config = JSON.parse(await readFile(join(dir, 'artifacts', 'temp-config.redacted.json'), 'utf8'));
+    assert.equal(config.gateway.token, '<REDACTED-fixture-token>');
+    assert.equal(config.gateway.mode, 'local');
+    assert.doesNotMatch(JSON.stringify(config), /secret-token-must-not-print/);
+    assert.doesNotMatch(JSON.stringify(config), /openai-secret-must-not-print/);
+
+    const honestLimit = JSON.parse(await readFile(
+      join(dir, 'artifacts', 'live-orchestration-not-yet-implemented.json'),
+      'utf8',
+    ));
+    assert.equal(honestLimit.step, 'startMockProvider');
+
+    const cleanup = JSON.parse(await readFile(join(dir, 'artifacts', 'cleanup.json'), 'utf8'));
+    assert.equal(cleanup.productionConfigTouched, false);
+    assert.equal(cleanup.gatewayStopped, null, 'no gateway ever started');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });

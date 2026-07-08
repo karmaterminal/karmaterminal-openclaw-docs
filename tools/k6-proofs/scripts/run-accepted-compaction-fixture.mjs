@@ -1,19 +1,40 @@
 #!/usr/bin/env node
 /**
- * run-accepted-compaction-fixture.mjs — fail-closed planner/scaffold for the
- * Project 81 accepted request_compaction fixture.
+ * run-accepted-compaction-fixture.mjs — planner + preflight runner for the
+ * Project 81 accepted request_compaction fixture (issue #331).
  *
- * This first implementation intentionally exposes only a redacted --plan /
- * --dry-run surface. A future live mode must start an isolated temp Gateway and
- * collect the accepted-compaction receipts described in the emitted plan. Live
- * execution fails closed until that orchestration is implemented and reviewed.
+ * Modes:
+ *   --plan / --dry-run   Emit a redacted plan artifact (no Gateway started).
+ *   --run                Run the reviewed live orchestration state machine.
+ *                        Requires FIXTURE opt-in, candidate SHA, AND the
+ *                        review gate --enable-live-orchestration flag.
+ *                        Without the review gate, --run classifies as
+ *                        HONEST-LIMIT-live-orchestration-review-gate and
+ *                        does NOT start any subprocess.
+ *
+ * Live orchestration in this increment implements preflight only (openclaw
+ * source dir validation, free port allocation, redacted temp config write)
+ * and then classifies the next phase as
+ * HONEST-LIMIT-live-orchestration-preflight-only. Downstream phases (mock
+ * provider bootstrap, Gateway start, request_compaction RPC, lifecycle wait,
+ * successor sentinel) live behind dependency-injected stubs so the
+ * follow-up review PR can wire them without a second refactor.
  */
-import { chmodSync, existsSync, mkdirSync, realpathSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';
 import { mkdtemp } from 'node:fs/promises';
 import { randomBytes } from 'node:crypto';
-import { homedir, tmpdir } from 'node:os';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
+import {
+  NON_PASS_OUTCOMES,
+  PRODUCTION_PATH_MARKERS,
+  DEFAULT_OPENCLAW_SOURCE_DIR,
+  buildRedactedConfig,
+  makeUnimplementedLiveSteps,
+  normalizeSafePath as sharedNormalizeSafePath,
+  runOrchestration,
+} from './lib/accepted-compaction-orchestrator.mjs';
 
 const DEFAULT_CONTEXT_TOKENS = 12_000;
 const DEFAULT_KEEP_RECENT_TOKENS = 1_000;
@@ -21,33 +42,33 @@ const DEFAULT_RESERVE_TOKENS = 2_000;
 const DEFAULT_TIMEOUT_MS = 180_000;
 const DEFAULT_PORT = 0;
 const DEFAULT_MODEL = 'fixture/openai-compatible-local';
-const PRODUCTION_PATH_MARKERS = [
-  path.join(homedir(), '.openclaw'),
-  path.join(homedir(), 'flesh_beast_tmp', 'openclaw'),
-];
 
 function usage() {
   return `Usage: node tools/k6-proofs/scripts/run-accepted-compaction-fixture.mjs --plan [options]
 
 Options:
   --plan, --dry-run                Emit a redacted plan artifact and exit 0.
-  --run                           Fail closed until reviewed live orchestration lands.
+  --run                           Run reviewed live orchestration (preflight only in this increment).
+  --enable-live-orchestration     Review gate for --run; without this flag --run classifies as HONEST-LIMIT-live-orchestration-review-gate.
   --artifact-dir <path>            Directory for emitted artifacts.
   --tmpdir <path>                  Temp root for fixture config/state/workspace/logs.
+  --openclaw-dir <path>            OpenClaw source checkout used to spawn the temp Gateway.
   --candidate-sha <sha>            Candidate SHA under test (40-char hex when supplied).
   --model <provider/model>         Fixture model id (default: ${DEFAULT_MODEL}).
   --context-tokens <n>             Effective context cap (default: ${DEFAULT_CONTEXT_TOKENS}).
   --keep-recent-tokens <n>         Compaction keepRecentTokens (default: ${DEFAULT_KEEP_RECENT_TOKENS}).
   --reserve-tokens <n>             Compaction reserveTokens/floor (default: ${DEFAULT_RESERVE_TOKENS}).
   --timeout-ms <n>                 Lifecycle timeout (default: ${DEFAULT_TIMEOUT_MS}).
-  --port <n>                       Temp Gateway port, 0 = choose/free port later.
+  --port <n>                       Temp Gateway port, 0 = allocate free port during preflight.
   --retain-tmp                    Mark temp root retained in cleanup plan.
   --json                          Print machine-readable result.
   --help                          Show this help.
 
 Environment defaults:
-  OPENCLAW_ACCEPTED_COMPACTION_FIXTURE=true   Required for --run only.
-  OPENCLAW_ACCEPTED_COMPACTION_TMPDIR=<tmp>   Fixture temp root.
+  OPENCLAW_ACCEPTED_COMPACTION_FIXTURE=true       Required for --run only.
+  OPENCLAW_ACCEPTED_COMPACTION_ENABLE_LIVE=true   Review gate for --run.
+  OPENCLAW_ACCEPTED_COMPACTION_TMPDIR=<tmp>       Fixture temp root.
+  OPENCLAW_ACCEPTED_COMPACTION_OPENCLAW_DIR=<dir> OpenClaw source checkout.
   OPENCLAW_CANDIDATE_SHA=<sha>
   OPENCLAW_ACCEPTED_COMPACTION_MODEL=<provider/model>
   OPENCLAW_ACCEPTED_COMPACTION_CONTEXT_TOKENS=<n>
@@ -74,6 +95,7 @@ function parseArgs(argv, env = process.env) {
     mode: null,
     json: false,
     retainTmp: env.OPENCLAW_ACCEPTED_COMPACTION_RETAIN_TMP === 'true',
+    enableLiveOrchestration: env.OPENCLAW_ACCEPTED_COMPACTION_ENABLE_LIVE === 'true',
     candidateSha: env.OPENCLAW_CANDIDATE_SHA || '',
     model: env.OPENCLAW_ACCEPTED_COMPACTION_MODEL || DEFAULT_MODEL,
     contextTokens: parsePositiveInteger(env.OPENCLAW_ACCEPTED_COMPACTION_CONTEXT_TOKENS || DEFAULT_CONTEXT_TOKENS, 'context tokens'),
@@ -83,6 +105,7 @@ function parseArgs(argv, env = process.env) {
     port: parsePositiveInteger(env.OPENCLAW_ACCEPTED_COMPACTION_PORT || DEFAULT_PORT, 'port', { allowZero: true, max: 65_535 }),
     tmpdir: env.OPENCLAW_ACCEPTED_COMPACTION_TMPDIR || '',
     artifactDir: '',
+    openclawDir: env.OPENCLAW_ACCEPTED_COMPACTION_OPENCLAW_DIR || '',
   };
 
   for (let i = 2; i < argv.length; i += 1) {
@@ -106,6 +129,10 @@ function parseArgs(argv, env = process.env) {
       args.retainTmp = true;
       continue;
     }
+    if (arg === '--enable-live-orchestration') {
+      args.enableLiveOrchestration = true;
+      continue;
+    }
     const next = () => {
       const value = argv[++i];
       if (!value) throw new Error(`${arg} requires a value`);
@@ -113,6 +140,7 @@ function parseArgs(argv, env = process.env) {
     };
     if (arg === '--artifact-dir') args.artifactDir = next();
     else if (arg === '--tmpdir') args.tmpdir = next();
+    else if (arg === '--openclaw-dir') args.openclawDir = next();
     else if (arg === '--candidate-sha') args.candidateSha = next();
     else if (arg === '--model') args.model = next();
     else if (arg === '--context-tokens') args.contextTokens = parsePositiveInteger(next(), 'context tokens');
@@ -127,46 +155,8 @@ function parseArgs(argv, env = process.env) {
   return args;
 }
 
-function existingRealpathWithSuffix(resolved) {
-  const suffix = [];
-  let cursor = resolved;
-  while (!existsSync(cursor)) {
-    const parent = path.dirname(cursor);
-    if (parent === cursor) return resolved;
-    suffix.unshift(path.basename(cursor));
-    cursor = parent;
-  }
-  const realExisting = realpathSync.native(cursor);
-  return suffix.length ? path.join(realExisting, ...suffix) : realExisting;
-}
-
-function productionPathCandidates() {
-  const candidates = new Set();
-  for (const marker of PRODUCTION_PATH_MARKERS) {
-    const resolved = path.resolve(marker);
-    candidates.add(resolved);
-    if (existsSync(resolved)) candidates.add(realpathSync.native(resolved));
-  }
-  return [...candidates];
-}
-
-function assertNotProductionPath(label, candidate) {
-  if (candidate === path.parse(candidate).root) throw new Error(`${label} must not be filesystem root`);
-  if (candidate === homedir()) throw new Error(`${label} must not be the user home directory`);
-  for (const production of productionPathCandidates()) {
-    if (candidate === production || candidate.startsWith(`${production}${path.sep}`)) {
-      throw new Error(`${label} points inside production path ${production}`);
-    }
-  }
-}
-
 function normalizeSafePath(label, value) {
-  if (!value) return '';
-  const resolved = path.resolve(value);
-  const realResolved = existingRealpathWithSuffix(resolved);
-  assertNotProductionPath(label, resolved);
-  assertNotProductionPath(label, realResolved);
-  return resolved;
+  return sharedNormalizeSafePath(label, value, PRODUCTION_PATH_MARKERS);
 }
 
 async function preparePaths(args) {
@@ -210,40 +200,14 @@ function validateArgs(args) {
 }
 
 function redactedConfig(args, paths) {
-  const [provider, ...modelParts] = args.model.split('/');
-  const modelName = modelParts.join('/') || 'default';
-  return {
-    gateway: {
-      host: '127.0.0.1',
-      port: args.port,
-      token: '<REDACTED-fixture-token>',
-    },
-    agents: {
-      defaults: {
-        workspace: paths.workspaceDir,
-        continuation: { enabled: true },
-        compaction: {
-          enabled: true,
-          keepRecentTokens: args.keepRecentTokens,
-          reserveTokens: args.reserveTokens,
-          reserveTokensFloor: args.reserveTokens,
-          truncateAfterCompaction: true,
-          notifyUser: false,
-        },
-      },
-    },
-    models: {
-      providers: {
-        [provider || 'fixture']: {
-          models: {
-            [modelName]: {
-              contextTokens: args.contextTokens,
-            },
-          },
-        },
-      },
-    },
-  };
+  return buildRedactedConfig({
+    workspaceDir: paths.workspaceDir,
+    model: args.model,
+    contextTokens: args.contextTokens,
+    keepRecentTokens: args.keepRecentTokens,
+    reserveTokens: args.reserveTokens,
+    port: args.port,
+  });
 }
 
 function requiredReceipts() {
@@ -261,12 +225,20 @@ function requiredReceipts() {
   ];
 }
 
+function planOutcome(args) {
+  if (args.mode === 'plan') return 'PLAN_ONLY-redacted-dry-run';
+  if (!args.enableLiveOrchestration) return NON_PASS_OUTCOMES.REVIEW_GATE;
+  return 'LIVE_PREFLIGHT_ONLY';
+}
+
 function buildPlan(args, paths) {
   const gatewayWs = `ws://127.0.0.1:${args.port || '<free-port>'}`;
   return {
     schema: 'openclaw.project81.accepted-request-compaction.plan.v1',
-    mode: args.mode === 'plan' ? 'PLAN_ONLY' : 'LIVE_REQUESTED_FAIL_CLOSED',
-    outcome: args.mode === 'plan' ? 'PLAN_ONLY-redacted-dry-run' : 'BLOCKED-live-orchestration-not-implemented',
+    mode: args.mode === 'plan'
+      ? 'PLAN_ONLY'
+      : args.enableLiveOrchestration ? 'LIVE_PREFLIGHT_ONLY' : 'LIVE_REVIEW_GATE',
+    outcome: planOutcome(args),
     candidateSha: args.candidateSha || '<unset-plan-only>',
     model: args.model,
     contextTokens: args.contextTokens,
@@ -275,6 +247,7 @@ function buildPlan(args, paths) {
     timeoutMs: args.timeoutMs,
     port: args.port,
     gatewayWs,
+    openclawDir: args.openclawDir || DEFAULT_OPENCLAW_SOURCE_DIR,
     paths: {
       tempRoot: paths.root,
       configPath: paths.configPath,
@@ -285,7 +258,9 @@ function buildPlan(args, paths) {
     },
     env: {
       OPENCLAW_ACCEPTED_COMPACTION_FIXTURE: args.mode === 'run' ? 'true' : '<not-required-for-plan>',
+      OPENCLAW_ACCEPTED_COMPACTION_ENABLE_LIVE: args.enableLiveOrchestration ? 'true' : 'false',
       OPENCLAW_ACCEPTED_COMPACTION_TMPDIR: paths.root,
+      OPENCLAW_ACCEPTED_COMPACTION_OPENCLAW_DIR: args.openclawDir || '<unset>',
       OPENCLAW_CONFIG_PATH: paths.configPath,
       OPENCLAW_STATE_DIR: paths.stateDir,
       OPENCLAW_WORKSPACE_DIR: paths.workspaceDir,
@@ -313,15 +288,21 @@ function buildPlan(args, paths) {
     ],
     passReceipts: requiredReceipts(),
     nonPassOutcomes: [
-      'HONEST-LIMIT-local-model-unavailable',
-      'BLOCKED-temp-gateway-start',
-      'BLOCKED-context-budget-not-forced',
-      'FAIL-request-compaction-rejected',
-      'FAIL-request-compaction-already-pending',
-      'FAIL-compaction-timeout',
-      'FAIL-lifeboat-missing',
-      'FAIL-sentinel-missing',
-      'FAIL-cleanup',
+      NON_PASS_OUTCOMES.REVIEW_GATE,
+      NON_PASS_OUTCOMES.OPENCLAW_DIR_MISSING,
+      NON_PASS_OUTCOMES.OPENCLAW_DIR_PRODUCTION,
+      NON_PASS_OUTCOMES.OPENCLAW_ENTRYPOINT_MISSING,
+      NON_PASS_OUTCOMES.FREE_PORT_ALLOCATION,
+      NON_PASS_OUTCOMES.TEMP_GATEWAY_START,
+      NON_PASS_OUTCOMES.MOCK_PROVIDER_START,
+      NON_PASS_OUTCOMES.CONTEXT_BUDGET,
+      NON_PASS_OUTCOMES.REQUEST_COMPACTION_REJECTED,
+      NON_PASS_OUTCOMES.REQUEST_COMPACTION_PENDING,
+      NON_PASS_OUTCOMES.COMPACTION_TIMEOUT,
+      NON_PASS_OUTCOMES.LIFEBOAT_MISSING,
+      NON_PASS_OUTCOMES.SENTINEL_MISSING,
+      NON_PASS_OUTCOMES.CLEANUP,
+      NON_PASS_OUTCOMES.LIVE_SEND_NOT_IMPLEMENTED,
     ],
     guardrails: [
       'no production openclaw.json edits',
@@ -331,6 +312,7 @@ function buildPlan(args, paths) {
       'no PASS from threshold rejection',
       'no PASS unless post-compaction delegate fires after the compaction seam',
       'redact fixture token and any provider secrets from artifacts',
+      '--run requires --enable-live-orchestration (review gate)',
     ],
   };
 }
@@ -339,7 +321,7 @@ function writeJson(file, value) {
   writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 });
 }
 
-function writeArtifacts(args, paths, plan) {
+function writeBaseArtifacts(args, paths, plan) {
   const readiness = {
     schema: 'openclaw.project81.accepted-request-compaction.fixture-readiness.v1',
     status: plan.mode,
@@ -351,11 +333,26 @@ function writeArtifacts(args, paths, plan) {
     contextTokens: args.contextTokens,
     notes: args.mode === 'plan'
       ? ['dry-run only; no Gateway started and no production config touched']
-      : ['live mode requested but not implemented in this reviewed scaffold'],
+      : args.enableLiveOrchestration
+        ? ['live orchestration state machine invoked; preflight-only in this increment']
+        : ['live mode requested but review gate --enable-live-orchestration not supplied'],
   };
+  writeJson(path.join(paths.artifactDir, 'accepted-compaction-plan.json'), plan);
+  writeJson(path.join(paths.artifactDir, 'fixture-readiness.json'), readiness);
+  writeJson(path.join(paths.artifactDir, 'temp-config.redacted.json'), redactedConfig(args, paths));
+  try {
+    chmodSync(paths.artifactDir, 0o700);
+  } catch {
+    // Best-effort on platforms/filesystems that do not support chmod.
+  }
+  return readiness;
+}
+
+function writePlanOnlyArtifacts(args, paths, plan) {
+  writeBaseArtifacts(args, paths, plan);
   const cleanup = {
     schema: 'openclaw.project81.accepted-request-compaction.cleanup.v1',
-    status: args.mode === 'plan' ? 'not-started' : 'blocked-before-start',
+    status: 'not-started',
     retained: args.retainTmp,
     tempRoot: paths.root,
     productionConfigTouched: false,
@@ -368,18 +365,51 @@ function writeArtifacts(args, paths, plan) {
     artifactDir: paths.artifactDir,
     requiredForPass: requiredReceipts(),
   };
-
-  writeJson(path.join(paths.artifactDir, 'accepted-compaction-plan.json'), plan);
-  writeJson(path.join(paths.artifactDir, 'fixture-readiness.json'), readiness);
-  writeJson(path.join(paths.artifactDir, 'temp-config.redacted.json'), redactedConfig(args, paths));
   writeJson(path.join(paths.artifactDir, 'cleanup.json'), cleanup);
   writeJson(path.join(paths.artifactDir, 'outcome.json'), outcome);
-  try {
-    chmodSync(paths.artifactDir, 0o700);
-  } catch {
-    // Best-effort on platforms/filesystems that do not support chmod.
+}
+
+function writeReviewGateArtifacts(args, paths, plan) {
+  writeBaseArtifacts(args, paths, plan);
+  const cleanup = {
+    schema: 'openclaw.project81.accepted-request-compaction.cleanup.v1',
+    status: 'review-gate-blocked-before-start',
+    retained: args.retainTmp,
+    tempRoot: paths.root,
+    productionConfigTouched: false,
+    gatewayStopped: null,
+  };
+  const outcome = {
+    schema: 'openclaw.project81.accepted-request-compaction.outcome.v1',
+    outcome: NON_PASS_OUTCOMES.REVIEW_GATE,
+    pass: false,
+    reason: '--run requires --enable-live-orchestration (or OPENCLAW_ACCEPTED_COMPACTION_ENABLE_LIVE=true) after review',
+    artifactDir: paths.artifactDir,
+    requiredForPass: requiredReceipts(),
+  };
+  writeJson(path.join(paths.artifactDir, 'cleanup.json'), cleanup);
+  writeJson(path.join(paths.artifactDir, 'outcome.json'), outcome);
+}
+
+/**
+ * Test-only hook: an alternative orchestrator factory may be injected via
+ * globalThis.__openclawAcceptedCompactionTestHooks.orchestratorFactory. The
+ * factory receives ({ args, paths, plan }) and must return an object shaped
+ * like the arguments to runOrchestration, or the promise thereof.
+ */
+function resolveOrchestratorInvocation({ args, paths, plan }) {
+  const hooks = globalThis.__openclawAcceptedCompactionTestHooks;
+  if (hooks && typeof hooks.orchestratorFactory === 'function') {
+    return hooks.orchestratorFactory({ args, paths, plan });
   }
-  return { readiness, cleanup, outcome };
+  return {
+    args: {
+      ...args,
+      openclawDir: args.openclawDir || DEFAULT_OPENCLAW_SOURCE_DIR,
+    },
+    paths,
+    liveSteps: makeUnimplementedLiveSteps(),
+  };
 }
 
 async function main() {
@@ -391,28 +421,78 @@ async function main() {
   validateArgs(args);
   const paths = await preparePaths(args);
   const plan = buildPlan(args, paths);
-  const artifacts = writeArtifacts(args, paths, plan);
-  const result = {
-    ok: args.mode === 'plan',
-    mode: plan.mode,
-    outcome: plan.outcome,
-    artifactDir: paths.artifactDir,
-    files: [
-      'accepted-compaction-plan.json',
-      'fixture-readiness.json',
-      'temp-config.redacted.json',
-      'cleanup.json',
-      'outcome.json',
-    ],
-  };
 
+  if (args.mode === 'plan') {
+    writePlanOnlyArtifacts(args, paths, plan);
+    const result = {
+      ok: true,
+      mode: plan.mode,
+      outcome: plan.outcome,
+      artifactDir: paths.artifactDir,
+      files: [
+        'accepted-compaction-plan.json',
+        'fixture-readiness.json',
+        'temp-config.redacted.json',
+        'cleanup.json',
+        'outcome.json',
+      ],
+    };
+    if (args.json) console.log(JSON.stringify(result, null, 2));
+    else {
+      console.log(`accepted request_compaction fixture ${args.mode}: ${plan.outcome}`);
+      console.log(`artifact dir: ${paths.artifactDir}`);
+    }
+    return 0;
+  }
+
+  // args.mode === 'run'
+  if (!args.enableLiveOrchestration) {
+    writeReviewGateArtifacts(args, paths, plan);
+    const result = {
+      ok: false,
+      mode: plan.mode,
+      outcome: NON_PASS_OUTCOMES.REVIEW_GATE,
+      pass: false,
+      artifactDir: paths.artifactDir,
+      reason: '--run requires --enable-live-orchestration (or OPENCLAW_ACCEPTED_COMPACTION_ENABLE_LIVE=true) after review',
+      files: [
+        'accepted-compaction-plan.json',
+        'fixture-readiness.json',
+        'temp-config.redacted.json',
+        'cleanup.json',
+        'outcome.json',
+      ],
+    };
+    if (args.json) console.log(JSON.stringify(result, null, 2));
+    else {
+      console.log(`accepted request_compaction fixture run: ${NON_PASS_OUTCOMES.REVIEW_GATE}`);
+      console.log(`artifact dir: ${paths.artifactDir}`);
+      console.error('review gate: pass --enable-live-orchestration after review to run preflight');
+    }
+    return 3;
+  }
+
+  // Live orchestration (preflight only in this increment).
+  writeBaseArtifacts(args, paths, plan);
+  const orchestrationInput = await resolveOrchestratorInvocation({ args, paths, plan });
+  const orchestrationResult = await runOrchestration(orchestrationInput);
+
+  const result = {
+    ok: false,
+    mode: plan.mode,
+    outcome: orchestrationResult.outcome,
+    phase: orchestrationResult.phase,
+    pass: orchestrationResult.pass,
+    artifactDir: paths.artifactDir,
+    artifacts: orchestrationResult.artifacts,
+  };
   if (args.json) console.log(JSON.stringify(result, null, 2));
   else {
-    console.log(`accepted request_compaction fixture ${args.mode}: ${plan.outcome}`);
+    console.log(`accepted request_compaction fixture run: ${orchestrationResult.outcome}`);
+    console.log(`phase reached: ${orchestrationResult.phase}`);
     console.log(`artifact dir: ${paths.artifactDir}`);
-    if (args.mode !== 'plan') console.error('live orchestration is fail-closed in this scaffold');
   }
-  return args.mode === 'plan' ? 0 : 3;
+  return 3;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

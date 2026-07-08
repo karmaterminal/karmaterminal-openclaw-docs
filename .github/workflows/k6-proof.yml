@@ -45,7 +45,7 @@ on:
           - r-cw-delegate-self-continuation
           - r-cw-token-bracket
           - r-obs-status
-          - r-rc-1
+          - r-rc-1-threshold-reject
           - r-cw
       row:
         description: "Row id for evidence (e.g. R-CD-1, R-CD-TOKEN). Ignored when dry_run=true."

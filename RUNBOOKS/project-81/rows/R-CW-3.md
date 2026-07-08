@@ -56,3 +56,9 @@ R-CW-3 is not an unattended PASS row. The runner may execute it safely, but cano
 ## 2026-07-07 smoke note
 
 Disposable-session smoke on `ronan` accepted dispatch and observed `CW3-SCHEDULED`, but did not observe `CW3-WOKE` within the k6 window. This is partial only. Even with a wake, R-CW-3 remains `HONEST-LIMIT-candidate` until Tempo trace JSON is fetched/reviewed for safe reason attrs present and raw reason absent.
+
+## 2026-07-08 delayed-wake diagnosis
+
+The Ronan disposable-session run at `/tmp/p81-r-cw-3-live-20260708T132810Z/db3c660d19c89111008bd85cd7b306c205889c18/R-CW-3/ronan/20260708T132813Z-r-cw-3` did wake after the original observer closed: the TaskFlow due time was `2026-07-08T13:28:39.464Z`, the first due-time drive skipped with `reason=command-queue-busy`, and the wake was delivered at `2026-07-08T13:36:42.722Z` before the agent emitted `CW3-WOKE`. Keep the row review-pending unless the live artifact itself observes `CW3-WOKE`; even then, `trace_id: null` still leaves Tempo/redaction review debt.
+
+Verification with a 10-minute observer at `/tmp/p81-rcw3-observation-window-live-20260708T134502Z/db3c660d19c89111008bd85cd7b306c205889c18/R-CW-3/ronan/20260708T134505Z-r-cw-3` captured `dispatch_accepted=true`, `scheduled_sentinel=true`, `wake_observed=true`, `wake_delay_ms=31481`, and `public_artifact_raw_reason_absent=true`; it still emitted `trace_id=null`, so the verdict remains `HONEST-LIMIT-candidate` / review-pending rather than PASS.

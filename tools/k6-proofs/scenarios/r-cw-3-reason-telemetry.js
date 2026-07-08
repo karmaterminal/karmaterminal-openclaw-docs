@@ -11,7 +11,7 @@ import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
-export const options = { scenarios: { r_cw_3_reason_telemetry: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '120s' } }, thresholds: { proof_failures: ['count==0'], r_cw_3_duration: ['p(95)<90000'] } };
+export const options = { scenarios: { r_cw_3_reason_telemetry: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '10m' } }, thresholds: { proof_failures: ['count==0'], r_cw_3_duration: ['p(95)<600000'] } };
 const failures = new Counter('proof_failures');
 const duration = new Trend('r_cw_3_duration');
 const manifest = loadManifestFromEnv();
@@ -49,7 +49,7 @@ export default function () {
         const instruction = `${HARNESS_MARKER} R-CW-3 proof nonce ${rowNonce}. Call continue_work with delaySeconds=${inv.delaySeconds} and the supplied reason. After the continue_work tool result reports scheduled, reply exactly CW3-SCHEDULED ${rowNonce}. On the continuation wake, reply exactly CW3-WOKE ${rowNonce}. Supplied reason: ${JSON.stringify(rawReason)}. Do not mutate files.`;
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: instruction, idempotencyKey: `${inv.idempotencyKeyPrefix}-DISPATCH-${rowNonce}` });
       }, 500);
-      socket.setTimeout(() => socket.close(), Math.max(90000, (inv.delaySeconds + 60) * 1000));
+      socket.setTimeout(() => socket.close(), Math.max(600000, (inv.delaySeconds + 360) * 1000));
     }
     socket.on('open', () => { socket.send(connectFrame(token)); if (createDisposableSession) { socket.setTimeout(() => { const disposableKey = `r-cw-3-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'); tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-CW-3 ${rowNonce}` }); }, 250); } else socket.setTimeout(() => startProofFlow(socket), 500); });
     socket.on('message', (raw) => {

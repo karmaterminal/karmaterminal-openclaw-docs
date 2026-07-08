@@ -3,14 +3,14 @@
   2097	      }),
   2098	    ]);
   2099	  });
-  2100	
+  2100
   2101	  it("schedules the valid elections and caps the overflow without dropping the earlier ones", async () => {
   2102	    // Partial-success is load-bearing: when the cumulative chain cap rejects a
   2103	    // later election, the earlier valid ones must still schedule and deliver.
   2104	    const sessionKey = "agent:main:partial-cap";
   2105	    mockSessionStore[sessionKey] = { sessionKey };
   2106	    const cappedConfig = { ...config, maxChainLength: 2 } satisfies ContinuationRuntimeConfig;
-  2107	
+  2107
   2108	    const batch = await scheduleContinuationWorkBatch({
   2109	      sessionKey,
   2110	      chainState: {
@@ -27,13 +27,13 @@
   2121	      config: cappedConfig,
   2122	      parentRunId: "run-partial",
   2123	    });
-  2124	
+  2124
   2125	    expect(batch).toMatchObject({ scheduledCount: 2, cappedCount: 1, capped: true });
   2126	    expect(batch.chainState.currentChainCount).toBe(2);
-  2127	
+  2127
   2128	    await vi.advanceTimersByTimeAsync(1_000);
   2129	    await flushTimers();
-  2130	
+  2130
   2131	    const deliveredReasons = turnGrants.map(
   2132	      (grant) => (grant as { context: { Body: string } }).context.Body,
   2133	    );
@@ -42,5 +42,5 @@
   2136	    expect(deliveredReasons.some((body) => body.includes("fit-2"))).toBe(true);
   2137	    expect(deliveredReasons.some((body) => body.includes("over-cap"))).toBe(false);
   2138	  });
-  2139	
+  2139
   2140	  it("does not let a hedge reclaim freshly running continuation work", async () => {

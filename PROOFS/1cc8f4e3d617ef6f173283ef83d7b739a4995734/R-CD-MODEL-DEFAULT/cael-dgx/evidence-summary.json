@@ -1,0 +1,21 @@
+{
+  "candidateSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+  "child_model_byte": "github-copilot/gpt-5.5",
+  "child_session_observed": true,
+  "created_session_key": "agent:main:r-cd-model-default-r-cd-model-default-1783518933089-haz30kb3",
+  "dispatch_accepted": true,
+  "duration_ms": 15391,
+  "ended": "2026-07-08T13:55:48.480Z",
+  "manifest_loaded": true,
+  "model_matches": true,
+  "nonce": "R-CD-MODEL-DEFAULT-1783518933089-haz30kb3",
+  "parent_model_byte": "github-copilot/gpt-5.5",
+  "requestedSessionKey": "main",
+  "return_payload": true,
+  "row": "R-CD-MODEL-DEFAULT",
+  "seat": "cael",
+  "sessionKey": "agent:main:r-cd-model-default-r-cd-model-default-1783518933089-haz30kb3",
+  "session_created": true,
+  "started": "2026-07-08T13:55:33.089Z",
+  "trace_id": null
+}

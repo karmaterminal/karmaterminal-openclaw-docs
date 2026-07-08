@@ -1,0 +1,14 @@
+{
+  "row": "R-CD-MODEL-CHAINED-ALT",
+  "nonce": "R-CD-MODEL-CHAINED-ALT-1783518914148-5ezd9bpg",
+  "search": {
+    "start": 1783518854,
+    "end": 1783519214,
+    "limit": 100,
+    "candidateTraceCount": 46,
+    "matchingTraceCount": 0,
+    "candidateFile": "tempo/candidate-traces.txt",
+    "matchesFile": "tempo/matching-traces.txt"
+  },
+  "note": "No scenario trace_id was emitted; Tempo searched by time window and nonce grep over fetched candidates."
+}

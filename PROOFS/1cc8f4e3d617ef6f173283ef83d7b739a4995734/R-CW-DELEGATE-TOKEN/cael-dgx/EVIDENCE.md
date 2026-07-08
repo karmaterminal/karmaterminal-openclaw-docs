@@ -1,11 +1,11 @@
 # R-CW-DELEGATE-TOKEN — child bare-token continuation (cael-dgx)
 
-Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/221  
-Method packet: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/221#issuecomment-4883375511  
-Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`  
-Seat: Cael / `cael-dgx`  
-Build: `OpenClaw 2026.6.11 (bca2b0b)`  
-Sentinel: `R-CW-DELEGATE-TOKEN-BCA2B0B-CAEL-20260704-1122`  
+Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/221
+Method packet: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/221#issuecomment-4883375511
+Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`
+Seat: Cael / `cael-dgx`
+Build: `OpenClaw 2026.6.11 (bca2b0b)`
+Sentinel: `R-CW-DELEGATE-TOKEN-BCA2B0B-CAEL-20260704-1122`
 Verdict: ✅ PASS
 
 ## What this row tests

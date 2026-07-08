@@ -9,8 +9,8 @@
    178	      actualKeys,
    179	      `continue_delegate descriptor must advertise exactly [task, delaySeconds, mode, targetSessionKey, targetSessionKeys, fanoutMode, model]; got [${actualKeys.join(", ")}]`,
    180	    ).toEqual(expectedKeys);
-   181	
+   181
    182	    // task is required (model-facing contract).
    183	    expect(params.required).toContain("task");
-   184	
+   184
    185	    // mode enum must include the four canonical values.

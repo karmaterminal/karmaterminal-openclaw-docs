@@ -37,9 +37,9 @@
     37	// reviewer to the budget block in delegate-dispatch.ts. The five-point
     38	// coverage is intentional — collapsing any two would leave a blind spot.
     39	// ─────────────────────────────────────────────────────────────────────────────
-    40	
+    40
     41	import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-    42	
+    42
     43	// ─── Mock setup ──────────────────────────────────────────────────────────
     44	// Mock TaskFlow registry — same pattern as delegate-dispatch.test.ts.
     45	// All side-effect surfaces (spawn, system-events, task-flow-registry) are
@@ -50,15 +50,15 @@
     50	const loggerRecords: Array<{ level: string; message: string }> = [];
     51	const spawnSubagentDirectMock = vi.fn();
     52	let flowIdCounter = 0;
-    53	
+    53
     54	vi.mock("../../agents/subagent-spawn.js", () => ({
     55	  spawnSubagentDirect: (...args: unknown[]) => spawnSubagentDirectMock(...args),
     56	}));
-    57	
+    57
     58	vi.mock("../../infra/system-events.js", () => ({
     59	  enqueueSystemEvent: (text: string, options: unknown) => enqueueSystemEventMock(text, options),
     60	}));
-    61	
+    61
     62	vi.mock("../../logging/subsystem.js", () => {
     63	  const record =
     64	    (level: string) =>
@@ -81,7 +81,7 @@
     81	    createSubsystemLogger: () => logger,
     82	  };
     83	});
-    84	
+    84
     85	vi.mock("../../tasks/task-flow-registry.js", () => ({
     86	  createManagedTaskFlow: vi.fn((params: Record<string, unknown>) => {
     87	    const flowId = `flow-${++flowIdCounter}`;
@@ -139,13 +139,13 @@
    139	    mockFlows.delete(flowId);
    140	  }),
    141	}));
-   142	
+   142
    143	import { clearRuntimeConfigSnapshot } from "../../config/config.js";
    144	import { resetContinuationTracer } from "../../infra/continuation-tracer.js";
    145	import { dispatchToolDelegates, resetDelegateDispatchHedgesForTests } from "./delegate-dispatch.js";
    146	import { enqueuePendingDelegate } from "./delegate-store.js";
    147	import { resetContinuationStateForTests } from "./state.js";
-   148	
+   148
    149	beforeEach(() => {
    150	  // Fresh mock state per test — chain-state contamination between tests
    151	  // could mask a real budget-check regression by carrying tokens forward.
@@ -156,7 +156,7 @@
    156	  flowIdCounter = 0;
    157	  vi.useFakeTimers();
    158	});
-   159	
+   159
    160	afterEach(() => {
    161	  resetDelegateDispatchHedgesForTests();
    162	  resetContinuationStateForTests();
@@ -165,7 +165,7 @@
    165	  mockFlows.clear();
    166	  vi.useRealTimers();
    167	});
-   168	
+   168
    169	describe("cost-cap exhaustion mid-chain", () => {
    170	  // COST-CAP AXIS: tests below pin five points relative to costCapTokens:
    171	  //   accumulated = cap - 1   → ALLOW   (sanity: gate isn't over-eager)
@@ -173,7 +173,7 @@
    173	  //   accumulated = cap       → ALLOW   (canon: strict-greater-than, not >=)
    174	  //   cascade (3 queued, all over) → 3 rejected (canon: short-circuit loop)
    175	  //   side-effect (TaskFlow)       → failed-state (canon: persistent record)
-   176	
+   176
    177	  // ───────────────────────────────────────────────────────────────────────
    178	  // JUST-UNDER case: accumulated = 499_999, cap = 500_000.
    179	  //
@@ -187,7 +187,7 @@
    187	  it("allows dispatch when accumulatedChainTokens is 1 below costCapTokens", async () => {
    188	    const sessionKey = "session-cost-cap-just-under";
    189	    enqueuePendingDelegate(sessionKey, { task: "squeaks under the cap" });
-   190	
+   190
    191	    const result = await dispatchToolDelegates({
    192	      sessionKey,
    193	      chainState: {
@@ -210,7 +210,7 @@
    210	        earlyWarningBand: 0.3125,
    211	      },
    212	    });
-   213	
+   213
    214	    // 499_999 < 500_000 → not cost-capped, should spawn.
    215	    expect(result.dispatched).toBe(1);
    216	    expect(result.rejected).toBe(0);
@@ -222,7 +222,7 @@
    222	      expect.objectContaining({ agentSessionKey: sessionKey }),
    223	    );
    224	  });
-   225	
+   225
    226	  // ───────────────────────────────────────────────────────────────────────
    227	  // JUST-OVER case: accumulated = 500_001, cap = 500_000.
    228	  //
@@ -236,7 +236,7 @@
    236	  it("rejects dispatch when accumulatedChainTokens exceeds costCapTokens by 1", async () => {
    237	    const sessionKey = "session-cost-cap-just-over";
    238	    enqueuePendingDelegate(sessionKey, { task: "over the budget" });
-   239	
+   239
    240	    const result = await dispatchToolDelegates({
    241	      sessionKey,
    242	      chainState: {
@@ -259,11 +259,11 @@
    259	        earlyWarningBand: 0.3125,
    260	      },
    261	    });
-   262	
+   262
    263	    expect(result.dispatched).toBe(0);
    264	    expect(result.rejected).toBe(1);
    265	    expect(spawnSubagentDirectMock).not.toHaveBeenCalled();
-   266	
+   266
    267	    // Surface canon: cost-cap rejections emit a "cost-capped" system event.
    268	    // The text content is part of the contract with continue-work-signal-v2
    269	    // so the model can self-correct on next turn.
@@ -272,7 +272,7 @@
    272	      trusted: true,
    273	    });
    274	  });
-   275	
+   275
    276	  // ───────────────────────────────────────────────────────────────────────
    277	  // CASCADE case: 3 delegates queued, all start over-cap.
    278	  //
@@ -292,7 +292,7 @@
    292	    enqueuePendingDelegate(sessionKey, { task: "delegate-1" });
    293	    enqueuePendingDelegate(sessionKey, { task: "delegate-2" });
    294	    enqueuePendingDelegate(sessionKey, { task: "delegate-3" });
-   295	
+   295
    296	    const result = await dispatchToolDelegates({
    297	      sessionKey,
    298	      chainState: {
@@ -315,7 +315,7 @@
    315	        earlyWarningBand: 0.3125,
    316	      },
    317	    });
-   318	
+   318
    319	    // ALL three should be rejected — once over cap, every subsequent
    320	    // delegate in the same dispatch call is also over (accumulated can
    321	    // only grow, never shrink, within a single dispatch).
@@ -323,7 +323,7 @@
    323	    expect(result.rejected).toBe(3);
    324	    expect(spawnSubagentDirectMock).not.toHaveBeenCalled();
    325	  });
-   326	
+   326
    327	  // ───────────────────────────────────────────────────────────────────────
    328	  // SIDE-EFFECT case: TaskFlow record state on cost-cap rejection.
    329	  //
@@ -341,13 +341,13 @@
    341	  it("marks TaskFlow records as failed for cost-cap-rejected delegates", async () => {
    342	    const sessionKey = "session-cost-cap-taskflow-failed";
    343	    enqueuePendingDelegate(sessionKey, { task: "doomed by cost" });
-   344	
+   344
    345	    const queuedBefore = [...mockFlows.values()].filter(
    346	      (f) => f.ownerKey === sessionKey && f.status === "queued",
    347	    );
    348	    expect(queuedBefore).toHaveLength(1);
    349	    const flowId = queuedBefore[0].flowId as string;
-   350	
+   350
    351	    await dispatchToolDelegates({
    352	      sessionKey,
    353	      chainState: {
@@ -370,12 +370,12 @@
    370	        earlyWarningBand: 0.3125,
    371	      },
    372	    });
-   373	
+   373
    374	    // Final-state assertion: queued → failed. Symmetric with the
    375	    // chain-depth equivalent test in the sibling file.
    376	    expect(mockFlows.get(flowId)?.status).toBe("failed");
    377	  });
-   378	
+   378
    379	  // ───────────────────────────────────────────────────────────────────────
    380	  // EXACT-BOUNDARY case: accumulated === costCapTokens (= 500_000).
    381	  //
@@ -394,7 +394,7 @@
    394	  it("rejects at exact boundary (accumulatedChainTokens === costCapTokens is NOT over)", async () => {
    395	    const sessionKey = "session-cost-cap-exact-boundary";
    396	    enqueuePendingDelegate(sessionKey, { task: "at exact cap" });
-   397	
+   397
    398	    const result = await dispatchToolDelegates({
    399	      sessionKey,
    400	      chainState: {
@@ -417,7 +417,7 @@
    417	        earlyWarningBand: 0.3125,
    418	      },
    419	    });
-   420	
+   420
    421	    // The check is `accumulatedChainTokens > costCapTokens` (strict).
    422	    // At exactly 500_000 it should NOT be cost-capped — equality is
    423	    // the inclusive ceiling, not the exclusive one. NOTE: the test

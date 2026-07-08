@@ -1,7 +1,7 @@
      1	import { describe, expect, it } from "vitest";
      2	import { checkContinuationBudget } from "./scheduler.js";
      3	import type { ContinuationRuntimeConfig } from "./types.js";
-     4	
+     4
      5	const baseConfig: ContinuationRuntimeConfig = {
      6	  enabled: true,
      7	  defaultDelayMs: 15_000,
@@ -13,7 +13,7 @@
     13	  maxPendingWork: 32,
     14	  crossSessionTargeting: "disabled",
     15	};
-    16	
+    16
     17	describe("checkContinuationBudget", () => {
     18	  it("returns null when under budget", () => {
     19	    expect(
@@ -24,7 +24,7 @@
     24	      }),
     25	    ).toBeNull();
     26	  });
-    27	
+    27
     28	  it("returns chain-capped at max depth", () => {
     29	    expect(
     30	      checkContinuationBudget({
@@ -34,7 +34,7 @@
     34	      }),
     35	    ).toBe("chain-capped");
     36	  });
-    37	
+    37
     38	  it("returns cost-capped over budget", () => {
     39	    expect(
     40	      checkContinuationBudget({
@@ -44,7 +44,7 @@
     44	      }),
     45	    ).toBe("cost-capped");
     46	  });
-    47	
+    47
     48	  it("allows continuation when accumulated tokens equal costCapTokens exactly", () => {
     49	    expect(
     50	      checkContinuationBudget({
@@ -54,7 +54,7 @@
     54	      }),
     55	    ).toBeNull();
     56	  });
-    57	
+    57
     58	  it("does not cost-cap when costCapTokens is 0", () => {
     59	    expect(
     60	      checkContinuationBudget({

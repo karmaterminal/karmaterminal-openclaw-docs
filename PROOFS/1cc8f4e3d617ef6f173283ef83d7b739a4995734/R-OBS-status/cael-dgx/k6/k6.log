@@ -1,0 +1,19 @@
+
+         /\      Grafana   /‾‾/
+    /\  /  \     |\  __   /  /
+   /  \/    \    | |/ /  /   ‾‾\
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/
+
+
+     execution: local
+        script: scenarios/r-obs-status.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m0s max duration (incl. graceful stop):
+              * r_obs_status: 1 iterations shared among 1 VUs (maxDuration: 30s, gracefulStop: 30s)
+
+time="2026-07-08T07:00:25-07:00" level=info msg="R_OBS_STATUS_EVIDENCE {\"row\":\"R-OBS-status\",\"manifest_loaded\":true,\"seat\":\"cael\",\"candidateSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"started\":\"2026-07-08T14:00:24.431Z\",\"connected\":true,\"connect_ok\":true,\"status_ok\":true,\"status_payload\":{},\"trace_id\":null,\"redacted_events\":[{\"ts\":1783519224433,\"kind\":\"event\",\"method\":null,\"event\":\"connect.challenge\",\"ok\":null,\"data\":null},{\"ts\":1783519224437,\"kind\":\"other\",\"method\":null,\"event\":null,\"ok\":null,\"data\":null},{\"ts\":1783519224498,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783519225103,\"kind\":\"response\",\"method\":\"status\",\"event\":null,\"ok\":true,\"data\":{}}],\"ended\":\"2026-07-08T14:00:25.104Z\",\"duration_ms\":673}" source=console
+
+running (0m00.7s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_status ✓ [ 100% ] 1 VUs  00.7s/30s  1/1 shared iters

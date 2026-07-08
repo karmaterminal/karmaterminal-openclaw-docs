@@ -1,10 +1,10 @@
 # R-CW-DELEGATE-SELF-CONTINUATION — parent delegate + child self-continuation (cael-dgx)
 
-Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/222  
-Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`  
-Seat: Cael / `cael-dgx`  
-Build: `OpenClaw 2026.6.11 (bca2b0b)`  
-Sentinel: `R-CW-DELEGATE-SELF-CONTINUATION-BCA2B0B-CAEL-20260704-1107`  
+Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/222
+Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`
+Seat: Cael / `cael-dgx`
+Build: `OpenClaw 2026.6.11 (bca2b0b)`
+Sentinel: `R-CW-DELEGATE-SELF-CONTINUATION-BCA2B0B-CAEL-20260704-1107`
 Verdict: ✅ PASS for functional continuation behavior, with a tracked provenance anomaly filed as `karmaterminal/openclaw#1162`.
 
 ## What this row tests

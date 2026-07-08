@@ -1,10 +1,10 @@
 # R-CW-6 — continue_work chain cap boundary (cael-dgx)
 
-Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/219  
-Method packet: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/219#issuecomment-4883552643  
-Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`  
-Seat: Cael / `cael-dgx`  
-Build: `OpenClaw 2026.6.11 (bca2b0b)`  
+Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/219
+Method packet: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/219#issuecomment-4883552643
+Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`
+Seat: Cael / `cael-dgx`
+Build: `OpenClaw 2026.6.11 (bca2b0b)`
 Verdict: PASS — source + direct harness proof; no live config mutation.
 
 ## Scope

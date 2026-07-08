@@ -1,10 +1,10 @@
 # R-CD-CHAINED-DEPTH-2 — depth-2 delegate chain with depth-1 post-leaf return (cael-dgx)
 
-Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/215  
-Method lock: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/215#issuecomment-4883600973  
-Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`  
-Build: `OpenClaw 2026.6.11 (bca2b0b)`  
-Seat: Cael / `cael-dgx`  
+Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/215
+Method lock: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/215#issuecomment-4883600973
+Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`
+Build: `OpenClaw 2026.6.11 (bca2b0b)`
+Seat: Cael / `cael-dgx`
 Verdict: ✅ PASS — superseding rerun `RCD_CHAINED_DEPTH2_BCA2B0B_CAEL_20260704_1403` proves the missing depth-1 post-leaf return surface.
 
 ## Scope

@@ -1,12 +1,12 @@
 # R-OBS-2 — trace-tree observability from committed R-CW-7 Tempo trace (cael-dgx)
 
-Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/233  
-Method packet: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/233#issuecomment-4883587663  
-Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`  
-Build: `OpenClaw 2026.6.11 (bca2b0b)`  
-Seat: Cael / `cael-dgx`  
-Source row: `R-CW-7`  
-Source trace id: `0cf17ea0b7eab7a5e998f6a581e7b5bf`  
+Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/233
+Method packet: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/233#issuecomment-4883587663
+Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`
+Build: `OpenClaw 2026.6.11 (bca2b0b)`
+Seat: Cael / `cael-dgx`
+Source row: `R-CW-7`
+Source trace id: `0cf17ea0b7eab7a5e998f6a581e7b5bf`
 Verdict: PASS
 
 ## Scope

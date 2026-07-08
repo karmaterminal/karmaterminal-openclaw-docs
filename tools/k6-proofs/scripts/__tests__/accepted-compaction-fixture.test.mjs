@@ -2,11 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdtemp, readFile, rm, symlink } from 'node:fs/promises';
+import { createServer } from 'node:net';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 const repoRoot = new URL('../../../..', import.meta.url).pathname;
 const script = join(repoRoot, 'tools/k6-proofs/scripts/run-accepted-compaction-fixture.mjs');
+const mockGateway = join(repoRoot, 'tools/k6-proofs/fixtures/accepted-request-compaction/mock-temp-gateway.mjs');
 const candidateSha = '2723dbee783c113cae70e4fb63a4cff9f55402e3';
 
 function runFixture(args, env = {}) {
@@ -23,6 +25,43 @@ function runFixture(args, env = {}) {
   });
 }
 
+async function readJson(file) {
+  return JSON.parse(await readFile(file, 'utf8'));
+}
+
+async function reserveFreePort() {
+  return new Promise((resolve, reject) => {
+    const server = createServer();
+    server.listen(0, '127.0.0.1', () => {
+      const address = server.address();
+      if (!address || typeof address === 'string') {
+        server.close(() => reject(new Error('failed to allocate test port')));
+        return;
+      }
+      const { port } = address;
+      server.close((error) => {
+        if (error) reject(error);
+        else resolve(port);
+      });
+    });
+    server.on('error', reject);
+  });
+}
+
+function mockGatewayEnv(mode) {
+  return {
+    OPENCLAW_ACCEPTED_COMPACTION_FIXTURE: 'true',
+    OPENCLAW_ACCEPTED_COMPACTION_GATEWAY_CMD_JSON: JSON.stringify([
+      process.execPath,
+      mockGateway,
+      '--mode',
+      mode,
+      '--port',
+      '{{PORT}}',
+    ]),
+  };
+}
+
 test('plan mode emits redacted artifacts without starting a gateway', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'openclaw-accepted-compaction-test-'));
   const artifactDir = join(dir, 'artifacts');
@@ -35,14 +74,15 @@ test('plan mode emits redacted artifacts without starting a gateway', async () =
     assert.equal(result.mode, 'PLAN_ONLY');
     assert.equal(result.artifactDir, artifactDir);
 
-    const plan = JSON.parse(await readFile(join(artifactDir, 'accepted-compaction-plan.json'), 'utf8'));
-    const config = JSON.parse(await readFile(join(artifactDir, 'temp-config.redacted.json'), 'utf8'));
-    const readiness = JSON.parse(await readFile(join(artifactDir, 'fixture-readiness.json'), 'utf8'));
-    const cleanup = JSON.parse(await readFile(join(artifactDir, 'cleanup.json'), 'utf8'));
+    const plan = await readJson(join(artifactDir, 'accepted-compaction-plan.json'));
+    const config = await readJson(join(artifactDir, 'temp-config.redacted.json'));
+    const readiness = await readJson(join(artifactDir, 'fixture-readiness.json'));
+    const cleanup = await readJson(join(artifactDir, 'cleanup.json'));
 
     assert.equal(plan.outcome, 'PLAN_ONLY-redacted-dry-run');
     assert.equal(plan.env.OPENCLAW_GATEWAY_TOKEN, '<REDACTED-fixture-token>');
-    assert.equal(config.gateway.token, '<REDACTED-fixture-token>');
+    assert.equal(config.gateway.auth.token, '<REDACTED-fixture-token>');
+    assert.equal(config.agents.defaults.compaction.keepRecentTokens, 1000);
     assert.equal(readiness.gatewayPid, null);
     assert.equal(cleanup.productionConfigTouched, false);
     assert.doesNotMatch(JSON.stringify({ plan, config, readiness, cleanup }), /secret-token-must-not-print/);
@@ -95,18 +135,85 @@ test('symlinked production paths are refused', async () => {
   }
 });
 
-test('run mode with opt-in still fails closed until orchestration is implemented', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'openclaw-accepted-compaction-run-test-'));
+test('run mode with healthy mock gateway allocates a free port and stops cleanly', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'openclaw-accepted-compaction-run-healthy-'));
   try {
-    const run = runFixture(['--run', '--tmpdir', join(dir, 'fixture'), '--artifact-dir', join(dir, 'artifacts'), '--json'], {
-      OPENCLAW_ACCEPTED_COMPACTION_FIXTURE: 'true',
-    });
+    const run = runFixture(['--run', '--tmpdir', join(dir, 'fixture'), '--artifact-dir', join(dir, 'artifacts'), '--json'], mockGatewayEnv('healthy'));
     assert.equal(run.status, 3, run.stderr || run.stdout);
     const parsed = JSON.parse(run.stdout);
     assert.equal(parsed.ok, false);
-    assert.equal(parsed.outcome, 'BLOCKED-live-orchestration-not-implemented');
-    const outcome = JSON.parse(await readFile(join(dir, 'artifacts', 'outcome.json'), 'utf8'));
+    assert.equal(parsed.outcome, 'BLOCKED-context-budget-not-forced');
+
+    const readiness = await readJson(join(dir, 'artifacts', 'fixture-readiness.json'));
+    const outcome = await readJson(join(dir, 'artifacts', 'outcome.json'));
+    const cleanup = await readJson(join(dir, 'artifacts', 'cleanup.json'));
+
+    assert.equal(readiness.status, 'gateway-ready');
+    assert.equal(typeof readiness.port, 'number');
+    assert.ok(readiness.port > 0);
+    assert.equal(typeof readiness.gatewayPid, 'number');
+    assert.equal(outcome.gatewayStarted, true);
+    assert.equal(outcome.gatewayReady, true);
+    assert.equal(cleanup.gatewayStopped, true);
+    assert.equal(cleanup.status, 'completed');
+    assert.equal(cleanup.productionConfigTouched, false);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('explicit port is preserved when supplied', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'openclaw-accepted-compaction-run-port-'));
+  const port = await reserveFreePort();
+  try {
+    const run = runFixture(
+      ['--run', '--port', String(port), '--tmpdir', join(dir, 'fixture'), '--artifact-dir', join(dir, 'artifacts'), '--json'],
+      mockGatewayEnv('healthy'),
+    );
+    assert.equal(run.status, 3, run.stderr || run.stdout);
+    const readiness = await readJson(join(dir, 'artifacts', 'fixture-readiness.json'));
+    assert.equal(readiness.port, port);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('run mode writes readiness, outcome, and cleanup when probe fails after spawn', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'openclaw-accepted-compaction-run-probe-fail-'));
+  try {
+    const run = runFixture(['--run', '--tmpdir', join(dir, 'fixture'), '--artifact-dir', join(dir, 'artifacts'), '--json'], mockGatewayEnv('health-fail'));
+    assert.equal(run.status, 3, run.stderr || run.stdout);
+    const parsed = JSON.parse(run.stdout);
+    assert.equal(parsed.ok, false);
+    assert.equal(parsed.outcome, 'BLOCKED-temp-gateway-start');
+
+    const readiness = await readJson(join(dir, 'artifacts', 'fixture-readiness.json'));
+    const outcome = await readJson(join(dir, 'artifacts', 'outcome.json'));
+    const cleanup = await readJson(join(dir, 'artifacts', 'cleanup.json'));
+
+    assert.equal(typeof readiness.gatewayPid, 'number');
+    assert.equal(readiness.status, 'gateway-probe-failed');
     assert.equal(outcome.pass, false);
+    assert.equal(cleanup.gatewayStopped, true);
+    assert.equal(cleanup.productionConfigTouched, false);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('cleanup still records stopped state when spawned gateway exits immediately', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'openclaw-accepted-compaction-run-exit-'));
+  try {
+    const run = runFixture(['--run', '--tmpdir', join(dir, 'fixture'), '--artifact-dir', join(dir, 'artifacts'), '--json'], mockGatewayEnv('exit-immediately'));
+    assert.equal(run.status, 3, run.stderr || run.stdout);
+    const readiness = await readJson(join(dir, 'artifacts', 'fixture-readiness.json'));
+    const cleanup = await readJson(join(dir, 'artifacts', 'cleanup.json'));
+    const outcome = await readJson(join(dir, 'artifacts', 'outcome.json'));
+
+    assert.equal(readiness.status, 'gateway-probe-failed');
+    assert.equal(cleanup.gatewayStopped, true);
+    assert.equal(cleanup.observedExit.code, 17);
+    assert.equal(outcome.outcome, 'BLOCKED-temp-gateway-start');
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

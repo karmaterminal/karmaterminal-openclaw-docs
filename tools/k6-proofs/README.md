@@ -217,6 +217,21 @@ node tools/k6-proofs/scripts/fetch-tempo-trace.mjs \
   --run-dir /tmp/k6-proof-runs/<sha>/<row>/<seat>/<run-id>
 ```
 
+For `R-CW-3`, automate the repeatable reason-telemetry/redaction review after
+fetching the trace:
+
+```bash
+node tools/k6-proofs/scripts/review-r-cw-3-reason-telemetry.mjs \
+  --run-dir /tmp/k6-proof-runs/<sha>/R-CW-3/<seat>/<run-id> \
+  --tempo-trace /tmp/k6-proof-runs/<sha>/R-CW-3/<seat>/<run-id>/tempo-trace-<trace>.json
+```
+
+The helper writes `r-cw-3-reason-telemetry-review.json`, passes only when the
+run saw dispatch/schedule/wake, Tempo contains safe `reason.present`,
+`reason.length`, and `reason.hash` attributes, and the raw `RAW-RCW3-*` reason
+sentinel / `k6-proof-R-CW-3-redaction` prefix are absent from the trace. It is a
+review artifact, not a Gateway action.
+
 When reviewing an existing candidate-run bundle, summarize pending review receipts
 before attempting Tempo fetches:
 

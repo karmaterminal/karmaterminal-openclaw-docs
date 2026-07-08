@@ -27,11 +27,27 @@ OPENCLAW_CREATE_DISPOSABLE_SESSION=true \
 - Continuation wake emits `CW3-WOKE <nonce>`.
 - Public k6 evidence drops the raw reason field/sentinel rather than committing it.
 
-## Manual collection still needed
+## Review collection still needed
 
-- Fetch Tempo trace JSON for the emitted trace id when available.
-- Verify the trace has safe reason telemetry attributes and does not contain the raw reason sentinel.
-- If trace fetch/emission is unavailable, keep the run as `HONEST-LIMIT-candidate`; do not overclaim PASS.
+Fetch Tempo trace JSON for the emitted trace id when available, then run the review helper:
+
+```bash
+node tools/k6-proofs/scripts/fetch-tempo-trace.mjs \
+  --run-dir /tmp/k6-proof-runs/<sha>/R-CW-3/<seat>/<run-id>
+
+node tools/k6-proofs/scripts/review-r-cw-3-reason-telemetry.mjs \
+  --run-dir /tmp/k6-proof-runs/<sha>/R-CW-3/<seat>/<run-id> \
+  --tempo-trace /tmp/k6-proof-runs/<sha>/R-CW-3/<seat>/<run-id>/tempo-trace-<trace>.json
+```
+
+The helper writes `r-cw-3-reason-telemetry-review.json`. It passes only when:
+
+- dispatch, `CW3-SCHEDULED`, and `CW3-WOKE` are all present in the run evidence;
+- public k6 evidence says the raw reason sentinel was not preserved;
+- Tempo contains safe `reason.present`, `reason.length`, and `reason.hash` attributes;
+- Tempo does not contain the raw `RAW-RCW3-*` sentinel or `k6-proof-R-CW-3-redaction` reason prefix.
+
+If trace fetch/emission is unavailable, or the helper exits non-zero, keep the run as `HONEST-LIMIT-candidate` / review-pending; do not overclaim PASS.
 
 ## Fold guidance
 

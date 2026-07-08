@@ -106,6 +106,8 @@ GitHub Actions workflow choices. Current workflow-runnable basenames are:
 - `r-cw-delegate-self-continuation`
 - `r-cw-token-bracket`
 - `r-obs-status`
+- `r-regression-trap-tests`
+- `r-trace-redaction-1121`
 - `r-obs-2`
 - `r-rc-1`
 - `r-cw`

@@ -1,6 +1,6 @@
 # Accepted `request_compaction` fixture
 
-This fixture is the Project 81 scaffold for proving the **accepted** compaction path, separate from the existing threshold-rejection canaries (`R-RC-1` and ordinary `R-RC-2`). Live execution is gated behind an explicit review flag; today the runner implements preflight plus a deterministic local mock provider, and the downstream phases (temp Gateway spawn, `request_compaction` RPC, lifecycle wait, successor sentinel) live behind dependency-injected stubs so the follow-up review PR can wire them without a second refactor.
+This fixture is the Project 81 scaffold for proving the **accepted** compaction path, separate from the existing threshold-rejection canaries (`R-RC-1` and ordinary `R-RC-2`). Live execution is gated behind an explicit review flag; today the runner implements preflight, a deterministic local mock provider, and isolated temp Gateway startup/cleanup from a source checkout. The downstream phases (`request_compaction` RPC, lifecycle wait, successor sentinel) still live behind dependency-injected stubs so follow-up review PRs can wire them without another refactor.
 
 ## Contract
 
@@ -37,7 +37,7 @@ The dry-run starts no Gateway and touches no production config. It writes:
 
 The plan artifact includes the required environment, receipt names, non-PASS classifications, and guardrails for the reviewed live implementation.
 
-## Live orchestration (mock-provider + preflight only in this increment)
+## Live orchestration (mock provider + real temp Gateway startup in this increment)
 
 `--run` requires **three** independent signals so we never start a subprocess
 by accident:
@@ -51,12 +51,13 @@ Without the review gate, `--run` classifies as `HONEST-LIMIT-live-orchestration-
 With the review gate, the runner executes the live orchestration state machine which today implements:
 
 - Deterministic loopback mock provider startup with OpenAI-compatible `/v1/responses` and `/v1/chat/completions` routes. The provider returns fixed high-input token usage suitable for the later context-forcing phase and writes `mock-provider.json` / `mock-provider-stop.json` receipts.
-- Preflight validation of the OpenClaw source dir (`--openclaw-dir` or `OPENCLAW_ACCEPTED_COMPACTION_OPENCLAW_DIR`). Directories that live inside any production marker (`~/.openclaw`, `~/flesh_beast_tmp/openclaw`) are refused with `BLOCKED-openclaw-dir-inside-production`. Reviewed source-only guards are required before the default hint directory may be used.
-- Free port allocation on 127.0.0.1 (releases the port immediately; the temp Gateway will re-bind when the live implementation lands).
-- Redacted temp config write to `<tempRoot>/config/openclaw.json`. The fixture token is never written to disk — the config carries `<REDACTED-fixture-token>`, and the model provider baseUrl points at the deterministic mock provider port.
-- `preflight-context.json` receipt with candidate SHA, openclaw entrypoint, port candidate, mock provider port, and configured context budget.
+- Preflight validation of the OpenClaw source dir (`--openclaw-dir` or `OPENCLAW_ACCEPTED_COMPACTION_OPENCLAW_DIR`). Source checkouts may live inside production markers (`~/.openclaw`, `~/flesh_beast_tmp/openclaw`) only as **source-only** inputs; config, state, workspace, logs, and artifacts remain temp-only guarded paths. `preflight-context.json` records `openclawSourceOnly` and `openclawInsideProductionMarker` so reviewers can verify the boundary.
+- Free port allocation on 127.0.0.1 (releases the port immediately; the temp Gateway re-binds during startup).
+- Redacted temp config write to `<tempRoot>/config/openclaw.json`. The fixture token is never written to disk, and the model provider baseUrl points at the deterministic mock provider port.
+- Isolated temp Gateway startup from the source checkout with temp-only `OPENCLAW_CONFIG_PATH`, `OPENCLAW_STATE_DIR`, and `OPENCLAW_WORKSPACE_DIR`, loopback bind, auth disabled, channels/providers skipped, and `/healthz` readiness.
+- Temp Gateway and mock provider cleanup receipts. A clean temp Gateway start emits `temp-gateway-start.json`; cleanup emits `temp-gateway-stop.json` and verifies `productionConfigTouched:false`.
 
-After mock-provider/preflight the state machine calls the temp-Gateway start step, which is currently unimplemented and causes the runner to classify as `HONEST-LIMIT-live-orchestration-preflight-only`, exit 3, `pass:false`, with `phase: "temp-gateway-start"`. This is intentional: no PASS is possible until the isolated Gateway, RPC, compaction lifecycle, and lifeboat receipts are wired.
+After temp Gateway readiness, the state machine calls context-budget forcing, which is currently unimplemented and causes the runner to classify as `HONEST-LIMIT-live-orchestration-preflight-only`, exit 3, `pass:false`, with `phase: "force-context-budget"`. This is intentional: no PASS is possible until the context forcing, RPC, compaction lifecycle, and lifeboat receipts are wired.
 
 Example:
 
@@ -73,7 +74,7 @@ OPENCLAW_ACCEPTED_COMPACTION_FIXTURE=true \
 
 ## Required live env knobs
 
-The future live runner must make these explicit and redacted in artifacts:
+The live runner makes these explicit and redacted in artifacts:
 
 - `OPENCLAW_ACCEPTED_COMPACTION_FIXTURE=true`
 - `OPENCLAW_ACCEPTED_COMPACTION_ENABLE_LIVE=true` (review gate)
@@ -123,4 +124,4 @@ The runner classifies non-PASS states instead of failing opaquely:
 - No PASS from threshold rejection.
 - No PASS unless the lifeboat crosses the actual compaction seam.
 - `--run` requires the `--enable-live-orchestration` review gate.
-- `openclaw-dir` inside production markers is refused until reviewed source-only guards land.
+- Source checkouts under production markers are source-only; temp config/state/workspace/logs/artifacts must stay outside production markers.

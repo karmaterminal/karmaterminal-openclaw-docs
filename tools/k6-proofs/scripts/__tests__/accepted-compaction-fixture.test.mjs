@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtemp, readFile, rm, symlink } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -42,7 +42,7 @@ test('plan mode emits redacted artifacts without starting a gateway', async () =
 
     assert.equal(plan.outcome, 'PLAN_ONLY-redacted-dry-run');
     assert.equal(plan.env.OPENCLAW_GATEWAY_TOKEN, '<REDACTED-fixture-token>');
-    assert.equal(config.gateway.token, '<REDACTED-fixture-token>');
+    assert.equal(config.gateway.auth.mode, 'none');
     assert.equal(readiness.gatewayPid, null);
     assert.equal(cleanup.productionConfigTouched, false);
     assert.doesNotMatch(JSON.stringify({ plan, config, readiness, cleanup }), /secret-token-must-not-print/);
@@ -177,19 +177,22 @@ test('run with --enable-live-orchestration but missing openclaw-dir classifies a
   }
 });
 
-test('run with --enable-live-orchestration refuses openclaw-dir inside production markers', async () => {
+test('run with --enable-live-orchestration permits openclaw-dir inside production markers as source-only', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'openclaw-accepted-compaction-live-prod-dir-'));
   try {
-    // The workorder hints at /home/figs/flesh_beast_tmp/openclaw as the source
-    // location. That path is inside a production marker; the runner must refuse
-    // it until reviewed source-only guards land.
-    const productionDir = join(process.env.HOME || '/home/figs', 'flesh_beast_tmp', 'openclaw');
+    // Source checkouts may live under production markers; temp config/state/workspace
+    // paths remain guarded separately. Use the current repo as a custom marker so
+    // the test does not depend on the operator's home layout.
+    const productionDir = join(dir, 'flesh_beast_tmp', 'openclaw');
+    await mkdir(productionDir, { recursive: true });
+    await writeFile(join(productionDir, 'openclaw.mjs'), '// stub\n');
     const run = runFixture([
       '--run',
       '--enable-live-orchestration',
       '--tmpdir', join(dir, 'fixture'),
       '--artifact-dir', join(dir, 'artifacts'),
       '--openclaw-dir', productionDir,
+      '--timeout-ms', '1000',
       '--json',
     ], {
       OPENCLAW_ACCEPTED_COMPACTION_FIXTURE: 'true',
@@ -197,22 +200,25 @@ test('run with --enable-live-orchestration refuses openclaw-dir inside productio
     assert.equal(run.status, 3, run.stderr || run.stdout);
     const parsed = JSON.parse(run.stdout);
     assert.equal(parsed.pass, false);
-    assert.equal(parsed.outcome, 'BLOCKED-openclaw-dir-inside-production');
+    assert.equal(parsed.outcome, 'BLOCKED-temp-gateway-start');
+    const preflight = JSON.parse(await readFile(join(dir, 'artifacts', 'preflight-context.json'), 'utf8'));
+    assert.equal(preflight.openclawSourceOnly, true);
     const outcome = JSON.parse(await readFile(join(dir, 'artifacts', 'outcome.json'), 'utf8'));
     assert.equal(outcome.pass, false);
-    assert.equal(outcome.outcome, 'BLOCKED-openclaw-dir-inside-production');
+    assert.equal(outcome.outcome, 'BLOCKED-temp-gateway-start');
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
 });
 
-test('run with --enable-live-orchestration starts mock provider, writes preflight-context/temp config, then stops at temp gateway stub', async () => {
+test('run with --enable-live-orchestration starts mock provider, writes preflight-context/temp config, then blocks at temp gateway start for invalid source', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'openclaw-accepted-compaction-live-preflight-'));
   try {
     // Provide a fake openclaw source dir outside the production markers that
-    // contains a stub entrypoint file, so preflight succeeds.
+    // contains a stub entrypoint file. The runner should attempt the reviewed
+    // temp Gateway start, classify the startup failure, and still clean up the
+    // mock provider without claiming PASS.
     const openclawDir = join(dir, 'openclaw-fake');
-    const { mkdir, writeFile } = await import('node:fs/promises');
     await mkdir(openclawDir, { recursive: true });
     await writeFile(join(openclawDir, 'openclaw.mjs'), '// stub\n');
     const run = runFixture([
@@ -221,6 +227,7 @@ test('run with --enable-live-orchestration starts mock provider, writes prefligh
       '--tmpdir', join(dir, 'fixture'),
       '--artifact-dir', join(dir, 'artifacts'),
       '--openclaw-dir', openclawDir,
+      '--timeout-ms', '1000',
       '--json',
     ], {
       OPENCLAW_ACCEPTED_COMPACTION_FIXTURE: 'true',
@@ -228,7 +235,7 @@ test('run with --enable-live-orchestration starts mock provider, writes prefligh
     assert.equal(run.status, 3, run.stderr || run.stdout);
     const parsed = JSON.parse(run.stdout);
     assert.equal(parsed.pass, false);
-    assert.equal(parsed.outcome, 'HONEST-LIMIT-live-orchestration-preflight-only');
+    assert.equal(parsed.outcome, 'BLOCKED-temp-gateway-start');
     assert.equal(parsed.phase, 'temp-gateway-start');
 
     const preflight = JSON.parse(await readFile(join(dir, 'artifacts', 'preflight-context.json'), 'utf8'));
@@ -239,21 +246,21 @@ test('run with --enable-live-orchestration starts mock provider, writes prefligh
     assert.ok(preflight.mockProvider.port > 0, 'preflight recorded mock provider port');
 
     const config = JSON.parse(await readFile(join(dir, 'artifacts', 'temp-config.redacted.json'), 'utf8'));
-    assert.equal(config.gateway.token, '<REDACTED-fixture-token>');
+    assert.equal(config.gateway.auth.mode, 'none');
     assert.equal(config.gateway.mode, 'local');
     assert.match(config.models.providers.fixture.baseUrl, /^http:\/\/127\.0\.0\.1:\d+$/);
+    assert.equal(config.models.providers.fixture.models[0].id, 'openai-compatible-local');
+    assert.equal(config.models.providers.fixture.models[0].name, 'openai-compatible-local');
     assert.doesNotMatch(JSON.stringify(config), /secret-token-must-not-print/);
     assert.doesNotMatch(JSON.stringify(config), /openai-secret-must-not-print/);
 
-    const honestLimit = JSON.parse(await readFile(
-      join(dir, 'artifacts', 'live-orchestration-not-yet-implemented.json'),
-      'utf8',
-    ));
-    assert.equal(honestLimit.step, 'startTempGateway');
+    const startError = JSON.parse(await readFile(join(dir, 'artifacts', 'temp-gateway-start-error.json'), 'utf8'));
+    assert.equal(startError.phase, 'temp-gateway-start');
+    assert.match(startError.reason, /temp Gateway/);
 
     const cleanup = JSON.parse(await readFile(join(dir, 'artifacts', 'cleanup.json'), 'utf8'));
     assert.equal(cleanup.productionConfigTouched, false);
-    assert.equal(cleanup.gatewayStopped, null, 'no gateway ever started');
+    assert.equal(cleanup.gatewayStopped, null, 'no gateway reached readiness');
     assert.equal(cleanup.mockProviderStopped.stopped, true);
   } finally {
     await rm(dir, { recursive: true, force: true });

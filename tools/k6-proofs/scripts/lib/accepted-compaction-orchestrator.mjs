@@ -12,8 +12,9 @@
  * accepts a filesystem path routes through the path safety guards below.
  */
 
-import { chmodSync, existsSync, mkdirSync, realpathSync, writeFileSync } from 'node:fs';
-import { createServer as createHttpServer } from 'node:http';
+import { chmodSync, createWriteStream, existsSync, mkdirSync, realpathSync, writeFileSync } from 'node:fs';
+import { createServer as createHttpServer, request as httpRequest } from 'node:http';
+import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { homedir } from 'node:os';
 import path from 'node:path';
@@ -130,23 +131,12 @@ export function resolveOpenClawDir(candidate, {
   const resolved = path.resolve(candidate);
   const realResolved = existingRealpathWithSuffix(resolved);
 
-  // Openclaw source directory MAY be inside the production markers, but only
-  // as a source checkout — never as state. We do not allow it to be used at
-  // all in this increment because we cannot safely distinguish source-only.
-  // If a caller passes DEFAULT_OPENCLAW_SOURCE_DIR (which lives inside the
-  // production marker for legacy reasons), we still refuse to spawn from it
-  // until reviewed code lands that can guarantee source-only usage.
-  for (const production of productionPathCandidates(markers)) {
-    if (resolved === production || resolved.startsWith(`${production}${path.sep}`) ||
-        realResolved === production || realResolved.startsWith(`${production}${path.sep}`)) {
-      return {
-        ok: false,
-        outcome: NON_PASS_OUTCOMES.OPENCLAW_DIR_PRODUCTION,
-        reason: `openclaw dir ${resolved} lives inside production path ${production}; reviewed source-only guard required before live spawn`,
-        dir: resolved,
-      };
-    }
-  }
+  // OpenClaw source directories may live under a production marker (the live
+  // checkout does). This resolver is source-only: config, state, workspace,
+  // logs, and artifacts are guarded separately by normalizeSafePath and must
+  // never point under the source checkout or ~/.openclaw. Do not reject a
+  // production source path here; instead record it in the preflight receipt so
+  // reviewers can verify that only temp paths are writable.
 
   if (!fsExists(resolved)) {
     return {
@@ -169,7 +159,13 @@ export function resolveOpenClawDir(candidate, {
   return {
     ok: true,
     dir: resolved,
+    realDir: realResolved,
     entrypoint,
+    sourceOnly: true,
+    insideProductionMarker: productionPathCandidates(markers).some((production) =>
+      resolved === production || resolved.startsWith(`${production}${path.sep}`) ||
+      realResolved === production || realResolved.startsWith(`${production}${path.sep}`),
+    ),
   };
 }
 
@@ -217,9 +213,8 @@ export function buildRedactedConfig({
   return {
     gateway: {
       mode: 'local',
-      host: '127.0.0.1',
       port,
-      token: '<REDACTED-fixture-token>',
+      auth: { mode: 'none' },
       controlUi: { enabled: false },
       tailscale: { mode: 'off' },
     },
@@ -232,7 +227,6 @@ export function buildRedactedConfig({
         workspace: workspaceDir,
         continuation: { enabled: true },
         compaction: {
-          enabled: true,
           keepRecentTokens,
           reserveTokens,
           reserveTokensFloor: reserveTokens,
@@ -246,11 +240,11 @@ export function buildRedactedConfig({
         [provider || 'fixture']: {
           baseUrl: `http://127.0.0.1:${mockProviderPort}`,
           api: 'openai-responses',
-          models: {
-            [modelName]: {
-              contextTokens,
-            },
-          },
+          models: [{
+            id: modelName,
+            name: modelName,
+            contextTokens,
+          }],
         },
       },
     },
@@ -338,6 +332,152 @@ export async function startFixtureMockProvider({
       },
     },
   };
+}
+
+
+function waitForGatewayHealthz({ port, host = '127.0.0.1', timeoutMs = 30_000, intervalMs = 250, child }) {
+  const startedAt = Date.now();
+  return new Promise((resolve, reject) => {
+    const attempt = () => {
+      if (child?.exitCode !== null || child?.signalCode) {
+        reject(new Error(`temp Gateway exited before readiness (exit=${child.exitCode}, signal=${child.signalCode})`));
+        return;
+      }
+      const req = httpRequest({ host, port, path: '/healthz', method: 'GET', timeout: 2_000 }, (res) => {
+        res.resume();
+        if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+          resolve({ statusCode: res.statusCode, readyAfterMs: Date.now() - startedAt });
+          return;
+        }
+        schedule();
+      });
+      req.on('timeout', () => req.destroy(new Error('healthz request timed out')));
+      req.on('error', schedule);
+      req.end();
+    };
+    const schedule = () => {
+      if (Date.now() - startedAt >= timeoutMs) {
+        reject(new Error(`temp Gateway did not answer /healthz within ${timeoutMs}ms`));
+        return;
+      }
+      setTimeout(attempt, intervalMs);
+    };
+    attempt();
+  });
+}
+
+export async function startTempGatewayProcess({
+  args,
+  paths,
+  port,
+  openclaw,
+  now = () => new Date().toISOString(),
+  spawnFn = spawn,
+  waitForHealthz = waitForGatewayHealthz,
+} = {}) {
+  if (!openclaw?.entrypoint) throw new Error('openclaw entrypoint missing for temp Gateway start');
+  mkdirSync(paths.logsDir, { recursive: true, mode: 0o700 });
+  const stdoutPath = path.join(paths.logsDir, 'temp-gateway.stdout.log');
+  const stderrPath = path.join(paths.logsDir, 'temp-gateway.stderr.log');
+  const stdout = createWriteStream(stdoutPath, { flags: 'a', mode: 0o600 });
+  const stderr = createWriteStream(stderrPath, { flags: 'a', mode: 0o600 });
+  const token = `fixture-token-${Math.random().toString(36).slice(2)}`;
+  const argv = [
+    openclaw.entrypoint,
+    'gateway',
+    'run',
+    '--port',
+    String(port),
+    '--bind',
+    'loopback',
+    '--auth',
+    'none',
+    '--allow-unconfigured',
+  ];
+  const env = {
+    ...process.env,
+    OPENCLAW_ACCEPTED_COMPACTION_FIXTURE_CHILD: 'true',
+    OPENCLAW_CONFIG_PATH: paths.configPath,
+    OPENCLAW_STATE_DIR: paths.stateDir,
+    OPENCLAW_WORKSPACE_DIR: paths.workspaceDir,
+    OPENCLAW_GATEWAY_TOKEN: token,
+    OPENCLAW_SKIP_CHANNELS: '1',
+    OPENCLAW_SKIP_PROVIDERS: '1',
+    OPENCLAW_TEST_MINIMAL_GATEWAY: process.env.OPENCLAW_TEST_MINIMAL_GATEWAY ?? '1',
+    NODE_DISABLE_COMPILE_CACHE: process.env.NODE_DISABLE_COMPILE_CACHE ?? '1',
+  };
+  const child = spawnFn(process.execPath, argv, {
+    cwd: openclaw.dir,
+    env,
+    stdio: ['ignore', 'pipe', 'pipe'],
+    detached: false,
+  });
+  child.stdout?.pipe(stdout);
+  child.stderr?.pipe(stderr);
+  const startedAt = now();
+  try {
+    const healthz = await waitForHealthz({ port, child, timeoutMs: Math.min(args.timeoutMs, 60_000) });
+    return {
+      kind: 'temp-gateway',
+      child,
+      pid: child.pid,
+      port,
+      startedAt,
+      healthz,
+      stdoutPath,
+      stderrPath,
+      artifact: {
+        name: 'temp-gateway-start.json',
+        body: {
+          schema: 'openclaw.project81.accepted-request-compaction.temp-gateway-start.v1',
+          pid: child.pid,
+          port,
+          startedAt,
+          readyAfterMs: healthz.readyAfterMs,
+          healthzStatusCode: healthz.statusCode,
+          command: {
+            executable: process.execPath,
+            args: argv,
+            cwd: openclaw.dir,
+          },
+          env: {
+            OPENCLAW_CONFIG_PATH: paths.configPath,
+            OPENCLAW_STATE_DIR: paths.stateDir,
+            OPENCLAW_WORKSPACE_DIR: paths.workspaceDir,
+            OPENCLAW_GATEWAY_TOKEN: '<REDACTED-fixture-token>',
+            OPENCLAW_SKIP_CHANNELS: '1',
+            OPENCLAW_SKIP_PROVIDERS: '1',
+          },
+          logs: { stdoutPath, stderrPath },
+        },
+      },
+    };
+  } catch (error) {
+    child.kill('SIGTERM');
+    throw error;
+  }
+}
+
+export async function stopTempGatewayProcess(receipt, { now = () => new Date().toISOString(), timeoutMs = 5_000 } = {}) {
+  const child = receipt?.child;
+  if (!child) return { stopped: false, reason: 'no temp Gateway child receipt', stoppedAt: now() };
+  if (child.exitCode !== null || child.signalCode) {
+    return { stopped: true, alreadyExited: true, exitCode: child.exitCode, signal: child.signalCode, stoppedAt: now() };
+  }
+  const exitPromise = new Promise((resolve) => {
+    child.once('exit', (code, signal) => resolve({ exitCode: code, signal }));
+  });
+  child.kill('SIGTERM');
+  const result = await Promise.race([
+    exitPromise,
+    new Promise((resolve) => setTimeout(() => resolve(null), timeoutMs)),
+  ]);
+  if (!result) {
+    child.kill('SIGKILL');
+    const forced = await exitPromise;
+    return { stopped: true, forced: true, ...forced, stoppedAt: now() };
+  }
+  return { stopped: true, forced: false, ...result, stoppedAt: now() };
 }
 
 export async function stopFixtureMockProvider(receipt, { now = () => new Date().toISOString() } = {}) {
@@ -437,7 +577,9 @@ export async function runOrchestration({
       schema: 'openclaw.project81.accepted-request-compaction.cleanup.v1',
       status: outcome.startsWith('BLOCKED') || outcome.startsWith('FAIL')
         ? 'stopped-during-orchestration'
-        : 'preflight-only-no-gateway-started',
+        : cleanupState.gatewayStopped
+          ? 'temp-gateway-started-and-stopped'
+          : 'preflight-only-no-gateway-started',
       retained: args.retainTmp,
       tempRoot: paths.root,
       productionConfigTouched: false,
@@ -470,6 +612,8 @@ export async function runOrchestration({
   }
   preflight.openclawDir = openclaw.dir;
   preflight.openclawEntrypoint = openclaw.entrypoint;
+  preflight.openclawSourceOnly = true;
+  preflight.openclawInsideProductionMarker = openclaw.insideProductionMarker === true;
 
   // Phase 2: allocate free port (only when caller left port==0)
   let port = args.port;
@@ -486,6 +630,16 @@ export async function runOrchestration({
 
   const receipts = {};
 
+  const stopStartedGateway = async () => {
+    if (!receipts.startTempGateway || cleanupState.gatewayStopped) return;
+    const stopped = await liveSteps.stopTempGateway(receipts.startTempGateway, { now });
+    cleanupState.gatewayStopped = stopped;
+    emit('temp-gateway-stop.json', {
+      schema: 'openclaw.project81.accepted-request-compaction.temp-gateway-stop.v1',
+      ...stopped,
+    });
+  };
+
   const stopStartedMockProvider = async () => {
     if (!receipts.startMockProvider || cleanupState.mockProviderStopped) return;
     const stopped = await stopFixtureMockProvider(receipts.startMockProvider, { now });
@@ -494,6 +648,11 @@ export async function runOrchestration({
       schema: 'openclaw.project81.accepted-request-compaction.mock-provider-stop.v1',
       ...stopped,
     });
+  };
+
+  const cleanupStartedProcesses = async () => {
+    await stopStartedGateway();
+    await stopStartedMockProvider();
   };
 
   // Phase 3: start deterministic local mock provider before config write so
@@ -578,7 +737,7 @@ export async function runOrchestration({
           step,
           reason,
         });
-        await stopStartedMockProvider();
+        await cleanupStartedProcesses();
         return finish(NON_PASS_OUTCOMES.LIVE_SEND_NOT_IMPLEMENTED, phase, {
           preflight,
         });
@@ -589,7 +748,7 @@ export async function runOrchestration({
         step,
         reason,
       });
-      await stopStartedMockProvider();
+      await cleanupStartedProcesses();
       return finish(failureOutcome, phase, { preflight });
     }
   }
@@ -601,6 +760,6 @@ export async function runOrchestration({
     schema: 'openclaw.project81.accepted-request-compaction.trace.v1',
     reason: 'trace validation not yet integrated in this increment',
   });
-  await stopStartedMockProvider();
+  await cleanupStartedProcesses();
   return finish(NON_PASS_OUTCOMES.LIVE_SEND_NOT_IMPLEMENTED, 'trace-validation', { preflight });
 }

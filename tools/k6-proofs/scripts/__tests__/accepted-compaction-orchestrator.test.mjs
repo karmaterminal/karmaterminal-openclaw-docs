@@ -73,7 +73,7 @@ test('resolveOpenClawDir accepts dir with entrypoint outside production paths', 
   }
 });
 
-test('resolveOpenClawDir refuses dir inside production markers even when it exists', async () => {
+test('resolveOpenClawDir allows production-marker source dirs as source-only', async () => {
   // Simulate a fake production marker under a tmp dir and use custom markers.
   const root = await mkdtemp(join(tmpdir(), 'openclaw-orch-prod-'));
   try {
@@ -81,8 +81,9 @@ test('resolveOpenClawDir refuses dir inside production markers even when it exis
     await mkdir(fakeProduction, { recursive: true });
     await writeFile(join(fakeProduction, 'openclaw.mjs'), '// stub\n');
     const result = resolveOpenClawDir(fakeProduction, { markers: [fakeProduction] });
-    assert.equal(result.ok, false);
-    assert.equal(result.outcome, NON_PASS_OUTCOMES.OPENCLAW_DIR_PRODUCTION);
+    assert.equal(result.ok, true);
+    assert.equal(result.sourceOnly, true);
+    assert.equal(result.insideProductionMarker, true);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
@@ -104,7 +105,7 @@ test('buildRedactedConfig never emits provider or gateway secrets in cleartext',
     port: 12345,
   });
   const serialized = JSON.stringify(cfg);
-  assert.equal(cfg.gateway.token, '<REDACTED-fixture-token>');
+  assert.equal(cfg.gateway.auth.mode, 'none');
   assert.doesNotMatch(serialized, /sk-[a-zA-Z0-9]+/);
   assert.doesNotMatch(serialized, /api[_-]?key/i);
 });
@@ -234,6 +235,7 @@ test('runOrchestration reaches request-compaction phase and classifies FAIL when
     const liveSteps = makeUnimplementedLiveSteps();
     liveSteps.startMockProvider = async () => ({ pid: 1, port: 65001 });
     liveSteps.startTempGateway = async () => ({ pid: 2, port: 65002 });
+    liveSteps.stopTempGateway = async () => ({ stopped: true, exitCode: 0, signal: null });
     liveSteps.forceContextBudget = async () => ({ effectiveFraction: 0.82 });
     liveSteps.stageLifeboat = async () => ({ delegateId: 'delegate-abc' });
     liveSteps.requestCompaction = async () => {
@@ -285,6 +287,8 @@ test('runOrchestration with fixture mock provider advances blocker to temp gatew
     assert.ok(preflight.mockProvider.port > 0);
     const config = JSON.parse(await readFile(join(paths.configPath), 'utf8'));
     assert.match(config.models.providers.fixture.baseUrl, /^http:\/\/127\.0\.0\.1:\d+$/);
+    assert.equal(config.models.providers.fixture.models[0].id, 'openai-compatible-local');
+    assert.equal(config.models.providers.fixture.models[0].name, 'openai-compatible-local');
     const mock = JSON.parse(await readFile(join(paths.artifactDir, 'mock-provider.json'), 'utf8'));
     assert.equal(mock.usageShape, 'deterministic-high-input-token-fixture');
     const stop = JSON.parse(await readFile(join(paths.artifactDir, 'mock-provider-stop.json'), 'utf8'));

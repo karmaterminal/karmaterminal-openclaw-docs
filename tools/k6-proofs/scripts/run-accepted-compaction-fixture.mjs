@@ -33,6 +33,8 @@ import {
   buildRedactedConfig,
   makeUnimplementedLiveSteps,
   startFixtureMockProvider,
+  startTempGatewayProcess,
+  stopTempGatewayProcess,
   normalizeSafePath as sharedNormalizeSafePath,
   runOrchestration,
 } from './lib/accepted-compaction-orchestrator.mjs';
@@ -412,6 +414,8 @@ function resolveOrchestratorInvocation({ args, paths, plan }) {
     liveSteps: {
       ...makeUnimplementedLiveSteps(),
       startMockProvider: startFixtureMockProvider,
+      startTempGateway: startTempGatewayProcess,
+      stopTempGateway: stopTempGatewayProcess,
     },
   };
 }

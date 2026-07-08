@@ -5,24 +5,56 @@
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
-  "transport": "offline",
-  "toolSurface": "read-only",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
   "mutates": false,
-  "timeoutSeconds": 0,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
   "scenario": {
-    "name": "r-cw-2",
-    "description": "continue_work visible wake/receipt manual proof row. Registered to keep the executable-suite manifest catalog aligned with the 29-row manual proof corpus; not an unattended k6 scenario yet.",
+    "name": "r-cw-2-immediate-wake",
+    "description": "Typed continue_work(delaySeconds=0) immediate wake proof. Requires an explicit scheduled sentinel and a continuation wake sentinel, while ignoring harness prompt echoes.",
     "methods": [
-      "manual-corpus-review"
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe"
     ],
-    "status": "construct-only",
-    "notes": "Construct-only registry entry. The current PROOFS corpus carries manual evidence for this row; promote to scaffold/runnable only after a reviewed k6 fixture exists."
+    "status": "runnable",
+    "file": "r-cw-2-immediate-wake.js"
+  },
+  "invocation": {
+    "tool": "continue_work",
+    "delaySeconds": 0,
+    "reason": "k6-proof-R-CW-2-immediate-{{nonce}}",
+    "idempotencyKeyPrefix": "R-CW-2"
   },
   "expectedReceipts": [
     {
-      "name": "manual-row-corpus-receipt",
+      "name": "dispatch-accepted",
       "required": true,
-      "description": "Current PROOFS/<sha> corpus contains reviewed manual evidence for this row."
+      "description": "Gateway accepted the sessions.send turn that asks the agent to call continue_work(delaySeconds=0)."
+    },
+    {
+      "name": "continue-work-tool-result-scheduled",
+      "required": true,
+      "description": "Agent emitted CW2-SCHEDULED only after the continue_work tool result reported scheduled."
+    },
+    {
+      "name": "immediate-wake-event",
+      "required": true,
+      "description": "Continuation wake turn emitted CW2-WOKE nonce sentinel."
+    },
+    {
+      "name": "prompt-echo-filtered",
+      "required": true,
+      "description": "Harness prompt echo was ignored; CW2-WOKE is only accepted after CW2-SCHEDULED."
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID from dispatch response or optional task metadata for Tempo fetch."
     }
   ],
   "artifactDestination": {
@@ -30,26 +62,29 @@
     "sha": "${OPENCLAW_CANDIDATE_SHA}",
     "row": "R-CW-2",
     "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
-    "runDirPrefix": "manual-corpus"
+    "runDirPrefix": "k6-run"
   },
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Catalog coverage entry only. Does not make the row runnable and does not change the canonical PROOFS corpus."
+    "notes": "PASS-candidate requires dispatch accepted, explicit scheduled sentinel, explicit immediate wake sentinel, and prompt-echo filtering. Prefer disposable sessions."
   },
   "liveRunSafety": {
-    "classification": "construct-only",
-    "requiresLiveGatewayToken": false,
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
     "requiresTargetSessionKey": false,
-    "requiresCandidateSha": false,
-    "requiresExternalAgentOrToolInvocation": false,
-    "requiresHumanConfirmation": false,
-    "sameSessionConcurrencySafe": true,
-    "expectedArtifactClass": "construct-only",
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
-      "manual-row-corpus-receipt"
+      "seat-readiness",
+      "dispatch-accepted",
+      "continue-work-tool-result-scheduled",
+      "immediate-wake-event",
+      "prompt-echo-filtered"
     ],
     "foldRequiresReview": true,
-    "notes": "Not included in --live-suite. This entry exists so every current manual proof row has an explicit manifest record."
+    "notes": "Live continue_work delaySeconds=0 row. Serialize per target session. Disposable-session smoke may honestly stop at scheduled-only on runtimes where disposable sessions do not service self-elected continuation wakes; canonical PASS requires a CW2-WOKE receipt from the target session history or live websocket stream."
   }
 }

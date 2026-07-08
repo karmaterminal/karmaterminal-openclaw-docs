@@ -234,6 +234,7 @@ test('runOrchestration reaches request-compaction phase and classifies FAIL when
     const liveSteps = makeUnimplementedLiveSteps();
     liveSteps.startMockProvider = async () => ({ pid: 1, port: 65001 });
     liveSteps.startTempGateway = async () => ({ pid: 2, port: 65002 });
+    liveSteps.stopTempGateway = async () => ({ stopped: true, stopSignal: 'TEST' });
     liveSteps.forceContextBudget = async () => ({ effectiveFraction: 0.82 });
     liveSteps.stageLifeboat = async () => ({ delegateId: 'delegate-abc' });
     liveSteps.requestCompaction = async () => {

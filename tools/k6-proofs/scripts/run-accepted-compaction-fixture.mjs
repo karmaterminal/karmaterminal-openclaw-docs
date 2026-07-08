@@ -20,8 +20,9 @@
  * successor sentinel) live behind dependency-injected stubs so the
  * follow-up review PR can wire them without a second refactor.
  */
-import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';
+import { chmodSync, createWriteStream, mkdirSync, writeFileSync } from 'node:fs';
 import { mkdtemp } from 'node:fs/promises';
+import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -43,6 +44,10 @@ const DEFAULT_RESERVE_TOKENS = 2_000;
 const DEFAULT_TIMEOUT_MS = 180_000;
 const DEFAULT_PORT = 0;
 const DEFAULT_MODEL = 'fixture/openai-compatible-local';
+const DEFAULT_GATEWAY_PROBE_TIMEOUT_MS = 30_000;
+const DEFAULT_GATEWAY_STOP_TIMEOUT_MS = 5_000;
+const FIXTURE_GATEWAY_TOKEN = '<REDACTED-fixture-token>';
+
 
 function usage() {
   return `Usage: node tools/k6-proofs/scripts/run-accepted-compaction-fixture.mjs --plan [options]
@@ -61,6 +66,7 @@ Options:
   --reserve-tokens <n>             Compaction reserveTokens/floor (default: ${DEFAULT_RESERVE_TOKENS}).
   --timeout-ms <n>                 Lifecycle timeout (default: ${DEFAULT_TIMEOUT_MS}).
   --port <n>                       Temp Gateway port, 0 = allocate free port during preflight.
+  OPENCLAW_ACCEPTED_COMPACTION_GATEWAY_CMD_JSON  Optional JSON argv template for temp Gateway command. Supports {{ENTRYPOINT}}, {{PORT}}, {{CONFIG_PATH}}, {{STATE_DIR}}, {{WORKSPACE_DIR}}, {{LOGS_DIR}}, {{TMP_ROOT}}.
   --retain-tmp                    Mark temp root retained in cleanup plan.
   --json                          Print machine-readable result.
   --help                          Show this help.
@@ -392,6 +398,174 @@ function writeReviewGateArtifacts(args, paths, plan) {
   writeJson(path.join(paths.artifactDir, 'outcome.json'), outcome);
 }
 
+function resolveGatewayCommandTemplate() {
+  const raw = process.env.OPENCLAW_ACCEPTED_COMPACTION_GATEWAY_CMD_JSON;
+  if (!raw) return [process.execPath, '{{ENTRYPOINT}}', 'gateway'];
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (error) {
+    throw new Error(`OPENCLAW_ACCEPTED_COMPACTION_GATEWAY_CMD_JSON must be valid JSON: ${error.message}`);
+  }
+  if (!Array.isArray(parsed) || parsed.length === 0 || parsed.some((part) => typeof part !== 'string' || part.length === 0)) {
+    throw new Error('OPENCLAW_ACCEPTED_COMPACTION_GATEWAY_CMD_JSON must be a non-empty JSON array of strings');
+  }
+  return parsed;
+}
+
+function interpolateCommandParts(template, replacements) {
+  return template.map((part) => part.replace(/\{\{([A-Z_]+)\}\}/gu, (_match, key) => replacements[key] ?? _match));
+}
+
+function resolveGatewayCommand({ openclaw, paths, port }) {
+  const parts = interpolateCommandParts(resolveGatewayCommandTemplate(), {
+    ENTRYPOINT: openclaw.entrypoint,
+    PORT: String(port),
+    CONFIG_PATH: paths.configPath,
+    STATE_DIR: paths.stateDir,
+    WORKSPACE_DIR: paths.workspaceDir,
+    LOGS_DIR: paths.logsDir,
+    TMP_ROOT: paths.root,
+  });
+  const withPort = parts.some((part) => part === '--port') ? parts : [...parts, '--port', String(port)];
+  return { command: withPort[0], args: withPort.slice(1), display: withPort.join(' ') };
+}
+
+function createExitTracker(child) {
+  const tracker = { result: null, promise: null };
+  tracker.promise = new Promise((resolve) => {
+    child.once('exit', (code, signal) => {
+      tracker.result = { code, signal };
+      resolve(tracker.result);
+    });
+  });
+  return tracker;
+}
+
+async function waitForExit(child, exitTracker) {
+  if (exitTracker?.result) return exitTracker.result;
+  if (child.exitCode !== null || child.signalCode !== null) {
+    return { code: child.exitCode, signal: child.signalCode };
+  }
+  return exitTracker?.promise ?? new Promise((resolve) => child.once('exit', (code, signal) => resolve({ code, signal })));
+}
+
+async function probeGateway(port) {
+  const headers = { authorization: `Bearer ${FIXTURE_GATEWAY_TOKEN}` };
+  const base = `http://127.0.0.1:${port}`;
+  const [health, status] = await Promise.allSettled([
+    fetch(`${base}/health`, { headers }),
+    fetch(`${base}/status`, { headers }),
+  ]);
+  const healthStatus = health.status === 'fulfilled' ? health.value.status : null;
+  const statusStatus = status.status === 'fulfilled' ? status.value.status : null;
+  const ok = health.status === 'fulfilled' && health.value.ok && status.status === 'fulfilled' && status.value.ok;
+  let lastError = null;
+  if (health.status === 'rejected') lastError = health.reason?.message || String(health.reason);
+  else if (status.status === 'rejected') lastError = status.reason?.message || String(status.reason);
+  else if (!ok) lastError = `unexpected probe status health=${healthStatus} status=${statusStatus}`;
+  return { ok, healthStatus, statusStatus, lastError };
+}
+
+async function waitForGatewayReadiness({ child, exitTracker, port, timeoutMs }) {
+  const deadline = Date.now() + Math.min(timeoutMs, DEFAULT_GATEWAY_PROBE_TIMEOUT_MS);
+  let lastProbe = null;
+  while (Date.now() < deadline) {
+    if (child.exitCode !== null || child.signalCode !== null) {
+      const exit = await waitForExit(child, exitTracker);
+      throw new Error(`temp Gateway exited before readiness (code=${exit.code ?? 'null'}, signal=${exit.signal ?? 'null'})`);
+    }
+    lastProbe = await probeGateway(port);
+    if (lastProbe.ok) return lastProbe;
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  throw new Error(`temp Gateway did not become ready before timeout (${Math.min(timeoutMs, DEFAULT_GATEWAY_PROBE_TIMEOUT_MS)}ms; last=${lastProbe?.lastError ?? 'none'})`);
+}
+
+function gatewayEnv({ paths, port }) {
+  return {
+    ...process.env,
+    OPENCLAW_CONFIG_PATH: paths.configPath,
+    OPENCLAW_STATE_DIR: paths.stateDir,
+    OPENCLAW_WORKSPACE_DIR: paths.workspaceDir,
+    OPENCLAW_GATEWAY_PORT: String(port),
+    OPENCLAW_GATEWAY_TOKEN: FIXTURE_GATEWAY_TOKEN,
+    OPENCLAW_ACCEPTED_COMPACTION_FIXTURE: 'true',
+    OPENCLAW_ACCEPTED_COMPACTION_TMPDIR: paths.root,
+  };
+}
+
+async function startTempGateway({ args, paths, port, openclaw }) {
+  mkdirSync(paths.logsDir, { recursive: true, mode: 0o700 });
+  const command = resolveGatewayCommand({ openclaw, paths, port });
+  const stdoutPath = path.join(paths.logsDir, 'temp-gateway.stdout.log');
+  const stderrPath = path.join(paths.logsDir, 'temp-gateway.stderr.log');
+  const stdout = createWriteStream(stdoutPath, { flags: 'a', mode: 0o600 });
+  const stderr = createWriteStream(stderrPath, { flags: 'a', mode: 0o600 });
+  let child;
+  try {
+    child = spawn(command.command, command.args, {
+      cwd: openclaw.dir,
+      env: gatewayEnv({ paths, port }),
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch (error) {
+    stdout.end();
+    stderr.end();
+    throw new Error(`failed to spawn temp Gateway command "${command.display}": ${error.message}`);
+  }
+  child.stdout.pipe(stdout);
+  child.stderr.pipe(stderr);
+  const exitTracker = createExitTracker(child);
+  try {
+    const probe = await waitForGatewayReadiness({ child, exitTracker, port, timeoutMs: args.timeoutMs });
+    return {
+      kind: 'temp-gateway-started',
+      pid: child.pid ?? null,
+      port,
+      child,
+      exitTracker,
+      logs: { stdout: stdoutPath, stderr: stderrPath },
+      artifact: {
+        name: 'temp-gateway-start.json',
+        body: {
+          schema: 'openclaw.project81.accepted-request-compaction.temp-gateway-start.v1',
+          pid: child.pid ?? null,
+          port,
+          command: command.display,
+          probe,
+          logs: { stdout: stdoutPath, stderr: stderrPath },
+        },
+      },
+    };
+  } catch (error) {
+    child.kill('SIGTERM');
+    stdout.end();
+    stderr.end();
+    throw error;
+  }
+}
+
+async function stopTempGateway({ gateway }) {
+  if (!gateway?.child) {
+    return { stopped: false, reason: 'no temp gateway process receipt' };
+  }
+  const { child, exitTracker } = gateway;
+  if (child.exitCode !== null || child.signalCode !== null) {
+    const exit = await waitForExit(child, exitTracker);
+    return { stopped: true, alreadyExited: true, observedExit: exit };
+  }
+  child.kill('SIGTERM');
+  const exit = await Promise.race([
+    waitForExit(child, exitTracker),
+    new Promise((resolve) => setTimeout(() => resolve(null), DEFAULT_GATEWAY_STOP_TIMEOUT_MS)),
+  ]);
+  if (exit) return { stopped: true, stopSignal: 'SIGTERM', observedExit: exit };
+  child.kill('SIGKILL');
+  return { stopped: true, stopSignal: 'SIGKILL', stopForced: true, observedExit: await waitForExit(child, exitTracker) };
+}
+
+
 /**
  * Test-only hook: an alternative orchestrator factory may be injected via
  * globalThis.__openclawAcceptedCompactionTestHooks.orchestratorFactory. The
@@ -412,6 +586,8 @@ function resolveOrchestratorInvocation({ args, paths, plan }) {
     liveSteps: {
       ...makeUnimplementedLiveSteps(),
       startMockProvider: startFixtureMockProvider,
+      startTempGateway,
+      stopTempGateway,
     },
   };
 }

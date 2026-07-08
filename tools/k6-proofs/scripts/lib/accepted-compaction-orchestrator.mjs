@@ -496,6 +496,32 @@ export async function runOrchestration({
     });
   };
 
+  const stopStartedTempGateway = async () => {
+    if (!receipts.startTempGateway || cleanupState.gatewayStopped) return;
+    const stopped = await liveSteps.stopTempGateway({
+      args,
+      paths,
+      port,
+      openclaw,
+      receipts,
+      gateway: receipts.startTempGateway,
+    });
+    cleanupState.gatewayStopped = stopped;
+    if (stopped?.artifact) {
+      emit(stopped.artifact.name, stopped.artifact.body);
+    } else {
+      emit('temp-gateway-stop.json', {
+        schema: 'openclaw.project81.accepted-request-compaction.temp-gateway-stop.v1',
+        ...(stopped && typeof stopped === 'object' ? stopped : { stopped: Boolean(stopped) }),
+      });
+    }
+  };
+
+  const stopStartedLiveProcesses = async () => {
+    await stopStartedTempGateway();
+    await stopStartedMockProvider();
+  };
+
   // Phase 3: start deterministic local mock provider before config write so
   // the temp Gateway config can point at a real loopback baseUrl.
   try {
@@ -578,7 +604,7 @@ export async function runOrchestration({
           step,
           reason,
         });
-        await stopStartedMockProvider();
+        await stopStartedLiveProcesses();
         return finish(NON_PASS_OUTCOMES.LIVE_SEND_NOT_IMPLEMENTED, phase, {
           preflight,
         });
@@ -589,7 +615,7 @@ export async function runOrchestration({
         step,
         reason,
       });
-      await stopStartedMockProvider();
+      await stopStartedLiveProcesses();
       return finish(failureOutcome, phase, { preflight });
     }
   }
@@ -601,6 +627,6 @@ export async function runOrchestration({
     schema: 'openclaw.project81.accepted-request-compaction.trace.v1',
     reason: 'trace validation not yet integrated in this increment',
   });
-  await stopStartedMockProvider();
+  await stopStartedLiveProcesses();
   return finish(NON_PASS_OUTCOMES.LIVE_SEND_NOT_IMPLEMENTED, 'trace-validation', { preflight });
 }

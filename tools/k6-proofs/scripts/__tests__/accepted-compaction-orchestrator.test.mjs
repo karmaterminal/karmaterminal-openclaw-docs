@@ -247,3 +247,52 @@ test('runOrchestration reaches request-compaction phase and classifies FAIL when
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test('startFixtureMockProvider serves deterministic OpenAI-compatible responses and stops cleanly', async () => {
+  const { startFixtureMockProvider, stopFixtureMockProvider } = await import('../lib/accepted-compaction-orchestrator.mjs');
+  const receipt = await startFixtureMockProvider();
+  try {
+    assert.equal(receipt.kind, 'fixture-mock-provider');
+    assert.ok(receipt.port > 0 && receipt.port < 65_536);
+    const response = await fetch(`http://127.0.0.1:${receipt.port}/v1/responses`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ model: 'fixture/openai-compatible-local', input: 'hello' }),
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.status, 'completed');
+    assert.equal(body.usage.total_tokens, 9016);
+    assert.equal(receipt.requests.length, 1);
+  } finally {
+    const stopped = await stopFixtureMockProvider(receipt);
+    assert.equal(stopped.stopped, true);
+    assert.equal(stopped.requestCount, 1);
+  }
+});
+
+test('runOrchestration with fixture mock provider advances blocker to temp gateway start', async () => {
+  const { dir, args, paths } = await makeOrchestrationFixture();
+  const { startFixtureMockProvider } = await import('../lib/accepted-compaction-orchestrator.mjs');
+  try {
+    const liveSteps = makeUnimplementedLiveSteps();
+    liveSteps.startMockProvider = startFixtureMockProvider;
+    const result = await runOrchestration({ args, paths, liveSteps });
+    assert.equal(result.pass, false);
+    assert.equal(result.outcome, NON_PASS_OUTCOMES.LIVE_SEND_NOT_IMPLEMENTED);
+    assert.equal(result.phase, 'temp-gateway-start');
+    const preflight = JSON.parse(await readFile(join(paths.artifactDir, 'preflight-context.json'), 'utf8'));
+    assert.ok(preflight.mockProvider.port > 0);
+    const config = JSON.parse(await readFile(join(paths.configPath), 'utf8'));
+    assert.match(config.models.providers.fixture.baseUrl, /^http:\/\/127\.0\.0\.1:\d+$/);
+    const mock = JSON.parse(await readFile(join(paths.artifactDir, 'mock-provider.json'), 'utf8'));
+    assert.equal(mock.usageShape, 'deterministic-high-input-token-fixture');
+    const stop = JSON.parse(await readFile(join(paths.artifactDir, 'mock-provider-stop.json'), 'utf8'));
+    assert.equal(stop.stopped, true);
+    const outcome = JSON.parse(await readFile(join(paths.artifactDir, 'outcome.json'), 'utf8'));
+    assert.equal(outcome.phase, 'temp-gateway-start');
+    assert.equal(outcome.pass, false);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});

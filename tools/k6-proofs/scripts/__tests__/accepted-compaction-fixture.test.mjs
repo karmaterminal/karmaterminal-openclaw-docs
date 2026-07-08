@@ -206,7 +206,7 @@ test('run with --enable-live-orchestration refuses openclaw-dir inside productio
   }
 });
 
-test('run with --enable-live-orchestration writes preflight-context, temp config, and honest-limit marker when live steps are unimplemented', async () => {
+test('run with --enable-live-orchestration starts mock provider, writes preflight-context/temp config, then stops at temp gateway stub', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'openclaw-accepted-compaction-live-preflight-'));
   try {
     // Provide a fake openclaw source dir outside the production markers that
@@ -229,17 +229,19 @@ test('run with --enable-live-orchestration writes preflight-context, temp config
     const parsed = JSON.parse(run.stdout);
     assert.equal(parsed.pass, false);
     assert.equal(parsed.outcome, 'HONEST-LIMIT-live-orchestration-preflight-only');
-    assert.equal(parsed.phase, 'mock-provider-start');
+    assert.equal(parsed.phase, 'temp-gateway-start');
 
     const preflight = JSON.parse(await readFile(join(dir, 'artifacts', 'preflight-context.json'), 'utf8'));
     assert.equal(preflight.openclawDir, openclawDir);
     assert.equal(preflight.openclawEntrypoint, join(openclawDir, 'openclaw.mjs'));
     assert.equal(typeof preflight.portCandidate, 'number');
     assert.ok(preflight.portCandidate > 0, 'preflight allocated a positive port');
+    assert.ok(preflight.mockProvider.port > 0, 'preflight recorded mock provider port');
 
     const config = JSON.parse(await readFile(join(dir, 'artifacts', 'temp-config.redacted.json'), 'utf8'));
     assert.equal(config.gateway.token, '<REDACTED-fixture-token>');
     assert.equal(config.gateway.mode, 'local');
+    assert.match(config.models.providers.fixture.baseUrl, /^http:\/\/127\.0\.0\.1:\d+$/);
     assert.doesNotMatch(JSON.stringify(config), /secret-token-must-not-print/);
     assert.doesNotMatch(JSON.stringify(config), /openai-secret-must-not-print/);
 
@@ -247,11 +249,12 @@ test('run with --enable-live-orchestration writes preflight-context, temp config
       join(dir, 'artifacts', 'live-orchestration-not-yet-implemented.json'),
       'utf8',
     ));
-    assert.equal(honestLimit.step, 'startMockProvider');
+    assert.equal(honestLimit.step, 'startTempGateway');
 
     const cleanup = JSON.parse(await readFile(join(dir, 'artifacts', 'cleanup.json'), 'utf8'));
     assert.equal(cleanup.productionConfigTouched, false);
     assert.equal(cleanup.gatewayStopped, null, 'no gateway ever started');
+    assert.equal(cleanup.mockProviderStopped.stopped, true);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

@@ -32,6 +32,7 @@ import {
   DEFAULT_OPENCLAW_SOURCE_DIR,
   buildRedactedConfig,
   makeUnimplementedLiveSteps,
+  startFixtureMockProvider,
   normalizeSafePath as sharedNormalizeSafePath,
   runOrchestration,
 } from './lib/accepted-compaction-orchestrator.mjs';
@@ -334,7 +335,7 @@ function writeBaseArtifacts(args, paths, plan) {
     notes: args.mode === 'plan'
       ? ['dry-run only; no Gateway started and no production config touched']
       : args.enableLiveOrchestration
-        ? ['live orchestration state machine invoked; preflight-only in this increment']
+        ? ['live orchestration state machine invoked; deterministic mock provider is wired; temp Gateway remains stubbed']
         : ['live mode requested but review gate --enable-live-orchestration not supplied'],
   };
   writeJson(path.join(paths.artifactDir, 'accepted-compaction-plan.json'), plan);
@@ -408,7 +409,10 @@ function resolveOrchestratorInvocation({ args, paths, plan }) {
       openclawDir: args.openclawDir || DEFAULT_OPENCLAW_SOURCE_DIR,
     },
     paths,
-    liveSteps: makeUnimplementedLiveSteps(),
+    liveSteps: {
+      ...makeUnimplementedLiveSteps(),
+      startMockProvider: startFixtureMockProvider,
+    },
   };
 }
 

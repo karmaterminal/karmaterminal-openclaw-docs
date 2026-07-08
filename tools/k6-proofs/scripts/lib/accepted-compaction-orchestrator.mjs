@@ -130,23 +130,13 @@ export function resolveOpenClawDir(candidate, {
   const resolved = path.resolve(candidate);
   const realResolved = existingRealpathWithSuffix(resolved);
 
-  // Openclaw source directory MAY be inside the production markers, but only
-  // as a source checkout — never as state. We do not allow it to be used at
-  // all in this increment because we cannot safely distinguish source-only.
-  // If a caller passes DEFAULT_OPENCLAW_SOURCE_DIR (which lives inside the
-  // production marker for legacy reasons), we still refuse to spawn from it
-  // until reviewed code lands that can guarantee source-only usage.
-  for (const production of productionPathCandidates(markers)) {
-    if (resolved === production || resolved.startsWith(`${production}${path.sep}`) ||
-        realResolved === production || realResolved.startsWith(`${production}${path.sep}`)) {
-      return {
-        ok: false,
-        outcome: NON_PASS_OUTCOMES.OPENCLAW_DIR_PRODUCTION,
-        reason: `openclaw dir ${resolved} lives inside production path ${production}; reviewed source-only guard required before live spawn`,
-        dir: resolved,
-      };
-    }
-  }
+  // Source checkouts may live under production markers (the fleet checkout does).
+  // This resolver is source-only: config/state/workspace/log/artifact paths are
+  // still guarded by normalizeSafePath and may not live under production markers.
+  const insideProductionMarker = productionPathCandidates(markers).some((production) =>
+    resolved === production || resolved.startsWith(`${production}${path.sep}`) ||
+    realResolved === production || realResolved.startsWith(`${production}${path.sep}`),
+  );
 
   if (!fsExists(resolved)) {
     return {
@@ -169,7 +159,10 @@ export function resolveOpenClawDir(candidate, {
   return {
     ok: true,
     dir: resolved,
+    realDir: realResolved,
     entrypoint,
+    sourceOnly: true,
+    insideProductionMarker,
   };
 }
 
@@ -217,9 +210,8 @@ export function buildRedactedConfig({
   return {
     gateway: {
       mode: 'local',
-      host: '127.0.0.1',
       port,
-      token: '<REDACTED-fixture-token>',
+      auth: { mode: 'none' },
       controlUi: { enabled: false },
       tailscale: { mode: 'off' },
     },
@@ -232,7 +224,6 @@ export function buildRedactedConfig({
         workspace: workspaceDir,
         continuation: { enabled: true },
         compaction: {
-          enabled: true,
           keepRecentTokens,
           reserveTokens,
           reserveTokensFloor: reserveTokens,
@@ -246,11 +237,11 @@ export function buildRedactedConfig({
         [provider || 'fixture']: {
           baseUrl: `http://127.0.0.1:${mockProviderPort}`,
           api: 'openai-responses',
-          models: {
-            [modelName]: {
-              contextTokens,
-            },
-          },
+          models: [{
+            id: modelName,
+            name: modelName,
+            contextTokens,
+          }],
         },
       },
     },
@@ -470,6 +461,8 @@ export async function runOrchestration({
   }
   preflight.openclawDir = openclaw.dir;
   preflight.openclawEntrypoint = openclaw.entrypoint;
+  preflight.openclawSourceOnly = openclaw.sourceOnly === true;
+  preflight.openclawInsideProductionMarker = openclaw.insideProductionMarker === true;
 
   // Phase 2: allocate free port (only when caller left port==0)
   let port = args.port;

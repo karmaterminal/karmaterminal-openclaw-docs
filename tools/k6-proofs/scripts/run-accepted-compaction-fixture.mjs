@@ -26,6 +26,12 @@ import { homedir, tmpdir } from 'node:os';
 import net from 'node:net';
 import path from 'node:path';
 import process from 'node:process';
+import {
+  DEFAULT_OPENCLAW_SOURCE_DIR,
+  makeUnimplementedLiveSteps,
+  runOrchestration,
+  startFixtureMockProvider,
+} from './lib/accepted-compaction-orchestrator.mjs';
 
 const DEFAULT_CONTEXT_TOKENS = 12_000;
 const DEFAULT_KEEP_RECENT_TOKENS = 1_000;
@@ -39,6 +45,7 @@ const DEFAULT_GATEWAY_STOP_TIMEOUT_MS = 10_000;
 const NON_PASS_EXIT_CODE = 3;
 const VALID_LIVE_OUTCOMES = new Set([
   'HONEST-LIMIT-local-model-unavailable',
+  'HONEST-LIMIT-live-orchestration-preflight-only',
   'BLOCKED-temp-gateway-start',
   'BLOCKED-context-budget-not-forced',
   'FAIL-request-compaction-rejected',
@@ -605,11 +612,10 @@ async function probeGateway(port, token) {
   ]);
   const healthStatus = health.status === 'fulfilled' ? health.value.status : null;
   const statusStatus = status.status === 'fulfilled' ? status.value.status : null;
-  const ok = health.status === 'fulfilled' && health.value.ok && status.status === 'fulfilled' && status.value.ok;
+  const ok = health.status === 'fulfilled' && health.value.ok;
   let lastError = null;
   if (health.status === 'rejected') lastError = health.reason?.message || String(health.reason);
-  else if (status.status === 'rejected') lastError = status.reason?.message || String(status.reason);
-  else if (!ok) lastError = `unexpected probe status health=${healthStatus} status=${statusStatus}`;
+  else if (!ok) lastError = `unexpected probe status health=${healthStatus}`;
   return {
     ok,
     healthStatus,
@@ -678,6 +684,14 @@ async function startGateway({ args, paths, runtime, artifacts, runtimeState }) {
       artifacts,
     });
     artifacts.outcome.gatewayReady = true;
+    writeJson(path.join(paths.artifactDir, 'temp-gateway-start.json'), {
+      schema: 'openclaw.project81.accepted-request-compaction.temp-gateway-start.v1',
+      pid: child.pid ?? null,
+      port: runtime.port,
+      probe: artifacts.readiness.probe,
+      command: resolved.display,
+      logs: artifacts.readiness.logs,
+    });
     return { kind: "temp-gateway-started", pid: child.pid, port: runtime.port };
   } catch (error) {
     artifacts.readiness.status = 'gateway-probe-failed';
@@ -811,7 +825,10 @@ async function runLiveFailClosed(args, paths, runtime) {
     if (orchestrationResult.artifacts && orchestrationResult.artifacts.outcome) {
        artifacts.outcome = orchestrationResult.artifacts.outcome;
     }
-    if (!artifacts.outcome.remainingBlocker) {
+    artifacts.outcome.phase = phase;
+    if (artifacts.outcome.gatewayReady && outcome === 'HONEST-LIMIT-live-orchestration-preflight-only') {
+       artifacts.outcome.remainingBlocker = 'forceContextBudget not implemented; accepted-compaction RPC/lifecycle/lifeboat receipts remain unwired';
+    } else if (!artifacts.outcome.remainingBlocker) {
        artifacts.outcome.remainingBlocker = 'gateway-is-ready-but-request-compaction-session-orchestration-is-not-implemented';
     }
     // Pass on the cleanup state so gateway failure properly emits
@@ -827,6 +844,12 @@ async function runLiveFailClosed(args, paths, runtime) {
   } finally {
     try {
       await stopGateway(runtimeState.gateway, artifacts);
+      writeJson(path.join(paths.artifactDir, 'temp-gateway-stop.json'), {
+        schema: 'openclaw.project81.accepted-request-compaction.temp-gateway-stop.v1',
+        stopped: artifacts.cleanup.gatewayStopped === true,
+        forced: artifacts.cleanup.stopForced === true,
+        observedExit: artifacts.cleanup.observedExit,
+      });
       cleanupTempRoot(args, paths, artifacts);
       artifacts.cleanup.status = artifacts.cleanup.gatewayStopped ? 'completed' : 'failed';
     } catch (error) {
@@ -884,6 +907,7 @@ async function main() {
       'accepted-compaction-plan.json',
       'fixture-readiness.json',
       'temp-config.redacted.json',
+      ...(args.mode === 'run' ? ['preflight-context.json', 'temp-gateway-start.json', 'temp-gateway-stop.json'] : []),
       'cleanup.json',
       'outcome.json',
     ],

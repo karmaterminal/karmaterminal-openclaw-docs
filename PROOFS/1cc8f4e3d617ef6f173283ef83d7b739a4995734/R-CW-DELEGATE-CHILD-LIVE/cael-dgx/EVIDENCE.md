@@ -2,9 +2,9 @@
 
 Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/213
 
-Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`  
-Build: `OpenClaw 2026.6.11 (bca2b0b)`  
-Seat: Cael / `cael-dgx`  
+Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`
+Build: `OpenClaw 2026.6.11 (bca2b0b)`
+Seat: Cael / `cael-dgx`
 Verdict: ✅ PASS
 
 ## Expected byte lock

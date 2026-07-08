@@ -1,11 +1,11 @@
 # R-CD-1 — typed continue_delegate basic child return (cael-dgx)
 
-Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/218  
-Method packet: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/218#issuecomment-4883463160  
-Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`  
-Seat: Cael / `cael-dgx`  
-Build: `OpenClaw 2026.6.11 (bca2b0b)`  
-Sentinel: `R-CD-1-BCA2B0B-CAEL-20260704-1152`  
+Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/218
+Method packet: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/218#issuecomment-4883463160
+Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`
+Seat: Cael / `cael-dgx`
+Build: `OpenClaw 2026.6.11 (bca2b0b)`
+Sentinel: `R-CD-1-BCA2B0B-CAEL-20260704-1152`
 Verdict: ✅ PASS
 
 ## What this row tests

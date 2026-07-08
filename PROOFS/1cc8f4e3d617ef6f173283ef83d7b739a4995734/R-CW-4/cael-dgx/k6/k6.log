@@ -1,0 +1,202 @@
+
+         /\      Grafana   /‾‾/
+    /\  /  \     |\  __   /  /
+   /  \/    \    | |/ /  /   ‾‾\
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/
+
+
+     execution: local
+        script: scenarios/r-cw-4-chain-depth.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 10m30s max duration (incl. graceful stop):
+              * r_cw_4_chain_depth: 1 iterations shared among 1 VUs (maxDuration: 10m0s, gracefulStop: 30s)
+
+time="2026-07-08T06:59:27-07:00" level=info msg="✓ disposable session created: agent:main:subagent:continuation-r-cw-4-r-cw-4-1783519166728-ig1cyknq" source=console
+time="2026-07-08T06:59:27-07:00" level=info msg="✓ sessions.send accepted — chain-depth parent turn triggered" source=console
+
+running (00m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m01.0s/10m0s  0/1 shared iters
+
+running (00m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m02.0s/10m0s  0/1 shared iters
+
+running (00m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m03.0s/10m0s  0/1 shared iters
+
+running (00m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m04.0s/10m0s  0/1 shared iters
+
+running (00m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m05.0s/10m0s  0/1 shared iters
+
+running (00m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m06.0s/10m0s  0/1 shared iters
+
+running (00m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m07.0s/10m0s  0/1 shared iters
+
+running (00m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m08.0s/10m0s  0/1 shared iters
+
+running (00m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m09.0s/10m0s  0/1 shared iters
+
+running (00m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m10.0s/10m0s  0/1 shared iters
+
+running (00m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m11.0s/10m0s  0/1 shared iters
+
+running (00m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m12.0s/10m0s  0/1 shared iters
+
+running (00m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m13.0s/10m0s  0/1 shared iters
+
+running (00m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m14.0s/10m0s  0/1 shared iters
+
+running (00m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m15.0s/10m0s  0/1 shared iters
+
+running (00m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m16.0s/10m0s  0/1 shared iters
+
+running (00m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m17.0s/10m0s  0/1 shared iters
+
+running (00m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m18.0s/10m0s  0/1 shared iters
+
+running (00m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m19.0s/10m0s  0/1 shared iters
+
+running (00m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m20.0s/10m0s  0/1 shared iters
+
+running (00m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m21.0s/10m0s  0/1 shared iters
+
+running (00m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m22.0s/10m0s  0/1 shared iters
+
+running (00m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m23.0s/10m0s  0/1 shared iters
+time="2026-07-08T06:59:50-07:00" level=info msg="✓ CW4-HOP1-SCHEDULED observed" source=console
+
+running (00m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m24.0s/10m0s  0/1 shared iters
+
+running (00m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m25.0s/10m0s  0/1 shared iters
+
+running (00m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m26.0s/10m0s  0/1 shared iters
+
+running (00m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m27.0s/10m0s  0/1 shared iters
+
+running (00m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m28.0s/10m0s  0/1 shared iters
+
+running (00m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m29.0s/10m0s  0/1 shared iters
+
+running (00m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m30.0s/10m0s  0/1 shared iters
+
+running (00m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m31.0s/10m0s  0/1 shared iters
+
+running (00m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m32.0s/10m0s  0/1 shared iters
+
+running (00m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m33.0s/10m0s  0/1 shared iters
+
+running (00m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m34.0s/10m0s  0/1 shared iters
+
+running (00m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m35.0s/10m0s  0/1 shared iters
+
+running (00m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m36.0s/10m0s  0/1 shared iters
+time="2026-07-08T07:00:03-07:00" level=info msg="✓ CW4-HOP2-SCHEDULED observed" source=console
+
+running (00m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m37.0s/10m0s  0/1 shared iters
+
+running (00m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m38.0s/10m0s  0/1 shared iters
+
+running (00m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m39.0s/10m0s  0/1 shared iters
+
+running (00m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m40.0s/10m0s  0/1 shared iters
+
+running (00m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m41.0s/10m0s  0/1 shared iters
+
+running (00m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m42.0s/10m0s  0/1 shared iters
+
+running (00m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m43.0s/10m0s  0/1 shared iters
+
+running (00m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m44.0s/10m0s  0/1 shared iters
+
+running (00m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m45.0s/10m0s  0/1 shared iters
+
+running (00m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m46.0s/10m0s  0/1 shared iters
+
+running (00m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m47.0s/10m0s  0/1 shared iters
+
+running (00m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m48.0s/10m0s  0/1 shared iters
+time="2026-07-08T07:00:15-07:00" level=info msg="✓ CW4-HOP3-SCHEDULED observed" source=console
+
+running (00m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m49.0s/10m0s  0/1 shared iters
+
+running (00m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m50.0s/10m0s  0/1 shared iters
+
+running (00m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m51.0s/10m0s  0/1 shared iters
+
+running (00m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m52.0s/10m0s  0/1 shared iters
+
+running (00m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m53.0s/10m0s  0/1 shared iters
+
+running (00m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m54.0s/10m0s  0/1 shared iters
+
+running (00m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m55.0s/10m0s  0/1 shared iters
+
+running (00m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m56.0s/10m0s  0/1 shared iters
+
+running (00m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m57.0s/10m0s  0/1 shared iters
+time="2026-07-08T07:00:24-07:00" level=info msg="✓ CW4-DONE observed" source=console
+time="2026-07-08T07:00:24-07:00" level=info msg="All required R-CW-4 evidence gathered, closing early" source=console
+time="2026-07-08T07:00:24-07:00" level=info msg="\n--- R-CW-4 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T07:00:24-07:00" level=info msg="{\n  \"row\": \"R-CW-4\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CW-4-1783519166728-ig1cyknq\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"main\",\n  \"sessionKey\": \"agent:main:subagent:continuation-r-cw-4-r-cw-4-1783519166728-ig1cyknq\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:subagent:continuation-r-cw-4-r-cw-4-1783519166728-ig1cyknq\",\n  \"candidateSha\": \"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\n  \"started\": \"2026-07-08T13:59:26.728Z\",\n  \"dispatch_accepted\": true,\n  \"hop1_scheduled\": true,\n  \"hop2_scheduled\": true,\n  \"hop3_scheduled\": true,\n  \"final_done\": true,\n  \"hop_events\": [\n    {\n      \"marker\": \"CW4-HOP1-SCHEDULED\",\n      \"ts\": 1783519190143,\n      \"event\": \"agent\"\n    },\n    {\n      \"marker\": \"CW4-HOP2-SCHEDULED\",\n      \"ts\": 1783519203398,\n      \"event\": \"chat\"\n    },\n    {\n      \"marker\": \"CW4-HOP3-SCHEDULED\",\n      \"ts\": 1783519215289,\n      \"event\": \"chat\"\n    },\n    {\n      \"marker\": \"CW4-DONE\",\n      \"ts\": 1783519224172,\n      \"event\": \"session.message\"\n    }\n  ],\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783519166730,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519166735,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519166814,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519167075,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783519167115,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783519167608,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CW-4-DISPATCH-R-CW-4-1783519166728-ig1cyknq\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783519168432,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519169586,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519175935,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519177058,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519177069,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519177101,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519182705,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519182705,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519182844,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519182879,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519187127,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519187169,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519187215,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519189553,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519189553,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519189757,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519189757,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519189757,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519190143,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519190143,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519190143,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519190167,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519190174,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519190240,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519190240,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519196109,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519199476,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519199597,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519199839,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519199851,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519199851,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519199885,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519199885,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519202779,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519203397,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519203412,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519203471,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519209144,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519212278,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519212331,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519212332,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519212368,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519212370,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519214370,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519214538,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519215289,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519215301,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519215370,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519221097,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519224040,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783519224171,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-08T14:00:24.172Z\",\n  \"duration_ms\": 57444\n}" source=console
+time="2026-07-08T07:00:24-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T07:00:24-07:00" level=info msg="\n[R-CW-4] VERDICT: PASS-candidate" source=console
+
+[R-CW-4] Summary: PASS-candidate | SHA: 1cc8f4e3d617ef6f173283ef83d7b739a4995734 | Seat: cael
+
+running (00m57.4s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_4_chain_depth ✓ [ 100% ] 1 VUs  00m57.4s/10m0s  1/1 shared iters

@@ -1,0 +1,14 @@
+{
+  "row": "R-CD-MODEL-TOKEN",
+  "nonce": "R-CD-MODEL-TOKEN-1783518948677-uxyasy3x",
+  "search": {
+    "start": 1783518888,
+    "end": 1783519248,
+    "limit": 100,
+    "candidateTraceCount": 44,
+    "matchingTraceCount": 0,
+    "candidateFile": "tempo/candidate-traces.txt",
+    "matchesFile": "tempo/matching-traces.txt"
+  },
+  "note": "No scenario trace_id was emitted; Tempo searched by time window and nonce grep over fetched candidates."
+}

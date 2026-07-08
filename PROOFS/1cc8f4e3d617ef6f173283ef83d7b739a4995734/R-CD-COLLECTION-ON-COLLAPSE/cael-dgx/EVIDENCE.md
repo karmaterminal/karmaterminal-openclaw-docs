@@ -1,10 +1,10 @@
 # R-CD-COLLECTION-ON-COLLAPSE — A→B→delayed-C collection after B finalizes (cael-dgx)
 
-Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/217  
-Method lock: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/217#issuecomment-4883680115  
-Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`  
-Build: `OpenClaw 2026.6.11 (bca2b0b)`  
-Seat: Cael / `cael-dgx`  
+Issue: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/217
+Method lock: https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/217#issuecomment-4883680115
+Candidate SHA: `bca2b0b89ab886bf23a10e4983926f6b374b3188`
+Build: `OpenClaw 2026.6.11 (bca2b0b)`
+Seat: Cael / `cael-dgx`
 Verdict: ✅ PASS
 
 ## Scope

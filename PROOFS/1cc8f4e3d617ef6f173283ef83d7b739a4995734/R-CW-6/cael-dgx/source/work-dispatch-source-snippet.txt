@@ -2,7 +2,7 @@
   1071	  }
   1072	  return { dispatched, failed, reaped };
   1073	}
-  1074	
+  1074
   1075	export async function scheduleContinuationWork(params: {
   1076	  sessionKey: string;
   1077	  chainState: ChainState;
@@ -24,7 +24,7 @@
   1093	    );
   1094	    return { scheduled: false, capped: true, chainState: params.chainState };
   1095	  }
-  1096	
+  1096
   1097	  // #986 Guard 1: per-session concurrent pending-work cap. Orthogonal to the
   1098	  // chain-depth cap above — this bounds how many undelivered wakes may coexist
   1099	  // (the multi-continue_work flood foot-gun). Enforced at enqueue so a flood can
@@ -40,7 +40,7 @@
   1109	    );
   1110	    return { scheduled: false, capped: true, chainState: params.chainState };
   1111	  }
-  1112	
+  1112
   1113	  const hop = params.chainState.currentChainCount + 1;
   1114	  const delayMs = clampDelayMs(params.request.delaySeconds * 1000, params.config);
   1115	  const electedAt = Date.now();
@@ -51,7 +51,7 @@
   1120	    accumulatedChainTokens: params.chainState.accumulatedChainTokens,
   1121	    ...(params.chainState.chainId ? { chainId: params.chainState.chainId } : {}),
   1122	  };
-  1123	
+  1123
   1124	  // #1135/#1153: any continue_work captured while the electing turn is still
   1125	  // active anchors to that turn's finalization, not the tool-call timestamp or a
   1126	  // later unrelated turn. `reason` remains provenance/rate metadata, never an
@@ -66,7 +66,7 @@
   1135	        armedAt: electedAt,
   1136	      } satisfies PendingContinuationWork["idleRetry"])
   1137	    : undefined;
-  1138	
+  1138
   1139	  const work: PendingContinuationWork = {
   1140	    sessionKey: params.sessionKey,
   1141	    hop,

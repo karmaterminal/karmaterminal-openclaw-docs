@@ -4,14 +4,14 @@
      4	 * Delayed delegate scheduling is TaskFlow-backed via delegate-store and
      5	 * delegate-dispatch; this module only owns the shared cap checks.
      6	 */
-     7	
+     7
      8	import { createSubsystemLogger } from "../../logging/subsystem.js";
      9	import type { ChainState, ContinuationRuntimeConfig } from "./types.js";
-    10	
+    10
     11	const log = createSubsystemLogger("continuation/scheduler");
-    12	
+    12
     13	export type { ChainState } from "./types.js";
-    14	
+    14
     15	/**
     16	 * Check chain and cost caps. Returns null if clear to proceed, or the
     17	 * rejection reason.
@@ -23,20 +23,20 @@
     23	}): "chain-capped" | "cost-capped" | null {
     24	  const { chainState, config, sessionKey } = params;
     25	  const allocatedChainHop = chainState.currentChainCount;
-    26	
+    26
     27	  if (allocatedChainHop >= config.maxChainLength) {
     28	    log.info(
     29	      `[continuation] Chain depth ${allocatedChainHop}/${config.maxChainLength} — capped for session ${sessionKey}`,
     30	    );
     31	    return "chain-capped";
     32	  }
-    33	
+    33
     34	  if (config.costCapTokens > 0 && chainState.accumulatedChainTokens > config.costCapTokens) {
     35	    log.info(
     36	      `[continuation] Chain cost ${chainState.accumulatedChainTokens}/${config.costCapTokens} — capped for session ${sessionKey}`,
     37	    );
     38	    return "cost-capped";
     39	  }
-    40	
+    40
     41	  return null;
     42	}

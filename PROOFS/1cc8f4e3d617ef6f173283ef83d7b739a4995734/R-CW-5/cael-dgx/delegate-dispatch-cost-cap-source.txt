@@ -11,7 +11,7 @@
   1100	      );
   1101	      continue;
   1102	    }
-  1103	
+  1103
   1104	    const budgetCheck = checkContinuationBudget({
   1105	      chainState: {
   1106	        currentChainCount,

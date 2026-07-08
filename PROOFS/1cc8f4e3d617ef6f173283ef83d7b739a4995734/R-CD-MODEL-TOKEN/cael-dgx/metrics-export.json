@@ -1,0 +1,18 @@
+{
+  "schema": "openclaw.k6.proof-metrics-export.v1",
+  "rowId": "R-CD-MODEL-TOKEN",
+  "candidateSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+  "seat": "cael",
+  "outcome": "PASS-candidate",
+  "sampleCount": 11,
+  "metricNames": [
+    "openclaw_proofs_k6_run_total",
+    "openclaw_proofs_k6_proof_failures_total",
+    "openclaw_proofs_k6_candidate_pending_review",
+    "openclaw_proofs_k6_duration_ms",
+    "openclaw_proofs_k6_receipt_status"
+  ],
+  "prometheusOut": "/tmp/p81-six-live-20260708T135511Z/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-MODEL-TOKEN/cael/20260708T135548Z-r-cd-model-token/openclaw-proofs-k6.prom",
+  "otlpOut": "/tmp/p81-six-live-20260708T135511Z/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-MODEL-TOKEN/cael/20260708T135548Z-r-cd-model-token/openclaw-proofs-k6.otlp.json",
+  "push": null
+}

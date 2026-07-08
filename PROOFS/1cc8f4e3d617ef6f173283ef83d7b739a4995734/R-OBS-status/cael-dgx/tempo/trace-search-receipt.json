@@ -1,0 +1,14 @@
+{
+  "row": "R-OBS-STATUS",
+  "nonce": "",
+  "search": {
+    "start": 1783519164,
+    "end": 1783519524,
+    "limit": 100,
+    "candidateTraceCount": 49,
+    "matchingTraceCount": 0,
+    "candidateFile": "tempo/candidate-traces.txt",
+    "matchesFile": "tempo/matching-traces.txt"
+  },
+  "note": "No scenario trace_id was emitted; Tempo searched by time window and nonce grep over fetched candidates."
+}

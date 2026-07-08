@@ -1,0 +1,14 @@
+{
+  "row": "R-CW-4",
+  "nonce": "R-CW-4-1783519166728-ig1cyknq",
+  "search": {
+    "start": 1783519106,
+    "end": 1783519466,
+    "limit": 100,
+    "candidateTraceCount": 45,
+    "matchingTraceCount": 0,
+    "candidateFile": "tempo/candidate-traces.txt",
+    "matchesFile": "tempo/matching-traces.txt"
+  },
+  "note": "No scenario trace_id was emitted; Tempo searched by time window and nonce grep over fetched candidates."
+}

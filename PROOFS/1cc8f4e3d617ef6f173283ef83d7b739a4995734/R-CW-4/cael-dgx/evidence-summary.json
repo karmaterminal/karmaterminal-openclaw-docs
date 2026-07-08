@@ -1,0 +1,42 @@
+{
+  "candidateSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+  "created_session_key": "agent:main:subagent:continuation-r-cw-4-r-cw-4-1783519166728-ig1cyknq",
+  "dispatch_accepted": true,
+  "duration_ms": 57444,
+  "ended": "2026-07-08T14:00:24.172Z",
+  "final_done": true,
+  "hop1_scheduled": true,
+  "hop2_scheduled": true,
+  "hop3_scheduled": true,
+  "hop_events": [
+    {
+      "event": "agent",
+      "marker": "CW4-HOP1-SCHEDULED",
+      "ts": 1783519190143
+    },
+    {
+      "event": "chat",
+      "marker": "CW4-HOP2-SCHEDULED",
+      "ts": 1783519203398
+    },
+    {
+      "event": "chat",
+      "marker": "CW4-HOP3-SCHEDULED",
+      "ts": 1783519215289
+    },
+    {
+      "event": "session.message",
+      "marker": "CW4-DONE",
+      "ts": 1783519224172
+    }
+  ],
+  "manifest_loaded": true,
+  "nonce": "R-CW-4-1783519166728-ig1cyknq",
+  "requestedSessionKey": "main",
+  "row": "R-CW-4",
+  "seat": "cael",
+  "sessionKey": "agent:main:subagent:continuation-r-cw-4-r-cw-4-1783519166728-ig1cyknq",
+  "session_created": true,
+  "started": "2026-07-08T13:59:26.728Z",
+  "trace_id": null
+}

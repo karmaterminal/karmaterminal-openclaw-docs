@@ -1,0 +1,62 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-OBS-2",
+  "issue": 233,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "offline",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 15,
+  "scenario": {
+    "name": "r-obs-2",
+    "description": "Offline/static validator for committed R-OBS-2 trace-tree/span-tree/span-count artifacts in the current PROOFS corpus.",
+    "methods": [
+      "manual-corpus-review",
+      "static-artifact-parse"
+    ],
+    "status": "runnable",
+    "file": "r-obs-2.js"
+  },
+  "expectedReceipts": [
+    {
+      "name": "trace-tree-artifacts",
+      "required": true,
+      "description": "trace-tree/span-tree/span-count artifacts parse from current PROOFS corpus"
+    },
+    {
+      "name": "continuation-lineage",
+      "required": true,
+      "description": "Required continuation span names and zero-orphan tree shape observed"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-OBS-2",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "manual-corpus"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "R-OBS-2 static artifact validator. It validates committed corpus artifact shape, not fresh live gateway behavior."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "trace-tree-artifacts",
+      "continuation-lineage"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Offline/static current-corpus validator; safe in broad dry/live suite because it does not connect to or mutate gateway state."
+  }
+}

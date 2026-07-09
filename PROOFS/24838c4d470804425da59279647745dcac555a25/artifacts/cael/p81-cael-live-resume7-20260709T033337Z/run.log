@@ -1,0 +1,1029 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Deployed Runtime SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Session: main
+Artifact root: /tmp/p81-cael-live-resume7-20260709T033337Z/out
+Rows: R-CW-4,R-CW-5,R-CW-6,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI-COLLAPSE,R-CW-MULTI,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-status,R-RC-1,R-RC-2,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/seat-readiness.json
+
+----------------------------------------
+Row: R-CW-4
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-cw-4.json
+Scenario: scenarios/r-cw-4-chain-depth.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-4] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-4-chain-depth.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 10m30s max duration (incl. graceful stop):
+              * r_cw_4_chain_depth: 1 iterations shared among 1 VUs (maxDuration: 10m0s, gracefulStop: 30s)
+
+time="2026-07-08T20:33:39-07:00" level=info msg="✓ disposable session created: agent:main:subagent:continuation-r-cw-4-r-cw-4-1783568018695-pqkhfost" source=console
+time="2026-07-08T20:33:39-07:00" level=info msg="✓ sessions.send accepted — chain-depth parent turn triggered" source=console
+
+running (00m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m01.0s/10m0s  0/1 shared iters
+
+running (00m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m02.0s/10m0s  0/1 shared iters
+
+running (00m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m03.0s/10m0s  0/1 shared iters
+
+running (00m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m04.0s/10m0s  0/1 shared iters
+
+running (00m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m05.0s/10m0s  0/1 shared iters
+
+running (00m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m06.0s/10m0s  0/1 shared iters
+
+running (00m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m07.0s/10m0s  0/1 shared iters
+
+running (00m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m08.0s/10m0s  0/1 shared iters
+
+running (00m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m09.0s/10m0s  0/1 shared iters
+
+running (00m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m10.0s/10m0s  0/1 shared iters
+
+running (00m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m11.0s/10m0s  0/1 shared iters
+
+running (00m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m12.0s/10m0s  0/1 shared iters
+
+running (00m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m13.0s/10m0s  0/1 shared iters
+
+running (00m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m14.0s/10m0s  0/1 shared iters
+
+running (00m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m15.0s/10m0s  0/1 shared iters
+time="2026-07-08T20:33:53-07:00" level=info msg="✓ CW4-HOP1-SCHEDULED observed" source=console
+
+running (00m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m16.0s/10m0s  0/1 shared iters
+
+running (00m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m17.0s/10m0s  0/1 shared iters
+
+running (00m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m18.0s/10m0s  0/1 shared iters
+
+running (00m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m19.0s/10m0s  0/1 shared iters
+
+running (00m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m20.0s/10m0s  0/1 shared iters
+
+running (00m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m21.0s/10m0s  0/1 shared iters
+
+running (00m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m22.0s/10m0s  0/1 shared iters
+
+running (00m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m23.0s/10m0s  0/1 shared iters
+
+running (00m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m24.0s/10m0s  0/1 shared iters
+
+running (00m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m25.0s/10m0s  0/1 shared iters
+
+running (00m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m26.0s/10m0s  0/1 shared iters
+
+running (00m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m27.0s/10m0s  0/1 shared iters
+time="2026-07-08T20:34:06-07:00" level=info msg="✓ CW4-HOP2-SCHEDULED observed" source=console
+
+running (00m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m28.0s/10m0s  0/1 shared iters
+
+running (00m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m29.0s/10m0s  0/1 shared iters
+
+running (00m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m30.0s/10m0s  0/1 shared iters
+
+running (00m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m31.0s/10m0s  0/1 shared iters
+
+running (00m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m32.0s/10m0s  0/1 shared iters
+
+running (00m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m33.0s/10m0s  0/1 shared iters
+
+running (00m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m34.0s/10m0s  0/1 shared iters
+
+running (00m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m35.0s/10m0s  0/1 shared iters
+
+running (00m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m36.0s/10m0s  0/1 shared iters
+
+running (00m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m37.0s/10m0s  0/1 shared iters
+
+running (00m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m38.0s/10m0s  0/1 shared iters
+
+running (00m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m39.0s/10m0s  0/1 shared iters
+
+running (00m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m40.0s/10m0s  0/1 shared iters
+time="2026-07-08T20:34:18-07:00" level=info msg="✓ CW4-HOP3-SCHEDULED observed" source=console
+
+running (00m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m41.0s/10m0s  0/1 shared iters
+
+running (00m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m42.0s/10m0s  0/1 shared iters
+
+running (00m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m43.0s/10m0s  0/1 shared iters
+
+running (00m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m44.0s/10m0s  0/1 shared iters
+
+running (00m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m45.0s/10m0s  0/1 shared iters
+
+running (00m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m46.0s/10m0s  0/1 shared iters
+
+running (00m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m47.0s/10m0s  0/1 shared iters
+
+running (00m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m48.0s/10m0s  0/1 shared iters
+
+running (00m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m49.0s/10m0s  0/1 shared iters
+
+running (00m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m50.0s/10m0s  0/1 shared iters
+time="2026-07-08T20:34:28-07:00" level=info msg="✓ CW4-DONE observed" source=console
+time="2026-07-08T20:34:28-07:00" level=info msg="All required R-CW-4 evidence gathered, closing early" source=console
+time="2026-07-08T20:34:28-07:00" level=info msg="\n--- R-CW-4 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T20:34:28-07:00" level=info msg="{\n  \"row\": \"R-CW-4\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CW-4-1783568018695-pqkhfost\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"main\",\n  \"sessionKey\": \"agent:main:subagent:continuation-r-cw-4-r-cw-4-1783568018695-pqkhfost\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:subagent:continuation-r-cw-4-r-cw-4-1783568018695-pqkhfost\",\n  \"candidateSha\": \"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\n  \"started\": \"2026-07-09T03:33:38.695Z\",\n  \"dispatch_accepted\": true,\n  \"hop1_scheduled\": true,\n  \"hop2_scheduled\": true,\n  \"hop3_scheduled\": true,\n  \"final_done\": true,\n  \"hop_events\": [\n    {\n      \"marker\": \"CW4-HOP1-SCHEDULED\",\n      \"ts\": 1783568033706,\n      \"event\": \"session.message\"\n    },\n    {\n      \"marker\": \"CW4-HOP2-SCHEDULED\",\n      \"ts\": 1783568046147,\n      \"event\": \"session.message\"\n    },\n    {\n      \"marker\": \"CW4-HOP3-SCHEDULED\",\n      \"ts\": 1783568058959,\n      \"event\": \"session.message\"\n    },\n    {\n      \"marker\": \"CW4-DONE\",\n      \"ts\": 1783568068726,\n      \"event\": \"session.message\"\n    }\n  ],\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783568018697,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568018698,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568018751,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568019072,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783568019101,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783568019608,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CW-4-DISPATCH-R-CW-4-1783568018695-pqkhfost\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783568020466,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568023733,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568025521,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568025534,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568025569,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568026799,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568026799,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568026940,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568026984,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568028299,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568030573,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568030586,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568030623,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568033624,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568033624,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568033706,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568033711,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568033711,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568033768,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568033768,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568033768,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568039580,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568043259,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568043287,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568043288,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568043334,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568043335,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568046055,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568046147,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568046219,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568046219,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568052044,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568056378,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568056389,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568056389,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568056423,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568056424,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568058209,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568058300,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568058881,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568058959,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568059031,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568059031,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568064765,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568068219,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568068380,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568068715,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568068726,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T03:34:28.727Z\",\n  \"duration_ms\": 50032\n}" source=console
+time="2026-07-08T20:34:28-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T20:34:28-07:00" level=info msg="\n[R-CW-4] VERDICT: PASS-candidate" source=console
+
+[R-CW-4] Summary: PASS-candidate | SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01 | Seat: cael
+
+running (00m50.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_4_chain_depth ✓ [ 100% ] 1 VUs  00m50.0s/10m0s  1/1 shared iters
+./r-cw-4-chain-depth-summary.json
+[R-CW-4] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-4/cael/20260709T033338Z-r-cw-4/openclaw-proofs-k6.prom
+[R-CW-4] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-4/cael/20260709T033338Z-r-cw-4
+[R-CW-4] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-5
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-cw-5.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-5] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-07-08T20:34:28-07:00" level=info msg="STATIC_CORPUS_ROW_EVIDENCE {\"row\":\"R-CW-5\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"carriedFrom\":\"bca2b0b89ab886bf23a10e4983926f6b374b3188\",\"started\":\"2026-07-09T03:34:28.969Z\",\"checks\":{\"verdictPass\":true,\"sourceGuard\":true,\"delegateRejection\":true,\"announceGuards\":true,\"costCapSuite\":true,\"boundaryAllowed\":true,\"noLiveMutationScope\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/EVIDENCE.md\",\"schedulerSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/scheduler-source.txt\",\"delegateSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/delegate-dispatch-cost-cap-source.txt\",\"announceBracketSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/subagent-announce-bracket-cost-cap-source.txt\",\"announceToolSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/subagent-announce-tool-cost-cap-source.txt\",\"costCapLog\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/vitest-delegate-dispatch-cost-cap-exhaustion.log\",\"chainGuardLog\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/vitest-chain-guard-cost-cap.log\"},\"ended\":\"2026-07-09T03:34:28.970Z\",\"duration_ms\":1,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+./static-corpus-row-summary.json
+[R-CW-5] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-5/cael/20260709T033428Z-r-cw-5/openclaw-proofs-k6.prom
+[R-CW-5] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-5/cael/20260709T033428Z-r-cw-5
+[R-CW-5] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-6
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-cw-6.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-6] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-07-08T20:34:29-07:00" level=info msg="STATIC_CORPUS_ROW_EVIDENCE {\"row\":\"R-CW-6\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"carriedFrom\":\"bca2b0b89ab886bf23a10e4983926f6b374b3188\",\"started\":\"2026-07-09T03:34:29.274Z\",\"checks\":{\"verdictPass\":true,\"boundaryPredicate\":true,\"earlyReturn\":true,\"schedulerUnitTest\":true,\"harnessCapped\":true,\"noLiveMutationScope\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-6/cael-dgx/EVIDENCE.md\",\"schedulerSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-6/cael-dgx/source/scheduler-source-snippet.txt\",\"workDispatchSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-6/cael-dgx/source/work-dispatch-source-snippet.txt\",\"schedulerTest\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-6/cael-dgx/source/scheduler-test-snippet.txt\",\"harnessLog\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-6/cael-dgx/harness/scheduler-boundary-harness.log\"},\"ended\":\"2026-07-09T03:34:29.274Z\",\"duration_ms\":0,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+./static-corpus-row-summary.json
+[R-CW-6] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-6/cael/20260709T033429Z-r-cw-6/openclaw-proofs-k6.prom
+[R-CW-6] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-6/cael/20260709T033429Z-r-cw-6
+[R-CW-6] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-7
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-cw-7.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-7] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-07-08T20:34:29-07:00" level=info msg="STATIC_CORPUS_ROW_EVIDENCE {\"row\":\"R-CW-7\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"carriedFrom\":\"bca2b0b89ab886bf23a10e4983926f6b374b3188\",\"started\":\"2026-07-09T03:34:29.553Z\",\"checks\":{\"passScope\":true,\"internalNotPublic\":true,\"autoPickup\":true,\"dispatchPreserves\":true,\"childReceives\":true,\"testsPassed\":true,\"sourceSha\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/EVIDENCE.md\",\"testLog\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/test/focused-traceparent-tests.log\",\"sourceSnippets\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/source/source-snippets.md\"},\"ended\":\"2026-07-09T03:34:29.553Z\",\"duration_ms\":0,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+./static-corpus-row-summary.json
+[R-CW-7] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-7/cael/20260709T033429Z-r-cw-7/openclaw-proofs-k6.prom
+[R-CW-7] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-7/cael/20260709T033429Z-r-cw-7
+[R-CW-7] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-DELEGATE-CHILD-LIVE
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-cw-delegate-child-live.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-DELEGATE-CHILD-LIVE] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-07-08T20:34:29-07:00" level=info msg="STATIC_CORPUS_ROW_EVIDENCE {\"row\":\"R-CW-DELEGATE-CHILD-LIVE\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"carriedFrom\":\"bca2b0b89ab886bf23a10e4983926f6b374b3188\",\"started\":\"2026-07-09T03:34:29.795Z\",\"checks\":{\"verdictPass\":true,\"hop1BeforeWork\":true,\"hop2AfterWake\":true,\"verifierBoth\":true,\"parentDelegateTrace\":true,\"childWorkFireTrace\":true,\"flowReceipts\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/EVIDENCE.md\",\"hop1\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/hop1.txt\",\"hop2\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/hop2.txt\",\"verifier\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/verifier-receipt.txt\",\"tempo\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/tempo-attribute-receipt.txt\"},\"ended\":\"2026-07-09T03:34:29.796Z\",\"duration_ms\":1,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+./static-corpus-row-summary.json
+[R-CW-DELEGATE-CHILD-LIVE] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-CHILD-LIVE/cael/20260709T033429Z-r-cw-delegate-child-live/openclaw-proofs-k6.prom
+[R-CW-DELEGATE-CHILD-LIVE] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-CHILD-LIVE/cael/20260709T033429Z-r-cw-delegate-child-live
+[R-CW-DELEGATE-CHILD-LIVE] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-DELEGATE-SELF-CONTINUATION
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-cw-delegate-self.json
+Scenario: scenarios/r-cw-delegate-self-continuation.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-DELEGATE-SELF-CONTINUATION] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-delegate-self-continuation.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m0s max duration (incl. graceful stop):
+              * r_cw_delegate_self: 1 iterations shared among 1 VUs (maxDuration: 2m30s, gracefulStop: 30s)
+
+time="2026-07-08T20:34:30-07:00" level=info msg="✓ disposable session created: agent:main:r-cw-ds-r-cw-ds-1783568070057-d8nt66ed" source=console
+time="2026-07-08T20:34:30-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered (will call continue_delegate)" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m01.0s/2m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m02.0s/2m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m03.0s/2m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m04.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:34:34-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m05.0s/2m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m06.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:34:36-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m07.0s/2m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m08.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:34:38-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m09.0s/2m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m10.0s/2m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m11.0s/2m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m12.0s/2m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m13.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:34:43-07:00" level=info msg="✓ CHILD-CW-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-07-08T20:34:43-07:00" level=info msg="✓ CHILD-HOP2-DONE sentinel observed post-dispatch" source=console
+time="2026-07-08T20:34:43-07:00" level=info msg="✓ Parent return event from delegate observed post-dispatch" source=console
+time="2026-07-08T20:34:43-07:00" level=info msg="Primary R-CW-DELEGATE-SELF evidence gathered, closing early" source=console
+time="2026-07-08T20:34:43-07:00" level=info msg="\n--- R-CW-DELEGATE-SELF-CONTINUATION EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T20:34:43-07:00" level=info msg="{\n  \"row\": \"R-CW-DELEGATE-SELF-CONTINUATION\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CW-DS-1783568070057-d8nt66ed\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"main\",\n  \"sessionKey\": \"agent:main:r-cw-ds-r-cw-ds-1783568070057-d8nt66ed\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cw-ds-r-cw-ds-1783568070057-d8nt66ed\",\n  \"candidateSha\": \"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\n  \"started\": \"2026-07-09T03:34:30.057Z\",\n  \"delegate_accepted\": true,\n  \"child_spawned\": false,\n  \"child_continue_work_accepted\": true,\n  \"child_hop_2_woke\": true,\n  \"parent_return\": true,\n  \"dispatch_accepted_at_ms\": 1783568070934,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783568070059,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568070060,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568070121,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568070403,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783568070431,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783568070933,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CW-DELEGATE-SELF-DISPATCH-R-CW-DS-1783568070057-d8nt66ed\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783568071518,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568074384,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568075997,\n      \"kind\": \"response\",\n      \"method\": \"tasks.list\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783568076045,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568076061,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568076092,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568078497,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568078497,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568078632,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568078683,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568083916,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T03:34:43.917Z\",\n  \"duration_ms\": 13860\n}" source=console
+time="2026-07-08T20:34:43-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T20:34:43-07:00" level=info msg="\n[R-CW-DELEGATE-SELF-CONTINUATION] VERDICT: PASS-candidate" source=console
+
+[R-CW-DELEGATE-SELF-CONTINUATION] Summary: PASS-candidate | SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01 | Seat: cael
+
+running (0m13.9s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_delegate_self ✓ [ 100% ] 1 VUs  0m13.9s/2m30s  1/1 shared iters
+./r-cw-delegate-self-continuation-summary.json
+[R-CW-DELEGATE-SELF-CONTINUATION] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-SELF-CONTINUATION/cael/20260709T033430Z-r-cw-delegate-self-continuation/openclaw-proofs-k6.prom
+[R-CW-DELEGATE-SELF-CONTINUATION] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-SELF-CONTINUATION/cael/20260709T033430Z-r-cw-delegate-self-continuation
+[R-CW-DELEGATE-SELF-CONTINUATION] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-DELEGATE-TOKEN
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-cw-delegate-token.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-DELEGATE-TOKEN] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-07-08T20:34:44-07:00" level=info msg="STATIC_CORPUS_ROW_EVIDENCE {\"row\":\"R-CW-DELEGATE-TOKEN\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"carriedFrom\":\"bca2b0b89ab886bf23a10e4983926f6b374b3188\",\"started\":\"2026-07-09T03:34:44.176Z\",\"checks\":{\"verdictPass\":true,\"bareToken\":true,\"tokenOrigin\":true,\"noTypedChildTool\":true,\"secondTurn\":true,\"durableWork\":true,\"tempoWorkFire\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/EVIDENCE.md\",\"childAudit\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/child-transcript-tool-audit.md\",\"journal\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/journal-continuation-excerpt.log\",\"flowRows\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/flow-runs-matching-full.jsonl\",\"tempoAudit\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/tempo-child-tool-audit.txt\"},\"ended\":\"2026-07-09T03:34:44.177Z\",\"duration_ms\":1,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+./static-corpus-row-summary.json
+[R-CW-DELEGATE-TOKEN] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-TOKEN/cael/20260709T033444Z-r-cw-delegate-token/openclaw-proofs-k6.prom
+[R-CW-DELEGATE-TOKEN] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-TOKEN/cael/20260709T033444Z-r-cw-delegate-token
+[R-CW-DELEGATE-TOKEN] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-MULTI-COLLAPSE
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-cw-multi-collapse.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-MULTI-COLLAPSE] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-07-08T20:34:44-07:00" level=info msg="STATIC_CORPUS_ROW_EVIDENCE {\"row\":\"R-CW-MULTI-COLLAPSE\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"carriedFrom\":\"bca2b0b89ab886bf23a10e4983926f6b374b3188\",\"started\":\"2026-07-09T03:34:44.419Z\",\"checks\":{\"verdictPassScoped\":true,\"syntheticCaveat\":true,\"twoRowsInserted\":true,\"oldSuperseded\":true,\"newestGranted\":true,\"noRemainingQueued\":true,\"configRestored\":true,\"tempoExactChain\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/EVIDENCE.md\",\"insertVars\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/insert-vars.json\",\"postInsert\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/post-insert-sqlite.txt\",\"finalTerminal\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/final-terminal-sqlite.txt\",\"finalQueued\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/final-queued-running.txt\",\"flowRows\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/flow-runs-final.json\",\"journal\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/journal-continuation-window.txt\",\"restoreHash\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/restore-verified-sha256.txt\",\"tempoAttrs\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-attribute-receipt.txt\"},\"ended\":\"2026-07-09T03:34:44.419Z\",\"duration_ms\":0,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+./static-corpus-row-summary.json
+[R-CW-MULTI-COLLAPSE] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI-COLLAPSE/cael/20260709T033444Z-r-cw-multi-collapse/openclaw-proofs-k6.prom
+[R-CW-MULTI-COLLAPSE] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI-COLLAPSE/cael/20260709T033444Z-r-cw-multi-collapse
+[R-CW-MULTI-COLLAPSE] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-MULTI
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-cw-multi.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-MULTI] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-07-08T20:34:44-07:00" level=info msg="STATIC_CORPUS_ROW_EVIDENCE {\"row\":\"R-CW-MULTI\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"carriedFrom\":\"bca2b0b89ab886bf23a10e4983926f6b374b3188\",\"started\":\"2026-07-09T03:34:44.652Z\",\"checks\":{\"verdictPass\":true,\"threeToolReceipts\":true,\"grantedA\":true,\"foldedBC\":true,\"journalFolded\":true,\"noInventedMarkers\":true,\"traceThreeWorkSpans\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/EVIDENCE.md\",\"sourceReceipts\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/source-tool-receipts.jsonl\",\"flowRows\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/flow-runs-final.json\",\"journal\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/journal-continuation-lines.txt\",\"traceSummary\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/tempo/trace-summary.jsonl\"},\"ended\":\"2026-07-09T03:34:44.652Z\",\"duration_ms\":0,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+./static-corpus-row-summary.json
+[R-CW-MULTI] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI/cael/20260709T033444Z-r-cw-multi/openclaw-proofs-k6.prom
+[R-CW-MULTI] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI/cael/20260709T033444Z-r-cw-multi
+[R-CW-MULTI] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-TOKEN
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-cw-token.json
+Scenario: scenarios/r-cw-token-bracket.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-TOKEN] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-token-bracket.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m30s max duration (incl. graceful stop):
+              * r_cw_token_bracket: 1 iterations shared among 1 VUs (maxDuration: 3m0s, gracefulStop: 30s)
+
+time="2026-07-08T20:34:45-07:00" level=info msg="✓ disposable session created: agent:main:r-cw-token-r-cw-token-1783568084912-643c70gy" source=console
+time="2026-07-08T20:34:45-07:00" level=info msg="✓ sessions.send accepted — parent agent turn triggered" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m01.0s/3m0s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m02.0s/3m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m03.0s/3m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m04.0s/3m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m05.0s/3m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m06.0s/3m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m07.0s/3m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m08.0s/3m0s  0/1 shared iters
+time="2026-07-08T20:34:53-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m09.0s/3m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m10.0s/3m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m11.0s/3m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m12.0s/3m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m13.0s/3m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m14.0s/3m0s  0/1 shared iters
+time="2026-07-08T20:34:59-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-08T20:34:59-07:00" level=info msg="✓ token-emitting child turn observed" source=console
+time="2026-07-08T20:34:59-07:00" level=info msg="✓ TOKEN-HOP2-DONE sentinel observed — hop-2 executed" source=console
+time="2026-07-08T20:34:59-07:00" level=info msg="All required R-CW-TOKEN evidence gathered, closing early" source=console
+time="2026-07-08T20:34:59-07:00" level=info msg="\n--- R-CW-TOKEN EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T20:34:59-07:00" level=info msg="{\n  \"row\": \"R-CW-TOKEN\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CW-TOKEN-1783568084912-643c70gy\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"main\",\n  \"sessionKey\": \"agent:main:r-cw-token-r-cw-token-1783568084912-643c70gy\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cw-token-r-cw-token-1783568084912-643c70gy\",\n  \"candidateSha\": \"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\n  \"started\": \"2026-07-09T03:34:44.912Z\",\n  \"parent_dispatch_accepted\": true,\n  \"subagent_spawn_requested\": true,\n  \"subagent_spawn_accepted\": true,\n  \"token_emitted_or_stripped\": true,\n  \"hop_2_executed\": true,\n  \"parent_return\": true,\n  \"dispatch_accepted_at_ms\": 1783568085818,\n  \"hop_2_at_ms\": 1783568099345,\n  \"trace_id\": null,\n  \"child_session_key\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783568084913,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568084914,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568084957,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568085270,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783568085294,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783568085818,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CW-TOKEN-DISPATCH-R-CW-TOKEN-1783568084912-643c70gy\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783568086431,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568087513,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568087513,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568087544,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568087544,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568087668,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568087668,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568087668,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568088300,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568089286,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568089560,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568089561,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568089601,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568089785,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568090944,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568090954,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568090987,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568093177,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568093177,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568093413,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568093454,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568093568,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568095994,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568096992,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568097002,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568097034,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568098916,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568098916,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568099083,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568099083,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568099085,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568099344,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T03:34:59.345Z\",\n  \"duration_ms\": 14433\n}" source=console
+time="2026-07-08T20:34:59-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T20:34:59-07:00" level=info msg="\n[R-CW-TOKEN] VERDICT: PASS-candidate" source=console
+
+[R-CW-TOKEN] Summary: PASS-candidate | SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01 | Seat: cael
+
+running (0m14.4s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_token_bracket ✓ [ 100% ] 1 VUs  0m14.4s/3m0s  1/1 shared iters
+./r-cw-token-bracket-summary.json
+[R-CW-TOKEN] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-TOKEN/cael/20260709T033444Z-r-cw-token/openclaw-proofs-k6.prom
+[R-CW-TOKEN] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-TOKEN/cael/20260709T033444Z-r-cw-token
+[R-CW-TOKEN] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-OBS-1
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-obs-1.json
+Scenario: scenarios/r-obs-1.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-1] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-1.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m0s max duration (incl. graceful stop):
+              * r_obs_1: 1 iterations shared among 1 VUs (maxDuration: 1m30s, gracefulStop: 30s)
+
+time="2026-07-08T20:35:00-07:00" level=info msg="✓ disposable session created: agent:main:r-obs-1-r-obs-1-1783568099595-tzzg3c6r" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m01.0s/1m30s  0/1 shared iters
+time="2026-07-08T20:35:00-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for R-OBS-1 status-card read" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m02.0s/1m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m03.0s/1m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m04.0s/1m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m05.0s/1m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m06.0s/1m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m07.0s/1m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m08.0s/1m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m09.0s/1m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m10.0s/1m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m11.0s/1m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m12.0s/1m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m13.0s/1m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m14.0s/1m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m15.0s/1m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m16.0s/1m30s  0/1 shared iters
+time="2026-07-08T20:35:16-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m17.0s/1m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m18.0s/1m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m19.0s/1m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m20.0s/1m30s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m21.0s/1m30s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m22.0s/1m30s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m23.0s/1m30s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m24.0s/1m30s  0/1 shared iters
+time="2026-07-08T20:35:23-07:00" level=info msg="✓ OBS1-STATUS sentinel observed: {\"build\":\"yes\",\"context\":\"yes\",\"chain\":\"yes\",\"route\":\"yes\"}" source=console
+time="2026-07-08T20:35:23-07:00" level=info msg="R_OBS_1_EVIDENCE {\"row\":\"R-OBS-1\",\"manifest_loaded\":true,\"nonce\":\"R-OBS-1-1783568099595-tzzg3c6r\",\"seat\":\"cael\",\"requestedSessionKey\":\"main\",\"sessionKey\":\"agent:main:r-obs-1-r-obs-1-1783568099595-tzzg3c6r\",\"session_created\":true,\"created_session_key\":\"agent:main:r-obs-1-r-obs-1-1783568099595-tzzg3c6r\",\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"started\":\"2026-07-09T03:34:59.595Z\",\"dispatch_accepted\":true,\"status_card_observed\":true,\"build_visible\":true,\"context_visible\":true,\"continuation_chain_visible\":true,\"route_visible\":true,\"trace_id\":null,\"redacted_events\":[{\"ts\":1783568099631,\"kind\":\"event\",\"method\":null,\"event\":\"connect.challenge\",\"ok\":null,\"data\":null},{\"ts\":1783568099633,\"kind\":\"other\",\"method\":null,\"event\":null,\"ok\":null,\"data\":null},{\"ts\":1783568099682,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568099833,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568099834,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568099870,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568100064,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568100075,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568100113,\"kind\":\"response\",\"method\":\"sessions.create\",\"event\":null,\"ok\":true,\"data\":{\"ok\":true}},{\"ts\":1783568100138,\"kind\":\"response\",\"method\":\"sessions.messages.subscribe\",\"event\":null,\"ok\":true,\"data\":{}},{\"ts\":1783568100642,\"kind\":\"response\",\"method\":\"sessions.send\",\"event\":null,\"ok\":true,\"data\":{\"runId\":\"R-OBS-1-R-OBS-1-1783568099595-tzzg3c6r\",\"status\":\"started\"}},{\"ts\":1783568100773,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568102933,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568102933,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568103205,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568103205,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568103207,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568103207,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568103222,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568103266,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568103266,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568103267,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568103267,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568103279,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568103281,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568103281,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568103281,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568103356,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568103356,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568103448,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568103448,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568103448,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568103918,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568105372,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568105381,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783568105415,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568106615,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106615,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106615,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568106615,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568106616,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106616,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106617,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106617,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106617,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106618,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106618,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106618,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106619,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106619,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106620,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106620,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106621,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106621,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106621,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106622,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106622,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106622,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106623,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106624,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106624,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106624,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106624,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106625,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106625,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106626,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106648,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106654,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106654,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106655,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106655,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106656,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106794,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106794,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106794,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568106794,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568106794,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568106795,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106795,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106796,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106796,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106796,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106797,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106797,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106798,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106798,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106798,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106865,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106865,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568106865,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568106865,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568107081,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568107081,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568107117,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568107117,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568107117,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568107122,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568107162,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783568107281,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568107295,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783568107325,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568107361,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568107681,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568107851,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568107851,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568108062,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568108062,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568108064,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568108174,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568110978,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568111293,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111294,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111294,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568111294,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568111295,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111295,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111296,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111297,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111297,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111297,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111298,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111298,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111299,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111299,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111300,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111300,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111301,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111301,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111302,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111302,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111303,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111303,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111303,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111304,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111304,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111304,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111305,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111305,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111306,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111306,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111307,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111307,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111307,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111308,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111308,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111329,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111334,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111334,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111335,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111335,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111336,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111336,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111337,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111337,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111338,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111338,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111338,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111338,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111352,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111352,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111353,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111353,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111374,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111375,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111375,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568111375,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568111557,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111557,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111593,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568111593,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568111593,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568111598,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111642,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783568111756,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568111773,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783568111802,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568111837,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783568112740,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568112756,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783568112977,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568116183,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568116183,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568116477,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568116502,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568116548,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":null},{\"ts\":1783568118228,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568118300,\"kind\":\"event\",\"method\":null,\"event\":\"tick\",\"ok\":null,\"data\":null},{\"ts\":1783568119274,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568119684,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":null},{\"ts\":1783568119697,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568119755,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568119759,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783568119815,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568119821,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783568119867,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568119870,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783568120333,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568120573,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568120582,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783568120806,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568122335,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568122407,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783568122537,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568122537,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568122655,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568123787,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568123787,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568123869,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":null}],\"ended\":\"2026-07-09T03:35:23.869Z\",\"duration_ms\":24274}" source=console
+
+running (0m24.3s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_1 ✓ [ 100% ] 1 VUs  0m24.3s/1m30s  1/1 shared iters
+./r-obs-1-summary.json
+[R-OBS-1] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-1/cael/20260709T033459Z-r-obs-1/openclaw-proofs-k6.prom
+[R-OBS-1] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-1/cael/20260709T033459Z-r-obs-1
+[R-OBS-1] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-OBS-2
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-obs-2.json
+Scenario: scenarios/r-obs-2.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-2] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-2.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * r_obs_2_static: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-07-08T20:35:24-07:00" level=info msg="R_OBS_2_EVIDENCE {\"row\":\"R-OBS-2\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"started\":\"2026-07-09T03:35:24.154Z\",\"trace_ids_hex\":[\"0cf17ea0b7eab7a5e998f6a581e7b5bf\"],\"span_count\":46,\"root_count\":1,\"orphan_count\":0,\"required_span_names_present\":{\"continuation.delegate.dispatch\":true,\"openclaw.harness.run\":true,\"openclaw.run\":true,\"openclaw.tool.execution\":true,\"continuation.queue.fanout\":true,\"continuation.queue.drain\":true},\"source_files\":{\"traceTree\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/trace-tree.json\",\"spanTree\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-tree.txt\",\"spanCounts\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-counts.json\"},\"ended\":\"2026-07-09T03:35:24.154Z\",\"duration_ms\":0,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_2_static ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+./r-obs-2-summary.json
+[R-OBS-2] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-2/cael/20260709T033524Z-r-obs-2/openclaw-proofs-k6.prom
+[R-OBS-2] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-2/cael/20260709T033524Z-r-obs-2
+[R-OBS-2] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-OBS-STATUS
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-obs-status.json
+Scenario: scenarios/r-obs-status.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-STATUS] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-status.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m0s max duration (incl. graceful stop):
+              * r_obs_status: 1 iterations shared among 1 VUs (maxDuration: 30s, gracefulStop: 30s)
+
+time="2026-07-08T20:35:25-07:00" level=info msg="R_OBS_STATUS_EVIDENCE {\"row\":\"R-OBS-status\",\"manifest_loaded\":true,\"seat\":\"cael\",\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"started\":\"2026-07-09T03:35:24.393Z\",\"connected\":true,\"connect_ok\":true,\"status_ok\":true,\"status_payload\":{},\"trace_id\":null,\"redacted_events\":[{\"ts\":1783568124394,\"kind\":\"event\",\"method\":null,\"event\":\"connect.challenge\",\"ok\":null,\"data\":null},{\"ts\":1783568124396,\"kind\":\"other\",\"method\":null,\"event\":null,\"ok\":null,\"data\":null},{\"ts\":1783568124458,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568125030,\"kind\":\"response\",\"method\":\"status\",\"event\":null,\"ok\":true,\"data\":{}}],\"ended\":\"2026-07-09T03:35:25.031Z\",\"duration_ms\":638}" source=console
+
+running (0m00.6s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_status ✓ [ 100% ] 1 VUs  00.6s/30s  1/1 shared iters
+./r-obs-status-summary.json
+[R-OBS-STATUS] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-STATUS/cael/20260709T033524Z-r-obs-status/openclaw-proofs-k6.prom
+[R-OBS-STATUS] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-STATUS/cael/20260709T033524Z-r-obs-status
+[R-OBS-STATUS] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-RC-1
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-rc-1.json
+Scenario: scenarios/r-rc-1-threshold-reject.js
+Status: runnable
+Live Safety: k6-runnable
+[R-RC-1] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-rc-1-threshold-reject.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m0s max duration (incl. graceful stop):
+              * r_rc_1_threshold_reject: 1 iterations shared among 1 VUs (maxDuration: 1m30s, gracefulStop: 30s)
+
+time="2026-07-08T20:35:25-07:00" level=warning msg="Manifest validation warnings: missing sessionKey" source=console
+time="2026-07-08T20:35:25-07:00" level=info msg="✓ disposable session created: agent:main:r-rc-1-r-rc-1-1783568125289-b9jpmnzl" source=console
+time="2026-07-08T20:35:26-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for request_compaction reject" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m01.0s/1m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m02.0s/1m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m03.0s/1m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m04.0s/1m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m05.0s/1m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m06.0s/1m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m07.0s/1m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m08.0s/1m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m09.0s/1m30s  0/1 shared iters
+time="2026-07-08T20:35:34-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m10.0s/1m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m11.0s/1m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m12.0s/1m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m13.0s/1m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m14.0s/1m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m15.0s/1m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m16.0s/1m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m17.0s/1m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m18.0s/1m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m19.0s/1m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m20.0s/1m30s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m21.0s/1m30s  0/1 shared iters
+time="2026-07-08T20:35:47-07:00" level=info msg="✓ RC1-REJECTED sentinel observed: guard=context_threshold context=unknown threshold=unknown" source=console
+time="2026-07-08T20:35:47-07:00" level=info msg="\n--- R-RC-1 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T20:35:47-07:00" level=info msg="{\n  \"row\": \"R-RC-1\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-RC-1-1783568125289-b9jpmnzl\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"main\",\n  \"sessionKey\": \"agent:main:r-rc-1-r-rc-1-1783568125289-b9jpmnzl\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-rc-1-r-rc-1-1783568125289-b9jpmnzl\",\n  \"candidateSha\": \"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\n  \"started\": \"2026-07-09T03:35:25.290Z\",\n  \"dispatch_accepted\": true,\n  \"tool_invoke_rejected\": true,\n  \"guard\": \"context_threshold\",\n  \"context_usage\": null,\n  \"threshold\": null,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783568125291,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568125293,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568125334,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568125644,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783568125670,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783568126178,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-RC-1-R-RC-1-1783568125289-b9jpmnzl\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783568126732,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568129928,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568131526,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568131542,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568131751,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568131751,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568131790,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568131898,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568131898,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568132105,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568132105,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568132105,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568132333,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568132447,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568132554,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568132721,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568132750,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568134316,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568134316,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568134493,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568134533,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568138337,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568138371,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568138400,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568144482,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568144482,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568146605,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568146605,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568146605,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568147106,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T03:35:47.106Z\",\n  \"duration_ms\": 21816\n}" source=console
+time="2026-07-08T20:35:47-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T20:35:47-07:00" level=info msg="\n[R-RC-1] VERDICT: PASS-candidate" source=console
+
+[R-RC-1] Summary: PASS-candidate | SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01 | Seat: cael
+
+running (0m21.8s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_rc_1_threshold_reject ✓ [ 100% ] 1 VUs  0m21.8s/1m30s  1/1 shared iters
+./r-rc-1-summary.json
+[R-RC-1] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-RC-1/cael/20260709T033525Z-r-rc-1/openclaw-proofs-k6.prom
+[R-RC-1] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-RC-1/cael/20260709T033525Z-r-rc-1
+[R-RC-1] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-RC-2
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-rc-2.json
+Scenario: scenarios/r-rc-2-delegate-request-compaction.js
+Status: runnable
+Live Safety: k6-runnable
+[R-RC-2] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-rc-2-delegate-request-compaction.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m0s max duration (incl. graceful stop):
+              * r_rc_2_delegate_request_compaction: 1 iterations shared among 1 VUs (maxDuration: 2m30s, gracefulStop: 30s)
+
+time="2026-07-08T20:35:47-07:00" level=info msg="✓ disposable session created: agent:main:r-rc-2-r-rc-2-1783568147363-ixhra2dp" source=console
+time="2026-07-08T20:35:48-07:00" level=info msg="✓ sessions.send accepted — parent agent turn triggered for R-RC-2" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m01.0s/2m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m02.0s/2m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m03.0s/2m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m04.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:35:52-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m05.0s/2m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m06.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:35:53-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m07.0s/2m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m08.0s/2m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m09.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:35:56-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m10.0s/2m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m11.0s/2m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m12.0s/2m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m13.0s/2m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m14.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:36:02-07:00" level=info msg="✓ delegated request_compaction threshold rejection observed: context=unknown threshold=unknown" source=console
+time="2026-07-08T20:36:02-07:00" level=info msg="\n--- R-RC-2 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T20:36:02-07:00" level=info msg="{\n  \"row\": \"R-RC-2\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-RC-2-1783568147363-ixhra2dp\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"main\",\n  \"sessionKey\": \"agent:main:r-rc-2-r-rc-2-1783568147363-ixhra2dp\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-rc-2-r-rc-2-1783568147363-ixhra2dp\",\n  \"candidateSha\": \"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\n  \"started\": \"2026-07-09T03:35:47.363Z\",\n  \"parent_dispatch_accepted\": true,\n  \"delegate_requested\": true,\n  \"delegate_child_report_observed\": true,\n  \"request_compaction_rejected_context_threshold\": true,\n  \"request_compaction_accepted\": false,\n  \"post_compaction_path_observed\": false,\n  \"guard\": \"context_threshold\",\n  \"context_usage\": null,\n  \"threshold\": null,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783568147365,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568147366,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568147471,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568147721,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783568147747,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783568148255,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-RC-2-R-RC-2-1783568147363-ixhra2dp\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783568148319,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568148827,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568152187,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568153321,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568153336,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568153367,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568156348,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568156348,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568156482,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568156524,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783568157740,\n      \"kind\": \"response\",\n      \"method\": \"tasks.list\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783568162325,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T03:36:02.325Z\",\n  \"duration_ms\": 14962,\n  \"verdict\": \"HONEST-LIMIT-candidate\"\n}" source=console
+time="2026-07-08T20:36:02-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T20:36:02-07:00" level=info msg="\n[R-RC-2] VERDICT: HONEST-LIMIT-candidate" source=console
+
+running (0m15.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com... ✓ [ 100% ] 1 VUs  0m15.0s/2m30s  1/1 shared iters
+./r-rc-2-summary.json
+[R-RC-2] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-RC-2/cael/20260709T033547Z-r-rc-2/openclaw-proofs-k6.prom
+[R-RC-2] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-RC-2/cael/20260709T033547Z-r-rc-2
+[R-RC-2] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-REGRESSION-TRAP-TESTS
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-regression-trap-tests.json
+Scenario: scenarios/r-regression-trap-tests.js
+Status: runnable
+Live Safety: k6-runnable
+[R-REGRESSION-TRAP-TESTS] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-regression-trap-tests.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * r_regression_trap_tests_static: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-07-08T20:36:02-07:00" level=info msg="R_REGRESSION_TRAP_TESTS_EVIDENCE {\"row\":\"R-REGRESSION-TRAP-TESTS\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"started\":\"2026-07-09T03:36:02.576Z\",\"verdict_text_present\":true,\"shard_pass_text_present\":true,\"test_count_text_present\":true,\"source_sha_present\":true,\"required_tests_present\":{\"src/agents/tools/continuation-inventory-opts.test.ts\":true,\"src/agents/openclaw-tools.continuation-registration.test.ts\":true,\"src/agents/tools/continuation-tools-registration.test.ts\":true,\"src/agents/openclaw-tools.continuation-misconfig-warn.test.ts\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/EVIDENCE.md\",\"log\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/regression-trap.log\",\"sourceStatus\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/source-git-status.txt\",\"testInventory\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/test-inventory.txt\"},\"ended\":\"2026-07-09T03:36:02.576Z\",\"duration_ms\":0,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_regression_trap_tests_static ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+./r-regression-trap-tests-summary.json
+[R-REGRESSION-TRAP-TESTS] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-REGRESSION-TRAP-TESTS/cael/20260709T033602Z-r-regression-trap-tests/openclaw-proofs-k6.prom
+[R-REGRESSION-TRAP-TESTS] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-REGRESSION-TRAP-TESTS/cael/20260709T033602Z-r-regression-trap-tests
+[R-REGRESSION-TRAP-TESTS] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-TRACE-REDACTION-1121
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-trace-redaction-1121.json
+Scenario: scenarios/r-trace-redaction-1121.js
+Status: runnable
+Live Safety: k6-runnable
+[R-TRACE-REDACTION-1121] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-trace-redaction-1121.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 40s max duration (incl. graceful stop):
+              * r_trace_redaction_1121_static: 1 iterations shared among 1 VUs (maxDuration: 10s, gracefulStop: 30s)
+
+time="2026-07-08T20:36:02-07:00" level=info msg="R_TRACE_REDACTION_1121_EVIDENCE {\"row\":\"R-TRACE-REDACTION-1121\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"started\":\"2026-07-09T03:36:02.836Z\",\"pass_heading_present\":true,\"safe_attrs_present\":true,\"no_preview_contract_present\":true,\"raw_reason_guard_present\":true,\"test_pass_present\":true,\"source_surface_present\":true,\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-TRACE-REDACTION-1121/EVIDENCE.md\"},\"ended\":\"2026-07-09T03:36:02.836Z\",\"duration_ms\":0,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_trace_redaction_1121_static ✓ [ 100% ] 1 VUs  00.0s/10s  1/1 shared iters
+./r-trace-redaction-1121-summary.json
+[R-TRACE-REDACTION-1121] METRICS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-TRACE-REDACTION-1121/cael/20260709T033602Z-r-trace-redaction-1121/openclaw-proofs-k6.prom
+[R-TRACE-REDACTION-1121] ARTIFACTS: /tmp/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-TRACE-REDACTION-1121/cael/20260709T033602Z-r-trace-redaction-1121
+[R-TRACE-REDACTION-1121] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /tmp/p81-cael-live-resume7-20260709T033337Z/out/report.html
+
+==========================================================
+Runner execution finished.

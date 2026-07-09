@@ -1,0 +1,24 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+Deployed Runtime SHA: OpenClaw 2026.6.11 (5292af4)
+Session: p81-5292-cael-preflight
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/24838c4d470804425da59279647745dcac555a25/project81-k6/20260709T054337Z-cael-dgx-4127193
+Rows: preflight
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/24838c4d470804425da59279647745dcac555a25/project81-k6/20260709T054337Z-cael-dgx-4127193/seat-readiness.json
+
+----------------------------------------
+Row: PREFLIGHT
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/preflight.example.json
+Scenario: scenarios/preflight.js
+Status: runnable
+Live Safety: static-preflight-only
+[PREFLIGHT] SKIPPED: liveRunSafety classification (static-preflight-only) rejects unattended live fire.
+REPORT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/24838c4d470804425da59279647745dcac555a25/project81-k6/20260709T054337Z-cael-dgx-4127193/report.html
+
+==========================================================
+Runner execution finished.

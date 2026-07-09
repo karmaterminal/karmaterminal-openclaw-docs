@@ -1,0 +1,69 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-delegate-self-continuation.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m0s max duration (incl. graceful stop):
+              * r_cw_delegate_self: 1 iterations shared among 1 VUs (maxDuration: 2m30s, gracefulStop: 30s)
+
+time="2026-07-08T22:33:40-07:00" level=info msg="✓ disposable session created: agent:main:r-cw-ds-r-cw-ds-1783575220113-0cfdks7x" source=console
+time="2026-07-08T22:33:41-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered (will call continue_delegate)" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m01.0s/2m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m02.0s/2m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m03.0s/2m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m04.0s/2m30s  0/1 shared iters
+time="2026-07-08T22:33:44-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m05.0s/2m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m06.0s/2m30s  0/1 shared iters
+time="2026-07-08T22:33:46-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m07.0s/2m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m08.0s/2m30s  0/1 shared iters
+time="2026-07-08T22:33:48-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m09.0s/2m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m10.0s/2m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m11.0s/2m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m12.0s/2m30s  0/1 shared iters
+time="2026-07-08T22:33:52-07:00" level=info msg="✓ CHILD-CW-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-07-08T22:33:52-07:00" level=info msg="✓ CHILD-HOP2-DONE sentinel observed post-dispatch" source=console
+time="2026-07-08T22:33:52-07:00" level=info msg="✓ Parent return event from delegate observed post-dispatch" source=console
+time="2026-07-08T22:33:52-07:00" level=info msg="Primary R-CW-DELEGATE-SELF evidence gathered, closing early" source=console
+time="2026-07-08T22:33:52-07:00" level=info msg="\n--- R-CW-DELEGATE-SELF-CONTINUATION EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T22:33:52-07:00" level=info msg="{\n  \"row\": \"R-CW-DELEGATE-SELF-CONTINUATION\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CW-DS-1783575220113-0cfdks7x\",\n  \"seat\": \"ronan\",\n  \"requestedSessionKey\": \"p81-5292-ronan-r-cw-delegate-self-continuation\",\n  \"sessionKey\": \"agent:main:r-cw-ds-r-cw-ds-1783575220113-0cfdks7x\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cw-ds-r-cw-ds-1783575220113-0cfdks7x\",\n  \"candidateSha\": \"5292af40d0ad5303b85a678f6e629503a8725848\",\n  \"started\": \"2026-07-09T05:33:40.113Z\",\n  \"delegate_accepted\": true,\n  \"child_spawned\": false,\n  \"child_continue_work_accepted\": true,\n  \"child_hop_2_woke\": true,\n  \"parent_return\": true,\n  \"dispatch_accepted_at_ms\": 1783575221063,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783575220114,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575220119,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575220169,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575220218,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575220220,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575220516,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783575220590,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783575221063,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CW-DELEGATE-SELF-DISPATCH-R-CW-DS-1783575220113-0cfdks7x\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783575221309,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575221312,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575221852,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575222370,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575222374,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575223455,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575223464,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575224550,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575224557,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575224570,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575225526,\n      \"kind\": \"response\",\n      \"method\": \"tasks.list\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783575225654,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575225658,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575226772,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575226822,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575226840,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575226846,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575226880,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575227916,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575227921,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575228123,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575228123,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575228279,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575228327,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575228996,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575229000,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575230060,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575230064,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575231158,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575231162,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575232240,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575232250,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575232825,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T05:33:52.825Z\",\n  \"duration_ms\": 12712\n}" source=console
+time="2026-07-08T22:33:52-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T22:33:52-07:00" level=info msg="\n[R-CW-DELEGATE-SELF-CONTINUATION] VERDICT: PASS-candidate" source=console
+
+[R-CW-DELEGATE-SELF-CONTINUATION] Summary: PASS-candidate | SHA: 5292af40d0ad5303b85a678f6e629503a8725848 | Seat: ronan
+
+running (0m12.7s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_delegate_self ✓ [ 100% ] 1 VUs  0m12.7s/2m30s  1/1 shared iters

@@ -1,0 +1,116 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+Deployed Runtime SHA: OpenClaw 2026.6.11 (5292af4)
+Session: p81-5292-cael-r-cd-chained-depth-2
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/24838c4d470804425da59279647745dcac555a25/project81-k6/20260709T054724Z-cael-dgx-4133209
+Rows: R-CD-CHAINED-DEPTH-2
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/24838c4d470804425da59279647745dcac555a25/project81-k6/20260709T054724Z-cael-dgx-4133209/seat-readiness.json
+
+----------------------------------------
+Row: R-CD-CHAINED-DEPTH-2
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-chained-depth-2.json
+Scenario: scenarios/r-cd-chained-depth-2.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-CHAINED-DEPTH-2] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-chained-depth-2.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m30s max duration (incl. graceful stop):
+              * r_cd_chained_depth_2: 1 iterations shared among 1 VUs (maxDuration: 3m0s, gracefulStop: 30s)
+
+time="2026-07-08T22:47:27-07:00" level=info msg="✓ disposable session created: agent:main:r-cd-chain-r-cd-chain-1783576047120-oepvhvk2" source=console
+time="2026-07-08T22:47:28-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for depth-2 chain" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m01.0s/3m0s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m02.0s/3m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m03.0s/3m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m04.0s/3m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m05.0s/3m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m06.0s/3m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m07.0s/3m0s  0/1 shared iters
+time="2026-07-08T22:47:35-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m08.0s/3m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m09.0s/3m0s  0/1 shared iters
+time="2026-07-08T22:47:36-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m10.0s/3m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m11.0s/3m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m12.0s/3m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m13.0s/3m0s  0/1 shared iters
+time="2026-07-08T22:47:40-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m14.0s/3m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m15.0s/3m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m16.0s/3m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m17.0s/3m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m18.0s/3m0s  0/1 shared iters
+time="2026-07-08T22:47:45-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-07-08T22:47:45-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+time="2026-07-08T22:47:45-07:00" level=info msg="Full chain evidence gathered, closing early" source=console
+time="2026-07-08T22:47:45-07:00" level=info msg="\n--- R-CD-CHAINED-DEPTH-2 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T22:47:45-07:00" level=info msg="{\n  \"row\": \"R-CD-CHAINED-DEPTH-2\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CD-CHAIN-1783576047120-oepvhvk2\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"p81-5292-cael-r-cd-chained-depth-2\",\n  \"sessionKey\": \"agent:main:r-cd-chain-r-cd-chain-1783576047120-oepvhvk2\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cd-chain-r-cd-chain-1783576047120-oepvhvk2\",\n  \"candidateSha\": \"5292af40d0ad5303b85a678f6e629503a8725848\",\n  \"started\": \"2026-07-09T05:47:27.120Z\",\n  \"parent_dispatch_accepted\": true,\n  \"child_spawned\": true,\n  \"grandchild_spawned\": true,\n  \"child_done_sentinel\": true,\n  \"grandchild_done_sentinel\": true,\n  \"chain_return_received\": true,\n  \"dispatch_accepted_at_ms\": 1783576048042,\n  \"max_depth_observed\": 2,\n  \"child_session\": null,\n  \"grandchild_session\": null,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783576047121,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576047122,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576047189,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576047494,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783576047525,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783576048042,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CD-CHAIN-R-CD-CHAIN-1783576047120-oepvhvk2\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783576049142,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576055081,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576055498,\n      \"kind\": \"response\",\n      \"method\": \"tasks.list\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783576056248,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576056259,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576056295,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576060513,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576060513,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576060686,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576060742,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576060786,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576065244,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T05:47:45.245Z\",\n  \"duration_ms\": 18125\n}" source=console
+time="2026-07-08T22:47:45-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T22:47:45-07:00" level=info msg="\n[R-CD-CHAINED-DEPTH-2] VERDICT: PASS-candidate" source=console
+time="2026-07-08T22:47:45-07:00" level=info msg="  Max depth observed: 2" source=console
+
+[R-CD-CHAINED-DEPTH-2] Summary: PASS-candidate | SHA: 5292af40d0ad5303b85a678f6e629503a8725848 | Seat: cael
+
+running (0m18.1s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_chained_depth_2 ✓ [ 100% ] 1 VUs  0m18.1s/3m0s  1/1 shared iters
+./r-cd-chained-depth-2-summary.json
+[R-CD-CHAINED-DEPTH-2] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/24838c4d470804425da59279647745dcac555a25/project81-k6/20260709T054724Z-cael-dgx-4133209/5292af40d0ad5303b85a678f6e629503a8725848/R-CD-CHAINED-DEPTH-2/cael/20260709T054727Z-r-cd-chained-depth-2/openclaw-proofs-k6.prom
+[R-CD-CHAINED-DEPTH-2] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/24838c4d470804425da59279647745dcac555a25/project81-k6/20260709T054724Z-cael-dgx-4133209/5292af40d0ad5303b85a678f6e629503a8725848/R-CD-CHAINED-DEPTH-2/cael/20260709T054727Z-r-cd-chained-depth-2
+[R-CD-CHAINED-DEPTH-2] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/24838c4d470804425da59279647745dcac555a25/project81-k6/20260709T054724Z-cael-dgx-4133209/report.html
+
+==========================================================
+Runner execution finished.

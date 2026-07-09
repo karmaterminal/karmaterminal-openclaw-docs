@@ -1,0 +1,40 @@
+{
+  "k6ExitCode": 0,
+  "endedAt": "2026-07-09T03:35:24Z",
+  "verdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-obs-1-summary.json"
+  ],
+  "evidence": {
+    "build_visible": true,
+    "candidateSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+    "context_visible": true,
+    "continuation_chain_visible": true,
+    "created_session_key": "agent:main:r-obs-1-r-obs-1-1783568099595-tzzg3c6r",
+    "dispatch_accepted": true,
+    "duration_ms": 24274,
+    "ended": "2026-07-09T03:35:23.869Z",
+    "manifest_loaded": true,
+    "nonce": "R-OBS-1-1783568099595-tzzg3c6r",
+    "requestedSessionKey": "main",
+    "route_visible": true,
+    "row": "R-OBS-1",
+    "seat": "cael",
+    "sessionKey": "agent:main:r-obs-1-r-obs-1-1783568099595-tzzg3c6r",
+    "session_created": true,
+    "started": "2026-07-09T03:34:59.595Z",
+    "status_card_observed": true,
+    "trace_id": null
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "missing",
+    "traceId": null,
+    "tempoTraceJson": null
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

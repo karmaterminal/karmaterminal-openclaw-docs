@@ -1,0 +1,19 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-07-08T20:33:29-07:00" level=info msg="STATIC_CORPUS_ROW_EVIDENCE {\"row\":\"R-CW-DELEGATE-TOKEN\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"carriedFrom\":\"bca2b0b89ab886bf23a10e4983926f6b374b3188\",\"started\":\"2026-07-09T03:33:29.773Z\",\"checks\":{\"verdictPass\":true,\"bareToken\":true,\"tokenOrigin\":true,\"noTypedChildTool\":true,\"secondTurn\":true,\"durableWork\":true,\"tempoWorkFire\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/EVIDENCE.md\",\"childAudit\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/child-transcript-tool-audit.md\",\"journal\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/journal-continuation-excerpt.log\",\"flowRows\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/flow-runs-matching-full.jsonl\",\"tempoAudit\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/tempo-child-tool-audit.txt\"},\"ended\":\"2026-07-09T03:33:29.773Z\",\"duration_ms\":0,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters

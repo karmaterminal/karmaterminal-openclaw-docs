@@ -1,0 +1,48 @@
+{
+  "k6ExitCode": 0,
+  "endedAt": "2026-07-09T03:33:10Z",
+  "verdict": "PASS-candidate",
+  "summaryFiles": [
+    "static-corpus-row-summary.json"
+  ],
+  "evidence": {
+    "candidateSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+    "carriedFrom": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
+    "checks": {
+      "announceGuards": true,
+      "boundaryAllowed": true,
+      "costCapSuite": true,
+      "delegateRejection": true,
+      "noLiveMutationScope": true,
+      "sourceGuard": true,
+      "verdictPass": true
+    },
+    "currentProofSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+    "duration_ms": 0,
+    "ended": "2026-07-09T03:33:10.292Z",
+    "manifest_loaded": true,
+    "row": "R-CW-5",
+    "source_files": {
+      "announceBracketSource": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/subagent-announce-bracket-cost-cap-source.txt",
+      "announceToolSource": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/subagent-announce-tool-cost-cap-source.txt",
+      "chainGuardLog": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/vitest-chain-guard-cost-cap.log",
+      "costCapLog": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/vitest-delegate-dispatch-cost-cap-exhaustion.log",
+      "delegateSource": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/delegate-dispatch-cost-cap-source.txt",
+      "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/EVIDENCE.md",
+      "schedulerSource": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/scheduler-source.txt"
+    },
+    "started": "2026-07-09T03:33:10.292Z",
+    "verdict": "PASS-candidate"
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

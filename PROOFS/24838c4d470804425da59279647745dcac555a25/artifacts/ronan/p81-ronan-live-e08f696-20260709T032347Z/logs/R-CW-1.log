@@ -1,0 +1,122 @@
+Resolving session key for selector: discord-channel:1466192485440164011
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: ronan
+Target Candidate SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Deployed Runtime SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Session: main
+Artifact root: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts
+Rows: R-CW-1
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/seat-readiness.json
+
+----------------------------------------
+Row: R-CW-1
+Manifest: /home/figs/source/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-1.json
+Scenario: scenarios/r-cw-1-tool-schedule-wake.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-1] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-1-tool-schedule-wake.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m30s max duration (incl. graceful stop):
+              * r_cw_1_tool_schedule_wake: 1 iterations shared among 1 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+time="2026-07-08T20:31:12-07:00" level=info msg="✓ disposable session created: agent:main:r-cw-1-r-cw-1-1783567871867-ka6uv200" source=console
+time="2026-07-08T20:31:12-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered (will call continue_work)" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m01.0s/2m0s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m02.0s/2m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m03.0s/2m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m04.0s/2m0s  0/1 shared iters
+time="2026-07-08T20:31:16-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m05.0s/2m0s  0/1 shared iters
+time="2026-07-08T20:31:17-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m06.0s/2m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m07.0s/2m0s  0/1 shared iters
+time="2026-07-08T20:31:19-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m08.0s/2m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m09.0s/2m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m10.0s/2m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m11.0s/2m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m12.0s/2m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m13.0s/2m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m14.0s/2m0s  0/1 shared iters
+time="2026-07-08T20:31:26-07:00" level=info msg="✓ CW-SCHEDULED sentinel observed: session.message" source=console
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m15.0s/2m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m16.0s/2m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m17.0s/2m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m18.0s/2m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m19.0s/2m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m20.0s/2m0s  0/1 shared iters
+time="2026-07-08T20:31:32-07:00" level=info msg="✓ CW-WOKE sentinel observed: session.message (5863ms after scheduled)" source=console
+time="2026-07-08T20:31:32-07:00" level=info msg="All required R-CW-1 evidence gathered, closing early" source=console
+time="2026-07-08T20:31:32-07:00" level=info msg="\n--- R-CW-1 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T20:31:32-07:00" level=info msg="{\n  \"row\": \"R-CW-1\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CW-1-1783567871867-ka6uv200\",\n  \"seat\": \"ronan\",\n  \"requestedSessionKey\": \"main\",\n  \"sessionKey\": \"agent:main:r-cw-1-r-cw-1-1783567871867-ka6uv200\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cw-1-r-cw-1-1783567871867-ka6uv200\",\n  \"candidateSha\": \"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\n  \"started\": \"2026-07-09T03:31:11.868Z\",\n  \"tool_invoke_accepted\": true,\n  \"continue_work_tool_result_scheduled\": true,\n  \"work_woke_event\": true,\n  \"dispatch_accepted_at_ms\": 1783567872737,\n  \"scheduled_result_at_ms\": 1783567886494,\n  \"wake_delay_ms\": 5863,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783567871869,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567871874,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567871948,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567872210,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783567872242,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783567872737,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CW-1-R-CW-1-1783567871867-ka6uv200\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783567873328,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567876469,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567877726,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567877726,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567877776,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567877806,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567877827,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567877827,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567877841,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567878042,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567878042,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567878042,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567878136,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567879399,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567879523,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567879524,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567879643,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567879681,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567883419,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567883451,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567883488,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567886405,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567886405,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567886494,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567886498,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567886498,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567886583,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567886584,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567886584,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567892357,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T03:31:32.357Z\",\n  \"duration_ms\": 20489\n}" source=console
+time="2026-07-08T20:31:32-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T20:31:32-07:00" level=info msg="\n[R-CW-1] VERDICT: PASS-candidate" source=console
+
+[R-CW-1] Summary: PASS-candidate | SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01 | Seat: ronan
+
+running (0m20.5s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake ✓ [ 100% ] 1 VUs  0m20.5s/2m0s  1/1 shared iters
+./r-cw-1-tool-schedule-wake-summary.json
+[R-CW-1] METRICS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-1/ronan/20260709T033111Z-r-cw-1/openclaw-proofs-k6.prom
+[R-CW-1] ARTIFACTS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-1/ronan/20260709T033111Z-r-cw-1
+[R-CW-1] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/report.html
+
+==========================================================
+Runner execution finished.

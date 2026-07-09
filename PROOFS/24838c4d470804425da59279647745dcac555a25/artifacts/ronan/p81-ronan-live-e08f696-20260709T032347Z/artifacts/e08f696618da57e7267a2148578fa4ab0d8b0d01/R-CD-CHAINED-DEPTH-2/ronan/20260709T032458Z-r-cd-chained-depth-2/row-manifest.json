@@ -1,0 +1,110 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-CHAINED-DEPTH-2",
+  "issue": 119,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 180,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-chained-depth-2",
+    "description": "Depth-2 delegate chain: parent→child→grandchild→return path. Three sub-tests: (1) up-tree silent-wake, (2) inter-session return, (3) echo+broadcast via fanoutMode.",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "tasks.list"
+    ],
+    "subtests": [
+      "chain-1-uptree-silent-wake",
+      "chain-2-inter-session-return",
+      "chain-3-echo-broadcast"
+    ],
+    "status": "runnable",
+    "file": "r-cd-chained-depth-2.js"
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "silent-wake",
+    "delaySeconds": 1,
+    "promptTemplate": "Proof chain nonce {{nonce}}: you are depth-1. Fire your own continue_delegate(mode='silent-wake', task='Grandchild nonce {{nonce}}: reply exactly GRANDCHILD-DONE {{nonce}} only after you arrive. Do not mutate files.'). After the nested continue_delegate tool result reports scheduled, reply exactly CHILD-DONE {{nonce}} CHILD-DELEGATE-SCHEDULED.",
+    "idempotencyKeyPrefix": "R-CD-CHAIN"
+  },
+  "expectedReceipts": [
+    {
+      "name": "parent-dispatch-accepted",
+      "required": true,
+      "description": "Parent fires continue_delegate → accepted"
+    },
+    {
+      "name": "child-spawns",
+      "required": true,
+      "description": "Post-dispatch, non-harness session event contains strict CHILD-DONE {{nonce}} CHILD-DELEGATE-SCHEDULED sentinel"
+    },
+    {
+      "name": "child-fires-grandchild",
+      "required": true,
+      "description": "CHILD-DONE sentinel confirms depth-1 delegate executed the nested continue_delegate instruction"
+    },
+    {
+      "name": "grandchild-spawns",
+      "required": true,
+      "description": "Post-dispatch, non-harness session event contains strict GRANDCHILD-DONE sentinel"
+    },
+    {
+      "name": "grandchild-returns",
+      "required": true,
+      "description": "GRANDCHILD-DONE sentinel observed after dispatch acceptance gate"
+    },
+    {
+      "name": "parent-receives-chain-return",
+      "required": true,
+      "description": "Parent session receives nonce-correlated, non-harness chained return evidence"
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID for chain visualization in Tempo"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-CHAINED-DEPTH-2",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Depth-2 chain proof. PASS-candidate requires post-dispatch, non-harness CHILD-DONE and GRANDCHILD-DONE sentinels (strict evidence gate). Ignore prompt-echo events from the original [k6-proof-harness] instruction. Chain depth limit enforcement tested implicitly (depth-2 should succeed; gateway caps apply). tasks.list remains optional context because continue_delegate uses pending-delegate/subagent surfaces, not the generic task registry."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "parent-dispatch-accepted",
+      "child-spawns",
+      "child-fires-grandchild",
+      "grandchild-spawns",
+      "grandchild-returns",
+      "parent-receives-chain-return",
+      "trace-id"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live depth-2 chain row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability so the proof does not touch the live #sprites/main Discord lane. Serialize per target session (sameSessionConcurrencySafe=false). Detector must ignore [k6-proof-harness] prompt echo; only post-dispatch sentinel evidence counts."
+  }
+}

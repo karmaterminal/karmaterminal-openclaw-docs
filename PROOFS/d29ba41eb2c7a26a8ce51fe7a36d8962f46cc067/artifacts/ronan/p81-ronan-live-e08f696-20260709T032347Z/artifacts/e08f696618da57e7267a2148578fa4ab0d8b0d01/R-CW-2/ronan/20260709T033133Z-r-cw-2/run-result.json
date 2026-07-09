@@ -1,0 +1,41 @@
+{
+  "k6ExitCode": 0,
+  "endedAt": "2026-07-09T03:31:49Z",
+  "verdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-cw-2-immediate-wake-summary.json"
+  ],
+  "evidence": {
+    "candidateSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+    "created_session_key": "agent:main:r-cw-2-r-cw-2-1783567893589-rbsuceva",
+    "dispatch_accepted": true,
+    "dispatch_accepted_at_ms": 1783567894466,
+    "duration_ms": 15611,
+    "ended": "2026-07-09T03:31:49.200Z",
+    "immediate_wake_observed": true,
+    "manifest_loaded": true,
+    "nonce": "R-CW-2-1783567893589-rbsuceva",
+    "prompt_echo_ignored": true,
+    "requestedSessionKey": "main",
+    "row": "R-CW-2",
+    "scheduled_result_at_ms": 1783567908423,
+    "scheduled_sentinel": true,
+    "seat": "ronan",
+    "sessionKey": "agent:main:r-cw-2-r-cw-2-1783567893589-rbsuceva",
+    "session_created": true,
+    "started": "2026-07-09T03:31:33.589Z",
+    "trace_id": null,
+    "wake_delay_ms": 776
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "missing",
+    "traceId": null,
+    "tempoTraceJson": null
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

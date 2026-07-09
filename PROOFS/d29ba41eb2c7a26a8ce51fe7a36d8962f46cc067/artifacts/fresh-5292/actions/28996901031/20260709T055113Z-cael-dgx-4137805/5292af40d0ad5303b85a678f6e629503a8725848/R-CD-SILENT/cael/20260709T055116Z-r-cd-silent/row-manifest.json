@@ -1,0 +1,102 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-SILENT",
+  "issue": 119,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 180,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-silent",
+    "description": "Typed continue_delegate(mode='silent') proof. Fires a silent delegate, waits for child internal completion, then asks the parent to report the silent child token from internal context while checking no child channel delivery occurred.",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe"
+    ],
+    "status": "runnable",
+    "file": "r-cd-silent.js"
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "silent",
+    "delaySeconds": 1,
+    "idempotencyKeyPrefix": "R-CD-SILENT"
+  },
+  "expectedReceipts": [
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the dispatching sessions.send turn that asks the agent to call continue_delegate(mode=silent)."
+    },
+    {
+      "name": "delegate-scheduled-sentinel",
+      "required": true,
+      "description": "Parent emitted RCDS-SCHEDULED only after continue_delegate returned a scheduled result."
+    },
+    {
+      "name": "child-completion-observed",
+      "required": true,
+      "description": "The silent delegate child completed on the internal subagent stream before the follow-up turn was sent."
+    },
+    {
+      "name": "followup-accepted",
+      "required": true,
+      "description": "A later follow-up turn was accepted after the silent delegate had time to return."
+    },
+    {
+      "name": "parent-internal-context-observed",
+      "required": true,
+      "description": "Parent follow-up reported the child-only SILENTCHILD token that was not included in the follow-up prompt."
+    },
+    {
+      "name": "no-channel-delivery",
+      "required": true,
+      "description": "No channel-delivery event contained the child-only silent delegate token."
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID from dispatch response or task metadata for Tempo fetch/review."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-SILENT",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "PASS-candidate requires child internal completion, delayed child-token readback from parent internal context, and no child-token channel delivery. Prefer disposable sessions for repeated runs."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "dispatch-accepted",
+      "delegate-scheduled-sentinel",
+      "child-completion-observed",
+      "followup-accepted",
+      "parent-internal-context-observed",
+      "no-channel-delivery"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live silent delegate row. Uses a child-only token plus follow-up readback to prove internal parent context without treating prompt echo as success. Serialize per target session."
+  }
+}

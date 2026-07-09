@@ -16,8 +16,8 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Full copied Project 81 corpus for safe assembly push SHA 24838c4d470804425da59279647745dcac555a25. Live proof source remains deployed 5292af40 on Cael/Ronan; this corpus transposes those reviewed proof bytes to the safe push SHA after clean upstream drift take-backs. R-CW-3 is closed by late Tempo receipts; only R-RC-2 remains honest-limit; no fail or missing rows remain.",
-  "methodology_note": "Project 81 k6 scenarios drive the deployed OpenClaw web/Gateway interface over WebSocket/API and preserve row-scoped artifacts. This INDEX points at a full-copy PROOFS/<sha>/ corpus; fresh 5292 artifacts are under artifacts/fresh-5292/ and carried static/manual corpus rows stay in-place with explicit classification.",
+  "disposition_note": "Full copied Project 81 corpus for safe assembly push SHA 24838c4d470804425da59279647745dcac555a25. Live proof source remains deployed 5292af40 on Cael/Ronan; this corpus transposes those reviewed proof bytes to the safe push SHA because upstream drift landed during proof generation/PR-presentation preparation. The final drift corrections were validated non-continuation-surface take-backs for ancestry/freshness. R-CW-3 is closed by late Tempo receipts; only R-RC-2 remains honest-limit; no fail or missing rows remain.",
+  "methodology_note": "Project 81 k6 scenarios drive the deployed OpenClaw web/Gateway interface over WebSocket/API and preserve row-scoped artifacts. This INDEX points at a full-copy PROOFS/<sha>/ corpus; fresh 5292 artifacts are under artifacts/fresh-5292/ and carried static/manual corpus rows stay in-place with explicit classification. The proof_source_sha differs from proof_push_sha because non-continuation upstream drift landed during proof generation and was folded before PR-presentation.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-07-09",
   "generated_by": "frond-scribe (copilot) from Cael/Ronan fresh 5292 Project 81 rerun artifacts",

@@ -17,10 +17,10 @@
 4. Split rows around partial/static blockers so one row cannot suppress unrelated artifact upload.
 5. Preserve uploaded Actions artifacts under `artifacts/fresh-5292/actions/` and failed-row logs under `artifacts/fresh-5292/actions-logs/`.
 6. Fold row state from reviewed row evidence, not workflow conclusion alone.
-7. After proof generation, absorb current upstream/main into the safe assembly branch, refresh generated/docs surfaces where needed, validate focused runtime/protocol/docs surfaces, and full-copy transpose the 5292 corpus to push SHA `24838c4d470804425da59279647745dcac555a25`.
+7. During proof generation and PR-presentation preparation, absorb current upstream/main drift into the safe assembly branch, refresh generated/docs surfaces where needed, validate the touched non-continuation drift slices, and full-copy transpose the 5292 corpus to push SHA `24838c4d470804425da59279647745dcac555a25`.
 8. Re-query Tempo after ingestion delay for R-CW-3, because trace absence in the immediate k6 window is not a permanent failure. Add the late Cael/Ronan trace JSON receipts and fold R-CW-3 by the reviewed trace bytes.
 
-This corpus does not claim a second live gateway proof run at 24838c4. It preserves `proof_source_sha=5292af40d0ad5303b85a678f6e629503a8725848` and `proof_push_sha=24838c4d470804425da59279647745dcac555a25`.
+This corpus does not claim a second live gateway proof run at 24838c4. It preserves `proof_source_sha=5292af40d0ad5303b85a678f6e629503a8725848` and `proof_push_sha=24838c4d470804425da59279647745dcac555a25` because the final drift corrections were freshness/ancestry take-backs that did not modify the continuation proof surface under test.
 
 ## Classification rules used for this corpus
 

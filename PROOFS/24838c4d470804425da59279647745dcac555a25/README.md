@@ -14,7 +14,7 @@ The fresh rerun leaves one row honest-limit in this corpus:
 
 The prior full-copy corpus for `46872994e4cae80830c381cb49456e8c77583d7e` was valid for that safe push, but upstream/main advanced again before PR-presentation. The safe assembly branch was refreshed to `5292af40d0ad5303b85a678f6e629503a8725848`, and that refresh touched runtime/continuation-adjacent surface. Cael and Ronan were therefore redeployed to `5292af40d0ad5303b85a678f6e629503a8725848` and the gateway-live Project 81 rows were rerun against the deployed 5292 gateways.
 
-After the 5292 proof corpus was finalized, upstream/main advanced again. The safe assembly branch absorbed current upstream/main cleanly, refreshed generated/docs surfaces where needed, and landed at push SHA `24838c4d470804425da59279647745dcac555a25`. This tree is the required full-copy corpus at that safe push SHA; `proof_source_sha` remains the deployed 5292 rerun.
+After the 5292 proof corpus was finalized, upstream/main advanced again during proof generation and PR-presentation preparation. The safe assembly branch absorbed current upstream/main cleanly, refreshed generated/docs surfaces where needed, and landed at push SHA `24838c4d470804425da59279647745dcac555a25`. These final drift corrections did not change the continuation proof surface exercised by the 5292 run, so this tree is the required full-copy corpus at the safe push SHA while `proof_source_sha` remains the deployed 5292 rerun.
 
 ## Methodology upgrade
 

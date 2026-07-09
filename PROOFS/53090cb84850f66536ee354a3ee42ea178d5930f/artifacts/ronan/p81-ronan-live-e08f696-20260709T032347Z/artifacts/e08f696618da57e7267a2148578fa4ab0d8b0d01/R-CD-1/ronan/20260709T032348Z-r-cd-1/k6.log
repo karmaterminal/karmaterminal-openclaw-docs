@@ -1,0 +1,96 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-1-typed-delegate.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m0s max duration (incl. graceful stop):
+              * r_cd_1_typed_delegate: 1 iterations shared among 1 VUs (maxDuration: 2m30s, gracefulStop: 30s)
+
+time="2026-07-08T20:23:48-07:00" level=info msg="✓ disposable session created: agent:main:r-cd-1-r-cd-1-1783567428593-oacje15r" source=console
+time="2026-07-08T20:23:49-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered (will call continue_delegate)" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m01.0s/2m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m02.0s/2m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m03.0s/2m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m04.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:23:52-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m05.0s/2m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m06.0s/2m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m07.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:23:56-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m08.0s/2m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m09.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:23:58-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m10.0s/2m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m11.0s/2m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m12.0s/2m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m13.0s/2m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m14.0s/2m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m15.0s/2m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m16.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:24:05-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: session.message" source=console
+time="2026-07-08T20:24:05-07:00" level=info msg="ℹ Channel message from delegate return (expected for mode=normal)" source=console
+time="2026-07-08T20:24:05-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: agent" source=console
+time="2026-07-08T20:24:05-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: agent" source=console
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m17.0s/2m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m18.0s/2m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m19.0s/2m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m20.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:24:08-07:00" level=info msg="✓ CD1-DELEGATE-SCHEDULED sentinel observed post-dispatch: session.message" source=console
+time="2026-07-08T20:24:08-07:00" level=info msg="ℹ Channel message from delegate return (expected for mode=normal)" source=console
+time="2026-07-08T20:24:08-07:00" level=info msg="Required R-CD-1 receipts gathered, closing early" source=console
+time="2026-07-08T20:24:08-07:00" level=info msg="\n--- R-CD-1 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T20:24:08-07:00" level=info msg="{\n  \"row\": \"R-CD-1\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CD-1-1783567428593-oacje15r\",\n  \"seat\": \"ronan\",\n  \"requestedSessionKey\": \"main\",\n  \"sessionKey\": \"agent:main:r-cd-1-r-cd-1-1783567428593-oacje15r\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cd-1-r-cd-1-1783567428593-oacje15r\",\n  \"candidateSha\": \"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\n  \"started\": \"2026-07-09T03:23:48.593Z\",\n  \"tool_invoke_accepted\": true,\n  \"delegate_scheduled_sentinel\": true,\n  \"parent_return_event\": true,\n  \"task_ledger_entry_optional\": false,\n  \"child_session_key\": null,\n  \"channel_message_observed\": true,\n  \"dispatch_accepted_at_ms\": 1783567429537,\n  \"wake_gate_ms\": 5000,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783567428610,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567428613,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567428665,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567428996,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783567429031,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783567429246,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567429247,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567429537,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CD-1-DISPATCH-R-CD-1-1783567428593-oacje15r\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783567429659,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567429667,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567430392,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567430718,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567430724,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567431817,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567431820,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567432902,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567432920,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567432922,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567433982,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567433985,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567434005,\n      \"kind\": \"response\",\n      \"method\": \"tasks.list\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783567435043,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567435046,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567436398,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567436443,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567436453,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567436474,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567436510,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567437506,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567437508,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567437861,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567437862,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567437977,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567438014,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567438613,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567438617,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567439700,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567439703,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567440750,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567440751,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567441807,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567441808,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567442858,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567442860,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567443940,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567443942,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567444000,\n      \"kind\": \"response\",\n      \"method\": \"tasks.list\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783567445018,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567445024,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567445435,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567445447,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567445485,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567446114,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567446117,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567447170,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567447177,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567448256,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567448258,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567448760,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567448761,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567448858,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T03:24:08.858Z\",\n  \"duration_ms\": 20265\n}" source=console
+time="2026-07-08T20:24:08-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T20:24:08-07:00" level=info msg="\n[R-CD-1] VERDICT: PASS-candidate" source=console
+
+[R-CD-1] Summary: PASS-candidate | SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01 | Seat: ronan
+
+running (0m20.3s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_1_typed_delegate ✓ [ 100% ] 1 VUs  0m20.3s/2m30s  1/1 shared iters

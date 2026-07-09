@@ -1,0 +1,96 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+Deployed Runtime SHA: OpenClaw 2026.6.11 (5292af4)
+Session: p81-5292-cael-r-cd-3
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/53090cb84850f66536ee354a3ee42ea178d5930f/project81-k6/20260709T054607Z-cael-dgx-4130767
+Rows: R-CD-3
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/53090cb84850f66536ee354a3ee42ea178d5930f/project81-k6/20260709T054607Z-cael-dgx-4130767/seat-readiness.json
+
+----------------------------------------
+Row: R-CD-3
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-3.json
+Scenario: scenarios/r-cd-3-post-compaction.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-3] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-3-post-compaction.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m30s max duration (incl. graceful stop):
+              * r_cd_3_post_compaction: 1 iterations shared among 1 VUs (maxDuration: 3m0s, gracefulStop: 30s)
+
+time="2026-07-08T22:46:10-07:00" level=info msg="✓ disposable session created: agent:main:r-cd-3-r-cd-3-1783575969989-ws0b9nl0" source=console
+time="2026-07-08T22:46:10-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for R-CD-3" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m01.0s/3m0s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m02.0s/3m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m03.0s/3m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m04.0s/3m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m05.0s/3m0s  0/1 shared iters
+time="2026-07-08T22:46:15-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m06.0s/3m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m07.0s/3m0s  0/1 shared iters
+time="2026-07-08T22:46:17-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m08.0s/3m0s  0/1 shared iters
+time="2026-07-08T22:46:18-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m09.0s/3m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m10.0s/3m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m11.0s/3m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m12.0s/3m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m13.0s/3m0s  0/1 shared iters
+time="2026-07-08T22:46:23-07:00" level=info msg="✓ R-CD-3 post-compaction lifeboat return observed" source=console
+time="2026-07-08T22:46:23-07:00" level=info msg="\n--- R-CD-3 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T22:46:23-07:00" level=info msg="{\n  \"row\": \"R-CD-3\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CD-3-1783575969989-ws0b9nl0\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"p81-5292-cael-r-cd-3\",\n  \"sessionKey\": \"agent:main:r-cd-3-r-cd-3-1783575969989-ws0b9nl0\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cd-3-r-cd-3-1783575969989-ws0b9nl0\",\n  \"candidateSha\": \"5292af40d0ad5303b85a678f6e629503a8725848\",\n  \"started\": \"2026-07-09T05:46:09.989Z\",\n  \"dispatch_accepted\": true,\n  \"delegate_staging_requested\": true,\n  \"compaction_requested\": true,\n  \"threshold_honest_limit\": false,\n  \"compaction_accepted\": false,\n  \"lifeboat_return_observed\": true,\n  \"guard\": null,\n  \"context_usage\": null,\n  \"threshold\": null,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783575969991,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575969992,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575970077,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575970356,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783575970392,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783575970899,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CD-3-R-CD-3-1783575969989-ws0b9nl0\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783575971662,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575975146,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575977173,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575977189,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575977408,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575978695,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575978695,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575978864,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575978915,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575979756,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575979875,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575980366,\n      \"kind\": \"response\",\n      \"method\": \"tasks.list\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783575983873,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T05:46:23.874Z\",\n  \"duration_ms\": 13885,\n  \"verdict\": \"PASS-candidate\"\n}" source=console
+time="2026-07-08T22:46:23-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T22:46:23-07:00" level=info msg="\n[R-CD-3] VERDICT: PASS-candidate" source=console
+
+running (0m13.9s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_3_post_compaction ✓ [ 100% ] 1 VUs  0m13.9s/3m0s  1/1 shared iters
+./r-cd-3-summary.json
+[R-CD-3] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/53090cb84850f66536ee354a3ee42ea178d5930f/project81-k6/20260709T054607Z-cael-dgx-4130767/5292af40d0ad5303b85a678f6e629503a8725848/R-CD-3/cael/20260709T054609Z-r-cd-3/openclaw-proofs-k6.prom
+[R-CD-3] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/53090cb84850f66536ee354a3ee42ea178d5930f/project81-k6/20260709T054607Z-cael-dgx-4130767/5292af40d0ad5303b85a678f6e629503a8725848/R-CD-3/cael/20260709T054609Z-r-cd-3
+[R-CD-3] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/53090cb84850f66536ee354a3ee42ea178d5930f/project81-k6/20260709T054607Z-cael-dgx-4130767/report.html
+
+==========================================================
+Runner execution finished.

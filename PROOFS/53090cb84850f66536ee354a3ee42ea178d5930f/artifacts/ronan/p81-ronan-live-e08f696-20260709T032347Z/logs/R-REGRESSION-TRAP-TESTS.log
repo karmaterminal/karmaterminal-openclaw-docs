@@ -1,0 +1,49 @@
+Resolving session key for selector: discord-channel:1466192485440164011
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: ronan
+Target Candidate SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Deployed Runtime SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Session: main
+Artifact root: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts
+Rows: R-REGRESSION-TRAP-TESTS
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/seat-readiness.json
+
+----------------------------------------
+Row: R-REGRESSION-TRAP-TESTS
+Manifest: /home/figs/source/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-regression-trap-tests.json
+Scenario: scenarios/r-regression-trap-tests.js
+Status: runnable
+Live Safety: k6-runnable
+[R-REGRESSION-TRAP-TESTS] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-regression-trap-tests.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * r_regression_trap_tests_static: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-07-08T20:37:04-07:00" level=info msg="R_REGRESSION_TRAP_TESTS_EVIDENCE {\"row\":\"R-REGRESSION-TRAP-TESTS\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"started\":\"2026-07-09T03:37:04.516Z\",\"verdict_text_present\":true,\"shard_pass_text_present\":true,\"test_count_text_present\":true,\"source_sha_present\":true,\"required_tests_present\":{\"src/agents/tools/continuation-inventory-opts.test.ts\":true,\"src/agents/openclaw-tools.continuation-registration.test.ts\":true,\"src/agents/tools/continuation-tools-registration.test.ts\":true,\"src/agents/openclaw-tools.continuation-misconfig-warn.test.ts\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/EVIDENCE.md\",\"log\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/regression-trap.log\",\"sourceStatus\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/source-git-status.txt\",\"testInventory\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/test-inventory.txt\"},\"ended\":\"2026-07-09T03:37:04.516Z\",\"duration_ms\":0,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_regression_trap_tests_static ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+./r-regression-trap-tests-summary.json
+[R-REGRESSION-TRAP-TESTS] METRICS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-REGRESSION-TRAP-TESTS/ronan/20260709T033704Z-r-regression-trap-tests/openclaw-proofs-k6.prom
+[R-REGRESSION-TRAP-TESTS] ARTIFACTS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-REGRESSION-TRAP-TESTS/ronan/20260709T033704Z-r-regression-trap-tests
+[R-REGRESSION-TRAP-TESTS] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/report.html
+
+==========================================================
+Runner execution finished.

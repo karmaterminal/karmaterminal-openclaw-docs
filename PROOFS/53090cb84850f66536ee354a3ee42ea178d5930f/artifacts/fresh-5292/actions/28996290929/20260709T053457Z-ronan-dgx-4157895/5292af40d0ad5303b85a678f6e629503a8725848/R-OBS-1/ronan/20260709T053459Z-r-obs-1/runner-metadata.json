@@ -1,0 +1,9 @@
+{
+  "row": "R-OBS-1",
+  "scenario": "r-obs-1.js",
+  "candidateSha": "5292af40d0ad5303b85a678f6e629503a8725848",
+  "runtimeBuildSha": "OpenClaw 2026.6.11 (5292af4)",
+  "seat": "ronan",
+  "sessionKey": "p81-5292-ronan-r-obs-1",
+  "startedAt": "2026-07-09T05:34:59Z"
+}

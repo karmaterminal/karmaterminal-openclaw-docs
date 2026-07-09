@@ -1,0 +1,104 @@
+Resolving session key for selector: discord-channel:1466192485440164011
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: ronan
+Target Candidate SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Deployed Runtime SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Session: main
+Artifact root: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts
+Rows: R-OBS-1
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/seat-readiness.json
+
+----------------------------------------
+Row: R-OBS-1
+Manifest: /home/figs/source/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-obs-1.json
+Scenario: scenarios/r-obs-1.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-1] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-1.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m0s max duration (incl. graceful stop):
+              * r_obs_1: 1 iterations shared among 1 VUs (maxDuration: 1m30s, gracefulStop: 30s)
+
+time="2026-07-08T20:36:06-07:00" level=info msg="✓ disposable session created: agent:main:r-obs-1-r-obs-1-1783568165736-7mwaackr" source=console
+time="2026-07-08T20:36:06-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for R-OBS-1 status-card read" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m01.0s/1m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m02.0s/1m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m03.0s/1m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m04.0s/1m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m05.0s/1m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m06.0s/1m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m07.0s/1m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m08.0s/1m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m09.0s/1m30s  0/1 shared iters
+time="2026-07-08T20:36:15-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m10.0s/1m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m11.0s/1m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m12.0s/1m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m13.0s/1m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m14.0s/1m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m15.0s/1m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m16.0s/1m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m17.0s/1m30s  0/1 shared iters
+time="2026-07-08T20:36:23-07:00" level=info msg="✓ OBS1-STATUS sentinel observed: {\"build\":\"yes\",\"context\":\"yes\",\"chain\":\"yes\",\"route\":\"yes\"}" source=console
+time="2026-07-08T20:36:23-07:00" level=info msg="R_OBS_1_EVIDENCE {\"row\":\"R-OBS-1\",\"manifest_loaded\":true,\"nonce\":\"R-OBS-1-1783568165736-7mwaackr\",\"seat\":\"ronan\",\"requestedSessionKey\":\"main\",\"sessionKey\":\"agent:main:r-obs-1-r-obs-1-1783568165736-7mwaackr\",\"session_created\":true,\"created_session_key\":\"agent:main:r-obs-1-r-obs-1-1783568165736-7mwaackr\",\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"started\":\"2026-07-09T03:36:05.736Z\",\"dispatch_accepted\":true,\"status_card_observed\":true,\"build_visible\":true,\"context_visible\":true,\"continuation_chain_visible\":true,\"route_visible\":true,\"trace_id\":null,\"redacted_events\":[{\"ts\":1783568165737,\"kind\":\"event\",\"method\":null,\"event\":\"connect.challenge\",\"ok\":null,\"data\":null},{\"ts\":1783568165742,\"kind\":\"other\",\"method\":null,\"event\":null,\"ok\":null,\"data\":null},{\"ts\":1783568165793,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568166107,\"kind\":\"response\",\"method\":\"sessions.create\",\"event\":null,\"ok\":true,\"data\":{\"ok\":true}},{\"ts\":1783568166142,\"kind\":\"response\",\"method\":\"sessions.messages.subscribe\",\"event\":null,\"ok\":true,\"data\":{}},{\"ts\":1783568166658,\"kind\":\"response\",\"method\":\"sessions.send\",\"event\":null,\"ok\":true,\"data\":{\"runId\":\"R-OBS-1-R-OBS-1-1783568165736-7mwaackr\",\"status\":\"started\"}},{\"ts\":1783568167307,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568170537,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568172857,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568172880,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783568173359,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568175370,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568175370,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568175491,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568175532,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":null},{\"ts\":1783568178894,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":null},{\"ts\":1783568178944,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568179009,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568179016,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783568179075,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568179088,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783568179138,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568179143,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783568179607,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568179609,\"kind\":\"event\",\"method\":null,\"event\":\"tick\",\"ok\":null,\"data\":null},{\"ts\":1783568182841,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783568182841,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783568183021,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":null}],\"ended\":\"2026-07-09T03:36:23.022Z\",\"duration_ms\":17286}" source=console
+
+running (0m17.3s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_1 ✓ [ 100% ] 1 VUs  0m17.3s/1m30s  1/1 shared iters
+./r-obs-1-summary.json
+[R-OBS-1] METRICS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-1/ronan/20260709T033605Z-r-obs-1/openclaw-proofs-k6.prom
+[R-OBS-1] ARTIFACTS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-1/ronan/20260709T033605Z-r-obs-1
+[R-OBS-1] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/report.html
+
+==========================================================
+Runner execution finished.

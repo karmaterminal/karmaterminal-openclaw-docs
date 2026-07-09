@@ -1,0 +1,49 @@
+Resolving session key for selector: discord-channel:1466192485440164011
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: ronan
+Target Candidate SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Deployed Runtime SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Session: main
+Artifact root: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts
+Rows: R-CW-MULTI-COLLAPSE
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/seat-readiness.json
+
+----------------------------------------
+Row: R-CW-MULTI-COLLAPSE
+Manifest: /home/figs/source/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-multi-collapse.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-MULTI-COLLAPSE] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-07-08T20:33:31-07:00" level=info msg="STATIC_CORPUS_ROW_EVIDENCE {\"row\":\"R-CW-MULTI-COLLAPSE\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"carriedFrom\":\"bca2b0b89ab886bf23a10e4983926f6b374b3188\",\"started\":\"2026-07-09T03:33:31.013Z\",\"checks\":{\"verdictPassScoped\":true,\"syntheticCaveat\":true,\"twoRowsInserted\":true,\"oldSuperseded\":true,\"newestGranted\":true,\"noRemainingQueued\":true,\"configRestored\":true,\"tempoExactChain\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/EVIDENCE.md\",\"insertVars\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/insert-vars.json\",\"postInsert\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/post-insert-sqlite.txt\",\"finalTerminal\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/final-terminal-sqlite.txt\",\"finalQueued\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/final-queued-running.txt\",\"flowRows\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/flow-runs-final.json\",\"journal\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/journal-continuation-window.txt\",\"restoreHash\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/restore-verified-sha256.txt\",\"tempoAttrs\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-attribute-receipt.txt\"},\"ended\":\"2026-07-09T03:33:31.013Z\",\"duration_ms\":0,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+./static-corpus-row-summary.json
+[R-CW-MULTI-COLLAPSE] METRICS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI-COLLAPSE/ronan/20260709T033330Z-r-cw-multi-collapse/openclaw-proofs-k6.prom
+[R-CW-MULTI-COLLAPSE] ARTIFACTS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI-COLLAPSE/ronan/20260709T033330Z-r-cw-multi-collapse
+[R-CW-MULTI-COLLAPSE] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/report.html
+
+==========================================================
+Runner execution finished.

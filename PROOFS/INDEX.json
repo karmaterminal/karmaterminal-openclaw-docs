@@ -1,12 +1,12 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3",
-  "current_sha_short": "ffcfeee",
-  "build_string": "OpenClaw safe assembly/presentation candidate ffcfeee - Project 81 fresh 5292 rerun corpus",
-  "corpus_path": "PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3",
-  "manifest_path": "PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/proofs-manifest.json",
-  "readme_path": "PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/README.md",
+  "current_sha": "55663f1f2adb177df277ee4db95ea788731a26d7",
+  "current_sha_short": "55663f1",
+  "build_string": "OpenClaw safe assembly/presentation candidate 55663f1 - Project 81 fresh 5292 rerun corpus",
+  "corpus_path": "PROOFS/55663f1f2adb177df277ee4db95ea788731a26d7",
+  "manifest_path": "PROOFS/55663f1f2adb177df277ee4db95ea788731a26d7/proofs-manifest.json",
+  "readme_path": "PROOFS/55663f1f2adb177df277ee4db95ea788731a26d7/README.md",
   "rollup": {
     "total_rows": 35,
     "pass": 34,
@@ -16,14 +16,14 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Full copied Project 81 corpus for safe assembly push SHA ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3. Live proof source remains deployed 5292af40 on Cael/Ronan; this corpus transposes those reviewed proof bytes to the safe push SHA because upstream drift landed during proof generation/PR-presentation preparation. The final drift corrections were Android screenshot determinism, Codex inventory diagnostics, channel inbound-log UTF-16 preview safety, auth-profile OAuth credential recovery, docs-only infographic table formatting, OpenAI Realtime Talk API key rejection clarity, and UI sidebar drawer collapse; they were validated as not changing the Project 81 continuation proof-row behavior. R-CW-3 is closed by late Tempo receipts; only R-RC-2 remains honest-limit; no fail or missing rows remain.",
+  "disposition_note": "Full copied Project 81 corpus for safe assembly push SHA 55663f1f2adb177df277ee4db95ea788731a26d7. Live proof source remains deployed 5292af40 on Cael/Ronan; this corpus transposes those reviewed proof bytes to the safe push SHA because upstream drift landed during proof generation/PR-presentation preparation. The final drift corrections were Android screenshot determinism, Codex inventory diagnostics, channel inbound-log UTF-16 preview safety, auth-profile OAuth credential recovery, docs-only infographic table formatting, OpenAI Realtime Talk API key rejection clarity, UI sidebar drawer collapse, native app i18n inventory refresh, Slack Enterprise Grid channel behavior, and serialized tool-payload UTF-8 byte-limit handling; they were validated as not changing the Project 81 continuation proof-row behavior. R-CW-3 is closed by late Tempo receipts; only R-RC-2 remains honest-limit; no fail or missing rows remain.",
   "methodology_note": "Project 81 k6 scenarios drive the deployed OpenClaw web/Gateway interface over WebSocket/API and preserve row-scoped artifacts. This INDEX points at a full-copy PROOFS/<sha>/ corpus; fresh 5292 artifacts are under artifacts/fresh-5292/ and carried static/manual corpus rows stay in-place with explicit classification. The proof_source_sha differs from proof_push_sha because non-proof-row drift landed during proof generation and was folded before PR-presentation.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-07-09",
   "generated_by": "frond-scribe (copilot) from Cael/Ronan fresh 5292 Project 81 rerun artifacts",
-  "capture_sha": "ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3",
-  "proof_push_sha": "ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3",
+  "capture_sha": "55663f1f2adb177df277ee4db95ea788731a26d7",
+  "proof_push_sha": "55663f1f2adb177df277ee4db95ea788731a26d7",
   "proof_source_sha": "5292af40d0ad5303b85a678f6e629503a8725848",
-  "carried_from": "ee9295cc6bb4fb27b135c3c21252ef9e815e2766",
-  "seeded_from": "ee9295cc6bb4fb27b135c3c21252ef9e815e2766"
+  "carried_from": "ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3",
+  "seeded_from": "ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3"
 }

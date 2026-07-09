@@ -1,0 +1,49 @@
+Resolving session key for selector: discord-channel:1466192485440164011
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: ronan
+Target Candidate SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Deployed Runtime SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Session: main
+Artifact root: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts
+Rows: R-OBS-2
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/seat-readiness.json
+
+----------------------------------------
+Row: R-OBS-2
+Manifest: /home/figs/source/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-obs-2.json
+Scenario: scenarios/r-obs-2.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-2] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-2.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * r_obs_2_static: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-07-08T20:36:24-07:00" level=info msg="R_OBS_2_EVIDENCE {\"row\":\"R-OBS-2\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"started\":\"2026-07-09T03:36:24.270Z\",\"trace_ids_hex\":[\"0cf17ea0b7eab7a5e998f6a581e7b5bf\"],\"span_count\":46,\"root_count\":1,\"orphan_count\":0,\"required_span_names_present\":{\"continuation.delegate.dispatch\":true,\"openclaw.harness.run\":true,\"openclaw.run\":true,\"openclaw.tool.execution\":true,\"continuation.queue.fanout\":true,\"continuation.queue.drain\":true},\"source_files\":{\"traceTree\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/trace-tree.json\",\"spanTree\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-tree.txt\",\"spanCounts\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-counts.json\"},\"ended\":\"2026-07-09T03:36:24.270Z\",\"duration_ms\":0,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_2_static ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+./r-obs-2-summary.json
+[R-OBS-2] METRICS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-2/ronan/20260709T033624Z-r-obs-2/openclaw-proofs-k6.prom
+[R-OBS-2] ARTIFACTS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-2/ronan/20260709T033624Z-r-obs-2
+[R-OBS-2] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/report.html
+
+==========================================================
+Runner execution finished.

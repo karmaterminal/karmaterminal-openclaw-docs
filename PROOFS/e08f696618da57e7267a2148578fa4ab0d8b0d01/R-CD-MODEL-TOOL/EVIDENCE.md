@@ -1,6 +1,6 @@
 # R-CD-MODEL-TOOL evidence — e08f696 live P81 run
 
-- **Aggregate state:** `partial`
+- **Aggregate state:** `pass`
 - **Candidate SHA:** `e08f696618da57e7267a2148578fa4ab0d8b0d01`
 - **Issue links:** karmaterminal/karmaterminal-openclaw-docs#367
 - **Review note:** Partial on both Cael/Ronan: parent scheduled, child/model byte not fully observed in live row output. Tracked in #367.

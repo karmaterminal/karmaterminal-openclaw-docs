@@ -1,0 +1,946 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "capture_sha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "ship_sha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "fire_type": "fresh-live-k6-harness-first-fire",
+  "carried_from": null,
+  "method": "Project 81 live k6 proof harness; row submit patterns over Gateway WebSocket/API into disposable proof sessions, with artifacts copied from Cael and Ronan proof roots.",
+  "artifact_roots": {
+    "cael": [
+      "/tmp/p81-cael-live-20260709T030352Z",
+      "/tmp/p81-cael-live-resume-20260709T030548Z",
+      "/tmp/p81-cael-live-resume2-20260709T031258Z",
+      "/tmp/p81-cael-live-resume3-20260709T031523Z",
+      "/tmp/p81-cael-live-resume4-20260709T031606Z",
+      "/tmp/p81-cael-live-resume5-20260709T031750Z",
+      "/tmp/p81-cael-live-resume6-20260709T031952Z",
+      "/tmp/p81-cael-live-resume7-20260709T033337Z"
+    ],
+    "ronan": [
+      "/tmp/p81-ronan-live-e08f696-20260709T032347Z"
+    ],
+    "local_corpus": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/"
+  },
+  "rollup": {
+    "total_rows": 35,
+    "pass": 30,
+    "partial": 3,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 2,
+    "missing": 0
+  },
+  "rows": [
+    {
+      "row": "R-CD-1",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-1/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-1/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-20260709T030352Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-1/cael/20260709T030355Z-r-cd-1/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-1/ronan/20260709T032348Z-r-cd-1/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CD-2",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-2/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-2/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-20260709T030352Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-2/cael/20260709T030414Z-r-cd-2/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-2/ronan/20260709T032410Z-r-cd-2/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CD-3",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-3/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-3/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-20260709T030352Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-3/cael/20260709T030429Z-r-cd-3/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-3/ronan/20260709T032426Z-r-cd-3/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CD-4",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-4/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-4/EVIDENCE.md",
+      "note": "Initial Cael unattended all-run needed OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true; resumed Cael and Ronan both produced PASS-candidate evidence after the disposable-session env workaround.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PARTIAL-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-20260709T030352Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-4/cael/20260709T030444Z-r-cd-4/run-result.json"
+        },
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume-20260709T030548Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-4/cael/20260709T030551Z-r-cd-4/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-4/ronan/20260709T032444Z-r-cd-4/run-result.json"
+        }
+      ],
+      "issues": [
+        "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/366"
+      ]
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-CHAINED-DEPTH-2/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume-20260709T030548Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-CHAINED-DEPTH-2/cael/20260709T030603Z-r-cd-chained-depth-2/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-CHAINED-DEPTH-2/ronan/20260709T032458Z-r-cd-chained-depth-2/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-COLLECTION-ON-COLLAPSE/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume-20260709T030548Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-COLLECTION-ON-COLLAPSE/cael/20260709T030615Z-r-cd-collection-on-collapse/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-COLLECTION-ON-COLLAPSE/ronan/20260709T032513Z-r-cd-collection-on-collapse/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-CHAINED-ALT/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume-20260709T030548Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-CHAINED-ALT/cael/20260709T030615Z-r-cd-model-chained-alt/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-CHAINED-ALT/ronan/20260709T032514Z-r-cd-model-chained-alt/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CD-MODEL-DEFAULT",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-DEFAULT/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-DEFAULT/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume-20260709T030548Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-DEFAULT/cael/20260709T030635Z-r-cd-model-default/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-DEFAULT/ronan/20260709T032529Z-r-cd-model-default/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CD-MODEL-TOKEN",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-TOKEN/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-TOKEN/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume-20260709T030548Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-TOKEN/cael/20260709T030651Z-r-cd-model-token/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-TOKEN/ronan/20260709T032549Z-r-cd-model-token/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CD-MODEL-TOOL",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-TOOL/",
+      "state": "partial",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-TOOL/EVIDENCE.md",
+      "note": "Partial on both Cael/Ronan: parent scheduled, child/model byte not fully observed in live row output. Tracked in #367.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PARTIAL-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume-20260709T030548Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-TOOL/cael/20260709T030724Z-r-cd-model-tool/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PARTIAL-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-TOOL/ronan/20260709T032615Z-r-cd-model-tool/run-result.json"
+        }
+      ],
+      "issues": [
+        "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/367"
+      ]
+    },
+    {
+      "row": "R-CD-RETURN-OVERLAP",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-RETURN-OVERLAP/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-RETURN-OVERLAP/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume2-20260709T031258Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-RETURN-OVERLAP/cael/20260709T031301Z-r-cd-return-overlap/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-RETURN-OVERLAP/ronan/20260709T032916Z-r-cd-return-overlap/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CD-SILENT",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-SILENT/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-SILENT/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume2-20260709T031258Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-SILENT/cael/20260709T031301Z-r-cd-silent/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-SILENT/ronan/20260709T032917Z-r-cd-silent/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-TOKEN/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-TOKEN/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume2-20260709T031258Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-TOKEN/cael/20260709T031347Z-r-cd-token/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-TOKEN/ronan/20260709T033005Z-r-cd-token/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-DEFAULTS/",
+      "state": "partial",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-DEFAULTS/EVIDENCE.md",
+      "note": "Partial on both Cael/Ronan: config read/default byte not fully observed. Tracked in #368.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PARTIAL-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume2-20260709T031258Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-DEFAULTS/cael/20260709T031405Z-r-config-defaults/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PARTIAL-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-DEFAULTS/ronan/20260709T033022Z-r-config-defaults/run-result.json"
+        }
+      ],
+      "issues": [
+        "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/368"
+      ]
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-INTERSESSION/",
+      "state": "partial",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-INTERSESSION/EVIDENCE.md",
+      "note": "Partial on both Cael/Ronan: config read/cross-session byte not fully observed. Tracked in #369.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PARTIAL-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume3-20260709T031523Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-INTERSESSION/cael/20260709T031526Z-r-config-intersession/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PARTIAL-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-INTERSESSION/ronan/20260709T033044Z-r-config-intersession/run-result.json"
+        }
+      ],
+      "issues": [
+        "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/369"
+      ]
+    },
+    {
+      "row": "R-CW-1",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-1/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-1/EVIDENCE.md",
+      "note": "Ronan produced PASS-candidate; Cael filed partial on missing observed wake receipt. Keep both seat artifacts.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PARTIAL-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume4-20260709T031606Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-1/cael/20260709T031610Z-r-cw-1/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-1/ronan/20260709T033111Z-r-cw-1/run-result.json"
+        }
+      ],
+      "issues": [
+        "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/370"
+      ]
+    },
+    {
+      "row": "R-CW-2",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-2/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-2/EVIDENCE.md",
+      "note": "Ronan produced PASS-candidate; Cael filed partial on missing immediate wake receipt. Keep both seat artifacts.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PARTIAL-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume5-20260709T031750Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-2/cael/20260709T031754Z-r-cw-2/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-2/ronan/20260709T033133Z-r-cw-2/run-result.json"
+        }
+      ],
+      "issues": [
+        "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/371"
+      ]
+    },
+    {
+      "row": "R-CW-3",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-3/",
+      "state": "honest_limit",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-3/EVIDENCE.md",
+      "note": "No clean PASS fold: Cael partial on missing wake/Tempo receipt after accepted dispatch; Ronan HONEST-LIMIT-candidate. Tracked in #372.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PARTIAL-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume6-20260709T031952Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-3/cael/20260709T031955Z-r-cw-3/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "HONEST-LIMIT-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-3/ronan/20260709T033150Z-r-cw-3/run-result.json"
+        }
+      ],
+      "issues": [
+        "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/372"
+      ]
+    },
+    {
+      "row": "R-CW-4",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-4/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-4/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-4/cael/20260709T033338Z-r-cw-4/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-4/ronan/20260709T033213Z-r-cw-4/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CW-5",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-5/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-5/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-5/cael/20260709T033428Z-r-cw-5/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-5/ronan/20260709T033310Z-r-cw-5/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CW-6",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-6/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-6/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-6/cael/20260709T033429Z-r-cw-6/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-6/ronan/20260709T033311Z-r-cw-6/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CW-7",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-7/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-7/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-7/cael/20260709T033429Z-r-cw-7/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-7/ronan/20260709T033312Z-r-cw-7/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-CHILD-LIVE/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-CHILD-LIVE/cael/20260709T033429Z-r-cw-delegate-child-live/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-CHILD-LIVE/ronan/20260709T033314Z-r-cw-delegate-child-live/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-SELF-CONTINUATION/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-SELF-CONTINUATION/cael/20260709T033430Z-r-cw-delegate-self-continuation/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-SELF-CONTINUATION/ronan/20260709T033315Z-r-cw-delegate-self-continuation/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-TOKEN/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-TOKEN/cael/20260709T033444Z-r-cw-delegate-token/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-TOKEN/ronan/20260709T033329Z-r-cw-delegate-token/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CW-MULTI",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI/cael/20260709T033444Z-r-cw-multi/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI/ronan/20260709T033332Z-r-cw-multi/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI-COLLAPSE/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI-COLLAPSE/cael/20260709T033444Z-r-cw-multi-collapse/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI-COLLAPSE/ronan/20260709T033330Z-r-cw-multi-collapse/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-TOKEN/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-TOKEN/EVIDENCE.md",
+      "note": "Cael produced PASS-candidate; Ronan produced PARTIAL-candidate. Aggregate fold is PASS-candidate with seat-surface friction retained.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-TOKEN/cael/20260709T033444Z-r-cw-token/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PARTIAL-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-TOKEN/ronan/20260709T033333Z-r-cw-token/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-OBS-1",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-1/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-1/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-1/cael/20260709T033459Z-r-obs-1/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-1/ronan/20260709T033605Z-r-obs-1/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-OBS-2",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-2/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-2/EVIDENCE.md",
+      "note": "Cael reported Tempo trace id 0cf17ea0b7eab7a5e998f6a581e7b5bf in the R-OBS-2 evidence directory.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-2/cael/20260709T033524Z-r-obs-2/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-2/ronan/20260709T033624Z-r-obs-2/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-OBS-STATUS",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-STATUS/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-STATUS/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-STATUS/cael/20260709T033524Z-r-obs-status/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-STATUS/ronan/20260709T033625Z-r-obs-status/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-RC-1",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-RC-1/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-RC-1/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-RC-1/cael/20260709T033525Z-r-rc-1/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-RC-1/ronan/20260709T033627Z-r-rc-1/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-RC-2",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-RC-2/",
+      "state": "honest_limit",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-RC-2/EVIDENCE.md",
+      "note": "Do not fold as clean PASS. Cael observed logs/evidence as HONEST-LIMIT-candidate while generated run-result/summary converted to PASS-candidate with evidence:null; tracked in #373. Ronan produced PASS-candidate, but aggregate remains honest_limit pending review.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-RC-2/cael/20260709T033547Z-r-rc-2/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": false,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-RC-2/ronan/20260709T033645Z-r-rc-2/run-result.json"
+        }
+      ],
+      "issues": [
+        "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/373"
+      ]
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-REGRESSION-TRAP-TESTS/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-REGRESSION-TRAP-TESTS/cael/20260709T033602Z-r-regression-trap-tests/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-REGRESSION-TRAP-TESTS/ronan/20260709T033704Z-r-regression-trap-tests/run-result.json"
+        }
+      ],
+      "issues": []
+    },
+    {
+      "row": "R-TRACE-REDACTION-1121",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
+      "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-TRACE-REDACTION-1121/",
+      "state": "pass",
+      "traces": 0,
+      "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-TRACE-REDACTION-1121/EVIDENCE.md",
+      "note": "Live k6 harness row; see seat artifacts for Cael/Ronan verdicts and run-result paths.",
+      "seat_results": [
+        {
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-TRACE-REDACTION-1121/cael/20260709T033602Z-r-trace-redaction-1121/run-result.json"
+        },
+        {
+          "seat": "ronan",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-TRACE-REDACTION-1121/ronan/20260709T033705Z-r-trace-redaction-1121/run-result.json"
+        }
+      ],
+      "issues": []
+    }
+  ],
+  "issues": [
+    {
+      "number": 366,
+      "title": "Project 81: R-CD-4 suite runner needs disposable-session env for unattended live all",
+      "url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/366"
+    },
+    {
+      "number": 367,
+      "title": "Project 81: R-CD-MODEL-TOOL live row partial on Cael at e08f696",
+      "url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/367"
+    },
+    {
+      "number": 368,
+      "title": "Project 81: R-CONFIG-defaults live row partial on Cael at e08f696",
+      "url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/368"
+    },
+    {
+      "number": 369,
+      "title": "Project 81: R-CONFIG-INTERSESSION live row partial on Cael at e08f696",
+      "url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/369"
+    },
+    {
+      "number": 370,
+      "title": "Project 81: R-CW-1 live row partial on Cael at e08f696",
+      "url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/370"
+    },
+    {
+      "number": 371,
+      "title": "Project 81: R-CW-2 live row partial on Cael at e08f696",
+      "url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/371"
+    },
+    {
+      "number": 372,
+      "title": "Project 81: R-CW-3 live row partial on Cael at e08f696",
+      "url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/372"
+    },
+    {
+      "number": 373,
+      "title": "Project 81: R-RC-2 live row verdict mismatch on Cael at e08f696",
+      "url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/373"
+    },
+    {
+      "number": 374,
+      "title": "Project 81: proof runner should close disposable web sessions after live rows complete",
+      "url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/374"
+    }
+  ],
+  "generated": "2026-07-08T20:49:00-07:00",
+  "generated_by": "frond-scribe (copilot) from Cael/Ronan live P81 k6 artifacts"
+}

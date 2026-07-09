@@ -1,0 +1,54 @@
+# Artifact index — e08f696 Project 81 live proof run
+
+- **Candidate SHA:** `e08f696618da57e7267a2148578fa4ab0d8b0d01`
+- **Copied artifact tree:** `artifacts/`
+- **Cael roots copied:** 8 chunk/resume directories under `artifacts/cael/`
+- **Ronan roots copied:** 1 completed wrapper directory under `artifacts/ronan/`
+- **Grafana observation:** `artifacts/grafana/p81-webchat-heartbeats-1524619105712214016.png`
+
+## Top-level reports
+
+- Cael final report: `artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/report.html`
+- Cael final receipt: `artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/report-receipt.json`
+- Ronan final report: `artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/report.html`
+- Ronan final receipt: `artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/report-receipt.json`
+- Ronan wrapper log: `artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/console.log`
+- Ronan wrapper exit: `artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/exit.code`
+
+## Row evidence docs
+
+- `R-CD-1` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-1/EVIDENCE.md`
+- `R-CD-2` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-2/EVIDENCE.md`
+- `R-CD-3` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-3/EVIDENCE.md`
+- `R-CD-4` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-4/EVIDENCE.md`
+- `R-CD-CHAINED-DEPTH-2` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-CHAINED-DEPTH-2/EVIDENCE.md`
+- `R-CD-COLLECTION-ON-COLLAPSE` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md`
+- `R-CD-MODEL-CHAINED-ALT` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md`
+- `R-CD-MODEL-DEFAULT` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-DEFAULT/EVIDENCE.md`
+- `R-CD-MODEL-TOKEN` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-TOKEN/EVIDENCE.md`
+- `R-CD-MODEL-TOOL` — `partial` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-TOOL/EVIDENCE.md`
+- `R-CD-RETURN-OVERLAP` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-RETURN-OVERLAP/EVIDENCE.md`
+- `R-CD-SILENT` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-SILENT/EVIDENCE.md`
+- `R-CD-TOKEN` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-TOKEN/EVIDENCE.md`
+- `R-CONFIG-DEFAULTS` — `partial` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-DEFAULTS/EVIDENCE.md`
+- `R-CONFIG-INTERSESSION` — `partial` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-INTERSESSION/EVIDENCE.md`
+- `R-CW-1` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-1/EVIDENCE.md`
+- `R-CW-2` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-2/EVIDENCE.md`
+- `R-CW-3` — `honest_limit` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-3/EVIDENCE.md`
+- `R-CW-4` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-4/EVIDENCE.md`
+- `R-CW-5` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-5/EVIDENCE.md`
+- `R-CW-6` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-6/EVIDENCE.md`
+- `R-CW-7` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-7/EVIDENCE.md`
+- `R-CW-DELEGATE-CHILD-LIVE` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md`
+- `R-CW-DELEGATE-SELF-CONTINUATION` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md`
+- `R-CW-DELEGATE-TOKEN` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-DELEGATE-TOKEN/EVIDENCE.md`
+- `R-CW-MULTI` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI/EVIDENCE.md`
+- `R-CW-MULTI-COLLAPSE` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-MULTI-COLLAPSE/EVIDENCE.md`
+- `R-CW-TOKEN` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-TOKEN/EVIDENCE.md`
+- `R-OBS-1` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-1/EVIDENCE.md`
+- `R-OBS-2` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-2/EVIDENCE.md`
+- `R-OBS-STATUS` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-STATUS/EVIDENCE.md`
+- `R-RC-1` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-RC-1/EVIDENCE.md`
+- `R-RC-2` — `honest_limit` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-RC-2/EVIDENCE.md`
+- `R-REGRESSION-TRAP-TESTS` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-REGRESSION-TRAP-TESTS/EVIDENCE.md`
+- `R-TRACE-REDACTION-1121` — `pass` — `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-TRACE-REDACTION-1121/EVIDENCE.md`

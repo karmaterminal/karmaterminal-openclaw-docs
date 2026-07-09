@@ -1,0 +1,17 @@
+# R-CD-1 evidence — e08f696 live P81 run
+
+- **Aggregate state:** `pass`
+- **Candidate SHA:** `e08f696618da57e7267a2148578fa4ab0d8b0d01`
+- **Issue links:** none
+
+## Seat artifacts
+
+| Seat | Run-result verdict | Evidence object | Run-result path |
+|---|---:|---:|---|
+| cael | `PASS-candidate` | `false` | `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/cael/p81-cael-live-20260709T030352Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-1/cael/20260709T030355Z-r-cd-1/run-result.json` |
+| ronan | `PASS-candidate` | `false` | `PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-1/ronan/20260709T032348Z-r-cd-1/run-result.json` |
+
+## Notes
+
+- Raw/redacted k6 output, row logs, report receipts, and generated `run-result.json` files are preserved under `artifacts/`.
+- These are live-candidate artifacts: candidate states still require human fold review before becoming canonical PASS rows.

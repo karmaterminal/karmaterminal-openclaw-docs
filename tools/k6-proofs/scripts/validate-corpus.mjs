@@ -239,11 +239,11 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
   );
 
   const onDiskRowDirs = listSubdirs(shaDir) || [];
-  const supportDirs = new Set(['gates']);
+  const supportDirs = new Set(['artifacts', 'gates']);
   const ignoredSupportDirs = [];
   const orphanDirs = [];
   for (const sub of onDiskRowDirs) {
-    if (supportDirs.has(sub)) {
+    if (supportDirs.has(sub) || sub.startsWith('_')) {
       ignoredSupportDirs.push(`PROOFS/${sha}/${sub}/`);
       continue;
     }

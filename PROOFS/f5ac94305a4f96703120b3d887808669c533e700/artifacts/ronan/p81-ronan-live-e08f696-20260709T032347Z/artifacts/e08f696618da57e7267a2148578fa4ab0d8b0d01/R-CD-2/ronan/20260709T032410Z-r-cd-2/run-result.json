@@ -1,0 +1,46 @@
+{
+  "k6ExitCode": 0,
+  "endedAt": "2026-07-09T03:24:25Z",
+  "verdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-cd-2-summary.json"
+  ],
+  "evidence": {
+    "agent_turn_observed": true,
+    "candidateSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+    "channel_message_observed": false,
+    "child_session": null,
+    "created_session_key": "agent:main:r-cd-2-r-cd-2-1783567450068-qsfz7wf4",
+    "dispatch_accepted_at_ms": 1783567451204,
+    "dispatch_channel_message_observed": true,
+    "duration_ms": 15505,
+    "ended": "2026-07-09T03:24:25.573Z",
+    "manifest_loaded": true,
+    "nonce": "R-CD-2-1783567450068-qsfz7wf4",
+    "parent_wake_observed": true,
+    "requestedSessionKey": "main",
+    "row": "R-CD-2",
+    "seat": "ronan",
+    "sessionKey": "agent:main:r-cd-2-r-cd-2-1783567450068-qsfz7wf4",
+    "session_created": true,
+    "started": "2026-07-09T03:24:10.068Z",
+    "task_created": false,
+    "task_mode": null,
+    "tool_accepted": true,
+    "trace_id": null,
+    "wake_gate_ms": 5000
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "missing",
+    "traceId": null,
+    "tempoTraceJson": null
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "tempo-trace-json"
+    ]
+  }
+}

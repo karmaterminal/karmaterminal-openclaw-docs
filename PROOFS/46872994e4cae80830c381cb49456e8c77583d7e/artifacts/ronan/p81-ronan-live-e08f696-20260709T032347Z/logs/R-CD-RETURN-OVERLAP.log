@@ -1,0 +1,49 @@
+Resolving session key for selector: discord-channel:1466192485440164011
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: ronan
+Target Candidate SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Deployed Runtime SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Session: main
+Artifact root: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts
+Rows: R-CD-RETURN-OVERLAP
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/seat-readiness.json
+
+----------------------------------------
+Row: R-CD-RETURN-OVERLAP
+Manifest: /home/figs/source/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-return-overlap.json
+Scenario: scenarios/r-cd-return-overlap.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-RETURN-OVERLAP] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-return-overlap.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * r_cd_return_overlap_static: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-07-08T20:29:16-07:00" level=info msg="R_CD_RETURN_OVERLAP_EVIDENCE {\"row\":\"R-CD-RETURN-OVERLAP\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"started\":\"2026-07-09T03:29:16.628Z\",\"pass_with_caveat_present\":true,\"silent_flow_present\":true,\"silent_wake_flow_present\":true,\"both_markers_in_tasks\":true,\"both_targeted_returns_in_journal\":true,\"no_duplicate_storm_claim_present\":true,\"tempo_trace_present\":true,\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/EVIDENCE.md\",\"flowRows\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/db/flow-rows-concise.json\",\"taskRows\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/db/task-rows-concise.json\",\"journal\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/journal/journal-filtered.log\",\"tempo\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/tempo/trace-0d676f84623ebfe6499a324d039ee050-summary.json\"},\"ended\":\"2026-07-09T03:29:16.630Z\",\"duration_ms\":2,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_return_overlap_static ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+./r-cd-return-overlap-summary.json
+[R-CD-RETURN-OVERLAP] METRICS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-RETURN-OVERLAP/ronan/20260709T032916Z-r-cd-return-overlap/openclaw-proofs-k6.prom
+[R-CD-RETURN-OVERLAP] ARTIFACTS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-RETURN-OVERLAP/ronan/20260709T032916Z-r-cd-return-overlap
+[R-CD-RETURN-OVERLAP] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/report.html
+
+==========================================================
+Runner execution finished.

@@ -1,0 +1,90 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CW-2",
+  "issue": 117,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cw-2-immediate-wake",
+    "description": "Typed continue_work(delaySeconds=0) immediate wake proof. Requires an explicit scheduled sentinel and a continuation wake sentinel, while ignoring harness prompt echoes.",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe"
+    ],
+    "status": "runnable",
+    "file": "r-cw-2-immediate-wake.js"
+  },
+  "invocation": {
+    "tool": "continue_work",
+    "delaySeconds": 0,
+    "reason": "k6-proof-R-CW-2-immediate-{{nonce}}",
+    "idempotencyKeyPrefix": "R-CW-2"
+  },
+  "expectedReceipts": [
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the sessions.send turn that asks the agent to call continue_work(delaySeconds=0)."
+    },
+    {
+      "name": "continue-work-tool-result-scheduled",
+      "required": true,
+      "description": "Agent emitted CW2-SCHEDULED only after the continue_work tool result reported scheduled."
+    },
+    {
+      "name": "immediate-wake-event",
+      "required": true,
+      "description": "Continuation wake turn emitted CW2-WOKE nonce sentinel."
+    },
+    {
+      "name": "prompt-echo-filtered",
+      "required": true,
+      "description": "Harness prompt echo was ignored; CW2-WOKE is only accepted after CW2-SCHEDULED."
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID from dispatch response or optional task metadata for Tempo fetch."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CW-2",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "PASS-candidate requires dispatch accepted, explicit scheduled sentinel, explicit immediate wake sentinel, and prompt-echo filtering. Prefer disposable sessions."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "dispatch-accepted",
+      "continue-work-tool-result-scheduled",
+      "immediate-wake-event",
+      "prompt-echo-filtered"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live continue_work delaySeconds=0 row. Serialize per target session. Disposable-session smoke may honestly stop at scheduled-only on runtimes where disposable sessions do not service self-elected continuation wakes; canonical PASS requires a CW2-WOKE receipt from the target session history or live websocket stream."
+  }
+}

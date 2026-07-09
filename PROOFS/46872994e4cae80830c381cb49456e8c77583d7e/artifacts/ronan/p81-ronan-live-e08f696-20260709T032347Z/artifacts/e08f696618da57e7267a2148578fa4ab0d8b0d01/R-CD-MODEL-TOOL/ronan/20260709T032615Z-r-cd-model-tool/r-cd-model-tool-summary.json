@@ -1,0 +1,21 @@
+{
+  "row": "R-CD-MODEL-TOOL",
+  "sha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "seat": "ronan",
+  "timestamp": "2026-07-09T03:29:15.468Z",
+  "verdict": "PARTIAL-candidate",
+  "requestedModel": null,
+  "observedModel": null,
+  "honestLimitReason": null,
+  "metrics": {
+    "duration_ms": {
+      "p(90)": 180352,
+      "p(95)": 180352,
+      "avg": 180352,
+      "min": 180352,
+      "med": 180352,
+      "max": 180352
+    },
+    "failures": 1
+  }
+}

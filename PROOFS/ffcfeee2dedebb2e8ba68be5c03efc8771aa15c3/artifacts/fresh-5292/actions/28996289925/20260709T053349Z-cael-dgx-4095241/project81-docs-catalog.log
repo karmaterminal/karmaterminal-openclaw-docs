@@ -1,0 +1,110 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+Deployed Runtime SHA: OpenClaw 2026.6.11 (5292af4)
+Session: p81-5292-cael-r-obs-1
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/project81-k6/20260709T053349Z-cael-dgx-4095241
+Rows: R-OBS-1
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/project81-k6/20260709T053349Z-cael-dgx-4095241/seat-readiness.json
+
+----------------------------------------
+Row: R-OBS-1
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-obs-1.json
+Scenario: scenarios/r-obs-1.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-1] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-1.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m0s max duration (incl. graceful stop):
+              * r_obs_1: 1 iterations shared among 1 VUs (maxDuration: 1m30s, gracefulStop: 30s)
+
+time="2026-07-08T22:33:52-07:00" level=info msg="✓ disposable session created: agent:main:r-obs-1-r-obs-1-1783575232072-gjlh0uo2" source=console
+time="2026-07-08T22:33:52-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for R-OBS-1 status-card read" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m01.0s/1m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m02.0s/1m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m03.0s/1m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m04.0s/1m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m05.0s/1m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m06.0s/1m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m07.0s/1m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m08.0s/1m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m09.0s/1m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m10.0s/1m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m11.0s/1m30s  0/1 shared iters
+time="2026-07-08T22:34:03-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m12.0s/1m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m13.0s/1m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m14.0s/1m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m15.0s/1m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m16.0s/1m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m17.0s/1m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m18.0s/1m30s  0/1 shared iters
+time="2026-07-08T22:34:10-07:00" level=info msg="ℹ OBS1-STATUS sentinel prefix observed; waiting for complete streamed sentinel" source=console
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m19.0s/1m30s  0/1 shared iters
+time="2026-07-08T22:34:11-07:00" level=info msg="✓ OBS1-STATUS sentinel observed: {\"build\":\"yes\",\"context\":\"yes\",\"chain\":\"yes\",\"route\":\"yes\"}" source=console
+time="2026-07-08T22:34:11-07:00" level=info msg="R_OBS_1_EVIDENCE {\"row\":\"R-OBS-1\",\"manifest_loaded\":true,\"nonce\":\"R-OBS-1-1783575232072-gjlh0uo2\",\"seat\":\"cael\",\"requestedSessionKey\":\"p81-5292-cael-r-obs-1\",\"sessionKey\":\"agent:main:r-obs-1-r-obs-1-1783575232072-gjlh0uo2\",\"session_created\":true,\"created_session_key\":\"agent:main:r-obs-1-r-obs-1-1783575232072-gjlh0uo2\",\"candidateSha\":\"5292af40d0ad5303b85a678f6e629503a8725848\",\"started\":\"2026-07-09T05:33:52.072Z\",\"dispatch_accepted\":true,\"status_card_observed\":true,\"build_visible\":true,\"context_visible\":true,\"continuation_chain_visible\":true,\"route_visible\":true,\"trace_id\":null,\"redacted_events\":[{\"ts\":1783575232074,\"kind\":\"event\",\"method\":null,\"event\":\"connect.challenge\",\"ok\":null,\"data\":null},{\"ts\":1783575232076,\"kind\":\"other\",\"method\":null,\"event\":null,\"ok\":null,\"data\":null},{\"ts\":1783575232151,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575232434,\"kind\":\"response\",\"method\":\"sessions.create\",\"event\":null,\"ok\":true,\"data\":{\"ok\":true}},{\"ts\":1783575232471,\"kind\":\"response\",\"method\":\"sessions.messages.subscribe\",\"event\":null,\"ok\":true,\"data\":{}},{\"ts\":1783575232974,\"kind\":\"response\",\"method\":\"sessions.send\",\"event\":null,\"ok\":true,\"data\":{\"runId\":\"R-OBS-1-R-OBS-1-1783575232072-gjlh0uo2\",\"status\":\"started\"}},{\"ts\":1783575233656,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575237274,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575238939,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575238948,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575239139,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575243096,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575243097,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783575243259,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575243303,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":null},{\"ts\":1783575246093,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":null},{\"ts\":1783575246127,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575246198,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575246205,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575246278,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575246306,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575246354,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575246359,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575246807,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575250589,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575250589,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783575250999,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575250999,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575250999,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783575251071,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":null}],\"ended\":\"2026-07-09T05:34:11.072Z\",\"duration_ms\":19000}" source=console
+
+running (0m19.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_1 ✓ [ 100% ] 1 VUs  0m19.0s/1m30s  1/1 shared iters
+./r-obs-1-summary.json
+[R-OBS-1] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/project81-k6/20260709T053349Z-cael-dgx-4095241/5292af40d0ad5303b85a678f6e629503a8725848/R-OBS-1/cael/20260709T053352Z-r-obs-1/openclaw-proofs-k6.prom
+[R-OBS-1] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/project81-k6/20260709T053349Z-cael-dgx-4095241/5292af40d0ad5303b85a678f6e629503a8725848/R-OBS-1/cael/20260709T053352Z-r-obs-1
+[R-OBS-1] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/project81-k6/20260709T053349Z-cael-dgx-4095241/report.html
+
+==========================================================
+Runner execution finished.

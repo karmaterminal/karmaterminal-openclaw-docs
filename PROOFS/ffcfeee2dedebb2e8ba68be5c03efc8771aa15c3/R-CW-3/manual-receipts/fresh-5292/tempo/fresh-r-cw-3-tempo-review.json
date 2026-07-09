@@ -1,0 +1,33 @@
+{
+  "reviewedAt": "2026-07-09T06:18:00Z",
+  "row": "R-CW-3",
+  "proofSourceSha": "5292af40d0ad5303b85a678f6e629503a8725848",
+  "proofPushSha": "ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3",
+  "source": "Grafana Tempo proxy late-span search after fresh split runs; trace IDs were not emitted by the Gateway WebSocket row API, but spans were queryable after ingestion by seat/time/window.",
+  "checks": {
+    "cael": {
+      "traceId": "7c1236c6550a5f4ed19573f18ccde810",
+      "traceFile": "manual-receipts/fresh-5292/tempo/cael-r-cw-3-fresh-tempo-trace.json",
+      "hasContinueWorkTool": true,
+      "hasContinuationWorkSpan": true,
+      "reasonPresent": true,
+      "reasonLengthPresent": true,
+      "reasonHashPresent": true,
+      "rawReasonAbsent": true,
+      "matchedRunWindow": "2026-07-09T05:30:13.491Z..2026-07-09T05:30:33.890Z",
+      "matchedScheduledResultMs": 1783575027920
+    },
+    "ronan": {
+      "traceId": "9e95809415bda13476ae01f7c308af4",
+      "traceFile": "manual-receipts/fresh-5292/tempo/ronan-r-cw-3-fresh-tempo-trace.json",
+      "hasContinueWorkTool": true,
+      "hasContinuationWorkSpan": true,
+      "reasonPresent": true,
+      "reasonLengthPresent": true,
+      "reasonHashPresent": true,
+      "rawReasonAbsent": true,
+      "matchedRunWindow": "2026-07-09T05:31:13.279Z..2026-07-09T05:31:55.299Z",
+      "matchedScheduledResultMs": 1783575088861
+    }
+  }
+}

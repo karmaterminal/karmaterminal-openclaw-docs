@@ -1,0 +1,107 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+Deployed Runtime SHA: OpenClaw 2026.6.11 (5292af4)
+Session: p81-5292-cael-r-cd-1
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/project81-k6/20260709T054406Z-cael-dgx-4128052
+Rows: R-CD-1
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/project81-k6/20260709T054406Z-cael-dgx-4128052/seat-readiness.json
+
+----------------------------------------
+Row: R-CD-1
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-1.json
+Scenario: scenarios/r-cd-1-typed-delegate.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-1] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-1-typed-delegate.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m0s max duration (incl. graceful stop):
+              * r_cd_1_typed_delegate: 1 iterations shared among 1 VUs (maxDuration: 2m30s, gracefulStop: 30s)
+
+time="2026-07-08T22:44:09-07:00" level=info msg="✓ disposable session created: agent:main:r-cd-1-r-cd-1-1783575849381-mc315l0r" source=console
+time="2026-07-08T22:44:10-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered (will call continue_delegate)" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m01.0s/2m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m02.0s/2m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m03.0s/2m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m04.0s/2m30s  0/1 shared iters
+time="2026-07-08T22:44:13-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m05.0s/2m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m06.0s/2m30s  0/1 shared iters
+time="2026-07-08T22:44:15-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m07.0s/2m30s  0/1 shared iters
+time="2026-07-08T22:44:17-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m08.0s/2m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m09.0s/2m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m10.0s/2m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m11.0s/2m30s  0/1 shared iters
+time="2026-07-08T22:44:20-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: session.message" source=console
+time="2026-07-08T22:44:20-07:00" level=info msg="ℹ Channel message from delegate return (expected for mode=normal)" source=console
+time="2026-07-08T22:44:20-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: agent" source=console
+time="2026-07-08T22:44:20-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: agent" source=console
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m12.0s/2m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m13.0s/2m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m14.0s/2m30s  0/1 shared iters
+time="2026-07-08T22:44:23-07:00" level=info msg="✓ CD1-DELEGATE-SCHEDULED sentinel observed post-dispatch: session.message" source=console
+time="2026-07-08T22:44:23-07:00" level=info msg="ℹ Channel message from delegate return (expected for mode=normal)" source=console
+time="2026-07-08T22:44:23-07:00" level=info msg="Required R-CD-1 receipts gathered, closing early" source=console
+time="2026-07-08T22:44:23-07:00" level=info msg="\n--- R-CD-1 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T22:44:23-07:00" level=info msg="{\n  \"row\": \"R-CD-1\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CD-1-1783575849381-mc315l0r\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"p81-5292-cael-r-cd-1\",\n  \"sessionKey\": \"agent:main:r-cd-1-r-cd-1-1783575849381-mc315l0r\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cd-1-r-cd-1-1783575849381-mc315l0r\",\n  \"candidateSha\": \"5292af40d0ad5303b85a678f6e629503a8725848\",\n  \"started\": \"2026-07-09T05:44:09.381Z\",\n  \"tool_invoke_accepted\": true,\n  \"delegate_scheduled_sentinel\": true,\n  \"parent_return_event\": true,\n  \"task_ledger_entry_optional\": false,\n  \"child_session_key\": null,\n  \"channel_message_observed\": true,\n  \"dispatch_accepted_at_ms\": 1783575850288,\n  \"wake_gate_ms\": 5000,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783575849382,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575849384,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575849479,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575849750,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783575849781,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783575850288,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CD-1-DISPATCH-R-CD-1-1783575849381-mc315l0r\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783575851015,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575853984,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575854755,\n      \"kind\": \"response\",\n      \"method\": \"tasks.list\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783575855622,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575855634,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575855676,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575857081,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575857081,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575857233,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575857279,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575859748,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575859875,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575860631,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575860647,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575860683,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575863368,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575863368,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575863451,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T05:44:23.451Z\",\n  \"duration_ms\": 14070\n}" source=console
+time="2026-07-08T22:44:23-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T22:44:23-07:00" level=info msg="\n[R-CD-1] VERDICT: PASS-candidate" source=console
+
+[R-CD-1] Summary: PASS-candidate | SHA: 5292af40d0ad5303b85a678f6e629503a8725848 | Seat: cael
+
+running (0m14.1s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_1_typed_delegate ✓ [ 100% ] 1 VUs  0m14.1s/2m30s  1/1 shared iters
+./r-cd-1-typed-delegate-summary.json
+[R-CD-1] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/project81-k6/20260709T054406Z-cael-dgx-4128052/5292af40d0ad5303b85a678f6e629503a8725848/R-CD-1/cael/20260709T054409Z-r-cd-1/openclaw-proofs-k6.prom
+[R-CD-1] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/project81-k6/20260709T054406Z-cael-dgx-4128052/5292af40d0ad5303b85a678f6e629503a8725848/R-CD-1/cael/20260709T054409Z-r-cd-1
+[R-CD-1] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/project81-k6/20260709T054406Z-cael-dgx-4128052/report.html
+
+==========================================================
+Runner execution finished.

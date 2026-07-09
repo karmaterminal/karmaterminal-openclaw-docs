@@ -52,6 +52,8 @@ node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \
 See [`docs/GOLDEN-PATH.md`](docs/GOLDEN-PATH.md). Output remains
 `PASS-candidate` / review-required and must not be folded automatically.
 
+- [`docs/PROOF-RUN-METHOD.md`](docs/PROOF-RUN-METHOD.md) is the short GATES/proof-round entrypoint: row enumeration, dry-run/live run shape, bootstrap workflow anchor, and the #331 receipt boundary.
+
 ### 1. Seat readiness / version preflight
 
 Run this before a proof row when the output may be folded or compared across seats:

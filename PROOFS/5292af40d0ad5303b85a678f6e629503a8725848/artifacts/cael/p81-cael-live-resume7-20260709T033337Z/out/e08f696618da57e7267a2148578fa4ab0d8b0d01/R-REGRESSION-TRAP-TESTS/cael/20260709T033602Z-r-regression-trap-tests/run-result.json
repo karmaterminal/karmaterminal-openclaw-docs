@@ -1,0 +1,45 @@
+{
+  "k6ExitCode": 0,
+  "endedAt": "2026-07-09T03:36:02Z",
+  "verdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-regression-trap-tests-summary.json"
+  ],
+  "evidence": {
+    "candidateSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+    "currentProofSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+    "duration_ms": 0,
+    "ended": "2026-07-09T03:36:02.576Z",
+    "manifest_loaded": true,
+    "required_tests_present": {
+      "src/agents/openclaw-tools.continuation-misconfig-warn.test.ts": true,
+      "src/agents/openclaw-tools.continuation-registration.test.ts": true,
+      "src/agents/tools/continuation-inventory-opts.test.ts": true,
+      "src/agents/tools/continuation-tools-registration.test.ts": true
+    },
+    "row": "R-REGRESSION-TRAP-TESTS",
+    "shard_pass_text_present": true,
+    "source_files": {
+      "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/EVIDENCE.md",
+      "log": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/regression-trap.log",
+      "sourceStatus": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/source-git-status.txt",
+      "testInventory": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/test-inventory.txt"
+    },
+    "source_sha_present": true,
+    "started": "2026-07-09T03:36:02.576Z",
+    "test_count_text_present": true,
+    "verdict": "PASS-candidate",
+    "verdict_text_present": true
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

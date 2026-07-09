@@ -1,0 +1,5 @@
+{
+  "schema": "openclaw.k6.proofs-report.v1",
+  "out": "/tmp/p81-cael-model-tool-gemini-20260709T042513Z/out/report.html",
+  "rows": 1
+}

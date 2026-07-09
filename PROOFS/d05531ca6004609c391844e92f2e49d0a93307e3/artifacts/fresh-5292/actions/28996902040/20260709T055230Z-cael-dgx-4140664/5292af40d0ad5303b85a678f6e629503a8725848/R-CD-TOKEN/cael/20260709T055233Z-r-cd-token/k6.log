@@ -1,0 +1,72 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-token-bracket-delegate.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 4m0s max duration (incl. graceful stop):
+              * r_cd_token_bracket_delegate: 1 iterations shared among 1 VUs (maxDuration: 3m30s, gracefulStop: 30s)
+
+time="2026-07-08T22:52:33-07:00" level=info msg="✓ disposable session created: agent:main:r-cd-token-r-cd-token-1783576353472-leus3ui0" source=console
+time="2026-07-08T22:52:34-07:00" level=info msg="✓ sessions.send accepted — parent agent turn triggered" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_token_bracket_delegate   [   0% ] 1 VUs  0m01.0s/3m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_token_bracket_delegate   [   0% ] 1 VUs  0m02.0s/3m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_token_bracket_delegate   [   0% ] 1 VUs  0m03.0s/3m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_token_bracket_delegate   [   0% ] 1 VUs  0m04.0s/3m30s  0/1 shared iters
+time="2026-07-08T22:52:37-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_token_bracket_delegate   [   0% ] 1 VUs  0m05.0s/3m30s  0/1 shared iters
+time="2026-07-08T22:52:39-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_token_bracket_delegate   [   0% ] 1 VUs  0m06.0s/3m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_token_bracket_delegate   [   0% ] 1 VUs  0m07.0s/3m30s  0/1 shared iters
+time="2026-07-08T22:52:40-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_token_bracket_delegate   [   0% ] 1 VUs  0m08.0s/3m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_token_bracket_delegate   [   0% ] 1 VUs  0m09.0s/3m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_token_bracket_delegate   [   0% ] 1 VUs  0m10.0s/3m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_token_bracket_delegate   [   0% ] 1 VUs  0m11.0s/3m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_token_bracket_delegate   [   0% ] 1 VUs  0m12.0s/3m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_token_bracket_delegate   [   0% ] 1 VUs  0m13.0s/3m30s  0/1 shared iters
+time="2026-07-08T22:52:46-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-08T22:52:46-07:00" level=info msg="✓ bracket-token child turn observed" source=console
+time="2026-07-08T22:52:46-07:00" level=info msg="✓ CD-TOKEN-DELEGATE-DONE return sentinel observed" source=console
+time="2026-07-08T22:52:46-07:00" level=info msg="All required R-CD-TOKEN evidence gathered, closing early" source=console
+time="2026-07-08T22:52:46-07:00" level=info msg="\n--- R-CD-TOKEN EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T22:52:46-07:00" level=info msg="{\n  \"row\": \"R-CD-TOKEN\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CD-TOKEN-1783576353472-leus3ui0\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"p81-5292-cael-r-cd-token\",\n  \"sessionKey\": \"agent:main:r-cd-token-r-cd-token-1783576353472-leus3ui0\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cd-token-r-cd-token-1783576353472-leus3ui0\",\n  \"candidateSha\": \"5292af40d0ad5303b85a678f6e629503a8725848\",\n  \"started\": \"2026-07-09T05:52:33.472Z\",\n  \"prompt_injected\": true,\n  \"subagent_spawn_requested\": true,\n  \"subagent_spawn_accepted\": true,\n  \"bracket_token_observed\": true,\n  \"delegate_spawn_or_return_observed\": true,\n  \"child_spawned\": true,\n  \"parent_return_event\": true,\n  \"dispatch_accepted_at_ms\": 1783576354404,\n  \"child_session_key\": null,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783576353473,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576353475,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576353519,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576353865,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783576353896,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783576354404,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CD-TOKEN-DISPATCH-R-CD-TOKEN-1783576353472-leus3ui0\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783576355158,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576357963,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576359105,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576359116,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576359382,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576360765,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576360765,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576360939,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576360987,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576366906,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T05:52:46.906Z\",\n  \"duration_ms\": 13434\n}" source=console
+time="2026-07-08T22:52:46-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T22:52:46-07:00" level=info msg="\n[R-CD-TOKEN] VERDICT: PASS-candidate" source=console
+
+[R-CD-TOKEN] Summary: PASS-candidate | SHA: 5292af40d0ad5303b85a678f6e629503a8725848 | Seat: cael
+
+running (0m13.4s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_token_bracket_delegate ✓ [ 100% ] 1 VUs  0m13.4s/3m30s  1/1 shared iters

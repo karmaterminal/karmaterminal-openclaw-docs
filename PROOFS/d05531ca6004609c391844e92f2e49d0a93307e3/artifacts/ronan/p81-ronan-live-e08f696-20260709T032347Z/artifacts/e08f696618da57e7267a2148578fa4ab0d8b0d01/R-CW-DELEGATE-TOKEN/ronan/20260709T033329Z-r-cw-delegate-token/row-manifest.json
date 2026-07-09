@@ -1,0 +1,62 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CW-DELEGATE-TOKEN",
+  "issue": 221,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "offline",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 15,
+  "scenario": {
+    "name": "static-corpus-row-validator",
+    "description": "Static validator for committed delegate child bare-token continuation receipts.",
+    "methods": [
+      "manual-corpus-review",
+      "static-artifact-parse"
+    ],
+    "status": "runnable",
+    "file": "static-corpus-row-validator.js"
+  },
+  "expectedReceipts": [
+    {
+      "name": "delegate-token-artifacts",
+      "required": true,
+      "description": "Current PROOFS corpus receipts parse for this row."
+    },
+    {
+      "name": "bare-token-hop2-executed",
+      "required": true,
+      "description": "Committed evidence satisfies the row-specific PASS predicate."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CW-DELEGATE-TOKEN",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "manual-corpus"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Static artifact validator for R-CW-DELEGATE-TOKEN. Validates committed corpus receipts; does not fire live behavior."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "delegate-token-artifacts",
+      "bare-token-hop2-executed"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Offline/static current-corpus validator; safe in broad suite because it does not connect to or mutate gateway state."
+  }
+}

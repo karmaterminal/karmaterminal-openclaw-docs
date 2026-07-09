@@ -23,11 +23,11 @@
   },
   "rollup": {
     "total_rows": 35,
-    "pass": 30,
-    "partial": 3,
+    "pass": 33,
+    "partial": 1,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 2,
+    "honest_limit": 1,
     "missing": 0
   },
   "rows": [
@@ -357,10 +357,10 @@
       "row": "R-CONFIG-DEFAULTS",
       "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-DEFAULTS/",
-      "state": "partial",
+      "state": "pass",
       "traces": 0,
       "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-DEFAULTS/EVIDENCE.md",
-      "note": "Partial on both Cael/Ronan: config read/default byte not fully observed. Tracked in #368.",
+      "note": "Manual path-scoped config receipts added under manual-receipts/: Cael and Ronan both expose agents.defaults.continuation bytes; original k6 partial preserved as method friction (#368).",
       "seat_results": [
         {
           "seat": "cael",
@@ -377,16 +377,21 @@
       ],
       "issues": [
         "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/368"
+      ],
+      "manual_receipts": [
+        "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-DEFAULTS/manual-receipts/cael-continuation-config.json",
+        "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-DEFAULTS/manual-receipts/ronan-continuation-config.json",
+        "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-DEFAULTS/manual-receipts/MANUAL-REVIEW.md"
       ]
     },
     {
       "row": "R-CONFIG-INTERSESSION",
       "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-INTERSESSION/",
-      "state": "partial",
+      "state": "pass",
       "traces": 0,
       "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-INTERSESSION/EVIDENCE.md",
-      "note": "Partial on both Cael/Ronan: config read/cross-session byte not fully observed. Tracked in #369.",
+      "note": "Manual path-scoped config receipts added under manual-receipts/: Cael and Ronan both expose crossSessionTargeting=\"enabled\"; original k6 partial preserved as method friction (#369).",
       "seat_results": [
         {
           "seat": "cael",
@@ -403,6 +408,11 @@
       ],
       "issues": [
         "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/369"
+      ],
+      "manual_receipts": [
+        "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-INTERSESSION/manual-receipts/cael-cross-session-targeting.json",
+        "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-INTERSESSION/manual-receipts/ronan-cross-session-targeting.json",
+        "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-INTERSESSION/manual-receipts/MANUAL-REVIEW.md"
       ]
     },
     {
@@ -461,10 +471,10 @@
       "row": "R-CW-3",
       "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-3/",
-      "state": "honest_limit",
+      "state": "pass",
       "traces": 0,
       "evidence_doc": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-3/EVIDENCE.md",
-      "note": "No clean PASS fold: Cael partial on missing wake/Tempo receipt after accepted dispatch; Ronan HONEST-LIMIT-candidate. Tracked in #372.",
+      "note": "Manual Tempo receipt added under manual-receipts/: Ronan proved dispatch/schedule/wake and trace review shows safe reason telemetry (present/length/hash) with raw reason sentinel absent; Cael partial preserved as method friction (#372).",
       "seat_results": [
         {
           "seat": "cael",
@@ -481,6 +491,11 @@
       ],
       "issues": [
         "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/372"
+      ],
+      "manual_receipts": [
+        "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-3/manual-receipts/tempo/ronan-continue-work-schedule-trace.json",
+        "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-3/manual-receipts/tempo/ronan-continue-work-tempo-review.json",
+        "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-3/manual-receipts/MANUAL-REVIEW.md"
       ]
     },
     {

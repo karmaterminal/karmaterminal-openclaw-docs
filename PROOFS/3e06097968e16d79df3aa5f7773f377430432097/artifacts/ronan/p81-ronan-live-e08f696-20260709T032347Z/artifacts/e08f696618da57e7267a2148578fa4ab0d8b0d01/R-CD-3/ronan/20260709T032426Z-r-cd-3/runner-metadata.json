@@ -1,0 +1,9 @@
+{
+  "row": "R-CD-3",
+  "scenario": "r-cd-3-post-compaction.js",
+  "candidateSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "runtimeBuildSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "seat": "ronan",
+  "sessionKey": "main",
+  "startedAt": "2026-07-09T03:24:26Z"
+}

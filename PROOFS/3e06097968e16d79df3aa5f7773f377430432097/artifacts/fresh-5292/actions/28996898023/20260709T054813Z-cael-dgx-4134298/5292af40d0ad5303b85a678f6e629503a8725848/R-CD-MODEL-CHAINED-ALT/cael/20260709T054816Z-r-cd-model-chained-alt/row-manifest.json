@@ -1,0 +1,116 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "issue": 140,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "mutates": false,
+  "timeoutSeconds": 180,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "rowId": "R-CD-MODEL-CHAINED-ALT",
+  "toolSurface": "typed-tool",
+  "scenario": {
+    "name": "r-cd-model-chained-alt",
+    "description": "Depth-1 delegate schedules a depth-2 continue_delegate with explicit alternate model; depth-2 reports observed model/provider.",
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe"
+    ],
+    "status": "runnable",
+    "notes": "Nested model override row; fire sequentially and avoid concurrent continuation rows in the same session.",
+    "file": "r-cd-model-chained-alt.js",
+    "registryNotes": "Runnable local conversion: parent schedules depth-1 delegate; depth-1 schedules depth-2 delegate with explicit model override and targetSessionKey back to root; root observes depth-2 model return."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "forms": [
+      "typed-tool-depth1-spawns-depth2-model-override"
+    ],
+    "model": "${OPENCLAW_ALT_MODEL:-gpt}",
+    "promptTemplate": "Proof nonce {{nonce}} depth-1: schedule one depth-2 continue_delegate with model=${OPENCLAW_ALT_MODEL:-gpt}; depth-2 reports current time, observed model/provider, and nonce. Do not mutate files.",
+    "idempotencyKeyPrefix": "R-CD-MODEL-CHAINED-ALT"
+  },
+  "expectedReceipts": [
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the parent request that asks the agent to call continue_delegate for this model row"
+    },
+    {
+      "name": "child-session-observed",
+      "required": true,
+      "description": "A nonce-correlated delegate child session/run is observed on the subscribed session stream or session history"
+    },
+    {
+      "name": "child-model-byte",
+      "required": true,
+      "description": "Observed child runtime model/provider byte from status/session metadata or child self-report backed by session metadata"
+    },
+    {
+      "name": "return-payload",
+      "required": true,
+      "description": "Delegate return includes the row nonce and observed model/provider summary"
+    },
+    {
+      "name": "trace-or-session-correlation",
+      "required": false,
+      "description": "Trace id, span tree, or session-event correlation tying dispatch to child and return"
+    },
+    {
+      "name": "depth-1-child-observed",
+      "required": true,
+      "description": "Depth-1 delegate session/run observed"
+    },
+    {
+      "name": "depth-2-child-observed",
+      "required": true,
+      "description": "Depth-2 delegate session/run observed"
+    },
+    {
+      "name": "depth-2-model-byte",
+      "required": true,
+      "description": "Depth-2 child reports/records the requested alternate provider/model"
+    },
+    {
+      "name": "depth-1-scheduled-inner",
+      "required": true,
+      "description": "Depth-1 child emitted sentinel after scheduling the depth-2 delegate with explicit model override"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-MODEL-CHAINED-ALT",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "PASS-candidate only when depth-2, not just depth-1, observes the explicit alternate model. If #1103 persists, this row should honestly limit on observed fallback/inheritance."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "dispatch-accepted",
+      "depth-1-child-observed",
+      "depth-1-scheduled-inner",
+      "depth-2-child-observed",
+      "depth-2-model-byte",
+      "return-payload"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Nested delegate/model row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Serialize per session. PASS requires depth-2, not just depth-1, to report the requested model byte."
+  }
+}

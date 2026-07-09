@@ -1,0 +1,72 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-config-intersession.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m0s max duration (incl. graceful stop):
+              * r_config_intersession: 1 iterations shared among 1 VUs (maxDuration: 1m30s, gracefulStop: 30s)
+
+time="2026-07-08T20:15:26-07:00" level=info msg="✓ disposable session created: agent:main:r-config-intersession-r-config-intersession-1783566926244-q2rx7nah" source=console
+time="2026-07-08T20:15:27-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for intersession config read" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_config_intersession   [   0% ] 1 VUs  0m01.0s/1m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_config_intersession   [   0% ] 1 VUs  0m02.0s/1m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_config_intersession   [   0% ] 1 VUs  0m03.0s/1m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_config_intersession   [   0% ] 1 VUs  0m04.0s/1m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_config_intersession   [   0% ] 1 VUs  0m05.0s/1m30s  0/1 shared iters
+time="2026-07-08T20:15:31-07:00" level=info msg="ℹ CONFIG-INTERSESSION sentinel prefix observed; waiting for complete streamed sentinel" source=console
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_config_intersession   [   0% ] 1 VUs  0m06.0s/1m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_config_intersession   [   0% ] 1 VUs  0m07.0s/1m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_config_intersession   [   0% ] 1 VUs  0m08.0s/1m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_config_intersession   [   0% ] 1 VUs  0m09.0s/1m30s  0/1 shared iters
+time="2026-07-08T20:15:36-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_config_intersession   [   0% ] 1 VUs  0m10.0s/1m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_config_intersession   [   0% ] 1 VUs  0m11.0s/1m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_config_intersession   [   0% ] 1 VUs  0m12.0s/1m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_config_intersession   [   0% ] 1 VUs  0m13.0s/1m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_config_intersession   [   0% ] 1 VUs  0m14.0s/1m30s  0/1 shared iters
+time="2026-07-08T20:15:40-07:00" level=error msg="✗ CONFIG-INTERSESSION-FAIL sentinel observed" source=console
+time="2026-07-08T20:15:40-07:00" level=info msg="\n--- R-CONFIG-INTERSESSION EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T20:15:40-07:00" level=info msg="{\n  \"row\": \"R-CONFIG-INTERSESSION\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CONFIG-INTERSESSION-1783566926244-q2rx7nah\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"main\",\n  \"sessionKey\": \"agent:main:r-config-intersession-r-config-intersession-1783566926244-q2rx7nah\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-config-intersession-r-config-intersession-1783566926244-q2rx7nah\",\n  \"candidateSha\": \"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\n  \"started\": \"2026-07-09T03:15:26.244Z\",\n  \"dispatch_accepted\": true,\n  \"config_read\": false,\n  \"cross_session_targeting\": null,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783566926245,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566926246,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566926292,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566926619,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783566926649,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783566927152,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CONFIG-INTERSESSION-R-CONFIG-INTERSESSION-1783566926244-q2rx7nah\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783566927857,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566931244,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566932877,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566932889,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566934969,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566936038,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566936038,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566936161,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566936200,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566940093,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566940093,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566940251,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T03:15:40.251Z\",\n  \"duration_ms\": 14007\n}" source=console
+time="2026-07-08T20:15:40-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T20:15:40-07:00" level=info msg="\n[R-CONFIG-INTERSESSION] VERDICT: PARTIAL-candidate" source=console
+
+[R-CONFIG-INTERSESSION] Summary: PARTIAL-candidate | SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01 | Seat: cael
+
+running (0m14.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_config_intersession ✓ [ 100% ] 1 VUs  0m14.0s/1m30s  1/1 shared iters
+time="2026-07-08T20:15:40-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"

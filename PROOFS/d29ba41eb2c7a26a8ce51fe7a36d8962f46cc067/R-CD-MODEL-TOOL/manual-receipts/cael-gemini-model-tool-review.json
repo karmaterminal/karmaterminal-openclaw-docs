@@ -1,0 +1,19 @@
+{
+  "row": "R-CD-MODEL-TOOL",
+  "seat": "cael",
+  "reviewedAt": "2026-07-09T04:29:00Z",
+  "artifactRoot": "PROOFS/d29ba41eb2c7a26a8ce51fe7a36d8962f46cc067/artifacts/cael/p81-cael-model-tool-gemini-20260709T042513Z",
+  "runDir": "out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-MODEL-TOOL/cael/20260709T042514Z-r-cd-model-tool",
+  "requestedModel": "github-copilot/gemini-3.1-pro-preview",
+  "observedModel": "github-copilot/gemini-3.1-pro-preview",
+  "checks": {
+    "dispatchAccepted": true,
+    "parentScheduledSentinel": true,
+    "childSessionObserved": true,
+    "childModelBytePresent": true,
+    "modelMatches": true,
+    "returnPayload": true,
+    "requestedModelOmittedFromChildTaskGuard": true
+  },
+  "note": "k6 console evidence emitted PASS-candidate; generated run-result/summary still say PARTIAL-candidate because postprocessing missed the evidence JSON line. Manual receipt uses the preserved k6 log evidence object."
+}

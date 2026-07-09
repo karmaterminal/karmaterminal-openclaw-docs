@@ -1,0 +1,9 @@
+{
+  "row": "R-CW-2",
+  "scenario": "r-cw-2-immediate-wake.js",
+  "candidateSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "runtimeBuildSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "seat": "ronan",
+  "sessionKey": "main",
+  "startedAt": "2026-07-09T03:31:33Z"
+}

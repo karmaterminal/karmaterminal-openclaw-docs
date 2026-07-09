@@ -1,0 +1,96 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-2",
+  "issue": 119,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-2-silent-wake",
+    "description": "continue_delegate(mode='silent-wake') full path. Fires a delegate that returns silently and triggers a fresh parent turn without channel output.",
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "tasks.list"
+    ],
+    "status": "runnable",
+    "file": "r-cd-2-silent-wake.js"
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "silent-wake",
+    "delaySeconds": 1,
+    "promptTemplate": "Proof nonce {{nonce}}: reply with DONE and the nonce only. Do not mutate files. Do not post to any channel.",
+    "idempotencyKeyPrefix": "R-CD-2"
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": true,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "dispatch-accepted",
+      "parent-wake-event",
+      "no-channel-delivery",
+      "trace-id"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live continuation row. Fail closed when token/session env is missing, serialize per target session, and treat generated output as a PASS-candidate until required receipts are reviewed."
+  },
+  "expectedReceipts": [
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the dispatching sessions.send request that asks the agent to call continue_delegate(mode=silent-wake)"
+    },
+    {
+      "name": "task-ledger-entry",
+      "required": false,
+      "description": "Optional extra context from the generic TaskFlow task ledger; continue_delegate does not reliably write here"
+    },
+    {
+      "name": "child-session-key",
+      "required": false,
+      "description": "Child session key from task metadata"
+    },
+    {
+      "name": "parent-wake-event",
+      "required": true,
+      "description": "Parent session wakes after silent return (session.message or run event with no channel delivery)"
+    },
+    {
+      "name": "no-channel-delivery",
+      "required": true,
+      "description": "Delegate return does NOT produce a channel message (silent mode verified)"
+    },
+    {
+      "name": "trace-id",
+      "required": true,
+      "description": "Trace ID from dispatch response or optional task metadata; Tempo trace JSON must be fetched before folding a PASS."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-2",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Silent-wake path. PASS-candidate when: (1) dispatching agent turn accepted, (2) parent session emits wake/agent events, (3) NO channel message delivered from the delegate return, and (4) trace/receipt artifacts are fetched for review. A nonce-correlated tasks.list row is optional because continue_delegate uses pending-delegate/subagent surfaces, not the generic task registry."
+  }
+}

@@ -1,0 +1,91 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+Deployed Runtime SHA: OpenClaw 2026.6.11 (5292af4)
+Session: p81-5292-cael-r-cd-4
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/project81-k6/20260709T054649Z-cael-dgx-4131753
+Rows: R-CD-4
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/project81-k6/20260709T054649Z-cael-dgx-4131753/seat-readiness.json
+
+----------------------------------------
+Row: R-CD-4
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-4.json
+Scenario: scenarios/r-cd-4-target-session-key.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-4] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-4-target-session-key.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m30s max duration (incl. graceful stop):
+              * r_cd_4_target_session: 1 iterations shared among 1 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+time="2026-07-08T22:46:52-07:00" level=info msg="✓ disposable parent session created: agent:main:r-cd-4-parent-r-cd-4-1783576011829-tul3lyj3" source=console
+time="2026-07-08T22:46:52-07:00" level=info msg="✓ disposable target session created: agent:main:r-cd-4-target-r-cd-4-1783576011829-tul3lyj3" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m01.0s/2m0s  0/1 shared iters
+time="2026-07-08T22:46:52-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for R-CD-4 (targetSessionKey)" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m02.0s/2m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m03.0s/2m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m04.0s/2m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m05.0s/2m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m06.0s/2m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m07.0s/2m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m08.0s/2m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m09.0s/2m0s  0/1 shared iters
+time="2026-07-08T22:47:00-07:00" level=info msg="✓ Delayed return/wake landed in TARGET session" source=console
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m10.0s/2m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m11.0s/2m0s  0/1 shared iters
+time="2026-07-08T22:47:02-07:00" level=info msg="R_CD_4_EVIDENCE {\"row\":\"R-CD-4\",\"manifest_loaded\":true,\"nonce\":\"R-CD-4-1783576011829-tul3lyj3\",\"seat\":\"cael\",\"requestedSessionKey\":\"p81-5292-cael-r-cd-4\",\"sessionKey\":\"agent:main:r-cd-4-parent-r-cd-4-1783576011829-tul3lyj3\",\"targetSessionKey\":\"agent:main:r-cd-4-target-r-cd-4-1783576011829-tul3lyj3\",\"parent_session_created\":true,\"target_session_created\":true,\"created_parent_session_key\":\"agent:main:r-cd-4-parent-r-cd-4-1783576011829-tul3lyj3\",\"created_target_session_key\":\"agent:main:r-cd-4-target-r-cd-4-1783576011829-tul3lyj3\",\"candidateSha\":\"5292af40d0ad5303b85a678f6e629503a8725848\",\"started\":\"2026-07-09T05:46:51.829Z\",\"tool_accepted\":true,\"agent_turn_observed\":true,\"child_completed\":true,\"return_in_target\":true,\"return_in_parent\":false,\"dispatch_accepted_at_ms\":1783576012886,\"wake_gate_ms\":5000,\"trace_id\":null,\"redacted_events\":[{\"ts\":1783576011831,\"kind\":\"event\",\"method\":null,\"event\":\"connect.challenge\",\"ok\":null,\"data\":null},{\"ts\":1783576011832,\"kind\":\"other\",\"method\":null,\"event\":null,\"ok\":null,\"data\":null},{\"ts\":1783576011939,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783576012204,\"kind\":\"response\",\"method\":\"sessions.create\",\"event\":null,\"ok\":true,\"data\":{\"ok\":true}},{\"ts\":1783576012347,\"kind\":\"response\",\"method\":\"sessions.create\",\"event\":null,\"ok\":true,\"data\":{\"ok\":true}},{\"ts\":1783576012383,\"kind\":\"response\",\"method\":\"sessions.messages.subscribe\",\"event\":null,\"ok\":true,\"data\":{}},{\"ts\":1783576012394,\"kind\":\"response\",\"method\":\"sessions.messages.subscribe\",\"event\":null,\"ok\":true,\"data\":{}},{\"ts\":1783576012886,\"kind\":\"response\",\"method\":\"sessions.send\",\"event\":null,\"ok\":true,\"data\":{\"runId\":\"R-CD-4-R-CD-4-1783576011829-tul3lyj3\",\"status\":\"started\"}},{\"ts\":1783576013765,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783576016723,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783576018355,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783576018368,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783576018624,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783576020357,\"kind\":\"response\",\"method\":\"tasks.list\",\"event\":null,\"ok\":true,\"data\":{}},{\"ts\":1783576020636,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783576020636,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783576020801,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783576020848,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":null}],\"ended\":\"2026-07-09T05:47:02.849Z\",\"duration_ms\":11020}" source=console
+time="2026-07-08T22:47:02-07:00" level=info msg="\n--- R-CD-4 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T22:47:02-07:00" level=info msg="{\n  \"row\": \"R-CD-4\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CD-4-1783576011829-tul3lyj3\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"p81-5292-cael-r-cd-4\",\n  \"sessionKey\": \"agent:main:r-cd-4-parent-r-cd-4-1783576011829-tul3lyj3\",\n  \"targetSessionKey\": \"agent:main:r-cd-4-target-r-cd-4-1783576011829-tul3lyj3\",\n  \"parent_session_created\": true,\n  \"target_session_created\": true,\n  \"created_parent_session_key\": \"agent:main:r-cd-4-parent-r-cd-4-1783576011829-tul3lyj3\",\n  \"created_target_session_key\": \"agent:main:r-cd-4-target-r-cd-4-1783576011829-tul3lyj3\",\n  \"candidateSha\": \"5292af40d0ad5303b85a678f6e629503a8725848\",\n  \"started\": \"2026-07-09T05:46:51.829Z\",\n  \"tool_accepted\": true,\n  \"agent_turn_observed\": true,\n  \"child_completed\": true,\n  \"return_in_target\": true,\n  \"return_in_parent\": false,\n  \"dispatch_accepted_at_ms\": 1783576012886,\n  \"wake_gate_ms\": 5000,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783576011831,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576011832,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576011939,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576012204,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783576012347,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783576012383,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783576012394,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783576012886,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CD-4-R-CD-4-1783576011829-tul3lyj3\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783576013765,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576016723,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576018355,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576018368,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576018624,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576020357,\n      \"kind\": \"response\",\n      \"method\": \"tasks.list\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783576020636,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576020636,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576020801,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576020848,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T05:47:02.849Z\",\n  \"duration_ms\": 11020\n}" source=console
+time="2026-07-08T22:47:02-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T22:47:02-07:00" level=info msg="\n[R-CD-4] VERDICT: PASS-candidate" source=console
+
+[R-CD-4] Summary: PASS-candidate | SHA: 5292af40d0ad5303b85a678f6e629503a8725848 | Seat: cael
+
+running (0m11.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_4_target_session ✓ [ 100% ] 1 VUs  0m11.0s/2m0s  1/1 shared iters
+./r-cd-4-summary.json
+[R-CD-4] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/project81-k6/20260709T054649Z-cael-dgx-4131753/5292af40d0ad5303b85a678f6e629503a8725848/R-CD-4/cael/20260709T054651Z-r-cd-4/openclaw-proofs-k6.prom
+[R-CD-4] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/project81-k6/20260709T054649Z-cael-dgx-4131753/5292af40d0ad5303b85a678f6e629503a8725848/R-CD-4/cael/20260709T054651Z-r-cd-4
+[R-CD-4] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ffcfeee2dedebb2e8ba68be5c03efc8771aa15c3/project81-k6/20260709T054649Z-cael-dgx-4131753/report.html
+
+==========================================================
+Runner execution finished.

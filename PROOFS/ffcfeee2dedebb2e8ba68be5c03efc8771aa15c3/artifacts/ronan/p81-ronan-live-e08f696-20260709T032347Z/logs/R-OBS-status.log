@@ -1,0 +1,49 @@
+Resolving session key for selector: discord-channel:1466192485440164011
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: ronan
+Target Candidate SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Deployed Runtime SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Session: main
+Artifact root: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts
+Rows: R-OBS-status
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/seat-readiness.json
+
+----------------------------------------
+Row: R-OBS-STATUS
+Manifest: /home/figs/source/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-obs-status.json
+Scenario: scenarios/r-obs-status.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-STATUS] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-status.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m0s max duration (incl. graceful stop):
+              * r_obs_status: 1 iterations shared among 1 VUs (maxDuration: 30s, gracefulStop: 30s)
+
+time="2026-07-08T20:36:26-07:00" level=info msg="R_OBS_STATUS_EVIDENCE {\"row\":\"R-OBS-status\",\"manifest_loaded\":true,\"seat\":\"ronan\",\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"started\":\"2026-07-09T03:36:25.559Z\",\"connected\":true,\"connect_ok\":true,\"status_ok\":true,\"status_payload\":{},\"trace_id\":null,\"redacted_events\":[{\"ts\":1783568185560,\"kind\":\"event\",\"method\":null,\"event\":\"connect.challenge\",\"ok\":null,\"data\":null},{\"ts\":1783568185565,\"kind\":\"other\",\"method\":null,\"event\":null,\"ok\":null,\"data\":null},{\"ts\":1783568185630,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783568186229,\"kind\":\"response\",\"method\":\"status\",\"event\":null,\"ok\":true,\"data\":{}}],\"ended\":\"2026-07-09T03:36:26.229Z\",\"duration_ms\":670}" source=console
+
+running (0m00.7s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_status ✓ [ 100% ] 1 VUs  00.7s/30s  1/1 shared iters
+./r-obs-status-summary.json
+[R-OBS-STATUS] METRICS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-STATUS/ronan/20260709T033625Z-r-obs-status/openclaw-proofs-k6.prom
+[R-OBS-STATUS] ARTIFACTS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-STATUS/ronan/20260709T033625Z-r-obs-status
+[R-OBS-STATUS] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/report.html
+
+==========================================================
+Runner execution finished.

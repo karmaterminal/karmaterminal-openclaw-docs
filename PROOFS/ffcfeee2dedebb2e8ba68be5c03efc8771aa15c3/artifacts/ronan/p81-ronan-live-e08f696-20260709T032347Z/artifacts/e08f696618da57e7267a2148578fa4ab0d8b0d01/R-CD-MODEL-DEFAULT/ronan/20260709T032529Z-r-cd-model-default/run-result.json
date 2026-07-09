@@ -1,0 +1,20 @@
+{
+  "k6ExitCode": 0,
+  "endedAt": "2026-07-09T03:25:48Z",
+  "verdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-cd-model-default-summary.json"
+  ],
+  "evidence": null,
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

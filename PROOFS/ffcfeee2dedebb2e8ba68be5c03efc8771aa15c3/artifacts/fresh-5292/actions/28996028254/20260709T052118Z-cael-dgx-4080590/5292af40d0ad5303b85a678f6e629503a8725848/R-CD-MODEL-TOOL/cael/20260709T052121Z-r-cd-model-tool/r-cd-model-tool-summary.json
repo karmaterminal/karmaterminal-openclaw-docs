@@ -1,0 +1,21 @@
+{
+  "row": "R-CD-MODEL-TOOL",
+  "sha": "5292af40d0ad5303b85a678f6e629503a8725848",
+  "seat": "cael",
+  "timestamp": "2026-07-09T05:21:51.461Z",
+  "verdict": "PARTIAL-candidate",
+  "requestedModel": "github-copilot/gemini-3.1-pro-preview",
+  "observedModel": null,
+  "honestLimitReason": null,
+  "metrics": {
+    "duration_ms": {
+      "max": 30028,
+      "p(90)": 30028,
+      "p(95)": 30028,
+      "avg": 30028,
+      "min": 30028,
+      "med": 30028
+    },
+    "failures": 0
+  }
+}

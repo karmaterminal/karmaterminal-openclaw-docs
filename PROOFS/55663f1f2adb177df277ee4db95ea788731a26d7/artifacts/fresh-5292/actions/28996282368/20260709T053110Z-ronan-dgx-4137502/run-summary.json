@@ -1,0 +1,21 @@
+{
+  "status": "live-run-complete",
+  "runId": "20260709T053110Z-ronan-dgx-4137502",
+  "targetPrince": "ronan",
+  "seatName": "ronan-dgx",
+  "candidateSha": "5292af40d0ad5303b85a678f6e629503a8725848",
+  "docsCatalog": {
+    "root": "/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/../karmaterminal-openclaw-docs",
+    "ref": "scribe/20260708/proofs-5292-rerun"
+  },
+  "rows": "R-CW-3",
+  "sessionSelector": "p81-5292-ronan-r-cw-3",
+  "sessionKey": "p81-5292-ronan-r-cw-3",
+  "outRoot": "/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/55663f1f2adb177df277ee4db95ea788731a26d7/project81-k6/20260709T053110Z-ronan-dgx-4137502",
+  "dryRun": false,
+  "openclawAltModel": "",
+  "artifacts": {
+    "log": "project81-docs-catalog.log",
+    "outRoot": "/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/55663f1f2adb177df277ee4db95ea788731a26d7/project81-k6/20260709T053110Z-ronan-dgx-4137502"
+  }
+}

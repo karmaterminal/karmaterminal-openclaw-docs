@@ -1,0 +1,332 @@
+RUN_ID=p81-cael-live-20260709T030352Z
+STARTED_AT=2026-07-09T03:03:53Z
+DOCS_SHA=2a57cd8528e43da3bc0f8adad7c48cd8470a5252
+TARGET_SHA=e08f696618da57e7267a2148578fa4ab0d8b0d01
+OPENCLAW_VERSION=OpenClaw 2026.6.11 (e08f696)
+Resolving session key for selector: discord-channel:1466192485440164011
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Deployed Runtime SHA: OpenClaw 2026.6.11 (e08f696)
+Session: main
+Artifact root: /tmp/p81-cael-live-20260709T030352Z/out
+Rows: preflight,R-CD-1,R-CD-2,R-CD-3,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-COLLECTION-ON-COLLAPSE,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-RETURN-OVERLAP,R-CD-SILENT,R-CD-TOKEN,R-CONFIG-defaults,R-CONFIG-INTERSESSION,R-CW-1,R-CW-2,R-CW-3,R-CW-4,R-CW-5,R-CW-6,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI-COLLAPSE,R-CW-MULTI,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-status,R-RC-1,R-RC-2,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/p81-cael-live-20260709T030352Z/out/seat-readiness.json
+
+----------------------------------------
+Row: PREFLIGHT
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/preflight.example.json
+Scenario: scenarios/preflight.js
+Status: runnable
+Live Safety: static-preflight-only
+[PREFLIGHT] SKIPPED: liveRunSafety classification (static-preflight-only) rejects unattended live fire.
+
+----------------------------------------
+Row: R-CD-1
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-cd-1.json
+Scenario: scenarios/r-cd-1-typed-delegate.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-1] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-1-typed-delegate.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m0s max duration (incl. graceful stop):
+              * r_cd_1_typed_delegate: 1 iterations shared among 1 VUs (maxDuration: 2m30s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m01.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:03:56-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered (will call continue_delegate)" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m02.0s/2m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m03.0s/2m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m04.0s/2m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m05.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:04:00-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m06.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:04:02-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m07.0s/2m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m08.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:04:04-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m09.0s/2m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m10.0s/2m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m11.0s/2m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m12.0s/2m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m13.0s/2m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m14.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:04:09-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: session.message" source=console
+time="2026-07-08T20:04:09-07:00" level=info msg="ℹ Channel message from delegate return (expected for mode=normal)" source=console
+time="2026-07-08T20:04:09-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: agent" source=console
+time="2026-07-08T20:04:09-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: agent" source=console
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m15.0s/2m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m16.0s/2m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m17.0s/2m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m18.0s/2m30s  0/1 shared iters
+time="2026-07-08T20:04:14-07:00" level=info msg="✓ CD1-DELEGATE-SCHEDULED sentinel observed post-dispatch: session.message" source=console
+time="2026-07-08T20:04:14-07:00" level=info msg="ℹ Channel message from delegate return (expected for mode=normal)" source=console
+time="2026-07-08T20:04:14-07:00" level=info msg="Required R-CD-1 receipts gathered, closing early" source=console
+time="2026-07-08T20:04:14-07:00" level=info msg="\n--- R-CD-1 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T20:04:14-07:00" level=info msg="{\n  \"row\": \"R-CD-1\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CD-1-1783566235698-b2phfke7\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"main\",\n  \"sessionKey\": \"main\",\n  \"session_created\": false,\n  \"created_session_key\": null,\n  \"candidateSha\": \"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\n  \"started\": \"2026-07-09T03:03:55.698Z\",\n  \"tool_invoke_accepted\": true,\n  \"delegate_scheduled_sentinel\": true,\n  \"parent_return_event\": true,\n  \"task_ledger_entry_optional\": false,\n  \"child_session_key\": null,\n  \"channel_message_observed\": true,\n  \"dispatch_accepted_at_ms\": 1783566236744,\n  \"wake_gate_ms\": 5000,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783566235702,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566235709,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566235778,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566236250,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783566236744,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CD-1-DISPATCH-R-CD-1-1783566235698-b2phfke7\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783566237554,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566240704,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566241253,\n      \"kind\": \"response\",\n      \"method\": \"tasks.list\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783566242609,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566242630,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566242664,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566244104,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566244105,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566244281,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566244324,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566249715,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566249730,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566249768,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566251211,\n      \"kind\": \"response\",\n      \"method\": \"tasks.list\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783566254174,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566254175,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566254292,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T03:04:14.292Z\",\n  \"duration_ms\": 18594\n}" source=console
+time="2026-07-08T20:04:14-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T20:04:14-07:00" level=info msg="\n[R-CD-1] VERDICT: PASS-candidate" source=console
+
+[R-CD-1] Summary: PASS-candidate | SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01 | Seat: cael
+
+running (0m18.6s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_1_typed_delegate ✓ [ 100% ] 1 VUs  0m18.6s/2m30s  1/1 shared iters
+./r-cd-1-typed-delegate-summary.json
+[R-CD-1] METRICS: /tmp/p81-cael-live-20260709T030352Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-1/cael/20260709T030355Z-r-cd-1/openclaw-proofs-k6.prom
+[R-CD-1] ARTIFACTS: /tmp/p81-cael-live-20260709T030352Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-1/cael/20260709T030355Z-r-cd-1
+[R-CD-1] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-2
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-cd-2.json
+Scenario: scenarios/r-cd-2-silent-wake.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-2] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-2-silent-wake.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m30s max duration (incl. graceful stop):
+              * r_cd_2_silent_wake: 1 iterations shared among 1 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m01.0s/2m0s  0/1 shared iters
+time="2026-07-08T20:04:15-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for R-CD-2 (mode=silent-wake)" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m02.0s/2m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m03.0s/2m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m04.0s/2m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m05.0s/2m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m06.0s/2m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m07.0s/2m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m08.0s/2m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m09.0s/2m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m10.0s/2m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m11.0s/2m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m12.0s/2m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m13.0s/2m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m14.0s/2m0s  0/1 shared iters
+time="2026-07-08T20:04:29-07:00" level=info msg="✓ delayed session.message event observed (silent-wake return candidate)" source=console
+time="2026-07-08T20:04:29-07:00" level=info msg="ℹ dispatch instruction channel event observed (not delegate return)" source=console
+time="2026-07-08T20:04:29-07:00" level=info msg="Primary silent-wake evidence gathered, closing early" source=console
+time="2026-07-08T20:04:29-07:00" level=info msg="R_CD_2_EVIDENCE {\"row\":\"R-CD-2\",\"manifest_loaded\":true,\"nonce\":\"R-CD-2-1783566254501-c16n8wsz\",\"seat\":\"cael\",\"sessionKey\":\"main\",\"requestedSessionKey\":\"main\",\"session_created\":false,\"created_session_key\":null,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"started\":\"2026-07-09T03:04:14.501Z\",\"tool_accepted\":true,\"task_created\":false,\"task_mode\":null,\"agent_turn_observed\":true,\"parent_wake_observed\":true,\"dispatch_channel_message_observed\":true,\"channel_message_observed\":false,\"dispatch_accepted_at_ms\":1783566255608,\"wake_gate_ms\":5000,\"child_session\":null,\"trace_id\":null,\"redacted_events\":[{\"ts\":1783566254502,\"kind\":\"event\",\"method\":null,\"event\":\"connect.challenge\",\"ok\":null,\"data\":null},{\"ts\":1783566254504,\"kind\":\"other\",\"method\":null,\"event\":null,\"ok\":null,\"data\":null},{\"ts\":1783566254593,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783566255019,\"kind\":\"response\",\"method\":\"sessions.messages.subscribe\",\"event\":null,\"ok\":true,\"data\":{}},{\"ts\":1783566255335,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566255336,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566255378,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566255579,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783566255608,\"kind\":\"response\",\"method\":\"sessions.send\",\"event\":null,\"ok\":true,\"data\":{\"runId\":\"R-CD-2-R-CD-2-1783566254501-c16n8wsz\",\"status\":\"started\"}},{\"ts\":1783566256713,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783566258027,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783566258146,\"kind\":\"event\",\"method\":null,\"event\":\"tick\",\"ok\":null,\"data\":null},{\"ts\":1783566260018,\"kind\":\"response\",\"method\":\"tasks.list\",\"event\":null,\"ok\":true,\"data\":{}},{\"ts\":1783566260118,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783566261326,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783566261341,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783566261374,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783566264419,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783566264419,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783566264759,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783566264840,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566264841,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566264843,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783566266359,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783566267822,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783566267833,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783566267870,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783566267905,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267905,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267905,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783566267905,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783566267906,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267907,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267908,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267908,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267909,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267910,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267911,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267911,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267912,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267912,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267913,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267913,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267914,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267914,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267915,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267915,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267916,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267916,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267917,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267917,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267918,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267918,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267919,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267919,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267920,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267920,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267921,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267921,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267921,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267925,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267927,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267927,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267927,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267928,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267929,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267929,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267930,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267930,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267939,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267940,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566267940,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783566267940,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783566268059,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566268059,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566268093,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783566268093,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783566268093,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783566268103,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566268145,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783566268263,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783566268285,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783566268316,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566268351,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566268706,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783566269128,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783566269128,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783566269253,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783566269296,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":null}],\"ended\":\"2026-07-09T03:04:29.296Z\",\"duration_ms\":14795}" source=console
+time="2026-07-08T20:04:29-07:00" level=info msg="\n--- R-CD-2 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T20:04:29-07:00" level=info msg="{\n  \"row\": \"R-CD-2\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CD-2-1783566254501-c16n8wsz\",\n  \"seat\": \"cael\",\n  \"sessionKey\": \"main\",\n  \"requestedSessionKey\": \"main\",\n  \"session_created\": false,\n  \"created_session_key\": null,\n  \"candidateSha\": \"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\n  \"started\": \"2026-07-09T03:04:14.501Z\",\n  \"tool_accepted\": true,\n  \"task_created\": false,\n  \"task_mode\": null,\n  \"agent_turn_observed\": true,\n  \"parent_wake_observed\": true,\n  \"dispatch_channel_message_observed\": true,\n  \"channel_message_observed\": false,\n  \"dispatch_accepted_at_ms\": 1783566255608,\n  \"wake_gate_ms\": 5000,\n  \"child_session\": null,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783566254502,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566254504,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566254593,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566255019,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783566255335,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566255336,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566255378,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566255579,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566255608,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CD-2-R-CD-2-1783566254501-c16n8wsz\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783566256713,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566258027,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566258146,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566260018,\n      \"kind\": \"response\",\n      \"method\": \"tasks.list\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783566260118,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566261326,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566261341,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566261374,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566264419,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566264419,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566264759,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566264840,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566264841,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566264843,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566266359,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267822,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267833,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267870,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267905,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267905,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267905,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267905,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267906,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267907,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267908,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267908,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267909,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267910,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267911,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267911,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267912,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267912,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267913,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267913,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267914,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267914,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267915,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267915,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267916,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267916,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267917,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267917,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267918,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267918,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267919,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267919,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267920,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267920,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267921,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267921,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267921,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267925,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267927,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267927,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267927,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267928,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267929,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267929,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267930,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267930,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267939,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267940,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267940,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566267940,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566268059,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566268059,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566268093,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566268093,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566268093,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566268103,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566268145,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566268263,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566268285,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566268316,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566268351,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566268706,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566269128,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566269128,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566269253,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566269296,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T03:04:29.296Z\",\n  \"duration_ms\": 14795\n}" source=console
+time="2026-07-08T20:04:29-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T20:04:29-07:00" level=info msg="\n[R-CD-2] VERDICT: PASS-candidate" source=console
+
+[R-CD-2] Summary: PASS-candidate | SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01 | Seat: cael
+
+running (0m14.8s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_2_silent_wake ✓ [ 100% ] 1 VUs  0m14.8s/2m0s  1/1 shared iters
+./r-cd-2-summary.json
+[R-CD-2] METRICS: /tmp/p81-cael-live-20260709T030352Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-2/cael/20260709T030414Z-r-cd-2/openclaw-proofs-k6.prom
+[R-CD-2] ARTIFACTS: /tmp/p81-cael-live-20260709T030352Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-2/cael/20260709T030414Z-r-cd-2
+[R-CD-2] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-3
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-cd-3.json
+Scenario: scenarios/r-cd-3-post-compaction.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-3] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-3-post-compaction.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m30s max duration (incl. graceful stop):
+              * r_cd_3_post_compaction: 1 iterations shared among 1 VUs (maxDuration: 3m0s, gracefulStop: 30s)
+
+time="2026-07-08T20:04:29-07:00" level=info msg="✓ disposable session created: agent:main:r-cd-3-r-cd-3-1783566269486-2enn2k80" source=console
+time="2026-07-08T20:04:30-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for R-CD-3" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m01.0s/3m0s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m02.0s/3m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m03.0s/3m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m04.0s/3m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m05.0s/3m0s  0/1 shared iters
+time="2026-07-08T20:04:35-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m06.0s/3m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m07.0s/3m0s  0/1 shared iters
+time="2026-07-08T20:04:36-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m08.0s/3m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m09.0s/3m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m10.0s/3m0s  0/1 shared iters
+time="2026-07-08T20:04:39-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m11.0s/3m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m12.0s/3m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m13.0s/3m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m14.0s/3m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m15.0s/3m0s  0/1 shared iters
+time="2026-07-08T20:04:44-07:00" level=info msg="✓ R-CD-3 post-compaction lifeboat return observed" source=console
+time="2026-07-08T20:04:44-07:00" level=info msg="\n--- R-CD-3 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T20:04:44-07:00" level=info msg="{\n  \"row\": \"R-CD-3\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CD-3-1783566269486-2enn2k80\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"main\",\n  \"sessionKey\": \"agent:main:r-cd-3-r-cd-3-1783566269486-2enn2k80\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cd-3-r-cd-3-1783566269486-2enn2k80\",\n  \"candidateSha\": \"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\n  \"started\": \"2026-07-09T03:04:29.486Z\",\n  \"dispatch_accepted\": true,\n  \"delegate_staging_requested\": true,\n  \"compaction_requested\": true,\n  \"threshold_honest_limit\": false,\n  \"compaction_accepted\": false,\n  \"lifeboat_return_observed\": true,\n  \"guard\": null,\n  \"context_usage\": null,\n  \"threshold\": null,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783566269487,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566269489,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566269548,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566269924,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783566269956,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783566270461,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CD-3-R-CD-3-1783566269486-2enn2k80\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783566271094,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566272579,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566272730,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566275110,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566276709,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566276721,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566276722,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566276961,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566277109,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566277272,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566279661,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566279661,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566279939,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566279979,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566280001,\n      \"kind\": \"response\",\n      \"method\": \"tasks.list\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783566284495,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T03:04:44.495Z\",\n  \"duration_ms\": 15009,\n  \"verdict\": \"PASS-candidate\"\n}" source=console
+time="2026-07-08T20:04:44-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T20:04:44-07:00" level=info msg="\n[R-CD-3] VERDICT: PASS-candidate" source=console
+
+running (0m15.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_3_post_compaction ✓ [ 100% ] 1 VUs  0m15.0s/3m0s  1/1 shared iters
+./r-cd-3-summary.json
+[R-CD-3] METRICS: /tmp/p81-cael-live-20260709T030352Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-3/cael/20260709T030429Z-r-cd-3/openclaw-proofs-k6.prom
+[R-CD-3] ARTIFACTS: /tmp/p81-cael-live-20260709T030352Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-3/cael/20260709T030429Z-r-cd-3
+[R-CD-3] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-4
+Manifest: /tmp/oc-p81-current/tools/k6-proofs/manifests/r-cd-4.json
+Scenario: scenarios/r-cd-4-target-session-key.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-4] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-4-target-session-key.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m30s max duration (incl. graceful stop):
+              * r_cd_4_target_session: 1 iterations shared among 1 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+time="2026-07-08T20:04:44-07:00" level=error msg="OPENCLAW_TARGET_SESSION_KEY is required for R-CD-4 unless OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true" source=console
+
+[R-CD-4] Summary: PARTIAL-candidate | SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01 | Seat: cael
+
+running (0m00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_4_target_session ✓ [ 100% ] 1 VUs  0m00.0s/2m0s  1/1 shared iters
+time="2026-07-08T20:04:44-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"
+./r-cd-4-summary.json
+[R-CD-4] METRICS: /tmp/p81-cael-live-20260709T030352Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-4/cael/20260709T030444Z-r-cd-4/openclaw-proofs-k6.prom
+[R-CD-4] ARTIFACTS: /tmp/p81-cael-live-20260709T030352Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CD-4/cael/20260709T030444Z-r-cd-4
+[R-CD-4] FAILED with k6 exit code 99. Artifacts preserved.

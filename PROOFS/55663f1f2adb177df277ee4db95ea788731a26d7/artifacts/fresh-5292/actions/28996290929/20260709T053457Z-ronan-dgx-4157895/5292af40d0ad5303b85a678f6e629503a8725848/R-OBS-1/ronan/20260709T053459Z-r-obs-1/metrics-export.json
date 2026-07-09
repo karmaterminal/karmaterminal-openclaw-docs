@@ -1,0 +1,21 @@
+{
+  "schema": "openclaw.k6.proof-metrics-export.v1",
+  "rowId": "R-OBS-1",
+  "candidateSha": "5292af40d0ad5303b85a678f6e629503a8725848",
+  "seat": "ronan",
+  "outcome": "PASS-candidate",
+  "sampleCount": 8,
+  "metricNames": [
+    "openclaw_proofs_k6_run_total",
+    "openclaw_proofs_k6_proof_failures_total",
+    "openclaw_proofs_k6_candidate_pending_review",
+    "openclaw_proofs_k6_duration_ms",
+    "openclaw_proofs_k6_receipt_status"
+  ],
+  "prometheusOut": "/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/55663f1f2adb177df277ee4db95ea788731a26d7/project81-k6/20260709T053457Z-ronan-dgx-4157895/5292af40d0ad5303b85a678f6e629503a8725848/R-OBS-1/ronan/20260709T053459Z-r-obs-1/openclaw-proofs-k6.prom",
+  "otlpOut": "/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/55663f1f2adb177df277ee4db95ea788731a26d7/project81-k6/20260709T053457Z-ronan-dgx-4157895/5292af40d0ad5303b85a678f6e629503a8725848/R-OBS-1/ronan/20260709T053459Z-r-obs-1/openclaw-proofs-k6.otlp.json",
+  "push": {
+    "status": 200,
+    "ok": true
+  }
+}

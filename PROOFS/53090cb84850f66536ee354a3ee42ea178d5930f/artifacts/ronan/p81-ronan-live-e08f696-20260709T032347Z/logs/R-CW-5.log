@@ -1,0 +1,49 @@
+Resolving session key for selector: discord-channel:1466192485440164011
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: ronan
+Target Candidate SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Deployed Runtime SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Session: main
+Artifact root: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts
+Rows: R-CW-5
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/seat-readiness.json
+
+----------------------------------------
+Row: R-CW-5
+Manifest: /home/figs/source/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-5.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-5] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-07-08T20:33:10-07:00" level=info msg="STATIC_CORPUS_ROW_EVIDENCE {\"row\":\"R-CW-5\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"carriedFrom\":\"bca2b0b89ab886bf23a10e4983926f6b374b3188\",\"started\":\"2026-07-09T03:33:10.292Z\",\"checks\":{\"verdictPass\":true,\"sourceGuard\":true,\"delegateRejection\":true,\"announceGuards\":true,\"costCapSuite\":true,\"boundaryAllowed\":true,\"noLiveMutationScope\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/EVIDENCE.md\",\"schedulerSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/scheduler-source.txt\",\"delegateSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/delegate-dispatch-cost-cap-source.txt\",\"announceBracketSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/subagent-announce-bracket-cost-cap-source.txt\",\"announceToolSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/subagent-announce-tool-cost-cap-source.txt\",\"costCapLog\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/vitest-delegate-dispatch-cost-cap-exhaustion.log\",\"chainGuardLog\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/vitest-chain-guard-cost-cap.log\"},\"ended\":\"2026-07-09T03:33:10.292Z\",\"duration_ms\":0,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+./static-corpus-row-summary.json
+[R-CW-5] METRICS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-5/ronan/20260709T033310Z-r-cw-5/openclaw-proofs-k6.prom
+[R-CW-5] ARTIFACTS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CW-5/ronan/20260709T033310Z-r-cw-5
+[R-CW-5] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/report.html
+
+==========================================================
+Runner execution finished.

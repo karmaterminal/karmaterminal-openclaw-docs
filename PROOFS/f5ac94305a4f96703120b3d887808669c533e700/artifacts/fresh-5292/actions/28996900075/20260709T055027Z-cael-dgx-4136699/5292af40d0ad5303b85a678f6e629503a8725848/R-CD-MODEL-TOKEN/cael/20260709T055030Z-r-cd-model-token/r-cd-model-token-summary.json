@@ -1,0 +1,18 @@
+{
+  "row": "R-CD-MODEL-TOKEN",
+  "sha": "5292af40d0ad5303b85a678f6e629503a8725848",
+  "seat": "cael",
+  "timestamp": "2026-07-09T05:50:47.166Z",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "duration_ms": {
+      "p(95)": 16641,
+      "avg": 16641,
+      "min": 16641,
+      "med": 16641,
+      "max": 16641,
+      "p(90)": 16641
+    },
+    "failures": 0
+  }
+}

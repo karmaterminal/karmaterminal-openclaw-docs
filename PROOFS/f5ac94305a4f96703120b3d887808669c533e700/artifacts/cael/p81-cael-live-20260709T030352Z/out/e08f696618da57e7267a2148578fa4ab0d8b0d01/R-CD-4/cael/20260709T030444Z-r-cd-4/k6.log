@@ -1,0 +1,22 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-4-target-session-key.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m30s max duration (incl. graceful stop):
+              * r_cd_4_target_session: 1 iterations shared among 1 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+time="2026-07-08T20:04:44-07:00" level=error msg="OPENCLAW_TARGET_SESSION_KEY is required for R-CD-4 unless OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true" source=console
+
+[R-CD-4] Summary: PARTIAL-candidate | SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01 | Seat: cael
+
+running (0m00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_4_target_session ✓ [ 100% ] 1 VUs  0m00.0s/2m0s  1/1 shared iters
+time="2026-07-08T20:04:44-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"

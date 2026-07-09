@@ -1,35 +1,33 @@
-# Method — Project 81 live k6 proof fire transposed to 5292af40d0ad5303b85a678f6e629503a8725848
+# Method — Project 81 fresh 5292 proof rerun
 
-This corpus was gathered by directing Cael and Ronan to run the Project 81 k6 proof suite against their deployed `e08f6966` gateways. The harness drives standard row-shaped submit patterns over Gateway WebSocket/API (`web` in Grafana), while the user/channel session activity remains visible separately as Discord/session traffic.
+## Scope
 
-This directory is a full copy transposed for push SHA `5292af40d0ad5303b85a678f6e629503a8725848`. The proof-source SHA remains `e08f696618da57e7267a2148578fa4ab0d8b0d01`. The two SHAs differ because upstream/main advanced during proof generation and the final safe assembly needed a post-proof merge-conflict resolution in `scripts/plugin-sdk-surface-report.mjs`; that conflict did not touch continuation runtime behavior. Consumers should read this `PROOFS/5292af40d0ad5303b85a678f6e629503a8725848/` tree directly rather than following links to the source corpus.
-
-## Method upgrade
-
-The important upgrade is traceability. Each row should identify its row/run/scenario in the emitted logs and artifacts. When it does, a Grafana spike or gateway log line can be mapped back to a specific proof row and artifact directory. When it does not, that absence is proof-method friction and should be filed as such.
+- **Safe assembly / corpus SHA:** `5292af40d0ad5303b85a678f6e629503a8725848`
+- **Seed corpus:** `46872994e4cae80830c381cb49456e8c77583d7e`
+- **Proof seats:** Cael and Ronan
+- **Runtime under proof:** deployed OpenClaw `2026.6.11 (5292af4)` on both seats
+- **Rollup:** `35 total / 33 pass / 0 partial / 2 honest_limit / 0 fail / 0 missing`
 
 ## Run shape
 
-1. Deploy exact candidate SHA to the proof seats via `deploy-gateway.yml`.
-2. Run the Project 81 k6 proof suite from the seat against its local Gateway.
-3. Continue past blockers so one partial row does not stop the entire corpus.
-4. Preserve raw/redacted per-row artifacts, top-level reports, wrapper logs, and issue links.
-5. Fold PASS/PARTIAL/HONEST_LIMIT only after row evidence is reviewed.
-6. For the safe assembly push SHA, full-copy the reviewed corpus into `PROOFS/<push-sha>/` and preserve `proof_source_sha` / `proof_push_sha` metadata.
+1. Deploy `5292af40d0ad5303b85a678f6e629503a8725848` to Cael and Ronan with source-only gateway deploys.
+2. Seed `PROOFS/5292af40d0ad5303b85a678f6e629503a8725848/` from the previous full-copy corpus so corpus-dependent rows have an addressable target.
+3. Run gateway-live rows with disposable proof sessions and `docs_ref=scribe/20260708/proofs-5292-rerun`.
+4. Split rows around partial/static blockers so one row cannot suppress unrelated artifact upload.
+5. Preserve uploaded Actions artifacts under `artifacts/fresh-5292/actions/` and failed-row logs under `artifacts/fresh-5292/actions-logs/`.
+6. Fold row state from reviewed row evidence, not workflow conclusion alone.
 
-## Observability
+## Classification rules used for this corpus
 
-- k6 harness traffic appears as `web` Gateway activity.
-- Discord/channel turns remain separately visible as Discord/session traffic.
-- Disposable web proof sessions should be closed after artifact capture once #374 lands.
+- A row with fresh 5292 k6 PASS-candidate evidence and no pending required receipt is folded as `pass`.
+- A row whose generated summary contradicts console evidence is folded by the more specific console evidence, with the mismatch documented in row evidence.
+- A config row whose k6 parser fails to read runtime config can be closed by a fresh path-scoped receipt that exposes only the required continuation subtree.
+- A corpus-dependent/static row is carried from the seeded full-copy corpus instead of being treated as a live Gateway failure.
+- A compaction row is not upgraded to PASS unless accepted compaction and post-compaction lifecycle bytes are observed. Threshold rejection remains `honest_limit`.
+- `R-CW-3` requires fresh Tempo trace JSON for a clean PASS in this 5292 round; schedule/wake without the trace receipt is `honest_limit`.
 
-## Known live-fire friction
+## Known harness friction
 
-- #366: unattended live `all` needs disposable-session env.
-- #367: `R-CD-MODEL-TOOL` was partial in first fire, then upgraded by Cael's known-good Gemini model rerun.
-- #368: `R-CONFIG-DEFAULTS` was upgraded by manual config receipts.
-- #369: `R-CONFIG-INTERSESSION` was upgraded by manual config receipts.
-- #370/#371: Cael `R-CW-1`/`R-CW-2` partials, covered by Ronan PASS evidence but retained for review.
-- #372: `R-CW-3` wake/Tempo receipt was upgraded by Ronan schedule/wake + Tempo trace review.
-- #373: `R-RC-2` generated-result vs live-evidence verdict mismatch.
-- #374: disposable web-session cleanup after proof gather.
+- Static/corpus rows still expect older deep manual-evidence trees when run as `all`; for this corpus they are carried explicitly instead.
+- `R-CD-MODEL-TOOL` and `R-RC-2` both exposed postprocessor mismatches between console evidence and generated summaries.
+- `R-CONFIG-DEFAULTS` / `R-CONFIG-INTERSESSION` exposed config read-path/reporting friction; fresh config receipts close the runtime byte.

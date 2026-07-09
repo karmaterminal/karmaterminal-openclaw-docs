@@ -1,8 +1,9 @@
-# R-CD-MODEL-TOOL evidence — 46872994 safe assembly corpus
+# R-CD-MODEL-TOOL evidence — 5292af40 Project 81 corpus
 
 - **Aggregate state:** `pass`
 - **Push / corpus SHA:** `5292af40d0ad5303b85a678f6e629503a8725848`
-- **Proof-source SHA:** `e08f696618da57e7267a2148578fa4ab0d8b0d01`
+- **Fresh 5292 proof-source SHA:** `5292af40d0ad5303b85a678f6e629503a8725848`
+- **Seeded/carried corpus:** `46872994e4cae80830c381cb49456e8c77583d7e`
 - **Issue links:** karmaterminal/karmaterminal-openclaw-docs#367
 - **Review note:** First Cael/Ronan k6 rows were partial because the child/model byte was not observed; Cael's gemini rerun now supplies the child runtime model byte and return payload. #367 remains preserved as method friction.
 
@@ -37,3 +38,12 @@ Manual receipts:
 - `manual-receipts/MANUAL-REVIEW.md`
 
 The k6 console evidence object records `requested_model_byte="github-copilot/gemini-3.1-pro-preview"`, `child_model_byte="github-copilot/gemini-3.1-pro-preview"`, `model_matches=true`, `return_payload=true`, `parent_scheduled_sentinel=true`, and `child_session_observed=true`. The generated summary/run-result still say `PARTIAL-candidate` because the postprocessor missed this evidence JSON line; the preserved console verdict and manual review supply the row receipt. The aggregate row state is upgraded to `pass`.
+
+## Fresh 5292 closeout
+
+| Run | Seat | Verdict | k6 exit | Review | Run-result path |
+|---|---|---:|---:|---|---|
+| `28996028254` | cael | `PARTIAL-candidate` | `0` | `ready-for-human-review` | `PROOFS/5292af40d0ad5303b85a678f6e629503a8725848/artifacts/fresh-5292/actions/28996028254/20260709T052118Z-cael-dgx-4080590/5292af40d0ad5303b85a678f6e629503a8725848/R-CD-MODEL-TOOL/cael/20260709T052121Z-r-cd-model-tool/run-result.json` |
+| `28996030407` | ronan | `PARTIAL-candidate` | `0` | `ready-for-human-review` | `PROOFS/5292af40d0ad5303b85a678f6e629503a8725848/artifacts/fresh-5292/actions/28996030407/20260709T052121Z-ronan-dgx-4058119/5292af40d0ad5303b85a678f6e629503a8725848/R-CD-MODEL-TOOL/ronan/20260709T052124Z-r-cd-model-tool/run-result.json` |
+
+**5292 interpretation:** Fresh 5292 Gemini reruns logged requested/child runtime model equality and return payload; generated summaries still say PARTIAL, so console evidence is the authoritative fold byte.

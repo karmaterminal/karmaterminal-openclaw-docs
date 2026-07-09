@@ -1,35 +1,28 @@
 # Artifact index — 5292af40d0ad5303b85a678f6e629503a8725848 Project 81 proof corpus
 
-- **Push / corpus SHA:** `5292af40d0ad5303b85a678f6e629503a8725848`
-- **Proof-source SHA:** `e08f696618da57e7267a2148578fa4ab0d8b0d01`
-- **Copied artifact tree:** `artifacts/`
-- **Cael roots copied:** 9 directories under `artifacts/cael/`
-- **Ronan roots copied:** 1 directory under `artifacts/ronan/`
-- **Grafana observation:** `artifacts/grafana/p81-webchat-heartbeats-1524619105712214016.png`
+## Current rollup
 
-This is a full-copy transpose for clawsweeper-style consumers that require direct `PROOFS/<push-sha>/` evidence. Raw artifact internals may still carry the proof-source SHA because the k6 harness produced those bytes against deployed `e08f6966`.
+`35 total / 33 pass / 0 partial / 2 honest_limit / 0 fail / 0 missing`
 
-## Top-level reports
+## Fresh 5292 artifacts
 
-- Cael final report: `artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/report.html`
-- Cael model-tool rerun report: `artifacts/cael/p81-cael-model-tool-gemini-20260709T042513Z/out/report.html`
-- Ronan final report: `artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/report.html`
+- Action roots index: `artifacts/fresh-5292/actions/ACTION-ROOTS.txt`
+- Successful uploaded run artifacts: `artifacts/fresh-5292/actions/<run-id>/...`
+- Failed/partial logs: `artifacts/fresh-5292/actions-logs/failed-runs/`
+- Model-tool console logs: `artifacts/fresh-5292/actions-logs/model-tool/`
+- R-RC-2 console logs: `artifacts/fresh-5292/actions-logs/rc2/`
+- Latest runner workspace snapshot: `artifacts/fresh-5292/runner-latest/`
 
-## Copied Cael roots
+## Manual receipts refreshed for 5292
 
-- `artifacts/cael/p81-cael-live-20260709T030352Z/`
-- `artifacts/cael/p81-cael-live-resume-20260709T030548Z/`
-- `artifacts/cael/p81-cael-live-resume2-20260709T031258Z/`
-- `artifacts/cael/p81-cael-live-resume3-20260709T031523Z/`
-- `artifacts/cael/p81-cael-live-resume4-20260709T031606Z/`
-- `artifacts/cael/p81-cael-live-resume5-20260709T031750Z/`
-- `artifacts/cael/p81-cael-live-resume6-20260709T031952Z/`
-- `artifacts/cael/p81-cael-live-resume7-20260709T033337Z/`
-- `artifacts/cael/p81-cael-model-tool-gemini-20260709T042513Z/`
+- `R-CONFIG-DEFAULTS/manual-receipts/cael-continuation-config.json`
+- `R-CONFIG-DEFAULTS/manual-receipts/ronan-continuation-config.json`
+- `R-CONFIG-INTERSESSION/manual-receipts/cael-cross-session-targeting.json`
+- `R-CONFIG-INTERSESSION/manual-receipts/ronan-cross-session-targeting.json`
 
-## Copied Ronan roots
+## Carried seed corpus
 
-- `artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/`
+This tree was seeded from `46872994e4cae80830c381cb49456e8c77583d7e` so static/corpus-dependent rows remain fully addressable under `PROOFS/5292af40d0ad5303b85a678f6e629503a8725848/`. Fresh live rows add `fresh_5292_results` entries in `proofs-manifest.json`; carried rows keep their original row evidence and are classified explicitly rather than rerun as Gateway rows.
 
 ## Row evidence docs
 
@@ -50,7 +43,7 @@ This is a full-copy transpose for clawsweeper-style consumers that require direc
 - `R-CONFIG-INTERSESSION` — `pass` — `PROOFS/5292af40d0ad5303b85a678f6e629503a8725848/R-CONFIG-INTERSESSION/EVIDENCE.md`
 - `R-CW-1` — `pass` — `PROOFS/5292af40d0ad5303b85a678f6e629503a8725848/R-CW-1/EVIDENCE.md`
 - `R-CW-2` — `pass` — `PROOFS/5292af40d0ad5303b85a678f6e629503a8725848/R-CW-2/EVIDENCE.md`
-- `R-CW-3` — `pass` — `PROOFS/5292af40d0ad5303b85a678f6e629503a8725848/R-CW-3/EVIDENCE.md`
+- `R-CW-3` — `honest_limit` — `PROOFS/5292af40d0ad5303b85a678f6e629503a8725848/R-CW-3/EVIDENCE.md`
 - `R-CW-4` — `pass` — `PROOFS/5292af40d0ad5303b85a678f6e629503a8725848/R-CW-4/EVIDENCE.md`
 - `R-CW-5` — `pass` — `PROOFS/5292af40d0ad5303b85a678f6e629503a8725848/R-CW-5/EVIDENCE.md`
 - `R-CW-6` — `pass` — `PROOFS/5292af40d0ad5303b85a678f6e629503a8725848/R-CW-6/EVIDENCE.md`

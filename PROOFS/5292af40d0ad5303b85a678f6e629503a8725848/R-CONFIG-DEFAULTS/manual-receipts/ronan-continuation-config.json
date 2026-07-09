@@ -2,7 +2,7 @@
   "seat": "ronan",
   "host": "ronan",
   "source": "~/.openclaw/openclaw.json path agents.defaults.continuation",
-  "capturedAt": "2026-07-09T04:10:00Z",
+  "capturedAt": "2026-07-09T05:44:06Z",
   "continuation": {
     "enabled": true,
     "maxChainLength": 200,

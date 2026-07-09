@@ -1,8 +1,9 @@
-# R-CONFIG-INTERSESSION evidence — 46872994 safe assembly corpus
+# R-CONFIG-INTERSESSION evidence — 5292af40 Project 81 corpus
 
 - **Aggregate state:** `pass`
 - **Push / corpus SHA:** `5292af40d0ad5303b85a678f6e629503a8725848`
-- **Proof-source SHA:** `e08f696618da57e7267a2148578fa4ab0d8b0d01`
+- **Fresh 5292 proof-source SHA:** `5292af40d0ad5303b85a678f6e629503a8725848`
+- **Seeded/carried corpus:** `46872994e4cae80830c381cb49456e8c77583d7e`
 - **Issue links:** karmaterminal/karmaterminal-openclaw-docs#369
 - **Review note:** First k6 run was partial on both Cael/Ronan for config read/cross-session bytes; manual path-scoped receipts now close the row. #369 remains preserved as method friction.
 
@@ -27,3 +28,9 @@ Manual path-scoped config receipts were added after the first corpus merge:
 - `manual-receipts/MANUAL-REVIEW.md`
 
 These receipts supply `crossSessionTargeting="enabled"` from `agents.defaults.continuation.crossSessionTargeting` for Cael and Ronan without exposing secrets or mutating config. The aggregate row state is upgraded to `pass`; the original k6 partial artifacts and #369 remain preserved as method friction.
+
+## Fresh 5292 closeout
+
+Fresh k6 read-path attempts are preserved in failed-run logs; the row is closed by the fresh path-scoped config receipts listed above.
+
+**5292 interpretation:** Fresh path-scoped config receipts show crossSessionTargeting="enabled" after deploy; the k6 read-path failure is preserved as harness friction.

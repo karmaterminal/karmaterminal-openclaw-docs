@@ -1,9 +1,9 @@
 # R-CONFIG-DEFAULTS evidence — e08f696 live P81 run
 
-- **Aggregate state:** `partial`
+- **Aggregate state:** `pass`
 - **Candidate SHA:** `e08f696618da57e7267a2148578fa4ab0d8b0d01`
 - **Issue links:** karmaterminal/karmaterminal-openclaw-docs#368
-- **Review note:** Partial on both Cael/Ronan: config read/default byte not fully observed. Tracked in #368.
+- **Review note:** First k6 run was partial on both Cael/Ronan for config read/default bytes; manual path-scoped receipts now close the row. #368 remains preserved as method friction.
 
 ## Seat artifacts
 

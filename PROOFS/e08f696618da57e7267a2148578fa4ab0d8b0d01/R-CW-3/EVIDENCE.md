@@ -1,9 +1,9 @@
 # R-CW-3 evidence — e08f696 live P81 run
 
-- **Aggregate state:** `honest_limit`
+- **Aggregate state:** `pass`
 - **Candidate SHA:** `e08f696618da57e7267a2148578fa4ab0d8b0d01`
 - **Issue links:** karmaterminal/karmaterminal-openclaw-docs#372
-- **Review note:** No clean PASS fold: Cael partial on missing wake/Tempo receipt after accepted dispatch; Ronan HONEST-LIMIT-candidate. Tracked in #372.
+- **Review note:** First k6 fold was not clean PASS: Cael missed wake/Tempo receipt after accepted dispatch and Ronan was HONEST-LIMIT-candidate; manual Tempo receipts now close the row. #372 remains preserved as method friction.
 
 ## Seat artifacts
 

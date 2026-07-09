@@ -1,0 +1,81 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-1.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m0s max duration (incl. graceful stop):
+              * r_obs_1: 1 iterations shared among 1 VUs (maxDuration: 1m30s, gracefulStop: 30s)
+
+time="2026-07-08T22:35:00-07:00" level=info msg="✓ disposable session created: agent:main:r-obs-1-r-obs-1-1783575299865-b93n65jk" source=console
+time="2026-07-08T22:35:00-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for R-OBS-1 status-card read" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m01.0s/1m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m02.0s/1m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m03.0s/1m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m04.0s/1m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m05.0s/1m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m06.0s/1m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m07.0s/1m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m08.0s/1m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m09.0s/1m30s  0/1 shared iters
+time="2026-07-08T22:35:09-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m10.0s/1m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m11.0s/1m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m12.0s/1m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m13.0s/1m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m14.0s/1m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m15.0s/1m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m16.0s/1m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m17.0s/1m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m18.0s/1m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m19.0s/1m30s  0/1 shared iters
+time="2026-07-08T22:35:19-07:00" level=info msg="ℹ OBS1-STATUS sentinel prefix observed; waiting for complete streamed sentinel" source=console
+time="2026-07-08T22:35:19-07:00" level=info msg="✓ OBS1-STATUS sentinel observed: {\"build\":\"yes\",\"context\":\"yes\",\"chain\":\"yes\",\"route\":\"yes\"}" source=console
+time="2026-07-08T22:35:19-07:00" level=info msg="R_OBS_1_EVIDENCE {\"row\":\"R-OBS-1\",\"manifest_loaded\":true,\"nonce\":\"R-OBS-1-1783575299865-b93n65jk\",\"seat\":\"ronan\",\"requestedSessionKey\":\"p81-5292-ronan-r-obs-1\",\"sessionKey\":\"agent:main:r-obs-1-r-obs-1-1783575299865-b93n65jk\",\"session_created\":true,\"created_session_key\":\"agent:main:r-obs-1-r-obs-1-1783575299865-b93n65jk\",\"candidateSha\":\"5292af40d0ad5303b85a678f6e629503a8725848\",\"started\":\"2026-07-09T05:34:59.865Z\",\"dispatch_accepted\":true,\"status_card_observed\":true,\"build_visible\":true,\"context_visible\":true,\"continuation_chain_visible\":true,\"route_visible\":true,\"trace_id\":null,\"redacted_events\":[{\"ts\":1783575299900,\"kind\":\"event\",\"method\":null,\"event\":\"connect.challenge\",\"ok\":null,\"data\":null},{\"ts\":1783575299904,\"kind\":\"other\",\"method\":null,\"event\":null,\"ok\":null,\"data\":null},{\"ts\":1783575299948,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575299960,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575300255,\"kind\":\"response\",\"method\":\"sessions.create\",\"event\":null,\"ok\":true,\"data\":{\"ok\":true}},{\"ts\":1783575300284,\"kind\":\"response\",\"method\":\"sessions.messages.subscribe\",\"event\":null,\"ok\":true,\"data\":{}},{\"ts\":1783575300795,\"kind\":\"response\",\"method\":\"sessions.send\",\"event\":null,\"ok\":true,\"data\":{\"runId\":\"R-OBS-1-R-OBS-1-1783575299865-b93n65jk\",\"status\":\"started\"}},{\"ts\":1783575301049,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575301055,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575301673,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575302137,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575302141,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575303196,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575303201,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575304254,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575304258,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575305074,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575305307,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575305314,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575306362,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575306367,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575307346,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575307395,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575308017,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575308079,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575308147,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575308781,\"kind\":\"event\",\"method\":null,\"event\":\"tick\",\"ok\":null,\"data\":null},{\"ts\":1783575309226,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575309232,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575309509,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575309509,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783575309696,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575309742,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":null},{\"ts\":1783575310362,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575310399,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575311323,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575311323,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783575311451,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575311457,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575311481,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575311481,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575311482,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783575311580,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575311580,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575311824,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575311824,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783575311824,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783575312043,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575312244,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575312358,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575312537,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575312548,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575312605,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575312648,\"kind\":\"event\",\"method\":null,\"event\":\"task\",\"ok\":null,\"data\":null},{\"ts\":1783575313619,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575313623,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575314502,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":null},{\"ts\":1783575314522,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575314590,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575314600,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575314661,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575314714,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575314718,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575314722,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575314770,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575314777,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575315308,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575315801,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575315804,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575316900,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575316906,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575317956,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575317965,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575318875,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575318875,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783575319042,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575319048,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":null},{\"ts\":1783575319061,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575319061,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":null},{\"ts\":1783575319061,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":null},{\"ts\":1783575319123,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":null}],\"ended\":\"2026-07-09T05:35:19.123Z\",\"duration_ms\":19258}" source=console
+
+running (0m19.3s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_1 ✓ [ 100% ] 1 VUs  0m19.3s/1m30s  1/1 shared iters

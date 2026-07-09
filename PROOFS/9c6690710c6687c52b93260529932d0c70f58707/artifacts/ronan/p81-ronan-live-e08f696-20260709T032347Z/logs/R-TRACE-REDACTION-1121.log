@@ -1,0 +1,49 @@
+Resolving session key for selector: discord-channel:1466192485440164011
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: ronan
+Target Candidate SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Deployed Runtime SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01
+Session: main
+Artifact root: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts
+Rows: R-TRACE-REDACTION-1121
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/seat-readiness.json
+
+----------------------------------------
+Row: R-TRACE-REDACTION-1121
+Manifest: /home/figs/source/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-trace-redaction-1121.json
+Scenario: scenarios/r-trace-redaction-1121.js
+Status: runnable
+Live Safety: k6-runnable
+[R-TRACE-REDACTION-1121] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-trace-redaction-1121.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 40s max duration (incl. graceful stop):
+              * r_trace_redaction_1121_static: 1 iterations shared among 1 VUs (maxDuration: 10s, gracefulStop: 30s)
+
+time="2026-07-08T20:37:05-07:00" level=info msg="R_TRACE_REDACTION_1121_EVIDENCE {\"row\":\"R-TRACE-REDACTION-1121\",\"manifest_loaded\":true,\"candidateSha\":\"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\"currentProofSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"started\":\"2026-07-09T03:37:05.837Z\",\"pass_heading_present\":true,\"safe_attrs_present\":true,\"no_preview_contract_present\":true,\"raw_reason_guard_present\":true,\"test_pass_present\":true,\"source_surface_present\":true,\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-TRACE-REDACTION-1121/EVIDENCE.md\"},\"ended\":\"2026-07-09T03:37:05.837Z\",\"duration_ms\":0,\"verdict\":\"PASS-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_trace_redaction_1121_static ✓ [ 100% ] 1 VUs  00.0s/10s  1/1 shared iters
+./r-trace-redaction-1121-summary.json
+[R-TRACE-REDACTION-1121] METRICS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-TRACE-REDACTION-1121/ronan/20260709T033705Z-r-trace-redaction-1121/openclaw-proofs-k6.prom
+[R-TRACE-REDACTION-1121] ARTIFACTS: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-TRACE-REDACTION-1121/ronan/20260709T033705Z-r-trace-redaction-1121
+[R-TRACE-REDACTION-1121] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /tmp/p81-ronan-live-e08f696-20260709T032347Z/artifacts/report.html
+
+==========================================================
+Runner execution finished.

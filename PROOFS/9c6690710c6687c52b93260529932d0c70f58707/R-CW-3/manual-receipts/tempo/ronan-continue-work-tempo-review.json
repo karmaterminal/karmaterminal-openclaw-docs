@@ -1,0 +1,30 @@
+{
+  "traceFile": "manual-receipts/tempo/ronan-continue-work-schedule-trace.json",
+  "traceId": "ce3ba0648e16883ba5a8cdcb3b3d2021",
+  "reviewedAt": "2026-07-09T04:12:00Z",
+  "row": "R-CW-3",
+  "seat": "ronan",
+  "checks": {
+    "hasContinueWorkTool": true,
+    "hasContinuationWorkSpan": true,
+    "reasonPresent": true,
+    "reasonLengthPresent": true,
+    "reasonHashPresent": true,
+    "rawReasonAbsent": true
+  },
+  "continuationWorkAttrs": [
+    {
+      "name": "continuation.work",
+      "startTimeUnixNano": "1783567926184000000",
+      "attributes": {
+        "delay.ms": "5000",
+        "chain.step.remaining": "199",
+        "chain.id": "82b43d2e-42da-4ce2-b47c-f8c4a63640c5",
+        "reason.present": true,
+        "reason.length": "146",
+        "reason.hash": "310195a035d1ba98",
+        "reason.redacted": null
+      }
+    }
+  ]
+}

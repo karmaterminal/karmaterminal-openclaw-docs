@@ -1,0 +1,96 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-TOKEN",
+  "issue": 103,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "bracket-token",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-token-bracket-delegate",
+    "description": "Bracket [[CONTINUE_DELEGATE:...]] path. Injects prompt requiring terminal bracket token, observes child spawn and return.",
+    "methods": [
+      "sessions.send",
+      "tasks.list",
+      "sessions.messages.subscribe"
+    ],
+    "status": "runnable",
+    "expectedFile": "r-cd-token-bracket-delegate.js",
+    "registryNotes": "Local scratch conversion: runnable k6 scenario uses a lightContext subagent final bracket [[CONTINUE_DELEGATE:...]] and requires nonce-correlated delegate return.",
+    "file": "r-cd-token-bracket-delegate.js"
+  },
+  "seatClassExpectation": {
+    "raw-final-text-seat": "PASS-candidate",
+    "message-body-seat": "HONEST-LIMIT-candidate",
+    "reason": "Bracket scanner fires only on scanned-final-text. Seats that route final-text through message(send) body kill the scanner (bracketIdx=-1). ronan-dgx IS a message-body seat in its default Discord delivery — expected HONEST-LIMIT unless raw-final-text mode is forced (no message-tool call that turn). See TOOLS.md bracket-position-sensitive notes."
+  },
+  "expectedReceipts": [
+    {
+      "name": "prompt-injected",
+      "required": true,
+      "description": "sessions.send accepted the bracket-instructing prompt"
+    },
+    {
+      "name": "bracket-token-observed",
+      "required": false,
+      "description": "Bracket delegate token observed in session event stream (may be absent on message-body seats)"
+    },
+    {
+      "name": "child-spawned",
+      "required": false,
+      "description": "Child task/session created with nonce correlation"
+    },
+    {
+      "name": "parent-return-event",
+      "required": false,
+      "description": "Delegate return/silent-wake observed on parent session"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-TOKEN",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Bracket/token path. On message-body-delivery seats (ronan-dgx default), expected outcome is HONEST-LIMIT-candidate (scanner killed). PASS-candidate only on raw-final-text seats. candidateSha and seat resolved from env at runtime."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "forms": [
+      "bracket-token-delegate-from-lightcontext-subagent"
+    ],
+    "delaySeconds": 1,
+    "lightContext": true,
+    "taskNamePrefix": "r-cd-token",
+    "idempotencyKeyPrefix": "R-CD-TOKEN"
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "prompt-injected",
+      "bracket-token-observed",
+      "child-spawned",
+      "parent-return-event"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Bracket CONTINUE_DELEGATE path. Prefer disposable parent + lightContext child so scanner walks auto-delivered final text; message-body main-session path may honestly limit."
+  }
+}

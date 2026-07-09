@@ -1,12 +1,12 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
-  "current_sha_short": "e08f696",
-  "build_string": "OpenClaw assembly/backmerge proof candidate e08f696 - Project 81 live k6 first-fire",
-  "corpus_path": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/",
-  "manifest_path": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/proofs-manifest.json",
-  "readme_path": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/README.md",
+  "current_sha": "46872994e4cae80830c381cb49456e8c77583d7e",
+  "current_sha_short": "4687299",
+  "build_string": "OpenClaw safe assembly/presentation candidate 4687299 - Project 81 corpus full-copy transposed from e08f696 live proof fire",
+  "corpus_path": "PROOFS/46872994e4cae80830c381cb49456e8c77583d7e/",
+  "manifest_path": "PROOFS/46872994e4cae80830c381cb49456e8c77583d7e/proofs-manifest.json",
+  "readme_path": "PROOFS/46872994e4cae80830c381cb49456e8c77583d7e/README.md",
   "rollup": {
     "total_rows": 35,
     "pass": 34,
@@ -16,10 +16,13 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Project 81 live k6 first-fire corpus on Cael and Ronan, with manual receipts folded for R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, R-CW-3, and R-CD-MODEL-TOOL (known-good gemini model rerun). R-RC-2 remains honest-limit despite generated PASS mismatch (#373).",
-  "methodology_note": "Proof generation is now automation-first: Project 81 k6 scenarios deterministically drive the deployed OpenClaw web/Gateway interface over WebSocket/API, emit row-scoped submit traffic, and preserve per-row receipts, logs, metrics, and artifacts. Treat this index as the machine entrypoint, then follow manifest_path -> rows[] -> evidence_doc/artifact paths; partial and honest_limit states are intentional review outputs, not missing proof attempts.",
+  "disposition_note": "Full copied Project 81 corpus for safe assembly push SHA 46872994e4cae80830c381cb49456e8c77583d7e. Proofs were fired against proof-source SHA e08f696618da57e7267a2148578fa4ab0d8b0d01; the push SHA differs because upstream/main advanced during proof generation and final safe assembly needed a post-proof merge-conflict resolution in scripts/plugin-sdk-surface-report.mjs, which did not touch continuation runtime behavior. Only R-RC-2 remains honest-limit (#373).",
+  "methodology_note": "Proof generation is automation-first: Project 81 k6 scenarios deterministically drive the deployed OpenClaw web/Gateway interface over WebSocket/API, emit row-scoped submit traffic, and preserve per-row receipts, logs, metrics, and artifacts. This INDEX points at a full-copy transposed PROOFS/<push-sha>/ corpus because clawsweeper consumers should not need to follow proof-source links.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-07-09",
-  "generated_by": "frond-scribe (copilot) from Cael/Ronan live P81 proof artifacts",
-  "capture_sha": "e08f696618da57e7267a2148578fa4ab0d8b0d01"
+  "generated_by": "frond-scribe (copilot) from full-copy transpose of Cael/Ronan live P81 proof artifacts",
+  "capture_sha": "46872994e4cae80830c381cb49456e8c77583d7e",
+  "proof_push_sha": "46872994e4cae80830c381cb49456e8c77583d7e",
+  "proof_source_sha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "carried_from": "e08f696618da57e7267a2148578fa4ab0d8b0d01"
 }

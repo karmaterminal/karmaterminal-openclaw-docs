@@ -1,0 +1,7 @@
+{
+  "seat": "cael",
+  "host": "cael",
+  "source": "~/.openclaw/openclaw.json path agents.defaults.continuation.crossSessionTargeting",
+  "capturedAt": "2026-07-09T04:10:00Z",
+  "crossSessionTargeting": "enabled"
+}

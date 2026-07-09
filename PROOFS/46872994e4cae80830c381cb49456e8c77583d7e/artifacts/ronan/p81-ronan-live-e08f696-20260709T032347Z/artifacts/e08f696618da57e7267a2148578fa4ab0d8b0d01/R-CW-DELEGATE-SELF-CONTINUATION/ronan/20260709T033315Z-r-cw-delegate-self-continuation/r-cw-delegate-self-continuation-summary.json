@@ -1,0 +1,18 @@
+{
+  "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+  "sha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "seat": "ronan",
+  "timestamp": "2026-07-09T03:33:28.530Z",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "duration_ms": {
+      "avg": 13099,
+      "min": 13099,
+      "med": 13099,
+      "max": 13099,
+      "p(90)": 13099,
+      "p(95)": 13099
+    },
+    "failures": 0
+  }
+}

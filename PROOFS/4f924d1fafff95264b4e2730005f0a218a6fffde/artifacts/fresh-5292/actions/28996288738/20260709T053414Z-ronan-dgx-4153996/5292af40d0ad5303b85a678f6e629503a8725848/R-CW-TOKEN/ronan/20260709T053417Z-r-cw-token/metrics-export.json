@@ -1,0 +1,21 @@
+{
+  "schema": "openclaw.k6.proof-metrics-export.v1",
+  "rowId": "R-CW-TOKEN",
+  "candidateSha": "5292af40d0ad5303b85a678f6e629503a8725848",
+  "seat": "ronan",
+  "outcome": "PASS-candidate",
+  "sampleCount": 13,
+  "metricNames": [
+    "openclaw_proofs_k6_run_total",
+    "openclaw_proofs_k6_proof_failures_total",
+    "openclaw_proofs_k6_candidate_pending_review",
+    "openclaw_proofs_k6_duration_ms",
+    "openclaw_proofs_k6_receipt_status"
+  ],
+  "prometheusOut": "/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/4f924d1fafff95264b4e2730005f0a218a6fffde/project81-k6/20260709T053414Z-ronan-dgx-4153996/5292af40d0ad5303b85a678f6e629503a8725848/R-CW-TOKEN/ronan/20260709T053417Z-r-cw-token/openclaw-proofs-k6.prom",
+  "otlpOut": "/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/4f924d1fafff95264b4e2730005f0a218a6fffde/project81-k6/20260709T053414Z-ronan-dgx-4153996/5292af40d0ad5303b85a678f6e629503a8725848/R-CW-TOKEN/ronan/20260709T053417Z-r-cw-token/openclaw-proofs-k6.otlp.json",
+  "push": {
+    "status": 200,
+    "ok": true
+  }
+}

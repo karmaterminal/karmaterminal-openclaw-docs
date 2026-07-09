@@ -1,0 +1,50 @@
+{
+  "k6ExitCode": 0,
+  "endedAt": "2026-07-09T03:06:15Z",
+  "verdict": "PASS-candidate",
+  "summaryFiles": [
+    "static-corpus-row-summary.json"
+  ],
+  "evidence": {
+    "candidateSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+    "carriedFrom": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
+    "checks": {
+      "bTypedDelegate": true,
+      "cAfterB": true,
+      "cSentinelPresent": true,
+      "durableRows": true,
+      "evaluationPass": true,
+      "methodScope": true,
+      "rootCollection": true,
+      "tracePresent": true,
+      "verdictPass": true
+    },
+    "currentProofSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+    "duration_ms": 0,
+    "ended": "2026-07-09T03:06:15.572Z",
+    "manifest_loaded": true,
+    "row": "R-CD-COLLECTION-ON-COLLAPSE",
+    "source_files": {
+      "evaluation": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/evaluation.json",
+      "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/EVIDENCE.md",
+      "flowRows": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/flow-rows-concise.json",
+      "journal": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/journal/filtered.log",
+      "rootReceipt": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/main/root-collection-receipt.md",
+      "taskRows": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/task-rows-concise.json",
+      "traceSummary": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/tempo/trace-summary.json"
+    },
+    "started": "2026-07-09T03:06:15.572Z",
+    "verdict": "PASS-candidate"
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

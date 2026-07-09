@@ -1,0 +1,33 @@
+{
+  "k6ExitCode": 0,
+  "endedAt": "2026-07-09T05:35:23Z",
+  "verdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-obs-status-summary.json"
+  ],
+  "evidence": {
+    "candidateSha": "5292af40d0ad5303b85a678f6e629503a8725848",
+    "connect_ok": true,
+    "connected": true,
+    "duration_ms": 645,
+    "ended": "2026-07-09T05:35:23.396Z",
+    "manifest_loaded": true,
+    "row": "R-OBS-status",
+    "seat": "cael",
+    "started": "2026-07-09T05:35:22.751Z",
+    "status_ok": true,
+    "status_payload": {},
+    "trace_id": null
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "missing",
+    "traceId": null,
+    "tempoTraceJson": null
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

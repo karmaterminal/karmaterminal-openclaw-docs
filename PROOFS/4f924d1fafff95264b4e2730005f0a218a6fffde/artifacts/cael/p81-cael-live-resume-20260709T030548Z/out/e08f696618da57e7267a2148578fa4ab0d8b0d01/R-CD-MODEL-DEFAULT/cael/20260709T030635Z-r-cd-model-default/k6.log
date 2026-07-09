@@ -1,0 +1,73 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-model-default.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m30s max duration (incl. graceful stop):
+              * r_cd_model_default: 1 iterations shared among 1 VUs (maxDuration: 3m0s, gracefulStop: 30s)
+
+time="2026-07-08T20:06:36-07:00" level=info msg="✓ disposable session created: agent:main:r-cd-model-default-r-cd-model-default-1783566395630-rhd4qrhh" source=console
+time="2026-07-08T20:06:36-07:00" level=info msg="✓ sessions.send accepted — default model delegate turn triggered" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m01.0s/3m0s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m02.0s/3m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m03.0s/3m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m04.0s/3m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m05.0s/3m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m06.0s/3m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m07.0s/3m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m08.0s/3m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m09.0s/3m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m10.0s/3m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m11.0s/3m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m12.0s/3m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m13.0s/3m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m14.0s/3m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m15.0s/3m0s  0/1 shared iters
+time="2026-07-08T20:06:51-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-07-08T20:06:51-07:00" level=info msg="All required R-CD-MODEL-DEFAULT evidence gathered, closing early" source=console
+time="2026-07-08T20:06:51-07:00" level=info msg="\n--- R-CD-MODEL-DEFAULT EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T20:06:51-07:00" level=info msg="{\n  \"row\": \"R-CD-MODEL-DEFAULT\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CD-MODEL-DEFAULT-1783566395630-rhd4qrhh\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"main\",\n  \"sessionKey\": \"agent:main:r-cd-model-default-r-cd-model-default-1783566395630-rhd4qrhh\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cd-model-default-r-cd-model-default-1783566395630-rhd4qrhh\",\n  \"candidateSha\": \"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\n  \"started\": \"2026-07-09T03:06:35.630Z\",\n  \"parent_model_byte\": \"github-copilot/gpt-5.5\",\n  \"dispatch_accepted\": true,\n  \"child_session_observed\": true,\n  \"child_model_byte\": \"github-copilot/gpt-5.5\",\n  \"model_matches\": true,\n  \"return_payload\": true,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783566395632,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566395633,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566395705,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566396013,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783566396043,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783566396544,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CD-MODEL-DEFAULT-DISPATCH-R-CD-MODEL-DEFAULT-1783566395630-rhd4qrhh\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783566397170,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566401261,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566401283,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566401469,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566403132,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566403144,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566403183,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566403710,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566403711,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566403865,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566403865,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566403865,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566403880,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566403982,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566403982,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566405140,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566405140,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566405285,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566405329,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566406753,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566406754,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566406793,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"task\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566406982,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566407671,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566408147,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566410323,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566411234,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T03:06:51.234Z\",\n  \"duration_ms\": 15604\n}" source=console
+time="2026-07-08T20:06:51-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T20:06:51-07:00" level=info msg="\n[R-CD-MODEL-DEFAULT] VERDICT: PASS-candidate" source=console
+
+[R-CD-MODEL-DEFAULT] Summary: PASS-candidate | SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01 | Seat: cael
+
+running (0m15.6s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_model_default ✓ [ 100% ] 1 VUs  0m15.6s/3m0s  1/1 shared iters

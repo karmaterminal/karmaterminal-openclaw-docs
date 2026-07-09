@@ -1,0 +1,68 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CONFIG-INTERSESSION",
+  "issue": 121,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 60,
+  "scenario": {
+    "name": "r-config-intersession",
+    "description": "Read-only continuation cross-session targeting config receipt via gateway config.get from a disposable session.",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe"
+    ],
+    "status": "runnable",
+    "file": "r-config-intersession.js"
+  },
+  "expectedReceipts": [
+    {
+      "name": "config-read",
+      "required": true,
+      "description": "Configuration read successful"
+    },
+    {
+      "name": "cross-session-targeting",
+      "required": true,
+      "description": "agents.defaults.continuation.crossSessionTargeting byte observed"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CONFIG-INTERSESSION",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "manual-corpus"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Config intersession row. Read-only; k6 path drives gateway config.get through an agent turn and records crossSessionTargeting."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "config-read",
+      "cross-session-targeting"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Read-only agent-mediated config.get row; disposable session recommended but no continuation scheduling or config mutation."
+  },
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  }
+}

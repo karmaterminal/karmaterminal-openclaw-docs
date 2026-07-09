@@ -1,0 +1,12 @@
+# TYPE openclaw_proofs_k6_run_total counter
+openclaw_proofs_k6_run_total{row_id="R-CONFIG-INTERSESSION",seat="cael",candidate_sha="e08f696618da57e7267a2148578fa4ab0d8b0d01",scenario="r-config-intersession.js",run_id="20260709T031526Z-r-config-intersession",tool_surface="read-only",transport="websocket",outcome="PARTIAL-candidate",candidate_only="true",fold_requires_review="true",failure_class="threshold"} 1
+# TYPE openclaw_proofs_k6_proof_failures_total counter
+openclaw_proofs_k6_proof_failures_total{row_id="R-CONFIG-INTERSESSION",seat="cael",candidate_sha="e08f696618da57e7267a2148578fa4ab0d8b0d01",scenario="r-config-intersession.js",run_id="20260709T031526Z-r-config-intersession",failure_class="threshold"} 2
+# TYPE openclaw_proofs_k6_candidate_pending_review gauge
+openclaw_proofs_k6_candidate_pending_review{row_id="R-CONFIG-INTERSESSION",seat="cael",candidate_sha="e08f696618da57e7267a2148578fa4ab0d8b0d01",run_id="20260709T031526Z-r-config-intersession",outcome="PARTIAL-candidate",fold_requires_review="true"} 1
+# TYPE openclaw_proofs_k6_duration_ms gauge
+openclaw_proofs_k6_duration_ms{row_id="R-CONFIG-INTERSESSION",seat="cael",candidate_sha="e08f696618da57e7267a2148578fa4ab0d8b0d01",scenario="r-config-intersession.js",run_id="20260709T031526Z-r-config-intersession",outcome="PARTIAL-candidate"} 14007
+# TYPE openclaw_proofs_k6_receipt_status gauge
+openclaw_proofs_k6_receipt_status{row_id="R-CONFIG-INTERSESSION",seat="cael",candidate_sha="e08f696618da57e7267a2148578fa4ab0d8b0d01",run_id="20260709T031526Z-r-config-intersession",receipt_name="seat-readiness",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CONFIG-INTERSESSION",seat="cael",candidate_sha="e08f696618da57e7267a2148578fa4ab0d8b0d01",run_id="20260709T031526Z-r-config-intersession",receipt_name="config-read",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CONFIG-INTERSESSION",seat="cael",candidate_sha="e08f696618da57e7267a2148578fa4ab0d8b0d01",run_id="20260709T031526Z-r-config-intersession",receipt_name="cross-session-targeting",receipt_required="true",receipt_status="unknown"} 0

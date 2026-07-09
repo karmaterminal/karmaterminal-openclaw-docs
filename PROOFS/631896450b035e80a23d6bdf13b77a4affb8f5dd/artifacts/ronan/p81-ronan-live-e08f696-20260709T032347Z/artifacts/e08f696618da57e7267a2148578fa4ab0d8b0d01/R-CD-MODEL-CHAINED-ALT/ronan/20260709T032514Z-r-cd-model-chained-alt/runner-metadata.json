@@ -1,0 +1,9 @@
+{
+  "row": "R-CD-MODEL-CHAINED-ALT",
+  "scenario": "r-cd-model-chained-alt.js",
+  "candidateSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "runtimeBuildSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "seat": "ronan",
+  "sessionKey": "main",
+  "startedAt": "2026-07-09T03:25:14Z"
+}

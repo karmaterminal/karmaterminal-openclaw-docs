@@ -1,0 +1,72 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CW-DELEGATE-SELF-CONTINUATION",
+  "issue": 118,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cw-delegate-self-continuation",
+    "description": "Fires continue_delegate that internally calls continue_work — proves hop-2 woke inside a delegate child session. The delegate dispatches, the child fires its own continue_work, and the hop-2 turn executes.",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "tasks.list"
+    ],
+    "status": "runnable",
+    "file": "r-cw-delegate-self-continuation.js"
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "normal",
+    "delaySeconds": 1,
+    "promptTemplate": "k6 proof R-CW-DELEGATE-SELF nonce {{nonce}}: after arriving, call continue_work(reason=\"k6-self-continuation-{{nonce}}\", delaySeconds=2). After the continue_work tool result reports scheduled, reply exactly CHILD-CW-SCHEDULED {{nonce}}. On hop-2 wake, reply exactly CHILD-HOP2-DONE {{nonce}}. Do not mutate files. Do not post to any channel.",
+    "idempotencyKeyPrefix": "R-CW-DELEGATE-SELF"
+  },
+  "expectedReceipts": [
+    { "name": "delegate-accepted", "required": true, "description": "sessions.send dispatch accepted (agent turn triggered)" },
+    { "name": "child-spawned", "required": false, "description": "Corroborative only: concrete delegate lifecycle/child-session signal (not arbitrary nonce event)" },
+    { "name": "child-continue-work-accepted", "required": true, "description": "Post-dispatch non-harness CHILD-CW-SCHEDULED sentinel emitted after child continue_work tool result reports scheduled" },
+    { "name": "child-hop-2-woke", "required": true, "description": "Child's hop-2 turn executed and emitted CHILD-HOP2-DONE sentinel" },
+    { "name": "parent-return", "required": true, "description": "Delegate return event observed post-dispatch on parent session" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Delegate self-continuation: detector must ignore [k6-proof-harness] prompt-echo events and count only post-dispatch evidence. PASS-candidate now requires delegate-accepted + child-continue-work-accepted + child-hop-2-woke + parent-return. child-spawned is corroborative only unless a concrete lifecycle signal is available."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "delegate-accepted",
+      "child-continue-work-accepted",
+      "child-hop-2-woke",
+      "parent-return"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Delegate self-continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore [k6-proof-harness] prompt echo; only post-dispatch evidence counts. PASS requires explicit post-dispatch CHILD-CW-SCHEDULED, CHILD-HOP2-DONE, and parent-return evidence; otherwise fold as PARTIAL-candidate."
+  }
+}

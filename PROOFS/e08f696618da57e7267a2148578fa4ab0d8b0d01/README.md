@@ -14,11 +14,21 @@ This corpus therefore preserves both the evidence and the method friction. A PAS
 - **Deploy/proof seats:** Cael and Ronan only
 - **Cael artifact roots:** `/tmp/p81-cael-live-*` chunks copied into `artifacts/cael/`
 - **Ronan artifact root:** `/tmp/p81-ronan-live-e08f696-20260709T032347Z` copied into `artifacts/ronan/`
-- **Rollup:** `35 total / 30 pass / 3 partial / 2 honest_limit / 0 fail / 0 missing`
+- **Rollup:** `35 total / 33 pass / 1 partial / 1 honest_limit / 0 fail / 0 missing`
+
+## Manual closeout after first merge
+
+After the first `e08f696` corpus merge, figs asked whether the non-`request_compaction` partial/honest rows could be manually addressed. Three rows were upgraded by adding manual receipts while preserving the original k6 artifacts and issue links:
+
+- `R-CONFIG-DEFAULTS`: path-scoped Cael/Ronan config receipts under `R-CONFIG-DEFAULTS/manual-receipts/` supply the required continuation defaults bytes.
+- `R-CONFIG-INTERSESSION`: path-scoped Cael/Ronan config receipts under `R-CONFIG-INTERSESSION/manual-receipts/` supply `crossSessionTargeting=enabled`.
+- `R-CW-3`: Ronan's successful schedule/wake row plus manual Tempo trace review under `R-CW-3/manual-receipts/` supplies the missing reason telemetry/redaction receipt; raw reason sentinel strings are absent from the saved trace JSON.
+
+`R-CD-MODEL-TOOL` remains `partial`: both live seats lacked the required child model byte/return payload, and manual fold still needs a model-override child receipt rather than an echo.
 
 ## Critical caveats
 
-- `R-RC-2` is **not** folded as clean PASS here. The generated result marked it PASS, but Cael's live evidence/logs emitted `HONEST-LIMIT-candidate`; this mismatch is tracked in karmaterminal/karmaterminal-openclaw-docs#373.
+- `R-RC-2` remains **not** folded as clean PASS here. The generated result marked it PASS, but Cael's live evidence/logs emitted `HONEST-LIMIT-candidate`; this mismatch is tracked in karmaterminal/karmaterminal-openclaw-docs#373.
 - The first Cael `R-CD-4` unattended all-run exposed that live `all` needs `OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true`; resumed rows used that workaround and the tooling issue is tracked in karmaterminal/karmaterminal-openclaw-docs#366.
 - Disposable proof-session cleanup is a follow-up method improvement, tracked in karmaterminal/karmaterminal-openclaw-docs#374. The Grafana `web` heartbeat screenshot is preserved under `artifacts/grafana/`.
 

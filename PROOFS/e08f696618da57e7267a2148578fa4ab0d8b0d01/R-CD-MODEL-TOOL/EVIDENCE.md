@@ -16,3 +16,7 @@
 
 - Raw/redacted k6 output, row logs, report receipts, and generated `run-result.json` files are preserved under `artifacts/`.
 - These are live-candidate artifacts: candidate states still require human fold review before becoming canonical PASS rows.
+
+## Manual closeout review (post-merge)
+
+This row remains `partial`. The preserved Cael and Ronan k6 artifacts show the parent turn scheduled the model-override delegate, but neither seat captured the required child model byte/return payload. Because the row explicitly guards against echo-based false PASS, it should not be manually upgraded without a fresh child runtime model receipt proving the requested delegate model was actually observed. This is related to the model override issue family tracked from `R-CD-MODEL-*` / karmaterminal/openclaw#1103 and docs issue #367.

@@ -16,3 +16,13 @@
 
 - Raw/redacted k6 output, row logs, report receipts, and generated `run-result.json` files are preserved under `artifacts/`.
 - These are live-candidate artifacts: candidate states still require human fold review before becoming canonical PASS rows.
+
+## Manual closeout receipt (post-merge)
+
+Manual path-scoped config receipts were added after the first corpus merge:
+
+- `manual-receipts/cael-continuation-config.json`
+- `manual-receipts/ronan-continuation-config.json`
+- `manual-receipts/MANUAL-REVIEW.md`
+
+These receipts supply `enabled`, `maxChainLength`, `maxDelegatesPerTurn`, and `costCapTokens` from `agents.defaults.continuation` for Cael and Ronan without exposing secrets or mutating config. The aggregate row state is upgraded to `pass`; the original k6 partial artifacts and #368 remain preserved as method friction.

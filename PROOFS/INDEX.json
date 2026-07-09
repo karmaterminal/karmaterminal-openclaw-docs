@@ -9,14 +9,14 @@
   "readme_path": "PROOFS/e08f696618da57e7267a2148578fa4ab0d8b0d01/README.md",
   "rollup": {
     "total_rows": 35,
-    "pass": 30,
-    "partial": 3,
+    "pass": 33,
+    "partial": 1,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 2,
+    "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Project 81 live k6 first-fire corpus on Cael and Ronan. Full artifacts copied from /tmp/p81-* roots. This is a method-upgrade corpus: known row-shaped Gateway/web submit traffic, per-row artifacts, issue-linked partials, and explicit R-RC-2 honest-limit despite generated PASS mismatch (#373).",
+  "disposition_note": "Project 81 live k6 first-fire corpus on Cael and Ronan, with manual receipts folded for R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION, and R-CW-3. R-CD-MODEL-TOOL remains partial pending a child model byte/model-override fix; R-RC-2 remains honest-limit despite generated PASS mismatch (#373).",
   "methodology_note": "Proof generation is now automation-first: Project 81 k6 scenarios deterministically drive the deployed OpenClaw web/Gateway interface over WebSocket/API, emit row-scoped submit traffic, and preserve per-row receipts, logs, metrics, and artifacts. Treat this index as the machine entrypoint, then follow manifest_path -> rows[] -> evidence_doc/artifact paths; partial and honest_limit states are intentional review outputs, not missing proof attempts.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-07-09",

@@ -1,12 +1,12 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "4f924d1fafff95264b4e2730005f0a218a6fffde",
-  "current_sha_short": "4f924d1",
-  "build_string": "OpenClaw safe assembly/presentation candidate 4f924d1 - Project 81 fresh 5292 rerun corpus",
-  "corpus_path": "PROOFS/4f924d1fafff95264b4e2730005f0a218a6fffde",
-  "manifest_path": "PROOFS/4f924d1fafff95264b4e2730005f0a218a6fffde/proofs-manifest.json",
-  "readme_path": "PROOFS/4f924d1fafff95264b4e2730005f0a218a6fffde/README.md",
+  "current_sha": "24838c4d470804425da59279647745dcac555a25",
+  "current_sha_short": "24838c4",
+  "build_string": "OpenClaw safe assembly/presentation candidate 24838c4 - Project 81 fresh 5292 rerun corpus",
+  "corpus_path": "PROOFS/24838c4d470804425da59279647745dcac555a25",
+  "manifest_path": "PROOFS/24838c4d470804425da59279647745dcac555a25/proofs-manifest.json",
+  "readme_path": "PROOFS/24838c4d470804425da59279647745dcac555a25/README.md",
   "rollup": {
     "total_rows": 35,
     "pass": 34,
@@ -16,14 +16,14 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Full copied Project 81 corpus for safe assembly push SHA 4f924d1fafff95264b4e2730005f0a218a6fffde. Live proof source remains deployed 5292af40 on Cael/Ronan; this corpus transposes those reviewed proof bytes to the safe push SHA after clean upstream drift take-backs. R-CW-3 is closed by late Tempo receipts; only R-RC-2 remains honest-limit; no fail or missing rows remain.",
+  "disposition_note": "Full copied Project 81 corpus for safe assembly push SHA 24838c4d470804425da59279647745dcac555a25. Live proof source remains deployed 5292af40 on Cael/Ronan; this corpus transposes those reviewed proof bytes to the safe push SHA after clean upstream drift take-backs. R-CW-3 is closed by late Tempo receipts; only R-RC-2 remains honest-limit; no fail or missing rows remain.",
   "methodology_note": "Project 81 k6 scenarios drive the deployed OpenClaw web/Gateway interface over WebSocket/API and preserve row-scoped artifacts. This INDEX points at a full-copy PROOFS/<sha>/ corpus; fresh 5292 artifacts are under artifacts/fresh-5292/ and carried static/manual corpus rows stay in-place with explicit classification.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-07-09",
   "generated_by": "frond-scribe (copilot) from Cael/Ronan fresh 5292 Project 81 rerun artifacts",
-  "capture_sha": "4f924d1fafff95264b4e2730005f0a218a6fffde",
-  "proof_push_sha": "4f924d1fafff95264b4e2730005f0a218a6fffde",
+  "capture_sha": "24838c4d470804425da59279647745dcac555a25",
+  "proof_push_sha": "24838c4d470804425da59279647745dcac555a25",
   "proof_source_sha": "5292af40d0ad5303b85a678f6e629503a8725848",
-  "carried_from": "53090cb84850f66536ee354a3ee42ea178d5930f",
+  "carried_from": "4f924d1fafff95264b4e2730005f0a218a6fffde",
   "seeded_from": "46872994e4cae80830c381cb49456e8c77583d7e"
 }

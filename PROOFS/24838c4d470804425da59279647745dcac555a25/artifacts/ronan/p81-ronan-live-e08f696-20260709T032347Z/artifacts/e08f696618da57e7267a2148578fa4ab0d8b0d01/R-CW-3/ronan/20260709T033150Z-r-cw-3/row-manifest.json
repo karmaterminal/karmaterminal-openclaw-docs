@@ -1,0 +1,98 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CW-3",
+  "issue": 117,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 600,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cw-3-reason-telemetry",
+    "description": "continue_work reason telemetry/redaction honest-limit candidate. k6 proves schedule+wake and keeps the raw reason out of public artifacts; Tempo JSON review must verify safe reason attrs present and raw reason absent before a PASS fold.",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "tempo-trace-review"
+    ],
+    "status": "runnable",
+    "file": "r-cw-3-reason-telemetry.js"
+  },
+  "invocation": {
+    "tool": "continue_work",
+    "delaySeconds": 5,
+    "reasonPrefix": "k6-proof-R-CW-3-redaction",
+    "idempotencyKeyPrefix": "R-CW-3"
+  },
+  "expectedReceipts": [
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the sessions.send turn that asks the agent to call continue_work with a nonce-bearing reason."
+    },
+    {
+      "name": "continue-work-tool-result-scheduled",
+      "required": true,
+      "description": "Agent emitted CW3-SCHEDULED only after the continue_work tool result reported scheduled."
+    },
+    {
+      "name": "work-woke-event",
+      "required": true,
+      "description": "Continuation wake turn emitted CW3-WOKE nonce sentinel."
+    },
+    {
+      "name": "public-artifact-raw-reason-absent",
+      "required": true,
+      "description": "Scenario public evidence redacts the raw reason sentinel rather than committing it."
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Fetched Tempo trace JSON for reviewer validation of reason telemetry/redaction."
+    },
+    {
+      "name": "reason-telemetry-redaction-review",
+      "required": true,
+      "description": "Reviewer confirms safe reason attrs are present and the raw reason sentinel is absent from Tempo JSON before folding PASS."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CW-3",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "This row intentionally tops out at HONEST-LIMIT-candidate until Tempo trace JSON is fetched and reviewed for safe reason attrs present / raw reason absent."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "HONEST-LIMIT-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "dispatch-accepted",
+      "continue-work-tool-result-scheduled",
+      "work-woke-event",
+      "public-artifact-raw-reason-absent",
+      "tempo-trace-json",
+      "reason-telemetry-redaction-review"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Safe unattended live fire, but not an unattended PASS proof: trace fetch/review decides whether the reason telemetry claim can be folded. Disposable-session smoke may honestly stop at scheduled-only on runtimes where disposable sessions do not service self-elected continuation wakes; canonical fold also requires a CW3-WOKE receipt."
+  }
+}

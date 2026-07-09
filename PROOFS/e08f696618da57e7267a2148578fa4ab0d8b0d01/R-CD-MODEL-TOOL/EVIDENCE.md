@@ -3,7 +3,7 @@
 - **Aggregate state:** `pass`
 - **Candidate SHA:** `e08f696618da57e7267a2148578fa4ab0d8b0d01`
 - **Issue links:** karmaterminal/karmaterminal-openclaw-docs#367
-- **Review note:** Partial on both Cael/Ronan: parent scheduled, child/model byte not fully observed in live row output. Tracked in #367.
+- **Review note:** First Cael/Ronan k6 rows were partial because the child/model byte was not observed; Cael's gemini rerun now supplies the child runtime model byte and return payload. #367 remains preserved as method friction.
 
 ## Seat artifacts
 

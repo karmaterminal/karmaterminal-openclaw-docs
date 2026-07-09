@@ -1,0 +1,416 @@
+project81 k6 proof on cael	Set up job	﻿2026-07-09T05:36:34.1187821Z Current runner version: '2.335.1'
+project81 k6 proof on cael	Set up job	2026-07-09T05:36:34.1192236Z Runner name: 'cael'
+project81 k6 proof on cael	Set up job	2026-07-09T05:36:34.1192674Z Runner group name: 'thornfield'
+project81 k6 proof on cael	Set up job	2026-07-09T05:36:34.1193253Z Machine name: 'cael'
+project81 k6 proof on cael	Set up job	2026-07-09T05:36:34.1194809Z ##[group]GITHUB_TOKEN Permissions
+project81 k6 proof on cael	Set up job	2026-07-09T05:36:34.1196254Z Contents: read
+project81 k6 proof on cael	Set up job	2026-07-09T05:36:34.1196664Z Metadata: read
+project81 k6 proof on cael	Set up job	2026-07-09T05:36:34.1197028Z ##[endgroup]
+project81 k6 proof on cael	Set up job	2026-07-09T05:36:34.1198277Z Secret source: Actions
+project81 k6 proof on cael	Set up job	2026-07-09T05:36:34.1198713Z Prepare workflow directory
+project81 k6 proof on cael	Set up job	2026-07-09T05:36:34.1641927Z Prepare all required actions
+project81 k6 proof on cael	Set up job	2026-07-09T05:36:34.1665862Z Getting action download info
+project81 k6 proof on cael	Set up job	2026-07-09T05:36:34.5236070Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+project81 k6 proof on cael	Set up job	2026-07-09T05:36:35.0056784Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+project81 k6 proof on cael	Set up job	2026-07-09T05:36:36.3448315Z Complete job name: project81 k6 proof on cael
+project81 k6 proof on cael	Checkout bootstrap	﻿2026-07-09T05:36:36.4085011Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4089743Z ##[group]Run actions/checkout@v4
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4090123Z with:
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4090388Z   path: openclaw-bootstrap
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4090718Z   repository: karmaterminal/openclaw-bootstrap
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4093444Z   token: ***
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4093707Z   ssh-strict: true
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4093976Z   ssh-user: git
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4094248Z   persist-credentials: true
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4094549Z   clean: true
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4094826Z   sparse-checkout-cone-mode: true
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4095144Z   fetch-depth: 1
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4095411Z   fetch-tags: false
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4095695Z   show-progress: true
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4095981Z   lfs: false
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4096252Z   submodules: false
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4096622Z   set-safe-directory: true
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4097115Z env:
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4097365Z   TARGET_PRINCE: cael
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4097695Z   CANDIDATE_SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4098070Z   TARGET_REF: 
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4098327Z   ROWS: R-RC-2
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4098581Z   K6SCENARIOS: 
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4098858Z   SESSION_SELECTOR: p81-5292-cael-r-rc-2
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4099203Z   MANIFEST_PATH: project81-k6/manifest.json
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4099559Z   DOCS_REF: scribe/20260708/proofs-5292-rerun
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4099895Z   USE_DOCS_CATALOG: true
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4100174Z   DRY_RUN: false
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4100451Z   PROOFS_METRICS_PUSH: true
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4100844Z   PROOFS_METRICS_OTLP_ENDPOINT: http://10.0.0.99:4318/v1/metrics
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4101242Z   OPENCLAW_ALT_MODEL: 
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4101535Z   OPENCLAW_CREATE_DISPOSABLE_SESSION: true
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4101958Z   OPENCLAW_CREATE_DISPOSABLE_SESSIONS: true
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4102389Z   REASON: P81 5292 individual row R-RC-2 after split-run partial blocking
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4102806Z ##[endgroup]
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4734273Z Syncing repository: karmaterminal/openclaw-bootstrap
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4735336Z ##[group]Getting Git version info
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4735935Z Working directory is '/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap'
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4736826Z [command]/usr/bin/git version
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4737139Z git version 2.43.0
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4738101Z ##[endgroup]
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4740898Z Copying '/home/figs/.gitconfig' to '/home/figs/actions-runner/_work/_temp/5f0782f8-20e0-4a7b-b826-da19ab9383dd/.gitconfig'
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4742989Z Temporarily overriding HOME='/home/figs/actions-runner/_work/_temp/5f0782f8-20e0-4a7b-b826-da19ab9383dd' before making global git config changes
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4744060Z Adding repository directory to the temporary git global config as a safe directory
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4745195Z [command]/usr/bin/git config --global --add safe.directory /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4847769Z [command]/usr/bin/git config --local --get remote.origin.url
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4867817Z https://github.com/karmaterminal/openclaw-bootstrap
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4876312Z ##[group]Removing previously created refs, to avoid conflicts
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4881327Z [command]/usr/bin/git rev-parse --symbolic-full-name --verify --quiet HEAD
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4895559Z refs/heads/main
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4901177Z [command]/usr/bin/git checkout --detach
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4962454Z HEAD is now at 997d742 Add prince MinIO filesharing runbook (#1259)
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.4990574Z [command]/usr/bin/git branch --delete --force main
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5019718Z Deleted branch main (was 997d742).
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5049546Z ##[endgroup]
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5050227Z [command]/usr/bin/git submodule status
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5268388Z ##[group]Cleaning the repository
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5270587Z [command]/usr/bin/git clean -ffdx
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5317029Z Removing PROOFS/
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5324092Z [command]/usr/bin/git reset --hard HEAD
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5391478Z HEAD is now at 997d742 Add prince MinIO filesharing runbook (#1259)
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5396187Z ##[endgroup]
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5397516Z ##[group]Disabling automatic garbage collection
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5398425Z [command]/usr/bin/git config --local gc.auto 0
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5429616Z ##[endgroup]
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5430649Z ##[group]Setting up auth
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5432199Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5459962Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5661502Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5685082Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5897981Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.5927820Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.6142694Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.6182631Z ##[endgroup]
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.6183087Z ##[group]Fetching the repository
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.6186233Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +997d7423b6d29af4e4e899ff23295831e7c08718:refs/remotes/origin/main
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.9977821Z ##[endgroup]
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.9979171Z ##[group]Determining the checkout info
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.9980658Z ##[endgroup]
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:36.9981807Z [command]/usr/bin/git sparse-checkout disable
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:37.0014692Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:37.0034411Z ##[group]Checking out the ref
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:37.0035591Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:37.0102348Z Switched to a new branch 'main'
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:37.0103202Z branch 'main' set up to track 'origin/main'.
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:37.0105747Z ##[endgroup]
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:37.0136972Z [command]/usr/bin/git log -1 --format=%H
+project81 k6 proof on cael	Checkout bootstrap	2026-07-09T05:36:37.0165099Z 997d7423b6d29af4e4e899ff23295831e7c08718
+project81 k6 proof on cael	Checkout proof catalog	﻿2026-07-09T05:36:37.0548655Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0554285Z ##[group]Run actions/checkout@v4
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0555192Z with:
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0556045Z   repository: karmaterminal/karmaterminal-openclaw-docs
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0557364Z   ref: scribe/20260708/proofs-5292-rerun
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0558361Z   path: karmaterminal-openclaw-docs
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0567068Z   token: ***
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0567772Z   ssh-strict: true
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0568484Z   ssh-user: git
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0569216Z   persist-credentials: true
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0570029Z   clean: true
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0570760Z   sparse-checkout-cone-mode: true
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0571638Z   fetch-depth: 1
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0572342Z   fetch-tags: false
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0573132Z   show-progress: true
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0573863Z   lfs: false
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0574531Z   submodules: false
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0575285Z   set-safe-directory: true
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0576081Z env:
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0576806Z   TARGET_PRINCE: cael
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0577720Z   CANDIDATE_SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0578802Z   TARGET_REF: 
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0579474Z   ROWS: R-RC-2
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0580140Z   K6SCENARIOS: 
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0580884Z   SESSION_SELECTOR: p81-5292-cael-r-rc-2
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0581889Z   MANIFEST_PATH: project81-k6/manifest.json
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0582921Z   DOCS_REF: scribe/20260708/proofs-5292-rerun
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0583908Z   USE_DOCS_CATALOG: true
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0584681Z   DRY_RUN: false
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0585405Z   PROOFS_METRICS_PUSH: true
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0586555Z   PROOFS_METRICS_OTLP_ENDPOINT: http://10.0.0.99:4318/v1/metrics
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0587770Z   OPENCLAW_ALT_MODEL: 
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0588612Z   OPENCLAW_CREATE_DISPOSABLE_SESSION: true
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0589647Z   OPENCLAW_CREATE_DISPOSABLE_SESSIONS: true
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0590955Z   REASON: P81 5292 individual row R-RC-2 after split-run partial blocking
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.0592240Z ##[endgroup]
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1062187Z Syncing repository: karmaterminal/karmaterminal-openclaw-docs
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1064021Z ##[group]Getting Git version info
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1065914Z Working directory is '/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs'
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1087169Z [command]/usr/bin/git version
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1120629Z git version 2.43.0
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1131522Z ##[endgroup]
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1139138Z Copying '/home/figs/.gitconfig' to '/home/figs/actions-runner/_work/_temp/ff931d82-d150-4df7-b326-0755b0376f27/.gitconfig'
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1147617Z Temporarily overriding HOME='/home/figs/actions-runner/_work/_temp/ff931d82-d150-4df7-b326-0755b0376f27' before making global git config changes
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1150316Z Adding repository directory to the temporary git global config as a safe directory
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1153094Z [command]/usr/bin/git config --global --add safe.directory /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1252268Z [command]/usr/bin/git config --local --get remote.origin.url
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1269166Z https://github.com/karmaterminal/karmaterminal-openclaw-docs
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1279463Z ##[group]Removing previously created refs, to avoid conflicts
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1281089Z [command]/usr/bin/git rev-parse --symbolic-full-name --verify --quiet HEAD
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1305171Z refs/heads/scribe/20260708/proofs-5292-rerun
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1308550Z [command]/usr/bin/git checkout --detach
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1468320Z HEAD is now at cc408f7 PROOFS: seed Project 81 rerun corpus for 5292af40
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1500109Z [command]/usr/bin/git branch --delete --force scribe/20260708/proofs-5292-rerun
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1535434Z Deleted branch scribe/20260708/proofs-5292-rerun (was cc408f7).
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1561998Z ##[endgroup]
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1562660Z [command]/usr/bin/git submodule status
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1780374Z ##[group]Cleaning the repository
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.1782082Z [command]/usr/bin/git clean -ffdx
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.2028543Z [command]/usr/bin/git reset --hard HEAD
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.2392178Z HEAD is now at cc408f7 PROOFS: seed Project 81 rerun corpus for 5292af40
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.2401113Z ##[endgroup]
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.2402366Z ##[group]Disabling automatic garbage collection
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.2405592Z [command]/usr/bin/git config --local gc.auto 0
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.2440510Z ##[endgroup]
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.2441157Z ##[group]Setting up auth
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.2445814Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.2473215Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.2705802Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.2735822Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.2965585Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.2996800Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.3232128Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.3269298Z ##[endgroup]
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.3270536Z ##[group]Fetching the repository
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.3274469Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +refs/heads/scribe/20260708/proofs-5292-rerun*:refs/remotes/origin/scribe/20260708/proofs-5292-rerun* +refs/tags/scribe/20260708/proofs-5292-rerun*:refs/tags/scribe/20260708/proofs-5292-rerun*
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.8278108Z ##[endgroup]
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.8279260Z ##[group]Determining the checkout info
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.8281669Z [command]/usr/bin/git branch --list --remote origin/scribe/20260708/proofs-5292-rerun
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.8303387Z   origin/scribe/20260708/proofs-5292-rerun
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.8305973Z ##[endgroup]
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.8307601Z [command]/usr/bin/git sparse-checkout disable
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.8470689Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.8492804Z ##[group]Checking out the ref
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.8497848Z [command]/usr/bin/git checkout --progress --force -B scribe/20260708/proofs-5292-rerun refs/remotes/origin/scribe/20260708/proofs-5292-rerun
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.8730840Z Switched to a new branch 'scribe/20260708/proofs-5292-rerun'
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.8732645Z branch 'scribe/20260708/proofs-5292-rerun' set up to track 'origin/scribe/20260708/proofs-5292-rerun'.
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.8735551Z ##[endgroup]
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.8769784Z [command]/usr/bin/git log -1 --format=%H
+project81 k6 proof on cael	Checkout proof catalog	2026-07-09T05:36:37.8797478Z cc408f75eaf760d01224a93f3326f9a8a837e114
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	﻿2026-07-09T05:36:37.8941731Z ##[group]Run set -euo pipefail
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8942296Z [36;1mset -euo pipefail[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8942725Z [36;1mcd openclaw-bootstrap[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8943270Z [36;1msummary_output="$(scripts/project81-k6-proof/run.sh)"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8943981Z [36;1msummary_path="$(printf '%s\n' "${summary_output}" | tail -n 1)"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8944595Z [36;1mtest -f "${summary_path}"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8945132Z [36;1mecho "summary_path=${summary_path}" >> "$GITHUB_OUTPUT"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8945790Z [36;1mecho "### Project 81 k6 proof" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8946374Z [36;1mecho "" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8947074Z [36;1mecho "- target prince: ${TARGET_PRINCE}" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8947884Z [36;1mecho "- rows: ${ROWS}" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8948491Z [36;1mecho "- dry run: ${DRY_RUN}" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8949199Z [36;1mecho "- alt model: ${OPENCLAW_ALT_MODEL:-}" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8949933Z [36;1mecho "- reason: ${REASON:-}" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8950603Z [36;1mecho "- summary: \`${summary_path}\`" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8951210Z [36;1mecho "" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8951705Z [36;1mecho '```json' >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8952261Z [36;1mjq . "${summary_path}" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8952816Z [36;1mecho '```' >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8995991Z shell: /usr/bin/bash -e {0}
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8996654Z env:
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8996979Z   TARGET_PRINCE: cael
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8997430Z   CANDIDATE_SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8997939Z   TARGET_REF: 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8998269Z   ROWS: R-RC-2
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8998600Z   K6SCENARIOS: 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8998960Z   SESSION_SELECTOR: p81-5292-cael-r-rc-2
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8999447Z   MANIFEST_PATH: project81-k6/manifest.json
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.8999939Z   DOCS_REF: scribe/20260708/proofs-5292-rerun
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.9000405Z   USE_DOCS_CATALOG: true
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.9000774Z   DRY_RUN: false
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.9001121Z   PROOFS_METRICS_PUSH: true
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.9001641Z   PROOFS_METRICS_OTLP_ENDPOINT: http://10.0.0.99:4318/v1/metrics
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.9002197Z   OPENCLAW_ALT_MODEL: 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.9002591Z   OPENCLAW_CREATE_DISPOSABLE_SESSION: true
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.9003088Z   OPENCLAW_CREATE_DISPOSABLE_SESSIONS: true
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.9003700Z   REASON: P81 5292 individual row R-RC-2 after split-run partial blocking
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:37.9004297Z ##[endgroup]
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:39.0505168Z [project81-k6] proof metrics OTLP push enabled for live run
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:39.0506206Z [project81-k6] using docs catalog at /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/../karmaterminal-openclaw-docs ref=scribe/20260708/proofs-5292-rerun
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:40.7236744Z ==========================================================
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:40.7237402Z Project 81: Seat-Aware k6 Proof Runner
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:40.7238380Z Seat: cael
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:40.7238661Z Target Candidate SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:40.7239052Z Deployed Runtime SHA: OpenClaw 2026.6.11 (5292af4)
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:40.7239365Z Session: p81-5292-cael-r-rc-2
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:40.7240265Z Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/3e06097968e16d79df3aa5f7773f377430432097/project81-k6/20260709T053639Z-cael-dgx-4122681
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:40.7241157Z Rows: R-RC-2
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:40.7241390Z Dry Run: false
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:40.7241607Z ==========================================================
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:40.7252712Z Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.6627666Z SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/3e06097968e16d79df3aa5f7773f377430432097/project81-k6/20260709T053639Z-cael-dgx-4122681/seat-readiness.json
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7271850Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7272635Z ----------------------------------------
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7272919Z Row: R-RC-2
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7273306Z Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-rc-2.json
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7273729Z Scenario: scenarios/r-rc-2-delegate-request-compaction.js
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7273912Z Status: runnable
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7274025Z Live Safety: k6-runnable
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7274147Z [R-RC-2] RUNNING...
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7542393Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7543852Z          /\      Grafana   /‾‾/  
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7544086Z     /\  /  \     |\  __   /  /   
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7544234Z    /  \/    \    | |/ /  /   ‾‾\ 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7544407Z   /          \   |   (  |  (‾)  |
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7544561Z  / __________ \  |_|\_\  \_____/ 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7545466Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7545677Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7545845Z      execution: local
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7546015Z         script: scenarios/r-rc-2-delegate-request-compaction.js
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7546227Z         output: -
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7546291Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7546484Z      scenarios: (100.00%) 1 scenario, 1 max VUs, 3m0s max duration (incl. graceful stop):
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7549373Z               * r_rc_2_delegate_request_compaction: 1 iterations shared among 1 VUs (maxDuration: 2m30s, gracefulStop: 30s)
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:41.7549701Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:42.1253690Z time="2026-07-08T22:36:42-07:00" level=info msg="✓ disposable session created: agent:main:r-rc-2-r-rc-2-1783575401755-3wpzcfy3" source=console
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:42.6856727Z time="2026-07-08T22:36:42-07:00" level=info msg="✓ sessions.send accepted — parent agent turn triggered for R-RC-2" source=console
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:42.7553055Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:42.7554392Z running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:42.7554723Z r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m01.0s/2m30s  0/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:43.7564770Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:43.7572243Z running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:43.7575669Z r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m02.0s/2m30s  0/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:44.7547453Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:44.7547969Z running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:44.7548273Z r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m03.0s/2m30s  0/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:45.7559203Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:46.4522906Z running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:46.4523273Z r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m04.0s/2m30s  0/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:46.4523813Z time="2026-07-08T22:36:46-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:46.7553262Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:46.7554696Z running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:46.7555010Z r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m05.0s/2m30s  0/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:47.7558040Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:47.7558511Z running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:47.7559021Z r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m06.0s/2m30s  0/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:48.0137304Z time="2026-07-08T22:36:48-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:48.7560499Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:48.7570012Z running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:48.7575287Z r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m07.0s/2m30s  0/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:49.7557316Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:49.7562712Z running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:49.7566096Z r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m08.0s/2m30s  0/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:50.7568021Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:50.7574161Z running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:50.7574492Z r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m09.0s/2m30s  0/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:51.0339838Z time="2026-07-08T22:36:51-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:51.7566886Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:51.7570772Z running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:51.7571869Z r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m10.0s/2m30s  0/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:52.7568457Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:52.7577799Z running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:52.7592103Z r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m11.0s/2m30s  0/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:53.7564234Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:53.7568861Z running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:53.7570125Z r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m12.0s/2m30s  0/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:54.7560121Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:54.7571602Z running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:54.7584230Z r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m13.0s/2m30s  0/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:55.7549747Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:55.7551275Z running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:55.7551789Z r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m14.0s/2m30s  0/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:56.7558906Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:56.7571634Z running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:56.7574316Z r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m15.0s/2m30s  0/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.3595437Z time="2026-07-08T22:36:57-07:00" level=info msg="✓ delegated request_compaction threshold rejection observed: context=unknown threshold=unknown" source=console
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.3596621Z time="2026-07-08T22:36:57-07:00" level=info msg="\n--- R-RC-2 EVIDENCE SUMMARY ---" source=console
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.3608666Z time="2026-07-08T22:36:57-07:00" level=info msg="{\n  \"row\": \"R-RC-2\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-RC-2-1783575401755-3wpzcfy3\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"p81-5292-cael-r-rc-2\",\n  \"sessionKey\": \"agent:main:r-rc-2-r-rc-2-1783575401755-3wpzcfy3\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-rc-2-r-rc-2-1783575401755-3wpzcfy3\",\n  \"candidateSha\": \"5292af40d0ad5303b85a678f6e629503a8725848\",\n  \"started\": \"2026-07-09T05:36:41.755Z\",\n  \"parent_dispatch_accepted\": true,\n  \"delegate_requested\": true,\n  \"delegate_child_report_observed\": true,\n  \"request_compaction_rejected_context_threshold\": true,\n  \"request_compaction_accepted\": false,\n  \"post_compaction_path_observed\": false,\n  \"guard\": \"context_threshold\",\n  \"context_usage\": null,\n  \"threshold\": null,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783575401757,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575401759,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575401834,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575402124,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783575402158,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783575402684,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-RC-2-R-RC-2-1783575401755-3wpzcfy3\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783575403413,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575406451,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575407957,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575407969,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575408012,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575409853,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575410785,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575410785,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575410946,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575411033,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783575412143,\n      \"kind\": \"response\",\n      \"method\": \"tasks.list\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783575417358,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T05:36:57.359Z\",\n  \"duration_ms\": 15604,\n  \"verdict\": \"HONEST-LIMIT-candidate\"\n}" source=console
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.3621132Z time="2026-07-08T22:36:57-07:00" level=info msg="--- END EVIDENCE ---" source=console
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.3621747Z time="2026-07-08T22:36:57-07:00" level=info msg="\n[R-RC-2] VERDICT: HONEST-LIMIT-candidate" source=console
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.3622158Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.3622332Z running (0m15.6s), 0/1 VUs, 1 complete and 0 interrupted iterations
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.3622962Z r_rc_2_delegate_request_com... ✓ [ 100% ] 1 VUs  0m15.6s/2m30s  1/1 shared iters
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.4506817Z ./r-rc-2-summary.json
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.5313751Z [R-RC-2] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/3e06097968e16d79df3aa5f7773f377430432097/project81-k6/20260709T053639Z-cael-dgx-4122681/5292af40d0ad5303b85a678f6e629503a8725848/R-RC-2/cael/20260709T053641Z-r-rc-2/openclaw-proofs-k6.prom
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.5323912Z [R-RC-2] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/3e06097968e16d79df3aa5f7773f377430432097/project81-k6/20260709T053639Z-cael-dgx-4122681/5292af40d0ad5303b85a678f6e629503a8725848/R-RC-2/cael/20260709T053641Z-r-rc-2
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.5325134Z [R-RC-2] COMPLETED.
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.5325540Z Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.5503336Z REPORT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/3e06097968e16d79df3aa5f7773f377430432097/project81-k6/20260709T053639Z-cael-dgx-4122681/report.html
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.5504217Z 
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.5504324Z ==========================================================
+project81 k6 proof on cael	Run Project 81 k6 proof wrapper	2026-07-09T05:36:57.5504993Z Runner execution finished.
+project81 k6 proof on cael	Upload proof artifacts	﻿2026-07-09T05:36:57.5732530Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5733942Z ##[group]Run actions/upload-artifact@v4
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5734212Z with:
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5734424Z   name: project81-k6-proof-cael-28996296021
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5734909Z   path: openclaw-bootstrap/PROOFS/*/project81-k6/**
+project81 k6 proof on cael	Upload proof artifacts	karmaterminal-openclaw-docs/PROOFS/**
+project81 k6 proof on cael	Upload proof artifacts	
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5735687Z   if-no-files-found: error
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5735921Z   compression-level: 6
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5736129Z   overwrite: false
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5736335Z   include-hidden-files: false
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5736670Z env:
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5736843Z   TARGET_PRINCE: cael
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5737107Z   CANDIDATE_SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5737443Z   TARGET_REF: 
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5737622Z   ROWS: R-RC-2
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5737801Z   K6SCENARIOS: 
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5738005Z   SESSION_SELECTOR: p81-5292-cael-r-rc-2
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5738296Z   MANIFEST_PATH: project81-k6/manifest.json
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5738596Z   DOCS_REF: scribe/20260708/proofs-5292-rerun
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5738872Z   USE_DOCS_CATALOG: true
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5739080Z   DRY_RUN: false
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5739274Z   PROOFS_METRICS_PUSH: true
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5739588Z   PROOFS_METRICS_OTLP_ENDPOINT: http://10.0.0.99:4318/v1/metrics
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5739939Z   OPENCLAW_ALT_MODEL: 
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5740170Z   OPENCLAW_CREATE_DISPOSABLE_SESSION: true
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5740479Z   OPENCLAW_CREATE_DISPOSABLE_SESSIONS: true
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5740862Z   REASON: P81 5292 individual row R-RC-2 after split-run partial blocking
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.5741230Z ##[endgroup]
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.6714260Z (node:4123036) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:36:57.6715488Z (Use `node --trace-deprecation ...` to show where the warning was created)
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:02.0284099Z Multiple search paths detected. Calculating the least common ancestor of all paths
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:02.0285289Z The least common ancestor is /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap. This will be the root directory of the artifact
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:02.0286044Z With the provided path, there will be 10629 files uploaded
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:02.0287072Z Artifact name is valid!
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:02.0287512Z Root directory input is valid!
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:02.4251292Z Beginning upload of artifact content to blob storage
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:06.2508534Z (node:4123036) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:07.5422425Z Uploaded bytes 8388608
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:12.1775467Z Uploaded bytes 16777216
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:12.9380551Z Uploaded bytes 21205596
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:13.0111759Z Finished uploading artifact content to blob storage!
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:13.0118978Z SHA256 digest of uploaded artifact zip is 9f3fe425866b5275ec5595659211643cd52db7570e6dba8151f19510080ff0d5
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:13.0119551Z Finalizing artifact upload
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:13.4400506Z Artifact project81-k6-proof-cael-28996296021.zip successfully finalized. Artifact ID 8189961630
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:13.4407507Z Artifact project81-k6-proof-cael-28996296021 has been successfully uploaded! Final size is 21205596 bytes. Artifact ID is 8189961630
+project81 k6 proof on cael	Upload proof artifacts	2026-07-09T05:37:13.4408330Z Artifact download URL: https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/28996296021/artifacts/8189961630
+project81 k6 proof on cael	Post Checkout proof catalog	﻿2026-07-09T05:37:13.5020937Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+project81 k6 proof on cael	Post Checkout proof catalog	2026-07-09T05:37:13.5022316Z Post job cleanup.
+project81 k6 proof on cael	Post Checkout proof catalog	2026-07-09T05:37:13.5473035Z [command]/usr/bin/git version
+project81 k6 proof on cael	Post Checkout proof catalog	2026-07-09T05:37:13.5506065Z git version 2.43.0
+project81 k6 proof on cael	Post Checkout proof catalog	2026-07-09T05:37:13.5522140Z Copying '/home/figs/.gitconfig' to '/home/figs/actions-runner/_work/_temp/770ed4c0-b3fd-4c2c-90dd-e1686e9ff607/.gitconfig'
+project81 k6 proof on cael	Post Checkout proof catalog	2026-07-09T05:37:13.5530794Z Temporarily overriding HOME='/home/figs/actions-runner/_work/_temp/770ed4c0-b3fd-4c2c-90dd-e1686e9ff607' before making global git config changes
+project81 k6 proof on cael	Post Checkout proof catalog	2026-07-09T05:37:13.5531650Z Adding repository directory to the temporary git global config as a safe directory
+project81 k6 proof on cael	Post Checkout proof catalog	2026-07-09T05:37:13.5532635Z [command]/usr/bin/git config --global --add safe.directory /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs
+project81 k6 proof on cael	Post Checkout proof catalog	2026-07-09T05:37:13.5567551Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+project81 k6 proof on cael	Post Checkout proof catalog	2026-07-09T05:37:13.5595282Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+project81 k6 proof on cael	Post Checkout proof catalog	2026-07-09T05:37:13.5800628Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+project81 k6 proof on cael	Post Checkout proof catalog	2026-07-09T05:37:13.5821780Z http.https://github.com/.extraheader
+project81 k6 proof on cael	Post Checkout proof catalog	2026-07-09T05:37:13.5829120Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+project81 k6 proof on cael	Post Checkout proof catalog	2026-07-09T05:37:13.5864088Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+project81 k6 proof on cael	Post Checkout proof catalog	2026-07-09T05:37:13.6081290Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+project81 k6 proof on cael	Post Checkout proof catalog	2026-07-09T05:37:13.6105667Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+project81 k6 proof on cael	Post Checkout bootstrap	﻿2026-07-09T05:37:13.6466792Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+project81 k6 proof on cael	Post Checkout bootstrap	2026-07-09T05:37:13.6467478Z Post job cleanup.
+project81 k6 proof on cael	Post Checkout bootstrap	2026-07-09T05:37:13.7034069Z [command]/usr/bin/git version
+project81 k6 proof on cael	Post Checkout bootstrap	2026-07-09T05:37:13.7059733Z git version 2.43.0
+project81 k6 proof on cael	Post Checkout bootstrap	2026-07-09T05:37:13.7072557Z Copying '/home/figs/.gitconfig' to '/home/figs/actions-runner/_work/_temp/cfeda8ce-3168-48af-a5ac-ff369167e311/.gitconfig'
+project81 k6 proof on cael	Post Checkout bootstrap	2026-07-09T05:37:13.7077957Z Temporarily overriding HOME='/home/figs/actions-runner/_work/_temp/cfeda8ce-3168-48af-a5ac-ff369167e311' before making global git config changes
+project81 k6 proof on cael	Post Checkout bootstrap	2026-07-09T05:37:13.7078503Z Adding repository directory to the temporary git global config as a safe directory
+project81 k6 proof on cael	Post Checkout bootstrap	2026-07-09T05:37:13.7080113Z [command]/usr/bin/git config --global --add safe.directory /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap
+project81 k6 proof on cael	Post Checkout bootstrap	2026-07-09T05:37:13.7190512Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+project81 k6 proof on cael	Post Checkout bootstrap	2026-07-09T05:37:13.7203248Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+project81 k6 proof on cael	Post Checkout bootstrap	2026-07-09T05:37:13.7439174Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+project81 k6 proof on cael	Post Checkout bootstrap	2026-07-09T05:37:13.7460199Z http.https://github.com/.extraheader
+project81 k6 proof on cael	Post Checkout bootstrap	2026-07-09T05:37:13.7469824Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+project81 k6 proof on cael	Post Checkout bootstrap	2026-07-09T05:37:13.7490640Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+project81 k6 proof on cael	Post Checkout bootstrap	2026-07-09T05:37:13.7706181Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+project81 k6 proof on cael	Post Checkout bootstrap	2026-07-09T05:37:13.7736886Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+project81 k6 proof on cael	Complete job	﻿2026-07-09T05:37:13.8068949Z Cleaning up orphan processes
+project81 k6 proof on cael	Complete job	2026-07-09T05:37:13.8580049Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

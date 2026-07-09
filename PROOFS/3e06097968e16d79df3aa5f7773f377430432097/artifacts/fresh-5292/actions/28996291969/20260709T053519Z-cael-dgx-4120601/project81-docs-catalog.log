@@ -1,0 +1,48 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+Deployed Runtime SHA: OpenClaw 2026.6.11 (5292af4)
+Session: p81-5292-cael-r-obs-status
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/3e06097968e16d79df3aa5f7773f377430432097/project81-k6/20260709T053519Z-cael-dgx-4120601
+Rows: R-OBS-status
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/3e06097968e16d79df3aa5f7773f377430432097/project81-k6/20260709T053519Z-cael-dgx-4120601/seat-readiness.json
+
+----------------------------------------
+Row: R-OBS-STATUS
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-obs-status.json
+Scenario: scenarios/r-obs-status.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-STATUS] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-status.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m0s max duration (incl. graceful stop):
+              * r_obs_status: 1 iterations shared among 1 VUs (maxDuration: 30s, gracefulStop: 30s)
+
+time="2026-07-08T22:35:23-07:00" level=info msg="R_OBS_STATUS_EVIDENCE {\"row\":\"R-OBS-status\",\"manifest_loaded\":true,\"seat\":\"cael\",\"candidateSha\":\"5292af40d0ad5303b85a678f6e629503a8725848\",\"started\":\"2026-07-09T05:35:22.751Z\",\"connected\":true,\"connect_ok\":true,\"status_ok\":true,\"status_payload\":{},\"trace_id\":null,\"redacted_events\":[{\"ts\":1783575322753,\"kind\":\"event\",\"method\":null,\"event\":\"connect.challenge\",\"ok\":null,\"data\":null},{\"ts\":1783575322754,\"kind\":\"other\",\"method\":null,\"event\":null,\"ok\":null,\"data\":null},{\"ts\":1783575322808,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":null},{\"ts\":1783575323396,\"kind\":\"response\",\"method\":\"status\",\"event\":null,\"ok\":true,\"data\":{}}],\"ended\":\"2026-07-09T05:35:23.396Z\",\"duration_ms\":645}" source=console
+
+running (0m00.6s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_status ✓ [ 100% ] 1 VUs  00.6s/30s  1/1 shared iters
+./r-obs-status-summary.json
+[R-OBS-STATUS] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/3e06097968e16d79df3aa5f7773f377430432097/project81-k6/20260709T053519Z-cael-dgx-4120601/5292af40d0ad5303b85a678f6e629503a8725848/R-OBS-STATUS/cael/20260709T053522Z-r-obs-status/openclaw-proofs-k6.prom
+[R-OBS-STATUS] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/3e06097968e16d79df3aa5f7773f377430432097/project81-k6/20260709T053519Z-cael-dgx-4120601/5292af40d0ad5303b85a678f6e629503a8725848/R-OBS-STATUS/cael/20260709T053522Z-r-obs-status
+[R-OBS-STATUS] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/3e06097968e16d79df3aa5f7773f377430432097/project81-k6/20260709T053519Z-cael-dgx-4120601/report.html
+
+==========================================================
+Runner execution finished.

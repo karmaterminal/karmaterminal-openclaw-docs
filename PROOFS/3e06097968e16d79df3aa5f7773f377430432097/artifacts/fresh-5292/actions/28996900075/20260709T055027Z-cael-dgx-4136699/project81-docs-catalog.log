@@ -1,0 +1,109 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+Deployed Runtime SHA: OpenClaw 2026.6.11 (5292af4)
+Session: p81-5292-cael-r-cd-model-token
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/3e06097968e16d79df3aa5f7773f377430432097/project81-k6/20260709T055027Z-cael-dgx-4136699
+Rows: R-CD-MODEL-TOKEN
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/3e06097968e16d79df3aa5f7773f377430432097/project81-k6/20260709T055027Z-cael-dgx-4136699/seat-readiness.json
+
+----------------------------------------
+Row: R-CD-MODEL-TOKEN
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-model-token.json
+Scenario: scenarios/r-cd-model-token.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-MODEL-TOKEN] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-model-token.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 4m0s max duration (incl. graceful stop):
+              * r_cd_model_token: 1 iterations shared among 1 VUs (maxDuration: 3m30s, gracefulStop: 30s)
+
+time="2026-07-08T22:50:30-07:00" level=info msg="✓ disposable session created: agent:main:r-cd-model-token-r-cd-model-token-1783576230524-sff8vgaw" source=console
+time="2026-07-08T22:50:31-07:00" level=info msg="✓ sessions.send accepted — parent agent turn triggered" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m01.0s/3m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m02.0s/3m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m03.0s/3m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m04.0s/3m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m05.0s/3m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m06.0s/3m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m07.0s/3m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m08.0s/3m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m09.0s/3m30s  0/1 shared iters
+time="2026-07-08T22:50:40-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m10.0s/3m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m11.0s/3m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m12.0s/3m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m13.0s/3m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m14.0s/3m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m15.0s/3m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m16.0s/3m30s  0/1 shared iters
+time="2026-07-08T22:50:47-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-08T22:50:47-07:00" level=info msg="✓ bracket-token child turn observed" source=console
+time="2026-07-08T22:50:47-07:00" level=info msg="✓ bracket model modifier observed" source=console
+time="2026-07-08T22:50:47-07:00" level=info msg="✓ MODEL-TOKEN-DELEGATE-DONE return sentinel observed" source=console
+time="2026-07-08T22:50:47-07:00" level=info msg="All required R-CD-MODEL-TOKEN evidence gathered, closing early" source=console
+time="2026-07-08T22:50:47-07:00" level=info msg="\n--- R-CD-MODEL-TOKEN EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T22:50:47-07:00" level=info msg="{\n  \"row\": \"R-CD-MODEL-TOKEN\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CD-MODEL-TOKEN-1783576230524-sff8vgaw\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"p81-5292-cael-r-cd-model-token\",\n  \"sessionKey\": \"agent:main:r-cd-model-token-r-cd-model-token-1783576230524-sff8vgaw\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cd-model-token-r-cd-model-token-1783576230524-sff8vgaw\",\n  \"candidateSha\": \"5292af40d0ad5303b85a678f6e629503a8725848\",\n  \"started\": \"2026-07-09T05:50:30.524Z\",\n  \"requested_model_byte\": \"gpt\",\n  \"prompt_injected\": true,\n  \"subagent_spawn_requested\": true,\n  \"subagent_spawn_accepted\": true,\n  \"bracket_token_observed\": true,\n  \"bracket_model_modifier_observed\": true,\n  \"child_session_observed\": true,\n  \"child_model_byte\": \"gpt\",\n  \"model_matches\": true,\n  \"return_payload\": true,\n  \"dispatch_accepted_at_ms\": 1783576231437,\n  \"child_session_key\": null,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783576230526,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576230527,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576230574,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576230896,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783576230926,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783576231437,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CD-MODEL-TOKEN-DISPATCH-R-CD-MODEL-TOKEN-1783576230524-sff8vgaw\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783576232160,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576235625,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576236928,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576236942,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576237003,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576240022,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576240022,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576240190,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576240237,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783576247165,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T05:50:47.165Z\",\n  \"duration_ms\": 16641\n}" source=console
+time="2026-07-08T22:50:47-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T22:50:47-07:00" level=info msg="\n[R-CD-MODEL-TOKEN] VERDICT: PASS-candidate" source=console
+
+[R-CD-MODEL-TOKEN] Summary: PASS-candidate | SHA: 5292af40d0ad5303b85a678f6e629503a8725848 | Seat: cael
+
+running (0m16.6s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_model_token ✓ [ 100% ] 1 VUs  0m16.6s/3m30s  1/1 shared iters
+./r-cd-model-token-summary.json
+[R-CD-MODEL-TOKEN] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/3e06097968e16d79df3aa5f7773f377430432097/project81-k6/20260709T055027Z-cael-dgx-4136699/5292af40d0ad5303b85a678f6e629503a8725848/R-CD-MODEL-TOKEN/cael/20260709T055030Z-r-cd-model-token/openclaw-proofs-k6.prom
+[R-CD-MODEL-TOKEN] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/3e06097968e16d79df3aa5f7773f377430432097/project81-k6/20260709T055027Z-cael-dgx-4136699/5292af40d0ad5303b85a678f6e629503a8725848/R-CD-MODEL-TOKEN/cael/20260709T055030Z-r-cd-model-token
+[R-CD-MODEL-TOKEN] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/3e06097968e16d79df3aa5f7773f377430432097/project81-k6/20260709T055027Z-cael-dgx-4136699/report.html
+
+==========================================================
+Runner execution finished.

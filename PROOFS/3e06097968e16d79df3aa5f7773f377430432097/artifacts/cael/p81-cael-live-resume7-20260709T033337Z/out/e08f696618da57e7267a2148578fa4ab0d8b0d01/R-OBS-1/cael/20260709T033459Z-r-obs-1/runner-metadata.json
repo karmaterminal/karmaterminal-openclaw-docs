@@ -1,0 +1,9 @@
+{
+  "row": "R-OBS-1",
+  "scenario": "r-obs-1.js",
+  "candidateSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "runtimeBuildSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "seat": "cael",
+  "sessionKey": "main",
+  "startedAt": "2026-07-09T03:34:59Z"
+}

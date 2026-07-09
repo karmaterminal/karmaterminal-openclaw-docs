@@ -1,0 +1,33 @@
+{
+  "k6ExitCode": 0,
+  "endedAt": "2026-07-09T05:36:34Z",
+  "verdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-obs-status-summary.json"
+  ],
+  "evidence": {
+    "candidateSha": "5292af40d0ad5303b85a678f6e629503a8725848",
+    "connect_ok": true,
+    "connected": true,
+    "duration_ms": 642,
+    "ended": "2026-07-09T05:36:34.024Z",
+    "manifest_loaded": true,
+    "row": "R-OBS-status",
+    "seat": "ronan",
+    "started": "2026-07-09T05:36:33.382Z",
+    "status_ok": true,
+    "status_payload": {},
+    "trace_id": null
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "missing",
+    "traceId": null,
+    "tempoTraceJson": null
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

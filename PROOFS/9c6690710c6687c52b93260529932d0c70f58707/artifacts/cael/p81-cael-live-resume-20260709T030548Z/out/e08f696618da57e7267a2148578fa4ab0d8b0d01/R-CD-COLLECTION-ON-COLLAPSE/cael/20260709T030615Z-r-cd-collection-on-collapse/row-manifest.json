@@ -1,0 +1,76 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-COLLECTION-ON-COLLAPSE",
+  "issue": 119,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "offline",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 15,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "static-corpus-row-validator",
+    "description": "Static validator for committed A→B→delayed-C collection-on-collapse proof receipts.",
+    "methods": [
+      "manual-corpus-review",
+      "static-artifact-parse"
+    ],
+    "status": "runnable",
+    "file": "static-corpus-row-validator.js"
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "forms": [
+      "typed-tool"
+    ],
+    "mode": "silent-wake",
+    "delaySeconds": 1,
+    "promptTemplate": "Proof nonce {{nonce}}: construct A→B→C collection-on-collapse chain with detached intermediate only when explicitly live-fired. Do not mutate files. Do not post to any channel.",
+    "idempotencyKeyPrefix": "R-CD-COLLECT-COLLAPSE"
+  },
+  "expectedReceipts": [
+    {
+      "name": "collection-collapse-artifacts",
+      "required": true,
+      "description": "Current PROOFS corpus receipts parse for this row."
+    },
+    {
+      "name": "root-collection-after-intermediate-finalized",
+      "required": true,
+      "description": "Committed evidence satisfies the row-specific PASS predicate."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-COLLECTION-ON-COLLAPSE",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Static artifact validator for R-CD-COLLECTION-ON-COLLAPSE. Validates committed corpus receipts; does not fire live behavior."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "collection-collapse-artifacts",
+      "root-collection-after-intermediate-finalized"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Offline/static current-corpus validator; safe in broad suite because it does not connect to or mutate gateway state."
+  }
+}

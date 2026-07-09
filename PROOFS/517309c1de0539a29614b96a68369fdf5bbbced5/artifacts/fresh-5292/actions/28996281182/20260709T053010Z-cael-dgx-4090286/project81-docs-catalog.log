@@ -1,0 +1,119 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+Deployed Runtime SHA: OpenClaw 2026.6.11 (5292af4)
+Session: p81-5292-cael-r-cw-3
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/517309c1de0539a29614b96a68369fdf5bbbced5/project81-k6/20260709T053010Z-cael-dgx-4090286
+Rows: R-CW-3
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/517309c1de0539a29614b96a68369fdf5bbbced5/project81-k6/20260709T053010Z-cael-dgx-4090286/seat-readiness.json
+
+----------------------------------------
+Row: R-CW-3
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-3.json
+Scenario: scenarios/r-cw-3-reason-telemetry.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-3] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-3-reason-telemetry.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 10m30s max duration (incl. graceful stop):
+              * r_cw_3_reason_telemetry: 1 iterations shared among 1 VUs (maxDuration: 10m0s, gracefulStop: 30s)
+
+time="2026-07-08T22:30:13-07:00" level=info msg="✓ disposable session created: agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1" source=console
+time="2026-07-08T22:30:14-07:00" level=info msg="✓ sessions.send accepted — reason telemetry turn triggered" source=console
+
+running (00m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m01.0s/10m0s  0/1 shared iters
+
+running (00m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m02.0s/10m0s  0/1 shared iters
+
+running (00m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m03.0s/10m0s  0/1 shared iters
+
+running (00m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m04.0s/10m0s  0/1 shared iters
+
+running (00m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m05.0s/10m0s  0/1 shared iters
+
+running (00m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m06.0s/10m0s  0/1 shared iters
+
+running (00m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m07.0s/10m0s  0/1 shared iters
+
+running (00m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m08.0s/10m0s  0/1 shared iters
+
+running (00m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m09.0s/10m0s  0/1 shared iters
+
+running (00m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m10.0s/10m0s  0/1 shared iters
+
+running (00m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m11.0s/10m0s  0/1 shared iters
+
+running (00m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m12.0s/10m0s  0/1 shared iters
+
+running (00m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m13.0s/10m0s  0/1 shared iters
+
+running (00m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m14.0s/10m0s  0/1 shared iters
+time="2026-07-08T22:30:27-07:00" level=info msg="✓ CW3-SCHEDULED sentinel observed" source=console
+
+running (00m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m15.0s/10m0s  0/1 shared iters
+
+running (00m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m16.0s/10m0s  0/1 shared iters
+
+running (00m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m17.0s/10m0s  0/1 shared iters
+
+running (00m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m18.0s/10m0s  0/1 shared iters
+
+running (00m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m19.0s/10m0s  0/1 shared iters
+
+running (00m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m20.0s/10m0s  0/1 shared iters
+time="2026-07-08T22:30:33-07:00" level=info msg="✓ CW3-WOKE sentinel observed" source=console
+time="2026-07-08T22:30:33-07:00" level=info msg="Required R-CW-3 schedule/wake evidence gathered, closing early" source=console
+time="2026-07-08T22:30:33-07:00" level=info msg="R_CW_3_EVIDENCE {\"row\":\"R-CW-3\",\"manifest_loaded\":true,\"nonce\":\"R-CW-3-1783575013491-d5dpgqn1\",\"seat\":\"cael\",\"requestedSessionKey\":\"p81-5292-cael-r-cw-3\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\"session_created\":true,\"created_session_key\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\"candidateSha\":\"5292af40d0ad5303b85a678f6e629503a8725848\",\"started\":\"2026-07-09T05:30:13.491Z\",\"dispatch_accepted\":true,\"scheduled_sentinel\":true,\"wake_observed\":true,\"public_artifact_raw_reason_absent\":true,\"tempo_assertion\":\"pending-review\",\"trace_id\":null,\"trace_id_source\":null,\"dispatch_accepted_at_ms\":1783575014409,\"scheduled_result_at_ms\":1783575027920,\"wake_delay_ms\":5970,\"redacted_events\":[{\"ts\":1783575013493,\"kind\":\"event\",\"method\":null,\"event\":\"connect.challenge\",\"ok\":null,\"data\":{\"ts\":1783575013492}},{\"ts\":1783575013494,\"kind\":\"other\",\"method\":null,\"event\":null,\"ok\":null,\"data\":{}},{\"ts\":1783575013577,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":{\"ok\":true,\"ts\":1783575013575}},{\"ts\":1783575013878,\"kind\":\"response\",\"method\":\"sessions.create\",\"event\":null,\"ok\":true,\"data\":{\"ok\":true}},{\"ts\":1783575013906,\"kind\":\"response\",\"method\":\"sessions.messages.subscribe\",\"event\":null,\"ok\":true,\"data\":{}},{\"ts\":1783575014409,\"kind\":\"response\",\"method\":\"sessions.send\",\"event\":null,\"ok\":true,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\"status\":\"started\"}},{\"ts\":1783575015157,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrd2ihd4-a613f445\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1:active-memory:5dc889263694\",\"ts\":1783575015156}},{\"ts\":1783575017878,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrd2ihd4-a613f445\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1:active-memory:5dc889263694\",\"ts\":1783575017865}},{\"ts\":1783575019723,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":{\"ok\":true,\"ts\":1783575019722}},{\"ts\":1783575019772,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":{\"ok\":true,\"ts\":1783575019771}},{\"ts\":1783575019773,\"kind\":\"event\",\"method\":null,\"event\":\"tick\",\"ok\":null,\"data\":{\"ts\":1783575019772}},{\"ts\":1783575019788,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":{}},{\"ts\":1783575019829,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrd2ihd4-a613f445\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1:active-memory:5dc889263694\",\"ts\":1783575019812}},{\"ts\":1783575021313,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrd2ihd4-a613f445\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1:active-memory:5dc889263694\",\"ts\":1783575021312}},{\"ts\":1783575021313,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrd2ihd4-a613f445\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1:active-memory:5dc889263694\",\"state\":\"error\"}},{\"ts\":1783575021474,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\"ts\":1783575021473}},{\"ts\":1783575021517,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":{\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\"}},{\"ts\":1783575024976,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":{\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\"status\":\"running\",\"startedAt\":1783575021473}},{\"ts\":1783575025008,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\"ts\":1783575024976}},{\"ts\":1783575025047,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\"ts\":1783575025035}},{\"ts\":1783575027837,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\"ts\":1783575027836}},{\"ts\":1783575027837,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\"state\":\"delta\"}},{\"ts\":1783575027920,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":{\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\"status\":\"running\",\"startedAt\":1783575021473}},{\"ts\":1783575027924,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\"ts\":1783575027839}},{\"ts\":1783575027924,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\"ts\":1783575027923}},{\"ts\":1783575028025,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\"ts\":1783575028024}},{\"ts\":1783575028025,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\"state\":\"delta\"}},{\"ts\":1783575028025,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\"state\":\"final\"}},{\"ts\":1783575033890,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":{\"sessionKey\":\"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\"status\":\"done\",\"startedAt\":1783575021473}}],\"ended\":\"2026-07-09T05:30:33.890Z\",\"duration_ms\":20399}" source=console
+time="2026-07-08T22:30:33-07:00" level=info msg="\n--- R-CW-3 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T22:30:33-07:00" level=info msg="{\n  \"row\": \"R-CW-3\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CW-3-1783575013491-d5dpgqn1\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"p81-5292-cael-r-cw-3\",\n  \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\n  \"candidateSha\": \"5292af40d0ad5303b85a678f6e629503a8725848\",\n  \"started\": \"2026-07-09T05:30:13.491Z\",\n  \"dispatch_accepted\": true,\n  \"scheduled_sentinel\": true,\n  \"wake_observed\": true,\n  \"public_artifact_raw_reason_absent\": true,\n  \"tempo_assertion\": \"pending-review\",\n  \"trace_id\": null,\n  \"trace_id_source\": null,\n  \"dispatch_accepted_at_ms\": 1783575014409,\n  \"scheduled_result_at_ms\": 1783575027920,\n  \"wake_delay_ms\": 5970,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783575013493,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": {\n        \"ts\": 1783575013492\n      }\n    },\n    {\n      \"ts\": 1783575013494,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783575013577,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": {\n        \"ok\": true,\n        \"ts\": 1783575013575\n      }\n    },\n    {\n      \"ts\": 1783575013878,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783575013906,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783575014409,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783575015157,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrd2ihd4-a613f445\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1:active-memory:5dc889263694\",\n        \"ts\": 1783575015156\n      }\n    },\n    {\n      \"ts\": 1783575017878,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrd2ihd4-a613f445\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1:active-memory:5dc889263694\",\n        \"ts\": 1783575017865\n      }\n    },\n    {\n      \"ts\": 1783575019723,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": {\n        \"ok\": true,\n        \"ts\": 1783575019722\n      }\n    },\n    {\n      \"ts\": 1783575019772,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": {\n        \"ok\": true,\n        \"ts\": 1783575019771\n      }\n    },\n    {\n      \"ts\": 1783575019773,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": {\n        \"ts\": 1783575019772\n      }\n    },\n    {\n      \"ts\": 1783575019788,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783575019829,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrd2ihd4-a613f445\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1:active-memory:5dc889263694\",\n        \"ts\": 1783575019812\n      }\n    },\n    {\n      \"ts\": 1783575021313,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrd2ihd4-a613f445\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1:active-memory:5dc889263694\",\n        \"ts\": 1783575021312\n      }\n    },\n    {\n      \"ts\": 1783575021313,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrd2ihd4-a613f445\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1:active-memory:5dc889263694\",\n        \"state\": \"error\"\n      }\n    },\n    {\n      \"ts\": 1783575021474,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\n        \"ts\": 1783575021473\n      }\n    },\n    {\n      \"ts\": 1783575021517,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": {\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\"\n      }\n    },\n    {\n      \"ts\": 1783575024976,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": {\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\n        \"status\": \"running\",\n        \"startedAt\": 1783575021473\n      }\n    },\n    {\n      \"ts\": 1783575025008,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\n        \"ts\": 1783575024976\n      }\n    },\n    {\n      \"ts\": 1783575025047,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\n        \"ts\": 1783575025035\n      }\n    },\n    {\n      \"ts\": 1783575027837,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\n        \"ts\": 1783575027836\n      }\n    },\n    {\n      \"ts\": 1783575027837,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\n        \"state\": \"delta\"\n      }\n    },\n    {\n      \"ts\": 1783575027920,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": {\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\n        \"status\": \"running\",\n        \"startedAt\": 1783575021473\n      }\n    },\n    {\n      \"ts\": 1783575027924,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\n        \"ts\": 1783575027839\n      }\n    },\n    {\n      \"ts\": 1783575027924,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\n        \"ts\": 1783575027923\n      }\n    },\n    {\n      \"ts\": 1783575028025,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\n        \"ts\": 1783575028024\n      }\n    },\n    {\n      \"ts\": 1783575028025,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\n        \"state\": \"delta\"\n      }\n    },\n    {\n      \"ts\": 1783575028025,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-3-DISPATCH-R-CW-3-1783575013491-d5dpgqn1\",\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\n        \"state\": \"final\"\n      }\n    },\n    {\n      \"ts\": 1783575033890,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": {\n        \"sessionKey\": \"agent:main:r-cw-3-r-cw-3-1783575013491-d5dpgqn1\",\n        \"status\": \"done\",\n        \"startedAt\": 1783575021473\n      }\n    }\n  ],\n  \"ended\": \"2026-07-09T05:30:33.890Z\",\n  \"duration_ms\": 20399\n}" source=console
+time="2026-07-08T22:30:33-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T22:30:33-07:00" level=info msg="\n[R-CW-3] VERDICT: HONEST-LIMIT-candidate" source=console
+
+[R-CW-3] Summary: HONEST-LIMIT-candidate | SHA: 5292af40d0ad5303b85a678f6e629503a8725848 | Seat: cael
+
+running (00m20.4s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry ✓ [ 100% ] 1 VUs  00m20.4s/10m0s  1/1 shared iters
+./r-cw-3-reason-telemetry-summary.json
+[R-CW-3] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/517309c1de0539a29614b96a68369fdf5bbbced5/project81-k6/20260709T053010Z-cael-dgx-4090286/5292af40d0ad5303b85a678f6e629503a8725848/R-CW-3/cael/20260709T053013Z-r-cw-3/openclaw-proofs-k6.prom
+[R-CW-3] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/517309c1de0539a29614b96a68369fdf5bbbced5/project81-k6/20260709T053010Z-cael-dgx-4090286/5292af40d0ad5303b85a678f6e629503a8725848/R-CW-3/cael/20260709T053013Z-r-cw-3
+[R-CW-3] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/517309c1de0539a29614b96a68369fdf5bbbced5/project81-k6/20260709T053010Z-cael-dgx-4090286/report.html
+
+==========================================================
+Runner execution finished.

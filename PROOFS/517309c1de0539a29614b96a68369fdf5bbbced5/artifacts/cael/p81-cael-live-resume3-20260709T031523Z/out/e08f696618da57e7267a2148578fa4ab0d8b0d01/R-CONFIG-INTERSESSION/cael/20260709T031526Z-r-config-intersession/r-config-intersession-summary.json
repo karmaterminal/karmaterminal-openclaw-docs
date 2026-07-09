@@ -1,0 +1,18 @@
+{
+  "row": "R-CONFIG-INTERSESSION",
+  "sha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "seat": "cael",
+  "timestamp": "2026-07-09T03:15:40.252Z",
+  "verdict": "PARTIAL-candidate",
+  "metrics": {
+    "duration_ms": {
+      "p(90)": 14007,
+      "p(95)": 14007,
+      "avg": 14007,
+      "min": 14007,
+      "med": 14007,
+      "max": 14007
+    },
+    "failures": 2
+  }
+}

@@ -1,0 +1,377 @@
+project81 k6 proof on ronan	Set up job	﻿2026-07-09T05:27:33.6973064Z Current runner version: '2.335.1'
+project81 k6 proof on ronan	Set up job	2026-07-09T05:27:33.6977377Z Runner name: 'ronan'
+project81 k6 proof on ronan	Set up job	2026-07-09T05:27:33.6977827Z Runner group name: 'thornfield'
+project81 k6 proof on ronan	Set up job	2026-07-09T05:27:33.6978412Z Machine name: 'ronan'
+project81 k6 proof on ronan	Set up job	2026-07-09T05:27:33.6979922Z ##[group]GITHUB_TOKEN Permissions
+project81 k6 proof on ronan	Set up job	2026-07-09T05:27:33.6981409Z Contents: read
+project81 k6 proof on ronan	Set up job	2026-07-09T05:27:33.6981806Z Metadata: read
+project81 k6 proof on ronan	Set up job	2026-07-09T05:27:33.6982127Z ##[endgroup]
+project81 k6 proof on ronan	Set up job	2026-07-09T05:27:33.6983279Z Secret source: Actions
+project81 k6 proof on ronan	Set up job	2026-07-09T05:27:33.6983694Z Prepare workflow directory
+project81 k6 proof on ronan	Set up job	2026-07-09T05:27:33.7414188Z Prepare all required actions
+project81 k6 proof on ronan	Set up job	2026-07-09T05:27:33.7439351Z Getting action download info
+project81 k6 proof on ronan	Set up job	2026-07-09T05:27:34.1107869Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+project81 k6 proof on ronan	Set up job	2026-07-09T05:27:34.5118670Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+project81 k6 proof on ronan	Set up job	2026-07-09T05:27:35.2316988Z Complete job name: project81 k6 proof on ronan
+project81 k6 proof on ronan	Checkout bootstrap	﻿2026-07-09T05:27:35.3065233Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3070962Z ##[group]Run actions/checkout@v4
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3071499Z with:
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3071867Z   path: openclaw-bootstrap
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3072345Z   repository: karmaterminal/openclaw-bootstrap
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3076440Z   token: ***
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3076845Z   ssh-strict: true
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3077227Z   ssh-user: git
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3077615Z   persist-credentials: true
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3078038Z   clean: true
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3078426Z   sparse-checkout-cone-mode: true
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3078872Z   fetch-depth: 1
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3079246Z   fetch-tags: false
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3079633Z   show-progress: true
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3080045Z   lfs: false
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3080425Z   submodules: false
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3080819Z   set-safe-directory: true
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3081290Z env:
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3081635Z   TARGET_PRINCE: ronan
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3082112Z   CANDIDATE_SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3082658Z   TARGET_REF: 
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3083034Z   ROWS: R-CONFIG-INTERSESSION
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3083462Z   K6SCENARIOS: 
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3083920Z   SESSION_SELECTOR: p81-5292-ronan-r-config-intersession
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3084502Z   MANIFEST_PATH: project81-k6/manifest.json
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3085024Z   DOCS_REF: scribe/20260708/proofs-5292-rerun
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3085515Z   USE_DOCS_CATALOG: true
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3085912Z   DRY_RUN: false
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3086298Z   PROOFS_METRICS_PUSH: true
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3086878Z   PROOFS_METRICS_OTLP_ENDPOINT: http://10.0.0.99:4318/v1/metrics
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3087458Z   OPENCLAW_ALT_MODEL: 
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3087878Z   OPENCLAW_CREATE_DISPOSABLE_SESSION: true
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3088401Z   OPENCLAW_CREATE_DISPOSABLE_SESSIONS: true
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3089186Z   REASON: P81 5292 individual row R-CONFIG-INTERSESSION after split-run partial blocking
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3089884Z ##[endgroup]
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3750423Z Syncing repository: karmaterminal/openclaw-bootstrap
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3751803Z ##[group]Getting Git version info
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3752650Z Working directory is '/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap'
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3753834Z [command]/usr/bin/git version
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3754267Z git version 2.43.0
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3755616Z ##[endgroup]
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3761351Z Copying '/home/figs/.gitconfig' to '/home/figs/actions-runner/_work/_temp/efc114a1-0977-44a8-9b02-20661b25555a/.gitconfig'
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3767261Z Temporarily overriding HOME='/home/figs/actions-runner/_work/_temp/efc114a1-0977-44a8-9b02-20661b25555a' before making global git config changes
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3768505Z Adding repository directory to the temporary git global config as a safe directory
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3770033Z [command]/usr/bin/git config --global --add safe.directory /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3872390Z [command]/usr/bin/git config --local --get remote.origin.url
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3897910Z https://github.com/karmaterminal/openclaw-bootstrap
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3911609Z ##[group]Removing previously created refs, to avoid conflicts
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3913207Z [command]/usr/bin/git rev-parse --symbolic-full-name --verify --quiet HEAD
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3941119Z refs/heads/main
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.3948159Z [command]/usr/bin/git checkout --detach
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4001026Z HEAD is now at 997d742 Add prince MinIO filesharing runbook (#1259)
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4033675Z [command]/usr/bin/git branch --delete --force main
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4062969Z Deleted branch main (was 997d742).
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4095040Z ##[endgroup]
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4095855Z [command]/usr/bin/git submodule status
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4297028Z ##[group]Cleaning the repository
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4299487Z [command]/usr/bin/git clean -ffdx
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4374938Z Removing PROOFS/
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4382790Z [command]/usr/bin/git reset --hard HEAD
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4460329Z HEAD is now at 997d742 Add prince MinIO filesharing runbook (#1259)
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4465200Z ##[endgroup]
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4478880Z ##[group]Disabling automatic garbage collection
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4479625Z [command]/usr/bin/git config --local gc.auto 0
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4502138Z ##[endgroup]
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4502865Z ##[group]Setting up auth
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4504698Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4526569Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4756732Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4786112Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.4989894Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.5013299Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.5245930Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.5287127Z ##[endgroup]
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.5289445Z ##[group]Fetching the repository
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.5291756Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +997d7423b6d29af4e4e899ff23295831e7c08718:refs/remotes/origin/main
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.9196410Z ##[endgroup]
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.9197161Z ##[group]Determining the checkout info
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.9197837Z ##[endgroup]
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.9198988Z [command]/usr/bin/git sparse-checkout disable
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.9285454Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.9314720Z ##[group]Checking out the ref
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.9319547Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.9390697Z Switched to a new branch 'main'
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.9391717Z branch 'main' set up to track 'origin/main'.
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.9398382Z ##[endgroup]
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.9445554Z [command]/usr/bin/git log -1 --format=%H
+project81 k6 proof on ronan	Checkout bootstrap	2026-07-09T05:27:35.9472585Z 997d7423b6d29af4e4e899ff23295831e7c08718
+project81 k6 proof on ronan	Checkout proof catalog	﻿2026-07-09T05:27:35.9846287Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9851011Z ##[group]Run actions/checkout@v4
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9864267Z with:
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9865061Z   repository: karmaterminal/karmaterminal-openclaw-docs
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9866041Z   ref: scribe/20260708/proofs-5292-rerun
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9866944Z   path: karmaterminal-openclaw-docs
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9874292Z   token: ***
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9874871Z   ssh-strict: true
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9875464Z   ssh-user: git
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9876073Z   persist-credentials: true
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9876823Z   clean: true
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9877436Z   sparse-checkout-cone-mode: true
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9878175Z   fetch-depth: 1
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9878766Z   fetch-tags: false
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9879433Z   show-progress: true
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9880050Z   lfs: false
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9880609Z   submodules: false
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9881233Z   set-safe-directory: true
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9881896Z env:
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9882433Z   TARGET_PRINCE: ronan
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9883196Z   CANDIDATE_SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9884078Z   TARGET_REF: 
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9884673Z   ROWS: R-CONFIG-INTERSESSION
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9885365Z   K6SCENARIOS: 
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9886105Z   SESSION_SELECTOR: p81-5292-ronan-r-config-intersession
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9887163Z   MANIFEST_PATH: project81-k6/manifest.json
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9888018Z   DOCS_REF: scribe/20260708/proofs-5292-rerun
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9888828Z   USE_DOCS_CATALOG: true
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9889487Z   DRY_RUN: false
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9890091Z   PROOFS_METRICS_PUSH: true
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9890989Z   PROOFS_METRICS_OTLP_ENDPOINT: http://10.0.0.99:4318/v1/metrics
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9892009Z   OPENCLAW_ALT_MODEL: 
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9892701Z   OPENCLAW_CREATE_DISPOSABLE_SESSION: true
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9893563Z   OPENCLAW_CREATE_DISPOSABLE_SESSIONS: true
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9894793Z   REASON: P81 5292 individual row R-CONFIG-INTERSESSION after split-run partial blocking
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:35.9895998Z ##[endgroup]
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0400276Z Syncing repository: karmaterminal/karmaterminal-openclaw-docs
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0402013Z ##[group]Getting Git version info
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0403594Z Working directory is '/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs'
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0414550Z [command]/usr/bin/git version
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0448872Z git version 2.43.0
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0459433Z ##[endgroup]
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0465083Z Copying '/home/figs/.gitconfig' to '/home/figs/actions-runner/_work/_temp/50a58c7f-6d4f-4f08-93b8-e21079ac640b/.gitconfig'
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0469974Z Temporarily overriding HOME='/home/figs/actions-runner/_work/_temp/50a58c7f-6d4f-4f08-93b8-e21079ac640b' before making global git config changes
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0472246Z Adding repository directory to the temporary git global config as a safe directory
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0474588Z [command]/usr/bin/git config --global --add safe.directory /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0504581Z [command]/usr/bin/git config --local --get remote.origin.url
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0523634Z https://github.com/karmaterminal/karmaterminal-openclaw-docs
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0528948Z ##[group]Removing previously created refs, to avoid conflicts
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0530346Z [command]/usr/bin/git rev-parse --symbolic-full-name --verify --quiet HEAD
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0550507Z refs/heads/scribe/20260708/proofs-5292-rerun
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0553478Z [command]/usr/bin/git checkout --detach
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0724639Z HEAD is now at cc408f7 PROOFS: seed Project 81 rerun corpus for 5292af40
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0756123Z [command]/usr/bin/git branch --delete --force scribe/20260708/proofs-5292-rerun
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0782563Z Deleted branch scribe/20260708/proofs-5292-rerun (was cc408f7).
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0809780Z ##[endgroup]
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.0810466Z [command]/usr/bin/git submodule status
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.1043822Z ##[group]Cleaning the repository
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.1044989Z [command]/usr/bin/git clean -ffdx
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.1380148Z [command]/usr/bin/git reset --hard HEAD
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.1755705Z HEAD is now at cc408f7 PROOFS: seed Project 81 rerun corpus for 5292af40
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.1763145Z ##[endgroup]
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.1764257Z ##[group]Disabling automatic garbage collection
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.1765360Z [command]/usr/bin/git config --local gc.auto 0
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.1795851Z ##[endgroup]
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.1800613Z ##[group]Setting up auth
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.1801768Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.1823851Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.2044808Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.2065427Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.2296089Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.2321188Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.2547377Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.2583847Z ##[endgroup]
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.2585063Z ##[group]Fetching the repository
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.2588676Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +refs/heads/scribe/20260708/proofs-5292-rerun*:refs/remotes/origin/scribe/20260708/proofs-5292-rerun* +refs/tags/scribe/20260708/proofs-5292-rerun*:refs/tags/scribe/20260708/proofs-5292-rerun*
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.7963853Z ##[endgroup]
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.7964479Z ##[group]Determining the checkout info
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.7968383Z [command]/usr/bin/git branch --list --remote origin/scribe/20260708/proofs-5292-rerun
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.7998227Z   origin/scribe/20260708/proofs-5292-rerun
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.8001630Z ##[endgroup]
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.8017421Z [command]/usr/bin/git sparse-checkout disable
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.8177397Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.8206129Z ##[group]Checking out the ref
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.8209322Z [command]/usr/bin/git checkout --progress --force -B scribe/20260708/proofs-5292-rerun refs/remotes/origin/scribe/20260708/proofs-5292-rerun
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.8386953Z Switched to a new branch 'scribe/20260708/proofs-5292-rerun'
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.8387970Z branch 'scribe/20260708/proofs-5292-rerun' set up to track 'origin/scribe/20260708/proofs-5292-rerun'.
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.8389811Z ##[endgroup]
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.8428809Z [command]/usr/bin/git log -1 --format=%H
+project81 k6 proof on ronan	Checkout proof catalog	2026-07-09T05:27:36.8455826Z cc408f75eaf760d01224a93f3326f9a8a837e114
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	﻿2026-07-09T05:27:36.8609426Z ##[group]Run set -euo pipefail
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8609793Z [36;1mset -euo pipefail[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8609999Z [36;1mcd openclaw-bootstrap[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8610272Z [36;1msummary_output="$(scripts/project81-k6-proof/run.sh)"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8610597Z [36;1msummary_path="$(printf '%s\n' "${summary_output}" | tail -n 1)"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8610887Z [36;1mtest -f "${summary_path}"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8611135Z [36;1mecho "summary_path=${summary_path}" >> "$GITHUB_OUTPUT"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8611436Z [36;1mecho "### Project 81 k6 proof" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8611863Z [36;1mecho "" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8612145Z [36;1mecho "- target prince: ${TARGET_PRINCE}" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8612455Z [36;1mecho "- rows: ${ROWS}" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8612731Z [36;1mecho "- dry run: ${DRY_RUN}" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8613047Z [36;1mecho "- alt model: ${OPENCLAW_ALT_MODEL:-}" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8613401Z [36;1mecho "- reason: ${REASON:-}" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8613702Z [36;1mecho "- summary: \`${summary_path}\`" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8613981Z [36;1mecho "" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8614212Z [36;1mecho '```json' >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8614465Z [36;1mjq . "${summary_path}" >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8614712Z [36;1mecho '```' >> "$GITHUB_STEP_SUMMARY"[0m
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8645850Z shell: /usr/bin/bash -e {0}
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8646096Z env:
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8646264Z   TARGET_PRINCE: ronan
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8646527Z   CANDIDATE_SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8646763Z   TARGET_REF: 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8646941Z   ROWS: R-CONFIG-INTERSESSION
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8647131Z   K6SCENARIOS: 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8647339Z   SESSION_SELECTOR: p81-5292-ronan-r-config-intersession
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8647608Z   MANIFEST_PATH: project81-k6/manifest.json
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8647841Z   DOCS_REF: scribe/20260708/proofs-5292-rerun
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8648073Z   USE_DOCS_CATALOG: true
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8648250Z   DRY_RUN: false
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8648426Z   PROOFS_METRICS_PUSH: true
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8648690Z   PROOFS_METRICS_OTLP_ENDPOINT: http://10.0.0.99:4318/v1/metrics
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8648962Z   OPENCLAW_ALT_MODEL: 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8649155Z   OPENCLAW_CREATE_DISPOSABLE_SESSION: true
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8649385Z   OPENCLAW_CREATE_DISPOSABLE_SESSIONS: true
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8649705Z   REASON: P81 5292 individual row R-CONFIG-INTERSESSION after split-run partial blocking
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:36.8650014Z ##[endgroup]
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:38.0232674Z [project81-k6] proof metrics OTLP push enabled for live run
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:38.0233500Z [project81-k6] using docs catalog at /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/../karmaterminal-openclaw-docs ref=scribe/20260708/proofs-5292-rerun
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:39.6443357Z ==========================================================
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:39.6443791Z Project 81: Seat-Aware k6 Proof Runner
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:39.6444061Z Seat: ronan
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:39.6444326Z Target Candidate SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:39.6444719Z Deployed Runtime SHA: OpenClaw 2026.6.11 (5292af4)
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:39.6445057Z Session: p81-5292-ronan-r-config-intersession
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:39.6445999Z Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/517309c1de0539a29614b96a68369fdf5bbbced5/project81-k6/20260709T052738Z-ronan-dgx-4117391
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:39.6447152Z Rows: R-CONFIG-INTERSESSION
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:39.6447387Z Dry Run: false
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:39.6447604Z ==========================================================
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:39.6457351Z Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.5818315Z SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/517309c1de0539a29614b96a68369fdf5bbbced5/project81-k6/20260709T052738Z-ronan-dgx-4117391/seat-readiness.json
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6253410Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6253810Z ----------------------------------------
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6254178Z Row: R-CONFIG-INTERSESSION
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6254994Z Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-config-intersession.json
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6256380Z Scenario: scenarios/r-config-intersession.js
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6257116Z Status: runnable
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6257344Z Live Safety: k6-runnable
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6257583Z [R-CONFIG-INTERSESSION] RUNNING...
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6505810Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6506378Z          /\      Grafana   /‾‾/  
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6506781Z     /\  /  \     |\  __   /  /   
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6507127Z    /  \/    \    | |/ /  /   ‾‾\ 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6507398Z   /          \   |   (  |  (‾)  |
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6507626Z  / __________ \  |_|\_\  \_____/ 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6508148Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6508332Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6508557Z      execution: local
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6508860Z         script: scenarios/r-config-intersession.js
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6518776Z         output: -
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6519025Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6519308Z      scenarios: (100.00%) 1 scenario, 1 max VUs, 2m0s max duration (incl. graceful stop):
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6520004Z               * r_config_intersession: 1 iterations shared among 1 VUs (maxDuration: 1m30s, gracefulStop: 30s)
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:40.6520442Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:41.0282292Z time="2026-07-08T22:27:41-07:00" level=info msg="✓ disposable session created: agent:main:r-config-intersession-r-config-intersession-1783574860652-bydtsxjd" source=console
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:41.5683411Z time="2026-07-08T22:27:41-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for intersession config read" source=console
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:41.6522073Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:41.6523582Z running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:41.6524074Z r_config_intersession   [   0% ] 1 VUs  0m01.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:42.6516737Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:42.6517198Z running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:42.6517703Z r_config_intersession   [   0% ] 1 VUs  0m02.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:43.6522845Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:43.6523395Z running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:43.6523927Z r_config_intersession   [   0% ] 1 VUs  0m03.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:44.6513383Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:44.6513825Z running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:44.6514307Z r_config_intersession   [   0% ] 1 VUs  0m04.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:45.6520478Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:45.6521158Z running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:45.6521469Z r_config_intersession   [   0% ] 1 VUs  0m05.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:46.6518017Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:46.6519420Z running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:46.6519907Z r_config_intersession   [   0% ] 1 VUs  0m06.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:47.6511955Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:47.6512582Z running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:47.6512901Z r_config_intersession   [   0% ] 1 VUs  0m07.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:48.3205053Z time="2026-07-08T22:27:48-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:48.6511340Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:48.6511926Z running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:48.6512432Z r_config_intersession   [   0% ] 1 VUs  0m08.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:49.6514590Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:49.6515041Z running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:49.6515524Z r_config_intersession   [   0% ] 1 VUs  0m09.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:50.6512962Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:50.6513738Z running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:50.6514068Z r_config_intersession   [   0% ] 1 VUs  0m10.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:51.1755511Z time="2026-07-08T22:27:51-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:51.6513152Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:51.6513631Z running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:52.6519266Z r_config_intersession   [   0% ] 1 VUs  0m11.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:52.6519626Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:52.6519806Z running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:52.6520263Z r_config_intersession   [   0% ] 1 VUs  0m12.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:53.6511942Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:53.6512640Z running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:53.6513144Z r_config_intersession   [   0% ] 1 VUs  0m13.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:53.7494362Z time="2026-07-08T22:27:53-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:54.6515542Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:54.6516384Z running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:54.6517168Z r_config_intersession   [   0% ] 1 VUs  0m14.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:55.6519818Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:55.6521707Z running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:55.6522000Z r_config_intersession   [   0% ] 1 VUs  0m15.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:56.6517111Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:56.6517657Z running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:56.6518141Z r_config_intersession   [   0% ] 1 VUs  0m16.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:57.6516771Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:57.6517234Z running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:57.6517722Z r_config_intersession   [   0% ] 1 VUs  0m17.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:58.6514241Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:58.6514692Z running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:58.6515179Z r_config_intersession   [   0% ] 1 VUs  0m18.0s/1m30s  0/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.1712254Z time="2026-07-08T22:27:59-07:00" level=error msg="✗ CONFIG-INTERSESSION-FAIL sentinel observed" source=console
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.1713369Z time="2026-07-08T22:27:59-07:00" level=info msg="\n--- R-CONFIG-INTERSESSION EVIDENCE SUMMARY ---" source=console
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.1740890Z time="2026-07-08T22:27:59-07:00" level=info msg="{\n  \"row\": \"R-CONFIG-INTERSESSION\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CONFIG-INTERSESSION-1783574860652-bydtsxjd\",\n  \"seat\": \"ronan\",\n  \"requestedSessionKey\": \"p81-5292-ronan-r-config-intersession\",\n  \"sessionKey\": \"agent:main:r-config-intersession-r-config-intersession-1783574860652-bydtsxjd\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-config-intersession-r-config-intersession-1783574860652-bydtsxjd\",\n  \"candidateSha\": \"5292af40d0ad5303b85a678f6e629503a8725848\",\n  \"started\": \"2026-07-09T05:27:40.652Z\",\n  \"dispatch_accepted\": true,\n  \"config_read\": false,\n  \"cross_session_targeting\": null,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783574860653,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574860657,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574860733,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574861027,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783574861063,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783574861119,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574861122,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574861567,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CONFIG-INTERSESSION-R-CONFIG-INTERSESSION-1783574860652-bydtsxjd\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783574862192,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574862249,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574862329,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574863343,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574863354,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574864441,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574864449,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574865533,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574865539,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574866095,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574866107,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574866170,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574866206,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574866261,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574866268,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574866626,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574866632,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574867680,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574867685,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574868319,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574868771,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574868776,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574869863,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574869871,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574870591,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574870612,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574871155,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574871174,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574871185,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574872267,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574872273,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574873330,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574873334,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574873536,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574873536,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574873702,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574873748,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574874418,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574874422,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574875476,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574875479,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574876567,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574876572,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574877657,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574877663,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574878741,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574878749,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574879030,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574879030,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783574879170,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T05:27:59.170Z\",\n  \"duration_ms\": 18518\n}" source=console
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.1768867Z time="2026-07-08T22:27:59-07:00" level=info msg="--- END EVIDENCE ---" source=console
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.1769543Z time="2026-07-08T22:27:59-07:00" level=info msg="\n[R-CONFIG-INTERSESSION] VERDICT: PARTIAL-candidate" source=console
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.1770007Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.1770351Z [R-CONFIG-INTERSESSION] Summary: PARTIAL-candidate | SHA: 5292af40d0ad5303b85a678f6e629503a8725848 | Seat: ronan
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.1770819Z 
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.1770985Z running (0m18.5s), 0/1 VUs, 1 complete and 0 interrupted iterations
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.1771602Z r_config_intersession ✓ [ 100% ] 1 VUs  0m18.5s/1m30s  1/1 shared iters
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.2594678Z time="2026-07-08T22:27:59-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.2644170Z ./r-config-intersession-summary.json
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.3446249Z [R-CONFIG-INTERSESSION] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/517309c1de0539a29614b96a68369fdf5bbbced5/project81-k6/20260709T052738Z-ronan-dgx-4117391/5292af40d0ad5303b85a678f6e629503a8725848/R-CONFIG-INTERSESSION/ronan/20260709T052740Z-r-config-intersession/openclaw-proofs-k6.prom
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.3454944Z [R-CONFIG-INTERSESSION] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/517309c1de0539a29614b96a68369fdf5bbbced5/project81-k6/20260709T052738Z-ronan-dgx-4117391/5292af40d0ad5303b85a678f6e629503a8725848/R-CONFIG-INTERSESSION/ronan/20260709T052740Z-r-config-intersession
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.3456668Z [R-CONFIG-INTERSESSION] FAILED with k6 exit code 99. Artifacts preserved.
+project81 k6 proof on ronan	Run Project 81 k6 proof wrapper	2026-07-09T05:27:59.3481823Z ##[error]Process completed with exit code 99.
+project81 k6 proof on ronan	Post Checkout proof catalog	﻿2026-07-09T05:27:59.3657142Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+project81 k6 proof on ronan	Post Checkout proof catalog	2026-07-09T05:27:59.3658512Z Post job cleanup.
+project81 k6 proof on ronan	Post Checkout proof catalog	2026-07-09T05:27:59.4143897Z [command]/usr/bin/git version
+project81 k6 proof on ronan	Post Checkout proof catalog	2026-07-09T05:27:59.4178686Z git version 2.43.0
+project81 k6 proof on ronan	Post Checkout proof catalog	2026-07-09T05:27:59.4197106Z Copying '/home/figs/.gitconfig' to '/home/figs/actions-runner/_work/_temp/2d2be1ff-32e4-4747-aaf7-4590fb9bb96c/.gitconfig'
+project81 k6 proof on ronan	Post Checkout proof catalog	2026-07-09T05:27:59.4208165Z Temporarily overriding HOME='/home/figs/actions-runner/_work/_temp/2d2be1ff-32e4-4747-aaf7-4590fb9bb96c' before making global git config changes
+project81 k6 proof on ronan	Post Checkout proof catalog	2026-07-09T05:27:59.4209030Z Adding repository directory to the temporary git global config as a safe directory
+project81 k6 proof on ronan	Post Checkout proof catalog	2026-07-09T05:27:59.4210685Z [command]/usr/bin/git config --global --add safe.directory /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs
+project81 k6 proof on ronan	Post Checkout proof catalog	2026-07-09T05:27:59.4240621Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+project81 k6 proof on ronan	Post Checkout proof catalog	2026-07-09T05:27:59.4267665Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+project81 k6 proof on ronan	Post Checkout proof catalog	2026-07-09T05:27:59.4498872Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+project81 k6 proof on ronan	Post Checkout proof catalog	2026-07-09T05:27:59.4521516Z http.https://github.com/.extraheader
+project81 k6 proof on ronan	Post Checkout proof catalog	2026-07-09T05:27:59.4527540Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+project81 k6 proof on ronan	Post Checkout proof catalog	2026-07-09T05:27:59.4553200Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+project81 k6 proof on ronan	Post Checkout proof catalog	2026-07-09T05:27:59.4768965Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+project81 k6 proof on ronan	Post Checkout proof catalog	2026-07-09T05:27:59.4789971Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+project81 k6 proof on ronan	Post Checkout bootstrap	﻿2026-07-09T05:27:59.5187188Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+project81 k6 proof on ronan	Post Checkout bootstrap	2026-07-09T05:27:59.5188552Z Post job cleanup.
+project81 k6 proof on ronan	Post Checkout bootstrap	2026-07-09T05:27:59.5767987Z [command]/usr/bin/git version
+project81 k6 proof on ronan	Post Checkout bootstrap	2026-07-09T05:27:59.5796006Z git version 2.43.0
+project81 k6 proof on ronan	Post Checkout bootstrap	2026-07-09T05:27:59.5812610Z Copying '/home/figs/.gitconfig' to '/home/figs/actions-runner/_work/_temp/d866ed2f-a40a-4e4b-a220-a602009355ec/.gitconfig'
+project81 k6 proof on ronan	Post Checkout bootstrap	2026-07-09T05:27:59.5820613Z Temporarily overriding HOME='/home/figs/actions-runner/_work/_temp/d866ed2f-a40a-4e4b-a220-a602009355ec' before making global git config changes
+project81 k6 proof on ronan	Post Checkout bootstrap	2026-07-09T05:27:59.5821486Z Adding repository directory to the temporary git global config as a safe directory
+project81 k6 proof on ronan	Post Checkout bootstrap	2026-07-09T05:27:59.5822323Z [command]/usr/bin/git config --global --add safe.directory /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap
+project81 k6 proof on ronan	Post Checkout bootstrap	2026-07-09T05:27:59.5843645Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+project81 k6 proof on ronan	Post Checkout bootstrap	2026-07-09T05:27:59.5871102Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+project81 k6 proof on ronan	Post Checkout bootstrap	2026-07-09T05:27:59.6071854Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+project81 k6 proof on ronan	Post Checkout bootstrap	2026-07-09T05:27:59.6087895Z http.https://github.com/.extraheader
+project81 k6 proof on ronan	Post Checkout bootstrap	2026-07-09T05:27:59.6092761Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+project81 k6 proof on ronan	Post Checkout bootstrap	2026-07-09T05:27:59.6112119Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+project81 k6 proof on ronan	Post Checkout bootstrap	2026-07-09T05:27:59.6323993Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+project81 k6 proof on ronan	Post Checkout bootstrap	2026-07-09T05:27:59.6353066Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+project81 k6 proof on ronan	Complete job	﻿2026-07-09T05:27:59.6712193Z Cleaning up orphan processes
+project81 k6 proof on ronan	Complete job	2026-07-09T05:27:59.7887722Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

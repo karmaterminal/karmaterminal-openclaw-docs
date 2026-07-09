@@ -1,0 +1,211 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-1-tool-schedule-wake.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m30s max duration (incl. graceful stop):
+              * r_cw_1_tool_schedule_wake: 1 iterations shared among 1 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+time="2026-07-08T20:16:10-07:00" level=info msg="✓ disposable session created: agent:main:r-cw-1-r-cw-1-1783566970082-r3vfil4o" source=console
+time="2026-07-08T20:16:10-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered (will call continue_work)" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m01.0s/2m0s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m02.0s/2m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m03.0s/2m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m04.0s/2m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m05.0s/2m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m06.0s/2m0s  0/1 shared iters
+time="2026-07-08T20:16:16-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m07.0s/2m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m08.0s/2m0s  0/1 shared iters
+time="2026-07-08T20:16:18-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m09.0s/2m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m10.0s/2m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m11.0s/2m0s  0/1 shared iters
+time="2026-07-08T20:16:21-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m12.0s/2m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m13.0s/2m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m14.0s/2m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m15.0s/2m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m16.0s/2m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m17.0s/2m0s  0/1 shared iters
+time="2026-07-08T20:16:27-07:00" level=info msg="✓ CW-SCHEDULED sentinel observed: session.message" source=console
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m18.0s/2m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m19.0s/2m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m20.0s/2m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m21.0s/2m0s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m22.0s/2m0s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m23.0s/2m0s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m24.0s/2m0s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m25.0s/2m0s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m26.0s/2m0s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m27.0s/2m0s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m28.0s/2m0s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m29.0s/2m0s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m30.0s/2m0s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m31.0s/2m0s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m32.0s/2m0s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m33.0s/2m0s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m34.0s/2m0s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m35.0s/2m0s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m36.0s/2m0s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m37.0s/2m0s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m38.0s/2m0s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m39.0s/2m0s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m40.0s/2m0s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m41.0s/2m0s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m42.0s/2m0s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m43.0s/2m0s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m44.0s/2m0s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m45.0s/2m0s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m46.0s/2m0s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m47.0s/2m0s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m48.0s/2m0s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m49.0s/2m0s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m50.0s/2m0s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m51.0s/2m0s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m52.0s/2m0s  0/1 shared iters
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m53.0s/2m0s  0/1 shared iters
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m54.0s/2m0s  0/1 shared iters
+
+running (0m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m55.0s/2m0s  0/1 shared iters
+
+running (0m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m56.0s/2m0s  0/1 shared iters
+
+running (0m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m57.0s/2m0s  0/1 shared iters
+
+running (0m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m58.0s/2m0s  0/1 shared iters
+
+running (0m59.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m59.0s/2m0s  0/1 shared iters
+
+running (1m00.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  1m00.0s/2m0s  0/1 shared iters
+time="2026-07-08T20:17:10-07:00" level=info msg="\n--- R-CW-1 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T20:17:10-07:00" level=info msg="{\n  \"row\": \"R-CW-1\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CW-1-1783566970082-r3vfil4o\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"main\",\n  \"sessionKey\": \"agent:main:r-cw-1-r-cw-1-1783566970082-r3vfil4o\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cw-1-r-cw-1-1783566970082-r3vfil4o\",\n  \"candidateSha\": \"e08f696618da57e7267a2148578fa4ab0d8b0d01\",\n  \"started\": \"2026-07-09T03:16:10.082Z\",\n  \"tool_invoke_accepted\": true,\n  \"continue_work_tool_result_scheduled\": true,\n  \"work_woke_event\": false,\n  \"dispatch_accepted_at_ms\": 1783566970992,\n  \"scheduled_result_at_ms\": 1783566987543,\n  \"wake_delay_ms\": null,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783566970084,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566970086,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566970175,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566970455,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783566970484,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783566970992,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CW-1-R-CW-1-1783566970082-r3vfil4o\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783566971668,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566976547,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566978196,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566978246,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566978248,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566978258,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566978292,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566980899,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566980900,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566981066,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566981110,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566984655,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566984704,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566984745,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566987387,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566987387,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566987537,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566987537,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566987537,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566987543,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566987548,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566987548,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566987752,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566987752,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783566987752,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": null\n    },\n    {\n      \"ts\": 1783567008249,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"tick\",\n      \"ok\": null,\n      \"data\": null\n    }\n  ],\n  \"ended\": \"2026-07-09T03:17:10.456Z\",\n  \"duration_ms\": 60374\n}" source=console
+time="2026-07-08T20:17:10-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T20:17:10-07:00" level=info msg="\n[R-CW-1] VERDICT: PARTIAL-candidate" source=console
+
+[R-CW-1] Summary: PARTIAL-candidate | SHA: e08f696618da57e7267a2148578fa4ab0d8b0d01 | Seat: cael
+
+running (1m00.4s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake ✓ [ 100% ] 1 VUs  1m00.4s/2m0s  1/1 shared iters
+time="2026-07-08T20:17:10-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"

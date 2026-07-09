@@ -1,0 +1,11 @@
+# TYPE openclaw_proofs_k6_run_total counter
+openclaw_proofs_k6_run_total{row_id="R-CD-RETURN-OVERLAP",seat="ronan",candidate_sha="e08f696618da57e7267a2148578fa4ab0d8b0d01",scenario="r-cd-return-overlap.js",run_id="20260709T032916Z-r-cd-return-overlap",tool_surface="read-only",transport="offline",outcome="PASS-candidate",candidate_only="true",fold_requires_review="true",failure_class="none"} 1
+# TYPE openclaw_proofs_k6_proof_failures_total counter
+openclaw_proofs_k6_proof_failures_total{row_id="R-CD-RETURN-OVERLAP",seat="ronan",candidate_sha="e08f696618da57e7267a2148578fa4ab0d8b0d01",scenario="r-cd-return-overlap.js",run_id="20260709T032916Z-r-cd-return-overlap",failure_class="none"} 0
+# TYPE openclaw_proofs_k6_candidate_pending_review gauge
+openclaw_proofs_k6_candidate_pending_review{row_id="R-CD-RETURN-OVERLAP",seat="ronan",candidate_sha="e08f696618da57e7267a2148578fa4ab0d8b0d01",run_id="20260709T032916Z-r-cd-return-overlap",outcome="PASS-candidate",fold_requires_review="true"} 1
+# TYPE openclaw_proofs_k6_duration_ms gauge
+openclaw_proofs_k6_duration_ms{row_id="R-CD-RETURN-OVERLAP",seat="ronan",candidate_sha="e08f696618da57e7267a2148578fa4ab0d8b0d01",scenario="r-cd-return-overlap.js",run_id="20260709T032916Z-r-cd-return-overlap",outcome="PASS-candidate"} 2
+# TYPE openclaw_proofs_k6_receipt_status gauge
+openclaw_proofs_k6_receipt_status{row_id="R-CD-RETURN-OVERLAP",seat="ronan",candidate_sha="e08f696618da57e7267a2148578fa4ab0d8b0d01",run_id="20260709T032916Z-r-cd-return-overlap",receipt_name="overlap-artifacts",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-RETURN-OVERLAP",seat="ronan",candidate_sha="e08f696618da57e7267a2148578fa4ab0d8b0d01",run_id="20260709T032916Z-r-cd-return-overlap",receipt_name="collection-no-loss",receipt_required="true",receipt_status="unknown"} 0

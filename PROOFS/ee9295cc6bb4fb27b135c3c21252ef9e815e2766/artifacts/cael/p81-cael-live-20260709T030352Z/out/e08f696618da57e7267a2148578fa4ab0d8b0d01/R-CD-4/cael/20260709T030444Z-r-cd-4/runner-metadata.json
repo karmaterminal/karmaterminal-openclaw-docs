@@ -1,0 +1,9 @@
+{
+  "row": "R-CD-4",
+  "scenario": "r-cd-4-target-session-key.js",
+  "candidateSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "runtimeBuildSha": "OpenClaw 2026.6.11 (e08f696)",
+  "seat": "cael",
+  "sessionKey": "main",
+  "startedAt": "2026-07-09T03:04:44Z"
+}

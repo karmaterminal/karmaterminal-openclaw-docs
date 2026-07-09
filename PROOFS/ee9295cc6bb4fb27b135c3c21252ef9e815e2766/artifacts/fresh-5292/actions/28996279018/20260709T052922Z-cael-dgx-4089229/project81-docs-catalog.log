@@ -1,0 +1,110 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 5292af40d0ad5303b85a678f6e629503a8725848
+Deployed Runtime SHA: OpenClaw 2026.6.11 (5292af4)
+Session: p81-5292-cael-r-cw-2
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ee9295cc6bb4fb27b135c3c21252ef9e815e2766/project81-k6/20260709T052922Z-cael-dgx-4089229
+Rows: R-CW-2
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ee9295cc6bb4fb27b135c3c21252ef9e815e2766/project81-k6/20260709T052922Z-cael-dgx-4089229/seat-readiness.json
+
+----------------------------------------
+Row: R-CW-2
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-2.json
+Scenario: scenarios/r-cw-2-immediate-wake.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-2] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-2-immediate-wake.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m30s max duration (incl. graceful stop):
+              * r_cw_2_immediate_wake: 1 iterations shared among 1 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+time="2026-07-08T22:29:25-07:00" level=info msg="✓ disposable session created: agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd" source=console
+time="2026-07-08T22:29:25-07:00" level=info msg="✓ sessions.send accepted — immediate continue_work turn triggered" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m01.0s/2m0s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m02.0s/2m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m03.0s/2m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m04.0s/2m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m05.0s/2m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m06.0s/2m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m07.0s/2m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m08.0s/2m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m09.0s/2m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m10.0s/2m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m11.0s/2m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m12.0s/2m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m13.0s/2m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m14.0s/2m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m15.0s/2m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m16.0s/2m0s  0/1 shared iters
+time="2026-07-08T22:29:41-07:00" level=info msg="✓ CW2-SCHEDULED sentinel observed" source=console
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m17.0s/2m0s  0/1 shared iters
+time="2026-07-08T22:29:42-07:00" level=info msg="✓ CW2-WOKE sentinel observed" source=console
+time="2026-07-08T22:29:42-07:00" level=info msg="All required R-CW-2 evidence gathered, closing early" source=console
+time="2026-07-08T22:29:42-07:00" level=info msg="R_CW_2_EVIDENCE {\"row\":\"R-CW-2\",\"manifest_loaded\":true,\"nonce\":\"R-CW-2-1783574964915-nxjvu8nd\",\"seat\":\"cael\",\"requestedSessionKey\":\"p81-5292-cael-r-cw-2\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\"session_created\":true,\"created_session_key\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\"candidateSha\":\"5292af40d0ad5303b85a678f6e629503a8725848\",\"started\":\"2026-07-09T05:29:24.916Z\",\"dispatch_accepted\":true,\"scheduled_sentinel\":true,\"immediate_wake_observed\":true,\"prompt_echo_ignored\":true,\"dispatch_accepted_at_ms\":1783574965839,\"scheduled_result_at_ms\":1783574981703,\"wake_delay_ms\":956,\"trace_id\":null,\"redacted_events\":[{\"ts\":1783574964917,\"kind\":\"event\",\"method\":null,\"event\":\"connect.challenge\",\"ok\":null,\"data\":{\"ts\":1783574964917}},{\"ts\":1783574964918,\"kind\":\"other\",\"method\":null,\"event\":null,\"ok\":null,\"data\":{}},{\"ts\":1783574964967,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":{\"ok\":true,\"ts\":1783574964966}},{\"ts\":1783574965304,\"kind\":\"response\",\"method\":\"sessions.create\",\"event\":null,\"ok\":true,\"data\":{\"ok\":true}},{\"ts\":1783574965337,\"kind\":\"response\",\"method\":\"sessions.messages.subscribe\",\"event\":null,\"ok\":true,\"data\":{}},{\"ts\":1783574965838,\"kind\":\"response\",\"method\":\"sessions.send\",\"event\":null,\"ok\":true,\"data\":{\"runId\":\"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\"status\":\"started\"}},{\"ts\":1783574966718,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrd2hfx4-08339b71\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd:active-memory:d481c9bf5b0f\",\"ts\":1783574966717}},{\"ts\":1783574969954,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrd2hfx4-08339b71\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd:active-memory:d481c9bf5b0f\",\"ts\":1783574969918}},{\"ts\":1783574971210,\"kind\":\"event\",\"method\":null,\"event\":\"health\",\"ok\":null,\"data\":{\"ok\":true,\"ts\":1783574971210}},{\"ts\":1783574971226,\"kind\":\"event\",\"method\":null,\"event\":\"presence\",\"ok\":null,\"data\":{}},{\"ts\":1783574971261,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrd2hfx4-08339b71\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd:active-memory:d481c9bf5b0f\",\"ts\":1783574971248}},{\"ts\":1783574974725,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrd2hfx4-08339b71\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd:active-memory:d481c9bf5b0f\",\"ts\":1783574974724}},{\"ts\":1783574974726,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"active-memory-mrd2hfx4-08339b71\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd:active-memory:d481c9bf5b0f\",\"state\":\"error\"}},{\"ts\":1783574974886,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\"ts\":1783574974886}},{\"ts\":1783574974931,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":{\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\"}},{\"ts\":1783574978481,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":{\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\"status\":\"running\",\"startedAt\":1783574974886}},{\"ts\":1783574978515,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\"ts\":1783574978486}},{\"ts\":1783574978559,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\"ts\":1783574978547}},{\"ts\":1783574981564,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\"ts\":1783574981564}},{\"ts\":1783574981565,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\"state\":\"delta\"}},{\"ts\":1783574981703,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":{\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\"status\":\"running\",\"startedAt\":1783574974886}},{\"ts\":1783574981707,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\"ts\":1783574981624}},{\"ts\":1783574981707,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\"ts\":1783574981707}},{\"ts\":1783574981821,\"kind\":\"event\",\"method\":null,\"event\":\"agent\",\"ok\":null,\"data\":{\"runId\":\"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\"ts\":1783574981821}},{\"ts\":1783574981822,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\"state\":\"delta\"}},{\"ts\":1783574981822,\"kind\":\"event\",\"method\":null,\"event\":\"chat\",\"ok\":null,\"data\":{\"runId\":\"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\"state\":\"final\"}},{\"ts\":1783574982659,\"kind\":\"event\",\"method\":null,\"event\":\"session.message\",\"ok\":null,\"data\":{\"sessionKey\":\"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\"status\":\"done\",\"startedAt\":1783574974886}}],\"ended\":\"2026-07-09T05:29:42.659Z\",\"duration_ms\":17743}" source=console
+time="2026-07-08T22:29:42-07:00" level=info msg="\n--- R-CW-2 EVIDENCE SUMMARY ---" source=console
+time="2026-07-08T22:29:42-07:00" level=info msg="{\n  \"row\": \"R-CW-2\",\n  \"manifest_loaded\": true,\n  \"nonce\": \"R-CW-2-1783574964915-nxjvu8nd\",\n  \"seat\": \"cael\",\n  \"requestedSessionKey\": \"p81-5292-cael-r-cw-2\",\n  \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\n  \"session_created\": true,\n  \"created_session_key\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\n  \"candidateSha\": \"5292af40d0ad5303b85a678f6e629503a8725848\",\n  \"started\": \"2026-07-09T05:29:24.916Z\",\n  \"dispatch_accepted\": true,\n  \"scheduled_sentinel\": true,\n  \"immediate_wake_observed\": true,\n  \"prompt_echo_ignored\": true,\n  \"dispatch_accepted_at_ms\": 1783574965839,\n  \"scheduled_result_at_ms\": 1783574981703,\n  \"wake_delay_ms\": 956,\n  \"trace_id\": null,\n  \"redacted_events\": [\n    {\n      \"ts\": 1783574964917,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"connect.challenge\",\n      \"ok\": null,\n      \"data\": {\n        \"ts\": 1783574964917\n      }\n    },\n    {\n      \"ts\": 1783574964918,\n      \"kind\": \"other\",\n      \"method\": null,\n      \"event\": null,\n      \"ok\": null,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783574964967,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": {\n        \"ok\": true,\n        \"ts\": 1783574964966\n      }\n    },\n    {\n      \"ts\": 1783574965304,\n      \"kind\": \"response\",\n      \"method\": \"sessions.create\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"ok\": true\n      }\n    },\n    {\n      \"ts\": 1783574965337,\n      \"kind\": \"response\",\n      \"method\": \"sessions.messages.subscribe\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783574965838,\n      \"kind\": \"response\",\n      \"method\": \"sessions.send\",\n      \"event\": null,\n      \"ok\": true,\n      \"data\": {\n        \"runId\": \"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\n        \"status\": \"started\"\n      }\n    },\n    {\n      \"ts\": 1783574966718,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrd2hfx4-08339b71\",\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd:active-memory:d481c9bf5b0f\",\n        \"ts\": 1783574966717\n      }\n    },\n    {\n      \"ts\": 1783574969954,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrd2hfx4-08339b71\",\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd:active-memory:d481c9bf5b0f\",\n        \"ts\": 1783574969918\n      }\n    },\n    {\n      \"ts\": 1783574971210,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"health\",\n      \"ok\": null,\n      \"data\": {\n        \"ok\": true,\n        \"ts\": 1783574971210\n      }\n    },\n    {\n      \"ts\": 1783574971226,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"presence\",\n      \"ok\": null,\n      \"data\": {}\n    },\n    {\n      \"ts\": 1783574971261,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrd2hfx4-08339b71\",\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd:active-memory:d481c9bf5b0f\",\n        \"ts\": 1783574971248\n      }\n    },\n    {\n      \"ts\": 1783574974725,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrd2hfx4-08339b71\",\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd:active-memory:d481c9bf5b0f\",\n        \"ts\": 1783574974724\n      }\n    },\n    {\n      \"ts\": 1783574974726,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"active-memory-mrd2hfx4-08339b71\",\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd:active-memory:d481c9bf5b0f\",\n        \"state\": \"error\"\n      }\n    },\n    {\n      \"ts\": 1783574974886,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\n        \"ts\": 1783574974886\n      }\n    },\n    {\n      \"ts\": 1783574974931,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": {\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\"\n      }\n    },\n    {\n      \"ts\": 1783574978481,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": {\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\n        \"status\": \"running\",\n        \"startedAt\": 1783574974886\n      }\n    },\n    {\n      \"ts\": 1783574978515,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\n        \"ts\": 1783574978486\n      }\n    },\n    {\n      \"ts\": 1783574978559,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\n        \"ts\": 1783574978547\n      }\n    },\n    {\n      \"ts\": 1783574981564,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\n        \"ts\": 1783574981564\n      }\n    },\n    {\n      \"ts\": 1783574981565,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\n        \"state\": \"delta\"\n      }\n    },\n    {\n      \"ts\": 1783574981703,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": {\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\n        \"status\": \"running\",\n        \"startedAt\": 1783574974886\n      }\n    },\n    {\n      \"ts\": 1783574981707,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\n        \"ts\": 1783574981624\n      }\n    },\n    {\n      \"ts\": 1783574981707,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\n        \"ts\": 1783574981707\n      }\n    },\n    {\n      \"ts\": 1783574981821,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"agent\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\n        \"ts\": 1783574981821\n      }\n    },\n    {\n      \"ts\": 1783574981822,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\n        \"state\": \"delta\"\n      }\n    },\n    {\n      \"ts\": 1783574981822,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"chat\",\n      \"ok\": null,\n      \"data\": {\n        \"runId\": \"R-CW-2-DISPATCH-R-CW-2-1783574964915-nxjvu8nd\",\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\n        \"state\": \"final\"\n      }\n    },\n    {\n      \"ts\": 1783574982659,\n      \"kind\": \"event\",\n      \"method\": null,\n      \"event\": \"session.message\",\n      \"ok\": null,\n      \"data\": {\n        \"sessionKey\": \"agent:main:r-cw-2-r-cw-2-1783574964915-nxjvu8nd\",\n        \"status\": \"done\",\n        \"startedAt\": 1783574974886\n      }\n    }\n  ],\n  \"ended\": \"2026-07-09T05:29:42.659Z\",\n  \"duration_ms\": 17743\n}" source=console
+time="2026-07-08T22:29:42-07:00" level=info msg="--- END EVIDENCE ---" source=console
+time="2026-07-08T22:29:42-07:00" level=info msg="\n[R-CW-2] VERDICT: PASS-candidate" source=console
+
+[R-CW-2] Summary: PASS-candidate | SHA: 5292af40d0ad5303b85a678f6e629503a8725848 | Seat: cael
+
+running (0m17.7s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_2_immediate_wake ✓ [ 100% ] 1 VUs  0m17.7s/2m0s  1/1 shared iters
+./r-cw-2-immediate-wake-summary.json
+[R-CW-2] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ee9295cc6bb4fb27b135c3c21252ef9e815e2766/project81-k6/20260709T052922Z-cael-dgx-4089229/5292af40d0ad5303b85a678f6e629503a8725848/R-CW-2/cael/20260709T052924Z-r-cw-2/openclaw-proofs-k6.prom
+[R-CW-2] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ee9295cc6bb4fb27b135c3c21252ef9e815e2766/project81-k6/20260709T052922Z-cael-dgx-4089229/5292af40d0ad5303b85a678f6e629503a8725848/R-CW-2/cael/20260709T052924Z-r-cw-2
+[R-CW-2] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/ee9295cc6bb4fb27b135c3c21252ef9e815e2766/project81-k6/20260709T052922Z-cael-dgx-4089229/report.html
+
+==========================================================
+Runner execution finished.

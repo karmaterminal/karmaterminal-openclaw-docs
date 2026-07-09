@@ -1,0 +1,61 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-RC-1",
+  "issue": 104,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:***-rc-reject}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 60,
+  "scenario": {
+    "name": "r-rc-1-threshold-reject",
+    "description": "request_compaction below-threshold structured reject via disposable session/inventory-only path",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe"
+    ],
+    "status": "runnable",
+    "file": "r-rc-1-threshold-reject.js"
+  },
+  "expectedReceipts": [
+    {
+      "name": "tool-invoke-rejected",
+      "required": true,
+      "description": "Gateway rejected request_compaction due to <70% threshold or rate limit"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-RC-1",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Threshold Reject. Validates compaction gating. Safe to run: mutates=false. Disposable-session k6 path may report inventory-only unknown numeric context/threshold; guard=context_threshold is the required receipt."
+  },
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "tool-invoke-rejected"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live request_compaction reject row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Expected rejection is non-mutating; serialize per target session."
+  }
+}

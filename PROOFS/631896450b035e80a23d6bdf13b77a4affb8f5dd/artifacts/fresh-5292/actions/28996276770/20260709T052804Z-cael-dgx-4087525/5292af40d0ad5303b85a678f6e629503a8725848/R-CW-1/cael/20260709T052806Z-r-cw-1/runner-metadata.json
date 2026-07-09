@@ -1,0 +1,9 @@
+{
+  "row": "R-CW-1",
+  "scenario": "r-cw-1-tool-schedule-wake.js",
+  "candidateSha": "5292af40d0ad5303b85a678f6e629503a8725848",
+  "runtimeBuildSha": "OpenClaw 2026.6.11 (5292af4)",
+  "seat": "cael",
+  "sessionKey": "p81-5292-cael-r-cw-1",
+  "startedAt": "2026-07-09T05:28:06Z"
+}

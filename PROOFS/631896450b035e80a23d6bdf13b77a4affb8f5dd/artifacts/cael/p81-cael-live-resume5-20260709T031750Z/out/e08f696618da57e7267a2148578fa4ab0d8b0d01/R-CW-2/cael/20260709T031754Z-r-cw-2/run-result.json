@@ -1,0 +1,41 @@
+{
+  "k6ExitCode": 99,
+  "endedAt": "2026-07-09T03:19:24Z",
+  "verdict": "PARTIAL-candidate",
+  "summaryFiles": [
+    "r-cw-2-immediate-wake-summary.json"
+  ],
+  "evidence": {
+    "candidateSha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+    "created_session_key": "agent:main:r-cw-2-r-cw-2-1783567074142-4koru7hg",
+    "dispatch_accepted": true,
+    "dispatch_accepted_at_ms": 1783567075033,
+    "duration_ms": 90359,
+    "ended": "2026-07-09T03:19:24.501Z",
+    "immediate_wake_observed": false,
+    "manifest_loaded": true,
+    "nonce": "R-CW-2-1783567074142-4koru7hg",
+    "prompt_echo_ignored": true,
+    "requestedSessionKey": "main",
+    "row": "R-CW-2",
+    "scheduled_result_at_ms": 1783567088783,
+    "scheduled_sentinel": true,
+    "seat": "cael",
+    "sessionKey": "agent:main:r-cw-2-r-cw-2-1783567074142-4koru7hg",
+    "session_created": true,
+    "started": "2026-07-09T03:17:54.142Z",
+    "trace_id": null,
+    "wake_delay_ms": null
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "missing",
+    "traceId": null,
+    "tempoTraceJson": null
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

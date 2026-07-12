@@ -52,7 +52,7 @@
       }
     },
     "current_2e7861": {
-      "status": "awaiting-exact-sha-deploy-and-runs",
+      "status": "deployed-four-seat-no-pilot",
       "assembly_branch": "scribe/20260712/1172-a177-upstream-absorb",
       "repair_pr": "karmaterminal/openclaw#1179",
       "required_rows": [
@@ -84,7 +84,33 @@
         "R-CW-TOKEN",
         "R-RC-1",
         "R-RC-2"
-      ]
+      ],
+      "deploy_runs": {
+        "silas": {
+          "run": "29213966416",
+          "conclusion": "success",
+          "active_sha": "2e7861ba45fd8534282aadabab2b855d2f524fdf",
+          "nrestarts": 0
+        },
+        "elliott": {
+          "run": "29213969365",
+          "conclusion": "success",
+          "active_sha": "2e7861ba45fd8534282aadabab2b855d2f524fdf",
+          "nrestarts": 0
+        },
+        "cael": {
+          "run": "29213971446",
+          "conclusion": "success",
+          "active_sha": "2e7861ba45fd8534282aadabab2b855d2f524fdf",
+          "nrestarts": 0
+        },
+        "ronan": {
+          "run": "29213909729",
+          "conclusion": "success",
+          "active_sha": "2e7861ba45fd8534282aadabab2b855d2f524fdf",
+          "nrestarts": 0
+        }
+      }
     }
   },
   "rollup": {

@@ -27,10 +27,11 @@ byte-identical to parent `4afd560`.
 
 | Seat | Deploy run | Active commit | Restarts |
 |---|---:|---|---:|
-| Silas | pending | pending | pending |
-| Elliott | pending | pending | pending |
-| Cael | pending | pending | pending |
-| Ronan | pending | pending | pending |
+| Silas | `29213966416` | `2e7861ba45fd8534282aadabab2b855d2f524fdf` | `0` |
+| Elliott | `29213969365` | `2e7861ba45fd8534282aadabab2b855d2f524fdf` | `0` |
+| Cael | `29213971446` | `2e7861ba45fd8534282aadabab2b855d2f524fdf` | `0` |
+| Ronan | `29213909729` | `2e7861ba45fd8534282aadabab2b855d2f524fdf` | `0` |
 
 Figs directed one four-seat fleet deployment after the contained gates pass;
-there is no canary/pilot phase for this repair.
+there was no canary/pilot phase for this repair. All four workflows completed
+with the gateway active on the exact commit and zero service-lifetime restarts.

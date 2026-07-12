@@ -6,7 +6,10 @@
 |---|---|---:|---:|---|
 | focused contained CI | assembly | `29213551090` | workflow receipt | PASS: 144 tests, 0 failures, `tsgo:core` |
 | Gate 2.7 | assembly | `29213550300` | classification artifact | PASS |
-| readiness | fleet | pending | pending | waits for four-seat deploy |
+| deploy | Silas | `29213966416` | workflow receipt | PASS: exact SHA active, `NRestarts=0` |
+| deploy | Elliott | `29213969365` | workflow receipt | PASS: exact SHA active, `NRestarts=0` |
+| deploy | Cael | `29213971446` | workflow receipt | PASS: exact SHA active, `NRestarts=0` |
+| deploy | Ronan | `29213909729` | workflow receipt | PASS: exact SHA active, `NRestarts=0` |
 
 No behavioral `2e7861` proof artifact is folded yet. Row owners add reviewed
 artifacts here or in their row directories and update the manifest in the same

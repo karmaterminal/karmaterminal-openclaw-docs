@@ -47,6 +47,7 @@ function messageText(message) {
 
 function sanitize(text) {
   return text
+    .replace(/(token|authorization|secret|password)["'=:\s]+[^\s,}"']+/gi, '$1=[redacted]')
     .replace(/https?:\/\/\S+/g, '[url]')
     .replace(/\b\d{17,20}\b/g, '[snowflake]')
     .slice(0, 800);
@@ -110,7 +111,7 @@ export default function () {
             hasContinuationWake: text.includes('[continuation:wake]'),
             hasChannel: text.toLowerCase().includes('channel'),
             hasDeliver: text.toLowerCase().includes('deliver'),
-            text: correlated ? sanitize(text) : null,
+            text: sanitize(text),
           };
         });
         received = true;

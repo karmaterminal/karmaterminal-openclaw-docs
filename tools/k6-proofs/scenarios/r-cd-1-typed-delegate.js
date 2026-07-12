@@ -25,6 +25,7 @@ import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { closeSocketAfterDelay } from '../lib/socket-close.js';
 
 export const options = {
   scenarios: {
@@ -143,10 +144,9 @@ export default function () {
       const waitUntil = Number(evidence.trace_collect_after_ms || Date.now());
       const remaining = Math.max(0, waitUntil - Date.now());
       traceCloseScheduled = true;
-      socket.setTimeout(() => {
+      closeSocketAfterDelay(socket, remaining, () => {
         console.log('Required R-CD-1 receipts and trace-ingest grace gathered, closing');
-        socket.close();
-      }, remaining);
+      });
     }
 
     function startProofFlow(socket) {

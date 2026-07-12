@@ -12,6 +12,14 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EVIDENCE_EXTRACTOR="$SCRIPT_DIR/extract-k6-evidence.mjs"
 CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
+ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
+PRIVATE_K6_LOG=""
+PRIVATE_EVIDENCE_FILE=""
+
+cleanup_private_artifacts() {
+  rm -f "${PRIVATE_K6_LOG:-}" "${PRIVATE_EVIDENCE_FILE:-}"
+}
+trap cleanup_private_artifacts EXIT
 
 DRY_RUN=true
 ROWS=""
@@ -100,7 +108,7 @@ echo "Project 81: Seat-Aware k6 Proof Runner"
 echo "Seat: $OPENCLAW_SEAT_NAME"
 echo "Target Candidate SHA: $OPENCLAW_CANDIDATE_SHA"
 echo "Deployed Runtime SHA: $OPENCLAW_RUNTIME_BUILD_SHA"
-echo "Session: $OPENCLAW_SESSION_KEY"
+echo "Session configured: true"
 echo "Artifact root: $OUT_ROOT"
 if [[ "$ROWS" == "all" ]]; then
   ROWS="$(for f in manifests/*.json; do jq -r 'select(.scenario.status == "runnable") | .rowId' "$f"; done | paste -sd, -)"
@@ -200,32 +208,28 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg candidate "$OPENCLAW_CANDIDATE_SHA" \
       --arg runtime "$OPENCLAW_RUNTIME_BUILD_SHA" \
       --arg seat "$OPENCLAW_SEAT_NAME" \
-      --arg session "$OPENCLAW_SESSION_KEY" \
       --arg started "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionKey:$session, startedAt:$started}' \
+      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started}' \
       > "$RUN_DIR/runner-metadata.json"
 
+    PRIVATE_K6_LOG="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-log.XXXXXX")"
+    PRIVATE_EVIDENCE_FILE="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-evidence.XXXXXX")"
+    POSTPROCESS_RC=0
     set +e
-    k6 run "scenarios/$SCENARIO_FILE" 2>&1 | tee "$RUN_DIR/k6.log"
-    k6_rc=${PIPESTATUS[0]}
+    k6 run "scenarios/$SCENARIO_FILE" > "$PRIVATE_K6_LOG" 2>&1
+    k6_rc=$?
     set -e
 
     find . -maxdepth 1 -type f -name '*summary.json' -newer "$RUN_DIR/.started" -print -exec mv {} "$RUN_DIR" \;
     if ! node "$EVIDENCE_EXTRACTOR" \
-      --input "$RUN_DIR/k6.log" \
-      --out "$RUN_DIR/evidence.jsonl" \
-      --lines-out "$RUN_DIR/evidence-lines.log" \
+      --input "$PRIVATE_K6_LOG" \
+      --out "$PRIVATE_EVIDENCE_FILE" \
       > "$RUN_DIR/evidence-extraction.json" 2> "$RUN_DIR/evidence-extraction.error.log"; then
       echo "[$ROW_ID] EVIDENCE EXTRACTION FAILED; see $RUN_DIR/evidence-extraction.error.log" >&2
-      : > "$RUN_DIR/evidence.jsonl"
-      : > "$RUN_DIR/evidence-lines.log"
+      : > "$PRIVATE_EVIDENCE_FILE"
+      POSTPROCESS_RC=1
     else
       rm -f "$RUN_DIR/evidence-extraction.error.log"
-    fi
-    EVIDENCE_JSON="null"
-    if [[ -s "$RUN_DIR/evidence.jsonl" ]]; then
-      EVIDENCE_JSON="$(jq -c 'del(.redacted_events)' "$RUN_DIR/evidence.jsonl" | head -n 1)"
-      if [[ -z "$EVIDENCE_JSON" ]]; then EVIDENCE_JSON="null"; fi
     fi
     SUMMARY_VERDICT="unknown"
     SUMMARY_FILES_JSON="[]"
@@ -236,14 +240,16 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     fi
     TRACE_STATUS="unknown"
     TRACE_ID=""
+    TEMPO_TRACE_PATH=""
     TEMPO_TRACE_JSON=""
+    CORRELATION_RECEIPT_PATH=""
     CORRELATION_RECEIPT=""
     REVIEW_PENDING_RECEIPTS='[]'
     TRACE_REQUIRED="$(jq -r '((.liveRunSafety.requiredReceipts // []) | map(ascii_downcase) | any(. == "trace-id" or . == "tempo-trace-json"))' "$MANIFEST_FILE")"
     MANIFEST_TOOL="$(jq -r '.invocation.tool // empty' "$MANIFEST_FILE")"
-    if [[ -s "$RUN_DIR/evidence.jsonl" ]]; then
-      if jq -e 'select(has("trace_id"))' "$RUN_DIR/evidence.jsonl" >/dev/null; then
-        TRACE_ID="$(jq -r 'select((.trace_id // "") != "") | .trace_id' "$RUN_DIR/evidence.jsonl" | head -n 1)"
+    if [[ -s "$PRIVATE_EVIDENCE_FILE" ]]; then
+      if jq -e 'select(has("trace_id"))' "$PRIVATE_EVIDENCE_FILE" >/dev/null; then
+        TRACE_ID="$(jq -r 'select((.trace_id // "") != "") | .trace_id' "$PRIVATE_EVIDENCE_FILE" | head -n 1)"
       fi
     fi
     if [[ "$TRACE_REQUIRED" == "true" && "$MANIFEST_TOOL" == "continue_delegate" ]]; then
@@ -253,29 +259,33 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         --run-dir "$RUN_DIR" \
         --manifest "$MANIFEST_FILE" \
         --seat "$OPENCLAW_SEAT_NAME" \
+        --evidence "$PRIVATE_EVIDENCE_FILE" \
         --tempo-url "$OPENCLAW_PROOFS_TEMPO_BASE_URL" \
         > "$COLLECTOR_RESULT" 2> "$COLLECTOR_ERROR"; then
         TRACE_ID="$(jq -r '.traceId' "$COLLECTOR_RESULT")"
-        TEMPO_TRACE_JSON="$(jq -r '.traceOut' "$COLLECTOR_RESULT")"
-        CORRELATION_RECEIPT="$(jq -r '.receiptOut' "$COLLECTOR_RESULT")"
+        TEMPO_TRACE_JSON="$(jq -r '.traceFile' "$COLLECTOR_RESULT")"
+        TEMPO_TRACE_PATH="$RUN_DIR/$TEMPO_TRACE_JSON"
+        CORRELATION_RECEIPT="$(jq -r '.receiptFile' "$COLLECTOR_RESULT")"
+        CORRELATION_RECEIPT_PATH="$RUN_DIR/$CORRELATION_RECEIPT"
         TRACE_STATUS="present"
         rm -f "$COLLECTOR_ERROR"
-        echo "[$ROW_ID] CONTINUATION TRACE: $TEMPO_TRACE_JSON"
-        echo "[$ROW_ID] CORRELATION RECEIPT: $CORRELATION_RECEIPT"
+        echo "[$ROW_ID] CONTINUATION TRACE: $TEMPO_TRACE_PATH"
+        echo "[$ROW_ID] CORRELATION RECEIPT: $CORRELATION_RECEIPT_PATH"
       else
         TRACE_STATUS="missing"
         TRACE_ID=""
         REVIEW_PENDING_RECEIPTS='["tempo-trace-json","continuation-trace-correlation"]'
         echo "[$ROW_ID] CONTINUATION TRACE CORRELATION FAILED; see $COLLECTOR_ERROR" >&2
         if [[ "${OPENCLAW_PROOFS_K6_TEMPO_REQUIRED:-false}" == "true" ]]; then
-          exit 1
+          POSTPROCESS_RC=1
         fi
       fi
     elif [[ -n "$TRACE_ID" ]]; then
-      TEMPO_TRACE_JSON="$RUN_DIR/tempo-trace-${TRACE_ID:0:12}.json"
-      if node scripts/fetch-tempo-trace.mjs --trace-id "$TRACE_ID" --tempo-url "$OPENCLAW_PROOFS_TEMPO_BASE_URL" --out "$TEMPO_TRACE_JSON" > "$RUN_DIR/tempo-trace-receipt.json" 2> "$RUN_DIR/tempo-trace-error.log"; then
+      TEMPO_TRACE_JSON="tempo-trace-${TRACE_ID:0:12}.json"
+      TEMPO_TRACE_PATH="$RUN_DIR/$TEMPO_TRACE_JSON"
+      if node scripts/fetch-tempo-trace.mjs --trace-id "$TRACE_ID" --tempo-url "$OPENCLAW_PROOFS_TEMPO_BASE_URL" --out "$TEMPO_TRACE_PATH" > "$RUN_DIR/tempo-trace-receipt.json" 2> "$RUN_DIR/tempo-trace-error.log"; then
         TRACE_STATUS="present"
-        echo "[$ROW_ID] TEMPO TRACE: $TEMPO_TRACE_JSON"
+        echo "[$ROW_ID] TEMPO TRACE: $TEMPO_TRACE_PATH"
       else
         TRACE_STATUS="missing"
         if [[ "$TRACE_REQUIRED" == "true" ]]; then
@@ -283,15 +293,51 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         fi
         echo "[$ROW_ID] TEMPO TRACE FETCH FAILED; see $RUN_DIR/tempo-trace-error.log" >&2
         if [[ "${OPENCLAW_PROOFS_K6_TEMPO_REQUIRED:-false}" == "true" ]]; then
-          exit 1
+          POSTPROCESS_RC=1
         fi
       fi
     elif [[ "$TRACE_REQUIRED" == "true" ]]; then
       TRACE_STATUS="missing"
       REVIEW_PENDING_RECEIPTS='["tempo-trace-json"]'
     fi
+
+    if ! node "$ARTIFACT_SANITIZER" \
+      --input "$PRIVATE_EVIDENCE_FILE" \
+      --out "$RUN_DIR/evidence.jsonl" \
+      --lines-out "$RUN_DIR/evidence-lines.log" \
+      --receipt-out "$RUN_DIR/evidence-redaction.json" \
+      --log-input "$PRIVATE_K6_LOG" \
+      --log-out "$RUN_DIR/k6.log" \
+      > "$RUN_DIR/evidence-redaction.stdout.json" 2> "$RUN_DIR/evidence-redaction.error.log"; then
+      echo "[$ROW_ID] PUBLIC ARTIFACT REDACTION FAILED; see $RUN_DIR/evidence-redaction.error.log" >&2
+      REVIEW_PENDING_RECEIPTS="$(jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" '$current + ["public-safe-evidence"] | unique')"
+      POSTPROCESS_RC=1
+      if [[ ! -f "$RUN_DIR/k6.log" ]]; then
+        printf '%s\n' 'Public k6 log unavailable: redaction failed; private log withheld.' > "$RUN_DIR/k6.log"
+      fi
+      [[ -f "$RUN_DIR/evidence.jsonl" ]] || : > "$RUN_DIR/evidence.jsonl"
+      [[ -f "$RUN_DIR/evidence-lines.log" ]] || : > "$RUN_DIR/evidence-lines.log"
+    else
+      rm -f "$RUN_DIR/evidence-redaction.error.log"
+    fi
+    cat "$RUN_DIR/k6.log"
+    rm -f "$PRIVATE_K6_LOG" "$PRIVATE_EVIDENCE_FILE"
+    PRIVATE_K6_LOG=""
+    PRIVATE_EVIDENCE_FILE=""
+
+    EVIDENCE_JSON="null"
+    if [[ -s "$RUN_DIR/evidence.jsonl" ]]; then
+      EVIDENCE_JSON="$(head -n 1 "$RUN_DIR/evidence.jsonl")"
+      if [[ -z "$EVIDENCE_JSON" ]]; then EVIDENCE_JSON="null"; fi
+    fi
+    EFFECTIVE_RC="$k6_rc"
+    if [[ "$EFFECTIVE_RC" -eq 0 && "$POSTPROCESS_RC" -ne 0 ]]; then
+      EFFECTIVE_RC="$POSTPROCESS_RC"
+    fi
     jq -n \
       --argjson rc "$k6_rc" \
+      --argjson postprocessRc "$POSTPROCESS_RC" \
+      --argjson effectiveRc "$EFFECTIVE_RC" \
       --arg ended "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
       --arg traceStatus "$TRACE_STATUS" \
       --arg traceId "$TRACE_ID" \
@@ -301,7 +347,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --argjson summaryFiles "$SUMMARY_FILES_JSON" \
       --argjson evidence "$EVIDENCE_JSON" \
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
-      '{k6ExitCode:$rc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end)}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
+      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end)}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
     METRICS_ARGS=(--run-dir "$RUN_DIR" --prometheus-out "$RUN_DIR/openclaw-proofs-k6.prom" --otlp-out "$RUN_DIR/openclaw-proofs-k6.otlp.json")
     if [[ -n "${OPENCLAW_PROOFS_K6_OTLP_ENDPOINT:-}" ]]; then
@@ -318,9 +364,9 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     rm -f "$RUN_DIR/.started"
 
     echo "[$ROW_ID] ARTIFACTS: $RUN_DIR"
-    if [[ "$k6_rc" -ne 0 ]]; then
-      echo "[$ROW_ID] FAILED with k6 exit code $k6_rc. Artifacts preserved."
-      exit "$k6_rc"
+    if [[ "$EFFECTIVE_RC" -ne 0 ]]; then
+      echo "[$ROW_ID] FAILED with effective exit code $EFFECTIVE_RC. Public-safe artifacts preserved."
+      exit "$EFFECTIVE_RC"
     fi
 
     echo "[$ROW_ID] COMPLETED."

@@ -20,6 +20,7 @@
 import ws from 'k6/ws';
 import { check, sleep } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
@@ -125,6 +126,9 @@ export default function () {
     dispatch_accepted_at_ms: null,
     wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
     child_session: null,
+    reason_hash: null,
+    reason_length: null,
+    delegate_mode: null,
     trace_id: null,
     redacted_events: [],
   };
@@ -145,7 +149,10 @@ export default function () {
       // agent turn that can call the tool, which is the E2E proof path.
       socket.setTimeout(() => {
         const inv = invocationCfg();
-        const prompt = inv.promptTemplate.replace('{{nonce}}', rowNonce);
+        const prompt = inv.promptTemplate.replace(/\{\{nonce\}\}/g, rowNonce);
+        evidence.reason_hash = crypto.sha256(prompt, 'hex').slice(0, 16);
+        evidence.reason_length = prompt.length;
+        evidence.delegate_mode = inv.mode;
         const agentInstruction = `[k6-proof-harness] Call continue_delegate with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. This is a proof run — execute the tool call immediately, no other action needed.`;
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,

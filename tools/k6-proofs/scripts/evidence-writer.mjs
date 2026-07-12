@@ -25,6 +25,7 @@
 
 import { copyFileSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 
 function parseArgs(argv) {
   const out = {};
@@ -115,6 +116,8 @@ if (evidence.events && !evidence.redacted_events) {
 }
 
 const events = evidence.redacted_events || [];
+const { sanitized: [summary], orderedTokens } = sanitizeEvidenceRecords([evidence]);
+const { sanitized: safeEvents } = sanitizeEvidenceRecords(events, orderedTokens);
 
 // Build output directory
 const runId = `k6-run-${stamp()}`;
@@ -125,16 +128,20 @@ if (args['seat-readiness']) {
   copyFileSync(args['seat-readiness'], join(outDir, 'seat-readiness.json'));
 }
 
-// Write k6-summary.json (evidence without raw events)
-const summary = { ...evidence };
-delete summary.redacted_events; // events go to ndjson, not summary
+// Write k6-summary.json through the same public-safe boundary as run-proofs.sh.
 writeFileSync(join(outDir, 'k6-summary.json'), JSON.stringify(summary, null, 2) + '\n');
 
 // Write gateway-events.ndjson (redacted only)
-if (events.length > 0) {
-  const ndjson = events.map((e) => JSON.stringify(e)).join('\n') + '\n';
+if (safeEvents.length > 0) {
+  const ndjson = safeEvents.map((e) => JSON.stringify(e)).join('\n') + '\n';
   writeFileSync(join(outDir, 'gateway-events.ndjson'), ndjson);
 }
+writeFileSync(join(outDir, 'evidence-redaction.json'), JSON.stringify({
+  schema: 'openclaw.k6.public-evidence-redaction.v1',
+  generatedAt: new Date().toISOString(),
+  removedSensitiveValues: orderedTokens.length,
+  records: 1,
+}, null, 2) + '\n');
 
 // Determine verdict
 const verdict = evidence.tool_accepted || evidence.prompt_sent
@@ -192,13 +199,14 @@ const md = `# ${args.row} — ${args.seat} — ${verdict}
 | Tool/prompt accepted | ${evidence.tool_accepted || evidence.prompt_sent ? '✓' : '✗'} |
 | Task/child created | ${evidence.task_created || evidence.child_spawned ? '✓' : '✗'} |
 | Parent return observed | ${evidence.parent_return ? '✓' : '✗'} |
-| Nonce | \`${evidence.nonce || 'N/A'}\` |
+| Safe reason fingerprint | \`${summary.reason_hash || 'N/A'}\` / length \`${summary.reason_length || 'N/A'}\` |
 | Manifest loaded | ${evidence.manifest_loaded ? '✓' : '✗ (defaults used)'} |
 
 ## Artifacts
 
 - \`k6-summary.json\` — structured evidence (no raw events)
-- \`gateway-events.ndjson\` — redacted WS frames (${events.length} captured)
+- \`gateway-events.ndjson\` — redacted WS frames (${safeEvents.length} captured)
+- \`evidence-redaction.json\` — public-safe redaction receipt
 - \`row-result.json\` — normalized outcome
 - \`seat-readiness.json\` — public-safe seat/tooling preflight (${args['seat-readiness'] ? 'captured' : 'not supplied to writer'})
 - \`artifacts/\` — optional copied receipts (Tempo trace, logs)
@@ -217,9 +225,9 @@ ${manifest?.liveRunSafety ? `- Classification: \`${manifest.liveRunSafety.classi
 
 ## Redaction boundary
 
-All events in \`gateway-events.ndjson\` passed through the allowlist redaction filter.
-Only structural fields (type, method, IDs, timing, status) are preserved.
-No tokens, secrets, prompt bodies, or user content in public artifacts.
+All summary and event fields passed through the shared public-safe artifact
+sanitizer. Nonces, session keys, run/idempotency identifiers, task/prompt
+bodies, message payloads, and raw captured event containers are removed.
 
 ## Review checklist
 

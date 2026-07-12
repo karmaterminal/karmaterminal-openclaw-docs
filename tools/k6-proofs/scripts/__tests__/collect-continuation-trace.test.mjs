@@ -95,7 +95,7 @@ async function fixtureDir() {
   const manifestPath = path.join(dir, 'manifest.json');
   await writeFile(manifestPath, JSON.stringify(manifest));
   await writeFile(path.join(dir, 'evidence.jsonl'), `${JSON.stringify(evidence)}\n`);
-  return { dir, manifestPath, reasonHash, reasonLength: reason.length };
+  return { dir, manifestPath, reason, reasonHash, reasonLength: reason.length };
 }
 
 test('correlates a unique trace and validates tool/fire/dispatch topology', async () => {
@@ -128,7 +128,7 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
       '--poll-ms', '10',
     ]);
     const result = JSON.parse(stdout);
-    const receipt = JSON.parse(await readFile(result.receiptOut, 'utf8'));
+    const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
 
     assert.equal(result.traceId, traceId);
     assert.equal(receipt.reason.hash, fixture.reasonHash);
@@ -210,6 +210,48 @@ test('retries until the matched trace has complete continuation topology', async
       '--poll-ms', '10',
     ]);
     assert.equal(traceFetches, 2);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('rejects a matched trace that leaks raw task or traceparent material', async () => {
+  const fixture = await fixtureDir();
+  const traceId = '11111111111111111111111111111111';
+  const unsafeTrace = traceFixture({
+    traceId,
+    reasonHash: fixture.reasonHash,
+    reasonLength: fixture.reasonLength,
+  });
+  unsafeTrace.batches[0].scopeSpans[0].spans[0].attributes.push(
+    attr('unsafe.raw_task', fixture.reason),
+    attr('traceparent', '00-11111111111111111111111111111111-aaaaaaaaaaaaaaaa-01'),
+  );
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(
+      url.pathname === '/api/search' ? { traces: [{ traceID: traceId }] } : unsafeTrace,
+    ));
+  });
+
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script,
+        '--run-dir', fixture.dir,
+        '--manifest', fixture.manifestPath,
+        '--seat', 'silas-prince',
+        '--tempo-url', server.url,
+        '--timeout-ms', '100',
+        '--poll-ms', '10',
+      ]),
+      (error) => {
+        assert.match(error.stderr, /forbidden traceparent|private proof attribution/);
+        return true;
+      },
+    );
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });

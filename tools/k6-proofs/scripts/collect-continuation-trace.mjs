@@ -3,12 +3,14 @@ import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
 
 function usage() {
   console.error(`Usage: node collect-continuation-trace.mjs \\
   --run-dir <row-run-dir> --manifest <row-manifest.json> --seat <seat> \\
+  [--evidence <private-evidence.jsonl>] \\
   [--tempo-url <base-url>] [--timeout-ms 60000] [--poll-ms 2000]`);
 }
 
@@ -20,7 +22,7 @@ function parseArgs(argv, env = process.env) {
   };
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
-    if (!['--run-dir', '--manifest', '--seat', '--tempo-url', '--timeout-ms', '--poll-ms'].includes(arg)) {
+    if (!['--run-dir', '--manifest', '--seat', '--evidence', '--tempo-url', '--timeout-ms', '--poll-ms'].includes(arg)) {
       throw new Error(`unexpected argument: ${arg}`);
     }
     const value = argv[i + 1];
@@ -73,8 +75,8 @@ function allSpans(trace) {
   return [];
 }
 
-async function readEvidence(runDir) {
-  const text = await readFile(path.join(runDir, 'evidence.jsonl'), 'utf8');
+async function readEvidence(evidencePath) {
+  const text = await readFile(evidencePath, 'utf8');
   const records = text.split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
   if (records.length !== 1) throw new Error(`expected exactly one evidence record, found ${records.length}`);
   return records[0];
@@ -93,7 +95,21 @@ function reasonReceipt(manifest, evidence) {
   if (evidence.reason_length && Number(evidence.reason_length) !== length) {
     throw new Error(`evidence reason_length mismatch: expected ${length}, got ${evidence.reason_length}`);
   }
-  return { hash, length };
+  return { hash, length, raw: reason };
+}
+
+function assertTraceIsPublicSafe(trace, evidence, reason) {
+  const serialized = JSON.stringify(trace);
+  const { orderedTokens } = sanitizeEvidenceRecords([evidence]);
+  const forbidden = [reason.raw, ...orderedTokens.map(([token]) => token)]
+    .filter((value) => typeof value === 'string' && value.length >= 6);
+
+  if (serialized.toLowerCase().includes('traceparent')) {
+    throw new Error('Tempo trace contains forbidden traceparent material');
+  }
+  if (forbidden.some((value) => serialized.includes(value))) {
+    throw new Error('Tempo trace contains private proof attribution material');
+  }
 }
 
 async function tempoSearch(baseUrl, query, start, end) {
@@ -193,7 +209,8 @@ async function main() {
   }
 
   const runDir = path.resolve(args.runDir);
-  const evidence = await readEvidence(runDir);
+  const evidencePath = path.resolve(args.evidence || path.join(runDir, 'evidence.jsonl'));
+  const evidence = await readEvidence(evidencePath);
   const manifest = JSON.parse(await readFile(args.manifest, 'utf8'));
   if (manifest?.invocation?.tool !== 'continue_delegate') {
     throw new Error('collector currently supports continue_delegate rows only');
@@ -244,6 +261,7 @@ async function main() {
     }
     throw new Error(`no Tempo trace matched reason hash ${reason.hash} before timeout`);
   }
+  assertTraceIsPublicSafe(trace, evidence, reason);
 
   const traceOut = path.join(runDir, `tempo-trace-${traceId.slice(0, 12)}.json`);
   const receiptOut = path.join(runDir, 'continuation-trace-correlation.json');
@@ -265,8 +283,8 @@ async function main() {
   await writeFile(receiptOut, JSON.stringify(receipt, null, 2) + '\n');
   console.log(JSON.stringify({
     traceId,
-    traceOut,
-    receiptOut,
+    traceFile: path.basename(traceOut),
+    receiptFile: path.basename(receiptOut),
     reasonHash: reason.hash,
     reasonLength: reason.length,
     chainId: topology.chainId,
@@ -275,8 +293,7 @@ async function main() {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => {
-    usage();
-    console.error(error && error.stack ? error.stack : String(error));
+    console.error(error?.message || String(error));
     process.exitCode = 1;
   });
 }

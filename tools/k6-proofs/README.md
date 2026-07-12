@@ -202,6 +202,21 @@ outcome, duration, proof-failure count, checks rate when present, receipt status
 and review-pending signal. It does not export session keys, prompt bodies, nonces,
 raw websocket events, tokens, or local private paths.
 
+## Public-safe runner artifacts
+
+Live `run-proofs.sh` executions keep the raw k6 log and extracted evidence only
+in transient files while trace correlation runs. Before the row directory is
+finalized, the runner removes nonce, session-key, run/idempotency identifiers,
+raw task/prompt/message fields, and captured event payloads recursively. It
+writes sanitized `k6.log`, `evidence.jsonl`, `evidence-lines.log`, and nested
+`run-result.json.evidence`, plus `evidence-redaction.json` describing the
+redaction boundary. Runner metadata records only whether a session was
+configured; it never persists the session key.
+
+An empty or unsanitizable evidence stream is a postprocess failure, not a
+successful proof with missing artifacts. Trace and correlation paths in
+`run-result.json` are artifact basenames rather than local run-directory paths.
+
 ## Tempo trace receipts
 
 When a live row emits a `trace_id`, `run-proofs.sh` now attempts to fetch the

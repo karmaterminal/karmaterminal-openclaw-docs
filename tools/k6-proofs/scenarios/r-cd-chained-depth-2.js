@@ -20,6 +20,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
@@ -112,6 +113,9 @@ export default function () {
     max_depth_observed: 0,
     child_session: null,
     grandchild_session: null,
+    reason_hash: null,
+    reason_length: null,
+    delegate_mode: null,
     trace_id: null,
     redacted_events: [],
   };
@@ -130,13 +134,14 @@ export default function () {
       // tools; sessions.send is the correct E2E path.
       socket.setTimeout(() => {
         const inv = invocationCfg();
+        const task = inv.promptTemplate.replace(/\{\{nonce\}\}/g, chainNonce);
+        evidence.reason_hash = crypto.sha256(task, 'hex').slice(0, 16);
+        evidence.reason_length = task.length;
+        evidence.delegate_mode = inv.mode;
         const agentInstruction =
           `[k6-proof-harness] Chain proof nonce ${chainNonce}. ` +
           `Call continue_delegate with: mode="${inv.mode}", delaySeconds=${inv.delaySeconds}, ` +
-          `task="Chain proof nonce ${chainNonce}: you are depth-1. Call continue_delegate with mode=\\"${inv.mode}\\", ` +
-          `delaySeconds=${inv.delaySeconds}, ` +
-          `task=\"Grandchild proof nonce ${chainNonce}: reply exactly GRANDCHILD-DONE ${chainNonce} only after you arrive. Do not mutate files. Do not post to any channel.\". ` +
-          `After the nested continue_delegate tool result reports scheduled, reply exactly CHILD-DONE ${chainNonce} CHILD-DELEGATE-SCHEDULED. Do not mutate files.", ` +
+          `task=${JSON.stringify(task)}, ` +
           `idempotencyKey="${inv.idempotencyKeyPrefix}-${chainNonce}". ` +
           `This is a proof run — execute the tool call immediately, no other action needed.`;
         tracker.send(socket, 'sessions.send', {

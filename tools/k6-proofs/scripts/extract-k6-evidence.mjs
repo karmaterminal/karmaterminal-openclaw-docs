@@ -22,7 +22,7 @@ function parseArgs(argv) {
 function decodeMessage(line) {
   const marker = ' msg=';
   const start = line.indexOf(marker);
-  if (start < 0) return null;
+  if (start < 0) return line;
   const encodedStart = start + marker.length;
   const source = line.lastIndexOf(' source=');
   const encoded = line.slice(encodedStart, source > encodedStart ? source : undefined).trim();
@@ -104,15 +104,15 @@ async function main() {
     return;
   }
   const { records, lines } = extractEvidenceData(await readFile(args.input, 'utf8'));
-  if (records.length === 0) throw new Error(`no evidence JSON found in ${args.input}`);
+  if (records.length === 0) throw new Error('no evidence JSON found in k6 output');
   await writeFile(args.out, records.map((record) => JSON.stringify(record)).join('\n') + '\n');
   if (args.linesOut) await writeFile(args.linesOut, lines.join('\n') + '\n');
-  console.log(JSON.stringify({ input: args.input, out: args.out, records: records.length }));
+  console.log(JSON.stringify({ records: records.length }));
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => {
-    console.error(error && error.stack ? error.stack : String(error));
+    console.error(error?.message || String(error));
     process.exitCode = 1;
   });
 }

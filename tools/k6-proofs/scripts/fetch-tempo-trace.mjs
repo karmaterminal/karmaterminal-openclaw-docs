@@ -58,7 +58,7 @@ async function traceIdFromRunDir(runDir) {
       // Ignore malformed evidence lines; run-proofs already preserves raw logs.
     }
   }
-  throw new Error(`no trace_id found in ${evidencePath}`);
+  throw new Error('no trace_id found in run evidence');
 }
 
 
@@ -110,7 +110,7 @@ async function main() {
   console.log(JSON.stringify({
     schema: 'openclaw.k6.tempo-trace-fetch.v1',
     traceId,
-    out,
+    out: path.basename(out),
     tempoUrl: url.replace(traceId, '<trace-id>'),
     fetched: true,
     spans,
@@ -118,7 +118,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  usage();
-  console.error(error && error.stack ? error.stack : String(error));
+  console.error(error?.message || String(error));
   process.exitCode = 1;
 });

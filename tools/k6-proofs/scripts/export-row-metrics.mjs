@@ -358,8 +358,8 @@ async function main() {
     outcome: result.outcome,
     sampleCount: samples.length,
     metricNames: [...new Set(samples.map((s) => s.name))],
-    prometheusOut: args['prometheus-out'] || null,
-    otlpOut: args['otlp-out'] || null,
+    prometheusOut: args['prometheus-out'] ? path.basename(args['prometheus-out']) : null,
+    otlpOut: args['otlp-out'] ? path.basename(args['otlp-out']) : null,
     push,
   }, null, 2));
 }

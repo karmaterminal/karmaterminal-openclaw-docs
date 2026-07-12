@@ -95,11 +95,17 @@ test('evidence writer copies supplied seat-readiness report into candidate artif
   await withTmp(async (dir) => {
     const k6Output = join(dir, 'run.txt');
     const readiness = join(dir, 'seat-readiness.json');
+    const nonce = 'R-CD-1-1783882863334-writer';
+    const sessionKey = `agent:main:r-cd-1-${nonce}`;
     await writeFile(k6Output, `=== K6-PROOF-EVIDENCE ===\n${JSON.stringify({
       manifest_loaded: true,
       tool_accepted: true,
       child_spawned: true,
-      redacted_events: [{ type: 'res', ok: true }],
+      nonce,
+      sessionKey,
+      reason_hash: 'adfa6bb5a86112ed',
+      reason_length: 139,
+      redacted_events: [{ type: 'res', ok: true, sessionKey, message: `Proof nonce ${nonce}` }],
     })}\n--- END EVIDENCE ---\n`);
     await writeFile(readiness, `${JSON.stringify({ schema: 'openclaw.k6.seat-readiness.v1', outcome: 'PASS-candidate' })}\n`);
 
@@ -119,5 +125,10 @@ test('evidence writer copies supplied seat-readiness report into candidate artif
     assert.equal(copied.schema, 'openclaw.k6.seat-readiness.v1');
     const evidence = await readFile(join(dir, printed.runDir, 'EVIDENCE.md'), 'utf8');
     assert.match(evidence, /seat-readiness\.json.*captured/);
+    for (const name of ['EVIDENCE.md', 'k6-summary.json', 'gateway-events.ndjson', 'evidence-redaction.json']) {
+      const content = await readFile(join(dir, printed.runDir, name), 'utf8');
+      assert.doesNotMatch(content, new RegExp(nonce));
+      assert.doesNotMatch(content, new RegExp(sessionKey));
+    }
   });
 });

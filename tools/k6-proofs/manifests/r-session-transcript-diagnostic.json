@@ -1,0 +1,63 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-SESSION-DIAG",
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY}",
+  "transport": "websocket",
+  "toolSurface": "gateway-read",
+  "mutates": false,
+  "timeoutSeconds": 60,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-session-transcript-diagnostic",
+    "description": "Read-only nonce-correlated transcript classification for an explicitly selected disposable proof session.",
+    "methods": [
+      "sessions.get"
+    ],
+    "status": "runnable",
+    "file": "r-session-transcript-diagnostic.js"
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": true,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-diagnostic",
+    "requiredReceipts": [
+      "sessions-get-response",
+      "nonce-correlated-message"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Read-only diagnostic row for disposable proof sessions. Never fold this row into the canonical Project 81 corpus."
+  },
+  "expectedReceipts": [
+    {
+      "name": "sessions-get-response",
+      "required": true,
+      "description": "Gateway returned the selected scratch session transcript."
+    },
+    {
+      "name": "nonce-correlated-message",
+      "required": true,
+      "description": "At least one transcript message contains the supplied diagnostic nonce."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-SESSION-DIAG",
+    "seat": "${OPENCLAW_SEAT_NAME}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Temporary read-only diagnostic. Do not include in canonical proof manifests or INDEX.json."
+  }
+}

@@ -2,9 +2,13 @@
 
 ## Current exact-SHA artifacts
 
-No live `a1778c9` proof artifacts are folded at seed time. Row owners add
-reviewed artifacts here or in their row directories and update the manifest in
-the same direct-to-main commit.
+| Kind | Seat | Run | Artifact | Outcome |
+|---|---|---:|---:|---|
+| readiness | Silas | `29204168252` | `8263250009` | `PASS-candidate` |
+
+No behavioral `a1778c9` proof artifact is folded yet. Row owners add reviewed
+artifacts here or in their row directories and update the manifest in the same
+direct-to-main commit.
 
 ## Prior diagnostic runs
 

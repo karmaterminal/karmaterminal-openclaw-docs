@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "/tmp/oc-p81-current/tools/k6-proofs"
+export OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true
+echo "RUN_ID=p81-cael-live-resume4-20260709T031606Z"
+echo "STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+echo "DOCS_SHA=2a57cd8528e43da3bc0f8adad7c48cd8470a5252"
+echo "TARGET_SHA=e08f696618da57e7267a2148578fa4ab0d8b0d01"
+echo "OPENCLAW_VERSION=$(openclaw --version 2>&1 || true)"
+echo "OPENCLAW_CREATE_DISPOSABLE_SESSIONS=$OPENCLAW_CREATE_DISPOSABLE_SESSIONS"
+./scripts/run-proofs.sh --live --out-dir "/tmp/p81-cael-live-resume4-20260709T031606Z/out" "R-CW-1,R-CW-2,R-CW-3,R-CW-4,R-CW-5,R-CW-6,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI-COLLAPSE,R-CW-MULTI,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-status,R-RC-1,R-RC-2,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121" "e08f696618da57e7267a2148578fa4ab0d8b0d01"
+rc=$?
+echo "FINISHED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+echo "RC=$rc"
+exit "$rc"

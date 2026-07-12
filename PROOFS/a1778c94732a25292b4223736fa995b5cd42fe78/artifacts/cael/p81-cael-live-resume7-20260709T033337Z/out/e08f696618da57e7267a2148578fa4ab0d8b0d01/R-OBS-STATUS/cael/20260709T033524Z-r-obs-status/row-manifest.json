@@ -1,0 +1,55 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-OBS-status",
+  "issue": 104,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-emeric-nuc}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "ws-status-probe",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 60,
+  "scenario": {
+    "status": "runnable",
+    "file": "r-obs-status.js",
+    "name": "r-obs-status",
+    "description": "Read-only gateway status/observer receipt check."
+  },
+  "expectedReceipts": [
+    {
+      "name": "tempo-trace-id",
+      "required": false,
+      "description": "Optional Tempo trace ID generated and resolvable when the status surface emits one"
+    },
+    {
+      "name": "observer-receipt",
+      "required": true,
+      "description": "Observer/status receipt intact"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-OBS-status",
+    "seat": "${OPENCLAW_SEAT_NAME:-emeric-nuc}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Observer status row. Read-only."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "observer-receipt"
+    ],
+    "foldRequiresReview": true
+  }
+}

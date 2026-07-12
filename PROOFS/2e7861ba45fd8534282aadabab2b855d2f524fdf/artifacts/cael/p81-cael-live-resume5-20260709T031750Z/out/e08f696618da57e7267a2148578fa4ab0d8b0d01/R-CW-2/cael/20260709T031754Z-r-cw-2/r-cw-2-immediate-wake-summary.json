@@ -1,0 +1,34 @@
+{
+  "row": "R-CW-2",
+  "sha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "seat": "cael",
+  "timestamp": "2026-07-09T03:19:24.504Z",
+  "verdict": "PARTIAL-candidate",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "evidenceJsonl": "evidence.jsonl",
+  "observability": {
+    "traceId": null,
+    "traceJson": "missing"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "tempo-trace-json"
+    ],
+    "notes": [
+      "No trace_id emitted. This run is PARTIAL-candidate; preserve k6.log/evidence and do not fold as PASS without CW2-WOKE plus trace review or explicit trace-missing acceptance."
+    ]
+  },
+  "metrics": {
+    "duration_ms": {
+      "med": 90359,
+      "max": 90359,
+      "p(90)": 90359,
+      "p(95)": 90359,
+      "avg": 90359,
+      "min": 90359
+    },
+    "failures": 1
+  }
+}

@@ -52,8 +52,14 @@
       }
     },
     "current_4afd": {
-      "status": "awaiting-exact-sha-runs",
+      "status": "deployed-awaiting-exact-sha-runs",
       "assembly_branch": "scribe/20260709/1172-status-row-assembly",
+      "deployment_runs": {
+        "silas": "29209001708",
+        "elliott": "29209002624",
+        "cael": "29209003469",
+        "ronan": "29209004344"
+      },
       "required_rows": [
         "R-CD-1",
         "R-CD-2",

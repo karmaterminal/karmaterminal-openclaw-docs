@@ -27,11 +27,11 @@ candidate.
 
 | Seat | Deploy run | Active commit | Restarts |
 |---|---:|---|---:|
-| Silas | pending | pending | pending |
-| Elliott | pending | pending | pending |
-| Cael | pending | pending | pending |
-| Ronan | pending | pending | pending |
+| Silas | `29209001708` | `4afd560feb5102627a68a2f6a8bc545dabcfcfdc` | `0` |
+| Elliott | `29209002624` | `4afd560feb5102627a68a2f6a8bc545dabcfcfdc` | `0` |
+| Cael | `29209003469` | `4afd560feb5102627a68a2f6a8bc545dabcfcfdc` | `0` |
+| Ronan | `29209004344` | `4afd560feb5102627a68a2f6a8bc545dabcfcfdc` | `0` |
 
 Figs directed one four-seat fleet deployment after the contained gates pass;
-there is no canary/pilot phase for this cut. No exact-SHA readiness or
-behavioral proof had fired when this seed was cut.
+there was no canary/pilot phase for this cut. All four workflows completed with
+the gateway active on the exact commit and zero service-lifetime restarts.

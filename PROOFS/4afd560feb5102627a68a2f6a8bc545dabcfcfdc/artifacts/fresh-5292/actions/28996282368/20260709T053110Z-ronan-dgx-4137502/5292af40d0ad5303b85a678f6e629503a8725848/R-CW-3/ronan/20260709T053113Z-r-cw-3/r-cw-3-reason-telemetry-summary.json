@@ -1,0 +1,37 @@
+{
+  "row": "R-CW-3",
+  "sha": "5292af40d0ad5303b85a678f6e629503a8725848",
+  "seat": "ronan",
+  "timestamp": "2026-07-09T05:31:55.302Z",
+  "verdict": "HONEST-LIMIT-candidate",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "evidenceJsonl": "evidence.jsonl",
+  "observability": {
+    "traceId": null,
+    "traceIdSource": null,
+    "traceJson": "missing"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "tempo-trace-json",
+      "reason-telemetry-redaction-review"
+    ],
+    "notes": [
+      "k6 proved dispatch/schedule/wake and kept the raw reason out of public evidence; fold still requires Tempo reason telemetry/redaction review.",
+      "No traceId emitted by gateway WS API: checked root frame (traceId/trace_id/traceparent), sessions.send response payload, and CW3-SCHEDULED event data (including nested result/state/payload). This is a gateway API limitation — the WS protocol for these methods does not expose a traceId. Keep as HONEST-LIMIT/trace-missing until trace JSON is obtained via Tempo search (query by chain.id or flow.id attributes) or trace-missing is explicitly accepted."
+    ]
+  },
+  "metrics": {
+    "duration_ms": {
+      "avg": 42020,
+      "min": 42020,
+      "med": 42020,
+      "max": 42020,
+      "p(90)": 42020,
+      "p(95)": 42020
+    },
+    "failures": 0
+  }
+}

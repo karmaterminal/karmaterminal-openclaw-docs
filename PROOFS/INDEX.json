@@ -1,12 +1,12 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "a1778c94732a25292b4223736fa995b5cd42fe78",
-  "current_sha_short": "a1778c9",
-  "build_string": "OpenClaw 2026.7.2 assembly a1778c9 - Project 81 exact-SHA proof seed",
-  "corpus_path": "PROOFS/a1778c94732a25292b4223736fa995b5cd42fe78",
-  "manifest_path": "PROOFS/a1778c94732a25292b4223736fa995b5cd42fe78/proofs-manifest.json",
-  "readme_path": "PROOFS/a1778c94732a25292b4223736fa995b5cd42fe78/README.md",
+  "current_sha": "4afd560feb5102627a68a2f6a8bc545dabcfcfdc",
+  "current_sha_short": "4afd560",
+  "build_string": "OpenClaw 2026.7.2 assembly 4afd560 - Project 81 exact-SHA proof seed",
+  "corpus_path": "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc",
+  "manifest_path": "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/proofs-manifest.json",
+  "readme_path": "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/README.md",
   "rollup": {
     "total_rows": 35,
     "pass": 29,
@@ -21,9 +21,9 @@
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-07-12",
   "generated_by": "frond-scribe (copilot) exact-SHA seed for prince evidence folding",
-  "capture_sha": "a1778c94732a25292b4223736fa995b5cd42fe78",
-  "proof_push_sha": "a1778c94732a25292b4223736fa995b5cd42fe78",
-  "proof_source_sha": "a1778c94732a25292b4223736fa995b5cd42fe78",
-  "carried_from": "9c6690710c6687c52b93260529932d0c70f58707",
-  "seeded_from": "9c6690710c6687c52b93260529932d0c70f58707"
+  "capture_sha": "4afd560feb5102627a68a2f6a8bc545dabcfcfdc",
+  "proof_push_sha": "4afd560feb5102627a68a2f6a8bc545dabcfcfdc",
+  "proof_source_sha": "4afd560feb5102627a68a2f6a8bc545dabcfcfdc",
+  "carried_from": "a1778c94732a25292b4223736fa995b5cd42fe78",
+  "seeded_from": "a1778c94732a25292b4223736fa995b5cd42fe78"
 }

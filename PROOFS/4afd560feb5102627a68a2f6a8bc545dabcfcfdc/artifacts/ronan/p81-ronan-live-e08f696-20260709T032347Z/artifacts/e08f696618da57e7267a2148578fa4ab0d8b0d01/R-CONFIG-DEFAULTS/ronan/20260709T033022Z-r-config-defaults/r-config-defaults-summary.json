@@ -1,0 +1,18 @@
+{
+  "row": "R-CONFIG-defaults",
+  "sha": "e08f696618da57e7267a2148578fa4ab0d8b0d01",
+  "seat": "ronan",
+  "timestamp": "2026-07-09T03:30:43.373Z",
+  "verdict": "PARTIAL-candidate",
+  "metrics": {
+    "duration_ms": {
+      "p(95)": 20699,
+      "avg": 20699,
+      "min": 20699,
+      "med": 20699,
+      "max": 20699,
+      "p(90)": 20699
+    },
+    "failures": 2
+  }
+}

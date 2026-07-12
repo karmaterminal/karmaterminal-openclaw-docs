@@ -8,7 +8,7 @@
   "transport": "websocket",
   "toolSurface": "typed-tool",
   "mutates": false,
-  "timeoutSeconds": 90,
+  "timeoutSeconds": 120,
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
     "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"

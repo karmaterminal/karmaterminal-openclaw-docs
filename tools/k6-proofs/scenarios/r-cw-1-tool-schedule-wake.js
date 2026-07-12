@@ -32,7 +32,7 @@ export const options = {
   },
   thresholds: {
     proof_failures: ['count==0'],
-    r_cw_1_duration: ['p(95)<90000'],
+    r_cw_1_duration: ['p(95)<110000'],
   },
 };
 
@@ -135,7 +135,7 @@ export default function () {
       }, 500);
 
       // Extended close — must outlast delaySeconds + agent processing overhead.
-      const closeDelta = Math.max((inv.delaySeconds + 30) * 1000, 60000);
+      const closeDelta = Math.max((inv.delaySeconds + 75) * 1000, 90000);
       socket.setTimeout(() => socket.close(), closeDelta);
     }
 

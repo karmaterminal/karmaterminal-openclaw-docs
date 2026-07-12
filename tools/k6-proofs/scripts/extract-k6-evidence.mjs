@@ -89,7 +89,10 @@ function extractEvidenceData(logText) {
     }
   }
 
-  return { records, lines };
+  const uniqueRecords = [...new Map(
+    records.map((record) => [JSON.stringify(record), record]),
+  ).values()];
+  return { records: uniqueRecords, lines };
 }
 
 export function extractEvidence(logText) {

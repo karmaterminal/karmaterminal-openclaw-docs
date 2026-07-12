@@ -38,6 +38,29 @@ test('extracts existing inline evidence records', () => {
   assert.deepEqual(extractEvidence(log), [evidence]);
 });
 
+test('deduplicates identical inline and summary evidence records', () => {
+  const evidence = { row: 'R-CD-2', nonce: 'R-CD-2-example', parent_wake_observed: true };
+  const log = [
+    k6Line(`RCD2_EVIDENCE ${JSON.stringify(evidence)}`),
+    k6Line('\n--- R-CD-2 EVIDENCE SUMMARY ---'),
+    k6Line(JSON.stringify(evidence, null, 2)),
+    k6Line('--- END EVIDENCE ---'),
+  ].join('\n');
+
+  assert.deepEqual(extractEvidence(log), [evidence]);
+});
+
+test('preserves distinct evidence records so ambiguous runs still fail closed', () => {
+  const first = { row: 'R-CD-2', nonce: 'R-CD-2-example', parent_wake_observed: false };
+  const second = { ...first, parent_wake_observed: true };
+  const log = [
+    k6Line(`RCD2_EVIDENCE ${JSON.stringify(first)}`),
+    k6Line(`RCD2_EVIDENCE ${JSON.stringify(second)}`),
+  ].join('\n');
+
+  assert.deepEqual(extractEvidence(log), [first, second]);
+});
+
 test('does not mistake unrelated JSON logs for evidence', () => {
   const log = k6Line(JSON.stringify({ method: 'sessions.send', ok: true }));
   assert.deepEqual(extractEvidence(log), []);

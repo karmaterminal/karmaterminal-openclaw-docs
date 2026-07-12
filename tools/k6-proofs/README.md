@@ -53,6 +53,7 @@ See [`docs/GOLDEN-PATH.md`](docs/GOLDEN-PATH.md). Output remains
 `PASS-candidate` / review-required and must not be folded automatically.
 
 - [`docs/PROOF-RUN-METHOD.md`](docs/PROOF-RUN-METHOD.md) is the short GATES/proof-round entrypoint: row enumeration, dry-run/live run shape, bootstrap workflow anchor, and the #331 receipt boundary.
+- [`docs/TRACE-COLLECTION-RECOVERY.md`](docs/TRACE-COLLECTION-RECOVERY.md) defines the required bounded Tempo-assembly wait, safe correlation, public-safe projection, and collector-gap classification for continuation rows.
 
 ### 1. Seat readiness / version preflight
 

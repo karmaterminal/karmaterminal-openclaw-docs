@@ -64,6 +64,21 @@ function invocationCfg() {
   };
 }
 
+export function isOutboundChannelDeliveryEvent(eventName, eventData) {
+  const lowerName = String(eventName || '').toLowerCase();
+  const namedDelivery = lowerName.includes('delivery') &&
+    (lowerName.includes('channel') || lowerName.includes('message') || lowerName.includes('outbound'));
+  if (namedDelivery) return true;
+  if (!eventData || typeof eventData !== 'object') return false;
+
+  const channelTarget = eventData.channelId || eventData.channel_id ||
+    eventData.targetChannel || eventData.deliveryChannel;
+  const deliveryStatus = String(
+    eventData.deliveryStatus || eventData.delivery_state || eventData.deliveryState || '',
+  ).toLowerCase();
+  return Boolean(channelTarget) && ['sent', 'delivered', 'completed'].includes(deliveryStatus);
+}
+
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
@@ -106,6 +121,7 @@ export default function () {
     parent_wake_observed: false,
     dispatch_channel_message_observed: false,
     channel_message_observed: false, // MUST stay false for PASS
+    silent_status_record_observed: false,
     dispatch_accepted_at_ms: null,
     wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
     child_session: null,
@@ -249,12 +265,21 @@ export default function () {
             }
           }
 
-          // Negative check: a channel delivery of the delegate return would break
-          // silent mode.  The dispatching agent instruction itself can appear as a
-          // chat/channel event in a live Discord-bound session; track it separately
-          // so the row does not confuse harness injection with delegate return.
-          if (eventStr.includes('channel') && eventStr.includes('deliver') &&
-              eventStr.includes(rowNonce)) {
+          // continue_status({ notify:false }) is internal completion bookkeeping,
+          // even when a generic chat event carries channel/delivery metadata for
+          // the bound session. Record it explicitly instead of treating arbitrary
+          // transcript text as proof of outbound delivery.
+          if (eventStr.includes(rowNonce) && eventStr.includes('"notify":false') &&
+              eventStr.includes('"outcome":"done"')) {
+            evidence.silent_status_record_observed = true;
+            console.log('ℹ internal continue_status notify:false receipt observed');
+          }
+
+          // Negative check: only an explicit outbound-delivery-shaped event counts.
+          // Generic agent/chat events can contain the full transcript plus routing
+          // metadata, so substring checks for "channel" and "deliver" are unsafe.
+          if (eventStr.includes(rowNonce) &&
+              isOutboundChannelDeliveryEvent(eventName, eventData)) {
             if (eventStr.includes('[k6-proof-harness]')) {
               evidence.dispatch_channel_message_observed = true;
               console.log('ℹ dispatch instruction channel event observed (not delegate return)');

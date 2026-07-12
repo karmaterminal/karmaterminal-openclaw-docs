@@ -17,6 +17,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
@@ -70,6 +71,8 @@ export default function () {
   const createDisposableSession = boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSION') || boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSIONS');
   const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CW-1');
+  const inv = invocationCfg();
+  const wakeReason = inv.reason.replace(/\{\{nonce\}\}/g, rowNonce);
 
   if (!token) {
     console.error('OPENCLAW_GATEWAY_TOKEN is required');
@@ -102,6 +105,8 @@ export default function () {
     dispatch_accepted_at_ms: null,
     scheduled_result_at_ms: null,
     wake_delay_ms: null,
+    reason_hash: crypto.sha256(wakeReason, 'hex').slice(0, 16),
+    reason_length: wakeReason.length,
     trace_id: null,
     redacted_events: [],
   };
@@ -110,9 +115,6 @@ export default function () {
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
-    const inv = invocationCfg();
-    const reasonWithNonce = inv.reason.replace(/\{\{nonce\}\}/g, rowNonce) + `-${rowNonce}`;
-    const wakeReason = `${reasonWithNonce} -- on continuation wake reply exactly CW-WOKE ${rowNonce}`;
 
     function startProofFlow(socket) {
       // Subscribe to session events — scheduled result + wake surface.

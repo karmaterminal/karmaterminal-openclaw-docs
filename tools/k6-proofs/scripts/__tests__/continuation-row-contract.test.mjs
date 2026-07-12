@@ -31,6 +31,33 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
   assert.deepEqual(rows.sort(), ['R-CD-1', 'R-CD-2', 'R-CD-4', 'R-CD-CHAINED-DEPTH-2']);
 });
 
+test('every trace-required continue_work row persists the safe fingerprint contract', async () => {
+  const files = (await readdir(manifestsDir)).filter((name) => name.endsWith('.json'));
+  const rows = [];
+
+  for (const file of files) {
+    const manifest = JSON.parse(await readFile(path.join(manifestsDir, file), 'utf8'));
+    const required = (manifest.liveRunSafety?.requiredReceipts || [])
+      .map((value) => String(value).toLowerCase());
+    if (manifest.invocation?.tool !== 'continue_work' ||
+        !required.some((value) => value === 'trace-id' || value === 'tempo-trace-json')) {
+      continue;
+    }
+    rows.push(manifest.rowId);
+    const scenario = await readFile(path.join(scenariosDir, manifest.scenario.file), 'utf8');
+    assert.match(scenario, /reason_hash:\s*crypto\.sha256\([^,]+,\s*'hex'\)\.slice\(0,\s*16\)/);
+    assert.match(scenario, /reason_length:\s*(?:wakeReason|rawReason)\.length/);
+    assert.match(scenario, /inv\.reason\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,/);
+    assert.match(manifest.invocation.reason, /\{\{nonce\}\}/);
+    if (manifest.rowId === 'R-CW-3') {
+      assert.match(scenario, /rawReasonSentinel = `RAW-RCW3-\$\{rowNonce\}`/);
+      assert.doesNotMatch(scenario, /rawReasonSentinel.*Math\.random/);
+    }
+  }
+
+  assert.deepEqual(rows.sort(), ['R-CW-1', 'R-CW-3']);
+});
+
 test('depth-2 chain dispatch uses the exact committed manifest task', async () => {
   const source = await readFile(path.join(scenariosDir, 'r-cd-chained-depth-2.js'), 'utf8');
   assert.match(source, /const task = inv\.promptTemplate\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g, chainNonce\)/);

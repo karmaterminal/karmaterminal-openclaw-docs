@@ -252,7 +252,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         TRACE_ID="$(jq -r 'select((.trace_id // "") != "") | .trace_id' "$PRIVATE_EVIDENCE_FILE" | head -n 1)"
       fi
     fi
-    if [[ "$TRACE_REQUIRED" == "true" && "$MANIFEST_TOOL" == "continue_delegate" ]]; then
+    if [[ "$TRACE_REQUIRED" == "true" &&
+          ( "$MANIFEST_TOOL" == "continue_delegate" || "$MANIFEST_TOOL" == "continue_work" ) ]]; then
       COLLECTOR_RESULT="$RUN_DIR/continuation-trace-collector.json"
       COLLECTOR_ERROR="$RUN_DIR/continuation-trace-collector.error.log"
       if node "$CONTINUATION_TRACE_COLLECTOR" \

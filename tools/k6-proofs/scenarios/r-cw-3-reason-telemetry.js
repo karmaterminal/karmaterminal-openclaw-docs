@@ -8,6 +8,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
@@ -46,7 +47,7 @@ const HARNESS_MARKER = '[k6-proof-harness]';
 const DEFAULTS = { sessionKey: 'main', seat: 'cael-dgx', delaySeconds: 5, idempotencyKeyPrefix: 'R-CW-3' };
 let finalEvidence = null;
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
-function invocationCfg() { const inv = manifest?.invocation || {}; return { delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds), idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix, reasonPrefix: inv.reasonPrefix || 'k6-proof-R-CW-3-redaction' }; }
+function invocationCfg() { const inv = manifest?.invocation || {}; return { delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds), idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix, reason: inv.reason || 'k6-proof-R-CW-3-redaction RAW-RCW3-{{nonce}}; on continuation wake reply exactly CW3-WOKE {{nonce}}' }; }
 function redactedNoReason(classified) {
   const redacted = redactEvent(classified.payload || classified.data || {});
   if (redacted && typeof redacted === 'object') delete redacted.reason;
@@ -61,18 +62,18 @@ export default function () {
   const createDisposableSession = boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSION') || boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSIONS');
   const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CW-3');
-  const rawReasonSentinel = `RAW-RCW3-${rowNonce}-${Math.random().toString(36).slice(2, 8)}`;
+  const rawReasonSentinel = `RAW-RCW3-${rowNonce}`;
   if (!token) { console.error('OPENCLAW_GATEWAY_TOKEN is required'); failures.add(1); return; }
   if (manifest) { const errors = validateManifest(manifest); if (errors.length) console.warn('Manifest validation warnings: ' + errors.join('; ')); }
   const inv = invocationCfg();
-  const evidence = { row: 'R-CW-3', manifest_loaded: !!manifest, nonce: rowNonce, seat, requestedSessionKey, sessionKey, session_created: false, created_session_key: null, candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', started: new Date().toISOString(), dispatch_accepted: false, scheduled_sentinel: false, wake_observed: false, public_artifact_raw_reason_absent: true, tempo_assertion: 'pending-review', trace_id: null, trace_id_source: null, dispatch_accepted_at_ms: null, scheduled_result_at_ms: null, wake_delay_ms: null, redacted_events: [] };
+  const rawReason = inv.reason.replace(/\{\{nonce\}\}/g, rowNonce);
+  const evidence = { row: 'R-CW-3', manifest_loaded: !!manifest, nonce: rowNonce, seat, requestedSessionKey, sessionKey, session_created: false, created_session_key: null, candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', started: new Date().toISOString(), dispatch_accepted: false, scheduled_sentinel: false, wake_observed: false, public_artifact_raw_reason_absent: true, tempo_assertion: 'pending-review', reason_hash: crypto.sha256(rawReason, 'hex').slice(0, 16), reason_length: rawReason.length, trace_id: null, trace_id_source: null, dispatch_accepted_at_ms: null, scheduled_result_at_ms: null, wake_delay_ms: null, redacted_events: [] };
   const started = Date.now();
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
     function startProofFlow(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       socket.setTimeout(() => {
-        const rawReason = `${inv.reasonPrefix} ${rawReasonSentinel}; on continuation wake reply exactly CW3-WOKE ${rowNonce}`;
         const instruction = `${HARNESS_MARKER} R-CW-3 proof nonce ${rowNonce}. Call continue_work with delaySeconds=${inv.delaySeconds} and the supplied reason. After the continue_work tool result reports scheduled, reply exactly CW3-SCHEDULED ${rowNonce}. On the continuation wake, reply exactly CW3-WOKE ${rowNonce}. Supplied reason: ${JSON.stringify(rawReason)}. Do not mutate files.`;
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: instruction, idempotencyKey: `${inv.idempotencyKeyPrefix}-DISPATCH-${rowNonce}` });
       }, 500);

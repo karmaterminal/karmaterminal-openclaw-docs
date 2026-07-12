@@ -82,11 +82,35 @@ async function readEvidence(evidencePath) {
   return records[0];
 }
 
-function reasonReceipt(manifest, evidence) {
-  const template = manifest?.invocation?.promptTemplate;
+function continuationContract(manifest, evidence) {
+  const tool = manifest?.invocation?.tool;
   const nonce = evidence?.nonce;
-  if (!template || !nonce) throw new Error('manifest promptTemplate and evidence nonce are required');
-  const reason = String(template).replaceAll('{{nonce}}', String(nonce));
+  if (!nonce) throw new Error('evidence nonce is required');
+
+  let reason;
+  let mode;
+  let acceptSpanName;
+  let fireSpanName;
+  let attribution;
+  if (tool === 'continue_delegate') {
+    const template = manifest?.invocation?.promptTemplate;
+    if (!template) throw new Error('continue_delegate manifest promptTemplate is required');
+    reason = String(template).replaceAll('{{nonce}}', String(nonce));
+    mode = escapeTraceqlString(manifest.invocation.mode);
+    acceptSpanName = 'continuation.delegate.dispatch';
+    fireSpanName = 'continuation.delegate.fire';
+    attribution = 'reason-hash-length-mode';
+  } else if (tool === 'continue_work') {
+    const template = manifest?.invocation?.reason;
+    if (!template) throw new Error('continue_work manifest reason is required');
+    reason = String(template).replaceAll('{{nonce}}', String(nonce));
+    acceptSpanName = 'continuation.work';
+    fireSpanName = 'continuation.work.fire';
+    attribution = 'reason-hash-length';
+  } else {
+    throw new Error(`unsupported continuation tool: ${tool || '(empty)'}`);
+  }
+
   const hash = createHash('sha256').update(reason).digest('hex').slice(0, 16);
   const length = reason.length;
   if (evidence.reason_hash && evidence.reason_hash !== hash) {
@@ -95,7 +119,16 @@ function reasonReceipt(manifest, evidence) {
   if (evidence.reason_length && Number(evidence.reason_length) !== length) {
     throw new Error(`evidence reason_length mismatch: expected ${length}, got ${evidence.reason_length}`);
   }
-  return { hash, length, raw: reason };
+  return {
+    tool,
+    hash,
+    length,
+    raw: reason,
+    mode,
+    acceptSpanName,
+    fireSpanName,
+    attribution,
+  };
 }
 
 function assertTraceIsPublicSafe(trace, evidence, reason) {
@@ -132,63 +165,80 @@ async function fetchTrace(baseUrl, traceId) {
   return JSON.parse(text);
 }
 
+function matchesContinuationSpan(span, expected, name) {
+  const attrs = attributes(span);
+  return span.name === name &&
+    attrs.get('reason.hash') === expected.reasonHash &&
+    Number(attrs.get('reason.length')) === expected.reasonLength &&
+    (expected.mode === undefined || attrs.get('delegate.mode') === expected.mode);
+}
+
 function validateTrace(trace, expected) {
   const spans = allSpans(trace);
-  const dispatch = spans.find((span) => {
-    const attrs = attributes(span);
-    return span.name === 'continuation.delegate.dispatch' &&
-      attrs.get('reason.hash') === expected.reasonHash &&
-      Number(attrs.get('reason.length')) === expected.reasonLength &&
-      attrs.get('delegate.mode') === expected.mode;
-  });
-  if (!dispatch) throw new Error('matched trace lacks the expected continuation.delegate.dispatch span');
-  const dispatchAttrs = attributes(dispatch);
-  const chainId = String(dispatchAttrs.get('chain.id') || '');
-  if (!chainId) throw new Error('dispatch span lacks chain.id');
+  const accept = spans.find((span) =>
+    matchesContinuationSpan(span, expected, expected.acceptSpanName));
+  if (!accept) throw new Error(`matched trace lacks the expected ${expected.acceptSpanName} span`);
+  const acceptAttrs = attributes(accept);
+  const chainId = String(acceptAttrs.get('chain.id') || '');
+  if (!chainId) throw new Error(`${expected.acceptSpanName} span lacks chain.id`);
 
   const fire = spans.find((span) => {
     const attrs = attributes(span);
-    return span.name === 'continuation.delegate.fire' &&
+    return matchesContinuationSpan(span, expected, expected.fireSpanName) &&
       attrs.get('chain.id') === chainId &&
-      attrs.get('reason.hash') === expected.reasonHash &&
-      Number(attrs.get('reason.length')) === expected.reasonLength &&
-      attrs.get('delegate.mode') === expected.mode;
+      (expected.mode === undefined || attrs.get('delegate.mode') === expected.mode);
   });
-  if (!fire) throw new Error('matched trace lacks the expected continuation.delegate.fire span');
+  if (!fire) throw new Error(`matched trace lacks the expected ${expected.fireSpanName} span`);
 
   const tools = spans.filter((span) => {
     const attrs = attributes(span);
-    return span.name === 'openclaw.tool.execution' && attrs.get('gen_ai.tool.name') === 'continue_delegate';
+    return span.name === 'openclaw.tool.execution' &&
+      attrs.get('gen_ai.tool.name') === expected.tool;
   });
-  if (tools.length === 0) throw new Error('matched trace lacks the originating continue_delegate tool span');
+  if (tools.length === 0) {
+    throw new Error(`matched trace lacks the originating ${expected.tool} tool span`);
+  }
 
-  const traceId = idHex(dispatch.traceId, 16, 'trace id');
+  const traceId = idHex(accept.traceId, 16, 'trace id');
   const fireTraceId = idHex(fire.traceId, 16, 'fire trace id');
   const toolTraceIds = tools.map((span) => idHex(span.traceId, 16, 'tool trace id'));
   if (fireTraceId !== traceId || toolTraceIds.some((value) => value !== traceId)) {
-    throw new Error('tool/fire/dispatch do not share one trace');
+    throw new Error('tool/fire/accept do not share one trace');
   }
 
-  const dispatchSpanId = idHex(dispatch.spanId, 8, 'dispatch span id');
+  const acceptSpanId = idHex(accept.spanId, 8, 'accept span id');
   const fireSpanId = idHex(fire.spanId, 8, 'fire span id');
   const toolSpanIds = tools.map((span) => idHex(span.spanId, 8, 'tool span id'));
-  if (dispatchSpanId === fireSpanId || toolSpanIds.includes(dispatchSpanId) || toolSpanIds.includes(fireSpanId)) {
-    throw new Error('tool/fire/dispatch span IDs are not distinct');
+  if (acceptSpanId === fireSpanId ||
+      toolSpanIds.includes(acceptSpanId) ||
+      toolSpanIds.includes(fireSpanId)) {
+    throw new Error('tool/fire/accept span IDs are not distinct');
   }
 
   const childSpans = spans
-    .filter((span) => span.parentSpanId && idHex(span.parentSpanId, 8, 'parent span id') === dispatchSpanId)
+    .filter((span) =>
+      span.parentSpanId && idHex(span.parentSpanId, 8, 'parent span id') === acceptSpanId)
     .map((span) => ({ name: span.name, spanId: idHex(span.spanId, 8, 'child span id') }));
 
-  return {
+  const topology = {
     traceId,
     chainId,
     toolSpanIds,
     fireSpanId,
-    dispatchSpanId,
     fireParentSpanId: idHex(fire.parentSpanId, 8, 'fire parent span id'),
-    dispatchParentSpanId: idHex(dispatch.parentSpanId, 8, 'dispatch parent span id'),
     childSpans,
+  };
+  if (expected.tool === 'continue_delegate') {
+    return {
+      ...topology,
+      dispatchSpanId: acceptSpanId,
+      dispatchParentSpanId: idHex(accept.parentSpanId, 8, 'dispatch parent span id'),
+    };
+  }
+  return {
+    ...topology,
+    workSpanId: acceptSpanId,
+    workParentSpanId: idHex(accept.parentSpanId, 8, 'work parent span id'),
   };
 }
 
@@ -212,15 +262,12 @@ async function main() {
   const evidencePath = path.resolve(args.evidence || path.join(runDir, 'evidence.jsonl'));
   const evidence = await readEvidence(evidencePath);
   const manifest = JSON.parse(await readFile(args.manifest, 'utf8'));
-  if (manifest?.invocation?.tool !== 'continue_delegate') {
-    throw new Error('collector currently supports continue_delegate rows only');
-  }
 
-  const reason = reasonReceipt(manifest, evidence);
-  const mode = escapeTraceqlString(manifest.invocation.mode);
+  const contract = continuationContract(manifest, evidence);
   const prince = escapeTraceqlString(String(args.seat).split('-')[0]);
   const serviceName = `${prince}-prince`;
-  const query = `{ resource.service.name="${serviceName}" && name="continuation.delegate.dispatch" && .reason.hash="${reason.hash}" && .reason.length=${reason.length} && .delegate.mode="${mode}" }`;
+  const modeClause = contract.mode === undefined ? '' : ` && .delegate.mode="${contract.mode}"`;
+  const query = `{ resource.service.name="${serviceName}" && name="${contract.acceptSpanName}" && .reason.hash="${contract.hash}" && .reason.length=${contract.length}${modeClause} }`;
   const dispatchMs = Number(evidence.dispatch_accepted_at_ms || Date.parse(evidence.started));
   if (!Number.isFinite(dispatchMs)) throw new Error('evidence lacks a valid dispatch/start time');
   const start = Math.floor(dispatchMs / 1000) - 60;
@@ -241,9 +288,12 @@ async function main() {
       trace = await fetchTrace(args.tempoUrl, traceId);
       try {
         topology = validateTrace(trace, {
-          reasonHash: reason.hash,
-          reasonLength: reason.length,
-          mode,
+          tool: contract.tool,
+          reasonHash: contract.hash,
+          reasonLength: contract.length,
+          mode: contract.mode,
+          acceptSpanName: contract.acceptSpanName,
+          fireSpanName: contract.fireSpanName,
         });
         if (topology.traceId !== traceId) throw new Error('Tempo search and trace payload IDs disagree');
         break;
@@ -259,9 +309,9 @@ async function main() {
     if (validationError) {
       throw new Error(`Tempo trace did not reach valid continuation topology before timeout: ${validationError.message}`);
     }
-    throw new Error(`no Tempo trace matched reason hash ${reason.hash} before timeout`);
+    throw new Error(`no Tempo trace matched reason hash ${contract.hash} before timeout`);
   }
-  assertTraceIsPublicSafe(trace, evidence, reason);
+  assertTraceIsPublicSafe(trace, evidence, contract);
 
   const traceOut = path.join(runDir, `tempo-trace-${traceId.slice(0, 12)}.json`);
   const receiptOut = path.join(runDir, 'continuation-trace-correlation.json');
@@ -271,9 +321,14 @@ async function main() {
     generatedAt: new Date().toISOString(),
     row: evidence.row || manifest.rowId,
     seat: args.seat,
-    attribution: 'reason-hash-length-mode',
-    reason: { hash: reason.hash, length: reason.length, rawPersisted: false },
-    delegate: { mode },
+    attribution: contract.attribution,
+    reason: { hash: contract.hash, length: contract.length, rawPersisted: false },
+    continuation: {
+      tool: contract.tool,
+      acceptSpan: contract.acceptSpanName,
+      fireSpan: contract.fireSpanName,
+    },
+    ...(contract.mode === undefined ? {} : { delegate: { mode: contract.mode } }),
     query,
     traceJson: path.basename(traceOut),
     ...topology,
@@ -285,8 +340,8 @@ async function main() {
     traceId,
     traceFile: path.basename(traceOut),
     receiptFile: path.basename(receiptOut),
-    reasonHash: reason.hash,
-    reasonLength: reason.length,
+    reasonHash: contract.hash,
+    reasonLength: contract.length,
     chainId: topology.chainId,
   }));
 }

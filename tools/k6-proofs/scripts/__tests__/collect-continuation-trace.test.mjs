@@ -36,27 +36,26 @@ function span(name, traceId, spanId, parentSpanId, attrs = []) {
   };
 }
 
-function traceFixture({ traceId, reasonHash, reasonLength }) {
+function traceFixture({ traceId, reasonHash, reasonLength, tool = 'continue_delegate' }) {
   const parent = 'dddddddddddddddd';
+  const isWork = tool === 'continue_work';
+  const acceptSpanName = isWork ? 'continuation.work' : 'continuation.delegate.dispatch';
+  const fireSpanName = isWork ? 'continuation.work.fire' : 'continuation.delegate.fire';
+  const continuationAttrs = [
+    attr('chain.id', 'chain-example'),
+    attr('reason.hash', reasonHash),
+    attr('reason.length', reasonLength),
+    ...(isWork ? [] : [attr('delegate.mode', 'normal')]),
+  ];
   return {
     batches: [{
       scopeSpans: [{
         spans: [
           span('openclaw.tool.execution', traceId, 'aaaaaaaaaaaaaaaa', parent, [
-            attr('gen_ai.tool.name', 'continue_delegate'),
+            attr('gen_ai.tool.name', tool),
           ]),
-          span('continuation.delegate.fire', traceId, 'bbbbbbbbbbbbbbbb', parent, [
-            attr('chain.id', 'chain-example'),
-            attr('reason.hash', reasonHash),
-            attr('reason.length', reasonLength),
-            attr('delegate.mode', 'normal'),
-          ]),
-          span('continuation.delegate.dispatch', traceId, 'cccccccccccccccc', parent, [
-            attr('chain.id', 'chain-example'),
-            attr('reason.hash', reasonHash),
-            attr('reason.length', reasonLength),
-            attr('delegate.mode', 'normal'),
-          ]),
+          span(fireSpanName, traceId, 'bbbbbbbbbbbbbbbb', parent, continuationAttrs),
+          span(acceptSpanName, traceId, 'cccccccccccccccc', parent, continuationAttrs),
           span('openclaw.harness.run', traceId, 'eeeeeeeeeeeeeeee', 'cccccccccccccccc'),
         ],
       }],
@@ -74,18 +73,31 @@ async function listen(handler) {
   };
 }
 
-async function fixtureDir() {
+async function fixtureDir({ tool = 'continue_delegate', workVariant = 'reason' } = {}) {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'continuation-trace-test-'));
-  const nonce = 'R-CD-1-example';
-  const template = 'Proof nonce {{nonce}}: reply exactly CD1-DONE {{nonce}} only.';
-  const reason = template.replaceAll('{{nonce}}', nonce);
+  const isWork = tool === 'continue_work';
+  const isReasonPrefix = isWork && workVariant === 'reason-prefix';
+  const nonce = isReasonPrefix
+    ? 'R-CW-3-example'
+    : isWork
+      ? 'R-CW-1-example'
+      : 'R-CD-1-example';
+  const template = isReasonPrefix
+    ? 'k6-proof-R-CW-3-redaction RAW-RCW3-{{nonce}}; on continuation wake reply exactly CW3-WOKE {{nonce}}'
+    : isWork
+      ? 'k6-proof-R-CW-1-{{nonce}} -- on continuation wake reply exactly CW-WOKE {{nonce}}'
+    : 'Proof nonce {{nonce}}: reply exactly CD1-DONE {{nonce}} only.';
+  const templatedReason = template.replaceAll('{{nonce}}', nonce);
+  const reason = templatedReason;
   const reasonHash = createHash('sha256').update(reason).digest('hex').slice(0, 16);
   const manifest = {
-    rowId: 'R-CD-1',
-    invocation: { tool: 'continue_delegate', mode: 'normal', promptTemplate: template },
+    rowId: isReasonPrefix ? 'R-CW-3' : isWork ? 'R-CW-1' : 'R-CD-1',
+    invocation: isWork
+      ? { tool, reason: template }
+      : { tool, mode: 'normal', promptTemplate: template },
   };
   const evidence = {
-    row: 'R-CD-1',
+    row: manifest.rowId,
     nonce,
     started: '2026-07-12T22:15:00.000Z',
     dispatch_accepted_at_ms: Date.parse('2026-07-12T22:15:10.000Z'),
@@ -140,6 +152,93 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
     }]);
     assert.match(observedQuery, new RegExp(`reason\\.hash="${fixture.reasonHash}"`));
     assert.doesNotMatch(JSON.stringify(receipt), /Proof nonce/);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('correlates continue_work tool/accept/fire topology by safe reason fingerprint', async () => {
+  const fixture = await fixtureDir({ tool: 'continue_work' });
+  const traceId = '33333333333333333333333333333333';
+  let observedQuery = '';
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    if (url.pathname === '/api/search') {
+      observedQuery = url.searchParams.get('q') || '';
+      response.end(JSON.stringify({ traces: [{ traceID: traceId }] }));
+      return;
+    }
+    response.end(JSON.stringify(traceFixture({
+      traceId,
+      reasonHash: fixture.reasonHash,
+      reasonLength: fixture.reasonLength,
+      tool: 'continue_work',
+    })));
+  });
+
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script,
+      '--run-dir', fixture.dir,
+      '--manifest', fixture.manifestPath,
+      '--seat', 'silas-prince',
+      '--tempo-url', server.url,
+      '--timeout-ms', '100',
+      '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+
+    assert.equal(result.traceId, traceId);
+    assert.equal(receipt.continuation.tool, 'continue_work');
+    assert.equal(receipt.workSpanId, 'cccccccccccccccc');
+    assert.equal(receipt.fireSpanId, 'bbbbbbbbbbbbbbbb');
+    assert.equal(receipt.sameTrace, true);
+    assert.equal(receipt.distinctSpans, true);
+    assert.match(observedQuery, /name="continuation\.work"/);
+    assert.doesNotMatch(JSON.stringify(receipt), /CW-WOKE R-CW-1-example/);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('reconstructs deterministic R-CW-3 reason telemetry without persisting the raw sentinel', async () => {
+  const fixture = await fixtureDir({ tool: 'continue_work', workVariant: 'reason-prefix' });
+  const traceId = '44444444444444444444444444444444';
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(
+      url.pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : traceFixture({
+            traceId,
+            reasonHash: fixture.reasonHash,
+            reasonLength: fixture.reasonLength,
+            tool: 'continue_work',
+          }),
+    ));
+  });
+
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script,
+      '--run-dir', fixture.dir,
+      '--manifest', fixture.manifestPath,
+      '--seat', 'cael-dgx',
+      '--tempo-url', server.url,
+      '--timeout-ms', '100',
+      '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+
+    assert.equal(receipt.row, 'R-CW-3');
+    assert.equal(receipt.reason.hash, fixture.reasonHash);
+    assert.doesNotMatch(JSON.stringify(receipt), /RAW-RCW3/);
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });

@@ -432,7 +432,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-CW-TOKEN | `r-cw-token-bracket` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-OBS-1 | `r-obs-1` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-OBS-2 | `r-obs-2` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
-| R-OBS-status | `r-obs-status` | ws-status-probe/read-only | PASS-candidate; runnable candidate requiring row review |
+| R-OBS-status | `r-obs-status` | github-source-contract/#1172 | PASS-candidate; runnable exact-SHA status-line contract requiring row review |
 | R-RC-1 | `r-rc-1-threshold-reject` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-RC-2 | `r-rc-2-delegate-request-compaction` | websocket/typed-tool | HONEST-LIMIT-candidate; reaches safe threshold/staging path, accepted compaction remains fixture-gated |
 | R-REGRESSION-TRAP-TESTS | `r-regression-trap-tests` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |

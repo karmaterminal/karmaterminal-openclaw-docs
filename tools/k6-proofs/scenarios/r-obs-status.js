@@ -1,14 +1,21 @@
 /**
- * Scenario: R-OBS-status — read-only gateway status/observer receipt.
+ * R-OBS-status — exact-candidate contract for #1172's continuation status row.
  *
- * Converts the historical scaffold into a manifest-driven k6 row. It only
- * authenticates to the gateway and requests operator status; it does not fire
- * continuation tools, mutate files, or dispatch agents.
+ * This intentionally does not call the gateway `status` RPC: that endpoint
+ * proves transport health, not the user-visible status-text behavior fixed by
+ * #1172. Instead it evaluates exact candidate source prefetched by the runner
+ * from its immutable GitHub SHA (the k6 sandbox itself has no outbound network),
+ * extracts the dependency-free status-row formatter, and executes its two
+ * public-safe contract cases:
+ *
+ * - an active continuation state renders the continuation line; and
+ * - a clean all-zero state omits that line.
+ *
+ * No session keys, prompts, gateway tokens, or raw source text enter evidence.
  */
-import ws from 'k6/ws';
 import { check } from 'k6';
+import crypto from 'k6/crypto';
 import { Counter, Trend } from 'k6/metrics';
-import { connectFrame, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
 export const options = {
@@ -29,104 +36,126 @@ export const options = {
 const failures = new Counter('proof_failures');
 const duration = new Trend('r_obs_status_duration');
 const manifest = loadManifestFromEnv();
+const prefetchedSourcePath = __ENV.OPENCLAW_STATUS_SOURCE_PATH || '';
+const prefetchedSource = prefetchedSourcePath ? open(prefetchedSourcePath) : '';
+const FORMATTER_START = 'export function formatStatusTextContinuationLine(params: {';
+const FORMATTER_END = '\n}\n\nconst loadStatusMessageRuntime';
+const FORMATTER_SIGNATURE_END = '}): string | undefined {';
+
+function fail(message) {
+  console.error(message);
+  failures.add(1);
+}
+
+function extractFormatter(source) {
+  const start = source.indexOf(FORMATTER_START);
+  if (start < 0) throw new Error('status formatter start marker was not found');
+  const end = source.indexOf(FORMATTER_END, start);
+  if (end < 0) throw new Error('status formatter end marker was not found');
+
+  const declaration = source.slice(start, end + 2);
+  const bodyStart = declaration.indexOf(FORMATTER_SIGNATURE_END);
+  if (bodyStart < 0) throw new Error('status formatter signature marker was not found');
+  const body = declaration.slice(bodyStart + FORMATTER_SIGNATURE_END.length, -2);
+
+  // The extracted formatter is dependency-free by design. Executing precisely
+  // this candidate-owned body prevents the harness from re-implementing the
+  // predicate it is meant to test.
+  return new Function('params', `'use strict';\n${body}`);
+}
 
 export default function () {
-  const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
-  const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
-  const seat = (manifest && manifest.seat) || __ENV.OPENCLAW_SEAT_NAME || 'ci-runner';
-  const candidateSha = (manifest && manifest.candidateSha) || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset';
+  const candidateSha = (manifest && manifest.candidateSha) || __ENV.OPENCLAW_CANDIDATE_SHA || '';
+  const sourcePath =
+    (manifest && manifest.sourceContract && manifest.sourceContract.path) ||
+    'src/status/status-text.ts';
+  const sourceRepo =
+    (manifest && manifest.sourceContract && manifest.sourceContract.repository) ||
+    'karmaterminal/openclaw';
   const started = Date.now();
+  const evidence = {
+    row: 'R-OBS-status',
+    candidate_sha: candidateSha,
+    source_repository: sourceRepo,
+    source_path: sourcePath,
+    source_fetch_ok: false,
+    source_sha256: null,
+    formatter_extracted: false,
+    active_continuation_line_present: false,
+    clean_session_continuation_line_absent: false,
+    ended: null,
+    duration_ms: null,
+  };
+  let preconditionFailed = false;
 
-  if (!token) {
-    console.error('OPENCLAW_GATEWAY_TOKEN is required');
-    failures.add(1);
-    return;
+  if (!/^[0-9a-f]{40}$/.test(candidateSha)) {
+    fail(`R-OBS-status requires a 40-character candidate SHA, got ${JSON.stringify(candidateSha)}`);
+    preconditionFailed = true;
   }
-
   if (manifest) {
     const errors = validateManifest(manifest);
     if (errors.length > 0) {
-      console.warn(`Manifest validation warnings: ${errors.join('; ')}`);
+      fail(`manifest validation failed: ${errors.join('; ')}`);
+      preconditionFailed = true;
     }
   }
 
-  const evidence = {
-    row: 'R-OBS-status',
-    manifest_loaded: !!manifest,
-    seat,
-    candidateSha,
-    started: new Date().toISOString(),
-    connected: false,
-    connect_ok: false,
-    status_ok: false,
-    status_payload: null,
-    trace_id: null,
-    redacted_events: [],
-  };
+  if (preconditionFailed) {
+    evidence.ended = new Date().toISOString();
+    evidence.duration_ms = Date.now() - started;
+    duration.add(evidence.duration_ms);
+    console.log(`R_OBS_STATUS_EVIDENCE ${JSON.stringify(evidence)}`);
+    return;
+  }
 
-  const res = ws.connect(url, {}, (socket) => {
-    const tracker = new RequestTracker();
+  if (!prefetchedSource) {
+    fail('runner did not provide exact candidate status source bytes');
+  } else {
+    const source = prefetchedSource;
+    evidence.source_fetch_ok = true;
+    evidence.source_sha256 = crypto.sha256(source, 'hex');
+    try {
+      const formatContinuationLine = extractFormatter(source);
+      evidence.formatter_extracted = true;
 
-    socket.on('open', () => {
-      evidence.connected = true;
-      socket.send(connectFrame(token));
-      socket.setTimeout(() => tracker.send(socket, 'status', {}), 500);
-      socket.setTimeout(() => socket.close(), 10000);
-    });
+      const clean = formatContinuationLine({
+        maxChainLength: 8,
+        chainCount: 0,
+        pending: 0,
+        staged: 0,
+        volitional: 0,
+      });
+      const active = formatContinuationLine({
+        maxChainLength: 8,
+        chainCount: 1,
+        pending: 0,
+        staged: 0,
+        volitional: 0,
+      });
 
-    socket.on('message', (raw) => {
-      try {
-        const msg = JSON.parse(raw);
-        const classified = tracker.classify(msg);
-        evidence.redacted_events.push({
-          ts: Date.now(),
-          kind: classified.kind,
-          method: classified.method || null,
-          event: classified.event || null,
-          ok: classified.ok !== undefined ? classified.ok : null,
-          data: classified.payload ? redactEvent(classified.payload) : null,
-        });
-
-        if (classified.kind === 'other' && msg.type === 'res' && !msg.error) {
-          evidence.connect_ok = true;
-        }
-
-        if (classified.kind === 'response' && classified.method === 'status') {
-          evidence.status_ok = classified.ok;
-          evidence.status_payload = classified.payload ? redactEvent(classified.payload) : null;
-          if (classified.payload && classified.payload.traceparent) {
-            const parts = String(classified.payload.traceparent).split('-');
-            evidence.trace_id = parts.length > 1 ? parts[1] : null;
-          }
-          if (!classified.ok) {
-            console.error(`status failed: ${JSON.stringify(classified.error)}`);
-            failures.add(1);
-          }
-          socket.close();
-        }
-      } catch (err) {
-        console.warn(`parse error: ${err}`);
+      evidence.clean_session_continuation_line_absent = clean === undefined;
+      evidence.active_continuation_line_present = active === '🔄 Continuation: chain 1/8';
+      if (!evidence.clean_session_continuation_line_absent) {
+        fail('clean all-zero status state rendered a continuation line');
       }
-    });
-
-    socket.on('error', (err) => {
-      console.error(`ws error: ${err && err.error ? err.error() : err}`);
-      failures.add(1);
-    });
-  });
+      if (!evidence.active_continuation_line_present) {
+        fail('active continuation state did not render the expected continuation line');
+      }
+    } catch (error) {
+      fail(`candidate status formatter contract evaluation failed: ${error}`);
+    }
+  }
 
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
   duration.add(evidence.duration_ms);
 
-  check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
-    'connect accepted': () => evidence.connect_ok,
-    'status accepted': () => evidence.status_ok,
+    'candidate source fetched': () => evidence.source_fetch_ok,
+    'candidate formatter extracted': () => evidence.formatter_extracted,
+    'active continuation line present': () => evidence.active_continuation_line_present,
+    'clean session continuation line absent': () => evidence.clean_session_continuation_line_absent,
   });
-
-  if (!evidence.connect_ok || !evidence.status_ok) failures.add(1);
-
   console.log(`R_OBS_STATUS_EVIDENCE ${JSON.stringify(evidence)}`);
 }
 
@@ -137,7 +166,8 @@ export function handleSummary(data) {
     'r-obs-status-summary.json': JSON.stringify({
       row: 'R-OBS-status',
       sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
-      verdict: failuresCount === 0 ? 'PASS-candidate' : 'FAIL-candidate',
+      verdict: failuresCount === 0 ? 'PASS-candidate' : 'BAD_PROOF',
+      contract: 'issue-1172-continuation-status-line',
       metrics: {
         failures: failuresCount,
         duration_ms: data.metrics.r_obs_status_duration ? data.metrics.r_obs_status_duration.values : null,

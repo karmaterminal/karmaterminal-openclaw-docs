@@ -5,26 +5,43 @@
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-emeric-nuc}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
-  "transport": "ws-status-probe",
-  "toolSurface": "read-only",
+  "transport": "github-source-contract",
+  "toolSurface": "source-status-formatter",
   "mutates": false,
-  "timeoutSeconds": 60,
+  "timeoutSeconds": 30,
   "scenario": {
     "status": "runnable",
     "file": "r-obs-status.js",
     "name": "r-obs-status",
-    "description": "Read-only gateway status/observer receipt check."
+    "description": "Exact-SHA #1172 source contract: active continuation renders a line while a clean all-zero session omits it."
+  },
+  "sourceContract": {
+    "repository": "karmaterminal/openclaw",
+    "path": "src/status/status-text.ts",
+    "issue": 1172,
+    "publicEvidence": [
+      "candidate_sha",
+      "source_sha256",
+      "source_fetch_ok",
+      "active_continuation_line_present",
+      "clean_session_continuation_line_absent"
+    ]
   },
   "expectedReceipts": [
     {
-      "name": "tempo-trace-id",
-      "required": false,
-      "description": "Optional Tempo trace ID generated and resolvable when the status surface emits one"
+      "name": "candidate-source-sha256",
+      "required": true,
+      "description": "Public SHA-256 digest of the exact candidate source fetched by immutable SHA"
     },
     {
-      "name": "observer-receipt",
+      "name": "active-continuation-line",
       "required": true,
-      "description": "Observer/status receipt intact"
+      "description": "Exact candidate formatter rendered the expected continuation line for a non-zero active state"
+    },
+    {
+      "name": "clean-session-line-absence",
+      "required": true,
+      "description": "Exact candidate formatter omitted the continuation line for the all-zero clean-session state"
     }
   ],
   "artifactDestination": {
@@ -37,18 +54,20 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Observer status row. Read-only."
+    "notes": "Issue #1172 source contract. The old gateway status probe is retained only as BAD_PROOF harness evidence because it proved transport health, not status-line behavior."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
-    "requiresLiveGatewayToken": true,
+    "requiresLiveGatewayToken": false,
     "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
     "requiresExternalAgentOrToolInvocation": false,
     "sameSessionConcurrencySafe": true,
     "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
-      "observer-receipt"
+      "candidate-source-sha256",
+      "active-continuation-line",
+      "clean-session-line-absence"
     ],
     "foldRequiresReview": true
   }

@@ -15,9 +15,10 @@ CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
 ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
 PRIVATE_K6_LOG=""
 PRIVATE_EVIDENCE_FILE=""
+SOURCE_CONTRACT_FILE=""
 
 cleanup_private_artifacts() {
-  rm -f "${PRIVATE_K6_LOG:-}" "${PRIVATE_EVIDENCE_FILE:-}"
+  rm -f "${PRIVATE_K6_LOG:-}" "${PRIVATE_EVIDENCE_FILE:-}" "${SOURCE_CONTRACT_FILE:-}"
 }
 trap cleanup_private_artifacts EXIT
 
@@ -214,6 +215,29 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
 
     PRIVATE_K6_LOG="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-log.XXXXXX")"
     PRIVATE_EVIDENCE_FILE="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-evidence.XXXXXX")"
+    SOURCE_CONTRACT_FILE=""
+    SOURCE_CONTRACT_TRANSPORT="$(jq -r '.transport // empty' "$MANIFEST_FILE")"
+    if [[ "$SOURCE_CONTRACT_TRANSPORT" == "github-source-contract" ]]; then
+      SOURCE_CONTRACT_REPOSITORY="$(jq -r '.sourceContract.repository // empty' "$MANIFEST_FILE")"
+      SOURCE_CONTRACT_PATH="$(jq -r '.sourceContract.path // empty' "$MANIFEST_FILE")"
+      if [[ ! "$SOURCE_CONTRACT_REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ||
+            ! "$SOURCE_CONTRACT_PATH" =~ ^[A-Za-z0-9_./-]+$ ||
+            "$SOURCE_CONTRACT_PATH" == *".."* ]]; then
+        echo "[$ROW_ID] SOURCE CONTRACT CONFIG INVALID; running k6 as BAD_PROOF." >&2
+        SOURCE_CONTRACT_FILE="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-source.XXXXXX")"
+        : > "$SOURCE_CONTRACT_FILE"
+      else
+        SOURCE_CONTRACT_FILE="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-source.XXXXXX")"
+        SOURCE_CONTRACT_URL="https://raw.githubusercontent.com/${SOURCE_CONTRACT_REPOSITORY}/${OPENCLAW_CANDIDATE_SHA}/${SOURCE_CONTRACT_PATH}"
+        if ! curl --fail --silent --show-error --location --max-time 20 "$SOURCE_CONTRACT_URL" > "$SOURCE_CONTRACT_FILE"; then
+          echo "[$ROW_ID] EXACT CANDIDATE SOURCE PREFETCH FAILED; running k6 as BAD_PROOF." >&2
+          : > "$SOURCE_CONTRACT_FILE"
+        fi
+      fi
+      export OPENCLAW_STATUS_SOURCE_PATH="$SOURCE_CONTRACT_FILE"
+    else
+      unset OPENCLAW_STATUS_SOURCE_PATH
+    fi
     POSTPROCESS_RC=0
     set +e
     k6 run "scenarios/$SCENARIO_FILE" > "$PRIVATE_K6_LOG" 2>&1

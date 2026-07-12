@@ -212,6 +212,16 @@ kept non-fatal by default and leave `tempo-trace-json` review-pending. Set
 `OPENCLAW_PROOFS_K6_TEMPO_REQUIRED=true` only when a missing trace JSON should
 fail the run.
 
+For trace-required `continue_delegate` rows, the runner does not trust a
+missing or first-match trace ID. It derives the public-safe runtime fingerprint
+from the committed prompt template and evidence nonce, searches Tempo by
+`reason.hash` + `reason.length` + delegate mode, requires exactly one trace,
+and validates that the originating `continue_delegate` tool span plus
+`continuation.delegate.fire` and `continuation.delegate.dispatch` share valid,
+distinct IDs and one chain. The raw trace and
+`continuation-trace-correlation.json` are saved beside the row artifacts; raw
+task text and `traceparent` are not persisted in the correlation receipt.
+
 Portable endpoint env vars for reviewer/fork runs:
 
 - `OPENCLAW_PROOFS_TEMPO_BASE_URL` (or legacy `TEMPO_BASE_URL`) — Tempo query base URL for trace fetches.

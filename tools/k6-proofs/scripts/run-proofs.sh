@@ -9,6 +9,10 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+EVIDENCE_EXTRACTOR="$SCRIPT_DIR/extract-k6-evidence.mjs"
+CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
+
 DRY_RUN=true
 ROWS=""
 CANDIDATE_SHA=""
@@ -207,28 +211,17 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     set -e
 
     find . -maxdepth 1 -type f -name '*summary.json' -newer "$RUN_DIR/.started" -print -exec mv {} "$RUN_DIR" \;
-    grep -E '(_EVIDENCE|=== K6-PROOF-EVIDENCE ===)' "$RUN_DIR/k6.log" > "$RUN_DIR/evidence-lines.log" || true
-    python3 - "$RUN_DIR/evidence-lines.log" "$RUN_DIR/evidence.jsonl" <<'PY_EVIDENCE_JSONL'
-import json
-import re
-import sys
-from pathlib import Path
-
-src = Path(sys.argv[1])
-dst = Path(sys.argv[2])
-out = []
-if src.exists():
-    for line in src.read_text().splitlines():
-        match = re.search(r'msg="(?:[A-Z0-9_]+_EVIDENCE )?(\{.*\})"(?: source=|$)', line)
-        if not match:
-            continue
-        raw = match.group(1).replace(r'\"', '"')
-        try:
-            out.append(json.loads(raw))
-        except json.JSONDecodeError:
-            pass
-dst.write_text(''.join(json.dumps(obj, sort_keys=True) + '\n' for obj in out))
-PY_EVIDENCE_JSONL
+    if ! node "$EVIDENCE_EXTRACTOR" \
+      --input "$RUN_DIR/k6.log" \
+      --out "$RUN_DIR/evidence.jsonl" \
+      --lines-out "$RUN_DIR/evidence-lines.log" \
+      > "$RUN_DIR/evidence-extraction.json" 2> "$RUN_DIR/evidence-extraction.error.log"; then
+      echo "[$ROW_ID] EVIDENCE EXTRACTION FAILED; see $RUN_DIR/evidence-extraction.error.log" >&2
+      : > "$RUN_DIR/evidence.jsonl"
+      : > "$RUN_DIR/evidence-lines.log"
+    else
+      rm -f "$RUN_DIR/evidence-extraction.error.log"
+    fi
     EVIDENCE_JSON="null"
     if [[ -s "$RUN_DIR/evidence.jsonl" ]]; then
       EVIDENCE_JSON="$(jq -c 'del(.redacted_events)' "$RUN_DIR/evidence.jsonl" | head -n 1)"
@@ -244,33 +237,58 @@ PY_EVIDENCE_JSONL
     TRACE_STATUS="unknown"
     TRACE_ID=""
     TEMPO_TRACE_JSON=""
+    CORRELATION_RECEIPT=""
     REVIEW_PENDING_RECEIPTS='[]'
     TRACE_REQUIRED="$(jq -r '((.liveRunSafety.requiredReceipts // []) | map(ascii_downcase) | any(. == "trace-id" or . == "tempo-trace-json"))' "$MANIFEST_FILE")"
+    MANIFEST_TOOL="$(jq -r '.invocation.tool // empty' "$MANIFEST_FILE")"
     if [[ -s "$RUN_DIR/evidence.jsonl" ]]; then
       if jq -e 'select(has("trace_id"))' "$RUN_DIR/evidence.jsonl" >/dev/null; then
         TRACE_ID="$(jq -r 'select((.trace_id // "") != "") | .trace_id' "$RUN_DIR/evidence.jsonl" | head -n 1)"
-        if [[ -n "$TRACE_ID" ]]; then
-          TEMPO_TRACE_JSON="$RUN_DIR/tempo-trace-${TRACE_ID:0:12}.json"
-          if node scripts/fetch-tempo-trace.mjs --trace-id "$TRACE_ID" --tempo-url "$OPENCLAW_PROOFS_TEMPO_BASE_URL" --out "$TEMPO_TRACE_JSON" > "$RUN_DIR/tempo-trace-receipt.json" 2> "$RUN_DIR/tempo-trace-error.log"; then
-            TRACE_STATUS="present"
-            echo "[$ROW_ID] TEMPO TRACE: $TEMPO_TRACE_JSON"
-          else
-            TRACE_STATUS="missing"
-            if [[ "$TRACE_REQUIRED" == "true" ]]; then
-              REVIEW_PENDING_RECEIPTS='["tempo-trace-json"]'
-            fi
-            echo "[$ROW_ID] TEMPO TRACE FETCH FAILED; see $RUN_DIR/tempo-trace-error.log" >&2
-            if [[ "${OPENCLAW_PROOFS_K6_TEMPO_REQUIRED:-false}" == "true" ]]; then
-              exit 1
-            fi
-          fi
-        else
-          TRACE_STATUS="missing"
-          if [[ "$TRACE_REQUIRED" == "true" ]]; then
-            REVIEW_PENDING_RECEIPTS='["tempo-trace-json"]'
-          fi
+      fi
+    fi
+    if [[ "$TRACE_REQUIRED" == "true" && "$MANIFEST_TOOL" == "continue_delegate" ]]; then
+      COLLECTOR_RESULT="$RUN_DIR/continuation-trace-collector.json"
+      COLLECTOR_ERROR="$RUN_DIR/continuation-trace-collector.error.log"
+      if node "$CONTINUATION_TRACE_COLLECTOR" \
+        --run-dir "$RUN_DIR" \
+        --manifest "$MANIFEST_FILE" \
+        --seat "$OPENCLAW_SEAT_NAME" \
+        --tempo-url "$OPENCLAW_PROOFS_TEMPO_BASE_URL" \
+        > "$COLLECTOR_RESULT" 2> "$COLLECTOR_ERROR"; then
+        TRACE_ID="$(jq -r '.traceId' "$COLLECTOR_RESULT")"
+        TEMPO_TRACE_JSON="$(jq -r '.traceOut' "$COLLECTOR_RESULT")"
+        CORRELATION_RECEIPT="$(jq -r '.receiptOut' "$COLLECTOR_RESULT")"
+        TRACE_STATUS="present"
+        rm -f "$COLLECTOR_ERROR"
+        echo "[$ROW_ID] CONTINUATION TRACE: $TEMPO_TRACE_JSON"
+        echo "[$ROW_ID] CORRELATION RECEIPT: $CORRELATION_RECEIPT"
+      else
+        TRACE_STATUS="missing"
+        TRACE_ID=""
+        REVIEW_PENDING_RECEIPTS='["tempo-trace-json","continuation-trace-correlation"]'
+        echo "[$ROW_ID] CONTINUATION TRACE CORRELATION FAILED; see $COLLECTOR_ERROR" >&2
+        if [[ "${OPENCLAW_PROOFS_K6_TEMPO_REQUIRED:-false}" == "true" ]]; then
+          exit 1
         fi
       fi
+    elif [[ -n "$TRACE_ID" ]]; then
+      TEMPO_TRACE_JSON="$RUN_DIR/tempo-trace-${TRACE_ID:0:12}.json"
+      if node scripts/fetch-tempo-trace.mjs --trace-id "$TRACE_ID" --tempo-url "$OPENCLAW_PROOFS_TEMPO_BASE_URL" --out "$TEMPO_TRACE_JSON" > "$RUN_DIR/tempo-trace-receipt.json" 2> "$RUN_DIR/tempo-trace-error.log"; then
+        TRACE_STATUS="present"
+        echo "[$ROW_ID] TEMPO TRACE: $TEMPO_TRACE_JSON"
+      else
+        TRACE_STATUS="missing"
+        if [[ "$TRACE_REQUIRED" == "true" ]]; then
+          REVIEW_PENDING_RECEIPTS='["tempo-trace-json"]'
+        fi
+        echo "[$ROW_ID] TEMPO TRACE FETCH FAILED; see $RUN_DIR/tempo-trace-error.log" >&2
+        if [[ "${OPENCLAW_PROOFS_K6_TEMPO_REQUIRED:-false}" == "true" ]]; then
+          exit 1
+        fi
+      fi
+    elif [[ "$TRACE_REQUIRED" == "true" ]]; then
+      TRACE_STATUS="missing"
+      REVIEW_PENDING_RECEIPTS='["tempo-trace-json"]'
     fi
     jq -n \
       --argjson rc "$k6_rc" \
@@ -278,11 +296,12 @@ PY_EVIDENCE_JSONL
       --arg traceStatus "$TRACE_STATUS" \
       --arg traceId "$TRACE_ID" \
       --arg tempoTraceJson "$TEMPO_TRACE_JSON" \
+      --arg correlationReceipt "$CORRELATION_RECEIPT" \
       --arg verdict "$SUMMARY_VERDICT" \
       --argjson summaryFiles "$SUMMARY_FILES_JSON" \
       --argjson evidence "$EVIDENCE_JSON" \
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
-      '{k6ExitCode:$rc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end)}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
+      '{k6ExitCode:$rc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end)}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
     METRICS_ARGS=(--run-dir "$RUN_DIR" --prometheus-out "$RUN_DIR/openclaw-proofs-k6.prom" --otlp-out "$RUN_DIR/openclaw-proofs-k6.otlp.json")
     if [[ -n "${OPENCLAW_PROOFS_K6_OTLP_ENDPOINT:-}" ]]; then

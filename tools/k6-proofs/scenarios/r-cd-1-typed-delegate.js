@@ -22,6 +22,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
@@ -112,6 +113,15 @@ export default function () {
     channel_message_observed: false,
     dispatch_accepted_at_ms: null,
     wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
+    delegate_scheduled_at_ms: null,
+    parent_return_event_at_ms: null,
+    trace_collect_after_ms: null,
+    reason_hash: null,
+    reason_length: null,
+    delegate_mode: null,
+    delegate_delay_ms: null,
+    delegate_wake_gate_ms: null,
+    prompt_echoes_ignored: 0,
     trace_id: null,
     redacted_events: [],
   };
@@ -120,6 +130,24 @@ export default function () {
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    const traceIngestGraceMs = Number(__ENV.OPENCLAW_TRACE_INGEST_GRACE_MS || 10000);
+    let traceCloseScheduled = false;
+
+    function maybeCloseAfterTraceGrace() {
+      if (!evidence.tool_invoke_accepted ||
+          !evidence.delegate_scheduled_sentinel ||
+          !evidence.parent_return_event ||
+          traceCloseScheduled) {
+        return;
+      }
+      const waitUntil = Number(evidence.trace_collect_after_ms || Date.now());
+      const remaining = Math.max(0, waitUntil - Date.now());
+      traceCloseScheduled = true;
+      socket.setTimeout(() => {
+        console.log('Required R-CD-1 receipts and trace-ingest grace gathered, closing');
+        socket.close();
+      }, remaining);
+    }
 
     function startProofFlow(socket) {
       // Subscribe to session events — primary surface for task ledger and return.
@@ -129,6 +157,11 @@ export default function () {
       socket.setTimeout(() => {
         const inv = invocationCfg();
         const task = inv.promptTemplate.replace(/\{\{nonce\}\}/g, rowNonce);
+        evidence.reason_hash = crypto.sha256(task, 'hex').slice(0, 16);
+        evidence.reason_length = task.length;
+        evidence.delegate_mode = inv.mode;
+        evidence.delegate_delay_ms = inv.delaySeconds * 1000;
+        evidence.delegate_wake_gate_ms = Math.max(evidence.wake_gate_ms, evidence.delegate_delay_ms);
         const agentInstruction =
           `[k6-proof-harness] Call continue_delegate with task="${task}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. ` +
           `After the continue_delegate tool result reports scheduled, reply exactly CD1-DELEGATE-SCHEDULED ${rowNonce}. ` +
@@ -236,13 +269,27 @@ export default function () {
             // Parent scheduled sentinel emitted only after continue_delegate tool result.
             if (eventStr.includes(`CD1-DELEGATE-SCHEDULED ${rowNonce}`)) {
               evidence.delegate_scheduled_sentinel = true;
+              if (evidence.delegate_scheduled_at_ms === null) {
+                evidence.delegate_scheduled_at_ms = Date.now();
+                evidence.trace_collect_after_ms =
+                  evidence.delegate_scheduled_at_ms +
+                  evidence.delegate_wake_gate_ms +
+                  traceIngestGraceMs;
+              }
               console.log(`✓ CD1-DELEGATE-SCHEDULED sentinel observed post-dispatch: ${eventName}`);
             }
 
             // Child return sentinel from delegate child arrival.
-            if (eventStr.includes(`CD1-DONE ${rowNonce}`) || eventName === 'delegate.return') {
+            const returnSentinel = eventStr.includes(`CD1-DONE ${rowNonce}`) || eventName === 'delegate.return';
+            const returnWindowOpen = evidence.delegate_scheduled_at_ms !== null &&
+              Date.now() >= evidence.delegate_scheduled_at_ms + evidence.delegate_wake_gate_ms;
+            if (returnSentinel && returnWindowOpen) {
               evidence.parent_return_event = true;
+              evidence.parent_return_event_at_ms = Date.now();
               console.log(`✓ CD1-DONE/delegate return evidence observed post-dispatch: ${eventName}`);
+            } else if (returnSentinel) {
+              evidence.prompt_echoes_ignored += 1;
+              console.log('ℹ Ignored delegate return-like event before delayed wake gate');
             }
 
             // Channel message (soft — expected for mode=normal, unlike R-CD-2)
@@ -253,11 +300,7 @@ export default function () {
           }
         }
 
-        // Early close when required receipts collected
-        if (evidence.tool_invoke_accepted && evidence.delegate_scheduled_sentinel && evidence.parent_return_event) {
-          console.log('Required R-CD-1 receipts gathered, closing early');
-          socket.close();
-        }
+        maybeCloseAfterTraceGrace();
       } catch (e) {
         console.warn(`parse error: ${e}`);
       }

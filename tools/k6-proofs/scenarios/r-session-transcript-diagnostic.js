@@ -54,8 +54,8 @@ function sanitize(text) {
 }
 
 function nonceFromSessionKey(sessionKey) {
-  const match = String(sessionKey).match(/r-cd-2-(\d+-[a-z0-9]+)$/i);
-  return match ? `R-CD-2-${match[1]}` : '';
+  const match = String(sessionKey).match(/(r-(?:cd-2|cw-1))-(\d+-[a-z0-9]+)$/i);
+  return match ? `${match[1].toUpperCase()}-${match[2]}` : '';
 }
 
 export default function () {

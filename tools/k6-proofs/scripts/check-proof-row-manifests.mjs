@@ -9,7 +9,19 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
-const root = process.cwd();
+function parseArgs(argv) {
+  const args = { root: process.cwd() };
+  for (let index = 2; index < argv.length; index += 1) {
+    if (argv[index] === '--root' && argv[index + 1]) {
+      args.root = path.resolve(argv[++index]);
+      continue;
+    }
+    throw new Error(`usage: ${path.basename(argv[1])} [--root <repository-root>]`);
+  }
+  return args;
+}
+
+const { root } = parseArgs(process.argv);
 const indexPath = path.join(root, 'PROOFS', 'INDEX.json');
 const manifestsDir = path.join(root, 'tools', 'k6-proofs', 'manifests');
 const failures = [];
@@ -27,9 +39,8 @@ if (!failures.length) {
     failures.push(`current PROOFS corpus missing: ${corpusDir}`);
   } else {
     proofRows = readdirSync(corpusDir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
+      .filter((entry) => entry.isDirectory() && /^R-[A-Z0-9-]+$/iu.test(entry.name))
       .map((entry) => entry.name)
-      .filter((name) => name !== 'gates')
       .sort();
   }
 }
@@ -37,14 +48,25 @@ if (!failures.length) {
 const manifestRows = [];
 if (!failures.length) {
   for (const file of readdirSync(manifestsDir).filter((name) => name.endsWith('.json')).sort()) {
-    const manifest = JSON.parse(readFileSync(path.join(manifestsDir, file), 'utf8'));
-    if (manifest.rowId) manifestRows.push({ rowId: manifest.rowId, file });
+    try {
+      const manifest = JSON.parse(readFileSync(path.join(manifestsDir, file), 'utf8'));
+      if (manifest.rowId) manifestRows.push({ rowId: manifest.rowId, file });
+    } catch (error) {
+      failures.push(`invalid manifest JSON: ${file} (${error.message})`);
+    }
   }
 }
 
 const proofRowUpperSet = new Set(proofRows.map((r) => r.toUpperCase()));
 const manifestByUpper = new Map(manifestRows.map((row) => [row.rowId.toUpperCase(), row]));
 const missing = proofRows.filter((row) => !manifestByUpper.has(row.toUpperCase()));
+const duplicateRows = [...manifestRows.reduce((byRow, row) => {
+  const key = row.rowId.toUpperCase();
+  byRow.set(key, [...(byRow.get(key) || []), row.file]);
+  return byRow;
+}, new Map())]
+  .filter(([, files]) => files.length > 1)
+  .map(([rowId, files]) => `${rowId} (${files.join(', ')})`);
 
 // Manifest-only rows: in the live-suite manifest catalog but not yet in the canonical proof
 // board corpus (e.g. model-override rows, R-CW-4, R-OBS-status). These are k6-runnable
@@ -55,6 +77,9 @@ const manifestOnly = manifestRows.filter(
 
 if (missing.length) {
   failures.push(`proof rows missing manifest entries: ${missing.join(', ')}`);
+}
+if (duplicateRows.length) {
+  failures.push(`duplicate manifest row IDs: ${duplicateRows.join('; ')}`);
 }
 
 console.log(`Current corpus: PROOFS/${currentSha}`);

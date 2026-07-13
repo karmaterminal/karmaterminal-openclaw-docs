@@ -99,18 +99,18 @@ test('live-run guard still permits ordinary k6-runnable manifests with required 
   assert.equal(parsed.classification, 'k6-runnable');
 });
 
-test('live-run guard still permits static preflight manifests without live candidate env', async () => {
+test('read-only preflight uses the supported live k6 runner contract', async () => {
   const manifest = join(repoRoot, 'tools/k6-proofs/manifests/preflight.example.json');
-  const run = runGuard(manifest, {
-    OPENCLAW_GATEWAY_TOKEN: '',
-    OPENCLAW_CANDIDATE_SHA: '',
-    OPENCLAW_SESSION_KEY: '',
-  });
+  const run = runGuard(manifest);
   assert.equal(run.status, 0, run.stderr || run.stdout);
   const parsed = JSON.parse(run.stdout);
   assert.equal(parsed.ok, true);
   assert.equal(parsed.rowId, 'preflight');
-  assert.equal(parsed.classification, 'static-preflight-only');
+  assert.equal(parsed.classification, 'k6-runnable');
+  assert.equal(parsed.requiresLiveGatewayToken, true);
+  assert.equal(parsed.requiresTargetSessionKey, false);
+  assert.equal(parsed.requiresCandidateSha, false);
+  assert.equal(parsed.requiresExternalAgentOrToolInvocation, false);
 });
 
 test('static corpus validator rows are read-only broad-suite rows', async () => {

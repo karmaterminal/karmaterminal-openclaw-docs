@@ -230,7 +230,7 @@
       "owner": "🩸 cael-dgx",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-2/",
       "state": "missing",
-      "traces": 0,
+      "traces": 1,
       "evidence_doc": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-2/EVIDENCE.md",
       "note": "Exact-cea9e42 row is open. The candidate changes Codex app-server classification of successful continuation and compaction results; copied exact-2e7861 receipts are historical only and must not be folded as proof of cea9e4296b7e5cd37f0a491d637ef8459ea2e737. Capture fresh exact-SHA behavior, completed Codex tool status where applicable, and every receipt required by this row contract.",
       "seat_results": [
@@ -250,6 +250,21 @@
       "issues": [
         "karmaterminal/openclaw#1176",
         "karmaterminal/karmaterminal-openclaw-docs#398"
+      ],
+      "fresh_cea9e42_results": [
+        {
+          "run": "29219234604",
+          "artifact_id": "8267656679",
+          "seat": "cael",
+          "verdict": "PASS-candidate",
+          "trace_id": "1e3388c9dc2f52dc3fb5b1fb6bb44310",
+          "trace_file": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-2/artifacts/cael/20260713T021828Z-run-29219234604/tempo-trace-1e3388c9dc2f.public.json",
+          "correlation_receipt": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-2/artifacts/cael/20260713T021828Z-run-29219234604/continuation-trace-correlation.json",
+          "tool_status": "UNSET",
+          "fire_status": "STATUS_CODE_OK",
+          "dispatch_status": "STATUS_CODE_OK",
+          "disposition": "uncovered: lifecycle trace retained, but originating Codex tool span lacks the required completed/OK status"
+        }
       ],
       "fresh_5292_results": [
         {

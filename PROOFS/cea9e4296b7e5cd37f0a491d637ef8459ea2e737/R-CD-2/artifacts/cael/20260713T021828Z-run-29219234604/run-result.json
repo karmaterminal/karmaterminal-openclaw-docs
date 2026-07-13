@@ -1,0 +1,46 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-07-13T02:18:54Z",
+  "verdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-cd-2-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CD-2",
+    "manifest_loaded": true,
+    "seat": "cael",
+    "session_created": true,
+    "candidateSha": "cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
+    "started": "2026-07-13T02:18:28.165Z",
+    "tool_accepted": true,
+    "task_created": false,
+    "task_mode": null,
+    "agent_turn_observed": true,
+    "parent_wake_observed": true,
+    "dispatch_channel_message_observed": false,
+    "channel_message_observed": false,
+    "silent_status_record_observed": false,
+    "dispatch_accepted_at_ms": 1783909109155,
+    "wake_gate_ms": 5000,
+    "reason_hash": "9f86963f601ee25f",
+    "reason_length": 127,
+    "delegate_mode": "silent-wake",
+    "trace_id": null,
+    "ended": "2026-07-13T02:18:36.171Z",
+    "duration_ms": 8006
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "present",
+    "traceId": "1e3388c9dc2f52dc3fb5b1fb6bb44310",
+    "tempoTraceJson": "tempo-trace-1e3388c9dc2f.json",
+    "correlationReceipt": "continuation-trace-correlation.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

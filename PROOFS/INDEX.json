@@ -9,14 +9,14 @@
   "readme_path": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/README.md",
   "rollup": {
     "total_rows": 35,
-    "pass": 3,
+    "pass": 5,
     "partial": 2,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 30
+    "missing": 28
   },
-  "disposition_note": "Active exact-SHA Project 81 seed. Historical static receipts rooted in 1cc8f4e3d617ef6f173283ef83d7b739a4995734 remain provenance/harness evidence only. R-CONFIG-DEFAULTS and R-CONFIG-INTERSESSION have exact direct operator-RPC behavior receipts, but remain partial until an attributable nonzero config.get trace/topology receipt exists; no refire is implied by this classification.",
+  "disposition_note": "Active exact-SHA Project 81 corpus. Historical static receipts remain provenance/harness evidence only. Fresh exact R-CD-1 and R-CW-1 behavior/Tempo/journal receipts are folded; Elliott config rows remain partial without attributable config.get spans; consumed uncovered rows remain non-pass without implied refire.",
   "methodology_note": "Drive the exact deployed assembly SHA through the Project 81 k6/Gateway surfaces. Required trace rows must include raw artifacts and attributable public-safe Tempo JSON with valid non-zero W3C IDs; time-window-only matching is insufficient. Structured tool-result rows must retain the actual result payload or correlated span rather than trusting an assistant-authored sentinel.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-07-13",

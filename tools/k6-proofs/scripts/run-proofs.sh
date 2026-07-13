@@ -13,6 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EVIDENCE_EXTRACTOR="$SCRIPT_DIR/extract-k6-evidence.mjs"
 CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
 R_CD_2_LIFECYCLE_RESOLVER="$SCRIPT_DIR/resolve-r-cd-2-lifecycle-receipt.mjs"
+R_CD_2_PUBLIC_PROJECTOR="$SCRIPT_DIR/project-r-cd-2-public-artifacts.mjs"
 ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
 PRIVATE_K6_LOG=""
 PRIVATE_EVIDENCE_FILE=""
@@ -453,10 +454,11 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     R_CD_2_LIFECYCLE_RECEIPT=""
     if [[ "$ROW_ID" == "R-CD-2" ]]; then
       R_CD_2_LIFECYCLE_RECEIPT="r-cd-2-lifecycle-receipt.json"
-      if ! node "$R_CD_2_LIFECYCLE_RESOLVER" \
-        --run-dir "$RUN_DIR" \
-        --evidence "$PRIVATE_EVIDENCE_FILE" \
-        --correlation "$CORRELATION_RECEIPT_PATH" \
+      RESOLVER_ARGS=(--run-dir "$RUN_DIR" --evidence "$PRIVATE_EVIDENCE_FILE")
+      if [[ -n "$CORRELATION_RECEIPT_PATH" && -f "$CORRELATION_RECEIPT_PATH" ]]; then
+        RESOLVER_ARGS+=(--correlation "$CORRELATION_RECEIPT_PATH")
+      fi
+      if ! node "$R_CD_2_LIFECYCLE_RESOLVER" "${RESOLVER_ARGS[@]}" \
         > "$RUN_DIR/r-cd-2-lifecycle-resolver.json"; then
         echo "[$ROW_ID] lifecycle resolver failed" >&2
         POSTPROCESS_RC=1
@@ -471,8 +473,6 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         SUMMARY_VERDICT_SOURCE="r-cd-2-lifecycle-receipt-missing"
         POSTPROCESS_RC=1
       fi
-      rm -f "$TEMPO_TRACE_PATH" "$CORRELATION_RECEIPT_PATH" "$COLLECTOR_RESULT" "$COLLECTOR_ERROR" \
-        "$RUN_DIR/continuation-trace-collector.json" "$RUN_DIR/continuation-trace-collector.error.log"
       TRACE_ID=""
       TEMPO_TRACE_JSON=""
       CORRELATION_RECEIPT=""
@@ -516,6 +516,14 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       : > "$RUN_DIR/evidence-lines.log"
       printf '%s\n' 'R-CD-2 private k6 acquisition withheld; see public lifecycle receipt.' > "$RUN_DIR/k6.log"
       printf '%s\n' 'R-CD-2 private gateway acquisition withheld; see public lifecycle receipt.' > "$RUN_DIR/gateway-journal.log"
+      PROJECTOR_ARGS=(--run-dir "$RUN_DIR" --receipt "$RUN_DIR/$R_CD_2_LIFECYCLE_RECEIPT")
+      if [[ -n "$CORRELATION_RECEIPT_PATH" && -f "$CORRELATION_RECEIPT_PATH" ]]; then
+        PROJECTOR_ARGS+=(--correlation "$CORRELATION_RECEIPT_PATH")
+      fi
+      if ! node "$R_CD_2_PUBLIC_PROJECTOR" "${PROJECTOR_ARGS[@]}" > "$RUN_DIR/r-cd-2-public-projection.json"; then
+        echo "[$ROW_ID] R-CD-2 public artifact projection failed" >&2
+        POSTPROCESS_RC=1
+      fi
     fi
     cat "$RUN_DIR/k6.log"
     rm -f "$PRIVATE_K6_LOG" "$PRIVATE_EVIDENCE_FILE" "$PRIVATE_GATEWAY_LOG"

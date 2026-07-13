@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
 import { resolveRcd2LifecycleReceipt } from '../resolve-r-cd-2-lifecycle-receipt.mjs';
+import { projectRcd2PublicArtifacts } from '../project-r-cd-2-public-artifacts.mjs';
 
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(import.meta.dirname, '../..');
@@ -117,5 +118,34 @@ test('R-CD-2 public outputs retain no raw acquisition identifiers while partial 
     const nonRcd2Dir = JSON.parse(run.stdout).runDir;
     const nonRcd2 = JSON.parse(await readFile(path.join(dir, nonRcd2Dir, 'row-result.json'), 'utf8'));
     assert.equal(nonRcd2.outcome, 'PASS-candidate');
+  });
+});
+
+test('R-CD-2 projector removes private acquisition files and preserves only safe receipt fingerprints', async () => {
+  await withTmp(async (dir) => {
+    const receipt = resolveRcd2LifecycleReceipt({ evidence: localEvidence(), correlation: correlation() });
+    const receiptPath = path.join(dir, 'r-cd-2-lifecycle-receipt.json');
+    const correlationPath = path.join(dir, 'continuation-trace-correlation.json');
+    await writeFile(receiptPath, `${JSON.stringify(receipt)}\n`);
+    await writeFile(correlationPath, JSON.stringify({
+      ...correlation(),
+      query: '{ resource.service.name="cael-prince" && .private="TraceQL-private" }',
+    }));
+    await writeFile(path.join(dir, 'row-manifest.json'), JSON.stringify({
+      schema: 'openclaw.k6.proof-row-manifest.v1', rowId: 'R-CD-2', candidateSha: sha,
+      seat: 'unit', sessionKey: 'agent:private-session-key', transport: 'websocket', toolSurface: 'typed-tool',
+      invocation: { promptTemplate: 'private prompt body' }, scenario: { name: 'r-cd-2-silent-wake' },
+    }));
+    await writeFile(path.join(dir, 'tempo-trace-111111111111.json'), JSON.stringify({ traceId: '1'.repeat(32) }));
+    await writeFile(path.join(dir, 'gateway-journal-capture.json'), JSON.stringify({ raw: 'private journal' }));
+    await projectRcd2PublicArtifacts({ runDir: dir, receiptPath, correlationPath });
+
+    const publicText = (await Promise.all((await readdir(dir)).map((name) => readFile(path.join(dir, name), 'utf8')))).join('\n');
+    assert.doesNotMatch(publicText, /private-chain-id|private-session-key|private prompt body|TraceQL-private|11111111111111111111111111111111/);
+    const projectedManifest = JSON.parse(await readFile(path.join(dir, 'row-manifest.json'), 'utf8'));
+    assert.equal(projectedManifest.publicArtifactProjection, 'r-cd-2-lifecycle-receipt-only');
+    assert.equal((await readFile(receiptPath, 'utf8')).includes(receipt.lifecycle.traceFingerprint), true);
+    await assert.rejects(readFile(correlationPath, 'utf8'));
+    await assert.rejects(readFile(path.join(dir, 'tempo-trace-111111111111.json'), 'utf8'));
   });
 });

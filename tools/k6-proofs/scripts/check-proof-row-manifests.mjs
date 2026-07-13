@@ -13,6 +13,7 @@ const root = process.cwd();
 const indexPath = path.join(root, 'PROOFS', 'INDEX.json');
 const manifestsDir = path.join(root, 'tools', 'k6-proofs', 'manifests');
 const failures = [];
+const SUPPORT_DIRECTORIES = new Set(['artifacts', 'gates']);
 
 if (!existsSync(indexPath)) failures.push(`missing ${indexPath}`);
 if (!existsSync(manifestsDir)) failures.push(`missing ${manifestsDir}`);
@@ -29,7 +30,7 @@ if (!failures.length) {
     proofRows = readdirSync(corpusDir, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name)
-      .filter((name) => name !== 'gates')
+      .filter((name) => !SUPPORT_DIRECTORIES.has(name))
       .sort();
   }
 }
@@ -45,6 +46,15 @@ if (!failures.length) {
 const proofRowUpperSet = new Set(proofRows.map((r) => r.toUpperCase()));
 const manifestByUpper = new Map(manifestRows.map((row) => [row.rowId.toUpperCase(), row]));
 const missing = proofRows.filter((row) => !manifestByUpper.has(row.toUpperCase()));
+const duplicateManifestRows = [...manifestRows.reduce((byRow, row) => {
+  const key = row.rowId.toUpperCase();
+  const entries = byRow.get(key) ?? [];
+  entries.push(row.file);
+  byRow.set(key, entries);
+  return byRow;
+}, new Map())]
+  .filter(([, files]) => files.length > 1)
+  .map(([rowId, files]) => `${rowId} (${files.join(', ')})`);
 
 // Manifest-only rows: in the live-suite manifest catalog but not yet in the canonical proof
 // board corpus (e.g. model-override rows, R-CW-4, R-OBS-status). These are k6-runnable
@@ -55,6 +65,9 @@ const manifestOnly = manifestRows.filter(
 
 if (missing.length) {
   failures.push(`proof rows missing manifest entries: ${missing.join(', ')}`);
+}
+if (duplicateManifestRows.length) {
+  failures.push(`duplicate manifest row IDs: ${duplicateManifestRows.join('; ')}`);
 }
 
 console.log(`Current corpus: PROOFS/${currentSha}`);

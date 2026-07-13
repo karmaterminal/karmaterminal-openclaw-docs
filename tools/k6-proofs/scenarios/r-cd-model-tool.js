@@ -18,7 +18,7 @@ const DEFAULTS = {
   seat: 'cael-dgx',
   delaySeconds: 1,
   idempotencyKeyPrefix: 'R-CD-MODEL-TOOL',
-  requestedModel: 'github-copilot/claude-sonnet-4.6',
+  requestedModel: 'openai/gpt-5.6-luna',
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
 

@@ -49,7 +49,7 @@
     {
       "name": "child-model-byte",
       "required": true,
-      "description": "Observed child runtime model/provider byte from status/session metadata or child self-report backed by session metadata"
+      "description": "Observed child provider/model byte from authoritative gateway child-session metadata or spawn record; child prose is auxiliary only"
     },
     {
       "name": "return-payload",
@@ -77,7 +77,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "PASS-candidate only when requested model byte and observed child runtime-context model byte match. The child task must not include the requested model; if the child reports UNKNOWN/fallback/inherited model or no child model byte, fold as HONEST-LIMIT-candidate with mismatch evidence, not as pass."
+    "notes": "PASS-candidate only when the requested model byte matches authoritative gateway child-session metadata or spawn-record model bytes. The child task omits the requested model and its self-report is auxiliary only; unavailable/mismatched authoritative metadata is HONEST-LIMIT-candidate, not pass."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",

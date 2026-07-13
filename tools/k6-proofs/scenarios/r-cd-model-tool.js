@@ -25,6 +25,12 @@ const HARNESS_MARKER = '[k6-proof-harness]';
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
 function normalizeModel(value) { return String(value || '').trim().replace(/[.,;:]+$/, ''); }
 function escapeRegex(value) { return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+function modelFromSessionMetadata(session) {
+  const model = normalizeModel(session?.model);
+  const provider = normalizeModel(session?.modelProvider || session?.provider);
+  if (!model) return null;
+  return model.includes('/') ? model : (provider ? `${provider}/${model}` : model);
+}
 let finalEvidence = null;
 
 export default function() {
@@ -58,8 +64,14 @@ export default function() {
     dispatch_accepted: false,
     parent_scheduled_sentinel: false,
     child_session_observed: false,
-    child_model_byte: null,
-    child_model_source: null,
+    child_session_key: null,
+    child_session_metadata_observed: false,
+    child_metadata_model_byte: null,
+    child_metadata_model_source: null,
+    child_self_reported_model: null,
+    child_self_reported_model_source: null,
+    child_session_metadata: null,
+    child_metadata_requested: false,
     model_matches: false,
     return_payload: false,
     trace_id: null,
@@ -131,10 +143,39 @@ export default function() {
             console.log('✓ sessions.send accepted — explicit model delegate turn triggered');
           } else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); }
         }
+        if (classified.kind === 'response' && classified.method === 'sessions.list') {
+          const sessions = Array.isArray(classified.payload?.sessions) ? classified.payload.sessions : [];
+          const child = sessions.find((session) => session?.key === evidence.child_session_key);
+          if (child) {
+            evidence.child_session_observed = true;
+            evidence.child_session_metadata_observed = true;
+            evidence.child_metadata_model_byte = modelFromSessionMetadata(child);
+            evidence.child_metadata_model_source = 'gateway sessions.list persisted provider/model metadata';
+            evidence.child_session_metadata = {
+              key: child.key || null,
+              provider: child.modelProvider || child.provider || null,
+              model: child.model || null,
+              modelSelectionLocked: child.modelSelectionLocked === true,
+            };
+            evidence.model_matches = evidence.child_metadata_model_byte === requestedModel;
+            if (!evidence.model_matches) evidence.honest_limit_reason = 'requested/child-session-metadata model mismatch or unavailable metadata';
+            console.log('✓ child session metadata observed');
+          } else if (!classified.ok) {
+            evidence.honest_limit_reason = 'gateway sessions.list unavailable while resolving child session metadata';
+          }
+        }
         if (classified.kind === 'event') {
           const eventData = classified.data || {}; const eventStr = JSON.stringify(eventData);
           if (eventData.traceId) evidence.trace_id = eventData.traceId;
-          if (eventData.childSessionKey) evidence.child_session_observed = true;
+          const observedChildSessionKey = eventData.childSessionKey || eventData.task?.childSessionKey || eventData.session?.childSessionKey;
+          if (observedChildSessionKey) {
+            evidence.child_session_observed = true;
+            evidence.child_session_key = observedChildSessionKey;
+            if (!evidence.child_metadata_requested) {
+              evidence.child_metadata_requested = true;
+              socket.setTimeout(() => tracker.send(socket, 'sessions.list', { limit: 100 }), 500);
+            }
+          }
           if (eventStr.includes(rowNonce) && !eventStr.includes(HARNESS_MARKER)) {
             if (eventStr.includes('MODEL-TOOL-PARENT-SCHEDULED')) {
               evidence.parent_scheduled_sentinel = true;
@@ -144,15 +185,13 @@ export default function() {
             if (childMatch) {
               evidence.child_session_observed = true;
               evidence.return_payload = true;
-              evidence.child_model_byte = normalizeModel(childMatch[1]);
-              evidence.child_model_source = 'child runtime-context self-report (requested model omitted from child task)';
-              evidence.model_matches = evidence.child_model_byte === requestedModel;
-              if (!evidence.model_matches) evidence.honest_limit_reason = 'requested/observed model mismatch or unavailable child model byte';
+              evidence.child_self_reported_model = normalizeModel(childMatch[1]);
+              evidence.child_self_reported_model_source = 'auxiliary child runtime-context self-report (not used for equality)';
               console.log('✓ MODEL-TOOL-CHILD return payload observed');
             }
           }
         }
-        if (evidence.dispatch_accepted && evidence.child_session_observed && evidence.return_payload) {
+        if (evidence.dispatch_accepted && evidence.child_session_metadata_observed && evidence.return_payload) {
           console.log('R-CD-MODEL-TOOL return gathered, closing early');
           socket.close();
         }
@@ -163,13 +202,13 @@ export default function() {
 
   evidence.ended = new Date().toISOString(); evidence.duration_ms = Date.now() - started; duration.add(evidence.duration_ms);
   finalEvidence = evidence;
-  const complete = (!createDisposableSession || evidence.session_created) && evidence.dispatch_accepted && evidence.parent_scheduled_sentinel && evidence.child_session_observed && evidence.child_model_byte && evidence.return_payload;
+  const complete = (!createDisposableSession || evidence.session_created) && evidence.dispatch_accepted && evidence.parent_scheduled_sentinel && evidence.child_session_metadata_observed && evidence.child_metadata_model_byte && evidence.return_payload;
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'dispatch accepted': () => evidence.dispatch_accepted,
     'parent scheduled sentinel': () => evidence.parent_scheduled_sentinel,
     'child session observed': () => evidence.child_session_observed,
-    'child model byte': () => !!evidence.child_model_byte,
+    'authoritative child-session model byte': () => !!evidence.child_metadata_model_byte,
     'return payload': () => evidence.return_payload,
     'requested model observed': () => evidence.model_matches,
   });
@@ -181,8 +220,8 @@ export default function() {
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
   const failuresCount = data.metrics.proof_failures?.values?.count || 0;
-  const complete = !!(finalEvidence?.dispatch_accepted && finalEvidence?.parent_scheduled_sentinel && finalEvidence?.child_session_observed && finalEvidence?.child_model_byte && finalEvidence?.return_payload);
+  const complete = !!(finalEvidence?.dispatch_accepted && finalEvidence?.parent_scheduled_sentinel && finalEvidence?.child_session_metadata_observed && finalEvidence?.child_metadata_model_byte && finalEvidence?.return_payload);
   const verdict = failuresCount === 0 && finalEvidence?.model_matches ? 'PASS-candidate' : (failuresCount === 0 && complete ? 'HONEST-LIMIT-candidate' : 'PARTIAL-candidate');
-  const summary = { row: 'R-CD-MODEL-TOOL', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict, requestedModel: finalEvidence?.requested_model_byte || __ENV.OPENCLAW_ALT_MODEL || null, observedModel: finalEvidence?.child_model_byte || null, honestLimitReason: finalEvidence?.honest_limit_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_tool_duration?.values || null, failures: failuresCount } };
+  const summary = { row: 'R-CD-MODEL-TOOL', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict, requestedModel: finalEvidence?.requested_model_byte || __ENV.OPENCLAW_ALT_MODEL || null, observedModel: finalEvidence?.child_metadata_model_byte || null, observedModelSource: finalEvidence?.child_metadata_model_source || null, auxiliarySelfReport: finalEvidence?.child_self_reported_model || null, honestLimitReason: finalEvidence?.honest_limit_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_tool_duration?.values || null, failures: failuresCount } };
   return { stdout: '\n[R-CD-MODEL-TOOL] Summary: ' + summary.verdict + ' | SHA: ' + summary.sha + ' | Seat: ' + summary.seat + '\n', 'r-cd-model-tool-summary.json': JSON.stringify(summary, null, 2) };
 }

@@ -127,3 +127,41 @@ test('exports row-list runner directory and marks trace-missing as pending recei
     assert.match(promText, /receipt_name="no-channel-delivery"[^\n]*receipt_status="present"[^\n]*\} 1/);
   });
 });
+
+
+test('marks direct operator config-get receipts present from public-safe evidence', async () => {
+  await withTmp(async (dir) => {
+    const runDir = join(dir, '20260713T033832Z-r-config-defaults');
+    await mkdir(runDir, { recursive: true });
+    await writeFile(join(runDir, 'row-manifest.json'), `${JSON.stringify({
+      rowId: 'R-CONFIG-DEFAULTS',
+      candidateSha: 'cea9e4296b7e5cd37f0a491d637ef8459ea2e737',
+      seat: 'elliott',
+      transport: 'websocket',
+      toolSurface: 'read-only',
+      scenario: { name: 'r-config-defaults', file: 'r-config-defaults.js' },
+      liveRunSafety: { requiredReceipts: ['seat-readiness', 'config-read', 'continuation-values'] },
+    }, null, 2)}\n`);
+    await writeFile(join(runDir, 'runner-metadata.json'), `${JSON.stringify({
+      row: 'R-CONFIG-DEFAULTS', scenario: 'r-config-defaults.js',
+      candidateSha: 'cea9e4296b7e5cd37f0a491d637ef8459ea2e737', seat: 'elliott',
+    }, null, 2)}\n`);
+    await writeFile(join(runDir, 'run-result.json'), `${JSON.stringify({
+      k6ExitCode: 0, candidateOnly: true, foldRequiresReview: true,
+      review: { status: 'ready-for-human-review', pendingReceipts: [] },
+    }, null, 2)}\n`);
+    await writeFile(join(runDir, 'seat-readiness.json'), `${JSON.stringify({ outcome: 'PASS-candidate' })}\n`);
+    await writeFile(join(runDir, 'evidence.jsonl'), `${JSON.stringify({
+      config_read: true, enabled: true, max_chain_length: 200,
+      max_delegates_per_turn: 500, cost_cap_tokens: 50000000,
+    })}\n`);
+
+    const prom = join(dir, 'metrics.prom');
+    const run = runExporter(['--run-dir', runDir, '--prometheus-out', prom]);
+    assert.equal(run.status, 0, run.stderr || run.stdout);
+    const promText = await readFile(prom, 'utf8');
+    for (const name of ['seat-readiness', 'config-read', 'continuation-values']) {
+      assert.match(promText, new RegExp(`receipt_name="${name}"[^\n]*receipt_status="present"[^\n]*\} 1`));
+    }
+  });
+});

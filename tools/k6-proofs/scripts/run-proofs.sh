@@ -12,6 +12,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EVIDENCE_EXTRACTOR="$SCRIPT_DIR/extract-k6-evidence.mjs"
 CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
+R_CD_2_LIFECYCLE_RESOLVER="$SCRIPT_DIR/resolve-r-cd-2-lifecycle-receipt.mjs"
 ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
 PRIVATE_K6_LOG=""
 PRIVATE_EVIDENCE_FILE=""
@@ -446,6 +447,38 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       )"
     fi
 
+    # R-CD-2 has one authority: a resolver joins private local evidence with
+    # the private strict correlation product, then emits only a safe receipt.
+    # Raw Tempo/correlation files are acquisition inputs and never public rows.
+    R_CD_2_LIFECYCLE_RECEIPT=""
+    if [[ "$ROW_ID" == "R-CD-2" ]]; then
+      R_CD_2_LIFECYCLE_RECEIPT="r-cd-2-lifecycle-receipt.json"
+      if ! node "$R_CD_2_LIFECYCLE_RESOLVER" \
+        --run-dir "$RUN_DIR" \
+        --evidence "$PRIVATE_EVIDENCE_FILE" \
+        --correlation "$CORRELATION_RECEIPT_PATH" \
+        > "$RUN_DIR/r-cd-2-lifecycle-resolver.json"; then
+        echo "[$ROW_ID] lifecycle resolver failed" >&2
+        POSTPROCESS_RC=1
+      fi
+      if [[ -f "$RUN_DIR/$R_CD_2_LIFECYCLE_RECEIPT" ]]; then
+        SUMMARY_VERDICT="$(jq -r '.verdict // "PARTIAL-candidate"' "$RUN_DIR/$R_CD_2_LIFECYCLE_RECEIPT")"
+        SUMMARY_VERDICT_SOURCE="r-cd-2-lifecycle-receipt"
+        SUMMARY_FILE_VERDICT="$SUMMARY_VERDICT"
+        VU_LOG_VERDICT=""
+      else
+        SUMMARY_VERDICT="PARTIAL-candidate"
+        SUMMARY_VERDICT_SOURCE="r-cd-2-lifecycle-receipt-missing"
+        POSTPROCESS_RC=1
+      fi
+      rm -f "$TEMPO_TRACE_PATH" "$CORRELATION_RECEIPT_PATH" "$COLLECTOR_RESULT" "$COLLECTOR_ERROR" \
+        "$RUN_DIR/continuation-trace-collector.json" "$RUN_DIR/continuation-trace-collector.error.log"
+      TRACE_ID=""
+      TEMPO_TRACE_JSON=""
+      CORRELATION_RECEIPT=""
+      TRACE_STATUS="private-correlation-resolved"
+    fi
+
     if ! node "$ARTIFACT_SANITIZER" \
       --input "$PRIVATE_EVIDENCE_FILE" \
       --out "$RUN_DIR/evidence.jsonl" \
@@ -470,6 +503,19 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       [[ -f "$RUN_DIR/evidence-lines.log" ]] || : > "$RUN_DIR/evidence-lines.log"
     else
       rm -f "$RUN_DIR/evidence-redaction.error.log"
+    fi
+    if [[ "$ROW_ID" == "R-CD-2" ]]; then
+      # The lifecycle receipt is the R-CD-2 public evidence projection.  Keep
+      # generic WS/journal acquisition material private even after sanitizing:
+      # a provider/RPC error may contain details outside a stable allowlist.
+      R_CD_2_PUBLIC_EVIDENCE="$(jq -cn \
+        --arg receipt "$R_CD_2_LIFECYCLE_RECEIPT" \
+        --arg verdict "$SUMMARY_VERDICT" \
+        '{row:"R-CD-2", verdict:$verdict, lifecycleReceipt:$receipt, acquisition:"private"}')"
+      printf '%s\n' "$R_CD_2_PUBLIC_EVIDENCE" > "$RUN_DIR/evidence.jsonl"
+      : > "$RUN_DIR/evidence-lines.log"
+      printf '%s\n' 'R-CD-2 private k6 acquisition withheld; see public lifecycle receipt.' > "$RUN_DIR/k6.log"
+      printf '%s\n' 'R-CD-2 private gateway acquisition withheld; see public lifecycle receipt.' > "$RUN_DIR/gateway-journal.log"
     fi
     cat "$RUN_DIR/k6.log"
     rm -f "$PRIVATE_K6_LOG" "$PRIVATE_EVIDENCE_FILE" "$PRIVATE_GATEWAY_LOG"
@@ -499,6 +545,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg traceId "$TRACE_ID" \
       --arg tempoTraceJson "$TEMPO_TRACE_JSON" \
       --arg correlationReceipt "$CORRELATION_RECEIPT" \
+      --arg lifecycleReceipt "$R_CD_2_LIFECYCLE_RECEIPT" \
       --arg serviceLogStatus "$GATEWAY_JOURNAL_STATUS" \
       --arg verdict "$SUMMARY_VERDICT" \
       --arg verdictSource "$SUMMARY_VERDICT_SOURCE" \
@@ -507,7 +554,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --argjson summaryFiles "$SUMMARY_FILES_JSON" \
       --argjson evidence "$EVIDENCE_JSON" \
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
-      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
+      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus, lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
     METRICS_ARGS=(--run-dir "$RUN_DIR" --prometheus-out "$RUN_DIR/openclaw-proofs-k6.prom" --otlp-out "$RUN_DIR/openclaw-proofs-k6.otlp.json")
     if [[ -n "${OPENCLAW_PROOFS_K6_OTLP_ENDPOINT:-}" ]]; then

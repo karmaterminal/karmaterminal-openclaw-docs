@@ -26,6 +26,7 @@
 import { copyFileSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
+import { validateRcd2LifecycleReceipt } from '../lib/r-cd-2-lifecycle-receipt.js';
 
 function parseArgs(argv) {
   const out = {};
@@ -119,6 +120,26 @@ const events = evidence.redacted_events || [];
 const { sanitized: [summary], orderedTokens } = sanitizeEvidenceRecords([evidence]);
 const { sanitized: safeEvents } = sanitizeEvidenceRecords(events, orderedTokens);
 
+let lifecycleReceipt = null;
+let lifecycleValidation = null;
+if (args.row === 'R-CD-2') {
+  if (!args['lifecycle-receipt']) {
+    console.error('ERROR: R-CD-2 requires --lifecycle-receipt');
+    process.exit(1);
+  }
+  try {
+    lifecycleReceipt = JSON.parse(readFileSync(args['lifecycle-receipt'], 'utf-8'));
+  } catch {
+    console.error('ERROR: R-CD-2 lifecycle receipt is unreadable');
+    process.exit(1);
+  }
+  lifecycleValidation = validateRcd2LifecycleReceipt(lifecycleReceipt);
+  if (!lifecycleValidation.valid) {
+    console.error(`ERROR: R-CD-2 lifecycle receipt rejected: ${lifecycleValidation.reason}`);
+    process.exit(1);
+  }
+}
+
 // Build output directory
 const runId = `k6-run-${stamp()}`;
 const outDir = join('PROOFS', args.sha, args.row, args.seat, runId);
@@ -144,9 +165,11 @@ writeFileSync(join(outDir, 'evidence-redaction.json'), JSON.stringify({
 }, null, 2) + '\n');
 
 // Determine verdict
-const verdict = evidence.tool_accepted || evidence.prompt_sent
-  ? (evidence.task_created || evidence.child_spawned ? 'PASS-candidate' : 'PARTIAL-candidate')
-  : 'FAIL-candidate';
+const verdict = args.row === 'R-CD-2'
+  ? lifecycleReceipt.verdict
+  : evidence.tool_accepted || evidence.prompt_sent
+    ? (evidence.task_created || evidence.child_spawned ? 'PASS-candidate' : 'PARTIAL-candidate')
+    : 'FAIL-candidate';
 
 // Write row-result.json
 const result = {
@@ -157,6 +180,7 @@ const result = {
   candidateSha: args.sha,
   seat: args.seat,
   outcome: verdict,
+  ...(args.row === 'R-CD-2' ? { lifecycleReceipt: lifecycleReceipt } : {}),
   liveRunSafety: manifest?.liveRunSafety ? {
     classification: manifest.liveRunSafety.classification,
     requiresLiveGatewayToken: Boolean(manifest.liveRunSafety.requiresLiveGatewayToken),
@@ -199,6 +223,7 @@ const md = `# ${args.row} — ${args.seat} — ${verdict}
 | Tool/prompt accepted | ${evidence.tool_accepted || evidence.prompt_sent ? '✓' : '✗'} |
 | Task/child created | ${evidence.task_created || evidence.child_spawned ? '✓' : '✗'} |
 | Parent return observed | ${evidence.parent_return ? '✓' : '✗'} |
+${args.row === 'R-CD-2' ? `| Authoritative lifecycle verdict | \`${lifecycleReceipt.verdict}\` |\n| Lifecycle failure category | \`${lifecycleReceipt.failureCategory || 'none'}\` |` : ''}
 | Safe reason fingerprint | \`${summary.reason_hash || 'N/A'}\` / length \`${summary.reason_length || 'N/A'}\` |
 | Manifest loaded | ${evidence.manifest_loaded ? '✓' : '✗ (defaults used)'} |
 

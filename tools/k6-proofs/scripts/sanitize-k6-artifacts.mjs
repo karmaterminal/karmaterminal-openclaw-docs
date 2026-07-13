@@ -14,6 +14,17 @@ const RAW_PAYLOAD_KEYS = new Set([
   'rawevents',
   'redactedevents',
   'task',
+  'reason',
+  'query',
+  'traceid',
+  'chainid',
+  'spanid',
+  'tracejson',
+  'correlationreceipt',
+  'error',
+  'errormessage',
+  'errordetails',
+  'providererror',
 ]);
 
 function usage() {
@@ -60,6 +71,8 @@ function sensitiveCategory(key) {
   if (normalized.includes('sessionkey') || normalized.endsWith('session')) return 'session-key';
   if (normalized.includes('runid')) return 'run-id';
   if (normalized.includes('idempotencykey')) return 'idempotency-key';
+  if (normalized.includes('traceid') || normalized.includes('chainid') || normalized.includes('spanid')) return 'trace-identifier';
+  if (normalized.includes('query') || normalized.includes('correlationreceipt') || normalized.includes('tracejson')) return 'trace-acquisition';
   if (RAW_PAYLOAD_KEYS.has(normalized)) return 'payload';
   return null;
 }

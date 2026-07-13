@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { validateRcd2LifecycleReceipt } from '../lib/r-cd-2-lifecycle-receipt.js';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \\
@@ -177,7 +178,14 @@ async function main() {
   const runId = args['run-id'] || `${dest.runDirPrefix || 'k6-run'}-${stamp()}`;
   const runDir = path.join(outRoot, sha, row, seat, runId);
 
-  const outcome = outcomeFromSummary(summary);
+  let lifecycleReceipt = null;
+  if (manifest.rowId === 'R-CD-2') {
+    if (!args['lifecycle-receipt']) throw new Error('R-CD-2 requires --lifecycle-receipt');
+    lifecycleReceipt = JSON.parse(await readFile(args['lifecycle-receipt'], 'utf8'));
+    const lifecycleValidation = validateRcd2LifecycleReceipt(lifecycleReceipt);
+    if (!lifecycleValidation.valid) throw new Error(`R-CD-2 lifecycle receipt rejected: ${lifecycleValidation.reason}`);
+  }
+  const outcome = lifecycleReceipt ? lifecycleReceipt.verdict : outcomeFromSummary(summary);
   const failures = requiredMetric(summary, 'proof_failures');
   const failureCount = failures ? Number(failures.count || 0) : 0;
   const checks = requiredMetric(summary, 'checks');
@@ -199,6 +207,7 @@ async function main() {
     toolSurface: manifest.toolSurface,
     transport: manifest.transport,
     outcome,
+    ...(lifecycleReceipt ? { lifecycleReceipt } : {}),
     metrics: {
       proofFailures: failureCount,
       checksRate: checkRate,

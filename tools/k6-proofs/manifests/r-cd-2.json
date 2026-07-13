@@ -42,6 +42,7 @@
     "requiredReceipts": [
       "seat-readiness",
       "dispatch-accepted",
+      "continuation-lifecycle-correlation",
       "parent-wake-event",
       "no-channel-delivery",
       "trace-id"
@@ -79,6 +80,11 @@
       "name": "trace-id",
       "required": true,
       "description": "Trace ID from dispatch response or optional task metadata; Tempo trace JSON must be fetched before folding a PASS."
+    },
+    {
+      "name": "continuation-lifecycle-correlation",
+      "required": true,
+      "description": "R-CD-2-only authoritative, public-safe lifecycle receipt. It must prove typed continue_delegate, observed silent-wake topology, local unbound-session success, and no channel delivery."
     }
   ],
   "artifactDestination": {
@@ -91,6 +97,6 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Silent-wake path. PASS-candidate when: (1) dispatching agent turn accepted, (2) parent session emits wake/agent events, (3) NO channel message delivered from the delegate return, and (4) trace/receipt artifacts are fetched for review. A nonce-correlated tasks.list row is optional because continue_delegate uses pending-delegate/subagent surfaces, not the generic task registry."
+    "notes": "Silent-wake path. For R-CD-2 alone, PASS-candidate is owned only by the validated public-safe lifecycle receipt; generic delayed traffic, outer sessions.send acceptance, and task-ledger context are diagnostic only."
   }
 }

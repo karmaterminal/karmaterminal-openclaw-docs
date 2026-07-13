@@ -32,3 +32,16 @@ being used. This generic typed-tool scenario did not invoke the Codex app-server
 surface; the actual OpenClaw harness/run outcomes are completed and the work /
 work-fire spans have `STATUS_CODE_OK`. Artifact scan found no
 `codex_dynamic_tool_error`.
+
+## Gateway journal cross-check
+
+The retained `JOURNAL-OBSERVATIONS.md` records the exact session-side continuation
+lines and the separate active-memory degradation observed in the same time window.
+The latter is filed as `karmaterminal/openclaw#1181`; it is not conflated with the
+continuation outcome.
+
+## Bounded gateway-journal receipt
+
+This historical exact-run fold now includes the sanitizer-filtered `gateway-journal.log`
+and accompanying `gateway-journal-capture.json` / `gateway-journal-redaction.json`.
+Raw journal bytes were transient; the receipt package is the public-safe audit surface.

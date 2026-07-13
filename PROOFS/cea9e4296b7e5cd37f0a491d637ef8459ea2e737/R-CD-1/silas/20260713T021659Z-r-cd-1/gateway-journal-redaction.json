@@ -1,0 +1,11 @@
+{
+  "schema": "openclaw.k6.public-service-log-redaction.v1",
+  "generatedAt": "2026-07-13T03:58:53.095Z",
+  "totalLines": 38,
+  "retainedLines": 19,
+  "removedSensitiveValues": 0,
+  "output": "gateway-journal.log",
+  "defenseInDepthPayloadTailScrub": true,
+  "defenseInDepthNote": "Post-sanitizer scrub removed free-text task tails and complete/truncated proof nonce forms after validation exposed the generic sanitizer boundary.",
+  "defenseInDepthChanged": true
+}

@@ -11,12 +11,14 @@ and do not prove completed Codex tool status on the repaired runtime.
 
 ## Seed rollup
 
-`35 total / 3 exact behavior passes / 2 behavior-pass-but-trace-partial / 30 missing`
+`35 total / 5 exact behavior passes / 2 behavior-pass-but-trace-partial / 28 missing`
 
 | Surface | State | Exact-SHA requirement |
 |---|---|---:|---|
-| All `R-CD-*` rows | `missing` | fresh `continue_delegate` behavior, successful Codex tool status, and required trace/topology receipts |
-| All `R-CW-*` rows | `missing` | fresh `continue_work` behavior and required durable wake/trace receipts |
+| `R-CD-1` | `pass` | fresh Silas typed `continue_delegate` behavior + Tempo/correlation + bounded redacted journal receipts |
+| Remaining `R-CD-*` rows | `missing` | fresh `continue_delegate` behavior, successful Codex tool status, and required trace/topology receipts |
+| `R-CW-1` | `pass` | fresh Silas typed `continue_work` durable wake + Tempo/correlation + bounded redacted journal receipts |
+| Remaining `R-CW-*` rows | `missing` | fresh `continue_work` behavior and required durable wake/trace receipts |
 | All `R-RC-*` rows | `missing` | fresh raw `request_compaction` result receipts with successful Codex status; model sentinels are insufficient |
 | Config rows | `partial` | exact direct operator-RPC receipts exist, but a nonzero attributable `config.get` Tempo trace is still required for full fold |
 | `R-OBS-STATUS` | `partial` | exact-`4afd560` source receipt requires explicit byte-identical carry or rerun |
@@ -52,6 +54,20 @@ Each row submission must include:
 
 Time-window-only matching, a nearby unlabelled span, `trace_id: null`, empty
 evidence, all-zero IDs, or a behavior-only PASS is insufficient.
+
+## Fresh Silas fold (2026-07-13 UTC)
+
+`R-CD-1` and `R-CW-1` were each fired exactly once in workflow `29219185714`
+(artifact `8267627685`) using disposable sessions. Both retained raw row results,
+public-safe Tempo exports, reason-fingerprint correlation receipts, and a bounded
+filtered/redacted `openclaw-gateway` journal package. The inline scenario
+`trace_id` was null; recovery uses exact safe row/seat/reason attributes, not a
+time-window-only match.
+
+The journal cross-check records a `command-queue-busy` first R-CW-1 wake followed
+by its idle retry, and separate active-memory timeout / trajectory-flush
+foreign-key cleanup errors in the same window. The latter is not folded into the
+continuation verdict and is tracked at `karmaterminal/openclaw#1181`.
 
 ## Dispatch allocation (authoritative for this cycle)
 

@@ -50,3 +50,10 @@ correlation receipts that prove same-trace, distinct continuation/tool-fire span
 The generic typed-tool scenarios did not invoke the Codex app-server surface;
 OpenClaw harness/run outcomes are completed and artifact scans contain no
 `codex_dynamic_tool_error`.
+
+### Journal-side condition
+
+The two exact Silas proof windows also contain active-memory embedded-agent
+timeout/unavailable logs and `openclaw-trajectory-flush` foreign-key cleanup
+failures. Per-row journal cross-checks distinguish those errors from the proved
+continuation receipts; repair tracking is `karmaterminal/openclaw#1181`.

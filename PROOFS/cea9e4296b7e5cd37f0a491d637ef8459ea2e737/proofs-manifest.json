@@ -165,12 +165,12 @@
   },
   "rollup": {
     "total_rows": 35,
-    "pass": 7,
+    "pass": 5,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 28
+    "missing": 30
   },
   "rows": [
     {
@@ -1387,10 +1387,10 @@
       "row": "R-OBS-STATUS",
       "owner": "🌻 elliott-legion + 🌊 ronan-dgx",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-OBS-STATUS/",
-      "state": "pass",
+      "state": "missing",
       "traces": 0,
       "evidence_doc": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-OBS-STATUS/EVIDENCE.md",
-      "note": "Reviewed immutable source-contract carry: exact-cea9e42 receipt from workflow 29220056391/artifact 8267864274 fetches src/status/status-text.ts at candidate, records digest 6704a2cce3d1c9f620f7c7cbe09f626d45c4232199a809575bf505d958860dcd, and proves active-line present / clean-session line absent. This unchanged formatter row is fold-ready without Tempo.",
+      "note": "Uncovered on exact cea9e42 under the corrected proof bar. Retained static receipts, including the historical 1cc8f4e3d617ef6f173283ef83d7b739a4995734 source evidence, are provenance/harness evidence only after intervening work and do not establish current behavior coverage. No refire is authorized by this classification.",
       "seat_results": [
         {
           "seat": "elliott",
@@ -1577,10 +1577,10 @@
       "row": "R-TRACE-REDACTION-1121",
       "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-TRACE-REDACTION-1121/",
-      "state": "pass",
+      "state": "missing",
       "traces": 0,
       "evidence_doc": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-TRACE-REDACTION-1121/EVIDENCE.md",
-      "note": "Unchanged-source/static contract row. Historical 4afd receipts remain retained; reviewed exact-cea9e42 static carry from Elliott workflow 29220564218/artifact 8268015808 explicitly records sourceEvidenceSha 1cc8f4e3d617ef6f173283ef83d7b739a4995734 and all six redaction predicates. No Tempo claim applies.",
+      "note": "Uncovered on exact cea9e42 under the corrected proof bar. Retained static receipts, including the historical 1cc8f4e3d617ef6f173283ef83d7b739a4995734 source evidence, are provenance/harness evidence only after intervening work and do not establish current behavior coverage. No refire is authorized by this classification.",
       "seat_results": [
         {
           "seat": "cael",

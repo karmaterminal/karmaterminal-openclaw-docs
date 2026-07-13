@@ -9,14 +9,14 @@
   "readme_path": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/README.md",
   "rollup": {
     "total_rows": 35,
-    "pass": 6,
-    "partial": 1,
+    "pass": 5,
+    "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 28
+    "missing": 30
   },
-  "disposition_note": "Active exact-SHA Project 81 seed for the Codex result-classification repair. Continuation and compaction rows remain open because successful tool results must now prove completed Codex status without codex_dynamic_tool_error. Copied exact-2e7861 receipts are historical only. Six unchanged-surface rows are explicit carries and R-OBS-STATUS remains partial. Row owners must commit reviewed evidence directly to docs main and update the manifest atomically.",
+  "disposition_note": "Active exact-SHA Project 81 seed for the Codex result-classification repair. Historical static receipts rooted in 1cc8f4e3d617ef6f173283ef83d7b739a4995734 are retained as provenance/harness evidence only and do not satisfy exact-cea9e42 coverage after intervening work. Continuation/compaction behavior rows remain open pending current behavior and required correlation receipts; no refires are implied by this correction.",
   "methodology_note": "Drive the exact deployed assembly SHA through the Project 81 k6/Gateway surfaces. Required trace rows must include raw artifacts and attributable public-safe Tempo JSON with valid non-zero W3C IDs; time-window-only matching is insufficient. Structured tool-result rows must retain the actual result payload or correlated span rather than trusting an assistant-authored sentinel.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-07-13",

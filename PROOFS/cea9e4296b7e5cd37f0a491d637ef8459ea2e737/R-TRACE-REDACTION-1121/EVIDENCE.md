@@ -39,3 +39,5 @@ predicates: pass heading, safe attributes, no-preview contract, raw-reason
 guard, test pass, and source surface. It explicitly reports the historical
 `sourceEvidenceSha`, so it does not misrepresent static evidence as a fresh
 runtime/trace observation.
+
+> **Proof-bar correction (figs, 2026-07-13):** Historical `1cc8f4…` static receipts are retained as provenance/harness evidence only. They do **not** establish exact-`cea9e42` current behavior coverage after intervening work; this row is therefore uncovered. No refire is authorized by this classification.

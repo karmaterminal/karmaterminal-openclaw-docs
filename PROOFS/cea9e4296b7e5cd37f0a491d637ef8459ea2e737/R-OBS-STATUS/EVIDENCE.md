@@ -29,3 +29,5 @@ receipt for this row.
 - `evidence.jsonl` and `r-obs-status-summary.json` — public-safe source receipt
 - `row-manifest.json` — dispatched row contract
 - `seat-readiness.json` — deployed candidate identity
+
+> **Proof-bar correction (figs, 2026-07-13):** Historical `1cc8f4…` static receipts are retained as provenance/harness evidence only. They do **not** establish exact-`cea9e42` current behavior coverage after intervening work; this row is therefore uncovered. No refire is authorized by this classification.

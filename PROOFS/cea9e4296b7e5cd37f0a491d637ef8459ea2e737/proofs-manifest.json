@@ -165,22 +165,22 @@
   },
   "rollup": {
     "total_rows": 35,
-    "pass": 3,
+    "pass": 5,
     "partial": 2,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 30
+    "missing": 28
   },
   "rows": [
     {
       "row": "R-CD-1",
       "owner": "\ud83c\udf2b silas-lothric",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-1/",
-      "state": "missing",
-      "traces": 0,
+      "state": "pass",
+      "traces": 1,
       "evidence_doc": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-1/EVIDENCE.md",
-      "note": "Exact-cea9e42 row is open. The candidate changes Codex app-server classification of successful continuation and compaction results; copied exact-2e7861 receipts are historical only and must not be folded as proof of cea9e4296b7e5cd37f0a491d637ef8459ea2e737. Capture fresh exact-SHA behavior, completed Codex tool status where applicable, and every receipt required by this row contract.",
+      "note": "Fresh exact-cea9e42 Silas typed continue_delegate proof: workflow 29219185714, artifact 8267627685; raw run-result, public-safe Tempo trace, deterministic correlation, and bounded redacted gateway journal folded. Inline scenario trace_id was null, but collector recovered trace ea920a5ed49ca9040345968e8703754f by reason hash/length/mode; no time-window-only match.",
       "seat_results": [
         {
           "seat": "cael",
@@ -223,7 +223,27 @@
           "review_status": "behavior-green-trace-incomplete"
         }
       ],
-      "prior_4afd_state": "missing"
+      "prior_4afd_state": "missing",
+      "exact_cea9e42_results": [
+        {
+          "seat": "silas",
+          "run": "29219185714",
+          "artifact_id": "8267627685",
+          "verdict": "PASS-candidate",
+          "k6ExitCode": 0,
+          "reviewStatus": "raw-trace-correlation-and-journal-reviewed",
+          "trace_id": "ea920a5ed49ca9040345968e8703754f",
+          "run_result": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-1/silas/20260713T021659Z-r-cd-1/run-result.json",
+          "summary": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-1/silas/20260713T021659Z-r-cd-1/r-cd-1-typed-delegate-summary.json",
+          "correlation_receipt": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-1/silas/20260713T021659Z-r-cd-1/continuation-trace-correlation.json",
+          "tempo_trace": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-1/silas/20260713T021659Z-r-cd-1/tempo-trace-ea920a5ed49c.json",
+          "gateway_journal": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-1/silas/20260713T021659Z-r-cd-1/gateway-journal.log",
+          "gateway_journal_capture": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-1/silas/20260713T021659Z-r-cd-1/gateway-journal-capture.json",
+          "gateway_journal_redaction": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-1/silas/20260713T021659Z-r-cd-1/gateway-journal-redaction.json",
+          "journal_observations": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-1/silas/20260713T021659Z-r-cd-1/JOURNAL-OBSERVATIONS.md",
+          "environment_note": "active-memory timeout/trajectory-flush FK cleanup error occurred concurrently; continuation spawn/return still journaled; core #1181."
+        }
+      ]
     },
     {
       "row": "R-CD-2",
@@ -855,10 +875,10 @@
       "row": "R-CW-1",
       "owner": "\ud83c\udf2b silas-lothric + \ud83e\ude78 cael-dgx",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-1/",
-      "state": "missing",
-      "traces": 0,
+      "state": "pass",
+      "traces": 1,
       "evidence_doc": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-1/EVIDENCE.md",
-      "note": "Exact-cea9e42 row is open. The candidate changes Codex app-server classification of successful continuation and compaction results; copied exact-2e7861 receipts are historical only and must not be folded as proof of cea9e4296b7e5cd37f0a491d637ef8459ea2e737. Capture fresh exact-SHA behavior, completed Codex tool status where applicable, and every receipt required by this row contract.",
+      "note": "Fresh exact-cea9e42 Silas typed continue_work proof: workflow 29219185714, artifact 8267627685; raw run-result, public-safe Tempo trace, deterministic correlation, and bounded redacted gateway journal folded. Inline scenario trace_id was null, but collector recovered trace 7ee6322b39875ac81d29dc590bc739b0 by reason hash/length; no time-window-only match. First drive was command-queue-busy; the documented idle retry delivered the observed successor wake.",
       "seat_results": [
         {
           "seat": "cael",
@@ -908,7 +928,27 @@
           "review_status": "exact-sha-successor-turn-required"
         }
       ],
-      "prior_4afd_state": "missing"
+      "prior_4afd_state": "missing",
+      "exact_cea9e42_results": [
+        {
+          "seat": "silas",
+          "run": "29219185714",
+          "artifact_id": "8267627685",
+          "verdict": "PASS-candidate",
+          "k6ExitCode": 0,
+          "reviewStatus": "raw-trace-correlation-and-journal-reviewed",
+          "trace_id": "7ee6322b39875ac81d29dc590bc739b0",
+          "run_result": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-1/silas/20260713T021744Z-r-cw-1/run-result.json",
+          "summary": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-1/silas/20260713T021744Z-r-cw-1/r-cw-1-tool-schedule-wake-summary.json",
+          "correlation_receipt": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-1/silas/20260713T021744Z-r-cw-1/continuation-trace-correlation.json",
+          "tempo_trace": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-1/silas/20260713T021744Z-r-cw-1/tempo-trace-7ee6322b3987.json",
+          "gateway_journal": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-1/silas/20260713T021744Z-r-cw-1/gateway-journal.log",
+          "gateway_journal_capture": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-1/silas/20260713T021744Z-r-cw-1/gateway-journal-capture.json",
+          "gateway_journal_redaction": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-1/silas/20260713T021744Z-r-cw-1/gateway-journal-redaction.json",
+          "journal_observations": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-1/silas/20260713T021744Z-r-cw-1/JOURNAL-OBSERVATIONS.md",
+          "environment_note": "active-memory timeout/trajectory-flush FK cleanup error occurred concurrently; first wake busy-retried and eventual wake journaled; core #1181."
+        }
+      ]
     },
     {
       "row": "R-CW-2",

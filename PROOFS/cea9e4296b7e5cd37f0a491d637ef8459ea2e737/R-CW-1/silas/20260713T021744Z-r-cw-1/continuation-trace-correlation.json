@@ -1,0 +1,31 @@
+{
+  "schema": "openclaw.k6.continuation-trace-correlation.v1",
+  "generatedAt": "2026-07-13T02:18:44.327Z",
+  "row": "R-CW-1",
+  "seat": "silas",
+  "attribution": "reason-hash-length",
+  "reason": {
+    "hash": "52f678c22427f8da",
+    "length": 121,
+    "rawPersisted": false
+  },
+  "continuation": {
+    "tool": "continue_work",
+    "acceptSpan": "continuation.work",
+    "fireSpan": "continuation.work.fire"
+  },
+  "query": "{ resource.service.name=\"silas-prince\" && name=\"continuation.work\" && .reason.hash=\"52f678c22427f8da\" && .reason.length=121 }",
+  "traceJson": "tempo-trace-7ee6322b3987.json",
+  "traceId": "7ee6322b39875ac81d29dc590bc739b0",
+  "chainId": "720b201c-ca52-4bcd-81f1-0e7773559ab1",
+  "toolSpanIds": [
+    "e80b72fdf86c0d15"
+  ],
+  "fireSpanId": "3793bba8db060ab4",
+  "fireParentSpanId": "58c961b8e18cedbe",
+  "childSpans": [],
+  "workSpanId": "668fb69252a9015d",
+  "workParentSpanId": "58c961b8e18cedbe",
+  "sameTrace": true,
+  "distinctSpans": true
+}

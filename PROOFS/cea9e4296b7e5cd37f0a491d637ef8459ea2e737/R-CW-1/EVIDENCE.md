@@ -1,19 +1,47 @@
-<!-- exact-cea9e42-seed -->
-> **Exact-cea9e42 state: missing.** This directory is copied from exact `2e7861ba45fd8534282aadabab2b855d2f524fdf` for structure and history only. Do not cite copied receipts as proof of `cea9e4296b7e5cd37f0a491d637ef8459ea2e737`; submit a fresh reviewed row bundle here.
+# R-CW-1 — exact-cea9e42 Silas typed-work proof
 
-# R-CW-1 — exact-4afd evidence slot
+- **Owner / firing seat:** 🌫 Silas / `silas`
+- **State:** `pass` for the assigned typed-tool row. The separate token/bracket
+  counterpart is `R-CW-TOKEN`, assigned and fired independently.
+- **Exact runtime SHA:** `cea9e4296b7e5cd37f0a491d637ef8459ea2e737`
+- **Workflow run / artifact:** `29219185714` / `8267627685`
+- **Execution:** disposable session; one typed `continue_work()` fire only.
 
-- **Owners:** 🌫 Silas + 🩸 Cael
-- **State:** `missing`
-- **Exact SHA:** `4afd560feb5102627a68a2f6a8bc545dabcfcfdc`
+## Raw receipts
 
-Required evidence:
+- `silas/20260713T021744Z-r-cw-1/run-result.json` — `k6ExitCode=0`,
+  `postprocessExitCode=0`, `PASS-candidate`; tool invocation accepted, explicit
+  scheduled result observed, then a real successor wake.
+- `silas/20260713T021744Z-r-cw-1/evidence.jsonl` — public-safe harness evidence.
+- `silas/20260713T021744Z-r-cw-1/r-cw-1-tool-schedule-wake-summary.json` —
+  60,028 ms, zero k6 failures; recorded wake delay 13,060 ms.
 
-- typed tool form and token/bracket form;
-- durable scheduled work and real successor turn;
-- restart/deploy persistence receipt where required by the row;
-- valid internally derived non-zero trace/span IDs;
-- work and delayed work-fire continuity on one trace;
-- workflow run, artifact, raw row evidence, and exact Tempo JSON.
+## Tempo correlation and topology
 
-Model/bracket supplied trace identity must not be accepted.
+- Trace: `7ee6322b39875ac81d29dc590bc739b0` (valid non-zero 32-hex ID).
+- `silas/20260713T021744Z-r-cw-1/tempo-trace-7ee6322b3987.json` — raw
+  public-safe Tempo export.
+- `silas/20260713T021744Z-r-cw-1/continuation-trace-correlation.json` — safe
+  reason-hash/length attribution; one trace; distinct valid non-zero work span
+  `668fb69252a9015d` and delayed work-fire span `3793bba8db060ab4`, with
+  `sameTrace=true` and `distinctSpans=true`.
+
+The collector recovered the trace from safe reason-hash/length attribution
+rather than the scenario's null inline `trace_id`; no time-window-only match is
+being used. This generic typed-tool scenario did not invoke the Codex app-server
+surface; the actual OpenClaw harness/run outcomes are completed and the work /
+work-fire spans have `STATUS_CODE_OK`. Artifact scan found no
+`codex_dynamic_tool_error`.
+
+## Gateway journal cross-check
+
+The retained `JOURNAL-OBSERVATIONS.md` records the exact session-side continuation
+lines and the separate active-memory degradation observed in the same time window.
+The latter is filed as `karmaterminal/openclaw#1181`; it is not conflated with the
+continuation outcome.
+
+## Bounded gateway-journal receipt
+
+This historical exact-run fold now includes the sanitizer-filtered `gateway-journal.log`
+and accompanying `gateway-journal-capture.json` / `gateway-journal-redaction.json`.
+Raw journal bytes were transient; the receipt package is the public-safe audit surface.

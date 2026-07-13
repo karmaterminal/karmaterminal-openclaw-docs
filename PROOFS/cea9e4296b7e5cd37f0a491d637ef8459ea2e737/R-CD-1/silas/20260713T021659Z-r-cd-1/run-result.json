@@ -1,0 +1,49 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-07-13T02:17:43Z",
+  "verdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-cd-1-typed-delegate-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CD-1",
+    "manifest_loaded": true,
+    "seat": "silas",
+    "session_created": true,
+    "candidateSha": "cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
+    "started": "2026-07-13T02:16:59.730Z",
+    "tool_invoke_accepted": true,
+    "delegate_scheduled_sentinel": true,
+    "parent_return_event": true,
+    "task_ledger_entry_optional": false,
+    "channel_message_observed": true,
+    "dispatch_accepted_at_ms": 1783909020641,
+    "wake_gate_ms": 5000,
+    "delegate_scheduled_at_ms": 1783909035724,
+    "parent_return_event_at_ms": 1783909063593,
+    "trace_collect_after_ms": 1783909050724,
+    "reason_hash": "d7bd071bb418cb06",
+    "reason_length": 139,
+    "delegate_mode": "normal",
+    "delegate_delay_ms": 1000,
+    "delegate_wake_gate_ms": 5000,
+    "prompt_echoes_ignored": 3,
+    "trace_id": null,
+    "ended": "2026-07-13T02:17:43.593Z",
+    "duration_ms": 43863
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "present",
+    "traceId": "ea920a5ed49ca9040345968e8703754f",
+    "tempoTraceJson": "tempo-trace-ea920a5ed49c.json",
+    "correlationReceipt": "continuation-trace-correlation.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

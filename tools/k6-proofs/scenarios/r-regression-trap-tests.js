@@ -20,12 +20,13 @@ const duration = new Trend('r_regression_trap_tests_duration');
 const manifest = loadManifestFromEnv();
 const index = JSON.parse(open('../../../PROOFS/INDEX.json'));
 const currentSha = index.current_sha;
-const carriedFrom = index.carried_from || currentSha;
-const rowRoot = `../../../PROOFS/${currentSha}/R-REGRESSION-TRAP-TESTS/cael-dgx`;
+const sourceEvidenceSha = index.static_evidence_sha || currentSha;
+const rowRoot = `../../../PROOFS/${sourceEvidenceSha}/R-REGRESSION-TRAP-TESTS/cael-dgx`;
 const evidenceMd = open(`${rowRoot}/EVIDENCE.md`);
 const regressionLog = open(`${rowRoot}/regression-trap.log`);
 const sourceStatus = open(`${rowRoot}/source-git-status.txt`);
 const testInventory = open(`${rowRoot}/test-inventory.txt`);
+const sourceCheckoutSha = sourceStatus.match(/^[0-9a-f]{40}$/m)?.[0] || null;
 
 export default function () {
   const started = Date.now();
@@ -45,11 +46,13 @@ export default function () {
     manifest_loaded: !!manifest,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     currentProofSha: currentSha,
+    sourceEvidenceSha,
+    sourceCheckoutSha,
     started: new Date().toISOString(),
     verdict_text_present: evidenceMd.includes('Verdict: ✅ PASS') || evidenceMd.includes('Verdict: PASS'),
     shard_pass_text_present: regressionLog.includes('[test] passed 2 Vitest shards'),
     test_count_text_present: evidenceMd.includes('31/31 PASS') || (regressionLog.includes('5 passed') && regressionLog.includes('26 passed')),
-    source_sha_present: sourceStatus.includes(currentSha) || evidenceMd.includes(currentSha) || sourceStatus.includes(carriedFrom) || evidenceMd.includes(carriedFrom),
+    source_sha_present: Boolean(sourceCheckoutSha && evidenceMd.includes(sourceCheckoutSha)),
     required_tests_present: Object.fromEntries(requiredTests.map((name) => [name, evidenceMd.includes(name) || regressionLog.includes(name) || testInventory.includes(name)])),
     source_files: {
       evidence: `${rowRoot}/EVIDENCE.md`,

@@ -20,7 +20,8 @@ const duration = new Trend('r_cd_return_overlap_duration');
 const manifest = loadManifestFromEnv();
 const index = JSON.parse(open('../../../PROOFS/INDEX.json'));
 const currentSha = index.current_sha;
-const rowRoot = `../../../PROOFS/${currentSha}/R-CD-RETURN-OVERLAP/cael-dgx`;
+const sourceEvidenceSha = index.static_evidence_sha || currentSha;
+const rowRoot = `../../../PROOFS/${sourceEvidenceSha}/R-CD-RETURN-OVERLAP/cael-dgx`;
 const evidenceMd = open(`${rowRoot}/EVIDENCE.md`);
 const flowRows = JSON.parse(open(`${rowRoot}/db/flow-rows-concise.json`));
 const taskRows = JSON.parse(open(`${rowRoot}/db/task-rows-concise.json`));
@@ -47,6 +48,7 @@ export default function () {
     manifest_loaded: !!manifest,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     currentProofSha: currentSha,
+    sourceEvidenceSha,
     started: new Date().toISOString(),
     pass_with_caveat_present: evidenceMd.includes('PASS, with wake-causality caveat') && evidenceMd.includes('not claiming isolated wake causality'),
     silent_flow_present: flowText.includes('"silentWake":null') || evidenceMd.includes('mode=silent'),

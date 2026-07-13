@@ -20,10 +20,11 @@ const manifest = loadManifestFromEnv();
 const index = JSON.parse(open('../../../PROOFS/INDEX.json'));
 const currentSha = index.current_sha;
 const carriedFrom = index.carried_from || currentSha;
+const sourceEvidenceSha = index.static_evidence_sha || currentSha;
 
 function includesAny(text, needles) { return needles.some((needle) => text.includes(needle)); }
 function allPresent(obj) { return Object.values(obj).every(Boolean); }
-function rowRoot(row) { return `../../../PROOFS/${currentSha}/${row}/cael-dgx`; }
+function rowRoot(row) { return `../../../PROOFS/${sourceEvidenceSha}/${row}/cael-dgx`; }
 function readMaybe(path) { try { return open(path); } catch (e) { return ''; } }
 function readJsonMaybe(path) { const raw = readMaybe(path); return raw ? JSON.parse(raw) : null; }
 
@@ -132,7 +133,7 @@ function validateRcw7() {
     dispatchPreserves: evidence.includes('threads persisted traceparent into spawned continuation runs') || sourceSnippets.includes('threads persisted traceparent'),
     childReceives: evidence.includes('forwards inherited traceparent to the child agent run') || sourceSnippets.includes('forwards inherited traceparent'),
     testsPassed: testLog.includes('passed 3 Vitest shards') || evidence.includes('142 passed / 0 failed'),
-    sourceSha: sourceSha.includes(currentSha) || evidence.includes(currentSha),
+    sourceSha: sourceSha.includes(sourceEvidenceSha) || evidence.includes(sourceEvidenceSha),
   };
   return { checks, source_files: { evidence: `${root}/EVIDENCE.md`, testLog: `${root}/test/focused-traceparent-tests.log`, sourceSnippets: `${root}/source/source-snippets.md` } };
 }
@@ -270,6 +271,7 @@ export default function () {
     manifest_loaded: true,
     candidateSha: manifest.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     currentProofSha: currentSha,
+    sourceEvidenceSha,
     carriedFrom,
     started: new Date(started).toISOString(),
     checks: result.checks,

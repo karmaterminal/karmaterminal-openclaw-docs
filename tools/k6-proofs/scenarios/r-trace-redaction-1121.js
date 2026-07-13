@@ -19,7 +19,8 @@ const duration = new Trend('r_trace_redaction_1121_duration');
 const manifest = loadManifestFromEnv();
 const index = JSON.parse(open('../../../PROOFS/INDEX.json'));
 const currentSha = index.current_sha;
-const rowRoot = `../../../PROOFS/${currentSha}/R-TRACE-REDACTION-1121`;
+const sourceEvidenceSha = index.static_evidence_sha || currentSha;
+const rowRoot = `../../../PROOFS/${sourceEvidenceSha}/R-TRACE-REDACTION-1121`;
 const evidenceMd = open(`${rowRoot}/EVIDENCE.md`);
 
 export default function () {
@@ -33,6 +34,7 @@ export default function () {
     manifest_loaded: !!manifest,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     currentProofSha: currentSha,
+    sourceEvidenceSha,
     started: new Date().toISOString(),
     pass_heading_present: evidenceMd.includes('# R-TRACE-REDACTION-1121') && evidenceMd.includes('PASS'),
     safe_attrs_present: ['reason.present', 'reason.length', 'reason.hash', 'reason.redacted'].every((needle) => evidenceMd.includes(needle)),

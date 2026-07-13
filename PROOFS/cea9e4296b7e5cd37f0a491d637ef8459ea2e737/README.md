@@ -21,6 +21,13 @@ and do not prove completed Codex tool status on the repaired runtime.
 | Config/observability/redaction rows | `carried` | explicit unchanged-surface carry pending final closeout |
 | `R-OBS-STATUS` | `partial` | exact-`4afd560` source receipt requires explicit byte-identical carry or rerun |
 
+Offline/static scenarios read immutable receipt bytes from
+`PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/`, recorded as
+`PROOFS/INDEX.json::static_evidence_sha`. Their output must report both the
+active `currentProofSha` and the historical `sourceEvidenceSha`. Such a result
+can support an unchanged-surface carry; it is not fresh runtime proof of
+`cea9e42`.
+
 ## Submission contract
 
 Proof content lands directly on

@@ -19,6 +19,7 @@
     "methods": [
       "sessions.send",
       "sessions.messages.subscribe",
+      "sessions.list",
       "tasks.list"
     ],
     "status": "runnable",
@@ -34,15 +35,19 @@
   "liveRunSafety": {
     "classification": "k6-runnable",
     "requiresLiveGatewayToken": true,
-    "requiresTargetSessionKey": true,
+    "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
     "requiresExternalAgentOrToolInvocation": true,
     "sameSessionConcurrencySafe": false,
     "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
       "seat-readiness",
+      "unbound-disposable-session",
       "dispatch-accepted",
+      "delegate-scheduled-receipt",
+      "dispatch-turn-completed",
       "parent-wake-event",
+      "post-wake-no-delivery-window",
       "no-channel-delivery",
       "trace-id"
     ],
@@ -50,6 +55,11 @@
     "notes": "Live continuation row. Fail closed when token/session env is missing, serialize per target session, and treat generated output as a PASS-candidate until required receipts are reviewed."
   },
   "expectedReceipts": [
+    {
+      "name": "unbound-disposable-session",
+      "required": true,
+      "description": "Fresh disposable session created and confirmed through sessions.list with no channel delivery binding"
+    },
     {
       "name": "dispatch-accepted",
       "required": true,
@@ -59,6 +69,26 @@
       "name": "task-ledger-entry",
       "required": false,
       "description": "Optional extra context from the generic TaskFlow task ledger; continue_delegate does not reliably write here"
+    },
+    {
+      "name": "delegate-scheduled-receipt",
+      "required": true,
+      "description": "Nonce-correlated parent receipt emitted only after the continue_delegate tool result reports scheduled"
+    },
+    {
+      "name": "dispatch-failure-receipt",
+      "required": false,
+      "description": "Redacted fail-closed classification when the provider/agent turn fails or queued continue_delegate is incomplete/replay-unsafe"
+    },
+    {
+      "name": "dispatch-turn-completed",
+      "required": true,
+      "description": "Run-ID-correlated terminal lifecycle success for the dispatching parent turn"
+    },
+    {
+      "name": "post-wake-no-delivery-window",
+      "required": true,
+      "description": "Bounded observation window after the correlated parent wake with no outbound channel-delivery event"
     },
     {
       "name": "child-session-key",
@@ -91,6 +121,6 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Silent-wake path. PASS-candidate when: (1) dispatching agent turn accepted, (2) parent session emits wake/agent events, (3) NO channel message delivered from the delegate return, and (4) trace/receipt artifacts are fetched for review. A nonce-correlated tasks.list row is optional because continue_delegate uses pending-delegate/subagent surfaces, not the generic task registry."
+    "notes": "Silent-wake path. PASS-candidate requires: (1) a fresh disposable session confirmed to have no channel binding, (2) dispatching agent turn accepted, (3) nonce-correlated delegate-scheduled receipt, (4) run-ID-correlated terminal success for the dispatching turn, (5) nonce-correlated delayed parent wake after scheduling, (6) a bounded post-wake window with no explicit message-tool delivery receipt, and (7) trace/receipt artifacts fetched for review. Provider/turn failure or incomplete/replay-unsafe delegate rejection is fail-closed PARTIAL-candidate. Bound live sessions are intentionally unsupported because the subscribed Gateway stream does not expose a reliable normal channel-delivery receipt."
   }
 }

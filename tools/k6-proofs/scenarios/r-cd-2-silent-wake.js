@@ -23,6 +23,13 @@ import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { closeSocketAfterDelay } from '../lib/socket-close.js';
+import {
+  classifyRcd2LifecycleEvent,
+  isRcd2OutboundChannelDeliveryEvent,
+  isRcd2LifecyclePass,
+  rCd2ScheduledSentinel,
+} from '../lib/r-cd-2-lifecycle.js';
 
 export const options = {
   scenarios: {
@@ -41,7 +48,6 @@ export const options = {
 
 const failures = new Counter('proof_failures');
 const duration = new Trend('r_cd_2_duration');
-let finalEvidence = null;
 
 // --- Manifest-driven config ---
 const manifest = loadManifestFromEnv();
@@ -65,32 +71,38 @@ function invocationCfg() {
   };
 }
 
-export function isOutboundChannelDeliveryEvent(eventName, eventData) {
-  const lowerName = String(eventName || '').toLowerCase();
-  const namedDelivery = lowerName.includes('delivery') &&
-    (lowerName.includes('channel') || lowerName.includes('message') || lowerName.includes('outbound'));
-  if (namedDelivery) return true;
-  if (!eventData || typeof eventData !== 'object') return false;
-
-  const channelTarget = eventData.channelId || eventData.channel_id ||
-    eventData.targetChannel || eventData.deliveryChannel;
-  const deliveryStatus = String(
-    eventData.deliveryStatus || eventData.delivery_state || eventData.deliveryState || '',
-  ).toLowerCase();
-  return Boolean(channelTarget) && ['sent', 'delivered', 'completed'].includes(deliveryStatus);
-}
-
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
   const requestedSessionKey = manifest && manifest.sessionKey || __ENV.OPENCLAW_SESSION_KEY || DEFAULTS.sessionKey;
   let sessionKey = requestedSessionKey;
-  const createDisposableSession = (__ENV.OPENCLAW_CREATE_DISPOSABLE_SESSION || '').toLowerCase() === 'true';
+  const disposableEnv =
+    __ENV.OPENCLAW_CREATE_DISPOSABLE_SESSION ||
+    __ENV.OPENCLAW_CREATE_DISPOSABLE_SESSIONS ||
+    'true';
+  const createDisposableSession = disposableEnv.toLowerCase() === 'true';
   const seat = manifest && manifest.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CD-2');
+  const postWakeQuietMs = Number(__ENV.OPENCLAW_R_CD_2_POST_WAKE_QUIET_MS || 5000);
 
   if (!token) {
     console.error('OPENCLAW_GATEWAY_TOKEN is required');
+    failures.add(1);
+    return;
+  }
+  if (!createDisposableSession) {
+    console.error('R-CD-2 requires an unbound disposable session for no-channel proof');
+    failures.add(1);
+    return;
+  }
+  if (
+    !Number.isFinite(postWakeQuietMs) ||
+    postWakeQuietMs < 1000 ||
+    postWakeQuietMs > 30000
+  ) {
+    console.error(
+      'OPENCLAW_R_CD_2_POST_WAKE_QUIET_MS must be a finite value from 1000 through 30000',
+    );
     failures.add(1);
     return;
   }
@@ -110,11 +122,15 @@ export default function () {
     sessionKey,
     requestedSessionKey,
     session_created: false,
+    session_unbound_confirmed: false,
     created_session_key: null,
     candidateSha: manifest && manifest.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
+    disposable_session_required: createDisposableSession,
     // Required receipts
     tool_accepted: false,
+    delegate_scheduled_receipt: false,
+    delegate_scheduled_at_ms: null,
     task_created: false,
     task_mode: null,
     // Silent-wake specific
@@ -124,12 +140,20 @@ export default function () {
     channel_message_observed: false, // MUST stay false for PASS
     silent_status_record_observed: false,
     dispatch_accepted_at_ms: null,
+    dispatch_run_id: null,
+    dispatch_turn_completed: false,
+    dispatch_turn_completed_at_ms: null,
     wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
+    parent_wake_observed_at_ms: null,
+    post_wake_quiet_ms: postWakeQuietMs,
+    post_wake_quiet_completed: false,
     child_session: null,
     reason_hash: null,
     reason_length: null,
     delegate_mode: null,
     trace_id: null,
+    dispatch_failure_observed: false,
+    failure_receipt: null,
     redacted_events: [],
   };
 
@@ -137,8 +161,35 @@ export default function () {
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    let successCloseScheduled = false;
+    let proofFlowStarted = false;
+
+    function maybeScheduleSuccessClose() {
+      if (
+        successCloseScheduled ||
+        !evidence.delegate_scheduled_receipt ||
+        !evidence.dispatch_turn_completed ||
+        !evidence.parent_wake_observed ||
+        evidence.dispatch_failure_observed ||
+        evidence.channel_message_observed
+      ) {
+        return;
+      }
+      const closeAfterMs =
+        evidence.parent_wake_observed_at_ms + evidence.post_wake_quiet_ms;
+      const remainingMs = Math.max(0, closeAfterMs - Date.now());
+      successCloseScheduled = true;
+      closeSocketAfterDelay(socket, remainingMs, () => {
+        if (!evidence.dispatch_failure_observed && !evidence.channel_message_observed) {
+          evidence.post_wake_quiet_completed = true;
+          console.log('✓ bounded post-wake no-delivery window completed');
+        }
+      });
+    }
 
     function startProofFlow(socket) {
+      if (proofFlowStarted) return;
+      proofFlowStarted = true;
       // Subscribe to parent session messages to detect wake + verify no channel delivery.
       // Protocol: sessions.messages.subscribe uses 'key' not 'sessionKey'.
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
@@ -153,7 +204,10 @@ export default function () {
         evidence.reason_hash = crypto.sha256(prompt, 'hex').slice(0, 16);
         evidence.reason_length = prompt.length;
         evidence.delegate_mode = inv.mode;
-        const agentInstruction = `[k6-proof-harness] Call continue_delegate with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. This is a proof run — execute the tool call immediately, no other action needed.`;
+        const agentInstruction =
+          `[k6-proof-harness] Call continue_delegate with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. ` +
+          `After the continue_delegate tool result reports scheduled, reply exactly ${rCd2ScheduledSentinel(rowNonce)}. ` +
+          `This is a proof run — execute the tool call immediately, no other action needed.`;
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
           message: agentInstruction,
@@ -181,8 +235,6 @@ export default function () {
             label: `k6 R-CD-2 ${rowNonce}`,
           });
         }, 250);
-      } else {
-        socket.setTimeout(() => startProofFlow(socket), 500);
       }
     });
 
@@ -207,11 +259,43 @@ export default function () {
             evidence.session_created = true;
             evidence.created_session_key = sessionKey;
             console.log(`✓ disposable session created: ${sessionKey}`);
-            startProofFlow(socket);
+            tracker.send(socket, 'sessions.list', { limit: 10, search: sessionKey });
           } else {
             console.error(`✗ sessions.create rejected: ${JSON.stringify(classified.error)}`);
             failures.add(1);
             socket.close();
+          }
+        }
+
+        if (classified.kind === 'response' && classified.method === 'sessions.list') {
+          if (!classified.ok) {
+            console.error(`✗ sessions.list rejected: ${JSON.stringify(classified.error)}`);
+            failures.add(1);
+            socket.close();
+          } else {
+            const sessions = Array.isArray(classified.payload && classified.payload.sessions)
+              ? classified.payload.sessions
+              : [];
+            const created = sessions.find((session) => session && session.key === sessionKey);
+            const deliveryContext = created && created.deliveryContext || {};
+            const hasChannelBinding = Boolean(
+              created &&
+                (created.lastChannel ||
+                  created.lastTo ||
+                  created.lastAccountId ||
+                  deliveryContext.channel ||
+                  deliveryContext.to ||
+                  deliveryContext.accountId),
+            );
+            if (!created || hasChannelBinding) {
+              console.error('✗ disposable session is missing or has a channel delivery binding');
+              failures.add(1);
+              socket.close();
+            } else {
+              evidence.session_unbound_confirmed = true;
+              console.log('✓ disposable session has no channel delivery binding');
+              startProofFlow(socket);
+            }
           }
         }
 
@@ -220,6 +304,7 @@ export default function () {
           if (classified.ok) {
             evidence.tool_accepted = true;
             evidence.dispatch_accepted_at_ms = Date.now();
+            evidence.dispatch_run_id = classified.payload && classified.payload.runId || null;
             if (classified.payload && classified.payload.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — agent turn triggered for R-CD-2 (mode=silent-wake)');
           } else if (classified.error) {
@@ -249,6 +334,18 @@ export default function () {
           const eventName = classified.event || '';
           const eventData = classified.data || {};
           const eventStr = JSON.stringify(eventData);
+          const lifecycle = classifyRcd2LifecycleEvent({
+            eventName,
+            eventData,
+            rowNonce,
+            harnessMarker: '[k6-proof-harness]',
+            toolAccepted: evidence.tool_accepted,
+            dispatchRunId: evidence.dispatch_run_id,
+            delegateScheduledAtMs: evidence.delegate_scheduled_at_ms,
+            dispatchTurnCompletedAtMs: evidence.dispatch_turn_completed_at_ms,
+            wakeGateMs: evidence.wake_gate_ms,
+            nowMs: Date.now(),
+          });
 
           // Some target sessions emit generic agent lifecycle events rather than
           // an early session.message before the delayed wake. Count these as the
@@ -257,19 +354,36 @@ export default function () {
             evidence.agent_turn_observed = true;
           }
 
-          // session.message events immediately after sessions.send are the dispatching
-          // agent turn, not the silent-wake return.  The delegate delay is clamped
-          // by the gateway, so only count a parent wake after the minimum delay.
-          if (eventName === 'session.message' && evidence.tool_accepted) {
-            const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
-            if (elapsed >= evidence.wake_gate_ms) {
-              evidence.parent_wake_observed = true;
-              evidence.agent_turn_observed = true;
-              console.log('✓ delayed session.message event observed (silent-wake return candidate)');
-            } else {
-              evidence.agent_turn_observed = true;
-              console.log('✓ initial session.message event observed (dispatching agent turn)');
-            }
+          if (lifecycle.delegateScheduledReceipt) {
+            evidence.delegate_scheduled_receipt = true;
+            evidence.delegate_scheduled_at_ms = Date.now();
+            evidence.agent_turn_observed = true;
+            console.log('✓ correlated continue_delegate scheduled receipt observed');
+          }
+
+          if (lifecycle.dispatchTurnCompleted) {
+            evidence.dispatch_turn_completed = true;
+            evidence.dispatch_turn_completed_at_ms = Date.now();
+            console.log('✓ dispatching agent turn completed successfully');
+          }
+
+          if (lifecycle.parentWakeObserved) {
+            evidence.parent_wake_observed = true;
+            evidence.parent_wake_observed_at_ms =
+              evidence.parent_wake_observed_at_ms || Date.now();
+            evidence.agent_turn_observed = true;
+            console.log('✓ correlated delayed parent wake observed after delegate scheduling receipt');
+          } else if (eventName === 'session.message' && evidence.tool_accepted) {
+            evidence.agent_turn_observed = true;
+            console.log('ℹ session.message observed without qualified continuation wake');
+          }
+
+          if (lifecycle.failureReceipt && !evidence.dispatch_failure_observed) {
+            evidence.dispatch_failure_observed = true;
+            evidence.failure_receipt = lifecycle.failureReceipt;
+            failures.add(1);
+            console.warn(`✗ dispatching turn failed: ${lifecycle.failureReceipt.kind}`);
+            socket.close();
           }
 
           // continue_status({ notify:false }) is internal completion bookkeeping,
@@ -285,26 +399,15 @@ export default function () {
           // Negative check: only an explicit outbound-delivery-shaped event counts.
           // Generic agent/chat events can contain the full transcript plus routing
           // metadata, so substring checks for "channel" and "deliver" are unsafe.
-          if (eventStr.includes(rowNonce) &&
-              isOutboundChannelDeliveryEvent(eventName, eventData)) {
-            if (eventStr.includes('[k6-proof-harness]')) {
-              evidence.dispatch_channel_message_observed = true;
-              console.log('ℹ dispatch instruction channel event observed (not delegate return)');
-            } else {
-              evidence.channel_message_observed = true;
-              console.warn('✗ Delegate channel delivery detected — silent mode violated!');
-              failures.add(1);
-            }
+          if (isRcd2OutboundChannelDeliveryEvent(eventName, eventData)) {
+            evidence.channel_message_observed = true;
+            console.warn('✗ Outbound channel delivery detected — silent mode violated!');
+            failures.add(1);
+            socket.close();
           }
         }
 
-        // Early close only after a delayed parent wake candidate is observed; task
-        // ledger context remains optional.  Do not close on the initial dispatch
-        // agent turn, or this row only proves sessions.send.
-        if (evidence.tool_accepted && evidence.parent_wake_observed) {
-          console.log('Primary silent-wake evidence gathered, closing early');
-          socket.close();
-        }
+        maybeScheduleSuccessClose();
       } catch (e) {
         console.warn(`parse error: ${e}`);
       }
@@ -318,7 +421,6 @@ export default function () {
 
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
-  finalEvidence = evidence;
   duration.add(evidence.duration_ms);
 
   // Checks — core evidence for silent-wake proof:
@@ -329,24 +431,25 @@ export default function () {
   // use their own tracking surface, not the generic task ledger.
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
+    'unbound disposable session confirmed': () => evidence.session_unbound_confirmed,
     'agent turn triggered (sessions.send accepted)': () => evidence.tool_accepted,
     'dispatching agent turn observed': () => evidence.agent_turn_observed,
-    'delayed parent wake candidate observed': () => evidence.parent_wake_observed,
+    'correlated delegate scheduled receipt observed': () => evidence.delegate_scheduled_receipt,
+    'dispatching agent turn completed successfully': () => evidence.dispatch_turn_completed,
+    'correlated delayed parent wake observed after scheduling': () => evidence.parent_wake_observed,
+    'post-wake no-delivery window completed': () => evidence.post_wake_quiet_completed,
+    'dispatching turn stayed successful': () => !evidence.dispatch_failure_observed,
     'no channel delivery (silent verified)': () => !evidence.channel_message_observed,
   });
 
-  if (!evidence.tool_accepted || !evidence.agent_turn_observed || !evidence.parent_wake_observed) {
+  const passed = isRcd2LifecyclePass(evidence);
+  if (!passed && !evidence.dispatch_failure_observed) {
     failures.add(1);
   }
   if (evidence.channel_message_observed) {
     failures.add(1);
     console.error('FAIL: silent-wake delegate produced channel output');
   }
-
-  // Verdict — PASS when: turn triggered + events flowing + no channel delivery
-  const passed = (!createDisposableSession || evidence.session_created) &&
-    evidence.tool_accepted && evidence.agent_turn_observed &&
-    evidence.parent_wake_observed && !evidence.channel_message_observed;
 
   console.log(`R_CD_2_EVIDENCE ${JSON.stringify(evidence)}`);
   console.log(`\n--- R-CD-2 EVIDENCE SUMMARY ---`);
@@ -358,25 +461,23 @@ export default function () {
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
   const passRate = data.metrics.proof_failures && data.metrics.proof_failures.values && data.metrics.proof_failures.values.count === 0;
-  const traceId = finalEvidence && finalEvidence.trace_id || null;
+  const passed = passRate;
   const summary = {
     row: 'R-CD-2',
     sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     seat: __ENV.OPENCLAW_SEAT_NAME || 'ronan-dgx',
     timestamp,
-    verdict: passRate ? 'PASS-candidate' : 'PARTIAL-candidate',
+    verdict: passed ? 'PASS-candidate' : 'PARTIAL-candidate',
     candidateOnly: true,
     foldRequiresReview: true,
-    observability: {
-      traceId,
-      traceJson: traceId ? 'pending-fetch' : 'missing',
-    },
     review: {
-      status: traceId ? 'ready-for-human-review' : 'review-pending',
-      pendingReceipts: traceId ? [] : ['tempo-trace-json'],
-      notes: traceId
-        ? ['Trace id captured; fetch and attach Tempo trace JSON before canonical fold.']
-        : ['No trace_id was emitted by this candidate run; keep PASS-candidate as review-pending until trace JSON is fetched or the fold explicitly accepts trace-missing.'],
+      status: 'review-pending',
+      receiptSource: 'run-proofs evidence extraction and Tempo postprocessing',
+      notes: [
+        passed
+          ? 'VU lifecycle checks passed; external postprocessing must still attach the required Tempo trace before folding.'
+          : 'No successful correlated continuation lifecycle was proven; retain the redacted failure receipt and do not fold as PASS.',
+      ],
     },
     metrics: {
       duration_ms: data.metrics.r_cd_2_duration && data.metrics.r_cd_2_duration.values || null,

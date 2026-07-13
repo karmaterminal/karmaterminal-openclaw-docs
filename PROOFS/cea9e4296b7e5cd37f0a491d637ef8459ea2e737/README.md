@@ -46,6 +46,24 @@ Each row submission must include:
 Time-window-only matching, a nearby unlabelled span, `trace_id: null`, empty
 evidence, all-zero IDs, or a behavior-only PASS is insufficient.
 
+## Dispatch allocation (authoritative for this cycle)
+
+This exact-SHA mapping is the one-fire dispatch authority for `cea9e42`. The
+generic owner table in `RUNBOOKS/PROOF-CORPUS-METHOD.md` records historical
+domain stewardship only and must not override this cycle allocation.
+
+| Seat | Rows |
+|---|---|
+| 🌫 Silas | `R-CD-1`, `R-CW-1` |
+| 🌻 Elliott | `R-CONFIG-DEFAULTS`, `R-CONFIG-INTERSESSION`, `R-OBS-1`, `R-OBS-2`, `R-OBS-STATUS`, `R-REGRESSION-TRAP-TESTS`, `R-TRACE-REDACTION-1121` |
+| 🩸 Cael | `R-CD-2`, `R-CD-4`, `R-CD-CHAINED-DEPTH-2`, `R-CD-COLLECTION-ON-COLLAPSE`, `R-CD-MODEL-CHAINED-ALT`, `R-CD-MODEL-DEFAULT`, `R-CD-MODEL-TOKEN`, `R-CD-MODEL-TOOL`, `R-CD-RETURN-OVERLAP`, `R-CD-SILENT`, `R-CD-TOKEN` |
+| 🌊 Ronan | `R-CD-3`, `R-CW-2`, `R-CW-3`, `R-CW-4`, `R-CW-5`, `R-CW-6`, `R-CW-7`, `R-CW-DELEGATE-CHILD-LIVE`, `R-CW-DELEGATE-SELF-CONTINUATION`, `R-CW-DELEGATE-TOKEN`, `R-CW-MULTI`, `R-CW-MULTI-COLLAPSE`, `R-CW-TOKEN`, `R-RC-1`, `R-RC-2` |
+
+Every row appears exactly once. Already-executed rows remain consumed even when
+their evidence is partial, failed, or non-foldable. A cancelled or skipped row
+that never started remains eligible for one fire. The earlier duplicate
+`R-OBS-1` receipt is retained as non-foldable; the first execution is canonical.
+
 ## Direct-to-main fold steps
 
 1. Verify `gh api user` is the submitting prince's `*-dandelion-cult` account.

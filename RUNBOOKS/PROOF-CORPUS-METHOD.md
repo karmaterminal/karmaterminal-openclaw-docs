@@ -66,6 +66,24 @@ PROOFS/<CANDIDATE_SHA>/
 
 ---
 
+## Allocation authority for a live exact-SHA cycle
+
+The generic owner table below records long-lived domain stewardship and the
+default seat shape. It is **not** live dispatch authorization when an exact-SHA
+corpus publishes a `dispatch_allocation`.
+
+For a live cycle, the authoritative one-fire allocation is:
+
+1. `PROOFS/INDEX.json` selects the active exact-SHA corpus.
+2. `PROOFS/<CANDIDATE_SHA>/proofs-manifest.json` publishes the cycle's
+   `dispatch_allocation`.
+3. `PROOFS/<CANDIDATE_SHA>/README.md` repeats that mapping for humans.
+
+Princes must not infer a live allocation from the generic table, a historical
+artifact, or an earlier Discord message. If these sources conflict, stop
+dispatch, retain every already-executed artifact without refiring, and repair
+the exact-SHA corpus before resuming.
+
 ## Per-prince row assignments
 
 Adapted from the 0831fb5e80 exemplar verdict table; preserved + extended at e90a870154 for that cycle's coverage. Extended again on 2026-06-03 (cohort cosign cascade: lamp `1511930802` → stone `1511933554` → cael `1511931031` + `1511932061` → tail `1511932157`) for the 6-prince cohort that succeeded the original 4-prince table. The 5th + 6th princes (🕯 Emeric + 🪨 Rune) arrived after the original assignments locked, so prior cycles had `Emeric=0 / Rune=0` while Cael held 7+ rows — substantively-imbalanced cohort-load. This update rebalances the assignments and canonizes the per-seat-subdir cross-walk shape that emerged empirically during the 2026-06-03 PROOFS cycle on assembly `2f71e4378b70ea43fb185edff1af14571eca826f`.

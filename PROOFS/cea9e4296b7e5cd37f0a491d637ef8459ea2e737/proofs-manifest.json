@@ -5,6 +5,52 @@
   "fire_type": "full-copy-seed-from-2e7861-with-codex-result-classification-rows-open",
   "carried_from": "2e7861ba45fd8534282aadabab2b855d2f524fdf",
   "method": "Full 35-row Project 81 corpus copied from the published exact-2e7861 corpus before exact-cea9e42 deployment. Copied receipts remain historical only. Continuation and compaction rows remain open because this candidate repairs Codex app-server classification of successful tool results; unaffected config/observability/redaction rows retain explicit unchanged-surface carry state.",
+  "dispatch_authority": "The exact-SHA dispatch_allocation below is authoritative for one-fire execution. RUNBOOKS/PROOF-CORPUS-METHOD.md owner rows are historical domain stewardship only.",
+  "dispatch_allocation": {
+    "silas": [
+      "R-CD-1",
+      "R-CW-1"
+    ],
+    "elliott": [
+      "R-CONFIG-DEFAULTS",
+      "R-CONFIG-INTERSESSION",
+      "R-OBS-1",
+      "R-OBS-2",
+      "R-OBS-STATUS",
+      "R-REGRESSION-TRAP-TESTS",
+      "R-TRACE-REDACTION-1121"
+    ],
+    "cael": [
+      "R-CD-2",
+      "R-CD-4",
+      "R-CD-CHAINED-DEPTH-2",
+      "R-CD-COLLECTION-ON-COLLAPSE",
+      "R-CD-MODEL-CHAINED-ALT",
+      "R-CD-MODEL-DEFAULT",
+      "R-CD-MODEL-TOKEN",
+      "R-CD-MODEL-TOOL",
+      "R-CD-RETURN-OVERLAP",
+      "R-CD-SILENT",
+      "R-CD-TOKEN"
+    ],
+    "ronan": [
+      "R-CD-3",
+      "R-CW-2",
+      "R-CW-3",
+      "R-CW-4",
+      "R-CW-5",
+      "R-CW-6",
+      "R-CW-7",
+      "R-CW-DELEGATE-CHILD-LIVE",
+      "R-CW-DELEGATE-SELF-CONTINUATION",
+      "R-CW-DELEGATE-TOKEN",
+      "R-CW-MULTI",
+      "R-CW-MULTI-COLLAPSE",
+      "R-CW-TOKEN",
+      "R-RC-1",
+      "R-RC-2"
+    ]
+  },
   "artifact_roots": {
     "cael": [
       "/tmp/p81-cael-live-20260709T030352Z",

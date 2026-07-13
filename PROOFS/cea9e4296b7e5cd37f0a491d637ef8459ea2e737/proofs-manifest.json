@@ -754,7 +754,7 @@
       "state": "partial",
       "traces": 0,
       "evidence_doc": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-DEFAULTS/EVIDENCE.md",
-      "note": "Exact Elliott direct authenticated operator-RPC config.get behavior receipt: PASS-candidate / effective exit 0, but partial under the current exact-SHA bar because Tempo returned zero attributable config.get traces in the recorded row window. Historical static/manual receipts remain provenance only.",
+      "note": "Exact Elliott direct authenticated operator-RPC config.get behavior receipt: PASS-candidate / effective exit 0, corroborated by a matching successful gateway journal response with no bounded-window error/denial/rejection/warning/exception. It remains partial under the current exact-SHA bar because Tempo returned zero attributable config.get traces in the recorded row window. Historical static/manual receipts remain provenance only.",
       "seat_results": [
         {
           "seat": "cael",
@@ -790,7 +790,8 @@
         "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-DEFAULTS/elliott/20260713T033827Z-direct-operator-rpc/run-result.json",
         "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-DEFAULTS/elliott/20260713T033827Z-direct-operator-rpc/evidence.jsonl",
         "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-DEFAULTS/elliott/20260713T033827Z-direct-operator-rpc/tempo-search-config-get.json",
-        "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-DEFAULTS/elliott/20260713T033827Z-direct-operator-rpc/tempo-correlation-receipt.json"
+        "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-DEFAULTS/elliott/20260713T033827Z-direct-operator-rpc/tempo-correlation-receipt.json",
+        "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-DEFAULTS/elliott/20260713T033827Z-direct-operator-rpc/gateway-journal-receipt.json"
       ],
       "historical_manual_receipts": [
         "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/R-CONFIG-DEFAULTS/manual-receipts/cael-continuation-config.json",
@@ -805,7 +806,7 @@
       "state": "partial",
       "traces": 0,
       "evidence_doc": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-INTERSESSION/EVIDENCE.md",
-      "note": "Exact Elliott direct authenticated operator-RPC config.get behavior receipt: PASS-candidate / effective exit 0, but partial under the current exact-SHA bar because Tempo returned zero attributable config.get traces in the recorded row window. Historical static/manual receipts remain provenance only.",
+      "note": "Exact Elliott direct authenticated operator-RPC config.get behavior receipt: PASS-candidate / effective exit 0, corroborated by a matching successful gateway journal response with no bounded-window error/denial/rejection/warning/exception. It remains partial under the current exact-SHA bar because Tempo returned zero attributable config.get traces in the recorded row window. Historical static/manual receipts remain provenance only.",
       "seat_results": [
         {
           "seat": "cael",
@@ -841,7 +842,8 @@
         "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-INTERSESSION/elliott/20260713T033827Z-direct-operator-rpc/run-result.json",
         "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-INTERSESSION/elliott/20260713T033827Z-direct-operator-rpc/evidence.jsonl",
         "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-INTERSESSION/elliott/20260713T033827Z-direct-operator-rpc/tempo-search-config-get.json",
-        "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-INTERSESSION/elliott/20260713T033827Z-direct-operator-rpc/tempo-correlation-receipt.json"
+        "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-INTERSESSION/elliott/20260713T033827Z-direct-operator-rpc/tempo-correlation-receipt.json",
+        "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-INTERSESSION/elliott/20260713T033827Z-direct-operator-rpc/gateway-journal-receipt.json"
       ],
       "historical_manual_receipts": [
         "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/R-CONFIG-INTERSESSION/manual-receipts/cael-cross-session-targeting.json",

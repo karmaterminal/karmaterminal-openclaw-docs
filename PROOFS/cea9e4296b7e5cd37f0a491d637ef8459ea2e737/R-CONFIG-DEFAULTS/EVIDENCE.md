@@ -9,7 +9,7 @@
 
 ## Exact evidence bundle
 
-`elliott/20260713T033827Z-direct-operator-rpc/` contains the raw public-safe `run-result.json`, `evidence.jsonl`, redaction receipt, runner metadata, and an exact-window Tempo query receipt. The raw configuration snapshot, token, session identity, and request payload are intentionally not retained.
+`elliott/20260713T033827Z-direct-operator-rpc/` contains the raw public-safe `run-result.json`, `evidence.jsonl`, redaction receipt, runner metadata, exact-window Tempo query receipt, and a bounded gateway-journal diagnostic receipt. The raw configuration snapshot, token, session identity, and request payload are intentionally not retained. The journal records the successful `config.get` response in the row window with no matching gateway error/denial/rejection/warning/exception breadcrumb.
 
 ## Classification: behavior pass, proof-bar partial
 

@@ -82,10 +82,9 @@ async function readEvidence(evidencePath) {
   return records[0];
 }
 
-function continuationContract(manifest, evidence) {
+function traceContract(manifest, evidence) {
   const tool = manifest?.invocation?.tool;
   const nonce = evidence?.nonce;
-  if (!nonce) throw new Error('evidence nonce is required');
 
   let reason;
   let mode;
@@ -95,35 +94,64 @@ function continuationContract(manifest, evidence) {
   if (tool === 'continue_delegate') {
     const template = manifest?.invocation?.promptTemplate;
     if (!template) throw new Error('continue_delegate manifest promptTemplate is required');
-    reason = String(template).replaceAll('{{nonce}}', String(nonce));
-    mode = escapeTraceqlString(manifest.invocation.mode);
+    if (nonce) reason = String(template).replaceAll('{{nonce}}', String(nonce));
+    const manifestMode = manifest.invocation.mode;
+    const evidenceMode = evidence.delegate_mode;
+    if (manifestMode && evidenceMode && manifestMode !== evidenceMode) {
+      throw new Error(
+        `evidence delegate_mode mismatch: expected ${manifestMode}, got ${evidenceMode}`,
+      );
+    }
+    mode = escapeTraceqlString(evidenceMode || manifestMode);
     acceptSpanName = 'continuation.delegate.dispatch';
     fireSpanName = 'continuation.delegate.fire';
     attribution = 'reason-hash-length-mode';
   } else if (tool === 'continue_work') {
     const template = manifest?.invocation?.reason;
     if (!template) throw new Error('continue_work manifest reason is required');
-    reason = String(template).replaceAll('{{nonce}}', String(nonce));
+    if (nonce) reason = String(template).replaceAll('{{nonce}}', String(nonce));
     acceptSpanName = 'continuation.work';
     fireSpanName = 'continuation.work.fire';
     attribution = 'reason-hash-length';
+  } else if (tool) {
+    return {
+      kind: 'tool',
+      tool: escapeTraceqlString(tool),
+      attribution: 'seat-tool-dispatch-window',
+      fingerprintSource: 'public-evidence-window',
+    };
   } else {
-    throw new Error(`unsupported continuation tool: ${tool || '(empty)'}`);
+    throw new Error('manifest invocation.tool is required for trace collection');
   }
 
-  const hash = createHash('sha256').update(reason).digest('hex').slice(0, 16);
-  const length = reason.length;
-  if (evidence.reason_hash && evidence.reason_hash !== hash) {
-    throw new Error(`evidence reason_hash mismatch: expected ${hash}, got ${evidence.reason_hash}`);
-  }
-  if (evidence.reason_length && Number(evidence.reason_length) !== length) {
-    throw new Error(`evidence reason_length mismatch: expected ${length}, got ${evidence.reason_length}`);
+  let hash;
+  let length;
+  let fingerprintSource;
+  if (reason !== undefined) {
+    hash = createHash('sha256').update(reason).digest('hex').slice(0, 16);
+    length = reason.length;
+    fingerprintSource = 'manifest-nonce';
+    if (evidence.reason_hash !== undefined && evidence.reason_hash !== hash) {
+      throw new Error(`evidence reason_hash mismatch: expected ${hash}, got ${evidence.reason_hash}`);
+    }
+    if (evidence.reason_length !== undefined && Number(evidence.reason_length) !== length) {
+      throw new Error(`evidence reason_length mismatch: expected ${length}, got ${evidence.reason_length}`);
+    }
+  } else {
+    hash = safeHex(evidence.reason_hash, 16, 'evidence reason hash');
+    length = Number(evidence.reason_length);
+    if (!Number.isInteger(length) || length < 1) {
+      throw new Error('public evidence requires a positive integer reason_length');
+    }
+    fingerprintSource = 'public-evidence';
   }
   return {
+    kind: 'continuation',
     tool,
     hash,
     length,
     raw: reason,
+    fingerprintSource,
     mode,
     acceptSpanName,
     fireSpanName,
@@ -242,6 +270,37 @@ function validateTrace(trace, expected) {
   };
 }
 
+function validateToolTrace(trace, expected) {
+  const spans = allSpans(trace);
+  const tools = spans.filter((span) => {
+    const attrs = attributes(span);
+    return span.name === 'openclaw.tool.execution' &&
+      (attrs.get('gen_ai.tool.name') === expected.tool ||
+        attrs.get('openclaw.toolName') === expected.tool);
+  });
+  if (tools.length === 0) {
+    throw new Error(`matched trace lacks the originating ${expected.tool} tool span`);
+  }
+  if (tools.length > 1) {
+    throw new Error(`matched trace contains ${tools.length} ${expected.tool} tool spans`);
+  }
+
+  const tool = tools[0];
+  const attrs = attributes(tool);
+  return {
+    traceId: idHex(tool.traceId, 16, 'trace id'),
+    toolSpanId: idHex(tool.spanId, 8, 'tool span id'),
+    toolParentSpanId: tool.parentSpanId
+      ? idHex(tool.parentSpanId, 8, 'tool parent span id')
+      : null,
+    status: {
+      code: tool.status?.code ?? 'UNSET',
+      message: tool.status?.message ?? null,
+    },
+    errorType: attrs.get('error.type') ?? attrs.get('exception.type') ?? null,
+  };
+}
+
 async function sleep(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -263,14 +322,23 @@ async function main() {
   const evidence = await readEvidence(evidencePath);
   const manifest = JSON.parse(await readFile(args.manifest, 'utf8'));
 
-  const contract = continuationContract(manifest, evidence);
+  const contract = traceContract(manifest, evidence);
   const prince = escapeTraceqlString(String(args.seat).split('-')[0]);
   const serviceName = `${prince}-prince`;
-  const modeClause = contract.mode === undefined ? '' : ` && .delegate.mode="${contract.mode}"`;
-  const query = `{ resource.service.name="${serviceName}" && name="${contract.acceptSpanName}" && .reason.hash="${contract.hash}" && .reason.length=${contract.length}${modeClause} }`;
+  const query = contract.kind === 'continuation'
+    ? (() => {
+        const modeClause = contract.mode === undefined
+          ? ''
+          : ` && .delegate.mode="${contract.mode}"`;
+        return `{ resource.service.name="${serviceName}" && name="${contract.acceptSpanName}" && .reason.hash="${contract.hash}" && .reason.length=${contract.length}${modeClause} }`;
+      })()
+    : `{ resource.service.name="${serviceName}" && name="openclaw.tool.execution" && .gen_ai.tool.name="${contract.tool}" }`;
   const dispatchMs = Number(evidence.dispatch_accepted_at_ms || Date.parse(evidence.started));
   if (!Number.isFinite(dispatchMs)) throw new Error('evidence lacks a valid dispatch/start time');
   const start = Math.floor(dispatchMs / 1000) - 60;
+  const evidenceEndMs = Date.parse(evidence.ended);
+  const searchEndMs = Number.isFinite(evidenceEndMs) ? evidenceEndMs : Date.now();
+  const end = Math.floor(searchEndMs / 1000) + 60;
   const deadline = Date.now() + args.timeoutMs;
   let candidates = [];
   let traceId = '';
@@ -279,22 +347,24 @@ async function main() {
   let validationError = null;
 
   do {
-    candidates = await tempoSearch(args.tempoUrl, query, start, Math.floor(Date.now() / 1000) + 60);
+    candidates = await tempoSearch(args.tempoUrl, query, start, end);
     if (candidates.length > 1) {
-      throw new Error(`reason correlation is ambiguous: ${candidates.length} Tempo traces matched`);
+      throw new Error(`trace correlation is ambiguous: ${candidates.length} Tempo traces matched`);
     }
     if (candidates.length === 1) {
       traceId = safeHex(candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id, 32, 'search trace id');
       trace = await fetchTrace(args.tempoUrl, traceId);
       try {
-        topology = validateTrace(trace, {
-          tool: contract.tool,
-          reasonHash: contract.hash,
-          reasonLength: contract.length,
-          mode: contract.mode,
-          acceptSpanName: contract.acceptSpanName,
-          fireSpanName: contract.fireSpanName,
-        });
+        topology = contract.kind === 'continuation'
+          ? validateTrace(trace, {
+              tool: contract.tool,
+              reasonHash: contract.hash,
+              reasonLength: contract.length,
+              mode: contract.mode,
+              acceptSpanName: contract.acceptSpanName,
+              fireSpanName: contract.fireSpanName,
+            })
+          : validateToolTrace(trace, { tool: contract.tool });
         if (topology.traceId !== traceId) throw new Error('Tempo search and trace payload IDs disagree');
         break;
       } catch (error) {
@@ -309,40 +379,75 @@ async function main() {
     if (validationError) {
       throw new Error(`Tempo trace did not reach valid continuation topology before timeout: ${validationError.message}`);
     }
-    throw new Error(`no Tempo trace matched reason hash ${contract.hash} before timeout`);
+    const fingerprint = contract.kind === 'continuation'
+      ? `reason hash ${contract.hash}`
+      : `tool ${contract.tool} in the evidence window`;
+    throw new Error(`no Tempo trace matched ${fingerprint} before timeout`);
   }
   assertTraceIsPublicSafe(trace, evidence, contract);
 
   const traceOut = path.join(runDir, `tempo-trace-${traceId.slice(0, 12)}.json`);
-  const receiptOut = path.join(runDir, 'continuation-trace-correlation.json');
+  const receiptOut = path.join(
+    runDir,
+    contract.kind === 'continuation'
+      ? 'continuation-trace-correlation.json'
+      : 'tool-trace-correlation.json',
+  );
   await writeFile(traceOut, JSON.stringify(trace, null, 2) + '\n');
   const receipt = {
-    schema: 'openclaw.k6.continuation-trace-correlation.v1',
+    schema: contract.kind === 'continuation'
+      ? 'openclaw.k6.continuation-trace-correlation.v1'
+      : 'openclaw.k6.tool-trace-correlation.v1',
     generatedAt: new Date().toISOString(),
     row: evidence.row || manifest.rowId,
     seat: args.seat,
     attribution: contract.attribution,
-    reason: { hash: contract.hash, length: contract.length, rawPersisted: false },
-    continuation: {
-      tool: contract.tool,
-      acceptSpan: contract.acceptSpanName,
-      fireSpan: contract.fireSpanName,
-    },
-    ...(contract.mode === undefined ? {} : { delegate: { mode: contract.mode } }),
     query,
     traceJson: path.basename(traceOut),
     ...topology,
-    sameTrace: true,
-    distinctSpans: true,
+    ...(contract.kind === 'continuation'
+      ? {
+          reason: {
+            hash: contract.hash,
+            length: contract.length,
+            source: contract.fingerprintSource,
+            rawPersisted: false,
+          },
+          continuation: {
+            tool: contract.tool,
+            acceptSpan: contract.acceptSpanName,
+            fireSpan: contract.fireSpanName,
+          },
+          ...(contract.mode === undefined ? {} : { delegate: { mode: contract.mode } }),
+          sameTrace: true,
+          distinctSpans: true,
+        }
+      : {
+          tool: {
+            name: contract.tool,
+            spanId: topology.toolSpanId,
+            parentSpanId: topology.toolParentSpanId,
+            status: topology.status,
+            errorType: topology.errorType,
+          },
+          uniqueTrace: true,
+        }),
   };
   await writeFile(receiptOut, JSON.stringify(receipt, null, 2) + '\n');
   console.log(JSON.stringify({
     traceId,
     traceFile: path.basename(traceOut),
     receiptFile: path.basename(receiptOut),
-    reasonHash: contract.hash,
-    reasonLength: contract.length,
-    chainId: topology.chainId,
+    ...(contract.kind === 'continuation'
+      ? {
+          reasonHash: contract.hash,
+          reasonLength: contract.length,
+          chainId: topology.chainId,
+        }
+      : {
+          tool: contract.tool,
+          toolSpanId: topology.toolSpanId,
+        }),
   }));
 }
 

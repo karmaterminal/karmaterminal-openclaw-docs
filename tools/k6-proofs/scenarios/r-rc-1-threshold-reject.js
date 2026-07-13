@@ -67,6 +67,8 @@ export default function () {
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
     dispatch_accepted: false,
+    dispatch_accepted_at_ms: null,
+    tool_name: 'request_compaction',
     tool_invoke_rejected: false,
     guard: null,
     context_usage: null,
@@ -140,6 +142,7 @@ export default function () {
         if (classified.kind === 'response' && classified.method === 'sessions.send') {
           if (classified.ok) {
             evidence.dispatch_accepted = true;
+            evidence.dispatch_accepted_at_ms = Date.now();
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — agent turn triggered for request_compaction reject');
           } else {

@@ -63,6 +63,22 @@ function traceFixture({ traceId, reasonHash, reasonLength, tool = 'continue_dele
   };
 }
 
+function toolTraceFixture({ traceId, tool }) {
+  return {
+    batches: [{
+      scopeSpans: [{
+        spans: [
+          span('openclaw.tool.execution', traceId, 'aaaaaaaaaaaaaaaa', 'dddddddddddddddd', [
+            attr('gen_ai.tool.name', tool),
+            attr('openclaw.toolName', tool),
+          ]),
+          span('openclaw.harness.run', traceId, 'dddddddddddddddd', 'eeeeeeeeeeeeeeee'),
+        ],
+      }],
+    }],
+  };
+}
+
 async function listen(handler) {
   const server = http.createServer(handler);
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -73,7 +89,11 @@ async function listen(handler) {
   };
 }
 
-async function fixtureDir({ tool = 'continue_delegate', workVariant = 'reason' } = {}) {
+async function fixtureDir({
+  tool = 'continue_delegate',
+  workVariant = 'reason',
+  includeNonce = true,
+} = {}) {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'continuation-trace-test-'));
   const isWork = tool === 'continue_work';
   const isReasonPrefix = isWork && workVariant === 'reason-prefix';
@@ -98,11 +118,12 @@ async function fixtureDir({ tool = 'continue_delegate', workVariant = 'reason' }
   };
   const evidence = {
     row: manifest.rowId,
-    nonce,
+    ...(includeNonce ? { nonce } : {}),
     started: '2026-07-12T22:15:00.000Z',
     dispatch_accepted_at_ms: Date.parse('2026-07-12T22:15:10.000Z'),
     reason_hash: reasonHash,
     reason_length: reason.length,
+    ...(isWork ? {} : { delegate_mode: 'normal' }),
   };
   const manifestPath = path.join(dir, 'manifest.json');
   await writeFile(manifestPath, JSON.stringify(manifest));
@@ -144,6 +165,7 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
 
     assert.equal(result.traceId, traceId);
     assert.equal(receipt.reason.hash, fixture.reasonHash);
+    assert.equal(receipt.reason.source, 'manifest-nonce');
     assert.equal(receipt.sameTrace, true);
     assert.equal(receipt.distinctSpans, true);
     assert.deepEqual(receipt.childSpans, [{
@@ -155,6 +177,138 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('recovers a trace from public reason fingerprint evidence without a nonce', async () => {
+  const fixture = await fixtureDir({ includeNonce: false });
+  const traceId = '22222222222222222222222222222222';
+  let observedQuery = '';
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    if (url.pathname === '/api/search') {
+      observedQuery = url.searchParams.get('q') || '';
+      response.end(JSON.stringify({ traces: [{ traceID: traceId }] }));
+      return;
+    }
+    response.end(JSON.stringify(traceFixture({
+      traceId,
+      reasonHash: fixture.reasonHash,
+      reasonLength: fixture.reasonLength,
+    })));
+  });
+
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script,
+      '--run-dir', fixture.dir,
+      '--manifest', fixture.manifestPath,
+      '--seat', 'cael-prince',
+      '--tempo-url', server.url,
+      '--timeout-ms', '100',
+      '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+
+    assert.equal(result.traceId, traceId);
+    assert.equal(receipt.reason.hash, fixture.reasonHash);
+    assert.equal(receipt.reason.length, fixture.reasonLength);
+    assert.equal(receipt.reason.source, 'public-evidence');
+    assert.match(observedQuery, new RegExp(`reason\\.hash="${fixture.reasonHash}"`));
+    assert.match(observedQuery, /delegate\.mode="normal"/);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('rejects nonce-free evidence without a complete public reason fingerprint', async () => {
+  const fixture = await fixtureDir({ includeNonce: false });
+  const evidencePath = path.join(fixture.dir, 'evidence.jsonl');
+  const evidence = JSON.parse(await readFile(evidencePath, 'utf8'));
+  delete evidence.reason_length;
+  await writeFile(evidencePath, `${JSON.stringify(evidence)}\n`);
+
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script,
+        '--run-dir', fixture.dir,
+        '--manifest', fixture.manifestPath,
+        '--seat', 'cael-prince',
+        '--tempo-url', 'http://127.0.0.1:1',
+        '--timeout-ms', '100',
+        '--poll-ms', '10',
+      ]),
+      (error) => {
+        assert.match(error.stderr, /positive integer reason_length/);
+        return true;
+      },
+    );
+  } finally {
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('recovers a unique non-continuation tool trace by seat, tool, and evidence window', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'tool-trace-test-'));
+  const manifestPath = path.join(dir, 'manifest.json');
+  const traceId = '55555555555555555555555555555555';
+  await writeFile(manifestPath, JSON.stringify({
+    rowId: 'R-RC-1',
+    invocation: { tool: 'request_compaction' },
+  }));
+  await writeFile(path.join(dir, 'evidence.jsonl'), `${JSON.stringify({
+    row: 'R-RC-1',
+    started: '2026-07-13T03:20:19.504Z',
+    ended: '2026-07-13T03:20:53.324Z',
+  })}\n`);
+  let observedQuery = '';
+  let observedStart = '';
+  let observedEnd = '';
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    if (url.pathname === '/api/search') {
+      observedQuery = url.searchParams.get('q') || '';
+      observedStart = url.searchParams.get('start') || '';
+      observedEnd = url.searchParams.get('end') || '';
+      response.end(JSON.stringify({ traces: [{ traceID: traceId }] }));
+      return;
+    }
+    response.end(JSON.stringify(toolTraceFixture({ traceId, tool: 'request_compaction' })));
+  });
+
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script,
+      '--run-dir', dir,
+      '--manifest', manifestPath,
+      '--seat', 'ronan-dgx',
+      '--tempo-url', server.url,
+      '--timeout-ms', '100',
+      '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const receipt = JSON.parse(await readFile(path.join(dir, result.receiptFile), 'utf8'));
+
+    assert.equal(result.traceId, traceId);
+    assert.equal(result.tool, 'request_compaction');
+    assert.equal(receipt.schema, 'openclaw.k6.tool-trace-correlation.v1');
+    assert.equal(receipt.attribution, 'seat-tool-dispatch-window');
+    assert.equal(receipt.tool.name, 'request_compaction');
+    assert.equal(receipt.tool.spanId, 'aaaaaaaaaaaaaaaa');
+    assert.equal(receipt.tool.status.code, 'UNSET');
+    assert.equal(receipt.uniqueTrace, true);
+    assert.match(observedQuery, /service\.name="ronan-prince"/);
+    assert.match(observedQuery, /gen_ai\.tool\.name="request_compaction"/);
+    assert.equal(observedStart, String(Math.floor(Date.parse('2026-07-13T03:20:19.504Z') / 1000) - 60));
+    assert.equal(observedEnd, String(Math.floor(Date.parse('2026-07-13T03:20:53.324Z') / 1000) + 60));
+  } finally {
+    await server.close();
+    await rm(dir, { recursive: true, force: true });
   }
 });
 

@@ -20,11 +20,24 @@
     "status": "runnable",
     "file": "r-rc-1-threshold-reject.js"
   },
+  "invocation": {
+    "tool": "request_compaction"
+  },
   "expectedReceipts": [
     {
       "name": "tool-invoke-rejected",
       "required": true,
       "description": "Gateway rejected request_compaction due to <70% threshold or rate limit"
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Unique public-safe request_compaction tool trace recovered by seat, tool name, and the bounded row window"
+    },
+    {
+      "name": "tool-trace-correlation",
+      "required": true,
+      "description": "Deterministic receipt pins the exact request_compaction tool span and its non-error status"
     }
   ],
   "artifactDestination": {
@@ -53,7 +66,9 @@
     "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
       "seat-readiness",
-      "tool-invoke-rejected"
+    "tool-invoke-rejected",
+    "tempo-trace-json",
+    "tool-trace-correlation"
     ],
     "foldRequiresReview": true,
     "notes": "Live request_compaction reject row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Expected rejection is non-mutating; serialize per target session."

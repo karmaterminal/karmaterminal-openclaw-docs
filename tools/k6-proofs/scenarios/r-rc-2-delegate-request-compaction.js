@@ -13,6 +13,7 @@
  */
 import ws from 'k6/ws';
 import { check } from 'k6';
+import crypto from 'k6/crypto';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
@@ -80,7 +81,11 @@ export default function () {
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
     parent_dispatch_accepted: false,
+    dispatch_accepted_at_ms: null,
     delegate_requested: false,
+    reason_hash: null,
+    reason_length: null,
+    delegate_mode: null,
     delegate_child_report_observed: false,
     request_compaction_rejected_context_threshold: false,
     request_compaction_accepted: false,
@@ -99,10 +104,17 @@ export default function () {
     function startProofFlow() {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       socket.setTimeout(() => {
-        const childTask =
-          `R-RC-2 child nonce ${rowNonce}: call request_compaction with reason=\"R-RC-2 delegated request_compaction nonce ${rowNonce}\". ` +
-          `If request_compaction rejects because context is below threshold, reply exactly REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD ${rowNonce} CONTEXT <contextUsage> THRESHOLD <threshold>. ` +
-          `If request_compaction is accepted, reply exactly REQUEST_COMPACTION_ACCEPTED ${rowNonce}. If you later resume post-compaction, reply exactly REQUEST_COMPACTION_POST_COMPACTION ${rowNonce}. Do not mutate files or config.`;
+        const inv = manifest?.invocation || {};
+        if (!inv.promptTemplate) {
+          console.error('✗ manifest invocation.promptTemplate is required');
+          failures.add(1);
+          socket.close();
+          return;
+        }
+        const childTask = inv.promptTemplate.replace(/\{\{nonce\}\}/g, rowNonce);
+        evidence.reason_hash = crypto.sha256(childTask, 'hex').slice(0, 16);
+        evidence.reason_length = childTask.length;
+        evidence.delegate_mode = inv.mode || 'normal';
         const instruction =
           `${HARNESS_MARKER} R-RC-2 nonce ${rowNonce}. ` +
           `Call continue_delegate with mode="normal", delaySeconds=0, task="${childTask}". ` +
@@ -163,6 +175,7 @@ export default function () {
         if (classified.kind === 'response' && classified.method === 'sessions.send') {
           if (classified.ok) {
             evidence.parent_dispatch_accepted = true;
+            evidence.dispatch_accepted_at_ms = Date.now();
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — parent agent turn triggered for R-RC-2');
           } else {

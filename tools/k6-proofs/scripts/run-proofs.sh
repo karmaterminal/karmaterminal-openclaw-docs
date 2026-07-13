@@ -276,8 +276,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         TRACE_ID="$(jq -r 'select((.trace_id // "") != "") | .trace_id' "$PRIVATE_EVIDENCE_FILE" | head -n 1)"
       fi
     fi
-    if [[ "$TRACE_REQUIRED" == "true" &&
-          ( "$MANIFEST_TOOL" == "continue_delegate" || "$MANIFEST_TOOL" == "continue_work" ) ]]; then
+    if [[ "$TRACE_REQUIRED" == "true" && -n "$MANIFEST_TOOL" ]]; then
       COLLECTOR_RESULT="$RUN_DIR/continuation-trace-collector.json"
       COLLECTOR_ERROR="$RUN_DIR/continuation-trace-collector.error.log"
       if node "$CONTINUATION_TRACE_COLLECTOR" \
@@ -299,8 +298,12 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       else
         TRACE_STATUS="missing"
         TRACE_ID=""
-        REVIEW_PENDING_RECEIPTS='["tempo-trace-json","continuation-trace-correlation"]'
-        echo "[$ROW_ID] CONTINUATION TRACE CORRELATION FAILED; see $COLLECTOR_ERROR" >&2
+        if [[ "$MANIFEST_TOOL" == "continue_delegate" || "$MANIFEST_TOOL" == "continue_work" ]]; then
+          REVIEW_PENDING_RECEIPTS='["tempo-trace-json","continuation-trace-correlation"]'
+        else
+          REVIEW_PENDING_RECEIPTS='["tempo-trace-json","tool-trace-correlation"]'
+        fi
+        echo "[$ROW_ID] TRACE CORRELATION FAILED; see $COLLECTOR_ERROR" >&2
         if [[ "${OPENCLAW_PROOFS_K6_TEMPO_REQUIRED:-false}" == "true" ]]; then
           POSTPROCESS_RC=1
         fi

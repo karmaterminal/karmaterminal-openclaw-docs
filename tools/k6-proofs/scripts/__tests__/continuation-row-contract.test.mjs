@@ -28,7 +28,13 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
     assert.match(scenario, /promptTemplate\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,/);
   }
 
-  assert.deepEqual(rows.sort(), ['R-CD-1', 'R-CD-2', 'R-CD-4', 'R-CD-CHAINED-DEPTH-2']);
+  assert.deepEqual(rows.sort(), [
+    'R-CD-1',
+    'R-CD-2',
+    'R-CD-4',
+    'R-CD-CHAINED-DEPTH-2',
+    'R-RC-2',
+  ]);
 });
 
 test('every trace-required continue_work row persists the safe fingerprint contract', async () => {

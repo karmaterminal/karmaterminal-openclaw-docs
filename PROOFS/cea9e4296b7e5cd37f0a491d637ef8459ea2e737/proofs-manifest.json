@@ -165,8 +165,8 @@
   },
   "rollup": {
     "total_rows": 35,
-    "pass": 5,
-    "partial": 0,
+    "pass": 3,
+    "partial": 2,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
@@ -175,7 +175,7 @@
   "rows": [
     {
       "row": "R-CD-1",
-      "owner": "🌫 silas-lothric",
+      "owner": "\ud83c\udf2b silas-lothric",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-1/",
       "state": "missing",
       "traces": 0,
@@ -227,7 +227,7 @@
     },
     {
       "row": "R-CD-2",
-      "owner": "🩸 cael-dgx",
+      "owner": "\ud83e\ude78 cael-dgx",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-2/",
       "state": "missing",
       "traces": 1,
@@ -296,7 +296,7 @@
     },
     {
       "row": "R-CD-3",
-      "owner": "🌊 ronan-dgx",
+      "owner": "\ud83c\udf0a ronan-dgx",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-3/",
       "state": "missing",
       "traces": 0,
@@ -348,7 +348,7 @@
     },
     {
       "row": "R-CD-4",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-4/",
       "state": "missing",
       "traces": 0,
@@ -397,7 +397,7 @@
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-CHAINED-DEPTH-2/",
       "state": "missing",
       "traces": 0,
@@ -436,7 +436,7 @@
     },
     {
       "row": "R-CD-COLLECTION-ON-COLLAPSE",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-COLLECTION-ON-COLLAPSE/",
       "state": "missing",
       "traces": 0,
@@ -464,7 +464,7 @@
     },
     {
       "row": "R-CD-MODEL-CHAINED-ALT",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-MODEL-CHAINED-ALT/",
       "state": "missing",
       "traces": 0,
@@ -503,7 +503,7 @@
     },
     {
       "row": "R-CD-MODEL-DEFAULT",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-MODEL-DEFAULT/",
       "state": "missing",
       "traces": 0,
@@ -542,7 +542,7 @@
     },
     {
       "row": "R-CD-MODEL-TOKEN",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-MODEL-TOKEN/",
       "state": "missing",
       "traces": 0,
@@ -581,7 +581,7 @@
     },
     {
       "row": "R-CD-MODEL-TOOL",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-MODEL-TOOL/",
       "state": "missing",
       "traces": 0,
@@ -643,7 +643,7 @@
     },
     {
       "row": "R-CD-RETURN-OVERLAP",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-RETURN-OVERLAP/",
       "state": "missing",
       "traces": 0,
@@ -671,7 +671,7 @@
     },
     {
       "row": "R-CD-SILENT",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-SILENT/",
       "state": "missing",
       "traces": 0,
@@ -710,7 +710,7 @@
     },
     {
       "row": "R-CD-TOKEN",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CD-TOKEN/",
       "state": "missing",
       "traces": 0,
@@ -749,12 +749,12 @@
     },
     {
       "row": "R-CONFIG-DEFAULTS",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83c\udf3b Elliott \u2014 direct authenticated operator-RPC repair receipt",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-DEFAULTS/",
-      "state": "pass",
+      "state": "partial",
       "traces": 0,
       "evidence_doc": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-DEFAULTS/EVIDENCE.md",
-      "note": "Unchanged-surface carry from exact 4afd560feb5102627a68a2f6a8bc545dabcfcfdc; final closeout must retain or supersede this classification explicitly. Copied receipts do not prove any reopened continuation-tool row.",
+      "note": "Exact Elliott direct authenticated operator-RPC config.get behavior receipt: PASS-candidate / effective exit 0, but partial under the current exact-SHA bar because Tempo returned zero attributable config.get traces in the recorded row window. Historical static/manual receipts remain provenance only.",
       "seat_results": [
         {
           "seat": "cael",
@@ -767,29 +767,45 @@
           "verdict": "PARTIAL-candidate",
           "has_evidence": false,
           "run_result": "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-DEFAULTS/ronan/20260709T033022Z-r-config-defaults/run-result.json"
+        },
+        {
+          "seat": "elliott",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-DEFAULTS/elliott/20260713T033827Z-direct-operator-rpc/run-result.json",
+          "workflow_run": "29222117717",
+          "artifact": "8268529284",
+          "effective_exit_code": 0,
+          "trace_id": null
         }
       ],
       "issues": [
         "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/368"
       ],
-      "manual_receipts": [
-        "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/R-CONFIG-DEFAULTS/manual-receipts/cael-continuation-config.json",
-        "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/R-CONFIG-DEFAULTS/manual-receipts/ronan-continuation-config.json",
-        "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/R-CONFIG-DEFAULTS/manual-receipts/MANUAL-REVIEW.md"
-      ],
       "fresh_5292_results": [],
       "baseline_state": "pass",
       "baseline_corpus": "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/",
-      "prior_4afd_state": "pass"
+      "prior_4afd_state": "pass",
+      "exact_receipts": [
+        "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-DEFAULTS/elliott/20260713T033827Z-direct-operator-rpc/run-result.json",
+        "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-DEFAULTS/elliott/20260713T033827Z-direct-operator-rpc/evidence.jsonl",
+        "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-DEFAULTS/elliott/20260713T033827Z-direct-operator-rpc/tempo-search-config-get.json",
+        "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-DEFAULTS/elliott/20260713T033827Z-direct-operator-rpc/tempo-correlation-receipt.json"
+      ],
+      "historical_manual_receipts": [
+        "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/R-CONFIG-DEFAULTS/manual-receipts/cael-continuation-config.json",
+        "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/R-CONFIG-DEFAULTS/manual-receipts/ronan-continuation-config.json",
+        "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/R-CONFIG-DEFAULTS/manual-receipts/MANUAL-REVIEW.md"
+      ]
     },
     {
       "row": "R-CONFIG-INTERSESSION",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83c\udf3b Elliott \u2014 direct authenticated operator-RPC repair receipt",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-INTERSESSION/",
-      "state": "pass",
+      "state": "partial",
       "traces": 0,
       "evidence_doc": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-INTERSESSION/EVIDENCE.md",
-      "note": "Unchanged-surface carry from exact 4afd560feb5102627a68a2f6a8bc545dabcfcfdc; final closeout must retain or supersede this classification explicitly. Copied receipts do not prove any reopened continuation-tool row.",
+      "note": "Exact Elliott direct authenticated operator-RPC config.get behavior receipt: PASS-candidate / effective exit 0, but partial under the current exact-SHA bar because Tempo returned zero attributable config.get traces in the recorded row window. Historical static/manual receipts remain provenance only.",
       "seat_results": [
         {
           "seat": "cael",
@@ -802,24 +818,40 @@
           "verdict": "PARTIAL-candidate",
           "has_evidence": false,
           "run_result": "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-CONFIG-INTERSESSION/ronan/20260709T033044Z-r-config-intersession/run-result.json"
+        },
+        {
+          "seat": "elliott",
+          "verdict": "PASS-candidate",
+          "has_evidence": true,
+          "run_result": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-INTERSESSION/elliott/20260713T033827Z-direct-operator-rpc/run-result.json",
+          "workflow_run": "29222117717",
+          "artifact": "8268529284",
+          "effective_exit_code": 0,
+          "trace_id": null
         }
       ],
       "issues": [
         "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/369"
       ],
-      "manual_receipts": [
-        "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/R-CONFIG-INTERSESSION/manual-receipts/cael-cross-session-targeting.json",
-        "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/R-CONFIG-INTERSESSION/manual-receipts/ronan-cross-session-targeting.json",
-        "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/R-CONFIG-INTERSESSION/manual-receipts/MANUAL-REVIEW.md"
-      ],
       "fresh_5292_results": [],
       "baseline_state": "pass",
       "baseline_corpus": "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/",
-      "prior_4afd_state": "pass"
+      "prior_4afd_state": "pass",
+      "exact_receipts": [
+        "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-INTERSESSION/elliott/20260713T033827Z-direct-operator-rpc/run-result.json",
+        "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-INTERSESSION/elliott/20260713T033827Z-direct-operator-rpc/evidence.jsonl",
+        "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-INTERSESSION/elliott/20260713T033827Z-direct-operator-rpc/tempo-search-config-get.json",
+        "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CONFIG-INTERSESSION/elliott/20260713T033827Z-direct-operator-rpc/tempo-correlation-receipt.json"
+      ],
+      "historical_manual_receipts": [
+        "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/R-CONFIG-INTERSESSION/manual-receipts/cael-cross-session-targeting.json",
+        "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/R-CONFIG-INTERSESSION/manual-receipts/ronan-cross-session-targeting.json",
+        "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/R-CONFIG-INTERSESSION/manual-receipts/MANUAL-REVIEW.md"
+      ]
     },
     {
       "row": "R-CW-1",
-      "owner": "🌫 silas-lothric + 🩸 cael-dgx",
+      "owner": "\ud83c\udf2b silas-lothric + \ud83e\ude78 cael-dgx",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-1/",
       "state": "missing",
       "traces": 0,
@@ -878,7 +910,7 @@
     },
     {
       "row": "R-CW-2",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-2/",
       "state": "missing",
       "traces": 0,
@@ -919,7 +951,7 @@
     },
     {
       "row": "R-CW-3",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-3/",
       "state": "missing",
       "traces": 0,
@@ -980,7 +1012,7 @@
     },
     {
       "row": "R-CW-4",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-4/",
       "state": "missing",
       "traces": 0,
@@ -1029,7 +1061,7 @@
     },
     {
       "row": "R-CW-5",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-5/",
       "state": "missing",
       "traces": 0,
@@ -1057,7 +1089,7 @@
     },
     {
       "row": "R-CW-6",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-6/",
       "state": "missing",
       "traces": 0,
@@ -1085,7 +1117,7 @@
     },
     {
       "row": "R-CW-7",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-7/",
       "state": "missing",
       "traces": 0,
@@ -1113,7 +1145,7 @@
     },
     {
       "row": "R-CW-DELEGATE-CHILD-LIVE",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-DELEGATE-CHILD-LIVE/",
       "state": "missing",
       "traces": 0,
@@ -1141,7 +1173,7 @@
     },
     {
       "row": "R-CW-DELEGATE-SELF-CONTINUATION",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-DELEGATE-SELF-CONTINUATION/",
       "state": "missing",
       "traces": 0,
@@ -1190,7 +1222,7 @@
     },
     {
       "row": "R-CW-DELEGATE-TOKEN",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-DELEGATE-TOKEN/",
       "state": "missing",
       "traces": 0,
@@ -1218,7 +1250,7 @@
     },
     {
       "row": "R-CW-MULTI",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-MULTI/",
       "state": "missing",
       "traces": 0,
@@ -1246,7 +1278,7 @@
     },
     {
       "row": "R-CW-MULTI-COLLAPSE",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-MULTI-COLLAPSE/",
       "state": "missing",
       "traces": 0,
@@ -1274,7 +1306,7 @@
     },
     {
       "row": "R-CW-TOKEN",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-TOKEN/",
       "state": "missing",
       "traces": 0,
@@ -1323,7 +1355,7 @@
     },
     {
       "row": "R-OBS-1",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-OBS-1/",
       "state": "pass",
       "traces": 0,
@@ -1372,7 +1404,7 @@
     },
     {
       "row": "R-OBS-2",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-OBS-2/",
       "state": "pass",
       "traces": 0,
@@ -1400,7 +1432,7 @@
     },
     {
       "row": "R-OBS-STATUS",
-      "owner": "🌻 elliott-legion + 🌊 ronan-dgx",
+      "owner": "\ud83c\udf3b elliott-legion + \ud83c\udf0a ronan-dgx",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-OBS-STATUS/",
       "state": "missing",
       "traces": 0,
@@ -1462,7 +1494,7 @@
     },
     {
       "row": "R-RC-1",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-RC-1/",
       "state": "missing",
       "traces": 0,
@@ -1511,7 +1543,7 @@
     },
     {
       "row": "R-RC-2",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-RC-2/",
       "state": "missing",
       "traces": 0,
@@ -1562,7 +1594,7 @@
     },
     {
       "row": "R-REGRESSION-TRAP-TESTS",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-REGRESSION-TRAP-TESTS/",
       "state": "pass",
       "traces": 0,
@@ -1590,7 +1622,7 @@
     },
     {
       "row": "R-TRACE-REDACTION-1121",
-      "owner": "🩸 cael + 🌊 ronan live k6 proof harness",
+      "owner": "\ud83e\ude78 cael + \ud83c\udf0a ronan live k6 proof harness",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-TRACE-REDACTION-1121/",
       "state": "missing",
       "traces": 0,
@@ -1690,9 +1722,9 @@
     "Fresh live rows were rerun against deployed 5292af40 on Cael/Ronan with disposable proof sessions.",
     "Corpus-dependent/static rows remain carried from 46872994 because they validate committed proof packets rather than live gateway behavior.",
     "R-CD-MODEL-TOOL is folded as pass by console evidence in runs 28996028254/28996030407 despite generated summary PARTIAL-candidate.",
-    "R-CONFIG-DEFAULTS and R-CONFIG-INTERSESSION are folded as pass by fresh path-scoped config receipts captured at 2026-07-09T05:44:06Z after harness read-path failures.",
     "R-CW-3 is folded as pass by late Tempo receipts for fresh Cael/Ronan split runs: dispatch/schedule/wake and public artifact raw-reason absence were observed, then trace JSON showed continue_work tool spans, continuation.work spans, reason.present/length/hash, and no raw reason sentinel strings.",
-    "R-RC-2 remains honest_limit: both seats rejected request_compaction at context_threshold; generated summaries that say PASS-candidate are postprocessor mismatch, not clean accepted-compaction proof."
+    "R-RC-2 remains honest_limit: both seats rejected request_compaction at context_threshold; generated summaries that say PASS-candidate are postprocessor mismatch, not clean accepted-compaction proof.",
+    "R-CONFIG-DEFAULTS and R-CONFIG-INTERSESSION each have an exact Elliott direct authenticated operator-RPC config.get behavior receipt from workflow 29222117717. Both remain partial because their exact-window Tempo config.get query returned no attributable nonzero trace; historic static/manual receipts are provenance only."
   ],
   "baseline_proof_push_sha": "9c6690710c6687c52b93260529932d0c70f58707",
   "baseline_proof_source_sha": "5292af40d0ad5303b85a678f6e629503a8725848"

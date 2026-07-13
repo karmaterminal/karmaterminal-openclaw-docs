@@ -11,14 +11,14 @@ and do not prove completed Codex tool status on the repaired runtime.
 
 ## Seed rollup
 
-`35 total / 6 unchanged-surface carried-pass / 1 partial / 28 missing`
+`35 total / 3 exact behavior passes / 2 behavior-pass-but-trace-partial / 30 missing`
 
 | Surface | State | Exact-SHA requirement |
 |---|---|---:|---|
 | All `R-CD-*` rows | `missing` | fresh `continue_delegate` behavior, successful Codex tool status, and required trace/topology receipts |
 | All `R-CW-*` rows | `missing` | fresh `continue_work` behavior and required durable wake/trace receipts |
 | All `R-RC-*` rows | `missing` | fresh raw `request_compaction` result receipts with successful Codex status; model sentinels are insufficient |
-| Config/observability/redaction rows | `carried` | explicit unchanged-surface carry pending final closeout |
+| Config rows | `partial` | exact direct operator-RPC receipts exist, but a nonzero attributable `config.get` Tempo trace is still required for full fold |
 | `R-OBS-STATUS` | `partial` | exact-`4afd560` source receipt requires explicit byte-identical carry or rerun |
 
 Offline/static scenarios read immutable receipt bytes from

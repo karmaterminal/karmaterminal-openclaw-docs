@@ -1,0 +1,9 @@
+{
+  "row": "R-CONFIG-INTERSESSION",
+  "scenario": "r-config-intersession.js",
+  "candidateSha": "cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
+  "runtimeBuildSha": "OpenClaw 2026.7.2 (cea9e42)",
+  "seat": "elliott",
+  "sessionConfigured": true,
+  "startedAt": "2026-07-13T03:38:32Z"
+}

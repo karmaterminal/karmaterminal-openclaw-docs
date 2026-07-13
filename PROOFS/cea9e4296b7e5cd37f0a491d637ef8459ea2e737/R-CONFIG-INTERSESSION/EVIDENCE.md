@@ -1,9 +1,25 @@
-<!-- exact-cea9e42-seed -->
-> **Exact-cea9e42 state: pass carry.** This row is outside the Codex result-classification repair surface. Its exact-4afd receipt is retained as an explicit unchanged-surface carry pending final closeout.
+# Exact-cea9e42 Elliott direct operator-RPC receipt
+
+- **Row:** `R-CONFIG-INTERSESSION`
+- **Runtime/candidate:** `OpenClaw 2026.7.2 (cea9e42)` / `cea9e4296b7e5cd37f0a491d637ef8459ea2e737`
+- **One-fire workflow:** [29222117717](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29222117717) · artifact `8268529284`
+- **Window:** `2026-07-13T03:38:32Z` (exact per-row bounds in `elliott/20260713T033827Z-direct-operator-rpc/run-result.json`)
+- **Behavior observed:** authenticated operator `config.get` returned an accepted, redacted configuration response; the public-safe projection observed the continuation cross-session targeting setting: `crossSessionTargeting="enabled"`.
+- **Why the harness changed:** the prior scenario asked a disposable non-owner agent to call the agent-facing owner-only `gateway` tool. That policy denial was correct; this receipt uses the actual authenticated operator RPC surface instead. Repair: [docs #402](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/402).
+
+## Exact evidence bundle
+
+`elliott/20260713T033827Z-direct-operator-rpc/` contains the raw public-safe `run-result.json`, `evidence.jsonl`, redaction receipt, runner metadata, and an exact-window Tempo query receipt. The raw configuration snapshot, token, session identity, and request payload are intentionally not retained.
+
+## Classification: behavior pass, proof-bar partial
+
+The RPC behavior is a `PASS-candidate` (effective exit `0`; `config_read=true`), but this row is **not folded as a full exact-SHA PASS**. The exact window query for `elliott-prince` plus `.gen_ai.tool.name="config.get"` returned zero traces, so there is no attributable nonzero trace/span topology. The empty raw response and its SHA are retained in `tempo-search-config-get.json` and `tempo-correlation-receipt.json`; nearby service traces were not substituted. This preserves the gap rather than calling `trace_id:null` evidence.
+
+## Historical provenance — not current coverage
 
 # R-CONFIG-INTERSESSION evidence — 5292af40 Project 81 corpus
 
-- **Aggregate state:** `pass`
+- **Historical aggregate state:** `pass` (**not counted as exact-cea9e42 coverage**)
 - **Push / corpus SHA:** `5292af40d0ad5303b85a678f6e629503a8725848`
 - **Fresh 5292 proof-source SHA:** `5292af40d0ad5303b85a678f6e629503a8725848`
 - **Seeded/carried corpus:** `46872994e4cae80830c381cb49456e8c77583d7e`

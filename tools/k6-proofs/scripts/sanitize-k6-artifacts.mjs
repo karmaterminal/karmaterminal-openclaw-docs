@@ -92,7 +92,7 @@ function scrubString(value, orderedTokens) {
       '$1<redacted-secret>',
     )
     .replace(
-      /(\b(?:agentinstruction|message|prompt|task)\b["']?\s*[:=]\s*)(?:"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|[^\s,}]+)/gi,
+      /(\b(?:agentinstruction|message|prompt|task)\b["']?\s*[:=]\s*)[^\r\n]*/gi,
       '$1<redacted-payload>',
     )
     .replace(/\bhttps?:\/\/[^@\s/]+:[^@\s/]+@/gi, 'https://<redacted-credentials>@');

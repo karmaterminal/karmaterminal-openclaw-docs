@@ -78,6 +78,7 @@ test('CLI writes only public-safe evidence and log artifacts', async () => {
     `Jul 12 19:42:00 host openclaw[123]: continuation dispatch session=${sessionKey}`,
     `Jul 12 19:42:01 host openclaw[123]: Model override "github-copilot/claude-sonnet-4.6" is not allowed for agent "main" nonce=${nonce}`,
     'Jul 12 19:42:02 host openclaw[123]: OPENCLAW_GATEWAY_TOKEN=super-secret-gateway-token failure',
+    `Jul 12 19:42:02 host openclaw[123]: continuation:delegate-spawned task=Proof nonce ${nonce}: read your runtime context/current model identity`,
     'Jul 12 19:42:03 host openclaw[123]: unrelated routine heartbeat',
   ].join('\n'));
 
@@ -112,7 +113,9 @@ test('CLI writes only public-safe evidence and log artifacts', async () => {
     const serviceLog = await readFile(serviceLogOutput, 'utf8');
     assert.match(serviceLog, /Model override "github-copilot\/claude-sonnet-4\.6" is not allowed/);
     assert.match(serviceLog, /OPENCLAW_GATEWAY_TOKEN=<redacted-secret>/);
+    assert.match(serviceLog, /delegate-spawned task=<redacted-payload>/);
     assert.doesNotMatch(serviceLog, /super-secret-gateway-token/);
+    assert.doesNotMatch(serviceLog, /read your runtime context/);
     assert.doesNotMatch(serviceLog, /unrelated routine heartbeat/);
   } finally {
     await rm(dir, { recursive: true, force: true });

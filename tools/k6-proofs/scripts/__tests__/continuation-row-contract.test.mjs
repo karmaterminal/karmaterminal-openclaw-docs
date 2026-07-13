@@ -81,6 +81,9 @@ test('row runner keeps private acquisition transient and publishes sanitized evi
   assert.match(runner, /--service-log-out "\$RUN_DIR\/gateway-journal\.log"/);
   assert.match(runner, /gateway-journal-capture\.json/);
   assert.match(runner, /gateway-journal-redaction\.json/);
+  assert.match(runner, /VU_LOG_VERDICT/);
+  assert.match(runner, /verdict-reconciliation\.json/);
+  assert.match(runner, /selectedSource: \$selectedSource/);
   assert.doesNotMatch(runner, /tee "\$RUN_DIR\/k6\.log"/);
   assert.doesNotMatch(runner, /gateway-journal\.private/);
   assert.doesNotMatch(runner, /sessionKey:\$session/);

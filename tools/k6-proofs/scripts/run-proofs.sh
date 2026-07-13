@@ -323,11 +323,44 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       rm -f "$RUN_DIR/evidence-extraction.error.log"
     fi
     SUMMARY_VERDICT="unknown"
+    SUMMARY_VERDICT_SOURCE="none"
+    SUMMARY_FILE_VERDICT="unknown"
+    VU_LOG_VERDICT="$(
+      grep -oE 'VERDICT: (PASS|PARTIAL|HONEST-LIMIT|FAIL)-candidate' "$PRIVATE_K6_LOG" \
+        | tail -n 1 \
+        | sed 's/^VERDICT: //' \
+        || true
+    )"
     SUMMARY_FILES_JSON="[]"
     if find "$RUN_DIR" -maxdepth 1 -type f -name '*summary.json' | grep -q .; then
       SUMMARY_FILES_JSON="$(find "$RUN_DIR" -maxdepth 1 -type f -name '*summary.json' -print0 | xargs -0 -r -n1 basename | jq -R . | jq -s .)"
-      SUMMARY_VERDICT="$(find "$RUN_DIR" -maxdepth 1 -type f -name '*summary.json' -print0 | xargs -0 -r jq -r 'select(.verdict != null) | .verdict' | head -n 1)"
-      if [[ -z "$SUMMARY_VERDICT" ]]; then SUMMARY_VERDICT="unknown"; fi
+      SUMMARY_FILE_VERDICT="$(find "$RUN_DIR" -maxdepth 1 -type f -name '*summary.json' -print0 | xargs -0 -r jq -r 'select(.verdict != null) | .verdict' | head -n 1)"
+      if [[ -z "$SUMMARY_FILE_VERDICT" ]]; then SUMMARY_FILE_VERDICT="unknown"; fi
+    fi
+    if [[ -n "$VU_LOG_VERDICT" ]]; then
+      SUMMARY_VERDICT="$VU_LOG_VERDICT"
+      SUMMARY_VERDICT_SOURCE="vu-log"
+    elif [[ "$SUMMARY_FILE_VERDICT" != "unknown" ]]; then
+      SUMMARY_VERDICT="$SUMMARY_FILE_VERDICT"
+      SUMMARY_VERDICT_SOURCE="summary-file"
+    fi
+    if [[ -n "$VU_LOG_VERDICT" &&
+          "$SUMMARY_FILE_VERDICT" != "unknown" &&
+          "$VU_LOG_VERDICT" != "$SUMMARY_FILE_VERDICT" ]]; then
+      jq -n \
+        --arg schema "openclaw.k6.verdict-reconciliation.v1" \
+        --arg selected "$SUMMARY_VERDICT" \
+        --arg selectedSource "$SUMMARY_VERDICT_SOURCE" \
+        --arg vuLog "$VU_LOG_VERDICT" \
+        --arg summaryFile "$SUMMARY_FILE_VERDICT" \
+        '{
+          schema: $schema,
+          selectedVerdict: $selected,
+          selectedSource: $selectedSource,
+          vuLogVerdict: $vuLog,
+          summaryFileVerdict: $summaryFile,
+          reason: "k6 handleSummary executes outside VU state; the VU-emitted verdict owns live evidence classification"
+        }' > "$RUN_DIR/verdict-reconciliation.json"
     fi
     TRACE_STATUS="unknown"
     TRACE_ID=""
@@ -468,10 +501,13 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg correlationReceipt "$CORRELATION_RECEIPT" \
       --arg serviceLogStatus "$GATEWAY_JOURNAL_STATUS" \
       --arg verdict "$SUMMARY_VERDICT" \
+      --arg verdictSource "$SUMMARY_VERDICT_SOURCE" \
+      --arg summaryFileVerdict "$SUMMARY_FILE_VERDICT" \
+      --arg vuLogVerdict "$VU_LOG_VERDICT" \
       --argjson summaryFiles "$SUMMARY_FILES_JSON" \
       --argjson evidence "$EVIDENCE_JSON" \
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
-      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
+      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
     METRICS_ARGS=(--run-dir "$RUN_DIR" --prometheus-out "$RUN_DIR/openclaw-proofs-k6.prom" --otlp-out "$RUN_DIR/openclaw-proofs-k6.otlp.json")
     if [[ -n "${OPENCLAW_PROOFS_K6_OTLP_ENDPOINT:-}" ]]; then

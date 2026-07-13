@@ -11,11 +11,9 @@
   "timeoutSeconds": 60,
   "scenario": {
     "name": "r-config-defaults",
-    "description": "Read-only continuation config defaults via gateway config.get tool from a disposable session.",
+    "description": "Read-only continuation config defaults via direct authenticated operator config.get RPC.",
     "methods": [
-      "sessions.create",
-      "sessions.send",
-      "sessions.messages.subscribe"
+      "config.get"
     ],
     "status": "runnable",
     "file": "r-config-defaults.js"
@@ -42,7 +40,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Config defaults row. Read-only; k6 path drives gateway config.get through an agent turn and records continuation config bytes."
+    "notes": "Read-only direct operator-RPC config.get row. Projects only committed continuation fields; no agent-mediated owner-only gateway tool, model sentinel, config mutation, or continuation scheduling."
   },
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
@@ -62,6 +60,6 @@
       "continuation-values"
     ],
     "foldRequiresReview": true,
-    "notes": "Read-only agent-mediated config.get row; disposable session recommended but no continuation scheduling or config mutation."
+    "notes": "Read-only direct operator-RPC config.get; public evidence must project only required continuation fields plus a public-safe query-window correlation receipt. No agent-mediated owner-only tool or model sentinel."
   }
 }

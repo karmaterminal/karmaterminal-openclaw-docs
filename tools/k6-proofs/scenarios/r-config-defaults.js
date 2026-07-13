@@ -1,255 +1,109 @@
 /**
- * Scenario: R-CONFIG-defaults — read-only continuation config/defaults receipt.
+ * Scenario: R-CONFIG-defaults — direct, read-only operator-RPC receipt.
  *
- * Drives an agent turn in a disposable session that calls the typed gateway
- * config.get tool for agents.defaults.continuation and emits a nonce-correlated
- * CONFIG-DEFAULTS sentinel with selected read-only values.
+ * This row intentionally exercises Gateway's `config.get` RPC at its real
+ * operator surface. It must not ask a disposable agent to invoke the
+ * owner-only `gateway` tool: non-owner sender policy correctly removes that
+ * tool, which made the previous LLM/sentinel harness incapable of observing
+ * the config response.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
-import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { connectFrame, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
 export const options = {
-  scenarios: {
-    r_config_defaults: {
-      executor: 'shared-iterations',
-      vus: 1,
-      iterations: 1,
-      maxDuration: '90s',
-    },
-  },
-  thresholds: {
-    proof_failures: ['count==0'],
-    r_config_defaults_duration: ['p(95)<75000'],
-  },
+  scenarios: { r_config_defaults: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '45s' } },
+  thresholds: { proof_failures: ['count==0'], r_config_defaults_duration: ['p(95)<30000'] },
 };
 
 const failures = new Counter('proof_failures');
 const duration = new Trend('r_config_defaults_duration');
 const manifest = loadManifestFromEnv();
-const HARNESS_MARKER = '[k6-proof-harness]';
 
-function boolEnv(name) {
-  return (__ENV[name] || '').toLowerCase() === 'true';
+function readContinuation(payload) {
+  const continuation = payload?.config?.agents?.defaults?.continuation;
+  if (!continuation || typeof continuation !== 'object') return null;
+  const enabled = continuation.enabled;
+  const maxChainLength = continuation.maxChainLength;
+  const maxDelegatesPerTurn = continuation.maxDelegatesPerTurn;
+  const costCapTokens = continuation.costCapTokens;
+  if (typeof enabled !== 'boolean' || !Number.isFinite(maxChainLength) ||
+      !Number.isFinite(maxDelegatesPerTurn) || !Number.isFinite(costCapTokens)) return null;
+  return { enabled, maxChainLength, maxDelegatesPerTurn, costCapTokens };
 }
 
-function valueAfterLabel(text, label) {
-  const idx = text.indexOf(label);
-  if (idx === -1) return null;
-  const tail = text.slice(idx + label.length);
-  return tail.match(/(null|\d+)/i)?.[1] || null;
-}
-
-function parseConfigDefaultsSentinel(text, nonceValue) {
-  const sentinelIdx = text.lastIndexOf(`CONFIG-DEFAULTS ${nonceValue}`);
-  if (sentinelIdx === -1) return null;
-  const sentinelText = text.slice(sentinelIdx);
-  const enabled = sentinelText.match(/ENABLED[^A-Za-z0-9]+(true|false)/)?.[1] || null;
-  const maxChain = sentinelText.match(/MAXCHAIN[^0-9]+(\d+)/)?.[1] || null;
-  const maxDelegates = valueAfterLabel(sentinelText, 'MAXDELEGATES');
-  const costCap = valueAfterLabel(sentinelText, 'COSTCAP');
-  if (enabled === null || maxChain === null || maxDelegates === null || costCap === null) return null;
-  return { enabled, maxChain, maxDelegates, costCap };
-}
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
-  const requestedSessionKey = manifest?.sessionKey || __ENV.OPENCLAW_SESSION_KEY || 'main';
-  let sessionKey = requestedSessionKey;
-  const createDisposableSession = boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSION') || true;
-  const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx';
-  const rowNonce = nonce('R-CONFIG-defaults');
-
-  if (!token) {
-    console.error('OPENCLAW_GATEWAY_TOKEN is required');
-    failures.add(1);
-    return;
-  }
+  const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || 'unknown-seat';
+  if (!token) { failures.add(1); return; }
   if (manifest) {
     const errors = validateManifest(manifest);
-    if (errors.length > 0) console.warn(`Manifest validation warnings: ${errors.join('; ')}`);
+    if (errors.length) console.warn(`Manifest validation warnings: ${errors.join('; ')}`);
   }
 
   const evidence = {
-    row: 'R-CONFIG-defaults',
-    manifest_loaded: !!manifest,
-    nonce: rowNonce,
-    seat,
-    requestedSessionKey,
-    sessionKey,
-    session_created: false,
-    created_session_key: null,
+    row: 'R-CONFIG-defaults', manifest_loaded: !!manifest, seat,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
-    dispatch_accepted: false,
-    config_read: false,
-    enabled: null,
-    max_chain_length: null,
-    max_delegates_per_turn: null,
-    max_delegates_per_turn_observed: false,
-    cost_cap_tokens: null,
-    cost_cap_tokens_observed: false,
-    trace_id: null,
+    rpc: { method: 'config.get', operator_surface: true, response_ok: false,
+      response_shape: { config_present: false, continuation_present: false } },
+    config_read: false, enabled: null, max_chain_length: null,
+    max_delegates_per_turn: null, cost_cap_tokens: null,
+    trace_id: null, correlation: { service: `${seat}-prince`, query_window_start: null, query_window_end: null },
     redacted_events: [],
   };
-
   const started = Date.now();
-  const nonceEventText = [];
-  let loggedPartialSentinel = false;
-
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
-
-    function startProofFlow() {
-      tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
-      socket.setTimeout(() => {
-        const instruction =
-          `${HARNESS_MARKER} For Project 81 row R-CONFIG-defaults nonce ${rowNonce}: ` +
-          `call the gateway tool with action=config.get path=agents.defaults.continuation. ` +
-          `If the config read succeeds, reply exactly CONFIG-DEFAULTS ${rowNonce} ENABLED <enabled> MAXCHAIN <maxChainLength> MAXDELEGATES <maxDelegatesPerTurn> COSTCAP <costCapTokens>. ` +
-          `If the read fails, reply exactly CONFIG-DEFAULTS-FAIL ${rowNonce}. No other action.`;
-        tracker.send(socket, 'sessions.send', {
-          key: sessionKey,
-          message: instruction,
-          idempotencyKey: `R-CONFIG-defaults-${rowNonce}`,
-        });
-      }, 500);
-      socket.setTimeout(() => socket.close(), 60000);
-    }
-
     socket.on('open', () => {
       socket.send(connectFrame(token));
-      if (createDisposableSession) {
-        socket.setTimeout(() => {
-          const disposableKey = `r-config-defaults-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-          tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-CONFIG-defaults ${rowNonce}` });
-        }, 250);
-      } else {
-        socket.setTimeout(startProofFlow, 500);
-      }
+      socket.setTimeout(() => tracker.send(socket, 'config.get', {}), 300);
+      socket.setTimeout(() => socket.close(), 15000);
     });
-
     socket.on('message', (raw) => {
       try {
-        const msg = JSON.parse(raw);
-        const classified = tracker.classify(msg);
-        evidence.redacted_events.push({
-          ts: Date.now(),
-          kind: classified.kind,
-          method: classified.method || null,
-          event: classified.event || null,
-          ok: classified.ok !== undefined ? classified.ok : null,
-          data: classified.payload ? redactEvent(classified.payload) : null,
-        });
-
-        if (classified.kind === 'response' && classified.method === 'sessions.create') {
-          if (classified.ok && classified.payload) {
-            sessionKey = classified.payload.key || sessionKey;
-            evidence.sessionKey = sessionKey;
-            evidence.session_created = true;
-            evidence.created_session_key = sessionKey;
-            console.log(`✓ disposable session created: ${sessionKey}`);
-            startProofFlow();
-          } else {
-            console.error(`✗ sessions.create rejected: ${JSON.stringify(classified.error)}`);
-            failures.add(1);
-            socket.close();
-          }
-        }
-
-        if (classified.kind === 'response' && classified.method === 'sessions.send') {
-          if (classified.ok) {
-            evidence.dispatch_accepted = true;
-            if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
-            console.log('✓ sessions.send accepted — agent turn triggered for config defaults read');
-          } else {
-            console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
-            failures.add(1);
-          }
-        }
-
-        if (classified.kind === 'event') {
-          const eventStr = JSON.stringify(classified.data || {});
-          if (eventStr.includes(rowNonce)) {
-            if (eventStr.includes(HARNESS_MARKER)) {
-              console.log('ℹ Ignoring harness prompt echo event');
-
-            } else if (eventStr.includes(`CONFIG-DEFAULTS-FAIL ${rowNonce}`)) {
-              console.error('✗ CONFIG-DEFAULTS-FAIL sentinel observed');
-              failures.add(1);
-              socket.close();
-            } else {
-              nonceEventText.push(eventStr);
-              const observedText = nonceEventText.join(' ');
-              const sentinel = parseConfigDefaultsSentinel(observedText, rowNonce);
-              if (sentinel) {
-                evidence.config_read = true;
-                evidence.enabled = sentinel.enabled === 'true';
-                evidence.max_chain_length = Number(sentinel.maxChain);
-                evidence.max_delegates_per_turn_observed = true;
-                evidence.max_delegates_per_turn = sentinel.maxDelegates.toLowerCase() !== 'null' ? Number(sentinel.maxDelegates) : null;
-                evidence.cost_cap_tokens_observed = true;
-                evidence.cost_cap_tokens = sentinel.costCap.toLowerCase() !== 'null' ? Number(sentinel.costCap) : null;
-                console.log(`✓ CONFIG-DEFAULTS sentinel observed: enabled=${sentinel.enabled} maxChain=${sentinel.maxChain} maxDelegates=${sentinel.maxDelegates} costCap=${sentinel.costCap}`);
-                socket.close();
-              } else if (eventStr.includes(`CONFIG-DEFAULTS ${rowNonce}`) && !loggedPartialSentinel) {
-                loggedPartialSentinel = true;
-                console.log('ℹ CONFIG-DEFAULTS sentinel prefix observed; waiting for complete streamed sentinel');
-              }
-            }
-          }
-        }
-      } catch (e) {
-        console.warn(`parse error: ${e}`);
-      }
+        const classified = tracker.classify(JSON.parse(raw));
+        evidence.redacted_events.push({ ts: Date.now(), kind: classified.kind, method: classified.method || null,
+          event: classified.event || null, ok: classified.ok !== undefined ? classified.ok : null,
+          data: classified.payload ? redactEvent(classified.payload) : null });
+        if (classified.kind !== 'response' || classified.method !== 'config.get') return;
+        evidence.rpc.response_ok = classified.ok;
+        evidence.rpc.response_shape.config_present = Boolean(classified.payload?.config);
+        const continuation = readContinuation(classified.payload);
+        evidence.rpc.response_shape.continuation_present = continuation !== null;
+        if (continuation) {
+          evidence.config_read = true;
+          evidence.enabled = continuation.enabled;
+          evidence.max_chain_length = continuation.maxChainLength;
+          evidence.max_delegates_per_turn = continuation.maxDelegatesPerTurn;
+          evidence.cost_cap_tokens = continuation.costCapTokens;
+        } else failures.add(1);
+        socket.close();
+      } catch (error) { console.warn(`parse error: ${error}`); failures.add(1); socket.close(); }
     });
-
-    socket.on('error', (e) => {
-      console.error(`ws error: ${e && e.error ? e.error() : e}`);
-      failures.add(1);
-    });
+    socket.on('error', () => { failures.add(1); });
   });
-
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
+  evidence.correlation.query_window_start = evidence.started;
+  evidence.correlation.query_window_end = evidence.ended;
   duration.add(evidence.duration_ms);
-
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
-    'dispatch accepted': () => evidence.dispatch_accepted,
-    'config read succeeded': () => evidence.config_read,
-    'enabled byte observed': () => evidence.enabled !== null,
-    'chain/delegate/cost bytes observed': () => evidence.max_chain_length !== null && evidence.max_delegates_per_turn_observed && evidence.cost_cap_tokens_observed,
+    'direct operator config.get succeeded': () => evidence.config_read,
+    'all continuation defaults observed': () => evidence.enabled !== null && evidence.max_chain_length !== null && evidence.max_delegates_per_turn !== null && evidence.cost_cap_tokens !== null,
   });
-
-  if (!evidence.dispatch_accepted || !evidence.config_read || evidence.enabled === null || evidence.max_chain_length === null || !evidence.max_delegates_per_turn_observed || !evidence.cost_cap_tokens_observed) {
-    failures.add(1);
-  }
-
-  console.log(`\n--- R-CONFIG-defaults EVIDENCE SUMMARY ---`);
+  if (!evidence.config_read) failures.add(1);
+  console.log('\n--- R-CONFIG-defaults EVIDENCE SUMMARY ---');
   console.log(JSON.stringify(evidence, null, 2));
-  console.log(`--- END EVIDENCE ---`);
+  console.log('--- END EVIDENCE ---');
   console.log(`\n[R-CONFIG-defaults] VERDICT: ${evidence.config_read ? 'PASS-candidate' : 'PARTIAL-candidate'}`);
 }
 
 export function handleSummary(data) {
-  const timestamp = new Date().toISOString();
   const passRate = data.metrics.proof_failures?.values?.count === 0;
-  const summary = {
-    row: 'R-CONFIG-defaults',
-    sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
-    seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx',
-    timestamp,
-    verdict: passRate ? 'PASS-candidate' : 'PARTIAL-candidate',
-    metrics: {
-      duration_ms: data.metrics.r_config_defaults_duration?.values || null,
-      failures: data.metrics.proof_failures?.values?.count || 0,
-    },
-  };
-  return {
-    stdout: `\n[R-CONFIG-defaults] Summary: ${summary.verdict} | SHA: ${summary.sha} | Seat: ${summary.seat}\n`,
-    'r-config-defaults-summary.json': JSON.stringify(summary, null, 2),
-  };
+  return { stdout: `\n[R-CONFIG-defaults] Summary: ${passRate ? 'PASS-candidate' : 'PARTIAL-candidate'} | SHA: ${__ENV.OPENCLAW_CANDIDATE_SHA || 'unset'} | Seat: ${__ENV.OPENCLAW_SEAT_NAME || 'unknown-seat'}\n` };
 }

@@ -88,3 +88,17 @@ test('row runner keeps private acquisition transient and publishes sanitized evi
   assert.doesNotMatch(runner, /gateway-journal\.private/);
   assert.doesNotMatch(runner, /sessionKey:\$session/);
 });
+
+test('R-CD-2 cannot pass from generic delayed traffic without lifecycle correlation', async () => {
+  const manifest = JSON.parse(await readFile(path.join(manifestsDir, 'r-cd-2.json'), 'utf8'));
+  const scenario = await readFile(path.join(scenariosDir, 'r-cd-2-silent-wake.js'), 'utf8');
+  const runner = await readFile(path.join(repoRoot, 'tools/k6-proofs/scripts/run-proofs.sh'), 'utf8');
+
+  assert.ok(manifest.liveRunSafety.requiredReceipts.includes('continuation-lifecycle-correlation'));
+  assert.match(scenario, /generic[\s\S]*delayed session\.message is not proof/);
+  assert.match(scenario, /VERDICT: PARTIAL-candidate \(awaiting continuation lifecycle correlation\)/);
+  assert.match(runner, /validate-r-cd-2-lifecycle\.mjs/);
+  assert.match(runner, /SUMMARY_VERDICT_SOURCE="continuation-lifecycle-receipt"/);
+  assert.match(runner, /Final verdict reconciled from the redacted continuation lifecycle receipt/);
+  assert.match(runner, /generic delayed session traffic is non-authoritative/);
+});

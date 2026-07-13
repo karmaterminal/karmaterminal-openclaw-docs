@@ -44,7 +44,8 @@
       "dispatch-accepted",
       "parent-wake-event",
       "no-channel-delivery",
-      "trace-id"
+      "trace-id",
+      "continuation-lifecycle-correlation"
     ],
     "foldRequiresReview": true,
     "notes": "Live continuation row. Fail closed when token/session env is missing, serialize per target session, and treat generated output as a PASS-candidate until required receipts are reviewed."
@@ -79,6 +80,11 @@
       "name": "trace-id",
       "required": true,
       "description": "Trace ID from dispatch response or optional task metadata; Tempo trace JSON must be fetched before folding a PASS."
+    },
+    {
+      "name": "continuation-lifecycle-correlation",
+      "required": true,
+      "description": "Redacted nonce-correlated typed continue_delegate tool span plus continuation.delegate.dispatch and continuation.delegate.fire on one silent-wake chain; generic delayed session traffic is non-authoritative context only."
     }
   ],
   "artifactDestination": {
@@ -91,6 +97,6 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Silent-wake path. PASS-candidate when: (1) dispatching agent turn accepted, (2) parent session emits wake/agent events, (3) NO channel message delivered from the delegate return, and (4) trace/receipt artifacts are fetched for review. A nonce-correlated tasks.list row is optional because continue_delegate uses pending-delegate/subagent surfaces, not the generic task registry."
+    "notes": "Silent-wake path. The WebSocket stream records behavioral context and no-channel delivery only. PASS-candidate requires the redacted nonce-correlated lifecycle receipt: typed continue_delegate tool execution plus continuation.delegate.dispatch and continuation.delegate.fire on one silent-wake chain. A nonce-correlated tasks.list row is optional because continue_delegate uses pending-delegate/subagent surfaces, not the generic task registry."
   }
 }

@@ -343,16 +343,21 @@ export default function () {
     console.error('FAIL: silent-wake delegate produced channel output');
   }
 
-  // Verdict — PASS when: turn triggered + events flowing + no channel delivery
-  const passed = (!createDisposableSession || evidence.session_created) &&
+  // The WebSocket stream can only establish behavioral context.  A generic
+  // delayed session.message is not proof that the typed continuation call ran;
+  // run-proofs.sh promotes this row only after the nonce-correlated Tempo
+  // lifecycle receipt validates typed tool -> dispatch -> fire on one chain.
+  const behaviorObserved = (!createDisposableSession || evidence.session_created) &&
     evidence.tool_accepted && evidence.agent_turn_observed &&
     evidence.parent_wake_observed && !evidence.channel_message_observed;
+  evidence.lifecycle_correlation_required = true;
+  evidence.behavior_observed = behaviorObserved;
 
   console.log(`R_CD_2_EVIDENCE ${JSON.stringify(evidence)}`);
   console.log(`\n--- R-CD-2 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));
   console.log(`--- END EVIDENCE ---`);
-  console.log(`\n[R-CD-2] VERDICT: ${passed ? 'PASS-candidate' : 'PARTIAL-candidate'}`);
+  console.log('\n[R-CD-2] VERDICT: PARTIAL-candidate (awaiting continuation lifecycle correlation)');
 }
 
 export function handleSummary(data) {
@@ -364,7 +369,7 @@ export function handleSummary(data) {
     sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     seat: __ENV.OPENCLAW_SEAT_NAME || 'ronan-dgx',
     timestamp,
-    verdict: passRate ? 'PASS-candidate' : 'PARTIAL-candidate',
+    verdict: 'PARTIAL-candidate',
     candidateOnly: true,
     foldRequiresReview: true,
     observability: {
@@ -372,11 +377,11 @@ export function handleSummary(data) {
       traceJson: traceId ? 'pending-fetch' : 'missing',
     },
     review: {
-      status: traceId ? 'ready-for-human-review' : 'review-pending',
-      pendingReceipts: traceId ? [] : ['tempo-trace-json'],
-      notes: traceId
-        ? ['Trace id captured; fetch and attach Tempo trace JSON before canonical fold.']
-        : ['No trace_id was emitted by this candidate run; keep PASS-candidate as review-pending until trace JSON is fetched or the fold explicitly accepts trace-missing.'],
+      status: 'review-pending',
+      pendingReceipts: ['continuation-trace-correlation'],
+      notes: [
+        'Behavioral WebSocket events are non-authoritative context. Only the redacted nonce-correlated typed-tool/dispatch/fire lifecycle receipt can promote this row.',
+      ],
     },
     metrics: {
       duration_ms: data.metrics.r_cd_2_duration && data.metrics.r_cd_2_duration.values || null,

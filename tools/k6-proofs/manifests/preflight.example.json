@@ -5,7 +5,7 @@
   "candidateSha": "82827d3cbcba92ff6e19863b30615db028c2651c",
   "seat": "emeric-nuc",
   "sessionKey": "${OPENCLAW_SESSION_KEY}",
-  "transport": "offline",
+  "transport": "websocket",
   "toolSurface": "read-only",
   "mutates": false,
   "timeoutSeconds": 30,
@@ -26,8 +26,8 @@
     "file": "preflight.js"
   },
   "liveRunSafety": {
-    "classification": "static-preflight-only",
-    "requiresLiveGatewayToken": false,
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
     "requiresTargetSessionKey": false,
     "requiresCandidateSha": false,
     "requiresExternalAgentOrToolInvocation": false,
@@ -39,7 +39,7 @@
       "seat-readiness"
     ],
     "foldRequiresReview": true,
-    "notes": "Offline golden-path/preflight metadata is concurrency-safe. Live preflight may use a token, but this example must remain safe without secrets."
+    "notes": "The live preflight is read-only and concurrency-safe, but it authenticates to the gateway. Use the documented runner command with an operator token; offline golden-path validation remains available without secrets."
   },
   "expectedReceipts": [
     {

@@ -80,10 +80,22 @@ If k6 is missing, the version differs, continuation is disabled/missing, require
 
 ### 2. Preflight check
 
+The supported live preflight is non-mutating: it authenticates only to read
+gateway/session/tool inventory and writes its declared review receipts. It does
+not create a session, dispatch a continuation, or fire a proof row.
+
 ```bash
 OPENCLAW_GATEWAY_TOKEN="***" \
 OPENCLAW_ROW_MANIFEST="tools/k6-proofs/manifests/preflight.example.json" \
   k6 run tools/k6-proofs/scenarios/preflight.js
+```
+
+Use the row-list runner when you need the same bounded journal and artifact
+layout as a live proof run:
+
+```bash
+cd tools/k6-proofs
+OPENCLAW_GATEWAY_TOKEN="***" ./scripts/run-proofs.sh --live preflight <candidate-sha>
 ```
 
 ### 3. Run an existing scenario (manifest-driven)

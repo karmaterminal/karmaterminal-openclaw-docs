@@ -24,3 +24,18 @@
 ## Fresh 5292 closeout
 
 No fresh Gateway rerun is used for this row. It is corpus-dependent/static and carried from the `46872994e4cae80830c381cb49456e8c77583d7e` seed under the 5292 full-copy tree.
+
+## Exact-cea9e42 reviewed static-carry receipt (Elliott)
+
+- **Workflow:** [`29220564218`](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29220564218)
+- **Artifact:** [`8268015808`](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29220564218/artifacts/8268015808)
+- **Candidate / current proof SHA:** `cea9e4296b7e5cd37f0a491d637ef8459ea2e737`
+- **Immutable static evidence SHA:** `1cc8f4e3d617ef6f173283ef83d7b739a4995734`
+- **Review disposition:** fold-ready unchanged-source carry; Tempo is not applicable to this static source/test contract.
+
+The public-safe receipt in `elliott/20260713T025703Z-r-trace-redaction-1121/`
+records successful k6/postprocess/effective exits and all six committed contract
+predicates: pass heading, safe attributes, no-preview contract, raw-reason
+guard, test pass, and source surface. It explicitly reports the historical
+`sourceEvidenceSha`, so it does not misrepresent static evidence as a fresh
+runtime/trace observation.

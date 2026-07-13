@@ -27,6 +27,7 @@ import { copyFileSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 import { validateRcd2LifecycleReceipt } from '../lib/r-cd-2-lifecycle-receipt.js';
+import { projectRcd2PublicSummary } from '../lib/r-cd-2-public-summary.mjs';
 
 function parseArgs(argv) {
   const out = {};
@@ -149,8 +150,12 @@ if (args['seat-readiness']) {
   copyFileSync(args['seat-readiness'], join(outDir, 'seat-readiness.json'));
 }
 
-// Write k6-summary.json through the same public-safe boundary as run-proofs.sh.
-writeFileSync(join(outDir, 'k6-summary.json'), JSON.stringify(summary, null, 2) + '\n');
+// R-CD-2's private acquisition can contain provider/RPC text. Publish only
+// aggregate metrics plus the already-validated lifecycle verdict.
+const publicSummary = args.row === 'R-CD-2'
+  ? projectRcd2PublicSummary(summary, lifecycleReceipt)
+  : summary;
+writeFileSync(join(outDir, 'k6-summary.json'), JSON.stringify(publicSummary, null, 2) + '\n');
 
 // Write gateway-events.ndjson (redacted only)
 if (safeEvents.length > 0) {

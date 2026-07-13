@@ -41,13 +41,16 @@ async function withTmp(fn) {
   try { return await fn(dir); } finally { await rm(dir, { recursive: true, force: true }); }
 }
 
-async function writerOut(dir, receipt) {
+async function writerOut(dir, receipt, summaryOverrides = {}) {
   const receiptPath = path.join(dir, 'r-cd-2-lifecycle-receipt.json');
   const logPath = path.join(dir, 'k6.log');
   const summaryPath = path.join(dir, 'summary.json');
   await writeFile(receiptPath, `${JSON.stringify(receipt)}\n`);
   await writeFile(logPath, '--- R-CD-2 EVIDENCE SUMMARY ---\n{"row":"R-CD-2","tool_accepted":true,"task_created":true,"redacted_events":[]}\n--- END EVIDENCE ---\n');
-  await writeFile(summaryPath, JSON.stringify({ metrics: { proof_failures: { values: { count: 0 } }, checks: { values: { rate: 1 } } } }));
+  await writeFile(summaryPath, JSON.stringify({
+    metrics: { proof_failures: { values: { count: 0 } }, checks: { values: { rate: 1 } } },
+    ...summaryOverrides,
+  }));
   const common = ['--manifest', manifest, '--lifecycle-receipt', receiptPath];
   const writerRun = await execFileAsync(process.execPath, [writer, '--input', logPath, '--row', 'R-CD-2', '--seat', 'unit', '--sha', sha, ...common], { cwd: dir });
   const postRun = await execFileAsync(process.execPath, [postprocessor, '--summary', summaryPath, '--out-root', path.join(dir, 'post'), '--run-id', 'unit', ...common], { cwd: dir });
@@ -56,7 +59,17 @@ async function writerOut(dir, receipt) {
   return {
     writer: JSON.parse(await readFile(path.join(dir, writerDir, 'row-result.json'), 'utf8')),
     post: JSON.parse(await readFile(path.join(postDir, 'row-result.json'), 'utf8')),
+    writerDir: path.join(dir, writerDir),
+    postDir,
   };
+}
+
+async function artifactText(root) {
+  const entries = await readdir(root, { withFileTypes: true });
+  const texts = await Promise.all(entries
+    .filter((entry) => entry.isFile())
+    .map((entry) => readFile(path.join(root, entry.name), 'utf8')));
+  return texts.join('\n');
 }
 
 test('R-CD-2 resolver fails closed for the July, provider, replay, and failed-item shapes', () => {
@@ -118,6 +131,28 @@ test('R-CD-2 public outputs retain no raw acquisition identifiers while partial 
     const nonRcd2Dir = JSON.parse(run.stdout).runDir;
     const nonRcd2 = JSON.parse(await readFile(path.join(dir, nonRcd2Dir, 'row-result.json'), 'utf8'));
     assert.equal(nonRcd2.outcome, 'PASS-candidate');
+  });
+});
+
+test('R-CD-2 writers project raw k6 summaries before public artifacts are written', async () => {
+  await withTmp(async (dir) => {
+    const marker = 'private-rpc-provider-session-marker';
+    const receipt = resolveRcd2LifecycleReceipt({ evidence: localEvidence(), correlation: correlation() });
+    const result = await writerOut(dir, receipt, {
+      errors: [{ error: marker }],
+      root_group: { checks: [{ name: marker }] },
+      metrics: {
+        proof_failures: { values: { count: 0, tags: { session: marker } } },
+        checks: { values: { rate: 1, tags: { rpc: marker } } },
+      },
+    });
+    assert.doesNotMatch(await artifactText(result.writerDir), new RegExp(marker));
+    assert.doesNotMatch(await artifactText(result.postDir), new RegExp(marker));
+    for (const root of [result.writerDir, result.postDir]) {
+      const publicSummary = JSON.parse(await readFile(path.join(root, 'k6-summary.json'), 'utf8'));
+      assert.equal(publicSummary.schema, 'openclaw.k6.r-cd-2-public-summary.v1');
+      assert.equal(publicSummary.verdict, 'PASS-candidate');
+    }
   });
 });
 

@@ -15,6 +15,8 @@
 
 The RPC behavior is a `PASS-candidate` (effective exit `0`; `config_read=true`), but this row is **not folded as a full exact-SHA PASS**. The exact window query for `elliott-prince` plus `.gen_ai.tool.name="config.get"` returned zero traces, so there is no attributable nonzero trace/span topology. The empty raw response and its SHA are retained in `tempo-search-config-get.json` and `tempo-correlation-receipt.json`; nearby service traces were not substituted. This preserves the gap rather than calling `trace_id:null` evidence.
 
+This row is a read-only receipt for the explicit configured opt-in `crossSessionTargeting="enabled"`. A merely non-empty response value is not sufficient: the candidate runtime fallback is `"disabled"`, which must remain uncovered by this row rather than being mistaken for enabled cross-session targeting.
+
 ## Historical provenance — not current coverage
 
 # R-CONFIG-INTERSESSION evidence — 5292af40 Project 81 corpus

@@ -27,7 +27,7 @@
     {
       "name": "cross-session-targeting",
       "required": true,
-      "description": "agents.defaults.continuation.crossSessionTargeting byte observed"
+      "description": "agents.defaults.continuation.crossSessionTargeting explicitly observed as enabled"
     }
   ],
   "artifactDestination": {
@@ -40,7 +40,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Read-only direct operator-RPC config.get row. Projects only committed continuation fields; no agent-mediated owner-only gateway tool, model sentinel, config mutation, or continuation scheduling."
+    "notes": "Read-only direct operator-RPC config.get row. Projects only the explicit crossSessionTargeting=enabled value; no agent-mediated owner-only gateway tool, model sentinel, config mutation, or continuation scheduling."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",

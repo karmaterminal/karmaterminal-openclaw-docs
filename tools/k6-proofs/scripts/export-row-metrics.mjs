@@ -153,8 +153,7 @@ function receiptStatusFromEvidence(name, evidenceRows, readiness = null) {
         ? 'present'
         : 'unknown';
     case 'cross-session-targeting':
-      return typeof evidence.cross_session_targeting === 'string'
-        && evidence.cross_session_targeting.length > 0
+      return evidence.cross_session_targeting === 'enabled'
         ? 'present'
         : 'unknown';
     case 'dispatch-accepted':

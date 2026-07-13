@@ -4,7 +4,7 @@
 - **Runtime/candidate:** `OpenClaw 2026.7.2 (cea9e42)` / `cea9e4296b7e5cd37f0a491d637ef8459ea2e737`
 - **One-fire workflow:** [29222117717](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29222117717) · artifact `8268529284`
 - **Window:** `2026-07-13T03:38:32Z` (exact per-row bounds in `elliott/20260713T033827Z-direct-operator-rpc/run-result.json`)
-- **Behavior observed:** authenticated operator `config.get` returned an accepted, redacted configuration response; the public-safe projection observed continuation defaults: `enabled=true`, `maxChainLength=200`, `maxDelegatesPerTurn=500`, and `costCapTokens=50000000`.
+- **Behavior observed:** authenticated operator `config.get` returned an accepted, redacted configuration response; the public-safe projection observed the configured continuation values: `enabled=true`, `maxChainLength=200`, `maxDelegatesPerTurn=500`, and `costCapTokens=50000000`.
 - **Why the harness changed:** the prior scenario asked a disposable non-owner agent to call the agent-facing owner-only `gateway` tool. That policy denial was correct; this receipt uses the actual authenticated operator RPC surface instead. Repair: [docs #402](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/402).
 
 ## Exact evidence bundle
@@ -14,6 +14,8 @@
 ## Classification: behavior pass, proof-bar partial
 
 The RPC behavior is a `PASS-candidate` (effective exit `0`; `config_read=true`), but this row is **not folded as a full exact-SHA PASS**. The exact window query for `elliott-prince` plus `.gen_ai.tool.name="config.get"` returned zero traces, so there is no attributable nonzero trace/span topology. The empty raw response and its SHA are retained in `tempo-search-config-get.json` and `tempo-correlation-receipt.json`; nearby service traces were not substituted. This preserves the gap rather than calling `trace_id:null` evidence.
+
+This is a read-only **configured-value surface receipt**, not a generic proof that unconfigured runtime fallbacks were enforced. Candidate fallback resolution is a separate behavior: when the continuation subtree is absent, the runtime resolver supplies its own numeric defaults and keeps `enabled=false`. Do not transfer this receipt to that different claim.
 
 ## Historical provenance — not current coverage
 

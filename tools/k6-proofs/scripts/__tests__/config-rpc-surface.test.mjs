@@ -18,3 +18,13 @@ for (const file of ['r-config-defaults.js', 'r-config-intersession.js']) {
     assert.doesNotMatch(source, /gateway tool with action=config\.get/);
   });
 }
+
+test('R-CONFIG-INTERSESSION accepts only the explicitly enabled configured value', async () => {
+  const source = await readFile(
+    path.join(root, 'tools/k6-proofs/scenarios/r-config-intersession.js'),
+    'utf8',
+  );
+  assert.match(source, /return value === 'enabled' \? value : null/);
+  assert.match(source, /cross-session targeting explicitly enabled/);
+  assert.doesNotMatch(source, /typeof value === 'string' && value\.length > 0/);
+});

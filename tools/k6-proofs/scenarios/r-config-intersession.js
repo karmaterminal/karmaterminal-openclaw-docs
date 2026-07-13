@@ -22,7 +22,10 @@ const manifest = loadManifestFromEnv();
 
 function readCrossSessionTargeting(payload) {
   const value = payload?.config?.agents?.defaults?.continuation?.crossSessionTargeting;
-  return typeof value === 'string' && value.length > 0 ? value : null;
+  // This row is specifically evidence that the configured opt-in is enabled.
+  // A non-empty fallback value such as "disabled" proves the RPC response
+  // shape, but must not satisfy the cross-session-targeting requirement.
+  return value === 'enabled' ? value : null;
 }
 
 export default function () {
@@ -81,7 +84,7 @@ export default function () {
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'direct operator config.get succeeded': () => evidence.config_read,
-    'cross-session targeting observed': () => typeof evidence.cross_session_targeting === 'string',
+    'cross-session targeting explicitly enabled': () => evidence.cross_session_targeting === 'enabled',
   });
   if (!evidence.config_read) failures.add(1);
   console.log('\n--- R-CONFIG-INTERSESSION EVIDENCE SUMMARY ---');

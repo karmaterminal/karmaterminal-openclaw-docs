@@ -74,8 +74,14 @@ test('row runner keeps private acquisition transient and publishes sanitized evi
   const runner = await readFile(path.join(repoRoot, 'tools/k6-proofs/scripts/run-proofs.sh'), 'utf8');
   assert.match(runner, /PRIVATE_K6_LOG="\$\(mktemp/);
   assert.match(runner, /PRIVATE_EVIDENCE_FILE="\$\(mktemp/);
+  assert.match(runner, /PRIVATE_GATEWAY_LOG="\$\(mktemp/);
+  assert.match(runner, /journalctl[\s\S]+--after-cursor/);
   assert.match(runner, /ARTIFACT_SANITIZER/);
   assert.match(runner, /--log-out "\$RUN_DIR\/k6\.log"/);
+  assert.match(runner, /--service-log-out "\$RUN_DIR\/gateway-journal\.log"/);
+  assert.match(runner, /gateway-journal-capture\.json/);
+  assert.match(runner, /gateway-journal-redaction\.json/);
   assert.doesNotMatch(runner, /tee "\$RUN_DIR\/k6\.log"/);
+  assert.doesNotMatch(runner, /gateway-journal\.private/);
   assert.doesNotMatch(runner, /sessionKey:\$session/);
 });

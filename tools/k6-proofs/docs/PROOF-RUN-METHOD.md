@@ -110,6 +110,8 @@ OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true \
 
 Each row remains candidate evidence until reviewed and folded.
 
+Every live row also captures the `openclaw-gateway` user journal for the bounded row window. Raw journal bytes remain transient; the artifact contains only `gateway-journal.log`, `gateway-journal-capture.json`, and `gateway-journal-redaction.json`. Correlated continuation/model/tool failures are retained while proof nonces, session keys, authorization material, and unrelated routine lines are removed. Journal access is required by default; set `OPENCLAW_PROOFS_SERVICE_LOG_REQUIRED=false` only when the resulting receipt debt is an intentional honest limit.
+
 ## GitHub Actions wrapper
 
 The bootstrap repo has a workflow-dispatch wrapper for Project 81:

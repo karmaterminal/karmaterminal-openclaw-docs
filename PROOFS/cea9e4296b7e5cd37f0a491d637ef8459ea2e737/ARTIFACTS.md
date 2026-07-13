@@ -6,10 +6,10 @@
 |---|---|---:|---:|---|
 | focused contained CI | assembly | `29218008324` | workflow receipt | PASS: 124 tests, 0 failures, core/all-test typechecks, full lint/format |
 | Gate 2.7 | assembly | `29218008174` | classification artifact | PASS: `FROZEN-STALE=0` |
-| deploy | Silas | pending | workflow receipt | pending |
-| deploy | Elliott | pending | workflow receipt | pending |
-| deploy | Cael | pending | workflow receipt | pending |
-| deploy | Ronan | pending | workflow receipt | pending |
+| deploy | Silas | `29218759572` | workflow receipt | PASS: exact SHA active, `NRestarts=0` |
+| deploy | Elliott | `29218757090` | workflow receipt | PASS: exact SHA active, `NRestarts=0` |
+| deploy | Cael | `29218759980` | workflow receipt | PASS: exact SHA active, `NRestarts=0` |
+| deploy | Ronan | `29218701617` | workflow receipt | PASS: exact SHA active, `NRestarts=0` |
 
 No behavioral `cea9e42` proof artifact is folded yet. Row owners add reviewed
 artifacts here or in their row directories and update the manifest in the same

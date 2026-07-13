@@ -52,7 +52,7 @@
       }
     },
     "current_cea9e42": {
-      "status": "awaiting-exact-sha-deploy-and-runs",
+      "status": "deployed-four-seat-no-pilot",
       "assembly_branch": "scribe/20260712/1172-a177-upstream-absorb",
       "repair_branch": "scribe/20260713/1172-codex-result-classification",
       "gate_runs": {
@@ -88,7 +88,33 @@
         "R-CW-TOKEN",
         "R-RC-1",
         "R-RC-2"
-      ]
+      ],
+      "deploy_runs": {
+        "silas": {
+          "run": "29218759572",
+          "conclusion": "success",
+          "active_sha": "cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
+          "nrestarts": 0
+        },
+        "elliott": {
+          "run": "29218757090",
+          "conclusion": "success",
+          "active_sha": "cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
+          "nrestarts": 0
+        },
+        "cael": {
+          "run": "29218759980",
+          "conclusion": "success",
+          "active_sha": "cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
+          "nrestarts": 0
+        },
+        "ronan": {
+          "run": "29218701617",
+          "conclusion": "success",
+          "active_sha": "cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
+          "nrestarts": 0
+        }
+      }
     }
   },
   "rollup": {

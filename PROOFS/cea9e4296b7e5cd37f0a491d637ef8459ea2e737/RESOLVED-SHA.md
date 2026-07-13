@@ -29,10 +29,11 @@ existing bounded wait and passed the exact production path remotely.
 
 | Seat | Deploy run | Active commit | Restarts |
 |---|---:|---|---:|
-| Silas | pending | pending | pending |
-| Elliott | pending | pending | pending |
-| Cael | pending | pending | pending |
-| Ronan | pending | pending | pending |
+| Silas | `29218759572` | `cea9e4296b7e5cd37f0a491d637ef8459ea2e737` | `0` |
+| Elliott | `29218757090` | `cea9e4296b7e5cd37f0a491d637ef8459ea2e737` | `0` |
+| Cael | `29218759980` | `cea9e4296b7e5cd37f0a491d637ef8459ea2e737` | `0` |
+| Ronan | `29218701617` | `cea9e4296b7e5cd37f0a491d637ef8459ea2e737` | `0` |
 
 Figs directed one four-seat fleet deployment after the contained gates pass;
-there is no canary/pilot phase for this repair.
+there was no canary/pilot phase for this repair. All four workflows completed
+with the gateway active on the exact commit and zero service-lifetime restarts.

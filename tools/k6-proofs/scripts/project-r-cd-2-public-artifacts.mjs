@@ -7,7 +7,7 @@
  */
 import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { validateRcd2LifecycleReceipt } from '../lib/r-cd-2-lifecycle-receipt.js';
+import { projectRcd2PublicLifecycleReceipt, validateRcd2LifecycleReceipt } from '../lib/r-cd-2-lifecycle-receipt.js';
 
 function parseArgs(argv) {
   const out = {};
@@ -69,6 +69,7 @@ export async function projectRcd2PublicArtifacts({ runDir, receiptPath, correlat
   const receipt = await jsonOrNull(receiptPath);
   const validation = validateRcd2LifecycleReceipt(receipt);
   if (!validation.valid) throw new Error(`R-CD-2 lifecycle receipt rejected: ${validation.reason}`);
+  const publicReceipt = projectRcd2PublicLifecycleReceipt(receipt);
 
   const manifestPath = path.join(runDir, 'row-manifest.json');
   const manifest = await jsonOrNull(manifestPath);
@@ -86,6 +87,7 @@ export async function projectRcd2PublicArtifacts({ runDir, receiptPath, correlat
   });
 
   await writeFile(manifestPath, `${JSON.stringify(safeManifest(manifest), null, 2)}\n`);
+  await writeFile(receiptPath, `${JSON.stringify(publicReceipt, null, 2)}\n`);
   const privateNames = [
     'continuation-trace-correlation.json',
     'continuation-trace-collector.json',
@@ -110,7 +112,7 @@ export async function projectRcd2PublicArtifacts({ runDir, receiptPath, correlat
       if (text.includes(token)) throw new Error(`R-CD-2 public artifact leaked private acquisition token in ${relative}`);
     }
   }
-  return { receipt, publicFiles: await walkFiles(runDir) };
+  return { receipt: publicReceipt, publicFiles: await walkFiles(runDir) };
 }
 
 async function main() {

@@ -18,6 +18,7 @@ const sha = 'a'.repeat(40);
 function localEvidence(overrides = {}) {
   return {
     session_created: true, session_unbound_confirmed: true, tool_accepted: true,
+    send_run_id_captured: true, terminal_run_matched: true, wake_run_matched: true,
     delegate_scheduled_receipt: true, dispatch_turn_completed: true,
     terminal_success_observed: true, parent_wake_observed: true,
     child_fire_or_completion_observed: true, post_wake_quiet_completed: true,
@@ -104,6 +105,26 @@ test('both shared writers consume only the canonical receipt and reject forged p
   });
 });
 
+test('R-CD-2 rejects a shape-valid forged receipt and never copies unknown fields to public artifacts', async () => {
+  await withTmp(async (dir) => {
+    const canonical = resolveRcd2LifecycleReceipt({ evidence: localEvidence(), correlation: correlation() });
+    const forged = {
+      ...canonical,
+      rpcError: 'private-rpc-marker',
+      lifecycle: { ...canonical.lifecycle, traceQuery: 'TraceQL-private-marker' },
+    };
+    const receiptPath = path.join(dir, 'forged-shape-valid.json');
+    await writeFile(receiptPath, JSON.stringify(forged));
+    const logPath = path.join(dir, 'k6.log');
+    const summaryPath = path.join(dir, 'summary.json');
+    await writeFile(logPath, '--- R-CD-2 EVIDENCE SUMMARY ---\n{"redacted_events":[]}\n--- END EVIDENCE ---\n');
+    await writeFile(summaryPath, JSON.stringify({ metrics: { proof_failures: { values: { count: 0 } }, checks: { values: { rate: 1 } } } }));
+    const common = ['--manifest', manifest, '--lifecycle-receipt', receiptPath];
+    await assert.rejects(execFileAsync(process.execPath, [writer, '--input', logPath, '--row', 'R-CD-2', '--seat', 'unit', '--sha', sha, ...common], { cwd: dir }));
+    await assert.rejects(execFileAsync(process.execPath, [postprocessor, '--summary', summaryPath, '--out-root', path.join(dir, 'post'), '--run-id', 'unit', ...common], { cwd: dir }));
+  });
+});
+
 test('both shared writers agree on complete topology and publish fingerprints only', async () => {
   await withTmp(async (dir) => {
     const receipt = resolveRcd2LifecycleReceipt({ evidence: localEvidence(), correlation: correlation() });
@@ -132,6 +153,14 @@ test('R-CD-2 public outputs retain no raw acquisition identifiers while partial 
     const nonRcd2 = JSON.parse(await readFile(path.join(dir, nonRcd2Dir, 'row-result.json'), 'utf8'));
     assert.equal(nonRcd2.outcome, 'PASS-candidate');
   });
+});
+
+test('valid correlation plus unrelated local lifecycle remains PARTIAL-candidate', () => {
+  const receipt = resolveRcd2LifecycleReceipt({
+    evidence: localEvidence({ terminal_run_matched: false, wake_run_matched: false }),
+    correlation: correlation(),
+  });
+  assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'missing-local-lifecycle-evidence']);
 });
 
 test('R-CD-2 writers project raw k6 summaries before public artifacts are written', async () => {

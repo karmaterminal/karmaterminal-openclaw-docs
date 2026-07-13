@@ -5,6 +5,7 @@ import {
   R_CD_2_RECEIPT_SCHEMA,
   R_CD_2_FAILURE_CATEGORIES,
   localEvidenceIsComplete,
+  privateBinding,
   publicFingerprint,
 } from '../lib/r-cd-2-lifecycle-receipt.js';
 
@@ -30,6 +31,30 @@ export function resolveRcd2LifecycleReceipt({ evidence, correlation }) {
     authoritativeSource: 'r-cd-2-lifecycle-resolver',
     candidateOnly: true,
     foldRequiresReview: true,
+    // These hashes bind the public projection to the two private acquisition
+    // inputs that the resolver joined. They are not identifiers and are never
+    // derived from prompt/session/trace strings individually.
+    binding: {
+      localEvidenceFingerprint: privateBinding({
+        session_created: evidence?.session_created === true,
+        session_unbound_confirmed: evidence?.session_unbound_confirmed === true,
+        tool_accepted: evidence?.tool_accepted === true,
+        sendRunFingerprint: evidence?.send_run_fingerprint || null,
+        terminalSuccessObserved: evidence?.terminal_success_observed === true,
+        wakeObserved: evidence?.child_fire_or_completion_observed === true,
+        dispatchFailureObserved: evidence?.dispatch_failure_observed === true,
+      }),
+      correlationFingerprint: privateBinding({
+        tool: correlation?.continuation?.tool || null,
+        acceptSpan: correlation?.continuation?.acceptSpan || null,
+        fireSpan: correlation?.continuation?.fireSpan || null,
+        mode: correlation?.delegate?.mode || null,
+        traceId: correlation?.traceId || null,
+        chainId: correlation?.chainId || null,
+        dispatchSpanId: correlation?.dispatchSpanId || null,
+        fireSpanId: correlation?.fireSpanId || null,
+      }),
+    },
   };
   if (!localEvidenceIsComplete(evidence)) {
     return { ...base, verdict: 'PARTIAL-candidate', failureCategory: failureCategory(evidence) };

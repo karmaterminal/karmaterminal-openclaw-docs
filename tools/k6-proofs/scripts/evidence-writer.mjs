@@ -26,7 +26,7 @@
 import { copyFileSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
-import { validateRcd2LifecycleReceipt } from '../lib/r-cd-2-lifecycle-receipt.js';
+import { projectRcd2PublicLifecycleReceipt, validateRcd2LifecycleReceipt } from '../lib/r-cd-2-lifecycle-receipt.js';
 import { projectRcd2PublicSummary } from '../lib/r-cd-2-public-summary.mjs';
 
 function parseArgs(argv) {
@@ -139,6 +139,10 @@ if (args.row === 'R-CD-2') {
     console.error(`ERROR: R-CD-2 lifecycle receipt rejected: ${lifecycleValidation.reason}`);
     process.exit(1);
   }
+  // Never carry the parsed input object into a public output. The projector is
+  // intentionally closed so extra provider/RPC/correlation fields cannot
+  // hitch a ride through row-result.json.
+  lifecycleReceipt = projectRcd2PublicLifecycleReceipt(lifecycleReceipt);
 }
 
 // Build output directory

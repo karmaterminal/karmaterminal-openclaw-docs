@@ -80,6 +80,15 @@ export function isOutboundChannelDeliveryEvent(eventName, eventData) {
   return Boolean(channelTarget) && ['sent', 'delivered', 'completed'].includes(deliveryStatus);
 }
 
+// Gateway event envelopes have used both runId and turnId spellings. Keep the
+// proof row strict across those variants: an event without the accepted send's
+// identifier is diagnostic context, never lifecycle proof.
+export function lifecycleRunId(value) {
+  if (!value || typeof value !== 'object') return null;
+  return value.runId || value.run_id || value.turnId || value.turn_id ||
+    value.data?.runId || value.data?.run_id || value.data?.turnId || value.data?.turn_id || null;
+}
+
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
@@ -118,6 +127,9 @@ export default function () {
     started: new Date().toISOString(),
     // Required receipts
     tool_accepted: false,
+    send_run_id_captured: false,
+    terminal_run_matched: false,
+    wake_run_matched: false,
     delegate_scheduled_receipt: false,
     dispatch_turn_completed: false,
     terminal_success_observed: false,
@@ -133,6 +145,7 @@ export default function () {
     channel_message_observed: false, // MUST stay false for PASS
     silent_status_record_observed: false,
     dispatch_accepted_at_ms: null,
+    dispatch_run_id: null,
     wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
     post_wake_quiet_ms: Number(__ENV.OPENCLAW_POST_WAKE_QUIET_MS || 5000),
     post_wake_quiet_timer_started: false,
@@ -246,6 +259,15 @@ export default function () {
           if (classified.ok) {
             evidence.tool_accepted = true;
             evidence.dispatch_accepted_at_ms = Date.now();
+            const acceptedRunId = lifecycleRunId(classified.payload);
+            if (acceptedRunId) {
+              evidence.dispatch_run_id = acceptedRunId;
+              evidence.send_run_id_captured = true;
+            } else {
+              // An accepted send without an identifier cannot be joined to a
+              // later lifecycle event and is intentionally non-promotable.
+              evidence.dispatch_failure_observed = true;
+            }
             if (classified.payload && classified.payload.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — agent turn triggered for R-CD-2 (mode=silent-wake)');
           } else if (classified.error) {
@@ -284,12 +306,15 @@ export default function () {
             const stream = String(eventData.stream || '').toLowerCase();
             const phase = String(eventData.data?.phase || '').toLowerCase();
             const status = String(eventData.data?.status || eventData.status || '').toLowerCase();
-            if (stream === 'lifecycle' && phase === 'end') {
+            const eventRunId = lifecycleRunId(eventData);
+            const sameAcceptedRun = Boolean(evidence.dispatch_run_id && eventRunId && eventRunId === evidence.dispatch_run_id);
+            if (stream === 'lifecycle' && phase === 'end' && sameAcceptedRun) {
               if (['error', 'failed', 'failure', 'aborted'].includes(status) || eventData.data?.replayInvalid === true) {
                 evidence.dispatch_failure_observed = true;
               } else {
                 evidence.dispatch_turn_completed = true;
                 evidence.terminal_success_observed = true;
+                evidence.terminal_run_matched = true;
               }
             }
             if (stream === 'item' && ['error', 'failed', 'failure', 'aborted'].includes(status)) {
@@ -302,10 +327,13 @@ export default function () {
           // by the gateway, so only count a parent wake after the minimum delay.
           if (eventName === 'session.message' && evidence.tool_accepted) {
             const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
-            if (elapsed >= evidence.wake_gate_ms) {
+            const eventRunId = lifecycleRunId(eventData);
+            const sameAcceptedRun = Boolean(evidence.dispatch_run_id && eventRunId && eventRunId === evidence.dispatch_run_id);
+            if (elapsed >= evidence.wake_gate_ms && sameAcceptedRun) {
               evidence.parent_wake_observed = true;
               evidence.agent_turn_observed = true;
               evidence.child_fire_or_completion_observed = true;
+              evidence.wake_run_matched = true;
               if (!evidence.post_wake_quiet_timer_started) {
                 evidence.post_wake_quiet_timer_started = true;
                 socket.setTimeout(() => {

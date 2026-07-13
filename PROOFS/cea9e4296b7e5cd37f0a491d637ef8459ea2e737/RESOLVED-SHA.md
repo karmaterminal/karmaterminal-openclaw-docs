@@ -37,3 +37,16 @@ existing bounded wait and passed the exact production path remotely.
 Figs directed one four-seat fleet deployment after the contained gates pass;
 there was no canary/pilot phase for this repair. All four workflows completed
 with the gateway active on the exact commit and zero service-lifetime restarts.
+
+## Fresh continuation proof receipts
+
+| Row | Seat | Workflow / artifact | Outcome | Trace |
+|---|---|---|---|---|
+| R-CD-1 | Silas | `29219185714` / `8267627685` | typed delegate accepted, scheduled, returned; `PASS-candidate` / exit `0` | `ea920a5ed49ca9040345968e8703754f` |
+| R-CW-1 | Silas | `29219185714` / `8267627685` | typed work accepted, scheduled, successor wake; `PASS-candidate` / exit `0` | `7ee6322b39875ac81d29dc590bc739b0` |
+
+Both traces are raw public-safe Tempo JSON in their row directories with separate
+correlation receipts that prove same-trace, distinct continuation/tool-fire spans.
+The generic typed-tool scenarios did not invoke the Codex app-server surface;
+OpenClaw harness/run outcomes are completed and artifact scans contain no
+`codex_dynamic_tool_error`.

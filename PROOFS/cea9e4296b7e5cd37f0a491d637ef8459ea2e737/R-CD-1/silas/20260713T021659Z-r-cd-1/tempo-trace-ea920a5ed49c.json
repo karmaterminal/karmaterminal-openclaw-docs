@@ -1,0 +1,2283 @@
+{
+  "batches": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "host.name",
+            "value": {
+              "stringValue": "silas"
+            }
+          },
+          {
+            "key": "host.arch",
+            "value": {
+              "stringValue": "amd64"
+            }
+          },
+          {
+            "key": "host.id",
+            "value": {
+              "stringValue": "c1926e8bba294861b52184b219269c05"
+            }
+          },
+          {
+            "key": "process.pid",
+            "value": {
+              "intValue": "2180108"
+            }
+          },
+          {
+            "key": "process.executable.name",
+            "value": {
+              "stringValue": "/usr/bin/node"
+            }
+          },
+          {
+            "key": "process.executable.path",
+            "value": {
+              "stringValue": "/usr/bin/node"
+            }
+          },
+          {
+            "key": "process.command_args",
+            "value": {
+              "arrayValue": {
+                "values": [
+                  {
+                    "stringValue": "/usr/bin/node"
+                  },
+                  {
+                    "stringValue": "--no-opt"
+                  },
+                  {
+                    "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                  },
+                  {
+                    "stringValue": "gateway"
+                  },
+                  {
+                    "stringValue": "--port"
+                  },
+                  {
+                    "stringValue": "18789"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "key": "process.runtime.version",
+            "value": {
+              "stringValue": "26.1.0"
+            }
+          },
+          {
+            "key": "process.runtime.name",
+            "value": {
+              "stringValue": "nodejs"
+            }
+          },
+          {
+            "key": "process.runtime.description",
+            "value": {
+              "stringValue": "Node.js"
+            }
+          },
+          {
+            "key": "process.command",
+            "value": {
+              "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+            }
+          },
+          {
+            "key": "process.owner",
+            "value": {
+              "stringValue": "figs"
+            }
+          },
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "silas-prince"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "openclaw"
+          },
+          "spans": [
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "JmGdQL/80lY=",
+              "name": "openclaw.message.processed",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909020667000000",
+              "endTimeUnixNano": "1783909035856000000",
+              "attributes": [
+                {
+                  "key": "openclaw.channel",
+                  "value": {
+                    "stringValue": "webchat"
+                  }
+                },
+                {
+                  "key": "openclaw.source",
+                  "value": {
+                    "stringValue": "replyResolver"
+                  }
+                },
+                {
+                  "key": "openclaw.outcome",
+                  "value": {
+                    "stringValue": "completed"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "vJc/nnhAqmY=",
+              "parentSpanId": "Hki5PynqliU=",
+              "name": "openclaw.model.usage",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909020969000000",
+              "endTimeUnixNano": "1783909035792000000",
+              "attributes": [
+                {
+                  "key": "openclaw.channel",
+                  "value": {
+                    "stringValue": "webchat"
+                  }
+                },
+                {
+                  "key": "openclaw.agent",
+                  "value": {
+                    "stringValue": "main"
+                  }
+                },
+                {
+                  "key": "openclaw.provider",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "openclaw.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "openclaw.tokens.input",
+                  "value": {
+                    "intValue": "39851"
+                  }
+                },
+                {
+                  "key": "openclaw.tokens.output",
+                  "value": {
+                    "intValue": "130"
+                  }
+                },
+                {
+                  "key": "openclaw.tokens.cache_read",
+                  "value": {
+                    "intValue": "45824"
+                  }
+                },
+                {
+                  "key": "openclaw.tokens.cache_write",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.tokens.total",
+                  "value": {
+                    "intValue": "42957"
+                  }
+                },
+                {
+                  "key": "gen_ai.system",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "gen_ai.request.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "chat"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.input_tokens",
+                  "value": {
+                    "intValue": "85675"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.output_tokens",
+                  "value": {
+                    "intValue": "130"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.cache_read.input_tokens",
+                  "value": {
+                    "intValue": "45824"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "Hki5PynqliU=",
+              "parentSpanId": "JmGdQL/80lY=",
+              "name": "openclaw.harness.run",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909021104000000",
+              "endTimeUnixNano": "1783909035746000000",
+              "attributes": [
+                {
+                  "key": "openclaw.harness.id",
+                  "value": {
+                    "stringValue": "openclaw"
+                  }
+                },
+                {
+                  "key": "openclaw.harness.plugin",
+                  "value": {
+                    "stringValue": "unknown"
+                  }
+                },
+                {
+                  "key": "openclaw.provider",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "openclaw.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "openclaw.channel",
+                  "value": {
+                    "stringValue": "webchat"
+                  }
+                },
+                {
+                  "key": "openclaw.outcome",
+                  "value": {
+                    "stringValue": "completed"
+                  }
+                },
+                {
+                  "key": "openclaw.harness.items.started",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "openclaw.harness.items.completed",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "openclaw.harness.items.active",
+                  "value": {
+                    "intValue": "0"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "IwpEOZb97Uw=",
+              "parentSpanId": "Hki5PynqliU=",
+              "name": "openclaw.run",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909021107000000",
+              "endTimeUnixNano": "1783909035746000000",
+              "attributes": [
+                {
+                  "key": "openclaw.provider",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "openclaw.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "openclaw.channel",
+                  "value": {
+                    "stringValue": "webchat"
+                  }
+                },
+                {
+                  "key": "openclaw.trigger",
+                  "value": {
+                    "stringValue": "user"
+                  }
+                },
+                {
+                  "key": "openclaw.outcome",
+                  "value": {
+                    "stringValue": "completed"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "RE9Abh3TqxY=",
+              "parentSpanId": "IwpEOZb97Uw=",
+              "name": "openclaw.model.call",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909027818000000",
+              "endTimeUnixNano": "1783909032684000000",
+              "attributes": [
+                {
+                  "key": "openclaw.provider",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "openclaw.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "gen_ai.system",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "gen_ai.request.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "chat"
+                  }
+                },
+                {
+                  "key": "openclaw.api",
+                  "value": {
+                    "stringValue": "openai-chatgpt-responses"
+                  }
+                },
+                {
+                  "key": "openclaw.transport",
+                  "value": {
+                    "stringValue": "auto"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.input_messages_count",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.input_messages_chars",
+                  "value": {
+                    "intValue": "542"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.system_prompt_chars",
+                  "value": {
+                    "intValue": "110792"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.tool_definitions_count",
+                  "value": {
+                    "intValue": "46"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.tool_definitions_chars",
+                  "value": {
+                    "intValue": "55949"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.total_chars",
+                  "value": {
+                    "intValue": "167283"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.request_bytes",
+                  "value": {
+                    "intValue": "170408"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.response_bytes",
+                  "value": {
+                    "intValue": "3179"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.time_to_first_byte_ms",
+                  "value": {
+                    "intValue": "2016"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.input_tokens",
+                  "value": {
+                    "intValue": "39292"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.output_tokens",
+                  "value": {
+                    "intValue": "100"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.cache_read_input_tokens",
+                  "value": {
+                    "intValue": "3456"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.reasoning_output_tokens",
+                  "value": {
+                    "intValue": "17"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.prompt_tokens",
+                  "value": {
+                    "intValue": "42748"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.total_tokens",
+                  "value": {
+                    "intValue": "42848"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.input_tokens",
+                  "value": {
+                    "intValue": "42748"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.output_tokens",
+                  "value": {
+                    "intValue": "100"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.cache_read.input_tokens",
+                  "value": {
+                    "intValue": "3456"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "l2B8cWVzIiU=",
+              "parentSpanId": "IwpEOZb97Uw=",
+              "name": "openclaw.tool.execution",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909032730000000",
+              "endTimeUnixNano": "1783909032731000000",
+              "attributes": [
+                {
+                  "key": "openclaw.toolName",
+                  "value": {
+                    "stringValue": "continue_delegate"
+                  }
+                },
+                {
+                  "key": "openclaw.tool.source",
+                  "value": {
+                    "stringValue": "core"
+                  }
+                },
+                {
+                  "key": "gen_ai.tool.name",
+                  "value": {
+                    "stringValue": "continue_delegate"
+                  }
+                },
+                {
+                  "key": "openclaw.tool.params.kind",
+                  "value": {
+                    "stringValue": "object"
+                  }
+                },
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "execute_tool"
+                  }
+                },
+                {
+                  "key": "gen_ai.tool.call.id",
+                  "value": {
+                    "stringValue": "call_BO6rw6UghL5MipcVKdydgEd3|fc_0622c95e83fea5e5016a544aa777688191a95004fcd94c2e08"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "7DKWe3i1Vpg=",
+              "parentSpanId": "IwpEOZb97Uw=",
+              "name": "openclaw.model.call",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909032778000000",
+              "endTimeUnixNano": "1783909035697000000",
+              "attributes": [
+                {
+                  "key": "openclaw.provider",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "openclaw.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "gen_ai.system",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "gen_ai.request.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "chat"
+                  }
+                },
+                {
+                  "key": "openclaw.api",
+                  "value": {
+                    "stringValue": "openai-chatgpt-responses"
+                  }
+                },
+                {
+                  "key": "openclaw.transport",
+                  "value": {
+                    "stringValue": "auto"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.input_messages_count",
+                  "value": {
+                    "intValue": "3"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.input_messages_chars",
+                  "value": {
+                    "intValue": "3449"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.system_prompt_chars",
+                  "value": {
+                    "intValue": "110792"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.tool_definitions_count",
+                  "value": {
+                    "intValue": "46"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.tool_definitions_chars",
+                  "value": {
+                    "intValue": "55949"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.total_chars",
+                  "value": {
+                    "intValue": "170190"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.request_bytes",
+                  "value": {
+                    "intValue": "172143"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.response_bytes",
+                  "value": {
+                    "intValue": "850"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.time_to_first_byte_ms",
+                  "value": {
+                    "intValue": "925"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.input_tokens",
+                  "value": {
+                    "intValue": "559"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.output_tokens",
+                  "value": {
+                    "intValue": "30"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.cache_read_input_tokens",
+                  "value": {
+                    "intValue": "42368"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.prompt_tokens",
+                  "value": {
+                    "intValue": "42927"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.total_tokens",
+                  "value": {
+                    "intValue": "42957"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.input_tokens",
+                  "value": {
+                    "intValue": "42927"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.output_tokens",
+                  "value": {
+                    "intValue": "30"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.cache_read.input_tokens",
+                  "value": {
+                    "intValue": "42368"
+                  }
+                }
+              ],
+              "status": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "host.name",
+            "value": {
+              "stringValue": "silas"
+            }
+          },
+          {
+            "key": "host.arch",
+            "value": {
+              "stringValue": "amd64"
+            }
+          },
+          {
+            "key": "host.id",
+            "value": {
+              "stringValue": "c1926e8bba294861b52184b219269c05"
+            }
+          },
+          {
+            "key": "process.pid",
+            "value": {
+              "intValue": "2180108"
+            }
+          },
+          {
+            "key": "process.executable.name",
+            "value": {
+              "stringValue": "/usr/bin/node"
+            }
+          },
+          {
+            "key": "process.executable.path",
+            "value": {
+              "stringValue": "/usr/bin/node"
+            }
+          },
+          {
+            "key": "process.command_args",
+            "value": {
+              "arrayValue": {
+                "values": [
+                  {
+                    "stringValue": "/usr/bin/node"
+                  },
+                  {
+                    "stringValue": "--no-opt"
+                  },
+                  {
+                    "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                  },
+                  {
+                    "stringValue": "gateway"
+                  },
+                  {
+                    "stringValue": "--port"
+                  },
+                  {
+                    "stringValue": "18789"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "key": "process.runtime.version",
+            "value": {
+              "stringValue": "26.1.0"
+            }
+          },
+          {
+            "key": "process.runtime.name",
+            "value": {
+              "stringValue": "nodejs"
+            }
+          },
+          {
+            "key": "process.runtime.description",
+            "value": {
+              "stringValue": "Node.js"
+            }
+          },
+          {
+            "key": "process.command",
+            "value": {
+              "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+            }
+          },
+          {
+            "key": "process.owner",
+            "value": {
+              "stringValue": "figs"
+            }
+          },
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "silas-prince"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "openclaw"
+          },
+          "spans": [
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "q9ba/yJZdSw=",
+              "parentSpanId": "oJi5BMwyXk0=",
+              "name": "openclaw.context.assembled",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909021580000000",
+              "endTimeUnixNano": "1783909021580000000",
+              "attributes": [
+                {
+                  "key": "openclaw.context.message_count",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.history_text_chars",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.history_image_blocks",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.max_message_text_chars",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.system_prompt_chars",
+                  "value": {
+                    "intValue": "6058"
+                  }
+                },
+                {
+                  "key": "openclaw.context.prompt_chars",
+                  "value": {
+                    "intValue": "4888"
+                  }
+                },
+                {
+                  "key": "openclaw.context.prompt_images",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.provider",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "openclaw.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "openclaw.channel",
+                  "value": {
+                    "stringValue": "webchat"
+                  }
+                },
+                {
+                  "key": "openclaw.trigger",
+                  "value": {
+                    "stringValue": "manual"
+                  }
+                },
+                {
+                  "key": "openclaw.context.token_budget",
+                  "value": {
+                    "intValue": "372000"
+                  }
+                },
+                {
+                  "key": "openclaw.context.reserve_tokens",
+                  "value": {
+                    "intValue": "100000"
+                  }
+                }
+              ],
+              "status": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "host.name",
+            "value": {
+              "stringValue": "silas"
+            }
+          },
+          {
+            "key": "host.arch",
+            "value": {
+              "stringValue": "amd64"
+            }
+          },
+          {
+            "key": "host.id",
+            "value": {
+              "stringValue": "c1926e8bba294861b52184b219269c05"
+            }
+          },
+          {
+            "key": "process.pid",
+            "value": {
+              "intValue": "2180108"
+            }
+          },
+          {
+            "key": "process.executable.name",
+            "value": {
+              "stringValue": "/usr/bin/node"
+            }
+          },
+          {
+            "key": "process.executable.path",
+            "value": {
+              "stringValue": "/usr/bin/node"
+            }
+          },
+          {
+            "key": "process.command_args",
+            "value": {
+              "arrayValue": {
+                "values": [
+                  {
+                    "stringValue": "/usr/bin/node"
+                  },
+                  {
+                    "stringValue": "--no-opt"
+                  },
+                  {
+                    "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                  },
+                  {
+                    "stringValue": "gateway"
+                  },
+                  {
+                    "stringValue": "--port"
+                  },
+                  {
+                    "stringValue": "18789"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "key": "process.runtime.version",
+            "value": {
+              "stringValue": "26.1.0"
+            }
+          },
+          {
+            "key": "process.runtime.name",
+            "value": {
+              "stringValue": "nodejs"
+            }
+          },
+          {
+            "key": "process.runtime.description",
+            "value": {
+              "stringValue": "Node.js"
+            }
+          },
+          {
+            "key": "process.command",
+            "value": {
+              "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+            }
+          },
+          {
+            "key": "process.owner",
+            "value": {
+              "stringValue": "figs"
+            }
+          },
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "silas-prince"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "openclaw"
+          },
+          "spans": [
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "y1hw0K8EJs0=",
+              "parentSpanId": "oJi5BMwyXk0=",
+              "name": "openclaw.model.call",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909021600000000",
+              "endTimeUnixNano": "1783909026454000000",
+              "attributes": [
+                {
+                  "key": "openclaw.provider",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "openclaw.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "gen_ai.system",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "gen_ai.request.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "chat"
+                  }
+                },
+                {
+                  "key": "openclaw.api",
+                  "value": {
+                    "stringValue": "openai-chatgpt-responses"
+                  }
+                },
+                {
+                  "key": "openclaw.transport",
+                  "value": {
+                    "stringValue": "auto"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.input_messages_count",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.input_messages_chars",
+                  "value": {
+                    "intValue": "5046"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.system_prompt_chars",
+                  "value": {
+                    "intValue": "6058"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.tool_definitions_count",
+                  "value": {
+                    "intValue": "2"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.tool_definitions_chars",
+                  "value": {
+                    "intValue": "1490"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.total_chars",
+                  "value": {
+                    "intValue": "12594"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.request_bytes",
+                  "value": {
+                    "intValue": "13001"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.response_bytes",
+                  "value": {
+                    "intValue": "2978"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.time_to_first_byte_ms",
+                  "value": {
+                    "intValue": "548"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.input_tokens",
+                  "value": {
+                    "intValue": "3762"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.output_tokens",
+                  "value": {
+                    "intValue": "189"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.cache_read_input_tokens",
+                  "value": {
+                    "intValue": "3456"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.prompt_tokens",
+                  "value": {
+                    "intValue": "7218"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.total_tokens",
+                  "value": {
+                    "intValue": "7407"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.input_tokens",
+                  "value": {
+                    "intValue": "7218"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.output_tokens",
+                  "value": {
+                    "intValue": "189"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.cache_read.input_tokens",
+                  "value": {
+                    "intValue": "3456"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "Ww/oG3qEYRE=",
+              "parentSpanId": "oJi5BMwyXk0=",
+              "name": "openclaw.tool.execution",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909026489000000",
+              "endTimeUnixNano": "1783909027656000000",
+              "attributes": [
+                {
+                  "key": "openclaw.toolName",
+                  "value": {
+                    "stringValue": "memory_search"
+                  }
+                },
+                {
+                  "key": "openclaw.tool.source",
+                  "value": {
+                    "stringValue": "plugin"
+                  }
+                },
+                {
+                  "key": "gen_ai.tool.name",
+                  "value": {
+                    "stringValue": "memory_search"
+                  }
+                },
+                {
+                  "key": "openclaw.tool.owner",
+                  "value": {
+                    "stringValue": "memory-core"
+                  }
+                },
+                {
+                  "key": "openclaw.tool.params.kind",
+                  "value": {
+                    "stringValue": "object"
+                  }
+                },
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "execute_tool"
+                  }
+                },
+                {
+                  "key": "gen_ai.tool.call.id",
+                  "value": {
+                    "stringValue": "call_wAxpdPFeXXCeE8NeoCiMUm3p|fc_070348ef087f38ec016a544a9f23788199a2fb6d5233f71f52"
+                  }
+                },
+                {
+                  "key": "openclaw.errorCategory",
+                  "value": {
+                    "stringValue": "tool_result_error"
+                  }
+                }
+              ],
+              "status": {
+                "message": "tool_result_error",
+                "code": "STATUS_CODE_ERROR"
+              }
+            },
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "j9jBH6eSaxQ=",
+              "parentSpanId": "IwpEOZb97Uw=",
+              "name": "openclaw.context.assembled",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909027770000000",
+              "endTimeUnixNano": "1783909027770000000",
+              "attributes": [
+                {
+                  "key": "openclaw.context.message_count",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.history_text_chars",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.history_image_blocks",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.max_message_text_chars",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.system_prompt_chars",
+                  "value": {
+                    "intValue": "110792"
+                  }
+                },
+                {
+                  "key": "openclaw.context.prompt_chars",
+                  "value": {
+                    "intValue": "453"
+                  }
+                },
+                {
+                  "key": "openclaw.context.prompt_images",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.provider",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "openclaw.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "openclaw.channel",
+                  "value": {
+                    "stringValue": "webchat"
+                  }
+                },
+                {
+                  "key": "openclaw.trigger",
+                  "value": {
+                    "stringValue": "user"
+                  }
+                },
+                {
+                  "key": "openclaw.context.token_budget",
+                  "value": {
+                    "intValue": "372000"
+                  }
+                },
+                {
+                  "key": "openclaw.context.reserve_tokens",
+                  "value": {
+                    "intValue": "100000"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "pzZZ3aMC7BQ=",
+              "parentSpanId": "oJi5BMwyXk0=",
+              "name": "openclaw.model.call",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909027811000000",
+              "endTimeUnixNano": "1783909027834000000",
+              "attributes": [
+                {
+                  "key": "openclaw.provider",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "openclaw.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "gen_ai.system",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "gen_ai.request.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "chat"
+                  }
+                },
+                {
+                  "key": "openclaw.api",
+                  "value": {
+                    "stringValue": "openai-chatgpt-responses"
+                  }
+                },
+                {
+                  "key": "openclaw.transport",
+                  "value": {
+                    "stringValue": "auto"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.input_messages_count",
+                  "value": {
+                    "intValue": "3"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.input_messages_chars",
+                  "value": {
+                    "intValue": "7462"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.system_prompt_chars",
+                  "value": {
+                    "intValue": "6058"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.tool_definitions_count",
+                  "value": {
+                    "intValue": "2"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.tool_definitions_chars",
+                  "value": {
+                    "intValue": "1490"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.total_chars",
+                  "value": {
+                    "intValue": "15010"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.request_bytes",
+                  "value": {
+                    "intValue": "14294"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.response_bytes",
+                  "value": {
+                    "intValue": "386"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.time_to_first_byte_ms",
+                  "value": {
+                    "intValue": "23"
+                  }
+                }
+              ],
+              "status": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "host.name",
+            "value": {
+              "stringValue": "silas"
+            }
+          },
+          {
+            "key": "host.arch",
+            "value": {
+              "stringValue": "amd64"
+            }
+          },
+          {
+            "key": "host.id",
+            "value": {
+              "stringValue": "c1926e8bba294861b52184b219269c05"
+            }
+          },
+          {
+            "key": "process.pid",
+            "value": {
+              "intValue": "2180108"
+            }
+          },
+          {
+            "key": "process.executable.name",
+            "value": {
+              "stringValue": "/usr/bin/node"
+            }
+          },
+          {
+            "key": "process.executable.path",
+            "value": {
+              "stringValue": "/usr/bin/node"
+            }
+          },
+          {
+            "key": "process.command_args",
+            "value": {
+              "arrayValue": {
+                "values": [
+                  {
+                    "stringValue": "/usr/bin/node"
+                  },
+                  {
+                    "stringValue": "--no-opt"
+                  },
+                  {
+                    "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                  },
+                  {
+                    "stringValue": "gateway"
+                  },
+                  {
+                    "stringValue": "--port"
+                  },
+                  {
+                    "stringValue": "18789"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "key": "process.runtime.version",
+            "value": {
+              "stringValue": "26.1.0"
+            }
+          },
+          {
+            "key": "process.runtime.name",
+            "value": {
+              "stringValue": "nodejs"
+            }
+          },
+          {
+            "key": "process.runtime.description",
+            "value": {
+              "stringValue": "Node.js"
+            }
+          },
+          {
+            "key": "process.command",
+            "value": {
+              "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+            }
+          },
+          {
+            "key": "process.owner",
+            "value": {
+              "stringValue": "figs"
+            }
+          },
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "silas-prince"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "openclaw.continuation"
+          },
+          "spans": [
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "P1TXzXOJgH0=",
+              "parentSpanId": "JmGdQL/80lY=",
+              "name": "continuation.delegate.dispatch",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909037745000000",
+              "endTimeUnixNano": "1783909038143959945",
+              "attributes": [
+                {
+                  "key": "delay.ms",
+                  "value": {
+                    "intValue": "5000"
+                  }
+                },
+                {
+                  "key": "chain.step.remaining",
+                  "value": {
+                    "intValue": "199"
+                  }
+                },
+                {
+                  "key": "delegate.delivery",
+                  "value": {
+                    "stringValue": "timer"
+                  }
+                },
+                {
+                  "key": "chain.id",
+                  "value": {
+                    "stringValue": "8267fc5c-3a70-4c64-abe2-801233af3d5e"
+                  }
+                },
+                {
+                  "key": "delegate.mode",
+                  "value": {
+                    "stringValue": "normal"
+                  }
+                },
+                {
+                  "key": "reason.present",
+                  "value": {
+                    "boolValue": true
+                  }
+                },
+                {
+                  "key": "reason.length",
+                  "value": {
+                    "intValue": "139"
+                  }
+                },
+                {
+                  "key": "reason.hash",
+                  "value": {
+                    "stringValue": "d7bd071bb418cb06"
+                  }
+                },
+                {
+                  "key": "reason.redacted",
+                  "value": {
+                    "boolValue": false
+                  }
+                }
+              ],
+              "status": {
+                "code": "STATUS_CODE_OK"
+              }
+            },
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "7JBA5w6ra/I=",
+              "parentSpanId": "JmGdQL/80lY=",
+              "name": "continuation.delegate.fire",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909037745000000",
+              "endTimeUnixNano": "1783909037745017833",
+              "attributes": [
+                {
+                  "key": "chain.id",
+                  "value": {
+                    "stringValue": "8267fc5c-3a70-4c64-abe2-801233af3d5e"
+                  }
+                },
+                {
+                  "key": "chain.step.remaining",
+                  "value": {
+                    "intValue": "199"
+                  }
+                },
+                {
+                  "key": "delay.ms",
+                  "value": {
+                    "intValue": "5000"
+                  }
+                },
+                {
+                  "key": "fire.deferred_ms",
+                  "value": {
+                    "intValue": "5013"
+                  }
+                },
+                {
+                  "key": "delegate.delivery",
+                  "value": {
+                    "stringValue": "timer"
+                  }
+                },
+                {
+                  "key": "delegate.mode",
+                  "value": {
+                    "stringValue": "normal"
+                  }
+                },
+                {
+                  "key": "reason.present",
+                  "value": {
+                    "boolValue": true
+                  }
+                },
+                {
+                  "key": "reason.length",
+                  "value": {
+                    "intValue": "139"
+                  }
+                },
+                {
+                  "key": "reason.hash",
+                  "value": {
+                    "stringValue": "d7bd071bb418cb06"
+                  }
+                },
+                {
+                  "key": "reason.redacted",
+                  "value": {
+                    "boolValue": false
+                  }
+                }
+              ],
+              "status": {
+                "code": "STATUS_CODE_OK"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "host.name",
+            "value": {
+              "stringValue": "silas"
+            }
+          },
+          {
+            "key": "host.arch",
+            "value": {
+              "stringValue": "amd64"
+            }
+          },
+          {
+            "key": "host.id",
+            "value": {
+              "stringValue": "c1926e8bba294861b52184b219269c05"
+            }
+          },
+          {
+            "key": "process.pid",
+            "value": {
+              "intValue": "2180108"
+            }
+          },
+          {
+            "key": "process.executable.name",
+            "value": {
+              "stringValue": "/usr/bin/node"
+            }
+          },
+          {
+            "key": "process.executable.path",
+            "value": {
+              "stringValue": "/usr/bin/node"
+            }
+          },
+          {
+            "key": "process.command_args",
+            "value": {
+              "arrayValue": {
+                "values": [
+                  {
+                    "stringValue": "/usr/bin/node"
+                  },
+                  {
+                    "stringValue": "--no-opt"
+                  },
+                  {
+                    "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+                  },
+                  {
+                    "stringValue": "gateway"
+                  },
+                  {
+                    "stringValue": "--port"
+                  },
+                  {
+                    "stringValue": "18789"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "key": "process.runtime.version",
+            "value": {
+              "stringValue": "26.1.0"
+            }
+          },
+          {
+            "key": "process.runtime.name",
+            "value": {
+              "stringValue": "nodejs"
+            }
+          },
+          {
+            "key": "process.runtime.description",
+            "value": {
+              "stringValue": "Node.js"
+            }
+          },
+          {
+            "key": "process.command",
+            "value": {
+              "stringValue": "/home/figs/flesh_beast_tmp/openclaw/dist/index.js"
+            }
+          },
+          {
+            "key": "process.owner",
+            "value": {
+              "stringValue": "figs"
+            }
+          },
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "silas-prince"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "openclaw"
+          },
+          "spans": [
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "qQ0yX1ZAjuo=",
+              "parentSpanId": "JmGdQL/80lY=",
+              "flags": 257,
+              "name": "openclaw.harness.run",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909057830000000",
+              "endTimeUnixNano": "1783909061108000000",
+              "attributes": [
+                {
+                  "key": "openclaw.harness.id",
+                  "value": {
+                    "stringValue": "openclaw"
+                  }
+                },
+                {
+                  "key": "openclaw.harness.plugin",
+                  "value": {
+                    "stringValue": "unknown"
+                  }
+                },
+                {
+                  "key": "openclaw.provider",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "openclaw.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "openclaw.channel",
+                  "value": {
+                    "stringValue": "webchat"
+                  }
+                },
+                {
+                  "key": "openclaw.outcome",
+                  "value": {
+                    "stringValue": "completed"
+                  }
+                },
+                {
+                  "key": "openclaw.harness.items.started",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.harness.items.completed",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.harness.items.active",
+                  "value": {
+                    "intValue": "0"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "dvjw07e73K4=",
+              "parentSpanId": "qQ0yX1ZAjuo=",
+              "flags": 257,
+              "name": "openclaw.run",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909057845000000",
+              "endTimeUnixNano": "1783909061108000000",
+              "attributes": [
+                {
+                  "key": "openclaw.provider",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "openclaw.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "openclaw.channel",
+                  "value": {
+                    "stringValue": "webchat"
+                  }
+                },
+                {
+                  "key": "openclaw.trigger",
+                  "value": {
+                    "stringValue": "manual"
+                  }
+                },
+                {
+                  "key": "openclaw.outcome",
+                  "value": {
+                    "stringValue": "completed"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "wC8M/4nkFP4=",
+              "parentSpanId": "dvjw07e73K4=",
+              "flags": 257,
+              "name": "openclaw.context.assembled",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909057968000000",
+              "endTimeUnixNano": "1783909057968000000",
+              "attributes": [
+                {
+                  "key": "openclaw.context.message_count",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.history_text_chars",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.history_image_blocks",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.max_message_text_chars",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.system_prompt_chars",
+                  "value": {
+                    "intValue": "5345"
+                  }
+                },
+                {
+                  "key": "openclaw.context.prompt_chars",
+                  "value": {
+                    "intValue": "4767"
+                  }
+                },
+                {
+                  "key": "openclaw.context.prompt_images",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.provider",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "openclaw.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "openclaw.channel",
+                  "value": {
+                    "stringValue": "webchat"
+                  }
+                },
+                {
+                  "key": "openclaw.trigger",
+                  "value": {
+                    "stringValue": "manual"
+                  }
+                },
+                {
+                  "key": "openclaw.context.token_budget",
+                  "value": {
+                    "intValue": "372000"
+                  }
+                },
+                {
+                  "key": "openclaw.context.reserve_tokens",
+                  "value": {
+                    "intValue": "100000"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "T8+0L8Cxsrg=",
+              "parentSpanId": "dvjw07e73K4=",
+              "flags": 257,
+              "name": "openclaw.model.call",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909058001000000",
+              "endTimeUnixNano": "1783909061064000000",
+              "attributes": [
+                {
+                  "key": "openclaw.provider",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "openclaw.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "gen_ai.system",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "gen_ai.request.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "chat"
+                  }
+                },
+                {
+                  "key": "openclaw.api",
+                  "value": {
+                    "stringValue": "openai-chatgpt-responses"
+                  }
+                },
+                {
+                  "key": "openclaw.transport",
+                  "value": {
+                    "stringValue": "auto"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.input_messages_count",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.input_messages_chars",
+                  "value": {
+                    "intValue": "4919"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.system_prompt_chars",
+                  "value": {
+                    "intValue": "5345"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.tool_definitions_count",
+                  "value": {
+                    "intValue": "2"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.tool_definitions_chars",
+                  "value": {
+                    "intValue": "1490"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.prompt.total_chars",
+                  "value": {
+                    "intValue": "11754"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.request_bytes",
+                  "value": {
+                    "intValue": "12149"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.response_bytes",
+                  "value": {
+                    "intValue": "2793"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.time_to_first_byte_ms",
+                  "value": {
+                    "intValue": "441"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.input_tokens",
+                  "value": {
+                    "intValue": "3527"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.output_tokens",
+                  "value": {
+                    "intValue": "104"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.cache_read_input_tokens",
+                  "value": {
+                    "intValue": "3456"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.reasoning_output_tokens",
+                  "value": {
+                    "intValue": "76"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.prompt_tokens",
+                  "value": {
+                    "intValue": "6983"
+                  }
+                },
+                {
+                  "key": "openclaw.model_call.usage.total_tokens",
+                  "value": {
+                    "intValue": "7087"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.input_tokens",
+                  "value": {
+                    "intValue": "6983"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.output_tokens",
+                  "value": {
+                    "intValue": "104"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.cache_read.input_tokens",
+                  "value": {
+                    "intValue": "3456"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "6pIKXtScqQQDRZaOhwN1Tw==",
+              "spanId": "Z3NkK2/ebGs=",
+              "parentSpanId": "pmAua39Lsog=",
+              "flags": 257,
+              "name": "openclaw.context.assembled",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1783909061204000000",
+              "endTimeUnixNano": "1783909061204000000",
+              "attributes": [
+                {
+                  "key": "openclaw.context.message_count",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.history_text_chars",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.history_image_blocks",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.max_message_text_chars",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.context.system_prompt_chars",
+                  "value": {
+                    "intValue": "46348"
+                  }
+                },
+                {
+                  "key": "openclaw.context.prompt_chars",
+                  "value": {
+                    "intValue": "394"
+                  }
+                },
+                {
+                  "key": "openclaw.context.prompt_images",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "openclaw.provider",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "openclaw.model",
+                  "value": {
+                    "stringValue": "gpt-5.6-terra"
+                  }
+                },
+                {
+                  "key": "openclaw.channel",
+                  "value": {
+                    "stringValue": "webchat"
+                  }
+                },
+                {
+                  "key": "openclaw.trigger",
+                  "value": {
+                    "stringValue": "user"
+                  }
+                },
+                {
+                  "key": "openclaw.context.token_budget",
+                  "value": {
+                    "intValue": "372000"
+                  }
+                },
+                {
+                  "key": "openclaw.context.reserve_tokens",
+                  "value": {
+                    "intValue": "100000"
+                  }
+                }
+              ],
+              "status": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -14,6 +14,7 @@ const manifest = path.join(repoRoot, 'manifests/r-cd-2.json');
 const writer = path.join(repoRoot, 'scripts/evidence-writer.mjs');
 const postprocessor = path.join(repoRoot, 'scripts/postprocess-k6-summary.mjs');
 const sha = 'a'.repeat(40);
+process.env.OPENCLAW_GATEWAY_TOKEN = 'r-cd-2-lifecycle-authority-test-token';
 
 function localEvidence(overrides = {}) {
   return {
@@ -67,9 +68,10 @@ async function writerOut(dir, receipt, summaryOverrides = {}) {
 
 async function artifactText(root) {
   const entries = await readdir(root, { withFileTypes: true });
-  const texts = await Promise.all(entries
-    .filter((entry) => entry.isFile())
-    .map((entry) => readFile(path.join(root, entry.name), 'utf8')));
+  const texts = await Promise.all(entries.map(async (entry) => {
+    const target = path.join(root, entry.name);
+    return entry.isDirectory() ? artifactText(target) : readFile(target, 'utf8');
+  }));
   return texts.join('\n');
 }
 
@@ -122,6 +124,25 @@ test('R-CD-2 rejects a shape-valid forged receipt and never copies unknown field
     const common = ['--manifest', manifest, '--lifecycle-receipt', receiptPath];
     await assert.rejects(execFileAsync(process.execPath, [writer, '--input', logPath, '--row', 'R-CD-2', '--seat', 'unit', '--sha', sha, ...common], { cwd: dir }));
     await assert.rejects(execFileAsync(process.execPath, [postprocessor, '--summary', summaryPath, '--out-root', path.join(dir, 'post'), '--run-id', 'unit', ...common], { cwd: dir }));
+  });
+});
+
+test('both writers reject a shape-valid receipt with a fabricated integrity seal', async () => {
+  await withTmp(async (dir) => {
+    const canonical = resolveRcd2LifecycleReceipt({ evidence: localEvidence(), correlation: correlation() });
+    const forged = {
+      ...canonical,
+      integrity: { ...canonical.integrity, signature: '0'.repeat(64) },
+    };
+    const receiptPath = path.join(dir, 'forged-integrity.json');
+    const logPath = path.join(dir, 'k6.log');
+    const summaryPath = path.join(dir, 'summary.json');
+    await writeFile(receiptPath, JSON.stringify(forged));
+    await writeFile(logPath, '--- R-CD-2 EVIDENCE SUMMARY ---\n{"redacted_events":[]}\n--- END EVIDENCE ---\n');
+    await writeFile(summaryPath, JSON.stringify({ metrics: { proof_failures: { values: { count: 0 } }, checks: { values: { rate: 1 } } } }));
+    const common = ['--manifest', manifest, '--lifecycle-receipt', receiptPath];
+    await assert.rejects(execFileAsync(process.execPath, [writer, '--input', logPath, '--row', 'R-CD-2', '--seat', 'unit', '--sha', sha, ...common], { cwd: dir }));
+    await assert.rejects(execFileAsync(process.execPath, [postprocessor, '--manifest', manifest, '--summary', summaryPath, '--out-root', path.join(dir, 'post'), '--run-id', 'unit', ...common], { cwd: dir }));
   });
 });
 

@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 
 export const R_CD_2_RECEIPT_SCHEMA = 'openclaw.k6.r-cd-2-lifecycle-receipt.v2';
 export const R_CD_2_FAILURE_CATEGORIES = new Set([
@@ -20,7 +20,7 @@ const bindingShape = (value) => typeof value === 'string' && /^[a-f0-9]{64}$/i.t
 
 const ROOT_KEYS = new Set([
   'schema', 'row', 'authoritativeSource', 'candidateOnly', 'foldRequiresReview',
-  'verdict', 'failureCategory', 'lifecycle', 'binding',
+  'verdict', 'failureCategory', 'lifecycle', 'binding', 'integrity',
 ]);
 const PASS_LIFECYCLE_KEYS = new Set([
   'typedTool', 'observedMode', 'sameTrace', 'sameChain', 'typedDelegateAccepted',
@@ -29,6 +29,7 @@ const PASS_LIFECYCLE_KEYS = new Set([
   'chainFingerprint', 'delegateFingerprint',
 ]);
 const BINDING_KEYS = new Set(['localEvidenceFingerprint', 'correlationFingerprint']);
+const INTEGRITY_KEYS = new Set(['algorithm', 'signature']);
 
 function hasOnlyKeys(value, allowed) {
   return value && typeof value === 'object' && !Array.isArray(value) &&
@@ -41,6 +42,53 @@ export function publicFingerprint(value) {
 
 export function privateBinding(value) {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
+
+function signingKey(key = process.env.OPENCLAW_GATEWAY_TOKEN) {
+  return typeof key === 'string' && key.length > 0 ? key : null;
+}
+
+function canonicalReceiptPayload(receipt) {
+  const payload = {
+    schema: R_CD_2_RECEIPT_SCHEMA,
+    row: 'R-CD-2',
+    authoritativeSource: 'r-cd-2-lifecycle-resolver',
+    candidateOnly: true,
+    foldRequiresReview: true,
+    verdict: receipt.verdict,
+    binding: {
+      localEvidenceFingerprint: receipt.binding?.localEvidenceFingerprint,
+      correlationFingerprint: receipt.binding?.correlationFingerprint,
+    },
+  };
+  if (receipt.verdict === 'PARTIAL-candidate') payload.failureCategory = receipt.failureCategory;
+  if (receipt.verdict === 'PASS-candidate') {
+    payload.lifecycle = Object.fromEntries(
+      [...PASS_LIFECYCLE_KEYS].map((key) => [key, receipt.lifecycle?.[key]]),
+    );
+  }
+  return JSON.stringify(payload);
+}
+
+export function sealRcd2LifecycleReceipt(receipt, key) {
+  const secret = signingKey(key);
+  if (!secret) throw new Error('missing-r-cd-2-receipt-signing-key');
+  return {
+    ...receipt,
+    integrity: {
+      algorithm: 'hmac-sha256-gateway-token-v1',
+      signature: createHmac('sha256', secret).update(canonicalReceiptPayload(receipt)).digest('hex'),
+    },
+  };
+}
+
+function integrityIsValid(receipt, key) {
+  const secret = signingKey(key);
+  if (!secret || !hasOnlyKeys(receipt.integrity, INTEGRITY_KEYS) ||
+      receipt.integrity.algorithm !== 'hmac-sha256-gateway-token-v1' ||
+      !bindingShape(receipt.integrity.signature)) return false;
+  const expected = createHmac('sha256', secret).update(canonicalReceiptPayload(receipt)).digest('hex');
+  return timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(receipt.integrity.signature, 'hex'));
 }
 
 /**
@@ -61,6 +109,10 @@ export function projectRcd2PublicLifecycleReceipt(receipt) {
     binding: {
       localEvidenceFingerprint: receipt.binding.localEvidenceFingerprint,
       correlationFingerprint: receipt.binding.correlationFingerprint,
+    },
+    integrity: {
+      algorithm: receipt.integrity.algorithm,
+      signature: receipt.integrity.signature,
     },
   };
   if (receipt.verdict === 'PARTIAL-candidate') {
@@ -92,7 +144,7 @@ export function localEvidenceIsComplete(evidence) {
   );
 }
 
-export function validateRcd2LifecycleReceipt(receipt) {
+export function validateRcd2LifecycleReceipt(receipt, key) {
   if (!receipt || typeof receipt !== 'object') return { valid: false, reason: 'missing-receipt' };
   if (!hasOnlyKeys(receipt, ROOT_KEYS)) return { valid: false, reason: 'unknown-root-field' };
   if (receipt.schema !== R_CD_2_RECEIPT_SCHEMA || receipt.row !== 'R-CD-2' || receipt.authoritativeSource !== 'r-cd-2-lifecycle-resolver') {
@@ -103,6 +155,7 @@ export function validateRcd2LifecycleReceipt(receipt) {
       !bindingShape(receipt.binding.correlationFingerprint)) {
     return { valid: false, reason: 'missing-or-invalid-private-binding' };
   }
+  if (!integrityIsValid(receipt, key)) return { valid: false, reason: 'invalid-receipt-integrity' };
   if (receipt.verdict === 'PARTIAL-candidate') {
     return R_CD_2_FAILURE_CATEGORIES.has(receipt.failureCategory) && !receipt.lifecycle
       ? { valid: true, verdict: receipt.verdict }

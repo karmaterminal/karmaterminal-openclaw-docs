@@ -7,6 +7,7 @@ import {
   localEvidenceIsComplete,
   privateBinding,
   publicFingerprint,
+  sealRcd2LifecycleReceipt,
 } from '../lib/r-cd-2-lifecycle-receipt.js';
 
 function parseArgs(argv) {
@@ -24,7 +25,7 @@ function failureCategory(evidence) {
   return R_CD_2_FAILURE_CATEGORIES.has(kind) ? kind : 'missing-local-lifecycle-evidence';
 }
 
-export function resolveRcd2LifecycleReceipt({ evidence, correlation }) {
+export function resolveRcd2LifecycleReceipt({ evidence, correlation, signingKey }) {
   const base = {
     schema: R_CD_2_RECEIPT_SCHEMA,
     row: 'R-CD-2',
@@ -57,7 +58,7 @@ export function resolveRcd2LifecycleReceipt({ evidence, correlation }) {
     },
   };
   if (!localEvidenceIsComplete(evidence)) {
-    return { ...base, verdict: 'PARTIAL-candidate', failureCategory: failureCategory(evidence) };
+    return sealRcd2LifecycleReceipt({ ...base, verdict: 'PARTIAL-candidate', failureCategory: failureCategory(evidence) }, signingKey);
   }
   const continuation = correlation?.continuation;
   const delegate = correlation?.delegate;
@@ -72,8 +73,8 @@ export function resolveRcd2LifecycleReceipt({ evidence, correlation }) {
     typeof correlation?.dispatchSpanId === 'string' && /^[a-f0-9]{16}$/i.test(correlation.dispatchSpanId) &&
     typeof correlation?.fireSpanId === 'string' && /^[a-f0-9]{16}$/i.test(correlation.fireSpanId)
   );
-  if (!topology) return { ...base, verdict: 'PARTIAL-candidate', failureCategory: 'invalid-lifecycle-topology' };
-  return {
+  if (!topology) return sealRcd2LifecycleReceipt({ ...base, verdict: 'PARTIAL-candidate', failureCategory: 'invalid-lifecycle-topology' }, signingKey);
+  return sealRcd2LifecycleReceipt({
     ...base,
     verdict: 'PASS-candidate',
     lifecycle: {
@@ -91,7 +92,7 @@ export function resolveRcd2LifecycleReceipt({ evidence, correlation }) {
       chainFingerprint: publicFingerprint(correlation.chainId),
       delegateFingerprint: publicFingerprint(`${correlation.dispatchSpanId}:${correlation.fireSpanId}`),
     },
-  };
+  }, signingKey);
 }
 
 async function main() {
@@ -101,7 +102,7 @@ async function main() {
   let correlation = null;
   try { evidence = JSON.parse(await readFile(args.evidence, 'utf8')); } catch {}
   try { correlation = JSON.parse(await readFile(args.correlation || path.join(runDir, 'continuation-trace-correlation.json'), 'utf8')); } catch {}
-  const receipt = { ...resolveRcd2LifecycleReceipt({ evidence, correlation }), generatedAt: new Date().toISOString() };
+  const receipt = resolveRcd2LifecycleReceipt({ evidence, correlation, signingKey: process.env.OPENCLAW_GATEWAY_TOKEN });
   await writeFile(path.join(runDir, 'r-cd-2-lifecycle-receipt.json'), `${JSON.stringify(receipt, null, 2)}\n`);
   process.stdout.write(`${JSON.stringify(receipt)}\n`);
 }

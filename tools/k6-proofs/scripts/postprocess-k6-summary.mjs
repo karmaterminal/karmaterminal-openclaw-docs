@@ -1,12 +1,13 @@
 #!/usr/bin/env node
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \\
   --manifest tools/k6-proofs/manifests/preflight.example.json \\
   --summary /tmp/k6-summary.json \\
-  [--out-root PROOFS] [--run-id k6-run-YYYYMMDDTHHMMSSZ]`);
+  [--out-root PROOFS] [--run-id k6-run-YYYYMMDDTHHMMSSZ] \\
+  [--lifecycle-receipt r-cd-2-lifecycle-receipt.json]`);
 }
 
 function parseArgs(argv) {
@@ -83,7 +84,11 @@ function receiptStatusFromName(name, summary) {
   }
 }
 
-function outcomeFromSummary(summary) {
+function outcomeFromSummary(summary, rowId, lifecycleReceipt) {
+  if (rowId === 'R-CD-2') {
+    if (!lifecycleReceipt) return 'PARTIAL-candidate';
+    return lifecycleReceipt.verdict;
+  }
   const failures = requiredMetric(summary, 'proof_failures');
   const failureCount = failures ? Number(failures.count || 0) : 0;
   const checks = requiredMetric(summary, 'checks');
@@ -92,6 +97,22 @@ function outcomeFromSummary(summary) {
   if (failureCount > 0) return 'FAIL-candidate';
   if (checkRate !== null && checkRate < 1) return 'HONEST-LIMIT-candidate';
   return 'PASS-candidate';
+}
+
+async function readRcd2LifecycleReceipt(args, rowId) {
+  if (rowId !== 'R-CD-2') return null;
+  if (!args['lifecycle-receipt']) {
+    throw new Error('R-CD-2 requires --lifecycle-receipt from the strict continuation correlator');
+  }
+  const receipt = JSON.parse(await readFile(args['lifecycle-receipt'], 'utf8'));
+  if (receipt?.schema !== 'openclaw.k6.r-cd-2-lifecycle-receipt.v1' ||
+      !['PASS-candidate', 'PARTIAL-candidate'].includes(receipt.verdict)) {
+    throw new Error('R-CD-2 lifecycle receipt is invalid');
+  }
+  if (/(traceparent|reason|prompt|sessionkey|token|rpc error)/.test(JSON.stringify(receipt).toLowerCase())) {
+    throw new Error('R-CD-2 lifecycle receipt contains forbidden public material');
+  }
+  return receipt;
 }
 
 function evidenceDraft({ manifest, summary, result }) {
@@ -176,8 +197,9 @@ async function main() {
   const seat = dest.seat || manifest.seat;
   const runId = args['run-id'] || `${dest.runDirPrefix || 'k6-run'}-${stamp()}`;
   const runDir = path.join(outRoot, sha, row, seat, runId);
+  const lifecycleReceipt = await readRcd2LifecycleReceipt(args, manifest.rowId);
 
-  const outcome = outcomeFromSummary(summary);
+  const outcome = outcomeFromSummary(summary, manifest.rowId, lifecycleReceipt);
   const failures = requiredMetric(summary, 'proof_failures');
   const failureCount = failures ? Number(failures.count || 0) : 0;
   const checks = requiredMetric(summary, 'checks');
@@ -217,7 +239,18 @@ async function main() {
       foldRequiresReview: manifest.liveRunSafety.foldRequiresReview === true,
     } : null,
     failureClass,
-    reason: outcome === 'FAIL-candidate'
+    ...(lifecycleReceipt ? {
+      lifecycleReceipt: {
+        schema: lifecycleReceipt.schema,
+        verdict: lifecycleReceipt.verdict,
+        ...(lifecycleReceipt.failureCategory ? { failureCategory: lifecycleReceipt.failureCategory } : {}),
+      },
+    } : {}),
+    reason: lifecycleReceipt
+      ? (lifecycleReceipt.verdict === 'PASS-candidate'
+        ? 'strict row-scoped lifecycle receipt verified the required topology'
+        : `strict row-scoped lifecycle receipt is non-pass: ${lifecycleReceipt.failureCategory || 'unknown'}`)
+      : outcome === 'FAIL-candidate'
       ? 'k6 proof_failures metric is non-zero'
       : outcome === 'HONEST-LIMIT-candidate'
         ? 'k6 checks did not all pass; classify for human review'
@@ -230,6 +263,9 @@ async function main() {
   await writeFile(path.join(runDir, 'row-manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   await writeFile(path.join(runDir, 'k6-summary.json'), JSON.stringify(summary, null, 2) + '\n');
   await writeFile(path.join(runDir, 'row-result.json'), JSON.stringify(result, null, 2) + '\n');
+  if (lifecycleReceipt) {
+    await copyFile(args['lifecycle-receipt'], path.join(runDir, 'r-cd-2-lifecycle-receipt.json'));
+  }
   await writeFile(path.join(runDir, 'EVIDENCE.md'), evidenceDraft({ manifest, summary, result }));
 
   console.log(JSON.stringify({ runDir, outcome, rowId: manifest.rowId, candidateOnly: true }, null, 2));

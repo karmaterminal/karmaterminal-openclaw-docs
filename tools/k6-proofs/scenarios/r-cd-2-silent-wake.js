@@ -26,8 +26,8 @@ import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js
 import { closeSocketAfterDelay } from '../lib/socket-close.js';
 import {
   classifyRcd2LifecycleEvent,
+  hasRcd2LocalEvidence,
   isRcd2OutboundChannelDeliveryEvent,
-  isRcd2LifecyclePass,
   rCd2ScheduledSentinel,
 } from '../lib/r-cd-2-lifecycle.js';
 
@@ -48,6 +48,12 @@ export const options = {
 
 const failures = new Counter('proof_failures');
 const duration = new Trend('r_cd_2_duration');
+
+function safeRpcFailureCategory(method) {
+  // RPC payloads can contain provider details, prompts, or identifiers.  Public
+  // proof output records only this opaque method/category pair.
+  return `${method}-rejected`;
+}
 
 // --- Manifest-driven config ---
 const manifest = loadManifestFromEnv();
@@ -261,7 +267,7 @@ export default function () {
             console.log(`✓ disposable session created: ${sessionKey}`);
             tracker.send(socket, 'sessions.list', { limit: 10, search: sessionKey });
           } else {
-            console.error(`✗ sessions.create rejected: ${JSON.stringify(classified.error)}`);
+            console.error(`✗ ${safeRpcFailureCategory('sessions.create')}`);
             failures.add(1);
             socket.close();
           }
@@ -269,7 +275,7 @@ export default function () {
 
         if (classified.kind === 'response' && classified.method === 'sessions.list') {
           if (!classified.ok) {
-            console.error(`✗ sessions.list rejected: ${JSON.stringify(classified.error)}`);
+            console.error(`✗ ${safeRpcFailureCategory('sessions.list')}`);
             failures.add(1);
             socket.close();
           } else {
@@ -308,7 +314,7 @@ export default function () {
             if (classified.payload && classified.payload.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — agent turn triggered for R-CD-2 (mode=silent-wake)');
           } else if (classified.error) {
-            console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
+            console.error(`✗ ${safeRpcFailureCategory('sessions.send')}`);
             failures.add(1);
           }
         }
@@ -408,13 +414,13 @@ export default function () {
         }
 
         maybeScheduleSuccessClose();
-      } catch (e) {
-        console.warn(`parse error: ${e}`);
+      } catch {
+        console.warn('gateway-frame-parse-failed');
       }
     });
 
-    socket.on('error', (e) => {
-      console.error(`ws error: ${e && e.error ? e.error() : e}`);
+    socket.on('error', () => {
+      console.error('gateway-websocket-error');
       failures.add(1);
     });
   });
@@ -442,8 +448,8 @@ export default function () {
     'no channel delivery (silent verified)': () => !evidence.channel_message_observed,
   });
 
-  const passed = isRcd2LifecyclePass(evidence);
-  if (!passed && !evidence.dispatch_failure_observed) {
+  const localEvidenceComplete = hasRcd2LocalEvidence(evidence);
+  if (!localEvidenceComplete && !evidence.dispatch_failure_observed) {
     failures.add(1);
   }
   if (evidence.channel_message_observed) {
@@ -455,28 +461,32 @@ export default function () {
   console.log(`\n--- R-CD-2 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));
   console.log(`--- END EVIDENCE ---`);
-  console.log(`\n[R-CD-2] VERDICT: ${passed ? 'PASS-candidate' : 'PARTIAL-candidate'}`);
+  // Only run-proofs.sh may promote this row after the strict trace correlator
+  // writes r-cd-2-lifecycle-receipt.json.  The VU has useful local evidence,
+  // but cannot itself attest same-trace/chain/mode topology.
+  console.log('\n[R-CD-2] VERDICT: PARTIAL-candidate');
 }
 
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
-  const passRate = data.metrics.proof_failures && data.metrics.proof_failures.values && data.metrics.proof_failures.values.count === 0;
-  const passed = passRate;
   const summary = {
     row: 'R-CD-2',
     sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     seat: __ENV.OPENCLAW_SEAT_NAME || 'ronan-dgx',
     timestamp,
-    verdict: passed ? 'PASS-candidate' : 'PARTIAL-candidate',
+    verdict: 'PARTIAL-candidate',
+    lifecycleReceipt: {
+      path: 'r-cd-2-lifecycle-receipt.json',
+      verdict: 'PENDING',
+      authority: 'strict-continuation-correlation',
+    },
     candidateOnly: true,
     foldRequiresReview: true,
     review: {
       status: 'review-pending',
       receiptSource: 'run-proofs evidence extraction and Tempo postprocessing',
       notes: [
-        passed
-          ? 'VU lifecycle checks passed; external postprocessing must still attach the required Tempo trace before folding.'
-          : 'No successful correlated continuation lifecycle was proven; retain the redacted failure receipt and do not fold as PASS.',
+        'The VU cannot establish same-trace/chain/mode topology. run-proofs must replace this provisional verdict with r-cd-2-lifecycle-receipt.json before any PASS-candidate exists.',
       ],
     },
     metrics: {

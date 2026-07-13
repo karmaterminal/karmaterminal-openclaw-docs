@@ -46,8 +46,27 @@ function stamp() {
 }
 
 function usage() {
-  console.error(`Usage: node evidence-writer.mjs --input <k6-output> --row <ROW> --seat <SEAT> --sha <SHA> [--manifest <row-manifest.json>]`);
+  console.error(`Usage: node evidence-writer.mjs --input <k6-output> --row <ROW> --seat <SEAT> --sha <SHA> [--manifest <row-manifest.json>] [--lifecycle-receipt <r-cd-2-lifecycle-receipt.json>]`);
   process.exit(2);
+}
+
+function rcd2LifecycleVerdict(args, row) {
+  if (row !== 'R-CD-2') return null;
+  if (!args['lifecycle-receipt']) {
+    throw new Error('R-CD-2 requires --lifecycle-receipt from the strict continuation correlator');
+  }
+  const receipt = JSON.parse(readFileSync(args['lifecycle-receipt'], 'utf8'));
+  if (receipt?.schema !== 'openclaw.k6.r-cd-2-lifecycle-receipt.v1') {
+    throw new Error('R-CD-2 lifecycle receipt has an unsupported schema');
+  }
+  if (!['PASS-candidate', 'PARTIAL-candidate'].includes(receipt.verdict)) {
+    throw new Error('R-CD-2 lifecycle receipt has an invalid verdict');
+  }
+  const serialized = JSON.stringify(receipt).toLowerCase();
+  if (/(traceparent|reason|prompt|sessionkey|token|rpc error)/.test(serialized)) {
+    throw new Error('R-CD-2 lifecycle receipt contains forbidden public material');
+  }
+  return receipt;
 }
 
 // --- Main ---
@@ -118,6 +137,7 @@ if (evidence.events && !evidence.redacted_events) {
 const events = evidence.redacted_events || [];
 const { sanitized: [summary], orderedTokens } = sanitizeEvidenceRecords([evidence]);
 const { sanitized: safeEvents } = sanitizeEvidenceRecords(events, orderedTokens);
+const lifecycleReceipt = rcd2LifecycleVerdict(args, args.row);
 
 // Build output directory
 const runId = `k6-run-${stamp()}`;
@@ -126,6 +146,9 @@ mkdirSync(join(outDir, 'artifacts'), { recursive: true });
 
 if (args['seat-readiness']) {
   copyFileSync(args['seat-readiness'], join(outDir, 'seat-readiness.json'));
+}
+if (lifecycleReceipt) {
+  copyFileSync(args['lifecycle-receipt'], join(outDir, 'r-cd-2-lifecycle-receipt.json'));
 }
 
 // Write k6-summary.json through the same public-safe boundary as run-proofs.sh.
@@ -144,9 +167,9 @@ writeFileSync(join(outDir, 'evidence-redaction.json'), JSON.stringify({
 }, null, 2) + '\n');
 
 // Determine verdict
-const verdict = evidence.tool_accepted || evidence.prompt_sent
+const verdict = lifecycleReceipt?.verdict || (evidence.tool_accepted || evidence.prompt_sent
   ? (evidence.task_created || evidence.child_spawned ? 'PASS-candidate' : 'PARTIAL-candidate')
-  : 'FAIL-candidate';
+  : 'FAIL-candidate');
 
 // Write row-result.json
 const result = {
@@ -157,6 +180,13 @@ const result = {
   candidateSha: args.sha,
   seat: args.seat,
   outcome: verdict,
+  ...(lifecycleReceipt ? {
+    lifecycleReceipt: {
+      schema: lifecycleReceipt.schema,
+      verdict: lifecycleReceipt.verdict,
+      ...(lifecycleReceipt.failureCategory ? { failureCategory: lifecycleReceipt.failureCategory } : {}),
+    },
+  } : {}),
   liveRunSafety: manifest?.liveRunSafety ? {
     classification: manifest.liveRunSafety.classification,
     requiresLiveGatewayToken: Boolean(manifest.liveRunSafety.requiresLiveGatewayToken),
@@ -201,6 +231,7 @@ const md = `# ${args.row} — ${args.seat} — ${verdict}
 | Parent return observed | ${evidence.parent_return ? '✓' : '✗'} |
 | Safe reason fingerprint | \`${summary.reason_hash || 'N/A'}\` / length \`${summary.reason_length || 'N/A'}\` |
 | Manifest loaded | ${evidence.manifest_loaded ? '✓' : '✗ (defaults used)'} |
+${lifecycleReceipt ? `| R-CD-2 lifecycle authority | ${lifecycleReceipt.verdict === 'PASS-candidate' ? '✓' : '✗'} (${lifecycleReceipt.failureCategory || 'verified'}) |` : ''}
 
 ## Artifacts
 
@@ -208,6 +239,7 @@ const md = `# ${args.row} — ${args.seat} — ${verdict}
 - \`gateway-events.ndjson\` — redacted WS frames (${safeEvents.length} captured)
 - \`evidence-redaction.json\` — public-safe redaction receipt
 - \`row-result.json\` — normalized outcome
+${lifecycleReceipt ? '- `r-cd-2-lifecycle-receipt.json` — authoritative row-scoped lifecycle verdict\n' : ''}
 - \`seat-readiness.json\` — public-safe seat/tooling preflight (${args['seat-readiness'] ? 'captured' : 'not supplied to writer'})
 - \`artifacts/\` — optional copied receipts (Tempo trace, logs)
 

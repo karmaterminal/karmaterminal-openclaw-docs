@@ -42,7 +42,7 @@ test('R-CD-2 does not treat a generic delayed message after scheduling as a cont
 
   assert.equal(event.delegateScheduledReceipt, false);
   assert.equal(event.parentWakeObserved, false);
-  assert.equal(
+  assert.deepEqual(
     isRcd2LifecyclePass({
       disposable_session_required: true,
       session_created: true,
@@ -170,6 +170,12 @@ test('R-CD-2 accepts a wake only after the correlated scheduled receipt and dela
       post_wake_quiet_completed: true,
       dispatch_failure_observed: false,
       channel_message_observed: false,
+      authoritative_lifecycle_receipt: true,
+      observed_delegate_mode: 'silent-wake',
+      observed_trace_id: 'a'.repeat(32),
+      observed_chain_id: 'test-chain',
+      observed_delegate_id: 'delegate-1',
+      child_fire_or_completion_observed: true,
     }),
     true,
   );
@@ -249,7 +255,7 @@ test('R-CD-2 classifies standard dispatch lifecycle errors and requires terminal
     }).failureReceipt,
     null,
   );
-  assert.equal(
+  assert.deepEqual(
     classify({
       eventName: 'agent',
       eventData: {
@@ -258,7 +264,12 @@ test('R-CD-2 classifies standard dispatch lifecycle errors and requires terminal
         data: { status: 'failed' },
       },
     }).failureReceipt,
-    null,
+    {
+      kind: 'dispatching-turn-failed',
+      sourceEvent: 'agent',
+      correlation: 'dispatch-run-id',
+      observedAtMs: 10000,
+    },
   );
   assert.equal(
     classify({
@@ -411,13 +422,14 @@ test('R-CD-2 recognizes status-only outbound delivery receipts', () => {
   );
 });
 
-test('R-CD-2 handleSummary derives verdict from proof_failures, not isolated VU state', async () => {
+test('R-CD-2 handleSummary stays provisional until the strict lifecycle receipt resolves it', async () => {
   const scenario = await readFile(
     new URL('../../scenarios/r-cd-2-silent-wake.js', import.meta.url),
     'utf8',
   );
 
-  assert.match(scenario, /const passed = passRate;/);
+  assert.match(scenario, /verdict: 'PARTIAL-candidate'/);
+  assert.match(scenario, /r-cd-2-lifecycle-receipt\.json/);
   assert.doesNotMatch(scenario, /finalEvidence/);
   assert.match(scenario, /postWakeQuietMs < 1000/);
   assert.match(scenario, /postWakeQuietMs > 30000/);

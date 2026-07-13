@@ -12,6 +12,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EVIDENCE_EXTRACTOR="$SCRIPT_DIR/extract-k6-evidence.mjs"
 CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
+RCD2_LIFECYCLE_RESOLVER="$SCRIPT_DIR/resolve-r-cd-2-lifecycle-receipt.mjs"
 ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
 PRIVATE_K6_LOG=""
 PRIVATE_EVIDENCE_FILE=""
@@ -368,6 +369,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     TEMPO_TRACE_JSON=""
     CORRELATION_RECEIPT_PATH=""
     CORRELATION_RECEIPT=""
+    RCD2_LIFECYCLE_RECEIPT=""
     REVIEW_PENDING_RECEIPTS='[]'
     if [[ "$GATEWAY_JOURNAL_STATUS" != "captured" ]]; then
       REVIEW_PENDING_RECEIPTS='["gateway-journal"]'
@@ -446,6 +448,42 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       )"
     fi
 
+    # R-CD-2 has one pass authority: the strict collector's row-scoped,
+    # public-safe lifecycle receipt.  A sessions.send acceptance, a generic
+    # delayed event, a VU log, and a k6 check rate are all non-authoritative.
+    if [[ "$ROW_ID" == "R-CD-2" ]]; then
+      if node "$RCD2_LIFECYCLE_RESOLVER" --run-dir "$RUN_DIR" --evidence "$PRIVATE_EVIDENCE_FILE" \
+        > "$RUN_DIR/r-cd-2-lifecycle-receipt.stdout.json"; then
+        RCD2_LIFECYCLE_RECEIPT="r-cd-2-lifecycle-receipt.json"
+        SUMMARY_VERDICT="$(jq -r '.verdict' "$RUN_DIR/$RCD2_LIFECYCLE_RECEIPT")"
+        SUMMARY_VERDICT_SOURCE="r-cd-2-lifecycle-receipt"
+        # k6's handleSummary necessarily runs before trace correlation.  Replace
+        # its provisional row summary only after the authoritative receipt is
+        # available, retaining the original value for audit.  This gives the
+        # scenario summary the same R-CD-2 authority as the artifact writers.
+        while IFS= read -r -d '' SUMMARY_PATH; do
+          SUMMARY_TMP="$SUMMARY_PATH.lifecycle-authority.tmp"
+          jq --arg verdict "$SUMMARY_VERDICT" \
+            --arg receipt "$RCD2_LIFECYCLE_RECEIPT" \
+            --arg source "$SUMMARY_VERDICT_SOURCE" \
+            '.scenarioProvisionalVerdict = (.verdict // null) |
+             .verdict = $verdict |
+             .lifecycleReceipt = {path:$receipt, verdict:$verdict, authority:$source}' \
+            "$SUMMARY_PATH" > "$SUMMARY_TMP" && mv "$SUMMARY_TMP" "$SUMMARY_PATH"
+        done < <(find "$RUN_DIR" -maxdepth 1 -type f -name '*summary.json' -print0)
+        SUMMARY_FILE_VERDICT="$SUMMARY_VERDICT"
+        if [[ "$SUMMARY_VERDICT" != "PASS-candidate" ]]; then
+          POSTPROCESS_RC=1
+        fi
+      else
+        # Resolver failures must not preserve a VU-log or summary-file PASS.
+        RCD2_LIFECYCLE_RECEIPT="r-cd-2-lifecycle-receipt.json"
+        SUMMARY_VERDICT="PARTIAL-candidate"
+        SUMMARY_VERDICT_SOURCE="r-cd-2-lifecycle-receipt"
+        POSTPROCESS_RC=1
+      fi
+    fi
+
     if ! node "$ARTIFACT_SANITIZER" \
       --input "$PRIVATE_EVIDENCE_FILE" \
       --out "$RUN_DIR/evidence.jsonl" \
@@ -499,6 +537,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg traceId "$TRACE_ID" \
       --arg tempoTraceJson "$TEMPO_TRACE_JSON" \
       --arg correlationReceipt "$CORRELATION_RECEIPT" \
+      --arg rcd2LifecycleReceipt "$RCD2_LIFECYCLE_RECEIPT" \
       --arg serviceLogStatus "$GATEWAY_JOURNAL_STATUS" \
       --arg verdict "$SUMMARY_VERDICT" \
       --arg verdictSource "$SUMMARY_VERDICT_SOURCE" \
@@ -507,7 +546,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --argjson summaryFiles "$SUMMARY_FILES_JSON" \
       --argjson evidence "$EVIDENCE_JSON" \
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
-      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
+      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, lifecycleReceipt:(if $rcd2LifecycleReceipt == "" then null else $rcd2LifecycleReceipt end), observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
     METRICS_ARGS=(--run-dir "$RUN_DIR" --prometheus-out "$RUN_DIR/openclaw-proofs-k6.prom" --otlp-out "$RUN_DIR/openclaw-proofs-k6.otlp.json")
     if [[ -n "${OPENCLAW_PROOFS_K6_OTLP_ENDPOINT:-}" ]]; then

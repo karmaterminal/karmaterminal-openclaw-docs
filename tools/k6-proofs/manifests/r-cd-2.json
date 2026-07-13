@@ -49,6 +49,7 @@
       "parent-wake-event",
       "post-wake-no-delivery-window",
       "no-channel-delivery",
+      "continuation-lifecycle-receipt",
       "trace-id"
     ],
     "foldRequiresReview": true,
@@ -104,6 +105,11 @@
       "name": "no-channel-delivery",
       "required": true,
       "description": "Delegate return does NOT produce a channel message (silent mode verified)"
+    },
+    {
+      "name": "continuation-lifecycle-receipt",
+      "required": true,
+      "description": "Row-scoped public-safe verdict from the strict typed-tool/dispatch/fire same-trace, same-chain silent-wake correlation"
     },
     {
       "name": "trace-id",

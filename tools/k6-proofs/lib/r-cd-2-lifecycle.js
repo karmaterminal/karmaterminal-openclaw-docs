@@ -90,7 +90,8 @@ function redactedFailureReceipt(eventName, eventData, dispatchRunId, observedAtM
         phase === 'end' &&
         (eventData?.data?.replayInvalid === true ||
           eventData?.data?.aborted === true ||
-          ['blocked', 'abandoned'].includes(livenessState))));
+          ['blocked', 'abandoned'].includes(livenessState))) ||
+      (stream === 'item' && ['error', 'failed', 'failure', 'aborted'].includes(status)));
 
   if (lifecycleFailed) {
     let kind = 'dispatching-turn-failed';
@@ -295,7 +296,7 @@ export function classifyRcd2LifecycleEvent({
   };
 }
 
-export function isRcd2LifecyclePass(evidence) {
+export function hasRcd2LocalEvidence(evidence) {
   return Boolean(
     evidence &&
       evidence.disposable_session_required &&
@@ -308,5 +309,17 @@ export function isRcd2LifecyclePass(evidence) {
       evidence.post_wake_quiet_completed &&
       !evidence.dispatch_failure_observed &&
       !evidence.channel_message_observed,
+  );
+}
+
+export function isRcd2LifecyclePass(evidence) {
+  return Boolean(
+    hasRcd2LocalEvidence(evidence) &&
+      evidence.authoritative_lifecycle_receipt === true &&
+      evidence.observed_delegate_mode === 'silent-wake' &&
+      typeof evidence.observed_trace_id === 'string' && evidence.observed_trace_id.length === 32 &&
+      typeof evidence.observed_chain_id === 'string' && evidence.observed_chain_id.length > 0 &&
+      typeof evidence.observed_delegate_id === 'string' && evidence.observed_delegate_id.length > 0 &&
+      evidence.child_fire_or_completion_observed === true,
   );
 }

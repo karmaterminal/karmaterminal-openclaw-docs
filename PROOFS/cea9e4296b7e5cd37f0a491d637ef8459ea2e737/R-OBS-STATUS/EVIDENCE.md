@@ -1,16 +1,31 @@
-<!-- exact-cea9e42-seed -->
-> **Exact-cea9e42 state: partial carry.** This row is outside the Codex result-classification repair surface. Its exact-4afd receipt is retained as an explicit unchanged-surface carry pending final closeout.
+# R-OBS-STATUS — reviewed exact-cea9e42 source-contract carry
 
-# R-OBS-STATUS — exact-4afd evidence slot
+- **Owner / reviewer:** 🌻 Elliott / 🌿 frond-scribe (independent byte review)
+- **State:** `pass` — immutable source-contract / unchanged-surface carry
+- **Candidate SHA:** `cea9e4296b7e5cd37f0a491d637ef8459ea2e737` (`cea9e42`)
+- **Workflow:** [`29220056391`](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29220056391)
+- **Artifact:** [`8267864274`](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29220056391/artifacts/8267864274)
+- **Review disposition:** fold-ready; no Tempo trace is required for this source-contract row.
 
-- **Owners:** 🌻 Elliott + 🌊 Ronan
-- **State:** `partial`
-- **Exact SHA:** `4afd560feb5102627a68a2f6a8bc545dabcfcfdc`
+## Reviewed receipt
 
-The prior active-line/absent-line contrast is diagnostic history. Close this row
-with reviewed exact-SHA receipts showing:
+The retained raw receipt lives at
+`elliott/20260713T024226Z-r-obs-status/` and records:
 
-- an active continuation renders the continuation status line;
-- a session without continuation data omits that line;
-- runtime/deploy identity and message references are recorded;
-- no unrelated status regression is introduced.
+- `k6ExitCode=0`, `postprocessExitCode=0`, and `effectiveExitCode=0`;
+- immutable source fetch from `karmaterminal/openclaw:src/status/status-text.ts`;
+- `source_fetch_ok=true` with SHA-256
+  `6704a2cce3d1c9f620f7c7cbe09f626d45c4232199a809575bf505d958860dcd`;
+- the continuation line is present for an active continuation;
+- the line is absent for a clean session.
+
+This is intentionally classified as a formatter/source contract, not a
+continuation-runtime trace claim. `trace_id:null` is therefore not a missing
+receipt for this row.
+
+## Raw receipt inventory
+
+- `run-result.json` — verdict and review metadata
+- `evidence.jsonl` and `r-obs-status-summary.json` — public-safe source receipt
+- `row-manifest.json` — dispatched row contract
+- `seat-readiness.json` — deployed candidate identity

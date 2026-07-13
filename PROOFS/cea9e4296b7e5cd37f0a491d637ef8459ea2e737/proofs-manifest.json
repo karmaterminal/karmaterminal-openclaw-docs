@@ -165,8 +165,8 @@
   },
   "rollup": {
     "total_rows": 35,
-    "pass": 6,
-    "partial": 1,
+    "pass": 7,
+    "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
@@ -1387,22 +1387,20 @@
       "row": "R-OBS-STATUS",
       "owner": "🌻 elliott-legion + 🌊 ronan-dgx",
       "dir": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-OBS-STATUS/",
-      "state": "partial",
+      "state": "pass",
       "traces": 0,
       "evidence_doc": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-OBS-STATUS/EVIDENCE.md",
-      "note": "Unchanged formatter surface carried from exact 4afd560feb5102627a68a2f6a8bc545dabcfcfdc; the accepted exact-4afd source-contract receipt remains historical until an explicit byte-identical carry or fresh exact-cea9e42 receipt is folded.",
+      "note": "Reviewed immutable source-contract carry: exact-cea9e42 receipt from workflow 29220056391/artifact 8267864274 fetches src/status/status-text.ts at candidate, records digest 6704a2cce3d1c9f620f7c7cbe09f626d45c4232199a809575bf505d958860dcd, and proves active-line present / clean-session line absent. This unchanged formatter row is fold-ready without Tempo.",
       "seat_results": [
         {
-          "seat": "cael",
+          "seat": "elliott",
           "verdict": "PASS-candidate",
           "has_evidence": true,
-          "run_result": "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/artifacts/cael/p81-cael-live-resume7-20260709T033337Z/out/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-STATUS/cael/20260709T033524Z-r-obs-status/run-result.json"
-        },
-        {
-          "seat": "ronan",
-          "verdict": "PASS-candidate",
-          "has_evidence": true,
-          "run_result": "PROOFS/4afd560feb5102627a68a2f6a8bc545dabcfcfdc/artifacts/ronan/p81-ronan-live-e08f696-20260709T032347Z/artifacts/e08f696618da57e7267a2148578fa4ab0d8b0d01/R-OBS-STATUS/ronan/20260709T033625Z-r-obs-status/run-result.json"
+          "workflow_run": "29220056391",
+          "artifact_id": "8267864274",
+          "run_result": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-OBS-STATUS/elliott/20260713T024226Z-r-obs-status/run-result.json",
+          "review_status": "fold-ready-source-contract",
+          "trace_status": "not-applicable"
         }
       ],
       "issues": [],

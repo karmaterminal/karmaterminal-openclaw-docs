@@ -42,7 +42,7 @@ test('row-result exposes the dashboard v1 observability fields', async () => {
     assert.equal(result.schema, 'openclaw.k6.proof-row-result.v1');
     assert.equal(result.scenario, 'preflight');
     assert.equal(result.toolSurface, 'read-only');
-    assert.equal(result.transport, 'offline');
+    assert.equal(result.transport, 'websocket');
     assert.equal(result.failureClass, 'none');
     assert.equal(result.metrics.proofFailures, 0);
     assert.equal(result.metrics.checksRate, 1);

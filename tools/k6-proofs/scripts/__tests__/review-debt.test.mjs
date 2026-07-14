@@ -32,12 +32,14 @@ async function writeValidatedEnvelopeFixture(root, row) {
   await writeFile(path.join(dir, 'runner-metadata.json'), `${JSON.stringify({ row, candidateSha: sha, seat: 'seat', scenario: 'r-cw-1' })}\n`);
   await writeResult(root, row, {
     candidateOnly: true, foldRequiresReview: true, effectiveExitCode: 0, verdict: 'PASS-candidate', verdictSource: 'k6-summary',
+    observability: { traceStatus: 'present', traceId: 'safe-trace-id', correlationReceipt: 'continuation-correlation.json' },
     review: { status: 'ready-for-human-review', pendingReceipts: [] },
   });
   await writeCandidateResult(root, row, {
     schema: 'openclaw.k6.candidate-run-result.v1', candidateOnly: true, foldRequiresReview: true, canonicalFoldForbidden: true,
     candidate: { sha, docsRef: 'b'.repeat(40) }, run: { id: `run-${row}`, rowId: row, seat: 'seat', scenario: 'r-cw-1' },
     result: { outcome: 'PASS-candidate', outcomeSource: 'k6-summary', effectiveExitCode: 0, behaviorProof: false },
+    observability: { traceStatus: 'present', traceCaptured: true, correlationReceiptPresent: true },
     review: { status: 'ready-for-human-review', pendingReceipts: [], complete: true },
   });
 }
@@ -123,6 +125,34 @@ test('never lets malformed, mismatched, incomplete, or hand-written envelopes su
     assert.equal(summary.totalRows, 4);
     assert.equal(summary.pendingRows, 4);
     assert.equal(summary.byClass['tempo-trace-unfetchable'], 4);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('falls back to raw review debt when an identity-valid sidecar forges trace observability', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'review-debt-envelope-observability-forgery-'));
+  try {
+    const row = 'R-CD-2';
+    await writeValidatedEnvelopeFixture(root, row);
+    const dir = path.join(root, 'candidate-sha', row, 'seat', `run-${row}`);
+    await writeResult(root, row, {
+      candidateOnly: true, foldRequiresReview: true, effectiveExitCode: 0, verdict: 'PASS-candidate', verdictSource: 'k6-summary',
+      observability: { traceStatus: 'missing', traceId: null, correlationReceipt: null },
+      review: { status: 'review-pending', pendingReceipts: ['tempo-trace-json'] },
+    });
+    await writeFile(path.join(dir, 'candidate-run-result.json'), `${JSON.stringify({
+      schema: 'openclaw.k6.candidate-run-result.v1', candidateOnly: true, foldRequiresReview: true, canonicalFoldForbidden: true,
+      candidate: { sha: 'a'.repeat(40), docsRef: 'b'.repeat(40) }, run: { id: `run-${row}`, rowId: row, seat: 'seat', scenario: 'r-cw-1' },
+      result: { outcome: 'PASS-candidate', outcomeSource: 'k6-summary', effectiveExitCode: 0, behaviorProof: false },
+      observability: { traceStatus: 'present', traceCaptured: true, correlationReceiptPresent: true },
+      review: { status: 'ready-for-human-review', pendingReceipts: [], complete: true },
+    }, null, 2)}\n`);
+    const run = await runNode(process.execPath, [script, '--run-root', root, '--json'], { encoding: 'utf8' });
+    const summary = JSON.parse(run.stdout);
+    assert.equal(summary.totalRows, 1);
+    assert.equal(summary.pendingRows, 1);
+    assert.equal(summary.byClass['tempo-trace-unfetchable'], 1);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

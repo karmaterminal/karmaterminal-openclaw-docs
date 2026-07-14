@@ -39,5 +39,10 @@ export function candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata,
   if (envelope.run?.id !== path.basename(runDir) || envelope.run?.rowId !== rowId || envelope.run?.seat !== seat || envelope.run?.scenario !== scenario) return false;
   if (envelope.result?.outcome !== runResult.verdict || envelope.result?.outcomeSource !== runResult.verdictSource) return false;
   if (manifest.liveRunSafety?.expectedArtifactClass === 'construct-only' && envelope.result.outcome !== 'construct-only') return false;
+  const rawObservability = runResult.observability;
+  if (!rawObservability || typeof rawObservability.traceStatus !== 'string') return false;
+  if (envelope.observability?.traceStatus !== rawObservability.traceStatus) return false;
+  if (envelope.observability?.traceCaptured !== Boolean(rawObservability.traceId)) return false;
+  if (envelope.observability?.correlationReceiptPresent !== Boolean(rawObservability.correlationReceipt)) return false;
   return true;
 }

@@ -18,11 +18,11 @@ function parseArgs(argv) {
   return args;
 }
 
-async function walk(dir, out = []) {
+async function walk(dir, names, out = []) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const p = path.join(dir, entry.name);
-    if (entry.isDirectory()) await walk(p, out);
-    else if (entry.isFile() && entry.name === 'run-result.json') out.push(p);
+    if (entry.isDirectory()) await walk(p, names, out);
+    else if (entry.isFile() && names.has(entry.name)) out.push(p);
   }
   return out;
 }
@@ -55,9 +55,25 @@ function classifyPending(row, receipt) {
 }
 
 async function loadRows(root) {
-  const files = await walk(root);
+  const candidateFiles = await walk(root, new Set(['candidate-run-result.json']));
+  const candidateDirs = new Set(candidateFiles.map((file) => path.dirname(file)));
+  const files = await walk(root, new Set(['run-result.json']));
   const rows = [];
+  for (const file of candidateFiles.sort()) {
+    const raw = JSON.parse(await readFile(file, 'utf8'));
+    if (raw.schema !== 'openclaw.k6.candidate-run-result.v1') throw new Error(`unsupported candidate result schema: ${file}`);
+    const pendingReceipts = asArray(raw.review?.pendingReceipts);
+    rows.push({
+      rowId: raw.run?.rowId || rowFromPath(file) || 'unknown-row',
+      file: path.relative(root, file),
+      reviewStatus: raw.review?.status || 'unknown',
+      pendingReceipts,
+      traceId: null,
+      pending: pendingReceipts.map((receipt) => classifyPending({ traceId: null }, receipt)),
+    });
+  }
   for (const file of files.sort()) {
+    if (candidateDirs.has(path.dirname(file))) continue;
     const raw = JSON.parse(await readFile(file, 'utf8'));
     const pendingReceipts = asArray(raw.review?.pendingReceipts);
     const rowId = raw.rowId || raw.row || rowFromPath(file) || 'unknown-row';

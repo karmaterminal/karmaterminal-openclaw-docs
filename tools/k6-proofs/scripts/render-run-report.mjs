@@ -140,6 +140,26 @@ async function rowFromRunResult(root, runResultPath) {
   };
 }
 
+async function rowFromCandidateEnvelope(root, envelopePath) {
+  const envelope = await readJson(envelopePath) || {};
+  if (envelope.schema !== 'openclaw.k6.candidate-run-result.v1') throw new Error(`unsupported candidate result schema: ${envelopePath}`);
+  const rel = path.relative(root, path.dirname(envelopePath)).split(path.sep).join('/');
+  return {
+    rowId: safeText(envelope.run?.rowId),
+    candidateSha: safeText(envelope.candidate?.sha),
+    seat: safeText(envelope.run?.seat),
+    scenario: safeText(envelope.run?.scenario),
+    outcome: safeText(envelope.result?.outcome),
+    reviewStatus: safeText(envelope.review?.status),
+    proofFailures: null,
+    durationMs: null,
+    checksRate: null,
+    traceStatus: safeText(envelope.observability?.traceStatus),
+    receipts: [],
+    rel,
+  };
+}
+
 function render(rows) {
   const generated = new Date().toISOString();
   const totals = rows.reduce((acc, row) => {
@@ -184,9 +204,14 @@ async function main() {
   if (args.help) { usage(); return; }
   if (!args.root) throw new Error('missing --root');
   const root = path.resolve(args.root);
+  const candidateFiles = await walk(root, 'candidate-run-result.json');
+  const candidateDirs = new Set(candidateFiles.map((file) => path.dirname(file)));
   const files = await walk(root, 'run-result.json');
   const rows = [];
-  for (const file of files.sort()) rows.push(await rowFromRunResult(root, file));
+  for (const file of candidateFiles.sort()) rows.push(await rowFromCandidateEnvelope(root, file));
+  for (const file of files.sort()) {
+    if (!candidateDirs.has(path.dirname(file))) rows.push(await rowFromRunResult(root, file));
+  }
   const html = render(rows);
   const out = args.out ? path.resolve(args.out) : path.join(root, 'report.html');
   await writeFile(out, html);

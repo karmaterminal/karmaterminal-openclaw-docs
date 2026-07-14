@@ -15,6 +15,12 @@ async function writeResult(root, row, body) {
   await writeFile(path.join(dir, 'run-result.json'), `${JSON.stringify(body, null, 2)}\n`);
 }
 
+async function writeCandidateResult(root, row, body) {
+  const dir = path.join(root, 'candidate-sha', row, 'seat', `run-${row}`);
+  await mkdir(dir, { recursive: true });
+  await writeFile(path.join(dir, 'candidate-run-result.json'), `${JSON.stringify(body, null, 2)}\n`);
+}
+
 test('summarizes trace-missing debt as unfetchable when no trace id exists', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'review-debt-'));
   try {
@@ -59,6 +65,24 @@ test('renders human-readable review debt table', async () => {
     assert.match(run.stdout, /review-pending rows: 1/);
     assert.match(run.stdout, /tempo-trace-unfetchable: 1/);
     assert.match(run.stdout, /R-OBS-STATUS/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('consumes the versioned candidate envelope without double-counting its legacy run result', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'review-debt-envelope-'));
+  try {
+    await writeResult(root, 'R-CW-1', { review: { status: 'review-pending', pendingReceipts: ['tempo-trace-json'] } });
+    await writeCandidateResult(root, 'R-CW-1', {
+      schema: 'openclaw.k6.candidate-run-result.v1',
+      run: { rowId: 'R-CW-1' },
+      review: { status: 'ready-for-human-review', pendingReceipts: [], complete: true },
+    });
+    const run = await runNode(process.execPath, [script, '--run-root', root, '--json'], { encoding: 'utf8' });
+    const summary = JSON.parse(run.stdout);
+    assert.equal(summary.totalRows, 1);
+    assert.equal(summary.pendingRows, 0);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

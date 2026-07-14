@@ -109,6 +109,7 @@ Rows promoted as static committed-packet validators or honest-limit canaries may
    ├── evidence-lines.log
    ├── evidence.jsonl
    ├── run-result.json
+   ├── candidate-run-result.json  # only when review-complete; never canonical proof
    └── *summary.json
    ```
 

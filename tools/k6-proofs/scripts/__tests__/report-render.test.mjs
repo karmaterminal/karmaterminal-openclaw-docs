@@ -53,3 +53,29 @@ test('renders public-safe HTML report from row-list runner artifacts', async () 
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('uses candidate-run-result.v1 as the unambiguous review input when present', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'k6-proof-envelope-report-'));
+  try {
+    const runDir = path.join(root, 'candidate', 'R-CW-1', 'cael', 'k6-run-1');
+    await mkdir(runDir, { recursive: true });
+    await writeFile(path.join(runDir, 'run-result.json'), `${JSON.stringify({ review: { status: 'review-pending', pendingReceipts: ['tempo-trace-json'] } })}\n`);
+    await writeFile(path.join(runDir, 'candidate-run-result.json'), `${JSON.stringify({
+      schema: 'openclaw.k6.candidate-run-result.v1',
+      candidate: { sha: 'b40e59f08c7a8997e50a5c8a24b00bc68f653882' },
+      run: { rowId: 'R-CW-1', seat: 'cael', scenario: 'r-cw-1' },
+      result: { outcome: 'PASS-candidate', behaviorProof: false },
+      observability: { traceStatus: 'present' },
+      review: { status: 'ready-for-human-review', pendingReceipts: [], complete: true },
+    }, null, 2)}\n`);
+    const out = path.join(root, 'report.html');
+    const run = spawnSync(process.execPath, [script, '--root', root, '--out', out], { encoding: 'utf8' });
+    assert.equal(run.status, 0, run.stderr);
+    const html = await readFile(out, 'utf8');
+    assert.match(html, /R-CW-1/);
+    assert.match(html, /ready-for-human-review/);
+    assert.doesNotMatch(html, /<td>review-pending<\/td>/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

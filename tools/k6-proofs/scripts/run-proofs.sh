@@ -13,6 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EVIDENCE_EXTRACTOR="$SCRIPT_DIR/extract-k6-evidence.mjs"
 CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
 ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
+CANDIDATE_RESULT_VALIDATOR="$SCRIPT_DIR/validate-candidate-run-result.mjs"
 PRIVATE_K6_LOG=""
 PRIVATE_EVIDENCE_FILE=""
 PRIVATE_GATEWAY_LOG=""
@@ -509,6 +510,24 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
       '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
+    # A review-complete candidate can now receive a public-safe routing
+    # envelope. Review-pending runs intentionally remain represented only by
+    # run-result.json so review-debt can route their missing receipts; neither
+    # form is canonical proof or an automatic fold input.
+    DOCS_REF="$(git rev-parse HEAD 2>/dev/null || true)"
+    if [[ "$DOCS_REF" =~ ^[0-9a-f]{40}$ ]] && node "$CANDIDATE_RESULT_VALIDATOR" \
+      --manifest "$MANIFEST_FILE" \
+      --candidate-dir "$RUN_DIR" \
+      --docs-ref "$DOCS_REF" \
+      --out "$RUN_DIR/candidate-run-result.json" \
+      > "$RUN_DIR/candidate-run-result-validation.json" \
+      2> "$RUN_DIR/candidate-run-result-validation.error.log"; then
+      rm -f "$RUN_DIR/candidate-run-result-validation.error.log"
+      echo "[$ROW_ID] CANDIDATE REVIEW ENVELOPE: $RUN_DIR/candidate-run-result.json"
+    else
+      rm -f "$RUN_DIR/candidate-run-result.json"
+      echo "[$ROW_ID] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate." >&2
+    fi
     METRICS_ARGS=(--run-dir "$RUN_DIR" --prometheus-out "$RUN_DIR/openclaw-proofs-k6.prom" --otlp-out "$RUN_DIR/openclaw-proofs-k6.otlp.json")
     if [[ -n "${OPENCLAW_PROOFS_K6_OTLP_ENDPOINT:-}" ]]; then
       METRICS_ARGS+=(--push-otlp "$OPENCLAW_PROOFS_K6_OTLP_ENDPOINT")

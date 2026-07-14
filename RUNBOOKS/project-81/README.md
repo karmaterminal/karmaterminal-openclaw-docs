@@ -21,15 +21,15 @@ cd tools/k6-proofs
 
 For an external/reviewer-facing path from “install k6” to “run the unattended suite,” use [EXECUTABLE-SUITE.md](EXECUTABLE-SUITE.md).
 
-As of the current Project 81 surface, `list-runnable-rows --live-suite` resolves to 35 unattended rows:
+As of the current Project 81 surface, `list-runnable-rows --live-suite` resolves to 34 unattended rows:
 
 ```text
-R-CD-1,R-CD-2,R-CD-3,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-COLLECTION-ON-COLLAPSE,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-RETURN-OVERLAP,R-CD-SILENT,R-CD-TOKEN,R-CONFIG-defaults,R-CONFIG-INTERSESSION,R-CW-1,R-CW-2,R-CW-3,R-CW-4,R-CW-5,R-CW-6,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI-COLLAPSE,R-CW-MULTI,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-status,R-RC-1,R-RC-2,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121
+R-CD-1,R-CD-2,R-CD-3,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-COLLECTION-ON-COLLAPSE,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-RETURN-OVERLAP,R-CD-SILENT,R-CD-TOKEN,R-CONFIG-defaults,R-CONFIG-INTERSESSION,R-CW-1,R-CW-2,R-CW-3,R-CW-4,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI-COLLAPSE,R-CW-MULTI,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-status,R-RC-1,R-RC-2,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121
 ```
 
-That count is a runner surface, not a proof-class claim. It includes fresh live WebSocket rows, read-only/status probes, offline static committed-packet validators, and threshold/honest-limit canaries. A `PASS-candidate` or `HONEST-LIMIT-candidate` still needs row-specific review before any canonical fold.
+That count is a runner surface, not a proof-class claim. It includes fresh live WebSocket rows, read-only/status probes, offline static committed-packet validators, and threshold/honest-limit canaries. R-CW-5/R-CW-6 are excluded because their real cap claims require an explicit mutation fixture; R-CW-5A/R-CW-6A are non-live construct-only boundary checks. A `PASS-candidate` or `HONEST-LIMIT-candidate` still needs row-specific review before any canonical fold.
 
-`preflight` remains `static-preflight-only`: the runner performs seat-readiness preflight for live runs, but the preflight manifest row is intentionally skipped by live-run guard.
+`preflight` remains a readiness helper with its own manifest contract; live cap rows are never promoted by that helper.
 
 Use this directory as the accumulator. When a scaffold row becomes runnable, add or update `RUNBOOKS/project-81/rows/<ROW>.md` or a fixture note in the same PR as the scenario/manifest change. Static committed-packet validators may stay manifest-driven when the manifest and executable-suite docs already describe the review caveat.
 

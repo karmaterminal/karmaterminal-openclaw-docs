@@ -5,74 +5,48 @@
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
-  "transport": "offline",
-  "toolSurface": "read-only",
-  "mutates": false,
-  "timeoutSeconds": 15,
-  "gateway": {
-    "wsEnv": "OPENCLAW_GATEWAY_WS",
-    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
-  },
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": true,
+  "timeoutSeconds": 120,
+  "gateway": {"wsEnv":"OPENCLAW_GATEWAY_WS","tokenEnv":"OPENCLAW_GATEWAY_TOKEN"},
   "scenario": {
-    "name": "static-corpus-row-validator",
-    "description": "Static/source-harness validator for committed chain-cap boundary receipts.",
-    "methods": [
-      "manual-corpus-review",
-      "static-artifact-parse"
-    ],
-    "status": "runnable",
-    "file": "static-corpus-row-validator.js"
+    "name": "r-cw-6-max-chain-length",
+    "description": "The live chain-depth boundary requires an isolated fixture that lowers maxChainLength, restarts safely, proves the hop boundary, then restores and restarts.",
+    "methods": ["tools.invoke", "config.patch", "config.restore", "gateway.restart"],
+    "status": "scaffold",
+    "expectedFile": "r-cw-6-max-chain-length.js",
+    "registryNotes": "The scaffold intentionally cannot run until an explicitly authorized fixture implements backup/lower/restart/fire/restore/restart receipts."
   },
   "invocation": {
     "tool": "continue_work",
     "delaySeconds": 2,
     "reason": "k6-proof-R-CW-6-chain-cap-{{nonce}}",
     "idempotencyKeyPrefix": "R-CW-6",
-    "configOverride": {
-      "path": "agents.defaults.continuation.maxChainLength",
-      "testValue": 1,
-      "restoreAfter": true,
-      "requiresRestart": true
-    }
+    "configOverride": {"path":"agents.defaults.continuation.maxChainLength","testValue":1,"restoreAfter":true,"requiresRestart":true}
   },
   "expectedReceipts": [
-    {
-      "name": "chain-cap-artifacts",
-      "required": true,
-      "description": "Current PROOFS corpus receipts parse for this row."
-    },
-    {
-      "name": "chain-cap-boundary-harness-passed",
-      "required": true,
-      "description": "Committed evidence satisfies the row-specific PASS predicate."
-    }
+    {"name":"seat-readiness-continuation-enabled","required":true,"description":"Precursor receipt proves continuation defaults before fixture mutation."},
+    {"name":"original-config-captured","required":true,"description":"The original maxChainLength value is retained for restoration."},
+    {"name":"failure-safe-restore-armed","required":true,"description":"A restore-and-restart guard is armed before mutation."},
+    {"name":"config-set-to-1","required":true,"description":"The fixture records maxChainLength=1 and the first restart."},
+    {"name":"hop-1-accepted","required":true,"description":"The first hop is accepted at the configured boundary."},
+    {"name":"hop-2-rejected","required":true,"description":"The next hop is rejected at the chain boundary."},
+    {"name":"config-restored","required":true,"description":"The original limit is restored and the gateway restart receipt is captured."}
   ],
-  "artifactDestination": {
-    "root": "PROOFS",
-    "sha": "${OPENCLAW_CANDIDATE_SHA}",
-    "row": "R-CW-6",
-    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
-    "runDirPrefix": "k6-run"
-  },
-  "review": {
-    "candidateOnly": true,
-    "foldRequiresReview": true,
-    "notes": "Static artifact validator for R-CW-6. Validates committed corpus receipts; does not fire live behavior."
-  },
+  "artifactDestination": {"root":"PROOFS","sha":"${OPENCLAW_CANDIDATE_SHA}","row":"R-CW-6","seat":"${OPENCLAW_SEAT_NAME:-cael-dgx}","runDirPrefix":"k6-run"},
+  "review": {"candidateOnly":true,"foldRequiresReview":true,"notes":"This is the live chain-boundary claim. It is not proven by static checks."},
   "liveRunSafety": {
-    "classification": "k6-runnable",
-    "requiresLiveGatewayToken": false,
+    "classification": "orchestration-required",
+    "requiresLiveGatewayToken": true,
     "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
-    "requiresExternalAgentOrToolInvocation": false,
-    "requiresHumanConfirmation": false,
-    "sameSessionConcurrencySafe": true,
-    "expectedArtifactClass": "PASS-candidate",
-    "requiredReceipts": [
-      "chain-cap-artifacts",
-      "chain-cap-boundary-harness-passed"
-    ],
+    "requiresExternalAgentOrToolInvocation": true,
+    "requiresHumanConfirmation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PARTIAL-candidate",
+    "requiredReceipts": ["seat-readiness-continuation-enabled","original-config-captured","failure-safe-restore-armed","config-set-to-1","hop-1-accepted","hop-2-rejected","config-restored"],
     "foldRequiresReview": true,
-    "notes": "Offline/static current-corpus validator; safe in broad suite because it does not connect to or mutate gateway state."
+    "notes": "Fail closed until a separately authorized disposable fixture captures the full mutation, restart, and restoration chain."
   }
 }

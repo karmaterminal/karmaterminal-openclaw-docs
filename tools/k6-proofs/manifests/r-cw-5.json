@@ -5,23 +5,21 @@
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
-  "transport": "offline",
-  "toolSurface": "read-only",
-  "mutates": false,
-  "timeoutSeconds": 15,
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": true,
+  "timeoutSeconds": 90,
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
     "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
   },
   "scenario": {
-    "name": "static-corpus-row-validator",
-    "description": "Static/source-test validator for committed cost-cap exhaustion receipts.",
-    "methods": [
-      "manual-corpus-review",
-      "static-artifact-parse"
-    ],
-    "status": "runnable",
-    "file": "static-corpus-row-validator.js"
+    "name": "r-cw-5-cost-cap-reject",
+    "description": "Cost-cap exhaustion requires an isolated config-mutation fixture that lowers costCapTokens, observes the dispatch rejection, and restores state.",
+    "methods": ["tools.invoke", "config.patch", "config.restore"],
+    "status": "scaffold",
+    "expectedFile": "r-cw-5-cost-cap-reject.js",
+    "registryNotes": "The scaffold intentionally cannot run until an explicitly authorized fixture implements backup/lower/fire/restore receipts."
   },
   "invocation": {
     "tool": "continue_work",
@@ -37,43 +35,26 @@
     }
   },
   "expectedReceipts": [
-    {
-      "name": "cost-cap-artifacts",
-      "required": true,
-      "description": "Current PROOFS corpus receipts parse for this row."
-    },
-    {
-      "name": "cost-cap-tests-passed",
-      "required": true,
-      "description": "Committed evidence satisfies the row-specific PASS predicate."
-    }
+    {"name":"seat-readiness-continuation-enabled","required":true,"description":"Precursor receipt proves continuation defaults before fixture mutation."},
+    {"name":"original-config-captured","required":true,"description":"The original costCapTokens value is retained for restoration."},
+    {"name":"failure-safe-restore-armed","required":true,"description":"A restore guard is armed before mutation."},
+    {"name":"config-lowered","required":true,"description":"The fixture records its row-local low cap."},
+    {"name":"tool-invoke-rejected","required":true,"description":"continue_work rejects at the exhausted cost cap."},
+    {"name":"config-restored","required":true,"description":"The original cap is restored even after failure."}
   ],
-  "artifactDestination": {
-    "root": "PROOFS",
-    "sha": "${OPENCLAW_CANDIDATE_SHA}",
-    "row": "R-CW-5",
-    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
-    "runDirPrefix": "k6-run"
-  },
-  "review": {
-    "candidateOnly": true,
-    "foldRequiresReview": true,
-    "notes": "Static artifact validator for R-CW-5. Validates committed corpus receipts; does not fire live behavior."
-  },
+  "artifactDestination": {"root":"PROOFS","sha":"${OPENCLAW_CANDIDATE_SHA}","row":"R-CW-5","seat":"${OPENCLAW_SEAT_NAME:-cael-dgx}","runDirPrefix":"k6-run"},
+  "review": {"candidateOnly":true,"foldRequiresReview":true,"notes":"This is the live cap-exhaustion claim. It is not proven by static checks."},
   "liveRunSafety": {
-    "classification": "k6-runnable",
-    "requiresLiveGatewayToken": false,
+    "classification": "orchestration-required",
+    "requiresLiveGatewayToken": true,
     "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
-    "requiresExternalAgentOrToolInvocation": false,
-    "requiresHumanConfirmation": false,
-    "sameSessionConcurrencySafe": true,
-    "expectedArtifactClass": "PASS-candidate",
-    "requiredReceipts": [
-      "cost-cap-artifacts",
-      "cost-cap-tests-passed"
-    ],
+    "requiresExternalAgentOrToolInvocation": true,
+    "requiresHumanConfirmation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PARTIAL-candidate",
+    "requiredReceipts": ["seat-readiness-continuation-enabled","original-config-captured","failure-safe-restore-armed","config-lowered","tool-invoke-rejected","config-restored"],
     "foldRequiresReview": true,
-    "notes": "Offline/static current-corpus validator; safe in broad suite because it does not connect to or mutate gateway state."
+    "notes": "Fail closed until a separately authorized disposable fixture captures the complete mutation and restoration chain."
   }
 }

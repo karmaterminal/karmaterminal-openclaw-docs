@@ -56,9 +56,9 @@ const duplicateManifestRows = [...manifestRows.reduce((byRow, row) => {
   .filter(([, files]) => files.length > 1)
   .map(([rowId, files]) => `${rowId} (${files.join(', ')})`);
 
-// Manifest-only rows: in the live-suite manifest catalog but not yet in the canonical proof
-// board corpus (e.g. model-override rows, R-CW-4, R-OBS-status). These are k6-runnable
-// candidates pending a canonical fold — they are intentional, not gaps.
+// Manifest-only rows: in the manifest catalog but not yet in the canonical proof
+// board corpus (e.g. model-override rows, R-CW-4, R-OBS-status, or static boundary
+// checks). These are intentional catalog entries, not proof-corpus gaps.
 const manifestOnly = manifestRows.filter(
   (row) => row.rowId !== 'preflight' && !proofRowUpperSet.has(row.rowId.toUpperCase()),
 );
@@ -77,7 +77,7 @@ if (missing.length) console.log(`Missing manifests: ${missing.join(', ')}`);
 else console.log('Missing manifests: 0');
 if (manifestOnly.length) {
   console.log(
-    `Manifest-only (live-suite but not yet on proof board): ${manifestOnly.map((r) => r.rowId).join(', ')}`,
+    `Manifest-only (catalog but not yet on proof board): ${manifestOnly.map((r) => r.rowId).join(', ')}`,
   );
 } else {
   console.log('Manifest-only rows: 0');

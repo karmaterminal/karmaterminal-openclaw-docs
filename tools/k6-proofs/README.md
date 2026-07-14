@@ -152,14 +152,24 @@ OPENCLAW_ROW_MANIFEST="tools/k6-proofs/manifests/r-cd-2.json" \
 ### 4. Post-process into proof artifacts
 
 ```bash
-node tools/k6-proofs/scripts/evidence-writer.mjs \
+OPENCLAW_GATEWAY_TOKEN="***" \
+  node tools/k6-proofs/scripts/evidence-writer.mjs \
   --input /tmp/r-cd-2-output.txt \
   --row R-CD-2 \
   --seat ronan-dgx \
-  --sha <40-char-sha>
+  --sha <40-char-sha> \
+  --lifecycle-receipt /tmp/r-cd-2-private/r-cd-2-lifecycle-receipt.json \
+  --lifecycle-correlation /tmp/r-cd-2-private/continuation-trace-correlation.json
 ```
 
 Writes candidate evidence into `PROOFS/<SHA>/R-CD-2/ronan-dgx/k6-run-<timestamp>/`.
+For R-CD-2, the writer re-derives and verifies the receipt against the private
+evidence block in the k6 log plus the supplied private correlation. The raw log,
+correlation, trace, journal, provider errors, and identifiers remain outside the
+public artifact directory.
+The lifecycle receipt must come from
+`scripts/resolve-r-cd-2-lifecycle-receipt.mjs`; the normal
+`scripts/run-proofs.sh` path performs resolution and projection automatically.
 
 ### 5. Recover delayed/session-history receipts
 
@@ -248,6 +258,12 @@ and validates that the originating `continue_delegate` tool span plus
 distinct IDs and one chain. The raw trace and
 `continuation-trace-correlation.json` are saved beside the row artifacts; raw
 task text and `traceparent` are not persisted in the correlation receipt.
+
+R-CD-2 is stricter: those trace/correlation products are transient private
+acquisition only. Its resolver binds them to the accepted `sessions.send`
+run/turn's local terminal and delayed wake/fire lifecycle, and the final row
+directory is rebuilt from an allowlist containing only aggregate metrics,
+candidate metadata, and one-way receipt fingerprints.
 
 Portable endpoint env vars for reviewer/fork runs:
 

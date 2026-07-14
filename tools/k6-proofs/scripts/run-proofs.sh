@@ -516,12 +516,21 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       : > "$RUN_DIR/evidence-lines.log"
       printf '%s\n' 'R-CD-2 private k6 acquisition withheld; see public lifecycle receipt.' > "$RUN_DIR/k6.log"
       printf '%s\n' 'R-CD-2 private gateway acquisition withheld; see public lifecycle receipt.' > "$RUN_DIR/gateway-journal.log"
-      PROJECTOR_ARGS=(--run-dir "$RUN_DIR" --receipt "$RUN_DIR/$R_CD_2_LIFECYCLE_RECEIPT")
+      PROJECTOR_ARGS=(
+        --run-dir "$RUN_DIR"
+        --receipt "$RUN_DIR/$R_CD_2_LIFECYCLE_RECEIPT"
+        --evidence "$PRIVATE_EVIDENCE_FILE"
+        --candidate-sha "$OPENCLAW_CANDIDATE_SHA"
+        --seat "$OPENCLAW_SEAT_NAME"
+      )
       if [[ -n "$CORRELATION_RECEIPT_PATH" && -f "$CORRELATION_RECEIPT_PATH" ]]; then
         PROJECTOR_ARGS+=(--correlation "$CORRELATION_RECEIPT_PATH")
       fi
       if ! node "$R_CD_2_PUBLIC_PROJECTOR" "${PROJECTOR_ARGS[@]}" > "$RUN_DIR/r-cd-2-public-projection.json"; then
         echo "[$ROW_ID] R-CD-2 public artifact projection failed" >&2
+        SUMMARY_VERDICT="PARTIAL-candidate"
+        SUMMARY_VERDICT_SOURCE="r-cd-2-public-projection-rejected"
+        SUMMARY_FILE_VERDICT="PARTIAL-candidate"
         POSTPROCESS_RC=1
       fi
     fi

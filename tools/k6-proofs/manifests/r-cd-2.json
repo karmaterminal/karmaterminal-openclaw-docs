@@ -42,6 +42,7 @@
     "requiredReceipts": [
       "seat-readiness",
       "dispatch-accepted",
+      "accepted-run-terminal-and-wake-binding",
       "continuation-lifecycle-correlation",
       "parent-wake-event",
       "no-channel-delivery",
@@ -54,7 +55,12 @@
     {
       "name": "dispatch-accepted",
       "required": true,
-      "description": "Gateway accepted the dispatching sessions.send request that asks the agent to call continue_delegate(mode=silent-wake)"
+      "description": "Gateway accepted sessions.send and returned the run/turn identifier used by every local lifecycle join"
+    },
+    {
+      "name": "accepted-run-terminal-and-wake-binding",
+      "required": true,
+      "description": "The accepted sessions.send run/turn has matching terminal success, delayed nonce-correlated wake/fire, no replay-unsafe or failed item, and a bounded quiet result"
     },
     {
       "name": "task-ledger-entry",
@@ -84,7 +90,7 @@
     {
       "name": "continuation-lifecycle-correlation",
       "required": true,
-      "description": "R-CD-2-only authoritative, public-safe lifecycle receipt. It must prove typed continue_delegate, observed silent-wake topology, local unbound-session success, and no channel delivery."
+      "description": "R-CD-2-only authoritative receipt bound to private local evidence and typed continue_delegate dispatch/fire correlation with coherent trace, chain, and delegate identities."
     }
   ],
   "artifactDestination": {
@@ -97,6 +103,6 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Silent-wake path. For R-CD-2 alone, PASS-candidate is owned only by the validated public-safe lifecycle receipt; generic delayed traffic, outer sessions.send acceptance, and task-ledger context are diagnostic only."
+    "notes": "Silent-wake path. PASS-candidate is owned only by the validated receipt re-derived from its private local lifecycle and trace-correlation inputs. Generic delayed traffic, outer sessions.send acceptance, metrics, and task-ledger context are diagnostic only."
   }
 }

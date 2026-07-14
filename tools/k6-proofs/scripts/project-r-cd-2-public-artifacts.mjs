@@ -1,118 +1,197 @@
 #!/usr/bin/env node
-/**
- * R-CD-2 receives raw gateway, k6, and Tempo material only long enough to
- * derive its lifecycle receipt. This projector turns that private acquisition
- * directory into the public proof artifact: a safe manifest plus the validated
- * receipt. It deliberately does not extend the collector or runtime surface.
- */
-import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { projectRcd2PublicLifecycleReceipt, validateRcd2LifecycleReceipt } from '../lib/r-cd-2-lifecycle-receipt.js';
+import { validateAndProjectRcd2LifecycleReceipt } from '../lib/r-cd-2-lifecycle-receipt.js';
+import {
+  projectRcd2PublicManifest,
+  projectRcd2PublicRowResult,
+  projectRcd2PublicSeatReadiness,
+  projectRcd2PublicSummary,
+  renderRcd2PublicEvidence,
+} from '../lib/r-cd-2-public-summary.mjs';
 
 function parseArgs(argv) {
   const out = {};
+  const allowed = new Set([
+    '--run-dir',
+    '--receipt',
+    '--evidence',
+    '--correlation',
+    '--candidate-sha',
+    '--seat',
+  ]);
   for (let i = 2; i < argv.length; i += 1) {
     const flag = argv[i];
     const value = argv[i + 1];
-    if (!['--run-dir', '--receipt', '--correlation'].includes(flag) || !value) {
-      throw new Error('usage: --run-dir <dir> --receipt <safe-receipt> [--correlation <private-receipt>]');
+    if (!allowed.has(flag) || !value) {
+      throw new Error(
+        'usage: --run-dir <dir> --receipt <receipt> --evidence <private-evidence> [--correlation <private-correlation>]',
+      );
     }
     out[flag.slice(2)] = value;
     i += 1;
   }
-  if (!out['run-dir'] || !out.receipt) throw new Error('run-dir and receipt are required');
+  if (!out['run-dir'] || !out.receipt || !out.evidence) {
+    throw new Error('run-dir, receipt, and evidence are required');
+  }
   return out;
 }
 
 async function jsonOrNull(file) {
-  try { return JSON.parse(await readFile(file, 'utf8')); } catch { return null; }
-}
-
-function strings(value, into = new Set()) {
-  if (typeof value === 'string' && value.length >= 6) into.add(value);
-  else if (Array.isArray(value)) value.forEach((item) => strings(item, into));
-  else if (value && typeof value === 'object') Object.values(value).forEach((item) => strings(item, into));
-  return into;
-}
-
-function safeManifest(manifest) {
-  return {
-    schema: manifest?.schema || 'openclaw.k6.proof-row-manifest.v1',
-    rowId: 'R-CD-2',
-    candidateSha: manifest?.candidateSha || null,
-    seat: manifest?.seat || null,
-    transport: manifest?.transport || 'websocket',
-    toolSurface: manifest?.toolSurface || 'typed-tool',
-    scenario: { name: manifest?.scenario?.name || 'r-cd-2-silent-wake' },
-    liveRunSafety: {
-      classification: manifest?.liveRunSafety?.classification || 'k6-runnable',
-      requiredReceipts: ['continuation-lifecycle-correlation', 'no-channel-delivery'],
-      foldRequiresReview: true,
-    },
-    review: { candidateOnly: true, foldRequiresReview: true },
-    publicArtifactProjection: 'r-cd-2-lifecycle-receipt-only',
-  };
-}
-
-async function walkFiles(root, relative = '') {
-  const entries = await readdir(path.join(root, relative), { withFileTypes: true });
-  const files = [];
-  for (const entry of entries) {
-    const next = path.join(relative, entry.name);
-    if (entry.isDirectory()) files.push(...await walkFiles(root, next));
-    else files.push(next);
+  try {
+    return JSON.parse(await readFile(file, 'utf8'));
+  } catch {
+    return null;
   }
-  return files;
 }
 
-export async function projectRcd2PublicArtifacts({ runDir, receiptPath, correlationPath }) {
-  const receipt = await jsonOrNull(receiptPath);
-  const validation = validateRcd2LifecycleReceipt(receipt);
-  if (!validation.valid) throw new Error(`R-CD-2 lifecycle receipt rejected: ${validation.reason}`);
-  const publicReceipt = projectRcd2PublicLifecycleReceipt(receipt);
+async function oneJsonRecord(file) {
+  const lines = (await readFile(file, 'utf8')).split(/\r?\n/).filter(Boolean);
+  if (lines.length !== 1) throw new Error('R-CD-2 private evidence must contain exactly one JSON record');
+  return JSON.parse(lines[0]);
+}
 
-  const manifestPath = path.join(runDir, 'row-manifest.json');
-  const manifest = await jsonOrNull(manifestPath);
-  const correlation = correlationPath ? await jsonOrNull(correlationPath) : null;
-  const forbidden = strings({
-    prompt: manifest?.invocation?.promptTemplate,
-    sessionKey: manifest?.sessionKey,
-    correlation: {
-      traceId: correlation?.traceId,
-      chainId: correlation?.chainId,
-      dispatchSpanId: correlation?.dispatchSpanId,
-      fireSpanId: correlation?.fireSpanId,
-      query: correlation?.query,
-    },
-  });
-
-  await writeFile(manifestPath, `${JSON.stringify(safeManifest(manifest), null, 2)}\n`);
-  await writeFile(receiptPath, `${JSON.stringify(publicReceipt, null, 2)}\n`);
-  const privateNames = [
-    'continuation-trace-correlation.json',
-    'continuation-trace-collector.json',
-    'continuation-trace-collector.error.log',
-    'gateway-journal-capture.json',
-    'gateway-journal-redaction.json',
-    'evidence-extraction.json',
-    'evidence-redaction.json',
-    'evidence-redaction.stdout.json',
-    'verdict-reconciliation.json',
-    'r-cd-2-lifecycle-resolver.json',
-  ];
-  await Promise.all(privateNames.map((name) => rm(path.join(runDir, name), { force: true })));
-  const topLevel = await readdir(runDir);
-  await Promise.all(topLevel
-    .filter((name) => /(?:tempo-trace-.*\.json|tempo-trace-(?:receipt|error)\.log|.*summary\.json)$/i.test(name))
-    .map((name) => rm(path.join(runDir, name), { force: true })));
-
-  for (const relative of await walkFiles(runDir)) {
-    const text = await readFile(path.join(runDir, relative), 'utf8').catch(() => '');
-    for (const token of forbidden) {
-      if (text.includes(token)) throw new Error(`R-CD-2 public artifact leaked private acquisition token in ${relative}`);
+async function findPrivateSummary(runDir) {
+  const names = await readdir(runDir);
+  for (const name of names) {
+    if (/summary\.json$/i.test(name)) {
+      const summary = await jsonOrNull(path.join(runDir, name));
+      if (summary) return summary;
     }
   }
-  return { receipt: publicReceipt, publicFiles: await walkFiles(runDir) };
+  return {};
+}
+
+async function clearDirectory(runDir) {
+  const entries = await readdir(runDir);
+  await Promise.all(entries.map((name) =>
+    rm(path.join(runDir, name), { recursive: true, force: true })));
+}
+
+export async function projectRcd2PublicArtifacts({
+  runDir,
+  receiptPath,
+  evidencePath,
+  correlationPath,
+  candidateSha,
+  seat,
+}) {
+  const canonicalReceiptPath = path.join(runDir, 'r-cd-2-lifecycle-receipt.json');
+  if (path.resolve(receiptPath) !== path.resolve(canonicalReceiptPath)) {
+    throw new Error('R-CD-2 receipt must use the canonical non-identifying filename');
+  }
+
+  const [receipt, evidence, correlation, manifest, privateSummary, seatReadiness] = await Promise.all([
+    jsonOrNull(receiptPath),
+    oneJsonRecord(evidencePath),
+    correlationPath ? jsonOrNull(correlationPath) : null,
+    jsonOrNull(path.join(runDir, 'row-manifest.json')),
+    findPrivateSummary(runDir),
+    jsonOrNull(path.join(runDir, 'seat-readiness.json')),
+  ]);
+  const publicManifest = projectRcd2PublicManifest({
+    candidateSha: candidateSha || manifest?.candidateSha,
+    seat: seat || manifest?.seat,
+  });
+  const validation = validateAndProjectRcd2LifecycleReceipt({
+    receipt,
+    evidence,
+    correlation,
+  });
+  if (!validation.valid) {
+    await clearDirectory(runDir);
+    await mkdir(path.join(runDir, 'artifacts'), { recursive: true });
+    await Promise.all([
+      writeFile(
+        path.join(runDir, 'row-manifest.json'),
+        `${JSON.stringify(publicManifest, null, 2)}\n`,
+      ),
+      writeFile(
+        path.join(runDir, 'projection-rejected.json'),
+        `${JSON.stringify({
+          schema: 'openclaw.k6.r-cd-2-public-projection-rejected.v1',
+          row: 'R-CD-2',
+          outcome: 'PARTIAL-candidate',
+          reason: validation.reason,
+          privateAcquisitionWithheld: true,
+        }, null, 2)}\n`,
+      ),
+      writeFile(
+        path.join(runDir, 'k6.log'),
+        'R-CD-2 public projection rejected; private k6 acquisition withheld.\n',
+      ),
+      writeFile(
+        path.join(runDir, 'gateway-journal.log'),
+        'R-CD-2 public projection rejected; private gateway acquisition withheld.\n',
+      ),
+      writeFile(path.join(runDir, 'evidence.jsonl'), ''),
+      writeFile(path.join(runDir, 'evidence-lines.log'), ''),
+    ]);
+    throw new Error(`R-CD-2 lifecycle receipt rejected: ${validation.reason}`);
+  }
+
+  const publicReceipt = validation.publicReceipt;
+  const generatedAt = new Date().toISOString();
+  const publicSummary = projectRcd2PublicSummary(privateSummary, publicReceipt);
+  const result = projectRcd2PublicRowResult({
+    lifecycleReceipt: publicReceipt,
+    publicSummary,
+    candidateSha: publicManifest.candidateSha,
+    seat: publicManifest.seat,
+    runId: path.basename(runDir),
+    generatedAt,
+  });
+
+  await clearDirectory(runDir);
+  await mkdir(path.join(runDir, 'artifacts'), { recursive: true });
+  const publicWrites = [
+    writeFile(path.join(runDir, 'row-manifest.json'), `${JSON.stringify(publicManifest, null, 2)}\n`),
+    writeFile(canonicalReceiptPath, `${JSON.stringify(publicReceipt, null, 2)}\n`),
+    writeFile(path.join(runDir, 'k6-summary.json'), `${JSON.stringify(publicSummary, null, 2)}\n`),
+    writeFile(path.join(runDir, 'row-result.json'), `${JSON.stringify(result, null, 2)}\n`),
+    writeFile(path.join(runDir, 'EVIDENCE.md'), renderRcd2PublicEvidence({ result })),
+    writeFile(path.join(runDir, 'evidence.jsonl'), `${JSON.stringify({
+      row: 'R-CD-2',
+      verdict: publicReceipt.verdict,
+      ...(publicReceipt.failureCategory
+        ? { failureCategory: publicReceipt.failureCategory }
+        : {}),
+      lifecycleReceipt: 'r-cd-2-lifecycle-receipt.json',
+      acquisition: 'private',
+    })}\n`),
+    writeFile(path.join(runDir, 'evidence-lines.log'), ''),
+    writeFile(
+      path.join(runDir, 'evidence-redaction.json'),
+      `${JSON.stringify({
+        schema: 'openclaw.k6.public-evidence-redaction.v1',
+        generatedAt,
+        projection: 'r-cd-2-allowlist',
+        privateAcquisitionWithheld: true,
+      }, null, 2)}\n`,
+    ),
+    writeFile(
+      path.join(runDir, 'k6.log'),
+      'R-CD-2 private k6 acquisition withheld; see public lifecycle receipt.\n',
+    ),
+    writeFile(
+      path.join(runDir, 'gateway-journal.log'),
+      'R-CD-2 private gateway acquisition withheld; see public lifecycle receipt.\n',
+    ),
+  ];
+  if (seatReadiness) {
+    publicWrites.push(writeFile(
+      path.join(runDir, 'seat-readiness.json'),
+      `${JSON.stringify(projectRcd2PublicSeatReadiness(seatReadiness, {
+        candidateSha: publicManifest.candidateSha,
+        seat: publicManifest.seat,
+      }), null, 2)}\n`,
+    ));
+  }
+  await Promise.all(publicWrites);
+  return {
+    receipt: publicReceipt,
+    publicFiles: (await readdir(runDir)).sort(),
+  };
 }
 
 async function main() {
@@ -120,11 +199,21 @@ async function main() {
   const result = await projectRcd2PublicArtifacts({
     runDir: path.resolve(args['run-dir']),
     receiptPath: path.resolve(args.receipt),
+    evidencePath: path.resolve(args.evidence),
     correlationPath: args.correlation ? path.resolve(args.correlation) : null,
+    candidateSha: args['candidate-sha'],
+    seat: args.seat,
   });
-  process.stdout.write(`${JSON.stringify({ row: 'R-CD-2', receipt: 'validated', publicFiles: result.publicFiles.length })}\n`);
+  process.stdout.write(`${JSON.stringify({
+    row: 'R-CD-2',
+    receipt: 'validated',
+    publicFiles: result.publicFiles.length,
+  })}\n`);
 }
 
 if (import.meta.url === new URL(process.argv[1], 'file:').href) {
-  main().catch((error) => { process.stderr.write(`${error.message}\n`); process.exitCode = 1; });
+  main().catch((error) => {
+    process.stderr.write(`${error.message}\n`);
+    process.exitCode = 1;
+  });
 }

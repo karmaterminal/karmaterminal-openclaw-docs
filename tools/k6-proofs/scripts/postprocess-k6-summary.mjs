@@ -1,8 +1,13 @@
 #!/usr/bin/env node
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { projectRcd2PublicLifecycleReceipt, validateRcd2LifecycleReceipt } from '../lib/r-cd-2-lifecycle-receipt.js';
-import { projectRcd2PublicSummary } from '../lib/r-cd-2-public-summary.mjs';
+import { validateAndProjectRcd2LifecycleReceipt } from '../lib/r-cd-2-lifecycle-receipt.js';
+import {
+  projectRcd2PublicManifest,
+  projectRcd2PublicRowResult,
+  projectRcd2PublicSummary,
+  renderRcd2PublicEvidence,
+} from '../lib/r-cd-2-public-summary.mjs';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \\
@@ -176,20 +181,42 @@ async function main() {
   }
 
   const dest = manifest.artifactDestination || {};
-  const outRoot = args['out-root'] || dest.root || 'PROOFS';
-  const sha = dest.sha || manifest.candidateSha;
-  const row = dest.row || manifest.rowId;
-  const seat = dest.seat || manifest.seat;
+  const rcd2Manifest = manifest.rowId === 'R-CD-2'
+    ? projectRcd2PublicManifest({
+        candidateSha: manifest.candidateSha,
+        seat: manifest.seat,
+      })
+    : null;
+  const outRoot = args['out-root'] || (rcd2Manifest ? 'PROOFS' : dest.root) || 'PROOFS';
+  const sha = rcd2Manifest?.candidateSha || (rcd2Manifest ? 'unknown' : dest.sha || manifest.candidateSha);
+  const row = rcd2Manifest?.rowId || dest.row || manifest.rowId;
+  const seat = rcd2Manifest?.seat || dest.seat || manifest.seat;
   const runId = args['run-id'] || `${dest.runDirPrefix || 'k6-run'}-${stamp()}`;
+  if (rcd2Manifest && !/^[a-z0-9._-]{1,100}$/i.test(runId)) {
+    throw new Error('R-CD-2 run-id must be a safe non-identifying path segment');
+  }
   const runDir = path.join(outRoot, sha, row, seat, runId);
 
   let lifecycleReceipt = null;
   if (manifest.rowId === 'R-CD-2') {
-    if (!args['lifecycle-receipt']) throw new Error('R-CD-2 requires --lifecycle-receipt');
+    if (!args['lifecycle-receipt'] || !args['lifecycle-evidence']) {
+      throw new Error('R-CD-2 requires --lifecycle-receipt and --lifecycle-evidence');
+    }
     lifecycleReceipt = JSON.parse(await readFile(args['lifecycle-receipt'], 'utf8'));
-    const lifecycleValidation = validateRcd2LifecycleReceipt(lifecycleReceipt);
+    const evidenceText = await readFile(args['lifecycle-evidence'], 'utf8');
+    const evidenceLines = evidenceText.split(/\r?\n/).filter(Boolean);
+    if (evidenceLines.length !== 1) throw new Error('R-CD-2 lifecycle evidence must contain exactly one JSON record');
+    const evidence = JSON.parse(evidenceLines[0]);
+    const correlation = args['lifecycle-correlation']
+      ? JSON.parse(await readFile(args['lifecycle-correlation'], 'utf8'))
+      : null;
+    const lifecycleValidation = validateAndProjectRcd2LifecycleReceipt({
+      receipt: lifecycleReceipt,
+      evidence,
+      correlation,
+    });
     if (!lifecycleValidation.valid) throw new Error(`R-CD-2 lifecycle receipt rejected: ${lifecycleValidation.reason}`);
-    lifecycleReceipt = projectRcd2PublicLifecycleReceipt(lifecycleReceipt);
+    lifecycleReceipt = lifecycleValidation.publicReceipt;
   }
   const outcome = lifecycleReceipt ? lifecycleReceipt.verdict : outcomeFromSummary(summary);
   const failures = requiredMetric(summary, 'proof_failures');
@@ -202,7 +229,7 @@ async function main() {
     status: receiptStatusFromName(r.name, summary),
   }));
   const failureClass = failureClassFrom({ outcome, failureCount, checkRate, receipts, summary });
-  const result = {
+  const genericResult = {
     schema: 'openclaw.k6.proof-row-result.v1',
     runId,
     generatedAt: new Date().toISOString(),
@@ -240,15 +267,33 @@ async function main() {
     candidateOnly: true,
     foldRequiresReview: true,
   };
-
-  await mkdir(path.join(runDir, 'artifacts'), { recursive: true });
   const publicSummary = lifecycleReceipt
     ? projectRcd2PublicSummary(summary, lifecycleReceipt)
     : summary;
-  await writeFile(path.join(runDir, 'row-manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
+  const result = lifecycleReceipt
+    ? projectRcd2PublicRowResult({
+        lifecycleReceipt,
+        publicSummary,
+        candidateSha: manifest.candidateSha,
+        seat: manifest.seat,
+        runId,
+        generatedAt: new Date().toISOString(),
+      })
+    : genericResult;
+
+  await mkdir(path.join(runDir, 'artifacts'), { recursive: true });
+  const publicManifest = lifecycleReceipt
+    ? rcd2Manifest
+    : manifest;
+  await writeFile(path.join(runDir, 'row-manifest.json'), JSON.stringify(publicManifest, null, 2) + '\n');
   await writeFile(path.join(runDir, 'k6-summary.json'), JSON.stringify(publicSummary, null, 2) + '\n');
   await writeFile(path.join(runDir, 'row-result.json'), JSON.stringify(result, null, 2) + '\n');
-  await writeFile(path.join(runDir, 'EVIDENCE.md'), evidenceDraft({ manifest, summary: publicSummary, result }));
+  await writeFile(
+    path.join(runDir, 'EVIDENCE.md'),
+    lifecycleReceipt
+      ? renderRcd2PublicEvidence({ result })
+      : evidenceDraft({ manifest, summary: publicSummary, result }),
+  );
 
   console.log(JSON.stringify({ runDir, outcome, rowId: manifest.rowId, candidateOnly: true }, null, 2));
 }

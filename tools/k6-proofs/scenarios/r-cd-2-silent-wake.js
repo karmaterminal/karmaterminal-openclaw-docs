@@ -23,6 +23,7 @@ import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { classifyRcd2LocalEvidence } from '../lib/r-cd-2-lifecycle-policy.js';
 
 export const options = {
   scenarios: {
@@ -131,11 +132,16 @@ export default function () {
     terminal_run_matched: false,
     wake_run_matched: false,
     delegate_scheduled_receipt: false,
+    delegate_scheduled_run_matched: false,
     dispatch_turn_completed: false,
     terminal_success_observed: false,
     child_fire_or_completion_observed: false,
+    wake_delay_satisfied: false,
     post_wake_quiet_completed: false,
     dispatch_failure_observed: false,
+    dispatch_replay_unsafe_observed: false,
+    failed_item_observed: false,
+    failure_receipt: null,
     task_created: false,
     task_mode: null,
     // Silent-wake specific
@@ -164,6 +170,11 @@ export default function () {
 
   const started = Date.now();
   let acceptedDispatchRunId = null;
+
+  function markDispatchFailure(kind) {
+    evidence.dispatch_failure_observed = true;
+    evidence.failure_receipt = { kind };
+  }
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -273,12 +284,13 @@ export default function () {
             } else {
               // An accepted send without an identifier cannot be joined to a
               // later lifecycle event and is intentionally non-promotable.
-              evidence.dispatch_failure_observed = true;
+              markDispatchFailure('dispatching-turn-not-live');
             }
             if (classified.payload && classified.payload.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — agent turn triggered for R-CD-2 (mode=silent-wake)');
           } else if (classified.error) {
             console.error('✗ sessions.send rejected');
+            markDispatchFailure('dispatching-turn-failed');
             failures.add(1);
           }
         }
@@ -315,18 +327,39 @@ export default function () {
             const status = String(eventData.data?.status || eventData.status || '').toLowerCase();
             const eventRunId = lifecycleRunId(eventData);
             const sameAcceptedRun = Boolean(acceptedDispatchRunId && eventRunId && eventRunId === acceptedDispatchRunId);
-            if (stream === 'lifecycle' && phase === 'end' && sameAcceptedRun) {
-              if (['error', 'failed', 'failure', 'aborted'].includes(status) || eventData.data?.replayInvalid === true) {
-                evidence.dispatch_failure_observed = true;
+            const replayUnsafe = eventData.data?.replayInvalid === true ||
+              eventData.data?.replayUnsafe === true ||
+              eventData.replayInvalid === true ||
+              eventData.replayUnsafe === true;
+            const failedStatus = ['error', 'failed', 'failure', 'aborted'].includes(status);
+            const failureText = `${status} ${eventData.data?.errorType || ''} ${eventData.errorType || ''}`.toLowerCase();
+
+            if (sameAcceptedRun && replayUnsafe) {
+              evidence.dispatch_replay_unsafe_observed = true;
+              markDispatchFailure('dispatching-turn-replay-invalid');
+            }
+            if (sameAcceptedRun && stream === 'item' && failedStatus) {
+              evidence.failed_item_observed = true;
+              markDispatchFailure('dispatching-turn-failed');
+            }
+            if (sameAcceptedRun && (stream === 'error' || failedStatus)) {
+              if (/model.*(?:policy|allow)|not allowed|not permitted/.test(failureText)) {
+                markDispatchFailure('model-policy-rejected');
+              } else if (/provider|transport|network|timeout|connection/.test(failureText)) {
+                markDispatchFailure('provider-transport-error');
+              } else if (status === 'aborted') {
+                markDispatchFailure('dispatching-turn-aborted');
               } else {
+                markDispatchFailure('dispatching-turn-failed');
+              }
+            }
+            if (stream === 'lifecycle' && phase === 'end' && sameAcceptedRun) {
+              if (!failedStatus && !replayUnsafe) {
                 evidence.dispatch_turn_completed = true;
                 evidence.terminal_success_observed = true;
                 evidence.terminal_run_matched = true;
                 evidence.terminal_run_fingerprint = crypto.sha256(String(eventRunId), 'hex').slice(0, 16);
               }
-            }
-            if (stream === 'item' && ['error', 'failed', 'failure', 'aborted'].includes(status)) {
-              evidence.dispatch_failure_observed = true;
             }
           }
 
@@ -337,11 +370,13 @@ export default function () {
             const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
             const eventRunId = lifecycleRunId(eventData);
             const sameAcceptedRun = Boolean(acceptedDispatchRunId && eventRunId && eventRunId === acceptedDispatchRunId);
-            if (elapsed >= evidence.wake_gate_ms && sameAcceptedRun) {
+            const nonceMatched = eventStr.includes(rowNonce);
+            if (elapsed >= evidence.wake_gate_ms && sameAcceptedRun && nonceMatched) {
               evidence.parent_wake_observed = true;
               evidence.agent_turn_observed = true;
               evidence.child_fire_or_completion_observed = true;
               evidence.wake_run_matched = true;
+              evidence.wake_delay_satisfied = true;
               evidence.wake_run_fingerprint = crypto.sha256(String(eventRunId), 'hex').slice(0, 16);
               if (!evidence.post_wake_quiet_timer_started) {
                 evidence.post_wake_quiet_timer_started = true;
@@ -365,18 +400,21 @@ export default function () {
           // the bound session. Record it explicitly instead of treating arbitrary
           // transcript text as proof of outbound delivery.
           if (eventStr.includes(rowNonce) && eventStr.includes('"notify":false') &&
-              eventStr.includes('"outcome":"done"')) {
+              eventStr.includes('"outcome":"done"') &&
+              acceptedDispatchRunId &&
+              lifecycleRunId(eventData) === acceptedDispatchRunId) {
             evidence.silent_status_record_observed = true;
             evidence.delegate_scheduled_receipt = true;
+            evidence.delegate_scheduled_run_matched = true;
             console.log('ℹ internal continue_status notify:false receipt observed');
           }
 
           // Negative check: only an explicit outbound-delivery-shaped event counts.
           // Generic agent/chat events can contain the full transcript plus routing
           // metadata, so substring checks for "channel" and "deliver" are unsafe.
-          if (eventStr.includes(rowNonce) &&
-              isOutboundChannelDeliveryEvent(eventName, eventData)) {
-            if (eventStr.includes('[k6-proof-harness]')) {
+          if (isOutboundChannelDeliveryEvent(eventName, eventData) && evidence.tool_accepted) {
+            const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
+            if (elapsed < evidence.wake_gate_ms && eventStr.includes('[k6-proof-harness]')) {
               evidence.dispatch_channel_message_observed = true;
               console.log('ℹ dispatch instruction channel event observed (not delegate return)');
             } else {
@@ -417,14 +455,23 @@ export default function () {
   // Note: task_created via tasks.list is OPTIONAL — continuation tasks
   // use their own tracking surface, not the generic task ledger.
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
+  const localLifecycle = classifyRcd2LocalEvidence(evidence);
+  evidence.local_lifecycle_complete = localLifecycle.complete;
+  if (!localLifecycle.complete && !evidence.failure_receipt) {
+    evidence.failure_receipt = { kind: localLifecycle.failureCategory };
+  }
   check(null, {
     'agent turn triggered (sessions.send accepted)': () => evidence.tool_accepted,
-    'dispatching agent turn observed': () => evidence.agent_turn_observed,
-    'delayed parent wake candidate observed': () => evidence.parent_wake_observed,
-    'no channel delivery (silent verified)': () => !evidence.channel_message_observed,
+    'accepted dispatch turn reached matching terminal success': () =>
+      evidence.dispatch_turn_completed && evidence.terminal_run_matched,
+    'delayed wake/fire matched accepted run': () =>
+      evidence.parent_wake_observed && evidence.wake_run_matched && evidence.wake_delay_satisfied,
+    'bounded quiet window completed without channel delivery': () =>
+      evidence.post_wake_quiet_completed && !evidence.channel_message_observed,
+    'private local lifecycle is complete': () => localLifecycle.complete,
   });
 
-  if (!evidence.tool_accepted || !evidence.agent_turn_observed || !evidence.parent_wake_observed) {
+  if (!localLifecycle.complete) {
     failures.add(1);
   }
   if (evidence.channel_message_observed) {
@@ -438,7 +485,7 @@ export default function () {
   console.log(`--- END EVIDENCE ---`);
   // Only the post-run resolver may promote R-CD-2 after it joins this local
   // evidence with the strict private continuation correlation receipt.
-  console.log('\n[R-CD-2] VERDICT: PARTIAL-candidate');
+  console.log(`\n[R-CD-2] VERDICT: PARTIAL-candidate (${localLifecycle.failureCategory || 'correlation-required'})`);
 }
 
 export function handleSummary(data) {

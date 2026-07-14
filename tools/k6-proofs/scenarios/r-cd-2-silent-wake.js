@@ -145,7 +145,12 @@ export default function () {
     channel_message_observed: false, // MUST stay false for PASS
     silent_status_record_observed: false,
     dispatch_accepted_at_ms: null,
-    dispatch_run_id: null,
+    // Keep the raw run/turn identifier only in memory. Evidence artifacts may
+    // retain its one-way fingerprint to prove that send, terminal, and wake
+    // all refer to the same turn without publishing the identifier itself.
+    send_run_fingerprint: null,
+    terminal_run_fingerprint: null,
+    wake_run_fingerprint: null,
     wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
     post_wake_quiet_ms: Number(__ENV.OPENCLAW_POST_WAKE_QUIET_MS || 5000),
     post_wake_quiet_timer_started: false,
@@ -158,6 +163,7 @@ export default function () {
   };
 
   const started = Date.now();
+  let acceptedDispatchRunId = null;
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -261,7 +267,8 @@ export default function () {
             evidence.dispatch_accepted_at_ms = Date.now();
             const acceptedRunId = lifecycleRunId(classified.payload);
             if (acceptedRunId) {
-              evidence.dispatch_run_id = acceptedRunId;
+              acceptedDispatchRunId = acceptedRunId;
+              evidence.send_run_fingerprint = crypto.sha256(String(acceptedRunId), 'hex').slice(0, 16);
               evidence.send_run_id_captured = true;
             } else {
               // An accepted send without an identifier cannot be joined to a
@@ -307,7 +314,7 @@ export default function () {
             const phase = String(eventData.data?.phase || '').toLowerCase();
             const status = String(eventData.data?.status || eventData.status || '').toLowerCase();
             const eventRunId = lifecycleRunId(eventData);
-            const sameAcceptedRun = Boolean(evidence.dispatch_run_id && eventRunId && eventRunId === evidence.dispatch_run_id);
+            const sameAcceptedRun = Boolean(acceptedDispatchRunId && eventRunId && eventRunId === acceptedDispatchRunId);
             if (stream === 'lifecycle' && phase === 'end' && sameAcceptedRun) {
               if (['error', 'failed', 'failure', 'aborted'].includes(status) || eventData.data?.replayInvalid === true) {
                 evidence.dispatch_failure_observed = true;
@@ -315,6 +322,7 @@ export default function () {
                 evidence.dispatch_turn_completed = true;
                 evidence.terminal_success_observed = true;
                 evidence.terminal_run_matched = true;
+                evidence.terminal_run_fingerprint = crypto.sha256(String(eventRunId), 'hex').slice(0, 16);
               }
             }
             if (stream === 'item' && ['error', 'failed', 'failure', 'aborted'].includes(status)) {
@@ -328,12 +336,13 @@ export default function () {
           if (eventName === 'session.message' && evidence.tool_accepted) {
             const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
             const eventRunId = lifecycleRunId(eventData);
-            const sameAcceptedRun = Boolean(evidence.dispatch_run_id && eventRunId && eventRunId === evidence.dispatch_run_id);
+            const sameAcceptedRun = Boolean(acceptedDispatchRunId && eventRunId && eventRunId === acceptedDispatchRunId);
             if (elapsed >= evidence.wake_gate_ms && sameAcceptedRun) {
               evidence.parent_wake_observed = true;
               evidence.agent_turn_observed = true;
               evidence.child_fire_or_completion_observed = true;
               evidence.wake_run_matched = true;
+              evidence.wake_run_fingerprint = crypto.sha256(String(eventRunId), 'hex').slice(0, 16);
               if (!evidence.post_wake_quiet_timer_started) {
                 evidence.post_wake_quiet_timer_started = true;
                 socket.setTimeout(() => {

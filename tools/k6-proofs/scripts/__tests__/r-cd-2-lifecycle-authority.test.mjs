@@ -17,6 +17,7 @@ const sha = 'a'.repeat(40);
 process.env.OPENCLAW_GATEWAY_TOKEN = 'r-cd-2-lifecycle-authority-test-token';
 
 function localEvidence(overrides = {}) {
+  const runFingerprint = '4'.repeat(16);
   return {
     session_created: true, session_unbound_confirmed: true, tool_accepted: true,
     send_run_id_captured: true, terminal_run_matched: true, wake_run_matched: true,
@@ -24,6 +25,9 @@ function localEvidence(overrides = {}) {
     terminal_success_observed: true, parent_wake_observed: true,
     child_fire_or_completion_observed: true, post_wake_quiet_completed: true,
     channel_message_observed: false, dispatch_failure_observed: false,
+    send_run_fingerprint: runFingerprint,
+    terminal_run_fingerprint: runFingerprint,
+    wake_run_fingerprint: runFingerprint,
     ...overrides,
   };
 }
@@ -176,12 +180,22 @@ test('R-CD-2 public outputs retain no raw acquisition identifiers while partial 
   });
 });
 
-test('valid correlation plus unrelated local lifecycle remains PARTIAL-candidate', () => {
+test('valid correlation plus unrelated local lifecycle remains PARTIAL-candidate through both writers', async () => {
   const receipt = resolveRcd2LifecycleReceipt({
-    evidence: localEvidence({ terminal_run_matched: false, wake_run_matched: false }),
+    evidence: localEvidence({
+      terminal_run_matched: false,
+      wake_run_matched: false,
+      terminal_run_fingerprint: '5'.repeat(16),
+      wake_run_fingerprint: '6'.repeat(16),
+    }),
     correlation: correlation(),
   });
   assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'missing-local-lifecycle-evidence']);
+  await withTmp(async (dir) => {
+    const result = await writerOut(dir, receipt);
+    assert.equal(result.writer.outcome, 'PARTIAL-candidate');
+    assert.equal(result.post.outcome, 'PARTIAL-candidate');
+  });
 });
 
 test('R-CD-2 writers project raw k6 summaries before public artifacts are written', async () => {

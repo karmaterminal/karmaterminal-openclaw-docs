@@ -140,7 +140,10 @@ export function localEvidenceIsComplete(evidence) {
     evidence?.wake_run_matched === true &&
     evidence?.post_wake_quiet_completed === true &&
     evidence?.channel_message_observed === false &&
-    evidence?.dispatch_failure_observed !== true,
+    evidence?.dispatch_failure_observed !== true &&
+    fingerprintShape(evidence?.send_run_fingerprint) &&
+    evidence.send_run_fingerprint === evidence.terminal_run_fingerprint &&
+    evidence.send_run_fingerprint === evidence.wake_run_fingerprint,
   );
 }
 

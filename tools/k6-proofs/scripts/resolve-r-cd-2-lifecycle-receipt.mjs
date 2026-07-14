@@ -41,6 +41,8 @@ export function resolveRcd2LifecycleReceipt({ evidence, correlation, signingKey 
         session_unbound_confirmed: evidence?.session_unbound_confirmed === true,
         tool_accepted: evidence?.tool_accepted === true,
         sendRunFingerprint: evidence?.send_run_fingerprint || null,
+        terminalRunFingerprint: evidence?.terminal_run_fingerprint || null,
+        wakeRunFingerprint: evidence?.wake_run_fingerprint || null,
         terminalSuccessObserved: evidence?.terminal_success_observed === true,
         wakeObserved: evidence?.child_fire_or_completion_observed === true,
         dispatchFailureObserved: evidence?.dispatch_failure_observed === true,

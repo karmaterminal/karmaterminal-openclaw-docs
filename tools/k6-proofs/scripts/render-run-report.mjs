@@ -11,6 +11,7 @@
  */
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
 
 function usage() {
   console.error('Usage: node render-run-report.mjs --root <run-out-root> [--out report.html]');
@@ -142,7 +143,13 @@ async function rowFromRunResult(root, runResultPath) {
 
 async function rowFromCandidateEnvelope(root, envelopePath) {
   const envelope = await readJson(envelopePath) || {};
-  if (envelope.schema !== 'openclaw.k6.candidate-run-result.v1') throw new Error(`unsupported candidate result schema: ${envelopePath}`);
+  const runDir = path.dirname(envelopePath);
+  const [manifest, metadata, runResult] = await Promise.all([
+    readJson(path.join(runDir, 'row-manifest.json')),
+    readJson(path.join(runDir, 'runner-metadata.json')),
+    readJson(path.join(runDir, 'run-result.json')),
+  ]);
+  if (!candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata, runResult, runDir })) return null;
   const rel = path.relative(root, path.dirname(envelopePath)).split(path.sep).join('/');
   return {
     rowId: safeText(envelope.run?.rowId),
@@ -204,13 +211,19 @@ async function main() {
   if (args.help) { usage(); return; }
   if (!args.root) throw new Error('missing --root');
   const root = path.resolve(args.root);
-  const candidateFiles = await walk(root, 'candidate-run-result.json');
-  const candidateDirs = new Set(candidateFiles.map((file) => path.dirname(file)));
-  const files = await walk(root, 'run-result.json');
+  const candidateFiles = (await walk(root, 'candidate-run-result.json')).sort();
+  const candidateRows = await Promise.all(candidateFiles.map((file) => rowFromCandidateEnvelope(root, file)));
+  const validCandidateDirs = new Set();
   const rows = [];
-  for (const file of candidateFiles.sort()) rows.push(await rowFromCandidateEnvelope(root, file));
+  for (let index = 0; index < candidateRows.length; index += 1) {
+    const row = candidateRows[index];
+    if (!row) continue;
+    validCandidateDirs.add(path.dirname(candidateFiles[index]));
+    rows.push(row);
+  }
+  const files = await walk(root, 'run-result.json');
   for (const file of files.sort()) {
-    if (!candidateDirs.has(path.dirname(file))) rows.push(await rowFromRunResult(root, file));
+    if (!validCandidateDirs.has(path.dirname(file))) rows.push(await rowFromRunResult(root, file));
   }
   const html = render(rows);
   const out = args.out ? path.resolve(args.out) : path.join(root, 'report.html');

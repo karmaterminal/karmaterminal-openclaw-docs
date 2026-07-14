@@ -59,12 +59,22 @@ test('uses candidate-run-result.v1 as the unambiguous review input when present'
   try {
     const runDir = path.join(root, 'candidate', 'R-CW-1', 'cael', 'k6-run-1');
     await mkdir(runDir, { recursive: true });
-    await writeFile(path.join(runDir, 'run-result.json'), `${JSON.stringify({ review: { status: 'review-pending', pendingReceipts: ['tempo-trace-json'] } })}\n`);
+    const sha = 'b40e59f08c7a8997e50a5c8a24b00bc68f653882';
+    await writeFile(path.join(runDir, 'row-manifest.json'), `${JSON.stringify({
+      schema: 'openclaw.k6.proof-row-manifest.v1', rowId: 'R-CW-1', candidateSha: sha,
+      scenario: { name: 'r-cw-1' }, review: { candidateOnly: true, foldRequiresReview: true },
+    })}\n`);
+    await writeFile(path.join(runDir, 'runner-metadata.json'), `${JSON.stringify({ row: 'R-CW-1', candidateSha: sha, seat: 'cael', scenario: 'r-cw-1' })}\n`);
+    await writeFile(path.join(runDir, 'run-result.json'), `${JSON.stringify({
+      candidateOnly: true, foldRequiresReview: true, effectiveExitCode: 0, verdict: 'PASS-candidate', verdictSource: 'k6-summary',
+      review: { status: 'ready-for-human-review', pendingReceipts: [] },
+    })}\n`);
     await writeFile(path.join(runDir, 'candidate-run-result.json'), `${JSON.stringify({
       schema: 'openclaw.k6.candidate-run-result.v1',
-      candidate: { sha: 'b40e59f08c7a8997e50a5c8a24b00bc68f653882' },
-      run: { rowId: 'R-CW-1', seat: 'cael', scenario: 'r-cw-1' },
-      result: { outcome: 'PASS-candidate', behaviorProof: false },
+      candidateOnly: true, foldRequiresReview: true, canonicalFoldForbidden: true,
+      candidate: { sha, docsRef: 'a'.repeat(40) },
+      run: { id: 'k6-run-1', rowId: 'R-CW-1', seat: 'cael', scenario: 'r-cw-1' },
+      result: { outcome: 'PASS-candidate', outcomeSource: 'k6-summary', effectiveExitCode: 0, behaviorProof: false },
       observability: { traceStatus: 'present' },
       review: { status: 'ready-for-human-review', pendingReceipts: [], complete: true },
     }, null, 2)}\n`);
@@ -75,6 +85,31 @@ test('uses candidate-run-result.v1 as the unambiguous review input when present'
     assert.match(html, /R-CW-1/);
     assert.match(html, /ready-for-human-review/);
     assert.doesNotMatch(html, /<td>review-pending<\/td>/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('falls back to the sibling raw result when a sidecar is malformed or unsafe', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'k6-proof-envelope-fallback-'));
+  try {
+    const runDir = path.join(root, 'candidate', 'R-CW-2', 'cael', 'k6-run-2');
+    await mkdir(runDir, { recursive: true });
+    await writeFile(path.join(runDir, 'run-result.json'), `${JSON.stringify({
+      k6ExitCode: 0, candidateOnly: true, foldRequiresReview: true,
+      review: { status: 'review-pending', pendingReceipts: ['tempo-trace-json'] },
+      observability: { traceStatus: 'missing' },
+    })}\n`);
+    await writeFile(path.join(runDir, 'candidate-run-result.json'), `${JSON.stringify({
+      schema: 'openclaw.k6.candidate-run-result.v1', candidateOnly: true, foldRequiresReview: true,
+      canonicalFoldForbidden: true, result: { behaviorProof: true }, review: { status: 'ready-for-human-review', pendingReceipts: [], complete: true },
+    })}\n`);
+    const out = path.join(root, 'report.html');
+    const run = spawnSync(process.execPath, [script, '--root', root, '--out', out], { encoding: 'utf8' });
+    assert.equal(run.status, 0, run.stderr);
+    const html = await readFile(out, 'utf8');
+    assert.match(html, /review-pending/);
+    assert.match(html, /tempo-trace-json: missing/);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

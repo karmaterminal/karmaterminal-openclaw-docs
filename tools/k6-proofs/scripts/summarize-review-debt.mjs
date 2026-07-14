@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
+import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
 
 function usage() {
   return `Usage: node tools/k6-proofs/scripts/summarize-review-debt.mjs --run-root <candidate-run-dir> [--json]\n\nScans row run-result.json files and summarizes review-pending receipts.\nFor tempo-trace-json debt, distinguishes fetchable trace ids from trace-missing rows where no Tempo fetch can be attempted.\n`;
@@ -39,6 +40,10 @@ function asArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
+async function readJson(file) {
+  return JSON.parse(await readFile(file, 'utf8'));
+}
+
 function classifyPending(row, receipt) {
   if (receipt !== 'tempo-trace-json') return { receipt, class: 'manual-review', fetchable: null, action: 'supply-or-accept-review-receipt' };
   const traceId = row.traceId || null;
@@ -56,12 +61,25 @@ function classifyPending(row, receipt) {
 
 async function loadRows(root) {
   const candidateFiles = await walk(root, new Set(['candidate-run-result.json']));
-  const candidateDirs = new Set(candidateFiles.map((file) => path.dirname(file)));
   const files = await walk(root, new Set(['run-result.json']));
   const rows = [];
   for (const file of candidateFiles.sort()) {
-    const raw = JSON.parse(await readFile(file, 'utf8'));
-    if (raw.schema !== 'openclaw.k6.candidate-run-result.v1') throw new Error(`unsupported candidate result schema: ${file}`);
+    const dir = path.dirname(file);
+    let raw;
+    let manifest;
+    let metadata;
+    let runResult;
+    try {
+      [raw, manifest, metadata, runResult] = await Promise.all([
+        readJson(file),
+        readJson(path.join(dir, 'row-manifest.json')),
+        readJson(path.join(dir, 'runner-metadata.json')),
+        readJson(path.join(dir, 'run-result.json')),
+      ]);
+    } catch {
+      continue;
+    }
+    if (!candidateEnvelopeMatchesSiblings({ envelope: raw, manifest, metadata, runResult, runDir: dir })) continue;
     const pendingReceipts = asArray(raw.review?.pendingReceipts);
     rows.push({
       rowId: raw.run?.rowId || rowFromPath(file) || 'unknown-row',
@@ -73,8 +91,14 @@ async function loadRows(root) {
     });
   }
   for (const file of files.sort()) {
-    if (candidateDirs.has(path.dirname(file))) continue;
-    const raw = JSON.parse(await readFile(file, 'utf8'));
+    const dir = path.dirname(file);
+    const candidate = await readJson(path.join(dir, 'candidate-run-result.json')).catch(() => null);
+    const [manifest, metadata, raw] = await Promise.all([
+      readJson(path.join(dir, 'row-manifest.json')).catch(() => null),
+      readJson(path.join(dir, 'runner-metadata.json')).catch(() => null),
+      readJson(file),
+    ]);
+    if (candidateEnvelopeMatchesSiblings({ envelope: candidate, manifest, metadata, runResult: raw, runDir: dir })) continue;
     const pendingReceipts = asArray(raw.review?.pendingReceipts);
     const rowId = raw.rowId || raw.row || rowFromPath(file) || 'unknown-row';
     const traceId = raw.observability?.traceId || raw.traceId || null;

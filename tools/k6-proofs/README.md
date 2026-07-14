@@ -414,6 +414,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 
 | Row | Scenario | Surface | Expected outcome |
 |-----|----------|---------|------------------|
+| preflight | `preflight` | websocket/read-only | PASS-candidate; readiness helper requiring row review |
 | R-CD-1 | `r-cd-1-typed-delegate` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-2 | `r-cd-2-silent-wake` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-3 | `r-cd-3-post-compaction` | websocket/typed-tool | HONEST-LIMIT-candidate; reaches safe threshold/staging path, accepted compaction remains fixture-gated |

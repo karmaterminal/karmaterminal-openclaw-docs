@@ -10,6 +10,10 @@ const repoRoot = new URL('../../../..', import.meta.url).pathname;
 const script = join(repoRoot, 'tools/k6-proofs/scripts/postprocess-k6-summary.mjs');
 const manifest = join(repoRoot, 'tools/k6-proofs/manifests/preflight.example.json');
 const summary = join(repoRoot, 'tools/k6-proofs/examples/k6-summary.preflight.example.json');
+const staticManifests = [
+  join(repoRoot, 'tools/k6-proofs/manifests/r-cw-5a-static.json'),
+  join(repoRoot, 'tools/k6-proofs/manifests/r-cw-6a-static.json'),
+];
 
 async function withTmp(fn) {
   const dir = await mkdtemp(join(tmpdir(), 'p81-k6-golden-'));
@@ -76,5 +80,26 @@ test('postprocessor rejects manifests that do not declare candidateOnly', async 
 
     assert.notEqual(run.status, 0, 'postprocessor unexpectedly accepted candidateOnly=false');
     assert.match(run.stderr, /candidateOnly=true/);
+  });
+});
+
+test('construct-only R-CW static rows never become PASS-candidate artifacts', async () => {
+  await withTmp(async (outRoot) => {
+    for (const staticManifest of staticManifests) {
+      const run = runPostprocess([
+        '--manifest', staticManifest,
+        '--summary', summary,
+        '--out-root', outRoot,
+        '--run-id', `k6-run-${staticManifest.includes('5a-') ? '5a' : '6a'}-construct-only`,
+      ]);
+
+      assert.equal(run.status, 0, run.stderr || run.stdout);
+      const printed = JSON.parse(run.stdout);
+      assert.equal(printed.outcome, 'construct-only');
+      const result = JSON.parse(await readFile(join(printed.runDir, 'row-result.json'), 'utf8'));
+      assert.equal(result.outcome, 'construct-only');
+      assert.equal(result.liveRunSafety.expectedArtifactClass, 'construct-only');
+      assert.match(result.reason, /not behavioral candidate evidence/);
+    }
   });
 });

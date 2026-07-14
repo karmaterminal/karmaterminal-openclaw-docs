@@ -146,6 +146,9 @@ test('R-CW cap rows stay fixture-gated while static variants cannot certify them
 
   const liveSuite = spawnSync(process.execPath, [rowListScript, '--live-suite'], { cwd: repoRoot, encoding: 'utf8' });
   assert.equal(liveSuite.status, 0, liveSuite.stderr || liveSuite.stdout);
+  const liveRows = liveSuite.stdout.trim().split(',');
+  assert.equal(liveRows.length, 34);
+  assert.equal(liveRows[0], 'preflight');
   assert.doesNotMatch(liveSuite.stdout, /R-CW-5(?:,|$)/);
   assert.doesNotMatch(liveSuite.stdout, /R-CW-6(?:,|$)/);
   assert.doesNotMatch(liveSuite.stdout, /R-CW-[56]A/);

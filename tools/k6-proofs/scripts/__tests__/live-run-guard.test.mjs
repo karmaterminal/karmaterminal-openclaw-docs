@@ -113,18 +113,78 @@ test('read-only preflight uses the supported live k6 runner contract', async () 
   assert.equal(parsed.requiresExternalAgentOrToolInvocation, false);
 });
 
-test('static corpus validator rows are read-only broad-suite rows', async () => {
+test('R-CW-5/6 remain fixture-gated orchestration rows with complete mutable receipt contracts', async () => {
+  const required = [
+    'seat-readiness-continuation-enabled',
+    'original-config-captured',
+    'failure-safe-restore-armed',
+    'config-restored',
+  ];
   for (const manifestName of ['r-cw-5.json', 'r-cw-6.json']) {
+    const manifestPath = join(repoRoot, 'tools/k6-proofs/manifests', manifestName);
+    const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+    assert.equal(manifest.mutates, true);
+    assert.equal(manifest.transport, 'websocket');
+    assert.equal(manifest.toolSurface, 'typed-tool');
+    assert.equal(manifest.scenario.status, 'scaffold');
+    assert.equal(manifest.liveRunSafety.classification, 'orchestration-required');
+    assert.equal(manifest.liveRunSafety.requiresLiveGatewayToken, true);
+    assert.equal(manifest.liveRunSafety.requiresExternalAgentOrToolInvocation, true);
+    assert.equal(manifest.liveRunSafety.requiresHumanConfirmation, true);
+    assert.equal(manifest.liveRunSafety.expectedArtifactClass, 'PARTIAL-candidate');
+    for (const receipt of required) {
+      assert.ok(manifest.liveRunSafety.requiredReceipts.includes(receipt), `${manifest.rowId} missing ${receipt}`);
+    }
+    if (manifest.rowId === 'R-CW-6') {
+      assert.equal(manifest.invocation.configOverride.requiresRestart, true);
+      assert.ok(manifest.liveRunSafety.requiredReceipts.includes('hop-1-accepted'));
+      assert.ok(manifest.liveRunSafety.requiredReceipts.includes('hop-2-rejected'));
+    }
+    const run = runGuard(manifestPath);
+    assert.equal(run.status, 1, `${manifest.rowId} unexpectedly passed: ${run.stdout}`);
+    const parsed = JSON.parse(run.stdout);
+    assert.ok(parsed.errors.some((error) => error.includes('orchestration-required is not directly runnable')));
+  }
+});
+
+test('R-CW-5A/6A are construct-only static contract rows, never live proof rows', async () => {
+  for (const manifestName of ['r-cw-5a.json', 'r-cw-6a.json']) {
     const manifestPath = join(repoRoot, 'tools/k6-proofs/manifests', manifestName);
     const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
     assert.equal(manifest.mutates, false);
     assert.equal(manifest.transport, 'offline');
     assert.equal(manifest.toolSurface, 'read-only');
-    assert.equal(manifest.scenario.status, 'runnable');
-    assert.equal(manifest.scenario.name, 'static-corpus-row-validator');
-    assert.equal(manifest.liveRunSafety.classification, 'k6-runnable');
+    assert.equal(manifest.scenario.status, 'construct-only');
+    assert.equal(manifest.liveRunSafety.classification, 'construct-only');
+    assert.equal(manifest.liveRunSafety.expectedArtifactClass, 'construct-only');
     assert.equal(manifest.liveRunSafety.requiresLiveGatewayToken, false);
     assert.equal(manifest.liveRunSafety.requiresExternalAgentOrToolInvocation, false);
-    assert.equal(manifest.liveRunSafety.foldRequiresReview, true);
+    const run = runGuard(manifestPath);
+    assert.equal(run.status, 1, `${manifest.rowId} unexpectedly passed: ${run.stdout}`);
+    const parsed = JSON.parse(run.stdout);
+    assert.ok(parsed.errors.some((error) => error.includes('construct-only is not directly runnable')));
+  }
+});
+
+test('guard rejects a claimed runnable config-override promotion before its fixture contract is complete', async () => {
+  const manifestPath = join(repoRoot, 'tools/k6-proofs/manifests/r-cw-5.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  manifest.scenario.status = 'runnable';
+  manifest.liveRunSafety.classification = 'k6-runnable';
+  manifest.liveRunSafety.requiredReceipts = manifest.liveRunSafety.requiredReceipts.filter(
+    (name) => name !== 'failure-safe-restore-armed',
+  );
+  manifest.expectedReceipts = manifest.expectedReceipts.filter(
+    (receipt) => receipt.name !== 'failure-safe-restore-armed',
+  );
+  const { dir, file } = await writeManifestFixture(manifest);
+  try {
+    const run = runGuard(file);
+    assert.equal(run.status, 1, run.stderr || run.stdout);
+    const parsed = JSON.parse(run.stdout);
+    assert.ok(parsed.errors.some((error) => error.includes('configOverride rows must remain orchestration-required')));
+    assert.ok(parsed.errors.some((error) => error.includes("missing required receipt 'failure-safe-restore-armed'")));
+  } finally {
+    await rm(dir, { recursive: true, force: true });
   }
 });

@@ -1,18 +1,13 @@
 /**
- * k6 PROOFS — R-CW (combined): continue_work rows overview scenario.
- * Issue #117: Covers R-CW-1 through R-CW-7 infrastructure verification.
+ * k6 PROOFS — R-CW precheck: continue_work infrastructure readiness.
  *
- * This is the runner-friendly combined scenario for `./run-proof.sh r-cw`.
- * It verifies the gateway infrastructure supports all continue_work proof rows:
- *   - R-CW-1: tool-form schedule + wake
- *   - R-CW-3: reason field in OTel span
- *   - R-CW-4: chain depth hop counter
- *   - R-CW-5: cost-cap rejection
- *   - R-CW-6: maxChainLength boundary
- *   - R-CW-7: traceparent E2E propagation
+ * This is the runner-friendly read-only precheck for `./run-proof.sh r-cw`.
+ * It only checks gateway and observability reachability. It does not execute,
+ * cover, certify, or emit proof evidence for any R-CW row. Its output is
+ * readiness-only and must never be folded as canonical proof evidence.
  *
- * Individual WS-based scenarios in tools/k6-proofs/scenarios/ exercise
- * each row in depth. This scenario does the preflight infrastructure check.
+ * Individual typed-tool and fixture scenarios in tools/k6-proofs/scenarios/
+ * own proof semantics and their row-specific receipt contracts.
  *
  * Usage:
  *   ./run-proof.sh r-cw
@@ -20,7 +15,7 @@
  */
 
 import http from 'k6/http';
-import { check, sleep } from 'k6';
+import { check } from 'k6';
 import { Trend, Counter, Rate } from 'k6/metrics';
 
 const GATEWAY_HOST = __ENV.GATEWAY_HOST || '127.0.0.1';
@@ -36,11 +31,11 @@ const PROMETHEUS_BASE_URL = (__ENV.OPENCLAW_PROOFS_PROMETHEUS_BASE_URL || __ENV.
 const checksRun = new Counter('r_cw_checks_run');
 const checksPassed = new Counter('r_cw_checks_passed');
 const totalDuration = new Trend('r_cw_duration_ms', true);
-const passRate = new Rate('r_cw_pass_rate');
+const readinessRate = new Rate('r_cw_precheck_ready_rate');
 
 export const options = {
   scenarios: {
-    'r-cw-combined': {
+    'r-cw-precheck': {
       executor: 'shared-iterations',
       vus: 1,
       iterations: 1,
@@ -48,15 +43,15 @@ export const options = {
     },
   },
   thresholds: {
-    'r_cw_pass_rate': ['rate > 0.99'],
+    'r_cw_precheck_ready_rate': ['rate > 0.99'],
   },
 };
 
 export default function () {
   const startTime = Date.now();
-  let allPassed = true;
+  let allReady = true;
 
-  console.log(`[R-CW] Combined continue_work infrastructure proof`);
+  console.log(`[R-CW] Read-only continue_work infrastructure precheck (non-evidentiary)`);
   console.log(`[R-CW] SHA: ${PROOF_SHA} | Seat: ${PROOF_SEAT}`);
   console.log('');
 
@@ -67,7 +62,7 @@ export default function () {
     '[R-CW] gateway alive': (r) => r.status === 200,
   });
   if (healthOk) checksPassed.add(1);
-  else allPassed = false;
+  else allReady = false;
 
   // 2. Gateway status (continuation should be in the tool surface)
   checksRun.add(1);
@@ -82,10 +77,10 @@ export default function () {
       console.log(`[R-CW] Gateway: ${data.version || '?'} | Uptime: ${data.uptime || '?'}`);
     } catch (e) { /* non-JSON is fine */ }
   } else {
-    allPassed = false;
+    allReady = false;
   }
 
-  // 3. Observability stack checks (needed for R-CW-3, R-CW-7 trace correlation)
+  // 3. Read-only observability stack checks.
   checksRun.add(1);
   const tempo = http.get(`${TEMPO_BASE_URL}/ready`, { timeout: '5s' });
   const tempoOk = check(tempo, {
@@ -93,8 +88,8 @@ export default function () {
   });
   if (tempoOk) checksPassed.add(1);
   else {
-    console.warn(`[R-CW] Tempo not ready — R-CW-3, R-CW-7 trace pulls may need retry`);
-    allPassed = false;
+    console.warn(`[R-CW] Tempo not ready — trace pulls may need retry`);
+    allReady = false;
   }
 
   checksRun.add(1);
@@ -113,48 +108,46 @@ export default function () {
   if (promOk) checksPassed.add(1);
   else console.warn(`[R-CW] Prometheus not ready — metrics may not write`);
 
-  // 4. Row-specific infrastructure notes
+  // 4. Service-only readiness notes. These lines are deliberately not row claims.
   console.log('');
-  console.log(`[R-CW] Row infrastructure status:`);
-  console.log(`[R-CW]   R-CW-1 (schedule+wake):    gateway ${healthOk ? '✓' : '✗'}`);
-  console.log(`[R-CW]   R-CW-3 (reason in span):   tempo ${tempoOk ? '✓' : '✗'}`);
-  console.log(`[R-CW]   R-CW-4 (chain depth):      gateway ${healthOk ? '✓' : '✗'}`);
-  console.log(`[R-CW]   R-CW-5 (cost-cap reject):  gateway ${healthOk ? '✓' : '✗'} (mutates config)`);
-  console.log(`[R-CW]   R-CW-6 (maxChainLength):   gateway ${healthOk ? '✓' : '✗'} (mutates config + restart)`);
-  console.log(`[R-CW]   R-CW-7 (traceparent E2E):  tempo ${tempoOk ? '✓' : '✗'}`);
+  console.log(`[R-CW] Readiness status (not proof evidence):`);
+  console.log(`[R-CW]   gateway:    ${healthOk ? 'READY' : 'NOT READY'}`);
+  console.log(`[R-CW]   tempo:      ${tempoOk ? 'READY' : 'NOT READY'}`);
+  console.log(`[R-CW]   loki:       ${lokiOk ? 'READY' : 'NOT READY'}`);
+  console.log(`[R-CW]   prometheus: ${promOk ? 'READY' : 'NOT READY'}`);
   console.log('');
 
   const elapsed = Date.now() - startTime;
   totalDuration.add(elapsed);
-  passRate.add(allPassed ? 1 : 0);
+  readinessRate.add(allReady ? 1 : 0);
 
-  console.log(`[R-CW] VERDICT: ${allPassed ? 'PASS' : 'PARTIAL'} (infrastructure) — ${elapsed}ms`);
-  console.log(`[R-CW] Next: run individual WS scenarios (tools/k6-proofs/scenarios/r-cw-*.js)`);
+  console.log(`[R-CW] PRECHECK: ${allReady ? 'READY' : 'NOT READY'} (non-evidentiary) — ${elapsed}ms`);
+  console.log(`[R-CW] Next: select an individually authorized row scenario and its receipt contract.`);
 }
 
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
   const summary = {
-    row: 'R-CW-combined',
+    row: 'R-CW-precheck',
     sha: PROOF_SHA,
     seat: PROOF_SEAT,
     timestamp,
-    verdict: data.metrics.r_cw_pass_rate?.values?.rate > 0 ? 'PASS' : 'PARTIAL',
+    outcome: data.metrics.r_cw_precheck_ready_rate?.values?.rate > 0 ? 'READY' : 'NOT_READY',
+    evidenceClass: 'preflight-only',
+    canonicalProofEvidence: false,
     checksRun: data.metrics.r_cw_checks_run?.values?.count || 0,
     checksPassed: data.metrics.r_cw_checks_passed?.values?.count || 0,
     metrics: data.metrics,
-    rowNotes: {
-      'R-CW-1': 'tool-form schedule+wake (gateway only)',
-      'R-CW-3': 'reason.preview in OTel span (needs Tempo)',
-      'R-CW-4': 'chain depth hop counter 1/N→3/N (gateway only)',
-      'R-CW-5': 'cost-cap exhaustion reject (mutates config temporarily)',
-      'R-CW-6': 'maxChainLength boundary (mutates config + requires restart)',
-      'R-CW-7': 'traceparent E2E propagation (needs Tempo)',
+    readinessNotes: {
+      gateway: 'read-only health/status reachability',
+      tempo: 'read-only trace backend readiness',
+      loki: 'read-only log backend readiness',
+      prometheus: 'read-only metrics backend readiness',
     },
   };
 
   return {
-    stdout: `\n[R-CW] Summary: ${summary.verdict} | Checks: ${summary.checksPassed}/${summary.checksRun}\n`,
-    'r-cw-summary.json': JSON.stringify(summary, null, 2),
+    stdout: `\n[R-CW] Precheck: ${summary.outcome} | Checks: ${summary.checksPassed}/${summary.checksRun} | Non-evidentiary\n`,
+    'r-cw-precheck-summary.json': JSON.stringify(summary, null, 2),
   };
 }

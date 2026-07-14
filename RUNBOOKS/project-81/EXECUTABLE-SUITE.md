@@ -45,10 +45,10 @@ ROWS="$(node scripts/list-runnable-rows.mjs --live-suite)"
 printf '%s\n' "$ROWS"
 ```
 
-This excludes the static preflight helper. As of this catalog, it prints the 35-row unattended suite:
+This excludes fixture-gated/construct-only rows. As of this catalog, it prints the 34-row runnable catalog:
 
 ```text
-R-CD-1,R-CD-2,R-CD-3,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-COLLECTION-ON-COLLAPSE,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-RETURN-OVERLAP,R-CD-SILENT,R-CD-TOKEN,R-CONFIG-defaults,R-CONFIG-INTERSESSION,R-CW-1,R-CW-2,R-CW-3,R-CW-4,R-CW-5,R-CW-6,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI-COLLAPSE,R-CW-MULTI,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-status,R-RC-1,R-RC-2,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121
+preflight,R-CD-1,R-CD-2,R-CD-3,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-COLLECTION-ON-COLLAPSE,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-RETURN-OVERLAP,R-CD-SILENT,R-CD-TOKEN,R-CONFIG-defaults,R-CONFIG-INTERSESSION,R-CW-1,R-CW-2,R-CW-3,R-CW-4,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI-COLLAPSE,R-CW-MULTI,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-status,R-RC-1,R-RC-2,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121
 ```
 
 Treat that list as a runnable review queue, not a single proof class. `transport=offline` rows parse committed proof packets; `HONEST-LIMIT-candidate` rows prove the safe reachable canary path when the full behavior needs a fixture.
@@ -107,12 +107,13 @@ Fetch Tempo trace JSON when a row records a non-null trace id. If a row records 
 
 ## Coverage caveats
 
-No Project 81 proof row is currently hidden from `live-suite` because of a `scaffold`, `construct-only`, or `orchestration-required` manifest. `preflight` remains outside the suite because it is the static readiness helper.
+`R-CW-5` and `R-CW-6` are hidden from `live-suite` because they are mutable `orchestration-required` fixtures. `R-CW-5A` and `R-CW-6A` are hidden because they are construct-only static contract rows. `preflight` remains the read-only seat-readiness helper.
 
 Several rows are runnable only as bounded review candidates:
 
 - `R-CD-3` stages the post-compaction lifeboat and accepts threshold refusal as an honest limit; a naturally accepted compaction seam remains review debt until a fixture drives the over-threshold path.
 - `R-RC-2` proves delegated `request_compaction` reaches the child and returns a structured threshold rejection in ordinary disposable sessions; accepted compaction is a separate fixture problem.
-- `R-CD-COLLECTION-ON-COLLAPSE`, `R-CW-5`, `R-CW-6`, and `R-CW-MULTI-COLLAPSE` are static committed-packet validators. They make historical proof packets mechanically checkable; they do not mutate config or rerun the original live collapse/cost-cap/max-chain behavior.
+- `R-CD-COLLECTION-ON-COLLAPSE` and `R-CW-MULTI-COLLAPSE` are static committed-packet validators. They make historical proof packets mechanically checkable; they do not rerun the original live behavior.
+- `R-CW-5` and `R-CW-6` need separately authorized disposable fixtures before any live claim: capture originals, arm restore, mutate only the row-local cap, collect the full reject/boundary chain, restore, and for R-CW-6 safely restart before and after. `R-CW-5A`/`R-CW-6A` only test that non-live contract; they cannot certify or fold into those live rows.
 
 If a future PR adds an accepted-compaction or config-mutating live fixture, it must include backup/restore or isolated-temp-state receipts before claiming a fresh live PASS.

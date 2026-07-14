@@ -39,7 +39,14 @@ const manifestRows = [];
 if (!failures.length) {
   for (const file of readdirSync(manifestsDir).filter((name) => name.endsWith('.json')).sort()) {
     const manifest = JSON.parse(readFileSync(path.join(manifestsDir, file), 'utf8'));
-    if (manifest.rowId) manifestRows.push({ rowId: manifest.rowId, file });
+    if (manifest.rowId) {
+      manifestRows.push({
+        rowId: manifest.rowId,
+        file,
+        scenarioStatus: manifest.scenario?.status,
+        safetyClassification: manifest.liveRunSafety?.classification,
+      });
+    }
   }
 }
 
@@ -56,11 +63,15 @@ const duplicateManifestRows = [...manifestRows.reduce((byRow, row) => {
   .filter(([, files]) => files.length > 1)
   .map(([rowId, files]) => `${rowId} (${files.join(', ')})`);
 
-// Manifest-only rows: in the live-suite manifest catalog but not yet in the canonical proof
-// board corpus (e.g. model-override rows, R-CW-4, R-OBS-status). These are k6-runnable
-// candidates pending a canonical fold — they are intentional, not gaps.
+// Manifest-only rows: runnable live-suite candidates not yet in the canonical proof board
+// corpus (e.g. model-override rows, R-CW-4, R-OBS-status). Scaffold and construct-only
+// contract records are intentionally omitted: they are not live-suite candidates.
 const manifestOnly = manifestRows.filter(
-  (row) => row.rowId !== 'preflight' && !proofRowUpperSet.has(row.rowId.toUpperCase()),
+  (row) =>
+    row.rowId !== 'preflight' &&
+    row.scenarioStatus === 'runnable' &&
+    row.safetyClassification === 'k6-runnable' &&
+    !proofRowUpperSet.has(row.rowId.toUpperCase()),
 );
 
 if (missing.length) {

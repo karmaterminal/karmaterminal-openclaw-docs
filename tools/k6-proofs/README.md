@@ -410,7 +410,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 
 ## Row coverage
 
-`live-suite` currently resolves to 35 unattended rows. This table is generated from the manifest floor, but the outcome column is intentionally conservative: offline rows validate committed packets, and honest-limit rows do not become accepted-path proofs just because they are runnable.
+`live-suite` currently resolves to 34 catalog rows. This table is generated from the manifest floor, but the outcome column is intentionally conservative: offline rows validate committed packets, and honest-limit rows do not become accepted-path proofs just because they are runnable. Fixture-gated and construct-only rows are listed for contract visibility but are excluded from unattended firing.
 
 | Row | Scenario | Surface | Expected outcome |
 |-----|----------|---------|------------------|
@@ -433,8 +433,10 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-CW-2 | `r-cw-2-immediate-wake` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CW-3 | `r-cw-3-reason-telemetry` | websocket/typed-tool | HONEST-LIMIT-candidate; reason telemetry/redaction review may limit fold |
 | R-CW-4 | `r-cw-4-chain-depth` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
-| R-CW-5 | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
-| R-CW-6 | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-CW-5 | `r-cw-5-cost-cap-reject` (scaffold) | websocket/typed-tool | PARTIAL-candidate; fixture-gated cost-cap mutation/reject/restore contract, not unattended |
+| R-CW-5A | construct-only fixture contract | offline/read-only | construct-only; static manifest/guard/receipt-contract check, never live cap evidence |
+| R-CW-6 | `r-cw-6-max-chain-length` (scaffold) | websocket/typed-tool | PARTIAL-candidate; fixture-gated max-chain mutation/restart/boundary/restore contract, not unattended |
+| R-CW-6A | construct-only fixture contract | offline/read-only | construct-only; static manifest/guard/receipt-contract check, never live chain evidence |
 | R-CW-7 | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CW-DELEGATE-CHILD-LIVE | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CW-DELEGATE-SELF-CONTINUATION | `r-cw-delegate-self-continuation` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
@@ -450,7 +452,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-REGRESSION-TRAP-TESTS | `r-regression-trap-tests` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-TRACE-REDACTION-1121 | `r-trace-redaction-1121` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 
-`preflight` remains `static-preflight-only` and is skipped by `--live-suite`; the runner still performs seat-readiness preflight for live runs.
+`preflight` is the read-only seat-readiness helper; the runner also performs seat-readiness before live rows. `R-CW-5`/`R-CW-6` remain `orchestration-required` fixtures; `R-CW-5A`/`R-CW-6A` are construct-only static contracts and are excluded from unattended firing.
 
 Future manifests may again be `scaffold`, `construct-only`, or `orchestration-required`. Such rows are tracked, but not workflow-runnable until a matching scenario exists and the manifest is promoted to `scenario.status="runnable"` plus `liveRunSafety.classification="k6-runnable"`.
 

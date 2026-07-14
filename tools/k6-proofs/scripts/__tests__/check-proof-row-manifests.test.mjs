@@ -70,3 +70,36 @@ test('fails closed for missing, invalid, and duplicate manifests', async (t) => 
     });
   });
 });
+
+
+test('does not mislabel construct-only contract rows as live-suite manifest-only candidates', async () => {
+  await withFixture({
+    manifests: [
+      {
+        file: 'r-ok.json',
+        rowId: 'R-OK',
+        raw: `${JSON.stringify({
+          rowId: 'R-OK',
+          scenario: { status: 'runnable' },
+          liveRunSafety: { classification: 'k6-runnable' },
+        })}
+`,
+      },
+      {
+        file: 'r-static.json',
+        rowId: 'R-STATIC',
+        raw: `${JSON.stringify({
+          rowId: 'R-STATIC',
+          scenario: { status: 'construct-only' },
+          liveRunSafety: { classification: 'construct-only' },
+        })}
+`,
+      },
+    ],
+  }, async (root) => {
+    const result = run(root);
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    assert.match(result.stdout, /Manifest-only rows: 0/);
+    assert.doesNotMatch(result.stdout, /R-STATIC/);
+  });
+});

@@ -14,8 +14,6 @@ test('static evidence source is explicit and contains every static row', async (
     ['R-OBS-2', 'cael-dgx'],
     ['R-REGRESSION-TRAP-TESTS', 'cael-dgx'],
     ['R-TRACE-REDACTION-1121'],
-    ['R-CW-5', 'cael-dgx'],
-    ['R-CW-6', 'cael-dgx'],
     ['R-CW-7', 'cael-dgx'],
     ['R-CW-DELEGATE-CHILD-LIVE', 'cael-dgx'],
     ['R-CW-DELEGATE-TOKEN', 'cael-dgx'],

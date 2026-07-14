@@ -1,0 +1,64 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CW-6A",
+  "issue": 117,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "offline",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 15,
+  "scenario": {
+    "name": "chain-cap-fixture-contract",
+    "description": "Static contract record for the future R-CW-6 max-chain fixture; it does not certify live chain-boundary behavior.",
+    "methods": ["static-manifest-parse", "offline-guard-test", "fixture-contract-test"],
+    "status": "construct-only"
+  },
+  "invocation": {
+    "tool": "continue_work",
+    "delaySeconds": 1,
+    "reason": "static-contract-R-CW-6A-{{nonce}}",
+    "idempotencyKeyPrefix": "R-CW-6A"
+  },
+  "expectedReceipts": [
+    {
+      "name": "fixture-contract-schema-checked",
+      "required": true,
+      "description": "Offline test checked the real R-CW-6 fixture receipt contract."
+    },
+    {
+      "name": "live-fixture-gate-preserved",
+      "required": true,
+      "description": "Offline test proved R-CW-6 remains orchestration-required and non-runnable."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CW-6A",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Static harness contract only. It cannot produce or fold into R-CW-6 live PASS evidence."
+  },
+  "liveRunSafety": {
+    "classification": "construct-only",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "construct-only",
+    "requiredReceipts": [
+      "fixture-contract-schema-checked",
+      "live-fixture-gate-preserved"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Non-live contract record. Direct runner use is rejected and no static result is empirical R-CW-6 proof."
+  }
+}

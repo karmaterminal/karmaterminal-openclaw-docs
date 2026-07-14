@@ -96,6 +96,47 @@ function safetyErrors(manifest, env = process.env) {
     errors.push('read-only toolSurface cannot require external agent/tool invocation');
   }
 
+  const configOverride = manifest.invocation?.configOverride;
+  if (configOverride) {
+    const expectedReceipts = new Map(
+      (manifest.expectedReceipts || []).map((receipt) => [receipt.name, receipt]),
+    );
+    const requiredFixtureReceipts = [
+      'seat-readiness-continuation-enabled',
+      'original-config-captured',
+      'failure-safe-restore-armed',
+      'config-restored',
+    ];
+    if (safety.classification !== 'orchestration-required') {
+      errors.push('configOverride rows must remain orchestration-required until a reviewed mutable fixture is implemented');
+    }
+    if (manifest.scenario?.status === 'runnable') {
+      errors.push('configOverride rows cannot declare scenario.status=runnable before fixture promotion');
+    }
+    if (manifest.mutates !== true) {
+      errors.push('configOverride rows must declare mutates=true');
+    }
+    if (safety.requiresLiveGatewayToken !== true ||
+        safety.requiresExternalAgentOrToolInvocation !== true ||
+        safety.requiresHumanConfirmation !== true) {
+      errors.push('configOverride rows require live token, external invocation, and human confirmation');
+    }
+    if (configOverride.restoreAfter !== true) {
+      errors.push('configOverride rows must declare restoreAfter=true');
+    }
+    for (const name of requiredFixtureReceipts) {
+      if (!expectedReceipts.has(name) || !(safety.requiredReceipts || []).includes(name)) {
+        errors.push(`configOverride fixture contract is missing required receipt '${name}'`);
+      }
+    }
+    if (configOverride.requiresRestart === true) {
+      const descriptions = [...expectedReceipts.values()].map((receipt) => receipt.description || '').join(' ');
+      if (!/restart|reload/i.test(descriptions)) {
+        errors.push('restart-required configOverride rows must declare restart/reload receipts');
+      }
+    }
+  }
+
   if (!Array.isArray(safety.requiredReceipts) || safety.requiredReceipts.length === 0) {
     errors.push('liveRunSafety.requiredReceipts must list the receipts required for review');
   } else {

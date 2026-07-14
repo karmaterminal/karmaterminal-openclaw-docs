@@ -29,6 +29,13 @@ function readMaybe(path) { try { return open(path); } catch (e) { return ''; } }
 function readJsonMaybe(path) { const raw = readMaybe(path); return raw ? JSON.parse(raw) : null; }
 
 const selectedRow = manifest?.rowId || '';
+// R-CW-5A/6A validate the same committed source/harness material as the live
+// cap rows, but deliberately emit a construct-only result.  They must never
+// be mistaken for a freshly fired R-CW-5/6 cap receipt.
+const sourceRow = selectedRow === 'R-CW-5A' ? 'R-CW-5'
+  : selectedRow === 'R-CW-6A' ? 'R-CW-6'
+    : selectedRow;
+const isStaticBoundaryVariant = sourceRow !== selectedRow;
 const roots = {
   rcw7: rowRoot('R-CW-7'),
   childLive: rowRoot('R-CW-DELEGATE-CHILD-LIVE'),
@@ -102,7 +109,7 @@ if (selectedRow === 'R-CW-MULTI-COLLAPSE') {
     tempoAttrs: readMaybe(`${roots.multiCollapse}/tempo-attribute-receipt.txt`),
   };
 }
-if (selectedRow === 'R-CW-5') {
+if (sourceRow === 'R-CW-5') {
   corpus.rcw5 = {
     evidence: readMaybe(`${roots.rcw5}/EVIDENCE.md`),
     schedulerSource: readMaybe(`${roots.rcw5}/scheduler-source.txt`),
@@ -113,7 +120,7 @@ if (selectedRow === 'R-CW-5') {
     chainGuardLog: readMaybe(`${roots.rcw5}/vitest-chain-guard-cost-cap.log`),
   };
 }
-if (selectedRow === 'R-CW-6') {
+if (sourceRow === 'R-CW-6') {
   corpus.rcw6 = {
     evidence: readMaybe(`${roots.rcw6}/EVIDENCE.md`),
     schedulerSource: readMaybe(`${roots.rcw6}/source/scheduler-source-snippet.txt`),
@@ -256,6 +263,8 @@ const validators = {
   'R-CW-MULTI-COLLAPSE': validateRcwMultiCollapse,
   'R-CW-5': validateRcw5,
   'R-CW-6': validateRcw6,
+  'R-CW-5A': validateRcw5,
+  'R-CW-6A': validateRcw6,
 };
 
 export default function () {
@@ -266,8 +275,14 @@ export default function () {
   const validator = validators[manifest.rowId];
   if (!validator) { console.error(`No static validator implemented for ${manifest.rowId}`); failures.add(1); return; }
   const result = validator();
+  if (isStaticBoundaryVariant) {
+    result.checks.nonLiveBoundary = true;
+  }
+  const expectedArtifactClass = manifest?.liveRunSafety?.expectedArtifactClass || 'FAIL-candidate';
   const evidence = {
     row: manifest.rowId,
+    sourceRow,
+    staticBoundaryVariant: isStaticBoundaryVariant,
     manifest_loaded: true,
     candidateSha: manifest.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     currentProofSha: currentSha,
@@ -280,7 +295,7 @@ export default function () {
   const ok = allPresent(result.checks);
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
-  evidence.verdict = ok ? 'PASS-candidate' : 'FAIL-candidate';
+  evidence.verdict = ok ? expectedArtifactClass : 'FAIL-candidate';
   duration.add(evidence.duration_ms);
   const checkSpec = {};
   for (const [name, value] of Object.entries(result.checks)) checkSpec[name] = () => value;
@@ -292,5 +307,6 @@ export default function () {
 export function handleSummary(data) {
   const failuresCount = data.metrics.proof_failures?.values?.count || 0;
   const row = manifest?.rowId || 'UNKNOWN';
-  return { 'static-corpus-row-summary.json': JSON.stringify({ row, sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', verdict: failuresCount === 0 ? 'PASS-candidate' : 'FAIL-candidate', metrics: { failures: failuresCount, duration_ms: data.metrics.static_corpus_row_duration?.values || null } }, null, 2) };
+  const expectedArtifactClass = manifest?.liveRunSafety?.expectedArtifactClass || 'FAIL-candidate';
+  return { 'static-corpus-row-summary.json': JSON.stringify({ row, sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', verdict: failuresCount === 0 ? expectedArtifactClass : 'FAIL-candidate', metrics: { failures: failuresCount, duration_ms: data.metrics.static_corpus_row_duration?.values || null } }, null, 2) };
 }

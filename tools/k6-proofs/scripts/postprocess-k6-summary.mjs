@@ -83,7 +83,11 @@ function receiptStatusFromName(name, summary) {
   }
 }
 
-function outcomeFromSummary(summary) {
+function outcomeFromSummary(summary, expectedArtifactClass) {
+  // Some rows deliberately validate only a static contract.  A green k6
+  // summary must not upgrade that contract into a candidate behavioral PASS.
+  if (expectedArtifactClass === 'construct-only') return 'construct-only';
+
   const failures = requiredMetric(summary, 'proof_failures');
   const failureCount = failures ? Number(failures.count || 0) : 0;
   const checks = requiredMetric(summary, 'checks');
@@ -177,7 +181,8 @@ async function main() {
   const runId = args['run-id'] || `${dest.runDirPrefix || 'k6-run'}-${stamp()}`;
   const runDir = path.join(outRoot, sha, row, seat, runId);
 
-  const outcome = outcomeFromSummary(summary);
+  const expectedArtifactClass = manifest.liveRunSafety?.expectedArtifactClass;
+  const outcome = outcomeFromSummary(summary, expectedArtifactClass);
   const failures = requiredMetric(summary, 'proof_failures');
   const failureCount = failures ? Number(failures.count || 0) : 0;
   const checks = requiredMetric(summary, 'checks');
@@ -217,7 +222,9 @@ async function main() {
       foldRequiresReview: manifest.liveRunSafety.foldRequiresReview === true,
     } : null,
     failureClass,
-    reason: outcome === 'FAIL-candidate'
+    reason: outcome === 'construct-only'
+      ? 'manifest caps this row at construct-only; it is not behavioral candidate evidence'
+      : outcome === 'FAIL-candidate'
       ? 'k6 proof_failures metric is non-zero'
       : outcome === 'HONEST-LIMIT-candidate'
         ? 'k6 checks did not all pass; classify for human review'

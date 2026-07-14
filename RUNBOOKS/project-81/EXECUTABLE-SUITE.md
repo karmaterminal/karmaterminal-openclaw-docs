@@ -87,7 +87,7 @@ Artifacts are written under `${K6_PROOF_OUT_DIR:-/tmp/k6-proof-runs}`:
 <out-dir>/<candidate-sha>/<ROW>/<seat>/<timestamp-row>/
 ```
 
-Each row emits `row-manifest.json`, `runner-metadata.json`, `k6.log`, `evidence-lines.log`, `evidence.jsonl`, `run-result.json`, metrics files, and summary files when available.
+Each row emits `row-manifest.json`, `runner-metadata.json`, `k6.log`, `evidence-lines.log`, `evidence.jsonl`, `run-result.json`, metrics files, and summary files when available. A review-complete row also emits `candidate-run-result.json` (`openclaw.k6.candidate-run-result.v1`): a public-safe routing envelope that binds the manifest, candidate SHA, docs ref, row, seat, and run identity. It remains candidate-only (`behaviorProof:false`, `canonicalFoldForbidden:true`); review-pending rows deliberately receive no envelope and remain in the review-debt queue.
 
 ## 7. Review before folding
 

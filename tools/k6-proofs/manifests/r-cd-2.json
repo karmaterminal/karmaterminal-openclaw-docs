@@ -74,6 +74,11 @@
       "description": "One continue_delegate silent-wake tool execution plus continuation.delegate.dispatch/fire spans share one non-zero trace and chain"
     },
     {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace projection that carries the same authoritative trace and chain binding as the accepted send lifecycle"
+    },
+    {
       "name": "no-channel-delivery",
       "required": true,
       "description": "Delegate return does NOT produce a channel message (silent mode verified)"

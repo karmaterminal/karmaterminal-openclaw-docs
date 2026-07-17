@@ -24,6 +24,7 @@
  */
 
 import { copyFileSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
@@ -135,6 +136,13 @@ const runId = `k6-run-${stamp()}`;
 const outDir = join('PROOFS', args.sha, args.row, args.seat, runId);
 mkdirSync(join(outDir, 'artifacts'), { recursive: true });
 
+let authoritativeReceiptDigest = null;
+if (authoritativeReceipt) {
+  const raw = readFileSync(args['authoritative-receipt']);
+  authoritativeReceiptDigest = createHash('sha256').update(raw).digest('hex');
+  writeFileSync(join(outDir, 'r-cd-2-authoritative-receipt.json'), raw);
+}
+
 if (args['seat-readiness']) {
   copyFileSync(args['seat-readiness'], join(outDir, 'seat-readiness.json'));
 }
@@ -174,13 +182,10 @@ const result = {
   seat: args.seat,
   outcome: verdict,
   verdictSource: authoritativeReceipt ? 'r-cd-2-authoritative-receipt' : 'generic-evidence',
-  ...(authoritativeReceipt ? {
-    authoritativeReceipt: {
-      schema: authoritativeReceipt.schema,
-      validated: true,
-      source: 'r-cd-2-row-scoped-resolver',
-    },
-  } : {}),
+  ...(authoritativeReceiptDigest ? { authoritativeReceipt: {
+    schema: authoritativeReceipt.schema, validated: true, source: 'r-cd-2-row-scoped-resolver',
+    file: 'r-cd-2-authoritative-receipt.json', sha256: authoritativeReceiptDigest,
+  } } : {}),
   liveRunSafety: manifest?.liveRunSafety ? {
     classification: manifest.liveRunSafety.classification,
     requiresLiveGatewayToken: Boolean(manifest.liveRunSafety.requiresLiveGatewayToken),

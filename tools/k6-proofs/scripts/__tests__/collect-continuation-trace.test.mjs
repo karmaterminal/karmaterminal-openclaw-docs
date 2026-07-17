@@ -192,6 +192,37 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
   }
 });
 
+test('rejects duplicate dispatch/fire spans and unrelated causal parents', async () => {
+  const fixture = await fixtureDir();
+  const traceId = '1234567890abcdef1234567890abcdef';
+  const base = traceFixture({ traceId, reasonHash: fixture.reasonHash, reasonLength: fixture.reasonLength });
+  const spans = base.batches[0].scopeSpans[0].spans;
+  const dispatch = spans.find((entry) => entry.name === 'continuation.delegate.dispatch');
+  const fire = spans.find((entry) => entry.name === 'continuation.delegate.fire');
+  const badCases = [
+    ['duplicate-dispatch', { ...dispatch, spanId: b64('9999999999999999') }],
+    ['duplicate-fire', { ...fire, spanId: b64('8888888888888888') }],
+    ['different-parent', { ...fire, parentSpanId: b64('7777777777777777') }],
+  ];
+  for (const [label, extra] of badCases) {
+    const server = await listen((request, response) => {
+      response.setHeader('content-type', 'application/json');
+      response.end(JSON.stringify(new URL(request.url, 'http://localhost').pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : { batches: [{ scopeSpans: [{ spans: label === 'different-parent'
+          ? spans.map((entry) => entry === fire ? extra : entry)
+          : [...spans, extra] }] }] }));
+    });
+    try {
+      await assert.rejects(execFileAsync(process.execPath, [
+        script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+        '--seat', 'silas-prince', '--tempo-url', server.url, '--timeout-ms', '40', '--poll-ms', '10',
+      ]), new RegExp(label === 'different-parent' ? 'causal parent' : `contains 2 .*${label.slice('duplicate-'.length)}`));
+    } finally { await server.close(); }
+  }
+  await rm(fixture.dir, { recursive: true, force: true });
+});
+
 test('R-CD-2 correlation carries only matching opaque send run and nonce bindings', async () => {
   const rowNonce = 'R-CD-2-example';
   const fixture = await fixtureDir({

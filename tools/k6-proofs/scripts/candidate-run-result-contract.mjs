@@ -1,5 +1,7 @@
 import path from 'node:path';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 
 export const CANDIDATE_RUN_RESULT_SCHEMA = 'openclaw.k6.candidate-run-result.v1';
 export const PROOF_ROW_MANIFEST_SCHEMA = 'openclaw.k6.proof-row-manifest.v1';
@@ -45,6 +47,20 @@ export function candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata,
   if (envelope.candidate?.sha !== candidateSha || !SHA.test(envelope.candidate?.docsRef || '')) return false;
   if (envelope.run?.id !== path.basename(runDir) || envelope.run?.rowId !== rowId || envelope.run?.seat !== seat || envelope.run?.scenario !== scenario) return false;
   if (envelope.result?.outcome !== runResult.verdict || envelope.result?.outcomeSource !== runResult.verdictSource) return false;
+  if (rowId === 'R-CD-2') {
+    const declared = runResult.authoritativeReceipt;
+    if (declared?.validated !== true || declared?.source !== 'r-cd-2-row-scoped-resolver' ||
+        envelope.authoritativeReceipt?.file !== 'r-cd-2-authoritative-receipt.json' ||
+        envelope.authoritativeReceipt?.sha256 !== declared?.sha256 ||
+        !/^[a-f0-9]{64}$/iu.test(declared?.sha256 || '')) return false;
+    try {
+      const raw = readFileSync(path.join(runDir, declared.file));
+      if (createHash('sha256').update(raw).digest('hex') !== declared.sha256) return false;
+      const receipt = JSON.parse(raw.toString('utf8'));
+      const integrity = validateRcd2AuthoritativeReceipt(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
+      if (!integrity.valid || integrity.verdict !== runResult.verdict) return false;
+    } catch { return false; }
+  }
   if (manifest.liveRunSafety?.expectedArtifactClass === 'construct-only' && envelope.result.outcome !== 'construct-only') return false;
   const rawObservability = runResult.observability;
   if (!rawObservability || typeof rawObservability.traceStatus !== 'string') return false;

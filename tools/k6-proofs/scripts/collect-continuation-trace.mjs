@@ -198,22 +198,32 @@ function matchesContinuationSpan(span, expected, name) {
 
 function validateTrace(trace, expected) {
   const spans = allSpans(trace);
-  const accept = spans.find((span) =>
+  const accepts = spans.filter((span) =>
     matchesContinuationSpan(span, expected, expected.acceptSpanName));
-  if (!accept) throw new Error(`matched trace lacks the expected ${expected.acceptSpanName} span`);
+  if (accepts.length !== 1) {
+    throw new Error(accepts.length === 0
+      ? `matched trace lacks the expected ${expected.acceptSpanName} span`
+      : `matched trace contains ${accepts.length} ${expected.acceptSpanName} spans`);
+  }
+  const accept = accepts[0];
   const acceptAttrs = attributes(accept);
   const chainId = String(acceptAttrs.get('chain.id') || '');
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(chainId)) {
     throw new Error(`${expected.acceptSpanName} span lacks a public-safe UUIDv4 chain.id`);
   }
 
-  const fire = spans.find((span) => {
+  const fires = spans.filter((span) => {
     const attrs = attributes(span);
     return matchesContinuationSpan(span, expected, expected.fireSpanName) &&
       attrs.get('chain.id') === chainId &&
       (expected.mode === undefined || attrs.get('delegate.mode') === expected.mode);
   });
-  if (!fire) throw new Error(`matched trace lacks the expected ${expected.fireSpanName} span`);
+  if (fires.length !== 1) {
+    throw new Error(fires.length === 0
+      ? `matched trace lacks the expected ${expected.fireSpanName} span`
+      : `matched trace contains ${fires.length} ${expected.fireSpanName} spans`);
+  }
+  const fire = fires[0];
 
   const tools = spans.filter((span) => {
     const attrs = attributes(span);
@@ -237,6 +247,12 @@ function validateTrace(trace, expected) {
 
   const acceptSpanId = idHex(accept.spanId, 8, 'accept span id');
   const fireSpanId = idHex(fire.spanId, 8, 'fire span id');
+  const acceptParentSpanId = idHex(accept.parentSpanId, 8, 'dispatch parent span id');
+  const fireParentSpanId = idHex(fire.parentSpanId, 8, 'fire parent span id');
+  const toolParentSpanIds = tools.map((span) => idHex(span.parentSpanId, 8, 'tool parent span id'));
+  if (fireParentSpanId !== acceptParentSpanId || toolParentSpanIds.some((value) => value !== acceptParentSpanId)) {
+    throw new Error('tool/fire/dispatch do not share one causal parent');
+  }
   const toolSpanIds = tools.map((span) => idHex(span.spanId, 8, 'tool span id'));
   if (acceptSpanId === fireSpanId ||
       toolSpanIds.includes(acceptSpanId) ||
@@ -255,14 +271,14 @@ function validateTrace(trace, expected) {
     chainId,
     toolSpanIds,
     fireSpanId,
-    fireParentSpanId: idHex(fire.parentSpanId, 8, 'fire parent span id'),
+    fireParentSpanId,
     childSpans,
   };
   if (expected.tool === 'continue_delegate') {
     return {
       ...topology,
       dispatchSpanId: acceptSpanId,
-      dispatchParentSpanId: idHex(accept.parentSpanId, 8, 'dispatch parent span id'),
+      dispatchParentSpanId: acceptParentSpanId,
     };
   }
   return {

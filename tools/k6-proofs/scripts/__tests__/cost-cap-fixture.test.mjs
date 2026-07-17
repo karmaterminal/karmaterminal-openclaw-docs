@@ -1,9 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { parseArgs } from '../run-cost-cap-fixture.mjs';
-import { readFile } from 'node:fs/promises';
+import { parseArgs, prepareArtifactDir } from '../run-cost-cap-fixture.mjs';
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import os from 'node:os';
+import path from 'node:path';
 
 test('R-CW-5 fixture accepts an explicit isolated source contract', () => {
   const parsed = parseArgs([
@@ -33,6 +35,17 @@ test('R-CW-5 fixture refuses unknown arguments', () => {
     () => parseArgs(['node', 'run-cost-cap-fixture.mjs', '--mutate-live-config'], {}),
     /unexpected argument: --mutate-live-config/,
   );
+});
+
+test('R-CW-5 fixture refuses to overwrite or expose an artifact directory', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-artifact-test-'));
+  const nonEmpty = path.join(root, 'existing');
+  await mkdir(nonEmpty, { mode: 0o700 });
+  await writeFile(path.join(nonEmpty, 'old-receipt.json'), '{}');
+  assert.throws(() => prepareArtifactDir(nonEmpty), /must be empty/);
+
+  const fresh = path.join(root, 'fresh');
+  assert.equal(prepareArtifactDir(fresh), fresh);
 });
 
 test('R-CW-5 typed tool-surface template asserts no durable work after exhausted elections', async () => {

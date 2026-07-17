@@ -9,7 +9,7 @@
  * no-spawn assertion without changing a fleet gateway.
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
@@ -107,6 +107,25 @@ function assertSource(sourceDir, candidateSha) {
   return { resolved, head };
 }
 
+export function prepareArtifactDir(input) {
+  const artifactDir = path.resolve(input);
+  if (existsSync(artifactDir)) {
+    const stats = lstatSync(artifactDir);
+    if (!stats.isDirectory() || stats.isSymbolicLink()) {
+      throw new Error('artifact dir must be a real directory, not a file or symlink');
+    }
+    if ((stats.mode & 0o077) !== 0) {
+      throw new Error('artifact dir must not be group/world accessible (mode 0700 required)');
+    }
+    if (readdirSync(artifactDir).length !== 0) {
+      throw new Error('artifact dir must be empty; refusing to overwrite an earlier receipt');
+    }
+  } else {
+    mkdirSync(artifactDir, { recursive: true, mode: 0o700 });
+  }
+  return artifactDir;
+}
+
 function matrixEval(cap) {
   // JSON only: the fixture invokes the exact production TypeScript module via
   // tsx, so this string is not a second implementation of the cap policy.
@@ -168,8 +187,7 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir }) {
 export function runFixture(args) {
   assertArgs(args);
   const { resolved: sourceDir, head } = assertSource(args.sourceDir, args.candidateSha);
-  const artifactDir = path.resolve(args.artifactDir);
-  mkdirSync(artifactDir, { recursive: true, mode: 0o700 });
+  const artifactDir = prepareArtifactDir(args.artifactDir);
 
   const readiness = {
     schema: 'openclaw.project81.r-cw-5.fixture-readiness.v1',

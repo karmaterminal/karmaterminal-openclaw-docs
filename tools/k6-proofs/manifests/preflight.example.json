@@ -2,8 +2,8 @@
   "schema": "openclaw.k6.proof-row-manifest.v1",
   "rowId": "preflight",
   "issue": 101,
-  "candidateSha": "82827d3cbcba92ff6e19863b30615db028c2651c",
-  "seat": "emeric-nuc",
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ci-runner}",
   "sessionKey": "${OPENCLAW_SESSION_KEY}",
   "transport": "websocket",
   "toolSurface": "read-only",
@@ -75,9 +75,9 @@
   ],
   "artifactDestination": {
     "root": "PROOFS",
-    "sha": "82827d3cbcba92ff6e19863b30615db028c2651c",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
     "row": "preflight",
-    "seat": "emeric-nuc",
+    "seat": "${OPENCLAW_SEAT_NAME:-ci-runner}",
     "runDirPrefix": "k6-run"
   },
   "review": {

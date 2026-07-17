@@ -1,0 +1,9 @@
+# R-CW-DELEGATE-SELF-CONTINUATION — fresh exact-SHA seed
+
+- **Candidate:** `6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d`
+- **Owner:** 🩸 cael + 🌊 ronan live k6 proof harness
+- **State:** `missing`
+- **Fire status:** unfired
+- **Historical provenance:** `PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md` is non-authoritative for this candidate.
+
+Fresh exact-SHA evidence must be collected through the allocation in `proofs-manifest.json` and reviewed before this row changes state.

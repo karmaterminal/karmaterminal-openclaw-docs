@@ -1,30 +1,24 @@
 {
   "schema": "openclaw.proofs.index.v1",
-  "purpose": "Top-level signpost for clawsweeper + humans: which PROOFS/<sha>/ corpus is CURRENT.",
-  "current_sha": "cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
-  "current_sha_short": "cea9e42",
-  "build_string": "OpenClaw 2026.7.2 assembly cea9e42 - Project 81 exact-SHA proof seed",
-  "corpus_path": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
-  "manifest_path": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/proofs-manifest.json",
-  "readme_path": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737/README.md",
+  "current_sha": "6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",
+  "corpus_path": "PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",
+  "manifest_path": "PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/proofs-manifest.json",
+  "readme_path": "PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/README.md",
+  "capture_sha": "6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",
+  "proof_push_sha": "6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",
+  "proof_source_sha": "6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",
+  "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
   "rollup": {
-    "total_rows": 35,
-    "pass": 5,
-    "partial": 2,
+    "pass": 0,
+    "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 28
+    "missing": 35,
+    "total_rows": 35
   },
-  "disposition_note": "Active exact-SHA Project 81 corpus. Historical static receipts remain provenance/harness evidence only. Fresh exact R-CD-1 and R-CW-1 behavior/Tempo/journal receipts are folded; Elliott config rows remain partial without attributable config.get spans; consumed uncovered rows remain non-pass without implied refire.",
-  "methodology_note": "Drive the exact deployed assembly SHA through the Project 81 k6/Gateway surfaces. Required trace rows must include raw artifacts and attributable public-safe Tempo JSON with valid non-zero W3C IDs; time-window-only matching is insufficient. Structured tool-result rows must retain the actual result payload or correlated span rather than trusting an assistant-authored sentinel.",
-  "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-07-13",
-  "generated_by": "frond-scribe (copilot) exact-SHA seed for prince evidence folding",
-  "capture_sha": "cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
-  "proof_push_sha": "cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
-  "proof_source_sha": "cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
-  "carried_from": "2e7861ba45fd8534282aadabab2b855d2f524fdf",
-  "seeded_from": "2e7861ba45fd8534282aadabab2b855d2f524fdf",
-  "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  "provenance": {
+    "previous_corpus": "PROOFS/cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
+    "policy": "historical receipts are provenance only; all exact-candidate rows reopen missing"
+  }
 }

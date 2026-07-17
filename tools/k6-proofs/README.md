@@ -36,6 +36,25 @@ tools/k6-proofs/
 
 ## Usage
 
+### R-CW-5: isolated typed-tool fixture
+
+`continue_work` is deliberately unavailable through the gateway/MCP loopback,
+so `r-cw-5-cost-cap-reject.js` stays a fail-closed scaffold.  Run the
+process-local exact-candidate fixture instead; it calls the same typed callback
+that a real embedded attempt receives, uses a disposable session store and
+worktree, and never changes a running gateway or fleet config:
+
+```bash
+node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \
+  --source-dir <exact-candidate-worktree> \
+  --candidate-sha <40-char-sha> \
+  --artifact-dir <empty-private-directory> --cap 100 --json
+```
+
+The receipt and fail-closed contract are documented in
+[`docs/R-CW-5-ISOLATED-TOOL-SURFACE.md`](docs/R-CW-5-ISOLATED-TOOL-SURFACE.md).
+The result is a reviewed `PASS-candidate`, never an automatic corpus fold.
+
 ### 0. Offline golden-path smoke (no gateway, no secrets)
 
 Use this first to verify the candidate artifact pipeline is alive without touching

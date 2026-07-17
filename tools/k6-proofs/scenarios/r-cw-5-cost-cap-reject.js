@@ -1,17 +1,16 @@
 /**
  * Scenario scaffold: R-CW-5.
  *
- * Cost-cap rejection proof. This row temporarily lowers continuation
- * costCapTokens, proves continue_work is rejected at the cap boundary, then
- * restores the original config. It intentionally remains scaffold-only because
- * it mutates live gateway configuration.
+ * Cost-cap rejection proof. `continue_work` is an internal session-elected
+ * primitive, intentionally absent from the gateway/MCP loopback tool set. A
+ * WebSocket `tools.invoke` therefore cannot exercise this contract.
  *
  * The safe executable fixture lives in
  * `tools/k6-proofs/scripts/run-cost-cap-fixture.mjs`. It runs the exact
  * candidate's production budget module plus the dispatcher boundary suite
  * from a source-only worktree and writes cleanup receipts. This k6 entry
- * remains intentionally non-runnable: k6 cannot safely create the required
- * isolated runtime state itself.
+ * remains intentionally non-runnable: using it to patch live configuration
+ * would not invoke the internal tool and would create a misleading receipt.
  */
 export const options = {
   scenarios: {

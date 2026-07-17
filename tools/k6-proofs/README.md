@@ -36,6 +36,25 @@ tools/k6-proofs/
 
 ## Usage
 
+### R-CW-5: isolated typed-tool fixture
+
+`continue_work` is deliberately unavailable through the gateway/MCP loopback,
+so `r-cw-5-cost-cap-reject.js` stays a fail-closed scaffold.  Run the
+process-local exact-candidate fixture instead; it calls the same typed callback
+that a real embedded attempt receives, uses a disposable session store and
+worktree, and never changes a running gateway or fleet config:
+
+```bash
+node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \
+  --source-dir <exact-candidate-worktree> \
+  --candidate-sha <40-char-sha> \
+  --artifact-dir <empty-private-directory> --cap 100 --json
+```
+
+The receipt and fail-closed contract are documented in
+[`docs/R-CW-5-ISOLATED-TOOL-SURFACE.md`](docs/R-CW-5-ISOLATED-TOOL-SURFACE.md).
+The result is a reviewed `PASS-candidate`, never an automatic corpus fold.
+
 ### 0. Offline golden-path smoke (no gateway, no secrets)
 
 Use this first to verify the candidate artifact pipeline is alive without touching
@@ -452,6 +471,52 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 `preflight` remains the read-only readiness row; the runner also performs seat-readiness before live runs. Neither readiness surface promotes a cap row.
 
 `R-CW-5` and `R-CW-6` are also excluded from `--live-suite`: they remain fixture-gated live cap rows. `R-CW-5A` and `R-CW-6A` are their static source/harness boundary checks; they emit only `construct-only`, never live R-CW-5/6 PASS evidence.
+
+### R-CW-5 isolated cost-cap fixture
+
+`tools/k6-proofs/scripts/run-cost-cap-fixture.mjs` is the safe runnable
+component fixture for `R-CW-5`. It requires an exact-candidate source
+worktree with dependencies already present, refuses to install dependencies,
+and writes only to an explicit artifact directory. It evaluates the exact
+production `checkContinuationBudget` module at below/equal/over cap, then
+runs the production dispatcher boundary suite to prove the over-cap hop does
+not spawn and its flow is failed. Finally, it creates a short-lived detached
+worktree of that exact candidate and exercises `runAgentAttempt` with the real
+typed `continue_work` capture surface, a disposable session already at the
+cost cap, and a zero-durable-work assertion. The temporary worktree is removed
+before the result is emitted. It records readiness and cleanup receipts.
+
+This is an equivalent runtime-level fixture, not a live-fleet-gateway
+promotion: it does not create a gateway or modify fleet config/state. It
+closes the prior static-only gap by covering the real typed tool capture and
+post-turn scheduler path, but the row remains `PASS-candidate` pending human
+review and corpus fold.
+
+#### Runtime trace packet
+
+The fixture is deliberately anchored at the exact candidate rather than a
+copy of its cap predicate. On `6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d`,
+GitNexus maps `checkContinuationBudget` to three direct callers:
+`dispatchToolDelegates`, `dispatchStagedPostCompactionDelegates`, and
+`scheduleContinuationWork`. Its impact walk also reaches child-queue drain
+and delegate recovery paths. This is why the fixture covers both the
+production predicate and the dispatcher boundary; a change to the shared
+check has a continuation-wide blast radius, not only a single k6 row.
+
+Capture the trace packet against the candidate before reviewing a run:
+
+```bash
+gitnexus query --repo openclaw-6ee7eca \
+  'checkContinuationBudget accumulatedChainTokens cost cap'
+gitnexus context --repo openclaw-6ee7eca checkContinuationBudget
+gitnexus impact --repo openclaw-6ee7eca checkContinuationBudget
+```
+
+The expected component receipt shape at `--cap 100` is `99: allow`,
+`100: allow`, `101: cost-capped`, plus dispatcher assertions for over-cap
+no-spawn and failed-flow persistence, and a typed-tool receipt that confirms
+two exhausted elections create no durable continuation work. A component
+PASS-candidate never reclassifies the live row as PASS without review.
 
 Future manifests may again be `scaffold`, `construct-only`, or `orchestration-required`. Such rows are tracked, but not workflow-runnable until a matching scenario exists and the manifest is promoted to `scenario.status="runnable"` plus `liveRunSafety.classification="k6-runnable"`.
 

@@ -5,9 +5,9 @@
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
-  "transport": "websocket",
+  "transport": "process-local",
   "toolSurface": "typed-tool",
-  "mutates": true,
+  "mutates": false,
   "timeoutSeconds": 90,
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
@@ -15,46 +15,41 @@
   },
   "scenario": {
     "name": "r-cw-5-cost-cap-reject",
-    "description": "Cost-cap exhaustion requires an isolated config-mutation fixture that lowers costCapTokens, observes the dispatch rejection, and restores state.",
-    "methods": ["tools.invoke", "config.patch", "config.restore"],
+    "description": "Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
+    "methods": ["runAgentAttempt", "continueWorkOpts.requestContinuation", "TaskFlow.assert-no-row"],
     "status": "scaffold",
     "expectedFile": "r-cw-5-cost-cap-reject.js",
-    "registryNotes": "The scaffold intentionally cannot run until an explicitly authorized fixture implements backup/lower/fire/restore receipts."
+    "registryNotes": "The legacy k6 scenario remains fail-closed: it cannot invoke continue_work through WebSocket/MCP and must not mutate shared config. Use run-cost-cap-fixture.mjs; see docs/R-CW-5-ISOLATED-TOOL-SURFACE.md."
   },
   "invocation": {
     "tool": "continue_work",
     "delaySeconds": 1,
     "reason": "k6-proof-R-CW-5-cost-cap-{{nonce}}",
     "idempotencyKeyPrefix": "R-CW-5",
-    "configOverride": {
-      "path": "agents.defaults.continuation.costCapTokens",
-      "testValue": 1,
-      "restoreAfter": true,
-      "testValueEnv": "OPENCLAW_K6_COST_CAP_TEST_VALUE",
-      "defaultTestValue": "1"
-    }
+    "fixture": "tools/k6-proofs/scripts/run-cost-cap-fixture.mjs",
+    "fixtureCap": 100,
+    "fixtureState": "temporary session store seeded with accumulatedChainTokens=101"
   },
   "expectedReceipts": [
-    {"name":"seat-readiness-continuation-enabled","required":true,"description":"Precursor receipt proves continuation defaults before fixture mutation."},
-    {"name":"original-config-captured","required":true,"description":"The original costCapTokens value is retained for restoration."},
-    {"name":"failure-safe-restore-armed","required":true,"description":"A restore guard is armed before mutation."},
-    {"name":"config-lowered","required":true,"description":"The fixture records its row-local low cap."},
-    {"name":"tool-invoke-rejected","required":true,"description":"continue_work rejects at the exhausted cost cap."},
-    {"name":"config-restored","required":true,"description":"The original cap is restored even after failure."}
+    {"name":"fixture-readiness","required":true,"description":"Exact source/SHA, installed dependencies, and zero production mutation are proven before execution."},
+    {"name":"boundary-matrix","required":true,"description":"Below/equal/over cap results are null/null/cost-capped at the production budget predicate."},
+    {"name":"typed-tool-surface","required":true,"description":"The real attempt runner receives two typed continue_work callbacks and creates no durable work when over cap."},
+    {"name":"dispatch-boundary-suite","required":true,"description":"Production dispatcher asserts no rejected-hop spawn and failed-flow persistence."},
+    {"name":"cleanup","required":true,"description":"Disposable worktree is removed and no production config/state/source mutation occurred."}
   ],
   "artifactDestination": {"root":"PROOFS","sha":"${OPENCLAW_CANDIDATE_SHA}","row":"R-CW-5","seat":"${OPENCLAW_SEAT_NAME:-cael-dgx}","runDirPrefix":"k6-run"},
-  "review": {"candidateOnly":true,"foldRequiresReview":true,"notes":"This is the live cap-exhaustion claim. It is not proven by static checks."},
+  "review": {"candidateOnly":true,"foldRequiresReview":true,"notes":"This is an exact-candidate process-local typed-tool claim. It is not an external gateway invocation and is not promoted automatically."},
   "liveRunSafety": {
     "classification": "orchestration-required",
-    "requiresLiveGatewayToken": true,
+    "requiresLiveGatewayToken": false,
     "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
-    "requiresExternalAgentOrToolInvocation": true,
-    "requiresHumanConfirmation": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
     "sameSessionConcurrencySafe": false,
     "expectedArtifactClass": "PARTIAL-candidate",
-    "requiredReceipts": ["seat-readiness-continuation-enabled","original-config-captured","failure-safe-restore-armed","config-lowered","tool-invoke-rejected","config-restored"],
+    "requiredReceipts": ["fixture-readiness","boundary-matrix","typed-tool-surface","dispatch-boundary-suite","cleanup"],
     "foldRequiresReview": true,
-    "notes": "Fail closed until a separately authorized disposable fixture captures the complete mutation and restoration chain."
+    "notes": "Fail closed for k6/WebSocket: continue_work is internal-only. The supported path is the process-local exact-candidate fixture described in docs/R-CW-5-ISOLATED-TOOL-SURFACE.md; review remains mandatory before corpus promotion."
   }
 }

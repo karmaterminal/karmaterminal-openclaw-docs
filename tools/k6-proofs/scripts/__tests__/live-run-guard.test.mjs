@@ -114,8 +114,22 @@ test('read-only preflight uses the supported live k6 runner contract', async () 
   assert.equal(parsed.requiresExternalAgentOrToolInvocation, false);
 });
 
-test('R-CW cap rows stay fixture-gated while static variants cannot certify them', async () => {
-  for (const manifestName of ['r-cw-5.json', 'r-cw-6.json']) {
+test('R-CW-5 stays process-local and fail-closed rather than using a shared gateway config mutation', async () => {
+  const manifestPath = join(repoRoot, 'tools/k6-proofs/manifests/r-cw-5.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  assert.equal(manifest.mutates, false);
+  assert.equal(manifest.transport, 'process-local');
+  assert.equal(manifest.scenario.status, 'scaffold');
+  assert.equal(manifest.liveRunSafety.classification, 'orchestration-required');
+  assert.equal(manifest.liveRunSafety.expectedArtifactClass, 'PARTIAL-candidate');
+  assert.equal(manifest.liveRunSafety.requiresLiveGatewayToken, false);
+  const run = runGuard(manifestPath);
+  assert.equal(run.status, 1, `${manifest.rowId} unexpectedly passed: ${run.stdout}`);
+  assert.match(run.stdout, /orchestration-required is not directly runnable/);
+});
+
+test('R-CW-6 stays fixture-gated while static variants cannot certify it', async () => {
+  for (const manifestName of ['r-cw-6.json']) {
     const manifestPath = join(repoRoot, 'tools/k6-proofs/manifests', manifestName);
     const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
     assert.equal(manifest.mutates, true);

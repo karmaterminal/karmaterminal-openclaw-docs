@@ -1,7 +1,7 @@
 # R-CW-5 remediation receipt — 2026-07-17
 
 - **Candidate:** `6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d`
-- **Harness change:** docs PR #430 (`92192a712856a056f996a53706868b6d7fa007fe`)
+- **Harness change:** docs PR #430 (`cd7946259c2f97bfb1aa406f9f3da23d4868d3aa`)
 - **Result:** `PASS-candidate` for the isolated typed-tool boundary fixture
 - **Canonical state:** remains `missing` until PR review and an explicit corpus disposition; this receipt does not rewrite the original skipped live run.
 
@@ -12,7 +12,7 @@ The fixture was run from a clean checkout of PR #430 against the exact candidate
 ```text
 node --test tools/k6-proofs/scripts/__tests__/cost-cap-fixture.test.mjs \
   tools/k6-proofs/scripts/__tests__/live-run-guard.test.mjs
-# 9 passed, 0 failed
+# 11 passed, 0 failed
 
 node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \
   --source-dir <exact-6ee7eca-source> \
@@ -20,6 +20,13 @@ node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \
   --artifact-dir <temporary-artifact-dir> --cap 100 --json
 # PASS-candidate
 ```
+
+Before executing the production-module matrix and before emitting the final
+cleanup/result receipts, the fixture requires an empty
+`git status --porcelain --untracked-files=no` for the exact candidate source.
+Its regression creates both unstaged and staged edits to a tracked scheduler
+file and proves each is rejected. A matching `HEAD` alone is therefore not
+enough to certify the candidate.
 
 The fixture's required receipt set was complete:
 

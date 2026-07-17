@@ -453,6 +453,21 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 
 `R-CW-5` and `R-CW-6` are also excluded from `--live-suite`: they remain fixture-gated live cap rows. `R-CW-5A` and `R-CW-6A` are their static source/harness boundary checks; they emit only `construct-only`, never live R-CW-5/6 PASS evidence.
 
+### R-CW-5 isolated cost-cap fixture
+
+`tools/k6-proofs/scripts/run-cost-cap-fixture.mjs` is the safe runnable
+component fixture for `R-CW-5`. It requires an exact-candidate source
+worktree with dependencies already present, refuses to install dependencies,
+and writes only to an explicit artifact directory. It evaluates the exact
+production `checkContinuationBudget` module at below/equal/over cap, then
+runs the production dispatcher boundary suite to prove the over-cap hop does
+not spawn and its flow is failed. It records readiness and cleanup receipts.
+
+This is **not** a live-gateway promotion: it does not create a gateway or
+modify fleet config/state. The live row remains fixture-gated until a
+separate isolated-gateway orchestration can supply the same receipts through
+the full tool surface.
+
 Future manifests may again be `scaffold`, `construct-only`, or `orchestration-required`. Such rows are tracked, but not workflow-runnable until a matching scenario exists and the manifest is promoted to `scenario.status="runnable"` plus `liveRunSafety.classification="k6-runnable"`.
 
 ## Guardrails

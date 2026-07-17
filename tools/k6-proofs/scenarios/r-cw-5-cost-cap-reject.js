@@ -6,11 +6,12 @@
  * restores the original config. It intentionally remains scaffold-only because
  * it mutates live gateway configuration.
  *
- * Required before runnable promotion:
- * - explicit OPENCLAW_ALLOW_CONFIG_MUTATION=true gate
- * - config backup/restore receipts
- * - failure-safe restore on k6 abort
- * - preferably an isolated test gateway fixture, not a live prince
+ * The safe executable fixture lives in
+ * `tools/k6-proofs/scripts/run-cost-cap-fixture.mjs`. It runs the exact
+ * candidate's production budget module plus the dispatcher boundary suite
+ * from a source-only worktree and writes cleanup receipts. This k6 entry
+ * remains intentionally non-runnable: k6 cannot safely create the required
+ * isolated runtime state itself.
  */
 export const options = {
   scenarios: {
@@ -24,5 +25,5 @@ export const options = {
 };
 
 export default function () {
-  throw new Error('R-CW-5 is scaffold-only; config-mutating cost-cap fixture not implemented.');
+  throw new Error('R-CW-5 is fixture-gated; run tools/k6-proofs/scripts/run-cost-cap-fixture.mjs against an exact-candidate source worktree.');
 }

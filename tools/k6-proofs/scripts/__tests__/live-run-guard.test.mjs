@@ -96,7 +96,7 @@ test('live-run guard still permits ordinary k6-runnable manifests with required 
   assert.equal(run.status, 0, run.stderr || run.stdout);
   const parsed = JSON.parse(run.stdout);
   assert.equal(parsed.ok, true);
-  assert.equal(parsed.rowId, 'R-CONFIG-defaults');
+  assert.equal(parsed.rowId, 'R-CONFIG-DEFAULTS');
   assert.equal(parsed.classification, 'k6-runnable');
 });
 

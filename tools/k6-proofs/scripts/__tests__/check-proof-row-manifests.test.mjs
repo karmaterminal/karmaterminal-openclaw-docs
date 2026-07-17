@@ -69,4 +69,17 @@ test('fails closed for missing, invalid, and duplicate manifests', async (t) => 
       assert.match(result.stderr, /duplicate manifest row IDs: R-OK/);
     });
   });
+
+  await t.test('case-mismatched row ID', async () => {
+    await withFixture({ rows: ['R-CONFIG-DEFAULTS'], manifests: [
+      { file: 'r-config-defaults.json', rowId: 'R-CONFIG-defaults' },
+    ] }, async (root) => {
+      const result = run(root);
+      assert.notEqual(result.status, 0);
+      assert.match(
+        result.stderr,
+        /proof row\/manifest ID case mismatches: R-CONFIG-DEFAULTS != R-CONFIG-defaults/,
+      );
+    });
+  });
 });

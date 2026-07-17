@@ -1,5 +1,5 @@
 /**
- * Scenario: R-CONFIG-defaults — direct, read-only operator-RPC receipt.
+ * Scenario: R-CONFIG-DEFAULTS — direct, read-only operator-RPC receipt.
  *
  * This row intentionally exercises Gateway's `config.get` RPC at its real
  * operator surface. It must not ask a disposable agent to invoke the
@@ -45,7 +45,7 @@ export default function () {
   }
 
   const evidence = {
-    row: 'R-CONFIG-defaults', manifest_loaded: !!manifest, seat,
+    row: 'R-CONFIG-DEFAULTS', manifest_loaded: !!manifest, seat,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
     rpc: { method: 'config.get', operator_surface: true, response_ok: false,
@@ -97,13 +97,13 @@ export default function () {
     'all continuation defaults observed': () => evidence.enabled !== null && evidence.max_chain_length !== null && evidence.max_delegates_per_turn !== null && evidence.cost_cap_tokens !== null,
   });
   if (!evidence.config_read) failures.add(1);
-  console.log('\n--- R-CONFIG-defaults EVIDENCE SUMMARY ---');
+  console.log('\n--- R-CONFIG-DEFAULTS EVIDENCE SUMMARY ---');
   console.log(JSON.stringify(evidence, null, 2));
   console.log('--- END EVIDENCE ---');
-  console.log(`\n[R-CONFIG-defaults] VERDICT: ${evidence.config_read ? 'PASS-candidate' : 'PARTIAL-candidate'}`);
+  console.log(`\n[R-CONFIG-DEFAULTS] VERDICT: ${evidence.config_read ? 'PASS-candidate' : 'PARTIAL-candidate'}`);
 }
 
 export function handleSummary(data) {
   const passRate = data.metrics.proof_failures?.values?.count === 0;
-  return { stdout: `\n[R-CONFIG-defaults] Summary: ${passRate ? 'PASS-candidate' : 'PARTIAL-candidate'} | SHA: ${__ENV.OPENCLAW_CANDIDATE_SHA || 'unset'} | Seat: ${__ENV.OPENCLAW_SEAT_NAME || 'unknown-seat'}\n` };
+  return { stdout: `\n[R-CONFIG-DEFAULTS] Summary: ${passRate ? 'PASS-candidate' : 'PARTIAL-candidate'} | SHA: ${__ENV.OPENCLAW_CANDIDATE_SHA || 'unset'} | Seat: ${__ENV.OPENCLAW_SEAT_NAME || 'unknown-seat'}\n` };
 }

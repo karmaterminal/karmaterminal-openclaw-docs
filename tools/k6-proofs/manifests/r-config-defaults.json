@@ -1,6 +1,6 @@
 {
   "schema": "openclaw.k6.proof-row-manifest.v1",
-  "rowId": "R-CONFIG-defaults",
+  "rowId": "R-CONFIG-DEFAULTS",
   "issue": 104,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
@@ -33,7 +33,7 @@
   "artifactDestination": {
     "root": "PROOFS",
     "sha": "${OPENCLAW_CANDIDATE_SHA}",
-    "row": "R-CONFIG-defaults",
+    "row": "R-CONFIG-DEFAULTS",
     "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
     "runDirPrefix": "k6-run"
   },

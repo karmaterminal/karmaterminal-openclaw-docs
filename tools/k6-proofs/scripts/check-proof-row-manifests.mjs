@@ -46,6 +46,12 @@ if (!failures.length) {
 const proofRowUpperSet = new Set(proofRows.map((r) => r.toUpperCase()));
 const manifestByUpper = new Map(manifestRows.map((row) => [row.rowId.toUpperCase(), row]));
 const missing = proofRows.filter((row) => !manifestByUpper.has(row.toUpperCase()));
+const caseMismatches = proofRows.flatMap((row) => {
+  const manifest = manifestByUpper.get(row.toUpperCase());
+  return manifest && manifest.rowId !== row
+    ? [`${row} != ${manifest.rowId} (${manifest.file})`]
+    : [];
+});
 const duplicateManifestRows = [...manifestRows.reduce((byRow, row) => {
   const key = row.rowId.toUpperCase();
   const entries = byRow.get(key) ?? [];
@@ -57,7 +63,7 @@ const duplicateManifestRows = [...manifestRows.reduce((byRow, row) => {
   .map(([rowId, files]) => `${rowId} (${files.join(', ')})`);
 
 // Manifest-only rows: in the manifest catalog but not yet in the canonical proof
-// board corpus (e.g. model-override rows, R-CW-4, R-OBS-status, or static boundary
+// board corpus (e.g. model-override rows, R-CW-4, R-OBS-STATUS, or static boundary
 // checks). These are intentional catalog entries, not proof-corpus gaps.
 const manifestOnly = manifestRows.filter(
   (row) => row.rowId !== 'preflight' && !proofRowUpperSet.has(row.rowId.toUpperCase()),
@@ -65,6 +71,9 @@ const manifestOnly = manifestRows.filter(
 
 if (missing.length) {
   failures.push(`proof rows missing manifest entries: ${missing.join(', ')}`);
+}
+if (caseMismatches.length) {
+  failures.push(`proof row/manifest ID case mismatches: ${caseMismatches.join('; ')}`);
 }
 if (duplicateManifestRows.length) {
   failures.push(`duplicate manifest row IDs: ${duplicateManifestRows.join('; ')}`);

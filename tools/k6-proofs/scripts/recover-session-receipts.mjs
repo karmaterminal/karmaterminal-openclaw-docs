@@ -107,7 +107,7 @@ function evaluate(row, nonce, messages) {
     .map(toolResultObject)
     .filter((obj) => obj && obj.status === 'scheduled');
 
-  if (row === 'R-CONFIG-defaults') {
+  if (row === 'R-CONFIG-DEFAULTS') {
     const configToolCalls = messages.flatMap(toolCalls).filter((c) => c.name === 'gateway');
     const configToolResults = messages
       .map(toolResultObject)

@@ -1,6 +1,6 @@
 {
   "schema": "openclaw.k6.proof-row-manifest.v1",
-  "rowId": "R-OBS-status",
+  "rowId": "R-OBS-STATUS",
   "issue": 104,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-emeric-nuc}",
@@ -47,7 +47,7 @@
   "artifactDestination": {
     "root": "PROOFS",
     "sha": "${OPENCLAW_CANDIDATE_SHA}",
-    "row": "R-OBS-status",
+    "row": "R-OBS-STATUS",
     "seat": "${OPENCLAW_SEAT_NAME:-emeric-nuc}",
     "runDirPrefix": "k6-run"
   },

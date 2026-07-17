@@ -1,5 +1,5 @@
 /**
- * R-OBS-status — exact-candidate contract for #1172's continuation status row.
+ * R-OBS-STATUS — exact-candidate contract for #1172's continuation status row.
  *
  * This intentionally does not call the gateway `status` RPC: that endpoint
  * proves transport health, not the user-visible status-text behavior fixed by
@@ -74,7 +74,7 @@ export default function () {
     'karmaterminal/openclaw';
   const started = Date.now();
   const evidence = {
-    row: 'R-OBS-status',
+    row: 'R-OBS-STATUS',
     candidate_sha: candidateSha,
     source_repository: sourceRepo,
     source_path: sourcePath,
@@ -89,7 +89,7 @@ export default function () {
   let preconditionFailed = false;
 
   if (!/^[0-9a-f]{40}$/.test(candidateSha)) {
-    fail(`R-OBS-status requires a 40-character candidate SHA, got ${JSON.stringify(candidateSha)}`);
+    fail(`R-OBS-STATUS requires a 40-character candidate SHA, got ${JSON.stringify(candidateSha)}`);
     preconditionFailed = true;
   }
   if (manifest) {
@@ -164,7 +164,7 @@ export function handleSummary(data) {
   const failuresCount = failureMetric ? failureMetric.count : 0;
   return {
     'r-obs-status-summary.json': JSON.stringify({
-      row: 'R-OBS-status',
+      row: 'R-OBS-STATUS',
       sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
       verdict: failuresCount === 0 ? 'PASS-candidate' : 'BAD_PROOF',
       contract: 'issue-1172-continuation-status-line',

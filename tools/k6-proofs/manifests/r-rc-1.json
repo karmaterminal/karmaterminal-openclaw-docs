@@ -4,7 +4,7 @@
   "issue": 104,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
-  "sessionKey": "${OPENCLAW_SESSION_KEY:***-rc-reject}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-r-rc-reject}",
   "transport": "websocket",
   "toolSurface": "typed-tool",
   "mutates": false,
@@ -14,8 +14,9 @@
     "description": "request_compaction below-threshold structured reject via disposable session/inventory-only path",
     "methods": [
       "sessions.create",
-      "sessions.send",
-      "sessions.messages.subscribe"
+      "tools.effective",
+      "sessions.messages.subscribe",
+      "sessions.send"
     ],
     "status": "runnable",
     "file": "r-rc-1-threshold-reject.js"
@@ -27,7 +28,7 @@
     {
       "name": "tool-invoke-rejected",
       "required": true,
-      "description": "Gateway rejected request_compaction due to <70% threshold or rate limit"
+      "description": "Authoritative request_compaction toolResult returned status=rejected and guard=context_threshold"
     },
     {
       "name": "tempo-trace-json",
@@ -50,7 +51,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Threshold Reject. Validates compaction gating. Safe to run: mutates=false. Disposable-session k6 path may report inventory-only unknown numeric context/threshold; guard=context_threshold is the required receipt."
+    "notes": "Threshold Reject. Validates typed-tool registration plus the exact structured toolResult rejection. Safe to run: mutates=false. Assistant sentinel prose is diagnostic only and cannot satisfy the row."
   },
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
@@ -71,6 +72,6 @@
     "tool-trace-correlation"
     ],
     "foldRequiresReview": true,
-    "notes": "Live request_compaction reject row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Expected rejection is non-mutating; serialize per target session."
+    "notes": "Live request_compaction reject row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Requires tools.effective registration and an authoritative role=toolResult context_threshold rejection; assistant prose cannot pass the row."
   }
 }

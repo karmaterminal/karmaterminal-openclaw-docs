@@ -157,6 +157,96 @@ test('ignores a newer unrelated result and returns the result linked to the curr
   assert.equal(result.nonceBound, true);
 });
 
+test('fails closed when the current nonce appears in two distinct request_compaction invocations', () => {
+  const rowNonce = 'R-RC-1-current';
+  const receipt = { status: 'rejected', guard: 'context_threshold' };
+  assert.deepEqual(findRequestCompactionReceipt([
+    {
+      role: 'assistant',
+      content: [{
+        type: 'toolCall',
+        id: 'call-first',
+        name: 'request_compaction',
+        arguments: { reason: `proof ${rowNonce}` },
+      }],
+    },
+    {
+      role: 'toolResult',
+      toolName: 'request_compaction',
+      toolCallId: 'call-first',
+      content: [{ type: 'text', text: JSON.stringify(receipt) }],
+    },
+    {
+      role: 'assistant',
+      content: [{
+        type: 'toolCall',
+        id: 'call-second',
+        name: 'request_compaction',
+        arguments: { reason: `retry ${rowNonce}` },
+      }],
+    },
+  ], { rowNonce }), { kind: 'missing' });
+});
+
+test('fails closed when a repeated current-nonce invocation has a non-threshold result', () => {
+  const rowNonce = 'R-RC-1-current';
+  assert.deepEqual(findRequestCompactionReceipt([
+    {
+      role: 'assistant',
+      content: [{
+        type: 'toolCall',
+        id: 'call-first',
+        name: 'request_compaction',
+        arguments: { reason: `proof ${rowNonce}` },
+      }],
+    },
+    {
+      role: 'toolResult',
+      toolName: 'request_compaction',
+      toolCallId: 'call-first',
+      content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', guard: 'context_threshold' }) }],
+    },
+    {
+      role: 'assistant',
+      content: [{
+        type: 'toolCall',
+        id: 'call-second',
+        name: 'request_compaction',
+        arguments: { reason: `retry ${rowNonce}` },
+      }],
+    },
+    {
+      role: 'toolResult',
+      toolName: 'request_compaction',
+      toolCallId: 'call-second',
+      content: [{ type: 'text', text: JSON.stringify({ status: 'compaction_requested' }) }],
+    },
+  ], { rowNonce }), { kind: 'missing' });
+});
+
+test('accepts duplicate transcript copies of the same current invocation id', () => {
+  const rowNonce = 'R-RC-1-current';
+  const call = {
+    type: 'toolCall',
+    id: 'call-current',
+    name: 'request_compaction',
+    arguments: { reason: `proof ${rowNonce}` },
+  };
+  const receipt = { status: 'rejected', guard: 'context_threshold' };
+  const result = findRequestCompactionReceipt([
+    { role: 'assistant', content: [call] },
+    { role: 'assistant', content: [{ ...call }] },
+    {
+      role: 'toolResult',
+      toolName: 'request_compaction',
+      toolCallId: 'call-current',
+      content: [{ type: 'text', text: JSON.stringify(receipt) }],
+    },
+  ], { rowNonce });
+  assert.equal(result.kind, 'threshold_rejected');
+  assert.equal(result.toolCallId, 'call-current');
+});
+
 test('fails closed on accepted, wrong-guard, and unstructured tool results', () => {
   assert.equal(classifyRequestCompactionReceipt({
     message: {

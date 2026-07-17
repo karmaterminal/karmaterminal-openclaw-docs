@@ -53,6 +53,8 @@ function toolCallArguments(part) {
 
 export function requestCompactionToolCallIdForNonce(messages, rowNonce) {
   if (typeof rowNonce !== 'string' || !rowNonce) return null;
+  const matchingCallIds = new Set();
+  let unidentifiedMatch = false;
   for (const message of Array.isArray(messages) ? messages : []) {
     if (message?.role !== 'assistant' || !Array.isArray(message.content)) continue;
     for (const part of message.content) {
@@ -60,11 +62,13 @@ export function requestCompactionToolCallIdForNonce(messages, rowNonce) {
       if ((part.name || part.toolName) !== 'request_compaction') continue;
       const reason = toolCallArguments(part)?.reason;
       if (typeof reason === 'string' && reason.includes(rowNonce)) {
-        return typeof part.id === 'string' && part.id ? part.id : null;
+        if (typeof part.id === 'string' && part.id) matchingCallIds.add(part.id);
+        else unidentifiedMatch = true;
       }
     }
   }
-  return null;
+  if (unidentifiedMatch || matchingCallIds.size !== 1) return null;
+  return [...matchingCallIds][0];
 }
 
 /**

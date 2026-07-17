@@ -125,6 +125,21 @@ export function assertSource(sourceDir, candidateSha) {
 
 export function prepareArtifactDir(input) {
   const artifactDir = path.resolve(input);
+  // `mkdir({ recursive: true })` follows a symlink in an existing ancestor.
+  // Checking only an existing final directory would therefore let a caller
+  // place a fresh receipt under a symlinked parent. Walk every existing path
+  // component before making the directory so the private receipt boundary
+  // cannot be redirected through an indirect path.
+  const parsed = path.parse(artifactDir);
+  let componentPath = parsed.root;
+  for (const component of path.relative(parsed.root, artifactDir).split(path.sep)) {
+    if (!component) continue;
+    componentPath = path.join(componentPath, component);
+    if (!existsSync(componentPath)) break;
+    if (lstatSync(componentPath).isSymbolicLink()) {
+      throw new Error('artifact dir path must not contain a symlink component');
+    }
+  }
   if (existsSync(artifactDir)) {
     const stats = lstatSync(artifactDir);
     if (!stats.isDirectory() || stats.isSymbolicLink()) {

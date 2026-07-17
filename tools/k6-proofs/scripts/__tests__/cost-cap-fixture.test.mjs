@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { assertSource, parseArgs, prepareArtifactDir } from '../run-cost-cap-fixture.mjs';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { assertSource, assertTrackedSourceClean, parseArgs, prepareArtifactDir } from '../run-cost-cap-fixture.mjs';
+import { mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
@@ -47,6 +47,15 @@ test('R-CW-5 fixture refuses to overwrite or expose an artifact directory', asyn
 
   const fresh = path.join(root, 'fresh');
   assert.equal(prepareArtifactDir(fresh), fresh);
+
+  const privateParent = path.join(root, 'private-parent');
+  const linkedParent = path.join(root, 'linked-parent');
+  await mkdir(privateParent, { mode: 0o700 });
+  await symlink(privateParent, linkedParent);
+  assert.throws(
+    () => prepareArtifactDir(path.join(linkedParent, 'new-artifacts')),
+    /must not contain a symlink component/,
+  );
 });
 
 test('R-CW-5 fixture refuses staged or unstaged tracked candidate changes', async () => {
@@ -63,6 +72,8 @@ test('R-CW-5 fixture refuses staged or unstaged tracked candidate changes', asyn
   execFileSync('git', ['commit', '-m', 'candidate'], { cwd: source, stdio: 'ignore' });
   const candidateSha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: source, encoding: 'utf8' }).trim();
 
+  assert.doesNotThrow(() => assertSource(source, candidateSha));
+
   await writeFile(path.join(source, 'src/auto-reply/continuation/scheduler.ts'), 'export const clean = false;\n');
   assert.throws(
     () => assertSource(source, candidateSha),
@@ -73,6 +84,10 @@ test('R-CW-5 fixture refuses staged or unstaged tracked candidate changes', asyn
   assert.throws(
     () => assertSource(source, candidateSha),
     /tracked staged or unstaged changes/,
+  );
+  assert.throws(
+    () => assertTrackedSourceClean(source, 'final cleanup/result receipt'),
+    /before final cleanup\/result receipt/,
   );
 });
 

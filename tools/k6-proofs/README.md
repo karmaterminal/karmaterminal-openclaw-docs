@@ -468,6 +468,31 @@ modify fleet config/state. The live row remains fixture-gated until a
 separate isolated-gateway orchestration can supply the same receipts through
 the full tool surface.
 
+#### Runtime trace packet
+
+The fixture is deliberately anchored at the exact candidate rather than a
+copy of its cap predicate. On `6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d`,
+GitNexus maps `checkContinuationBudget` to three direct callers:
+`dispatchToolDelegates`, `dispatchStagedPostCompactionDelegates`, and
+`scheduleContinuationWork`. Its impact walk also reaches child-queue drain
+and delegate recovery paths. This is why the fixture covers both the
+production predicate and the dispatcher boundary; a change to the shared
+check has a continuation-wide blast radius, not only a single k6 row.
+
+Capture the trace packet against the candidate before reviewing a run:
+
+```bash
+gitnexus query --repo openclaw-6ee7eca \
+  'checkContinuationBudget accumulatedChainTokens cost cap'
+gitnexus context --repo openclaw-6ee7eca checkContinuationBudget
+gitnexus impact --repo openclaw-6ee7eca checkContinuationBudget
+```
+
+The expected component receipt shape at `--cap 100` is `99: allow`,
+`100: allow`, `101: cost-capped`, plus dispatcher assertions for over-cap
+no-spawn and failed-flow persistence. A component PASS-candidate never
+reclassifies the live row as PASS.
+
 Future manifests may again be `scaffold`, `construct-only`, or `orchestration-required`. Such rows are tracked, but not workflow-runnable until a matching scenario exists and the manifest is promoted to `scenario.status="runnable"` plus `liveRunSafety.classification="k6-runnable"`.
 
 ## Guardrails

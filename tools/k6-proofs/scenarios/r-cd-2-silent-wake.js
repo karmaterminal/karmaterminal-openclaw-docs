@@ -112,6 +112,7 @@ export default function () {
     row: 'R-CD-2',
     manifest_loaded: !!manifest,
     nonce: rowNonce,
+    row_nonce_fingerprint: crypto.sha256(rowNonce, 'hex').slice(0, 16),
     seat,
     sessionKey,
     requestedSessionKey,

@@ -26,6 +26,7 @@ function evidence(overrides = {}) {
     wake_same_run: true, post_wake_quiet: true,
     channel_delivery_observed: false, dispatch_failure_observed: false,
     send_run_fingerprint: run, terminal_run_fingerprint: run, wake_run_fingerprint: run,
+    row_nonce_fingerprint: 'e'.repeat(16),
     accepted_send_trace_id: 'b'.repeat(32),
     ...overrides,
   };
@@ -37,6 +38,11 @@ function correlation(overrides = {}) {
     typedToolObserved: true, dispatchObserved: true, fireObserved: true,
     traceId: 'b'.repeat(32), chainId: 'private-chain-id',
     dispatchSpanId: 'c'.repeat(16), fireSpanId: 'd'.repeat(16),
+    rowBinding: {
+      acceptedSendRunFingerprint: run,
+      nonceFingerprint: 'e'.repeat(16),
+      acceptedSendTraceId: 'b'.repeat(32),
+    },
     ...overrides,
   };
 }
@@ -64,6 +70,20 @@ test('R-CD-2 rejects individually valid lifecycle and topology receipts from dif
   });
   assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'send-topology-mismatch']);
   assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true);
+});
+
+test('R-CD-2 rejects a same-trace/chain topology with another row run or nonce', () => {
+  for (const rowBinding of [
+    { acceptedSendRunFingerprint: 'f'.repeat(16), nonceFingerprint: 'e'.repeat(16), acceptedSendTraceId: 'b'.repeat(32) },
+    { acceptedSendRunFingerprint: run, nonceFingerprint: 'f'.repeat(16), acceptedSendTraceId: 'b'.repeat(32) },
+  ]) {
+    const receipt = resolveRcd2AuthoritativeReceipt({
+      evidence: evidence(),
+      correlation: correlation({ rowBinding }),
+      signingKey,
+    });
+    assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'send-topology-mismatch']);
+  }
 });
 
 test('R-CD-2 rejects replay failure, wrong mode, and mismatched trace topology', () => {

@@ -56,6 +56,7 @@ function evidencePasses(evidence) {
     evidence?.channel_delivery_observed === false &&
     evidence?.dispatch_failure_observed !== true &&
     hex(evidence?.send_run_fingerprint, 16) &&
+    hex(evidence?.row_nonce_fingerprint, 16) &&
     evidence.send_run_fingerprint === evidence.terminal_run_fingerprint &&
     evidence.send_run_fingerprint === evidence.wake_run_fingerprint &&
     hex(evidence?.accepted_send_trace_id, 32);
@@ -69,13 +70,27 @@ function topologyPasses(correlation) {
     correlation?.dispatchObserved === true && correlation?.fireObserved === true &&
     hex(correlation?.traceId, 32) && typeof correlation?.chainId === 'string' && correlation.chainId.length > 0 &&
     hex(correlation?.dispatchSpanId, 16) && hex(correlation?.fireSpanId, 16) &&
-    correlation.dispatchSpanId !== correlation.fireSpanId;
+    correlation.dispatchSpanId !== correlation.fireSpanId &&
+    hex(correlation?.rowBinding?.acceptedSendRunFingerprint, 16) &&
+    hex(correlation?.rowBinding?.nonceFingerprint, 16) &&
+    hex(correlation?.rowBinding?.acceptedSendTraceId, 32);
 }
 
 // The accepted sessions.send response is the authority for this row's turn.
 // Do not combine its lifecycle with a separately-valid continuation trace.
 function sameAcceptedTrace(evidence, correlation) {
   return evidence?.accepted_send_trace_id === correlation?.traceId;
+}
+
+// A matching Tempo trace alone is not a sufficient join: a reused/shared
+// trace could otherwise splice one accepted sessions.send lifecycle to a
+// different row's continuation topology. The collector copies only opaque
+// fingerprints from the private row evidence after it validates the trace's
+// nonce-derived reason contract. Require all three identities here.
+function sameRowBinding(evidence, correlation) {
+  return evidence?.send_run_fingerprint === correlation?.rowBinding?.acceptedSendRunFingerprint &&
+    evidence?.row_nonce_fingerprint === correlation?.rowBinding?.nonceFingerprint &&
+    evidence?.accepted_send_trace_id === correlation?.rowBinding?.acceptedSendTraceId;
 }
 
 function categoryFor(evidence, correlation) {
@@ -85,7 +100,7 @@ function categoryFor(evidence, correlation) {
     return evidence?.send_run_mismatch ? 'send-run-mismatch' : 'missing-send-run-lifecycle';
   }
   if (!correlation) return 'missing-continuation-topology';
-  if (!sameAcceptedTrace(evidence, correlation)) return 'send-topology-mismatch';
+  if (!sameAcceptedTrace(evidence, correlation) || !sameRowBinding(evidence, correlation)) return 'send-topology-mismatch';
   return 'invalid-continuation-topology';
 }
 
@@ -102,6 +117,7 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
         terminal: evidence?.terminal_run_fingerprint || null,
         wake: evidence?.wake_run_fingerprint || null,
         acceptedSendTrace: evidence?.accepted_send_trace_id || null,
+        nonce: evidence?.row_nonce_fingerprint || null,
         terminalSuccess: evidence?.terminal_success_same_run === true,
         typedDelegate: evidence?.typed_delegate_success_same_run === true,
         quiet: evidence?.post_wake_quiet === true,
@@ -114,11 +130,14 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
         fire: correlation?.fireSpanId || null,
         mode: correlation?.mode || null,
         acceptedSendTrace: evidence?.accepted_send_trace_id || null,
+        acceptedSendRun: correlation?.rowBinding?.acceptedSendRunFingerprint || null,
+        nonce: correlation?.rowBinding?.nonceFingerprint || null,
+        topologyAcceptedSendTrace: correlation?.rowBinding?.acceptedSendTraceId || null,
       }),
     },
   };
 
-  if (!evidencePasses(evidence) || !topologyPasses(correlation) || !sameAcceptedTrace(evidence, correlation)) {
+  if (!evidencePasses(evidence) || !topologyPasses(correlation) || !sameAcceptedTrace(evidence, correlation) || !sameRowBinding(evidence, correlation)) {
     return seal({ ...base, verdict: 'PARTIAL-candidate', failureCategory: categoryFor(evidence, correlation) }, signingKey);
   }
 
@@ -138,6 +157,8 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
       noChannelVerified: true,
       traceFingerprint: fingerprint(correlation.traceId),
       acceptedSendTraceFingerprint: fingerprint(evidence.accepted_send_trace_id),
+      acceptedSendRunFingerprint: fingerprint(evidence.send_run_fingerprint),
+      rowNonceFingerprint: fingerprint(evidence.row_nonce_fingerprint),
       chainFingerprint: fingerprint(correlation.chainId),
       delegateFingerprint: fingerprint(`${correlation.dispatchSpanId}:${correlation.fireSpanId}`),
     },
@@ -159,6 +180,7 @@ export function validateRcd2AuthoritativeReceipt(receipt, signingKey) {
     ['sameTrace', 'sameChain', 'typedToolObserved', 'dispatchObserved', 'fireObserved', 'terminalSuccessSameRun', 'unboundSessionVerified', 'noChannelVerified'].every((key) => life[key] === true) &&
     hex(life.traceFingerprint, 16) && hex(life.acceptedSendTraceFingerprint, 16) &&
     life.traceFingerprint === life.acceptedSendTraceFingerprint &&
+    hex(life.acceptedSendRunFingerprint, 16) && hex(life.rowNonceFingerprint, 16) &&
     hex(life.chainFingerprint, 16) && hex(life.delegateFingerprint, 16);
   return pass ? { valid: true, verdict: receipt.verdict } : { valid: false, reason: 'invalid-pass-lifecycle' };
 }

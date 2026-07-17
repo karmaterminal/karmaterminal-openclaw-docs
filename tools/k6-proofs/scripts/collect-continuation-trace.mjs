@@ -423,6 +423,19 @@ async function main() {
             acceptSpan: contract.acceptSpanName,
             fireSpan: contract.fireSpanName,
           },
+          // R-CD-2's row resolver needs the same opaque row identity on both
+          // the accepted sessions.send lifecycle and the Tempo topology. The
+          // trace has already been selected by this evidence's nonce-derived
+          // reason hash; retain only fingerprints, never raw run IDs/nonces.
+          ...(evidence.row === 'R-CD-2'
+            ? {
+                rowBinding: {
+                  acceptedSendRunFingerprint: evidence.send_run_fingerprint || null,
+                  nonceFingerprint: evidence.row_nonce_fingerprint || null,
+                  acceptedSendTraceId: evidence.accepted_send_trace_id || null,
+                },
+              }
+            : {}),
           ...(contract.mode === undefined ? {} : { delegate: { mode: contract.mode } }),
           sameTrace: true,
           distinctSpans: true,

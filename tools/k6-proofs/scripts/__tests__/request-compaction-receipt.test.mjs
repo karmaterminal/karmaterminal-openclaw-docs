@@ -5,6 +5,7 @@ import {
   effectiveToolNames,
   findRequestCompactionReceipt,
   hasEffectiveTool,
+  requestCompactionToolCallIdForNonce,
 } from '../../lib/request-compaction-receipt.js';
 
 test('reads request_compaction from the effective tool inventory', () => {
@@ -60,11 +61,20 @@ test('does not accept assistant sentinel prose as a tool receipt', () => {
   }), { kind: 'unrelated' });
 });
 
-test('finds the authoritative receipt in a sessions.get transcript', () => {
+test('finds only the receipt bound to the current nonce-bearing tool call', () => {
+  const rowNonce = 'R-RC-1-current-nonce';
   const receipt = { status: 'rejected', guard: 'context_threshold' };
   const result = findRequestCompactionReceipt([
     { role: 'user', content: 'invoke it' },
-    { role: 'assistant', content: [{ type: 'toolCall', name: 'request_compaction' }] },
+    {
+      role: 'assistant',
+      content: [{
+        type: 'toolCall',
+        id: 'call-history',
+        name: 'request_compaction',
+        arguments: { reason: `proof ${rowNonce}` },
+      }],
+    },
     {
       role: 'toolResult',
       toolName: 'request_compaction',
@@ -72,12 +82,79 @@ test('finds the authoritative receipt in a sessions.get transcript', () => {
       content: [{ type: 'text', text: JSON.stringify(receipt) }],
     },
     { role: 'assistant', content: 'RC1-RESULT-OBSERVED' },
-  ]);
+  ], { rowNonce });
   assert.deepEqual(result, {
     kind: 'threshold_rejected',
     receipt,
     toolCallId: 'call-history',
+    nonceBound: true,
   });
+});
+
+test('extracts the current request_compaction tool-call id from its nonce-bearing arguments', () => {
+  assert.equal(requestCompactionToolCallIdForNonce([
+    {
+      role: 'assistant',
+      content: [{
+        type: 'toolCall',
+        id: 'call-current',
+        name: 'request_compaction',
+        arguments: JSON.stringify({ reason: 'proof R-RC-1-current' }),
+      }],
+    },
+  ], 'R-RC-1-current'), 'call-current');
+});
+
+test('rejects a prior valid result when the current nonce has no matching tool call/result', () => {
+  const priorReceipt = { status: 'rejected', guard: 'context_threshold' };
+  assert.deepEqual(findRequestCompactionReceipt([
+    {
+      role: 'assistant',
+      content: [{
+        type: 'toolCall',
+        id: 'call-prior',
+        name: 'request_compaction',
+        arguments: { reason: 'proof R-RC-1-prior' },
+      }],
+    },
+    {
+      role: 'toolResult',
+      toolName: 'request_compaction',
+      toolCallId: 'call-prior',
+      content: [{ type: 'text', text: JSON.stringify(priorReceipt) }],
+    },
+    { role: 'user', content: 'new proof R-RC-1-current' },
+    { role: 'assistant', content: 'RC1-RESULT-OBSERVED R-RC-1-current' },
+  ], { rowNonce: 'R-RC-1-current' }), { kind: 'missing' });
+});
+
+test('ignores a newer unrelated result and returns the result linked to the current call id', () => {
+  const receipt = { status: 'rejected', guard: 'context_threshold' };
+  const result = findRequestCompactionReceipt([
+    {
+      role: 'assistant',
+      content: [{
+        type: 'toolCall',
+        id: 'call-current',
+        name: 'request_compaction',
+        arguments: { reason: 'proof R-RC-1-current' },
+      }],
+    },
+    {
+      role: 'toolResult',
+      toolName: 'request_compaction',
+      toolCallId: 'call-current',
+      content: [{ type: 'text', text: JSON.stringify(receipt) }],
+    },
+    {
+      role: 'toolResult',
+      toolName: 'request_compaction',
+      toolCallId: 'call-stale',
+      content: [{ type: 'text', text: JSON.stringify(receipt) }],
+    },
+  ], { rowNonce: 'R-RC-1-current' });
+  assert.equal(result.toolCallId, 'call-current');
+  assert.equal(result.nonceBound, true);
 });
 
 test('fails closed on accepted, wrong-guard, and unstructured tool results', () => {

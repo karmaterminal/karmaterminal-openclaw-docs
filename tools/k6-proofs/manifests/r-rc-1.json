@@ -1,7 +1,7 @@
 {
   "schema": "openclaw.k6.proof-row-manifest.v1",
   "rowId": "R-RC-1",
-  "issue": 104,
+  "issue": 422,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-r-rc-reject}",
@@ -16,7 +16,8 @@
       "sessions.create",
       "tools.effective",
       "sessions.messages.subscribe",
-      "sessions.send"
+      "sessions.send",
+      "sessions.get"
     ],
     "status": "runnable",
     "file": "r-rc-1-threshold-reject.js"
@@ -26,19 +27,19 @@
   },
   "expectedReceipts": [
     {
+      "name": "tool-registered",
+      "required": true,
+      "description": "Direct tools.effective inventory contains request_compaction for the disposable session"
+    },
+    {
+      "name": "tool-invoked",
+      "required": true,
+      "description": "The current row nonce appears in a typed request_compaction invocation with a correlation ID"
+    },
+    {
       "name": "tool-invoke-rejected",
       "required": true,
-      "description": "Authoritative request_compaction toolResult returned status=rejected and guard=context_threshold"
-    },
-    {
-      "name": "tempo-trace-json",
-      "required": true,
-      "description": "Unique public-safe request_compaction tool trace recovered by seat, tool name, and the bounded row window"
-    },
-    {
-      "name": "tool-trace-correlation",
-      "required": true,
-      "description": "Deterministic receipt pins the exact request_compaction tool span and its non-error status"
+      "description": "Authoritative request_compaction toolResult is bound by toolCallId to this row's nonce-bearing invocation and returned status=rejected with guard=context_threshold"
     }
   ],
   "artifactDestination": {
@@ -51,7 +52,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Threshold Reject. Validates typed-tool registration plus the exact structured toolResult rejection. Safe to run: mutates=false. Assistant sentinel prose is diagnostic only and cannot satisfy the row."
+    "notes": "Threshold Reject. Validates direct typed-tool registration, this row's nonce-bearing invocation, and the matching structured toolResult rejection. Safe to run: mutates=false. Assistant sentinel prose and Tempo traces are diagnostic only and cannot satisfy or block this synchronous reject row."
   },
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
@@ -67,11 +68,11 @@
     "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
       "seat-readiness",
-    "tool-invoke-rejected",
-    "tempo-trace-json",
-    "tool-trace-correlation"
+      "tool-registered",
+      "tool-invoked",
+      "tool-invoke-rejected"
     ],
     "foldRequiresReview": true,
-    "notes": "Live request_compaction reject row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Requires tools.effective registration and an authoritative role=toolResult context_threshold rejection; assistant prose cannot pass the row."
+    "notes": "Live request_compaction reject row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Requires direct tools.effective registration, this row's nonce-bearing typed invocation, and the matching authoritative role=toolResult context_threshold rejection. Assistant prose cannot pass the row; no Tempo trace is required for a synchronous non-mutating rejection."
   }
 }

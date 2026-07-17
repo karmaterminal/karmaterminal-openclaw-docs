@@ -76,8 +76,10 @@ export default function () {
     dispatch_accepted: false,
     dispatch_accepted_at_ms: null,
     tool_name: 'request_compaction',
+    tool_invocation_observed: false,
     tool_result_observed: false,
     tool_call_id: null,
+    tool_call_nonce_bound: false,
     tool_result_status: null,
     tool_invoke_rejected: false,
     guard: null,
@@ -119,6 +121,8 @@ export default function () {
         const receipt = receiptResult.receipt;
         evidence.tool_result_observed = true;
         evidence.tool_call_id = receiptResult.toolCallId;
+        evidence.tool_call_nonce_bound = receiptResult.nonceBound === true;
+        evidence.tool_invocation_observed = evidence.tool_call_nonce_bound;
         evidence.tool_result_status = receipt.status;
         evidence.tool_invoke_rejected = true;
         evidence.guard = receipt.guard;
@@ -229,7 +233,7 @@ export default function () {
             failures.add(1);
             socket.close();
           } else {
-            const receiptResult = findRequestCompactionReceipt(classified.payload?.messages);
+            const receiptResult = findRequestCompactionReceipt(classified.payload?.messages, { rowNonce });
             if (!recordAuthoritativeReceipt(receiptResult)) {
               if (evidence.history_attempts < 8) {
                 socket.setTimeout(requestTranscriptReceipt, 250);
@@ -244,7 +248,13 @@ export default function () {
 
         if (classified.kind === 'event') {
           const receiptResult = classifyRequestCompactionReceipt(classified.data);
-          recordAuthoritativeReceipt(receiptResult);
+          // Subscription events can be delayed or replayed. Never accept an
+          // unbound tool result directly; use it only as a signal to fetch the
+          // transcript, where the nonce-bearing tool call and toolCallId can be
+          // correlated in the same disposable session.
+          if (receiptResult.kind !== 'unrelated' && !evidence.history_requested) {
+            requestTranscriptReceipt();
+          }
 
           const eventMessage = classified.data?.message;
           const eventStr = JSON.stringify(eventMessage?.content || '');
@@ -275,15 +285,19 @@ export default function () {
   check(null, {
     'request_compaction registered': () => evidence.tool_inventory_checked && evidence.tool_registered,
     'dispatch accepted': () => evidence.dispatch_accepted,
+    'typed tool invocation observed': () => evidence.tool_invocation_observed,
     'authoritative tool result observed': () => evidence.tool_result_observed,
+    'tool result bound to current nonce-bearing call': () => evidence.tool_call_nonce_bound,
     'request_compaction rejected': () => evidence.tool_invoke_rejected,
     'context_threshold guard observed': () => evidence.guard === 'context_threshold',
     'no compaction side effect': () => evidence.no_compaction_side_effect,
   });
 
   if (!evidence.tool_inventory_checked || !evidence.tool_registered || !evidence.dispatch_accepted ||
-      !evidence.tool_result_observed || !evidence.tool_invoke_rejected ||
-      evidence.guard !== 'context_threshold' || !evidence.no_compaction_side_effect) {
+      !evidence.tool_invocation_observed || !evidence.tool_result_observed ||
+      !evidence.tool_invoke_rejected ||
+      !evidence.tool_call_nonce_bound || evidence.guard !== 'context_threshold' ||
+      !evidence.no_compaction_side_effect) {
     failures.add(1);
   }
 

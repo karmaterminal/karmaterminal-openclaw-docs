@@ -43,6 +43,30 @@ export function hasEffectiveTool(payload, expectedName) {
   return effectiveToolNames(payload).includes(expectedName);
 }
 
+function toolCallArguments(part) {
+  if (isRecord(part?.arguments)) return part.arguments;
+  if (typeof part?.arguments === 'string') return parseJsonText(part.arguments);
+  if (isRecord(part?.input)) return part.input;
+  if (typeof part?.input === 'string') return parseJsonText(part.input);
+  return null;
+}
+
+export function requestCompactionToolCallIdForNonce(messages, rowNonce) {
+  if (typeof rowNonce !== 'string' || !rowNonce) return null;
+  for (const message of Array.isArray(messages) ? messages : []) {
+    if (message?.role !== 'assistant' || !Array.isArray(message.content)) continue;
+    for (const part of message.content) {
+      if (part?.type !== 'toolCall') continue;
+      if ((part.name || part.toolName) !== 'request_compaction') continue;
+      const reason = toolCallArguments(part)?.reason;
+      if (typeof reason === 'string' && reason.includes(rowNonce)) {
+        return typeof part.id === 'string' && part.id ? part.id : null;
+      }
+    }
+  }
+  return null;
+}
+
 /**
  * Classify one sessions.messages session.message event for an authoritative
  * request_compaction tool-result receipt. Assistant prose is intentionally not
@@ -79,11 +103,15 @@ export function classifyRequestCompactionReceipt(eventPayload) {
   };
 }
 
-export function findRequestCompactionReceipt(messages) {
+export function findRequestCompactionReceipt(messages, { rowNonce, toolCallId } = {}) {
   const items = Array.isArray(messages) ? messages : [];
+  const expectedToolCallId = toolCallId || requestCompactionToolCallIdForNonce(items, rowNonce);
+  if (!expectedToolCallId) return { kind: 'missing' };
+
   for (let index = items.length - 1; index >= 0; index -= 1) {
     const result = classifyRequestCompactionReceipt(items[index]);
-    if (result.kind !== 'unrelated') return result;
+    if (result.kind === 'unrelated' || result.toolCallId !== expectedToolCallId) continue;
+    return { ...result, nonceBound: true };
   }
   return { kind: 'missing' };
 }

@@ -26,6 +26,7 @@ function evidence(overrides = {}) {
     wake_same_run: true, post_wake_quiet: true,
     channel_delivery_observed: false, dispatch_failure_observed: false,
     send_run_fingerprint: run, terminal_run_fingerprint: run, wake_run_fingerprint: run,
+    accepted_send_trace_id: 'b'.repeat(32),
     ...overrides,
   };
 }
@@ -53,6 +54,16 @@ test('R-CD-2 rejects outer-send acceptance plus an unrelated delayed message', (
     correlation: correlation(), signingKey,
   });
   assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'send-run-mismatch']);
+});
+
+test('R-CD-2 rejects individually valid lifecycle and topology receipts from different traces', () => {
+  const receipt = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence({ accepted_send_trace_id: 'e'.repeat(32) }),
+    correlation: correlation({ traceId: 'b'.repeat(32) }),
+    signingKey,
+  });
+  assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'send-topology-mismatch']);
+  assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true);
 });
 
 test('R-CD-2 rejects replay failure, wrong mode, and mismatched trace topology', () => {

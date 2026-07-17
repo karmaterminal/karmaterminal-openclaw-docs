@@ -10,6 +10,7 @@ const FAILURE_CATEGORIES = new Set([
   'send-run-mismatch',
   'provider-or-turn-failure',
   'delegate-replay-unsafe',
+  'send-topology-mismatch',
   'missing-continuation-topology',
   'invalid-continuation-topology',
 ]);
@@ -56,7 +57,8 @@ function evidencePasses(evidence) {
     evidence?.dispatch_failure_observed !== true &&
     hex(evidence?.send_run_fingerprint, 16) &&
     evidence.send_run_fingerprint === evidence.terminal_run_fingerprint &&
-    evidence.send_run_fingerprint === evidence.wake_run_fingerprint;
+    evidence.send_run_fingerprint === evidence.wake_run_fingerprint &&
+    hex(evidence?.accepted_send_trace_id, 32);
 }
 
 function topologyPasses(correlation) {
@@ -70,6 +72,12 @@ function topologyPasses(correlation) {
     correlation.dispatchSpanId !== correlation.fireSpanId;
 }
 
+// The accepted sessions.send response is the authority for this row's turn.
+// Do not combine its lifecycle with a separately-valid continuation trace.
+function sameAcceptedTrace(evidence, correlation) {
+  return evidence?.accepted_send_trace_id === correlation?.traceId;
+}
+
 function categoryFor(evidence, correlation) {
   if (evidence?.failureCategory === 'delegate-replay-unsafe') return 'delegate-replay-unsafe';
   if (evidence?.dispatch_failure_observed) return 'provider-or-turn-failure';
@@ -77,6 +85,7 @@ function categoryFor(evidence, correlation) {
     return evidence?.send_run_mismatch ? 'send-run-mismatch' : 'missing-send-run-lifecycle';
   }
   if (!correlation) return 'missing-continuation-topology';
+  if (!sameAcceptedTrace(evidence, correlation)) return 'send-topology-mismatch';
   return 'invalid-continuation-topology';
 }
 
@@ -92,6 +101,7 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
         send: evidence?.send_run_fingerprint || null,
         terminal: evidence?.terminal_run_fingerprint || null,
         wake: evidence?.wake_run_fingerprint || null,
+        acceptedSendTrace: evidence?.accepted_send_trace_id || null,
         terminalSuccess: evidence?.terminal_success_same_run === true,
         typedDelegate: evidence?.typed_delegate_success_same_run === true,
         quiet: evidence?.post_wake_quiet === true,
@@ -103,11 +113,12 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
         dispatch: correlation?.dispatchSpanId || null,
         fire: correlation?.fireSpanId || null,
         mode: correlation?.mode || null,
+        acceptedSendTrace: evidence?.accepted_send_trace_id || null,
       }),
     },
   };
 
-  if (!evidencePasses(evidence) || !topologyPasses(correlation)) {
+  if (!evidencePasses(evidence) || !topologyPasses(correlation) || !sameAcceptedTrace(evidence, correlation)) {
     return seal({ ...base, verdict: 'PARTIAL-candidate', failureCategory: categoryFor(evidence, correlation) }, signingKey);
   }
 
@@ -126,6 +137,7 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
       unboundSessionVerified: true,
       noChannelVerified: true,
       traceFingerprint: fingerprint(correlation.traceId),
+      acceptedSendTraceFingerprint: fingerprint(evidence.accepted_send_trace_id),
       chainFingerprint: fingerprint(correlation.chainId),
       delegateFingerprint: fingerprint(`${correlation.dispatchSpanId}:${correlation.fireSpanId}`),
     },
@@ -145,6 +157,8 @@ export function validateRcd2AuthoritativeReceipt(receipt, signingKey) {
   const life = receipt.lifecycle;
   const pass = receipt.verdict === 'PASS-candidate' && life?.typedTool === 'continue_delegate' && life.mode === 'silent-wake' &&
     ['sameTrace', 'sameChain', 'typedToolObserved', 'dispatchObserved', 'fireObserved', 'terminalSuccessSameRun', 'unboundSessionVerified', 'noChannelVerified'].every((key) => life[key] === true) &&
-    hex(life.traceFingerprint, 16) && hex(life.chainFingerprint, 16) && hex(life.delegateFingerprint, 16);
+    hex(life.traceFingerprint, 16) && hex(life.acceptedSendTraceFingerprint, 16) &&
+    life.traceFingerprint === life.acceptedSendTraceFingerprint &&
+    hex(life.chainFingerprint, 16) && hex(life.delegateFingerprint, 16);
   return pass ? { valid: true, verdict: receipt.verdict } : { valid: false, reason: 'invalid-pass-lifecycle' };
 }

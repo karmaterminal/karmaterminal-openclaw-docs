@@ -151,6 +151,7 @@ export default function () {
     reason_length: null,
     delegate_mode: null,
     trace_id: null,
+    accepted_send_trace_id: null,
     redacted_events: [],
   };
 
@@ -264,7 +265,10 @@ export default function () {
             } else {
               evidence.dispatch_failure_observed = true;
             }
-            if (classified.payload && classified.payload.traceId) evidence.trace_id = classified.payload.traceId;
+            if (classified.payload && classified.payload.traceId) {
+              evidence.accepted_send_trace_id = classified.payload.traceId;
+              evidence.trace_id = classified.payload.traceId;
+            }
             console.log('✓ sessions.send accepted — agent turn triggered for R-CD-2 (mode=silent-wake)');
           } else if (classified.error) {
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);

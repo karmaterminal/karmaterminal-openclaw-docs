@@ -23,6 +23,7 @@ import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { gatewayLifecycleRunId } from '../lib/gateway-lifecycle.js';
 
 export const options = {
   scenarios: {
@@ -81,9 +82,7 @@ export function isOutboundChannelDeliveryEvent(eventName, eventData) {
 }
 
 export function lifecycleRunId(value) {
-  if (!value || typeof value !== 'object') return null;
-  return value.runId || value.run_id || value.turnId || value.turn_id ||
-    value.data?.runId || value.data?.run_id || value.data?.turnId || value.data?.turn_id || null;
+  return gatewayLifecycleRunId(value);
 }
 
 export default function () {

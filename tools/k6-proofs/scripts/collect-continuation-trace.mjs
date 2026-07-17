@@ -220,8 +220,12 @@ function validateTrace(trace, expected) {
     return span.name === 'openclaw.tool.execution' &&
       attrs.get('gen_ai.tool.name') === expected.tool;
   });
-  if (tools.length === 0) {
-    throw new Error(`matched trace lacks the originating ${expected.tool} tool span`);
+  if (tools.length !== 1) {
+    throw new Error(
+      tools.length === 0
+        ? `matched trace lacks the originating ${expected.tool} tool span`
+        : `matched trace contains ${tools.length} ${expected.tool} tool spans`,
+    );
   }
 
   const traceId = idHex(accept.traceId, 16, 'trace id');
@@ -429,6 +433,15 @@ async function main() {
           // reason hash; retain only fingerprints, never raw run IDs/nonces.
           ...(evidence.row === 'R-CD-2'
             ? {
+                // This is deliberately the collector's native continuation
+                // shape. The R-CD-2 resolver consumes these exact fields; it
+                // must not rely on a separately invented topology fixture.
+                tool: contract.tool,
+                mode: contract.mode,
+                typedToolObserved: topology.toolSpanIds.length === 1,
+                dispatchObserved: Boolean(topology.dispatchSpanId),
+                fireObserved: Boolean(topology.fireSpanId),
+                sameChain: true,
                 rowBinding: {
                   acceptedSendRunFingerprint: evidence.send_run_fingerprint || null,
                   nonceFingerprint: evidence.row_nonce_fingerprint || null,

@@ -8,6 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import { resolveRcd2AuthoritativeReceipt } from '../../lib/r-cd-2-authoritative-receipt.mjs';
 
 const execFileAsync = promisify(execFile);
 const script = path.resolve(
@@ -36,7 +37,7 @@ function span(name, traceId, spanId, parentSpanId, attrs = []) {
   };
 }
 
-function traceFixture({ traceId, reasonHash, reasonLength, tool = 'continue_delegate', mode = 'normal' }) {
+function traceFixture({ traceId, reasonHash, reasonLength, tool = 'continue_delegate', mode = 'normal', toolCount = 1 }) {
   const parent = 'dddddddddddddddd';
   const isWork = tool === 'continue_work';
   const acceptSpanName = isWork ? 'continuation.work' : 'continuation.delegate.dispatch';
@@ -51,9 +52,13 @@ function traceFixture({ traceId, reasonHash, reasonLength, tool = 'continue_dele
     batches: [{
       scopeSpans: [{
         spans: [
-          span('openclaw.tool.execution', traceId, 'aaaaaaaaaaaaaaaa', parent, [
-            attr('gen_ai.tool.name', tool),
-          ]),
+          ...Array.from({ length: toolCount }, (_, index) => span(
+            'openclaw.tool.execution',
+            traceId,
+            index === 0 ? 'aaaaaaaaaaaaaaaa' : 'ffffffffffffffff',
+            parent,
+            [attr('gen_ai.tool.name', tool)],
+          )),
           span(fireSpanName, traceId, 'bbbbbbbbbbbbbbbb', parent, continuationAttrs),
           span(acceptSpanName, traceId, 'cccccccccccccccc', parent, continuationAttrs),
           span('openclaw.harness.run', traceId, 'eeeeeeeeeeeeeeee', 'cccccccccccccccc'),
@@ -216,12 +221,101 @@ test('R-CD-2 correlation carries only matching opaque send run and nonce binding
     const result = JSON.parse(stdout);
     const receiptText = await readFile(path.join(fixture.dir, result.receiptFile), 'utf8');
     const receipt = JSON.parse(receiptText);
+    assert.equal(receipt.tool, 'continue_delegate');
+    assert.equal(receipt.mode, 'silent-wake');
+    assert.equal(receipt.typedToolObserved, true);
+    assert.equal(receipt.dispatchObserved, true);
+    assert.equal(receipt.fireObserved, true);
+    assert.equal(receipt.sameChain, true);
     assert.deepEqual(receipt.rowBinding, {
       acceptedSendRunFingerprint: 'a'.repeat(16),
       nonceFingerprint: createHash('sha256').update(rowNonce).digest('hex').slice(0, 16),
       acceptedSendTraceId: traceId,
     });
     assert.doesNotMatch(receiptText, /R-CD-2-example/);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topology', async () => {
+  const rowNonce = 'R-CD-2-resolver-example';
+  const traceId = '2'.repeat(32);
+  const runFingerprint = 'a'.repeat(16);
+  const nonceFingerprint = createHash('sha256').update(rowNonce).digest('hex').slice(0, 16);
+  const fixture = await fixtureDir({
+    rowId: 'R-CD-2',
+    delegateMode: 'silent-wake',
+    nonceOverride: rowNonce,
+    extraEvidence: {
+      send_run_fingerprint: runFingerprint,
+      terminal_run_fingerprint: runFingerprint,
+      wake_run_fingerprint: runFingerprint,
+      row_nonce_fingerprint: nonceFingerprint,
+      accepted_send_trace_id: traceId,
+      session_created: true,
+      session_unbound_confirmed: true,
+      send_accepted: true,
+      send_run_captured: true,
+      terminal_success_same_run: true,
+      typed_delegate_success_same_run: true,
+      wake_same_run: true,
+      post_wake_quiet: true,
+      channel_delivery_observed: false,
+      dispatch_failure_observed: false,
+    },
+  });
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(
+      new URL(request.url, 'http://localhost').pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : traceFixture({ traceId, reasonHash: fixture.reasonHash, reasonLength: fixture.reasonLength, mode: 'silent-wake' }),
+    ));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'cael-prince', '--tempo-url', server.url, '--timeout-ms', '100', '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const correlation = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+    const evidence = JSON.parse(await readFile(path.join(fixture.dir, 'evidence.jsonl'), 'utf8'));
+    const resolved = resolveRcd2AuthoritativeReceipt({
+      evidence,
+      correlation,
+      signingKey: 'collector-shaped-r-cd-2-test-key',
+    });
+    assert.equal(resolved.verdict, 'PASS-candidate');
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-2 collector rejects repeated continue_delegate tool spans', async () => {
+  const fixture = await fixtureDir({ rowId: 'R-CD-2', delegateMode: 'silent-wake' });
+  const traceId = '3'.repeat(32);
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(
+      new URL(request.url, 'http://localhost').pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : traceFixture({ traceId, reasonHash: fixture.reasonHash, reasonLength: fixture.reasonLength, mode: 'silent-wake', toolCount: 2 }),
+    ));
+  });
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+        '--seat', 'cael-prince', '--tempo-url', server.url, '--timeout-ms', '0', '--poll-ms', '10',
+      ]),
+      (error) => {
+        assert.match(error.stderr, /contains 2 continue_delegate tool spans/);
+        return true;
+      },
+    );
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });

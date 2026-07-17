@@ -55,6 +55,31 @@ The receipt and fail-closed contract are documented in
 [`docs/R-CW-5-ISOLATED-TOOL-SURFACE.md`](docs/R-CW-5-ISOLATED-TOOL-SURFACE.md).
 The result is a reviewed `PASS-candidate`, never an automatic corpus fold.
 
+### R-CW-6: isolated max-chain fixture
+
+The max-chain row uses the same safe execution class but an independent
+boundary: it imports the production `checkContinuationBudget`, drives two
+accepted elections and the first rejected election through
+`scheduleContinuationWorkBatch`, persists and reloads the at-limit chain
+state, repeats rejection through `scheduleContinuationWork`, enters the real
+`runAgentAttempt` path and invokes the registered production `continue_work`
+tool executor, and runs the exact candidate's delegate
+dispatch boundary at the same selected maximum plus the candidate's committed
+regression suite. It does not infer chain behavior from the R-CW-5
+cost-cap fixture or mutate fleet config/state:
+
+```bash
+node tools/k6-proofs/scripts/run-max-chain-fixture.mjs \
+  --source-dir <exact-candidate-worktree> \
+  --candidate-sha <40-char-sha> \
+  --artifact-dir <empty-private-directory> \
+  --max-chain-length 3 --json
+```
+
+See
+[`docs/R-CW-6-ISOLATED-MAX-CHAIN.md`](docs/R-CW-6-ISOLATED-MAX-CHAIN.md).
+The result is review-required and never an automatic canonical fold.
+
 ### 0. Offline golden-path smoke (no gateway, no secrets)
 
 Use this first to verify the candidate artifact pipeline is alive without touching
@@ -459,6 +484,8 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-CW-2 | `r-cw-2-immediate-wake` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CW-3 | `r-cw-3-reason-telemetry` | websocket/typed-tool | HONEST-LIMIT-candidate; reason telemetry/redaction review may limit fold |
 | R-CW-4 | `r-cw-4-chain-depth` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
+| R-CW-5 | `run-cost-cap-fixture.mjs` | process-local/typed-tool | PARTIAL-candidate; exact-candidate fixture, review required before fold |
+| R-CW-6 | `run-max-chain-fixture.mjs` | process-local/typed-tool | PASS-candidate component evidence; manual-only exact-candidate fixture, review required before fold |
 | R-CW-7 | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CW-DELEGATE-CHILD-LIVE | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CW-DELEGATE-SELF-CONTINUATION | `r-cw-delegate-self-continuation` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
@@ -476,7 +503,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 
 `preflight` remains the read-only readiness row; the runner also performs seat-readiness before live runs. Neither readiness surface promotes a cap row.
 
-`R-CW-5` and `R-CW-6` are also excluded from `--live-suite`: they remain fixture-gated live cap rows. `R-CW-5A` and `R-CW-6A` are their static source/harness boundary checks; they emit only `construct-only`, never live R-CW-5/6 PASS evidence.
+`R-CW-5` and `R-CW-6` are also excluded from `--live-suite`: they are process-local, fixture-gated cap rows rather than unattended WebSocket rows. `R-CW-5A` and `R-CW-6A` are their static source/harness boundary checks; they emit only `construct-only`, never runtime R-CW-5/6 PASS evidence.
 
 ### R-CW-5 isolated cost-cap fixture
 
@@ -523,6 +550,28 @@ The expected component receipt shape at `--cap 100` is `99: allow`,
 no-spawn and failed-flow persistence, and a typed-tool receipt that confirms
 two exhausted elections create no durable continuation work. A component
 PASS-candidate never reclassifies the live row as PASS without review.
+
+### R-CW-6 isolated max-chain fixture
+
+`tools/k6-proofs/scripts/run-max-chain-fixture.mjs` is the safe manual-only
+component fixture for `R-CW-6`; it is intentionally outside the generic k6
+runner and `--live-suite`. It requires a clean exact-candidate source
+worktree with dependencies already present and refuses installs, indirect
+source dependencies, reused or symlinked artifact paths, wrong SHAs, and dirty
+tracked source. The production predicate, durable scheduler, temporary session
+store recovery, typed `continue_work` registration/executor path, TaskFlow no-spawn check, and
+selected-max delegate dispatch boundary all run inside one detached disposable candidate
+worktree without a gateway or fleet mutation. Before the final result is
+written, every receipt is checked to exclude private paths and
+secret/session/environment/process-output fields.
+
+At the default maximum `3`, the required receipt shape is attempted hop `2`:
+allow, attempted hop `3`: allow, attempted hop `4`: `chain-capped`. The
+rejected election must leave the durable flow count and chain count unchanged;
+the persisted count must reload as `3` and remain capped. The disposable
+worktree/state must be removed and `public-artifact-safety.json` must pass
+before `fixture-result.json` can say `PASS-candidate`. See
+[`docs/R-CW-6-ISOLATED-MAX-CHAIN.md`](docs/R-CW-6-ISOLATED-MAX-CHAIN.md).
 
 Future manifests may again be `scaffold`, `construct-only`, or `orchestration-required`. Such rows are tracked, but not workflow-runnable until a matching scenario exists and the manifest is promoted to `scenario.status="runnable"` plus `liveRunSafety.classification="k6-runnable"`.
 

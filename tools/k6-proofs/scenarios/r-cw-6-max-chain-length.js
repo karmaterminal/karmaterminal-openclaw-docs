@@ -1,15 +1,17 @@
 /**
  * Scenario scaffold: R-CW-6.
  *
- * maxChainLength boundary proof. This row sets maxChainLength=1, restarts the
- * gateway, proves hop-1 accepted and hop-2 rejected, then restores and restarts.
- * It intentionally remains scaffold-only because it mutates config and gateway
- * lifecycle.
+ * `continue_work` is an internal session-elected primitive and is absent from
+ * the gateway/MCP loopback tool set. A WebSocket tools.invoke scenario cannot
+ * exercise this max-chain contract, and patching shared config would create an
+ * unsafe, misleading receipt.
  *
- * Required before runnable promotion:
- * - isolated/fixture gateway or explicit maintenance approval
- * - config backup/restore and restart receipts
- * - failure-safe restore even if the proof aborts mid-run
+ * The safe executable runtime fixture lives in
+ * `tools/k6-proofs/scripts/run-max-chain-fixture.mjs`. It runs the exact
+ * candidate's production budget helper, durable work scheduler, typed tool
+ * capture path, persistence/recovery path, and delegate dispatch boundary in a
+ * disposable worktree with cleanup and public-artifact-safety receipts. This
+ * k6 entry remains intentionally non-runnable and fail-closed.
  */
 export const options = {
   scenarios: {
@@ -23,5 +25,5 @@ export const options = {
 };
 
 export default function () {
-  throw new Error('R-CW-6 is scaffold-only; config/restart boundary fixture not implemented.');
+  throw new Error('R-CW-6 is fixture-gated; run tools/k6-proofs/scripts/run-max-chain-fixture.mjs against an exact-candidate source worktree.');
 }

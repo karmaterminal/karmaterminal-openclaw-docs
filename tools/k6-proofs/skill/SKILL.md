@@ -165,11 +165,20 @@ Every continuation row must prove BOTH the typed tool path AND the bracket/token
 (`request_compaction` is tool-only — no token form.)
 
 ### Caps-Test Procedure
-For rows that test cap exhaustion (R-CW-5, R-CW-6):
-1. Lower caps in `openclaw.json` (record originals)
-2. Restart/reload as required by the config lever; record the exact arm step
-3. Fire the row — verify reject
-4. Restore originals + restart/reload back to baseline
+R-CW-5 and R-CW-6 hit their boundaries through exact-candidate process-local
+fixtures, not live fleet mutation:
+
+1. Run `run-cost-cap-fixture.mjs` for R-CW-5 or
+   `run-max-chain-fixture.mjs` for R-CW-6.
+2. Require the row-specific boundary, no-spawn, readiness, and cleanup
+   receipts; R-CW-6 additionally requires durable recovery, typed-tool,
+   selected delegate-boundary, and public-artifact-safety receipts.
+3. Keep the result review-required; never infer a gateway claim or automatic
+   corpus fold from the component fixture.
+
+Only a future row whose manifest and runbook explicitly authorize live config
+mutation may lower `openclaw.json`; that row must record originals, arm a
+failure-safe restore, apply/reload, hit the cap, restore, and verify baseline.
 
 ### Custom Metrics Naming
 Prefix all custom metrics with the row name (underscores, lowercase):

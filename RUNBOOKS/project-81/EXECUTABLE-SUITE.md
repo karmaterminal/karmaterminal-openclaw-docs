@@ -107,7 +107,7 @@ Fetch Tempo trace JSON when a row records a non-null trace id. If a row records 
 
 ## Coverage caveats
 
-R-CW-5 and R-CW-6 are intentionally hidden from `live-suite`: their live cap claims remain `orchestration-required` until an isolated fixture can mutate, collect all receipts, restore state, and restart safely where needed. R-CW-5A/R-CW-6A remain outside the suite because they are non-live helpers.
+R-CW-5 and R-CW-6 are intentionally hidden from `live-suite`: their cap claims are process-local, exact-candidate fixtures rather than unattended WebSocket rows. R-CW-5 uses `run-cost-cap-fixture.mjs`; R-CW-6 uses `run-max-chain-fixture.mjs` with temporary state, durable recovery, no-spawn, cleanup, and public-artifact-safety receipts. R-CW-5A/R-CW-6A remain outside the suite because they are static non-runtime helpers.
 
 Several rows are runnable only as bounded review candidates:
 
@@ -116,4 +116,4 @@ Several rows are runnable only as bounded review candidates:
 - `R-CD-COLLECTION-ON-COLLAPSE` and `R-CW-MULTI-COLLAPSE` are static committed-packet validators. They make historical proof packets mechanically checkable; they do not mutate config or rerun the original live behavior.
 - `R-CW-5A` and `R-CW-6A` are static source/harness boundary rows. They emit `construct-only` and cannot be used as live R-CW-5/6 PASS evidence.
 
-If a future PR adds an accepted-compaction or config-mutating live fixture, it must include backup/restore or isolated-temp-state receipts before claiming a fresh live PASS.
+If a future PR adds an accepted-compaction or config-mutating live fixture, it must include backup/restore or isolated-temp-state receipts before claiming a fresh live PASS. The R-CW-5/R-CW-6 component fixtures never imply gateway behavior or automatic corpus promotion.

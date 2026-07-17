@@ -221,12 +221,10 @@ test('R-CD-2 correlation carries only matching opaque send run and nonce binding
     const result = JSON.parse(stdout);
     const receiptText = await readFile(path.join(fixture.dir, result.receiptFile), 'utf8');
     const receipt = JSON.parse(receiptText);
-    assert.equal(receipt.tool, 'continue_delegate');
-    assert.equal(receipt.mode, 'silent-wake');
-    assert.equal(receipt.typedToolObserved, true);
-    assert.equal(receipt.dispatchObserved, true);
-    assert.equal(receipt.fireObserved, true);
-    assert.equal(receipt.sameChain, true);
+    assert.equal(receipt.continuation.tool, 'continue_delegate');
+    assert.equal(receipt.delegate.mode, 'silent-wake');
+    assert.deepEqual(receipt.toolSpanIds, ['aaaaaaaaaaaaaaaa']);
+    assert.equal(receipt.chainId, '11111111-1111-4111-8111-111111111111');
     assert.deepEqual(receipt.rowBinding, {
       acceptedSendRunFingerprint: 'a'.repeat(16),
       nonceFingerprint: createHash('sha256').update(rowNonce).digest('hex').slice(0, 16),
@@ -260,7 +258,7 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
       send_run_captured: true,
       terminal_success_same_run: true,
       typed_delegate_success_same_run: true,
-      wake_same_run: true,
+      wake_lifecycle_observed: true,
       post_wake_quiet: true,
       channel_delivery_observed: false,
       dispatch_failure_observed: false,

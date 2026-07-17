@@ -23,7 +23,7 @@ import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
-import { gatewayLifecycleRunId } from '../lib/gateway-lifecycle.js';
+import { gatewayLifecycleRunId, gatewayLifecyclePhase, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../lib/gateway-lifecycle.js';
 
 export const options = {
   scenarios: {
@@ -130,7 +130,10 @@ export default function () {
     wake_run_fingerprint: null,
     terminal_success_same_run: false,
     typed_delegate_success_same_run: false,
-    wake_same_run: false,
+    // The silent wake is a fresh parent turn.  Its identity is therefore a
+    // distinct top-level gateway lifecycle run, not a field guessed from a
+    // session.message transcript payload.
+    wake_lifecycle_observed: false,
     post_wake_quiet: false,
     post_wake_quiet_timer_started: false,
     dispatch_failure_observed: false,
@@ -305,12 +308,10 @@ export default function () {
             evidence.agent_turn_observed = true;
             const eventRunId = lifecycleRunId(eventData);
             const sameRun = Boolean(acceptedRunId && eventRunId === acceptedRunId);
-            const stream = String(eventData.stream || '').toLowerCase();
-            const phase = String(eventData.data?.phase || '').toLowerCase();
-            const status = String(eventData.data?.status || eventData.status || '').toLowerCase();
-            if (stream === 'lifecycle' && phase === 'end') {
+            const phase = gatewayLifecyclePhase(eventData);
+            if (phase === 'end' && eventRunId === acceptedRunId) {
               if (!sameRun) evidence.send_run_mismatch = true;
-              else if (['error', 'failed', 'failure', 'aborted'].includes(status) || eventData.data?.replayInvalid === true) {
+              else if (!gatewayLifecycleSucceeded(eventData)) {
                 evidence.dispatch_failure_observed = true;
                 evidence.failureCategory = eventData.data?.replayInvalid === true
                   ? 'delegate-replay-unsafe' : 'provider-or-turn-failure';
@@ -319,20 +320,15 @@ export default function () {
                 evidence.terminal_run_fingerprint = crypto.sha256(String(eventRunId), 'hex').slice(0, 16);
               }
             }
-          }
-
-          // session.message events immediately after sessions.send are the dispatching
-          // agent turn, not the silent-wake return.  The delegate delay is clamped
-          // by the gateway, so only count a parent wake after the minimum delay.
-          if (eventName === 'session.message' && evidence.send_accepted) {
+            // The deployed gateway gives agent lifecycle events a top-level
+            // runId.  A later, distinct lifecycle start in this subscribed
+            // parent session is the only authoritative silent-wake receipt.
+            const wakeRunId = gatewayWakeRunId(eventData, acceptedRunId);
             const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
-            const eventRunId = lifecycleRunId(eventData);
-            const sameRun = Boolean(acceptedRunId && eventRunId === acceptedRunId);
-            if (elapsed >= evidence.wake_gate_ms && sameRun) {
+            if (wakeRunId && elapsed >= evidence.wake_gate_ms) {
               evidence.parent_wake_observed = true;
-              evidence.agent_turn_observed = true;
-              evidence.wake_same_run = true;
-              evidence.wake_run_fingerprint = crypto.sha256(String(eventRunId), 'hex').slice(0, 16);
+              evidence.wake_lifecycle_observed = true;
+              evidence.wake_run_fingerprint = crypto.sha256(String(wakeRunId), 'hex').slice(0, 16);
               if (!evidence.post_wake_quiet_timer_started) {
                 evidence.post_wake_quiet_timer_started = true;
                 socket.setTimeout(() => {
@@ -340,11 +336,19 @@ export default function () {
                   socket.close();
                 }, evidence.post_wake_quiet_ms);
               }
-              console.log('✓ delayed session.message event observed (silent-wake return candidate)');
-            } else {
-              evidence.agent_turn_observed = true;
-              console.log('✓ initial session.message event observed (dispatching agent turn)');
+              console.log('✓ delayed parent lifecycle wake observed');
             }
+          }
+
+          // session.message events immediately after sessions.send are the dispatching
+          // agent turn, not the silent-wake return.  The delegate delay is clamped
+          // by the gateway, so only count a parent wake after the minimum delay.
+          if (eventName === 'session.message' && evidence.send_accepted) {
+            // session.message carries transcript content but no documented
+            // lifecycle run identity. It is diagnostic only, never a wake
+            // receipt; otherwise a delayed unrelated message could certify.
+            evidence.agent_turn_observed = true;
+            console.log('ℹ session.message observed (non-authoritative for wake identity)');
           }
 
           // continue_status({ notify:false }) is internal completion bookkeeping,

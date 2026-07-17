@@ -7,3 +7,25 @@ export function gatewayLifecycleRunId(value) {
     ? value.runId
     : null;
 }
+
+// Gateway lifecycle identity lives on the event envelope.  `session.message`
+// is transcript content and deliberately carries no authoritative run id in
+// the deployed protocol.  Keep the distinction explicit so a delayed message
+// can never be promoted into a wake receipt by shape guessing.
+export function gatewayLifecyclePhase(value) {
+  if (!gatewayLifecycleRunId(value)) return null;
+  if (String(value.stream || '').toLowerCase() !== 'lifecycle') return null;
+  const phase = String(value.data?.phase || '').toLowerCase();
+  return phase === 'start' || phase === 'end' ? phase : null;
+}
+
+export function gatewayLifecycleSucceeded(value) {
+  if (gatewayLifecyclePhase(value) !== 'end') return false;
+  const status = String(value.data?.status || value.status || '').toLowerCase();
+  return !['error', 'failed', 'failure', 'aborted'].includes(status) && value.data?.replayInvalid !== true;
+}
+
+export function gatewayWakeRunId(value, acceptedRunId) {
+  const runId = gatewayLifecycleRunId(value);
+  return runId && runId !== acceptedRunId && gatewayLifecyclePhase(value) === 'start' ? runId : null;
+}

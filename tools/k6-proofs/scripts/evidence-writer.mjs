@@ -138,6 +138,11 @@ mkdirSync(join(outDir, 'artifacts'), { recursive: true });
 if (args['seat-readiness']) {
   copyFileSync(args['seat-readiness'], join(outDir, 'seat-readiness.json'));
 }
+if (authoritativeReceipt) {
+  // Carry the signed authority alongside every public candidate surface so a
+  // report/envelope cannot cite an uninspectable generic PASS.
+  copyFileSync(args['authoritative-receipt'], join(outDir, 'r-cd-2-authoritative-receipt.json'));
+}
 
 // Write k6-summary.json through the same public-safe boundary as run-proofs.sh.
 writeFileSync(join(outDir, 'k6-summary.json'), JSON.stringify(summary, null, 2) + '\n');
@@ -169,6 +174,13 @@ const result = {
   seat: args.seat,
   outcome: verdict,
   verdictSource: authoritativeReceipt ? 'r-cd-2-authoritative-receipt' : 'generic-evidence',
+  ...(authoritativeReceipt ? {
+    authoritativeReceipt: {
+      schema: authoritativeReceipt.schema,
+      validated: true,
+      source: 'r-cd-2-row-scoped-resolver',
+    },
+  } : {}),
   liveRunSafety: manifest?.liveRunSafety ? {
     classification: manifest.liveRunSafety.classification,
     requiresLiveGatewayToken: Boolean(manifest.liveRunSafety.requiresLiveGatewayToken),

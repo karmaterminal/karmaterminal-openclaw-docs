@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { access, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import path from 'node:path';
@@ -23,7 +23,7 @@ function evidence(overrides = {}) {
     session_created: true, session_unbound_confirmed: true,
     send_accepted: true, send_run_captured: true,
     terminal_success_same_run: true, typed_delegate_success_same_run: true,
-    wake_same_run: true, post_wake_quiet: true,
+    wake_lifecycle_observed: true, post_wake_quiet: true,
     channel_delivery_observed: false, dispatch_failure_observed: false,
     send_run_fingerprint: run, terminal_run_fingerprint: run, wake_run_fingerprint: run,
     row_nonce_fingerprint: 'e'.repeat(16),
@@ -34,8 +34,8 @@ function evidence(overrides = {}) {
 
 function correlation(overrides = {}) {
   return {
-    tool: 'continue_delegate', mode: 'silent-wake', sameTrace: true, sameChain: true,
-    typedToolObserved: true, dispatchObserved: true, fireObserved: true,
+    continuation: { tool: 'continue_delegate' }, delegate: { mode: 'silent-wake' },
+    sameTrace: true, sameChain: true, toolSpanIds: ['a'.repeat(16)],
     traceId: 'b'.repeat(32), chainId: 'private-chain-id',
     dispatchSpanId: 'c'.repeat(16), fireSpanId: 'd'.repeat(16),
     rowBinding: {
@@ -56,7 +56,7 @@ test('R-CD-2 promotes only a same-run typed silent-wake topology', () => {
 
 test('R-CD-2 rejects outer-send acceptance plus an unrelated delayed message', () => {
   const receipt = resolveRcd2AuthoritativeReceipt({
-    evidence: evidence({ terminal_success_same_run: false, wake_same_run: false, send_run_mismatch: true }),
+    evidence: evidence({ terminal_success_same_run: false, wake_lifecycle_observed: false, send_run_mismatch: true }),
     correlation: correlation(), signingKey,
   });
   assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'send-run-mismatch']);
@@ -92,7 +92,7 @@ test('R-CD-2 rejects replay failure, wrong mode, and mismatched trace topology',
     correlation: correlation(), signingKey,
   });
   assert.equal(replay.failureCategory, 'delegate-replay-unsafe');
-  for (const bad of [correlation({ mode: 'normal' }), correlation({ sameTrace: false })]) {
+  for (const bad of [correlation({ delegate: { mode: 'normal' } }), correlation({ toolSpanIds: ['a'.repeat(16), 'b'.repeat(16)] })]) {
     const receipt = resolveRcd2AuthoritativeReceipt({ evidence: evidence(), correlation: bad, signingKey });
     assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'invalid-continuation-topology']);
   }
@@ -114,11 +114,14 @@ test('R-CD-2 writer and postprocessor accept only the authoritative receipt', as
     const writerResult = JSON.parse(await readFile(path.join(dir, writerDir, 'row-result.json'), 'utf8'));
     assert.equal(writerResult.outcome, 'PASS-candidate');
     assert.equal(writerResult.verdictSource, 'r-cd-2-authoritative-receipt');
+    assert.equal(writerResult.authoritativeReceipt.validated, true);
+    await access(path.join(dir, writerDir, 'r-cd-2-authoritative-receipt.json'));
     const post = await execFileAsync(process.execPath, [postprocessorPath, '--manifest', manifestPath, '--summary', summaryPath, '--out-root', path.join(dir, 'post'), '--run-id', 'unit', '--authoritative-receipt', receiptPath], { cwd: dir, env });
     const postDir = JSON.parse(post.stdout).runDir;
     const postResult = JSON.parse(await readFile(path.join(postDir, 'row-result.json'), 'utf8'));
     assert.equal(postResult.outcome, 'PASS-candidate');
     assert.equal(postResult.verdictSource, 'r-cd-2-authoritative-receipt');
+    assert.equal(postResult.authoritativeReceipt.validated, true);
     await assert.rejects(execFileAsync(process.execPath, [writerPath, '--input', logPath, '--row', 'R-CD-2', '--seat', 'unit', '--sha', 'a'.repeat(40)], { cwd: dir, env }));
   } finally {
     await rm(dir, { recursive: true, force: true });

@@ -51,23 +51,24 @@ function evidencePasses(evidence) {
     evidence?.send_run_captured === true &&
     evidence?.terminal_success_same_run === true &&
     evidence?.typed_delegate_success_same_run === true &&
-    evidence?.wake_same_run === true &&
+    evidence?.wake_lifecycle_observed === true &&
     evidence?.post_wake_quiet === true &&
     evidence?.channel_delivery_observed === false &&
     evidence?.dispatch_failure_observed !== true &&
     hex(evidence?.send_run_fingerprint, 16) &&
     hex(evidence?.row_nonce_fingerprint, 16) &&
     evidence.send_run_fingerprint === evidence.terminal_run_fingerprint &&
-    evidence.send_run_fingerprint === evidence.wake_run_fingerprint &&
     hex(evidence?.accepted_send_trace_id, 32);
 }
 
 function topologyPasses(correlation) {
-  return correlation?.tool === 'continue_delegate' &&
-    correlation?.mode === 'silent-wake' &&
-    correlation?.sameTrace === true && correlation?.sameChain === true &&
-    correlation?.typedToolObserved === true &&
-    correlation?.dispatchObserved === true && correlation?.fireObserved === true &&
+  // Consume the collector's public continuation schema directly.  Do not
+  // accept the old, synthetic top-level `tool`/`mode`/boolean projection: a
+  // receipt that the real collector cannot emit must never certify this row.
+  return correlation?.continuation?.tool === 'continue_delegate' &&
+    correlation?.delegate?.mode === 'silent-wake' &&
+    Array.isArray(correlation?.toolSpanIds) && correlation.toolSpanIds.length === 1 &&
+    hex(correlation.toolSpanIds[0], 16) &&
     hex(correlation?.traceId, 32) && typeof correlation?.chainId === 'string' && correlation.chainId.length > 0 &&
     hex(correlation?.dispatchSpanId, 16) && hex(correlation?.fireSpanId, 16) &&
     correlation.dispatchSpanId !== correlation.fireSpanId &&
@@ -96,7 +97,7 @@ function sameRowBinding(evidence, correlation) {
 function categoryFor(evidence, correlation) {
   if (evidence?.failureCategory === 'delegate-replay-unsafe') return 'delegate-replay-unsafe';
   if (evidence?.dispatch_failure_observed) return 'provider-or-turn-failure';
-  if (!evidence?.send_run_captured || !evidence?.terminal_success_same_run || !evidence?.wake_same_run) {
+  if (!evidence?.send_run_captured || !evidence?.terminal_success_same_run || !evidence?.wake_lifecycle_observed) {
     return evidence?.send_run_mismatch ? 'send-run-mismatch' : 'missing-send-run-lifecycle';
   }
   if (!correlation) return 'missing-continuation-topology';
@@ -128,7 +129,7 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
         chain: correlation?.chainId || null,
         dispatch: correlation?.dispatchSpanId || null,
         fire: correlation?.fireSpanId || null,
-        mode: correlation?.mode || null,
+        mode: correlation?.delegate?.mode || null,
         acceptedSendTrace: evidence?.accepted_send_trace_id || null,
         acceptedSendRun: correlation?.rowBinding?.acceptedSendRunFingerprint || null,
         nonce: correlation?.rowBinding?.nonceFingerprint || null,
@@ -153,6 +154,7 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
       dispatchObserved: true,
       fireObserved: true,
       terminalSuccessSameRun: true,
+      wakeLifecycleObserved: true,
       unboundSessionVerified: true,
       noChannelVerified: true,
       traceFingerprint: fingerprint(correlation.traceId),
@@ -177,7 +179,7 @@ export function validateRcd2AuthoritativeReceipt(receipt, signingKey) {
     ? { valid: true, verdict: receipt.verdict } : { valid: false, reason: 'invalid-failure-category' };
   const life = receipt.lifecycle;
   const pass = receipt.verdict === 'PASS-candidate' && life?.typedTool === 'continue_delegate' && life.mode === 'silent-wake' &&
-    ['sameTrace', 'sameChain', 'typedToolObserved', 'dispatchObserved', 'fireObserved', 'terminalSuccessSameRun', 'unboundSessionVerified', 'noChannelVerified'].every((key) => life[key] === true) &&
+    ['sameTrace', 'sameChain', 'typedToolObserved', 'dispatchObserved', 'fireObserved', 'terminalSuccessSameRun', 'wakeLifecycleObserved', 'unboundSessionVerified', 'noChannelVerified'].every((key) => life[key] === true) &&
     hex(life.traceFingerprint, 16) && hex(life.acceptedSendTraceFingerprint, 16) &&
     life.traceFingerprint === life.acceptedSendTraceFingerprint &&
     hex(life.acceptedSendRunFingerprint, 16) && hex(life.rowNonceFingerprint, 16) &&

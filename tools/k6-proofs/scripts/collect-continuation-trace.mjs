@@ -433,15 +433,10 @@ async function main() {
           // reason hash; retain only fingerprints, never raw run IDs/nonces.
           ...(evidence.row === 'R-CD-2'
             ? {
-                // This is deliberately the collector's native continuation
-                // shape. The R-CD-2 resolver consumes these exact fields; it
-                // must not rely on a separately invented topology fixture.
-                tool: contract.tool,
-                mode: contract.mode,
-                typedToolObserved: topology.toolSpanIds.length === 1,
-                dispatchObserved: Boolean(topology.dispatchSpanId),
-                fireObserved: Boolean(topology.fireSpanId),
-                sameChain: true,
+                // The resolver consumes the native continuation/delegate
+                // shape emitted below plus topology.toolSpanIds.  Keep the
+                // row binding public-safe and opaque, but never manufacture
+                // a second top-level topology schema for a fixture to fake.
                 rowBinding: {
                   acceptedSendRunFingerprint: evidence.send_run_fingerprint || null,
                   nonceFingerprint: evidence.row_nonce_fingerprint || null,

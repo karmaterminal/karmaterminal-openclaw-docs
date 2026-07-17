@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { existsSync } from 'node:fs';
 
 export const CANDIDATE_RUN_RESULT_SCHEMA = 'openclaw.k6.candidate-run-result.v1';
 export const PROOF_ROW_MANIFEST_SCHEMA = 'openclaw.k6.proof-row-manifest.v1';
@@ -33,6 +34,12 @@ export function candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata,
   const seat = nonEmptyString(metadata.seat);
   const scenario = nonEmptyString(metadata.scenario)?.replace(/\.js$/, '');
   if (!rowId || !candidateSha || !seat || !scenario || !SHA.test(candidateSha)) return false;
+  if (rowId === 'R-CD-2' && (
+    runResult.verdictSource !== 'r-cd-2-authoritative-receipt' ||
+    runResult.authoritativeReceipt?.validated !== true ||
+    runResult.authoritativeReceipt?.source !== 'r-cd-2-row-scoped-resolver' ||
+    !existsSync(path.join(runDir, 'r-cd-2-authoritative-receipt.json'))
+  )) return false;
   if (manifest.rowId !== rowId || scenarioName(manifest) !== scenario) return false;
   if (manifest.candidateSha && manifest.candidateSha !== candidateSha) return false;
   if (envelope.candidate?.sha !== candidateSha || !SHA.test(envelope.candidate?.docsRef || '')) return false;

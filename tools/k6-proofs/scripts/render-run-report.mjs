@@ -124,7 +124,16 @@ async function rowFromRunResult(root, runResultPath) {
   const evidenceRows = files.includes('evidence.jsonl') ? await readEvidenceJsonl(path.join(runDir, 'evidence.jsonl')) : [];
   const rel = path.relative(root, runDir).split(path.sep).join('/');
   const proofFailures = Number(summary?.metrics?.failures ?? runResult.proofFailures ?? (runResult.k6ExitCode === 0 ? 0 : 1));
-  const outcome = safeText(summary?.verdict || (runResult.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate'));
+  // R-CD-2 has one authority: its signed row-scoped receipt, carried by the
+  // normalized run result. A generic k6 summary cannot override that result.
+  const outcome = safeText(
+    manifest?.rowId === 'R-CD-2' && (
+      runResult?.verdictSource !== 'r-cd-2-authoritative-receipt' ||
+      runResult?.authoritativeReceipt?.validated !== true
+    )
+      ? 'PARTIAL-candidate'
+      : (runResult?.outcome || summary?.verdict || (runResult.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate')),
+  );
   return {
     rowId: safeText(metadata?.row || manifest?.rowId),
     candidateSha: safeText(metadata?.candidateSha || manifest?.candidateSha || summary?.sha),

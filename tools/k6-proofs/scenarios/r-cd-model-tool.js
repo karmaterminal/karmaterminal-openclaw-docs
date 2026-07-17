@@ -4,6 +4,7 @@ import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
 
 export const options = {
   scenarios: { r_cd_model_tool: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '210s' } },
@@ -167,7 +168,8 @@ export default function() {
         if (classified.kind === 'event') {
           const eventData = classified.data || {}; const eventStr = JSON.stringify(eventData);
           if (eventData.traceId) evidence.trace_id = eventData.traceId;
-          const observedChildSessionKey = eventData.childSessionKey || eventData.task?.childSessionKey || eventData.session?.childSessionKey;
+          const eventBelongsToRow = eventStr.includes(rowNonce);
+          const observedChildSessionKey = childSessionKeyForRow(eventData, rowNonce);
           if (observedChildSessionKey) {
             evidence.child_session_observed = true;
             evidence.child_session_key = observedChildSessionKey;
@@ -176,7 +178,7 @@ export default function() {
               socket.setTimeout(() => tracker.send(socket, 'sessions.list', { limit: 100 }), 500);
             }
           }
-          if (eventStr.includes(rowNonce) && !eventStr.includes(HARNESS_MARKER)) {
+          if (eventBelongsToRow && !eventStr.includes(HARNESS_MARKER)) {
             if (eventStr.includes('MODEL-TOOL-PARENT-SCHEDULED')) {
               evidence.parent_scheduled_sentinel = true;
               console.log('✓ parent scheduled sentinel observed');

@@ -88,3 +88,10 @@ test('row runner keeps private acquisition transient and publishes sanitized evi
   assert.doesNotMatch(runner, /gateway-journal\.private/);
   assert.doesNotMatch(runner, /sessionKey:\$session/);
 });
+
+test('R-CD-2 row-list runner declares the signed receipt that candidate routing validates', async () => {
+  const runner = await readFile(path.join(repoRoot, 'tools/k6-proofs/scripts/run-proofs.sh'), 'utf8');
+  assert.match(runner, /R_CD_2_RECEIPT_SHA256/);
+  assert.match(runner, /createHash\("sha256"\)/);
+  assert.match(runner, /authoritativeReceipt:\(if \$authoritativeReceiptSha256 == "" then null else \{file:"r-cd-2-authoritative-receipt\.json", sha256:\$authoritativeReceiptSha256, validated:true/);
+});

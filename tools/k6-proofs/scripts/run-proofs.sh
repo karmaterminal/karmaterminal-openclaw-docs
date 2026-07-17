@@ -452,6 +452,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     # emits PARTIAL; only this resolver may join its private accepted-run
     # lifecycle with the matching continuation trace/chain receipt.
     R_CD_2_RECEIPT=""
+    R_CD_2_RECEIPT_SHA256=""
     if [[ "$ROW_ID" == "R-CD-2" ]]; then
       R_CD_2_RECEIPT="r-cd-2-authoritative-receipt.json"
       RESOLVER_ARGS=(--run-dir "$RUN_DIR" --evidence "$PRIVATE_EVIDENCE_FILE")
@@ -459,6 +460,10 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         RESOLVER_ARGS+=(--correlation "$CORRELATION_RECEIPT_PATH")
       fi
       if node "$R_CD_2_RECEIPT_RESOLVER" "${RESOLVER_ARGS[@]}" > "$RUN_DIR/r-cd-2-authoritative-resolution.json"; then
+        # The row-list runner itself—not only the writer/postprocessor path—must
+        # carry the signed receipt declaration into run-result.json.  Candidate
+        # routing verifies this digest before it can publish an R-CD-2 envelope.
+        R_CD_2_RECEIPT_SHA256="$(node --input-type=module -e 'import { createHash } from "node:crypto"; import { readFileSync } from "node:fs"; process.stdout.write(createHash("sha256").update(readFileSync(process.argv[1])).digest("hex"));' "$RUN_DIR/$R_CD_2_RECEIPT")"
         SUMMARY_VERDICT="$(jq -r '.verdict // "PARTIAL-candidate"' "$RUN_DIR/$R_CD_2_RECEIPT")"
         SUMMARY_VERDICT_SOURCE="r-cd-2-authoritative-receipt"
         SUMMARY_FILE_VERDICT="$SUMMARY_VERDICT"
@@ -540,6 +545,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg tempoTraceJson "$TEMPO_TRACE_JSON" \
       --arg correlationReceipt "$CORRELATION_RECEIPT" \
       --arg lifecycleReceipt "$R_CD_2_RECEIPT" \
+      --arg authoritativeReceiptSha256 "$R_CD_2_RECEIPT_SHA256" \
       --arg serviceLogStatus "$GATEWAY_JOURNAL_STATUS" \
       --arg verdict "$SUMMARY_VERDICT" \
       --arg verdictSource "$SUMMARY_VERDICT_SOURCE" \
@@ -548,7 +554,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --argjson summaryFiles "$SUMMARY_FILES_JSON" \
       --argjson evidence "$EVIDENCE_JSON" \
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
-      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
+      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, authoritativeReceipt:(if $authoritativeReceiptSha256 == "" then null else {file:"r-cd-2-authoritative-receipt.json", sha256:$authoritativeReceiptSha256, validated:true, source:"r-cd-2-row-scoped-resolver"} end), observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
     # A review-complete candidate can now receive a public-safe routing
     # envelope. Review-pending runs intentionally remain represented only by

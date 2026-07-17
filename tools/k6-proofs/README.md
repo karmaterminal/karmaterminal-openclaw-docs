@@ -461,12 +461,17 @@ worktree with dependencies already present, refuses to install dependencies,
 and writes only to an explicit artifact directory. It evaluates the exact
 production `checkContinuationBudget` module at below/equal/over cap, then
 runs the production dispatcher boundary suite to prove the over-cap hop does
-not spawn and its flow is failed. It records readiness and cleanup receipts.
+not spawn and its flow is failed. Finally, it creates a short-lived detached
+worktree of that exact candidate and exercises `runAgentAttempt` with the real
+typed `continue_work` capture surface, a disposable session already at the
+cost cap, and a zero-durable-work assertion. The temporary worktree is removed
+before the result is emitted. It records readiness and cleanup receipts.
 
-This is **not** a live-gateway promotion: it does not create a gateway or
-modify fleet config/state. The live row remains fixture-gated until a
-separate isolated-gateway orchestration can supply the same receipts through
-the full tool surface.
+This is an equivalent runtime-level fixture, not a live-fleet-gateway
+promotion: it does not create a gateway or modify fleet config/state. It
+closes the prior static-only gap by covering the real typed tool capture and
+post-turn scheduler path, but the row remains `PASS-candidate` pending human
+review and corpus fold.
 
 #### Runtime trace packet
 
@@ -490,8 +495,9 @@ gitnexus impact --repo openclaw-6ee7eca checkContinuationBudget
 
 The expected component receipt shape at `--cap 100` is `99: allow`,
 `100: allow`, `101: cost-capped`, plus dispatcher assertions for over-cap
-no-spawn and failed-flow persistence. A component PASS-candidate never
-reclassifies the live row as PASS.
+no-spawn and failed-flow persistence, and a typed-tool receipt that confirms
+two exhausted elections create no durable continuation work. A component
+PASS-candidate never reclassifies the live row as PASS without review.
 
 Future manifests may again be `scaffold`, `construct-only`, or `orchestration-required`. Such rows are tracked, but not workflow-runnable until a matching scenario exists and the manifest is promoted to `scenario.status="runnable"` plus `liveRunSafety.classification="k6-runnable"`.
 

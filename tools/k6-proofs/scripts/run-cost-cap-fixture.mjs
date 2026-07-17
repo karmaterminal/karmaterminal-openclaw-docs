@@ -9,9 +9,9 @@
  * no-spawn assertion without changing a fleet gateway.
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
 
 const DEFAULT_CAP = 100;
@@ -20,6 +20,10 @@ const SOURCE_MARKERS = [
   'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts',
   'package.json',
 ];
+const TOOL_SURFACE_TEMPLATE = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../fixtures/r-cw-5/cost-cap-tool-surface.test.ts',
+);
 
 function usage() {
   return `Usage: node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \\
@@ -121,6 +125,46 @@ function parseLastJson(stdout, label) {
   return JSON.parse(line);
 }
 
+function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir }) {
+  if (!existsSync(TOOL_SURFACE_TEMPLATE)) {
+    throw new Error(`tool-surface template missing: ${TOOL_SURFACE_TEMPLATE}`);
+  }
+  const worktreeDir = path.join(artifactDir, `.r-cw-5-tool-surface-${process.pid}-${Date.now()}`);
+  const add = run('git', ['-C', sourceDir, 'worktree', 'add', '--detach', worktreeDir, candidateSha], {});
+  if (!add.ok) throw new Error(`cannot create disposable candidate worktree: ${add.stderr.trim()}`);
+  let result;
+  try {
+    const testDir = path.join(worktreeDir, 'test', 'r-cw-5-fixture');
+    mkdirSync(testDir, { recursive: true, mode: 0o700 });
+    writeFileSync(
+      path.join(testDir, 'cost-cap-tool-surface.test.ts'),
+      readFileSync(TOOL_SURFACE_TEMPLATE),
+      { mode: 0o600 },
+    );
+    // The temporary worktree is source-only. Re-use the already-present,
+    // exact-candidate dependency tree without invoking pnpm/install.
+    symlinkSync(path.join(sourceDir, 'node_modules'), path.join(worktreeDir, 'node_modules'));
+    const test = run(
+      path.join(worktreeDir, 'node_modules', '.bin', 'vitest'),
+      ['run', '--config', 'test/vitest/vitest.auto-reply.config.ts', '--dir', 'test/r-cw-5-fixture', '--reporter=verbose'],
+      { cwd: worktreeDir },
+    );
+    result = {
+      passed: test.ok && /1 passed/u.test(test.stdout),
+      exitCode: test.exitCode,
+      asserted: {
+        typedToolCaptured: /disposable typed tool surface/u.test(test.stdout),
+        overCapRejected: /rejects exhausted typed-tool elections/u.test(test.stdout),
+        rejectedHopNoDurableWork: /1 passed/u.test(test.stdout),
+      },
+    };
+  } finally {
+    const remove = run('git', ['-C', sourceDir, 'worktree', 'remove', '--force', worktreeDir], {});
+    if (!remove.ok) throw new Error(`cannot remove disposable candidate worktree: ${remove.stderr.trim()}`);
+  }
+  return { ...result, disposableWorktreeRemoved: true };
+}
+
 export function runFixture(args) {
   assertArgs(args);
   const { resolved: sourceDir, head } = assertSource(args.sourceDir, args.candidateSha);
@@ -184,7 +228,21 @@ export function runFixture(args) {
     asserted: dispatchAssertions,
   });
 
-  const verdict = matrixPassed && dispatchPassed ? 'PASS-candidate' : 'FAIL-fixture';
+  const toolSurface = runDisposableToolSurface({ sourceDir, candidateSha: args.candidateSha, artifactDir });
+  const toolSurfacePassed = toolSurface.passed && Object.values(toolSurface.asserted).every(Boolean);
+  writeJson(path.join(artifactDir, 'typed-tool-surface.json'), {
+    schema: 'openclaw.project81.r-cw-5.typed-tool-surface.v1',
+    passed: toolSurfacePassed,
+    cap: args.cap,
+    fixtureKind: 'disposable-exact-candidate-worktree-with-real-attempt-execution-and-typed-tool-capture',
+    productionConfigTouched: false,
+    productionStateTouched: false,
+    sourceDirMutated: false,
+    disposableWorktreeCreated: true,
+    ...toolSurface,
+  });
+
+  const verdict = matrixPassed && dispatchPassed && toolSurfacePassed ? 'PASS-candidate' : 'FAIL-fixture';
   const result = {
     schema: 'openclaw.project81.r-cw-5.fixture-result.v1',
     verdict,
@@ -194,9 +252,10 @@ export function runFixture(args) {
       fixtureReadiness: 'fixture-readiness.json',
       boundaryMatrix: 'boundary-matrix.json',
       dispatchBoundarySuite: 'dispatch-boundary-suite.json',
+      typedToolSurface: 'typed-tool-surface.json',
       cleanup: 'cleanup.json',
     },
-    checks: { matrixPassed, dispatchPassed, noRejectedHopSpawn: dispatchPassed },
+    checks: { matrixPassed, dispatchPassed, toolSurfacePassed, noRejectedHopSpawn: dispatchPassed && toolSurfacePassed },
   };
   writeJson(path.join(artifactDir, 'cleanup.json'), {
     schema: 'openclaw.project81.r-cw-5.cleanup.v1',

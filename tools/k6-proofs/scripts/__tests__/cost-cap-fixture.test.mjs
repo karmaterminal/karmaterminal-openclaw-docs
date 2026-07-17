@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { parseArgs } from '../run-cost-cap-fixture.mjs';
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 
 test('R-CW-5 fixture accepts an explicit isolated source contract', () => {
   const parsed = parseArgs([
@@ -31,4 +33,16 @@ test('R-CW-5 fixture refuses unknown arguments', () => {
     () => parseArgs(['node', 'run-cost-cap-fixture.mjs', '--mutate-live-config'], {}),
     /unexpected argument: --mutate-live-config/,
   );
+});
+
+test('R-CW-5 typed tool-surface template asserts no durable work after exhausted elections', async () => {
+  const template = await readFile(
+    fileURLToPath(new URL('../../fixtures/r-cw-5/cost-cap-tool-surface.test.ts', import.meta.url)),
+    'utf8',
+  );
+  assert.match(template, /runAgentAttempt/);
+  assert.match(template, /continueWorkOpts/);
+  assert.match(template, /continuationChainTokens:\s*101/);
+  assert.match(template, /listTaskFlowsForOwnerKey\(sessionKey\)\)\.toHaveLength\(0\)/);
+  assert.match(template, /2 of 2 continue_work elections were not scheduled/);
 });

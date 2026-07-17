@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
+import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \\
@@ -182,7 +184,16 @@ async function main() {
   const runDir = path.join(outRoot, sha, row, seat, runId);
 
   const expectedArtifactClass = manifest.liveRunSafety?.expectedArtifactClass;
-  const outcome = outcomeFromSummary(summary, expectedArtifactClass);
+  let outcome = outcomeFromSummary(summary, expectedArtifactClass);
+  let verdictSource = 'k6-summary';
+  if (manifest.rowId === 'R-CD-2') {
+    if (!args['authoritative-receipt']) throw new Error('R-CD-2 requires --authoritative-receipt');
+    const receipt = JSON.parse(readFileSync(args['authoritative-receipt'], 'utf8'));
+    const validation = validateRcd2AuthoritativeReceipt(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
+    if (!validation.valid) throw new Error(`R-CD-2 authoritative receipt rejected: ${validation.reason}`);
+    outcome = receipt.verdict;
+    verdictSource = 'r-cd-2-authoritative-receipt';
+  }
   const failures = requiredMetric(summary, 'proof_failures');
   const failureCount = failures ? Number(failures.count || 0) : 0;
   const checks = requiredMetric(summary, 'checks');
@@ -204,6 +215,7 @@ async function main() {
     toolSurface: manifest.toolSurface,
     transport: manifest.transport,
     outcome,
+    verdictSource,
     metrics: {
       proofFailures: failureCount,
       checksRate: checkRate,

@@ -237,7 +237,8 @@ and saves it beside the candidate run artifacts as `tempo-trace-<trace>.json`.
 For trace-required tool rows whose primary `trace_id` is null, the collector
 instead searches by seat service, tool fingerprint, and an evidence-derived
 bounded dispatch window. It accepts exactly one candidate, fails closed on
-zero or multiple candidates, and saves the same public-safe Tempo JSON plus a
+zero or multiple candidates, and saves a public-safe projection containing
+only proof topology plus allowlisted telemetry attributes, together with a
 deterministic correlation receipt containing the exact query window. Fetch or
 correlation failures are kept non-fatal by default and leave
 `tempo-trace-json` review-pending. Set `OPENCLAW_PROOFS_K6_TEMPO_REQUIRED=true`

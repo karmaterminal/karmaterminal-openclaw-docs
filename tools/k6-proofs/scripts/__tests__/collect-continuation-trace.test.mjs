@@ -42,7 +42,7 @@ function traceFixture({ traceId, reasonHash, reasonLength, tool = 'continue_dele
   const acceptSpanName = isWork ? 'continuation.work' : 'continuation.delegate.dispatch';
   const fireSpanName = isWork ? 'continuation.work.fire' : 'continuation.delegate.fire';
   const continuationAttrs = [
-    attr('chain.id', 'chain-example'),
+    attr('chain.id', '11111111-1111-4111-8111-111111111111'),
     attr('reason.hash', reasonHash),
     attr('reason.length', reasonLength),
     ...(isWork ? [] : [attr('delegate.mode', 'normal')]),
@@ -376,6 +376,71 @@ test('uses a fixed dispatch-only window when evidence has no ended time', async 
   }
 });
 
+test('persists a public trace projection without private Tempo attributes or status messages', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'tool-trace-public-projection-test-'));
+  const manifestPath = path.join(dir, 'manifest.json');
+  const traceId = '77777777777777777777777777777777';
+  const sessionKey = 'agent:main:private-session-key-not-in-evidence';
+  const authorization = 'Bearer private-tempo-credential';
+  const statusMessage = 'private backend status text';
+  await writeFile(manifestPath, JSON.stringify({
+    rowId: 'R-RC-1',
+    invocation: { tool: 'request_compaction' },
+  }));
+  await writeFile(path.join(dir, 'evidence.jsonl'), `${JSON.stringify({
+    row: 'R-RC-1',
+    started: '2026-07-13T03:20:19.504Z',
+    ended: '2026-07-13T03:20:53.324Z',
+  })}\n`);
+
+  const unsafePrivateTrace = toolTraceFixture({ traceId, tool: 'request_compaction' });
+  const toolSpan = unsafePrivateTrace.batches[0].scopeSpans[0].spans[0];
+  toolSpan.attributes.push(
+    attr('session.key', sessionKey),
+    attr('authorization', authorization),
+  );
+  toolSpan.status = { code: 'ERROR', message: statusMessage };
+
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(
+      url.pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : unsafePrivateTrace,
+    ));
+  });
+
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script,
+      '--run-dir', dir,
+      '--manifest', manifestPath,
+      '--seat', 'ronan-dgx',
+      '--tempo-url', server.url,
+      '--timeout-ms', '100',
+      '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const traceText = await readFile(path.join(dir, result.traceFile), 'utf8');
+    const receiptText = await readFile(path.join(dir, result.receiptFile), 'utf8');
+    const publicTrace = JSON.parse(traceText);
+    const receipt = JSON.parse(receiptText);
+
+    assert.equal(publicTrace.schema, 'openclaw.k6.public-tempo-trace.v1');
+    assert.equal(publicTrace.traceId, traceId);
+    assert.match(traceText, /gen_ai\.tool\.name/);
+    for (const privateValue of [sessionKey, authorization, statusMessage]) {
+      assert.doesNotMatch(traceText, new RegExp(privateValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+      assert.doesNotMatch(receiptText, new RegExp(privateValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    }
+    assert.deepEqual(receipt.tool.status, { code: 'ERROR' });
+  } finally {
+    await server.close();
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('correlates continue_work tool/accept/fire topology by safe reason fingerprint', async () => {
   const fixture = await fixtureDir({ tool: 'continue_work' });
   const traceId = '33333333333333333333333333333333';
@@ -453,9 +518,14 @@ test('reconstructs deterministic R-CW-3 reason telemetry without persisting the 
     ]);
     const result = JSON.parse(stdout);
     const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+    const publicTraceText = await readFile(path.join(fixture.dir, result.traceFile), 'utf8');
 
     assert.equal(receipt.row, 'R-CW-3');
     assert.equal(receipt.reason.hash, fixture.reasonHash);
+    assert.match(publicTraceText, /reason\.hash/);
+    assert.match(publicTraceText, new RegExp(fixture.reasonHash));
+    assert.match(publicTraceText, /reason\.length/);
+    assert.doesNotMatch(publicTraceText, /RAW-RCW3/);
     assert.doesNotMatch(JSON.stringify(receipt), /RAW-RCW3/);
   } finally {
     await server.close();

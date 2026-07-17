@@ -231,13 +231,17 @@ successful proof with missing artifacts. Trace and correlation paths in
 
 ## Tempo trace receipts
 
-When a live row emits a `trace_id`, `run-proofs.sh` now attempts to fetch the
+When a live row emits a `trace_id`, `run-proofs.sh` attempts to fetch the
 matching Tempo JSON from `OPENCLAW_PROOFS_TEMPO_BASE_URL` / `TEMPO_BASE_URL` (fleet default `http://tempo.dandelion.cult`)
 and saves it beside the candidate run artifacts as `tempo-trace-<trace>.json`.
-The fetch receipt is stored in `tempo-trace-receipt.json`; fetch failures are
-kept non-fatal by default and leave `tempo-trace-json` review-pending. Set
-`OPENCLAW_PROOFS_K6_TEMPO_REQUIRED=true` only when a missing trace JSON should
-fail the run.
+For trace-required tool rows whose primary `trace_id` is null, the collector
+instead searches by seat service, tool fingerprint, and an evidence-derived
+bounded dispatch window. It accepts exactly one candidate, fails closed on
+zero or multiple candidates, and saves the same public-safe Tempo JSON plus a
+deterministic correlation receipt containing the exact query window. Fetch or
+correlation failures are kept non-fatal by default and leave
+`tempo-trace-json` review-pending. Set `OPENCLAW_PROOFS_K6_TEMPO_REQUIRED=true`
+only when a missing trace JSON should fail the run.
 
 For trace-required `continue_delegate` rows, the runner does not trust a
 missing or first-match trace ID. It derives the public-safe runtime fingerprint

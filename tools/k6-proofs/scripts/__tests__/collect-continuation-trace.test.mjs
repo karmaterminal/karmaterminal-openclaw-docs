@@ -302,10 +302,74 @@ test('recovers a unique non-continuation tool trace by seat, tool, and evidence 
     assert.equal(receipt.tool.spanId, 'aaaaaaaaaaaaaaaa');
     assert.equal(receipt.tool.status.code, 'UNSET');
     assert.equal(receipt.uniqueTrace, true);
+    assert.equal('generatedAt' in receipt, false);
+    assert.deepEqual(receipt.searchWindow, {
+      startUnixSeconds: Math.floor(Date.parse('2026-07-13T03:20:19.504Z') / 1000) - 60,
+      endUnixSeconds: Math.floor(Date.parse('2026-07-13T03:20:53.324Z') / 1000) + 60,
+      paddingSeconds: 60,
+      source: 'dispatch-and-evidence-ended',
+    });
     assert.match(observedQuery, /service\.name="ronan-prince"/);
     assert.match(observedQuery, /gen_ai\.tool\.name="request_compaction"/);
     assert.equal(observedStart, String(Math.floor(Date.parse('2026-07-13T03:20:19.504Z') / 1000) - 60));
     assert.equal(observedEnd, String(Math.floor(Date.parse('2026-07-13T03:20:53.324Z') / 1000) + 60));
+  } finally {
+    await server.close();
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('uses a fixed dispatch-only window when evidence has no ended time', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'tool-trace-window-test-'));
+  const manifestPath = path.join(dir, 'manifest.json');
+  const traceId = '66666666666666666666666666666666';
+  const dispatchedAt = '2026-07-13T03:20:19.504Z';
+  await writeFile(manifestPath, JSON.stringify({
+    rowId: 'R-RC-1',
+    invocation: { tool: 'request_compaction' },
+  }));
+  await writeFile(path.join(dir, 'evidence.jsonl'), `${JSON.stringify({
+    row: 'R-RC-1',
+    started: dispatchedAt,
+  })}\n`);
+  let observedEnd = '';
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    if (url.pathname === '/api/search') {
+      observedEnd = url.searchParams.get('end') || '';
+      response.end(JSON.stringify({ traces: [{ traceID: traceId }] }));
+      return;
+    }
+    response.end(JSON.stringify(toolTraceFixture({ traceId, tool: 'request_compaction' })));
+  });
+
+  try {
+    const args = [
+      script,
+      '--run-dir', dir,
+      '--manifest', manifestPath,
+      '--seat', 'ronan-dgx',
+      '--tempo-url', server.url,
+      '--timeout-ms', '100',
+      '--poll-ms', '10',
+    ];
+    const { stdout } = await execFileAsync(process.execPath, args);
+    const result = JSON.parse(stdout);
+    const receiptPath = path.join(dir, result.receiptFile);
+    const firstReceipt = await readFile(receiptPath, 'utf8');
+    await execFileAsync(process.execPath, args);
+    assert.equal(await readFile(receiptPath, 'utf8'), firstReceipt);
+
+    const dispatchSeconds = Math.floor(Date.parse(dispatchedAt) / 1000);
+    const receipt = JSON.parse(firstReceipt);
+    assert.equal(observedEnd, String(dispatchSeconds + 60));
+    assert.deepEqual(receipt.searchWindow, {
+      startUnixSeconds: dispatchSeconds - 60,
+      endUnixSeconds: dispatchSeconds + 60,
+      paddingSeconds: 60,
+      source: 'dispatch-only',
+    });
   } finally {
     await server.close();
     await rm(dir, { recursive: true, force: true });

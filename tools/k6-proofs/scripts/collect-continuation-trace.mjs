@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
+const CORRELATION_WINDOW_PADDING_SECONDS = 60;
 
 function usage() {
   console.error(`Usage: node collect-continuation-trace.mjs \\
@@ -335,10 +336,13 @@ async function main() {
     : `{ resource.service.name="${serviceName}" && name="openclaw.tool.execution" && .gen_ai.tool.name="${contract.tool}" }`;
   const dispatchMs = Number(evidence.dispatch_accepted_at_ms || Date.parse(evidence.started));
   if (!Number.isFinite(dispatchMs)) throw new Error('evidence lacks a valid dispatch/start time');
-  const start = Math.floor(dispatchMs / 1000) - 60;
+  const dispatchSeconds = Math.floor(dispatchMs / 1000);
+  const start = dispatchSeconds - CORRELATION_WINDOW_PADDING_SECONDS;
   const evidenceEndMs = Date.parse(evidence.ended);
-  const searchEndMs = Number.isFinite(evidenceEndMs) ? evidenceEndMs : Date.now();
-  const end = Math.floor(searchEndMs / 1000) + 60;
+  const evidenceEndSeconds = Number.isFinite(evidenceEndMs)
+    ? Math.floor(evidenceEndMs / 1000)
+    : dispatchSeconds;
+  const end = Math.max(dispatchSeconds, evidenceEndSeconds) + CORRELATION_WINDOW_PADDING_SECONDS;
   const deadline = Date.now() + args.timeoutMs;
   let candidates = [];
   let traceId = '';
@@ -398,11 +402,16 @@ async function main() {
     schema: contract.kind === 'continuation'
       ? 'openclaw.k6.continuation-trace-correlation.v1'
       : 'openclaw.k6.tool-trace-correlation.v1',
-    generatedAt: new Date().toISOString(),
     row: evidence.row || manifest.rowId,
     seat: args.seat,
     attribution: contract.attribution,
     query,
+    searchWindow: {
+      startUnixSeconds: start,
+      endUnixSeconds: end,
+      paddingSeconds: CORRELATION_WINDOW_PADDING_SECONDS,
+      source: Number.isFinite(evidenceEndMs) ? 'dispatch-and-evidence-ended' : 'dispatch-only',
+    },
     traceJson: path.basename(traceOut),
     ...topology,
     ...(contract.kind === 'continuation'

@@ -1,16 +1,21 @@
 /**
  * Scenario: R-RC-1 — request_compaction below-threshold reject.
  *
- * Creates a disposable low-context session, asks the agent to invoke the typed
- * request_compaction tool, and requires an explicit RC1-REJECTED sentinel after
- * the tool returns a structured threshold rejection. This is non-mutating when
- * the guard works: the expected proof receipt is the rejection.
+ * Creates a disposable low-context session, verifies request_compaction is in
+ * that session's effective tool inventory, then captures the authoritative
+ * role=toolResult receipt for the invocation. Assistant sentinel prose is
+ * retained as diagnostic evidence only and can never satisfy the row.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import {
+  classifyRequestCompactionReceipt,
+  findRequestCompactionReceipt,
+  hasEffectiveTool,
+} from '../lib/request-compaction-receipt.js';
 
 export const options = {
   scenarios: {
@@ -66,13 +71,24 @@ export default function () {
     created_session_key: null,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
+    tool_inventory_checked: false,
+    tool_registered: false,
     dispatch_accepted: false,
     dispatch_accepted_at_ms: null,
     tool_name: 'request_compaction',
+    tool_invocation_observed: false,
+    tool_result_observed: false,
+    tool_call_id: null,
+    tool_call_nonce_bound: false,
+    tool_result_status: null,
     tool_invoke_rejected: false,
     guard: null,
     context_usage: null,
     threshold: null,
+    no_compaction_side_effect: false,
+    assistant_sentinel_observed: false,
+    history_requested: false,
+    history_attempts: 0,
     trace_id: null,
     redacted_events: [],
   };
@@ -83,20 +99,56 @@ export default function () {
     const tracker = new RequestTracker();
 
     function startProofFlow() {
-      tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
-      socket.setTimeout(() => {
-        const reason = `R-RC-1 k6 proof nonce ${rowNonce}: expected below-threshold structured rejection; do not compact.`;
-        const instruction =
-          `${HARNESS_MARKER} Call request_compaction with reason="${reason}". ` +
-          `If the tool result is rejected, reply exactly RC1-REJECTED ${rowNonce} GUARD <guard> CONTEXT <contextUsage> THRESHOLD <threshold>. ` +
-          `If it is accepted or errors, reply exactly RC1-NOT-REJECTED ${rowNonce}. No other action.`;
-        tracker.send(socket, 'sessions.send', {
-          key: sessionKey,
-          message: instruction,
-          idempotencyKey: `R-RC-1-${rowNonce}`,
-        });
-      }, 500);
+      tracker.send(socket, 'tools.effective', { sessionKey });
       socket.setTimeout(() => socket.close(), 60000);
+    }
+
+    function dispatchRequestCompaction() {
+      const reason = `R-RC-1 k6 proof nonce ${rowNonce}: expected below-threshold structured rejection; do not compact.`;
+      const instruction =
+        `${HARNESS_MARKER} Call request_compaction with reason=${JSON.stringify(reason)}. ` +
+        `After the tool returns, reply exactly RC1-RESULT-OBSERVED ${rowNonce}. ` +
+        `Do not infer or restate the receipt, and take no other action.`;
+      tracker.send(socket, 'sessions.send', {
+        key: sessionKey,
+        message: instruction,
+        idempotencyKey: `R-RC-1-${rowNonce}`,
+      });
+    }
+
+    function recordAuthoritativeReceipt(receiptResult) {
+      if (receiptResult.kind === 'threshold_rejected') {
+        const receipt = receiptResult.receipt;
+        evidence.tool_result_observed = true;
+        evidence.tool_call_id = receiptResult.toolCallId;
+        evidence.tool_call_nonce_bound = receiptResult.nonceBound === true;
+        evidence.tool_invocation_observed = evidence.tool_call_nonce_bound;
+        evidence.tool_result_status = receipt.status;
+        evidence.tool_invoke_rejected = true;
+        evidence.guard = receipt.guard;
+        evidence.context_usage = Number.isFinite(receipt.contextUsage) ? receipt.contextUsage : null;
+        evidence.threshold = Number.isFinite(receipt.threshold) ? receipt.threshold : null;
+        evidence.no_compaction_side_effect = true;
+        console.log(`✓ authoritative toolResult: status=${receipt.status} guard=${receipt.guard} context=${receipt.contextUsage ?? 'unknown'} threshold=${receipt.threshold ?? 'unknown'}`);
+        socket.close();
+        return true;
+      }
+      if (receiptResult.kind === 'invalid' || receiptResult.kind === 'non_threshold_result') {
+        evidence.tool_result_observed = true;
+        evidence.tool_call_id = receiptResult.toolCallId || null;
+        evidence.tool_result_status = receiptResult.receipt?.status || 'invalid';
+        console.error(`✗ authoritative request_compaction tool result did not prove threshold rejection: ${JSON.stringify(receiptResult)}`);
+        failures.add(1);
+        socket.close();
+        return true;
+      }
+      return false;
+    }
+
+    function requestTranscriptReceipt() {
+      evidence.history_requested = true;
+      evidence.history_attempts += 1;
+      tracker.send(socket, 'sessions.get', { key: sessionKey, limit: 20 });
     }
 
     socket.on('open', () => {
@@ -121,7 +173,7 @@ export default function () {
           method: classified.method || null,
           event: classified.event || null,
           ok: classified.ok !== undefined ? classified.ok : null,
-          data: classified.payload ? redactEvent(classified.payload) : null,
+          data: redactEvent(classified.data || classified.payload || null),
         });
 
         if (classified.kind === 'response' && classified.method === 'sessions.create') {
@@ -139,42 +191,78 @@ export default function () {
           }
         }
 
+        if (classified.kind === 'response' && classified.method === 'tools.effective') {
+          evidence.tool_inventory_checked = true;
+          evidence.tool_registered = classified.ok && hasEffectiveTool(classified.payload, 'request_compaction');
+          if (!evidence.tool_registered) {
+            console.error(`✗ request_compaction absent from effective inventory: ${JSON.stringify(classified.error || classified.payload)}`);
+            failures.add(1);
+            socket.close();
+          } else {
+            console.log('✓ request_compaction present in effective inventory');
+            tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
+          }
+        }
+
+        if (classified.kind === 'response' && classified.method === 'sessions.messages.subscribe') {
+          if (classified.ok) {
+            dispatchRequestCompaction();
+          } else {
+            console.error(`✗ sessions.messages.subscribe rejected: ${JSON.stringify(classified.error)}`);
+            failures.add(1);
+            socket.close();
+          }
+        }
+
         if (classified.kind === 'response' && classified.method === 'sessions.send') {
           if (classified.ok) {
             evidence.dispatch_accepted = true;
             evidence.dispatch_accepted_at_ms = Date.now();
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
-            console.log('✓ sessions.send accepted — agent turn triggered for request_compaction reject');
+            console.log('✓ sessions.send accepted — awaiting authoritative request_compaction tool result');
           } else {
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
             failures.add(1);
+            socket.close();
+          }
+        }
+
+        if (classified.kind === 'response' && classified.method === 'sessions.get') {
+          if (!classified.ok) {
+            console.error(`✗ sessions.get rejected: ${JSON.stringify(classified.error)}`);
+            failures.add(1);
+            socket.close();
+          } else {
+            const receiptResult = findRequestCompactionReceipt(classified.payload?.messages, { rowNonce });
+            if (!recordAuthoritativeReceipt(receiptResult)) {
+              if (evidence.history_attempts < 8) {
+                socket.setTimeout(requestTranscriptReceipt, 250);
+              } else {
+                console.error('✗ sessions.get contained no authoritative request_compaction tool result after bounded retries');
+                failures.add(1);
+                socket.close();
+              }
+            }
           }
         }
 
         if (classified.kind === 'event') {
-          const eventStr = JSON.stringify(classified.data || {});
-          if (eventStr.includes(rowNonce)) {
-            if (eventStr.includes(HARNESS_MARKER)) {
-              console.log('ℹ Ignoring harness prompt echo event');
-            } else if (eventStr.includes(`RC1-REJECTED ${rowNonce}`)) {
-              evidence.tool_invoke_rejected = true;
-              // The subscribed event stream may redact/escape the assistant text
-              // enough that field regexes miss, even though the exact sentinel is
-              // visible in session history. The model was instructed to emit
-              // RC1-REJECTED only after the request_compaction tool returned a
-              // rejection, so the sentinel itself is the required row receipt.
-              const guard = 'context_threshold';
-              const usage = eventStr.match(/CONTEXT[^0-9A-Za-z]+(\d+|unknown)/)?.[1] || 'unknown';
-              const threshold = eventStr.match(/THRESHOLD[^0-9A-Za-z]+(\d+|unknown)/)?.[1] || 'unknown';
-              evidence.guard = guard;
-              evidence.context_usage = usage !== 'unknown' ? Number(usage) : null;
-              evidence.threshold = threshold !== 'unknown' ? Number(threshold) : null;
-              console.log(`✓ RC1-REJECTED sentinel observed: guard=${guard} context=${usage} threshold=${threshold}`);
-              socket.close();
-            } else if (eventStr.includes(`RC1-NOT-REJECTED ${rowNonce}`)) {
-              console.error('✗ RC1-NOT-REJECTED sentinel observed');
-              failures.add(1);
-              socket.close();
+          const receiptResult = classifyRequestCompactionReceipt(classified.data);
+          // Subscription events can be delayed or replayed. Never accept an
+          // unbound tool result directly; use it only as a signal to fetch the
+          // transcript, where the nonce-bearing tool call and toolCallId can be
+          // correlated in the same disposable session.
+          if (receiptResult.kind !== 'unrelated' && !evidence.history_requested) {
+            requestTranscriptReceipt();
+          }
+
+          const eventMessage = classified.data?.message;
+          const eventStr = JSON.stringify(eventMessage?.content || '');
+          if (eventMessage?.role === 'assistant' && eventStr.includes(`RC1-RESULT-OBSERVED ${rowNonce}`)) {
+            evidence.assistant_sentinel_observed = true;
+            console.log('ℹ assistant sentinel observed (diagnostic only; not accepted as row evidence)');
+            if (!evidence.history_requested && !evidence.tool_result_observed) {
+              requestTranscriptReceipt();
             }
           }
         }
@@ -195,12 +283,21 @@ export default function () {
 
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
+    'request_compaction registered': () => evidence.tool_inventory_checked && evidence.tool_registered,
     'dispatch accepted': () => evidence.dispatch_accepted,
+    'typed tool invocation observed': () => evidence.tool_invocation_observed,
+    'authoritative tool result observed': () => evidence.tool_result_observed,
+    'tool result bound to current nonce-bearing call': () => evidence.tool_call_nonce_bound,
     'request_compaction rejected': () => evidence.tool_invoke_rejected,
     'context_threshold guard observed': () => evidence.guard === 'context_threshold',
+    'no compaction side effect': () => evidence.no_compaction_side_effect,
   });
 
-  if (!evidence.dispatch_accepted || !evidence.tool_invoke_rejected || evidence.guard !== 'context_threshold') {
+  if (!evidence.tool_inventory_checked || !evidence.tool_registered || !evidence.dispatch_accepted ||
+      !evidence.tool_invocation_observed || !evidence.tool_result_observed ||
+      !evidence.tool_invoke_rejected ||
+      !evidence.tool_call_nonce_bound || evidence.guard !== 'context_threshold' ||
+      !evidence.no_compaction_side_effect) {
     failures.add(1);
   }
 

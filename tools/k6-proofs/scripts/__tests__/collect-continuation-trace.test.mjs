@@ -36,7 +36,7 @@ function span(name, traceId, spanId, parentSpanId, attrs = []) {
   };
 }
 
-function traceFixture({ traceId, reasonHash, reasonLength, tool = 'continue_delegate' }) {
+function traceFixture({ traceId, reasonHash, reasonLength, tool = 'continue_delegate', mode = 'normal' }) {
   const parent = 'dddddddddddddddd';
   const isWork = tool === 'continue_work';
   const acceptSpanName = isWork ? 'continuation.work' : 'continuation.delegate.dispatch';
@@ -45,7 +45,7 @@ function traceFixture({ traceId, reasonHash, reasonLength, tool = 'continue_dele
     attr('chain.id', '11111111-1111-4111-8111-111111111111'),
     attr('reason.hash', reasonHash),
     attr('reason.length', reasonLength),
-    ...(isWork ? [] : [attr('delegate.mode', 'normal')]),
+    ...(isWork ? [] : [attr('delegate.mode', mode)]),
   ];
   return {
     batches: [{
@@ -93,15 +93,21 @@ async function fixtureDir({
   tool = 'continue_delegate',
   workVariant = 'reason',
   includeNonce = true,
+  rowId,
+  delegateMode,
+  nonceOverride,
+  extraEvidence = {},
 } = {}) {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'continuation-trace-test-'));
   const isWork = tool === 'continue_work';
   const isReasonPrefix = isWork && workVariant === 'reason-prefix';
-  const nonce = isReasonPrefix
+  const resolvedRowId = rowId || (isReasonPrefix ? 'R-CW-3' : isWork ? 'R-CW-1' : 'R-CD-1');
+  const generatedNonce = isReasonPrefix
     ? 'R-CW-3-example'
     : isWork
       ? 'R-CW-1-example'
       : 'R-CD-1-example';
+  const nonce = nonceOverride || generatedNonce;
   const template = isReasonPrefix
     ? 'k6-proof-R-CW-3-redaction RAW-RCW3-{{nonce}}; on continuation wake reply exactly CW3-WOKE {{nonce}}'
     : isWork
@@ -111,10 +117,10 @@ async function fixtureDir({
   const reason = templatedReason;
   const reasonHash = createHash('sha256').update(reason).digest('hex').slice(0, 16);
   const manifest = {
-    rowId: isReasonPrefix ? 'R-CW-3' : isWork ? 'R-CW-1' : 'R-CD-1',
+    rowId: resolvedRowId,
     invocation: isWork
       ? { tool, reason: template }
-      : { tool, mode: 'normal', promptTemplate: template },
+      : { tool, mode: delegateMode || 'normal', promptTemplate: template },
   };
   const evidence = {
     row: manifest.rowId,
@@ -123,7 +129,8 @@ async function fixtureDir({
     dispatch_accepted_at_ms: Date.parse('2026-07-12T22:15:10.000Z'),
     reason_hash: reasonHash,
     reason_length: reason.length,
-    ...(isWork ? {} : { delegate_mode: 'normal' }),
+    ...(isWork ? {} : { delegate_mode: delegateMode || 'normal' }),
+    ...extraEvidence,
   };
   const manifestPath = path.join(dir, 'manifest.json');
   await writeFile(manifestPath, JSON.stringify(manifest));
@@ -174,6 +181,47 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
     }]);
     assert.match(observedQuery, new RegExp(`reason\\.hash="${fixture.reasonHash}"`));
     assert.doesNotMatch(JSON.stringify(receipt), /Proof nonce/);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-2 correlation carries only matching opaque send run and nonce bindings', async () => {
+  const rowNonce = 'R-CD-2-example';
+  const fixture = await fixtureDir({
+    rowId: 'R-CD-2',
+    delegateMode: 'silent-wake',
+    nonceOverride: rowNonce,
+    extraEvidence: {
+      send_run_fingerprint: 'a'.repeat(16),
+      row_nonce_fingerprint: createHash('sha256').update(rowNonce).digest('hex').slice(0, 16),
+      accepted_send_trace_id: '1'.repeat(32),
+    },
+  });
+  const traceId = '1'.repeat(32);
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(
+      new URL(request.url, 'http://localhost').pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : traceFixture({ traceId, reasonHash: fixture.reasonHash, reasonLength: fixture.reasonLength, mode: 'silent-wake' }),
+    ));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'cael-prince', '--tempo-url', server.url, '--timeout-ms', '100', '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const receiptText = await readFile(path.join(fixture.dir, result.receiptFile), 'utf8');
+    const receipt = JSON.parse(receiptText);
+    assert.deepEqual(receipt.rowBinding, {
+      acceptedSendRunFingerprint: 'a'.repeat(16),
+      nonceFingerprint: createHash('sha256').update(rowNonce).digest('hex').slice(0, 16),
+      acceptedSendTraceId: traceId,
+    });
+    assert.doesNotMatch(receiptText, /R-CD-2-example/);
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });

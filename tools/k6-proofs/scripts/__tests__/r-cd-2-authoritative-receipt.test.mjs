@@ -1,5 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import path from 'node:path';
+import { tmpdir } from 'node:os';
 import {
   resolveRcd2AuthoritativeReceipt,
   validateRcd2AuthoritativeReceipt,
@@ -7,6 +12,11 @@ import {
 
 const signingKey = 'r-cd-2-authoritative-receipt-test-key';
 const run = 'a'.repeat(16);
+const execFileAsync = promisify(execFile);
+const repoRoot = path.resolve(import.meta.dirname, '../..');
+const manifestPath = path.join(repoRoot, 'manifests/r-cd-2.json');
+const writerPath = path.join(repoRoot, 'scripts/evidence-writer.mjs');
+const postprocessorPath = path.join(repoRoot, 'scripts/postprocess-k6-summary.mjs');
 
 function evidence(overrides = {}) {
   return {
@@ -54,5 +64,32 @@ test('R-CD-2 rejects replay failure, wrong mode, and mismatched trace topology',
   for (const bad of [correlation({ mode: 'normal' }), correlation({ sameTrace: false })]) {
     const receipt = resolveRcd2AuthoritativeReceipt({ evidence: evidence(), correlation: bad, signingKey });
     assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'invalid-continuation-topology']);
+  }
+});
+
+test('R-CD-2 writer and postprocessor accept only the authoritative receipt', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'r-cd-2-authoritative-'));
+  try {
+    const receipt = resolveRcd2AuthoritativeReceipt({ evidence: evidence(), correlation: correlation(), signingKey });
+    const receiptPath = path.join(dir, 'receipt.json');
+    const logPath = path.join(dir, 'k6.log');
+    const summaryPath = path.join(dir, 'summary.json');
+    await writeFile(receiptPath, JSON.stringify(receipt));
+    await writeFile(logPath, '--- R-CD-2 EVIDENCE SUMMARY ---\n{"row":"R-CD-2","redacted_events":[]}\n--- END EVIDENCE ---\n');
+    await writeFile(summaryPath, JSON.stringify({ metrics: { proof_failures: { values: { count: 0 } }, checks: { values: { rate: 1 } } } }));
+    const env = { ...process.env, OPENCLAW_GATEWAY_TOKEN: signingKey };
+    const writer = await execFileAsync(process.execPath, [writerPath, '--input', logPath, '--row', 'R-CD-2', '--seat', 'unit', '--sha', 'a'.repeat(40), '--manifest', manifestPath, '--authoritative-receipt', receiptPath], { cwd: dir, env });
+    const writerDir = JSON.parse(writer.stdout).runDir;
+    const writerResult = JSON.parse(await readFile(path.join(dir, writerDir, 'row-result.json'), 'utf8'));
+    assert.equal(writerResult.outcome, 'PASS-candidate');
+    assert.equal(writerResult.verdictSource, 'r-cd-2-authoritative-receipt');
+    const post = await execFileAsync(process.execPath, [postprocessorPath, '--manifest', manifestPath, '--summary', summaryPath, '--out-root', path.join(dir, 'post'), '--run-id', 'unit', '--authoritative-receipt', receiptPath], { cwd: dir, env });
+    const postDir = JSON.parse(post.stdout).runDir;
+    const postResult = JSON.parse(await readFile(path.join(postDir, 'row-result.json'), 'utf8'));
+    assert.equal(postResult.outcome, 'PASS-candidate');
+    assert.equal(postResult.verdictSource, 'r-cd-2-authoritative-receipt');
+    await assert.rejects(execFileAsync(process.execPath, [writerPath, '--input', logPath, '--row', 'R-CD-2', '--seat', 'unit', '--sha', 'a'.repeat(40)], { cwd: dir, env }));
+  } finally {
+    await rm(dir, { recursive: true, force: true });
   }
 });

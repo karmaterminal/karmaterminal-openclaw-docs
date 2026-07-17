@@ -94,7 +94,22 @@ function gitHead(sourceDir) {
   return result.stdout.trim();
 }
 
-function assertSource(sourceDir, candidateSha) {
+function trackedSourceStatus(sourceDir) {
+  const result = run('git', ['-C', sourceDir, 'status', '--porcelain', '--untracked-files=no'], {});
+  if (!result.ok) throw new Error(`cannot inspect tracked source state: ${result.stderr.trim()}`);
+  return result.stdout.trim();
+}
+
+export function assertTrackedSourceClean(sourceDir, phase) {
+  const status = trackedSourceStatus(sourceDir);
+  if (status) {
+    throw new Error(
+      `candidate source has tracked staged or unstaged changes before ${phase}; refusing exact-source certification`,
+    );
+  }
+}
+
+export function assertSource(sourceDir, candidateSha) {
   const resolved = path.resolve(sourceDir);
   for (const marker of SOURCE_MARKERS) {
     if (!existsSync(path.join(resolved, marker))) throw new Error(`source dir is missing ${marker}`);
@@ -104,6 +119,7 @@ function assertSource(sourceDir, candidateSha) {
   }
   const head = gitHead(resolved);
   if (head !== candidateSha) throw new Error(`candidate/source mismatch: requested ${candidateSha}, source is ${head}`);
+  assertTrackedSourceClean(resolved, 'fixture execution');
   return { resolved, head };
 }
 
@@ -259,6 +275,12 @@ export function runFixture(args) {
     disposableWorktreeCreated: true,
     ...toolSurface,
   });
+
+  // The production-module matrix and dispatcher suite execute against
+  // sourceDir. A matching HEAD is not enough if tracked files were altered
+  // while they ran, so refuse to emit a final exact-source receipt unless the
+  // candidate is still clean after every production-surface check.
+  assertTrackedSourceClean(sourceDir, 'final cleanup/result receipt');
 
   const verdict = matrixPassed && dispatchPassed && toolSurfacePassed ? 'PASS-candidate' : 'FAIL-fixture';
   const result = {

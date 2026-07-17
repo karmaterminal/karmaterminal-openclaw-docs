@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { parseArgs, prepareArtifactDir } from '../run-cost-cap-fixture.mjs';
+import { assertSource, parseArgs, prepareArtifactDir } from '../run-cost-cap-fixture.mjs';
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
@@ -46,6 +47,33 @@ test('R-CW-5 fixture refuses to overwrite or expose an artifact directory', asyn
 
   const fresh = path.join(root, 'fresh');
   assert.equal(prepareArtifactDir(fresh), fresh);
+});
+
+test('R-CW-5 fixture refuses staged or unstaged tracked candidate changes', async () => {
+  const source = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-dirty-source-'));
+  await mkdir(path.join(source, 'src/auto-reply/continuation'), { recursive: true });
+  await mkdir(path.join(source, 'node_modules'));
+  await writeFile(path.join(source, 'src/auto-reply/continuation/scheduler.ts'), 'export const clean = true;\n');
+  await writeFile(path.join(source, 'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts'), '// marker\n');
+  await writeFile(path.join(source, 'package.json'), '{"name":"r-cw-5-test"}\n');
+  execFileSync('git', ['init'], { cwd: source, stdio: 'ignore' });
+  execFileSync('git', ['config', 'user.email', 'proof@example.invalid'], { cwd: source });
+  execFileSync('git', ['config', 'user.name', 'R-CW-5 fixture test'], { cwd: source });
+  execFileSync('git', ['add', 'src', 'package.json'], { cwd: source });
+  execFileSync('git', ['commit', '-m', 'candidate'], { cwd: source, stdio: 'ignore' });
+  const candidateSha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: source, encoding: 'utf8' }).trim();
+
+  await writeFile(path.join(source, 'src/auto-reply/continuation/scheduler.ts'), 'export const clean = false;\n');
+  assert.throws(
+    () => assertSource(source, candidateSha),
+    /tracked staged or unstaged changes/,
+  );
+
+  execFileSync('git', ['add', 'src/auto-reply/continuation/scheduler.ts'], { cwd: source });
+  assert.throws(
+    () => assertSource(source, candidateSha),
+    /tracked staged or unstaged changes/,
+  );
 });
 
 test('R-CW-5 typed tool-surface template asserts no durable work after exhausted elections', async () => {

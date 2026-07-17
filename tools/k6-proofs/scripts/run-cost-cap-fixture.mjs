@@ -114,13 +114,42 @@ export function assertSource(sourceDir, candidateSha) {
   for (const marker of SOURCE_MARKERS) {
     if (!existsSync(path.join(resolved, marker))) throw new Error(`source dir is missing ${marker}`);
   }
-  if (!existsSync(path.join(resolved, 'node_modules'))) {
+  const dependencyDir = path.join(resolved, 'node_modules');
+  if (!existsSync(dependencyDir)) {
     throw new Error('source dir has no node_modules; fixture refuses to install dependencies or mutate the candidate worktree');
+  }
+  if (lstatSync(dependencyDir).isSymbolicLink()) {
+    throw new Error('source node_modules must be a real directory; fixture refuses an indirect mutable dependency tree');
   }
   const head = gitHead(resolved);
   if (head !== candidateSha) throw new Error(`candidate/source mismatch: requested ${candidateSha}, source is ${head}`);
   assertTrackedSourceClean(resolved, 'fixture execution');
   return { resolved, head };
+}
+
+export function renderToolSurfaceTemplate(template, cap) {
+  if (!Number.isInteger(cap) || cap < 2) throw new Error('tool-surface cap must be an integer of at least 2');
+  const overCap = cap + 1;
+  if (!template.includes('__RCW5_CAP__') || !template.includes('__RCW5_OVER_CAP__')) {
+    throw new Error('tool-surface template is missing required cap placeholders');
+  }
+  return template
+    .replaceAll('__RCW5_CAP__', String(cap))
+    .replaceAll('__RCW5_OVER_CAP__', String(overCap));
+}
+
+export function buildReadiness({ candidateSha, head, cap }) {
+  return {
+    schema: 'openclaw.project81.r-cw-5.fixture-readiness.v1',
+    candidateSha,
+    sourceHeadMatchesCandidate: head === candidateSha,
+    sourceTrackedCleanBefore: true,
+    productionConfigTouched: false,
+    productionStateTouched: false,
+    fixtureKind: 'source-only-production-module-plus-dispatch-boundary-suite',
+    dependencyTree: 'pre-existing-real-source-node_modules; no-install',
+    cap,
+  };
 }
 
 export function prepareArtifactDir(input) {
@@ -175,7 +204,7 @@ function parseLastJson(stdout, label) {
   return JSON.parse(line);
 }
 
-function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir }) {
+function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, cap }) {
   if (!existsSync(TOOL_SURFACE_TEMPLATE)) {
     throw new Error(`tool-surface template missing: ${TOOL_SURFACE_TEMPLATE}`);
   }
@@ -188,7 +217,7 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir }) {
     mkdirSync(testDir, { recursive: true, mode: 0o700 });
     writeFileSync(
       path.join(testDir, 'cost-cap-tool-surface.test.ts'),
-      readFileSync(TOOL_SURFACE_TEMPLATE),
+      renderToolSurfaceTemplate(readFileSync(TOOL_SURFACE_TEMPLATE, 'utf8'), cap),
       { mode: 0o600 },
     );
     // The temporary worktree is source-only. Re-use the already-present,
@@ -220,16 +249,7 @@ export function runFixture(args) {
   const { resolved: sourceDir, head } = assertSource(args.sourceDir, args.candidateSha);
   const artifactDir = prepareArtifactDir(args.artifactDir);
 
-  const readiness = {
-    schema: 'openclaw.project81.r-cw-5.fixture-readiness.v1',
-    candidateSha: args.candidateSha,
-    sourceHead: head,
-    sourceDir,
-    productionConfigTouched: false,
-    productionStateTouched: false,
-    fixtureKind: 'source-only-production-module-plus-dispatch-boundary-suite',
-    cap: args.cap,
-  };
+  const readiness = buildReadiness({ candidateSha: args.candidateSha, head, cap: args.cap });
   writeJson(path.join(artifactDir, 'fixture-readiness.json'), readiness);
 
   const matrixRun = run('pnpm', ['exec', 'tsx', '--eval', matrixEval(args.cap)], { cwd: sourceDir });
@@ -277,7 +297,7 @@ export function runFixture(args) {
     asserted: dispatchAssertions,
   });
 
-  const toolSurface = runDisposableToolSurface({ sourceDir, candidateSha: args.candidateSha, artifactDir });
+  const toolSurface = runDisposableToolSurface({ sourceDir, candidateSha: args.candidateSha, artifactDir, cap: args.cap });
   const toolSurfacePassed = toolSurface.passed && Object.values(toolSurface.asserted).every(Boolean);
   writeJson(path.join(artifactDir, 'typed-tool-surface.json'), {
     schema: 'openclaw.project81.r-cw-5.typed-tool-surface.v1',

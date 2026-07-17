@@ -43,7 +43,7 @@ const cfg = {
         defaultDelayMs: 15_000,
         minDelayMs: 5_000,
         maxDelayMs: 86_400_000,
-        costCapTokens: 100,
+        costCapTokens: __RCW5_CAP__,
         maxDelegatesPerTurn: 4,
       },
     },
@@ -65,7 +65,7 @@ describe("R-CW-5 disposable typed tool surface", () => {
       updatedAt: Date.now(),
       continuationChainCount: 0,
       continuationChainStartedAt: Date.now(),
-      continuationChainTokens: 101,
+      continuationChainTokens: __RCW5_OVER_CAP__,
     } as SessionEntry;
     await saveSessionStore(storePath, { [sessionKey]: sessionEntry }, { skipMaintenance: true });
     clearSessionStoreCacheForTest();
@@ -116,7 +116,7 @@ describe("R-CW-5 disposable typed tool surface", () => {
 
     const { listTaskFlowsForOwnerKey } = await import("../../src/tasks/task-flow-registry.js");
     expect(listTaskFlowsForOwnerKey(sessionKey)).toHaveLength(0);
-    expect(sessionEntry.continuationChainTokens).toBe(101);
+    expect(sessionEntry.continuationChainTokens).toBe(__RCW5_OVER_CAP__);
     expect(peekSystemEvents(sessionKey)).toContain(
       "[continuation] 2 of 2 continue_work elections were not scheduled (chain/cost/pending cap).",
     );

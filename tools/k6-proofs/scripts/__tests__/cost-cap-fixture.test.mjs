@@ -1,7 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { assertSource, assertTrackedSourceClean, parseArgs, prepareArtifactDir } from '../run-cost-cap-fixture.mjs';
+import {
+  assertSource,
+  assertTrackedSourceClean,
+  buildReadiness,
+  parseArgs,
+  prepareArtifactDir,
+  renderToolSurfaceTemplate,
+} from '../run-cost-cap-fixture.mjs';
 import { mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -98,9 +105,31 @@ test('R-CW-5 typed tool-surface template asserts no durable work after exhausted
   );
   assert.match(template, /runAgentAttempt/);
   assert.match(template, /continueWorkOpts/);
-  assert.match(template, /continuationChainTokens:\s*101/);
+  assert.match(template, /continuationChainTokens:\s*__RCW5_OVER_CAP__/);
   assert.match(template, /listTaskFlowsForOwnerKey\(sessionKey\)\)\.toHaveLength\(0\)/);
   assert.match(template, /2 of 2 continue_work elections were not scheduled/);
+});
+
+test('R-CW-5 renders the typed tool surface at the selected cap', async () => {
+  const template = await readFile(
+    fileURLToPath(new URL('../../fixtures/r-cw-5/cost-cap-tool-surface.test.ts', import.meta.url)),
+    'utf8',
+  );
+  const rendered = renderToolSurfaceTemplate(template, 200);
+  assert.match(rendered, /costCapTokens:\s*200/);
+  assert.match(rendered, /continuationChainTokens:\s*201/);
+  assert.doesNotMatch(rendered, /__RCW5_(?:CAP|OVER_CAP)__/);
+});
+
+test('R-CW-5 public readiness has no private source path', () => {
+  const privatePath = '/home/figs/flesh_beast_tmp/openclaw';
+  const readiness = buildReadiness({
+    candidateSha: '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
+    head: '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
+    cap: 200,
+  });
+  assert.equal(readiness.sourceHeadMatchesCandidate, true);
+  assert.doesNotMatch(JSON.stringify(readiness), new RegExp(privatePath.replaceAll('/', '\\/')));
 });
 
 test('R-CW-5 fails closed instead of pretending the internal tool is websocket-invocable', async () => {

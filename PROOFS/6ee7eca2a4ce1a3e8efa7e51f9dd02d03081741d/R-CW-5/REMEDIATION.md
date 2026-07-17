@@ -1,24 +1,32 @@
 # R-CW-5 remediation receipt — 2026-07-17
 
 - **Candidate:** `6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d`
-- **Harness change:** docs PR #430 (`77e84659f8e9be9a31469745c43bc36934d2c64d`)
-- **Result:** `PASS-candidate` for the isolated typed-tool boundary fixture
+- **Harness change:** docs PR #430 (pending independent rereview)
+- **Result:** reported local `PASS-candidate` for the isolated typed-tool boundary fixture; this document is not itself a canonical corpus receipt
 - **Canonical state:** remains `missing` until PR review and an explicit corpus disposition; this receipt does not rewrite the original skipped live run.
 
 ## Fresh clean rerun
 
-The fixture was rerun from the clean harness head
-`77e84659f8e9be9a31469745c43bc36934d2c64d` against the exact candidate.
+The fixture was rerun from the clean PR worktree against the exact candidate.
+The final receipt-producing command must be rerun after the PR head is independently
+approved; the local results below are reported evidence, not a corpus fold.
 
 ```text
 node --test tools/k6-proofs/scripts/__tests__/cost-cap-fixture.test.mjs \
   tools/k6-proofs/scripts/__tests__/live-run-guard.test.mjs
-# 11 passed, 0 failed
+# 122 passed, 0 failed (full proof script suite)
 
 node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \
   --source-dir <exact-6ee7eca-source> \
   --candidate-sha 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d \
   --artifact-dir <temporary-artifact-dir> --cap 100 --json
+# PASS-candidate
+
+# non-default-cap regression: the typed surface receives the same cap
+node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \
+  --source-dir <exact-6ee7eca-source> \
+  --candidate-sha 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d \
+  --artifact-dir <temporary-artifact-dir> --cap 200 --json
 # PASS-candidate
 ```
 
@@ -31,12 +39,17 @@ enough to certify the candidate.
 
 The artifact destination is also fail-closed: it rejects an existing receipt,
 an unsafe final directory, and every existing symlink component in its ancestor
-path. The fresh rerun used a new private artifact directory; its readiness
-receipt recorded the exact candidate SHA and no production config/state change.
+path. Public readiness contains only the candidate identity/match booleans,
+tracked-clean status, cap, and no-production-mutation booleans; it never stores
+the private absolute source path. The fixture reuses only a real (non-symlinked)
+pre-existing dependency directory and performs no install. This proves the
+tracked candidate source and the stated local dependency condition, not a
+cryptographically locked dependency provenance claim.
 
 The fixture's required receipt set was complete:
 
-- budget matrix: `99 => allow`, `100 => allow`, `101 => cost-capped`;
+- budget matrix: `<cap - 1> => allow`, `<cap> => allow`, `<cap + 1> => cost-capped`
+  (reported runs covered both `99/100/101` and `199/200/201`);
 - real dispatcher boundary suite: over-cap spawn rejected and the flow marked failed;
 - typed `continue_work` capture: two exhausted elections created zero durable continuation work;
 - cleanup: no production config, gateway state, or candidate-source mutation, and the disposable worktree was removed.

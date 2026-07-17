@@ -1,0 +1,141 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-2-silent-wake.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m30s max duration (incl. graceful stop):
+              * r_cd_2_silent_wake: 1 iterations shared among 1 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+time="2026-07-17T03:24:52-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-07-17T03:24:53-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for R-CD-2 (mode=silent-wake)" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m01.0s/2m0s  0/1 shared iters
+time="2026-07-17T03:24:53-07:00" level=info msg="✓ initial session.message event observed (dispatching agent turn)" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m02.0s/2m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m03.0s/2m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m04.0s/2m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m05.0s/2m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m06.0s/2m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m07.0s/2m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m08.0s/2m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m09.0s/2m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m10.0s/2m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m11.0s/2m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m12.0s/2m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m13.0s/2m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m14.0s/2m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m15.0s/2m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m16.0s/2m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m17.0s/2m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m18.0s/2m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m19.0s/2m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m20.0s/2m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m21.0s/2m0s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m22.0s/2m0s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m23.0s/2m0s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m24.0s/2m0s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m25.0s/2m0s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m26.0s/2m0s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m27.0s/2m0s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m28.0s/2m0s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m29.0s/2m0s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m30.0s/2m0s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m31.0s/2m0s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m32.0s/2m0s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m33.0s/2m0s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m34.0s/2m0s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m35.0s/2m0s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m36.0s/2m0s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m37.0s/2m0s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_2_silent_wake   [   0% ] 1 VUs  0m38.0s/2m0s  0/1 shared iters
+time="2026-07-17T03:25:30-07:00" level=info msg="✓ delayed session.message event observed (silent-wake return candidate)" source=console
+time="2026-07-17T03:25:30-07:00" level=info msg="Primary silent-wake evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-2","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:24:52.266Z","tool_accepted":true,"task_created":false,"task_mode":null,"agent_turn_observed":true,"parent_wake_observed":true,"dispatch_channel_message_observed":false,"channel_message_observed":false,"silent_status_record_observed":false,"dispatch_accepted_at_ms":1784283893225,"wake_gate_ms":5000,"reason_hash":"72a62f896999c49d","reason_length":127,"delegate_mode":"silent-wake","trace_id":null,"ended":"2026-07-17T10:25:30.515Z","duration_ms":38249}
+time="2026-07-17T03:25:30-07:00" level=info msg="\n[R-CD-2] VERDICT: PASS-candidate" source=console
+
+[R-CD-2] Summary: PASS-candidate | SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d | Seat: cael
+
+running (0m38.3s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_2_silent_wake ✓ [ 100% ] 1 VUs  0m38.3s/2m0s  1/1 shared iters

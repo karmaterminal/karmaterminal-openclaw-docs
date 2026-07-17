@@ -1,0 +1,9 @@
+{
+  "row": "R-CD-MODEL-DEFAULT",
+  "scenario": "r-cd-model-default.js",
+  "candidateSha": "6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",
+  "runtimeBuildSha": "OpenClaw 2026.7.2 (6ee7eca)",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-07-17T10:43:51Z"
+}

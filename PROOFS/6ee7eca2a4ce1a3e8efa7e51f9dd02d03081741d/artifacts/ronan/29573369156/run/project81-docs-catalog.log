@@ -1,0 +1,1716 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: ronan
+Target Candidate SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d
+Deployed Runtime SHA: OpenClaw 2026.7.2 (6ee7eca)
+Session configured: true
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308
+Rows: R-CD-3,R-CW-2,R-CW-3,R-CW-4,R-CW-5,R-CW-6,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI,R-CW-MULTI-COLLAPSE,R-CW-TOKEN,R-RC-1,R-RC-2
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/seat-readiness.json
+
+----------------------------------------
+Row: R-CD-3
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-3.json
+Scenario: scenarios/r-cd-3-post-compaction.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-3] RUNNING...
+./r-cd-3-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-3-post-compaction.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m30s max duration (incl. graceful stop):
+              * r_cd_3_post_compaction: 1 iterations shared among 1 VUs (maxDuration: 3m0s, gracefulStop: 30s)
+
+time="2026-07-17T03:24:52-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-07-17T03:24:53-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for R-CD-3" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m01.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:24:53-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m02.0s/3m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m03.0s/3m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m04.0s/3m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m05.0s/3m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m06.0s/3m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m07.0s/3m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m08.0s/3m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m09.0s/3m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m10.0s/3m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m11.0s/3m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m12.0s/3m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m13.0s/3m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m14.0s/3m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m15.0s/3m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m16.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:25:08-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m17.0s/3m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m18.0s/3m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m19.0s/3m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m20.0s/3m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m21.0s/3m0s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m22.0s/3m0s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m23.0s/3m0s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m24.0s/3m0s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m25.0s/3m0s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m26.0s/3m0s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m27.0s/3m0s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m28.0s/3m0s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m29.0s/3m0s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m30.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:25:22-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m31.0s/3m0s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m32.0s/3m0s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m33.0s/3m0s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m34.0s/3m0s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m35.0s/3m0s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m36.0s/3m0s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m37.0s/3m0s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m38.0s/3m0s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m39.0s/3m0s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m40.0s/3m0s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m41.0s/3m0s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m42.0s/3m0s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m43.0s/3m0s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m44.0s/3m0s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m45.0s/3m0s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m46.0s/3m0s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m47.0s/3m0s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m48.0s/3m0s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m49.0s/3m0s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m50.0s/3m0s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m51.0s/3m0s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m52.0s/3m0s  0/1 shared iters
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m53.0s/3m0s  0/1 shared iters
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m54.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:25:46-07:00" level=info msg="✓ R-CD-3 post-compaction lifeboat return observed" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-3","manifest_loaded":true,"seat":"ronan","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:24:52.128Z","dispatch_accepted":true,"delegate_staging_requested":true,"compaction_requested":true,"threshold_honest_limit":false,"compaction_accepted":false,"lifeboat_return_observed":true,"guard":null,"context_usage":null,"threshold":null,"trace_id":null,"ended":"2026-07-17T10:25:46.758Z","duration_ms":54630,"verdict":"PASS-candidate"}
+time="2026-07-17T03:25:46-07:00" level=info msg="\n[R-CD-3] VERDICT: PASS-candidate" source=console
+
+running (0m54.6s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_3_post_compaction ✓ [ 100% ] 1 VUs  0m54.6s/3m0s  1/1 shared iters
+[R-CD-3] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-3/ronan/20260717T102452Z-r-cd-3/candidate-run-result.json
+[R-CD-3] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-3/ronan/20260717T102452Z-r-cd-3/openclaw-proofs-k6.prom
+[R-CD-3] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-3/ronan/20260717T102452Z-r-cd-3
+[R-CD-3] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-2
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-2.json
+Scenario: scenarios/r-cw-2-immediate-wake.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-2] RUNNING...
+./r-cw-2-immediate-wake-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-2-immediate-wake.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m30s max duration (incl. graceful stop):
+              * r_cw_2_immediate_wake: 1 iterations shared among 1 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+time="2026-07-17T03:25:47-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-07-17T03:25:48-07:00" level=info msg="✓ sessions.send accepted — immediate continue_work turn triggered" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m01.0s/2m0s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m02.0s/2m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m03.0s/2m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m04.0s/2m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m05.0s/2m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m06.0s/2m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m07.0s/2m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m08.0s/2m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m09.0s/2m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m10.0s/2m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m11.0s/2m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m12.0s/2m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m13.0s/2m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m14.0s/2m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m15.0s/2m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m16.0s/2m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m17.0s/2m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m18.0s/2m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m19.0s/2m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m20.0s/2m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m21.0s/2m0s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m22.0s/2m0s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m23.0s/2m0s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m24.0s/2m0s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m25.0s/2m0s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m26.0s/2m0s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m27.0s/2m0s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m28.0s/2m0s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m29.0s/2m0s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m30.0s/2m0s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m31.0s/2m0s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m32.0s/2m0s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m33.0s/2m0s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m34.0s/2m0s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m35.0s/2m0s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m36.0s/2m0s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m37.0s/2m0s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m38.0s/2m0s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m39.0s/2m0s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m40.0s/2m0s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m41.0s/2m0s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m42.0s/2m0s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m43.0s/2m0s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m44.0s/2m0s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m45.0s/2m0s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m46.0s/2m0s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m47.0s/2m0s  0/1 shared iters
+time="2026-07-17T03:26:34-07:00" level=info msg="✓ CW2-SCHEDULED sentinel observed" source=console
+time="2026-07-17T03:26:34-07:00" level=info msg="✓ CW2-WOKE sentinel observed" source=console
+time="2026-07-17T03:26:34-07:00" level=info msg="All required R-CW-2 evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CW-2","manifest_loaded":true,"seat":"ronan","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:25:47.174Z","dispatch_accepted":true,"scheduled_sentinel":true,"immediate_wake_observed":true,"prompt_echo_ignored":true,"dispatch_accepted_at_ms":1784283948126,"scheduled_result_at_ms":1784283994316,"wake_delay_ms":118,"trace_id":null,"ended":"2026-07-17T10:26:34.434Z","duration_ms":47260}
+time="2026-07-17T03:26:34-07:00" level=info msg="\n[R-CW-2] VERDICT: PASS-candidate" source=console
+
+[R-CW-2] Summary: PASS-candidate | SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d | Seat: ronan
+
+running (0m47.3s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_2_immediate_wake ✓ [ 100% ] 1 VUs  0m47.3s/2m0s  1/1 shared iters
+[R-CW-2] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-2/ronan/20260717T102547Z-r-cw-2/candidate-run-result.json
+[R-CW-2] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-2/ronan/20260717T102547Z-r-cw-2/openclaw-proofs-k6.prom
+[R-CW-2] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-2/ronan/20260717T102547Z-r-cw-2
+[R-CW-2] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-3
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-3.json
+Scenario: scenarios/r-cw-3-reason-telemetry.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-3] RUNNING...
+./r-cw-3-reason-telemetry-summary.json
+[R-CW-3] CONTINUATION TRACE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-3/ronan/20260717T102634Z-r-cw-3/tempo-trace-80523631037f.json
+[R-CW-3] CORRELATION RECEIPT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-3/ronan/20260717T102634Z-r-cw-3/continuation-trace-correlation.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-3-reason-telemetry.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 10m30s max duration (incl. graceful stop):
+              * r_cw_3_reason_telemetry: 1 iterations shared among 1 VUs (maxDuration: 10m0s, gracefulStop: 30s)
+
+time="2026-07-17T03:26:35-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (00m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m01.0s/10m0s  0/1 shared iters
+time="2026-07-17T03:26:36-07:00" level=info msg="✓ sessions.send accepted — reason telemetry turn triggered" source=console
+
+running (00m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m02.0s/10m0s  0/1 shared iters
+
+running (00m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m03.0s/10m0s  0/1 shared iters
+
+running (00m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m04.0s/10m0s  0/1 shared iters
+
+running (00m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m05.0s/10m0s  0/1 shared iters
+
+running (00m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m06.0s/10m0s  0/1 shared iters
+
+running (00m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m07.0s/10m0s  0/1 shared iters
+
+running (00m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m08.0s/10m0s  0/1 shared iters
+
+running (00m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m09.0s/10m0s  0/1 shared iters
+
+running (00m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m10.0s/10m0s  0/1 shared iters
+
+running (00m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m11.0s/10m0s  0/1 shared iters
+
+running (00m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m12.0s/10m0s  0/1 shared iters
+
+running (00m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m13.0s/10m0s  0/1 shared iters
+
+running (00m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m14.0s/10m0s  0/1 shared iters
+
+running (00m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m15.0s/10m0s  0/1 shared iters
+
+running (00m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m16.0s/10m0s  0/1 shared iters
+
+running (00m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m17.0s/10m0s  0/1 shared iters
+
+running (00m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m18.0s/10m0s  0/1 shared iters
+
+running (00m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m19.0s/10m0s  0/1 shared iters
+
+running (00m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m20.0s/10m0s  0/1 shared iters
+
+running (00m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m21.0s/10m0s  0/1 shared iters
+
+running (00m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m22.0s/10m0s  0/1 shared iters
+
+running (00m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m23.0s/10m0s  0/1 shared iters
+
+running (00m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m24.0s/10m0s  0/1 shared iters
+
+running (00m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m25.0s/10m0s  0/1 shared iters
+
+running (00m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m26.0s/10m0s  0/1 shared iters
+
+running (00m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m27.0s/10m0s  0/1 shared iters
+
+running (00m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m28.0s/10m0s  0/1 shared iters
+
+running (00m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m29.0s/10m0s  0/1 shared iters
+
+running (00m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m30.0s/10m0s  0/1 shared iters
+
+running (00m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m31.0s/10m0s  0/1 shared iters
+
+running (00m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m32.0s/10m0s  0/1 shared iters
+
+running (00m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m33.0s/10m0s  0/1 shared iters
+
+running (00m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m34.0s/10m0s  0/1 shared iters
+
+running (00m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m35.0s/10m0s  0/1 shared iters
+
+running (00m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m36.0s/10m0s  0/1 shared iters
+
+running (00m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m37.0s/10m0s  0/1 shared iters
+
+running (00m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m38.0s/10m0s  0/1 shared iters
+
+running (00m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m39.0s/10m0s  0/1 shared iters
+
+running (00m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m40.0s/10m0s  0/1 shared iters
+time="2026-07-17T03:27:15-07:00" level=info msg="✓ CW3-SCHEDULED sentinel observed" source=console
+time="2026-07-17T03:27:15-07:00" level=info msg="✓ CW3-WOKE sentinel observed" source=console
+time="2026-07-17T03:27:15-07:00" level=info msg="Required R-CW-3 schedule/wake evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CW-3","manifest_loaded":true,"seat":"ronan","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:26:34.867Z","dispatch_accepted":true,"scheduled_sentinel":true,"wake_observed":true,"public_artifact_raw_reason_absent":true,"tempo_assertion":"pending-review","reason_hash":"766c2fa6b44eb138","reason_length":139,"trace_id":null,"trace_id_source":null,"dispatch_accepted_at_ms":1784283996417,"scheduled_result_at_ms":1784284035040,"wake_delay_ms":125,"ended":"2026-07-17T10:27:15.166Z","duration_ms":40298}
+time="2026-07-17T03:27:15-07:00" level=info msg="\n[R-CW-3] VERDICT: HONEST-LIMIT-candidate" source=console
+
+[R-CW-3] Summary: HONEST-LIMIT-candidate | SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d | Seat: ronan
+
+running (00m40.3s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry ✓ [ 100% ] 1 VUs  00m40.3s/10m0s  1/1 shared iters
+[R-CW-3] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-3/ronan/20260717T102634Z-r-cw-3/candidate-run-result.json
+[R-CW-3] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-3/ronan/20260717T102634Z-r-cw-3/openclaw-proofs-k6.prom
+[R-CW-3] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-3/ronan/20260717T102634Z-r-cw-3
+[R-CW-3] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-4
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-4.json
+Scenario: scenarios/r-cw-4-chain-depth.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-4] RUNNING...
+./r-cw-4-chain-depth-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-4-chain-depth.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 10m30s max duration (incl. graceful stop):
+              * r_cw_4_chain_depth: 1 iterations shared among 1 VUs (maxDuration: 10m0s, gracefulStop: 30s)
+
+time="2026-07-17T03:27:30-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-07-17T03:27:30-07:00" level=info msg="✓ sessions.send accepted — chain-depth parent turn triggered" source=console
+
+running (00m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m01.0s/10m0s  0/1 shared iters
+
+running (00m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m02.0s/10m0s  0/1 shared iters
+
+running (00m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m03.0s/10m0s  0/1 shared iters
+
+running (00m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m04.0s/10m0s  0/1 shared iters
+
+running (00m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m05.0s/10m0s  0/1 shared iters
+
+running (00m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m06.0s/10m0s  0/1 shared iters
+
+running (00m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m07.0s/10m0s  0/1 shared iters
+
+running (00m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m08.0s/10m0s  0/1 shared iters
+
+running (00m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m09.0s/10m0s  0/1 shared iters
+
+running (00m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m10.0s/10m0s  0/1 shared iters
+
+running (00m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m11.0s/10m0s  0/1 shared iters
+
+running (00m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m12.0s/10m0s  0/1 shared iters
+
+running (00m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m13.0s/10m0s  0/1 shared iters
+
+running (00m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m14.0s/10m0s  0/1 shared iters
+
+running (00m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m15.0s/10m0s  0/1 shared iters
+
+running (00m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m16.0s/10m0s  0/1 shared iters
+
+running (00m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m17.0s/10m0s  0/1 shared iters
+
+running (00m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m18.0s/10m0s  0/1 shared iters
+
+running (00m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m19.0s/10m0s  0/1 shared iters
+
+running (00m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m20.0s/10m0s  0/1 shared iters
+
+running (00m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m21.0s/10m0s  0/1 shared iters
+
+running (00m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m22.0s/10m0s  0/1 shared iters
+
+running (00m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m23.0s/10m0s  0/1 shared iters
+
+running (00m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m24.0s/10m0s  0/1 shared iters
+
+running (00m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m25.0s/10m0s  0/1 shared iters
+
+running (00m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m26.0s/10m0s  0/1 shared iters
+
+running (00m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m27.0s/10m0s  0/1 shared iters
+
+running (00m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m28.0s/10m0s  0/1 shared iters
+
+running (00m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m29.0s/10m0s  0/1 shared iters
+
+running (00m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m30.0s/10m0s  0/1 shared iters
+
+running (00m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m31.0s/10m0s  0/1 shared iters
+
+running (00m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m32.0s/10m0s  0/1 shared iters
+
+running (00m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m33.0s/10m0s  0/1 shared iters
+
+running (00m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m34.0s/10m0s  0/1 shared iters
+
+running (00m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m35.0s/10m0s  0/1 shared iters
+
+running (00m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m36.0s/10m0s  0/1 shared iters
+
+running (00m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m37.0s/10m0s  0/1 shared iters
+
+running (00m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m38.0s/10m0s  0/1 shared iters
+
+running (00m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m39.0s/10m0s  0/1 shared iters
+
+running (00m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m40.0s/10m0s  0/1 shared iters
+
+running (00m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m41.0s/10m0s  0/1 shared iters
+
+running (00m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m42.0s/10m0s  0/1 shared iters
+
+running (00m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m43.0s/10m0s  0/1 shared iters
+
+running (00m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m44.0s/10m0s  0/1 shared iters
+
+running (00m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m45.0s/10m0s  0/1 shared iters
+
+running (00m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m46.0s/10m0s  0/1 shared iters
+
+running (00m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m47.0s/10m0s  0/1 shared iters
+
+running (00m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m48.0s/10m0s  0/1 shared iters
+time="2026-07-17T03:28:17-07:00" level=info msg="✓ CW4-HOP1-SCHEDULED observed" source=console
+
+running (00m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m49.0s/10m0s  0/1 shared iters
+
+running (00m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m50.0s/10m0s  0/1 shared iters
+
+running (00m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m51.0s/10m0s  0/1 shared iters
+
+running (00m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m52.0s/10m0s  0/1 shared iters
+
+running (00m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m53.0s/10m0s  0/1 shared iters
+
+running (00m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m54.0s/10m0s  0/1 shared iters
+
+running (00m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m55.0s/10m0s  0/1 shared iters
+
+running (00m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m56.0s/10m0s  0/1 shared iters
+
+running (00m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m57.0s/10m0s  0/1 shared iters
+
+running (00m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m58.0s/10m0s  0/1 shared iters
+
+running (00m59.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  00m59.0s/10m0s  0/1 shared iters
+
+running (01m00.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m00.0s/10m0s  0/1 shared iters
+
+running (01m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m01.0s/10m0s  0/1 shared iters
+
+running (01m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m02.0s/10m0s  0/1 shared iters
+
+running (01m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m03.0s/10m0s  0/1 shared iters
+
+running (01m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m04.0s/10m0s  0/1 shared iters
+
+running (01m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m05.0s/10m0s  0/1 shared iters
+
+running (01m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m06.0s/10m0s  0/1 shared iters
+
+running (01m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m07.0s/10m0s  0/1 shared iters
+
+running (01m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m08.0s/10m0s  0/1 shared iters
+time="2026-07-17T03:28:38-07:00" level=info msg="✓ CW4-HOP2-SCHEDULED observed" source=console
+
+running (01m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m09.0s/10m0s  0/1 shared iters
+
+running (01m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m10.0s/10m0s  0/1 shared iters
+
+running (01m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m11.0s/10m0s  0/1 shared iters
+
+running (01m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m12.0s/10m0s  0/1 shared iters
+
+running (01m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m13.0s/10m0s  0/1 shared iters
+
+running (01m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m14.0s/10m0s  0/1 shared iters
+
+running (01m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m15.0s/10m0s  0/1 shared iters
+
+running (01m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m16.0s/10m0s  0/1 shared iters
+
+running (01m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m17.0s/10m0s  0/1 shared iters
+
+running (01m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m18.0s/10m0s  0/1 shared iters
+
+running (01m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m19.0s/10m0s  0/1 shared iters
+
+running (01m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m20.0s/10m0s  0/1 shared iters
+
+running (01m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m21.0s/10m0s  0/1 shared iters
+
+running (01m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m22.0s/10m0s  0/1 shared iters
+
+running (01m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m23.0s/10m0s  0/1 shared iters
+
+running (01m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m24.0s/10m0s  0/1 shared iters
+time="2026-07-17T03:28:54-07:00" level=info msg="✓ CW4-HOP3-SCHEDULED observed" source=console
+
+running (01m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m25.0s/10m0s  0/1 shared iters
+
+running (01m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m26.0s/10m0s  0/1 shared iters
+
+running (01m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m27.0s/10m0s  0/1 shared iters
+
+running (01m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m28.0s/10m0s  0/1 shared iters
+
+running (01m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m29.0s/10m0s  0/1 shared iters
+
+running (01m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m30.0s/10m0s  0/1 shared iters
+
+running (01m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m31.0s/10m0s  0/1 shared iters
+
+running (01m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m32.0s/10m0s  0/1 shared iters
+
+running (01m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_4_chain_depth   [   0% ] 1 VUs  01m33.0s/10m0s  0/1 shared iters
+time="2026-07-17T03:29:03-07:00" level=info msg="✓ CW4-DONE observed" source=console
+time="2026-07-17T03:29:03-07:00" level=info msg="All required R-CW-4 evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CW-4","manifest_loaded":true,"seat":"ronan","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:27:29.915Z","dispatch_accepted":true,"hop1_scheduled":true,"hop2_scheduled":true,"hop3_scheduled":true,"final_done":true,"hop_events":[{"marker":"CW4-HOP1-SCHEDULED","ts":1784284097997,"event":"agent"},{"marker":"CW4-HOP2-SCHEDULED","ts":1784284118287,"event":"session.message"},{"marker":"CW4-HOP3-SCHEDULED","ts":1784284134142,"event":"session.message"},{"marker":"CW4-DONE","ts":1784284143046,"event":"chat"}],"trace_id":null,"ended":"2026-07-17T10:29:03.047Z","duration_ms":93132}
+time="2026-07-17T03:29:03-07:00" level=info msg="\n[R-CW-4] VERDICT: PASS-candidate" source=console
+
+[R-CW-4] Summary: PASS-candidate | SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d | Seat: ronan
+
+running (01m33.1s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_4_chain_depth ✓ [ 100% ] 1 VUs  01m33.1s/10m0s  1/1 shared iters
+[R-CW-4] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-4/ronan/20260717T102729Z-r-cw-4/candidate-run-result.json
+[R-CW-4] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-4/ronan/20260717T102729Z-r-cw-4/openclaw-proofs-k6.prom
+[R-CW-4] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-4/ronan/20260717T102729Z-r-cw-4
+[R-CW-4] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-5
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-5.json
+Scenario: scenarios/r-cw-5-cost-cap-reject
+Status: scaffold
+Live Safety: orchestration-required
+[R-CW-5] SKIPPED: Scenario status is scaffold (not runnable).
+
+----------------------------------------
+Row: R-CW-6
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-6.json
+Scenario: scenarios/r-cw-6-max-chain-length
+Status: scaffold
+Live Safety: orchestration-required
+[R-CW-6] SKIPPED: Scenario status is scaffold (not runnable).
+
+----------------------------------------
+Row: R-CW-7
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-7.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-7] RUNNING...
+./static-corpus-row-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CW-7","sourceRow":"R-CW-7","staticBoundaryVariant":false,"manifest_loaded":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","currentProofSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","sourceEvidenceSha":"1cc8f4e3d617ef6f173283ef83d7b739a4995734","carriedFrom":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:29:03.596Z","checks":{"passScope":true,"internalNotPublic":true,"autoPickup":true,"dispatchPreserves":true,"childReceives":true,"testsPassed":true,"sourceSha":true},"source_files":{"evidence":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/EVIDENCE.md","testLog":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/test/focused-traceparent-tests.log","sourceSnippets":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/source/source-snippets.md"},"ended":"2026-07-17T10:29:03.596Z","duration_ms":0,"verdict":"PASS-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+[R-CW-7] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-7/ronan/20260717T102903Z-r-cw-7/candidate-run-result.json
+[R-CW-7] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-7/ronan/20260717T102903Z-r-cw-7/openclaw-proofs-k6.prom
+[R-CW-7] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-7/ronan/20260717T102903Z-r-cw-7
+[R-CW-7] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-DELEGATE-CHILD-LIVE
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-delegate-child-live.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-DELEGATE-CHILD-LIVE] RUNNING...
+./static-corpus-row-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CW-DELEGATE-CHILD-LIVE","sourceRow":"R-CW-DELEGATE-CHILD-LIVE","staticBoundaryVariant":false,"manifest_loaded":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","currentProofSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","sourceEvidenceSha":"1cc8f4e3d617ef6f173283ef83d7b739a4995734","carriedFrom":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:29:04.022Z","checks":{"verdictPass":true,"hop1BeforeWork":true,"hop2AfterWake":true,"verifierBoth":true,"parentDelegateTrace":true,"childWorkFireTrace":true,"flowReceipts":true},"source_files":{"evidence":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/EVIDENCE.md","hop1":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/hop1.txt","hop2":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/hop2.txt","verifier":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/verifier-receipt.txt","tempo":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/tempo-attribute-receipt.txt"},"ended":"2026-07-17T10:29:04.022Z","duration_ms":0,"verdict":"PASS-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+[R-CW-DELEGATE-CHILD-LIVE] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-DELEGATE-CHILD-LIVE/ronan/20260717T102903Z-r-cw-delegate-child-live/candidate-run-result.json
+[R-CW-DELEGATE-CHILD-LIVE] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-DELEGATE-CHILD-LIVE/ronan/20260717T102903Z-r-cw-delegate-child-live/openclaw-proofs-k6.prom
+[R-CW-DELEGATE-CHILD-LIVE] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-DELEGATE-CHILD-LIVE/ronan/20260717T102903Z-r-cw-delegate-child-live
+[R-CW-DELEGATE-CHILD-LIVE] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-DELEGATE-SELF-CONTINUATION
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-delegate-self.json
+Scenario: scenarios/r-cw-delegate-self-continuation.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-DELEGATE-SELF-CONTINUATION] RUNNING...
+./r-cw-delegate-self-continuation-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-delegate-self-continuation.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m0s max duration (incl. graceful stop):
+              * r_cw_delegate_self: 1 iterations shared among 1 VUs (maxDuration: 2m30s, gracefulStop: 30s)
+
+time="2026-07-17T03:29:04-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-07-17T03:29:05-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered (will call continue_delegate)" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m01.0s/2m30s  0/1 shared iters
+time="2026-07-17T03:29:06-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m02.0s/2m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m03.0s/2m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m04.0s/2m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m05.0s/2m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m06.0s/2m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m07.0s/2m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m08.0s/2m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m09.0s/2m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m10.0s/2m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m11.0s/2m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m12.0s/2m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m13.0s/2m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m14.0s/2m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m15.0s/2m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m16.0s/2m30s  0/1 shared iters
+time="2026-07-17T03:29:20-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m17.0s/2m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m18.0s/2m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m19.0s/2m30s  0/1 shared iters
+time="2026-07-17T03:29:23-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m20.0s/2m30s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m21.0s/2m30s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m22.0s/2m30s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m23.0s/2m30s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m24.0s/2m30s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m25.0s/2m30s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m26.0s/2m30s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m27.0s/2m30s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m28.0s/2m30s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m29.0s/2m30s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m30.0s/2m30s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m31.0s/2m30s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m32.0s/2m30s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m33.0s/2m30s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m34.0s/2m30s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m35.0s/2m30s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m36.0s/2m30s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m37.0s/2m30s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m38.0s/2m30s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m39.0s/2m30s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m40.0s/2m30s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m41.0s/2m30s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m42.0s/2m30s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m43.0s/2m30s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m44.0s/2m30s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m45.0s/2m30s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m46.0s/2m30s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m47.0s/2m30s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m48.0s/2m30s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m49.0s/2m30s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m50.0s/2m30s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m51.0s/2m30s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m52.0s/2m30s  0/1 shared iters
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m53.0s/2m30s  0/1 shared iters
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m54.0s/2m30s  0/1 shared iters
+
+running (0m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m55.0s/2m30s  0/1 shared iters
+
+running (0m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m56.0s/2m30s  0/1 shared iters
+time="2026-07-17T03:30:00-07:00" level=info msg="✓ CHILD-CW-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-07-17T03:30:00-07:00" level=info msg="✓ CHILD-HOP2-DONE sentinel observed post-dispatch" source=console
+time="2026-07-17T03:30:00-07:00" level=info msg="✓ Parent return event from delegate observed post-dispatch" source=console
+time="2026-07-17T03:30:00-07:00" level=info msg="Primary R-CW-DELEGATE-SELF evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CW-DELEGATE-SELF-CONTINUATION","manifest_loaded":true,"seat":"ronan","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:29:04.418Z","delegate_accepted":true,"child_spawned":false,"child_continue_work_accepted":true,"child_hop_2_woke":true,"parent_return":true,"dispatch_accepted_at_ms":1784284145371,"trace_id":null,"ended":"2026-07-17T10:30:00.926Z","duration_ms":56508}
+time="2026-07-17T03:30:00-07:00" level=info msg="\n[R-CW-DELEGATE-SELF-CONTINUATION] VERDICT: PASS-candidate" source=console
+
+[R-CW-DELEGATE-SELF-CONTINUATION] Summary: PASS-candidate | SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d | Seat: ronan
+
+running (0m56.5s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_delegate_self ✓ [ 100% ] 1 VUs  0m56.5s/2m30s  1/1 shared iters
+[R-CW-DELEGATE-SELF-CONTINUATION] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-DELEGATE-SELF-CONTINUATION/ronan/20260717T102904Z-r-cw-delegate-self-continuation/candidate-run-result.json
+[R-CW-DELEGATE-SELF-CONTINUATION] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-DELEGATE-SELF-CONTINUATION/ronan/20260717T102904Z-r-cw-delegate-self-continuation/openclaw-proofs-k6.prom
+[R-CW-DELEGATE-SELF-CONTINUATION] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-DELEGATE-SELF-CONTINUATION/ronan/20260717T102904Z-r-cw-delegate-self-continuation
+[R-CW-DELEGATE-SELF-CONTINUATION] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-DELEGATE-TOKEN
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-delegate-token.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-DELEGATE-TOKEN] RUNNING...
+./static-corpus-row-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CW-DELEGATE-TOKEN","sourceRow":"R-CW-DELEGATE-TOKEN","staticBoundaryVariant":false,"manifest_loaded":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","currentProofSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","sourceEvidenceSha":"1cc8f4e3d617ef6f173283ef83d7b739a4995734","carriedFrom":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:30:01.297Z","checks":{"verdictPass":true,"bareToken":true,"tokenOrigin":true,"noTypedChildTool":true,"secondTurn":true,"durableWork":true,"tempoWorkFire":true},"source_files":{"evidence":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/EVIDENCE.md","childAudit":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/child-transcript-tool-audit.md","journal":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/journal-continuation-excerpt.log","flowRows":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/flow-runs-matching-full.jsonl","tempoAudit":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/tempo-child-tool-audit.txt"},"ended":"2026-07-17T10:30:01.297Z","duration_ms":0,"verdict":"PASS-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+[R-CW-DELEGATE-TOKEN] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-DELEGATE-TOKEN/ronan/20260717T103001Z-r-cw-delegate-token/candidate-run-result.json
+[R-CW-DELEGATE-TOKEN] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-DELEGATE-TOKEN/ronan/20260717T103001Z-r-cw-delegate-token/openclaw-proofs-k6.prom
+[R-CW-DELEGATE-TOKEN] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-DELEGATE-TOKEN/ronan/20260717T103001Z-r-cw-delegate-token
+[R-CW-DELEGATE-TOKEN] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-MULTI
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-multi.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-MULTI] RUNNING...
+./static-corpus-row-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CW-MULTI","sourceRow":"R-CW-MULTI","staticBoundaryVariant":false,"manifest_loaded":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","currentProofSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","sourceEvidenceSha":"1cc8f4e3d617ef6f173283ef83d7b739a4995734","carriedFrom":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:30:01.681Z","checks":{"verdictPass":true,"threeToolReceipts":true,"grantedA":true,"foldedBC":true,"journalFolded":true,"noInventedMarkers":true,"traceThreeWorkSpans":true},"source_files":{"evidence":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/EVIDENCE.md","sourceReceipts":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/source-tool-receipts.jsonl","flowRows":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/flow-runs-final.json","journal":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/journal-continuation-lines.txt","traceSummary":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/tempo/trace-summary.jsonl"},"ended":"2026-07-17T10:30:01.681Z","duration_ms":0,"verdict":"PASS-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+[R-CW-MULTI] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-MULTI/ronan/20260717T103001Z-r-cw-multi/candidate-run-result.json
+[R-CW-MULTI] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-MULTI/ronan/20260717T103001Z-r-cw-multi/openclaw-proofs-k6.prom
+[R-CW-MULTI] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-MULTI/ronan/20260717T103001Z-r-cw-multi
+[R-CW-MULTI] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-MULTI-COLLAPSE
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-multi-collapse.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-MULTI-COLLAPSE] RUNNING...
+./static-corpus-row-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CW-MULTI-COLLAPSE","sourceRow":"R-CW-MULTI-COLLAPSE","staticBoundaryVariant":false,"manifest_loaded":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","currentProofSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","sourceEvidenceSha":"1cc8f4e3d617ef6f173283ef83d7b739a4995734","carriedFrom":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:30:02.044Z","checks":{"verdictPassScoped":true,"syntheticCaveat":true,"twoRowsInserted":true,"oldSuperseded":true,"newestGranted":true,"noRemainingQueued":true,"configRestored":true,"tempoExactChain":true},"source_files":{"evidence":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/EVIDENCE.md","insertVars":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/insert-vars.json","postInsert":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/post-insert-sqlite.txt","finalTerminal":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/final-terminal-sqlite.txt","finalQueued":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/final-queued-running.txt","flowRows":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/flow-runs-final.json","journal":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/journal-continuation-window.txt","restoreHash":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/restore-verified-sha256.txt","tempoAttrs":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-attribute-receipt.txt"},"ended":"2026-07-17T10:30:02.045Z","duration_ms":1,"verdict":"PASS-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+[R-CW-MULTI-COLLAPSE] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-MULTI-COLLAPSE/ronan/20260717T103002Z-r-cw-multi-collapse/candidate-run-result.json
+[R-CW-MULTI-COLLAPSE] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-MULTI-COLLAPSE/ronan/20260717T103002Z-r-cw-multi-collapse/openclaw-proofs-k6.prom
+[R-CW-MULTI-COLLAPSE] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-MULTI-COLLAPSE/ronan/20260717T103002Z-r-cw-multi-collapse
+[R-CW-MULTI-COLLAPSE] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CW-TOKEN
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cw-token.json
+Scenario: scenarios/r-cw-token-bracket.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-TOKEN] RUNNING...
+./r-cw-token-bracket-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-token-bracket.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m30s max duration (incl. graceful stop):
+              * r_cw_token_bracket: 1 iterations shared among 1 VUs (maxDuration: 3m0s, gracefulStop: 30s)
+
+time="2026-07-17T03:30:02-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m01.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:30:04-07:00" level=info msg="✓ sessions.send accepted — parent agent turn triggered" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m02.0s/3m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m03.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:30:05-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m04.0s/3m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m05.0s/3m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m06.0s/3m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m07.0s/3m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m08.0s/3m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m09.0s/3m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m10.0s/3m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m11.0s/3m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m12.0s/3m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m13.0s/3m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m14.0s/3m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m15.0s/3m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m16.0s/3m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m17.0s/3m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m18.0s/3m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m19.0s/3m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m20.0s/3m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m21.0s/3m0s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m22.0s/3m0s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m23.0s/3m0s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m24.0s/3m0s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m25.0s/3m0s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m26.0s/3m0s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m27.0s/3m0s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m28.0s/3m0s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m29.0s/3m0s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m30.0s/3m0s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m31.0s/3m0s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m32.0s/3m0s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m33.0s/3m0s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m34.0s/3m0s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m35.0s/3m0s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m36.0s/3m0s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m37.0s/3m0s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m38.0s/3m0s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m39.0s/3m0s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m40.0s/3m0s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m41.0s/3m0s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m42.0s/3m0s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m43.0s/3m0s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m44.0s/3m0s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m45.0s/3m0s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m46.0s/3m0s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m47.0s/3m0s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m48.0s/3m0s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m49.0s/3m0s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m50.0s/3m0s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m51.0s/3m0s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m52.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:30:54-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m53.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:30:55-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:30:55-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:30:55-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m54.0s/3m0s  0/1 shared iters
+
+running (0m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m55.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:30:58-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:30:58-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:30:58-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:30:58-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:30:58-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:30:58-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:30:58-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:30:58-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:30:58-07:00" level=info msg="✓ token-emitting child turn observed" source=console
+time="2026-07-17T03:30:58-07:00" level=info msg="✓ TOKEN-HOP2-DONE sentinel observed — hop-2 executed" source=console
+time="2026-07-17T03:30:58-07:00" level=info msg="All required R-CW-TOKEN evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CW-TOKEN","manifest_loaded":true,"seat":"ronan","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:30:02.445Z","parent_dispatch_accepted":true,"subagent_spawn_requested":true,"subagent_spawn_accepted":true,"token_emitted_or_stripped":true,"hop_2_executed":true,"parent_return":true,"dispatch_accepted_at_ms":1784284204394,"hop_2_at_ms":1784284258420,"trace_id":null,"ended":"2026-07-17T10:30:58.420Z","duration_ms":55975}
+time="2026-07-17T03:30:58-07:00" level=info msg="\n[R-CW-TOKEN] VERDICT: PASS-candidate" source=console
+
+[R-CW-TOKEN] Summary: PASS-candidate | SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d | Seat: ronan
+
+running (0m56.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_token_bracket ✓ [ 100% ] 1 VUs  0m56.0s/3m0s  1/1 shared iters
+[R-CW-TOKEN] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-TOKEN/ronan/20260717T103002Z-r-cw-token/candidate-run-result.json
+[R-CW-TOKEN] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-TOKEN/ronan/20260717T103002Z-r-cw-token/openclaw-proofs-k6.prom
+[R-CW-TOKEN] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CW-TOKEN/ronan/20260717T103002Z-r-cw-token
+[R-CW-TOKEN] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-RC-1
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-rc-1.json
+Scenario: scenarios/r-rc-1-threshold-reject.js
+Status: runnable
+Live Safety: k6-runnable
+[R-RC-1] RUNNING...
+./r-rc-1-summary.json
+[R-RC-1] CONTINUATION TRACE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-RC-1/ronan/20260717T103058Z-r-rc-1/tempo-trace-9fc958258bda.json
+[R-RC-1] CORRELATION RECEIPT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-RC-1/ronan/20260717T103058Z-r-rc-1/tool-trace-correlation.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-rc-1-threshold-reject.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m0s max duration (incl. graceful stop):
+              * r_rc_1_threshold_reject: 1 iterations shared among 1 VUs (maxDuration: 1m30s, gracefulStop: 30s)
+
+time="2026-07-17T03:30:58-07:00" level=warning msg="Manifest validation warnings: missing sessionKey" source=console
+time="2026-07-17T03:30:59-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m01.0s/1m30s  0/1 shared iters
+time="2026-07-17T03:31:00-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for request_compaction reject" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m02.0s/1m30s  0/1 shared iters
+time="2026-07-17T03:31:00-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m03.0s/1m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m04.0s/1m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m05.0s/1m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m06.0s/1m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m07.0s/1m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m08.0s/1m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m09.0s/1m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m10.0s/1m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m11.0s/1m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m12.0s/1m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m13.0s/1m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m14.0s/1m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m15.0s/1m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m16.0s/1m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m17.0s/1m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m18.0s/1m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m19.0s/1m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m20.0s/1m30s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m21.0s/1m30s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m22.0s/1m30s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m23.0s/1m30s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m24.0s/1m30s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m25.0s/1m30s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m26.0s/1m30s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m27.0s/1m30s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m28.0s/1m30s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m29.0s/1m30s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m30.0s/1m30s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m31.0s/1m30s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m32.0s/1m30s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m33.0s/1m30s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m34.0s/1m30s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m35.0s/1m30s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m36.0s/1m30s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m37.0s/1m30s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m38.0s/1m30s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m39.0s/1m30s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m40.0s/1m30s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m41.0s/1m30s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m42.0s/1m30s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m43.0s/1m30s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m44.0s/1m30s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m45.0s/1m30s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m46.0s/1m30s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m47.0s/1m30s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m48.0s/1m30s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m49.0s/1m30s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m50.0s/1m30s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m51.0s/1m30s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m52.0s/1m30s  0/1 shared iters
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m53.0s/1m30s  0/1 shared iters
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m54.0s/1m30s  0/1 shared iters
+
+running (0m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m55.0s/1m30s  0/1 shared iters
+
+running (0m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m56.0s/1m30s  0/1 shared iters
+
+running (0m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m57.0s/1m30s  0/1 shared iters
+
+running (0m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m58.0s/1m30s  0/1 shared iters
+
+running (0m59.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m59.0s/1m30s  0/1 shared iters
+
+running (1m00.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  1m00.0s/1m30s  0/1 shared iters
+PUBLIC_EVIDENCE {"row":"R-RC-1","manifest_loaded":true,"seat":"ronan","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:30:58.854Z","dispatch_accepted":true,"dispatch_accepted_at_ms":1784284260243,"tool_name":"request_compaction","tool_invoke_rejected":false,"guard":null,"context_usage":null,"threshold":null,"trace_id":null,"ended":"2026-07-17T10:31:59.215Z","duration_ms":60361}
+time="2026-07-17T03:31:59-07:00" level=info msg="\n[R-RC-1] VERDICT: PARTIAL-candidate" source=console
+
+[R-RC-1] Summary: PARTIAL-candidate | SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d | Seat: ronan
+
+running (1m00.4s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_rc_1_threshold_reject ✓ [ 100% ] 1 VUs  1m00.4s/1m30s  1/1 shared iters
+time="2026-07-17T03:31:59-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"
+[R-RC-1] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate.
+[R-RC-1] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-RC-1/ronan/20260717T103058Z-r-rc-1/openclaw-proofs-k6.prom
+[R-RC-1] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-ronan-dgx-2457308/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-RC-1/ronan/20260717T103058Z-r-rc-1
+[R-RC-1] FAILED with effective exit code 99. Public-safe artifacts preserved.

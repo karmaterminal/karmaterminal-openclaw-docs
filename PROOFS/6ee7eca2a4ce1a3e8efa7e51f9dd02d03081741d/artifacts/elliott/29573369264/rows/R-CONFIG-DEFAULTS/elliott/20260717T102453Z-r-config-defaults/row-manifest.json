@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CONFIG-defaults",
+  "issue": 104,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 60,
+  "scenario": {
+    "name": "r-config-defaults",
+    "description": "Read-only continuation config defaults via direct authenticated operator config.get RPC.",
+    "methods": [
+      "config.get"
+    ],
+    "status": "runnable",
+    "file": "r-config-defaults.js"
+  },
+  "expectedReceipts": [
+    {
+      "name": "config-read",
+      "required": true,
+      "description": "Configuration read successful"
+    },
+    {
+      "name": "continuation-values",
+      "required": true,
+      "description": "Continuation enabled/maxChainLength/maxDelegatesPerTurn/costCapTokens bytes observed"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CONFIG-defaults",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Read-only direct operator-RPC config.get row. Projects only committed continuation fields; no agent-mediated owner-only gateway tool, model sentinel, config mutation, or continuation scheduling."
+  },
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "config-read",
+      "continuation-values"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Read-only direct operator-RPC config.get; public evidence must project only required continuation fields plus a public-safe query-window correlation receipt. No agent-mediated owner-only tool or model sentinel."
+  }
+}

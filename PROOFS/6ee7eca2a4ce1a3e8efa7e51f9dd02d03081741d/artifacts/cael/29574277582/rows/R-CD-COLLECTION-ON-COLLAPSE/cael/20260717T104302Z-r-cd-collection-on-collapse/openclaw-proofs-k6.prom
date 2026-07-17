@@ -1,0 +1,11 @@
+# TYPE openclaw_proofs_k6_run_total counter
+openclaw_proofs_k6_run_total{row_id="R-CD-COLLECTION-ON-COLLAPSE",seat="cael",candidate_sha="6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",scenario="static-corpus-row-validator.js",run_id="20260717T104302Z-r-cd-collection-on-collapse",tool_surface="read-only",transport="offline",outcome="PASS-candidate",candidate_only="true",fold_requires_review="true",failure_class="none"} 1
+# TYPE openclaw_proofs_k6_proof_failures_total counter
+openclaw_proofs_k6_proof_failures_total{row_id="R-CD-COLLECTION-ON-COLLAPSE",seat="cael",candidate_sha="6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",scenario="static-corpus-row-validator.js",run_id="20260717T104302Z-r-cd-collection-on-collapse",failure_class="none"} 0
+# TYPE openclaw_proofs_k6_candidate_pending_review gauge
+openclaw_proofs_k6_candidate_pending_review{row_id="R-CD-COLLECTION-ON-COLLAPSE",seat="cael",candidate_sha="6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",run_id="20260717T104302Z-r-cd-collection-on-collapse",outcome="PASS-candidate",fold_requires_review="true"} 1
+# TYPE openclaw_proofs_k6_duration_ms gauge
+openclaw_proofs_k6_duration_ms{row_id="R-CD-COLLECTION-ON-COLLAPSE",seat="cael",candidate_sha="6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",scenario="static-corpus-row-validator.js",run_id="20260717T104302Z-r-cd-collection-on-collapse",outcome="PASS-candidate"} 0
+# TYPE openclaw_proofs_k6_receipt_status gauge
+openclaw_proofs_k6_receipt_status{row_id="R-CD-COLLECTION-ON-COLLAPSE",seat="cael",candidate_sha="6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",run_id="20260717T104302Z-r-cd-collection-on-collapse",receipt_name="collection-collapse-artifacts",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-COLLECTION-ON-COLLAPSE",seat="cael",candidate_sha="6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",run_id="20260717T104302Z-r-cd-collection-on-collapse",receipt_name="root-collection-after-intermediate-finalized",receipt_required="true",receipt_status="unknown"} 0

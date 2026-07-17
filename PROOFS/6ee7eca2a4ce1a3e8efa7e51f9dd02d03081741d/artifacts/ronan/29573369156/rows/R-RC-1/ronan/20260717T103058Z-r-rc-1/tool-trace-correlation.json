@@ -1,0 +1,28 @@
+{
+  "schema": "openclaw.k6.tool-trace-correlation.v1",
+  "generatedAt": "2026-07-17T10:32:36.104Z",
+  "row": "R-RC-1",
+  "seat": "ronan",
+  "attribution": "seat-tool-dispatch-window",
+  "query": "{ resource.service.name=\"ronan-prince\" && name=\"openclaw.tool.execution\" && .gen_ai.tool.name=\"request_compaction\" }",
+  "traceJson": "tempo-trace-9fc958258bda.json",
+  "traceId": "9fc958258bda053257c87a87aa0a80ec",
+  "toolSpanId": "2a7f446bf758baad",
+  "toolParentSpanId": "002b28f58d034da0",
+  "status": {
+    "code": "UNSET",
+    "message": null
+  },
+  "errorType": null,
+  "tool": {
+    "name": "request_compaction",
+    "spanId": "2a7f446bf758baad",
+    "parentSpanId": "002b28f58d034da0",
+    "status": {
+      "code": "UNSET",
+      "message": null
+    },
+    "errorType": null
+  },
+  "uniqueTrace": true
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "openclaw.k6.proof-metrics-export.v1",
+  "rowId": "R-CW-2",
+  "candidateSha": "6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",
+  "seat": "ronan",
+  "outcome": "PASS-candidate",
+  "sampleCount": 9,
+  "metricNames": [
+    "openclaw_proofs_k6_run_total",
+    "openclaw_proofs_k6_proof_failures_total",
+    "openclaw_proofs_k6_candidate_pending_review",
+    "openclaw_proofs_k6_duration_ms",
+    "openclaw_proofs_k6_receipt_status"
+  ],
+  "prometheusOut": "openclaw-proofs-k6.prom",
+  "otlpOut": "openclaw-proofs-k6.otlp.json",
+  "push": {
+    "status": 200,
+    "ok": true
+  }
+}

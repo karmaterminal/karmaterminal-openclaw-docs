@@ -1,0 +1,118 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-1.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m0s max duration (incl. graceful stop):
+              * r_obs_1: 1 iterations shared among 1 VUs (maxDuration: 1m30s, gracefulStop: 30s)
+
+time="2026-07-17T03:24:56-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-07-17T03:24:56-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for R-OBS-1 status-card read" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m01.0s/1m30s  0/1 shared iters
+time="2026-07-17T03:24:57-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m02.0s/1m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m03.0s/1m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m04.0s/1m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m05.0s/1m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m06.0s/1m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m07.0s/1m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m08.0s/1m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m09.0s/1m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m10.0s/1m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m11.0s/1m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m12.0s/1m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m13.0s/1m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m14.0s/1m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m15.0s/1m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m16.0s/1m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m17.0s/1m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m18.0s/1m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m19.0s/1m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m20.0s/1m30s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m21.0s/1m30s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m22.0s/1m30s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m23.0s/1m30s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m24.0s/1m30s  0/1 shared iters
+time="2026-07-17T03:25:20-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m25.0s/1m30s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m26.0s/1m30s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m27.0s/1m30s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m28.0s/1m30s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m29.0s/1m30s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m30.0s/1m30s  0/1 shared iters
+time="2026-07-17T03:25:26-07:00" level=info msg="ℹ OBS1-STATUS sentinel prefix observed; waiting for complete streamed sentinel" source=console
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m31.0s/1m30s  0/1 shared iters
+time="2026-07-17T03:25:27-07:00" level=info msg="✓ OBS1-STATUS sentinel observed: {\"build\":\"yes\",\"context\":\"yes\",\"chain\":\"yes\",\"route\":\"yes\"}" source=console
+PUBLIC_EVIDENCE {"row":"R-OBS-1","manifest_loaded":true,"seat":"elliott","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:24:55.870Z","dispatch_accepted":true,"status_card_observed":true,"build_visible":true,"context_visible":true,"continuation_chain_visible":true,"route_visible":true,"trace_id":null,"ended":"2026-07-17T10:25:27.192Z","duration_ms":31322}
+
+running (0m31.3s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_1 ✓ [ 100% ] 1 VUs  0m31.3s/1m30s  1/1 shared iters

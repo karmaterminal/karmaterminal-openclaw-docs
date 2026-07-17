@@ -1,0 +1,35 @@
+{
+  "schema": "openclaw.k6.continuation-trace-correlation.v1",
+  "generatedAt": "2026-07-17T10:25:37.308Z",
+  "row": "R-CD-1",
+  "seat": "silas",
+  "attribution": "reason-hash-length-mode",
+  "query": "{ resource.service.name=\"silas-prince\" && name=\"continuation.delegate.dispatch\" && .reason.hash=\"f987e2ece04431f2\" && .reason.length=139 && .delegate.mode=\"normal\" }",
+  "traceJson": "tempo-trace-aeddcfa514d3.json",
+  "traceId": "aeddcfa514d34883a8cad8a69151e1eb",
+  "chainId": "92642fb3-5e3d-42be-85e8-aeffad17e20f",
+  "toolSpanIds": [
+    "47e85aa82673a1e1"
+  ],
+  "fireSpanId": "4a75a0a828e121f1",
+  "fireParentSpanId": "65485243d6be95fa",
+  "childSpans": [],
+  "dispatchSpanId": "1263439838a23b80",
+  "dispatchParentSpanId": "65485243d6be95fa",
+  "reason": {
+    "hash": "f987e2ece04431f2",
+    "length": 139,
+    "source": "manifest-nonce",
+    "rawPersisted": false
+  },
+  "continuation": {
+    "tool": "continue_delegate",
+    "acceptSpan": "continuation.delegate.dispatch",
+    "fireSpan": "continuation.delegate.fire"
+  },
+  "delegate": {
+    "mode": "normal"
+  },
+  "sameTrace": true,
+  "distinctSpans": true
+}

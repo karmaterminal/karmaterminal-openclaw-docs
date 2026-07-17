@@ -232,8 +232,9 @@ successful proof with missing artifacts. Trace and correlation paths in
 ## Tempo trace receipts
 
 When a live row emits a `trace_id`, `run-proofs.sh` attempts to fetch the
-matching Tempo JSON from `OPENCLAW_PROOFS_TEMPO_BASE_URL` / `TEMPO_BASE_URL` (fleet default `http://tempo.dandelion.cult`)
-and saves it beside the candidate run artifacts as `tempo-trace-<trace>.json`.
+matching Tempo trace from `OPENCLAW_PROOFS_TEMPO_BASE_URL` / `TEMPO_BASE_URL` (fleet default `http://tempo.dandelion.cult`)
+and saves only its public-safe projection beside the candidate run artifacts
+as `tempo-trace-<trace>.json`; raw Tempo/OTLP responses are never public proof artifacts.
 For trace-required tool rows whose primary `trace_id` is null, the collector
 instead searches by seat service, tool fingerprint, and an evidence-derived
 bounded dispatch window. It accepts exactly one candidate, fails closed on
@@ -250,7 +251,7 @@ from the committed prompt template and evidence nonce, searches Tempo by
 `reason.hash` + `reason.length` + delegate mode, requires exactly one trace,
 and validates that the originating `continue_delegate` tool span plus
 `continuation.delegate.fire` and `continuation.delegate.dispatch` share valid,
-distinct IDs and one chain. The raw trace and
+distinct IDs and one chain. The public-safe trace projection and
 `continuation-trace-correlation.json` are saved beside the row artifacts; raw
 task text and `traceparent` are not persisted in the correlation receipt.
 

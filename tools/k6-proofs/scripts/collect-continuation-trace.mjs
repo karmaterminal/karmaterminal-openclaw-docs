@@ -3,6 +3,13 @@ import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import {
+  allTempoSpans as allSpans,
+  projectPublicTempoTrace,
+  publicTempoSpanName as publicSpanName,
+  publicTempoStatusCode as publicStatusCode,
+  tempoAttributeValue as attributeValue,
+} from '../lib/public-tempo-trace.mjs';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
@@ -58,22 +65,8 @@ function idHex(value, bytes, label) {
   return safeHex(decoded.toString('hex'), bytes * 2, label);
 }
 
-function attributeValue(attribute) {
-  const value = attribute?.value || {};
-  return value.stringValue ?? value.intValue ?? value.boolValue ?? value.doubleValue ?? null;
-}
-
 function attributes(span) {
   return new Map((span?.attributes || []).map((attribute) => [attribute.key, attributeValue(attribute)]));
-}
-
-function allSpans(trace) {
-  if (Array.isArray(trace?.batches)) {
-    return trace.batches.flatMap((batch) =>
-      (batch.scopeSpans || batch.instrumentationLibrarySpans || []).flatMap((scope) => scope.spans || []));
-  }
-  if (Array.isArray(trace?.trace?.spans)) return trace.trace.spans;
-  return [];
 }
 
 async function readEvidence(evidencePath) {
@@ -174,96 +167,13 @@ function assertTraceIsPublicSafe(trace, evidence, reason) {
   }
 }
 
-const PUBLIC_TRACE_ATTRIBUTE_KEYS = new Set([
-  'chain.id',
-  'delegate.mode',
-  'gen_ai.tool.name',
-  'openclaw.toolName',
-  'reason.hash',
-  'reason.length',
-  'reason.present',
-]);
-
-function publicTraceAttribute(attribute) {
-  if (!attribute || !PUBLIC_TRACE_ATTRIBUTE_KEYS.has(attribute.key)) return null;
-  const value = attributeValue(attribute);
-  if (value === undefined || value === null) return null;
-
-  if (attribute.key === 'reason.hash' && !/^[0-9a-f]{16}$/iu.test(String(value))) return null;
-  if (attribute.key === 'reason.length' && !Number.isInteger(Number(value))) return null;
-  if (attribute.key === 'reason.present' && value !== true && value !== false && value !== 'true' && value !== 'false') return null;
-  if (attribute.key === 'delegate.mode' && !['normal', 'silent', 'silent-wake', 'post-compaction'].includes(String(value))) return null;
-  if (['gen_ai.tool.name', 'openclaw.toolName'].includes(attribute.key) &&
-      !['continue_delegate', 'continue_work', 'request_compaction'].includes(String(value))) return null;
-  if (attribute.key === 'chain.id' &&
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(String(value))) return null;
-
-  if (typeof value === 'boolean') return { key: attribute.key, value: { boolValue: value } };
-  if (typeof value === 'number' || attribute.key === 'reason.length') {
-    return { key: attribute.key, value: { intValue: String(value) } };
-  }
-  return { key: attribute.key, value: { stringValue: String(value) } };
-}
-
-function safePublicSpanId(value, bytes) {
-  if (!value) return null;
-  try {
-    return idHex(value, bytes, 'public trace span id');
-  } catch {
-    return null;
-  }
-}
-
-function publicStatusCode(value) {
-  if (value === 0 || value === 'UNSET') return 'UNSET';
-  if (value === 1 || value === 'OK') return 'OK';
-  if (value === 2 || value === 'ERROR') return 'ERROR';
-  return 'UNSET';
-}
-
-function publicSpanName(value) {
-  return typeof value === 'string' && /^(?:openclaw|continuation)\.[A-Za-z0-9._:-]{1,150}$/u.test(value)
-    ? value
-    : null;
-}
-
-/**
- * Persist only the topology and telemetry attributes needed for proof review.
- * Tempo's raw OTLP response may contain session keys, credentials, task text,
- * or status messages that are valid for the private backend but forbidden in
- * the public proof corpus.
- */
-function publicTraceProjection(trace, traceId) {
-  const spans = allSpans(trace).flatMap((span) => {
-    const name = publicSpanName(span.name);
-    if (!name) return [];
-    const spanId = safePublicSpanId(span.spanId, 8);
-    if (!spanId) return [];
-    const parentSpanId = safePublicSpanId(span.parentSpanId, 8);
-    return [{
-      name,
-      traceId,
-      spanId,
-      parentSpanId,
-      status: { code: publicStatusCode(span.status?.code) },
-      attributes: (Array.isArray(span.attributes) ? span.attributes : [])
-        .map(publicTraceAttribute)
-        .filter(Boolean),
-    }];
-  });
-  return {
-    schema: 'openclaw.k6.public-tempo-trace.v1',
-    traceId,
-    spans,
-  };
-}
 
 async function tempoSearch(baseUrl, query, start, end) {
   const root = String(baseUrl).replace(/\/+$/, '');
   const params = new URLSearchParams({ q: query, start: String(start), end: String(end), limit: '20' });
   const response = await fetch(`${root}/api/search?${params}`, { headers: { accept: 'application/json' } });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Tempo search failed: HTTP ${response.status} ${text.slice(0, 240)}`);
+  if (!response.ok) throw new Error(`Tempo search failed: HTTP ${response.status} ${response.statusText}`.trim());
   const json = JSON.parse(text);
   return json.traces || [];
 }
@@ -274,7 +184,7 @@ async function fetchTrace(baseUrl, traceId) {
     headers: { accept: 'application/json' },
   });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Tempo trace fetch failed: HTTP ${response.status} ${text.slice(0, 240)}`);
+  if (!response.ok) throw new Error(`Tempo trace fetch failed: HTTP ${response.status} ${response.statusText}`.trim());
   return JSON.parse(text);
 }
 
@@ -474,7 +384,7 @@ async function main() {
     throw new Error(`no Tempo trace matched ${fingerprint} before timeout`);
   }
   assertTraceIsPublicSafe(trace, evidence, contract);
-  const publicTrace = publicTraceProjection(trace, traceId);
+  const publicTrace = projectPublicTempoTrace(trace, traceId);
 
   const traceOut = path.join(runDir, `tempo-trace-${traceId.slice(0, 12)}.json`);
   const receiptOut = path.join(

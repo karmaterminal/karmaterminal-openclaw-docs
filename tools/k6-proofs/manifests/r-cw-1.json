@@ -30,7 +30,7 @@
     { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted the continue_work tool invocation" },
     { "name": "continue-work-tool-result-scheduled", "required": true, "description": "Post-dispatch non-harness event includes explicit CW-SCHEDULED sentinel emitted after continue_work tool result reports scheduled" },
     { "name": "work-woke-event", "required": true, "description": "Session wake event delivered after delaySeconds" },
-    { "name": "trace-id", "required": true, "description": "Unique safe-fingerprint correlation to raw Tempo JSON containing same-trace continue_work tool, continuation.work, and continuation.work.fire spans" }
+    { "name": "trace-id", "required": true, "description": "Unique safe-fingerprint correlation to a public-safe Tempo projection containing same-trace continue_work tool, continuation.work, and continuation.work.fire spans" }
   ],
   "artifactDestination": {
     "root": "PROOFS",

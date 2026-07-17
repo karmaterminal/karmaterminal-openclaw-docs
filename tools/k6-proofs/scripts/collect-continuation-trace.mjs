@@ -3,9 +3,17 @@ import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import {
+  allTempoSpans as allSpans,
+  projectPublicTempoTrace,
+  publicTempoSpanName as publicSpanName,
+  publicTempoStatusCode as publicStatusCode,
+  tempoAttributeValue as attributeValue,
+} from '../lib/public-tempo-trace.mjs';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
+const CORRELATION_WINDOW_PADDING_SECONDS = 60;
 
 function usage() {
   console.error(`Usage: node collect-continuation-trace.mjs \\
@@ -57,22 +65,8 @@ function idHex(value, bytes, label) {
   return safeHex(decoded.toString('hex'), bytes * 2, label);
 }
 
-function attributeValue(attribute) {
-  const value = attribute?.value || {};
-  return value.stringValue ?? value.intValue ?? value.boolValue ?? value.doubleValue ?? null;
-}
-
 function attributes(span) {
   return new Map((span?.attributes || []).map((attribute) => [attribute.key, attributeValue(attribute)]));
-}
-
-function allSpans(trace) {
-  if (Array.isArray(trace?.batches)) {
-    return trace.batches.flatMap((batch) =>
-      (batch.scopeSpans || batch.instrumentationLibrarySpans || []).flatMap((scope) => scope.spans || []));
-  }
-  if (Array.isArray(trace?.trace?.spans)) return trace.trace.spans;
-  return [];
 }
 
 async function readEvidence(evidencePath) {
@@ -173,12 +167,13 @@ function assertTraceIsPublicSafe(trace, evidence, reason) {
   }
 }
 
+
 async function tempoSearch(baseUrl, query, start, end) {
   const root = String(baseUrl).replace(/\/+$/, '');
   const params = new URLSearchParams({ q: query, start: String(start), end: String(end), limit: '20' });
   const response = await fetch(`${root}/api/search?${params}`, { headers: { accept: 'application/json' } });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Tempo search failed: HTTP ${response.status} ${text.slice(0, 240)}`);
+  if (!response.ok) throw new Error(`Tempo search failed: HTTP ${response.status} ${response.statusText}`.trim());
   const json = JSON.parse(text);
   return json.traces || [];
 }
@@ -189,7 +184,7 @@ async function fetchTrace(baseUrl, traceId) {
     headers: { accept: 'application/json' },
   });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Tempo trace fetch failed: HTTP ${response.status} ${text.slice(0, 240)}`);
+  if (!response.ok) throw new Error(`Tempo trace fetch failed: HTTP ${response.status} ${response.statusText}`.trim());
   return JSON.parse(text);
 }
 
@@ -208,7 +203,9 @@ function validateTrace(trace, expected) {
   if (!accept) throw new Error(`matched trace lacks the expected ${expected.acceptSpanName} span`);
   const acceptAttrs = attributes(accept);
   const chainId = String(acceptAttrs.get('chain.id') || '');
-  if (!chainId) throw new Error(`${expected.acceptSpanName} span lacks chain.id`);
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(chainId)) {
+    throw new Error(`${expected.acceptSpanName} span lacks a public-safe UUIDv4 chain.id`);
+  }
 
   const fire = spans.find((span) => {
     const attrs = attributes(span);
@@ -246,7 +243,8 @@ function validateTrace(trace, expected) {
   const childSpans = spans
     .filter((span) =>
       span.parentSpanId && idHex(span.parentSpanId, 8, 'parent span id') === acceptSpanId)
-    .map((span) => ({ name: span.name, spanId: idHex(span.spanId, 8, 'child span id') }));
+    .map((span) => ({ name: publicSpanName(span.name), spanId: idHex(span.spanId, 8, 'child span id') }))
+    .filter((span) => span.name !== null);
 
   const topology = {
     traceId,
@@ -294,10 +292,8 @@ function validateToolTrace(trace, expected) {
       ? idHex(tool.parentSpanId, 8, 'tool parent span id')
       : null,
     status: {
-      code: tool.status?.code ?? 'UNSET',
-      message: tool.status?.message ?? null,
+      code: publicStatusCode(tool.status?.code),
     },
-    errorType: attrs.get('error.type') ?? attrs.get('exception.type') ?? null,
   };
 }
 
@@ -335,10 +331,13 @@ async function main() {
     : `{ resource.service.name="${serviceName}" && name="openclaw.tool.execution" && .gen_ai.tool.name="${contract.tool}" }`;
   const dispatchMs = Number(evidence.dispatch_accepted_at_ms || Date.parse(evidence.started));
   if (!Number.isFinite(dispatchMs)) throw new Error('evidence lacks a valid dispatch/start time');
-  const start = Math.floor(dispatchMs / 1000) - 60;
+  const dispatchSeconds = Math.floor(dispatchMs / 1000);
+  const start = dispatchSeconds - CORRELATION_WINDOW_PADDING_SECONDS;
   const evidenceEndMs = Date.parse(evidence.ended);
-  const searchEndMs = Number.isFinite(evidenceEndMs) ? evidenceEndMs : Date.now();
-  const end = Math.floor(searchEndMs / 1000) + 60;
+  const evidenceEndSeconds = Number.isFinite(evidenceEndMs)
+    ? Math.floor(evidenceEndMs / 1000)
+    : dispatchSeconds;
+  const end = Math.max(dispatchSeconds, evidenceEndSeconds) + CORRELATION_WINDOW_PADDING_SECONDS;
   const deadline = Date.now() + args.timeoutMs;
   let candidates = [];
   let traceId = '';
@@ -385,6 +384,7 @@ async function main() {
     throw new Error(`no Tempo trace matched ${fingerprint} before timeout`);
   }
   assertTraceIsPublicSafe(trace, evidence, contract);
+  const publicTrace = projectPublicTempoTrace(trace, traceId);
 
   const traceOut = path.join(runDir, `tempo-trace-${traceId.slice(0, 12)}.json`);
   const receiptOut = path.join(
@@ -393,16 +393,21 @@ async function main() {
       ? 'continuation-trace-correlation.json'
       : 'tool-trace-correlation.json',
   );
-  await writeFile(traceOut, JSON.stringify(trace, null, 2) + '\n');
+  await writeFile(traceOut, JSON.stringify(publicTrace, null, 2) + '\n');
   const receipt = {
     schema: contract.kind === 'continuation'
       ? 'openclaw.k6.continuation-trace-correlation.v1'
       : 'openclaw.k6.tool-trace-correlation.v1',
-    generatedAt: new Date().toISOString(),
     row: evidence.row || manifest.rowId,
     seat: args.seat,
     attribution: contract.attribution,
     query,
+    searchWindow: {
+      startUnixSeconds: start,
+      endUnixSeconds: end,
+      paddingSeconds: CORRELATION_WINDOW_PADDING_SECONDS,
+      source: Number.isFinite(evidenceEndMs) ? 'dispatch-and-evidence-ended' : 'dispatch-only',
+    },
     traceJson: path.basename(traceOut),
     ...topology,
     ...(contract.kind === 'continuation'
@@ -428,7 +433,6 @@ async function main() {
             spanId: topology.toolSpanId,
             parentSpanId: topology.toolParentSpanId,
             status: topology.status,
-            errorType: topology.errorType,
           },
           uniqueTrace: true,
         }),

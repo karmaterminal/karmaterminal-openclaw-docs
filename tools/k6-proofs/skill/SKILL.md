@@ -10,7 +10,7 @@ Build, run, and maintain k6 proof-row scenarios for the OpenClaw continuation fe
 - **Prometheus** — metrics store for candidate rows; set `OPENCLAW_PROOFS_PROMETHEUS_BASE_URL` / `OPENCLAW_PROOFS_PROMETHEUS_RW_URL` for non-fleet runs (fleet default: `prometheus.dandelion.cult`).
 - **Grafana** — dashboards (contract in `tools/k6-proofs/METRICS.md`; JSON in `tools/k6-proofs/dashboards/k6-proofs.json`).
 - **Loki** — log aggregation for nonce-correlated journal receipts; set `OPENCLAW_PROOFS_LOKI_BASE_URL` for non-fleet runs.
-- **Tempo** — distributed tracing; raw trace JSON is the proof surface for continuation spans; set `OPENCLAW_PROOFS_TEMPO_BASE_URL` for non-fleet runs.
+- **Tempo** — distributed tracing; a public-safe trace projection is the proof surface for continuation spans; set `OPENCLAW_PROOFS_TEMPO_BASE_URL` for non-fleet runs.
 - **Alloy / OTel Collector** — forwards logs and traces from seats into Loki/Tempo.
 
 ### Repo Structure
@@ -146,7 +146,7 @@ node tools/k6-proofs/scripts/evidence-writer.mjs \
   --row R-CD-2 \
   --seat <seat> \
   --sha <40-char-sha>
-# Review the candidate run directory, add raw trace/log receipts, then fold intentionally.
+# Review the candidate run directory, add public-safe trace/log receipts, then fold intentionally.
 ```
 
 ## Key Patterns
@@ -154,7 +154,7 @@ node tools/k6-proofs/scripts/evidence-writer.mjs \
 ### Evidence Correlation
 The gateway doesn't expose a REST API for delegate dispatch — delegates fire via the agent's tool surface. The k6 harness verifies infrastructure readiness and captures evidence post-run:
 1. **Journal/Loki grep** — query the gateway journal or Loki for the nonce window; do not commit secrets.
-2. **Tempo trace pull** — export raw trace JSON for the trace id; summarize span tree separately.
+2. **Tempo trace pull** — export the public-safe trace projection for the trace id; summarize span tree separately.
 3. **Session/event receipt** — use redacted `sessions.messages.subscribe` / response receipts where the row depends on session delivery.
 
 ### Both-Forms Mandate

@@ -48,7 +48,7 @@
     </Step>
     <Step order="3" id="evidence-capture">
       <Action>Grep journal for nonce; pull Tempo trace; query Loki</Action>
-      <Artifacts>EVIDENCE.md + raw trace JSON + summary JSON</Artifacts>
+      <Artifacts>EVIDENCE.md + public-safe trace projection JSON + summary JSON</Artifacts>
       <Destination>PROOFS/{SHA}/R-{ROW-NAME}/</Destination>
     </Step>
     <Step order="4" id="commit">

@@ -21,13 +21,25 @@ async function withServer(handler, fn) {
   }
 }
 
-test('fetches Tempo trace JSON by trace id and writes receipt', async () => {
+test('fetches and projects Tempo trace JSON by trace id without persisting private fields', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'tempo-fetch-'));
   try {
     await withServer((req, res) => {
       assert.equal(req.url, '/api/traces/0123456789abcdef');
       res.setHeader('content-type', 'application/json');
-      res.end(JSON.stringify({ batches: [{ scopeSpans: [{ spans: [{ traceId: '0123456789abcdef', spanId: 'abc' }] }] }] }));
+      res.end(JSON.stringify({ batches: [{ resource: { attributes: [{ key: 'host.secret', value: { stringValue: 'private-resource' } }] }, scopeSpans: [{ spans: [{
+        traceId: '0123456789abcdef',
+        spanId: '0123456789abcdef',
+        name: 'openclaw.tool',
+        status: { code: 2, message: 'private status text' },
+        attributes: [
+          { key: 'openclaw.toolName', value: { stringValue: 'continue_work' } },
+          { key: 'session.key', value: { stringValue: 'agent:private:session' } },
+          { key: 'authorization', value: { stringValue: 'Bearer private-token' } },
+          { key: 'task.text', value: { stringValue: 'private task prompt' } },
+        ],
+        events: [{ name: 'private event', attributes: [{ key: 'prompt', value: { stringValue: 'private prompt' } }] }],
+      }] }] }] }));
     }, async (baseUrl) => {
       const out = path.join(root, 'trace.json');
       const run = await runNode(process.execPath, [script, '--trace-id', '0123456789abcdef', '--tempo-url', baseUrl, '--out', out], { encoding: 'utf8' });
@@ -37,7 +49,17 @@ test('fetches Tempo trace JSON by trace id and writes receipt', async () => {
       assert.equal(receipt.spans, 1);
       assert.equal(receipt.tempoUrl.includes('0123456789abcdef'), false);
       const body = JSON.parse(await readFile(out, 'utf8'));
-      assert.equal(body.batches[0].scopeSpans[0].spans.length, 1);
+      assert.equal(body.schema, 'openclaw.k6.public-tempo-trace.v1');
+      assert.equal(body.spans.length, 1);
+      assert.equal(body.spans[0].name, 'openclaw.tool');
+      assert.deepEqual(body.spans[0].status, { code: 'ERROR' });
+      assert.deepEqual(body.spans[0].attributes, [
+        { key: 'openclaw.toolName', value: { stringValue: 'continue_work' } },
+      ]);
+      const serialized = JSON.stringify({ body, receipt });
+      for (const forbidden of ['session.key', 'authorization', 'agent:private:session', 'private-token', 'private status text', 'private-resource', 'private task prompt', 'private prompt']) {
+        assert.equal(serialized.includes(forbidden), false, `leaked ${forbidden}`);
+      }
     });
   } finally {
     await rm(root, { recursive: true, force: true });
@@ -53,7 +75,7 @@ test('can discover trace id from run-dir evidence.jsonl', async () => {
     await withServer((req, res) => {
       assert.equal(req.url, '/api/traces/abcdef0123456789');
       res.setHeader('content-type', 'application/json');
-      res.end(JSON.stringify({ trace: { spans: [{ spanId: 'abc' }] } }));
+      res.end(JSON.stringify({ trace: { spans: [{ spanId: '0123456789abcdef', name: 'continuation.work' }] } }));
     }, async (baseUrl) => {
       const run = await runNode(process.execPath, [script, '--run-dir', runDir, '--tempo-url', baseUrl], { encoding: 'utf8' });
       const receipt = JSON.parse(run.stdout);
@@ -78,7 +100,10 @@ test('can discover trace id from Tempo TraceQL search', async () => {
       }
       assert.equal(req.url, '/api/traces/fedcba9876543210');
       res.setHeader('content-type', 'application/json');
-      res.end(JSON.stringify({ trace: { spans: [{ spanId: 'abc' }, { spanId: 'def' }] } }));
+      res.end(JSON.stringify({ trace: { spans: [
+        { spanId: '0123456789abcdef', name: 'continuation.work' },
+        { spanId: 'fedcba9876543210', name: 'continuation.work.fire' },
+      ] } }));
     }, async (baseUrl) => {
       const out = path.join(root, 'trace.json');
       const run = await runNode(process.execPath, [script, '--traceql', '{ .chain.id = "chain-1" }', '--tempo-url', baseUrl, '--start', '1783518200', '--end', '1783518400', '--out', out], { encoding: 'utf8' });
@@ -87,7 +112,7 @@ test('can discover trace id from Tempo TraceQL search', async () => {
       assert.equal(receipt.traceId, 'fedcba9876543210');
       assert.equal(receipt.spans, 2);
       const body = JSON.parse(await readFile(out, 'utf8'));
-      assert.equal(body.trace.spans.length, 2);
+      assert.equal(body.spans.length, 2);
     });
   } finally {
     await rm(root, { recursive: true, force: true });
@@ -100,7 +125,7 @@ test('uses OPENCLAW_PROOFS_TEMPO_BASE_URL when --tempo-url is omitted', async ()
     await withServer((req, res) => {
       assert.equal(req.url, '/api/traces/1111222233334444');
       res.setHeader('content-type', 'application/json');
-      res.end(JSON.stringify({ trace: { spans: [{ spanId: 'env' }] } }));
+      res.end(JSON.stringify({ trace: { spans: [{ spanId: '0123456789abcdef', name: 'continuation.work' }] } }));
     }, async (baseUrl) => {
       const out = path.join(root, 'trace.json');
       const run = await runNode(process.execPath, [script, '--trace-id', '1111222233334444', '--out', out], {

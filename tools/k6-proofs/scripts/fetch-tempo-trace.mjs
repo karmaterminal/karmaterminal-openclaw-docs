@@ -3,12 +3,13 @@
  * Fetch a Tempo trace JSON receipt for a Project 81 k6 proof candidate run.
  *
  * The script accepts either --trace-id directly or --run-dir containing
- * evidence.jsonl. It writes the raw Tempo JSON response to --out (or
+ * evidence.jsonl. It writes a public-safe Tempo trace projection to --out (or
  * <run-dir>/tempo-trace-<trace-id>.json) and prints a compact public-safe
  * receipt to stdout.
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { projectPublicTempoTrace } from '../lib/public-tempo-trace.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
 
@@ -72,7 +73,7 @@ async function traceIdFromTraceql(baseUrl, traceql, { start, end } = {}) {
   const url = `${root}/api/search?${new URLSearchParams(params)}`;
   const response = await fetch(url, { headers: { accept: 'application/json' } });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Tempo search failed: HTTP ${response.status} ${response.statusText} ${text.slice(0, 240)}`.trim());
+  if (!response.ok) throw new Error(`Tempo search failed: HTTP ${response.status} ${response.statusText}`.trim());
   let json;
   try { json = JSON.parse(text); }
   catch { throw new Error(`Tempo search did not return JSON for query ${query}`); }
@@ -86,11 +87,16 @@ async function fetchTrace(baseUrl, traceId) {
   const url = `${root}/api/traces/${encodeURIComponent(traceId)}`;
   const response = await fetch(url, { headers: { accept: 'application/json' } });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Tempo trace fetch failed: HTTP ${response.status} ${response.statusText} ${text.slice(0, 240)}`.trim());
+  if (!response.ok) throw new Error(`Tempo trace fetch failed: HTTP ${response.status} ${response.statusText}`.trim());
   let json;
   try { json = JSON.parse(text); }
   catch { throw new Error(`Tempo trace fetch did not return JSON for ${traceId}`); }
   return { url, json };
+}
+
+function publicTempoUrl(url) {
+  const parsed = new URL(url);
+  return `${parsed.origin}/api/traces/<trace-id>`;
 }
 
 async function main() {
@@ -102,18 +108,16 @@ async function main() {
     ? path.resolve(args.out)
     : path.join(path.resolve(args.runDir || process.cwd()), `tempo-trace-${traceId.slice(0, 12)}.json`);
   const { url, json } = await fetchTrace(args.tempoUrl, traceId);
+  const publicTrace = projectPublicTempoTrace(json, traceId);
   await mkdir(path.dirname(out), { recursive: true });
-  await writeFile(out, `${JSON.stringify(json, null, 2)}\n`);
-  const spans = Array.isArray(json?.batches)
-    ? json.batches.reduce((sum, batch) => sum + (batch?.scopeSpans || batch?.instrumentationLibrarySpans || []).reduce((s, scope) => s + (scope?.spans || []).length, 0), 0)
-    : Array.isArray(json?.trace?.spans) ? json.trace.spans.length : null;
+  await writeFile(out, `${JSON.stringify(publicTrace, null, 2)}\n`);
   console.log(JSON.stringify({
     schema: 'openclaw.k6.tempo-trace-fetch.v1',
     traceId,
     out: path.basename(out),
-    tempoUrl: url.replace(traceId, '<trace-id>'),
+    tempoUrl: publicTempoUrl(url),
     fetched: true,
-    spans,
+    spans: publicTrace.spans.length,
   }, null, 2));
 }
 

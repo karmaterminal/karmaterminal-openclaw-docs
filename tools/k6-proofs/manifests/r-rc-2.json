@@ -52,7 +52,7 @@
     {
       "name": "trace-id",
       "required": true,
-      "description": "Unique safe-fingerprint correlation to raw Tempo JSON containing same-trace continue_delegate tool, fire, and dispatch spans"
+      "description": "Unique safe-fingerprint correlation to a public-safe Tempo projection containing same-trace continue_delegate tool, fire, and dispatch spans"
     }
   ],
   "artifactDestination": {

@@ -1,13 +1,14 @@
 # R-CW-5 remediation receipt — 2026-07-17
 
 - **Candidate:** `6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d`
-- **Harness change:** docs PR #430 (`cd7946259c2f97bfb1aa406f9f3da23d4868d3aa`)
+- **Harness change:** docs PR #430 (`77e84659f8e9be9a31469745c43bc36934d2c64d`)
 - **Result:** `PASS-candidate` for the isolated typed-tool boundary fixture
 - **Canonical state:** remains `missing` until PR review and an explicit corpus disposition; this receipt does not rewrite the original skipped live run.
 
 ## Fresh clean rerun
 
-The fixture was run from a clean checkout of PR #430 against the exact candidate.
+The fixture was rerun from the clean harness head
+`77e84659f8e9be9a31469745c43bc36934d2c64d` against the exact candidate.
 
 ```text
 node --test tools/k6-proofs/scripts/__tests__/cost-cap-fixture.test.mjs \
@@ -27,6 +28,11 @@ cleanup/result receipts, the fixture requires an empty
 Its regression creates both unstaged and staged edits to a tracked scheduler
 file and proves each is rejected. A matching `HEAD` alone is therefore not
 enough to certify the candidate.
+
+The artifact destination is also fail-closed: it rejects an existing receipt,
+an unsafe final directory, and every existing symlink component in its ancestor
+path. The fresh rerun used a new private artifact directory; its readiness
+receipt recorded the exact candidate SHA and no production config/state change.
 
 The fixture's required receipt set was complete:
 

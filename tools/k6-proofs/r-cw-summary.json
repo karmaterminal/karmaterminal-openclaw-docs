@@ -212,8 +212,8 @@
     "R-CW-1": "tool-form schedule+wake (gateway only)",
     "R-CW-3": "reason.preview in OTel span (needs Tempo)",
     "R-CW-4": "chain depth hop counter 1/N→3/N (gateway only)",
-    "R-CW-5": "cost-cap exhaustion reject (mutates config temporarily)",
-    "R-CW-6": "maxChainLength boundary (mutates config + requires restart)",
+    "R-CW-5": "cost-cap exhaustion reject (process-local exact-candidate fixture)",
+    "R-CW-6": "maxChainLength boundary (process-local exact-candidate fixture)",
     "R-CW-7": "traceparent E2E propagation (needs Tempo)"
   }
 }

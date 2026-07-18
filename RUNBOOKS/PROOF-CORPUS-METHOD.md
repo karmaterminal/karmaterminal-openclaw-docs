@@ -100,8 +100,8 @@ Each cycle should produce verdicts for at least these rows:
 | R-CW-2 | 🩸 Cael | chain-counter accounting (embedded in R-CW-1) |
 | R-CW-3 | 🩸 Cael (canonical-owner) + 🕯 Emeric (per-seat-sister-cross-walk) | `continue_work` reason-field captured in OTel span — Cael owns canonical meaning (PR #759 domain); Emeric fires per-seat-sister-cross-walk evidence at `R-CW-3/emeric-nuc/` because PR #898 authoring-seat best-positioned to empirical-verify reason-field capture |
 | R-CW-4 | 🩸 Cael | chain depth tracking across hops (`chain.step.remaining` decrement across same `chain.id`) |
-| R-CW-5 | 🩸 Cael | cost-cap exhaustion → dispatch-time reject. **Prove it by ACTUALLY hitting the cap** — see the **Caps-test procedure** below (lower caps in `openclaw.json` → `gateway-reload.yml` → fire + validate you hit them → restore originals → `gateway-reload.yml`). |
-| R-CW-6 | 🪨 Rune | chain-depth-boundary reject (substantively-fits stone-axis-substrate-of-record-witness shape; boundary as discipline-floor concept) |
+| R-CW-5 | 🩸 Cael | cost-cap exhaustion → dispatch-time reject. Use the exact-candidate process-local `run-cost-cap-fixture.mjs`; do not lower fleet config or restart a gateway for this row. |
+| R-CW-6 | 🪨 Rune | chain-depth-boundary reject. Use the exact-candidate process-local `run-max-chain-fixture.mjs`; require below-limit/at-limit/first-over-limit, durable recovery, typed-tool, selected delegate boundary, no-spawn, cleanup, and public-safe receipts. |
 | R-CW-7 | 🪨 Rune | traceparent E2E propagation across continuation spans (stone-axis-substrate-of-record-witness shape) |
 | R-CW-TOKEN | 🩸 Cael | **token/bracket form** of `continue_work`: a bare `CONTINUE_WORK` / `CONTINUE_WORK:N` at end of reply text DRIVES the continuation (hop-2 actually fires from the parsed response-token) — NOT merely that the token is stripped from output. Tool-form sibling = R-CW-1. (Both-forms mandate.) |
 | R-CW-DELEGATE-SELF-CONTINUATION | 🪨 Rune (canonical-owner, succeeded Cael-originator) | `continue_delegate` self-continuation pattern — Cael originated row in earlier cycle; canonical-owner moved to Rune at 2026-06-03 `e589364` + per-seat-subdir restructure `2afc341`. Cohort cross-walks at per-seat-subdir (`cael-dgx/ronan-dgx/silas-lothric/elliott-legion/emeric-nuc/rune-rog-ally/`). |
@@ -131,9 +131,23 @@ Each cycle should produce verdicts for at least these rows:
 
 If the fleet is on CANDIDATE_SHA + each prince fires assigned rows from own seat, the cross-walk is complete. Substitutions are fine if a prince's seat is unavailable; document the substitution in the row's EVIDENCE.md (see substitution-pattern formalization below).
 
-### Caps-test procedure (figs, 2026-06-21)
+### Caps-test procedure (figs, 2026-06-21; fixture split 2026-07-17)
 
-A cap-exhaustion row (R-CW-5 cost-cap; R-CW-6 chain-depth; and any config-cap row) must be proven by **actually hitting the cap**, not by reasoning about it. Production caps are set high enough that a normal proof run won't reach them, so lower them artificially for the test, then restore:
+A cap-exhaustion row must be proven by **actually hitting the cap**, not by
+reasoning about it. R-CW-5 and R-CW-6 now do that in exact-candidate,
+process-local fixtures and are explicit exceptions to the historical live-seat
+mutation procedure:
+
+- R-CW-5: `tools/k6-proofs/scripts/run-cost-cap-fixture.mjs`
+- R-CW-6: `tools/k6-proofs/scripts/run-max-chain-fixture.mjs`
+
+Those fixtures use disposable state/worktrees, never edit fleet
+`openclaw.json`, never reload/restart a gateway, and remain review-required
+component evidence rather than automatic corpus folds.
+
+Only a future cap row whose manifest explicitly declares live config mutation
+and whose runbook explicitly authorizes it may use the historical lower/test/
+restore procedure:
 
 1. **Lower the cap(s) artificially low.** Edit `openclaw.json` directly (the continuation caps live under `agents.defaults.continuation`, e.g. `costCapTokens` / `maxChainLength` / `maxPendingWork`) — **record your ORIGINAL values first** (you restore them in step 4). Set the cap(s) under test low enough that a single proof run will exhaust them.
 2. **Make the lowered setting effective.** Dispatch `gateway-reload.yml` (openclaw-bootstrap) for your seat so the gateway re-reads `openclaw.json` and the lowered cap goes live.
@@ -141,9 +155,16 @@ A cap-exhaustion row (R-CW-5 cost-cap; R-CW-6 chain-depth; and any config-cap ro
 4. **Restore your original values.** Edit `openclaw.json` back to the original continuation-cap values you recorded in step 1.
 5. **Make the restore effective.** Dispatch `gateway-reload.yml` again for your seat, restoring your original settings live.
 
-The proof artifact records the lowered values used + the hit-the-cap evidence + confirmation that originals were restored. **Do NOT leave a seat on artificially-lowered caps after the row is captured.**
+The proof artifact for such an explicitly live-mutating row records the lowered
+values used + the hit-the-cap evidence + confirmation that originals were
+restored. **Do NOT leave a seat on artificially-lowered caps after the row is
+captured.**
 
-> ⚠️ **Workflow note (Cael, 2026-06-21):** figs's procedure names `gateway-reload.yml` (a config-reload that re-reads `openclaw.json` without a full service-restart — gentler than restart, no state-churn, the right tool for a transient lower→test→restore). **As of this edit `gateway-reload.yml` does NOT yet exist in `.github/workflows/`** (only `restart-gateway.yml`, which restarts the service, and `deploy-gateway.yml`). The reload workflow needs creating before this row can be fired as written. Until it exists, `restart-gateway.yml` is the fallback (it also re-reads `openclaw.json`, but with a full service-restart). Flagged to figs for the reload-workflow build.
+> ⚠️ **Historical live-mutation note (Cael, 2026-06-21):** the procedure
+> names `gateway-reload.yml`, which is not present in this repository. Do not
+> substitute a restart for R-CW-5/R-CW-6; both rows use the process-local
+> fixtures above. Any future live-mutating row must name an available,
+> explicitly approved reload/restart mechanism in its own runbook before use.
 
 ### 6-prince per-seat name canon
 

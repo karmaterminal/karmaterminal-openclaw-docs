@@ -15,6 +15,19 @@ import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
 
+async function writeDependencyFixture(source, lock = 'lockfileVersion: 9.0\n') {
+  await mkdir(path.join(source, 'node_modules', '.pnpm'), { recursive: true });
+  await mkdir(path.join(source, 'node_modules', '.bin'), { recursive: true });
+  await writeFile(path.join(source, 'pnpm-lock.yaml'), lock);
+  await writeFile(path.join(source, 'node_modules', '.pnpm', 'lock.yaml'), lock);
+  await writeFile(
+    path.join(source, 'node_modules', '.modules.yaml'),
+    JSON.stringify({ layoutVersion: 5, virtualStoreDir: '.pnpm' }),
+  );
+  await writeFile(path.join(source, 'node_modules', '.bin', 'tsx'), '#!/bin/sh\n');
+  await writeFile(path.join(source, 'node_modules', '.bin', 'vitest'), '#!/bin/sh\n');
+}
+
 test('R-CW-5 fixture accepts an explicit isolated source contract', () => {
   const parsed = parseArgs([
     'node',
@@ -68,18 +81,22 @@ test('R-CW-5 fixture refuses to overwrite or expose an artifact directory', asyn
 test('R-CW-5 fixture refuses staged or unstaged tracked candidate changes', async () => {
   const source = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-dirty-source-'));
   await mkdir(path.join(source, 'src/auto-reply/continuation'), { recursive: true });
-  await mkdir(path.join(source, 'node_modules'));
+  await writeDependencyFixture(source);
   await writeFile(path.join(source, 'src/auto-reply/continuation/scheduler.ts'), 'export const clean = true;\n');
   await writeFile(path.join(source, 'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts'), '// marker\n');
-  await writeFile(path.join(source, 'package.json'), '{"name":"r-cw-5-test"}\n');
+  await writeFile(path.join(source, 'package.json'), '{"name":"r-cw-5-test","packageManager":"pnpm@11.2.2"}\n');
   execFileSync('git', ['init'], { cwd: source, stdio: 'ignore' });
   execFileSync('git', ['config', 'user.email', 'proof@example.invalid'], { cwd: source });
   execFileSync('git', ['config', 'user.name', 'R-CW-5 fixture test'], { cwd: source });
-  execFileSync('git', ['add', 'src', 'package.json'], { cwd: source });
+  execFileSync('git', ['add', 'src', 'package.json', 'pnpm-lock.yaml'], { cwd: source });
   execFileSync('git', ['commit', '-m', 'candidate'], { cwd: source, stdio: 'ignore' });
   const candidateSha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: source, encoding: 'utf8' }).trim();
 
   assert.doesNotThrow(() => assertSource(source, candidateSha));
+
+  await writeFile(path.join(source, 'node_modules', '.pnpm', 'lock.yaml'), 'lockfileVersion: 8.0\n');
+  assert.throws(() => assertSource(source, candidateSha), /installed dependency lockfile does not match/);
+  await writeFile(path.join(source, 'node_modules', '.pnpm', 'lock.yaml'), 'lockfileVersion: 9.0\n');
 
   await writeFile(path.join(source, 'src/auto-reply/continuation/scheduler.ts'), 'export const clean = false;\n');
   assert.throws(
@@ -126,9 +143,14 @@ test('R-CW-5 public readiness has no private source path', () => {
   const readiness = buildReadiness({
     candidateSha: '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
     head: '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
+    dependencyProvenance: {
+      model: 'preinstalled-pnpm-virtual-store-lockfile-aligned',
+      lockfileMatchesCandidate: true,
+    },
     cap: 200,
   });
   assert.equal(readiness.sourceHeadMatchesCandidate, true);
+  assert.equal(readiness.dependencyProvenance.lockfileMatchesCandidate, true);
   assert.doesNotMatch(JSON.stringify(readiness), new RegExp(privatePath.replaceAll('/', '\\/')));
 });
 

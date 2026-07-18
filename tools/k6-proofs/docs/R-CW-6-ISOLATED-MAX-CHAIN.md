@@ -63,7 +63,10 @@ The command refuses:
 - a SHA/source mismatch;
 - staged or unstaged tracked candidate changes before execution or final
   certification;
-- missing dependencies or a symlinked source `node_modules`;
+- missing dependencies, a symlinked source `node_modules`, or a preinstalled
+  pnpm virtual-store lockfile that is absent or byte-different from the
+  candidate's committed `pnpm-lock.yaml`;
+- missing pinned pnpm metadata or required local `tsx`/`vitest` executables;
 - a reused, group/world-readable, file, symlink, or symlink-ancestor artifact
   path;
 - unknown mutation/restart arguments;
@@ -71,7 +74,9 @@ The command refuses:
   cleanup, or public-artifact-safety receipt.
 
 It never runs an install, starts a gateway, reads or writes fleet config/state,
-or writes the private source path into the public readiness receipt.
+or writes the private source path into the public readiness receipt. The
+readiness receipt records the candidate and installed lockfile SHA-256 values,
+the pinned package-manager declaration, and the verified local executables.
 Any missing or failed receipt is `FAIL-fixture`, never a PASS.
 
 ## Required receipts

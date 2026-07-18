@@ -24,7 +24,7 @@ function evidence(overrides = {}) {
     send_accepted: true, send_run_captured: true,
     terminal_success_same_run: true, typed_delegate_success_same_run: true,
     wake_lifecycle_observed: true, post_wake_quiet: true,
-    channel_delivery_observed: false, dispatch_failure_observed: false,
+    channel_message_observed: false, dispatch_failure_observed: false,
     send_run_fingerprint: run, terminal_run_fingerprint: run, wake_run_fingerprint: run,
     row_nonce_fingerprint: 'e'.repeat(16),
     accepted_send_trace_id: 'b'.repeat(32),

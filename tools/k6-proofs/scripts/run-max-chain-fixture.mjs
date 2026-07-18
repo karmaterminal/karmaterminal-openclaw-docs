@@ -21,6 +21,7 @@ import {
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
+import { assertPnpmDependencyProvenance } from './fixture-dependency-provenance.mjs';
 
 const DEFAULT_MAX_CHAIN_LENGTH = 3;
 const SOURCE_MARKERS = [
@@ -142,17 +143,13 @@ export function assertSource(sourceDir, candidateSha) {
   for (const marker of SOURCE_MARKERS) {
     if (!existsSync(path.join(resolved, marker))) throw new Error(`source dir is missing ${marker}`);
   }
-  const dependencyDir = path.join(resolved, 'node_modules');
-  if (!existsSync(dependencyDir)) {
-    throw new Error('source dir has no node_modules; fixture refuses to install dependencies or mutate the candidate worktree');
-  }
-  if (lstatSync(dependencyDir).isSymbolicLink()) {
-    throw new Error('source node_modules must be a real directory; fixture refuses an indirect mutable dependency tree');
-  }
+  const dependencyProvenance = assertPnpmDependencyProvenance(resolved, {
+    requiredExecutables: ['tsx', 'vitest'],
+  });
   const head = gitHead(resolved);
   if (head !== candidateSha) throw new Error(`candidate/source mismatch: requested ${candidateSha}, source is ${head}`);
   assertTrackedSourceClean(resolved, 'fixture execution');
-  return { resolved, head };
+  return { resolved, head, dependencyProvenance };
 }
 
 export function prepareArtifactDir(input) {
@@ -194,7 +191,7 @@ export function renderToolSurfaceTemplate(template, maxChainLength) {
   return template.replaceAll('__RCW6_MAX_CHAIN_LENGTH__', String(maxChainLength));
 }
 
-export function buildReadiness({ candidateSha, head, maxChainLength }) {
+export function buildReadiness({ candidateSha, head, dependencyProvenance, maxChainLength }) {
   return {
     schema: 'openclaw.project81.r-cw-6.fixture-readiness.v1',
     candidateSha,
@@ -204,7 +201,8 @@ export function buildReadiness({ candidateSha, head, maxChainLength }) {
     productionStateTouched: false,
     gatewayStarted: false,
     fixtureKind: 'disposable-exact-candidate-production-runtime-boundary-plus-dispatch-suite',
-    dependencyTree: 'pre-existing-real-source-node_modules-linked-into-disposable-worktree; no-install',
+    dependencyTree: 'pre-existing-pnpm-tree-linked-into-disposable-worktree; candidate-lockfile-aligned; no-install',
+    dependencyProvenance,
     maxChainLength,
   };
 }
@@ -403,11 +401,12 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
 
 export function runFixture(args) {
   assertArgs(args);
-  const { resolved: sourceDir, head } = assertSource(args.sourceDir, args.candidateSha);
+  const { resolved: sourceDir, head, dependencyProvenance } = assertSource(args.sourceDir, args.candidateSha);
   const artifactDir = prepareArtifactDir(args.artifactDir);
   const readiness = buildReadiness({
     candidateSha: args.candidateSha,
     head,
+    dependencyProvenance,
     maxChainLength: args.maxChainLength,
   });
   writeJson(path.join(artifactDir, 'fixture-readiness.json'), readiness);

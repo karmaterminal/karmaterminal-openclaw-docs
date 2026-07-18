@@ -42,7 +42,9 @@ tools/k6-proofs/
 so `r-cw-5-cost-cap-reject.js` stays a fail-closed scaffold.  Run the
 process-local exact-candidate fixture instead; it calls the same typed callback
 that a real embedded attempt receives, uses a disposable session store and
-worktree, and never changes a running gateway or fleet config:
+worktree, verifies the preinstalled pnpm virtual-store lockfile against the
+candidate's committed lockfile, and never changes a running gateway or fleet
+config:
 
 ```bash
 node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \
@@ -557,7 +559,8 @@ PASS-candidate never reclassifies the live row as PASS without review.
 component fixture for `R-CW-6`; it is intentionally outside the generic k6
 runner and `--live-suite`. It requires a clean exact-candidate source
 worktree with dependencies already present and refuses installs, indirect
-source dependencies, reused or symlinked artifact paths, wrong SHAs, and dirty
+source dependencies, lockfile-mismatched dependency trees, missing local
+`tsx`/`vitest`, reused or symlinked artifact paths, wrong SHAs, and dirty
 tracked source. The production predicate, durable scheduler, temporary session
 store recovery, typed `continue_work` registration/executor path, TaskFlow no-spawn check, and
 selected-max delegate dispatch boundary all run inside one detached disposable candidate

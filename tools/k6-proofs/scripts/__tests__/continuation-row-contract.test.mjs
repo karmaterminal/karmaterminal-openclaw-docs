@@ -70,7 +70,7 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
     delegate_mode: 'silent-wake', reason_hash: reasonHash, reason_length: reason.length,
     session_created: true, session_unbound_confirmed: true, send_accepted: true,
     send_run_captured: true, terminal_success_same_run: true, typed_delegate_success_same_run: true,
-    wake_lifecycle_observed: true, post_wake_quiet: true, channel_delivery_observed: false,
+    wake_lifecycle_observed: true, post_wake_quiet: true, channel_message_observed: false,
     dispatch_failure_observed: false, send_run_fingerprint: 'a'.repeat(16),
     terminal_run_fingerprint: 'a'.repeat(16), wake_run_fingerprint: 'a'.repeat(16),
     row_nonce_fingerprint: 'b'.repeat(16), accepted_send_trace_id: traceId,
@@ -151,6 +151,17 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
     'R-CD-CHAINED-DEPTH-2',
     'R-RC-2',
   ]);
+});
+
+test('R-CD-2 scenario and resolver use the same no-channel-delivery evidence field', async () => {
+  const scenario = await readFile(path.join(scenariosDir, 'r-cd-2-silent-wake.js'), 'utf8');
+  const resolver = await readFile(
+    path.join(repoRoot, 'tools/k6-proofs/lib/r-cd-2-authoritative-receipt.mjs'),
+    'utf8',
+  );
+  assert.match(scenario, /channel_message_observed:\s*false/);
+  assert.match(resolver, /evidence\?\.channel_message_observed === false/);
+  assert.doesNotMatch(resolver, /channel_delivery_observed/);
 });
 
 test('every trace-required continue_work row persists the safe fingerprint contract', async () => {

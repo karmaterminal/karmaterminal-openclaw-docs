@@ -34,6 +34,7 @@ function span(name, traceId, spanId, parentSpanId, attrs = []) {
     spanId: b64(spanId),
     parentSpanId: b64(parentSpanId),
     attributes: attrs,
+    status: { code: 'OK' },
   };
 }
 
@@ -471,7 +472,7 @@ test('recovers a unique non-continuation tool trace by seat, tool, and evidence 
     assert.equal(receipt.attribution, 'seat-tool-dispatch-window');
     assert.equal(receipt.tool.name, 'request_compaction');
     assert.equal(receipt.tool.spanId, 'aaaaaaaaaaaaaaaa');
-    assert.equal(receipt.tool.status.code, 'UNSET');
+    assert.equal(receipt.tool.status.code, 'OK');
     assert.equal(receipt.uniqueTrace, true);
     assert.equal('generatedAt' in receipt, false);
     assert.deepEqual(receipt.searchWindow, {
@@ -813,5 +814,84 @@ test('rejects a matched trace that leaks raw task or traceparent material', asyn
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('correlates terminal bracket-token topology without a typed continue_delegate tool span', async () => {
+  const fixture = await fixtureDir();
+  const manifest = JSON.parse(await readFile(fixture.manifestPath, 'utf8'));
+  manifest.rowId = 'R-CD-TOKEN';
+  manifest.invocation.originSurface = 'raw-final-text';
+  await writeFile(fixture.manifestPath, JSON.stringify(manifest));
+  const traceId = '99999999999999999999999999999999';
+  const trace = traceFixture({ traceId, reasonHash: fixture.reasonHash, reasonLength: fixture.reasonLength });
+  trace.batches[0].scopeSpans[0].spans = trace.batches[0].scopeSpans[0].spans
+    .filter((entry) => entry.name !== 'openclaw.tool.execution');
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    response.end(url.pathname === '/api/search'
+      ? JSON.stringify({ traces: [{ traceID: traceId }] })
+      : JSON.stringify(trace));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [script,
+      '--run-dir', fixture.dir, '--manifest', fixture.manifestPath, '--seat', 'elliott-prince',
+      '--tempo-url', server.url, '--timeout-ms', '100', '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+    assert.equal(receipt.attribution, 'bracket-token-reason-hash-length-mode');
+    assert.equal(receipt.continuation.originSurface, 'raw-final-text');
+    assert.deepEqual(receipt.toolSpanIds, []);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('bracket-token topology rejects a typed tool origin and duplicate dispatch spans', async (t) => {
+  for (const variant of ['typed-tool', 'duplicate-dispatch']) {
+    await t.test(variant, async () => {
+      const fixture = await fixtureDir();
+      const manifest = JSON.parse(await readFile(fixture.manifestPath, 'utf8'));
+      manifest.rowId = 'R-CD-TOKEN';
+      manifest.invocation.originSurface = 'raw-final-text';
+      await writeFile(fixture.manifestPath, JSON.stringify(manifest));
+      const traceId = variant === 'typed-tool'
+        ? '88888888888888888888888888888888'
+        : '77777777777777777777777777777777';
+      const trace = traceFixture({ traceId, reasonHash: fixture.reasonHash, reasonLength: fixture.reasonLength });
+      if (variant === 'duplicate-dispatch') {
+        const spans = trace.batches[0].scopeSpans[0].spans;
+        trace.batches[0].scopeSpans[0].spans = [
+          ...spans.filter((entry) => entry.name !== 'openclaw.tool.execution'),
+          span('continuation.delegate.dispatch', traceId, 'ffffffffffffffff', 'dddddddddddddddd', [
+            attr('chain.id', '11111111-1111-4111-8111-111111111111'),
+            attr('reason.hash', fixture.reasonHash), attr('reason.length', fixture.reasonLength),
+            attr('delegate.mode', 'normal'),
+          ]),
+        ];
+      }
+      const server = await listen((request, response) => {
+        const url = new URL(request.url, 'http://localhost');
+        response.setHeader('content-type', 'application/json');
+        response.end(url.pathname === '/api/search'
+          ? JSON.stringify({ traces: [{ traceID: traceId }] })
+          : JSON.stringify(trace));
+      });
+      try {
+        await assert.rejects(execFileAsync(process.execPath, [script,
+          '--run-dir', fixture.dir, '--manifest', fixture.manifestPath, '--seat', 'elliott-prince',
+          '--tempo-url', server.url, '--timeout-ms', '30', '--poll-ms', '10',
+        ]), (error) => {
+          assert.match(error.stderr, variant === 'typed-tool' ? /must not contain a typed/ : /contains 2 continuation\.delegate\.dispatch/);
+          return true;
+        });
+      } finally {
+        await server.close();
+        await rm(fixture.dir, { recursive: true, force: true });
+      }
+    });
   }
 });

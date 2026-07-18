@@ -137,11 +137,18 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
     }
     rows.push(manifest.rowId);
     const scenario = await readFile(path.join(scenariosDir, manifest.scenario.file), 'utf8');
-    assert.match(scenario, /reason_hash:\s*null/);
-    assert.match(scenario, /reason_length:\s*null/);
-    assert.match(scenario, /delegate_mode:\s*null/);
     assert.match(scenario, /crypto\.sha256\([^,]+,\s*'hex'\)\.slice\(0,\s*16\)/);
-    assert.match(scenario, /promptTemplate\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,/);
+    if (manifest.rowId === 'R-CD-TOKEN') {
+      assert.match(scenario, /reason_hash:\s*hash\(delegateTask\)/);
+      assert.match(scenario, /reason_length:\s*delegateTask\.length/);
+      assert.match(scenario, /delegate_mode:\s*'normal'/);
+      assert.match(scenario, /promptTemplate\.replace\(\/\\\{\\\{tag\\\}\\\}\/g,/);
+    } else {
+      assert.match(scenario, /reason_hash:\s*null/);
+      assert.match(scenario, /reason_length:\s*null/);
+      assert.match(scenario, /delegate_mode:\s*null/);
+      assert.match(scenario, /promptTemplate\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,/);
+    }
   }
 
   assert.deepEqual(rows.sort(), [
@@ -149,6 +156,7 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
     'R-CD-2',
     'R-CD-4',
     'R-CD-CHAINED-DEPTH-2',
+    'R-CD-TOKEN',
     'R-RC-2',
   ]);
 });
@@ -209,7 +217,9 @@ test('R-CD-2 row-list runner declares the signed receipt that candidate routing 
   const runner = await readFile(path.join(repoRoot, 'tools/k6-proofs/scripts/run-proofs.sh'), 'utf8');
   assert.match(runner, /R_CD_2_RECEIPT_SHA256/);
   assert.match(runner, /createHash\("sha256"\)/);
-  assert.match(runner, /authoritativeReceipt:\(if \$authoritativeReceiptSha256 == "" then null else \{file:"r-cd-2-authoritative-receipt\.json", sha256:\$authoritativeReceiptSha256, validated:true/);
+  assert.match(runner, /AUTHORITATIVE_RECEIPT="\$R_CD_2_RECEIPT"/);
+  assert.match(runner, /AUTHORITATIVE_RECEIPT_SOURCE="r-cd-2-row-scoped-resolver"/);
+  assert.match(runner, /authoritativeReceipt:\(if \$authoritativeReceiptSha256 == "" then null else \{file:\$authoritativeReceipt, sha256:\$authoritativeReceiptSha256, validated:true, source:\$authoritativeReceiptSource\}/);
 });
 
 test('R-CD-2 live runner emits an envelope only for an untampered authoritative receipt', async (t) => {

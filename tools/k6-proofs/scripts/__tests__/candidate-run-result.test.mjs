@@ -5,12 +5,15 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { resolveRcdTokenAuthoritativeReceipt } from '../../lib/r-cd-token-authoritative-receipt.mjs';
 
 const runNode = promisify(execFile);
 const script = path.resolve('tools/k6-proofs/scripts/validate-candidate-run-result.mjs');
 const corpusValidator = path.resolve('tools/k6-proofs/scripts/validate-corpus.mjs');
 const sha = 'a'.repeat(40);
 const docsRef = 'b'.repeat(40);
+const gatewayKey = 'candidate-test-gateway-key';
 
 function manifest() {
   return {
@@ -53,7 +56,7 @@ async function fixture({ result = runResult(), metadata = null } = {}) {
 async function invoke({ manifestPath, candidateDir, out = null }) {
   const args = [script, '--manifest', manifestPath, '--candidate-dir', candidateDir, '--docs-ref', docsRef];
   if (out) args.push('--out', out);
-  return runNode(process.execPath, args, { encoding: 'utf8' });
+  return runNode(process.execPath, args, { encoding: 'utf8', env: { ...process.env, OPENCLAW_GATEWAY_TOKEN: gatewayKey } });
 }
 
 test('emits a public-safe, candidate-only routing envelope for a complete candidate run', async () => {
@@ -132,5 +135,90 @@ test('refuses output outside the candidate directory', async () => {
     );
   } finally {
     await rm(setup.root, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'candidate-token-'));
+  const candidateDir = path.join(root, 'candidate');
+  await mkdir(candidateDir);
+  const manifestPath = path.join(root, 'manifest.json');
+  const h = (character) => character.repeat(16);
+  const metadata = {
+    row: 'R-CD-TOKEN', candidateSha: sha, runtimeBuildSha: sha,
+    seat: 'elliott', scenario: 'r-cd-token-bracket-delegate.js',
+  };
+  const evidence = {
+    surface_class: 'raw-final-text', session_created: true, prompt_injected: true,
+    send_accepted: true, send_run_id_hash: h('1'), row_nonce_hash: h('2'),
+    attempt_id_hash: h('3'), candidateSha: sha, runtimeBuildSha: sha,
+    origin_subscription_accepted: true, delegate_return_observed: true,
+    return_target_session_hash: h('4'), return_source_session_hash: h('5'),
+    task_pagination_exhausted: true, tasks_list_rejected: 0,
+    task_snapshot_consistent: true, task_snapshot_stable_count: 3,
+    task_snapshot_digest: h('f'),
+    origin_task_unique_count: 1, delegate_task_unique_count: 1,
+    origin_task_id_hash: h('6'), origin_run_id_hash: h('7'),
+    origin_requester_session_hash: h('8'), origin_child_session_hash: h('4'),
+    delegate_task_id_hash: h('9'), delegate_run_id_hash: h('a'),
+    delegate_requester_session_hash: h('4'), delegate_child_session_hash: h('5'),
+    delegate_requester_matches_origin_child: true, delegate_parent_mismatch: false,
+    origin_task_status: 'completed', delegate_task_status: 'completed', interrupted: false,
+    reason_hash: h('b'), reason_length: 42,
+  };
+  const attemptState = {
+    schema: 'openclaw.k6.r-cd-token.attempt-state.v1', row: 'R-CD-TOKEN',
+    attemptIdHash: h('3'), rowNonceHash: h('2'), candidateSha: sha,
+    runtimeBuildSha: sha, automaticRetryAllowed: false,
+  };
+  const correlation = {
+    traceId: 'c'.repeat(32), chainId: '11111111-1111-4111-8111-111111111111',
+    dispatchSpanId: h('d'), fireSpanId: h('e'), toolSpanIds: [],
+    sameTrace: true, distinctSpans: true, reason: { hash: h('b'), length: 42 },
+    continuation: { tool: 'continue_delegate', originSurface: 'raw-final-text' },
+  };
+  const receipt = resolveRcdTokenAuthoritativeReceipt({
+    evidence, correlation, attemptState, metadata, signingKey: gatewayKey,
+  });
+  const raw = `${JSON.stringify(receipt, null, 2)}\n`;
+  const digest = createHash('sha256').update(raw).digest('hex');
+  await writeFile(manifestPath, `${JSON.stringify({
+    schema: 'openclaw.k6.proof-row-manifest.v1', rowId: 'R-CD-TOKEN', candidateSha: sha,
+    scenario: { name: 'r-cd-token-bracket-delegate' },
+    review: { candidateOnly: true, foldRequiresReview: true },
+    liveRunSafety: { expectedArtifactClass: 'PASS-candidate' },
+  }, null, 2)}\n`);
+  await writeFile(path.join(candidateDir, 'runner-metadata.json'), `${JSON.stringify(metadata)}\n`);
+  await writeFile(path.join(candidateDir, 'r-cd-token-authoritative-receipt.json'), raw);
+  await writeFile(path.join(candidateDir, 'run-result.json'), `${JSON.stringify({
+    effectiveExitCode: 0, verdict: 'PASS-candidate',
+    verdictSource: 'r-cd-token-authoritative-receipt', candidateOnly: true,
+    foldRequiresReview: true,
+    authoritativeReceipt: {
+      file: 'r-cd-token-authoritative-receipt.json', sha256: digest,
+      validated: true, source: 'r-cd-token-row-scoped-resolver',
+    },
+    observability: {
+      traceStatus: 'present', traceId: 'c'.repeat(32),
+      correlationReceipt: 'continuation-trace-correlation.json',
+    },
+    review: { status: 'ready-for-human-review', pendingReceipts: [] },
+  }, null, 2)}\n`);
+  try {
+    const good = JSON.parse((await invoke({ manifestPath, candidateDir })).stdout);
+    assert.equal(good.authoritativeReceipt.sha256, digest);
+    await writeFile(
+      path.join(candidateDir, 'runner-metadata.json'),
+      `${JSON.stringify({ ...metadata, runtimeBuildSha: 'f'.repeat(40) })}\n`,
+    );
+    await assert.rejects(invoke({ manifestPath, candidateDir }), /build identity mismatch/);
+    await writeFile(path.join(candidateDir, 'runner-metadata.json'), `${JSON.stringify(metadata)}\n`);
+    await writeFile(
+      path.join(candidateDir, 'r-cd-token-authoritative-receipt.json'),
+      raw.replace('PASS-candidate', 'PARTIAL-candidate'),
+    );
+    await assert.rejects(invoke({ manifestPath, candidateDir }), /digest mismatch/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
   }
 });

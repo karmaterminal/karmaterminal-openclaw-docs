@@ -2,6 +2,7 @@ import path from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 
 export const CANDIDATE_RUN_RESULT_SCHEMA = 'openclaw.k6.candidate-run-result.v1';
 export const PROOF_ROW_MANIFEST_SCHEMA = 'openclaw.k6.proof-row-manifest.v1';
@@ -15,6 +16,26 @@ function nonEmptyString(value) {
 
 function scenarioName(manifest) {
   return manifest?.scenario?.name || manifest?.scenario?.file?.replace(/\.js$/, '') || null;
+}
+
+function authoritativeReceiptContract(rowId) {
+  if (rowId === 'R-CD-2') {
+    return {
+      file: 'r-cd-2-authoritative-receipt.json',
+      source: 'r-cd-2-row-scoped-resolver',
+      verdictSource: 'r-cd-2-authoritative-receipt',
+      validate: validateRcd2AuthoritativeReceipt,
+    };
+  }
+  if (rowId === 'R-CD-TOKEN') {
+    return {
+      file: 'r-cd-token-authoritative-receipt.json',
+      source: 'r-cd-token-row-scoped-resolver',
+      verdictSource: 'r-cd-token-authoritative-receipt',
+      validate: validateRcdTokenAuthoritativeReceipt,
+    };
+  }
+  return null;
 }
 
 // Consumers must use this before a sidecar can replace its sibling raw result.
@@ -36,29 +57,36 @@ export function candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata,
   const seat = nonEmptyString(metadata.seat);
   const scenario = nonEmptyString(metadata.scenario)?.replace(/\.js$/, '');
   if (!rowId || !candidateSha || !seat || !scenario || !SHA.test(candidateSha)) return false;
-  if (rowId === 'R-CD-2' && (
-    runResult.verdictSource !== 'r-cd-2-authoritative-receipt' ||
+  const authoritative = authoritativeReceiptContract(rowId);
+  if (authoritative && (
+    runResult.verdictSource !== authoritative.verdictSource ||
     runResult.authoritativeReceipt?.validated !== true ||
-    runResult.authoritativeReceipt?.source !== 'r-cd-2-row-scoped-resolver' ||
-    !existsSync(path.join(runDir, 'r-cd-2-authoritative-receipt.json'))
+    runResult.authoritativeReceipt?.source !== authoritative.source ||
+    runResult.authoritativeReceipt?.file !== authoritative.file ||
+    !existsSync(path.join(runDir, authoritative.file))
   )) return false;
   if (manifest.rowId !== rowId || scenarioName(manifest) !== scenario) return false;
   if (manifest.candidateSha && manifest.candidateSha !== candidateSha) return false;
   if (envelope.candidate?.sha !== candidateSha || !SHA.test(envelope.candidate?.docsRef || '')) return false;
   if (envelope.run?.id !== path.basename(runDir) || envelope.run?.rowId !== rowId || envelope.run?.seat !== seat || envelope.run?.scenario !== scenario) return false;
   if (envelope.result?.outcome !== runResult.verdict || envelope.result?.outcomeSource !== runResult.verdictSource) return false;
-  if (rowId === 'R-CD-2') {
+  if (authoritative) {
     const declared = runResult.authoritativeReceipt;
-    if (declared?.validated !== true || declared?.source !== 'r-cd-2-row-scoped-resolver' ||
-        envelope.authoritativeReceipt?.file !== 'r-cd-2-authoritative-receipt.json' ||
+    if (declared?.validated !== true || declared?.source !== authoritative.source ||
+        envelope.authoritativeReceipt?.file !== authoritative.file ||
         envelope.authoritativeReceipt?.sha256 !== declared?.sha256 ||
         !/^[a-f0-9]{64}$/iu.test(declared?.sha256 || '')) return false;
     try {
       const raw = readFileSync(path.join(runDir, declared.file));
       if (createHash('sha256').update(raw).digest('hex') !== declared.sha256) return false;
       const receipt = JSON.parse(raw.toString('utf8'));
-      const integrity = validateRcd2AuthoritativeReceipt(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
+      const integrity = authoritative.validate(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
       if (!integrity.valid || integrity.verdict !== runResult.verdict) return false;
+      if (rowId === 'R-CD-TOKEN' && (
+        receipt.binding?.candidateSha !== candidateSha ||
+        receipt.binding?.runtimeBuildSha !== candidateSha ||
+        metadata.runtimeBuildSha !== candidateSha
+      )) return false;
     } catch { return false; }
   }
   if (manifest.liveRunSafety?.expectedArtifactClass === 'construct-only' && envelope.result.outcome !== 'construct-only') return false;

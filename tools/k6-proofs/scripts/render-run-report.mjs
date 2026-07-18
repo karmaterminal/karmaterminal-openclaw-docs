@@ -14,6 +14,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 
 function usage() {
   console.error('Usage: node render-run-report.mjs --root <run-out-root> [--out report.html]');
@@ -80,6 +81,24 @@ function numberFromDuration(raw) {
   return Number(raw);
 }
 
+function authoritativeReceiptContract(rowId) {
+  if (rowId === 'R-CD-2') {
+    return {
+      file: 'r-cd-2-authoritative-receipt.json',
+      verdictSource: 'r-cd-2-authoritative-receipt',
+      validate: validateRcd2AuthoritativeReceipt,
+    };
+  }
+  if (rowId === 'R-CD-TOKEN') {
+    return {
+      file: 'r-cd-token-authoritative-receipt.json',
+      verdictSource: 'r-cd-token-authoritative-receipt',
+      validate: validateRcdTokenAuthoritativeReceipt,
+    };
+  }
+  return null;
+}
+
 function receiptSummary({ manifest, runResult, evidenceRows }) {
   const receipts = [];
   for (const name of manifest?.liveRunSafety?.requiredReceipts || []) {
@@ -126,16 +145,22 @@ async function rowFromRunResult(root, runResultPath) {
   const evidenceRows = files.includes('evidence.jsonl') ? await readEvidenceJsonl(path.join(runDir, 'evidence.jsonl')) : [];
   const rel = path.relative(root, runDir).split(path.sep).join('/');
   const proofFailures = Number(summary?.metrics?.failures ?? runResult.proofFailures ?? (runResult.k6ExitCode === 0 ? 0 : 1));
-  let outcome = safeText(summary?.verdict || (runResult.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate'));
-  if ((metadata?.row || manifest?.rowId) === 'R-CD-2') {
+  let outcome = safeText(runResult.verdict || summary?.verdict || (runResult.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate'));
+  const authoritative = authoritativeReceiptContract(metadata?.row || manifest?.rowId);
+  if (authoritative) {
     const declared = runResult.authoritativeReceipt;
     try {
-      if (runResult.verdictSource !== 'r-cd-2-authoritative-receipt' || declared?.file !== 'r-cd-2-authoritative-receipt.json' || !/^[a-f0-9]{64}$/iu.test(declared?.sha256 || '')) throw new Error('missing authoritative receipt declaration');
+      if (runResult.verdictSource !== authoritative.verdictSource || declared?.file !== authoritative.file || !/^[a-f0-9]{64}$/iu.test(declared?.sha256 || '')) throw new Error('missing authoritative receipt declaration');
       const raw = await readFile(path.join(runDir, declared.file));
       if (createHash('sha256').update(raw).digest('hex') !== declared.sha256) throw new Error('authoritative receipt digest mismatch');
       const receipt = JSON.parse(raw.toString('utf8'));
-      const integrity = validateRcd2AuthoritativeReceipt(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
+      const integrity = authoritative.validate(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
       if (!integrity.valid || integrity.verdict !== runResult.verdict) throw new Error('authoritative receipt invalid');
+      if ((metadata?.row || manifest?.rowId) === 'R-CD-TOKEN' && (
+        receipt.binding?.candidateSha !== metadata?.candidateSha ||
+        receipt.binding?.runtimeBuildSha !== metadata?.runtimeBuildSha ||
+        metadata?.candidateSha !== metadata?.runtimeBuildSha
+      )) throw new Error('authoritative receipt build identity mismatch');
       outcome = safeText(receipt.verdict);
     } catch {
       outcome = 'PARTIAL-candidate';

@@ -72,10 +72,11 @@ test('R-CW-5 fixture refuses staged or unstaged tracked candidate changes', asyn
   await writeFile(path.join(source, 'src/auto-reply/continuation/scheduler.ts'), 'export const clean = true;\n');
   await writeFile(path.join(source, 'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts'), '// marker\n');
   await writeFile(path.join(source, 'package.json'), '{"name":"r-cw-5-test"}\n');
+  await writeFile(path.join(source, 'pnpm-lock.yaml'), 'lockfileVersion: "9.0"\n');
   execFileSync('git', ['init'], { cwd: source, stdio: 'ignore' });
   execFileSync('git', ['config', 'user.email', 'proof@example.invalid'], { cwd: source });
   execFileSync('git', ['config', 'user.name', 'R-CW-5 fixture test'], { cwd: source });
-  execFileSync('git', ['add', 'src', 'package.json'], { cwd: source });
+  execFileSync('git', ['add', 'src', 'package.json', 'pnpm-lock.yaml'], { cwd: source });
   execFileSync('git', ['commit', '-m', 'candidate'], { cwd: source, stdio: 'ignore' });
   const candidateSha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: source, encoding: 'utf8' }).trim();
 
@@ -127,9 +128,22 @@ test('R-CW-5 public readiness has no private source path', () => {
     candidateSha: '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
     head: '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
     cap: 200,
+    lockfileSha256: 'a'.repeat(64),
   });
   assert.equal(readiness.sourceHeadMatchesCandidate, true);
+  assert.equal(readiness.lockfileSha256, 'a'.repeat(64));
+  assert.match(readiness.dependencyTree, /frozen-lockfile/);
   assert.doesNotMatch(JSON.stringify(readiness), new RegExp(privatePath.replaceAll('/', '\\/')));
+});
+
+test('R-CW-5 executes only in a disposable frozen-lockfile dependency tree', async () => {
+  const runner = await readFile(
+    fileURLToPath(new URL('../run-cost-cap-fixture.mjs', import.meta.url)),
+    'utf8',
+  );
+  assert.match(runner, /pnpm', \['install', '--frozen-lockfile', '--prefer-offline'\]/);
+  assert.match(runner, /sourceNodeModulesTrusted: false/);
+  assert.doesNotMatch(runner, /symlinkSync\(path\.join\(sourceDir, 'node_modules'\)/);
 });
 
 test('R-CW-5 fails closed instead of pretending the internal tool is websocket-invocable', async () => {

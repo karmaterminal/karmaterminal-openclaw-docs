@@ -99,7 +99,9 @@ function traceContract(manifest, evidence) {
     mode = escapeTraceqlString(evidenceMode || manifestMode);
     acceptSpanName = 'continuation.delegate.dispatch';
     fireSpanName = 'continuation.delegate.fire';
-    attribution = 'reason-hash-length-mode';
+    attribution = manifest?.invocation?.originSurface === 'raw-final-text'
+      ? 'bracket-token-reason-hash-length-mode'
+      : 'reason-hash-length-mode';
   } else if (tool === 'continue_work') {
     const template = manifest?.invocation?.reason;
     if (!template) throw new Error('continue_work manifest reason is required');
@@ -150,6 +152,7 @@ function traceContract(manifest, evidence) {
     acceptSpanName,
     fireSpanName,
     attribution,
+    originSurface: manifest?.invocation?.originSurface,
   };
 }
 
@@ -206,6 +209,9 @@ function validateTrace(trace, expected) {
       : `matched trace contains ${accepts.length} ${expected.acceptSpanName} spans`);
   }
   const accept = accepts[0];
+  if (publicStatusCode(accept.status?.code) !== 'OK') {
+    throw new Error(`${expected.acceptSpanName} span is not status OK`);
+  }
   const acceptAttrs = attributes(accept);
   const chainId = String(acceptAttrs.get('chain.id') || '');
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(chainId)) {
@@ -224,18 +230,28 @@ function validateTrace(trace, expected) {
       : `matched trace contains ${fires.length} ${expected.fireSpanName} spans`);
   }
   const fire = fires[0];
+  if (publicStatusCode(fire.status?.code) !== 'OK') {
+    throw new Error(`${expected.fireSpanName} span is not status OK`);
+  }
 
   const tools = spans.filter((span) => {
     const attrs = attributes(span);
     return span.name === 'openclaw.tool.execution' &&
       attrs.get('gen_ai.tool.name') === expected.tool;
   });
-  if (tools.length !== 1) {
+  if (expected.originSurface === 'raw-final-text') {
+    if (tools.length !== 0) {
+      throw new Error(`bracket-token trace must not contain a typed ${expected.tool} tool span`);
+    }
+  } else if (tools.length !== 1) {
     throw new Error(
       tools.length === 0
         ? `matched trace lacks the originating ${expected.tool} tool span`
         : `matched trace contains ${tools.length} ${expected.tool} tool spans`,
     );
+  }
+  if (tools.some((span) => publicStatusCode(span.status?.code) !== 'OK')) {
+    throw new Error(`originating ${expected.tool} tool span is not status OK`);
   }
 
   const traceId = idHex(accept.traceId, 16, 'trace id');
@@ -382,6 +398,7 @@ async function main() {
               mode: contract.mode,
               acceptSpanName: contract.acceptSpanName,
               fireSpanName: contract.fireSpanName,
+              originSurface: contract.originSurface,
             })
           : validateToolTrace(trace, { tool: contract.tool });
         if (topology.traceId !== traceId) throw new Error('Tempo search and trace payload IDs disagree');
@@ -440,6 +457,7 @@ async function main() {
           },
           continuation: {
             tool: contract.tool,
+            originSurface: contract.originSurface || 'typed-tool',
             acceptSpan: contract.acceptSpanName,
             fireSpan: contract.fireSpanName,
           },

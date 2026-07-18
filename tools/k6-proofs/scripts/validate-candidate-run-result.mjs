@@ -9,6 +9,7 @@ import { readFile, writeFile, readdir, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 
 const SHA = /^[0-9a-f]{40}$/;
 const OUTCOME = new Set(['PASS-candidate', 'HONEST-LIMIT-candidate', 'PARTIAL-candidate', 'FAIL-candidate', 'construct-only']);
@@ -71,12 +72,32 @@ function manifestCandidateSha(manifest) {
   return SHA.test(value || '') ? value : null;
 }
 
+function authoritativeReceiptContract(rowId) {
+  if (rowId === 'R-CD-2') {
+    return {
+      file: 'r-cd-2-authoritative-receipt.json',
+      verdictSource: 'r-cd-2-authoritative-receipt',
+      validate: validateRcd2AuthoritativeReceipt,
+    };
+  }
+  if (rowId === 'R-CD-TOKEN') {
+    return {
+      file: 'r-cd-token-authoritative-receipt.json',
+      verdictSource: 'r-cd-token-authoritative-receipt',
+      validate: validateRcdTokenAuthoritativeReceipt,
+    };
+  }
+  return null;
+}
+
 async function listSafeArtifacts(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
   const allowed = new Set([
     'row-manifest.json', 'runner-metadata.json', 'run-result.json',
     'candidate-run-result.json', 'seat-readiness.json', 'evidence.jsonl',
     'r-cd-2-authoritative-receipt.json',
+    'attempt-state.json', 'build-identity-gate.json', 'interruption-receipt.json',
+    'r-cd-token-authoritative-receipt.json',
     'evidence-lines.log', 'evidence-redaction.json', 'gateway-journal.log',
     'gateway-journal-capture.json', 'gateway-journal-redaction.json',
   ]);
@@ -121,16 +142,22 @@ async function main() {
 
   const observability = runResult.observability || {};
   let authoritativeReceipt = null;
-  if (rowId === 'R-CD-2') {
+  const authoritative = authoritativeReceiptContract(rowId);
+  if (authoritative) {
     const declared = runResult.authoritativeReceipt;
-    if (runResult.verdictSource !== 'r-cd-2-authoritative-receipt' || declared?.file !== 'r-cd-2-authoritative-receipt.json' || !/^[a-f0-9]{64}$/iu.test(declared?.sha256 || '')) {
-      throw new Error('R-CD-2 candidate requires a declared authoritative receipt digest');
+    if (runResult.verdictSource !== authoritative.verdictSource || declared?.file !== authoritative.file || !/^[a-f0-9]{64}$/iu.test(declared?.sha256 || '')) {
+      throw new Error(`${rowId} candidate requires a declared authoritative receipt digest`);
     }
     const raw = await readFile(path.join(candidateDir, declared.file));
-    if (createHash('sha256').update(raw).digest('hex') !== declared.sha256) throw new Error('R-CD-2 authoritative receipt digest mismatch');
+    if (createHash('sha256').update(raw).digest('hex') !== declared.sha256) throw new Error(`${rowId} authoritative receipt digest mismatch`);
     authoritativeReceipt = JSON.parse(raw);
-    const integrity = validateRcd2AuthoritativeReceipt(authoritativeReceipt, process.env.OPENCLAW_GATEWAY_TOKEN);
-    if (!integrity.valid || integrity.verdict !== runResult.verdict) throw new Error(`R-CD-2 authoritative receipt invalid: ${integrity.reason || 'verdict mismatch'}`);
+    const integrity = authoritative.validate(authoritativeReceipt, process.env.OPENCLAW_GATEWAY_TOKEN);
+    if (!integrity.valid || integrity.verdict !== runResult.verdict) throw new Error(`${rowId} authoritative receipt invalid: ${integrity.reason || 'verdict mismatch'}`);
+    if (rowId === 'R-CD-TOKEN' && (
+      authoritativeReceipt.binding?.candidateSha !== candidateSha ||
+      authoritativeReceipt.binding?.runtimeBuildSha !== requireSha(metadata.runtimeBuildSha, 'runner metadata runtimeBuildSha') ||
+      authoritativeReceipt.binding.runtimeBuildSha !== candidateSha
+    )) throw new Error('R-CD-TOKEN authoritative receipt build identity mismatch');
   }
   const artifacts = {
     manifest: 'row-manifest.json',
@@ -164,7 +191,7 @@ async function main() {
       traceCaptured: Boolean(observability.traceId),
       correlationReceiptPresent: Boolean(observability.correlationReceipt),
     },
-    ...(authoritativeReceipt ? { authoritativeReceipt: { file: 'r-cd-2-authoritative-receipt.json', sha256: runResult.authoritativeReceipt.sha256 } } : {}),
+    ...(authoritativeReceipt ? { authoritativeReceipt: { file: authoritative.file, sha256: runResult.authoritativeReceipt.sha256 } } : {}),
     review: { status: review.status, pendingReceipts: [], complete: true },
     artifacts,
   };

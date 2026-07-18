@@ -15,10 +15,17 @@ CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
 R_CD_2_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-2-authoritative-receipt.mjs"
 ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
 CANDIDATE_RESULT_VALIDATOR="$SCRIPT_DIR/validate-candidate-run-result.mjs"
+INTERRUPTED_RESULT_WRITER="$SCRIPT_DIR/write-interrupted-run-result.mjs"
+R_CD_TOKEN_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-token-authoritative-receipt.mjs"
 PRIVATE_K6_LOG=""
 PRIVATE_EVIDENCE_FILE=""
 PRIVATE_GATEWAY_LOG=""
 SOURCE_CONTRACT_FILE=""
+ACTIVE_TOKEN_RUN_DIR=""
+ACTIVE_TOKEN_PHASE=""
+ACTIVE_TOKEN_ATTEMPT_HASH=""
+ACTIVE_TOKEN_NONCE_HASH=""
+ACTIVE_TOKEN_CAUSE="runner-exit-before-terminal-result"
 
 cleanup_private_artifacts() {
   rm -f \
@@ -27,7 +34,31 @@ cleanup_private_artifacts() {
     "${PRIVATE_GATEWAY_LOG:-}" \
     "${SOURCE_CONTRACT_FILE:-}"
 }
-trap cleanup_private_artifacts EXIT
+
+finalize_interrupted_token_run() {
+  local exit_code=$?
+  # ACTIVE_TOKEN_RUN_DIR is cleared only after the row's entire terminal packet
+  # is complete.  If it is still set, even an already-created run-result may be
+  # truncated or pre-terminal and must be superseded fail-closed.
+  if [[ -n "${ACTIVE_TOKEN_RUN_DIR:-}" ]]; then
+    if ! node "$INTERRUPTED_RESULT_WRITER" \
+      --run-dir "$ACTIVE_TOKEN_RUN_DIR" \
+      --row R-CD-TOKEN \
+      --candidate-sha "$OPENCLAW_CANDIDATE_SHA" \
+      --runtime-sha "$OPENCLAW_RUNTIME_BUILD_SHA" \
+      --attempt-hash "$ACTIVE_TOKEN_ATTEMPT_HASH" \
+      --nonce-hash "$ACTIVE_TOKEN_NONCE_HASH" \
+      --phase "${ACTIVE_TOKEN_PHASE:-unknown}" \
+      --cause "${ACTIVE_TOKEN_CAUSE:-runner-exit-before-terminal-result}"; then
+      echo "[R-CD-TOKEN] ERROR: failed to persist interruption receipt at $ACTIVE_TOKEN_RUN_DIR" >&2
+    fi
+  fi
+  cleanup_private_artifacts
+  return "$exit_code"
+}
+trap finalize_interrupted_token_run EXIT
+trap 'ACTIVE_TOKEN_CAUSE=signal-int; exit 130' INT
+trap 'ACTIVE_TOKEN_CAUSE=signal-term; exit 143' TERM
 
 DRY_RUN=true
 ROWS=""
@@ -208,9 +239,6 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     touch "$RUN_DIR/.started"
     cp "$MANIFEST_FILE" "$RUN_DIR/row-manifest.json"
     RUN_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-    if [[ -f "$SEAT_READINESS_JSON" ]]; then
-      cp "$SEAT_READINESS_JSON" "$RUN_DIR/seat-readiness.json"
-    fi
     jq -n \
       --arg row "$ROW_ID" \
       --arg scenario "$SCENARIO_FILE" \
@@ -220,7 +248,70 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg started "$RUN_STARTED_AT" \
       '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started}' \
       > "$RUN_DIR/runner-metadata.json"
-
+    if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
+      if [[ ! "$OPENCLAW_CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ||
+            ! "$OPENCLAW_RUNTIME_BUILD_SHA" =~ ^[0-9a-f]{40}$ ||
+            "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_BUILD_SHA" ]]; then
+        RUN_ENDED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        jq -n \
+          --arg candidateSha "$OPENCLAW_CANDIDATE_SHA" \
+          --arg runtimeBuildSha "$OPENCLAW_RUNTIME_BUILD_SHA" \
+          --arg endedAt "$RUN_ENDED_AT" \
+          '{schema:"openclaw.k6.r-cd-token.build-identity-gate.v1",row:"R-CD-TOKEN",candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,equalExactSha:false,dispatched:false,verdict:"HONEST-LIMIT-candidate",endedAt:$endedAt}' \
+          > "$RUN_DIR/build-identity-gate.json"
+        jq -n \
+          --arg endedAt "$RUN_ENDED_AT" \
+          '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"HONEST-LIMIT-candidate",verdictSource:"pre-dispatch-build-identity-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["exact-candidate-runtime-identity","attempt-state","raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
+          > "$RUN_DIR/run-result.json"
+        rm -f "$RUN_DIR/.started"
+        echo "[$ROW_ID] HONEST-LIMIT-candidate: exact equal candidate/runtime SHAs are required; no dispatch occurred."
+        continue
+      fi
+      ATTEMPT_UUID="$(cat /proc/sys/kernel/random/uuid)"
+      export OPENCLAW_PROOF_ATTEMPT_ID="${RUN_ID}-${ATTEMPT_UUID}"
+      export OPENCLAW_ROW_NONCE="R-CD-TOKEN-${ATTEMPT_UUID}"
+      ACTIVE_TOKEN_RUN_DIR="$RUN_DIR"
+      ACTIVE_TOKEN_PHASE="prepared"
+      ACTIVE_TOKEN_ATTEMPT_HASH="$(printf '%s' "$OPENCLAW_PROOF_ATTEMPT_ID" | sha256sum | cut -c1-16)"
+      ACTIVE_TOKEN_NONCE_HASH="$(printf '%s' "$OPENCLAW_ROW_NONCE" | sha256sum | cut -c1-16)"
+      jq -n \
+        --arg attemptIdHash "$ACTIVE_TOKEN_ATTEMPT_HASH" \
+        --arg rowNonceHash "$ACTIVE_TOKEN_NONCE_HASH" \
+        --arg candidateSha "$OPENCLAW_CANDIDATE_SHA" \
+        --arg runtimeBuildSha "$OPENCLAW_RUNTIME_BUILD_SHA" \
+        --arg startedAt "$RUN_STARTED_AT" \
+        '{schema:"openclaw.k6.r-cd-token.attempt-state.v1",row:"R-CD-TOKEN",attemptIdHash:$attemptIdHash,rowNonceHash:$rowNonceHash,candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,startedAt:$startedAt,phase:"prepared",proofTerminal:false,consumptionState:"not-yet-dispatched",automaticRetryAllowed:false}' \
+        > "$RUN_DIR/attempt-state.json"
+    fi
+    if [[ -f "$SEAT_READINESS_JSON" ]]; then
+      cp "$SEAT_READINESS_JSON" "$RUN_DIR/seat-readiness.json"
+    fi
+    if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
+      export OPENCLAW_SEAT_CLASS="$(jq -r '.seat.class // "unknown"' "$RUN_DIR/seat-readiness.json" 2>/dev/null || echo unknown)"
+      if [[ "$OPENCLAW_SEAT_CLASS" != "raw-final-text" ]]; then
+        RUN_ENDED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        jq \
+          --arg endedAt "$RUN_ENDED_AT" \
+          --arg surfaceClass "$OPENCLAW_SEAT_CLASS" \
+          '. + {endedAt:$endedAt,phase:"pre-dispatch-surface-gate",proofTerminal:true,consumptionState:"not-dispatched",automaticRetryAllowed:false,verdict:"HONEST-LIMIT-candidate",surfaceClass:$surfaceClass,effectiveExitCode:0}' \
+          "$RUN_DIR/attempt-state.json" > "$RUN_DIR/attempt-state.json.tmp"
+        mv "$RUN_DIR/attempt-state.json.tmp" "$RUN_DIR/attempt-state.json"
+        jq -n \
+          --arg endedAt "$RUN_ENDED_AT" \
+          --arg surfaceClass "$OPENCLAW_SEAT_CLASS" \
+          '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"HONEST-LIMIT-candidate",verdictSource:"pre-dispatch-surface-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",surface_class:$surfaceClass,dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
+          > "$RUN_DIR/run-result.json"
+        rm -f "$RUN_DIR/.started"
+        ACTIVE_TOKEN_PHASE="pre-dispatch-surface-gate"
+        ACTIVE_TOKEN_RUN_DIR=""
+        echo "[$ROW_ID] HONEST-LIMIT-candidate: seat readiness class '$OPENCLAW_SEAT_CLASS' is not scanner-supported raw-final-text; no dispatch occurred."
+        continue
+      fi
+      # R-CD-TOKEN is never allowed to fall back to the configured/live
+      # session. The scenario independently checks creation success and key
+      # distinctness before it can send the proof prompt.
+      export OPENCLAW_CREATE_DISPOSABLE_SESSION=true
+    fi
     PRIVATE_K6_LOG="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-log.XXXXXX")"
     PRIVATE_EVIDENCE_FILE="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-evidence.XXXXXX")"
     PRIVATE_GATEWAY_LOG="$(mktemp "${TMPDIR:-/tmp}/openclaw-gateway-journal.XXXXXX")"
@@ -259,10 +350,12 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       unset OPENCLAW_STATUS_SOURCE_PATH
     fi
     POSTPROCESS_RC=0
+    if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then ACTIVE_TOKEN_PHASE="k6-running"; fi
     set +e
     k6 run "scenarios/$SCENARIO_FILE" > "$PRIVATE_K6_LOG" 2>&1
     k6_rc=$?
     set -e
+    if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then ACTIVE_TOKEN_PHASE="postprocess"; fi
     RUN_ENDED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
     set +e
@@ -475,6 +568,27 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       fi
     fi
 
+    R_CD_TOKEN_RECEIPT=""
+    R_CD_TOKEN_RECEIPT_SHA256=""
+    if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
+      R_CD_TOKEN_RECEIPT="r-cd-token-authoritative-receipt.json"
+      TOKEN_RESOLVER_ARGS=(--run-dir "$RUN_DIR" --evidence "$PRIVATE_EVIDENCE_FILE")
+      if [[ -n "$CORRELATION_RECEIPT_PATH" && -f "$CORRELATION_RECEIPT_PATH" ]]; then
+        TOKEN_RESOLVER_ARGS+=(--correlation "$CORRELATION_RECEIPT_PATH")
+      fi
+      if node "$R_CD_TOKEN_RECEIPT_RESOLVER" "${TOKEN_RESOLVER_ARGS[@]}" > "$RUN_DIR/r-cd-token-authoritative-resolution.json"; then
+        SUMMARY_VERDICT="$(jq -r '.verdict // "PARTIAL-candidate"' "$RUN_DIR/$R_CD_TOKEN_RECEIPT")"
+        SUMMARY_VERDICT_SOURCE="r-cd-token-authoritative-receipt"
+        SUMMARY_FILE_VERDICT="$SUMMARY_VERDICT"
+        VU_LOG_VERDICT=""
+        R_CD_TOKEN_RECEIPT_SHA256="$(sha256sum "$RUN_DIR/$R_CD_TOKEN_RECEIPT" | cut -d' ' -f1)"
+      else
+        SUMMARY_VERDICT="PARTIAL-candidate"
+        SUMMARY_VERDICT_SOURCE="r-cd-token-authoritative-receipt-missing"
+        POSTPROCESS_RC=1
+      fi
+    fi
+
     if ! node "$ARTIFACT_SANITIZER" \
       --input "$PRIVATE_EVIDENCE_FILE" \
       --out "$RUN_DIR/evidence.jsonl" \
@@ -535,6 +649,18 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     if [[ "$EFFECTIVE_RC" -eq 0 && "$POSTPROCESS_RC" -ne 0 ]]; then
       EFFECTIVE_RC="$POSTPROCESS_RC"
     fi
+    AUTHORITATIVE_RECEIPT=""
+    AUTHORITATIVE_RECEIPT_SHA256=""
+    AUTHORITATIVE_RECEIPT_SOURCE=""
+    if [[ "$ROW_ID" == "R-CD-2" ]]; then
+      AUTHORITATIVE_RECEIPT="$R_CD_2_RECEIPT"
+      AUTHORITATIVE_RECEIPT_SHA256="$R_CD_2_RECEIPT_SHA256"
+      AUTHORITATIVE_RECEIPT_SOURCE="r-cd-2-row-scoped-resolver"
+    elif [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
+      AUTHORITATIVE_RECEIPT="$R_CD_TOKEN_RECEIPT"
+      AUTHORITATIVE_RECEIPT_SHA256="$R_CD_TOKEN_RECEIPT_SHA256"
+      AUTHORITATIVE_RECEIPT_SOURCE="r-cd-token-row-scoped-resolver"
+    fi
     jq -n \
       --argjson rc "$k6_rc" \
       --argjson postprocessRc "$POSTPROCESS_RC" \
@@ -545,7 +671,9 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg tempoTraceJson "$TEMPO_TRACE_JSON" \
       --arg correlationReceipt "$CORRELATION_RECEIPT" \
       --arg lifecycleReceipt "$R_CD_2_RECEIPT" \
-      --arg authoritativeReceiptSha256 "$R_CD_2_RECEIPT_SHA256" \
+      --arg authoritativeReceipt "$AUTHORITATIVE_RECEIPT" \
+      --arg authoritativeReceiptSource "$AUTHORITATIVE_RECEIPT_SOURCE" \
+      --arg authoritativeReceiptSha256 "$AUTHORITATIVE_RECEIPT_SHA256" \
       --arg serviceLogStatus "$GATEWAY_JOURNAL_STATUS" \
       --arg verdict "$SUMMARY_VERDICT" \
       --arg verdictSource "$SUMMARY_VERDICT_SOURCE" \
@@ -554,8 +682,19 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --argjson summaryFiles "$SUMMARY_FILES_JSON" \
       --argjson evidence "$EVIDENCE_JSON" \
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
-      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, authoritativeReceipt:(if $authoritativeReceiptSha256 == "" then null else {file:"r-cd-2-authoritative-receipt.json", sha256:$authoritativeReceiptSha256, validated:true, source:"r-cd-2-row-scoped-resolver"} end), observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
+      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, authoritativeReceipt:(if $authoritativeReceiptSha256 == "" then null else {file:$authoritativeReceipt, sha256:$authoritativeReceiptSha256, validated:true, source:$authoritativeReceiptSource} end), observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
+    if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
+      jq \
+        --arg endedAt "$RUN_ENDED_AT" \
+        --arg verdict "$SUMMARY_VERDICT" \
+        --argjson effectiveExitCode "$EFFECTIVE_RC" \
+        '. + {endedAt:$endedAt,phase:"terminal-result-written",proofTerminal:true,consumptionState:(if $verdict == "PASS-candidate" then "complete" else "non-pass-terminal" end),automaticRetryAllowed:false,verdict:(if $verdict == "unknown" then "PARTIAL-candidate" else $verdict end),effectiveExitCode:$effectiveExitCode}' \
+        "$RUN_DIR/attempt-state.json" > "$RUN_DIR/attempt-state.json.tmp"
+      mv "$RUN_DIR/attempt-state.json.tmp" "$RUN_DIR/attempt-state.json"
+      ACTIVE_TOKEN_PHASE="terminal-result-written"
+      ACTIVE_TOKEN_RUN_DIR=""
+    fi
     # A review-complete candidate can now receive a public-safe routing
     # envelope. Review-pending runs intentionally remain represented only by
     # run-result.json so review-debt can route their missing receipts; neither

@@ -13,7 +13,6 @@ import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, symlinkSyn
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
-import { assertPnpmDependencyProvenance } from './fixture-dependency-provenance.mjs';
 
 const DEFAULT_CAP = 100;
 const SOURCE_MARKERS = [
@@ -115,13 +114,17 @@ export function assertSource(sourceDir, candidateSha) {
   for (const marker of SOURCE_MARKERS) {
     if (!existsSync(path.join(resolved, marker))) throw new Error(`source dir is missing ${marker}`);
   }
-  const dependencyProvenance = assertPnpmDependencyProvenance(resolved, {
-    requiredExecutables: ['tsx', 'vitest'],
-  });
+  const dependencyDir = path.join(resolved, 'node_modules');
+  if (!existsSync(dependencyDir)) {
+    throw new Error('source dir has no node_modules; fixture refuses to install dependencies or mutate the candidate worktree');
+  }
+  if (lstatSync(dependencyDir).isSymbolicLink()) {
+    throw new Error('source node_modules must be a real directory; fixture refuses an indirect mutable dependency tree');
+  }
   const head = gitHead(resolved);
   if (head !== candidateSha) throw new Error(`candidate/source mismatch: requested ${candidateSha}, source is ${head}`);
   assertTrackedSourceClean(resolved, 'fixture execution');
-  return { resolved, head, dependencyProvenance };
+  return { resolved, head };
 }
 
 export function renderToolSurfaceTemplate(template, cap) {
@@ -135,7 +138,7 @@ export function renderToolSurfaceTemplate(template, cap) {
     .replaceAll('__RCW5_OVER_CAP__', String(overCap));
 }
 
-export function buildReadiness({ candidateSha, head, dependencyProvenance, cap }) {
+export function buildReadiness({ candidateSha, head, cap }) {
   return {
     schema: 'openclaw.project81.r-cw-5.fixture-readiness.v1',
     candidateSha,
@@ -144,8 +147,7 @@ export function buildReadiness({ candidateSha, head, dependencyProvenance, cap }
     productionConfigTouched: false,
     productionStateTouched: false,
     fixtureKind: 'source-only-production-module-plus-dispatch-boundary-suite',
-    dependencyTree: 'pre-existing-pnpm-tree; candidate-lockfile-aligned; no-install',
-    dependencyProvenance,
+    dependencyTree: 'pre-existing-real-source-node_modules; no-install',
     cap,
   };
 }
@@ -244,22 +246,13 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, cap })
 
 export function runFixture(args) {
   assertArgs(args);
-  const { resolved: sourceDir, head, dependencyProvenance } = assertSource(args.sourceDir, args.candidateSha);
+  const { resolved: sourceDir, head } = assertSource(args.sourceDir, args.candidateSha);
   const artifactDir = prepareArtifactDir(args.artifactDir);
 
-  const readiness = buildReadiness({
-    candidateSha: args.candidateSha,
-    head,
-    dependencyProvenance,
-    cap: args.cap,
-  });
+  const readiness = buildReadiness({ candidateSha: args.candidateSha, head, cap: args.cap });
   writeJson(path.join(artifactDir, 'fixture-readiness.json'), readiness);
 
-  const matrixRun = run(
-    path.join(sourceDir, 'node_modules', '.bin', 'tsx'),
-    ['--eval', matrixEval(args.cap)],
-    { cwd: sourceDir },
-  );
+  const matrixRun = run('pnpm', ['exec', 'tsx', '--eval', matrixEval(args.cap)], { cwd: sourceDir });
   const matrix = matrixRun.ok ? parseLastJson(matrixRun.stdout, 'boundary matrix') : null;
   const matrixPassed = Boolean(
     matrix?.cases?.length === 3 &&

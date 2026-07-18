@@ -42,9 +42,7 @@ tools/k6-proofs/
 so `r-cw-5-cost-cap-reject.js` stays a fail-closed scaffold.  Run the
 process-local exact-candidate fixture instead; it calls the same typed callback
 that a real embedded attempt receives, uses a disposable session store and
-worktree, verifies the preinstalled pnpm virtual-store lockfile against the
-candidate's committed lockfile, and never changes a running gateway or fleet
-config:
+worktree, and never changes a running gateway or fleet config:
 
 ```bash
 node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \
@@ -69,6 +67,16 @@ tool executor, and runs the exact candidate's delegate
 dispatch boundary at the same selected maximum plus the candidate's committed
 regression suite. It does not infer chain behavior from the R-CW-5
 cost-cap fixture or mutate fleet config/state:
+
+Before proofs, the detached worktree must declare exact `pnpm@<semver>` in its
+committed `package.json` (an optional `+sha...` suffix is accepted). The runner
+checks `pnpm --version`, requires that exact semantic version, runs
+`pnpm install --frozen-lockfile --prefer-offline --ignore-scripts`, and then
+requires candidate-lock bytes, `.modules.yaml` package-manager metadata,
+candidate-contained virtual-store metadata, and local `tsx`/`vitest` realpaths
+to align. This is **not hermetic host-toolchain or cryptographic provenance
+proof**: the host-resolved `pnpm` is version-checked and the resulting tree is
+verified for lockfile/tree/version alignment.
 
 ```bash
 node tools/k6-proofs/scripts/run-max-chain-fixture.mjs \
@@ -558,15 +566,27 @@ PASS-candidate never reclassifies the live row as PASS without review.
 `tools/k6-proofs/scripts/run-max-chain-fixture.mjs` is the safe manual-only
 component fixture for `R-CW-6`; it is intentionally outside the generic k6
 runner and `--live-suite`. It requires a clean exact-candidate source
-worktree with dependencies already present and refuses installs, indirect
-source dependencies, lockfile-mismatched dependency trees, missing local
-`tsx`/`vitest`, reused or symlinked artifact paths, wrong SHAs, and dirty
-tracked source. The production predicate, durable scheduler, temporary session
+worktree, detached candidate worktree, exact fixed `pnpm@<semver>` declaration,
+and aligned installed dependency tree; it refuses tags/ranges, package-manager
+version mismatch, lockfile/tree/metadata mismatch, virtual-store escape,
+indirect source dependencies, reused or symlinked artifact paths, wrong SHAs,
+and dirty tracked source. The production predicate, durable scheduler, temporary session
 store recovery, typed `continue_work` registration/executor path, TaskFlow no-spawn check, and
 selected-max delegate dispatch boundary all run inside one detached disposable candidate
-worktree without a gateway or fleet mutation. Before the final result is
-written, every receipt is checked to exclude private paths and
-secret/session/environment/process-output fields.
+worktree without a gateway or fleet mutation. The fixture first requires the
+candidate's committed `package.json` and `pnpm-lock.yaml`, runs `pnpm install
+--frozen-lockfile --prefer-offline --ignore-scripts` inside that detached worktree,
+checks the installed virtual-store lock bytes/SHA-256, `.modules.yaml`
+package-manager and virtual-store metadata, and invokes
+only its absolute `node_modules/.bin/tsx` and `node_modules/.bin/vitest`
+binaries; source-tree `node_modules` is ignored. Before the final result is
+written, candidate SHA/tracked-state checks run immediately after install and
+again after all proof surfaces, and every
+receipt is checked to exclude private paths and
+secret/session/environment/process-output fields. The host PATH `pnpm` is
+version-checked rather than hermetically attested, so this is explicit
+lockfile/tree/version alignment—not a cryptographic or hermetic host-toolchain
+claim.
 
 At the default maximum `3`, the required receipt shape is attempted hop `2`:
 allow, attempted hop `3`: allow, attempted hop `4`: `chain-capped`. The

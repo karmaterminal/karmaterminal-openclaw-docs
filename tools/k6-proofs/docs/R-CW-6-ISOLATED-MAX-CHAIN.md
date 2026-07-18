@@ -7,11 +7,26 @@ required shared config mutation and a gateway restart, which is unnecessary
 for the runtime boundary and unsafe on a production fleet.
 
 The supported fixture is process-local and **does not patch or restart a gateway**.
-It runs the exact candidate's production modules in a disposable worktree with
-a temporary session store and isolated state directory. This is a manual-only
-component fixture, intentionally outside the generic k6 runner and
+It checks out the exact candidate SHA in a disposable worktree, verifies that
+the candidate committed `package.json` and `pnpm-lock.yaml`, requires the
+`packageManager` field to be exact `pnpm@<semver>` (an optional `+sha...`
+suffix is allowed), checks that host-resolved `pnpm --version` is exactly that
+semantic version, then runs `pnpm install --frozen-lockfile --prefer-offline
+--ignore-scripts` in that worktree before any proof command. It then requires
+the installed virtual-store `lock.yaml` bytes and SHA-256 to match the
+candidate lockfile, `.modules.yaml` package-manager metadata to match the
+candidate pnpm version (the metadata may omit the integrity suffix), and the
+declared virtual store plus `tsx`/`vitest` realpaths to remain inside that
+candidate `node_modules` tree. Source-tree `node_modules` is ignored. The
+worktree has a temporary session store and isolated state directory. This is a
+manual-only component fixture, intentionally outside the generic k6 runner and
 `--live-suite`. Its `PASS-candidate` means the component contract passed at the
 exact SHA; review is still required before any corpus fold.
+
+This is **lockfile/tree/version alignment, not a hermetic or cryptographic
+host-toolchain proof**. The fixture resolves the host `pnpm` from PATH, records
+its exact `--version`, and fails if it cannot create the required verified
+candidate-local tree; it does not attest the host executable's origin.
 
 The fixture:
 
@@ -36,8 +51,9 @@ The fixture:
    at-limit delegate spawns, the first-over delegate is rejected before a
    second spawn, and its TaskFlow is failed. Also run the exact candidate's
    `delegate-dispatch.chain-depth-exhaustion.test.ts` as a regression companion.
-8. Remove the disposable worktree and isolated state before emitting the final
-   result.
+8. Immediately after install, re-check the candidate worktree SHA and tracked
+   state. Re-check both again after all proof surfaces, then remove the
+   disposable worktree and isolated state before emitting the final result.
 9. Reject any public receipt containing the source, artifact, or disposable
    worktree path, or secret/session/environment/process-output fields.
 
@@ -52,7 +68,7 @@ the candidate's production boundary suite.
 
 ```bash
 node tools/k6-proofs/scripts/run-max-chain-fixture.mjs \
-  --source-dir <clean-exact-candidate-worktree-with-preinstalled-dependencies> \
+  --source-dir <clean-exact-candidate-source-worktree> \
   --candidate-sha <40-char-candidate-sha> \
   --artifact-dir <new-empty-private-directory> \
   --max-chain-length 3 --json
@@ -63,21 +79,33 @@ The command refuses:
 - a SHA/source mismatch;
 - staged or unstaged tracked candidate changes before execution or final
   certification;
-- missing dependencies, a symlinked source `node_modules`, or a preinstalled
-  pnpm virtual-store lockfile that is absent or byte-different from the
-  candidate's committed `pnpm-lock.yaml`;
-- missing pinned pnpm metadata or required local `tsx`/`vitest` executables;
+- a candidate worktree whose `HEAD` is not the requested SHA, or whose
+  committed `package.json` or `pnpm-lock.yaml` is missing;
+- a non-pnpm, tag, range, or otherwise non-exact candidate `packageManager`,
+  or a `pnpm --version` that does not exactly equal the candidate's fixed
+  semantic version;
+- a failed `pnpm install --frozen-lockfile --prefer-offline --ignore-scripts`;
+- a missing/indirect `node_modules`, missing or byte/SHA-mismatched installed
+  `.pnpm/lock.yaml`, incompatible `.modules.yaml packageManager`, or a
+  virtual store that escapes candidate `node_modules`;
+- missing or non-candidate-local `node_modules/.bin/tsx` or
+  `node_modules/.bin/vitest` after that verified install;
 - a reused, group/world-readable, file, symlink, or symlink-ancestor artifact
   path;
 - unknown mutation/restart arguments;
 - any missing structured runtime, typed-tool, dispatcher, recovery, readiness,
   cleanup, or public-artifact-safety receipt.
 
-It never runs an install, starts a gateway, reads or writes fleet config/state,
-or writes the private source path into the public readiness receipt. The
-readiness receipt records the candidate and installed lockfile SHA-256 values,
-the pinned package-manager declaration, and the verified local executables.
-Any missing or failed receipt is `FAIL-fixture`, never a PASS.
+It never trusts, links, or mutates source-tree `node_modules`; the only PATH
+resolved dependency command is the candidate-worktree `pnpm`, which is
+version-checked but not hermetically attested. It never starts a gateway, reads
+or writes fleet config/state, or writes the private source path into public
+receipts. The readiness and runtime receipts record candidate and installed
+lockfile SHA-256 values, candidate `packageManager`, executing and installed
+package-manager versions, the exact frozen install command, the local
+executable contract, and post-install/post-proof worktree integrity checks.
+Any failed install, lockfile/tree/version alignment, SHA/state check, or
+cleanup fails closed. Any missing or failed receipt is `FAIL-fixture`, never a PASS.
 
 ## Required receipts
 

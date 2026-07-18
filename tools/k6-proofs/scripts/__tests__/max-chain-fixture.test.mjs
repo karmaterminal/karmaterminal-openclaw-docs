@@ -1,33 +1,58 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
 
-async function writeDependencyFixture(source, lock = 'lockfileVersion: 9.0\n') {
-  await mkdir(path.join(source, 'node_modules', '.pnpm'), { recursive: true });
-  await mkdir(path.join(source, 'node_modules', '.bin'), { recursive: true });
+async function writeCandidateFixture(source, lock = 'lockfileVersion: 9.0\n') {
+  await mkdir(path.join(source, 'src/auto-reply/continuation'), { recursive: true });
+  await mkdir(path.join(source, 'src/agents/command'), { recursive: true });
   await writeFile(path.join(source, 'pnpm-lock.yaml'), lock);
-  await writeFile(path.join(source, 'node_modules', '.pnpm', 'lock.yaml'), lock);
-  await writeFile(
-    path.join(source, 'node_modules', '.modules.yaml'),
-    JSON.stringify({ layoutVersion: 5, virtualStoreDir: '.pnpm' }),
-  );
-  await writeFile(path.join(source, 'node_modules', '.bin', 'tsx'), '#!/bin/sh\n');
-  await writeFile(path.join(source, 'node_modules', '.bin', 'vitest'), '#!/bin/sh\n');
+  await writeFile(path.join(source, 'src/auto-reply/continuation/scheduler.ts'), 'export const clean = true;\n');
+  await writeFile(path.join(source, 'src/auto-reply/continuation/work-dispatch.ts'), '// marker\n');
+  await writeFile(path.join(source, 'src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts'), '// marker\n');
+  await writeFile(path.join(source, 'src/agents/command/attempt-execution.ts'), '// marker\n');
+  await writeFile(path.join(source, 'package.json'), '{"name":"r-cw-6-test","packageManager":"pnpm@11.2.2"}\n');
 }
 
 import {
+  assertExecutingPnpmVersion,
+  assertInstalledPnpmDependencyTree,
   assertPublicArtifactSafe,
   assertSource,
+  assertCandidateWorktree,
   assertTrackedSourceClean,
   buildReadiness,
+  candidateLocalExecutables,
+  installCandidateDependencies,
   parseArgs,
+  parsePinnedPnpmPackageManager,
   prepareArtifactDir,
   renderToolSurfaceTemplate,
+  verifyInstalledCandidateDependencies,
 } from '../run-max-chain-fixture.mjs';
+
+async function writeInstalledPnpmTree(source, {
+  candidateLock = 'lockfileVersion: 9.0\n',
+  installedLock = candidateLock,
+  packageManager = 'pnpm@11.2.2',
+  virtualStoreDir = '.pnpm',
+} = {}) {
+  await mkdir(path.join(source, 'node_modules', '.pnpm'), { recursive: true });
+  await mkdir(path.join(source, 'node_modules', '.bin'), { recursive: true });
+  await writeFile(path.join(source, 'pnpm-lock.yaml'), candidateLock);
+  await writeFile(path.join(source, 'node_modules', '.pnpm', 'lock.yaml'), installedLock);
+  await writeFile(
+    path.join(source, 'node_modules', '.modules.yaml'),
+    `${JSON.stringify({ layoutVersion: 5, packageManager, virtualStoreDir }, null, 2)}\n`,
+  );
+  for (const executable of ['tsx', 'vitest']) {
+    await writeFile(path.join(source, 'node_modules', '.bin', executable), '#!/bin/sh\nexit 0\n');
+    await chmod(path.join(source, 'node_modules', '.bin', executable), 0o700);
+  }
+}
 
 test('R-CW-6 fixture accepts an explicit isolated source contract', () => {
   const parsed = parseArgs([
@@ -85,14 +110,7 @@ test('R-CW-6 fixture refuses to overwrite or expose an artifact directory', asyn
 
 test('R-CW-6 fixture refuses staged or unstaged tracked candidate changes', async () => {
   const source = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-dirty-source-'));
-  await mkdir(path.join(source, 'src/auto-reply/continuation'), { recursive: true });
-  await mkdir(path.join(source, 'src/agents/command'), { recursive: true });
-  await writeDependencyFixture(source);
-  await writeFile(path.join(source, 'src/auto-reply/continuation/scheduler.ts'), 'export const clean = true;\n');
-  await writeFile(path.join(source, 'src/auto-reply/continuation/work-dispatch.ts'), '// marker\n');
-  await writeFile(path.join(source, 'src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts'), '// marker\n');
-  await writeFile(path.join(source, 'src/agents/command/attempt-execution.ts'), '// marker\n');
-  await writeFile(path.join(source, 'package.json'), '{"name":"r-cw-6-test","packageManager":"pnpm@11.2.2"}\n');
+  await writeCandidateFixture(source);
   execFileSync('git', ['init'], { cwd: source, stdio: 'ignore' });
   execFileSync('git', ['config', 'user.email', 'proof@example.invalid'], { cwd: source });
   execFileSync('git', ['config', 'user.name', 'R-CW-6 fixture test'], { cwd: source });
@@ -101,10 +119,6 @@ test('R-CW-6 fixture refuses staged or unstaged tracked candidate changes', asyn
   const candidateSha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: source, encoding: 'utf8' }).trim();
 
   assert.doesNotThrow(() => assertSource(source, candidateSha));
-
-  await writeFile(path.join(source, 'node_modules', '.pnpm', 'lock.yaml'), 'lockfileVersion: 8.0\n');
-  assert.throws(() => assertSource(source, candidateSha), /installed dependency lockfile does not match/);
-  await writeFile(path.join(source, 'node_modules', '.pnpm', 'lock.yaml'), 'lockfileVersion: 9.0\n');
 
   await writeFile(path.join(source, 'src/auto-reply/continuation/scheduler.ts'), 'export const clean = false;\n');
   assert.throws(() => assertSource(source, candidateSha), /tracked staged or unstaged changes/);
@@ -115,6 +129,192 @@ test('R-CW-6 fixture refuses staged or unstaged tracked candidate changes', asyn
     () => assertTrackedSourceClean(source, 'final cleanup/result receipt'),
     /before final cleanup\/result receipt/,
   );
+});
+
+test('R-CW-6 ignores source node_modules and requires a committed candidate lockfile', async () => {
+  const source = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-candidate-source-'));
+  await writeCandidateFixture(source);
+  await mkdir(path.join(source, 'source-node-modules'), { recursive: true });
+  await symlink(path.join(source, 'source-node-modules'), path.join(source, 'node_modules'));
+  execFileSync('git', ['init'], { cwd: source, stdio: 'ignore' });
+  execFileSync('git', ['config', 'user.email', 'proof@example.invalid'], { cwd: source });
+  execFileSync('git', ['config', 'user.name', 'R-CW-6 fixture test'], { cwd: source });
+  execFileSync('git', ['add', 'src', 'package.json', 'pnpm-lock.yaml'], { cwd: source });
+  execFileSync('git', ['commit', '-m', 'candidate'], { cwd: source, stdio: 'ignore' });
+  const candidateSha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: source, encoding: 'utf8' }).trim();
+
+  assert.doesNotThrow(() => assertSource(source, candidateSha));
+
+  execFileSync('git', ['rm', 'pnpm-lock.yaml'], { cwd: source, stdio: 'ignore' });
+  execFileSync('git', ['commit', '-m', 'candidate without lockfile'], { cwd: source, stdio: 'ignore' });
+  const missingLockSha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: source, encoding: 'utf8' }).trim();
+  assert.throws(
+    () => assertCandidateWorktree(source, missingLockSha),
+    /missing pnpm-lock\.yaml|requires committed pnpm-lock\.yaml/,
+  );
+});
+
+test('R-CW-6 accepts only a fixed pnpm packageManager declaration and exact executing version', () => {
+  for (const invalid of ['pnpm@latest', 'pnpm@^11.2.2', 'pnpm@11', 'npm@11.2.2', 'pnpm@11.2.2 || pnpm@11.3.0']) {
+    assert.throws(
+      () => parsePinnedPnpmPackageManager(invalid),
+      /exact pnpm@<semver>/,
+      `${invalid} must not identify one candidate pnpm release`,
+    );
+  }
+  const pinned = parsePinnedPnpmPackageManager('pnpm@11.2.2+sha512.abcd_ef-1');
+  assert.equal(pinned.version, '11.2.2');
+  assert.equal(pinned.integritySuffix, '+sha512.abcd_ef-1');
+  assert.equal(assertExecutingPnpmVersion(pinned, '11.2.2'), '11.2.2');
+  assert.throws(
+    () => assertExecutingPnpmVersion(pinned, '11.2.3'),
+    /does not equal candidate packageManager version 11\.2\.2/,
+  );
+});
+
+test('R-CW-6 verifies installed lock bytes, pnpm metadata, and candidate-contained virtual store', async () => {
+  const candidate = parsePinnedPnpmPackageManager('pnpm@11.2.2+sha512.candidate');
+
+  const staleLock = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-stale-lock-'));
+  await writeInstalledPnpmTree(staleLock, {
+    packageManager: 'pnpm@11.2.2',
+    installedLock: 'lockfileVersion: 8.0\n',
+  });
+  assert.throws(
+    () => assertInstalledPnpmDependencyTree(staleLock, candidate),
+    /lock\.yaml bytes do not match candidate pnpm-lock\.yaml/,
+  );
+
+  const incompatibleMetadata = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-incompatible-metadata-'));
+  await writeInstalledPnpmTree(incompatibleMetadata, { packageManager: 'pnpm@11.2.3' });
+  assert.throws(
+    () => assertInstalledPnpmDependencyTree(incompatibleMetadata, candidate),
+    /packageManager is incompatible with candidate packageManager/,
+  );
+
+  const escapedStore = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-escaped-store-'));
+  await writeInstalledPnpmTree(escapedStore, { packageManager: 'pnpm@11.2.2', virtualStoreDir: '../outside' });
+  assert.throws(
+    () => assertInstalledPnpmDependencyTree(escapedStore, candidate),
+    /virtualStoreDir escapes candidate node_modules/,
+  );
+
+  const linkedStore = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-linked-store-'));
+  await writeInstalledPnpmTree(linkedStore, { packageManager: 'pnpm@11.2.2', virtualStoreDir: 'virtual-store' });
+  const outside = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-virtual-store-outside-'));
+  await symlink(outside, path.join(linkedStore, 'node_modules', 'virtual-store'));
+  assert.throws(
+    () => assertInstalledPnpmDependencyTree(linkedStore, candidate),
+    /requires candidate pnpm virtual store to be a real directory/,
+  );
+
+  const legacyYaml = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-legacy-yaml-metadata-'));
+  await writeInstalledPnpmTree(legacyYaml, { packageManager: 'pnpm@11.2.2' });
+  await writeFile(
+    path.join(legacyYaml, 'node_modules', '.modules.yaml'),
+    'layoutVersion: 5\npackageManager: pnpm@11.2.2\nvirtualStoreDir: .pnpm\n',
+  );
+  assert.equal(
+    assertInstalledPnpmDependencyTree(legacyYaml, candidate).installedPackageManagerVersion,
+    '11.2.2',
+  );
+});
+
+test('R-CW-6 rejects a fake PATH pnpm that reports the candidate version but cannot produce the required tree metadata', async () => {
+  const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-fake-pnpm-worktree-'));
+  const fakeBin = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-fake-pnpm-bin-'));
+  const candidate = parsePinnedPnpmPackageManager('pnpm@11.2.2');
+  await writeFile(path.join(worktree, 'pnpm-lock.yaml'), 'lockfileVersion: 9.0\n');
+  const fakePnpm = path.join(fakeBin, 'pnpm');
+  await writeFile(fakePnpm, [
+    '#!/bin/sh',
+    'if [ "$1" = "--version" ]; then printf "11.2.2\\n"; exit 0; fi',
+    'if [ "$1" = "install" ]; then',
+    '  mkdir -p node_modules/.pnpm node_modules/.bin',
+    '  printf "lockfileVersion: 8.0\\n" > node_modules/.pnpm/lock.yaml',
+    '  printf "packageManager: pnpm@11.2.2\\nvirtualStoreDir: .pnpm\\n" > node_modules/.modules.yaml',
+    '  : > node_modules/.bin/tsx',
+    '  : > node_modules/.bin/vitest',
+    '  exit 0',
+    'fi',
+    'exit 64',
+    '',
+  ].join('\n'));
+  await chmod(fakePnpm, 0o700);
+  const env = { ...process.env, PATH: `${fakeBin}${path.delimiter}${process.env.PATH}` };
+  const installation = installCandidateDependencies(worktree, candidate, { env });
+  assert.equal(installation.executingPackageManagerVersion, '11.2.2');
+  assert.deepEqual(installation.command, ['pnpm', 'install', '--frozen-lockfile', '--prefer-offline', '--ignore-scripts']);
+  assert.throws(
+    () => verifyInstalledCandidateDependencies(worktree, candidate),
+    /lock\.yaml bytes do not match candidate pnpm-lock\.yaml/,
+  );
+});
+
+test('R-CW-6 detects a tracked candidate mutation when the post-install integrity check runs', async () => {
+  const source = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-post-install-mutation-'));
+  await writeCandidateFixture(source);
+  execFileSync('git', ['init'], { cwd: source, stdio: 'ignore' });
+  execFileSync('git', ['config', 'user.email', 'proof@example.invalid'], { cwd: source });
+  execFileSync('git', ['config', 'user.name', 'R-CW-6 fixture test'], { cwd: source });
+  execFileSync('git', ['add', 'src', 'package.json', 'pnpm-lock.yaml'], { cwd: source });
+  execFileSync('git', ['commit', '-m', 'candidate'], { cwd: source, stdio: 'ignore' });
+  const candidateSha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: source, encoding: 'utf8' }).trim();
+  assert.doesNotThrow(() => assertCandidateWorktree(source, candidateSha, 'post-install dependency verification'));
+  await writeFile(path.join(source, 'package.json'), '{"name":"mutated-after-install","packageManager":"pnpm@11.2.2"}\n');
+  assert.throws(
+    () => assertCandidateWorktree(source, candidateSha, 'post-install dependency verification'),
+    /tracked staged or unstaged changes before post-install dependency verification/,
+  );
+});
+
+test('R-CW-6 proof executables are candidate-local absolute binaries, not PATH substitutions', async () => {
+  const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-local-bin-'));
+  const candidateBin = path.join(worktree, 'node_modules', '.bin');
+  const fakeBin = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-fake-path-'));
+  await writeInstalledPnpmTree(worktree);
+  for (const executable of ['tsx', 'vitest']) {
+    await writeFile(path.join(candidateBin, executable), '#!/bin/sh\nprintf candidate-' + executable + '\n');
+    await chmod(path.join(candidateBin, executable), 0o700);
+    await writeFile(path.join(fakeBin, executable), '#!/bin/sh\nprintf fake-' + executable + '\n');
+    await chmod(path.join(fakeBin, executable), 0o700);
+  }
+  const originalPath = process.env.PATH;
+  process.env.PATH = `${fakeBin}${path.delimiter}${originalPath}`;
+  try {
+    const verifiedTree = assertInstalledPnpmDependencyTree(
+      worktree,
+      parsePinnedPnpmPackageManager('pnpm@11.2.2'),
+    );
+    const executables = candidateLocalExecutables(worktree, verifiedTree);
+    assert.equal(executables.paths.tsx, path.join(worktree, 'node_modules', '.bin', 'tsx'));
+    assert.equal(executables.paths.vitest, path.join(worktree, 'node_modules', '.bin', 'vitest'));
+    assert.equal(execFileSync(executables.paths.tsx, [], { encoding: 'utf8' }).trim(), 'candidate-tsx');
+    assert.equal(execFileSync(executables.paths.vitest, [], { encoding: 'utf8' }).trim(), 'candidate-vitest');
+    assert.deepEqual(executables.contract, {
+      tsx: { path: 'node_modules/.bin/tsx', realpathWithinVerifiedDependencyTree: true },
+      vitest: { path: 'node_modules/.bin/vitest', realpathWithinVerifiedDependencyTree: true },
+    });
+  } finally {
+    process.env.PATH = originalPath;
+  }
+});
+
+test('R-CW-6 creates the detached candidate worktree, frozen-installs it, then uses local proof binaries', async () => {
+  const script = await readFile(
+    fileURLToPath(new URL('../run-max-chain-fixture.mjs', import.meta.url)),
+    'utf8',
+  );
+  assert.match(script, /worktree', 'add', '--detach', worktreeDir, candidateSha/);
+  assert.match(script, /\['pnpm', 'install', '--frozen-lockfile', '--prefer-offline', '--ignore-scripts'\]/);
+  assert.match(script, /run\('pnpm', \['--version'\]/);
+  assert.match(script, /assertExecutingPnpmVersion/);
+  assert.match(script, /post-install dependency verification/);
+  assert.match(script, /all runtime proof surfaces/);
+  assert.match(script, /verifyInstalledCandidateDependencies/);
+  assert.match(script, /verifiedDependencies\.executables\.tsx/);
+  assert.match(script, /verifiedDependencies\.executables\.vitest/);
+  assert.doesNotMatch(script, /symlinkSync\(path\.join\(sourceDir, 'node_modules'\)/);
 });
 
 test('R-CW-6 runtime template proves the real budget and durable recovery path', async () => {
@@ -177,9 +377,27 @@ test('R-CW-6 public readiness has no private source path or fleet mutation claim
   const readiness = buildReadiness({
     candidateSha: '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
     head: '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
-    dependencyProvenance: {
-      model: 'preinstalled-pnpm-virtual-store-lockfile-aligned',
+    candidateRuntime: {
+      candidateLockfileSha256: 'b'.repeat(64),
+      installedLockfileSha256: 'b'.repeat(64),
       lockfileMatchesCandidate: true,
+      candidatePackageManager: 'pnpm@11.2.2+sha512.candidate',
+      candidatePackageManagerVersion: '11.2.2',
+      executingPackageManagerVersion: '11.2.2',
+      installedPackageManager: 'pnpm@11.2.2',
+      installedPackageManagerVersion: '11.2.2',
+      virtualStoreDir: '.pnpm',
+      virtualStoreContainedWithinCandidateNodeModules: true,
+      installCommand: ['pnpm', 'install', '--frozen-lockfile', '--prefer-offline', '--ignore-scripts'],
+      localExecutableContract: {
+        tsx: { path: 'node_modules/.bin/tsx', realpathWithinVerifiedDependencyTree: true },
+        vitest: { path: 'node_modules/.bin/vitest', realpathWithinVerifiedDependencyTree: true },
+      },
+      worktreeIntegrity: {
+        beforeInstall: { headMatchesCandidate: true, trackedClean: true },
+        afterInstall: { headMatchesCandidate: true, trackedClean: true },
+        afterProofSurfaces: { headMatchesCandidate: true, trackedClean: true },
+      },
     },
     maxChainLength: 7,
   });
@@ -187,7 +405,13 @@ test('R-CW-6 public readiness has no private source path or fleet mutation claim
   assert.equal(readiness.productionConfigTouched, false);
   assert.equal(readiness.productionStateTouched, false);
   assert.equal(readiness.gatewayStarted, false);
-  assert.equal(readiness.dependencyProvenance.lockfileMatchesCandidate, true);
+  assert.equal(readiness.candidateLockfileSha256, 'b'.repeat(64));
+  assert.equal(readiness.installedLockfileSha256, 'b'.repeat(64));
+  assert.equal(readiness.candidatePackageManager, 'pnpm@11.2.2+sha512.candidate');
+  assert.equal(readiness.executingPackageManagerVersion, '11.2.2');
+  assert.equal(readiness.installedPackageManager, 'pnpm@11.2.2');
+  assert.equal(readiness.hostToolchainHermetic, false);
+  assert.deepEqual(readiness.installCommand, ['pnpm', 'install', '--frozen-lockfile', '--prefer-offline', '--ignore-scripts']);
   assert.doesNotMatch(JSON.stringify(readiness), new RegExp(privatePath.replaceAll('/', '\\/')));
 });
 
@@ -285,6 +509,8 @@ test('R-CW-6 manifest and method fail closed instead of patching a shared gatewa
   assert.ok(manifest.liveRunSafety.requiredReceipts.includes('public-artifact-safety'));
   assert.match(methodDoc, /does not patch or restart a gateway/);
   assert.match(methodDoc, /manual-only\s+component fixture/);
+  assert.match(methodDoc, /lockfile\/tree\/version alignment, not a hermetic or cryptographic/);
+  assert.match(methodDoc, /--ignore-scripts/);
   assert.match(methodDoc, /Any missing or failed receipt is `FAIL-fixture`, never a PASS/);
 });
 

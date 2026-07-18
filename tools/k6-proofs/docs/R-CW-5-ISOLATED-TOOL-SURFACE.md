@@ -47,10 +47,7 @@ node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \
 ```
 
 The command refuses a SHA/source mismatch, missing preinstalled dependencies,
-a source `node_modules/.pnpm/lock.yaml` that is absent or byte-different from
-the candidate's committed `pnpm-lock.yaml`, missing pinned pnpm metadata or
-required local `tsx`/`vitest` executables, or any failure to create and remove
-its disposable worktree.  It never runs
+or any failure to create and remove its disposable worktree.  It never runs
 `pnpm install`, starts a gateway, writes OpenClaw config, or touches durable
 fleet state.  It produces `boundary-matrix.json`,
 `dispatch-boundary-suite.json`, `typed-tool-surface.json`, and `cleanup.json`.

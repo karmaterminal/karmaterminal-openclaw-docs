@@ -9,7 +9,8 @@
  * no-spawn assertion without changing a fleet gateway.
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
@@ -19,6 +20,7 @@ const SOURCE_MARKERS = [
   'src/auto-reply/continuation/scheduler.ts',
   'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts',
   'package.json',
+  'pnpm-lock.yaml',
 ];
 const TOOL_SURFACE_TEMPLATE = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -94,6 +96,10 @@ function gitHead(sourceDir) {
   return result.stdout.trim();
 }
 
+function fileSha256(file) {
+  return createHash('sha256').update(readFileSync(file)).digest('hex');
+}
+
 function trackedSourceStatus(sourceDir) {
   const result = run('git', ['-C', sourceDir, 'status', '--porcelain', '--untracked-files=no'], {});
   if (!result.ok) throw new Error(`cannot inspect tracked source state: ${result.stderr.trim()}`);
@@ -114,17 +120,14 @@ export function assertSource(sourceDir, candidateSha) {
   for (const marker of SOURCE_MARKERS) {
     if (!existsSync(path.join(resolved, marker))) throw new Error(`source dir is missing ${marker}`);
   }
-  const dependencyDir = path.join(resolved, 'node_modules');
-  if (!existsSync(dependencyDir)) {
-    throw new Error('source dir has no node_modules; fixture refuses to install dependencies or mutate the candidate worktree');
-  }
-  if (lstatSync(dependencyDir).isSymbolicLink()) {
-    throw new Error('source node_modules must be a real directory; fixture refuses an indirect mutable dependency tree');
+  const lockfile = path.join(resolved, 'pnpm-lock.yaml');
+  if (!lstatSync(lockfile).isFile() || lstatSync(lockfile).isSymbolicLink()) {
+    throw new Error('candidate pnpm-lock.yaml must be a real regular file');
   }
   const head = gitHead(resolved);
   if (head !== candidateSha) throw new Error(`candidate/source mismatch: requested ${candidateSha}, source is ${head}`);
   assertTrackedSourceClean(resolved, 'fixture execution');
-  return { resolved, head };
+  return { resolved, head, lockfileSha256: fileSha256(lockfile) };
 }
 
 export function renderToolSurfaceTemplate(template, cap) {
@@ -138,7 +141,7 @@ export function renderToolSurfaceTemplate(template, cap) {
     .replaceAll('__RCW5_OVER_CAP__', String(overCap));
 }
 
-export function buildReadiness({ candidateSha, head, cap }) {
+export function buildReadiness({ candidateSha, head, cap, lockfileSha256 }) {
   return {
     schema: 'openclaw.project81.r-cw-5.fixture-readiness.v1',
     candidateSha,
@@ -147,7 +150,8 @@ export function buildReadiness({ candidateSha, head, cap }) {
     productionConfigTouched: false,
     productionStateTouched: false,
     fixtureKind: 'source-only-production-module-plus-dispatch-boundary-suite',
-    dependencyTree: 'pre-existing-real-source-node_modules; no-install',
+    lockfileSha256,
+    dependencyTree: 'fresh-disposable-pnpm-install-frozen-lockfile; source node_modules never trusted',
     cap,
   };
 }
@@ -204,56 +208,92 @@ function parseLastJson(stdout, label) {
   return JSON.parse(line);
 }
 
-function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, cap }) {
+function runToolSurface({ worktreeDir, cap }) {
   if (!existsSync(TOOL_SURFACE_TEMPLATE)) {
     throw new Error(`tool-surface template missing: ${TOOL_SURFACE_TEMPLATE}`);
   }
-  const worktreeDir = path.join(artifactDir, `.r-cw-5-tool-surface-${process.pid}-${Date.now()}`);
+  const testDir = path.join(worktreeDir, 'test', 'r-cw-5-fixture');
+  mkdirSync(testDir, { recursive: true, mode: 0o700 });
+  writeFileSync(
+    path.join(testDir, 'cost-cap-tool-surface.test.ts'),
+    renderToolSurfaceTemplate(readFileSync(TOOL_SURFACE_TEMPLATE, 'utf8'), cap),
+    { mode: 0o600 },
+  );
+  const test = run(
+    path.join(worktreeDir, 'node_modules', '.bin', 'vitest'),
+    ['run', '--config', 'test/vitest/vitest.auto-reply.config.ts', '--dir', 'test/r-cw-5-fixture', '--reporter=verbose'],
+    { cwd: worktreeDir },
+  );
+  return {
+    passed: test.ok && /1 passed/u.test(test.stdout),
+    exitCode: test.exitCode,
+    asserted: {
+      typedToolCaptured: /disposable typed tool surface/u.test(test.stdout),
+      overCapRejected: /rejects exhausted typed-tool elections/u.test(test.stdout),
+      rejectedHopNoDurableWork: /1 passed/u.test(test.stdout),
+    },
+  };
+}
+
+function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, cap, sourceLockfileSha256 }) {
+  const worktreeDir = path.join(artifactDir, `.r-cw-5-verified-${process.pid}-${Date.now()}`);
   const add = run('git', ['-C', sourceDir, 'worktree', 'add', '--detach', worktreeDir, candidateSha], {});
   if (!add.ok) throw new Error(`cannot create disposable candidate worktree: ${add.stderr.trim()}`);
-  let result;
   try {
-    const testDir = path.join(worktreeDir, 'test', 'r-cw-5-fixture');
-    mkdirSync(testDir, { recursive: true, mode: 0o700 });
-    writeFileSync(
-      path.join(testDir, 'cost-cap-tool-surface.test.ts'),
-      renderToolSurfaceTemplate(readFileSync(TOOL_SURFACE_TEMPLATE, 'utf8'), cap),
-      { mode: 0o600 },
-    );
-    // The temporary worktree is source-only. Re-use the already-present,
-    // exact-candidate dependency tree without invoking pnpm/install.
-    symlinkSync(path.join(sourceDir, 'node_modules'), path.join(worktreeDir, 'node_modules'));
-    const test = run(
-      path.join(worktreeDir, 'node_modules', '.bin', 'vitest'),
-      ['run', '--config', 'test/vitest/vitest.auto-reply.config.ts', '--dir', 'test/r-cw-5-fixture', '--reporter=verbose'],
+    const lockfileSha256 = fileSha256(path.join(worktreeDir, 'pnpm-lock.yaml'));
+    if (lockfileSha256 !== sourceLockfileSha256) {
+      throw new Error('disposable candidate lockfile does not match the verified source lockfile');
+    }
+    const install = run('pnpm', ['install', '--frozen-lockfile', '--prefer-offline'], { cwd: worktreeDir });
+    if (!install.ok) throw new Error(`frozen-lockfile install failed: ${install.stderr.trim()}`);
+    const dependencyDir = path.join(worktreeDir, 'node_modules');
+    if (!existsSync(dependencyDir) || !lstatSync(dependencyDir).isDirectory() || lstatSync(dependencyDir).isSymbolicLink()) {
+      throw new Error('frozen-lockfile install did not create a real disposable node_modules directory');
+    }
+    const matrixRun = run('pnpm', ['exec', 'tsx', '--eval', matrixEval(cap)], { cwd: worktreeDir });
+    const matrix = matrixRun.ok ? parseLastJson(matrixRun.stdout, 'boundary matrix') : null;
+    const dispatchRun = run(
+      'pnpm',
+      [
+        'vitest', 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts',
+        'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts', '--reporter=verbose',
+      ],
       { cwd: worktreeDir },
     );
-    result = {
-      passed: test.ok && /1 passed/u.test(test.stdout),
-      exitCode: test.exitCode,
-      asserted: {
-        typedToolCaptured: /disposable typed tool surface/u.test(test.stdout),
-        overCapRejected: /rejects exhausted typed-tool elections/u.test(test.stdout),
-        rejectedHopNoDurableWork: /1 passed/u.test(test.stdout),
+    return {
+      matrixRun,
+      matrix,
+      dispatchRun,
+      toolSurface: runToolSurface({ worktreeDir, cap }),
+      dependency: {
+        installCommand: ['pnpm', 'install', '--frozen-lockfile', '--prefer-offline'],
+        lockfileSha256,
+        frozenLockfileVerified: true,
+        sourceNodeModulesTrusted: false,
       },
     };
   } finally {
     const remove = run('git', ['-C', sourceDir, 'worktree', 'remove', '--force', worktreeDir], {});
     if (!remove.ok) throw new Error(`cannot remove disposable candidate worktree: ${remove.stderr.trim()}`);
   }
-  return { ...result, disposableWorktreeRemoved: true };
 }
 
 export function runFixture(args) {
   assertArgs(args);
-  const { resolved: sourceDir, head } = assertSource(args.sourceDir, args.candidateSha);
+  const { resolved: sourceDir, head, lockfileSha256 } = assertSource(args.sourceDir, args.candidateSha);
   const artifactDir = prepareArtifactDir(args.artifactDir);
 
-  const readiness = buildReadiness({ candidateSha: args.candidateSha, head, cap: args.cap });
+  const readiness = buildReadiness({ candidateSha: args.candidateSha, head, cap: args.cap, lockfileSha256 });
   writeJson(path.join(artifactDir, 'fixture-readiness.json'), readiness);
 
-  const matrixRun = run('pnpm', ['exec', 'tsx', '--eval', matrixEval(args.cap)], { cwd: sourceDir });
-  const matrix = matrixRun.ok ? parseLastJson(matrixRun.stdout, 'boundary matrix') : null;
+  const verified = runVerifiedCandidateWorktree({
+    sourceDir,
+    candidateSha: args.candidateSha,
+    artifactDir,
+    cap: args.cap,
+    sourceLockfileSha256: lockfileSha256,
+  });
+  const { matrixRun, matrix, dispatchRun, toolSurface } = verified;
   const matrixPassed = Boolean(
     matrix?.cases?.length === 3 &&
     matrix.cases[0]?.outcome === null &&
@@ -267,16 +307,9 @@ export function runFixture(args) {
     ...(matrix || {}),
     command: ['pnpm', 'exec', 'tsx', '--eval', '<production-module-eval>'],
     exitCode: matrixRun.exitCode,
+    dependency: verified.dependency,
   });
 
-  const dispatchRun = run(
-    'pnpm',
-    [
-      'vitest', 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts',
-      'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts', '--reporter=verbose',
-    ],
-    { cwd: sourceDir },
-  );
   const dispatchAssertions = {
     belowCapAllowsSpawn: /allows dispatch when accumulatedChainTokens is 1 below costCapTokens/u.test(dispatchRun.stdout),
     exactCapAllowsSpawn: /rejects at exact boundary \(accumulatedChainTokens === costCapTokens is NOT over\)/u.test(dispatchRun.stdout),
@@ -295,19 +328,21 @@ export function runFixture(args) {
     // Test names, not raw logs, are public-safe and pin the no-spawn/cascade
     // assertion without copying arbitrary candidate output into the corpus.
     asserted: dispatchAssertions,
+    dependency: verified.dependency,
   });
 
-  const toolSurface = runDisposableToolSurface({ sourceDir, candidateSha: args.candidateSha, artifactDir, cap: args.cap });
   const toolSurfacePassed = toolSurface.passed && Object.values(toolSurface.asserted).every(Boolean);
   writeJson(path.join(artifactDir, 'typed-tool-surface.json'), {
     schema: 'openclaw.project81.r-cw-5.typed-tool-surface.v1',
     passed: toolSurfacePassed,
     cap: args.cap,
-    fixtureKind: 'disposable-exact-candidate-worktree-with-real-attempt-execution-and-typed-tool-capture',
+    fixtureKind: 'frozen-lockfile-verified-disposable-exact-candidate-worktree-with-real-attempt-execution-and-typed-tool-capture',
     productionConfigTouched: false,
     productionStateTouched: false,
     sourceDirMutated: false,
     disposableWorktreeCreated: true,
+    disposableWorktreeRemoved: true,
+    dependency: verified.dependency,
     ...toolSurface,
   });
 

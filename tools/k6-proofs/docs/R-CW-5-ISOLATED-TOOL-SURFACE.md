@@ -46,10 +46,11 @@ node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \
   --artifact-dir <empty-private-directory> --cap 100 --json
 ```
 
-The command refuses a SHA/source mismatch, missing preinstalled dependencies,
-or any failure to create and remove its disposable worktree.  It never runs
-`pnpm install`, starts a gateway, writes OpenClaw config, or touches durable
-fleet state.  It produces `boundary-matrix.json`,
+The command refuses a SHA/source mismatch, a missing or altered candidate
+lockfile, or any failure to create and remove its disposable worktree. It runs
+`pnpm install --frozen-lockfile --prefer-offline` only in that disposable
+worktree, never trusts or mutates source `node_modules`, starts a gateway,
+writes OpenClaw config, or touches durable fleet state. It produces `boundary-matrix.json`,
 `dispatch-boundary-suite.json`, `typed-tool-surface.json`, and `cleanup.json`.
 Any missing or failed receipt is `FAIL-fixture`, never a PASS.
 

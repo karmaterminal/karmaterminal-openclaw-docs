@@ -518,9 +518,10 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 ### R-CW-5 isolated cost-cap fixture
 
 `tools/k6-proofs/scripts/run-cost-cap-fixture.mjs` is the safe runnable
-component fixture for `R-CW-5`. It requires an exact-candidate source
-worktree with dependencies already present, refuses to install dependencies,
-and writes only to an explicit artifact directory. It evaluates the exact
+component fixture for `R-CW-5`. It requires a clean exact-candidate source
+worktree and its committed `pnpm-lock.yaml`, then creates a disposable
+candidate worktree and runs `pnpm install --frozen-lockfile --prefer-offline`
+there. It never trusts or mutates source `node_modules`, and writes only to an explicit artifact directory. It evaluates the exact
 production `checkContinuationBudget` module at below/equal/over cap, then
 runs the production dispatcher boundary suite to prove the over-cap hop does
 not spawn and its flow is failed. Finally, it creates a short-lived detached

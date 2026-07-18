@@ -149,7 +149,8 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
     seat: 'elliott', scenario: 'r-cd-token-bracket-delegate.js',
   };
   const evidence = {
-    surface_class: 'raw-final-text', session_created: true, prompt_injected: true,
+    surface_class: 'raw-final-text', session_created: true, disposable_origin_ready: true,
+    prompt_injected: true,
     send_accepted: true, send_run_id_hash: h('1'), row_nonce_hash: h('2'),
     attempt_id_hash: h('3'), candidateSha: sha, runtimeBuildSha: sha,
     origin_subscription_accepted: true, delegate_return_observed: true,

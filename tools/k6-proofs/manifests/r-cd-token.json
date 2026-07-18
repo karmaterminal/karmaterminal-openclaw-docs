@@ -17,6 +17,7 @@
     "name": "r-cd-token-bracket-delegate",
     "description": "Terminal [[CONTINUE_DELEGATE:...]] path from an isolated raw-final-text child; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
     "methods": [
+      "sessions.create",
       "sessions.send",
       "tasks.list",
       "sessions.messages.subscribe"
@@ -110,7 +111,7 @@
     "taskNamePrefix": "r-cd-token",
     "idempotencyKeyPrefix": "R-CD-TOKEN",
     "originSurface": "raw-final-text",
-    "promptTemplate": "RCDT-D-{{tag}} reply exactly RCDT-RETURN-{{tag}}",
+    "promptTemplate": "{{marker}} reply exactly RCDT-RETURN-{{tag}}",
     "parserSignalKind": "bracket-delegate"
   },
   "liveRunSafety": {

@@ -12,6 +12,7 @@ import {
   parseTokenReturnEvent,
   rejectTokenTaskLedgerObservation,
   summarizeTokenLedger,
+  tokenDisposableOriginReady,
   tokenLedgerHasTerminalTasks,
   tokenLedgerRuntimeIdentity,
 } from '../lib/r-cd-token-contract.js';
@@ -45,7 +46,7 @@ function invocationCfg() {
     delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELEGATE_DELAY_SECONDS ?? DEFAULTS.delaySeconds),
     idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix,
     taskNamePrefix: inv.taskNamePrefix || DEFAULTS.taskNamePrefix,
-    promptTemplate: inv.promptTemplate || 'RCDT-D-{{tag}} reply exactly RCDT-RETURN-{{tag}}',
+    promptTemplate: inv.promptTemplate || '{{marker}} reply exactly RCDT-RETURN-{{tag}}',
     lightContext: inv.lightContext !== false,
   };
 }
@@ -65,9 +66,14 @@ export default function () {
   const inv = invocationCfg();
   const taskName = `${inv.taskNamePrefix}-${tag}`.toLowerCase().replace(/[^a-z0-9-]/g, '-').slice(0, 80);
   const originTitle = `RCDT-O-${tag}`;
-  const delegateMarker = `RCDT-D-${tag}`;
+  // Production prepends 63 characters before signal.task and then exposes only
+  // the first 80 title characters. Keep this marker to 14 characters so it is
+  // preserved with three characters of margin at chain-hop/depth 1.
+  const delegateMarker = `D-${tag.slice(0, 12)}`;
   const returnSentinel = `RCDT-RETURN-${tag}`;
-  const delegateTask = inv.promptTemplate.replace(/\{\{tag\}\}/g, tag);
+  const delegateTask = inv.promptTemplate
+    .replace(/\{\{marker\}\}/g, delegateMarker)
+    .replace(/\{\{tag\}\}/g, tag);
   const bracket = `[[CONTINUE_DELEGATE: ${delegateTask} +${inv.delaySeconds}s]]`;
   const childTask = `Reply exactly RCDT-HOP1-${tag}, then put this exact terminal bracket on its own final line: ${bracket} Do not call continue_delegate. Put no text after the closing brackets. Do not mutate files.`;
   const ledger = createTokenLedger({ surfaceClass });
@@ -79,6 +85,8 @@ export default function () {
   const evidence = {
     row: 'R-CD-TOKEN', manifest_loaded: !!manifest, seat,
     requested_session_hash: hash(requestedSessionKey), session_hash: hash(sessionKey),
+    disposable_creation_requested: createDisposableSession,
+    disposable_origin_ready: false,
     session_created: false,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     runtimeBuildSha: __ENV.OPENCLAW_RUNTIME_BUILD_SHA || 'unset',
@@ -258,6 +266,20 @@ export default function () {
     }
 
     function startProofFlow() {
+      if (!tokenDisposableOriginReady({
+        creationRequested: createDisposableSession,
+        sessionCreated: evidence.session_created,
+        requestedSessionKey,
+        activeSessionKey: sessionKey,
+      })) {
+        evidence.interrupted = false;
+        evidence.terminal_reason = 'pre-dispatch-disposable-origin-required';
+        failures.add(1);
+        closed = true;
+        socket.close();
+        return;
+      }
+      evidence.disposable_origin_ready = true;
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       socket.setTimeout(() => {
         const instruction = `${HARNESS_MARKER} Call sessions_spawn exactly once with runtime="subagent", mode="run", taskName="${taskName}", label="${originTitle}", lightContext=${inv.lightContext ? 'true' : 'false'}, context="isolated", cleanup="delete", and task=${JSON.stringify(childTask)}. After sessions_spawn is accepted, reply exactly RCDT-PARENT-SPAWNED-${tag}. This is a proof run.`;
@@ -279,14 +301,20 @@ export default function () {
 
     socket.on('open', () => {
       socket.send(connectFrame(token));
-      if (createDisposableSession) {
-        socket.setTimeout(() => {
-          tracker.send(socket, 'sessions.create', {
-            key: `r-cd-token-${tag}`,
-            label: `k6 R-CD-TOKEN ${tag}`,
-          });
-        }, 250);
-      } else socket.setTimeout(() => startProofFlow(), 500);
+      if (!createDisposableSession) {
+        evidence.interrupted = false;
+        evidence.terminal_reason = 'pre-dispatch-disposable-creation-not-enabled';
+        failures.add(1);
+        closed = true;
+        socket.close();
+        return;
+      }
+      socket.setTimeout(() => {
+        tracker.send(socket, 'sessions.create', {
+          key: `r-cd-token-${tag}`,
+          label: `k6 R-CD-TOKEN ${tag}`,
+        });
+      }, 250);
     });
 
     socket.on('message', (raw) => {
@@ -309,8 +337,9 @@ export default function () {
           }
         }
         if (classified.kind === 'response' && classified.method === 'sessions.create') {
-          if (classified.ok && classified.payload) {
-            sessionKey = classified.payload.key || sessionKey;
+          const createdSessionKey = String(classified.payload?.key || '').trim();
+          if (classified.ok && createdSessionKey && createdSessionKey !== requestedSessionKey) {
+            sessionKey = createdSessionKey;
             evidence.session_hash = hash(sessionKey);
             evidence.session_created = true;
             startProofFlow();
@@ -358,7 +387,8 @@ export default function () {
   check(res, { 'websocket connected': (value) => value && value.status === 101 });
   check(null, {
     'raw final text surface declared': () => evidence.surface_class === 'raw-final-text',
-    'disposable session created': () => evidence.session_created,
+    'disposable session created and distinct': () => evidence.session_created &&
+      evidence.disposable_origin_ready,
     'send accepted with run identity': () => evidence.send_accepted && !!evidence.send_run_id_hash,
     'task ledger fully paginated': () => evidence.task_pagination_exhausted,
     'task ledger snapshot stable across full traversals': () => evidence.task_snapshot_consistent &&

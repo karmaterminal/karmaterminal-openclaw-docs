@@ -8,13 +8,14 @@ import {
   parseTokenReturnEvent,
   rejectTokenTaskLedgerObservation,
   summarizeTokenLedger,
+  tokenDisposableOriginReady,
   tokenLedgerHasTerminalTasks,
 } from '../../lib/r-cd-token-contract.js';
 
 const hash = (value) => createHash('sha256').update(String(value)).digest('hex').slice(0, 16);
 const parentSessionKey = 'agent:main:proof-parent';
 const originTitle = 'RCDT-O-0123456789abcdef';
-const delegateMarker = 'RCDT-D-0123456789abcdef';
+const delegateMarker = 'D-0123456789ab';
 const returnSentinel = 'RCDT-RETURN-0123456789abcdef';
 const originChild = 'agent:main:subagent:origin-child';
 const delegateChild = 'agent:main:subagent:delegate-child';
@@ -44,7 +45,8 @@ function wireTasks(status = 'completed') {
     }),
     taskSummary({
       id: 'delegate-id', runId: 'delegate-run', childSessionKey: delegateChild,
-      title: `[continuation:chain-hop:1] Delegated task (turn 1/50): ${delegateMarker}`,
+      title: `[continuation:chain-hop:1] Delegated from sub-agent (depth 1): ${delegateMarker}`
+        .replace(/\s+/g, ' ').trim().slice(0, 80),
       sessionKey: originChild, parentTaskId: 'origin-id', status,
     }),
   ];
@@ -63,6 +65,7 @@ function completeEvidence(overrides = {}) {
   return {
     ...summarizeTokenLedger(ledger),
     session_created: true,
+    disposable_origin_ready: true,
     prompt_injected: true,
     send_accepted: true,
     send_run_id_hash: hash('send-run'),
@@ -102,7 +105,11 @@ test('accepts the real public TaskSummary shape and normalizes completed status'
 test('bounded public titles are joined by short markers plus requester lineage, not raw task text', () => {
   const ledger = createTokenLedger({ surfaceClass: 'raw-final-text' });
   const tasks = wireTasks();
-  tasks[1].title = tasks[1].title.slice(0, 80);
+  const productionTask = `[continuation:chain-hop:1] Delegated from sub-agent (depth 1): ${delegateMarker} reply exactly ${returnSentinel}`;
+  tasks[1].title = productionTask.replace(/\s+/g, ' ').trim().slice(0, 80);
+  assert.equal('[continuation:chain-hop:1] Delegated from sub-agent (depth 1): '.length, 63);
+  assert.equal(tasks[1].title.length, 80);
+  assert.equal(tasks[1].title.includes(delegateMarker), true);
   observeTokenTaskLedger(ledger, {
     tasks, originTitle, delegateMarker, parentSessionKey, pages: 1, hash,
   });
@@ -115,6 +122,26 @@ test('bounded public titles are joined by short markers plus requester lineage, 
   assert.equal(summarizeTokenLedger(wrongOwner).delegate_task_unique_count, 0);
 });
 
+test('disposable origin gate rejects disabled, failed, missing, and fallback creation', () => {
+  const ready = {
+    creationRequested: true,
+    sessionCreated: true,
+    requestedSessionKey: parentSessionKey,
+    activeSessionKey: 'agent:main:proof-disposable',
+  };
+  assert.equal(tokenDisposableOriginReady(ready), true);
+  for (const overrides of [
+    { creationRequested: false },
+    { sessionCreated: false },
+    { activeSessionKey: '' },
+    { activeSessionKey: parentSessionKey },
+  ]) {
+    let dispatches = 0;
+    if (tokenDisposableOriginReady({ ...ready, ...overrides })) dispatches += 1;
+    assert.equal(dispatches, 0);
+  }
+});
+
 test('duplicate scheduling and parent-task mismatch are deterministic PARTIAL', () => {
   assert.equal(classifyTokenEvidence(completeEvidence({ delegate_task_unique_count: 2 })), 'PARTIAL-candidate');
   assert.equal(classifyTokenEvidence(completeEvidence({ delegate_parent_mismatch: true })), 'PARTIAL-candidate');
@@ -123,6 +150,7 @@ test('duplicate scheduling and parent-task mismatch are deterministic PARTIAL', 
 test('interruption, unstable pagination, missing return, and incomplete identities are PARTIAL', () => {
   for (const overrides of [
     { interrupted: true },
+    { disposable_origin_ready: false },
     { tasks_list_rejected: 1 },
     { task_pagination_exhausted: false },
     { task_snapshot_consistent: false },

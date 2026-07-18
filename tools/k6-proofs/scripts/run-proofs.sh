@@ -307,6 +307,10 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         echo "[$ROW_ID] HONEST-LIMIT-candidate: seat readiness class '$OPENCLAW_SEAT_CLASS' is not scanner-supported raw-final-text; no dispatch occurred."
         continue
       fi
+      # R-CD-TOKEN is never allowed to fall back to the configured/live
+      # session. The scenario independently checks creation success and key
+      # distinctness before it can send the proof prompt.
+      export OPENCLAW_CREATE_DISPOSABLE_SESSION=true
     fi
     PRIVATE_K6_LOG="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-log.XXXXXX")"
     PRIVATE_EVIDENCE_FILE="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-evidence.XXXXXX")"

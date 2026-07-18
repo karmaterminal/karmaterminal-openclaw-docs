@@ -24,6 +24,24 @@ function oneTask(seen) {
   return tasks.length === 1 ? tasks[0] : null;
 }
 
+/**
+ * The token row may dispatch only from a newly-created disposable origin.
+ * Requiring the active key to differ from the configured/requested key keeps a
+ * malformed sessions.create response from silently falling back to a live
+ * operator session.
+ */
+export function tokenDisposableOriginReady({
+  creationRequested,
+  sessionCreated,
+  requestedSessionKey,
+  activeSessionKey,
+}) {
+  const requested = String(requestedSessionKey || '').trim();
+  const active = String(activeSessionKey || '').trim();
+  return creationRequested === true && sessionCreated === true &&
+    requested.length > 0 && active.length > 0 && active !== requested;
+}
+
 function rememberTask({ task, seen, hash }) {
   const id = taskId(task);
   if (!id) return;
@@ -191,6 +209,7 @@ export function classifyTokenEvidence(evidence) {
   ].every((value) => typeof value === 'string' && /^[0-9a-f]{16}$/.test(value));
   const taskStates = evidence.origin_task_status === 'completed' && evidence.delegate_task_status === 'completed';
   const complete = evidence.session_created === true &&
+    evidence.disposable_origin_ready === true &&
     evidence.prompt_injected === true &&
     evidence.send_accepted === true &&
     evidence.origin_subscription_accepted === true &&

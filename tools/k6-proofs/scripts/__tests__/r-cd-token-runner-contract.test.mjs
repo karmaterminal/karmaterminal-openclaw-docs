@@ -12,18 +12,25 @@ test('runner gates exact build and surface identity before token dispatch', asyn
   const buildGate = source.indexOf('openclaw.k6.r-cd-token.build-identity-gate.v1');
   const prepared = source.indexOf('openclaw.k6.r-cd-token.attempt-state.v1');
   const surfaceGate = source.indexOf('pre-dispatch-surface-gate');
+  const disposableGate = source.indexOf('export OPENCLAW_CREATE_DISPOSABLE_SESSION=true');
   const k6 = source.indexOf('k6 run "scenarios/$SCENARIO_FILE"');
-  assert.ok(buildGate > 0 && prepared > buildGate && surfaceGate > prepared && k6 > surfaceGate);
+  assert.ok(buildGate > 0 && prepared > buildGate && surfaceGate > prepared &&
+    disposableGate > surfaceGate && k6 > disposableGate);
   assert.match(source, /OPENCLAW_CANDIDATE_SHA" != "\$OPENCLAW_RUNTIME_BUILD_SHA/);
   assert.match(source, /trap finalize_interrupted_token_run EXIT/);
   assert.match(source, /signal-int/);
   assert.match(source, /signal-term/);
   assert.match(source, /automaticRetryAllowed:false/);
+  assert.match(source, /export OPENCLAW_CREATE_DISPOSABLE_SESSION=true/);
   assert.doesNotMatch(source, /INTERRUPTED_RESULT_WRITER[\s\S]{0,700}>\/dev\/null 2>&1 \|\| true/);
 });
 
 test('scenario paginates the public task ledger and binds a structured return', async () => {
   const source = await read('scenarios/r-cd-token-bracket-delegate.js');
+  const proofFlow = source.indexOf('function startProofFlow()');
+  const disposableCheck = source.indexOf('if (!tokenDisposableOriginReady({', proofFlow);
+  const proofSend = source.indexOf("tracker.send(socket, 'sessions.send'", proofFlow);
+  assert.ok(proofFlow > 0 && disposableCheck > proofFlow && proofSend > disposableCheck);
   assert.match(source, /tasks\.list/);
   assert.match(source, /nextCursor/);
   assert.match(source, /TASK_PAGE_LIMIT = 500/);
@@ -38,6 +45,10 @@ test('scenario paginates the public task ledger and binds a structured return', 
   assert.match(source, /SETTLE_MS/);
   assert.match(source, /OPENCLAW_ROW_NONCE/);
   assert.match(source, /OPENCLAW_PROOF_ATTEMPT_ID/);
+  assert.match(source, /tokenDisposableOriginReady/);
+  assert.match(source, /pre-dispatch-disposable-creation-not-enabled/);
+  assert.match(source, /createdSessionKey && createdSessionKey !== requestedSessionKey/);
+  assert.doesNotMatch(source, /else socket\.setTimeout\(\(\) => startProofFlow\(\)/);
   assert.match(source, /verdict: 'PARTIAL-candidate'/);
   assert.doesNotMatch(source, /JSON\.stringify\(eventData\).*includes/);
 });
@@ -51,6 +62,7 @@ test('manifest required and expected receipt surfaces are identical and fail clo
   assert.equal(manifest.invocation.originSurface, 'raw-final-text');
   assert.equal(manifest.invocation.delaySeconds, 10);
   assert.equal(manifest.liveRunSafety.requiresDisposableSession, true);
+  assert.ok(manifest.scenario.methods.includes('sessions.create'));
 });
 
 test('candidate/report surfaces depend on the signed row-scoped receipt', async () => {

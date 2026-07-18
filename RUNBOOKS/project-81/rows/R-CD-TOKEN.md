@@ -5,7 +5,7 @@
 - Manifest: `tools/k6-proofs/manifests/r-cd-token.json`
 - Scenario: `tools/k6-proofs/scenarios/r-cd-token-bracket-delegate.js`
 - Live safety: `k6-runnable`
-- Same-session concurrency: unsafe unless the manifest explicitly says otherwise; prefer `OPENCLAW_CREATE_DISPOSABLE_SESSION=true`.
+- Same-session concurrency: unsafe. A newly-created disposable origin is mandatory; the row runner forces `OPENCLAW_CREATE_DISPOSABLE_SESSION=true`, and the scenario stops before `sessions.send` unless creation succeeds with a distinct session key.
 
 ## Purpose
 
@@ -42,7 +42,7 @@ When using the GitHub Actions wrapper, include `R-CD-TOKEN` in the `rows` input 
 - The runner records public-safe `k6.log`, `evidence.jsonl`, `evidence-lines.log`, `run-result.json`, summary JSON, row manifest, and metrics artifacts; private acquisition files are transient.
 - Before creating an attempt, the runner requires exact 40-character candidate and runtime SHAs and requires them to be equal. Unknown, abbreviated, or mismatched build identity stops before dispatch as `HONEST-LIMIT-candidate`.
 - The runner persists a hashed attempt/nonce receipt before k6 starts and traps ordinary `INT`/`TERM`/early-exit interruption into a structured `PARTIAL-candidate` packet with automatic retry forbidden.
-- The task ledger is read through every `tasks.list` page. Because the deployed cursor is an offset over a live activity sort, PASS additionally requires at least three identical complete snapshot digests; a repeated task ID within one traversal permanently rejects the attempt. Origin/delegate matching uses short opaque markers that survive the public 80-character `TaskSummary.title` bound, plus requester/child-session lineage; it does not compare private raw task text.
+- The task ledger is read through every `tasks.list` page. Because the deployed cursor is an offset over a live activity sort, PASS additionally requires at least three identical complete snapshot digests; a repeated task ID within one traversal permanently rejects the attempt. Origin/delegate matching uses a 14-character opaque delegate marker placed first in `signal.task`; the exact production chain-hop/depth-1 wrapper is 63 characters, leaving the complete marker plus three characters of margin inside the public 80-character `TaskSummary.title` bound. Requester/child-session lineage remains mandatory; private raw task text is never compared.
 - The return receipt must be a structured `session.message` delivered to the ledger-matched origin child from the ledger-matched delegate child via `sourceTool=subagent_announce`; prompt echoes and unrelated nonce-bearing events do not count.
 - PASS-candidate requires a disposable `raw-final-text` origin, one accepted send run, exactly one origin task, exactly one token-scheduled delegate task, successful child settlement, the bound parent return, and one matching public Tempo dispatch/fire topology with no typed `continue_delegate` tool origin.
 - The k6 summary remains deliberately `PARTIAL-candidate`; only the HMAC-signed row-scoped resolver may promote the joined lifecycle/build/trace evidence to `PASS-candidate`.

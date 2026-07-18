@@ -142,7 +142,8 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
       assert.match(scenario, /reason_hash:\s*hash\(delegateTask\)/);
       assert.match(scenario, /reason_length:\s*delegateTask\.length/);
       assert.match(scenario, /delegate_mode:\s*'normal'/);
-      assert.match(scenario, /promptTemplate\.replace\(\/\\\{\\\{tag\\\}\\\}\/g,/);
+      assert.match(scenario, /replace\(\/\\\{\\\{marker\\\}\\\}\/g,/);
+      assert.match(scenario, /replace\(\/\\\{\\\{tag\\\}\\\}\/g,/);
     } else {
       assert.match(scenario, /reason_hash:\s*null/);
       assert.match(scenario, /reason_length:\s*null/);

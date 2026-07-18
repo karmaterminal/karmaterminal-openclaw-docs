@@ -12,6 +12,7 @@ const metadata = { row: 'R-CD-TOKEN', candidateSha: sha, runtimeBuildSha: sha };
 const evidence = {
   surface_class: 'raw-final-text',
   session_created: true,
+  disposable_origin_ready: true,
   prompt_injected: true,
   send_accepted: true,
   send_run_id_hash: h('1'),
@@ -91,6 +92,7 @@ test('duplicate scheduling, interruption, typed-tool origin, and mismatched reas
   for (const overrides of [
     { evidence: { ...evidence, delegate_task_unique_count: 2 } },
     { evidence: { ...evidence, interrupted: true } },
+    { evidence: { ...evidence, disposable_origin_ready: false } },
     { correlation: { ...correlation, toolSpanIds: [h('f')] } },
     { correlation: { ...correlation, reason: { hash: h('f'), length: 42 } } },
   ]) {

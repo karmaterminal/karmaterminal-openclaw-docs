@@ -91,6 +91,8 @@ export function resolveRcdTokenAuthoritativeReceipt({
         runnerAttempt: attemptState?.attemptIdHash || null,
         nonce: evidence?.row_nonce_hash || null,
         runnerNonce: attemptState?.rowNonceHash || null,
+        sessionCreated: evidence?.session_created === true,
+        disposableOriginReady: evidence?.disposable_origin_ready === true,
         send: evidence?.send_run_id_hash || null,
         origin: evidence?.origin_run_id_hash || null,
         delegate: evidence?.delegate_run_id_hash || null,
@@ -136,6 +138,7 @@ export function resolveRcdTokenAuthoritativeReceipt({
     verdict: 'PASS-candidate',
     lifecycle: {
       surfaceClass: 'raw-final-text',
+      disposableOriginReady: true,
       parserDetected: true,
       exactlyOneOriginTask: true,
       exactlyOneTokenDelegateTask: true,
@@ -188,7 +191,7 @@ export function validateRcdTokenAuthoritativeReceipt(receipt, key) {
   }
   const lifecycle = receipt.lifecycle;
   const requiredTrue = [
-    'parserDetected', 'exactlyOneOriginTask', 'exactlyOneTokenDelegateTask',
+    'disposableOriginReady', 'parserDetected', 'exactlyOneOriginTask', 'exactlyOneTokenDelegateTask',
     'taskLedgerFullyPaginated', 'childCompleted', 'parentReturnObserved',
     'returnBoundToDelegateChild', 'delegateOwnedByOriginChild', 'noTypedToolOrigin',
     'sameTrace', 'sameChain',

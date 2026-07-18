@@ -8,13 +8,14 @@
  * boundary from a disposable worktree. Missing receipts fail closed.
  */
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import {
   existsSync,
   lstatSync,
   mkdirSync,
   readFileSync,
   readdirSync,
-  symlinkSync,
+  realpathSync,
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
@@ -29,6 +30,7 @@ const SOURCE_MARKERS = [
   'src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts',
   'src/agents/command/attempt-execution.ts',
   'package.json',
+  'pnpm-lock.yaml',
 ];
 const TOOL_SURFACE_TEMPLATE = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -38,6 +40,10 @@ const DELEGATE_BOUNDARY_TEMPLATE = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../fixtures/r-cw-6/max-chain-delegate-boundary.test.ts',
 );
+// A candidate must name one fixed pnpm release.  Corepack-style integrity
+// suffixes are allowed only when they begin with `sha`; ranges, tags, and
+// alternate package managers never identify one executable version.
+const EXACT_PNPM_PACKAGE_MANAGER = /^pnpm@((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?)(\+sha[0-9A-Za-z._~+/=-]+)?$/u;
 
 function usage() {
   return `Usage: node tools/k6-proofs/scripts/run-max-chain-fixture.mjs \\
@@ -142,17 +148,236 @@ export function assertSource(sourceDir, candidateSha) {
   for (const marker of SOURCE_MARKERS) {
     if (!existsSync(path.join(resolved, marker))) throw new Error(`source dir is missing ${marker}`);
   }
-  const dependencyDir = path.join(resolved, 'node_modules');
-  if (!existsSync(dependencyDir)) {
-    throw new Error('source dir has no node_modules; fixture refuses to install dependencies or mutate the candidate worktree');
-  }
-  if (lstatSync(dependencyDir).isSymbolicLink()) {
-    throw new Error('source node_modules must be a real directory; fixture refuses an indirect mutable dependency tree');
-  }
   const head = gitHead(resolved);
   if (head !== candidateSha) throw new Error(`candidate/source mismatch: requested ${candidateSha}, source is ${head}`);
   assertTrackedSourceClean(resolved, 'fixture execution');
   return { resolved, head };
+}
+
+function sha256File(file) {
+  return createHash('sha256').update(readFileSync(file)).digest('hex');
+}
+
+function isPathInside(root, target) {
+  return target === root || target.startsWith(`${root}${path.sep}`);
+}
+
+function assertRealFile(file, label) {
+  if (!existsSync(file)) throw new Error(`dependency provenance is missing ${label}`);
+  const stats = lstatSync(file);
+  if (!stats.isFile() || stats.isSymbolicLink()) {
+    throw new Error(`dependency provenance requires ${label} to be a real file`);
+  }
+  return file;
+}
+
+function assertRealDirectory(directory, label) {
+  if (!existsSync(directory)) throw new Error(`dependency provenance is missing ${label}`);
+  const stats = lstatSync(directory);
+  if (!stats.isDirectory() || stats.isSymbolicLink()) {
+    throw new Error(`dependency provenance requires ${label} to be a real directory`);
+  }
+  return directory;
+}
+
+export function parsePinnedPnpmPackageManager(declaration, label = 'candidate package.json packageManager') {
+  if (typeof declaration !== 'string') {
+    throw new Error(`dependency provenance requires ${label} to be an exact pnpm@<semver> declaration`);
+  }
+  const match = EXACT_PNPM_PACKAGE_MANAGER.exec(declaration);
+  if (!match) {
+    throw new Error(
+      `dependency provenance requires ${label} to be exact pnpm@<semver> (optional +sha... suffix only)`,
+    );
+  }
+  return {
+    declaration,
+    version: match[1],
+    integritySuffix: match[2] || '',
+  };
+}
+
+function yamlScalar(raw, field) {
+  // pnpm 11 currently writes `.modules.yaml` as JSON despite the filename;
+  // older trees may still use ordinary YAML scalars. Accept both encodings,
+  // but only return a top-level string value.
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object' && typeof parsed[field] === 'string') {
+      return parsed[field].trim();
+    }
+  } catch {
+    // Fall through to the legacy YAML-scalar form.
+  }
+  const escaped = field.replaceAll(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+  const match = raw.match(new RegExp(`^${escaped}:\\s*(?:"([^"]*)"|'([^']*)'|([^#\\r\\n]*?))\\s*(?:#.*)?$`, 'mu'));
+  if (!match) return null;
+  return (match[1] ?? match[2] ?? match[3] ?? '').trim();
+}
+
+export function assertExecutingPnpmVersion(candidatePackageManager, executingVersion) {
+  if (typeof executingVersion !== 'string' || !/^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/u.test(executingVersion.trim())) {
+    throw new Error('pnpm --version must emit one exact semantic version');
+  }
+  if (executingVersion.trim() !== candidatePackageManager.version) {
+    throw new Error(
+      `executing pnpm version ${executingVersion.trim()} does not equal candidate packageManager version ${candidatePackageManager.version}`,
+    );
+  }
+  return executingVersion.trim();
+}
+
+export function assertInstalledPnpmDependencyTree(worktreeDir, candidatePackageManager) {
+  const dependencyDir = assertRealDirectory(path.join(worktreeDir, 'node_modules'), 'candidate node_modules');
+  const dependencyRealPath = realpathSync(dependencyDir);
+  const candidateLockPath = assertRealFile(path.join(worktreeDir, 'pnpm-lock.yaml'), 'candidate pnpm-lock.yaml');
+  assertRealDirectory(path.join(dependencyDir, '.pnpm'), 'node_modules/.pnpm');
+  const installedLockPath = assertRealFile(
+    path.join(dependencyDir, '.pnpm', 'lock.yaml'),
+    'node_modules/.pnpm/lock.yaml',
+  );
+  const candidateLock = readFileSync(candidateLockPath);
+  const installedLock = readFileSync(installedLockPath);
+  const candidateLockfileSha256 = sha256File(candidateLockPath);
+  const installedLockfileSha256 = sha256File(installedLockPath);
+  if (!candidateLock.equals(installedLock) || candidateLockfileSha256 !== installedLockfileSha256) {
+    throw new Error('installed node_modules/.pnpm/lock.yaml bytes do not match candidate pnpm-lock.yaml');
+  }
+
+  const modulesPath = assertRealFile(path.join(dependencyDir, '.modules.yaml'), 'node_modules/.modules.yaml');
+  const modulesRaw = readFileSync(modulesPath, 'utf8');
+  const installedPackageManagerDeclaration = yamlScalar(modulesRaw, 'packageManager');
+  let installedPackageManager;
+  try {
+    installedPackageManager = parsePinnedPnpmPackageManager(
+      installedPackageManagerDeclaration,
+      'node_modules/.modules.yaml packageManager',
+    );
+  } catch (error) {
+    throw new Error(`dependency provenance rejects installed package manager metadata: ${error.message}`);
+  }
+  if (
+    installedPackageManager.version !== candidatePackageManager.version ||
+    (installedPackageManager.integritySuffix &&
+      installedPackageManager.declaration !== candidatePackageManager.declaration)
+  ) {
+    throw new Error('node_modules/.modules.yaml packageManager is incompatible with candidate packageManager');
+  }
+
+  const virtualStoreDir = yamlScalar(modulesRaw, 'virtualStoreDir');
+  if (!virtualStoreDir || path.isAbsolute(virtualStoreDir) || path.win32.isAbsolute(virtualStoreDir)) {
+    throw new Error('node_modules/.modules.yaml virtualStoreDir must be a relative candidate-local path');
+  }
+  const virtualStorePath = path.resolve(dependencyDir, virtualStoreDir);
+  if (!isPathInside(dependencyDir, virtualStorePath)) {
+    throw new Error('node_modules/.modules.yaml virtualStoreDir escapes candidate node_modules');
+  }
+  assertRealDirectory(virtualStorePath, 'candidate pnpm virtual store');
+  const virtualStoreRealPath = realpathSync(virtualStorePath);
+  if (!isPathInside(dependencyRealPath, virtualStoreRealPath)) {
+    throw new Error('candidate pnpm virtual store resolves outside candidate node_modules');
+  }
+
+  return {
+    candidateLockfileSha256,
+    installedLockfileSha256,
+    lockfileMatchesCandidate: true,
+    installedPackageManager: installedPackageManager.declaration,
+    installedPackageManagerVersion: installedPackageManager.version,
+    virtualStoreDir,
+    virtualStoreContainedWithinCandidateNodeModules: true,
+    dependencyDir,
+    dependencyRealPath,
+  };
+}
+
+export function candidateLocalExecutables(worktreeDir, verifiedDependencyTree) {
+  if (!verifiedDependencyTree?.dependencyRealPath) {
+    throw new Error('candidate-local executable checks require a verified dependency tree');
+  }
+  const dependencyDir = path.join(worktreeDir, 'node_modules');
+  const paths = {};
+  const contract = {};
+  for (const executable of ['tsx', 'vitest']) {
+    const executablePath = path.resolve(dependencyDir, '.bin', executable);
+    if (!existsSync(executablePath)) {
+      throw new Error(`candidate frozen install is missing node_modules/.bin/${executable}`);
+    }
+    const executableRealPath = realpathSync(executablePath);
+    if (!isPathInside(verifiedDependencyTree.dependencyRealPath, executableRealPath)) {
+      throw new Error(`candidate node_modules/.bin/${executable} resolves outside verified dependency tree`);
+    }
+    paths[executable] = executablePath;
+    contract[executable] = {
+      path: `node_modules/.bin/${executable}`,
+      realpathWithinVerifiedDependencyTree: true,
+    };
+  }
+  return { paths, contract };
+}
+
+function assertTrackedCandidateFile(worktreeDir, relativePath) {
+  const file = path.join(worktreeDir, relativePath);
+  if (!existsSync(file)) throw new Error(`candidate worktree is missing ${relativePath}`);
+  const tracked = run('git', ['-C', worktreeDir, 'ls-files', '--error-unmatch', '--', relativePath]);
+  if (!tracked.ok) {
+    throw new Error(`candidate worktree requires committed ${relativePath}`);
+  }
+  return file;
+}
+
+export function assertCandidateWorktree(worktreeDir, candidateSha, phase = 'candidate worktree execution') {
+  const head = gitHead(worktreeDir);
+  if (head !== candidateSha) {
+    throw new Error(`candidate worktree SHA mismatch before ${phase}: expected ${candidateSha}, found ${head}`);
+  }
+  assertTrackedSourceClean(worktreeDir, phase);
+  for (const marker of SOURCE_MARKERS) assertTrackedCandidateFile(worktreeDir, marker);
+  const packageJson = assertRealFile(
+    assertTrackedCandidateFile(worktreeDir, 'package.json'),
+    'candidate package.json',
+  );
+  let packageManager;
+  try {
+    packageManager = parsePinnedPnpmPackageManager(
+      JSON.parse(readFileSync(packageJson, 'utf8')).packageManager,
+    );
+  } catch (error) {
+    throw new Error(`candidate worktree cannot use committed package.json: ${error.message}`);
+  }
+  const lockfile = assertRealFile(
+    assertTrackedCandidateFile(worktreeDir, 'pnpm-lock.yaml'),
+    'candidate pnpm-lock.yaml',
+  );
+  return {
+    head,
+    candidateLockfileSha256: sha256File(lockfile),
+    candidatePackageManager: packageManager,
+  };
+}
+
+export function installCandidateDependencies(worktreeDir, candidatePackageManager, { env = process.env } = {}) {
+  const version = run('pnpm', ['--version'], { cwd: worktreeDir, env });
+  if (!version.ok) {
+    throw new Error(`candidate pnpm --version failed with exit ${version.exitCode}`);
+  }
+  const executingPackageManagerVersion = assertExecutingPnpmVersion(candidatePackageManager, version.stdout.trim());
+  const command = ['pnpm', 'install', '--frozen-lockfile', '--prefer-offline', '--ignore-scripts'];
+  const install = run(command[0], command.slice(1), { cwd: worktreeDir, env });
+  if (!install.ok) {
+    throw new Error(`candidate frozen pnpm install failed with exit ${install.exitCode}`);
+  }
+  return { command, exitCode: install.exitCode, executingPackageManagerVersion };
+}
+
+export function verifyInstalledCandidateDependencies(worktreeDir, candidatePackageManager) {
+  const dependencyProvenance = assertInstalledPnpmDependencyTree(worktreeDir, candidatePackageManager);
+  const localExecutables = candidateLocalExecutables(worktreeDir, dependencyProvenance);
+  return {
+    dependencyProvenance,
+    executables: localExecutables.paths,
+    localExecutableContract: localExecutables.contract,
+  };
 }
 
 export function prepareArtifactDir(input) {
@@ -194,7 +419,7 @@ export function renderToolSurfaceTemplate(template, maxChainLength) {
   return template.replaceAll('__RCW6_MAX_CHAIN_LENGTH__', String(maxChainLength));
 }
 
-export function buildReadiness({ candidateSha, head, maxChainLength }) {
+export function buildReadiness({ candidateSha, head, candidateRuntime, maxChainLength }) {
   return {
     schema: 'openclaw.project81.r-cw-6.fixture-readiness.v1',
     candidateSha,
@@ -204,7 +429,22 @@ export function buildReadiness({ candidateSha, head, maxChainLength }) {
     productionStateTouched: false,
     gatewayStarted: false,
     fixtureKind: 'disposable-exact-candidate-production-runtime-boundary-plus-dispatch-suite',
-    dependencyTree: 'pre-existing-real-source-node_modules-linked-into-disposable-worktree; no-install',
+    dependencyTree: 'candidate-worktree-pnpm-install-frozen-lockfile-prefer-offline-ignore-scripts; lockfile/tree/version-aligned; source-node_modules-ignored',
+    hostToolchainHermetic: false,
+    candidateLockfileSha256: candidateRuntime.candidateLockfileSha256,
+    installedLockfileSha256: candidateRuntime.installedLockfileSha256,
+    lockfileMatchesCandidate: candidateRuntime.lockfileMatchesCandidate,
+    candidatePackageManager: candidateRuntime.candidatePackageManager,
+    candidatePackageManagerVersion: candidateRuntime.candidatePackageManagerVersion,
+    executingPackageManagerVersion: candidateRuntime.executingPackageManagerVersion,
+    installedPackageManager: candidateRuntime.installedPackageManager,
+    installedPackageManagerVersion: candidateRuntime.installedPackageManagerVersion,
+    virtualStoreDir: candidateRuntime.virtualStoreDir,
+    virtualStoreContainedWithinCandidateNodeModules:
+      candidateRuntime.virtualStoreContainedWithinCandidateNodeModules,
+    installCommand: candidateRuntime.installCommand,
+    localExecutableContract: candidateRuntime.localExecutableContract,
+    worktreeIntegrity: candidateRuntime.worktreeIntegrity,
     maxChainLength,
   };
 }
@@ -283,6 +523,49 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
   const rawDelegateReceiptPath = path.join(artifactDir, '.delegate-boundary.raw.json');
   let result;
   try {
+    const candidateBeforeInstall = assertCandidateWorktree(worktreeDir, candidateSha, 'frozen install');
+    const installation = installCandidateDependencies(
+      worktreeDir,
+      candidateBeforeInstall.candidatePackageManager,
+    );
+    // This must be the first candidate-integrity check after `pnpm install`.
+    // The installer is allowed to create ignored dependency files, but never to
+    // change the candidate commit or any tracked candidate content.
+    const candidateAfterInstall = assertCandidateWorktree(
+      worktreeDir,
+      candidateSha,
+      'post-install dependency verification',
+    );
+    const verifiedDependencies = verifyInstalledCandidateDependencies(
+      worktreeDir,
+      candidateBeforeInstall.candidatePackageManager,
+    );
+    const candidateRuntime = {
+      candidateWorktreeHead: candidateBeforeInstall.head,
+      candidateLockfileSha256: candidateBeforeInstall.candidateLockfileSha256,
+      installedLockfileSha256: verifiedDependencies.dependencyProvenance.installedLockfileSha256,
+      lockfileMatchesCandidate: verifiedDependencies.dependencyProvenance.lockfileMatchesCandidate,
+      candidatePackageManager: candidateBeforeInstall.candidatePackageManager.declaration,
+      candidatePackageManagerVersion: candidateBeforeInstall.candidatePackageManager.version,
+      executingPackageManagerVersion: installation.executingPackageManagerVersion,
+      installedPackageManager: verifiedDependencies.dependencyProvenance.installedPackageManager,
+      installedPackageManagerVersion: verifiedDependencies.dependencyProvenance.installedPackageManagerVersion,
+      virtualStoreDir: verifiedDependencies.dependencyProvenance.virtualStoreDir,
+      virtualStoreContainedWithinCandidateNodeModules:
+        verifiedDependencies.dependencyProvenance.virtualStoreContainedWithinCandidateNodeModules,
+      installCommand: installation.command,
+      installExitCode: installation.exitCode,
+      localExecutableContract: verifiedDependencies.localExecutableContract,
+      worktreeIntegrity: {
+        beforeInstall: { headMatchesCandidate: true, trackedClean: true },
+        afterInstall: {
+          headMatchesCandidate: candidateAfterInstall.head === candidateSha,
+          trackedClean: true,
+        },
+        afterProofSurfaces: null,
+      },
+      hostToolchainHermetic: false,
+    };
     const runtimeTestDir = path.join(worktreeDir, 'test', 'r-cw-6-runtime-fixture');
     const delegateTestDir = path.join(worktreeDir, 'test', 'r-cw-6-delegate-fixture');
     mkdirSync(runtimeTestDir, { recursive: true, mode: 0o700 });
@@ -297,13 +580,12 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       renderToolSurfaceTemplate(readFileSync(DELEGATE_BOUNDARY_TEMPLATE, 'utf8'), maxChainLength),
       { mode: 0o600 },
     );
-    symlinkSync(path.join(sourceDir, 'node_modules'), path.join(worktreeDir, 'node_modules'));
     const stateDir = path.join(worktreeDir, '.rcw6-state');
     mkdirSync(stateDir, { recursive: true, mode: 0o700 });
     const isolatedEnv = { ...process.env, OPENCLAW_STATE_DIR: stateDir };
 
     const matrixRun = run(
-      path.join(worktreeDir, 'node_modules', '.bin', 'tsx'),
+      verifiedDependencies.executables.tsx,
       ['--eval', matrixEval(maxChainLength)],
       { cwd: worktreeDir, env: isolatedEnv },
     );
@@ -317,7 +599,7 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
     }
 
     const dispatchRun = run(
-      path.join(worktreeDir, 'node_modules', '.bin', 'vitest'),
+      verifiedDependencies.executables.vitest,
       [
         'run',
         '--config',
@@ -338,7 +620,7 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
     };
 
     const selectedDelegateRun = run(
-      path.join(worktreeDir, 'node_modules', '.bin', 'vitest'),
+      verifiedDependencies.executables.vitest,
       [
         'run',
         '--config',
@@ -357,7 +639,7 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       : null;
 
     const test = run(
-      path.join(worktreeDir, 'node_modules', '.bin', 'vitest'),
+      verifiedDependencies.executables.vitest,
       [
         'run',
         '--config',
@@ -392,6 +674,16 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       selectedDelegateReceipt,
       runtimeReceipt,
       typedReceipt,
+      candidateRuntime,
+    };
+    const candidateAfterProofSurfaces = assertCandidateWorktree(
+      worktreeDir,
+      candidateSha,
+      'all runtime proof surfaces',
+    );
+    candidateRuntime.worktreeIntegrity.afterProofSurfaces = {
+      headMatchesCandidate: candidateAfterProofSurfaces.head === candidateSha,
+      trackedClean: true,
     };
   } finally {
     const remove = run('git', ['-C', sourceDir, 'worktree', 'remove', '--force', worktreeDir]);
@@ -405,12 +697,6 @@ export function runFixture(args) {
   assertArgs(args);
   const { resolved: sourceDir, head } = assertSource(args.sourceDir, args.candidateSha);
   const artifactDir = prepareArtifactDir(args.artifactDir);
-  const readiness = buildReadiness({
-    candidateSha: args.candidateSha,
-    head,
-    maxChainLength: args.maxChainLength,
-  });
-  writeJson(path.join(artifactDir, 'fixture-readiness.json'), readiness);
 
   const runtimeSurface = runDisposableToolSurface({
     sourceDir,
@@ -418,6 +704,32 @@ export function runFixture(args) {
     artifactDir,
     maxChainLength: args.maxChainLength,
   });
+  const readiness = buildReadiness({
+    candidateSha: args.candidateSha,
+    head,
+    candidateRuntime: runtimeSurface.candidateRuntime,
+    maxChainLength: args.maxChainLength,
+  });
+  writeJson(path.join(artifactDir, 'fixture-readiness.json'), readiness);
+  const candidateRuntimeReceipt = {
+    candidateWorktreeHead: runtimeSurface.candidateRuntime.candidateWorktreeHead,
+    candidateLockfileSha256: runtimeSurface.candidateRuntime.candidateLockfileSha256,
+    installedLockfileSha256: runtimeSurface.candidateRuntime.installedLockfileSha256,
+    lockfileMatchesCandidate: runtimeSurface.candidateRuntime.lockfileMatchesCandidate,
+    candidatePackageManager: runtimeSurface.candidateRuntime.candidatePackageManager,
+    candidatePackageManagerVersion: runtimeSurface.candidateRuntime.candidatePackageManagerVersion,
+    executingPackageManagerVersion: runtimeSurface.candidateRuntime.executingPackageManagerVersion,
+    installedPackageManager: runtimeSurface.candidateRuntime.installedPackageManager,
+    installedPackageManagerVersion: runtimeSurface.candidateRuntime.installedPackageManagerVersion,
+    virtualStoreDir: runtimeSurface.candidateRuntime.virtualStoreDir,
+    virtualStoreContainedWithinCandidateNodeModules:
+      runtimeSurface.candidateRuntime.virtualStoreContainedWithinCandidateNodeModules,
+    installCommand: runtimeSurface.candidateRuntime.installCommand,
+    installExitCode: runtimeSurface.candidateRuntime.installExitCode,
+    localExecutableContract: runtimeSurface.candidateRuntime.localExecutableContract,
+    worktreeIntegrity: runtimeSurface.candidateRuntime.worktreeIntegrity,
+    hostToolchainHermetic: runtimeSurface.candidateRuntime.hostToolchainHermetic,
+  };
   const matrixRun = runtimeSurface.matrixRun;
   const matrix = runtimeSurface.matrix;
   const matrixPassed = Boolean(
@@ -438,6 +750,7 @@ export function runFixture(args) {
     command: ['node_modules/.bin/tsx', '--eval', '<production-module-eval>'],
     exitCode: matrixRun.exitCode,
     exactCandidateDisposableWorktree: true,
+    ...candidateRuntimeReceipt,
   };
   writeJson(path.join(artifactDir, 'boundary-matrix.json'), boundaryMatrixReceipt);
 
@@ -497,6 +810,7 @@ export function runFixture(args) {
       asserted: dispatchAssertions,
     },
     exactCandidateDisposableWorktree: true,
+    ...candidateRuntimeReceipt,
   };
   writeJson(path.join(artifactDir, 'dispatch-boundary-suite.json'), dispatchBoundaryReceipt);
   const runtimeReceipt = runtimeSurface.runtimeReceipt;
@@ -539,12 +853,14 @@ export function runFixture(args) {
     ...runtimeReceipt,
     passed: structuredReceiptPassed,
     fixtureKind: 'production-scheduleContinuationWorkBatch-plus-recovered-scheduleContinuationWork',
+    ...candidateRuntimeReceipt,
   };
   const durableStateRecoveryReceipt = {
     schema: 'openclaw.project81.r-cw-6.durable-state-recovery.v1',
     passed: durableRecoveryPassed,
     configuredMaximum: args.maxChainLength,
     ...runtimeReceipt?.durableState,
+    ...candidateRuntimeReceipt,
   };
   const typedToolSurfaceReceipt = {
     ...typedReceipt,
@@ -555,6 +871,7 @@ export function runFixture(args) {
     sourceDirMutated: false,
     disposableWorktreeCreated: true,
     disposableWorktreeRemoved: runtimeSurface.disposableWorktreeRemoved,
+    ...candidateRuntimeReceipt,
   };
   writeJson(path.join(artifactDir, 'runtime-boundary.json'), runtimeBoundaryReceipt);
   writeJson(path.join(artifactDir, 'durable-state-recovery.json'), durableStateRecoveryReceipt);
@@ -586,6 +903,7 @@ export function runFixture(args) {
     disposableWorktreeRemoved: runtimeSurface.disposableWorktreeRemoved,
     cleanupRequired: false,
     result: 'disposable process-local fixture left no gateway/config/fleet-state process to restore',
+    ...candidateRuntimeReceipt,
   };
   writeJson(path.join(artifactDir, 'cleanup.json'), cleanupReceipt);
   const result = {
@@ -593,6 +911,7 @@ export function runFixture(args) {
     verdict,
     candidateSha: args.candidateSha,
     maxChainLength: args.maxChainLength,
+    dependencyProvenance: candidateRuntimeReceipt,
     receipts: {
       fixtureReadiness: 'fixture-readiness.json',
       boundaryMatrix: 'boundary-matrix.json',
@@ -612,6 +931,19 @@ export function runFixture(args) {
       durableRecoveryPassed,
       typedSurfacePassed,
       exactCandidateDisposableWorktree: runtimeSurface.disposableWorktreeRemoved,
+      candidatePackageManagerVersionMatchesExecuting:
+        candidateRuntimeReceipt.candidatePackageManagerVersion ===
+        candidateRuntimeReceipt.executingPackageManagerVersion,
+      installedLockMatchesCandidate: candidateRuntimeReceipt.lockfileMatchesCandidate,
+      verifiedDependencyTreeContainsLocalExecutables: Object.values(
+        candidateRuntimeReceipt.localExecutableContract,
+      ).every((contract) => contract.realpathWithinVerifiedDependencyTree === true),
+      worktreeIntegrityAfterInstall:
+        candidateRuntimeReceipt.worktreeIntegrity.afterInstall.headMatchesCandidate === true &&
+        candidateRuntimeReceipt.worktreeIntegrity.afterInstall.trackedClean === true,
+      worktreeIntegrityAfterProofSurfaces:
+        candidateRuntimeReceipt.worktreeIntegrity.afterProofSurfaces?.headMatchesCandidate === true &&
+        candidateRuntimeReceipt.worktreeIntegrity.afterProofSurfaces?.trackedClean === true,
       publicArtifactsSafe: true,
     },
   };

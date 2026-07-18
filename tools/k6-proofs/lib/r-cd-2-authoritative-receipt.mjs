@@ -53,7 +53,7 @@ function evidencePasses(evidence) {
     evidence?.typed_delegate_success_same_run === true &&
     evidence?.wake_lifecycle_observed === true &&
     evidence?.post_wake_quiet === true &&
-    evidence?.channel_delivery_observed === false &&
+    evidence?.channel_message_observed === false &&
     evidence?.dispatch_failure_observed !== true &&
     hex(evidence?.send_run_fingerprint, 16) &&
     hex(evidence?.row_nonce_fingerprint, 16) &&

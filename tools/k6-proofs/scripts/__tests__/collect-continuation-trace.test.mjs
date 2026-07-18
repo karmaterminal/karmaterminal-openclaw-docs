@@ -291,7 +291,7 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
       typed_delegate_success_same_run: true,
       wake_lifecycle_observed: true,
       post_wake_quiet: true,
-      channel_delivery_observed: false,
+      channel_message_observed: false,
       dispatch_failure_observed: false,
     },
   });

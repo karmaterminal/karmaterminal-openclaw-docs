@@ -12,6 +12,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EVIDENCE_EXTRACTOR="$SCRIPT_DIR/extract-k6-evidence.mjs"
 CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
+R_CD_2_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-2-authoritative-receipt.mjs"
 ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
 CANDIDATE_RESULT_VALIDATOR="$SCRIPT_DIR/validate-candidate-run-result.mjs"
 PRIVATE_K6_LOG=""
@@ -447,6 +448,33 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       )"
     fi
 
+    # R-CD-2 owns one candidate verdict surface.  Its scenario deliberately
+    # emits PARTIAL; only this resolver may join its private accepted-run
+    # lifecycle with the matching continuation trace/chain receipt.
+    R_CD_2_RECEIPT=""
+    R_CD_2_RECEIPT_SHA256=""
+    if [[ "$ROW_ID" == "R-CD-2" ]]; then
+      R_CD_2_RECEIPT="r-cd-2-authoritative-receipt.json"
+      RESOLVER_ARGS=(--run-dir "$RUN_DIR" --evidence "$PRIVATE_EVIDENCE_FILE")
+      if [[ -n "$CORRELATION_RECEIPT_PATH" && -f "$CORRELATION_RECEIPT_PATH" ]]; then
+        RESOLVER_ARGS+=(--correlation "$CORRELATION_RECEIPT_PATH")
+      fi
+      if node "$R_CD_2_RECEIPT_RESOLVER" "${RESOLVER_ARGS[@]}" > "$RUN_DIR/r-cd-2-authoritative-resolution.json"; then
+        # The row-list runner itself—not only the writer/postprocessor path—must
+        # carry the signed receipt declaration into run-result.json.  Candidate
+        # routing verifies this digest before it can publish an R-CD-2 envelope.
+        R_CD_2_RECEIPT_SHA256="$(node --input-type=module -e 'import { createHash } from "node:crypto"; import { readFileSync } from "node:fs"; process.stdout.write(createHash("sha256").update(readFileSync(process.argv[1])).digest("hex"));' "$RUN_DIR/$R_CD_2_RECEIPT")"
+        SUMMARY_VERDICT="$(jq -r '.verdict // "PARTIAL-candidate"' "$RUN_DIR/$R_CD_2_RECEIPT")"
+        SUMMARY_VERDICT_SOURCE="r-cd-2-authoritative-receipt"
+        SUMMARY_FILE_VERDICT="$SUMMARY_VERDICT"
+        VU_LOG_VERDICT=""
+      else
+        SUMMARY_VERDICT="PARTIAL-candidate"
+        SUMMARY_VERDICT_SOURCE="r-cd-2-authoritative-receipt-missing"
+        POSTPROCESS_RC=1
+      fi
+    fi
+
     if ! node "$ARTIFACT_SANITIZER" \
       --input "$PRIVATE_EVIDENCE_FILE" \
       --out "$RUN_DIR/evidence.jsonl" \
@@ -471,6 +499,22 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       [[ -f "$RUN_DIR/evidence-lines.log" ]] || : > "$RUN_DIR/evidence-lines.log"
     else
       rm -f "$RUN_DIR/evidence-redaction.error.log"
+    fi
+    if [[ "$ROW_ID" == "R-CD-2" && -f "$RUN_DIR/$R_CD_2_RECEIPT" ]]; then
+      # Provider/RPC/journal capture remains private for this row.  The signed,
+      # allowlisted receipt is the sole public candidate evidence and the sole
+      # verdict authority; raw trace and correlation inputs are not exported.
+      jq -cn --arg verdict "$SUMMARY_VERDICT" --arg receipt "$R_CD_2_RECEIPT" \
+        '{row:"R-CD-2", verdict:$verdict, authoritativeReceipt:$receipt}' > "$RUN_DIR/evidence.jsonl"
+      printf '%s\n' 'R-CD-2 private acquisition withheld; inspect the authoritative receipt.' > "$RUN_DIR/evidence-lines.log"
+      printf '%s\n' 'R-CD-2 private k6 acquisition withheld; inspect the authoritative receipt.' > "$RUN_DIR/k6.log"
+      printf '%s\n' 'R-CD-2 private gateway acquisition withheld; inspect the authoritative receipt.' > "$RUN_DIR/gateway-journal.log"
+      rm -f "$TEMPO_TRACE_PATH" "$CORRELATION_RECEIPT_PATH"
+      TRACE_ID=""
+      TEMPO_TRACE_JSON=""
+      CORRELATION_RECEIPT=""
+      CORRELATION_RECEIPT_PATH=""
+      TRACE_STATUS="r-cd-2-authoritative-receipt"
     fi
     cat "$RUN_DIR/k6.log"
     rm -f "$PRIVATE_K6_LOG" "$PRIVATE_EVIDENCE_FILE" "$PRIVATE_GATEWAY_LOG"
@@ -500,6 +544,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg traceId "$TRACE_ID" \
       --arg tempoTraceJson "$TEMPO_TRACE_JSON" \
       --arg correlationReceipt "$CORRELATION_RECEIPT" \
+      --arg lifecycleReceipt "$R_CD_2_RECEIPT" \
+      --arg authoritativeReceiptSha256 "$R_CD_2_RECEIPT_SHA256" \
       --arg serviceLogStatus "$GATEWAY_JOURNAL_STATUS" \
       --arg verdict "$SUMMARY_VERDICT" \
       --arg verdictSource "$SUMMARY_VERDICT_SOURCE" \
@@ -508,7 +554,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --argjson summaryFiles "$SUMMARY_FILES_JSON" \
       --argjson evidence "$EVIDENCE_JSON" \
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
-      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
+      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, authoritativeReceipt:(if $authoritativeReceiptSha256 == "" then null else {file:"r-cd-2-authoritative-receipt.json", sha256:$authoritativeReceiptSha256, validated:true, source:"r-cd-2-row-scoped-resolver"} end), observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
     # A review-complete candidate can now receive a public-safe routing
     # envelope. Review-pending runs intentionally remain represented only by

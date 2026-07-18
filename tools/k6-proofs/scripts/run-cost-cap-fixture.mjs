@@ -10,7 +10,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
@@ -100,6 +100,51 @@ function fileSha256(file) {
   return createHash('sha256').update(readFileSync(file)).digest('hex');
 }
 
+function isInside(child, parent) {
+  const relative = path.relative(parent, child);
+  return relative !== '' && !relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative);
+}
+
+function requireCandidatePackageManager(worktreeDir) {
+  const packageJson = JSON.parse(readFileSync(path.join(worktreeDir, 'package.json'), 'utf8'));
+  const packageManager = packageJson?.packageManager;
+  const match = typeof packageManager === 'string' && /^pnpm@(\d+\.\d+\.\d+)(?:\+sha512\.[a-f0-9]+)?$/u.exec(packageManager);
+  if (!match) throw new Error('candidate package.json must pin pnpm with an exact packageManager version');
+  return { packageManager, pnpmVersion: match[1] };
+}
+
+// The fixture must not let a caller-provided PATH substitute its package
+// manager.  pnpm is installed alongside this Node runtime in our supported
+// runner image; invoke that immutable script through process.execPath and
+// compare its version with the candidate's committed packageManager pin.
+export function resolvePinnedPnpm(worktreeDir) {
+  const { packageManager, pnpmVersion } = requireCandidatePackageManager(worktreeDir);
+  const nodePrefix = path.resolve(path.dirname(process.execPath), '..');
+  const pnpmScript = path.join(nodePrefix, 'lib', 'node_modules', 'pnpm', 'bin', 'pnpm.cjs');
+  if (!existsSync(pnpmScript) || !lstatSync(pnpmScript).isFile() || lstatSync(pnpmScript).isSymbolicLink()) {
+    throw new Error('runner has no real Node-local pnpm script for the candidate packageManager pin');
+  }
+  const resolvedPnpmScript = realpathSync(pnpmScript);
+  const versionResult = run(process.execPath, [resolvedPnpmScript, '--version'], { cwd: worktreeDir });
+  if (!versionResult.ok) throw new Error(`cannot execute Node-local pnpm for candidate packageManager pin: ${versionResult.stderr.trim()}`);
+  const version = versionResult.stdout.trim();
+  if (version !== pnpmVersion) {
+    throw new Error(`runner pnpm version ${version || '<missing>'} does not match candidate pin ${pnpmVersion}`);
+  }
+  return { packageManager, pnpmVersion, pnpmScript: resolvedPnpmScript };
+}
+
+function resolveCandidateLocalExecutable(worktreeDir, name) {
+  const nodeModules = realpathSync(path.join(worktreeDir, 'node_modules'));
+  const bin = path.join(worktreeDir, 'node_modules', '.bin', name);
+  if (!existsSync(bin)) throw new Error(`candidate-local ${name} executable is missing after frozen install`);
+  const executable = realpathSync(bin);
+  if (!isInside(executable, nodeModules)) {
+    throw new Error(`candidate-local ${name} executable resolves outside disposable node_modules`);
+  }
+  return executable;
+}
+
 function trackedSourceStatus(sourceDir) {
   const result = run('git', ['-C', sourceDir, 'status', '--porcelain', '--untracked-files=no'], {});
   if (!result.ok) throw new Error(`cannot inspect tracked source state: ${result.stderr.trim()}`);
@@ -113,6 +158,25 @@ export function assertTrackedSourceClean(sourceDir, phase) {
       `candidate source has tracked staged or unstaged changes before ${phase}; refusing exact-source certification`,
     );
   }
+}
+
+export function assertCandidateWorktreeIntegrity(worktreeDir, candidateSha, phase) {
+  const head = gitHead(worktreeDir);
+  if (head !== candidateSha) {
+    throw new Error(`disposable candidate HEAD changed before ${phase}: expected ${candidateSha}, found ${head}`);
+  }
+  assertTrackedSourceClean(worktreeDir, phase);
+  const candidateFiles = ['package.json', 'pnpm-lock.yaml'];
+  const fileHashes = {};
+  for (const file of candidateFiles) {
+    const actual = fileSha256(path.join(worktreeDir, file));
+    const committed = run('git', ['-C', worktreeDir, 'show', `${candidateSha}:${file}`], {});
+    if (!committed.ok) throw new Error(`cannot read committed ${file} from candidate ${candidateSha}`);
+    const expected = createHash('sha256').update(committed.stdout).digest('hex');
+    if (actual !== expected) throw new Error(`disposable candidate ${file} differs from committed ${candidateSha} before ${phase}`);
+    fileHashes[file] = actual;
+  }
+  return { head, trackedClean: true, candidateFileSha256: fileHashes };
 }
 
 export function assertSource(sourceDir, candidateSha) {
@@ -208,7 +272,7 @@ function parseLastJson(stdout, label) {
   return JSON.parse(line);
 }
 
-function runToolSurface({ worktreeDir, cap }) {
+function runToolSurface({ worktreeDir, cap, vitestExecutable }) {
   if (!existsSync(TOOL_SURFACE_TEMPLATE)) {
     throw new Error(`tool-surface template missing: ${TOOL_SURFACE_TEMPLATE}`);
   }
@@ -220,8 +284,8 @@ function runToolSurface({ worktreeDir, cap }) {
     { mode: 0o600 },
   );
   const test = run(
-    path.join(worktreeDir, 'node_modules', '.bin', 'vitest'),
-    ['run', '--config', 'test/vitest/vitest.auto-reply.config.ts', '--dir', 'test/r-cw-5-fixture', '--reporter=verbose'],
+    process.execPath,
+    [vitestExecutable, 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts', '--dir', 'test/r-cw-5-fixture', '--reporter=verbose'],
     { cwd: worktreeDir },
   );
   return {
@@ -237,44 +301,67 @@ function runToolSurface({ worktreeDir, cap }) {
 
 function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, cap, sourceLockfileSha256 }) {
   const worktreeDir = path.join(artifactDir, `.r-cw-5-verified-${process.pid}-${Date.now()}`);
+  const cleanup = { disposableWorktreeCreated: false, disposableWorktreeRemoved: false };
   const add = run('git', ['-C', sourceDir, 'worktree', 'add', '--detach', worktreeDir, candidateSha], {});
   if (!add.ok) throw new Error(`cannot create disposable candidate worktree: ${add.stderr.trim()}`);
+  cleanup.disposableWorktreeCreated = true;
   try {
-    const lockfileSha256 = fileSha256(path.join(worktreeDir, 'pnpm-lock.yaml'));
+    const beforeInstall = assertCandidateWorktreeIntegrity(worktreeDir, candidateSha, 'dependency install');
+    const lockfileSha256 = beforeInstall.candidateFileSha256['pnpm-lock.yaml'];
     if (lockfileSha256 !== sourceLockfileSha256) {
       throw new Error('disposable candidate lockfile does not match the verified source lockfile');
     }
-    const install = run('pnpm', ['install', '--frozen-lockfile', '--prefer-offline'], { cwd: worktreeDir });
+    const packageManager = resolvePinnedPnpm(worktreeDir);
+    const install = run(
+      process.execPath,
+      [packageManager.pnpmScript, 'install', '--frozen-lockfile', '--prefer-offline', '--ignore-scripts'],
+      { cwd: worktreeDir },
+    );
     if (!install.ok) throw new Error(`frozen-lockfile install failed: ${install.stderr.trim()}`);
     const dependencyDir = path.join(worktreeDir, 'node_modules');
     if (!existsSync(dependencyDir) || !lstatSync(dependencyDir).isDirectory() || lstatSync(dependencyDir).isSymbolicLink()) {
       throw new Error('frozen-lockfile install did not create a real disposable node_modules directory');
     }
-    const matrixRun = run('pnpm', ['exec', 'tsx', '--eval', matrixEval(cap)], { cwd: worktreeDir });
+    const virtualStoreLock = path.join(worktreeDir, 'node_modules', '.pnpm', 'lock.yaml');
+    if (!existsSync(virtualStoreLock) || fileSha256(virtualStoreLock) !== lockfileSha256) {
+      throw new Error('disposable pnpm virtual-store lock does not byte-match the committed candidate lockfile');
+    }
+    const afterInstall = assertCandidateWorktreeIntegrity(worktreeDir, candidateSha, 'proof execution after install');
+    const tsxExecutable = resolveCandidateLocalExecutable(worktreeDir, 'tsx');
+    const vitestExecutable = resolveCandidateLocalExecutable(worktreeDir, 'vitest');
+    const matrixRun = run(process.execPath, [tsxExecutable, '--eval', matrixEval(cap)], { cwd: worktreeDir });
     const matrix = matrixRun.ok ? parseLastJson(matrixRun.stdout, 'boundary matrix') : null;
     const dispatchRun = run(
-      'pnpm',
+      process.execPath,
       [
-        'vitest', 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts',
+        vitestExecutable, 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts',
         'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts', '--reporter=verbose',
       ],
       { cwd: worktreeDir },
     );
+    const afterExecution = assertCandidateWorktreeIntegrity(worktreeDir, candidateSha, 'final receipt emission');
     return {
       matrixRun,
       matrix,
       dispatchRun,
-      toolSurface: runToolSurface({ worktreeDir, cap }),
+      toolSurface: runToolSurface({ worktreeDir, cap, vitestExecutable }),
       dependency: {
-        installCommand: ['pnpm', 'install', '--frozen-lockfile', '--prefer-offline'],
+        packageManager: packageManager.packageManager,
+        pnpmVersion: packageManager.pnpmVersion,
+        installCommand: ['node', '<node-local-pnpm>', 'install', '--frozen-lockfile', '--prefer-offline', '--ignore-scripts'],
         lockfileSha256,
+        virtualStoreLockSha256: fileSha256(virtualStoreLock),
         frozenLockfileVerified: true,
         sourceNodeModulesTrusted: false,
+        executionWorktreeIntegrity: { beforeInstall, afterInstall, afterExecution },
+        cleanup,
       },
     };
   } finally {
     const remove = run('git', ['-C', sourceDir, 'worktree', 'remove', '--force', worktreeDir], {});
     if (!remove.ok) throw new Error(`cannot remove disposable candidate worktree: ${remove.stderr.trim()}`);
+    if (existsSync(worktreeDir)) throw new Error('disposable candidate worktree still exists after cleanup');
+    cleanup.disposableWorktreeRemoved = true;
   }
 }
 
@@ -305,7 +392,7 @@ export function runFixture(args) {
     cap: args.cap,
     passed: matrixPassed,
     ...(matrix || {}),
-    command: ['pnpm', 'exec', 'tsx', '--eval', '<production-module-eval>'],
+    command: ['node', '<candidate-local-tsx>', '--eval', '<production-module-eval>'],
     exitCode: matrixRun.exitCode,
     dependency: verified.dependency,
   });
@@ -324,7 +411,7 @@ export function runFixture(args) {
     schema: 'openclaw.project81.r-cw-5.dispatch-boundary-suite.v1',
     passed: dispatchPassed,
     exitCode: dispatchRun.exitCode,
-    command: ['pnpm', 'vitest', 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts', 'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts', '--reporter=verbose'],
+    command: ['node', '<candidate-local-vitest>', 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts', 'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts', '--reporter=verbose'],
     // Test names, not raw logs, are public-safe and pin the no-spawn/cascade
     // assertion without copying arbitrary candidate output into the corpus.
     asserted: dispatchAssertions,
@@ -350,7 +437,7 @@ export function runFixture(args) {
   // sourceDir. A matching HEAD is not enough if tracked files were altered
   // while they ran, so refuse to emit a final exact-source receipt unless the
   // candidate is still clean after every production-surface check.
-  assertTrackedSourceClean(sourceDir, 'final cleanup/result receipt');
+  const finalSource = assertSource(sourceDir, args.candidateSha);
 
   const verdict = matrixPassed && dispatchPassed && toolSurfacePassed ? 'PASS-candidate' : 'FAIL-fixture';
   const result = {
@@ -372,6 +459,10 @@ export function runFixture(args) {
     productionConfigTouched: false,
     productionStateTouched: false,
     sourceMutated: false,
+    sourceHeadMatchesCandidateAfter: finalSource.head === args.candidateSha,
+    sourceTrackedCleanAfter: true,
+    executionWorktreeIntegrity: verified.dependency.executionWorktreeIntegrity,
+    disposableWorktreeRemoved: verified.dependency.cleanup.disposableWorktreeRemoved,
     cleanupRequired: false,
     result: 'source-only fixture left no gateway/config/state process to restore',
   });

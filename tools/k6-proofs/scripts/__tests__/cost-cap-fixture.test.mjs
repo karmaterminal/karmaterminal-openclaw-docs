@@ -3,13 +3,15 @@ import assert from 'node:assert/strict';
 
 import {
   assertSource,
+  assertCandidateWorktreeIntegrity,
   assertTrackedSourceClean,
   buildReadiness,
   parseArgs,
   prepareArtifactDir,
+  resolvePinnedPnpm,
   renderToolSurfaceTemplate,
 } from '../run-cost-cap-fixture.mjs';
-import { mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
@@ -99,6 +101,44 @@ test('R-CW-5 fixture refuses staged or unstaged tracked candidate changes', asyn
   );
 });
 
+test('R-CW-5 fixture rechecks committed candidate files after disposable worktree mutation', async () => {
+  const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-worktree-integrity-'));
+  await writeFile(path.join(worktree, 'package.json'), '{"packageManager":"pnpm@11.2.2"}\n');
+  await writeFile(path.join(worktree, 'pnpm-lock.yaml'), 'lockfileVersion: "9.0"\n');
+  execFileSync('git', ['init'], { cwd: worktree, stdio: 'ignore' });
+  execFileSync('git', ['config', 'user.email', 'proof@example.invalid'], { cwd: worktree });
+  execFileSync('git', ['config', 'user.name', 'R-CW-5 fixture test'], { cwd: worktree });
+  execFileSync('git', ['add', 'package.json', 'pnpm-lock.yaml'], { cwd: worktree });
+  execFileSync('git', ['commit', '-m', 'candidate'], { cwd: worktree, stdio: 'ignore' });
+  const candidateSha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: worktree, encoding: 'utf8' }).trim();
+
+  assert.doesNotThrow(() => assertCandidateWorktreeIntegrity(worktree, candidateSha, 'proof execution after install'));
+  await writeFile(path.join(worktree, 'package.json'), '{"packageManager":"pnpm@0.0.0"}\n');
+  assert.throws(
+    () => assertCandidateWorktreeIntegrity(worktree, candidateSha, 'final receipt emission'),
+    /tracked staged or unstaged changes|differs from committed/,
+  );
+});
+
+test('R-CW-5 fixture ignores a fake PATH pnpm and verifies the committed pin', async () => {
+  const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-pinned-pnpm-'));
+  const actualVersion = execFileSync('pnpm', ['--version'], { encoding: 'utf8' }).trim();
+  await writeFile(path.join(worktree, 'package.json'), `{"packageManager":"pnpm@${actualVersion}"}\n`);
+  const fakeBin = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-fake-pnpm-'));
+  const fakePnpm = path.join(fakeBin, 'pnpm');
+  await writeFile(fakePnpm, '#!/bin/sh\necho FAKE-PNPM-RAN >&2\nexit 97\n');
+  await chmod(fakePnpm, 0o700);
+  const priorPath = process.env.PATH;
+  try {
+    process.env.PATH = fakeBin;
+    const pinned = resolvePinnedPnpm(worktree);
+    assert.equal(pinned.pnpmVersion, actualVersion);
+    assert.match(pinned.packageManager, new RegExp(`^pnpm@${actualVersion.replaceAll('.', '\\.')}`));
+  } finally {
+    process.env.PATH = priorPath;
+  }
+});
+
 test('R-CW-5 typed tool-surface template asserts no durable work after exhausted elections', async () => {
   const template = await readFile(
     fileURLToPath(new URL('../../fixtures/r-cw-5/cost-cap-tool-surface.test.ts', import.meta.url)),
@@ -141,7 +181,13 @@ test('R-CW-5 executes only in a disposable frozen-lockfile dependency tree', asy
     fileURLToPath(new URL('../run-cost-cap-fixture.mjs', import.meta.url)),
     'utf8',
   );
-  assert.match(runner, /pnpm', \['install', '--frozen-lockfile', '--prefer-offline'\]/);
+  assert.match(runner, /resolvePinnedPnpm/);
+  assert.match(runner, /--ignore-scripts/);
+  assert.match(runner, /resolveCandidateLocalExecutable\(worktreeDir, 'tsx'\)/);
+  assert.match(runner, /resolveCandidateLocalExecutable\(worktreeDir, 'vitest'\)/);
+  assert.match(runner, /assertCandidateWorktreeIntegrity\(worktreeDir, candidateSha, 'proof execution after install'\)/);
+  assert.match(runner, /assertCandidateWorktreeIntegrity\(worktreeDir, candidateSha, 'final receipt emission'\)/);
+  assert.doesNotMatch(runner, /run\('pnpm'/);
   assert.match(runner, /sourceNodeModulesTrusted: false/);
   assert.doesNotMatch(runner, /symlinkSync\(path\.join\(sourceDir, 'node_modules'\)/);
 });

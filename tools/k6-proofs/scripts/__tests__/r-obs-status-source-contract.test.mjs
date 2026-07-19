@@ -135,6 +135,19 @@ export function later(params: { value: number }): string | undefined {
   );
 });
 
+test('balanced extraction cannot borrow a matching signature from a body comment', () => {
+  const source = `
+export function target(value): boolean {
+  // ): string | undefined {
+  return "WRONG-SIGNATURE-ACCEPTED";
+}
+`;
+  assert.throws(
+    () => extractExportedFunctionBody(source, 'target', '): string | undefined {'),
+    /signature marker was not found/,
+  );
+});
+
 test('balanced extraction fails closed on an unterminated body', () => {
   const unterminated = `
 export function target(params: { value: number }): string | undefined {

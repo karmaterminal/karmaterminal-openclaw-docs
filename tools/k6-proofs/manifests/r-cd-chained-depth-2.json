@@ -61,12 +61,12 @@
     {
       "name": "grandchild-returns",
       "required": true,
-      "description": "GRANDCHILD-DONE sentinel observed after dispatch acceptance gate"
+      "description": "A nonce-bound grandchild identity and exact GRANDCHILD-DONE sentinel are observed after dispatch acceptance"
     },
     {
       "name": "parent-receives-chain-return",
       "required": true,
-      "description": "Parent session receives nonce-correlated, non-harness chained return evidence"
+      "description": "The exact root session receives GRANDCHILD-DONE {{nonce}} as a structured role=system return event, bound to distinct child and grandchild identities"
     },
     {
       "name": "trace-id",
@@ -84,7 +84,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Depth-2 chain proof. PASS-candidate requires post-dispatch, non-harness CHILD-DONE and GRANDCHILD-DONE sentinels (strict evidence gate). Ignore prompt-echo events from the original [k6-proof-harness] instruction. Chain depth limit enforcement tested implicitly (depth-2 should succeed; gateway caps apply). tasks.list remains optional context because continue_delegate uses pending-delegate/subagent surfaces, not the generic task registry."
+    "notes": "Depth-2 chain proof. PASS-candidate requires strict child/grandchild sentinels, two distinct nonce-bound hop identities, and an explicit role=system GRANDCHILD-DONE {{nonce}} receipt in the exact root session. Grandchild assistant output alone is not return authority."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -105,6 +105,6 @@
       "trace-id"
     ],
     "foldRequiresReview": true,
-    "notes": "Live depth-2 chain row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability so the proof does not touch the live #sprites/main Discord lane. Serialize per target session (sameSessionConcurrencySafe=false). Detector must ignore [k6-proof-harness] prompt echo; only post-dispatch sentinel evidence counts."
+    "notes": "Live depth-2 chain row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Detector ignores prompt echoes and ordinary GRANDCHILD-DONE assistant output; PASS requires distinct hop identities plus the exact root role=system return receipt."
   }
 }

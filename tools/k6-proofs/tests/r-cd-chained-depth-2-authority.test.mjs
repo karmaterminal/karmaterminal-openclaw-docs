@@ -69,6 +69,18 @@ test('depth-2 chain rejects prompt echoes and nonce-prefix lookalikes', () => {
   }), null);
 });
 
+test('depth-2 chain rejects a marker present only in sibling or nested metadata', () => {
+  const eventData = systemEvent('unrelated root system message');
+  eventData.metadata = { returnMarker: `GRANDCHILD-DONE ${nonce}` };
+  eventData.message.metadata = { echoedMarker: `GRANDCHILD-DONE ${nonce}` };
+  assert.equal(rCdChainRootReturnCandidate({
+    eventName: 'session.message',
+    eventData,
+    rootSessionKey: root,
+    nonce,
+  }), null);
+});
+
 test('depth-2 chain withholds return authority without two distinct hop identities', () => {
   const candidate = rCdChainRootReturnCandidate({
     eventName: 'session.message',

@@ -18,13 +18,30 @@ function directMessageRole(eventData) {
   return typeof message.role === 'string' ? message.role : null;
 }
 
+function directMessageText(eventData) {
+  const message = eventData?.message;
+  if (!message || typeof message !== 'object' || Array.isArray(message)) return null;
+  if (typeof message.content === 'string') return message.content;
+  if (!Array.isArray(message.content)) return null;
+  const textParts = message.content
+    .filter((part) => (
+      part
+      && typeof part === 'object'
+      && !Array.isArray(part)
+      && part.type === 'text'
+      && typeof part.text === 'string'
+    ))
+    .map((part) => part.text);
+  return textParts.length > 0 ? textParts.join('\n') : null;
+}
+
 function hasExactGrandchildMarker(eventData, nonce) {
-  const serialized = JSON.stringify(eventData);
-  if (!serialized || serialized.includes(HARNESS_MARKER)) return false;
+  const messageText = directMessageText(eventData);
+  if (!messageText || messageText.includes(HARNESS_MARKER)) return false;
   const pattern = new RegExp(
     `(?:^|[^A-Za-z0-9_-])GRANDCHILD-DONE\\s+${escapeRegex(nonce)}(?=$|[^A-Za-z0-9_-])`,
   );
-  return pattern.test(serialized);
+  return pattern.test(messageText);
 }
 
 /**

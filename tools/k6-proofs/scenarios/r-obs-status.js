@@ -17,6 +17,7 @@ import { check } from 'k6';
 import crypto from 'k6/crypto';
 import { Counter, Trend } from 'k6/metrics';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { extractExportedFunctionBody } from '../lib/source-function-extractor.js';
 
 export const options = {
   scenarios: {
@@ -38,8 +39,6 @@ const duration = new Trend('r_obs_status_duration');
 const manifest = loadManifestFromEnv();
 const prefetchedSourcePath = __ENV.OPENCLAW_STATUS_SOURCE_PATH || '';
 const prefetchedSource = prefetchedSourcePath ? open(prefetchedSourcePath) : '';
-const FORMATTER_START = 'export function formatStatusTextContinuationLine(params: {';
-const FORMATTER_END = '\n}\n\nconst loadStatusMessageRuntime';
 const FORMATTER_SIGNATURE_END = '}): string | undefined {';
 
 function fail(message) {
@@ -48,15 +47,11 @@ function fail(message) {
 }
 
 function extractFormatter(source) {
-  const start = source.indexOf(FORMATTER_START);
-  if (start < 0) throw new Error('status formatter start marker was not found');
-  const end = source.indexOf(FORMATTER_END, start);
-  if (end < 0) throw new Error('status formatter end marker was not found');
-
-  const declaration = source.slice(start, end + 2);
-  const bodyStart = declaration.indexOf(FORMATTER_SIGNATURE_END);
-  if (bodyStart < 0) throw new Error('status formatter signature marker was not found');
-  const body = declaration.slice(bodyStart + FORMATTER_SIGNATURE_END.length, -2);
+  const body = extractExportedFunctionBody(
+    source,
+    'formatStatusTextContinuationLine',
+    FORMATTER_SIGNATURE_END,
+  );
 
   // The extracted formatter is dependency-free by design. Executing precisely
   // this candidate-owned body prevents the harness from re-implementing the
@@ -68,7 +63,7 @@ export default function () {
   const candidateSha = (manifest && manifest.candidateSha) || __ENV.OPENCLAW_CANDIDATE_SHA || '';
   const sourcePath =
     (manifest && manifest.sourceContract && manifest.sourceContract.path) ||
-    'src/status/status-text.ts';
+    'src/status/status-continuation-line.ts';
   const sourceRepo =
     (manifest && manifest.sourceContract && manifest.sourceContract.repository) ||
     'karmaterminal/openclaw';

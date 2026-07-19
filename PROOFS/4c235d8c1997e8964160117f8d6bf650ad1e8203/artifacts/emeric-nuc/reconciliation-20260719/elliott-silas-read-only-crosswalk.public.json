@@ -1,0 +1,2395 @@
+{
+  "candidate_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "comparison_category_counts": {
+    "authoritative-behavior-divergence": 1,
+    "authority-receipt-divergence": 1,
+    "behavior-or-receipt-divergence": 1,
+    "concordant-partials": 5,
+    "concordant-pass-candidates": 23,
+    "review-posture-divergence-shared-trace-debt": 3,
+    "shared-harness-selection-defect": 1
+  },
+  "docs_execution_authority_sha": "1303a03c2858fce82c235992b7ee06385e8e6304",
+  "publication_gate": {
+    "no_further_docs_mutation": true,
+    "note": "Sequential seat-local publications do not satisfy the combined-corpus gate.",
+    "status": "frozen-pending-independent-reconciliation"
+  },
+  "row_count": 35,
+  "rows": [
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "acab161d5c34f6d73936f27675fdf248cd086ea43368a8dc1a956666bc0d512e",
+        "blockers": [
+          "Preserved original attempt: required continuation.delegate.dispatch status was UNSET rather than OK; required causal-parent contract did not validate."
+        ],
+        "bundle_file_count": 28,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": true,
+        "final_classification": "PARTIAL",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/prior-two-row/raw/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-1/silas/20260719T191117Z-r-cd-1",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T191117Z-r-cd-1",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [
+            "required continuation/tool spans are status UNSET rather than OK",
+            "tool, accept, and fire spans do not share one causal parent"
+          ],
+          "contract_outcome": "invalid",
+          "correlation_receipt_present": true,
+          "span_count": 36,
+          "trace_id": "6a904ad5ab0224352d0b92d5df09d5c6",
+          "trace_receipt_present": true
+        }
+      },
+      "comparison_category": "review-posture-divergence-shared-trace-debt",
+      "comparison_reason": "Elliott runner posture remained PASS-candidate with pending/failed trace acquisition, while Silas independently folded the same trace/topology debt to PARTIAL. This is a review-policy/observability comparison, not grounds to upgrade either seat.",
+      "primary": {
+        "attempt_fingerprint_sha256": "5bc1d5e1bc3b410f023293adbd57ba4888eb6d4524ce367e0de1977360185541",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "child-session-key",
+            "parent-return-event"
+          ],
+          "pending": [],
+          "state": "runner-satisfied"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "efd26709f1abec6a68230ceccff03737072c78abb7ed7258a04ffdaf9f5a53d8",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "67db4ee95ff1ed819a959aa46bb1c0ac59524ace83a96bc24229e34cefe5ba83",
+        "missing_evidence_class": "trace-contract-or-acquisition",
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-1/elliott/20260719T191334Z-r-cd-1",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [
+            {
+              "behavior_refired": false,
+              "error": "Tempo trace did not reach valid continuation topology before timeout: continuation.delegate.dispatch span is not status OK",
+              "phase": "initial-collector",
+              "result": "rejected"
+            },
+            {
+              "behavior_refired": false,
+              "ended_at": "2026-07-19T19:51:50Z",
+              "exit_code": 1,
+              "phase": "bounded-post-run-recovery",
+              "result": "unresolved",
+              "started_at": "2026-07-19T19:51:19Z"
+            }
+          ],
+          "pending_receipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "span_count": null,
+          "status": "missing",
+          "trace_id": null
+        }
+      },
+      "row": "R-CD-1"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "b4047077552ce2aaf60bc4da6bdfa9c692a6d2bd564477a267fe5153de5bf3b6",
+        "blockers": [
+          "Authoritative row-scoped receipt is PARTIAL-candidate; required continuation trace/correlation is absent, and post-run recovery could not derive a valid public evidence reason hash."
+        ],
+        "bundle_file_count": 26,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PARTIAL",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-2/silas/20260719T194325Z-r-cd-2",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T194325Z-r-cd-2",
+        "runner_seat": "silas",
+        "runner_verdict": "PARTIAL-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [
+            {
+              "at": "2026-07-19T20:07:18.585Z",
+              "phase": "start"
+            },
+            {
+              "at": "2026-07-19T20:07:18.610Z",
+              "exitCode": 1,
+              "phase": "finished"
+            }
+          ],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-partials",
+      "comparison_reason": "Both seats remain incomplete; PARTIAL + PARTIAL remains PARTIAL unless each seat independently closes its own missing contract.",
+      "primary": {
+        "attempt_fingerprint_sha256": "27a07926da6b5ce67c1221a703b39d0ca7aecd8baa20e542a1accd532ab8b0ec",
+        "authority_model_receipt": {
+          "authoritative_receipt": {
+            "file": "r-cd-2-authoritative-receipt.json",
+            "sha256": "828c432cec49f4be49c10ea332ed6fd4fb14df0ca1b4c909cd950be49bac7a62",
+            "source": "r-cd-2-row-scoped-resolver",
+            "validated": true
+          },
+          "expected": [
+            "child-session-key"
+          ],
+          "pending": [],
+          "state": "unresolved-or-mismatch"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "8e4020569c93b8efe2e0766a60d6e3f158386238dceb63da259d00801d16e696",
+          "state": "observed-incomplete"
+        },
+        "bundle_manifest_sha256": "a220efe2f86ed29e50633082c3037c4a86382fab1befdfc689de1328b5f8e417",
+        "missing_evidence_class": "trace-contract-or-acquisition",
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-2/elliott/20260719T191521Z-r-cd-2",
+        "provisional_reviewed_verdict": "PARTIAL-candidate",
+        "role": "primary",
+        "runner_verdict": "PARTIAL-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [
+            {
+              "behavior_refired": false,
+              "error": "no Tempo trace matched reason hash 2b68ac7b438dc6ff before timeout",
+              "phase": "initial-collector",
+              "result": "rejected"
+            }
+          ],
+          "pending_receipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "span_count": null,
+          "status": "r-cd-2-authoritative-receipt",
+          "trace_id": null
+        }
+      },
+      "row": "R-CD-2"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "e36f5048086068572ac4c776ff6fcae67cefc099369f766a7f3279d85f123e5c",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-3/silas/20260719T194510Z-r-cd-3",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T194510Z-r-cd-3",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "eae996976f0c6317e7d074ecfb52621c1e71b11aea50f03bc7643d638d349443",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "compaction-requested"
+          ],
+          "pending": [],
+          "state": "runner-satisfied"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "c04e22ece5c17ee2364ba2a0b37124dd0d849f9e81dce699271be768f2bae2dc",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "22fd4639c1514732946414b3f6ca0363fac902b3d4149e97c897575675fda80c",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-3/elliott/20260719T191755Z-r-cd-3",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CD-3"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "29bb71bcc140143bfef6624d638a1c39ffb5805061f1c582a31c43a3d8324b09",
+        "blockers": [
+          "Behavioral receipts passed, but mandatory Tempo topology validation rejected continuation.delegate.dispatch because span status was not OK."
+        ],
+        "bundle_file_count": 24,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PARTIAL",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-4/silas/20260719T193848Z-r-cd-4",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T193848Z-r-cd-4",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [
+            {
+              "at": "2026-07-19T20:07:18.613Z",
+              "phase": "start"
+            },
+            {
+              "at": "2026-07-19T20:07:28.920Z",
+              "exitCode": 1,
+              "phase": "finished"
+            }
+          ],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "review-posture-divergence-shared-trace-debt",
+      "comparison_reason": "Elliott runner posture remained PASS-candidate with pending/failed trace acquisition, while Silas independently folded the same trace/topology debt to PARTIAL. This is a review-policy/observability comparison, not grounds to upgrade either seat.",
+      "primary": {
+        "attempt_fingerprint_sha256": "0033a40863b94b2c99e9ed56f5d6a99eeab30a08203342889168f3335519f429",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "parent-session-created",
+            "target-session-created",
+            "target-return-event",
+            "no-parent-return"
+          ],
+          "pending": [],
+          "state": "runner-satisfied"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "625febe8bcfb9d252da361c4d7042cfba948644e7ae171209ab2f185fa58f4e8",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "ef193d7d5d29b601f092de8969f156a9ae185ea61d642c934d1216f7777f8860",
+        "missing_evidence_class": "trace-contract-or-acquisition",
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-4/elliott/20260719T191806Z-r-cd-4",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [
+            {
+              "behavior_refired": false,
+              "error": "no Tempo trace matched reason hash 1f00254e489c135d before timeout",
+              "phase": "initial-collector",
+              "result": "rejected"
+            },
+            {
+              "behavior_refired": false,
+              "ended_at": "2026-07-19T19:52:21Z",
+              "exit_code": 1,
+              "phase": "bounded-post-run-recovery",
+              "result": "unresolved",
+              "started_at": "2026-07-19T19:51:50Z"
+            }
+          ],
+          "pending_receipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "span_count": null,
+          "status": "missing",
+          "trace_id": null
+        }
+      },
+      "row": "R-CD-4"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "4f97cb819620540d88ece04d12b74d7ebaf5f246d2bc9ce39e1d75a1667f65ad",
+        "blockers": [
+          "Depth-2 child/grandchild receipts passed, but mandatory Tempo topology validation rejected continuation.delegate.dispatch because span status was not OK."
+        ],
+        "bundle_file_count": 24,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PARTIAL",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-CHAINED-DEPTH-2/silas/20260719T193732Z-r-cd-chained-depth-2",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T193732Z-r-cd-chained-depth-2",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [
+            {
+              "at": "2026-07-19T20:07:28.929Z",
+              "phase": "start"
+            },
+            {
+              "at": "2026-07-19T20:07:39.241Z",
+              "exitCode": 1,
+              "phase": "finished"
+            }
+          ],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "review-posture-divergence-shared-trace-debt",
+      "comparison_reason": "Elliott runner posture remained PASS-candidate with pending/failed trace acquisition, while Silas independently folded the same trace/topology debt to PARTIAL. This is a review-policy/observability comparison, not grounds to upgrade either seat.",
+      "primary": {
+        "attempt_fingerprint_sha256": "a281170fe7b6f1f624190c4d88c404e9726c373e41a2937ba8e72361fa380164",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "child-spawns",
+            "child-fires-grandchild",
+            "grandchild-spawns",
+            "grandchild-returns",
+            "parent-receives-chain-return"
+          ],
+          "pending": [],
+          "state": "runner-satisfied"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "ff8231aef19df88a2cab8f66cc363d5917a0253e8a364eebb8f496d2253117ff",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "d831f54d5b934af4c88c8945f852dbcbc831077ca27531991f2b1c78b8a8a7ee",
+        "missing_evidence_class": "trace-contract-or-acquisition",
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-CHAINED-DEPTH-2/elliott/20260719T191939Z-r-cd-chained-depth-2",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [
+            {
+              "behavior_refired": false,
+              "error": "Tempo trace did not reach valid continuation topology before timeout: continuation.delegate.dispatch span is not status OK",
+              "phase": "initial-collector",
+              "result": "rejected"
+            },
+            {
+              "behavior_refired": false,
+              "ended_at": "2026-07-19T19:52:52Z",
+              "exit_code": 1,
+              "phase": "bounded-post-run-recovery",
+              "result": "unresolved",
+              "started_at": "2026-07-19T19:52:21Z"
+            }
+          ],
+          "pending_receipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "span_count": null,
+          "status": "missing",
+          "trace_id": null
+        }
+      },
+      "row": "R-CD-CHAINED-DEPTH-2"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "bab4c55c49d570d06171876d0a95a3868a6e605fea8b8b91215e93ef8c59f004",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-COLLECTION-ON-COLLAPSE/silas/20260719T194520Z-r-cd-collection-on-collapse",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T194520Z-r-cd-collection-on-collapse",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "ba01cd0064c5935b7630b4beaecdfed13b9d0e6c4195072fc2bae248bfd284e4",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [],
+          "pending": [],
+          "state": "not-separately-required"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "badd8e5da1cd21891912bf52fcc7bcdeb392c3bd221d99d1e57d54d23971812f",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "5ab9c0a2c9befbd4375d3fb584d80e68701289f3cb73ffc9bd70a5406a9bced0",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-COLLECTION-ON-COLLAPSE/elliott/20260719T192053Z-r-cd-collection-on-collapse",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CD-COLLECTION-ON-COLLAPSE"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "a8681ae1784722ccad2728778df3a775f53b91883c60bc553c126e33974256b9",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-CHAINED-ALT/silas/20260719T194521Z-r-cd-model-chained-alt",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T194521Z-r-cd-model-chained-alt",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "cfbd829061b192b50e2b824386cc0105e71807ad798fcd1d88cdcb39d150aa5a",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "child-session-observed",
+            "child-model-byte",
+            "return-payload",
+            "trace-or-session-correlation",
+            "depth-1-child-observed",
+            "depth-2-child-observed",
+            "depth-2-model-byte"
+          ],
+          "pending": [],
+          "state": "runner-satisfied"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "d03fcd4def7e60fcbee4b0cc197ddf4309aba24299482cbac6928f1e62b2f9fa",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "b890e45d95e829b2a2929c416f3d4df8ac11c51a125cd7e64be43ba06ab81e3d",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-CHAINED-ALT/elliott/20260719T192055Z-r-cd-model-chained-alt",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CD-MODEL-CHAINED-ALT"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "5da220bccbe905cfdd0a5ebb9850351d1ec86078a3f31c8f4d78f2cd68894398",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-DEFAULT/silas/20260719T194555Z-r-cd-model-default",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T194555Z-r-cd-model-default",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "b925be4256d9fba02935854319cc611d7d20b7410cfbee9b85355648457b8d66",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "child-session-observed",
+            "child-model-byte",
+            "return-payload",
+            "trace-or-session-correlation",
+            "parent-model-byte"
+          ],
+          "pending": [],
+          "state": "runner-satisfied"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "dd463aa843792736303a75b2e35e3b9a254a257a808c07051f528309abed3883",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "426873d6109ca508d544ad147f44ecbc807806c5001a7d2164f14a6432698b41",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-DEFAULT/elliott/20260719T192144Z-r-cd-model-default",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CD-MODEL-DEFAULT"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "9c47a597d3cfde54f70705037213fecfe6d91867fd99b485351ee78cabd3fd1a",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOKEN/silas/20260719T194627Z-r-cd-model-token",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T194627Z-r-cd-model-token",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "654b054706bec86be33ab84cf7853b13e04065046118d4dc93ce20fcae9b7445",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "child-session-observed",
+            "child-model-byte",
+            "return-payload",
+            "trace-or-session-correlation",
+            "bracket-model-modifier"
+          ],
+          "pending": [],
+          "state": "runner-satisfied"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "d28bcf531840c6dd90edf335f5a38ac336d6801dea76b5fcacbd231bd0eea12b",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "1ee7ac81970819fb3e0d6fbb2632c01b91d214bbd5dcf219c533c53715595ab8",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOKEN/elliott/20260719T192207Z-r-cd-model-token",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CD-MODEL-TOKEN"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "72cfbdcc0715fa57fa00cc05837a640277c9a8f66178f3732a8c0a83a6503268",
+        "blockers": [
+          "Dispatch and parent scheduled sentinel were observed, but no authoritative child session/model metadata or return payload arrived within 180337ms."
+        ],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PARTIAL",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOOL/silas/20260719T194023Z-r-cd-model-tool",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T194023Z-r-cd-model-tool",
+        "runner_seat": "silas",
+        "runner_verdict": "PARTIAL-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-partials",
+      "comparison_reason": "Both seats remain incomplete; PARTIAL + PARTIAL remains PARTIAL unless each seat independently closes its own missing contract.",
+      "primary": {
+        "attempt_fingerprint_sha256": "762fa328b8191d6c1a4b4333f7717691a3a56158796246d9cc93e11e3ae15b17",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "child-session-observed",
+            "child-model-byte",
+            "return-payload",
+            "trace-or-session-correlation",
+            "requested-model-byte"
+          ],
+          "pending": [],
+          "state": "unresolved-or-mismatch"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "31a4e7510990e11fd112ed2d6ac7171e7d3f4c5b44c1d06be143c5fb6836fbea",
+          "state": "observed-incomplete"
+        },
+        "bundle_manifest_sha256": "26bcaf6e18bd402e7e7ee95820d23ab98638fdc5a0d16c360849ac5368d0e3dd",
+        "missing_evidence_class": "behavior-authority",
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOOL/elliott/20260719T192305Z-r-cd-model-tool",
+        "provisional_reviewed_verdict": "PARTIAL-candidate",
+        "role": "primary",
+        "runner_verdict": "PARTIAL-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CD-MODEL-TOOL"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "a34cb7f91d4b32047cf78797326004bd59145421913411de373b7ab543f7e26b",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-RETURN-OVERLAP/silas/20260719T194708Z-r-cd-return-overlap",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T194708Z-r-cd-return-overlap",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "fd664950b4054ffad3dfb5bbab1926f8448bc811252286c89b18a7d67644933c",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [],
+          "pending": [],
+          "state": "not-separately-required"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "df1f1def741f89ee3b16b2c46963369200cb7fbd600d462f11e2e7bdae576029",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "ca594c14e7c55b76660581564f9d059529aaa4e74b712b60e391a9b80154ec52",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-RETURN-OVERLAP/elliott/20260719T192608Z-r-cd-return-overlap",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CD-RETURN-OVERLAP"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "f65794ee3b9515a9925f20681c7484b4967b79803a88161cbcb4bb103848660d",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-SILENT/silas/20260719T194709Z-r-cd-silent",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T194709Z-r-cd-silent",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "62e8e46e9105980e765dc3c30aa8f49efb0699f4b4d681e5f3e243183b42eff9",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "child-completion-observed"
+          ],
+          "pending": [],
+          "state": "runner-satisfied"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "1790846ddb559bc5b1f3b21056d8f70b145b09b1058637ccc6edb1c6c75f1ea2",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "21556e7df9cd1a34bbda98b0ce8e6326304eb36e1da524efdbf93ad1aa92b870",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-SILENT/elliott/20260719T192610Z-r-cd-silent",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CD-SILENT"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "0b008350fd19a021493512355dd24ce47ada521c4f866938e493a953000a5e4c",
+        "blockers": [
+          "Pre-dispatch surface gate classified the attempted carrier as message-body, which is not scanned as raw final text; no parser, queue, spawn, return, or Tempo receipts exist."
+        ],
+        "bundle_file_count": 6,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PARTIAL",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-TOKEN/silas/20260719T194324Z-r-cd-token",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T194324Z-r-cd-token",
+        "runner_seat": "silas",
+        "runner_verdict": "PARTIAL-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-partials",
+      "comparison_reason": "Both seats remain incomplete; PARTIAL + PARTIAL remains PARTIAL unless each seat independently closes its own missing contract.",
+      "primary": {
+        "attempt_fingerprint_sha256": "bf7460d8adcc8453bf2b75dffa8c939d58d5e66feb20ab3d1cd1b89eaa3e8c8f",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "child-spawned",
+            "child-completed",
+            "parent-return-event"
+          ],
+          "pending": [
+            "child-spawned",
+            "child-completed",
+            "parent-return-event"
+          ],
+          "state": "pending"
+        },
+        "behavior_receipt": {
+          "evidence_file": "run-result.json",
+          "evidence_sha256": "11fbaab49abb66eaee1a5c23dd51df78b680db477c19760b0152ca395db72c54",
+          "state": "not-fired-pre-dispatch-surface-gate"
+        },
+        "bundle_manifest_sha256": "8573e1f67032b8b4529452d46388835c82840102f5d1903ff5bbab08e201aeb2",
+        "missing_evidence_class": "harness-selection",
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-TOKEN/elliott/20260719T192737Z-r-cd-token",
+        "provisional_reviewed_verdict": "PARTIAL-candidate",
+        "role": "primary",
+        "runner_verdict": "PARTIAL-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [
+            "tempo-trace-json",
+            "continuation-trace-correlation"
+          ],
+          "span_count": null,
+          "status": "not-applicable",
+          "trace_id": null
+        }
+      },
+      "row": "R-CD-TOKEN"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "fdd402e247e31d68a5b0d0e4c710a24f4e4db9094e7e308d222dfbd68aa6221d",
+        "blockers": [],
+        "bundle_file_count": 19,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-DEFAULTS/silas/20260719T194823Z-r-config-defaults",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T194823Z-r-config-defaults",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "3f3d1027a0bd5301db11110e981f569385aab0bf9bc15ef71a5a1f7dd03579c4",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [],
+          "pending": [],
+          "state": "not-separately-required"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "88a0eae0f756641ce1ad1eb2245621bc1d4dbd333956d5e87c951dfd268a576f",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "4d02607d5d83b93a851b5a850e586891f9313829326547a6fd70361dc11903dc",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-DEFAULTS/elliott/20260719T192739Z-r-config-defaults",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CONFIG-DEFAULTS"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "bec0d64f6a7e6756ec187d9135ee18de4182a545e5f771e5d0c70d8b2fdc7476",
+        "blockers": [],
+        "bundle_file_count": 19,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-INTERSESSION/silas/20260719T194825Z-r-config-intersession",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T194825Z-r-config-intersession",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "d59d8b1b53a957638a0c515047fb61068b9508a7b1fde84cf57b3084b8f1af87",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "cross-session-targeting"
+          ],
+          "pending": [],
+          "state": "runner-satisfied"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "c3d321d14f9cd60d5e53b1c0fbaa607cc2421d3989ad613a256182e8a5171e70",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "f3cc5b94075179e7dc25f973ad5d23f1083a5054f8c651d5dd458d7ff6312daf",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-INTERSESSION/elliott/20260719T192743Z-r-config-intersession",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CONFIG-INTERSESSION"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "88b087273f48e53aa73c54643e2f1b024e050965c63952bf91536bb8ba7e930c",
+        "blockers": [
+          "Preserved original attempt: schedule was accepted, but the wake arrived roughly 272 seconds late after command-queue-busy; required topology also had UNSET status and duplicate fire-span debt."
+        ],
+        "bundle_file_count": 28,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": true,
+        "final_classification": "PARTIAL",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/prior-two-row/raw/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-1/silas/20260719T191326Z-r-cw-1",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T191326Z-r-cw-1",
+        "runner_seat": "silas",
+        "runner_verdict": "PARTIAL-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [
+            "required continuation/tool spans are status UNSET rather than OK",
+            "expected exactly one continuation.work.fire span; observed 2",
+            "tool, accept, and fire spans do not share one causal parent"
+          ],
+          "contract_outcome": "invalid",
+          "correlation_receipt_present": true,
+          "span_count": 22,
+          "trace_id": "6e7ce77d61548079a36a0493d0a6a55f",
+          "trace_receipt_present": true
+        }
+      },
+      "comparison_category": "concordant-partials",
+      "comparison_reason": "Both seats remain incomplete; PARTIAL + PARTIAL remains PARTIAL unless each seat independently closes its own missing contract.",
+      "primary": {
+        "attempt_fingerprint_sha256": "2c331380f1d2d5aa934ab68d7858a6e3f0ba9841a5e9a79225123bf3ee30177e",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "continue-work-tool-result-scheduled"
+          ],
+          "pending": [],
+          "state": "unresolved-or-mismatch"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "bf190cc4b606c7a960f09b501d592a9e0592bc685c584b069be6ed6e28a64f1a",
+          "state": "observed-incomplete"
+        },
+        "bundle_manifest_sha256": "d0b5b84d7e3e0cbba4fcbac6f7bf5239a98b331e804833a2e1bf2aa8e0043fdb",
+        "missing_evidence_class": "trace-contract-or-acquisition",
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-1/elliott/20260719T192746Z-r-cw-1",
+        "provisional_reviewed_verdict": "PARTIAL-candidate",
+        "role": "primary",
+        "runner_verdict": "PARTIAL-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [
+            {
+              "behavior_refired": false,
+              "error": "Tempo trace did not reach valid continuation topology before timeout: continuation.work span is not status OK",
+              "phase": "initial-collector",
+              "result": "rejected"
+            },
+            {
+              "behavior_refired": false,
+              "ended_at": "2026-07-19T19:53:22Z",
+              "exit_code": 1,
+              "phase": "bounded-post-run-recovery",
+              "result": "unresolved",
+              "started_at": "2026-07-19T19:52:52Z"
+            }
+          ],
+          "pending_receipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "span_count": null,
+          "status": "missing",
+          "trace_id": null
+        }
+      },
+      "row": "R-CW-1"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "42eae554e2a2e1837169934b3994e0c03d2959e42861e493beb64473117e1694",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-2/silas/20260719T194827Z-r-cw-2",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T194827Z-r-cw-2",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "behavior-or-receipt-divergence",
+      "comparison_reason": "Silas independently closed the row while Elliott did not. Compare the exact missing receipt class; do not use Silas evidence to promote Elliott.",
+      "primary": {
+        "attempt_fingerprint_sha256": "95e25f8d23d1a7ae091fc86214b12f7c699cb099ab4914eb631231f2bd1cad0a",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "continue-work-tool-result-scheduled"
+          ],
+          "pending": [],
+          "state": "unresolved-or-mismatch"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "1a0fdee8364a6cc3c1e03f6bedb3c7de8688b2ce79b58e83180a07fd7d2f737c",
+          "state": "observed-incomplete"
+        },
+        "bundle_manifest_sha256": "7e9a5b35d516cfe5641104a1d340c6fa5d7a0608d01b72879495b8874d4a480b",
+        "missing_evidence_class": "incomplete-contract",
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-2/elliott/20260719T193020Z-r-cw-2",
+        "provisional_reviewed_verdict": "PARTIAL-candidate",
+        "role": "primary",
+        "runner_verdict": "PARTIAL-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CW-2"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "df154223c7b80e4909d5c1b6fdc83422378d5fe70228eb7d280ad20362a51e32",
+        "blockers": [
+          "Dispatch and scheduled sentinel were observed, but the required wake was not observed within 600424ms; Tempo topology validation also rejected continuation.work because span status was not OK."
+        ],
+        "bundle_file_count": 24,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PARTIAL",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-3/silas/20260719T194927Z-r-cw-3",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T194927Z-r-cw-3",
+        "runner_seat": "silas",
+        "runner_verdict": "PARTIAL-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [
+            {
+              "at": "2026-07-19T20:07:39.253Z",
+              "phase": "start"
+            },
+            {
+              "at": "2026-07-19T20:07:49.494Z",
+              "exitCode": 1,
+              "phase": "finished"
+            }
+          ],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-partials",
+      "comparison_reason": "Both seats remain incomplete; PARTIAL + PARTIAL remains PARTIAL unless each seat independently closes its own missing contract.",
+      "primary": {
+        "attempt_fingerprint_sha256": "9227ba50325d9d8efe880b918542ee6d1bf9f2c914bad15bdd86d331eb3e3969",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "continue-work-tool-result-scheduled"
+          ],
+          "pending": [],
+          "state": "unresolved-or-mismatch"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "9d72ed030d50d967f0b434ab5f7e7f60d809ab1d59c18b651e2452e9515ff716",
+          "state": "observed-incomplete"
+        },
+        "bundle_manifest_sha256": "7e753c29d7d14a0fe407d63cbf1f641237e9e089ad9dcba41df22f2599b7fb98",
+        "missing_evidence_class": "trace-contract-or-acquisition",
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-3/elliott/20260719T193152Z-r-cw-3",
+        "provisional_reviewed_verdict": "PARTIAL-candidate",
+        "role": "primary",
+        "runner_verdict": "PARTIAL-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [
+            {
+              "behavior_refired": false,
+              "error": "Tempo trace did not reach valid continuation topology before timeout: continuation.work span is not status OK",
+              "phase": "initial-collector",
+              "result": "rejected"
+            },
+            {
+              "behavior_refired": false,
+              "ended_at": "2026-07-19T19:53:54Z",
+              "exit_code": 1,
+              "phase": "bounded-post-run-recovery",
+              "result": "unresolved",
+              "started_at": "2026-07-19T19:53:22Z"
+            }
+          ],
+          "pending_receipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "span_count": null,
+          "status": "missing",
+          "trace_id": null
+        }
+      },
+      "row": "R-CW-3"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "96ff50da898b89731d41a36039fccfc1ecf265bb9d8f5e83cb75272a400adbc1",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-4/silas/20260719T200029Z-r-cw-4",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T200029Z-r-cw-4",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "1f7693bf5ca80c404f961a36bf16fda19eab434012db0bbf368e668694ed32a7",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [],
+          "pending": [],
+          "state": "not-separately-required"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "112bd46e4a7f0766ddbdc0995489856de14b236e80da08469ccbda5b65f7d75a",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "7b1e95f4f3e61cbba0b78c91f561c3609db15e16a2f6d7904ee74b9b2a6dc01b",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-4/elliott/20260719T193747Z-r-cw-4",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CW-4"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "d88564dad4edd63205818be7ae90d38e5884a2546515b4906af6eec0fd304434",
+        "blockers": [],
+        "bundle_file_count": 7,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/fixtures/R-CW-5-attempt-2",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "R-CW-5-attempt-2",
+        "runner_seat": "process-local-fixture",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "82ca595531d8235c3d1b500c40fa760b390f4bd8b34bdc0f3d68adbdd73e0018",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [],
+          "pending": [],
+          "state": "not-separately-required"
+        },
+        "behavior_receipt": {
+          "evidence_file": "fixture-result.json",
+          "evidence_sha256": "2c4e4150212e91e73fe803136c3e0d7571629a7ffd709f26df7df06aed240e8a",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "0eb3ad30a5643c5285573b90a8065e0a21cd4dd92bd16180b028fa58fc4d770d",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-5/elliott/20260719T194733Z-r-cw-5",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": null,
+          "trace_id": null
+        }
+      },
+      "row": "R-CW-5"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "7bbf066df6b3ff1a3353bc8970d51035ac8f825a9e8740202dadc56aa01f74e6",
+        "blockers": [],
+        "bundle_file_count": 10,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/fixtures/R-CW-6-attempt-2",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "R-CW-6-attempt-2",
+        "runner_seat": "process-local-fixture",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "7652dde00c90dfd0c1660e79f48aba8360b44b934f0d49cbdb5808ea1ca7e282",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [],
+          "pending": [],
+          "state": "not-separately-required"
+        },
+        "behavior_receipt": {
+          "evidence_file": "fixture-result.json",
+          "evidence_sha256": "cb42333be9d5a58d3a705faa20fcfb50838ce5dbbf0c1dd56021b1bd71ea54d4",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "4d31810439b644c8e49b48461ff8a3564931a3d06f259666567765a97dc88ece",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-6/elliott/20260719T194807Z-r-cw-6",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": null,
+          "trace_id": null
+        }
+      },
+      "row": "R-CW-6"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "67e5d919e117c40edd7b7dba046fd87bf118ef30f0d98505d3051334880bc151",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-7/silas/20260719T200114Z-r-cw-7",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T200114Z-r-cw-7",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "4fb6171de4a48aa5e8c96edb1a9b9e2dbfb4c5691bf35dbfd1139178e3e11a6d",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [],
+          "pending": [],
+          "state": "not-separately-required"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "f0a8d1abda7beb6f78f73cb39ca91b700c01a1739d79907579281c0d98441a2b",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "af8d5a89496fa3457523ba545d7667ace4cb9fd0a3e56e884643d20559a92f9e",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-7/elliott/20260719T193844Z-r-cw-7",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CW-7"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "bb503c7021de4645d223bb7fb35ca2aa36879faaa1e15696bd61b397ea30d4e7",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-CHILD-LIVE/silas/20260719T200115Z-r-cw-delegate-child-live",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T200115Z-r-cw-delegate-child-live",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "ab9e3527077fd10a336f14d1e0d66d1b5c074df3fe5c516614c481c14c96ce49",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "delegate-child-hop-artifacts",
+            "delegate-child-hop2-executed"
+          ],
+          "pending": [],
+          "state": "runner-satisfied"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "ad31661aefd5b8dd6a4fe30a0b6bcb60c9a268c002eb12e7e092a20d3d8df498",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "b1a654117a8250548c4ea4e91a6eac6f86b2f91827c624e9451e0d09e074e242",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-CHILD-LIVE/elliott/20260719T193847Z-r-cw-delegate-child-live",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CW-DELEGATE-CHILD-LIVE"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "d7000ce4f84a1b183e9ffa994926b3a9d9835feec7e6412d6422f4f2302059a3",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-SELF-CONTINUATION/silas/20260719T200116Z-r-cw-delegate-self-continuation",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T200116Z-r-cw-delegate-self-continuation",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "a5388793f475e5dab764f1055b11abaf1823c760cf503d06dbb9ed5110a780f8",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "child-spawned",
+            "child-continue-work-accepted",
+            "child-hop-2-woke",
+            "parent-return"
+          ],
+          "pending": [],
+          "state": "runner-satisfied"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "6db53d50ff52a0605f39759af7bb75b1a88d827853c0954bbff335e0328640b4",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "2d9990874e0e41a455a22a1ad050edcc08711c639354c36af007b847a9718a17",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-SELF-CONTINUATION/elliott/20260719T193850Z-r-cw-delegate-self-continuation",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "6ca7fff4380d15da4f8ce9ac874f38bb4a321bb3759d1580635eecbaac0a3748",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-TOKEN/silas/20260719T200133Z-r-cw-delegate-token",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T200133Z-r-cw-delegate-token",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "8ec0332a9b391626f78954fdeec02f752719eba26b05fca2c746b12f714c5212",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [],
+          "pending": [],
+          "state": "not-separately-required"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "195f8a50e74db79ae95945bf34b66e6b603889655aaf7175238b03807bb7aa84",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "9633cbdc710fc046be16fc27cb8ace5dba1e8c0f0520aee36b6de2a24b90a5b9",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-TOKEN/elliott/20260719T193916Z-r-cw-delegate-token",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CW-DELEGATE-TOKEN"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "9dbb5ad3e2f93339190d87a71f68ce87bb434b4fe504416b3ed470aae9abb29f",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI/silas/20260719T200136Z-r-cw-multi",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T200136Z-r-cw-multi",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "5bb9b9b243e2413fbc11ff8af6a8614f61a4462358443844977776ca27e14701",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [],
+          "pending": [],
+          "state": "not-separately-required"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "9479599761e4d18a5fa6d6f5e23731e226b4e27cd24ad139ed48dcd8f2c34f6c",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "5ecb43a00ea425ec7c71e54577d515daa8847646bbbee41d5188b9f4251da389",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI/elliott/20260719T193922Z-r-cw-multi",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CW-MULTI"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "950bdd7ef935ae956ae26453c5f4a639666463cdd85b6dbb07647b2c43eacbe9",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI-COLLAPSE/silas/20260719T200135Z-r-cw-multi-collapse",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T200135Z-r-cw-multi-collapse",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "8d3cc5536450ec27d46018fc2d3c0d99bbb4d0b60865b4a3687611bfcb9d4a6e",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [],
+          "pending": [],
+          "state": "not-separately-required"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "bcd96a256ce0cff2df3875fa66f35ee0b0553a9a9755c42b465dd445b7d5feea",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "19cdd9e3729fee65f5f04aef72e3769152f1041da0808d4e85ca5354757d5433",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI-COLLAPSE/elliott/20260719T193919Z-r-cw-multi-collapse",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CW-MULTI-COLLAPSE"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "a9d7863464f9e024e355d691386beb9c656e9c3ae66a4aef06cde1864ab87b10",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-TOKEN/silas/20260719T200137Z-r-cw-token",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T200137Z-r-cw-token",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "e6e7190bf8f35890e168601745861358489673a6800d3dc7ef42a07f5fbc0a42",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "parent-return"
+          ],
+          "pending": [],
+          "state": "runner-satisfied"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "2e8ab9caa062be1e48fb99e22f9c915f13502a023f86efddefd991bc0e2f5143",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "c363233d3dba50996bb1e11a322fe9029fe186b30828eb62d07e0918a107cb45",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-TOKEN/elliott/20260719T193925Z-r-cw-token",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-CW-TOKEN"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "d08e1b3802747575d6fb6fd53ba366a0aeaee695ae57817bfafc3b341c19f2c0",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-1/silas/20260719T200155Z-r-obs-1",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T200155Z-r-obs-1",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "authoritative-behavior-divergence",
+      "comparison_reason": "Elliott observed an authoritative status-card failure while Silas independently passed the same exact-candidate row. Neither verdict may replace the other; compare session tool inventory, model/config, and raw-safe status receipts.",
+      "primary": {
+        "attempt_fingerprint_sha256": "ebadb341edd7e9d447554929e081bc2d965ae112c58977b05144a5f8415cf565",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "session-created"
+          ],
+          "pending": [],
+          "state": "unresolved-or-mismatch"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "fd829623cfefe77e745ff225bdaaabd51c78550ce7b48364044a111cd340d8ff",
+          "state": "authoritative-mismatch-observed"
+        },
+        "bundle_manifest_sha256": "32b2771289e97f01af6d2d520fe5c83873b35d4e8b1b6d93e8a92e09ad31118b",
+        "missing_evidence_class": "behavior-authority",
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-1/elliott/20260719T194038Z-r-obs-1",
+        "provisional_reviewed_verdict": "FAIL-candidate",
+        "role": "primary",
+        "runner_verdict": "FAIL-candidate",
+        "seat": "elliott",
+        "special_finding": {
+          "build_visible": false,
+          "classification": "FAIL-candidate",
+          "context_visible": false,
+          "continuation_chain_visible": false,
+          "dispatch_accepted": true,
+          "kind": "authoritative-failure-receipt",
+          "route_visible": false,
+          "status_card_observed": false,
+          "summary_receipt": {
+            "bytes": 295,
+            "file": "r-obs-1-summary.json",
+            "sha256": "43e730506fb8112c710d85814624a3f3e14f6e02c95c6a23da2be5c98e119a67"
+          }
+        },
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-OBS-1"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "f5d59db98d50a905a777daef78f6994c7509739b34f9d757a7fc81519eadcf22",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-2/silas/20260719T200250Z-r-obs-2",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T200250Z-r-obs-2",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "0b03102481cc1078078b256fa57be069df1d5d09486e28f32ac6b320495db07b",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [],
+          "pending": [],
+          "state": "not-separately-required"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "abfe427d81110da19aa22794e18f42365aaf692b4c80d6b5df7b67f0c1764f83",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "a6ce4f75b9ad236225a56c724dabb664bb9e6d26af4d478fd9fa5230edf38861",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-2/elliott/20260719T194143Z-r-obs-2",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-OBS-2"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "31d719b406e23e138bd96caa2ec418cb590825ef2728e76511eaaa95cb5c0a63",
+        "blockers": [
+          "Exact candidate source was fetched, but the status formatter could not be extracted; neither active-line presence nor clean-session absence was proven."
+        ],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PARTIAL",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-STATUS/silas/20260719T200251Z-r-obs-status",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T200251Z-r-obs-status",
+        "runner_seat": "silas",
+        "runner_verdict": "BAD_PROOF",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "shared-harness-selection-defect",
+      "comparison_reason": "Both seats fetched exact candidate source but the stale formatter extractor failed; neither seat executed the intended assertions.",
+      "primary": {
+        "attempt_fingerprint_sha256": "ef85ec9702c7acea75f6769d30c5b8a0def79847c0f0f3c2bfb579542770017e",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "clean-session-line-absence"
+          ],
+          "pending": [],
+          "state": "unresolved-or-mismatch"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "86f4babdef49601e7df459591f621d1275d2a4ab4850b94de7ccfcf9ddf26b3e",
+          "state": "not-established-harness-failure"
+        },
+        "bundle_manifest_sha256": "27a718da737281e52b94b10391318c3a5a0a742225bd8987070c341f67f738ab",
+        "missing_evidence_class": "harness-selection",
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-STATUS/elliott/20260719T194146Z-r-obs-status",
+        "provisional_reviewed_verdict": "BAD_PROOF",
+        "role": "primary",
+        "runner_verdict": "BAD_PROOF",
+        "seat": "elliott",
+        "special_finding": {
+          "active_continuation_line_present": false,
+          "classification": "BAD_PROOF",
+          "clean_session_continuation_line_absent": false,
+          "formatter_extracted": false,
+          "kind": "bad-proof-reason",
+          "reason": "candidate source fetched, but stale source-location extractor failed to extract the formatter; required assertions were not executed",
+          "source_fetch_ok": true,
+          "source_path": "src/status/status-text.ts",
+          "source_repository": "karmaterminal/openclaw",
+          "source_sha256": "7dd1f0c6d5d411f85fbcf4e3c68bee8b6e750b33c67b097889f15347f7d1f5bc",
+          "summary_receipt": {
+            "bytes": 324,
+            "file": "r-obs-status-summary.json",
+            "sha256": "ba8b806c4be215b2afba78c3aebf1c9d5752c760dfbb688d6b0cdb734347bd36"
+          }
+        },
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-OBS-STATUS"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "6ad6ae21fe22deda3b74da4140d1bbd44896b7554c046526fb8e3abd71fa0266",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-1/silas/20260719T200253Z-r-rc-1",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T200253Z-r-rc-1",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "c898bc27f71cf5ca2ce8c5f71f9e506600eacf3bfc312faa6c76169942a66398",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [],
+          "pending": [],
+          "state": "not-separately-required"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "8fcddbd55811b4db74aa59280a2d35e8708bd462ef6cf28820a42c0724863406",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "a10c9e38e974bded7a955ae5e14ccc284cb4f9d184710e99fe1ffcd99d01f596",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-1/elliott/20260719T194150Z-r-rc-1",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-RC-1"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "96fae901217ceded2e15a62c49559bd53d72e5a0a0015e5799471b3202f2d6ce",
+        "blockers": [
+          "Only row authorized for HONEST_LIMIT: authoritative request_compaction toolResult was invocation-bound and rejected by guard=context_threshold; acceptance and post-compaction path were therefore unavailable without mutating seat pressure."
+        ],
+        "bundle_file_count": 25,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "HONEST_LIMIT",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-2/silas/20260719T200342Z-r-rc-2",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T200342Z-r-rc-2",
+        "runner_seat": "silas",
+        "runner_verdict": "HONEST-LIMIT-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [
+            {
+              "at": "2026-07-19T20:07:49.506Z",
+              "phase": "start"
+            },
+            {
+              "at": "2026-07-19T20:07:59.923Z",
+              "exitCode": 1,
+              "phase": "finished"
+            }
+          ],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "authority-receipt-divergence",
+      "comparison_reason": "Silas captured the invocation-bound context-threshold toolResult required for HONEST_LIMIT; Elliott did not. Keep seat-local classifications distinct.",
+      "primary": {
+        "attempt_fingerprint_sha256": "48f9bee82e9e10dcf08c3818bd5660d53a0d60fc64f0c63471aa9ed27432e627",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [
+            "child-report-observed",
+            "threshold-rejection-or-accepted-compaction"
+          ],
+          "pending": [],
+          "state": "unresolved-or-mismatch"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "9b70ef468cac2b1a1b500466c0769aea277218d29cb3db2343b232afebee1f51",
+          "state": "observed-incomplete"
+        },
+        "bundle_manifest_sha256": "14aa7e0b45155da4b62484712adad91b1a92b94a6affa2c36e85cf4848d7f31b",
+        "missing_evidence_class": "behavior-authority",
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-2/elliott/20260719T194251Z-r-rc-2",
+        "provisional_reviewed_verdict": "PARTIAL-candidate",
+        "role": "primary",
+        "runner_verdict": "PARTIAL-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [
+            {
+              "behavior_refired": false,
+              "error": "no Tempo trace matched reason hash fcbb8a7eeb8a61de before timeout",
+              "phase": "initial-collector",
+              "result": "rejected"
+            },
+            {
+              "behavior_refired": false,
+              "ended_at": "2026-07-19T19:54:24Z",
+              "exit_code": 1,
+              "phase": "bounded-post-run-recovery",
+              "result": "unresolved",
+              "started_at": "2026-07-19T19:53:54Z"
+            }
+          ],
+          "pending_receipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "span_count": null,
+          "status": "missing",
+          "trace_id": null
+        }
+      },
+      "row": "R-RC-2"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "e36dcc83e0bcfdd38ae88a44015ace3d84ebcc8c9a003f06fd93fb3d0b3abc3f",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-REGRESSION-TRAP-TESTS/silas/20260719T200556Z-r-regression-trap-tests",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T200556Z-r-regression-trap-tests",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "2f157883331fdfad47363fd739f3d113c114ed74ee7563d8b69d9f503296b7bc",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [],
+          "pending": [],
+          "state": "not-separately-required"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "9188dd7a192bc562d6b1773a21b79dfe8a6d3e4c6d8874cd9e3e7b5c5f001696",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "50148ea25ffbf6f44368453718f3ad7b3900d2dcc54532727af88a7fc8b9a412",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-REGRESSION-TRAP-TESTS/elliott/20260719T194557Z-r-regression-trap-tests",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-REGRESSION-TRAP-TESTS"
+    },
+    {
+      "comparator": {
+        "auditor_derived_bundle_fingerprint_sha256": "bd01c9aea777ea2f32bf5349c1ba705dfa3c4db8b2621ebcd8706d7285509572",
+        "blockers": [],
+        "bundle_file_count": 20,
+        "canonical_fold_allowed": false,
+        "exact_expected_behavior_observed": null,
+        "final_classification": "PASS",
+        "original_published_artifact_directory": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-TRACE-REDACTION-1121/silas/20260719T200557Z-r-trace-redaction-1121",
+        "refire_allowed": false,
+        "role": "comparator",
+        "run_id": "20260719T200557Z-r-trace-redaction-1121",
+        "runner_seat": "silas",
+        "runner_verdict": "PASS-candidate",
+        "seat": "silas-lothric",
+        "trace": {
+          "acquisition_timestamps": [],
+          "blockers": [],
+          "contract_outcome": null,
+          "correlation_receipt_present": false,
+          "span_count": null,
+          "trace_id": null,
+          "trace_receipt_present": false
+        }
+      },
+      "comparison_category": "concordant-pass-candidates",
+      "comparison_reason": "Both independent runners satisfied their local row contracts; this remains comparison evidence, not a canonical fold.",
+      "primary": {
+        "attempt_fingerprint_sha256": "ab9f700095adeead52120389e38c8126c1e356facd42bfff89bed015fd6629c5",
+        "authority_model_receipt": {
+          "authoritative_receipt": null,
+          "expected": [],
+          "pending": [],
+          "state": "not-separately-required"
+        },
+        "behavior_receipt": {
+          "evidence_file": "evidence.jsonl",
+          "evidence_sha256": "c206c22a3dcfe93a3472411cc2a473d9d7f14c6a1a25189ffa3e255fea0bcb9a",
+          "state": "runner-contract-satisfied"
+        },
+        "bundle_manifest_sha256": "81e9412642ce4c2095cd4b9556126d6484e9cf33d1df2a1e5b1b592fa0714083",
+        "missing_evidence_class": null,
+        "original_run_directory": "proof-runs/elliott-primary-20260719T190935Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-TRACE-REDACTION-1121/elliott/20260719T194600Z-r-trace-redaction-1121",
+        "provisional_reviewed_verdict": "PASS-candidate",
+        "role": "primary",
+        "runner_verdict": "PASS-candidate",
+        "seat": "elliott",
+        "special_finding": null,
+        "trace": {
+          "acquisitions": [],
+          "pending_receipts": [],
+          "span_count": null,
+          "status": "unknown",
+          "trace_id": null
+        }
+      },
+      "row": "R-TRACE-REDACTION-1121"
+    }
+  ],
+  "rows_requiring_specific_divergence_review": [
+    "R-CD-1",
+    "R-CD-4",
+    "R-CD-CHAINED-DEPTH-2",
+    "R-CW-2",
+    "R-OBS-1",
+    "R-OBS-STATUS",
+    "R-RC-2"
+  ],
+  "rules": {
+    "auditor_derived_fingerprint_note": "Silas per-row fingerprints are derived read-only from the published artifact directory because the public rollup does not expose a dedicated attemptFingerprint field.",
+    "no_behavioral_refire": true,
+    "no_cross_seat_promotion_or_demotion": true,
+    "no_verdict_substitution": true,
+    "partial_plus_partial_remains_partial": true
+  },
+  "schema": "openclaw.project81.primary-comparator-crosswalk.v1",
+  "seat_local_publication_points": {
+    "combined_canonical_publication": null,
+    "elliott_primary_packet_mislabeled_as_comparator": "7230ffcf04de09ee567cbcd273f7de6d9aed2ae4",
+    "silas_comparator_packet": "d9fb2fd9807912b6f7c9b25a3e9ec0bd66938e51"
+  },
+  "server_main_read_only_anchor": "d9fb2fd9807912b6f7c9b25a3e9ec0bd66938e51",
+  "source_integrity": {
+    "elliott_primary_ledger_path": "proof-runs/elliott-primary-20260719T190935Z/review/elliott-primary-row-ledger.public.json",
+    "elliott_primary_ledger_sha256": "cba55c7b0fc7365041385a4e9048b2a0d7729b57265ef3e60190915d70e695f4",
+    "silas_checksum_entries_verified": 811,
+    "silas_checksum_manifest_path": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/checksums.sha256",
+    "silas_checksum_manifest_sha256": "356f80829b86f7d069c9c75d1fe1eebef918efaabcd0684cf1c76cdcb68136be",
+    "silas_final_review_rollup_path": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/final-review-rollup.json",
+    "silas_final_review_rollup_sha256": "fab4ad2b181b28d24becede708b068abd01d95e0bbb0d3c676995ea45627250e"
+  }
+}

@@ -1,0 +1,69 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { rCd4ReturnCandidate, rCd4ReturnReceipt } from '../lib/r-cd-4-authority.mjs';
+
+const nonce = 'R-CD-4-EXACT-NONCE';
+const target = 'agent:main:r-cd-4-target';
+const parent = 'agent:main:r-cd-4-parent';
+
+test('R-CD-4 accepts only the exact target marker and binds child identity', () => {
+  const candidate = rCd4ReturnCandidate({
+    eventName: 'session.message',
+    eventData: { sessionKey: target, role: 'system', text: `TARGET-RECEIVED ${nonce}` },
+    expectedSessionKey: target,
+    nonce,
+  });
+  assert.deepEqual(rCd4ReturnReceipt(candidate, 'agent:main:subagent:child'), {
+    eventName: 'session.message',
+    sessionKey: target,
+    nonce,
+    marker: `TARGET-RECEIVED ${nonce}`,
+    childSessionKey: 'agent:main:subagent:child',
+  });
+});
+
+test('R-CD-4 rejects an unrelated delayed target message', () => {
+  assert.equal(rCd4ReturnCandidate({
+    eventName: 'session.message',
+    eventData: { sessionKey: target, text: 'ordinary delayed target output' },
+    expectedSessionKey: target,
+    nonce,
+  }), null);
+});
+
+test('R-CD-4 rejects prompt echo and nonce-prefix lookalikes', () => {
+  assert.equal(rCd4ReturnCandidate({
+    eventName: 'session.message',
+    eventData: {
+      sessionKey: target,
+      text: `[k6-proof-harness] ask for TARGET-RECEIVED ${nonce}`,
+    },
+    expectedSessionKey: target,
+    nonce,
+  }), null);
+  assert.equal(rCd4ReturnCandidate({
+    eventName: 'session.message',
+    eventData: { sessionKey: target, text: `TARGET-RECEIVED ${nonce}-STALE` },
+    expectedSessionKey: target,
+    nonce,
+  }), null);
+});
+
+test('R-CD-4 never routes from a nested session-key mention', () => {
+  assert.equal(rCd4ReturnCandidate({
+    eventName: 'session.message',
+    eventData: { sessionKey: parent, text: `for ${target}: TARGET-RECEIVED ${nonce}` },
+    expectedSessionKey: target,
+    nonce,
+  }), null);
+});
+
+test('R-CD-4 withholds a marker candidate until child identity is available', () => {
+  const candidate = rCd4ReturnCandidate({
+    eventName: 'session.message',
+    eventData: { sessionKey: target, text: `TARGET-RECEIVED ${nonce}` },
+    expectedSessionKey: target,
+    nonce,
+  });
+  assert.equal(rCd4ReturnReceipt(candidate, null), null);
+});

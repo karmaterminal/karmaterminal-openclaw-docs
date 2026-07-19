@@ -13,6 +13,8 @@ import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
+import { rCd4ReturnCandidate, rCd4ReturnReceipt } from '../lib/r-cd-4-authority.mjs';
 import { closeSocketAfterDelay } from '../lib/socket-close.js';
 
 export const options = {
@@ -106,8 +108,13 @@ export default function () {
     tool_accepted: false,
     agent_turn_observed: false,
     child_completed: false,
+    child_session: null,
     return_in_target: false,
     return_in_parent: false,
+    target_return_candidate: null,
+    parent_return_candidate: null,
+    target_return_receipt: null,
+    parent_return_receipt: null,
     dispatch_accepted_at_ms: null,
     wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
     reason_hash: null,
@@ -123,6 +130,22 @@ export default function () {
     const tracker = new RequestTracker();
     let createPhase = 'none';
     let returnCloseScheduled = false;
+
+    function finalizeReturnReceipts() {
+      evidence.target_return_receipt = rCd4ReturnReceipt(
+        evidence.target_return_candidate,
+        evidence.child_session,
+      );
+      evidence.parent_return_receipt = rCd4ReturnReceipt(
+        evidence.parent_return_candidate,
+        evidence.child_session,
+      );
+      evidence.return_in_target = evidence.target_return_receipt !== null;
+      evidence.return_in_parent = evidence.parent_return_receipt !== null;
+      if (evidence.return_in_target) {
+        evidence.child_completed = true;
+      }
+    }
 
     function createParent(socket) {
       createPhase = 'parent';
@@ -231,6 +254,11 @@ export default function () {
           for (const task of tasks) {
             const taskStr = JSON.stringify(task);
             if (taskStr.includes(rowNonce)) {
+              const possibleChild = task.childSessionKey || task.sessionKey || null;
+              if (possibleChild && possibleChild !== sessionKey && possibleChild !== targetSessionKey) {
+                evidence.child_session = possibleChild;
+                finalizeReturnReceipts();
+              }
               if (task.state === 'completed' || task.status === 'completed') {
                 evidence.child_completed = true;
                 console.log('✓ Child task completed');
@@ -243,8 +271,11 @@ export default function () {
         if (classified.kind === 'event') {
           const eventName = classified.event || '';
           const eventData = classified.data || {};
-          const eventStr = JSON.stringify(eventData);
-          const eventSession = eventData.sessionKey || eventData.session || null;
+          const observedChild = childSessionKeyForRow(eventData, rowNonce);
+          if (observedChild && observedChild !== sessionKey && observedChild !== targetSessionKey) {
+            evidence.child_session = observedChild;
+            finalizeReturnReceipts();
+          }
 
           if (eventName === 'agent' && evidence.tool_accepted) {
             evidence.agent_turn_observed = true;
@@ -253,15 +284,28 @@ export default function () {
           if (eventName === 'session.message' && evidence.tool_accepted) {
             const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
             if (elapsed >= evidence.wake_gate_ms) {
-              if (eventSession === targetSessionKey || eventStr.includes(targetSessionKey)) {
-                evidence.return_in_target = true;
+              const targetCandidate = rCd4ReturnCandidate({
+                eventName,
+                eventData,
+                expectedSessionKey: targetSessionKey,
+                nonce: rowNonce,
+              });
+              const parentCandidate = rCd4ReturnCandidate({
+                eventName,
+                eventData,
+                expectedSessionKey: sessionKey,
+                nonce: rowNonce,
+              });
+              if (targetCandidate) {
+                evidence.target_return_candidate = targetCandidate;
                 evidence.agent_turn_observed = true;
-                evidence.child_completed = true;
-                console.log('✓ Delayed return/wake landed in TARGET session');
-              } else if (eventSession === sessionKey || eventStr.includes(sessionKey)) {
-                evidence.return_in_parent = true;
-                console.warn('✗ Delayed return/wake landed in PARENT session (should be target only)');
+                console.log('✓ nonce-bound TARGET-RECEIVED candidate landed in target session');
               }
+              if (parentCandidate) {
+                evidence.parent_return_candidate = parentCandidate;
+                console.warn('✗ nonce-bound TARGET-RECEIVED candidate landed in parent session');
+              }
+              finalizeReturnReceipts();
             } else {
               evidence.agent_turn_observed = true;
               console.log('✓ initial session.message event observed (dispatching agent turn)');
@@ -294,16 +338,19 @@ export default function () {
   check(null, {
     'dispatch accepted': () => evidence.tool_accepted,
     'dispatching agent turn observed': () => evidence.agent_turn_observed,
-    'return landed in target session': () => evidence.return_in_target,
-    'no return in parent session (routing verified)': () => !evidence.return_in_parent,
+    'nonce-bound child identity observed': () => evidence.child_session !== null,
+    'nonce-bound target return receipt observed': () => evidence.target_return_receipt !== null,
+    'no nonce-bound parent return receipt': () => evidence.parent_return_receipt === null,
   });
 
-  if (!evidence.tool_accepted || !evidence.agent_turn_observed || !evidence.return_in_target || evidence.return_in_parent) {
+  if (!evidence.tool_accepted || !evidence.agent_turn_observed || !evidence.child_session ||
+      !evidence.target_return_receipt || evidence.parent_return_receipt) {
     failures.add(1);
   }
 
   const passed = evidence.tool_accepted && evidence.agent_turn_observed &&
-    evidence.return_in_target && !evidence.return_in_parent;
+    evidence.child_session !== null && evidence.target_return_receipt !== null &&
+    evidence.parent_return_receipt === null;
 
   console.log(`R_CD_4_EVIDENCE ${JSON.stringify(evidence)}`);
   console.log(`\n--- R-CD-4 EVIDENCE SUMMARY ---`);

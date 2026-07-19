@@ -52,7 +52,12 @@
     {
       "name": "target-return-event",
       "required": true,
-      "description": "A delayed return/wake event arrives in the TARGET session"
+      "description": "The TARGET session receives the exact TARGET-RECEIVED {{nonce}} marker in a structured session.message event"
+    },
+    {
+      "name": "child-session-identity",
+      "required": true,
+      "description": "A structured spawn/task record binds the child session key to the same row nonce"
     },
     {
       "name": "no-parent-return",
@@ -80,7 +85,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Cross-session targeted return. PASS-candidate when: (1) dispatch accepted with targetSessionKey, (2) return lands in TARGET session, (3) dispatching session does NOT receive the return. A nonce-correlated tasks.list row is optional because continue_delegate uses pending-delegate/subagent surfaces, not the generic task registry."
+    "notes": "Cross-session targeted return. PASS-candidate requires dispatch acceptance, a nonce-bound child identity, the exact TARGET-RECEIVED {{nonce}} marker in the structured TARGET session, and no matching parent receipt. Unrelated delayed messages and nested session-key mentions fail closed."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -95,11 +100,12 @@
       "parent-session-created",
       "target-session-created",
       "dispatch-accepted",
+      "child-session-identity",
       "target-return-event",
       "no-parent-return",
       "trace-id"
     ],
     "foldRequiresReview": true,
-    "notes": "Live continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true for repeatability; explicit OPENCLAW_TARGET_SESSION_KEY still supported for reviewed manual runs."
+    "notes": "Live continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true for repeatability; explicit OPENCLAW_TARGET_SESSION_KEY still supported for reviewed manual runs. The detector requires exact row marker, structured target session, and separately nonce-bound child identity."
   }
 }

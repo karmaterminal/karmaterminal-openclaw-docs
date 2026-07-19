@@ -190,7 +190,7 @@ export function parseTokenReturnEvent(
 }
 
 export function classifyTokenEvidence(evidence) {
-  if (evidence?.surface_class !== RAW_FINAL_TEXT) return 'HONEST-LIMIT-candidate';
+  if (evidence?.surface_class !== RAW_FINAL_TEXT) return 'PARTIAL-candidate';
   const exactOnce = evidence.origin_task_unique_count === 1 && evidence.delegate_task_unique_count === 1;
   const identities = [
     evidence.origin_task_id_hash,

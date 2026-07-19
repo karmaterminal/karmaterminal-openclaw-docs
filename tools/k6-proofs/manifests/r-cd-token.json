@@ -29,8 +29,8 @@
   },
   "seatClassExpectation": {
     "raw-final-text-seat": "PASS-candidate",
-    "message-body-seat": "HONEST-LIMIT-candidate",
-    "reason": "Bracket scanner fires only on scanned-final-text. Seats that route final-text through message(send) body kill the scanner (bracketIdx=-1). ronan-dgx IS a message-body seat in its default Discord delivery \u2014 expected HONEST-LIMIT unless raw-final-text mode is forced (no message-tool call that turn). See TOOLS.md bracket-position-sensitive notes."
+    "message-body-seat": "PARTIAL-candidate",
+    "reason": "Bracket scanner fires only on scanned-final-text. Seats that route final-text through message(send) body cannot prove this row and remain PARTIAL unless raw-final-text mode is forced (no message-tool call that turn). See TOOLS.md bracket-position-sensitive notes."
   },
   "expectedReceipts": [
     {
@@ -99,7 +99,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Bracket/token path. On message-body-delivery seats (ronan-dgx default), expected outcome is HONEST-LIMIT-candidate (scanner killed). PASS-candidate only on raw-final-text seats. candidateSha and seat resolved from env at runtime."
+    "notes": "Bracket/token path. Message-body delivery cannot prove this contract and remains PARTIAL-candidate. PASS-candidate requires a raw-final-text seat. candidateSha and seat resolve from env at runtime."
   },
   "invocation": {
     "tool": "continue_delegate",
@@ -136,7 +136,7 @@
       "continuation-trace-correlation"
     ],
     "foldRequiresReview": true,
-    "notes": "PASS requires a runner-owned attempt, disposable raw-final-text origin, exactly one origin task and one token-scheduled delegate task through a settle window, exact completion/return binding, and public Tempo topology. Message-body/unknown surfaces are HONEST-LIMIT; interruption is structured PARTIAL and never auto-retried.",
+    "notes": "PASS requires a runner-owned attempt, disposable raw-final-text origin, exactly one origin task and one token-scheduled delegate task through a settle window, exact completion/return binding, and public Tempo topology. Message-body/unknown surfaces and interruption are structured PARTIAL and never auto-retried.",
     "requiresDisposableSession": true
   }
 }

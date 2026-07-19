@@ -3,7 +3,7 @@
  * seat-readiness-preflight.mjs — public-safe seat/tooling readiness report.
  *
  * This is intentionally a Node helper, not a k6 row. It runs before proof rows
- * so a bad seat/tooling environment becomes HONEST-LIMIT-candidate instead of
+ * so a bad seat/tooling environment becomes PARTIAL-candidate instead of
  * being confused with product behavior.
  */
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -219,7 +219,7 @@ async function main() {
   const report = {
     schema: 'openclaw.k6.seat-readiness.v1',
     generatedAt: new Date().toISOString(),
-    outcome: pass ? 'PASS-candidate' : 'HONEST-LIMIT-candidate',
+    outcome: pass ? 'PASS-candidate' : 'PARTIAL-candidate',
     policy: {
       name: policy.name,
       version: policy.version,

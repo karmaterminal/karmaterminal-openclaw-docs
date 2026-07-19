@@ -76,7 +76,7 @@ export default function() {
     model_matches: false,
     return_payload: false,
     trace_id: null,
-    honest_limit_reason: null,
+    model_classification_reason: null,
     redacted_events: [],
   };
   const started = Date.now();
@@ -159,10 +159,14 @@ export default function() {
               modelSelectionLocked: child.modelSelectionLocked === true,
             };
             evidence.model_matches = evidence.child_metadata_model_byte === requestedModel;
-            if (!evidence.model_matches) evidence.honest_limit_reason = 'requested/child-session-metadata model mismatch or unavailable metadata';
+            if (!evidence.model_matches) {
+              evidence.model_classification_reason =
+                'requested model does not match authoritative child-session metadata';
+            }
             console.log('✓ child session metadata observed');
           } else if (!classified.ok) {
-            evidence.honest_limit_reason = 'gateway sessions.list unavailable while resolving child session metadata';
+            evidence.model_classification_reason =
+              'gateway sessions.list unavailable while resolving child session metadata';
           }
         }
         if (classified.kind === 'event') {
@@ -214,8 +218,14 @@ export default function() {
     'return payload': () => evidence.return_payload,
     'requested model observed': () => evidence.model_matches,
   });
-  if (!complete) failures.add(1);
-  const verdict = complete && evidence.model_matches ? 'PASS-candidate' : (complete ? 'HONEST-LIMIT-candidate' : 'PARTIAL-candidate');
+  const authoritativeMismatch =
+    evidence.child_session_metadata_observed &&
+    !!evidence.child_metadata_model_byte &&
+    !evidence.model_matches;
+  const verdict = authoritativeMismatch
+    ? 'FAIL-candidate'
+    : (complete ? 'PASS-candidate' : 'PARTIAL-candidate');
+  if (verdict !== 'PASS-candidate') failures.add(1);
   console.log('\n--- R-CD-MODEL-TOOL EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-TOOL] VERDICT: ' + verdict);
 }
 
@@ -223,7 +233,13 @@ export function handleSummary(data) {
   const timestamp = new Date().toISOString();
   const failuresCount = data.metrics.proof_failures?.values?.count || 0;
   const complete = !!(finalEvidence?.dispatch_accepted && finalEvidence?.parent_scheduled_sentinel && finalEvidence?.child_session_metadata_observed && finalEvidence?.child_metadata_model_byte && finalEvidence?.return_payload);
-  const verdict = failuresCount === 0 && finalEvidence?.model_matches ? 'PASS-candidate' : (failuresCount === 0 && complete ? 'HONEST-LIMIT-candidate' : 'PARTIAL-candidate');
-  const summary = { row: 'R-CD-MODEL-TOOL', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict, requestedModel: finalEvidence?.requested_model_byte || __ENV.OPENCLAW_ALT_MODEL || null, observedModel: finalEvidence?.child_metadata_model_byte || null, observedModelSource: finalEvidence?.child_metadata_model_source || null, auxiliarySelfReport: finalEvidence?.child_self_reported_model || null, honestLimitReason: finalEvidence?.honest_limit_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_tool_duration?.values || null, failures: failuresCount } };
+  const authoritativeMismatch =
+    finalEvidence?.child_session_metadata_observed &&
+    !!finalEvidence?.child_metadata_model_byte &&
+    !finalEvidence?.model_matches;
+  const verdict = authoritativeMismatch
+    ? 'FAIL-candidate'
+    : (complete ? 'PASS-candidate' : 'PARTIAL-candidate');
+  const summary = { row: 'R-CD-MODEL-TOOL', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict, requestedModel: finalEvidence?.requested_model_byte || __ENV.OPENCLAW_ALT_MODEL || null, observedModel: finalEvidence?.child_metadata_model_byte || null, observedModelSource: finalEvidence?.child_metadata_model_source || null, auxiliarySelfReport: finalEvidence?.child_self_reported_model || null, classificationReason: finalEvidence?.model_classification_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_tool_duration?.values || null, failures: failuresCount } };
   return { stdout: '\n[R-CD-MODEL-TOOL] Summary: ' + summary.verdict + ' | SHA: ' + summary.sha + ' | Seat: ' + summary.seat + '\n', 'r-cd-model-tool-summary.json': JSON.stringify(summary, null, 2) };
 }

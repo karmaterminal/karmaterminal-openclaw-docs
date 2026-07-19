@@ -83,6 +83,6 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Preflight is non-mutating and should never write a final proof verdict by itself. k6 version/env/gateway mismatches are HONEST-LIMIT/setup candidates, not product failures."
+    "notes": "Preflight is non-mutating and should never write a final proof verdict by itself. k6 version/env/gateway mismatches are PARTIAL/setup candidates, not product failures."
   }
 }

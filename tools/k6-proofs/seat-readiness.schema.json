@@ -31,7 +31,7 @@
     "outcome": {
       "enum": [
         "PASS-candidate",
-        "HONEST-LIMIT-candidate",
+        "PARTIAL-candidate",
         "FAIL-candidate"
       ]
     },

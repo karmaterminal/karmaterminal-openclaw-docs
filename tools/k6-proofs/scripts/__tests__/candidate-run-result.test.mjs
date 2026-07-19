@@ -7,6 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { resolveRcdTokenAuthoritativeReceipt } from '../../lib/r-cd-token-authoritative-receipt.mjs';
+import { candidateEnvelopeMatchesSiblings } from '../candidate-run-result-contract.mjs';
 
 const runNode = promisify(execFile);
 const script = path.resolve('tools/k6-proofs/scripts/validate-candidate-run-result.mjs');
@@ -40,12 +41,12 @@ function runResult(overrides = {}) {
   };
 }
 
-async function fixture({ result = runResult(), metadata = null } = {}) {
+async function fixture({ result = runResult(), metadata = null, manifestValue = manifest() } = {}) {
   const root = await mkdtemp(path.join(tmpdir(), 'candidate-run-result-'));
   const candidateDir = path.join(root, 'candidate');
   await mkdir(candidateDir);
   const manifestPath = path.join(root, 'manifest.json');
-  await writeFile(manifestPath, `${JSON.stringify(manifest(), null, 2)}\n`);
+  await writeFile(manifestPath, `${JSON.stringify(manifestValue, null, 2)}\n`);
   await writeFile(path.join(candidateDir, 'runner-metadata.json'), `${JSON.stringify(metadata || {
     row: 'R-CW-TEST', candidateSha: sha, seat: 'cael', scenario: 'r-cw-test.js',
   }, null, 2)}\n`);
@@ -101,6 +102,122 @@ test('rejects malformed, identity-mismatched, and review-incomplete candidates',
       await assert.rejects(invoke(setup), /review-incomplete/);
     } finally { await rm(setup.root, { recursive: true, force: true }); }
   });
+  await t.test('honest limit on a non-R-RC-2 row', async () => {
+    const setup = await fixture({ result: runResult({ verdict: 'HONEST-LIMIT-candidate' }) });
+    try {
+      await assert.rejects(invoke(setup), /candidate run result is incomplete or inconsistent/);
+    } finally { await rm(setup.root, { recursive: true, force: true }); }
+  });
+});
+
+test('R-RC-2 honest limit requires the nonce-bound structured threshold receipt in both validation layers', async () => {
+  const manifestValue = {
+    schema: 'openclaw.k6.proof-row-manifest.v1',
+    rowId: 'R-RC-2',
+    candidateSha: sha,
+    seat: 'cael',
+    scenario: { name: 'r-rc-2-delegate-request-compaction' },
+    review: { candidateOnly: true, foldRequiresReview: true },
+    liveRunSafety: { expectedArtifactClass: 'HONEST-LIMIT-candidate' },
+  };
+  const metadata = {
+    row: 'R-RC-2',
+    candidateSha: sha,
+    seat: 'cael',
+    scenario: 'r-rc-2-delegate-request-compaction.js',
+  };
+  const verifiedEvidence = {
+    row: 'R-RC-2',
+    parent_dispatch_accepted: true,
+    delegate_requested: true,
+    child_session_observed: true,
+    delegate_child_report_observed: true,
+    child_reported_context_threshold: true,
+    request_compaction_tool_result_observed: true,
+    request_compaction_receipt_role: 'toolResult',
+    request_compaction_receipt_tool_name: 'request_compaction',
+    request_compaction_receipt_status: 'rejected',
+    request_compaction_invocation_bound: true,
+    request_compaction_rejected_context_threshold: true,
+    guard: 'context_threshold',
+  };
+  const invalidResult = runResult({
+    verdict: 'HONEST-LIMIT-candidate',
+    evidence: { ...verifiedEvidence, request_compaction_invocation_bound: false },
+  });
+  const setup = await fixture({ result: invalidResult, metadata, manifestValue });
+  try {
+    await assert.rejects(invoke(setup), /nonce-bound structured request_compaction/);
+
+    const validResult = runResult({
+      verdict: 'HONEST-LIMIT-candidate',
+      evidence: verifiedEvidence,
+    });
+    await writeFile(
+      path.join(setup.candidateDir, 'run-result.json'),
+      `${JSON.stringify(validResult, null, 2)}\n`,
+    );
+    const envelope = JSON.parse((await invoke(setup)).stdout);
+    assert.equal(candidateEnvelopeMatchesSiblings({
+      envelope,
+      manifest: manifestValue,
+      metadata,
+      runResult: validResult,
+      runDir: setup.candidateDir,
+    }), true);
+    assert.equal(candidateEnvelopeMatchesSiblings({
+      envelope,
+      manifest: manifestValue,
+      metadata,
+      runResult: invalidResult,
+      runDir: setup.candidateDir,
+    }), false);
+
+    const verifiedPassEvidence = {
+      ...verifiedEvidence,
+      child_reported_context_threshold: false,
+      post_compaction_path_observed: true,
+      request_compaction_receipt_status: 'accepted',
+      request_compaction_rejected_context_threshold: false,
+      request_compaction_accepted: true,
+      guard: null,
+    };
+    const validPassResult = runResult({
+      verdict: 'PASS-candidate',
+      evidence: verifiedPassEvidence,
+    });
+    await writeFile(
+      path.join(setup.candidateDir, 'run-result.json'),
+      `${JSON.stringify(validPassResult, null, 2)}\n`,
+    );
+    const passEnvelope = JSON.parse((await invoke(setup)).stdout);
+    assert.equal(candidateEnvelopeMatchesSiblings({
+      envelope: passEnvelope,
+      manifest: manifestValue,
+      metadata,
+      runResult: validPassResult,
+      runDir: setup.candidateDir,
+    }), true);
+
+    const invalidPassResult = runResult({
+      verdict: 'PASS-candidate',
+      evidence: { ...verifiedPassEvidence, request_compaction_receipt_status: 'rejected' },
+    });
+    await writeFile(
+      path.join(setup.candidateDir, 'run-result.json'),
+      `${JSON.stringify(invalidPassResult, null, 2)}\n`,
+    );
+    await assert.rejects(invoke(setup), /nonce-bound structured request_compaction/);
+    assert.equal(candidateEnvelopeMatchesSiblings({
+      envelope: passEnvelope,
+      manifest: manifestValue,
+      metadata,
+      runResult: invalidPassResult,
+      runDir: setup.candidateDir,
+    }), false);
+  } finally {
+    await rm(setup.root, { recursive: true, force: true });
+  }
 });
 
 test('candidate envelope is outside and invisible to canonical corpus validation', async () => {

@@ -126,9 +126,7 @@ export function resolveRcdTokenAuthoritativeReceipt({
             : 'invalid-continuation-topology';
     return seal({
       ...base,
-      verdict: evidenceVerdict === 'HONEST-LIMIT-candidate'
-        ? evidenceVerdict
-        : 'PARTIAL-candidate',
+      verdict: 'PARTIAL-candidate',
       failureCategory,
     }, signingKey);
   }
@@ -184,7 +182,7 @@ export function validateRcdTokenAuthoritativeReceipt(receipt, key) {
     return { valid: false, reason: 'invalid-integrity' };
   }
   if (receipt.verdict !== 'PASS-candidate') {
-    return ['PARTIAL-candidate', 'HONEST-LIMIT-candidate'].includes(receipt.verdict) &&
+    return receipt.verdict === 'PARTIAL-candidate' &&
       typeof receipt.failureCategory === 'string'
       ? { valid: true, verdict: receipt.verdict }
       : { valid: false, reason: 'invalid-non-pass' };

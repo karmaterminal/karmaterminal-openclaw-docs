@@ -1,12 +1,12 @@
 /**
- * Scenario: R-CD-3 — post-compaction delegate staging with threshold honest-limit.
+ * Scenario: R-CD-3 — post-compaction delegate staging with threshold refusal.
  *
  * In a disposable session, asks the agent to stage a typed
  * continue_delegate(mode="post-compaction") lifeboat and then call
  * request_compaction. The PASS-candidate path accepts either:
  *   1. a real compaction path where the lifeboat returns after compaction, or
  *   2. a structured below-threshold request_compaction refusal captured as an
- *      environmental honest limit (common in public/disposable k6 contexts).
+ *      PARTIAL environmental proof debt (common in public/disposable k6 contexts).
  *
  * This does not lower context thresholds or mutate config.
  */
@@ -81,7 +81,7 @@ export default function () {
     dispatch_accepted: false,
     delegate_staging_requested: false,
     compaction_requested: false,
-    threshold_honest_limit: false,
+    threshold_refusal_observed: false,
     compaction_accepted: false,
     lifeboat_return_observed: false,
     guard: null,
@@ -100,7 +100,7 @@ export default function () {
       socket.setTimeout(() => {
         const lifeboatTask =
           `R-CD-3 post-compaction lifeboat nonce ${rowNonce}: if you run after compaction, reply exactly RCD3-LIFEBOAT-RECEIVED ${rowNonce}. Do not mutate files.`;
-        const reason = `R-CD-3 k6 proof nonce ${rowNonce}: trigger compaction after staging post-compaction delegate, or report below-threshold honest limit.`;
+        const reason = `R-CD-3 k6 proof nonce ${rowNonce}: trigger compaction after staging post-compaction delegate, or report a below-threshold refusal.`;
         const instruction =
           `${HARNESS_MARKER} R-CD-3 nonce ${rowNonce}. ` +
           `First call continue_delegate with mode="post-compaction", task="${lifeboatTask}", delaySeconds=0. ` +
@@ -185,13 +185,13 @@ export default function () {
           if (eventStr.includes(HARNESS_MARKER)) {
             console.log('ℹ Ignoring harness prompt echo event');
           } else if (eventStr.includes(`RCD3-THRESHOLD-LIMIT ${rowNonce}`)) {
-            evidence.threshold_honest_limit = true;
+            evidence.threshold_refusal_observed = true;
             evidence.guard = 'context_threshold';
             const usage = eventStr.match(/CONTEXT[^0-9A-Za-z]+(\d+|unknown)/)?.[1] || 'unknown';
             const threshold = eventStr.match(/THRESHOLD[^0-9A-Za-z]+(\d+|unknown)/)?.[1] || 'unknown';
             evidence.context_usage = usage !== 'unknown' ? Number(usage) : null;
             evidence.threshold = threshold !== 'unknown' ? Number(threshold) : null;
-            console.log(`✓ R-CD-3 threshold honest-limit observed: context=${usage} threshold=${threshold}`);
+            console.log(`✓ R-CD-3 threshold refusal observed: context=${usage} threshold=${threshold}`);
             socket.close();
           } else if (eventStr.includes(`RCD3-COMPACTION-ACCEPTED ${rowNonce}`)) {
             evidence.compaction_accepted = true;
@@ -217,18 +217,18 @@ export default function () {
   evidence.duration_ms = Date.now() - started;
   evidence.verdict = evidence.lifeboat_return_observed
     ? 'PASS-candidate'
-    : (evidence.threshold_honest_limit ? 'HONEST-LIMIT-candidate' : (evidence.compaction_accepted ? 'PARTIAL-candidate' : 'FAIL-candidate'));
+    : (evidence.threshold_refusal_observed || evidence.compaction_accepted ? 'PARTIAL-candidate' : 'FAIL-candidate');
   finalEvidence = evidence;
   duration.add(evidence.duration_ms);
 
-  const acceptedOutcome = evidence.threshold_honest_limit || evidence.lifeboat_return_observed;
+  const acceptedOutcome = evidence.threshold_refusal_observed || evidence.lifeboat_return_observed;
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'dispatch accepted': () => evidence.dispatch_accepted,
     'delegate staging requested': () => evidence.delegate_staging_requested,
     'compaction requested': () => evidence.compaction_requested,
     'accepted outcome observed': () => acceptedOutcome,
-    'threshold honest-limit or lifeboat': () => evidence.threshold_honest_limit || evidence.lifeboat_return_observed,
+    'threshold refusal or lifeboat': () => evidence.threshold_refusal_observed || evidence.lifeboat_return_observed,
   });
   if (!evidence.dispatch_accepted || !evidence.delegate_staging_requested || !evidence.compaction_requested || !acceptedOutcome) {
     failures.add(1);

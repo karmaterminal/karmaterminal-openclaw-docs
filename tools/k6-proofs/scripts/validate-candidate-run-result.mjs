@@ -72,6 +72,40 @@ function manifestCandidateSha(manifest) {
   return SHA.test(value || '') ? value : null;
 }
 
+function hasVerifiedRrc2Outcome(rowId, verdict, evidence) {
+  if (rowId !== 'R-RC-2') return verdict !== 'HONEST-LIMIT-candidate';
+  if (verdict === 'HONEST-LIMIT-candidate') return (
+    evidence?.row === 'R-RC-2' &&
+    evidence.parent_dispatch_accepted === true &&
+    evidence.delegate_requested === true &&
+    evidence.child_session_observed === true &&
+    evidence.delegate_child_report_observed === true &&
+    evidence.child_reported_context_threshold === true &&
+    evidence.request_compaction_tool_result_observed === true &&
+    evidence.request_compaction_receipt_role === 'toolResult' &&
+    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
+    evidence.request_compaction_receipt_status === 'rejected' &&
+    evidence.request_compaction_invocation_bound === true &&
+    evidence.request_compaction_rejected_context_threshold === true &&
+    evidence.guard === 'context_threshold'
+  );
+  if (verdict === 'PASS-candidate') return (
+    evidence?.row === 'R-RC-2' &&
+    evidence.parent_dispatch_accepted === true &&
+    evidence.delegate_requested === true &&
+    evidence.child_session_observed === true &&
+    evidence.delegate_child_report_observed === true &&
+    evidence.post_compaction_path_observed === true &&
+    evidence.request_compaction_tool_result_observed === true &&
+    evidence.request_compaction_receipt_role === 'toolResult' &&
+    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
+    evidence.request_compaction_receipt_status === 'accepted' &&
+    evidence.request_compaction_invocation_bound === true &&
+    evidence.request_compaction_accepted === true
+  );
+  return true;
+}
+
 function authoritativeReceiptContract(rowId) {
   if (rowId === 'R-CD-2') {
     return {
@@ -132,6 +166,9 @@ async function main() {
 
   const verdict = runResult.verdict;
   if (!OUTCOME.has(verdict)) throw new Error('run result verdict must be an explicit candidate outcome');
+  if (!hasVerifiedRrc2Outcome(rowId, verdict, runResult.evidence)) {
+    throw new Error('candidate run result is incomplete or inconsistent: R-RC-2 PASS/HONEST-LIMIT requires the nonce-bound structured request_compaction receipt and matching child return');
+  }
   const expectedArtifactClass = manifest.liveRunSafety?.expectedArtifactClass;
   if (expectedArtifactClass === 'construct-only' && verdict !== 'construct-only') throw new Error('construct-only manifest cannot emit behavioral candidate evidence');
   if (runResult.effectiveExitCode !== 0) throw new Error('candidate run is incomplete: effective exit code is non-zero');

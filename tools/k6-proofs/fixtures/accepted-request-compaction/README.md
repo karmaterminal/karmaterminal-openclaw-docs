@@ -77,7 +77,7 @@ The future live runner must make these explicit and redacted in artifacts:
 
 The runner must classify non-PASS states instead of failing opaquely:
 
-- `HONEST-LIMIT-local-model-unavailable`
+- `PARTIAL-local-model-unavailable`
 - `BLOCKED-temp-gateway-start`
 - `BLOCKED-context-budget-not-forced`
 - `FAIL-request-compaction-rejected`

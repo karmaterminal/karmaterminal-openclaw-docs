@@ -27,7 +27,7 @@
   },
   "seatClassExpectation": {
     "lightContext-subagent": "PASS-candidate",
-    "message-body-main-session": "HONEST-LIMIT-candidate",
+    "message-body-main-session": "PARTIAL-candidate",
     "reason": "CONTINUE_WORK bare token only fires from auto-delivered final-text (subagent-announce path). On main-session message-body delivery seats, the token scanner doesn't walk the payload. lightContext subagents auto-deliver → scanner fires → hop-2 drives."
   },
   "expectedReceipts": [

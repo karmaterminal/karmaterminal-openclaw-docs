@@ -15,7 +15,7 @@
   },
   "scenario": {
     "name": "r-cd-3-post-compaction",
-    "description": "Stage continue_delegate(mode=post-compaction), then call request_compaction. PASS accepts either actual post-compaction lifeboat return or structured below-threshold honest-limit refusal.",
+    "description": "Stage continue_delegate(mode=post-compaction), then call request_compaction. PASS requires the post-compaction lifeboat return; a structured below-threshold refusal remains PARTIAL.",
     "methods": [
       "sessions.send",
       "sessions.messages.subscribe",
@@ -23,7 +23,7 @@
     ],
     "status": "runnable",
     "file": "r-cd-3-post-compaction.js",
-    "notes": "Does not lower thresholds or mutate config. In ordinary disposable sessions the expected accepted outcome is a below-threshold honest limit."
+    "notes": "Does not lower thresholds or mutate config. In ordinary disposable sessions a below-threshold refusal is retained as PARTIAL proof debt."
   },
   "invocation": {
     "tool": "continue_delegate",
@@ -33,7 +33,7 @@
     "idempotencyKeyPrefix": "R-CD-3"
   },
   "prerequisites": {
-    "contextUsage": "Any; < threshold is an accepted HONEST-LIMIT-candidate outcome",
+    "contextUsage": "Any; < threshold is retained as PARTIAL-candidate proof debt",
     "notes": "If context is below compaction threshold, request_compaction should reject structurally and the scenario records that environmental limit. If context is above threshold, the staged post-compaction lifeboat may fire after compaction."
   },
   "expectedReceipts": [
@@ -53,7 +53,7 @@
       "description": "Agent was instructed to call request_compaction after staging the delegate"
     },
     {
-      "name": "threshold-honest-limit-or-lifeboat",
+      "name": "threshold-refusal-or-lifeboat",
       "required": true,
       "description": "Either structured below-threshold request_compaction refusal is observed, or post-compaction lifeboat return is observed"
     },
@@ -73,7 +73,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "R-CD-3 is PASS-candidate on real lifeboat return after compaction, or HONEST-LIMIT-candidate when request_compaction refuses below threshold. Do not overclaim compaction firing on below-threshold runs."
+    "notes": "R-CD-3 is PASS-candidate on real lifeboat return after compaction. A below-threshold request_compaction refusal remains PARTIAL-candidate; do not overclaim compaction firing."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -83,14 +83,14 @@
     "requiresExternalAgentOrToolInvocation": false,
     "requiresHumanConfirmation": false,
     "sameSessionConcurrencySafe": true,
-    "expectedArtifactClass": "HONEST-LIMIT-candidate",
+    "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
       "dispatch-accepted",
       "delegate-staging-requested",
       "compaction-requested",
-      "threshold-honest-limit-or-lifeboat"
+      "threshold-refusal-or-lifeboat"
     ],
     "foldRequiresReview": true,
-    "notes": "Runs in a disposable session by default. Does not mutate config; if compaction is accepted it only compacts that proof session. Public/dry environments commonly yield threshold honest-limit."
+    "notes": "Runs in a disposable session by default. Does not mutate config; if compaction is accepted it only compacts that proof session. Public/dry environments commonly retain a below-threshold refusal as PARTIAL proof debt."
   }
 }

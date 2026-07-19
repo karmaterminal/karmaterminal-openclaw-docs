@@ -15,7 +15,7 @@
   },
   "scenario": {
     "name": "r-cw-3-reason-telemetry",
-    "description": "continue_work reason telemetry/redaction honest-limit candidate. k6 proves schedule+wake and keeps the raw reason out of public artifacts; Tempo JSON review must verify safe reason attrs present and raw reason absent before a PASS fold.",
+    "description": "continue_work reason telemetry/redaction partial candidate. k6 proves schedule+wake and keeps the raw reason out of public artifacts; Tempo JSON review must verify safe reason attrs present and raw reason absent before a PASS fold.",
     "methods": [
       "sessions.create",
       "sessions.send",
@@ -73,7 +73,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "This row intentionally tops out at HONEST-LIMIT-candidate until Tempo trace JSON is fetched and reviewed for safe reason attrs present / raw reason absent."
+    "notes": "This row remains PARTIAL-candidate until Tempo trace JSON is fetched and reviewed for safe reason attrs present / raw reason absent."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -82,7 +82,7 @@
     "requiresCandidateSha": true,
     "requiresExternalAgentOrToolInvocation": true,
     "sameSessionConcurrencySafe": false,
-    "expectedArtifactClass": "HONEST-LIMIT-candidate",
+    "expectedArtifactClass": "PARTIAL-candidate",
     "requiredReceipts": [
       "seat-readiness",
       "dispatch-accepted",

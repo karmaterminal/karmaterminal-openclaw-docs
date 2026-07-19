@@ -21,7 +21,7 @@
       "sessions.messages.subscribe"
     ],
     "status": "runnable",
-    "notes": "Requires a seat/session surface where final bracket text is scanned; message-body seats may be HONEST_LIMIT by declared seat class.",
+    "notes": "Requires a seat/session surface where final bracket text is scanned; message-body seats remain PARTIAL by declared seat class.",
     "file": "r-cd-model-token.js",
     "registryNotes": "Runnable local conversion: lightContext subagent emits terminal [[CONTINUE_DELEGATE: ... | model=<alias>]] bracket; delegated child returns nonce and requested model byte."
   },
@@ -103,6 +103,6 @@
       "return-payload"
     ],
     "foldRequiresReview": true,
-    "notes": "Bracket-token model override row. Use lightContext subagent/raw final text so scanner sees terminal bracket; message-body surfaces may honest-limit. PASS requires bracket origin + model modifier + delegate return with requested model byte."
+    "notes": "Bracket-token model override row. Use lightContext subagent/raw final text so scanner sees terminal bracket; message-body surfaces remain PARTIAL. PASS requires bracket origin + model modifier + delegate return with requested model byte."
   }
 }

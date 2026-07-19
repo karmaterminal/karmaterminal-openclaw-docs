@@ -165,7 +165,7 @@ echo "=========================================================="
 # Check for Live Bridge alignment (candidate vs deployed runtime)
 if [[ "$DRY_RUN" == "false" && "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_BUILD_SHA" && "$OPENCLAW_RUNTIME_BUILD_SHA" != *"(${OPENCLAW_CANDIDATE_SHA:0:7})"* ]]; then
   echo "WARNING: Candidate SHA ($OPENCLAW_CANDIDATE_SHA) does not match Deployed Runtime SHA ($OPENCLAW_RUNTIME_BUILD_SHA)."
-  echo "Unless this is a known stale-stamp or you have proven a rebuild bridge, live proofs will be marked HONEST-LIMIT / negative-partial."
+  echo "Unless this is a known stale-stamp or you have proven a rebuild bridge, live proofs will be marked PARTIAL."
 fi
 
 mkdir -p "$OUT_ROOT"
@@ -257,14 +257,14 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           --arg candidateSha "$OPENCLAW_CANDIDATE_SHA" \
           --arg runtimeBuildSha "$OPENCLAW_RUNTIME_BUILD_SHA" \
           --arg endedAt "$RUN_ENDED_AT" \
-          '{schema:"openclaw.k6.r-cd-token.build-identity-gate.v1",row:"R-CD-TOKEN",candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,equalExactSha:false,dispatched:false,verdict:"HONEST-LIMIT-candidate",endedAt:$endedAt}' \
+          '{schema:"openclaw.k6.r-cd-token.build-identity-gate.v1",row:"R-CD-TOKEN",candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,equalExactSha:false,dispatched:false,verdict:"PARTIAL-candidate",endedAt:$endedAt}' \
           > "$RUN_DIR/build-identity-gate.json"
         jq -n \
           --arg endedAt "$RUN_ENDED_AT" \
-          '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"HONEST-LIMIT-candidate",verdictSource:"pre-dispatch-build-identity-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["exact-candidate-runtime-identity","attempt-state","raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
+          '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-build-identity-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["exact-candidate-runtime-identity","attempt-state","raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
           > "$RUN_DIR/run-result.json"
         rm -f "$RUN_DIR/.started"
-        echo "[$ROW_ID] HONEST-LIMIT-candidate: exact equal candidate/runtime SHAs are required; no dispatch occurred."
+        echo "[$ROW_ID] PARTIAL-candidate: exact equal candidate/runtime SHAs are required; no dispatch occurred."
         continue
       fi
       ATTEMPT_UUID="$(cat /proc/sys/kernel/random/uuid)"
@@ -293,18 +293,18 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         jq \
           --arg endedAt "$RUN_ENDED_AT" \
           --arg surfaceClass "$OPENCLAW_SEAT_CLASS" \
-          '. + {endedAt:$endedAt,phase:"pre-dispatch-surface-gate",proofTerminal:true,consumptionState:"not-dispatched",automaticRetryAllowed:false,verdict:"HONEST-LIMIT-candidate",surfaceClass:$surfaceClass,effectiveExitCode:0}' \
+          '. + {endedAt:$endedAt,phase:"pre-dispatch-surface-gate",proofTerminal:true,consumptionState:"not-dispatched",automaticRetryAllowed:false,verdict:"PARTIAL-candidate",surfaceClass:$surfaceClass,effectiveExitCode:0}' \
           "$RUN_DIR/attempt-state.json" > "$RUN_DIR/attempt-state.json.tmp"
         mv "$RUN_DIR/attempt-state.json.tmp" "$RUN_DIR/attempt-state.json"
         jq -n \
           --arg endedAt "$RUN_ENDED_AT" \
           --arg surfaceClass "$OPENCLAW_SEAT_CLASS" \
-          '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"HONEST-LIMIT-candidate",verdictSource:"pre-dispatch-surface-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",surface_class:$surfaceClass,dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
+          '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-surface-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",surface_class:$surfaceClass,dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
           > "$RUN_DIR/run-result.json"
         rm -f "$RUN_DIR/.started"
         ACTIVE_TOKEN_PHASE="pre-dispatch-surface-gate"
         ACTIVE_TOKEN_RUN_DIR=""
-        echo "[$ROW_ID] HONEST-LIMIT-candidate: seat readiness class '$OPENCLAW_SEAT_CLASS' is not scanner-supported raw-final-text; no dispatch occurred."
+        echo "[$ROW_ID] PARTIAL-candidate: seat readiness class '$OPENCLAW_SEAT_CLASS' is not scanner-supported raw-final-text; no dispatch occurred."
         continue
       fi
       # R-CD-TOKEN is never allowed to fall back to the configured/live
@@ -439,22 +439,84 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       SUMMARY_VERDICT="$SUMMARY_FILE_VERDICT"
       SUMMARY_VERDICT_SOURCE="summary-file"
     fi
-    if [[ -n "$VU_LOG_VERDICT" &&
+    ORIGINAL_SUMMARY_VERDICT="$SUMMARY_VERDICT"
+    VERDICT_POLICY_APPLIED="false"
+    VERDICT_POLICY_REASON=""
+    if [[ "$SUMMARY_VERDICT" == "HONEST-LIMIT-candidate" ]]; then
+      if [[ "$ROW_ID" != "R-RC-2" ]]; then
+        VERDICT_POLICY_REASON="only R-RC-2 may use HONEST-LIMIT-candidate; this row is preserved as PARTIAL-candidate"
+      elif ! jq -e '
+        select(
+          .row == "R-RC-2" and
+          .parent_dispatch_accepted == true and
+          .delegate_requested == true and
+          .child_session_observed == true and
+          .delegate_child_report_observed == true and
+          .child_reported_context_threshold == true and
+          .request_compaction_tool_result_observed == true and
+          .request_compaction_receipt_role == "toolResult" and
+          .request_compaction_receipt_tool_name == "request_compaction" and
+          .request_compaction_receipt_status == "rejected" and
+          .request_compaction_invocation_bound == true and
+          .request_compaction_rejected_context_threshold == true and
+          .guard == "context_threshold"
+        )
+      ' "$PRIVATE_EVIDENCE_FILE" >/dev/null 2>&1; then
+        VERDICT_POLICY_REASON="R-RC-2 HONEST-LIMIT-candidate requires a nonce-bound request_compaction toolResult rejected by context_threshold; incomplete evidence is preserved as PARTIAL-candidate"
+      fi
+      if [[ -n "$VERDICT_POLICY_REASON" ]]; then
+        SUMMARY_VERDICT="PARTIAL-candidate"
+        SUMMARY_VERDICT_SOURCE="${SUMMARY_VERDICT_SOURCE}+honest-limit-policy"
+        VERDICT_POLICY_APPLIED="true"
+      fi
+    elif [[ "$SUMMARY_VERDICT" == "PASS-candidate" && "$ROW_ID" == "R-RC-2" ]]; then
+      if ! jq -e '
+        select(
+          .row == "R-RC-2" and
+          .parent_dispatch_accepted == true and
+          .delegate_requested == true and
+          .child_session_observed == true and
+          .delegate_child_report_observed == true and
+          .post_compaction_path_observed == true and
+          .request_compaction_tool_result_observed == true and
+          .request_compaction_receipt_role == "toolResult" and
+          .request_compaction_receipt_tool_name == "request_compaction" and
+          .request_compaction_receipt_status == "accepted" and
+          .request_compaction_invocation_bound == true and
+          .request_compaction_accepted == true
+        )
+      ' "$PRIVATE_EVIDENCE_FILE" >/dev/null 2>&1; then
+        VERDICT_POLICY_REASON="R-RC-2 PASS-candidate requires a nonce-bound accepted request_compaction toolResult plus the post-compaction child return; incomplete evidence is preserved as PARTIAL-candidate"
+        SUMMARY_VERDICT="PARTIAL-candidate"
+        SUMMARY_VERDICT_SOURCE="${SUMMARY_VERDICT_SOURCE}+r-rc-2-pass-policy"
+        VERDICT_POLICY_APPLIED="true"
+      fi
+    fi
+    if [[ "$VERDICT_POLICY_APPLIED" == "true" ||
+          ( -n "$VU_LOG_VERDICT" &&
           "$SUMMARY_FILE_VERDICT" != "unknown" &&
-          "$VU_LOG_VERDICT" != "$SUMMARY_FILE_VERDICT" ]]; then
+          "$VU_LOG_VERDICT" != "$SUMMARY_FILE_VERDICT" ) ]]; then
       jq -n \
         --arg schema "openclaw.k6.verdict-reconciliation.v1" \
         --arg selected "$SUMMARY_VERDICT" \
         --arg selectedSource "$SUMMARY_VERDICT_SOURCE" \
         --arg vuLog "$VU_LOG_VERDICT" \
         --arg summaryFile "$SUMMARY_FILE_VERDICT" \
+        --arg original "$ORIGINAL_SUMMARY_VERDICT" \
+        --arg policyApplied "$VERDICT_POLICY_APPLIED" \
+        --arg policyReason "$VERDICT_POLICY_REASON" \
         '{
           schema: $schema,
           selectedVerdict: $selected,
           selectedSource: $selectedSource,
           vuLogVerdict: $vuLog,
           summaryFileVerdict: $summaryFile,
-          reason: "k6 handleSummary executes outside VU state; the VU-emitted verdict owns live evidence classification"
+          verdictPolicyApplied: ($policyApplied == "true"),
+          honestLimitPolicyApplied: (($policyApplied == "true") and ($original == "HONEST-LIMIT-candidate")),
+          reason: (if $policyApplied == "true"
+            then $policyReason
+            else "k6 handleSummary executes outside VU state; the VU-emitted verdict owns live evidence classification"
+            end)
         }' > "$RUN_DIR/verdict-reconciliation.json"
     fi
     TRACE_STATUS="unknown"

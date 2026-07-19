@@ -23,7 +23,7 @@ tools/k6-proofs/
 
 - [Grafana k6](https://grafana.com/docs/k6/latest/get-started/installation/) installed on the run seat. The proof-standard expectation is centralized in [`seat-readiness.policy.json`](seat-readiness.policy.json) (`v2.0.0` unless the policy or row issue explicitly says otherwise).
 - A running OpenClaw gateway on the local seat.
-- Run `node tools/k6-proofs/scripts/seat-readiness-preflight.mjs` before treating row output as proof-standard. A version/env/gateway mismatch is `HONEST-LIMIT-candidate`, not product failure.
+- Run `node tools/k6-proofs/scripts/seat-readiness-preflight.mjs` before treating row output as proof-standard. A version/env/gateway mismatch is `PARTIAL-candidate`, not product failure.
 - Environment variables:
   - `OPENCLAW_GATEWAY_WS` — WebSocket URL (default: `ws://127.0.0.1:18789`)
   - `OPENCLAW_GATEWAY_TOKEN` — operator auth token (**required for live rows, never in source**)
@@ -130,7 +130,7 @@ The helper emits `openclaw.k6.seat-readiness.v1` JSON and never prints secret va
 - required env-var presence as booleans only, plus public-safe purpose strings from the policy
 - whether the check is safe to run concurrently
 
-If k6 is missing, the version differs, continuation is disabled/missing, required env is absent, or gateway health/status is unreachable, treat row output as `HONEST-LIMIT-candidate` / setup failure until the seat is fixed. Do not fold it as product behavior evidence. Use `--no-gateway` only for offline docs/schema checks; live proof rows need a checked gateway and live continuation rows need continuation enabled.
+If k6 is missing, the version differs, continuation is disabled/missing, required env is absent, or gateway health/status is unreachable, treat row output as `PARTIAL-candidate` / setup failure until the seat is fixed. Do not fold it as product behavior evidence. Use `--no-gateway` only for offline docs/schema checks; live proof rows need a checked gateway and live continuation rows need continuation enabled.
 
 ### 2. Preflight check
 
@@ -417,7 +417,7 @@ The block records:
 - `requiresCandidateSha`: whether `OPENCLAW_CANDIDATE_SHA` must be present and a 40-character hex SHA before the row can run.
 - `requiresExternalAgentOrToolInvocation`: whether k6 REST/WS alone is insufficient and an agent/tool invocation is part of the proof path.
 - `sameSessionConcurrencySafe`: `false` means the runner serializes the row per `(rowId, target session)` and fails closed if another run already holds that lock.
-- `expectedArtifactClass`: the highest candidate class the row should emit before review, for example `PASS-candidate`, `HONEST-LIMIT-candidate`, or `construct-only`.
+- `expectedArtifactClass`: the highest candidate class the row should emit before review, for example `PASS-candidate`, `PARTIAL-candidate`, or `construct-only`. `HONEST-LIMIT-candidate` is reserved for `R-RC-2` below-threshold refusal.
 - `requiredReceipts`: the review receipts that must exist before folding.
 - `foldRequiresReview`: always `true`; generated artifacts are candidates, never final proof verdicts.
 
@@ -464,27 +464,27 @@ scenario failed because it queried the wrong registry surface.
 The bracket scanner fires only on scanned-final-text (terminal position). Seats that route final-text through `message(send)` body kill the scanner.
 
 - **raw-final-text seat**: bracket fires → PASS-candidate
-- **message-body seat** (ronan-dgx default): bracket killed → HONEST-LIMIT-candidate
+- **message-body seat** (ronan-dgx default): bracket killed → PARTIAL-candidate
 
 This is **declared in the manifest before the run**, not a post-hoc excuse. The `seatClassExpectation` block in `r-cd-token.json` states the expected outcome per seat class.
 
 ## Row coverage
 
-`live-suite` currently resolves to 34 unattended rows. This table is generated from the manifest floor, but the outcome column is intentionally conservative: offline rows validate committed packets, and honest-limit rows do not become accepted-path proofs just because they are runnable.
+`live-suite` currently resolves to 34 unattended rows. This table is generated from the manifest floor, but the outcome column is intentionally conservative: offline rows validate committed packets, and partial rows do not become accepted-path proofs just because they are runnable.
 
 | Row | Scenario | Surface | Expected outcome |
 |-----|----------|---------|------------------|
 | preflight | `preflight` | websocket/read-only | PASS-candidate; readiness helper requiring row review |
 | R-CD-1 | `r-cd-1-typed-delegate` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-2 | `r-cd-2-silent-wake` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
-| R-CD-3 | `r-cd-3-post-compaction` | websocket/typed-tool | HONEST-LIMIT-candidate; reaches safe threshold/staging path, accepted compaction remains fixture-gated |
+| R-CD-3 | `r-cd-3-post-compaction` | websocket/typed-tool | PARTIAL-candidate until a real lifeboat return proves PASS |
 | R-CD-4 | `r-cd-4-target-session-key` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-CHAINED-DEPTH-2 | `r-cd-chained-depth-2` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-COLLECTION-ON-COLLAPSE | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CD-MODEL-CHAINED-ALT | `r-cd-model-chained-alt` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-DEFAULT | `r-cd-model-default` | websocket/mixed | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
-| R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | HONEST-LIMIT-candidate; model override reachability depends on allowed model/provider |
+| R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | PASS on authoritative requested/observed match; mismatch FAIL; unavailable metadata PARTIAL |
 | R-CD-RETURN-OVERLAP | `r-cd-return-overlap` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CD-SILENT | `r-cd-silent` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-TOKEN | `r-cd-token-bracket-delegate` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
@@ -492,7 +492,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-CONFIG-DEFAULTS | `r-config-defaults` | websocket/read-only | PASS-candidate; runnable candidate requiring row review |
 | R-CW-1 | `r-cw-1-tool-schedule-wake` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CW-2 | `r-cw-2-immediate-wake` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
-| R-CW-3 | `r-cw-3-reason-telemetry` | websocket/typed-tool | HONEST-LIMIT-candidate; reason telemetry/redaction review may limit fold |
+| R-CW-3 | `r-cw-3-reason-telemetry` | websocket/typed-tool | PARTIAL-candidate until reason telemetry/redaction review closes |
 | R-CW-4 | `r-cw-4-chain-depth` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CW-5 | `run-cost-cap-fixture.mjs` | process-local/typed-tool | PARTIAL-candidate; exact-candidate fixture, review required before fold |
 | R-CW-6 | `run-max-chain-fixture.mjs` | process-local/typed-tool | PASS-candidate component evidence; manual-only exact-candidate fixture, review required before fold |

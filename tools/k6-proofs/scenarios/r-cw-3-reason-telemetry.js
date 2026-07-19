@@ -2,7 +2,7 @@
  *
  * This row deliberately does NOT overclaim the Tempo assertion in k6. It fires a
  * nonce-bearing continue_work reason and verifies schedule+wake. Public evidence
- * redacts the raw reason; the PASS/HONEST-LIMIT boundary is decided by reviewing
+ * redacts the raw reason; the PASS/PARTIAL boundary is decided by reviewing
  * fetched Tempo JSON for safe reason attrs present and raw reason absent.
  */
 import ws from 'k6/ws';
@@ -127,23 +127,23 @@ export default function () {
   if (!evidence.dispatch_accepted || !evidence.scheduled_sentinel || !evidence.wake_observed || !evidence.public_artifact_raw_reason_absent) failures.add(1);
   const passed = (!createDisposableSession || evidence.session_created) && evidence.dispatch_accepted && evidence.scheduled_sentinel && evidence.wake_observed && evidence.public_artifact_raw_reason_absent;
   console.log(`R_CW_3_EVIDENCE ${JSON.stringify(evidence)}`);
-  console.log('\n--- R-CW-3 EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log(`\n[R-CW-3] VERDICT: ${passed ? 'HONEST-LIMIT-candidate' : 'PARTIAL-candidate'}`);
+  console.log('\n--- R-CW-3 EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CW-3] VERDICT: PARTIAL-candidate');
 }
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
   const failuresCount = data.metrics.proof_failures?.values?.count || 0;
   const traceId = finalEvidence?.trace_id || null;
   const traceIdSource = finalEvidence?.trace_id_source || null;
-  const verdict = failuresCount === 0 ? 'HONEST-LIMIT-candidate' : 'PARTIAL-candidate';
+  const verdict = 'PARTIAL-candidate';
   const pendingReceipts = ['reason-telemetry-redaction-review'];
   if (!traceId) pendingReceipts.unshift('tempo-trace-json');
   const notes = [
-    verdict === 'HONEST-LIMIT-candidate'
-      ? 'k6 proved dispatch/schedule/wake and kept the raw reason out of public evidence; fold still requires Tempo reason telemetry/redaction review.'
+    failuresCount === 0
+      ? 'k6 proved dispatch/schedule/wake and kept the raw reason out of public evidence; the row remains partial until Tempo reason telemetry/redaction review.'
       : 'This run did not prove the full schedule/wake path. Preserve k6.log/evidence and do not fold as PASS.',
     traceId
       ? `Trace id captured from ${traceIdSource || 'unknown source'}; fetch Tempo trace JSON and verify safe reason attributes are present while the raw reason sentinel is absent.`
-      : 'No traceId emitted by gateway WS API: checked root frame (traceId/trace_id/traceparent), sessions.send response payload, and CW3-SCHEDULED event data (including nested result/state/payload). This is a gateway API limitation — the WS protocol for these methods does not expose a traceId. Keep as HONEST-LIMIT/trace-missing until trace JSON is obtained via Tempo search (query by chain.id or flow.id attributes) or trace-missing is explicitly accepted.',
+      : 'No traceId emitted by gateway WS API: checked root frame (traceId/trace_id/traceparent), sessions.send response payload, and CW3-SCHEDULED event data (including nested result/state/payload). This is a gateway API limitation — the WS protocol for these methods does not expose a traceId. Keep as PARTIAL/trace-missing until trace JSON is obtained via Tempo search (query by chain.id or flow.id attributes) or trace-missing is explicitly accepted.',
   ];
   const summary = {
     row: 'R-CW-3',

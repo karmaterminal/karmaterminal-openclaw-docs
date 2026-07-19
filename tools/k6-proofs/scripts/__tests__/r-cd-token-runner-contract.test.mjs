@@ -22,6 +22,14 @@ test('runner gates exact build and surface identity before token dispatch', asyn
   assert.match(source, /signal-term/);
   assert.match(source, /automaticRetryAllowed:false/);
   assert.match(source, /export OPENCLAW_CREATE_DISPOSABLE_SESSION=true/);
+  assert.match(source, /only R-RC-2 may use HONEST-LIMIT-candidate/);
+  assert.match(source, /\.request_compaction_receipt_role == "toolResult"/);
+  assert.match(source, /\.request_compaction_receipt_tool_name == "request_compaction"/);
+  assert.match(source, /\.request_compaction_invocation_bound == true/);
+  assert.match(source, /\.request_compaction_rejected_context_threshold == true/);
+  assert.match(source, /\.request_compaction_receipt_status == "accepted"/);
+  assert.match(source, /\.post_compaction_path_observed == true/);
+  assert.match(source, /R-RC-2 PASS-candidate requires a nonce-bound accepted request_compaction toolResult/);
   assert.doesNotMatch(source, /INTERRUPTED_RESULT_WRITER[\s\S]{0,700}>\/dev\/null 2>&1 \|\| true/);
 });
 
@@ -63,6 +71,7 @@ test('manifest required and expected receipt surfaces are identical and fail clo
   assert.equal(manifest.invocation.delaySeconds, 10);
   assert.equal(manifest.liveRunSafety.requiresDisposableSession, true);
   assert.ok(manifest.scenario.methods.includes('sessions.create'));
+  assert.doesNotMatch(JSON.stringify(manifest), /HONEST-LIMIT-candidate/);
 });
 
 test('candidate/report surfaces depend on the signed row-scoped receipt', async () => {

@@ -9,7 +9,7 @@ This is the authoritative fresh proof seed for accepted assembly `4c235d8c1997e8
 - Exact-upstream comparators: [29694350913](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29694350913), [29695514994](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29695514994)
 - Solo candidate classification: [29694633067](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29694633067)
 - GATES disposition: every deterministic candidate-matrix failure reproduced on frozen upstream `ec01949d8628`; no candidate-owned failure remains.
-- Fleet publication state: Cael is exact-SHA ready; Ronan is deploying; Silas, Elliott, Emeric, and Rune remain held until their serial exact-SHA readiness receipts land.
+- Fleet publication state: Cael and Ronan are exact-SHA ready; Silas, Elliott, Emeric, and Rune remain held until their serial exact-SHA readiness receipts land.
 - PR-presentation remains intentionally untouched.
 
 ## Authoritative dispatch allocation

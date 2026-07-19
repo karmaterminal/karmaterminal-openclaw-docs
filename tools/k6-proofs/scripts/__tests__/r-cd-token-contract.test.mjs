@@ -166,9 +166,9 @@ test('interruption, unstable pagination, missing return, and incomplete identiti
   }
 });
 
-test('message-body and undeclared surfaces can never PASS', () => {
-  assert.equal(classifyTokenEvidence(completeEvidence({ surface_class: 'message-body' })), 'HONEST-LIMIT-candidate');
-  assert.equal(classifyTokenEvidence(completeEvidence({ surface_class: 'unknown' })), 'HONEST-LIMIT-candidate');
+test('message-body and undeclared surfaces remain PARTIAL proof debt', () => {
+  assert.equal(classifyTokenEvidence(completeEvidence({ surface_class: 'message-body' })), 'PARTIAL-candidate');
+  assert.equal(classifyTokenEvidence(completeEvidence({ surface_class: 'unknown' })), 'PARTIAL-candidate');
 });
 
 test('complete raw-final-text task ledger and bound return are PASS-candidate', () => {

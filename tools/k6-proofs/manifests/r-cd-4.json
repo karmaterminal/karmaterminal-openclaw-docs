@@ -52,7 +52,7 @@
     {
       "name": "target-return-event",
       "required": true,
-      "description": "The TARGET session receives the exact TARGET-RECEIVED {{nonce}} marker in a structured session.message event"
+      "description": "The TARGET session receives the exact TARGET-RECEIVED {{nonce}} marker in a structured role=system session.message event"
     },
     {
       "name": "child-session-identity",
@@ -85,7 +85,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Cross-session targeted return. PASS-candidate requires dispatch acceptance, a nonce-bound child identity, the exact TARGET-RECEIVED {{nonce}} marker in the structured TARGET session, and no matching parent receipt. Unrelated delayed messages and nested session-key mentions fail closed."
+    "notes": "Cross-session targeted return. PASS-candidate requires dispatch acceptance, a nonce-bound child identity, the exact TARGET-RECEIVED {{nonce}} marker in a role=system TARGET event, and no matching parent receipt. Unrelated/assistant messages and nested session-key mentions fail closed."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",

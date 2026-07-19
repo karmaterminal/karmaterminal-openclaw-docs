@@ -12,6 +12,12 @@ function directSessionKey(eventData) {
   return unique.length === 1 ? unique[0] : null;
 }
 
+function directMessageRole(eventData) {
+  const message = eventData?.message;
+  if (!message || typeof message !== 'object' || Array.isArray(message)) return null;
+  return typeof message.role === 'string' ? message.role : null;
+}
+
 function hasExactSentinel(eventData, marker, nonce) {
   const serialized = JSON.stringify(eventData);
   if (!serialized || serialized.includes(HARNESS_MARKER)) return false;
@@ -34,12 +40,14 @@ export function rCd4ReturnCandidate({ eventName, eventData, expectedSessionKey, 
   if (!expectedSessionKey || !nonce) return null;
   const sessionKey = directSessionKey(eventData);
   if (sessionKey !== expectedSessionKey) return null;
+  if (directMessageRole(eventData) !== 'system') return null;
   if (!hasExactSentinel(eventData, 'TARGET-RECEIVED', nonce)) return null;
   return {
     eventName,
     sessionKey,
     nonce,
     marker: `TARGET-RECEIVED ${nonce}`,
+    role: 'system',
   };
 }
 

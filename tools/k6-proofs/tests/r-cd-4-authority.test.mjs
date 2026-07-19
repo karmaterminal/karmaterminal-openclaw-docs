@@ -9,7 +9,10 @@ const parent = 'agent:main:r-cd-4-parent';
 test('R-CD-4 accepts only the exact target marker and binds child identity', () => {
   const candidate = rCd4ReturnCandidate({
     eventName: 'session.message',
-    eventData: { sessionKey: target, role: 'system', text: `TARGET-RECEIVED ${nonce}` },
+    eventData: {
+      sessionKey: target,
+      message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+    },
     expectedSessionKey: target,
     nonce,
   });
@@ -18,6 +21,7 @@ test('R-CD-4 accepts only the exact target marker and binds child identity', () 
     sessionKey: target,
     nonce,
     marker: `TARGET-RECEIVED ${nonce}`,
+    role: 'system',
     childSessionKey: 'agent:main:subagent:child',
   });
 });
@@ -25,7 +29,7 @@ test('R-CD-4 accepts only the exact target marker and binds child identity', () 
 test('R-CD-4 rejects an unrelated delayed target message', () => {
   assert.equal(rCd4ReturnCandidate({
     eventName: 'session.message',
-    eventData: { sessionKey: target, text: 'ordinary delayed target output' },
+    eventData: { sessionKey: target, message: { role: 'system', content: 'ordinary delayed target output' } },
     expectedSessionKey: target,
     nonce,
   }), null);
@@ -36,14 +40,14 @@ test('R-CD-4 rejects prompt echo and nonce-prefix lookalikes', () => {
     eventName: 'session.message',
     eventData: {
       sessionKey: target,
-      text: `[k6-proof-harness] ask for TARGET-RECEIVED ${nonce}`,
+      message: { role: 'system', content: `[k6-proof-harness] ask for TARGET-RECEIVED ${nonce}` },
     },
     expectedSessionKey: target,
     nonce,
   }), null);
   assert.equal(rCd4ReturnCandidate({
     eventName: 'session.message',
-    eventData: { sessionKey: target, text: `TARGET-RECEIVED ${nonce}-STALE` },
+    eventData: { sessionKey: target, message: { role: 'system', content: `TARGET-RECEIVED ${nonce}-STALE` } },
     expectedSessionKey: target,
     nonce,
   }), null);
@@ -52,7 +56,7 @@ test('R-CD-4 rejects prompt echo and nonce-prefix lookalikes', () => {
 test('R-CD-4 never routes from a nested session-key mention', () => {
   assert.equal(rCd4ReturnCandidate({
     eventName: 'session.message',
-    eventData: { sessionKey: parent, text: `for ${target}: TARGET-RECEIVED ${nonce}` },
+    eventData: { sessionKey: parent, message: { role: 'system', content: `for ${target}: TARGET-RECEIVED ${nonce}` } },
     expectedSessionKey: target,
     nonce,
   }), null);
@@ -61,9 +65,21 @@ test('R-CD-4 never routes from a nested session-key mention', () => {
 test('R-CD-4 withholds a marker candidate until child identity is available', () => {
   const candidate = rCd4ReturnCandidate({
     eventName: 'session.message',
-    eventData: { sessionKey: target, text: `TARGET-RECEIVED ${nonce}` },
+    eventData: { sessionKey: target, message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` } },
     expectedSessionKey: target,
     nonce,
   });
   assert.equal(rCd4ReturnReceipt(candidate, null), null);
+});
+
+test('R-CD-4 rejects an assistant-authored marker in the target session', () => {
+  assert.equal(rCd4ReturnCandidate({
+    eventName: 'session.message',
+    eventData: {
+      sessionKey: target,
+      message: { role: 'assistant', content: `TARGET-RECEIVED ${nonce}` },
+    },
+    expectedSessionKey: target,
+    nonce,
+  }), null);
 });

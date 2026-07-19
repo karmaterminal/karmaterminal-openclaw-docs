@@ -8,17 +8,35 @@
  * braces instead, while ignoring brace-like characters in strings/comments.
  */
 export function extractExportedFunctionBody(source, functionName, signatureEndMarker) {
-  const declarationMarker = `export function ${functionName}`;
-  const declarationStart = source.indexOf(declarationMarker);
-  if (declarationStart < 0) {
+  const escapedFunctionName = functionName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const declarationPattern = new RegExp(
+    `^export\\s+function\\s+${escapedFunctionName}(?=\\s*\\()`,
+    'gm',
+  );
+  const declarationMatch = declarationPattern.exec(source);
+  if (!declarationMatch) {
     throw new Error(`${functionName} export was not found`);
   }
+  const declarationStart = declarationMatch.index;
+
+  // Keep signature matching inside the selected top-level declaration. If the
+  // target signature drifts, a compatible marker on a later export must not
+  // cause the harness to execute that later function's body.
+  const nextDeclarationPattern =
+    /^(?:export\s+)?(?:declare\s+)?(?:async\s+)?(?:function|class|const|let|var|interface|type|enum|namespace)\b/gm;
+  nextDeclarationPattern.lastIndex = declarationStart + declarationMatch[0].length;
+  const nextDeclarationMatch = nextDeclarationPattern.exec(source);
+  const declarationEnd = nextDeclarationMatch ? nextDeclarationMatch.index : source.length;
 
   const signatureEnd = source.indexOf(signatureEndMarker, declarationStart);
-  if (signatureEnd < 0) {
+  if (signatureEnd < 0 || signatureEnd >= declarationEnd) {
     throw new Error(`${functionName} signature marker was not found`);
   }
-  const bodyOpen = signatureEnd + signatureEndMarker.lastIndexOf('{');
+  const bodyMarkerOffset = signatureEndMarker.lastIndexOf('{');
+  if (bodyMarkerOffset < 0) {
+    throw new Error(`${functionName} body start marker was not found`);
+  }
+  const bodyOpen = signatureEnd + bodyMarkerOffset;
   if (source[bodyOpen] !== '{') {
     throw new Error(`${functionName} body start was not found`);
   }

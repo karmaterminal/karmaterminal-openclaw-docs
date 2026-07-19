@@ -1,0 +1,21 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-status.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m0s max duration (incl. graceful stop):
+              * r_obs_status: 1 iterations shared among 1 VUs (maxDuration: 30s, gracefulStop: 30s)
+
+time="2026-07-19T12:41:46-07:00" level=error msg="candidate status formatter contract evaluation failed: Error: status formatter start marker was not found" source=console
+PUBLIC_EVIDENCE {"row":"R-OBS-STATUS","candidate_sha":"4c235d8c1997e8964160117f8d6bf650ad1e8203","source_repository":"karmaterminal/openclaw","source_path":"src/status/status-text.ts","source_fetch_ok":true,"source_sha256":"7dd1f0c6d5d411f85fbcf4e3c68bee8b6e750b33c67b097889f15347f7d1f5bc","formatter_extracted":false,"active_continuation_line_present":false,"clean_session_continuation_line_absent":false,"ended":"2026-07-19T19:41:46.943Z","duration_ms":0}
+
+running (0m00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_status ✓ [ 100% ] 1 VUs  00.0s/30s  1/1 shared iters
+time="2026-07-19T12:41:47-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"

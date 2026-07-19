@@ -1,0 +1,16 @@
+{
+  "row": "R-CW-DELEGATE-CHILD-LIVE",
+  "sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "failures": 0,
+    "duration_ms": {
+      "avg": 0,
+      "min": 0,
+      "med": 0,
+      "max": 0,
+      "p(90)": 0,
+      "p(95)": 0
+    }
+  }
+}

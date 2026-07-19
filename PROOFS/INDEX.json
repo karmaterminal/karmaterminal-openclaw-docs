@@ -1,25 +1,29 @@
 {
-  "schema": "openclaw.proofs.index.v1",
-  "current_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
-  "corpus_path": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203",
-  "manifest_path": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/proofs-manifest.json",
-  "readme_path": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/README.md",
   "capture_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "corpus_path": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "current_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "execution_seat": "elliott-legion",
+  "manifest_path": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/proofs-manifest.json",
+  "owner_policy": "canonical owners preserved; Elliott is comparator only",
   "proof_push_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
   "proof_source_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
-  "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+  "provenance": {
+    "policy": "historical receipts are provenance only; all exact-candidate rows reopen missing; only R-RC-2 may earn honest_limit for proven low context pressure",
+    "previous_corpus": "PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",
+    "template_source_commit": "246c447ad9d93039ff4777890d4b4027613bd9f3"
+  },
+  "publication_role": "comparator",
+  "readme_path": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/README.md",
   "rollup": {
-    "pass": 0,
-    "partial": 0,
-    "thin": 0,
-    "fail": 0,
+    "fail": 1,
     "honest_limit": 0,
-    "missing": 35,
+    "missing": 0,
+    "partial": 32,
+    "pass": 2,
+    "thin": 0,
     "total_rows": 35
   },
-  "provenance": {
-    "previous_corpus": "PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",
-    "template_source_commit": "246c447ad9d93039ff4777890d4b4027613bd9f3",
-    "policy": "historical receipts are provenance only; all exact-candidate rows reopen missing; only R-RC-2 may earn honest_limit for proven low context pressure"
-  }
+  "schema": "openclaw.proofs.index.v1",
+  "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+  "validation_path": "PROOFS/publication-validation/4c235d8c1997e8964160117f8d6bf650ad1e8203/invariants.json"
 }

@@ -1,0 +1,4422 @@
+{
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "docsSource": {
+    "manifest": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/proofs-manifest.json",
+    "manifestSha256": "e869987791fb040c7ccb2656c0221c8acf6e5905f46156785f275ebb8e505d4e",
+    "rootLabel": "karmaterminal-openclaw-docs-main-1303a03c"
+  },
+  "execution": {
+    "role": "comparator",
+    "seat": "elliott-legion"
+  },
+  "mode": "apply",
+  "policy": {
+    "authoritativeMismatch": "fail",
+    "exactCanonicalRows": 35,
+    "honestLimitRow": "R-RC-2 only",
+    "missingAuthority": "partial",
+    "outputBoundary": "write only below explicit output root; input roots are read-only",
+    "pass": "requires terminal PASS, exit 0, review-complete envelope, explicit behavior/publication authority, and every required status/topology/correlation/Tempo/journal receipt",
+    "publicArtifacts": "strict filename allowlist, size bounds, required redaction receipts for logs, and secret/private-path scan"
+  },
+  "rollup": {
+    "fail": 1,
+    "honest_limit": 0,
+    "missing": 0,
+    "partial": 32,
+    "pass": 2,
+    "total_rows": 35
+  },
+  "rows": [
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "continuation-trace-collector.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "continuation-trace-collector.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "6d2726e302ab142c5e467c6889cb0a3ede2081256fbe3759c37cbde09d4ebbf9"
+          },
+          {
+            "bytes": 244,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "d9e27ddb72ac202052d8f57580e9e84d984ab263d7dcf9c25fd3080f55115e41"
+          },
+          {
+            "bytes": 216,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "f78a01190182e3e9f786abbfb84dbc4074af15e7f44f491e58b7abe35fee15d6"
+          },
+          {
+            "bytes": 5175,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "fc3c3323b53cc46c68998f25561c3d323d59a305318baf92a6ab02f1b95a2773"
+          },
+          {
+            "bytes": 9423,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "96b77b79b25aa427526cff5fe3975fe58522659f5241651f31c3087d204ff69d"
+          },
+          {
+            "bytes": 358,
+            "file": "r-cd-1-typed-delegate-summary.json",
+            "kind": "k6-summary",
+            "sha256": "e1f96116f0818b55f911bf909b750186a5ec837708bac9ff10bd98aa8acab88c"
+          },
+          {
+            "bytes": 3520,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "6b1cff32a674f6d8a1a48b62bf9b31e9e7168ba6afe62982803a9d380ce6c454"
+          },
+          {
+            "bytes": 1823,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "de9fae3cebc39fdd730b69cd6d4ce70544bbdcceb6923e0dc291da897cbc9e0e"
+          },
+          {
+            "bytes": 280,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "5dcc657a7409c7504ff19472c611bb7c85128bbd8cf9f3bcb84cddae20d1e17c"
+          }
+        ]
+      },
+      "canonicalOwner": "🌫 silas-lothric",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "review is incomplete or has pending receipts",
+        "review-complete candidate envelope is absent",
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "delegate-scheduled-sentinel",
+        "parent-return-event",
+        "seat-readiness",
+        "tool-invoke-accepted",
+        "trace-id"
+      ],
+      "row": "R-CD-1",
+      "runId": "20260719T191334Z-r-cd-1",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-1/elliott/20260719T191334Z-r-cd-1",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "continuation-trace-collector.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "continuation-trace-collector.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "r-cd-2-authoritative-resolution.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "d3a5ebac27a2a64852539a69ea88d2e5515442dd125daf6b5ce49734f03138a2"
+          },
+          {
+            "bytes": 244,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "2b8edea74c71e19c68ee50e3aa88c29043455ed7b2f824ca97f8a918ac3d0d7b"
+          },
+          {
+            "bytes": 216,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "8807ceb6c647e373a7a8b4b4a6274658bdd7f9c77398068b5f5645bde0f22d6c"
+          },
+          {
+            "bytes": 80,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "0faee7d306cec744928af9527fff69ef3b1ce2bc16baee2d529e8e85b0418196"
+          },
+          {
+            "bytes": 75,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "5d839d8b608d546da3f08097b0cbaade5254240a941627c389309b28ed6db97a"
+          },
+          {
+            "bytes": 645,
+            "file": "r-cd-2-authoritative-receipt.json",
+            "kind": "public-receipt",
+            "sha256": "828c432cec49f4be49c10ea332ed6fd4fb14df0ca1b4c909cd950be49bac7a62"
+          },
+          {
+            "bytes": 721,
+            "file": "r-cd-2-summary.json",
+            "kind": "k6-summary",
+            "sha256": "5693b214dacf90cf04864c4097df3e76e08dfb898c420ebf25864c4065dc703d"
+          },
+          {
+            "bytes": 3895,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "ce2feed89f36088db213ddd6441560ebb210e293075d154d8e75ced9e0ddf333"
+          },
+          {
+            "bytes": 1307,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "4af5f9738b1a852e1ea90368eb537a99f69deffddbb131fe0610662ba38fdc6e"
+          },
+          {
+            "bytes": 277,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "a769366aabe3996a9663acd8adebfb25a2d732ba968f31cac4ce6cdb6845513b"
+          }
+        ]
+      },
+      "canonicalOwner": "🩸 cael-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [
+        "mandatory-tempo-projection",
+        "mandatory-topology-receipt",
+        "tempo-trace-json"
+      ],
+      "reasons": [
+        "terminal candidate verdict is PARTIAL-CANDIDATE",
+        "effective exit code is 99",
+        "review is incomplete or has pending receipts",
+        "review-complete candidate envelope is absent",
+        "missing mandatory receipts: mandatory-tempo-projection, mandatory-topology-receipt, tempo-trace-json",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "no-channel-delivery",
+        "row-scoped-authoritative-receipt",
+        "seat-readiness",
+        "send-run-lifecycle",
+        "tempo-trace-json",
+        "typed-delegate-topology"
+      ],
+      "row": "R-CD-2",
+      "runId": "20260719T191521Z-r-cd-2",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-2/elliott/20260719T191521Z-r-cd-2",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1379,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "1c37fbe654f0ff6a11228bc4ea5f74652d3dc8febe7f7d77ee26e8d7dcc5b212"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "811f8f92ef7ef4240748a74f11dfee5db2f92a7f01a64c3dbc9631521fe4a9e4"
+          },
+          {
+            "bytes": 244,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "57a38f9a9b96c363827b0b856a517921a0e201c0855b288c2fd824de0ee7af78"
+          },
+          {
+            "bytes": 215,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "9e5c1659d96d9700511336a6db4d27b376c2e65f419183ee4b563183f787ce86"
+          },
+          {
+            "bytes": 1342,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "b31990ea5623d441df6afd1100c449b6d7aeb651da7ea9add8e54c42bb6e340d"
+          },
+          {
+            "bytes": 3085,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "996398243c8533edf76c68a1344d28bebdacaf0d2f4c6cb06f3a84d5e74bdd05"
+          },
+          {
+            "bytes": 372,
+            "file": "r-cd-3-summary.json",
+            "kind": "k6-summary",
+            "sha256": "5494852691db7461ddc540f8586527346b9e880b1409d5ca15be7bbbec382b44"
+          },
+          {
+            "bytes": 3851,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "2ee3461c50d8786cea7c18ee649f8f41a4c840ebfa32aaac66b90a95082cdb75"
+          },
+          {
+            "bytes": 1472,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "dcfde8682488e906282fcecfdbe29cbe343b8b13c0d26029a1ee44a31d339661"
+          },
+          {
+            "bytes": 281,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "f386656eaffbad201cf9ee47eece390cb0a492d37fd4eda7d1d76c7aa7918a6d"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "compaction-requested",
+        "delegate-staging-requested",
+        "dispatch-accepted",
+        "threshold-refusal-or-lifeboat"
+      ],
+      "row": "R-CD-3",
+      "runId": "20260719T191755Z-r-cd-3",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-3/elliott/20260719T191755Z-r-cd-3",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "continuation-trace-collector.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "continuation-trace-collector.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "8f08fc7fb13a530c70a5f75d661505daa456c9f4f287b9ee5bacc705d0e9329e"
+          },
+          {
+            "bytes": 244,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "432579767a1b2164a483a575e8d5f10c8ed9a76a0ac0dd0a02311edf98245dd8"
+          },
+          {
+            "bytes": 215,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "02489a1e34deea6de9119f8426de9d6d67ff2ff4c0371ff1093c901219d118e2"
+          },
+          {
+            "bytes": 2389,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "3da5ca1bf76ce36cb5984dff8fcb8553666321469b26b97f4cc29cd9fa696967"
+          },
+          {
+            "bytes": 6091,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "2185fd84875ff4729d741e20d548d3981173e19068a3d2bd8417e75a9df1528f"
+          },
+          {
+            "bytes": 358,
+            "file": "r-cd-4-summary.json",
+            "kind": "k6-summary",
+            "sha256": "43151acf8937334f112618edc4e3fd65b1c2ad7fd8dfa64d08026d135478947b"
+          },
+          {
+            "bytes": 3803,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "9dbdc1936d8387552eac973dcabd26a6ea58fb903dd1f7347344b9c210d9c46e"
+          },
+          {
+            "bytes": 1581,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "335a551e593084a4c0aac30194fa7c536fae6019102357bdddce932bbf1264b8"
+          },
+          {
+            "bytes": 284,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "97c31f909d716f94b2d28fa8ef4b9fcc1ed8765ddf34d140032e255ca1d4f2ad"
+          }
+        ]
+      },
+      "canonicalOwner": "ᚱ rune",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "review is incomplete or has pending receipts",
+        "review-complete candidate envelope is absent",
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "dispatch-accepted",
+        "no-parent-return",
+        "parent-session-created",
+        "seat-readiness",
+        "target-return-event",
+        "target-session-created",
+        "trace-id"
+      ],
+      "row": "R-CD-4",
+      "runId": "20260719T191806Z-r-cd-4",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-4/elliott/20260719T191806Z-r-cd-4",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "continuation-trace-collector.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "continuation-trace-collector.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "deb4b308c2e7d704d58bc7841872a4274a41b2fe72d88176924cdefa0b1f0819"
+          },
+          {
+            "bytes": 244,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "8d0163774c6a2944b1de2bfc054290af170edcaa67e0b8581e33a50809b1a98f"
+          },
+          {
+            "bytes": 215,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "bba9899794683560b532e5400493a881c77f6d1ba37e2dd8ca02c7f95d12eb20"
+          },
+          {
+            "bytes": 1350,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "cb517d2208d0ac2846648e9ebd48a285e3c6f2fd9c03115f022fe0b1d6ebd949"
+          },
+          {
+            "bytes": 3736,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "b45fd5b6e52931d93d0cc6b54b7c475441825b616ad9be37fe34caa4f2dfdad7"
+          },
+          {
+            "bytes": 372,
+            "file": "r-cd-chained-depth-2-summary.json",
+            "kind": "k6-summary",
+            "sha256": "26c8e935f185fe345b4d00a15773dfff08dce844126a302ea6f13a55af2088da"
+          },
+          {
+            "bytes": 4430,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "73838c24f71bfdde7bd45561ecc93b5f730007358762ce23b8a3b500ee71dfd9"
+          },
+          {
+            "bytes": 1622,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "f68c44a99671a75478ae05228f92cd9f8c4deb628bbe7d6b33b44365c6ebd808"
+          },
+          {
+            "bytes": 293,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "f5b3ca7822fe1f69787e05ed0b904bb0df73a9a0be5c059196257a5d9895ed62"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "review is incomplete or has pending receipts",
+        "review-complete candidate envelope is absent",
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "child-fires-grandchild",
+        "child-spawns",
+        "grandchild-returns",
+        "grandchild-spawns",
+        "parent-dispatch-accepted",
+        "parent-receives-chain-return",
+        "seat-readiness",
+        "trace-id"
+      ],
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "runId": "20260719T191939Z-r-cd-chained-depth-2",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-CHAINED-DEPTH-2/elliott/20260719T191939Z-r-cd-chained-depth-2",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1443,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "cc9905f40dbc5f797c5942ec3f04d1a090f9b8d74b1a4b62ed21e51459106488"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "de174da91f09d40194b3bfbefcf088652bd52a32bc4405fe3baf0b703bfe3e1c"
+          },
+          {
+            "bytes": 243,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "82d9467ec2967824a534994a5f4d1136229b544158db3f61759896c02096ee1e"
+          },
+          {
+            "bytes": 214,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "f83aad4594d2b2c6cd910d339897416e6b275e0f54fbb9cf51f06e46d43ea1d5"
+          },
+          {
+            "bytes": 86,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+          },
+          {
+            "bytes": 2257,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "24618e26e781e2ace5c4016c510a7cbe3a9a700eb8edb53c8b8d218666e8d75f"
+          },
+          {
+            "bytes": 2625,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "044ac50b2109d3ee4c1cef32b7d048b5e8021e09c407f7ef298c383438ef4bbc"
+          },
+          {
+            "bytes": 2692,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "0d193e5475899e5fd7b3ee13a0420273f4ac69c6ad394384f9ee2cf2e611f81d"
+          },
+          {
+            "bytes": 307,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "0d80c328f23625bd97e1669e1fc85eeb62e1475324ddccf414e7932851d58fb6"
+          },
+          {
+            "bytes": 291,
+            "file": "static-corpus-row-summary.json",
+            "kind": "k6-summary",
+            "sha256": "f946e453d6c29cd558ded8634594856f55d019e7d69d9d56e2e239a236bf4cb9"
+          }
+        ]
+      },
+      "canonicalOwner": "🩸 cael-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "collection-collapse-artifacts",
+        "root-collection-after-intermediate-finalized"
+      ],
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "runId": "20260719T192053Z-r-cd-collection-on-collapse",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-COLLECTION-ON-COLLAPSE/elliott/20260719T192053Z-r-cd-collection-on-collapse",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1427,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "a2ac2138beda4482d44d5f1a4a1572602760b089befe3bffa7d62bbcdf126489"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "ee865fe66249501e609cfdd5da424da2c6bfe4ad5b299def023030c9546a4bae"
+          },
+          {
+            "bytes": 244,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "56abaccd2bf4f9acd813c05d8d222580ff2fdea345d250a383df738665e92f68"
+          },
+          {
+            "bytes": 216,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "b03dcb06f93e6259efc511fee2684438de802942940997b737e061eff915c3db"
+          },
+          {
+            "bytes": 4188,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "e0281b10fd1f0429cba3d583609cb9a734c5df6c75f244a01c2165e6a8f9f0ab"
+          },
+          {
+            "bytes": 8611,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "005b49e74edc4db9b0a3e65b01b2d3377cfa9447b99100dcf5d62b4b276e7c53"
+          },
+          {
+            "bytes": 374,
+            "file": "r-cd-model-chained-alt-summary.json",
+            "kind": "k6-summary",
+            "sha256": "fc214de0e69ff2eaabeec6eb74fe09a80f15a3399b68a3b7537a1786999cb993"
+          },
+          {
+            "bytes": 4485,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "446175736a4588ba94b5695207ff75a6ad4f5dd5276ef51cdbef53ca45bb8a73"
+          },
+          {
+            "bytes": 1495,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "374350532bd3a4de6126da022c997d24b78eff1d82a6aaab1396df4906bf1d50"
+          },
+          {
+            "bytes": 297,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "5200d857580856513a553e9fd4956e9b30dc87b0f489edafe4aa171bc9d17de4"
+          }
+        ]
+      },
+      "canonicalOwner": "🩸 cael-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "child-model-byte",
+        "child-session-observed",
+        "depth-1-child-observed",
+        "depth-1-scheduled-inner",
+        "depth-2-child-observed",
+        "depth-2-model-byte",
+        "dispatch-accepted",
+        "return-payload",
+        "seat-readiness"
+      ],
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "runId": "20260719T192055Z-r-cd-model-chained-alt",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-CHAINED-ALT/elliott/20260719T192055Z-r-cd-model-chained-alt",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1411,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "6fe144f860407958159025f2d8b7d312ae91efe457ac293c704ae381b3f8b293"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "81bd7a5b27f8ae098bb53b797871a85fdb32ec5cca430e5326f1bc6bf9969459"
+          },
+          {
+            "bytes": 244,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "2bf0d034362f8429be5107cec308d2b536ab962db3da8b5e34dbc3b4e0197ece"
+          },
+          {
+            "bytes": 216,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "f87f5e52357fa45ba4fcb04c8e7a8934f17e43063952624354913858206bd27b"
+          },
+          {
+            "bytes": 3781,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "c4cb0f3712f541a0f9cd9fa53314611090f2b26b95bc072dacfa6ad5fe0c0f69"
+          },
+          {
+            "bytes": 4530,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "3bc903a7b98cc3b76c8bfa8984f11ca3b97bfee1226829e5176c1b42185228de"
+          },
+          {
+            "bytes": 370,
+            "file": "r-cd-model-default-summary.json",
+            "kind": "k6-summary",
+            "sha256": "5a983d5da583f8ead209d288930fd39d1434395e71e88aba0d2e1256a7026831"
+          },
+          {
+            "bytes": 3789,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "ddc4181d0e1cfe874c36f52dfcd457ee1f8a3c569fd95d6f91a7fad7de276d3e"
+          },
+          {
+            "bytes": 1400,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "25bc64567902af69ff3835c16ac8bfcda4e5f9e4c084dc208b4117f2634f2860"
+          },
+          {
+            "bytes": 289,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "5cbe2703020ecdfed6d15b15860bbbfbd07cbc4a52e188e24064fc4825cc689e"
+          }
+        ]
+      },
+      "canonicalOwner": "🩸 cael-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "child-model-byte",
+        "child-session-observed",
+        "dispatch-accepted",
+        "parent-model-byte",
+        "return-payload",
+        "seat-readiness"
+      ],
+      "row": "R-CD-MODEL-DEFAULT",
+      "runId": "20260719T192144Z-r-cd-model-default",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-DEFAULT/elliott/20260719T192144Z-r-cd-model-default",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "gateway-journal.log",
+            "findings": [
+              "sensitive-assignment"
+            ],
+            "reason": "secret-or-private-scan"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1403,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "cc0e5faf45c078e878419259eb05afb19c3efcc6b439ed989a483294e4b94f4a"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "8149225687c9787b0d8b6a1cc4a84defb4f8103253324faa28126b70ca7b1b36"
+          },
+          {
+            "bytes": 244,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "1f81b178a88abe0a19656dfb21177e6629c7a9c7df539fb72c32c9aad021928e"
+          },
+          {
+            "bytes": 216,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "017b743d402a2bbead06828ce221ee1d494c5ca8704fa5feaa13f949a8263b8c"
+          },
+          {
+            "bytes": 9919,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "8d6e4281743ed00a3d088f55db93fcddf5d9dc1c72bd3d3570848497de83a55b"
+          },
+          {
+            "bytes": 368,
+            "file": "r-cd-model-token-summary.json",
+            "kind": "k6-summary",
+            "sha256": "384e8fd21c7fbf3105f162b579fe8ce7249f464a0c3b1ebc694052ff5c81eba2"
+          },
+          {
+            "bytes": 4250,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "09812fcf56f203fff181022c140bbfa4654c4b6c263923ec8b8fe4aacd462004"
+          },
+          {
+            "bytes": 1561,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "cab3d7362b7c7f4f301bb1cd4707f56f5d42f8ce9fe077c72d70a33264c49c2a"
+          },
+          {
+            "bytes": 285,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "0ecc17fa128e09f250701e2478b571d4566217685dcc7f80664b6d80cd11d9d0"
+          }
+        ]
+      },
+      "canonicalOwner": "🩸 cael-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [
+        "public-gateway-journal.log"
+      ],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "missing mandatory receipts: public-gateway-journal.log",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "bracket-model-modifier",
+        "bracket-parse-origin",
+        "child-model-byte",
+        "child-session-observed",
+        "dispatch-accepted",
+        "return-payload",
+        "seat-readiness"
+      ],
+      "row": "R-CD-MODEL-TOKEN",
+      "runId": "20260719T192207Z-r-cd-model-token",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOKEN/elliott/20260719T192207Z-r-cd-model-token",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "gateway-journal.log",
+            "findings": [
+              "sensitive-assignment"
+            ],
+            "reason": "secret-or-private-scan"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "acfb42d5ab1733cfe0bb9cec36ab30140f4e51fa4811115bbbed3d9ba3c8012b"
+          },
+          {
+            "bytes": 245,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "091fe65066a56a5f4fec1fbbf4c2385e983a498644806093f05d0fc4121e7b77"
+          },
+          {
+            "bytes": 217,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "409767b8437d620c5911dada040c84fc0e85ecefd6058dccd8f6ed126a59820a"
+          },
+          {
+            "bytes": 27864,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "9c5fff697460dcb1e2d2130884f855b607dc65e3ea52c59da26001af227d6777"
+          },
+          {
+            "bytes": 521,
+            "file": "r-cd-model-tool-summary.json",
+            "kind": "k6-summary",
+            "sha256": "36be83c3cad97795b322d67d24bddf8f69e32256207fbf592df25aaa2ee6c771"
+          },
+          {
+            "bytes": 4195,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "df83ff8ee2bdb2e7454a90f99cc4398460db5c2e00585d4c2b5cb17ea52ae034"
+          },
+          {
+            "bytes": 1792,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "1c0dc6cb96fceaadf9040cd266c337734432279df7e04723f029e45f9d29fc1d"
+          },
+          {
+            "bytes": 283,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "48c9b6c55d465c64c3c95387a87cb0a16e63e4a8815bc749dcd12d631faa64c3"
+          }
+        ]
+      },
+      "canonicalOwner": "🩸 cael-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [
+        "public-gateway-journal.log"
+      ],
+      "reasons": [
+        "terminal candidate verdict is PARTIAL-CANDIDATE",
+        "effective exit code is 99",
+        "review-complete candidate envelope is absent",
+        "behavior/publication authority is absent",
+        "missing mandatory receipts: public-gateway-journal.log",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "child-model-byte",
+        "child-session-observed",
+        "dispatch-accepted",
+        "requested-model-byte",
+        "return-payload",
+        "seat-readiness"
+      ],
+      "row": "R-CD-MODEL-TOOL",
+      "runId": "20260719T192305Z-r-cd-model-tool",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOOL/elliott/20260719T192305Z-r-cd-model-tool",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1421,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "b8088d0adfc30ff7cc8550dfd0c8770979af2f0e0de4fd90905209fa10a54023"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "7ffe2ff94638acf81983f2a1ece83ceb3daab3eafdacf82dcf6326638cf2a3ed"
+          },
+          {
+            "bytes": 243,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "f208ce0bc0fe1d1084f226f1bd8c603acfc33738925d0cd0fa1db899c1026229"
+          },
+          {
+            "bytes": 214,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "094e61b10d8bd552e516f56b08fdde75b8d15f61e0b23f5de86a6b1b0bd13bb1"
+          },
+          {
+            "bytes": 86,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+          },
+          {
+            "bytes": 1871,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "1f6807761a188a4af6f9eca446aa5e1224e6da07383d6f63e94f06ea8da3e143"
+          },
+          {
+            "bytes": 283,
+            "file": "r-cd-return-overlap-summary.json",
+            "kind": "k6-summary",
+            "sha256": "c5d6d42f7cb1eb720231446c8a23599941da7de5556f5f6b4d12d42bda62ad99"
+          },
+          {
+            "bytes": 2209,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "e01f4f63f21808500bdb14428148becf7069ddb751fc9fb02e7aea50c433f49e"
+          },
+          {
+            "bytes": 2243,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "892f2ff0a0748df65a4faf703305a5a5dc523fb458794231e44cacfa8a96295d"
+          },
+          {
+            "bytes": 291,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "7d2a56738349e1d214b05b56caf679ccb22ecb5153751616e69fe0184da6e430"
+          }
+        ]
+      },
+      "canonicalOwner": "🩸 cael-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "collection-no-loss",
+        "overlap-artifacts"
+      ],
+      "row": "R-CD-RETURN-OVERLAP",
+      "runId": "20260719T192608Z-r-cd-return-overlap",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-RETURN-OVERLAP/elliott/20260719T192608Z-r-cd-return-overlap",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "gateway-journal.log",
+            "findings": [
+              "sensitive-assignment"
+            ],
+            "reason": "secret-or-private-scan"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1383,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "86c3464d3840afa7918af231d998115d824e02bb5bb358c616e6e40a692c4ec0"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "3150aeabe0bc65deab61e5daa37b0f3a277ac57c424dda6df5b9e6f9b95ddb96"
+          },
+          {
+            "bytes": 244,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "ad7cc026019591a1568f6f941da5803e6a5e223ad74109edeb54483b1fb1bb4e"
+          },
+          {
+            "bytes": 216,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "462f71c540383ae0182270688975ff6614a04567060baa7d8cbf13225f260e87"
+          },
+          {
+            "bytes": 13458,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "eb1d2e577b79663b41986aed312be484193814dbb2f2d36af4ccf92310b3710c"
+          },
+          {
+            "bytes": 791,
+            "file": "r-cd-silent-summary.json",
+            "kind": "k6-summary",
+            "sha256": "392b5a65f405b10fa1ed3abf9c25193ef3e749fb8315102a1838e1aa22372977"
+          },
+          {
+            "bytes": 3681,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "9c9576d2704a6e7e7d145beb3275d1f054779bf81f98bbf484f01467600e92a1"
+          },
+          {
+            "bytes": 1509,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "d6fdc462de1176350f8708cffc170ab6543081be2d54b2f429e6cf88db7aeda9"
+          },
+          {
+            "bytes": 275,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "c4d7e90ac4fadd02242c0940efb10926228be9a840a1de442e9c582260ecf126"
+          }
+        ]
+      },
+      "canonicalOwner": "🩸 cael-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [
+        "public-gateway-journal.log"
+      ],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "missing mandatory receipts: public-gateway-journal.log",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "child-completion-observed",
+        "delegate-scheduled-sentinel",
+        "dispatch-accepted",
+        "followup-accepted",
+        "no-channel-delivery",
+        "parent-internal-context-observed",
+        "seat-readiness"
+      ],
+      "row": "R-CD-SILENT",
+      "runId": "20260719T192610Z-r-cd-silent",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-SILENT/elliott/20260719T192610Z-r-cd-silent",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "attempt-state.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 5659,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "7b96ff52671575220a8fcfe283afa19e4ec2d921b7b2fda634cf63d722cf4f4d"
+          },
+          {
+            "bytes": 1027,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "11fbaab49abb66eaee1a5c23dd51df78b680db477c19760b0152ca395db72c54"
+          },
+          {
+            "bytes": 290,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "9976790b1675d761783cfe04bf6caff76d4136107215f88f1c04a3a20edd3c66"
+          }
+        ]
+      },
+      "canonicalOwner": "🌻 elliott-legion",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [
+        "child-completed",
+        "child-spawned",
+        "continuation-trace-correlation",
+        "mandatory-correlation-receipt",
+        "mandatory-tempo-projection",
+        "parent-return-event",
+        "parser-detected",
+        "public-gateway-journal-capture.json",
+        "public-gateway-journal-redaction.json",
+        "public-gateway-journal.log",
+        "queue-identity",
+        "raw-final-text-origin",
+        "tempo-trace-json"
+      ],
+      "reasons": [
+        "terminal candidate verdict is PARTIAL-CANDIDATE",
+        "review is incomplete or has pending receipts",
+        "review-complete candidate envelope is absent",
+        "behavior/publication authority is absent",
+        "missing mandatory receipts: child-completed, child-spawned, continuation-trace-correlation, mandatory-correlation-receipt, mandatory-tempo-projection, parent-return-event, parser-detected, public-gateway-journal-capture.json, public-gateway-journal-redaction.json, public-gateway-journal.log, queue-identity, raw-final-text-origin, tempo-trace-json",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "attempt-state",
+        "child-completed",
+        "child-spawned",
+        "continuation-trace-correlation",
+        "exact-candidate-runtime-identity",
+        "parent-return-event",
+        "parser-detected",
+        "prompt-injected",
+        "queue-identity",
+        "raw-final-text-origin",
+        "tempo-trace-json"
+      ],
+      "row": "R-CD-TOKEN",
+      "runId": "20260719T192737Z-r-cd-token",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-TOKEN/elliott/20260719T192737Z-r-cd-token",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1367,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "4187902033afb24ec926ad5edace02449da31a9200836dec48ac5e2860d57afd"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "f5cc63ad277a35335ac6a95086a2b9ceda8ebee3dfbd23beabe298efa4e557a8"
+          },
+          {
+            "bytes": 243,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "50cdeef17bd31ae0dd22188eed1715aa6da26cd3658efcae86ff217f9155a447"
+          },
+          {
+            "bytes": 214,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "941e6f234873a46e3e51eb580aef943ccfd1cc4f82c2eec96828807116c6b8fa"
+          },
+          {
+            "bytes": 86,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+          },
+          {
+            "bytes": 1597,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "d77113c9026e3b5788fa6cc5f88e39315e8b99744f47918a9d5e4c88621e5c11"
+          },
+          {
+            "bytes": 2205,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "dec0be0a591aecf9ea4c74371d9c54b2239aa95f498e3d9e9933659112a2e29b"
+          },
+          {
+            "bytes": 1620,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "0cf51658286e854a8187071c310f5c58623c7e944384b140ae595523a1efb451"
+          },
+          {
+            "bytes": 287,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "c7e6e531b0053381e0cac9b83a19f79478c381a8b8e1be199216f573c91d3334"
+          }
+        ]
+      },
+      "canonicalOwner": "🌻 elliott-legion",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "config-read",
+        "continuation-values",
+        "seat-readiness"
+      ],
+      "row": "R-CONFIG-DEFAULTS",
+      "runId": "20260719T192739Z-r-config-defaults",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-DEFAULTS/elliott/20260719T192739Z-r-config-defaults",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1379,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "1ab6b6e2846d5de121b9b235fb12a4fe5dd56ad1163052f14a26c8fc4033ee73"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "8fc6f1b63e4df4e5fc59ce3ce833c00bf9feac0044c6a60cc87f0fbec6d2c67d"
+          },
+          {
+            "bytes": 243,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "baff6e85c791c2f17b93a06444114b2b096e92d06ba489eb64eb3a979887701f"
+          },
+          {
+            "bytes": 214,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "53f241dbd3c374169feb2d47f57630dd3f34537bc2b115b626cff145c49b1139"
+          },
+          {
+            "bytes": 86,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+          },
+          {
+            "bytes": 1429,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "3d3a637083c75d2dcbeeb1e06108a35bbf1b996d93c4982954d2af09659009e1"
+          },
+          {
+            "bytes": 2315,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "3465c20187d5c8a72317e2107e59c4d808ce92ef32e3cb01477c6fbdb85c67c5"
+          },
+          {
+            "bytes": 1547,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "691dcb2cc3f6a7daeecec4a2338ce66daa4a7c0d9698382636f83488b0f9b5d5"
+          },
+          {
+            "bytes": 295,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "467ff925cdf0589be39ea753d077d9ac6e10de7f0bf739908792b03158bff437"
+          }
+        ]
+      },
+      "canonicalOwner": "🌻 elliott-legion",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "config-read",
+        "cross-session-targeting",
+        "seat-readiness"
+      ],
+      "row": "R-CONFIG-INTERSESSION",
+      "runId": "20260719T192743Z-r-config-intersession",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-INTERSESSION/elliott/20260719T192743Z-r-config-intersession",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "continuation-trace-collector.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "continuation-trace-collector.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "ccd545569fd78cafb5742cfaead686014c9822a356241bf39d42f84935295f92"
+          },
+          {
+            "bytes": 245,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "565a5aaedbb781543641f488fb83d02e9d18d6a71f2494be1aa5c1fbbb39c79b"
+          },
+          {
+            "bytes": 217,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "9cf324ba9eeeb106c7b58e8554415cf958bfab024eaf6a31a2a5cb7abb8d75f8"
+          },
+          {
+            "bytes": 8220,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "33e8c0c8fa49b89ec1ca4482032fad4fa9219eff3584e2a8f7e889cac5478d33"
+          },
+          {
+            "bytes": 15001,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "54b688bffb80d39397a0a6cb9b24f953132dfe8832f40c54abdd619f24e8201b"
+          },
+          {
+            "bytes": 361,
+            "file": "r-cw-1-tool-schedule-wake-summary.json",
+            "kind": "k6-summary",
+            "sha256": "f0345a76b421c6eac132fdbfbabf904cd24a9c3dad18bf7f8b5a64ad29ade36d"
+          },
+          {
+            "bytes": 3177,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "6159bf0cdeb38e3ee7905a4eeaff01e33e0b4ffedafef48682441f9c0ffb4a78"
+          },
+          {
+            "bytes": 1541,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "26205585ece3f461687d25809605cf02325d0b6f877af93582ac6a7131f5a5a7"
+          },
+          {
+            "bytes": 284,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "d66ab2bb00f7352babdd5edc2b3e2a8beb66d753cf31ecd74939efe480edafc9"
+          }
+        ]
+      },
+      "canonicalOwner": "🌫 silas-lothric",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "terminal candidate verdict is PARTIAL-CANDIDATE",
+        "effective exit code is 99",
+        "review is incomplete or has pending receipts",
+        "review-complete candidate envelope is absent",
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "continue-work-tool-result-scheduled",
+        "seat-readiness",
+        "tool-invoke-accepted",
+        "trace-id",
+        "work-woke-event"
+      ],
+      "row": "R-CW-1",
+      "runId": "20260719T192746Z-r-cw-1",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-1/elliott/20260719T192746Z-r-cw-1",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "677ea24ac61fe0b53a1e2ed0b2d4dfa79c49b4f8944f98c203a5c1c5ae9c50b0"
+          },
+          {
+            "bytes": 244,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "4e2cb57a00f97978769dfaf25ca3736eb3a5cf7f3a02e664805e583c11a791b2"
+          },
+          {
+            "bytes": 216,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "d6560cdec0d401bdbf23298a0c8f3323d5fb45e70f17bf8bdabf45226dda7b86"
+          },
+          {
+            "bytes": 5443,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "7b8fc99b266806124ce96805fe3b32cb9c8371b655c85752591140083d590373"
+          },
+          {
+            "bytes": 14376,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "de3076110bc0a2d3621bc202d24ca42ba763dc76559d9277f0ec10b417feeeb6"
+          },
+          {
+            "bytes": 838,
+            "file": "r-cw-2-immediate-wake-summary.json",
+            "kind": "k6-summary",
+            "sha256": "f05a9f9e49cbc36d550582e0c2d479002efb6d5b7aa7950dd7b622e295885cc8"
+          },
+          {
+            "bytes": 3247,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "412976b30208d875edae6a3c00228a19cde014a24de2c30249fe0360a386de22"
+          },
+          {
+            "bytes": 1431,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "5c1e8b6fe388ba1e595e6e4e7b2e39458813d671ebc729390300f05c3c7a94a6"
+          },
+          {
+            "bytes": 280,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "ed4e79f497d240954312ad2792cfc1eb977e0296c7ac4d6b84ace33aca7ba0c4"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "terminal candidate verdict is PARTIAL-CANDIDATE",
+        "effective exit code is 99",
+        "review-complete candidate envelope is absent",
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "continue-work-tool-result-scheduled",
+        "dispatch-accepted",
+        "immediate-wake-event",
+        "prompt-echo-filtered",
+        "seat-readiness"
+      ],
+      "row": "R-CW-2",
+      "runId": "20260719T193020Z-r-cw-2",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-2/elliott/20260719T193020Z-r-cw-2",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "continuation-trace-collector.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "continuation-trace-collector.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "gateway-journal.log",
+            "findings": [
+              "sensitive-assignment"
+            ],
+            "reason": "secret-or-private-scan"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "e78437b6a1a08373683452cfd4fcd56261f0398f47ee4f9ec42281cb54e64ab5"
+          },
+          {
+            "bytes": 245,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "88df846ac1a3715bda1f064f676166f838c94e00409a9e82484a9a9631a1b236"
+          },
+          {
+            "bytes": 217,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "a6c753b1759da3a8f796b8ef60fb8c5db097fef1f147c606f714521d0ca582ec"
+          },
+          {
+            "bytes": 44046,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "65341c9e995ca549a71713e9bd8d507cc0283a85a4fa8d9979156f969d64179d"
+          },
+          {
+            "bytes": 1349,
+            "file": "r-cw-3-reason-telemetry-summary.json",
+            "kind": "k6-summary",
+            "sha256": "feaf4f1170ac9ebbbb5a75c2ef295f7e53f20a2728c2db614fc257213066d2a5"
+          },
+          {
+            "bytes": 3744,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "55857909cb34dfacbd2188f7301431416f2deab56b58d288fdcf3807a96592b0"
+          },
+          {
+            "bytes": 1634,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "f6a8a58de88e40e826bc8397c198e867a040561b758cdcf3ec8358ccd5a68517"
+          },
+          {
+            "bytes": 282,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "b25904df17c1ea972c4fab264f6bcd546d980b89697c6908427c3762d0f43536"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [
+        "mandatory-tempo-projection",
+        "public-gateway-journal.log",
+        "reason-telemetry-redaction-review",
+        "tempo-trace-json"
+      ],
+      "reasons": [
+        "terminal candidate verdict is PARTIAL-CANDIDATE",
+        "review is incomplete or has pending receipts",
+        "review-complete candidate envelope is absent",
+        "behavior/publication authority is absent",
+        "missing mandatory receipts: mandatory-tempo-projection, public-gateway-journal.log, reason-telemetry-redaction-review, tempo-trace-json",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "continue-work-tool-result-scheduled",
+        "dispatch-accepted",
+        "public-artifact-raw-reason-absent",
+        "reason-telemetry-redaction-review",
+        "seat-readiness",
+        "tempo-trace-json",
+        "work-woke-event"
+      ],
+      "row": "R-CW-3",
+      "runId": "20260719T193152Z-r-cw-3",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-3/elliott/20260719T193152Z-r-cw-3",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "row-manifest.json",
+            "findings": [
+              "session-key"
+            ],
+            "reason": "secret-or-private-scan"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1387,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "65143ba4a68430e140f7e9a309f3bb27e10a04fcd4ffdbd53986227091d89200"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "a757fc222e52adc2c23e269ac3682733846dea40b8eb7394456cf38ccb280633"
+          },
+          {
+            "bytes": 244,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "54cf38d2ebf43e6ffc747994565c2507580d7fc11bb5bb5430c033b90b0daae3"
+          },
+          {
+            "bytes": 216,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "a836425e2e66183f23802714e06b31427e8c88a5013f0e76ab6d3ed36fcb9052"
+          },
+          {
+            "bytes": 9950,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "058ee9053cbd8ebb0cfa18fa2cd6b0c277236f2caf138b2f46ed2d1e20d9c6a6"
+          },
+          {
+            "bytes": 9943,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "4e4a9c8a6e5ead0a9fd779a73ac4fbfd538cd5eb4f851f60d8b46a1e971399a8"
+          },
+          {
+            "bytes": 358,
+            "file": "r-cw-4-chain-depth-summary.json",
+            "kind": "k6-summary",
+            "sha256": "a1dd5a50f77743193a96f765b81ca64f5f11334ddae60e1cee8e658dcedf8a73"
+          },
+          {
+            "bytes": 1804,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "359cdd565e0a4b114d0170ae915247f8744a6bc20ed957f7ef8495cb8d71b2bf"
+          },
+          {
+            "bytes": 277,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "f58053870fb863c3904fa1f9a15ec4c1ee25a498e47ee40945f651c9fbe37748"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [],
+      "row": "R-CW-4",
+      "runId": "20260719T193747Z-r-cw-4",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-4/elliott/20260719T193747Z-r-cw-4",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [],
+        "included": [
+          {
+            "bytes": 453,
+            "file": "boundary-matrix.json",
+            "kind": "fixture-public-receipt",
+            "sha256": "ccd91a4f4b27b5a3ccaa92ff8ccb39edee5891282747a10e4191fc763ef1bc09"
+          },
+          {
+            "bytes": 263,
+            "file": "cleanup.json",
+            "kind": "fixture-public-receipt",
+            "sha256": "9777935fbdb8451c0c32e5f79ac833da93d937d29d5303e17946c247e75aa5b0"
+          },
+          {
+            "bytes": 487,
+            "file": "dispatch-boundary-suite.json",
+            "kind": "fixture-public-receipt",
+            "sha256": "4d4146f5b2c939fb2ddb4c270434d4a4f821e0cfa040c015bfa8f4278ee99981"
+          },
+          {
+            "bytes": 438,
+            "file": "fixture-readiness.json",
+            "kind": "fixture-public-receipt",
+            "sha256": "81ca627f05cea9b76ae7ccc431f2eeea74f7dd2c53c2dec4e8677113eeb3deef"
+          },
+          {
+            "bytes": 563,
+            "file": "fixture-result.json",
+            "kind": "fixture-public-receipt",
+            "sha256": "2c4e4150212e91e73fe803136c3e0d7571629a7ffd709f26df7df06aed240e8a"
+          },
+          {
+            "bytes": 514,
+            "file": "typed-tool-surface.json",
+            "kind": "fixture-public-receipt",
+            "sha256": "166ddcb863515cadb6d6590f20f7a8ae4dcde8fefb6d91dfa54a78131436ff91"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "terminal PASS with complete mandatory receipts and publication authority"
+      ],
+      "requiredReceipts": [],
+      "row": "R-CW-5",
+      "runId": "20260719T194733Z-r-cw-5",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-5/elliott/20260719T194733Z-r-cw-5",
+      "sourceKind": "process-local-fixture",
+      "state": "pass"
+    },
+    {
+      "artifacts": {
+        "excluded": [],
+        "included": [
+          {
+            "bytes": 2065,
+            "file": "boundary-matrix.json",
+            "kind": "fixture-public-receipt",
+            "sha256": "76eb19c41368062448ff2e58fadb9f5c1838b2d538c56e97eb48e8b4f4b3051c"
+          },
+          {
+            "bytes": 1933,
+            "file": "cleanup.json",
+            "kind": "fixture-public-receipt",
+            "sha256": "040e0f077bf4189107c96b879ce85084646bbd4091733c892f62cf862a14dbf5"
+          },
+          {
+            "bytes": 3141,
+            "file": "dispatch-boundary-suite.json",
+            "kind": "fixture-public-receipt",
+            "sha256": "447d53c545f4be094f88e1929d1e9363300d7c585ebe77a6f6b0887085b268bf"
+          },
+          {
+            "bytes": 1749,
+            "file": "durable-state-recovery.json",
+            "kind": "fixture-public-receipt",
+            "sha256": "3f4f54456728faed5788e4503a5ce8dde1bb7ab621cf194d70d30176f896028b"
+          },
+          {
+            "bytes": 1992,
+            "file": "fixture-readiness.json",
+            "kind": "fixture-public-receipt",
+            "sha256": "ee2ed2f0120a7ee133cfcc72def5ac2fc65a4c3367dd0e3d3acd82a80fccc5eb"
+          },
+          {
+            "bytes": 2806,
+            "file": "fixture-result.json",
+            "kind": "fixture-public-receipt",
+            "sha256": "cb42333be9d5a58d3a705faa20fcfb50838ce5dbbf0c1dd56021b1bd71ea54d4"
+          },
+          {
+            "bytes": 425,
+            "file": "public-artifact-safety.json",
+            "kind": "fixture-public-receipt",
+            "sha256": "02fc34f4db90c17aee40f4f8476bc19633068eed4ff9ea68b1cb938f611fcf51"
+          },
+          {
+            "bytes": 2770,
+            "file": "runtime-boundary.json",
+            "kind": "fixture-public-receipt",
+            "sha256": "400cb61f0cd904a083b3bd13dd9dc79e5bd42b4e93653ca0e11105ccc9c1f690"
+          },
+          {
+            "bytes": 2354,
+            "file": "typed-tool-surface.json",
+            "kind": "fixture-public-receipt",
+            "sha256": "ffa269d7f339baa8e2f2ee59fb42f066f6e0f34145929adb03a3058c26aa7394"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "terminal PASS with complete mandatory receipts and publication authority"
+      ],
+      "requiredReceipts": [],
+      "row": "R-CW-6",
+      "runId": "20260719T194807Z-r-cw-6",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-6/elliott/20260719T194807Z-r-cw-6",
+      "sourceKind": "process-local-fixture",
+      "state": "pass"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1401,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "cb1cef98f3545f10f33ba022a8d53f677c4521e044e78382442e883c9fd3bf31"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "a04515bc1e0079df76f3ae4f9808e0ee4c854eded5e4cfd11cce5a466a0a4ed7"
+          },
+          {
+            "bytes": 243,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "e248690ebb43b435b4e0b97959a9efdbaaab7325eaaa21ac5ce08f5909c1fc10"
+          },
+          {
+            "bytes": 214,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "c80fd70a298ce16250d0693bde08e1ca794bc68cafb5fb6d353a004f09876dae"
+          },
+          {
+            "bytes": 86,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+          },
+          {
+            "bytes": 1596,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "15aea2f718055139626b840a6f38b6f310dfe2a5606cd9a1470c512c6e7f7c8f"
+          },
+          {
+            "bytes": 2042,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "d04b2c9f08c7457ec4351a91c5742b907f3d75c901d2bf67f5938bcfade4f39e"
+          },
+          {
+            "bytes": 1983,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "68ec269a6a2a6893ba50fcccbb303565745891668d9ca5560d638736efbed9a0"
+          },
+          {
+            "bytes": 286,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "0cf9b679bb7e3ccac598b8f33304e2973082c74d492f9b9425ce820abbbd4859"
+          },
+          {
+            "bytes": 270,
+            "file": "static-corpus-row-summary.json",
+            "kind": "k6-summary",
+            "sha256": "8ecf92d24daea6670ddf20b44b01527d29cf0dca887b5d346c44505e7ccefab3"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "traceparent-propagation-artifacts",
+        "traceparent-propagation-tests"
+      ],
+      "row": "R-CW-7",
+      "runId": "20260719T193844Z-r-cw-7",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-7/elliott/20260719T193844Z-r-cw-7",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1437,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "62a52b811aa0292a01fdb2962c8bcc1aa42fae4163a312eaf59d35cf3a9da198"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "ec42268eccf853b5b699e9e4db63dfbf6d32ffc4f4f383bd541702329b1dc734"
+          },
+          {
+            "bytes": 243,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "31b5f2263e796c8b33f70fc0ba261b8fe2711c4eac3e6193fa40d9c2cc6526bd"
+          },
+          {
+            "bytes": 214,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "f07fc34fc75a2eb0579e79fc5c5e7f2a3c5169f59cf03f1baed53fe3e0b266f6"
+          },
+          {
+            "bytes": 86,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+          },
+          {
+            "bytes": 1897,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "0f09cbf2ba98463e046e475a4857ee058019d83629c91679d1467f490fb9e110"
+          },
+          {
+            "bytes": 2083,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "d5f509007c2e7eca6395076f541af010bbf1b41d17b5472ba9c39db73463547d"
+          },
+          {
+            "bytes": 2300,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "6b16b82e9cb7fcdb155c8305aaa69dea8b469b8af51190c8c0c9e5c27f539cc7"
+          },
+          {
+            "bytes": 304,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "25e8956661475cc099973a1b83c2dee8f9055b2da831e79ff34b5c90e6df4c46"
+          },
+          {
+            "bytes": 288,
+            "file": "static-corpus-row-summary.json",
+            "kind": "k6-summary",
+            "sha256": "b808344597bf0e5d56a9624d63ace535fa8e29d934c927ae266f5acd78a4a80c"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "delegate-child-hop-artifacts",
+        "delegate-child-hop2-executed"
+      ],
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "runId": "20260719T193847Z-r-cw-delegate-child-live",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-CHILD-LIVE/elliott/20260719T193847Z-r-cw-delegate-child-live",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1463,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "0056f4fe8cf90d124f7edb8fe94a39de7ce8ce130b6bb3d873fe3e3ed9daa592"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "bc537567e68560fd9a4ab5f8a0aa8ed6ce035de8dbf6824636bf774daf073cde"
+          },
+          {
+            "bytes": 244,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "6e914c65c0c1f52b3241dd1a21e0813ad552a119c1923b42295d16588d0ff1b4"
+          },
+          {
+            "bytes": 215,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "29a9b11da05bba555ce308323596e3d26a2a0828521ee054d1403759ca0f141e"
+          },
+          {
+            "bytes": 1780,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "bdbc301e082061b08c792dfa12212617e2aecc424ddad5fb9caebb505abfe522"
+          },
+          {
+            "bytes": 5326,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "e43c3d82ed37acd6f5802ee9c68b32233fad90de499636a51487683873524767"
+          },
+          {
+            "bytes": 383,
+            "file": "r-cw-delegate-self-continuation-summary.json",
+            "kind": "k6-summary",
+            "sha256": "2f28d94c78d62aeb1e8aa802efc55bbe8ed4b0bb92643e4e4fd03279bf892e32"
+          },
+          {
+            "bytes": 3803,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "6cc1830e3c59ce06a805e81b9f8040a8835ab1fc958c10058a52c1060b1c9ef1"
+          },
+          {
+            "bytes": 1407,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "b042dff7ebee0a859d269ed30ff0c1d5cd01777d9d9ff1d0fe9920f04748ae87"
+          },
+          {
+            "bytes": 315,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "c5cdd94f4d937627a5207f7b1cc609d1c63ea98f5e07c35572b54c078dfbc92a"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "child-continue-work-accepted",
+        "child-hop-2-woke",
+        "delegate-accepted",
+        "parent-return",
+        "seat-readiness"
+      ],
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "runId": "20260719T193850Z-r-cw-delegate-self-continuation",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-SELF-CONTINUATION/elliott/20260719T193850Z-r-cw-delegate-self-continuation",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1427,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "7ed9486ee01bfd7850ed9adad4f0ad116adb03e87922e6e893723c0bfe4cc886"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "8f92b0948b3dab7064afdedf26d9eaabdb17b8f47d221a15820f44bafb2f5e7d"
+          },
+          {
+            "bytes": 243,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "96fe635a5e6b2fcbcb902e2aecf65a1fe4dc7e4b1ef8e7ff437b1a50b44173be"
+          },
+          {
+            "bytes": 214,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "768d5f5441d47a1a236338467d6258b5487fba3efeaa4de43eae4c2be99dd5a2"
+          },
+          {
+            "bytes": 86,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+          },
+          {
+            "bytes": 1912,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "d41ee5cba034f18fa230e9862f3f0a2ce18a6a725471229ff8222d31a191a3ad"
+          },
+          {
+            "bytes": 2048,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "47d84651c824c6bcafd85a82db1055916bc9217b9ac8df5c7c24809014b4e885"
+          },
+          {
+            "bytes": 2315,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "db201508105de82d073b5d416ca8097e59e6ed204f9866537df660543bf33830"
+          },
+          {
+            "bytes": 299,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "e0aca6b3a849d4873bd7d1890ea7291c2881ca41836a382bf9012fd3ea39eb72"
+          },
+          {
+            "bytes": 283,
+            "file": "static-corpus-row-summary.json",
+            "kind": "k6-summary",
+            "sha256": "e223f65bcfdeaf6e764f4ff7a33d3755a9c8b58c024378d3b227d25104786091"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "bare-token-hop2-executed",
+        "delegate-token-artifacts"
+      ],
+      "row": "R-CW-DELEGATE-TOKEN",
+      "runId": "20260719T193916Z-r-cw-delegate-token",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-TOKEN/elliott/20260719T193916Z-r-cw-delegate-token",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1409,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "319fde2f0a0952800966758577704bb9aa595235392a7c148bffdf97ddb493ad"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "00641622889aac99484ac7fc480e3bad53fabfb4862d304476566467c895c157"
+          },
+          {
+            "bytes": 243,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "8691ae867734fd83cb2015de994e327d7128918d65ff479d6f5d900c48d30cf8"
+          },
+          {
+            "bytes": 214,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "86b8cdbf08372b3f1ef84a726f4aaa3295349d45db190dd1d9f23ed729d8d7e7"
+          },
+          {
+            "bytes": 86,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+          },
+          {
+            "bytes": 1851,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "0f4213c2245044a1fe4d533ab36a05b9d629af7810aff580007073f195ff572c"
+          },
+          {
+            "bytes": 2022,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "86de2caeffe602761e478eb0e5ecac284358839395f37b113eb19569e6b24e03"
+          },
+          {
+            "bytes": 2254,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "f303e9858ee700e0d9a308c8ce101a53c33201d51ab99420375fb4c1c05e7138"
+          },
+          {
+            "bytes": 290,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "8695ddff8440d1e0fd7c3758f4a8532abbcf6c3fe9430595a8d516bd019e8189"
+          },
+          {
+            "bytes": 274,
+            "file": "static-corpus-row-summary.json",
+            "kind": "k6-summary",
+            "sha256": "b720a0c6d63c232c0a945d06da1e12c1811bebf0042ad09836e8b6c75ee4c0b3"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "fanout-collapse-semantics",
+        "multi-work-artifacts"
+      ],
+      "row": "R-CW-MULTI",
+      "runId": "20260719T193922Z-r-cw-multi",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI/elliott/20260719T193922Z-r-cw-multi",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1427,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "12022757924a3778147ee9a796fce92bda8c7da353594aee8343331dc46dec40"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "ca6615a68228122ea80f48e324b854a80a8efcd205e5514041aa890e732123c9"
+          },
+          {
+            "bytes": 243,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "f6720e19fcac4b03d8fe80b5b39ffacb762df08548521fcf7b010a38d8ac580b"
+          },
+          {
+            "bytes": 214,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "bfac034bd8632280390cd580c4fef524f8dc5a1562741f01408570a834635250"
+          },
+          {
+            "bytes": 86,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+          },
+          {
+            "bytes": 2446,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "3f1d805b945c75dec4f3b03baf0ac5b4d2d322dbd87845ffa0ca21518dde6f00"
+          },
+          {
+            "bytes": 2103,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "e920ce36f434d52117d05bbbab435c47e827bec6aec914b1b41d71563a083ffa"
+          },
+          {
+            "bytes": 2889,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "e9db5075ab0e75a1640c35ba14c84a396e6258bdca250573a903e700ec64ffb8"
+          },
+          {
+            "bytes": 299,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "bb085cf593284677eba132b982d1045cc1aee81632dde0ed56a4cc41b177c0df"
+          },
+          {
+            "bytes": 283,
+            "file": "static-corpus-row-summary.json",
+            "kind": "k6-summary",
+            "sha256": "7a9ff9a7d3871fed4034a19ec8c0c65bc6c96e7d5da67feb1ecbbf97aca112d9"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "multi-collapse-artifacts",
+        "stale-superseded-newest-granted-config-restored"
+      ],
+      "row": "R-CW-MULTI-COLLAPSE",
+      "runId": "20260719T193919Z-r-cw-multi-collapse",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI-COLLAPSE/elliott/20260719T193919Z-r-cw-multi-collapse",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "gateway-journal.log",
+            "findings": [
+              "sensitive-assignment"
+            ],
+            "reason": "secret-or-private-scan"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1395,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "86a1d5d561a10bf1c320beb09a500f7eed53af6cc4740fd5a278757fbd067ac3"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "b009944b378f77c939bdd35b2c1533fc817653406c54a572dd22fc78d911608c"
+          },
+          {
+            "bytes": 245,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "155007665173c5878d1f9e5379d2d0e21358f9f3daef064a4424db57a0c47b2e"
+          },
+          {
+            "bytes": 217,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "1f199c785c90ebcadf9700a74c1ec6bab43bb8ea7f1ac08ec8208b670ad4d1d0"
+          },
+          {
+            "bytes": 11692,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "aa1018dceb3bae5aa57a80cbbb80352373fff4c1cca3c345595fa75536c530b0"
+          },
+          {
+            "bytes": 362,
+            "file": "r-cw-token-bracket-summary.json",
+            "kind": "k6-summary",
+            "sha256": "a364abc7b66855545b252e0d1bf221497b1eb8aa4041e6733f0eb28e47c94fae"
+          },
+          {
+            "bytes": 4498,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "a46013967060b6a71e90e30b7ce67607c030209829998845e002d116402f3fe4"
+          },
+          {
+            "bytes": 1456,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "8a0bd15b1203f40a0f87372845498101c4e82503d73cb5e626d2116089e99f91"
+          },
+          {
+            "bytes": 281,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "5f025a10d978487dc03022c2a395bbd687b5c65b8791e466f97777e597c95093"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [
+        "mandatory-tempo-projection",
+        "public-gateway-journal.log"
+      ],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "missing mandatory receipts: mandatory-tempo-projection, public-gateway-journal.log",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "hop-2-executed",
+        "journal-work-wake-hop-2",
+        "parent-dispatch-accepted",
+        "parent-return",
+        "seat-readiness",
+        "subagent-spawn-accepted",
+        "subagent-spawn-requested",
+        "tempo-trace",
+        "token-emitted-or-stripped"
+      ],
+      "row": "R-CW-TOKEN",
+      "runId": "20260719T193925Z-r-cw-token",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-TOKEN/elliott/20260719T193925Z-r-cw-token",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "gateway-journal.log",
+            "findings": [
+              "sensitive-assignment"
+            ],
+            "reason": "secret-or-private-scan"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "d05537e8be90862721719ee309c1927e3644dc582d828b7c742e7b1503eb0712"
+          },
+          {
+            "bytes": 244,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "d6795952f5c832a855029760fb163fee7f05d99fb88776870a81a0c35804e16d"
+          },
+          {
+            "bytes": 216,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "1a11adc71a3e3554ea7f4b258b0255afbae4ad23b2dce1cbcd7b63f55e69e866"
+          },
+          {
+            "bytes": 9327,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "af358565dda30be18d2e6bcdb3609141b2c3ae470dfd92ddc0ca6842d2df2613"
+          },
+          {
+            "bytes": 295,
+            "file": "r-obs-1-summary.json",
+            "kind": "k6-summary",
+            "sha256": "43e730506fb8112c710d85814624a3f3e14f6e02c95c6a23da2be5c98e119a67"
+          },
+          {
+            "bytes": 2931,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "63588a11932ad7895575790664389d29ed9bfbd64cb205b0f9735044f8246655"
+          },
+          {
+            "bytes": 1344,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "c39a25ef74c58aa20837206803005d7ee50210ef3c2314da06c2a188a7ff4106"
+          },
+          {
+            "bytes": 267,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "96af3b4445a2ee2cdd556209d9a02b4213f6a7dd1794a6d5797a184d6c73eee2"
+          }
+        ]
+      },
+      "canonicalOwner": "🌻 elliott-legion",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "authoritative candidate result is FAIL-CANDIDATE"
+      ],
+      "requiredReceipts": [
+        "build-context-chain-route-visible",
+        "dispatch-accepted",
+        "seat-readiness",
+        "status-card-sentinel"
+      ],
+      "row": "R-OBS-1",
+      "runId": "20260719T194038Z-r-obs-1",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-1/elliott/20260719T194038Z-r-obs-1",
+      "sourceKind": "elliott-run",
+      "state": "fail"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1373,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "5c682cfd3019118686ce88b18496bbc68163ad2aaf735a104319ff7ae290e0b5"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "3331baa6cc07ddd1c42bd4fd97a54be37bc0b366b16269b049b82be8d0dce0ce"
+          },
+          {
+            "bytes": 243,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "82681e1be60ca896c209d48b21e9cbe37c51ea2b27e072143929e69c8e057271"
+          },
+          {
+            "bytes": 214,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "90cb9c6f35e0fe8f6386e67b77f2627a892c6e432172dfd80fae4ce373d9bc68"
+          },
+          {
+            "bytes": 86,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+          },
+          {
+            "bytes": 1580,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "c411c63cb27de21c9ee47704bd8d778b1a6023719d985380f2c89491ee0eaa67"
+          },
+          {
+            "bytes": 271,
+            "file": "r-obs-2-summary.json",
+            "kind": "k6-summary",
+            "sha256": "e0529238d2509f537d1e2524c89ae7000d45e7a214e332f7b8d44b7f860f75d4"
+          },
+          {
+            "bytes": 2044,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "510d7c0c9f97266df3882aaf9b56758510505b713f50f9baee25c258d3d47c90"
+          },
+          {
+            "bytes": 2013,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "c456b9dc61e442aa86dc176f98436d0b5525da2afb865f6ebaabd6be1b7ac8e8"
+          },
+          {
+            "bytes": 267,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "af8975e26fa6b84b8c932651de23093a5773cd6443ec7933255358ae1e16a70f"
+          }
+        ]
+      },
+      "canonicalOwner": "🌻 elliott-legion",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "continuation-lineage",
+        "trace-tree-artifacts"
+      ],
+      "row": "R-OBS-2",
+      "runId": "20260719T194143Z-r-obs-2",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-2/elliott/20260719T194143Z-r-obs-2",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "db13e4c67a5859509fe23494d8bdba63ff48759fd86a004b957a49d309cce821"
+          },
+          {
+            "bytes": 243,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "e9bc5a95b7d5c7d87c08886bc55a26185c19485ebf68b116932122868c7b771f"
+          },
+          {
+            "bytes": 214,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "f761c8095b96f896b1ed7d0492152b1573e187eb76ab0bc90988d514316c3052"
+          },
+          {
+            "bytes": 86,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+          },
+          {
+            "bytes": 1325,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "a46fca7e1625c06cc061595b63b37142e079300b22c03daff3c7c149f108227d"
+          },
+          {
+            "bytes": 324,
+            "file": "r-obs-status-summary.json",
+            "kind": "k6-summary",
+            "sha256": "ba8b806c4be215b2afba78c3aebf1c9d5752c760dfbb688d6b0cdb734347bd36"
+          },
+          {
+            "bytes": 2462,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "a422a42b931e517fede6be29087459fb80e0bb190f178c4c7f84ec95e68a0ef1"
+          },
+          {
+            "bytes": 1353,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "08f1279e292fdf0e6bb94f74bcc989ef64f230dff3d22e2bc89584750e313476"
+          },
+          {
+            "bytes": 277,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "087bdc8a8f45ac7e9ac38bbbf425f622bfab3326ac20d16ac75928f52b65e999"
+          }
+        ]
+      },
+      "canonicalOwner": "🌻 elliott-legion",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "terminal candidate verdict is BAD_PROOF",
+        "effective exit code is 99",
+        "review-complete candidate envelope is absent",
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "active-continuation-line",
+        "candidate-source-sha256",
+        "clean-session-line-absence"
+      ],
+      "row": "R-OBS-STATUS",
+      "runId": "20260719T194146Z-r-obs-status",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-STATUS/elliott/20260719T194146Z-r-obs-status",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1380,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "c5cbe66d570454ec9e356183f04ad5f419bc6e7be45ced3727f53c27f79bd1f5"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "21cc6363fa4a7d04e2313d35293f53e2febb7266564b97f001da0e4971d49ed8"
+          },
+          {
+            "bytes": 244,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "2b51efd65c4a30364a3ce77a43249ea5f9d6cf367ba4fd2298dd5f7130e724d9"
+          },
+          {
+            "bytes": 216,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "6e6bbca7da704a902f63e1382b33cde8aba4b72649d315ed669b8b9fcd97ea69"
+          },
+          {
+            "bytes": 5907,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "b68e18b1cfdcd28d7420319a66438d1423a19bcbf591d007b9617b9dda3eecc3"
+          },
+          {
+            "bytes": 10635,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "114b4bda651942d6a22c58ce8bd019dbe15a9a54618765d5a49ca388db7d2096"
+          },
+          {
+            "bytes": 358,
+            "file": "r-rc-1-summary.json",
+            "kind": "k6-summary",
+            "sha256": "4b7270a43e015ff2ab5bc08f825551f8a18b5017f78fd3bc1064cb30765257ec"
+          },
+          {
+            "bytes": 2973,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "8e2cb6d5333545ec014270f185c71cc5a777c367d66383bb581098d17498daea"
+          },
+          {
+            "bytes": 1807,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "8d90f08320a4863eddcf530b78096775316b981f3b1aa7c533532046966ab8fa"
+          },
+          {
+            "bytes": 282,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "0d55b3f0d18e700faa7835beb80155e655bc19309d7739e857f3864c64e32bb7"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "seat-readiness",
+        "tool-invoke-rejected",
+        "tool-invoked",
+        "tool-registered"
+      ],
+      "row": "R-RC-1",
+      "runId": "20260719T194150Z-r-rc-1",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-1/elliott/20260719T194150Z-r-rc-1",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "continuation-trace-collector.error.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "continuation-trace-collector.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "gateway-journal.log",
+            "findings": [
+              "sensitive-assignment"
+            ],
+            "reason": "secret-or-private-scan"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          },
+          {
+            "file": "verdict-reconciliation.json",
+            "reason": "not-allowlisted"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "8df0f2f9055930662d80363aeb319978e20607a56c7b2c8fa9e8e714bcc92dfc"
+          },
+          {
+            "bytes": 245,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "2ab990693d4d77ca939b10f958702860e3184c0d113b73cc07e583eb7c4393c7"
+          },
+          {
+            "bytes": 217,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "50f4c9a65c1c046c9b3c9dd1f5c18053bc2951ff66d0113bb7b01b7d2e81e5c8"
+          },
+          {
+            "bytes": 20712,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "35a9d66f78d9cbb761653d7eb7c71cdae1411a55878847b9ee4bab4b7c53244f"
+          },
+          {
+            "bytes": 384,
+            "file": "r-rc-2-summary.json",
+            "kind": "k6-summary",
+            "sha256": "f22e8f5e854172ef6fccbbdf85799d8018958e21f642eda0301b72f6d6dda777"
+          },
+          {
+            "bytes": 4014,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "229d9f7b30df3e18465f659b1c499cc7afae3cdf2e33c7869f71b0cccb30b120"
+          },
+          {
+            "bytes": 2248,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "3f2481472e972677deb2449ad88a5ff3779a3591f89df88f0617870e7d9a687b"
+          },
+          {
+            "bytes": 293,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "41852466701ef12bdc4e52154a2206207ad75288ac80db7b158bf3c4abe08b3a"
+          }
+        ]
+      },
+      "canonicalOwner": "🌊 ronan-dgx",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [
+        "public-gateway-journal.log"
+      ],
+      "reasons": [
+        "terminal candidate verdict is PARTIAL-CANDIDATE",
+        "review is incomplete or has pending receipts",
+        "review-complete candidate envelope is absent",
+        "behavior/publication authority is absent",
+        "missing mandatory receipts: public-gateway-journal.log",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "child-report-observed",
+        "delegate-requested",
+        "parent-dispatch-accepted",
+        "threshold-rejection-or-accepted-compaction",
+        "trace-id"
+      ],
+      "row": "R-RC-2",
+      "runId": "20260719T194251Z-r-rc-2",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-2/elliott/20260719T194251Z-r-rc-2",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1437,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "204878552bdc5daa06e95109ab75f1a5c80103c91bea363ac045549f0b53bc96"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "965d4b3124dd98360e8c1462774f498e4534f72a32cba1f1f19c87d76f8fcfb8"
+          },
+          {
+            "bytes": 243,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "213f1b424b00713eec7262af107fbc4351f617b88419b4c9a274335fd5ff01e5"
+          },
+          {
+            "bytes": 214,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "f6e4eabbe65a78d655dda4735b52bc364b772dd86f2891be4ce2372a87c41eda"
+          },
+          {
+            "bytes": 86,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+          },
+          {
+            "bytes": 1973,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "06e087352f45fa28168f662819fd49c187812fe518f9573dc9d6cfff59eddcc7"
+          },
+          {
+            "bytes": 287,
+            "file": "r-regression-trap-tests-summary.json",
+            "kind": "k6-summary",
+            "sha256": "6721b5bf1bfbc9dedfddf34a899240b51a0fae0bafc8e8fe81b7c1c1c81200ba"
+          },
+          {
+            "bytes": 2164,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "5c9577e54a2006354fab72703132cf5ca17a4b1901d28bc4196cd207cfbabf5d"
+          },
+          {
+            "bytes": 2360,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "6fc48ec2f93f6a293a0b5ded5ff65022b26e88e780fc7c1cc05c356f35a048bc"
+          },
+          {
+            "bytes": 299,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "b193582fad3c3d9ba6965201cee755956ba7bbde919ff6975b1f3312fdc8c621"
+          }
+        ]
+      },
+      "canonicalOwner": "🌻 elliott-legion",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "regression-tests-passed",
+        "regression-trap-artifacts"
+      ],
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "runId": "20260719T194557Z-r-regression-trap-tests",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-REGRESSION-TRAP-TESTS/elliott/20260719T194557Z-r-regression-trap-tests",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    },
+    {
+      "artifacts": {
+        "excluded": [
+          {
+            "file": "candidate-run-result-validation.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-extraction.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-lines.log",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence-redaction.stdout.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "evidence.jsonl",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "metrics-export.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.otlp.json",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "openclaw-proofs-k6.prom",
+            "reason": "not-allowlisted"
+          },
+          {
+            "file": "seat-readiness.json",
+            "findings": [
+              "private-absolute-path"
+            ],
+            "reason": "secret-or-private-scan"
+          }
+        ],
+        "included": [
+          {
+            "bytes": 1433,
+            "file": "candidate-run-result.json",
+            "kind": "candidate-run-result",
+            "sha256": "2cef3c56a258c98ea710fe37e6fad73e37d364347b40b8b05b4b6db15fb94833"
+          },
+          {
+            "bytes": 380,
+            "file": "evidence-redaction.json",
+            "kind": "evidence-redaction",
+            "sha256": "5a8e3b34f79898eaac0037a46782d930c93ea4e9e7de32541fb7856a1c0c045d"
+          },
+          {
+            "bytes": 243,
+            "file": "gateway-journal-capture.json",
+            "kind": "gateway-journal-capture",
+            "sha256": "3e84df766689bd94b8f5b1f88ea24a536f396b3b64b24fc1db9843e721626281"
+          },
+          {
+            "bytes": 214,
+            "file": "gateway-journal-redaction.json",
+            "kind": "gateway-journal-redaction",
+            "sha256": "2ad4f05693213c46b3517115028b714b8b1e8accfe4361206e82972755f6384a"
+          },
+          {
+            "bytes": 86,
+            "file": "gateway-journal.log",
+            "kind": "gateway-journal",
+            "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+          },
+          {
+            "bytes": 1295,
+            "file": "k6.log",
+            "kind": "k6-log",
+            "sha256": "0480356ec583a45916e91dbb1dedffda216c27b906ec11e459cdf37dfd6e571e"
+          },
+          {
+            "bytes": 286,
+            "file": "r-trace-redaction-1121-summary.json",
+            "kind": "k6-summary",
+            "sha256": "d904d02ad3f827af0a6c4767d502de9de34bb29e2526b3037546808b12e1fbb5"
+          },
+          {
+            "bytes": 2106,
+            "file": "row-manifest.json",
+            "kind": "row-manifest",
+            "sha256": "120f3e13dec6093237a6a5a7a1fdaba446604d17b95532fb9506004456078338"
+          },
+          {
+            "bytes": 1623,
+            "file": "run-result.json",
+            "kind": "run-result",
+            "sha256": "eeb67fee67232789d524d6efbbe632ac46587de441c3971f8c1971dcc8468487"
+          },
+          {
+            "bytes": 297,
+            "file": "runner-metadata.json",
+            "kind": "runner-metadata",
+            "sha256": "5c158f089051bf7e8eafb784482f6a679ee35c5c0dd7dd87bb6cc31c555f4d71"
+          }
+        ]
+      },
+      "canonicalOwner": "🌻 elliott-legion",
+      "discoveredArtifactCount": 1,
+      "executionRole": "comparator",
+      "executionSeat": "elliott-legion",
+      "missingReceipts": [],
+      "reasons": [
+        "behavior/publication authority is absent",
+        "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+      ],
+      "requiredReceipts": [
+        "trace-redaction-contract",
+        "trace-redaction-tests-passed"
+      ],
+      "row": "R-TRACE-REDACTION-1121",
+      "runId": "20260719T194600Z-r-trace-redaction-1121",
+      "selectedSource": "4c235d8c1997e8964160117f8d6bf650ad1e8203/R-TRACE-REDACTION-1121/elliott/20260719T194600Z-r-trace-redaction-1121",
+      "sourceKind": "elliott-run",
+      "state": "partial"
+    }
+  ],
+  "runSource": {
+    "candidateDirectory": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+    "rootLabel": "elliott-primary-20260719T190935Z"
+  },
+  "schema": "openclaw.project81.comparator-publication-plan.v1"
+}

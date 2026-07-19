@@ -1,0 +1,23 @@
+{
+  "row": "R-CD-MODEL-TOOL",
+  "sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "seat": "elliott",
+  "timestamp": "2026-07-19T19:26:06.252Z",
+  "verdict": "PARTIAL-candidate",
+  "requestedModel": null,
+  "observedModel": null,
+  "observedModelSource": null,
+  "auxiliarySelfReport": null,
+  "classificationReason": null,
+  "metrics": {
+    "duration_ms": {
+      "p(90)": 180448,
+      "p(95)": 180448,
+      "avg": 180448,
+      "min": 180448,
+      "med": 180448,
+      "max": 180448
+    },
+    "failures": 1
+  }
+}

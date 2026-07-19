@@ -1,0 +1,18 @@
+{
+  "row": "R-CD-MODEL-CHAINED-ALT",
+  "sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "seat": "elliott",
+  "timestamp": "2026-07-19T19:21:42.773Z",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "duration_ms": {
+      "p(90)": 47133,
+      "p(95)": 47133,
+      "avg": 47133,
+      "min": 47133,
+      "med": 47133,
+      "max": 47133
+    },
+    "failures": 0
+  }
+}

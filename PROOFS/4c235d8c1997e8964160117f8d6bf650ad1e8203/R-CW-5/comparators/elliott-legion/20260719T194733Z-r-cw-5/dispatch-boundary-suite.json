@@ -1,0 +1,20 @@
+{
+  "schema": "openclaw.project81.r-cw-5.dispatch-boundary-suite.v1",
+  "passed": true,
+  "exitCode": 0,
+  "command": [
+    "pnpm",
+    "vitest",
+    "run",
+    "--config",
+    "test/vitest/vitest.auto-reply.config.ts",
+    "src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts",
+    "--reporter=verbose"
+  ],
+  "asserted": {
+    "belowCapAllowsSpawn": true,
+    "exactCapAllowsSpawn": true,
+    "overCapRejectsSpawn": true,
+    "overCapMarksFlowFailed": true
+  }
+}

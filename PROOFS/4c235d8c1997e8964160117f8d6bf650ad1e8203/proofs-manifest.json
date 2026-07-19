@@ -1,35 +1,21 @@
 {
-  "schema": "openclaw.proofs.manifest.v1",
-  "capture_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
-  "ship_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
-  "proof_source_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
-  "proof_date": "2026-07-19",
-  "method": "fresh exact-SHA seed during serial six-seat deployment; no prior behavioral verdict is carried",
-  "carried_from": "6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",
   "artifact_roots": {
     "exact_candidate": {
       "assembly_branch": "scribe/20260709/1172-status-row-assembly",
       "assembly_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
-      "gate_2_7_run": "https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29692156205",
-      "full_gates_run": "https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29692437949",
       "candidate_solo_classification_run": "https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29694633067",
+      "full_gates_run": "https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29692437949",
+      "gate_2_7_run": "https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29692156205",
+      "gates_disposition": "Every deterministic candidate-matrix failure reproduced on frozen upstream ec01949d8628; no candidate-owned failure remains.",
       "upstream_comparator_runs": [
         "https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29694350913",
         "https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29695514994"
-      ],
-      "gates_disposition": "Every deterministic candidate-matrix failure reproduced on frozen upstream ec01949d8628; no candidate-owned failure remains."
+      ]
     },
     "fleet_readiness": {
       "cael": {
         "deploy_run": 29696462712,
         "state": "exact-sha-ready"
-      },
-      "ronan": {
-        "deploy_run": 29696744833,
-        "state": "deploying"
-      },
-      "silas": {
-        "state": "pending"
       },
       "elliott": {
         "state": "pending"
@@ -37,478 +23,93 @@
       "emeric": {
         "state": "pending"
       },
+      "ronan": {
+        "deploy_run": 29696744833,
+        "state": "deploying"
+      },
       "rune": {
+        "state": "pending"
+      },
+      "silas": {
         "state": "pending"
       }
     },
     "historical_provenance": "PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d"
   },
-  "rollup": {
-    "pass": 0,
-    "partial": 0,
-    "thin": 0,
-    "fail": 0,
-    "honest_limit": 0,
-    "missing": 35,
-    "total_rows": 35
+  "capture_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "carried_from": "6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",
+  "dispatch_allocation": {
+    "cael": [
+      "R-CD-2",
+      "R-CD-COLLECTION-ON-COLLAPSE",
+      "R-CD-MODEL-CHAINED-ALT",
+      "R-CD-MODEL-DEFAULT",
+      "R-CD-MODEL-TOKEN",
+      "R-CD-MODEL-TOOL",
+      "R-CD-RETURN-OVERLAP",
+      "R-CD-SILENT"
+    ],
+    "elliott": [
+      "R-CD-TOKEN",
+      "R-CONFIG-DEFAULTS",
+      "R-CONFIG-INTERSESSION",
+      "R-OBS-1",
+      "R-OBS-2",
+      "R-OBS-STATUS",
+      "R-REGRESSION-TRAP-TESTS",
+      "R-TRACE-REDACTION-1121"
+    ],
+    "ronan": [
+      "R-CD-3",
+      "R-CD-CHAINED-DEPTH-2",
+      "R-CW-2",
+      "R-CW-3",
+      "R-CW-4",
+      "R-CW-5",
+      "R-CW-6",
+      "R-CW-7",
+      "R-CW-DELEGATE-CHILD-LIVE",
+      "R-CW-DELEGATE-SELF-CONTINUATION",
+      "R-CW-DELEGATE-TOKEN",
+      "R-CW-MULTI",
+      "R-CW-MULTI-COLLAPSE",
+      "R-CW-TOKEN",
+      "R-RC-1",
+      "R-RC-2"
+    ],
+    "rune": [
+      "R-CD-4"
+    ],
+    "silas": [
+      "R-CD-1",
+      "R-CW-1"
+    ]
   },
-  "rows": [
-    {
-      "row": "R-CD-1",
-      "owner": "🌫 silas-lothric",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-1",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-1/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
+  "method": "fresh exact-SHA seed during serial six-seat deployment; no prior behavioral verdict is carried; Elliott exact-candidate comparator staged conservatively without replacing canonical owner allocation",
+  "proof_date": "2026-07-19",
+  "proof_requirements": {
+    "candidate": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+    "codex_status": "Codex tool rows require a completed successful tool status and must not contain codex_dynamic_tool_error.",
+    "critical_first_wave": {
+      "cael": "R-CD-MODEL-TOOL",
+      "elliott": "R-CD-TOKEN",
+      "ronan": "R-CD-CHAINED-DEPTH-2",
+      "rune": "R-CD-4"
     },
-    {
-      "row": "R-CD-2",
-      "owner": "🩸 cael-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-2",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-2/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CD-3",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-3",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-3/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CD-4",
-      "owner": "ᚱ rune",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-4",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-4/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CD-CHAINED-DEPTH-2",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-CHAINED-DEPTH-2",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CD-COLLECTION-ON-COLLAPSE",
-      "owner": "🩸 cael-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-COLLECTION-ON-COLLAPSE",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CD-MODEL-CHAINED-ALT",
-      "owner": "🩸 cael-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-CHAINED-ALT",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CD-MODEL-DEFAULT",
-      "owner": "🩸 cael-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-DEFAULT",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-DEFAULT/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CD-MODEL-TOKEN",
-      "owner": "🩸 cael-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOKEN",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOKEN/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CD-MODEL-TOOL",
-      "owner": "🩸 cael-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOOL",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOOL/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CD-RETURN-OVERLAP",
-      "owner": "🩸 cael-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-RETURN-OVERLAP",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-RETURN-OVERLAP/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CD-SILENT",
-      "owner": "🩸 cael-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-SILENT",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-SILENT/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CD-TOKEN",
-      "owner": "🌻 elliott-legion",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-TOKEN",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-TOKEN/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CONFIG-DEFAULTS",
-      "owner": "🌻 elliott-legion",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-DEFAULTS",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-DEFAULTS/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CONFIG-INTERSESSION",
-      "owner": "🌻 elliott-legion",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-INTERSESSION",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-INTERSESSION/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CW-1",
-      "owner": "🌫 silas-lothric",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-1",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-1/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CW-2",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-2",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-2/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CW-3",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-3",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-3/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CW-4",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-4",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-4/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CW-5",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-5",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-5/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CW-6",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-6",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-6/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CW-7",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-7",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-7/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CW-DELEGATE-CHILD-LIVE",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-CHILD-LIVE",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-SELF-CONTINUATION",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CW-DELEGATE-TOKEN",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-TOKEN",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CW-MULTI",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CW-MULTI-COLLAPSE",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI-COLLAPSE",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-CW-TOKEN",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-TOKEN",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-TOKEN/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-OBS-1",
-      "owner": "🌻 elliott-legion",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-1",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-1/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-OBS-2",
-      "owner": "🌻 elliott-legion",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-2",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-2/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-OBS-STATUS",
-      "owner": "🌻 elliott-legion",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-STATUS",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-STATUS/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-RC-1",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-1",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-1/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-RC-2",
-      "owner": "🌊 ronan-dgx",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-2",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-2/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-REGRESSION-TRAP-TESTS",
-      "owner": "🌻 elliott-legion",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-REGRESSION-TRAP-TESTS",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    },
-    {
-      "row": "R-TRACE-REDACTION-1121",
-      "owner": "🌻 elliott-legion",
-      "state": "missing",
-      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-TRACE-REDACTION-1121",
-      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-TRACE-REDACTION-1121/EVIDENCE.md",
-      "summary": "Fresh exact-4c235d8 proof is required; earlier receipts are provenance only.",
-      "test_cases_executed": [],
-      "traces": [],
-      "supporting_docs": [],
-      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d.",
-      "fired": null
-    }
-  ],
+    "folding": "Runner output is candidate evidence only; human review must fold authoritative receipts into this corpus.",
+    "identity": "Every live receipt must report the exact candidate SHA and actual executing seat.",
+    "journal": "Live rows require a bounded, public-safe gateway journal receipt unless the row contract explicitly proves an immutable source-only surface.",
+    "no_refire": "Each allocated row fires exactly once unless a mechanically proven non-fire or explicit group authorization permits replacement.",
+    "trace": "Trace-required rows require public-safe raw Tempo JSON, valid fixed-width non-zero IDs, unique attribution, and row-specific topology.",
+    "verdict_policy": "Only R-RC-2 may be folded as honest_limit, and only when an exact live receipt proves request_compaction was denied because context pressure remained below threshold. No continuation, model-routing, or token row may use honest_limit."
+  },
+  "proof_source_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "publication": {
+    "execution_role": "comparator",
+    "execution_seat": "elliott-legion",
+    "owner_policy": "canonical owner preserved byte-for-byte",
+    "schema": "openclaw.project81.comparator-publication.v1"
+  },
   "required_rows": [
     "R-CD-1",
     "R-CD-2",
@@ -546,67 +147,1066 @@
     "R-REGRESSION-TRAP-TESTS",
     "R-TRACE-REDACTION-1121"
   ],
-  "proof_requirements": {
-    "identity": "Every live receipt must report the exact candidate SHA and actual executing seat.",
-    "candidate": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
-    "journal": "Live rows require a bounded, public-safe gateway journal receipt unless the row contract explicitly proves an immutable source-only surface.",
-    "trace": "Trace-required rows require public-safe raw Tempo JSON, valid fixed-width non-zero IDs, unique attribution, and row-specific topology.",
-    "codex_status": "Codex tool rows require a completed successful tool status and must not contain codex_dynamic_tool_error.",
-    "no_refire": "Each allocated row fires exactly once unless a mechanically proven non-fire or explicit group authorization permits replacement.",
-    "folding": "Runner output is candidate evidence only; human review must fold authoritative receipts into this corpus.",
-    "verdict_policy": "Only R-RC-2 may be folded as honest_limit, and only when an exact live receipt proves request_compaction was denied because context pressure remained below threshold. No continuation, model-routing, or token row may use honest_limit.",
-    "critical_first_wave": {
-      "ronan": "R-CD-CHAINED-DEPTH-2",
-      "rune": "R-CD-4",
-      "cael": "R-CD-MODEL-TOOL",
-      "elliott": "R-CD-TOKEN"
-    }
+  "rollup": {
+    "fail": 1,
+    "honest_limit": 0,
+    "missing": 0,
+    "partial": 32,
+    "pass": 2,
+    "total_rows": 35
   },
-  "dispatch_allocation": {
-    "silas": [
-      "R-CD-1",
-      "R-CW-1"
-    ],
-    "elliott": [
-      "R-CD-TOKEN",
-      "R-CONFIG-DEFAULTS",
-      "R-CONFIG-INTERSESSION",
-      "R-OBS-1",
-      "R-OBS-2",
-      "R-OBS-STATUS",
-      "R-REGRESSION-TRAP-TESTS",
-      "R-TRACE-REDACTION-1121"
-    ],
-    "cael": [
-      "R-CD-2",
-      "R-CD-COLLECTION-ON-COLLAPSE",
-      "R-CD-MODEL-CHAINED-ALT",
-      "R-CD-MODEL-DEFAULT",
-      "R-CD-MODEL-TOKEN",
-      "R-CD-MODEL-TOOL",
-      "R-CD-RETURN-OVERLAP",
-      "R-CD-SILENT"
-    ],
-    "ronan": [
-      "R-CD-3",
-      "R-CD-CHAINED-DEPTH-2",
-      "R-CW-2",
-      "R-CW-3",
-      "R-CW-4",
-      "R-CW-5",
-      "R-CW-6",
-      "R-CW-7",
-      "R-CW-DELEGATE-CHILD-LIVE",
-      "R-CW-DELEGATE-SELF-CONTINUATION",
-      "R-CW-DELEGATE-TOKEN",
-      "R-CW-MULTI",
-      "R-CW-MULTI-COLLAPSE",
-      "R-CW-TOKEN",
-      "R-RC-1",
-      "R-RC-2"
-    ],
-    "rune": [
-      "R-CD-4"
-    ]
-  }
+  "rows": [
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-1/comparators/elliott-legion/20260719T191334Z-r-cd-1",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "review is incomplete or has pending receipts",
+          "review-complete candidate envelope is absent",
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T191334Z-r-cd-1",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-1",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-1/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌫 silas-lothric.",
+      "owner": "🌫 silas-lothric",
+      "row": "R-CD-1",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. review is incomplete or has pending receipts review-complete candidate envelope is absent behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-1/comparators/elliott-legion/20260719T191334Z-r-cd-1"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-2/comparators/elliott-legion/20260719T191521Z-r-cd-2",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [
+          "mandatory-tempo-projection",
+          "mandatory-topology-receipt",
+          "tempo-trace-json"
+        ],
+        "reasons": [
+          "terminal candidate verdict is PARTIAL-CANDIDATE",
+          "effective exit code is 99",
+          "review is incomplete or has pending receipts",
+          "review-complete candidate envelope is absent",
+          "missing mandatory receipts: mandatory-tempo-projection, mandatory-topology-receipt, tempo-trace-json",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T191521Z-r-cd-2",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-2",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-2/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🩸 cael-dgx.",
+      "owner": "🩸 cael-dgx",
+      "row": "R-CD-2",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. terminal candidate verdict is PARTIAL-CANDIDATE effective exit code is 99 review is incomplete or has pending receipts review-complete candidate envelope is absent missing mandatory receipts: mandatory-tempo-projection, mandatory-topology-receipt, tempo-trace-json one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-2/comparators/elliott-legion/20260719T191521Z-r-cd-2"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-3/comparators/elliott-legion/20260719T191755Z-r-cd-3",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T191755Z-r-cd-3",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-3",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-3/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-CD-3",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-3/comparators/elliott-legion/20260719T191755Z-r-cd-3"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-4/comparators/elliott-legion/20260719T191806Z-r-cd-4",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "review is incomplete or has pending receipts",
+          "review-complete candidate envelope is absent",
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T191806Z-r-cd-4",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-4",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-4/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner ᚱ rune.",
+      "owner": "ᚱ rune",
+      "row": "R-CD-4",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. review is incomplete or has pending receipts review-complete candidate envelope is absent behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-4/comparators/elliott-legion/20260719T191806Z-r-cd-4"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-CHAINED-DEPTH-2/comparators/elliott-legion/20260719T191939Z-r-cd-chained-depth-2",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "review is incomplete or has pending receipts",
+          "review-complete candidate envelope is absent",
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T191939Z-r-cd-chained-depth-2",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-CHAINED-DEPTH-2",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. review is incomplete or has pending receipts review-complete candidate envelope is absent behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-CHAINED-DEPTH-2/comparators/elliott-legion/20260719T191939Z-r-cd-chained-depth-2"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-COLLECTION-ON-COLLAPSE/comparators/elliott-legion/20260719T192053Z-r-cd-collection-on-collapse",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T192053Z-r-cd-collection-on-collapse",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-COLLECTION-ON-COLLAPSE",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🩸 cael-dgx.",
+      "owner": "🩸 cael-dgx",
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-COLLECTION-ON-COLLAPSE/comparators/elliott-legion/20260719T192053Z-r-cd-collection-on-collapse"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-CHAINED-ALT/comparators/elliott-legion/20260719T192055Z-r-cd-model-chained-alt",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T192055Z-r-cd-model-chained-alt",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-CHAINED-ALT",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🩸 cael-dgx.",
+      "owner": "🩸 cael-dgx",
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-CHAINED-ALT/comparators/elliott-legion/20260719T192055Z-r-cd-model-chained-alt"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-DEFAULT/comparators/elliott-legion/20260719T192144Z-r-cd-model-default",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T192144Z-r-cd-model-default",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-DEFAULT",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-DEFAULT/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🩸 cael-dgx.",
+      "owner": "🩸 cael-dgx",
+      "row": "R-CD-MODEL-DEFAULT",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-DEFAULT/comparators/elliott-legion/20260719T192144Z-r-cd-model-default"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOKEN/comparators/elliott-legion/20260719T192207Z-r-cd-model-token",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [
+          "public-gateway-journal.log"
+        ],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "missing mandatory receipts: public-gateway-journal.log",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T192207Z-r-cd-model-token",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOKEN",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOKEN/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🩸 cael-dgx.",
+      "owner": "🩸 cael-dgx",
+      "row": "R-CD-MODEL-TOKEN",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent missing mandatory receipts: public-gateway-journal.log one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOKEN/comparators/elliott-legion/20260719T192207Z-r-cd-model-token"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOOL/comparators/elliott-legion/20260719T192305Z-r-cd-model-tool",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [
+          "public-gateway-journal.log"
+        ],
+        "reasons": [
+          "terminal candidate verdict is PARTIAL-CANDIDATE",
+          "effective exit code is 99",
+          "review-complete candidate envelope is absent",
+          "behavior/publication authority is absent",
+          "missing mandatory receipts: public-gateway-journal.log",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T192305Z-r-cd-model-tool",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOOL",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOOL/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🩸 cael-dgx.",
+      "owner": "🩸 cael-dgx",
+      "row": "R-CD-MODEL-TOOL",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. terminal candidate verdict is PARTIAL-CANDIDATE effective exit code is 99 review-complete candidate envelope is absent behavior/publication authority is absent missing mandatory receipts: public-gateway-journal.log one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOOL/comparators/elliott-legion/20260719T192305Z-r-cd-model-tool"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-RETURN-OVERLAP/comparators/elliott-legion/20260719T192608Z-r-cd-return-overlap",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T192608Z-r-cd-return-overlap",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-RETURN-OVERLAP",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-RETURN-OVERLAP/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🩸 cael-dgx.",
+      "owner": "🩸 cael-dgx",
+      "row": "R-CD-RETURN-OVERLAP",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-RETURN-OVERLAP/comparators/elliott-legion/20260719T192608Z-r-cd-return-overlap"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-SILENT/comparators/elliott-legion/20260719T192610Z-r-cd-silent",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [
+          "public-gateway-journal.log"
+        ],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "missing mandatory receipts: public-gateway-journal.log",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T192610Z-r-cd-silent",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-SILENT",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-SILENT/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🩸 cael-dgx.",
+      "owner": "🩸 cael-dgx",
+      "row": "R-CD-SILENT",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent missing mandatory receipts: public-gateway-journal.log one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-SILENT/comparators/elliott-legion/20260719T192610Z-r-cd-silent"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-TOKEN/comparators/elliott-legion/20260719T192737Z-r-cd-token",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [
+          "child-completed",
+          "child-spawned",
+          "continuation-trace-correlation",
+          "mandatory-correlation-receipt",
+          "mandatory-tempo-projection",
+          "parent-return-event",
+          "parser-detected",
+          "public-gateway-journal-capture.json",
+          "public-gateway-journal-redaction.json",
+          "public-gateway-journal.log",
+          "queue-identity",
+          "raw-final-text-origin",
+          "tempo-trace-json"
+        ],
+        "reasons": [
+          "terminal candidate verdict is PARTIAL-CANDIDATE",
+          "review is incomplete or has pending receipts",
+          "review-complete candidate envelope is absent",
+          "behavior/publication authority is absent",
+          "missing mandatory receipts: child-completed, child-spawned, continuation-trace-correlation, mandatory-correlation-receipt, mandatory-tempo-projection, parent-return-event, parser-detected, public-gateway-journal-capture.json, public-gateway-journal-redaction.json, public-gateway-journal.log, queue-identity, raw-final-text-origin, tempo-trace-json",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T192737Z-r-cd-token",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-TOKEN",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-TOKEN/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌻 elliott-legion.",
+      "owner": "🌻 elliott-legion",
+      "row": "R-CD-TOKEN",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. terminal candidate verdict is PARTIAL-CANDIDATE review is incomplete or has pending receipts review-complete candidate envelope is absent behavior/publication authority is absent missing mandatory receipts: child-completed, child-spawned, continuation-trace-correlation, mandatory-correlation-receipt, mandatory-tempo-projection, parent-return-event, parser-detected, public-gateway-journal-capture.json, public-gateway-journal-redaction.json, public-gateway-journal.log, queue-identity, raw-final-text-origin, tempo-trace-json one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-TOKEN/comparators/elliott-legion/20260719T192737Z-r-cd-token"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-DEFAULTS/comparators/elliott-legion/20260719T192739Z-r-config-defaults",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T192739Z-r-config-defaults",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-DEFAULTS",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-DEFAULTS/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌻 elliott-legion.",
+      "owner": "🌻 elliott-legion",
+      "row": "R-CONFIG-DEFAULTS",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-DEFAULTS/comparators/elliott-legion/20260719T192739Z-r-config-defaults"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-INTERSESSION/comparators/elliott-legion/20260719T192743Z-r-config-intersession",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T192743Z-r-config-intersession",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-INTERSESSION",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-INTERSESSION/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌻 elliott-legion.",
+      "owner": "🌻 elliott-legion",
+      "row": "R-CONFIG-INTERSESSION",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-INTERSESSION/comparators/elliott-legion/20260719T192743Z-r-config-intersession"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-1/comparators/elliott-legion/20260719T192746Z-r-cw-1",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "terminal candidate verdict is PARTIAL-CANDIDATE",
+          "effective exit code is 99",
+          "review is incomplete or has pending receipts",
+          "review-complete candidate envelope is absent",
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T192746Z-r-cw-1",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-1",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-1/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌫 silas-lothric.",
+      "owner": "🌫 silas-lothric",
+      "row": "R-CW-1",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. terminal candidate verdict is PARTIAL-CANDIDATE effective exit code is 99 review is incomplete or has pending receipts review-complete candidate envelope is absent behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-1/comparators/elliott-legion/20260719T192746Z-r-cw-1"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-2/comparators/elliott-legion/20260719T193020Z-r-cw-2",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "terminal candidate verdict is PARTIAL-CANDIDATE",
+          "effective exit code is 99",
+          "review-complete candidate envelope is absent",
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T193020Z-r-cw-2",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-2",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-2/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-CW-2",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. terminal candidate verdict is PARTIAL-CANDIDATE effective exit code is 99 review-complete candidate envelope is absent behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-2/comparators/elliott-legion/20260719T193020Z-r-cw-2"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-3/comparators/elliott-legion/20260719T193152Z-r-cw-3",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [
+          "mandatory-tempo-projection",
+          "public-gateway-journal.log",
+          "reason-telemetry-redaction-review",
+          "tempo-trace-json"
+        ],
+        "reasons": [
+          "terminal candidate verdict is PARTIAL-CANDIDATE",
+          "review is incomplete or has pending receipts",
+          "review-complete candidate envelope is absent",
+          "behavior/publication authority is absent",
+          "missing mandatory receipts: mandatory-tempo-projection, public-gateway-journal.log, reason-telemetry-redaction-review, tempo-trace-json",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T193152Z-r-cw-3",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-3",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-3/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-CW-3",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. terminal candidate verdict is PARTIAL-CANDIDATE review is incomplete or has pending receipts review-complete candidate envelope is absent behavior/publication authority is absent missing mandatory receipts: mandatory-tempo-projection, public-gateway-journal.log, reason-telemetry-redaction-review, tempo-trace-json one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-3/comparators/elliott-legion/20260719T193152Z-r-cw-3"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-4/comparators/elliott-legion/20260719T193747Z-r-cw-4",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T193747Z-r-cw-4",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-4",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-4/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-CW-4",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-4/comparators/elliott-legion/20260719T193747Z-r-cw-4"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-5/comparators/elliott-legion/20260719T194733Z-r-cw-5",
+        "classification": "pass",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "terminal PASS with complete mandatory receipts and publication authority"
+        ],
+        "run_id": "20260719T194733Z-r-cw-5",
+        "source_kind": "process-local-fixture"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-5",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-5/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-CW-5",
+      "state": "pass",
+      "summary": "Elliott comparator: pass. terminal PASS with complete mandatory receipts and publication authority",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-5/comparators/elliott-legion/20260719T194733Z-r-cw-5"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-6/comparators/elliott-legion/20260719T194807Z-r-cw-6",
+        "classification": "pass",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "terminal PASS with complete mandatory receipts and publication authority"
+        ],
+        "run_id": "20260719T194807Z-r-cw-6",
+        "source_kind": "process-local-fixture"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-6",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-6/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-CW-6",
+      "state": "pass",
+      "summary": "Elliott comparator: pass. terminal PASS with complete mandatory receipts and publication authority",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-6/comparators/elliott-legion/20260719T194807Z-r-cw-6"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-7/comparators/elliott-legion/20260719T193844Z-r-cw-7",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T193844Z-r-cw-7",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-7",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-7/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-CW-7",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-7/comparators/elliott-legion/20260719T193844Z-r-cw-7"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-CHILD-LIVE/comparators/elliott-legion/20260719T193847Z-r-cw-delegate-child-live",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T193847Z-r-cw-delegate-child-live",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-CHILD-LIVE",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-CHILD-LIVE/comparators/elliott-legion/20260719T193847Z-r-cw-delegate-child-live"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-SELF-CONTINUATION/comparators/elliott-legion/20260719T193850Z-r-cw-delegate-self-continuation",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T193850Z-r-cw-delegate-self-continuation",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-SELF-CONTINUATION",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-SELF-CONTINUATION/comparators/elliott-legion/20260719T193850Z-r-cw-delegate-self-continuation"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-TOKEN/comparators/elliott-legion/20260719T193916Z-r-cw-delegate-token",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T193916Z-r-cw-delegate-token",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-TOKEN",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-CW-DELEGATE-TOKEN",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-TOKEN/comparators/elliott-legion/20260719T193916Z-r-cw-delegate-token"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI/comparators/elliott-legion/20260719T193922Z-r-cw-multi",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T193922Z-r-cw-multi",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-CW-MULTI",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI/comparators/elliott-legion/20260719T193922Z-r-cw-multi"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI-COLLAPSE/comparators/elliott-legion/20260719T193919Z-r-cw-multi-collapse",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T193919Z-r-cw-multi-collapse",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI-COLLAPSE",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-CW-MULTI-COLLAPSE",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI-COLLAPSE/comparators/elliott-legion/20260719T193919Z-r-cw-multi-collapse"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-TOKEN/comparators/elliott-legion/20260719T193925Z-r-cw-token",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [
+          "mandatory-tempo-projection",
+          "public-gateway-journal.log"
+        ],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "missing mandatory receipts: mandatory-tempo-projection, public-gateway-journal.log",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T193925Z-r-cw-token",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-TOKEN",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-TOKEN/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-CW-TOKEN",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent missing mandatory receipts: mandatory-tempo-projection, public-gateway-journal.log one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-TOKEN/comparators/elliott-legion/20260719T193925Z-r-cw-token"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-1/comparators/elliott-legion/20260719T194038Z-r-obs-1",
+        "classification": "fail",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "authoritative candidate result is FAIL-CANDIDATE"
+        ],
+        "run_id": "20260719T194038Z-r-obs-1",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-1",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-1/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌻 elliott-legion.",
+      "owner": "🌻 elliott-legion",
+      "row": "R-OBS-1",
+      "state": "fail",
+      "summary": "Elliott comparator: fail. authoritative candidate result is FAIL-CANDIDATE",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-1/comparators/elliott-legion/20260719T194038Z-r-obs-1"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-2/comparators/elliott-legion/20260719T194143Z-r-obs-2",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T194143Z-r-obs-2",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-2",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-2/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌻 elliott-legion.",
+      "owner": "🌻 elliott-legion",
+      "row": "R-OBS-2",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-2/comparators/elliott-legion/20260719T194143Z-r-obs-2"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-STATUS/comparators/elliott-legion/20260719T194146Z-r-obs-status",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "terminal candidate verdict is BAD_PROOF",
+          "effective exit code is 99",
+          "review-complete candidate envelope is absent",
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T194146Z-r-obs-status",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-STATUS",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-STATUS/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌻 elliott-legion.",
+      "owner": "🌻 elliott-legion",
+      "row": "R-OBS-STATUS",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. terminal candidate verdict is BAD_PROOF effective exit code is 99 review-complete candidate envelope is absent behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-STATUS/comparators/elliott-legion/20260719T194146Z-r-obs-status"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-1/comparators/elliott-legion/20260719T194150Z-r-rc-1",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T194150Z-r-rc-1",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-1",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-1/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-RC-1",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-1/comparators/elliott-legion/20260719T194150Z-r-rc-1"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-2/comparators/elliott-legion/20260719T194251Z-r-rc-2",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [
+          "public-gateway-journal.log"
+        ],
+        "reasons": [
+          "terminal candidate verdict is PARTIAL-CANDIDATE",
+          "review is incomplete or has pending receipts",
+          "review-complete candidate envelope is absent",
+          "behavior/publication authority is absent",
+          "missing mandatory receipts: public-gateway-journal.log",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T194251Z-r-rc-2",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-2",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-2/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌊 ronan-dgx.",
+      "owner": "🌊 ronan-dgx",
+      "row": "R-RC-2",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. terminal candidate verdict is PARTIAL-CANDIDATE review is incomplete or has pending receipts review-complete candidate envelope is absent behavior/publication authority is absent missing mandatory receipts: public-gateway-journal.log one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-2/comparators/elliott-legion/20260719T194251Z-r-rc-2"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-REGRESSION-TRAP-TESTS/comparators/elliott-legion/20260719T194557Z-r-regression-trap-tests",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T194557Z-r-regression-trap-tests",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-REGRESSION-TRAP-TESTS",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌻 elliott-legion.",
+      "owner": "🌻 elliott-legion",
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-REGRESSION-TRAP-TESTS/comparators/elliott-legion/20260719T194557Z-r-regression-trap-tests"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "comparator": {
+        "artifact_dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-TRACE-REDACTION-1121/comparators/elliott-legion/20260719T194600Z-r-trace-redaction-1121",
+        "classification": "partial",
+        "execution_role": "comparator",
+        "execution_seat": "elliott-legion",
+        "missing_receipts": [],
+        "reasons": [
+          "behavior/publication authority is absent",
+          "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+        ],
+        "run_id": "20260719T194600Z-r-trace-redaction-1121",
+        "source_kind": "elliott-run"
+      },
+      "dir": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-TRACE-REDACTION-1121",
+      "evidence_doc": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-TRACE-REDACTION-1121/EVIDENCE.md",
+      "fired": null,
+      "notes": "Unfired at seed time. Dispatch only through this manifest's exact allocation and docs commit; do not infer a verdict from 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d. Comparator execution does not replace canonical owner 🌻 elliott-legion.",
+      "owner": "🌻 elliott-legion",
+      "row": "R-TRACE-REDACTION-1121",
+      "state": "partial",
+      "summary": "Elliott comparator: partial. behavior/publication authority is absent one or more allowlisted artifacts were withheld by the secret/private-path scan",
+      "supporting_docs": [
+        "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-TRACE-REDACTION-1121/comparators/elliott-legion/20260719T194600Z-r-trace-redaction-1121"
+      ],
+      "test_cases_executed": [],
+      "traces": []
+    }
+  ],
+  "schema": "openclaw.proofs.manifest.v1",
+  "ship_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203"
 }

@@ -1,0 +1,8 @@
+{
+  "schema": "openclaw.project81.r-cw-5.cleanup.v1",
+  "productionConfigTouched": false,
+  "productionStateTouched": false,
+  "sourceMutated": false,
+  "cleanupRequired": false,
+  "result": "source-only fixture left no gateway/config/state process to restore"
+}

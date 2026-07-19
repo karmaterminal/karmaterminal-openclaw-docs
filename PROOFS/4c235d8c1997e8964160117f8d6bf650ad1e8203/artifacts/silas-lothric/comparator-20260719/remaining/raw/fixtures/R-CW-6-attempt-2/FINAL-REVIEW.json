@@ -1,0 +1,22 @@
+{
+  "schema": "openclaw.k6.silas-comparator.final-review.v1",
+  "reviewedAt": "2026-07-19T20:12:24.315Z",
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "docsRef": "1303a03c2858fce82c235992b7ee06385e8e6304",
+  "row": "R-CW-6",
+  "canonicalOwner": "🌊 ronan-dgx",
+  "executionSeat": "silas-lothric",
+  "runnerSeat": "process-local-fixture",
+  "runId": "R-CW-6-attempt-2",
+  "runnerVerdict": "PASS-candidate",
+  "effectiveExitCode": 0,
+  "finalClassification": "PASS",
+  "comparatorClassificationFinal": true,
+  "canonicalFoldAllowed": false,
+  "canonicalFoldReason": "Exact-candidate process-local component evidence is review-required and does not overwrite the canonical owner.",
+  "refireAllowed": false,
+  "basis": [
+    "Exact candidate fixture completed with every declared check true; source worktree remained tracked-clean; production gateway/config/state were not mutated; attempt 1 is preserved as a mechanically proven pre-execution 0700 safety-gate non-fire."
+  ],
+  "blockers": []
+}

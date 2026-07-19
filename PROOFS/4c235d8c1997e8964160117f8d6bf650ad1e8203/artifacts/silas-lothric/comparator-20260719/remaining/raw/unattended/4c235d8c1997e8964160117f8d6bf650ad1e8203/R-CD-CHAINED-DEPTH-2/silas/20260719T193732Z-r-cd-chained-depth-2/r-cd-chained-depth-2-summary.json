@@ -1,0 +1,18 @@
+{
+  "row": "R-CD-CHAINED-DEPTH-2",
+  "sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "seat": "silas",
+  "timestamp": "2026-07-19T19:37:46.597Z",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "duration_ms": {
+      "p(95)": 14082,
+      "avg": 14082,
+      "min": 14082,
+      "med": 14082,
+      "max": 14082,
+      "p(90)": 14082
+    },
+    "failures": 0
+  }
+}

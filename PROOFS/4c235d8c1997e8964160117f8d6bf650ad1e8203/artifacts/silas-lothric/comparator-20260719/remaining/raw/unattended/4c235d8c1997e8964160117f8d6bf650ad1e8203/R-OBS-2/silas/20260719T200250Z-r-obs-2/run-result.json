@@ -1,0 +1,61 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-07-19T20:02:50Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "summary-file",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": null,
+  "summaryFiles": [
+    "r-obs-2-summary.json"
+  ],
+  "evidence": {
+    "row": "R-OBS-2",
+    "manifest_loaded": true,
+    "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+    "currentProofSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+    "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+    "started": "2026-07-19T20:02:50.444Z",
+    "trace_ids_hex": [
+      "0cf17ea0b7eab7a5e998f6a581e7b5bf"
+    ],
+    "span_count": 46,
+    "root_count": 1,
+    "orphan_count": 0,
+    "required_span_names_present": {
+      "continuation.delegate.dispatch": true,
+      "openclaw.harness.run": true,
+      "openclaw.run": true,
+      "openclaw.tool.execution": true,
+      "continuation.queue.fanout": true,
+      "continuation.queue.drain": true
+    },
+    "source_files": {
+      "traceTree": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/trace-tree.json",
+      "spanTree": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-tree.txt",
+      "spanCounts": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-counts.json"
+    },
+    "ended": "2026-07-19T20:02:50.444Z",
+    "duration_ms": 0,
+    "verdict": "PASS-candidate"
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

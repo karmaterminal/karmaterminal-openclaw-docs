@@ -1,0 +1,40 @@
+preflight.example.json	preflight	runnable	preflight	OK
+r-cd-1.json	R-CD-1	runnable	r-cd-1-typed-delegate	OK
+r-cd-2.json	R-CD-2	runnable	r-cd-2-silent-wake	OK
+r-cd-3.json	R-CD-3	runnable	r-cd-3-post-compaction	OK
+r-cd-4.json	R-CD-4	runnable	r-cd-4-target-session-key	OK
+r-cd-chained-depth-2.json	R-CD-CHAINED-DEPTH-2	runnable	r-cd-chained-depth-2	OK
+r-cd-collection-on-collapse.json	R-CD-COLLECTION-ON-COLLAPSE	runnable	static-corpus-row-validator	OK
+r-cd-model-chained-alt.json	R-CD-MODEL-CHAINED-ALT	runnable	r-cd-model-chained-alt	OK
+r-cd-model-default.json	R-CD-MODEL-DEFAULT	runnable	r-cd-model-default	OK
+r-cd-model-token.json	R-CD-MODEL-TOKEN	runnable	r-cd-model-token	OK
+r-cd-model-tool.json	R-CD-MODEL-TOOL	runnable	r-cd-model-tool	OK
+r-cd-return-overlap.json	R-CD-RETURN-OVERLAP	runnable	r-cd-return-overlap	OK
+r-cd-silent.json	R-CD-SILENT	runnable	r-cd-silent	OK
+r-cd-token.json	R-CD-TOKEN	runnable	r-cd-token-bracket-delegate	OK
+r-config-defaults.json	R-CONFIG-DEFAULTS	runnable	r-config-defaults	OK
+r-config-intersession.json	R-CONFIG-INTERSESSION	runnable	r-config-intersession	OK
+r-cw-1.json	R-CW-1	runnable	r-cw-1-tool-schedule-wake	OK
+r-cw-2.json	R-CW-2	runnable	r-cw-2-immediate-wake	OK
+r-cw-3.json	R-CW-3	runnable	r-cw-3-reason-telemetry	OK
+r-cw-4.json	R-CW-4	runnable	r-cw-4-chain-depth	OK
+r-cw-5.json	R-CW-5	scaffold	r-cw-5-cost-cap-reject	intentional non-runnable
+r-cw-5a-static.json	R-CW-5A	runnable	static-corpus-row-validator	OK
+r-cw-6.json	R-CW-6	scaffold	r-cw-6-max-chain-length	intentional non-runnable
+r-cw-6a-static.json	R-CW-6A	runnable	static-corpus-row-validator	OK
+r-cw-7.json	R-CW-7	runnable	static-corpus-row-validator	OK
+r-cw-delegate-child-live.json	R-CW-DELEGATE-CHILD-LIVE	runnable	static-corpus-row-validator	OK
+r-cw-delegate-self.json	R-CW-DELEGATE-SELF-CONTINUATION	runnable	r-cw-delegate-self-continuation	OK
+r-cw-delegate-token.json	R-CW-DELEGATE-TOKEN	runnable	static-corpus-row-validator	OK
+r-cw-multi-collapse.json	R-CW-MULTI-COLLAPSE	runnable	static-corpus-row-validator	OK
+r-cw-multi.json	R-CW-MULTI	runnable	static-corpus-row-validator	OK
+r-cw-token.json	R-CW-TOKEN	runnable	r-cw-token-bracket	OK
+r-obs-1.json	R-OBS-1	runnable	r-obs-1	OK
+r-obs-2.json	R-OBS-2	runnable	r-obs-2	OK
+r-obs-status.json	R-OBS-STATUS	runnable	r-obs-status	OK
+r-rc-1.json	R-RC-1	runnable	r-rc-1-threshold-reject	OK
+r-rc-2.json	R-RC-2	runnable	r-rc-2-delegate-request-compaction	OK
+r-regression-trap-tests.json	R-REGRESSION-TRAP-TESTS	runnable	r-regression-trap-tests	OK
+r-trace-redaction-1121.json	R-TRACE-REDACTION-1121	runnable	r-trace-redaction-1121	OK
+
+Manifest scenario registry check passed: 38 manifests; 35 scenario files.

@@ -1,0 +1,247 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-rc-2-delegate-request-compaction.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m0s max duration (incl. graceful stop):
+              * r_rc_2_delegate_request_compaction: 1 iterations shared among 1 VUs (maxDuration: 2m30s, gracefulStop: 30s)
+
+time="2026-07-19T13:03:43-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-07-19T13:03:43-07:00" level=info msg="✓ sessions.send accepted — parent agent turn triggered for R-RC-2" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m01.0s/2m30s  0/1 shared iters
+time="2026-07-19T13:03:44-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m02.0s/2m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m03.0s/2m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m04.0s/2m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m05.0s/2m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m06.0s/2m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m07.0s/2m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m08.0s/2m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m09.0s/2m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m10.0s/2m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m11.0s/2m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m12.0s/2m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m13.0s/2m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m14.0s/2m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m15.0s/2m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m16.0s/2m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m17.0s/2m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m18.0s/2m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m19.0s/2m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m20.0s/2m30s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m21.0s/2m30s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m22.0s/2m30s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m23.0s/2m30s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m24.0s/2m30s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m25.0s/2m30s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m26.0s/2m30s  0/1 shared iters
+time="2026-07-19T13:04:09-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m27.0s/2m30s  0/1 shared iters
+time="2026-07-19T13:04:09-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+time="2026-07-19T13:04:10-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m28.0s/2m30s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m29.0s/2m30s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m30.0s/2m30s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m31.0s/2m30s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m32.0s/2m30s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m33.0s/2m30s  0/1 shared iters
+time="2026-07-19T13:04:16-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m34.0s/2m30s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m35.0s/2m30s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m36.0s/2m30s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m37.0s/2m30s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m38.0s/2m30s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m39.0s/2m30s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m40.0s/2m30s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m41.0s/2m30s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m42.0s/2m30s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m43.0s/2m30s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m44.0s/2m30s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m45.0s/2m30s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m46.0s/2m30s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m47.0s/2m30s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m48.0s/2m30s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m49.0s/2m30s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m50.0s/2m30s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m51.0s/2m30s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m52.0s/2m30s  0/1 shared iters
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m53.0s/2m30s  0/1 shared iters
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m54.0s/2m30s  0/1 shared iters
+
+running (0m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m55.0s/2m30s  0/1 shared iters
+
+running (0m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m56.0s/2m30s  0/1 shared iters
+
+running (0m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m57.0s/2m30s  0/1 shared iters
+
+running (0m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m58.0s/2m30s  0/1 shared iters
+
+running (0m59.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m59.0s/2m30s  0/1 shared iters
+
+running (1m00.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  1m00.0s/2m30s  0/1 shared iters
+
+running (1m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  1m01.0s/2m30s  0/1 shared iters
+
+running (1m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  1m02.0s/2m30s  0/1 shared iters
+
+running (1m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  1m03.0s/2m30s  0/1 shared iters
+
+running (1m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  1m04.0s/2m30s  0/1 shared iters
+
+running (1m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  1m05.0s/2m30s  0/1 shared iters
+
+running (1m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  1m06.0s/2m30s  0/1 shared iters
+
+running (1m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  1m07.0s/2m30s  0/1 shared iters
+
+running (1m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  1m08.0s/2m30s  0/1 shared iters
+
+running (1m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  1m09.0s/2m30s  0/1 shared iters
+time="2026-07-19T13:04:52-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-07-19T13:04:52-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-07-19T13:04:52-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-07-19T13:04:52-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+
+running (1m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  1m10.0s/2m30s  0/1 shared iters
+time="2026-07-19T13:04:52-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+time="2026-07-19T13:04:52-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+time="2026-07-19T13:04:53-07:00" level=info msg="✓ nonce-bound delegated child session observed" source=console
+time="2026-07-19T13:04:53-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+time="2026-07-19T13:04:53-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+time="2026-07-19T13:04:53-07:00" level=info msg="✓ nonce-bound request_compaction toolResult rejected by context_threshold" source=console
+PUBLIC_EVIDENCE {"row":"R-RC-2","manifest_loaded":true,"seat":"silas","session_created":true,"candidateSha":"4c235d8c1997e8964160117f8d6bf650ad1e8203","started":"2026-07-19T20:03:42.779Z","parent_dispatch_accepted":true,"dispatch_accepted_at_ms":1784491423721,"delegate_requested":true,"reason_hash":"c1191e27025c0ab9","reason_length":618,"delegate_mode":"normal","child_session_observed":true,"child_history_requests":1,"child_history_available":true,"delegate_child_report_observed":true,"child_reported_context_threshold":true,"request_compaction_tool_result_observed":true,"request_compaction_receipt_role":"toolResult","request_compaction_receipt_tool_name":"request_compaction","request_compaction_receipt_status":"rejected","request_compaction_invocation_bound":true,"request_compaction_rejected_context_threshold":true,"request_compaction_accepted":false,"request_compaction_accepted_reported":false,"post_compaction_path_observed":false,"guard":"context_threshold","context_usage":null,"threshold":null,"reported_context_usage":null,"reported_threshold":70,"trace_id":null,"ended":"2026-07-19T20:04:53.370Z","duration_ms":70591,"verdict":"HONEST-LIMIT-candidate"}
+time="2026-07-19T13:04:53-07:00" level=info msg="\n[R-RC-2] VERDICT: HONEST-LIMIT-candidate" source=console
+
+running (1m10.6s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com... ✓ [ 100% ] 1 VUs  1m10.6s/2m30s  1/1 shared iters

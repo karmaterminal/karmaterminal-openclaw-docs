@@ -1,0 +1,8 @@
+{
+  "schema": "openclaw.k6.tempo-trace-fetch.v1",
+  "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+  "out": "tempo-trace-postrun.json",
+  "tempoUrl": "http://tempo.dandelion.cult/api/traces/<trace-id>",
+  "fetched": true,
+  "spans": 22
+}

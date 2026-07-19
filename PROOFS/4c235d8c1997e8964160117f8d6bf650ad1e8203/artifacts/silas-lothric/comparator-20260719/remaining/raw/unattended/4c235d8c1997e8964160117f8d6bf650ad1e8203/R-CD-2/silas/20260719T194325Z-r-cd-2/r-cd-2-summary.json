@@ -1,0 +1,32 @@
+{
+  "row": "R-CD-2",
+  "sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "seat": "silas",
+  "timestamp": "2026-07-19T19:44:07.466Z",
+  "verdict": "PARTIAL-candidate",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "resolved-after-run"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "r-cd-2-authoritative-receipt"
+    ],
+    "notes": [
+      "The runner owns final R-CD-2 candidate disposition from its validated row-scoped receipt."
+    ]
+  },
+  "metrics": {
+    "duration_ms": {
+      "min": 41846,
+      "med": 41846,
+      "max": 41846,
+      "p(90)": 41846,
+      "p(95)": 41846,
+      "avg": 41846
+    },
+    "failures": 0
+  }
+}

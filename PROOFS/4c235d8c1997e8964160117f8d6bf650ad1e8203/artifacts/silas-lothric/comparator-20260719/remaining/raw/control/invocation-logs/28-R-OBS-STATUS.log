@@ -1,0 +1,46 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: silas
+Target Candidate SHA: 4c235d8c1997e8964160117f8d6bf650ad1e8203
+Deployed Runtime SHA: 4c235d8c1997e8964160117f8d6bf650ad1e8203
+Session configured: true
+Artifact root: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended
+Rows: R-OBS-STATUS
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/seat-readiness.json
+
+----------------------------------------
+Row: R-OBS-STATUS
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-obs-status.json
+Scenario: scenarios/r-obs-status.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-STATUS] RUNNING...
+./r-obs-status-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-status.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m0s max duration (incl. graceful stop):
+              * r_obs_status: 1 iterations shared among 1 VUs (maxDuration: 30s, gracefulStop: 30s)
+
+time="2026-07-19T13:02:51-07:00" level=error msg="candidate status formatter contract evaluation failed: Error: status formatter start marker was not found" source=console
+PUBLIC_EVIDENCE {"row":"R-OBS-STATUS","candidate_sha":"4c235d8c1997e8964160117f8d6bf650ad1e8203","source_repository":"karmaterminal/openclaw","source_path":"src/status/status-text.ts","source_fetch_ok":true,"source_sha256":"7dd1f0c6d5d411f85fbcf4e3c68bee8b6e750b33c67b097889f15347f7d1f5bc","formatter_extracted":false,"active_continuation_line_present":false,"clean_session_continuation_line_absent":false,"ended":"2026-07-19T20:02:51.893Z","duration_ms":0}
+
+running (0m00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_status ✓ [ 100% ] 1 VUs  00.0s/30s  1/1 shared iters
+time="2026-07-19T13:02:51-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"
+[R-OBS-STATUS] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate.
+[R-OBS-STATUS] METRICS: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-STATUS/silas/20260719T200251Z-r-obs-status/openclaw-proofs-k6.prom
+[R-OBS-STATUS] ARTIFACTS: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-STATUS/silas/20260719T200251Z-r-obs-status
+[R-OBS-STATUS] FAILED with effective exit code 99. Public-safe artifacts preserved.

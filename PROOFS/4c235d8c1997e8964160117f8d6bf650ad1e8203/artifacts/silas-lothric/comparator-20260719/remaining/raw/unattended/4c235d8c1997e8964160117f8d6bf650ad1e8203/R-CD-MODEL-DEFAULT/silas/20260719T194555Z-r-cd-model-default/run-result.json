@@ -1,0 +1,48 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-07-19T19:46:27Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-cd-model-default-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CD-MODEL-DEFAULT",
+    "manifest_loaded": true,
+    "seat": "silas",
+    "session_created": true,
+    "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+    "started": "2026-07-19T19:45:55.456Z",
+    "parent_model_byte": "github-copilot/gpt-5.5",
+    "dispatch_accepted": true,
+    "child_session_observed": true,
+    "child_model_byte": "github-copilot/gpt-5.5",
+    "model_matches": true,
+    "return_payload": true,
+    "trace_id": null,
+    "ended": "2026-07-19T19:46:26.917Z",
+    "duration_ms": 31461
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

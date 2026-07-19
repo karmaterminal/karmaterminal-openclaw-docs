@@ -1,0 +1,270 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: silas
+Target Candidate SHA: 4c235d8c1997e8964160117f8d6bf650ad1e8203
+Deployed Runtime SHA: 4c235d8c1997e8964160117f8d6bf650ad1e8203
+Session configured: true
+Artifact root: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/dry-run
+Rows: preflight,R-CD-2,R-CD-3,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-COLLECTION-ON-COLLAPSE,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-RETURN-OVERLAP,R-CD-SILENT,R-CD-TOKEN,R-CONFIG-DEFAULTS,R-CONFIG-INTERSESSION,R-CW-2,R-CW-3,R-CW-4,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI-COLLAPSE,R-CW-MULTI,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-STATUS,R-RC-1,R-RC-2,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121
+Dry Run: true
+==========================================================
+
+----------------------------------------
+Row: PREFLIGHT
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/preflight.example.json
+Scenario: scenarios/preflight.js
+Status: runnable
+Live Safety: k6-runnable
+[PREFLIGHT] DRY RUN: Would execute k6 run scenarios/preflight.js
+
+----------------------------------------
+Row: R-CD-2
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cd-2.json
+Scenario: scenarios/r-cd-2-silent-wake.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-2] DRY RUN: Would execute k6 run scenarios/r-cd-2-silent-wake.js
+
+----------------------------------------
+Row: R-CD-3
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cd-3.json
+Scenario: scenarios/r-cd-3-post-compaction.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-3] DRY RUN: Would execute k6 run scenarios/r-cd-3-post-compaction.js
+
+----------------------------------------
+Row: R-CD-4
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cd-4.json
+Scenario: scenarios/r-cd-4-target-session-key.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-4] DRY RUN: Would execute k6 run scenarios/r-cd-4-target-session-key.js
+
+----------------------------------------
+Row: R-CD-CHAINED-DEPTH-2
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cd-chained-depth-2.json
+Scenario: scenarios/r-cd-chained-depth-2.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-CHAINED-DEPTH-2] DRY RUN: Would execute k6 run scenarios/r-cd-chained-depth-2.js
+
+----------------------------------------
+Row: R-CD-COLLECTION-ON-COLLAPSE
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cd-collection-on-collapse.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-COLLECTION-ON-COLLAPSE] DRY RUN: Would execute k6 run scenarios/static-corpus-row-validator.js
+
+----------------------------------------
+Row: R-CD-MODEL-CHAINED-ALT
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cd-model-chained-alt.json
+Scenario: scenarios/r-cd-model-chained-alt.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-MODEL-CHAINED-ALT] DRY RUN: Would execute k6 run scenarios/r-cd-model-chained-alt.js
+
+----------------------------------------
+Row: R-CD-MODEL-DEFAULT
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cd-model-default.json
+Scenario: scenarios/r-cd-model-default.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-MODEL-DEFAULT] DRY RUN: Would execute k6 run scenarios/r-cd-model-default.js
+
+----------------------------------------
+Row: R-CD-MODEL-TOKEN
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cd-model-token.json
+Scenario: scenarios/r-cd-model-token.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-MODEL-TOKEN] DRY RUN: Would execute k6 run scenarios/r-cd-model-token.js
+
+----------------------------------------
+Row: R-CD-MODEL-TOOL
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cd-model-tool.json
+Scenario: scenarios/r-cd-model-tool.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-MODEL-TOOL] DRY RUN: Would execute k6 run scenarios/r-cd-model-tool.js
+
+----------------------------------------
+Row: R-CD-RETURN-OVERLAP
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cd-return-overlap.json
+Scenario: scenarios/r-cd-return-overlap.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-RETURN-OVERLAP] DRY RUN: Would execute k6 run scenarios/r-cd-return-overlap.js
+
+----------------------------------------
+Row: R-CD-SILENT
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cd-silent.json
+Scenario: scenarios/r-cd-silent.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-SILENT] DRY RUN: Would execute k6 run scenarios/r-cd-silent.js
+
+----------------------------------------
+Row: R-CD-TOKEN
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cd-token.json
+Scenario: scenarios/r-cd-token-bracket-delegate.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-TOKEN] DRY RUN: Would execute k6 run scenarios/r-cd-token-bracket-delegate.js
+
+----------------------------------------
+Row: R-CONFIG-DEFAULTS
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-config-defaults.json
+Scenario: scenarios/r-config-defaults.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CONFIG-DEFAULTS] DRY RUN: Would execute k6 run scenarios/r-config-defaults.js
+
+----------------------------------------
+Row: R-CONFIG-INTERSESSION
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-config-intersession.json
+Scenario: scenarios/r-config-intersession.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CONFIG-INTERSESSION] DRY RUN: Would execute k6 run scenarios/r-config-intersession.js
+
+----------------------------------------
+Row: R-CW-2
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cw-2.json
+Scenario: scenarios/r-cw-2-immediate-wake.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-2] DRY RUN: Would execute k6 run scenarios/r-cw-2-immediate-wake.js
+
+----------------------------------------
+Row: R-CW-3
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cw-3.json
+Scenario: scenarios/r-cw-3-reason-telemetry.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-3] DRY RUN: Would execute k6 run scenarios/r-cw-3-reason-telemetry.js
+
+----------------------------------------
+Row: R-CW-4
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cw-4.json
+Scenario: scenarios/r-cw-4-chain-depth.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-4] DRY RUN: Would execute k6 run scenarios/r-cw-4-chain-depth.js
+
+----------------------------------------
+Row: R-CW-7
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cw-7.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-7] DRY RUN: Would execute k6 run scenarios/static-corpus-row-validator.js
+
+----------------------------------------
+Row: R-CW-DELEGATE-CHILD-LIVE
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cw-delegate-child-live.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-DELEGATE-CHILD-LIVE] DRY RUN: Would execute k6 run scenarios/static-corpus-row-validator.js
+
+----------------------------------------
+Row: R-CW-DELEGATE-SELF-CONTINUATION
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cw-delegate-self.json
+Scenario: scenarios/r-cw-delegate-self-continuation.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-DELEGATE-SELF-CONTINUATION] DRY RUN: Would execute k6 run scenarios/r-cw-delegate-self-continuation.js
+
+----------------------------------------
+Row: R-CW-DELEGATE-TOKEN
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cw-delegate-token.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-DELEGATE-TOKEN] DRY RUN: Would execute k6 run scenarios/static-corpus-row-validator.js
+
+----------------------------------------
+Row: R-CW-MULTI-COLLAPSE
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cw-multi-collapse.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-MULTI-COLLAPSE] DRY RUN: Would execute k6 run scenarios/static-corpus-row-validator.js
+
+----------------------------------------
+Row: R-CW-MULTI
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cw-multi.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-MULTI] DRY RUN: Would execute k6 run scenarios/static-corpus-row-validator.js
+
+----------------------------------------
+Row: R-CW-TOKEN
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cw-token.json
+Scenario: scenarios/r-cw-token-bracket.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-TOKEN] DRY RUN: Would execute k6 run scenarios/r-cw-token-bracket.js
+
+----------------------------------------
+Row: R-OBS-1
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-obs-1.json
+Scenario: scenarios/r-obs-1.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-1] DRY RUN: Would execute k6 run scenarios/r-obs-1.js
+
+----------------------------------------
+Row: R-OBS-2
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-obs-2.json
+Scenario: scenarios/r-obs-2.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-2] DRY RUN: Would execute k6 run scenarios/r-obs-2.js
+
+----------------------------------------
+Row: R-OBS-STATUS
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-obs-status.json
+Scenario: scenarios/r-obs-status.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-STATUS] DRY RUN: Would execute k6 run scenarios/r-obs-status.js
+
+----------------------------------------
+Row: R-RC-1
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-rc-1.json
+Scenario: scenarios/r-rc-1-threshold-reject.js
+Status: runnable
+Live Safety: k6-runnable
+[R-RC-1] DRY RUN: Would execute k6 run scenarios/r-rc-1-threshold-reject.js
+
+----------------------------------------
+Row: R-RC-2
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-rc-2.json
+Scenario: scenarios/r-rc-2-delegate-request-compaction.js
+Status: runnable
+Live Safety: k6-runnable
+[R-RC-2] DRY RUN: Would execute k6 run scenarios/r-rc-2-delegate-request-compaction.js
+
+----------------------------------------
+Row: R-REGRESSION-TRAP-TESTS
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-regression-trap-tests.json
+Scenario: scenarios/r-regression-trap-tests.js
+Status: runnable
+Live Safety: k6-runnable
+[R-REGRESSION-TRAP-TESTS] DRY RUN: Would execute k6 run scenarios/r-regression-trap-tests.js
+
+----------------------------------------
+Row: R-TRACE-REDACTION-1121
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-trace-redaction-1121.json
+Scenario: scenarios/r-trace-redaction-1121.js
+Status: runnable
+Live Safety: k6-runnable
+[R-TRACE-REDACTION-1121] DRY RUN: Would execute k6 run scenarios/r-trace-redaction-1121.js
+REPORT: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/dry-run/report.html
+
+==========================================================
+Runner execution finished.

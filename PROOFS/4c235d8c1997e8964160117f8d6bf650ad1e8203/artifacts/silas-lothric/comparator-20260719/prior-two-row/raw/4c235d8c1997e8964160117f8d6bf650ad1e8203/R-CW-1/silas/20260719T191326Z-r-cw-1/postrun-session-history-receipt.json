@@ -1,0 +1,44 @@
+{
+  "schema": "openclaw.k6.postrun-session-history-receipt.v1",
+  "row": "R-CW-1",
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "docsRef": "1303a03c2858fce82c235992b7ee06385e8e6304",
+  "seat": "silas-lothric",
+  "runId": "20260719T191326Z-r-cw-1",
+  "attemptFingerprint": "c503a03d111ee43f",
+  "sessionFingerprint": "b9e09f9c9fd42015",
+  "disposableSession": true,
+  "distinctFromOtherRows": true,
+  "receipts": {
+    "toolInvocation": {
+      "tool": "continue_work",
+      "delaySeconds": 5,
+      "observedToolResultStatus": "scheduled",
+      "timestampMs": 1784488415434
+    },
+    "scheduledSentinel": {
+      "observed": true,
+      "timestampMs": 1784488415444
+    },
+    "wake": {
+      "observed": true,
+      "deliveredAtMs": 1784488697912,
+      "assistantSentinelAtMs": 1784488699112,
+      "overdueByMs": 272302,
+      "disposition": "granted"
+    },
+    "flow": {
+      "flowId": "da028ad7-f327-4345-852d-c3271d90e16a",
+      "chainId": "1cc31841-dd31-47e1-9cac-927de11ea50f",
+      "status": "succeeded",
+      "revision": 6,
+      "endedAtMs": 1784488701976
+    },
+    "initialRunnerWindowObservedWake": false,
+    "postrunRecoveryObservedWake": true
+  },
+  "exactExpectedBehaviorObserved": true,
+  "withinRunnerObservationWindow": false,
+  "rawNoncePersisted": false,
+  "rawSessionKeyPersisted": false
+}

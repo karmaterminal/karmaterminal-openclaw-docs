@@ -1,0 +1,27 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: silas
+Target Candidate SHA: 4c235d8c1997e8964160117f8d6bf650ad1e8203
+Deployed Runtime SHA: 4c235d8c1997e8964160117f8d6bf650ad1e8203
+Session configured: true
+Artifact root: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended
+Rows: R-CD-2
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/seat-readiness.json
+
+----------------------------------------
+Row: R-CD-2
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cd-2.json
+Scenario: scenarios/r-cd-2-silent-wake.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-2] RUNNING...
+./r-cd-2-summary.json
+[R-CD-2] TRACE CORRELATION FAILED; see /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-2/silas/20260719T194325Z-r-cd-2/continuation-trace-collector.error.log
+R-CD-2 private k6 acquisition withheld; inspect the authoritative receipt.
+[R-CD-2] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate.
+[R-CD-2] METRICS: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-2/silas/20260719T194325Z-r-cd-2/openclaw-proofs-k6.prom
+[R-CD-2] ARTIFACTS: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-2/silas/20260719T194325Z-r-cd-2
+[R-CD-2] FAILED with effective exit code 1. Public-safe artifacts preserved.

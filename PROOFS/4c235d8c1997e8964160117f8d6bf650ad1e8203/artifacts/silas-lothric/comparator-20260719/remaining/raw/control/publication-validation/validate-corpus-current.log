@@ -1,0 +1,102 @@
+{
+  "mode": "index",
+  "root": "/tmp/silas-proof-publish-4c235d8c",
+  "reports": [
+    {
+      "kind": "index",
+      "checks": [
+        {
+          "name": "json-parse-index",
+          "ok": true,
+          "detail": "/tmp/silas-proof-publish-4c235d8c/PROOFS/INDEX.json"
+        },
+        {
+          "name": "schema-index",
+          "ok": true,
+          "detail": "openclaw.proofs.index.v1"
+        },
+        {
+          "name": "schema-index-keys",
+          "ok": true,
+          "detail": "current_sha, corpus_path, manifest_path, rollup"
+        },
+        {
+          "name": "rollup-matches-manifest",
+          "ok": true,
+          "detail": "INDEX rollup matches manifest tally (total_rows=35, pass=2, partial=32, thin=0, fail=1, honest_limit=0, missing=0)"
+        }
+      ],
+      "passed": 4,
+      "failed": 0,
+      "indexPath": "/tmp/silas-proof-publish-4c235d8c/PROOFS/INDEX.json",
+      "shaReport": {
+        "sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+        "checks": [
+          {
+            "name": "json-parse-manifest",
+            "ok": true,
+            "detail": "/tmp/silas-proof-publish-4c235d8c/PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/proofs-manifest.json"
+          },
+          {
+            "name": "schema-manifest",
+            "ok": true,
+            "detail": "openclaw.proofs.manifest.v1"
+          },
+          {
+            "name": "schema-manifest-capture-sha",
+            "ok": true,
+            "detail": "4c235d8c1997e8964160117f8d6bf650ad1e8203"
+          },
+          {
+            "name": "schema-manifest-rows",
+            "ok": true,
+            "detail": "35 rows"
+          },
+          {
+            "name": "capture-sha-agreement",
+            "ok": true,
+            "detail": "capture_sha == dir name (4c235d8c1997e8964160117f8d6bf650ad1e8203)"
+          },
+          {
+            "name": "evidence-doc-exists",
+            "ok": true,
+            "detail": "35/35 evidence_doc paths exist"
+          },
+          {
+            "name": "row-dirs-exist",
+            "ok": true,
+            "detail": "35/35 row dirs exist"
+          },
+          {
+            "name": "no-orphan-row-dirs",
+            "ok": true,
+            "detail": "35 on-disk row dirs all referenced; ignored support dirs: PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/"
+          },
+          {
+            "name": "state-values-known",
+            "ok": true,
+            "detail": "all states ∈ {pass,partial,thin,fail,honest_limit,missing}"
+          },
+          {
+            "name": "no-stale-pending-tokens",
+            "ok": false,
+            "detail": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/control/publication-validation/validate-corpus-sha.json:pending_push; PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/control/publication-validation/validate-corpus-sha.json:pending push; PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/control/publication-validation/validate-corpus-sha.json:upload-blame; PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/control/publication-validation/validate-corpus-sha.json:TODO-UPLOAD; PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/control/publication-validation/validate-corpus-sha.json:pending_upload"
+          }
+        ],
+        "passed": 9,
+        "failed": 1,
+        "skipped": false,
+        "talliedRollup": {
+          "pass": 2,
+          "partial": 32,
+          "thin": 0,
+          "fail": 1,
+          "honest_limit": 0,
+          "missing": 0,
+          "total_rows": 35
+        }
+      }
+    }
+  ],
+  "failed": true
+}

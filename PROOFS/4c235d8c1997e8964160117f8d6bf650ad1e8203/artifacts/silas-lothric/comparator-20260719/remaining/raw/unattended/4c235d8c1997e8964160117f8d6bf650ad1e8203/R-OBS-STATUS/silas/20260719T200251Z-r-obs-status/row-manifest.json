@@ -1,0 +1,74 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-OBS-STATUS",
+  "issue": 104,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-emeric-nuc}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "github-source-contract",
+  "toolSurface": "source-status-formatter",
+  "mutates": false,
+  "timeoutSeconds": 30,
+  "scenario": {
+    "status": "runnable",
+    "file": "r-obs-status.js",
+    "name": "r-obs-status",
+    "description": "Exact-SHA #1172 source contract: active continuation renders a line while a clean all-zero session omits it."
+  },
+  "sourceContract": {
+    "repository": "karmaterminal/openclaw",
+    "path": "src/status/status-text.ts",
+    "issue": 1172,
+    "publicEvidence": [
+      "candidate_sha",
+      "source_sha256",
+      "source_fetch_ok",
+      "active_continuation_line_present",
+      "clean_session_continuation_line_absent"
+    ]
+  },
+  "expectedReceipts": [
+    {
+      "name": "candidate-source-sha256",
+      "required": true,
+      "description": "Public SHA-256 digest of the exact candidate source fetched by immutable SHA"
+    },
+    {
+      "name": "active-continuation-line",
+      "required": true,
+      "description": "Exact candidate formatter rendered the expected continuation line for a non-zero active state"
+    },
+    {
+      "name": "clean-session-line-absence",
+      "required": true,
+      "description": "Exact candidate formatter omitted the continuation line for the all-zero clean-session state"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-OBS-STATUS",
+    "seat": "${OPENCLAW_SEAT_NAME:-emeric-nuc}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Issue #1172 source contract. The old gateway status probe is retained only as BAD_PROOF harness evidence because it proved transport health, not status-line behavior."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "candidate-source-sha256",
+      "active-continuation-line",
+      "clean-session-line-absence"
+    ],
+    "foldRequiresReview": true
+  }
+}

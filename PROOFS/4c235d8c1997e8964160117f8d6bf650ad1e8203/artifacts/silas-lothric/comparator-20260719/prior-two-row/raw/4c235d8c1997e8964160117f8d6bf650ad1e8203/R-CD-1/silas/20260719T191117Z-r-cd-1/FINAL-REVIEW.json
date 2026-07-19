@@ -1,0 +1,31 @@
+{
+  "schema": "openclaw.k6.independent-fold-review.v1",
+  "row": "R-CD-1",
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "docsRef": "1303a03c2858fce82c235992b7ee06385e8e6304",
+  "seat": "silas-lothric",
+  "runnerVerdict": "PASS-candidate",
+  "runnerEffectiveExitCode": 0,
+  "exactExpectedBehaviorObserved": true,
+  "artifacts": {
+    "runnerResult": "run-result.json",
+    "runnerResultSha256": "4f4b469fd133a9a7ccd572cd49e095a889d35ca0f2ddc8a41ec98712d160189d",
+    "gatewayJournal": "gateway-journal.log",
+    "gatewayJournalSha256": "9f834483e0abe88bad8ab586815efde05decdebc5170c192145c1f8e22686cd1",
+    "tempoTrace": "tempo-trace-postrun.json",
+    "tempoTraceSha256": "39d1a36b2c390f3882fa42646e84ca44cfed23a3e9a71f423f382634c269f344",
+    "correlation": "postrun-correlation.json",
+    "correlationSha256": "ba1caf32c31a461d03f9b3d251a68a50043d1275d3152c983c60e5ac324748f9",
+    "sessionHistory": "postrun-session-history-receipt.json",
+    "sessionHistorySha256": "e731bb176b2dd555b945929e7320e713d335009d08d8e47c0ff15fd0af5040af"
+  },
+  "finalClassification": "PARTIAL",
+  "canonicalFoldAllowed": false,
+  "rationale": "Behavior completed on the exact candidate in a distinct disposable session, but the mandatory Tempo correlation contract did not validate; preserve as partial and do not upgrade to PASS.",
+  "blockers": [
+    "required continuation/tool spans are status UNSET rather than OK",
+    "tool, accept, and fire spans do not share one causal parent"
+  ],
+  "refireAllowed": false,
+  "nextAction": "Repair/clarify OTel continuation span status and causal-parent contract, then address through a future authorized matrix cycle; this consumed attempt must not be refired."
+}

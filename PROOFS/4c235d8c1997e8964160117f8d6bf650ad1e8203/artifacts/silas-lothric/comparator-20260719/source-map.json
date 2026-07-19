@@ -1,0 +1,36 @@
+{
+  "schema": "openclaw.k6.silas-comparator.source-map.v1",
+  "publishedAt": "2026-07-19T20:14:06.482Z",
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "docsRef": "1303a03c2858fce82c235992b7ee06385e8e6304",
+  "executionSeat": "silas-lothric",
+  "runnerSeatAlias": "silas",
+  "canonicalOwnershipPreserved": true,
+  "canonicalFoldAllowed": false,
+  "sources": {
+    "preservedTwoRow": {
+      "sourceRoot": "/home/figs/.openclaw-data/workspace/proof-artifacts/silas-comparator-4c235d8c-20260719T1908Z",
+      "publishedRoot": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/prior-two-row/raw",
+      "rows": [
+        "R-CD-1",
+        "R-CW-1"
+      ]
+    },
+    "remaining": {
+      "sourceRoot": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z",
+      "publishedRoot": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw",
+      "unattendedRows": 31,
+      "readinessPreflight": 1,
+      "fixtures": [
+        "R-CW-5",
+        "R-CW-6"
+      ]
+    }
+  },
+  "fixtureReplacement": {
+    "attempt1": "pre-execution safety-gate non-fire: artifact directory was not mode 0700; zero fixture artifacts emitted",
+    "replacement": "distinct private artifact directories; fixture body executed once per row",
+    "ledger": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/remaining/raw/control/fixture-execution-ledger.jsonl"
+  },
+  "reviewRollup": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/final-review-rollup.json"
+}

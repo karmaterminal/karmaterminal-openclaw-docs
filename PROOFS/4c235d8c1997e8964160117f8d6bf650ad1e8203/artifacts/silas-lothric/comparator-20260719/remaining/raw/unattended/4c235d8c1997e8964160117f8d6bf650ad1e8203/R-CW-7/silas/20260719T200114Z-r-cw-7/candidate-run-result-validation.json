@@ -1,0 +1,53 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+    "docsRef": "1303a03c2858fce82c235992b7ee06385e8e6304"
+  },
+  "run": {
+    "id": "20260719T200114Z-r-cw-7",
+    "rowId": "R-CW-7",
+    "seat": "silas",
+    "scenario": "static-corpus-row-validator",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "summary-file",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "unknown",
+    "traceCaptured": false,
+    "correlationReceiptPresent": false
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "row-manifest.json",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json",
+      "static-corpus-row-summary.json"
+    ],
+    "tempoTraceJson": null,
+    "correlationReceipt": null
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-RC-2",
+  "issue": 104,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 150,
+  "scenario": {
+    "name": "r-rc-2-delegate-request-compaction",
+    "description": "Parent fires continue_delegate to a child that calls request_compaction. Accepts actual compaction path or structured below-threshold rejection as environmental honest limit.",
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "continue_delegate",
+      "request_compaction-threshold-guard"
+    ],
+    "status": "runnable",
+    "file": "r-rc-2-delegate-request-compaction.js",
+    "notes": "Does not lower thresholds or mutate config. Default public/disposable outcome is expected to be REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "normal",
+    "delaySeconds": 0,
+    "promptTemplate": "R-RC-2 child nonce {{nonce}}: call request_compaction with reason=\"R-RC-2 delegated request_compaction nonce {{nonce}}\". If request_compaction rejects because context is below threshold, reply exactly REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD {{nonce}} CONTEXT <contextUsage> THRESHOLD <threshold>. If request_compaction is accepted, reply exactly REQUEST_COMPACTION_ACCEPTED {{nonce}}. If you later resume post-compaction, reply exactly REQUEST_COMPACTION_POST_COMPACTION {{nonce}}. Do not mutate files or config."
+  },
+  "expectedReceipts": [
+    {
+      "name": "parent-dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted parent sessions.send proof turn"
+    },
+    {
+      "name": "delegate-requested",
+      "required": true,
+      "description": "Parent agent was instructed to call continue_delegate(mode=normal)"
+    },
+    {
+      "name": "child-report-observed",
+      "required": true,
+      "description": "Delegate child returned a request_compaction result sentinel"
+    },
+    {
+      "name": "threshold-rejection-or-accepted-compaction",
+      "required": true,
+      "description": "Either structured context-threshold rejection or accepted/post-compaction path observed"
+    },
+    {
+      "name": "trace-id",
+      "required": true,
+      "description": "Unique safe-fingerprint correlation to a public-safe Tempo projection containing same-trace continue_delegate tool, fire, and dispatch spans"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-RC-2",
+    "seat": "${OPENCLAW_SEAT_NAME:-emeric-nuc}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "R-RC-2 is HONEST-LIMIT-candidate when the delegated child reaches request_compaction and receives a structured below-threshold rejection. A true accepted compaction path remains fixture-gated until reviewed tiny-context env/config exists."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "HONEST-LIMIT-candidate",
+    "requiredReceipts": [
+      "parent-dispatch-accepted",
+      "delegate-requested",
+      "child-report-observed",
+      "threshold-rejection-or-accepted-compaction",
+      "trace-id"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Runs in disposable session by default and delegates request_compaction to child. Does not mutate config; if compaction unexpectedly accepts, mutation is confined to proof child/session and result is review-gated."
+  },
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  }
+}

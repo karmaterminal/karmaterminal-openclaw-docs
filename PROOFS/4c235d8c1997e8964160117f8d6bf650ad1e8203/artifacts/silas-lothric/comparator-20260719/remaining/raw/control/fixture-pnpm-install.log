@@ -1,0 +1,37 @@
+Scope: all 172 workspace projects
+Lockfile is up to date, resolution step is skipped
+Packages: +1272
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 0, reused 1, downloaded 0, added 0
+Progress: resolved 0, reused 1239, downloaded 2, added 1271
+Progress: resolved 0, reused 1239, downloaded 3, added 1271
+Progress: resolved 0, reused 1239, downloaded 3, added 1272, done
+node_modules/protobufjs postinstall$ node scripts/postinstall
+node_modules/node-pty install$ node scripts/prebuild.js || node-gyp rebuild
+node_modules/@tloncorp/tlon-skill postinstall$ node scripts/postinstall.js
+node_modules/protobufjs postinstall: Done
+node_modules/node-pty install: [32m> Checking prebuilds...[0m
+node_modules/node-pty install: Done
+node_modules/node-pty postinstall$ node scripts/post-install.js
+node_modules/@tloncorp/tlon-skill postinstall: [tlon-skill] Binary ready: /tmp/silas-runtime-fixtures-4c235d8c/node_modules/@tloncorp/tlon-skill-linux-x64/tlon
+node_modules/@tloncorp/tlon-skill postinstall: Done
+node_modules/node-pty postinstall: [32m> Cleaning release folder...[0m
+node_modules/node-pty postinstall: [32m> Moving conpty.dll...[0m
+node_modules/node-pty postinstall:   SKIPPED (not Windows)
+node_modules/node-pty postinstall: Done
+node_modules/@google/genai preinstall$ echo 'preinstall: no-op'
+node_modules/baileys preinstall$ node ./engine-requirements.js
+node_modules/@google/genai preinstall: preinstall: no-op
+node_modules/@google/genai preinstall: Done
+node_modules/baileys preinstall: Done
+
+dependencies:
++ @openclaw/ai 2026.7.2 <- packages/ai
+
+. preinstall$ node scripts/preinstall-package-manager-warning.mjs
+. preinstall: Done
+. postinstall$ node scripts/postinstall-bundled-plugins.mjs
+. postinstall: Done
+. prepare$ node scripts/prepare-git-hooks.mjs
+. prepare: Done
+Done in 4.8s using pnpm v11.2.2

@@ -1,0 +1,40 @@
+{
+  "schema": "openclaw.k6.postrun-session-history-receipt.v1",
+  "row": "R-CD-1",
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "docsRef": "1303a03c2858fce82c235992b7ee06385e8e6304",
+  "seat": "silas-lothric",
+  "runId": "20260719T191117Z-r-cd-1",
+  "attemptFingerprint": "8bde85fb8811b72e",
+  "sessionFingerprint": "87b4462293398beb",
+  "childSessionFingerprint": "b02a26a149b4f5f1",
+  "disposableSession": true,
+  "distinctFromOtherRows": true,
+  "receipts": {
+    "toolInvocation": {
+      "tool": "continue_delegate",
+      "mode": "normal",
+      "requestedDelaySeconds": 1,
+      "observedToolResultStatus": "scheduled",
+      "observedEffectiveDelaySeconds": 5,
+      "timestampMs": 1784488289479
+    },
+    "parentScheduledSentinel": {
+      "observed": true,
+      "timestampMs": 1784488289486
+    },
+    "childCompletionSentinel": {
+      "observed": true,
+      "timestampMs": 1784488319881
+    },
+    "parentReturnSentinel": {
+      "observed": true,
+      "timestampMs": 1784488353784
+    },
+    "childStatus": "done",
+    "parentStatus": "done"
+  },
+  "exactExpectedBehaviorObserved": true,
+  "rawNoncePersisted": false,
+  "rawSessionKeyPersisted": false
+}

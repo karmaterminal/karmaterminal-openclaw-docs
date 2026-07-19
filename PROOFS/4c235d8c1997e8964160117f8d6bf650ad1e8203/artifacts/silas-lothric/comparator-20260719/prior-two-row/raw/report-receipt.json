@@ -1,0 +1,5 @@
+{
+  "schema": "openclaw.k6.proofs-report.v1",
+  "out": "/tmp/silas-comparator-4c235d8c-20260719T1908Z/report.html",
+  "rows": 1
+}

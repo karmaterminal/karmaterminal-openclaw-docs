@@ -83,3 +83,21 @@ test('R-CD-4 rejects an assistant-authored marker in the target session', () => 
     nonce,
   }), null);
 });
+
+test('R-CD-4 rejects a marker present only in sibling or nested metadata', () => {
+  const eventData = {
+    sessionKey: target,
+    message: {
+      role: 'system',
+      content: [{ type: 'text', text: 'unrelated target system message' }],
+      metadata: { echoedMarker: `TARGET-RECEIVED ${nonce}` },
+    },
+    metadata: { returnMarker: `TARGET-RECEIVED ${nonce}` },
+  };
+  assert.equal(rCd4ReturnCandidate({
+    eventName: 'session.message',
+    eventData,
+    expectedSessionKey: target,
+    nonce,
+  }), null);
+});

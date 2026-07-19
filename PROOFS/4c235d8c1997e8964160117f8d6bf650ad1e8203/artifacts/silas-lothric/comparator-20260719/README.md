@@ -73,3 +73,7 @@ These are independent comparator classifications, not canonical corpus folds. `c
 - Gateway postflight: config valid, SQLite `quick_check=ok`, schema `user_version=5`.
 
 See [`source-map.json`](source-map.json), [`final-review-rollup.json`](final-review-rollup.json), [`checksums.sha256`](checksums.sha256), and the raw ledgers under [`remaining/raw/control/`](remaining/raw/control/).
+
+## Cross-seat reconciliation input
+
+[`cross-seat-row-ledger.json`](cross-seat-row-ledger.json) is the additive, machine-readable Silas comparator column for cross-seat reconciliation. It records all 35 immutable attempts with execution seat, whole-directory attempt fingerprint, runner and reviewed verdicts, behavior and authority/model receipt states, available trace identifiers/acquisition metadata/span counts, missing-evidence class, and original/published run directories. The `primary` column is deliberately `null` pending the independently produced primary ledger; no other seat's evidence is inferred or substituted. Verify it with [`cross-seat-row-ledger.sha256`](cross-seat-row-ledger.sha256).

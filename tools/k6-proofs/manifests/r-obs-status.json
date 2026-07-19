@@ -17,7 +17,7 @@
   },
   "sourceContract": {
     "repository": "karmaterminal/openclaw",
-    "path": "src/status/status-text.ts",
+    "path": "src/status/status-continuation-line.ts",
     "issue": 1172,
     "publicEvidence": [
       "candidate_sha",

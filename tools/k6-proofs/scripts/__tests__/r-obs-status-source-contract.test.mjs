@@ -115,6 +115,39 @@ test('balanced extraction fails closed on a signature mismatch', () => {
   );
 });
 
+test('balanced extraction cannot borrow a matching signature from a later export', () => {
+  const source = `
+export function targetExtra(params: { value: number }): string | undefined {
+  return "WRONG-PREFIX-BODY";
+}
+
+export function target(params: { value: number }): boolean {
+  return params.value > 0;
+}
+
+export function later(params: { value: number }): string | undefined {
+  return "WRONG-BODY";
+}
+`;
+  assert.throws(
+    () => extractExportedFunctionBody(source, 'target', '): string | undefined {'),
+    /signature marker was not found/,
+  );
+});
+
+test('balanced extraction cannot borrow a matching signature from a body comment', () => {
+  const source = `
+export function target(value): boolean {
+  // ): string | undefined {
+  return "WRONG-SIGNATURE-ACCEPTED";
+}
+`;
+  assert.throws(
+    () => extractExportedFunctionBody(source, 'target', '): string | undefined {'),
+    /signature marker was not found/,
+  );
+});
+
 test('balanced extraction fails closed on an unterminated body', () => {
   const unterminated = `
 export function target(params: { value: number }): string | undefined {

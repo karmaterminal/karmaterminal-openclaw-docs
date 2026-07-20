@@ -1,16 +1,37 @@
-function directStringValues(record) {
-  return Object.values(record).flatMap((value) => {
-    if (typeof value === 'string') return [value];
-    if (Array.isArray(value) && value.every((entry) => typeof entry === 'string')) return value;
-    return [];
+// Spawn events expose row text as task/text; tasks.list exposes it as title.
+// Routing keys identify sessions and must never supply row-nonce authority.
+const DIRECT_ROW_IDENTITY_FIELDS = ['task', 'text', 'title'];
+const TASK_RECORD_FIELDS = ['task'];
+const TASK_RECORD_COLLECTION_FIELDS = ['tasks', 'records'];
+
+function directTaskIdentityValues(record) {
+  return DIRECT_ROW_IDENTITY_FIELDS.flatMap((field) => {
+    const value = record[field];
+    return typeof value === 'string' ? [value] : [];
   });
 }
 
-function childKeyBoundToNonce(record, rowNonce) {
+function rowIdentityTokens(rowNonce, additionalTokens = []) {
+  return [rowNonce, ...additionalTokens]
+    .filter((value) => typeof value === 'string' && value.length > 0);
+}
+
+function childKeyBoundToNonce(record, rowNonce, additionalTokens = []) {
   if (!record || typeof record !== 'object' || Array.isArray(record)) return null;
   const childSessionKey = typeof record.childSessionKey === 'string' ? record.childSessionKey : null;
   if (!childSessionKey) return null;
-  return directStringValues(record).some((value) => value.includes(rowNonce)) ? childSessionKey : null;
+  const tokens = rowIdentityTokens(rowNonce, additionalTokens);
+  return directTaskIdentityValues(record).some((value) => (
+    tokens.some((token) => value.includes(token))
+  ))
+    ? childSessionKey
+    : null;
+}
+
+/** Return a child key only when this exact structured record binds it to the row. */
+export function directChildSessionKeyForRow(record, rowNonce, additionalTokens = []) {
+  if (!rowNonce || typeof rowNonce !== 'string') return null;
+  return childKeyBoundToNonce(record, rowNonce, additionalTokens);
 }
 
 /**
@@ -18,11 +39,12 @@ function childKeyBoundToNonce(record, rowNonce) {
  * key to the proof-row nonce.
  *
  * Gateway subscriptions can contain aggregate events from earlier proof work.
- * A nonce anywhere in the outer event is not enough: a stale top-level child
- * key plus an unrelated nested task for the current row must fail closed.
+ * A nonce anywhere in the outer event is not enough: only direct records and
+ * recognized task-record containers are authoritative. Nested metadata must
+ * never supply or conflict with child authority.
  */
-export function childSessionKeyForRow(eventData, rowNonce) {
-  if (!rowNonce || typeof rowNonce !== 'string') return null;
+export function childSessionKeysForRow(eventData, rowNonce, additionalTokens = []) {
+  if (!rowNonce || typeof rowNonce !== 'string') return [];
   const matches = new Set();
   const seen = new Set();
 
@@ -30,12 +52,24 @@ export function childSessionKeyForRow(eventData, rowNonce) {
     if (!value || typeof value !== 'object' || seen.has(value)) return;
     seen.add(value);
     if (!Array.isArray(value)) {
-      const match = childKeyBoundToNonce(value, rowNonce);
+      const match = directChildSessionKeyForRow(value, rowNonce, additionalTokens);
       if (match) matches.add(match);
     }
-    for (const child of Object.values(value)) visit(child);
+    if (Array.isArray(value)) {
+      for (const child of value) visit(child);
+      return;
+    }
+    for (const field of TASK_RECORD_FIELDS) visit(value[field]);
+    for (const field of TASK_RECORD_COLLECTION_FIELDS) {
+      if (Array.isArray(value[field])) visit(value[field]);
+    }
   }
 
   visit(eventData);
-  return matches.size === 1 ? [...matches][0] : null;
+  return [...matches];
+}
+
+export function childSessionKeyForRow(eventData, rowNonce, additionalTokens = []) {
+  const matches = childSessionKeysForRow(eventData, rowNonce, additionalTokens);
+  return matches?.length === 1 ? matches[0] : null;
 }

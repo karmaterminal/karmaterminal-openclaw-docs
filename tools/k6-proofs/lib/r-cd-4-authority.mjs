@@ -1,3 +1,5 @@
+import { directChildSessionKeyForRow } from './row-child-correlation.mjs';
+
 const HARNESS_MARKER = '[k6-proof-harness]';
 
 function escapeRegex(value) {
@@ -102,6 +104,28 @@ export function rCd4SessionMessageObservation({
       nonce,
     }),
     genericWakeObserved: elapsed >= gate,
+  };
+}
+
+/**
+ * Treat tasks.list as child authority only when one structured task record
+ * binds its real childSessionKey to this row nonce.
+ */
+export function rCd4TaskObservation(task, nonce) {
+  const childSessionKey = directChildSessionKeyForRow(task, nonce);
+  if (!childSessionKey) {
+    return {
+      childSessionKey: null,
+      completed: false,
+      traceId: null,
+    };
+  }
+  return {
+    childSessionKey,
+    completed: task?.state === 'completed' || task?.status === 'completed',
+    traceId: typeof task?.traceId === 'string' && task.traceId.length > 0
+      ? task.traceId
+      : null,
   };
 }
 

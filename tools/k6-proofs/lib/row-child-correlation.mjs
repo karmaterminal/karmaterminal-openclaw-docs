@@ -13,6 +13,12 @@ function childKeyBoundToNonce(record, rowNonce) {
   return directStringValues(record).some((value) => value.includes(rowNonce)) ? childSessionKey : null;
 }
 
+/** Return a child key only when this exact structured record binds it to the row. */
+export function directChildSessionKeyForRow(record, rowNonce) {
+  if (!rowNonce || typeof rowNonce !== 'string') return null;
+  return childKeyBoundToNonce(record, rowNonce);
+}
+
 /**
  * Return a spawned child key only when the same structured record binds that
  * key to the proof-row nonce.
@@ -30,7 +36,7 @@ export function childSessionKeyForRow(eventData, rowNonce) {
     if (!value || typeof value !== 'object' || seen.has(value)) return;
     seen.add(value);
     if (!Array.isArray(value)) {
-      const match = childKeyBoundToNonce(value, rowNonce);
+      const match = directChildSessionKeyForRow(value, rowNonce);
       if (match) matches.add(match);
     }
     for (const child of Object.values(value)) visit(child);

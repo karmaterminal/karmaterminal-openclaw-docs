@@ -4,6 +4,7 @@ import {
   rCd4ReturnCandidate,
   rCd4ReturnReceipt,
   rCd4SessionMessageObservation,
+  rCd4TaskObservation,
 } from '../lib/r-cd-4-authority.mjs';
 
 const nonce = 'R-CD-4-EXACT-NONCE';
@@ -157,4 +158,45 @@ test('R-CD-4 retains an early parent receipt so a later target cannot false-PASS
   assert.equal(earlyParent.genericWakeObserved, false);
   assert.notEqual(rCd4ReturnReceipt(earlyParent.parentCandidate, child), null);
   assert.notEqual(rCd4ReturnReceipt(laterTarget.targetCandidate, child), null);
+});
+
+test('R-CD-4 accepts tasks.list child authority only from a nonce-bound childSessionKey', () => {
+  assert.deepEqual(rCd4TaskObservation({
+    sessionKey: parent,
+    childSessionKey: 'agent:main:subagent:child',
+    title: `R-CD-4 task ${nonce}`,
+    status: 'completed',
+    traceId: 'a'.repeat(32),
+  }, nonce), {
+    childSessionKey: 'agent:main:subagent:child',
+    completed: true,
+    traceId: 'a'.repeat(32),
+  });
+});
+
+test('R-CD-4 rejects requester sessionKey and nested nonce as tasks.list child authority', () => {
+  const observation = rCd4TaskObservation({
+    sessionKey: 'agent:main:requester',
+    childSessionKey: 'agent:main:subagent:stale-child',
+    status: 'completed',
+    metadata: {
+      childSessionKey: 'agent:main:subagent:nested-current-child',
+      task: `unrelated ${nonce}`,
+    },
+  }, nonce);
+  assert.deepEqual(observation, {
+    childSessionKey: null,
+    completed: false,
+    traceId: null,
+  });
+  const targetCandidate = rCd4ReturnCandidate({
+    eventName: 'session.message',
+    eventData: {
+      sessionKey: target,
+      message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+    },
+    expectedSessionKey: target,
+    nonce,
+  });
+  assert.equal(rCd4ReturnReceipt(targetCandidate, observation.childSessionKey), null);
 });

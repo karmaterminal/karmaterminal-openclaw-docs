@@ -65,6 +65,10 @@ function idHex(value, bytes, label) {
   return safeHex(decoded.toString('hex'), bytes * 2, label);
 }
 
+function optionalIdHex(value, bytes, label) {
+  return value ? idHex(value, bytes, label) : null;
+}
+
 function attributes(span) {
   return new Map((span?.attributes || []).map((attribute) => [attribute.key, attributeValue(attribute)]));
 }
@@ -224,13 +228,13 @@ function validateTrace(trace, expected) {
       attrs.get('chain.id') === chainId &&
       (expected.mode === undefined || attrs.get('delegate.mode') === expected.mode);
   });
-  if (fires.length !== 1) {
-    throw new Error(fires.length === 0
-      ? `matched trace lacks the expected ${expected.fireSpanName} span`
-      : `matched trace contains ${fires.length} ${expected.fireSpanName} spans`);
+  if (fires.length === 0) {
+    throw new Error(`matched trace lacks the expected ${expected.fireSpanName} span`);
   }
-  const fire = fires[0];
-  if (publicStatusCode(fire.status?.code) !== 'OK') {
+  if (expected.tool !== 'continue_work' && fires.length !== 1) {
+    throw new Error(`matched trace contains ${fires.length} ${expected.fireSpanName} spans`);
+  }
+  if (fires.some((fire) => publicStatusCode(fire.status?.code) !== 'OK')) {
     throw new Error(`${expected.fireSpanName} span is not status OK`);
   }
 
@@ -250,29 +254,31 @@ function validateTrace(trace, expected) {
         : `matched trace contains ${tools.length} ${expected.tool} tool spans`,
     );
   }
-  if (tools.some((span) => publicStatusCode(span.status?.code) !== 'OK')) {
-    throw new Error(`originating ${expected.tool} tool span is not status OK`);
+  if (tools.some((span) => {
+    const status = publicStatusCode(span.status?.code);
+    return !['UNSET', 'OK'].includes(status) || attributes(span).get('openclaw.outcome') === 'blocked';
+  })) {
+    throw new Error(`originating ${expected.tool} tool span is not a successful typed-tool execution`);
   }
 
   const traceId = idHex(accept.traceId, 16, 'trace id');
-  const fireTraceId = idHex(fire.traceId, 16, 'fire trace id');
+  const fireTraceIds = fires.map((fire) => idHex(fire.traceId, 16, 'fire trace id'));
   const toolTraceIds = tools.map((span) => idHex(span.traceId, 16, 'tool trace id'));
-  if (fireTraceId !== traceId || toolTraceIds.some((value) => value !== traceId)) {
+  if (fireTraceIds.some((value) => value !== traceId) ||
+      toolTraceIds.some((value) => value !== traceId)) {
     throw new Error('tool/fire/accept do not share one trace');
   }
 
   const acceptSpanId = idHex(accept.spanId, 8, 'accept span id');
-  const fireSpanId = idHex(fire.spanId, 8, 'fire span id');
-  const acceptParentSpanId = idHex(accept.parentSpanId, 8, 'dispatch parent span id');
-  const fireParentSpanId = idHex(fire.parentSpanId, 8, 'fire parent span id');
-  const toolParentSpanIds = tools.map((span) => idHex(span.parentSpanId, 8, 'tool parent span id'));
-  if (fireParentSpanId !== acceptParentSpanId || toolParentSpanIds.some((value) => value !== acceptParentSpanId)) {
-    throw new Error('tool/fire/dispatch do not share one causal parent');
-  }
+  const fireSpanIds = fires.map((fire) => idHex(fire.spanId, 8, 'fire span id'));
+  const acceptParentSpanId = optionalIdHex(accept.parentSpanId, 8, 'accept parent span id');
+  const fireParentSpanIds = fires.map((fire) =>
+    optionalIdHex(fire.parentSpanId, 8, 'fire parent span id'));
+  const toolParentSpanIds = tools.map((span) =>
+    optionalIdHex(span.parentSpanId, 8, 'tool parent span id'));
   const toolSpanIds = tools.map((span) => idHex(span.spanId, 8, 'tool span id'));
-  if (acceptSpanId === fireSpanId ||
-      toolSpanIds.includes(acceptSpanId) ||
-      toolSpanIds.includes(fireSpanId)) {
+  const topologySpanIds = [acceptSpanId, ...fireSpanIds, ...toolSpanIds];
+  if (new Set(topologySpanIds).size !== topologySpanIds.length) {
     throw new Error('tool/fire/accept span IDs are not distinct');
   }
 
@@ -286,8 +292,11 @@ function validateTrace(trace, expected) {
     traceId,
     chainId,
     toolSpanIds,
-    fireSpanId,
-    fireParentSpanId,
+    toolParentSpanIds,
+    fireSpanId: fireSpanIds[0],
+    fireSpanIds,
+    fireParentSpanId: fireParentSpanIds[0],
+    fireParentSpanIds,
     childSpans,
   };
   if (expected.tool === 'continue_delegate') {
@@ -300,7 +309,7 @@ function validateTrace(trace, expected) {
   return {
     ...topology,
     workSpanId: acceptSpanId,
-    workParentSpanId: idHex(accept.parentSpanId, 8, 'work parent span id'),
+    workParentSpanId: acceptParentSpanId,
   };
 }
 

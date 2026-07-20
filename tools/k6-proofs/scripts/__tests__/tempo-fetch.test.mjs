@@ -6,6 +6,10 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {
+  projectPublicTempoTrace,
+  publicTempoStatusCode,
+} from '../../lib/public-tempo-trace.mjs';
 
 const script = path.resolve('tools/k6-proofs/scripts/fetch-tempo-trace.mjs');
 const runNode = promisify(execFile);
@@ -21,6 +25,36 @@ async function withServer(handler, fn) {
   }
 }
 
+test('projects numeric, short, and protobuf Tempo status forms without ambiguous fallback', () => {
+  const cases = [
+    [0, 'UNSET'],
+    ['UNSET', 'UNSET'],
+    ['STATUS_CODE_UNSET', 'UNSET'],
+    [1, 'OK'],
+    ['OK', 'OK'],
+    ['STATUS_CODE_OK', 'OK'],
+    [2, 'ERROR'],
+    ['ERROR', 'ERROR'],
+    ['STATUS_CODE_ERROR', 'ERROR'],
+  ];
+  for (const [input, expected] of cases) {
+    assert.equal(publicTempoStatusCode(input), expected);
+  }
+  assert.equal(publicTempoStatusCode('STATUS_CODE_FUTURE'), null);
+  assert.throws(
+    () => projectPublicTempoTrace({
+      trace: {
+        spans: [{
+          spanId: '0123456789abcdef',
+          name: 'openclaw.tool',
+          status: { code: 'STATUS_CODE_FUTURE' },
+        }],
+      },
+    }, '0123456789abcdef'),
+    /unsupported Tempo status code/,
+  );
+});
+
 test('fetches and projects Tempo trace JSON by trace id without persisting private fields', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'tempo-fetch-'));
   try {
@@ -31,7 +65,7 @@ test('fetches and projects Tempo trace JSON by trace id without persisting priva
         traceId: '0123456789abcdef',
         spanId: '0123456789abcdef',
         name: 'openclaw.tool',
-        status: { code: 2, message: 'private status text' },
+        status: { code: 'STATUS_CODE_ERROR', message: 'private status text' },
         attributes: [
           { key: 'openclaw.toolName', value: { stringValue: 'continue_work' } },
           { key: 'session.key', value: { stringValue: 'agent:private:session' } },

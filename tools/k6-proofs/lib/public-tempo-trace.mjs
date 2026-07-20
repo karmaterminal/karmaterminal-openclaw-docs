@@ -61,10 +61,11 @@ function publicTraceAttribute(attribute) {
 }
 
 export function publicTempoStatusCode(value) {
-  if (value === 0 || value === 'UNSET') return 'UNSET';
-  if (value === 1 || value === 'OK') return 'OK';
-  if (value === 2 || value === 'ERROR') return 'ERROR';
-  return 'UNSET';
+  if (value === undefined || value === null ||
+      value === 0 || value === 'UNSET' || value === 'STATUS_CODE_UNSET') return 'UNSET';
+  if (value === 1 || value === 'OK' || value === 'STATUS_CODE_OK') return 'OK';
+  if (value === 2 || value === 'ERROR' || value === 'STATUS_CODE_ERROR') return 'ERROR';
+  return null;
 }
 
 export function publicTempoSpanName(value) {
@@ -85,12 +86,16 @@ export function projectPublicTempoTrace(trace, traceId) {
     const spanId = safeSpanId(span.spanId, 8);
     if (!spanId) return [];
     const parentSpanId = safeSpanId(span.parentSpanId, 8);
+    const statusCode = publicTempoStatusCode(span.status?.code);
+    if (statusCode === null) {
+      throw new Error(`unsupported Tempo status code on ${name}`);
+    }
     return [{
       name,
       traceId,
       spanId,
       parentSpanId,
-      status: { code: publicTempoStatusCode(span.status?.code) },
+      status: { code: statusCode },
       attributes: (Array.isArray(span.attributes) ? span.attributes : [])
         .map(publicTraceAttribute)
         .filter(Boolean),

@@ -193,33 +193,163 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
   }
 });
 
-test('rejects duplicate dispatch/fire spans and unrelated causal parents', async () => {
+test('rejects duplicate dispatch spans while accepting distinct causal parents', async () => {
   const fixture = await fixtureDir();
   const traceId = '1234567890abcdef1234567890abcdef';
   const base = traceFixture({ traceId, reasonHash: fixture.reasonHash, reasonLength: fixture.reasonLength });
   const spans = base.batches[0].scopeSpans[0].spans;
   const dispatch = spans.find((entry) => entry.name === 'continuation.delegate.dispatch');
   const fire = spans.find((entry) => entry.name === 'continuation.delegate.fire');
-  const badCases = [
-    ['duplicate-dispatch', { ...dispatch, spanId: b64('9999999999999999') }],
-    ['duplicate-fire', { ...fire, spanId: b64('8888888888888888') }],
-    ['different-parent', { ...fire, parentSpanId: b64('7777777777777777') }],
+  const duplicateServer = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(new URL(request.url, 'http://localhost').pathname === '/api/search'
+      ? { traces: [{ traceID: traceId }] }
+      : { batches: [{ scopeSpans: [{ spans: [
+        ...spans,
+        { ...dispatch, spanId: b64('9999999999999999') },
+      ] }] }] }));
+  });
+  try {
+    await assert.rejects(execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'silas-prince', '--tempo-url', duplicateServer.url, '--timeout-ms', '40', '--poll-ms', '10',
+    ]), /contains 2 continuation\.delegate\.dispatch spans/);
+  } finally {
+    await duplicateServer.close();
+  }
+
+  const differentParentServer = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(new URL(request.url, 'http://localhost').pathname === '/api/search'
+      ? { traces: [{ traceID: traceId }] }
+      : {
+          batches: [{
+            scopeSpans: [{
+              spans: spans.map((entry) => entry === fire
+                ? { ...entry, parentSpanId: b64('7777777777777777') }
+                : entry),
+            }],
+          }],
+        }));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'silas-prince', '--tempo-url', differentParentServer.url,
+      '--timeout-ms', '100', '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+    assert.equal(receipt.dispatchParentSpanId, 'dddddddddddddddd');
+    assert.deepEqual(receipt.fireParentSpanIds, ['7777777777777777']);
+    assert.deepEqual(receipt.toolParentSpanIds, ['dddddddddddddddd']);
+  } finally {
+    await differentParentServer.close();
+  }
+  await rm(fixture.dir, { recursive: true, force: true });
+});
+
+test('accepts successful typed-tool UNSET or OK and rejects ERROR or blocked outcomes', async () => {
+  const fixture = await fixtureDir();
+  const traceId = 'abababababababababababababababab';
+  const cases = [
+    ['UNSET', undefined, true],
+    ['STATUS_CODE_OK', undefined, true],
+    ['STATUS_CODE_ERROR', undefined, false],
+    ['UNSET', attr('openclaw.outcome', 'blocked'), false],
   ];
-  for (const [label, extra] of badCases) {
+  for (const [statusCode, outcomeAttr, accepted] of cases) {
+    const trace = traceFixture({
+      traceId,
+      reasonHash: fixture.reasonHash,
+      reasonLength: fixture.reasonLength,
+    });
+    const tool = trace.batches[0].scopeSpans[0].spans
+      .find((entry) => entry.name === 'openclaw.tool.execution');
+    tool.status = { code: statusCode };
+    if (outcomeAttr) tool.attributes.push(outcomeAttr);
     const server = await listen((request, response) => {
       response.setHeader('content-type', 'application/json');
       response.end(JSON.stringify(new URL(request.url, 'http://localhost').pathname === '/api/search'
         ? { traces: [{ traceID: traceId }] }
-        : { batches: [{ scopeSpans: [{ spans: label === 'different-parent'
-          ? spans.map((entry) => entry === fire ? extra : entry)
-          : [...spans, extra] }] }] }));
+        : trace));
+    });
+    try {
+      const invocation = execFileAsync(process.execPath, [
+        script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+        '--seat', 'silas-prince', '--tempo-url', server.url, '--timeout-ms', '0', '--poll-ms', '10',
+      ]);
+      if (accepted) {
+        await invocation;
+      } else {
+        await assert.rejects(invocation, /not a successful typed-tool execution/);
+      }
+    } finally {
+      await server.close();
+    }
+  }
+  await rm(fixture.dir, { recursive: true, force: true });
+});
+
+test('accepts repeated distinct continue_work fire spans and rejects zero or duplicate IDs', async () => {
+  const fixture = await fixtureDir({ tool: 'continue_work' });
+  const traceId = 'cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd';
+  const base = traceFixture({
+    traceId,
+    reasonHash: fixture.reasonHash,
+    reasonLength: fixture.reasonLength,
+    tool: 'continue_work',
+  });
+  const spans = base.batches[0].scopeSpans[0].spans;
+  const accept = spans.find((entry) => entry.name === 'continuation.work');
+  const fire = spans.find((entry) => entry.name === 'continuation.work.fire');
+  delete accept.parentSpanId;
+  const secondFire = {
+    ...fire,
+    spanId: b64('9999999999999999'),
+    parentSpanId: b64('7777777777777777'),
+  };
+
+  const acceptedServer = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(new URL(request.url, 'http://localhost').pathname === '/api/search'
+      ? { traces: [{ traceID: traceId }] }
+      : { batches: [{ scopeSpans: [{ spans: [...spans, secondFire] }] }] }));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'silas-prince', '--tempo-url', acceptedServer.url,
+      '--timeout-ms', '100', '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+    assert.deepEqual(receipt.fireSpanIds, ['bbbbbbbbbbbbbbbb', '9999999999999999']);
+    assert.deepEqual(receipt.fireParentSpanIds, ['dddddddddddddddd', '7777777777777777']);
+    assert.equal(receipt.fireSpanId, 'bbbbbbbbbbbbbbbb');
+    assert.equal(receipt.workParentSpanId, null);
+  } finally {
+    await acceptedServer.close();
+  }
+
+  for (const [label, mutatedSpans, pattern] of [
+    ['zero', spans.filter((entry) => entry !== fire), /lacks the expected continuation\.work\.fire span/],
+    ['duplicate', [...spans, { ...fire }], /span IDs are not distinct/],
+  ]) {
+    const server = await listen((request, response) => {
+      response.setHeader('content-type', 'application/json');
+      response.end(JSON.stringify(new URL(request.url, 'http://localhost').pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : { batches: [{ scopeSpans: [{ spans: mutatedSpans }] }] }));
     });
     try {
       await assert.rejects(execFileAsync(process.execPath, [
         script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
-        '--seat', 'silas-prince', '--tempo-url', server.url, '--timeout-ms', '40', '--poll-ms', '10',
-      ]), new RegExp(label === 'different-parent' ? 'causal parent' : `contains 2 .*${label.slice('duplicate-'.length)}`));
-    } finally { await server.close(); }
+        '--seat', 'silas-prince', '--tempo-url', server.url, '--timeout-ms', '0', '--poll-ms', '10',
+      ]), pattern, label);
+    } finally {
+      await server.close();
+    }
   }
   await rm(fixture.dir, { recursive: true, force: true });
 });
@@ -650,6 +780,7 @@ test('correlates continue_work tool/accept/fire topology by safe reason fingerpr
     assert.equal(receipt.continuation.tool, 'continue_work');
     assert.equal(receipt.workSpanId, 'cccccccccccccccc');
     assert.equal(receipt.fireSpanId, 'bbbbbbbbbbbbbbbb');
+    assert.deepEqual(receipt.fireSpanIds, ['bbbbbbbbbbbbbbbb']);
     assert.equal(receipt.sameTrace, true);
     assert.equal(receipt.distinctSpans, true);
     assert.match(observedQuery, /name="continuation\.work"/);

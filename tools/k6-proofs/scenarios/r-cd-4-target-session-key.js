@@ -14,7 +14,11 @@ import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
-import { rCd4ReturnReceipt, rCd4SessionMessageObservation } from '../lib/r-cd-4-authority.mjs';
+import {
+  rCd4ReturnReceipt,
+  rCd4SessionMessageObservation,
+  rCd4TaskObservation,
+} from '../lib/r-cd-4-authority.mjs';
 import { closeSocketAfterDelay } from '../lib/socket-close.js';
 
 export const options = {
@@ -252,19 +256,20 @@ export default function () {
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
           const tasks = classified.payload?.tasks || [];
           for (const task of tasks) {
-            const taskStr = JSON.stringify(task);
-            if (taskStr.includes(rowNonce)) {
-              const possibleChild = task.childSessionKey || task.sessionKey || null;
-              if (possibleChild && possibleChild !== sessionKey && possibleChild !== targetSessionKey) {
-                evidence.child_session = possibleChild;
-                finalizeReturnReceipts();
-              }
-              if (task.state === 'completed' || task.status === 'completed') {
-                evidence.child_completed = true;
-                console.log('✓ Child task completed');
-              }
-              if (task.traceId) evidence.trace_id = task.traceId;
+            const observation = rCd4TaskObservation(task, rowNonce);
+            const possibleChild = observation.childSessionKey;
+            if (!possibleChild ||
+                possibleChild === sessionKey ||
+                possibleChild === targetSessionKey) {
+              continue;
             }
+            evidence.child_session = possibleChild;
+            finalizeReturnReceipts();
+            if (observation.completed) {
+              evidence.child_completed = true;
+              console.log('✓ Child task completed');
+            }
+            if (observation.traceId) evidence.trace_id = observation.traceId;
           }
         }
 

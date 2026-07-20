@@ -1,5 +1,8 @@
 import { directChildSessionKeyForRow } from './row-child-correlation.mjs';
 
+export const R_CD_4_OBSERVATION_WINDOW_MS = 90_000;
+export const R_CD_4_DURATION_THRESHOLD_MS = 110_000;
+
 const HARNESS_MARKER = '[k6-proof-harness]';
 
 function escapeRegex(value) {
@@ -127,6 +130,15 @@ export function rCd4TaskObservation(task, nonce) {
       ? task.traceId
       : null,
   };
+}
+
+/**
+ * A target receipt still needs the remaining observation window to prove that
+ * no matching parent receipt arrives later. A parent receipt is already a
+ * terminal target-only failure and may close early.
+ */
+export function rCd4ShouldScheduleEarlyClose({ parentReturnReceipt }) {
+  return parentReturnReceipt !== null && parentReturnReceipt !== undefined;
 }
 
 /** Finalize only after the row has independently observed its spawned child. */

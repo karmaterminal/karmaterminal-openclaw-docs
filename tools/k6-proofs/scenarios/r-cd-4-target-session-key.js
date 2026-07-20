@@ -15,8 +15,11 @@ import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
 import {
+  R_CD_4_DURATION_THRESHOLD_MS,
+  R_CD_4_OBSERVATION_WINDOW_MS,
   rCd4ReturnReceipt,
   rCd4SessionMessageObservation,
+  rCd4ShouldScheduleEarlyClose,
   rCd4TaskObservation,
 } from '../lib/r-cd-4-authority.mjs';
 import { closeSocketAfterDelay } from '../lib/socket-close.js';
@@ -32,7 +35,7 @@ export const options = {
   },
   thresholds: {
     proof_failures: ['count==0'],
-    r_cd_4_duration: ['p(95)<90000'],
+    r_cd_4_duration: [`p(95)<${R_CD_4_DURATION_THRESHOLD_MS}`],
   },
 };
 
@@ -189,7 +192,7 @@ export default function () {
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 8000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 25000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 50000);
-      socket.setTimeout(() => socket.close(), 90000);
+      socket.setTimeout(() => socket.close(), R_CD_4_OBSERVATION_WINDOW_MS);
     }
 
     socket.on('open', () => {
@@ -318,7 +321,9 @@ export default function () {
         }
 
         if (evidence.tool_accepted &&
-            (evidence.return_in_target || evidence.return_in_parent) &&
+            rCd4ShouldScheduleEarlyClose({
+              parentReturnReceipt: evidence.parent_return_receipt,
+            }) &&
             !returnCloseScheduled) {
           returnCloseScheduled = true;
           closeSocketAfterDelay(socket, 2000);

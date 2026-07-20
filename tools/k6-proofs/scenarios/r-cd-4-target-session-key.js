@@ -14,7 +14,7 @@ import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
-import { rCd4ReturnCandidate, rCd4ReturnReceipt } from '../lib/r-cd-4-authority.mjs';
+import { rCd4ReturnReceipt, rCd4SessionMessageObservation } from '../lib/r-cd-4-authority.mjs';
 import { closeSocketAfterDelay } from '../lib/socket-close.js';
 
 export const options = {
@@ -283,32 +283,31 @@ export default function () {
 
           if (eventName === 'session.message' && evidence.tool_accepted) {
             const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
-            if (elapsed >= evidence.wake_gate_ms) {
-              const targetCandidate = rCd4ReturnCandidate({
-                eventName,
-                eventData,
-                expectedSessionKey: targetSessionKey,
-                nonce: rowNonce,
-              });
-              const parentCandidate = rCd4ReturnCandidate({
-                eventName,
-                eventData,
-                expectedSessionKey: sessionKey,
-                nonce: rowNonce,
-              });
-              if (targetCandidate) {
-                evidence.target_return_candidate = targetCandidate;
-                evidence.agent_turn_observed = true;
-                console.log('✓ nonce-bound TARGET-RECEIVED candidate landed in target session');
-              }
-              if (parentCandidate) {
-                evidence.parent_return_candidate = parentCandidate;
-                console.warn('✗ nonce-bound TARGET-RECEIVED candidate landed in parent session');
-              }
-              finalizeReturnReceipts();
-            } else {
+            const observation = rCd4SessionMessageObservation({
+              eventName,
+              eventData,
+              targetSessionKey,
+              parentSessionKey: sessionKey,
+              nonce: rowNonce,
+              elapsedMs: elapsed,
+              wakeGateMs: evidence.wake_gate_ms,
+            });
+            if (observation.targetCandidate) {
+              evidence.target_return_candidate = observation.targetCandidate;
               evidence.agent_turn_observed = true;
-              console.log('✓ initial session.message event observed (dispatching agent turn)');
+              console.log('✓ nonce-bound TARGET-RECEIVED candidate landed in target session');
+            }
+            if (observation.parentCandidate) {
+              evidence.parent_return_candidate = observation.parentCandidate;
+              console.warn('✗ nonce-bound TARGET-RECEIVED candidate landed in parent session');
+            }
+            finalizeReturnReceipts();
+
+            if (!observation.targetCandidate && !observation.parentCandidate) {
+              evidence.agent_turn_observed = true;
+              console.log(observation.genericWakeObserved
+                ? '✓ generic post-gate session.message event observed'
+                : '✓ initial pre-gate session.message event observed (dispatching agent turn)');
             }
           }
         }

@@ -1,6 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rCd4ReturnCandidate, rCd4ReturnReceipt } from '../lib/r-cd-4-authority.mjs';
+import {
+  rCd4ReturnCandidate,
+  rCd4ReturnReceipt,
+  rCd4SessionMessageObservation,
+} from '../lib/r-cd-4-authority.mjs';
 
 const nonce = 'R-CD-4-EXACT-NONCE';
 const target = 'agent:main:r-cd-4-target';
@@ -100,4 +104,57 @@ test('R-CD-4 rejects a marker present only in sibling or nested metadata', () =>
     expectedSessionKey: target,
     nonce,
   }), null);
+});
+
+test('R-CD-4 retains an authoritative target receipt before the generic wake gate', () => {
+  const observation = rCd4SessionMessageObservation({
+    eventName: 'session.message',
+    eventData: {
+      sessionKey: target,
+      message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+    },
+    targetSessionKey: target,
+    parentSessionKey: parent,
+    nonce,
+    elapsedMs: 1_000,
+    wakeGateMs: 5_000,
+  });
+  assert.equal(observation.genericWakeObserved, false);
+  assert.equal(observation.parentCandidate, null);
+  assert.equal(observation.targetCandidate?.sessionKey, target);
+  assert.notEqual(rCd4ReturnReceipt(
+    observation.targetCandidate,
+    'agent:main:subagent:child',
+  ), null);
+});
+
+test('R-CD-4 retains an early parent receipt so a later target cannot false-PASS', () => {
+  const earlyParent = rCd4SessionMessageObservation({
+    eventName: 'session.message',
+    eventData: {
+      sessionKey: parent,
+      message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+    },
+    targetSessionKey: target,
+    parentSessionKey: parent,
+    nonce,
+    elapsedMs: 1_000,
+    wakeGateMs: 5_000,
+  });
+  const laterTarget = rCd4SessionMessageObservation({
+    eventName: 'session.message',
+    eventData: {
+      sessionKey: target,
+      message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+    },
+    targetSessionKey: target,
+    parentSessionKey: parent,
+    nonce,
+    elapsedMs: 6_000,
+    wakeGateMs: 5_000,
+  });
+  const child = 'agent:main:subagent:child';
+  assert.equal(earlyParent.genericWakeObserved, false);
+  assert.notEqual(rCd4ReturnReceipt(earlyParent.parentCandidate, child), null);
+  assert.notEqual(rCd4ReturnReceipt(laterTarget.targetCandidate, child), null);
 });

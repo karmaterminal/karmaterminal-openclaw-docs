@@ -68,6 +68,43 @@ export function rCd4ReturnCandidate({ eventName, eventData, expectedSessionKey, 
   };
 }
 
+/**
+ * Inspect return authority for every post-dispatch session.message.
+ *
+ * `wakeGateMs` is intentionally diagnostic-only: it tells the caller whether
+ * a generic message arrived after the expected wake delay, but it never gates
+ * nonce-bound target or parent authority. A legitimate continuation return can
+ * arrive before the generic wake timer, especially when delaySeconds is below
+ * the default observation gate.
+ */
+export function rCd4SessionMessageObservation({
+  eventName,
+  eventData,
+  targetSessionKey,
+  parentSessionKey,
+  nonce,
+  elapsedMs,
+  wakeGateMs,
+}) {
+  const elapsed = Number.isFinite(elapsedMs) ? elapsedMs : 0;
+  const gate = Number.isFinite(wakeGateMs) ? wakeGateMs : 0;
+  return {
+    targetCandidate: rCd4ReturnCandidate({
+      eventName,
+      eventData,
+      expectedSessionKey: targetSessionKey,
+      nonce,
+    }),
+    parentCandidate: rCd4ReturnCandidate({
+      eventName,
+      eventData,
+      expectedSessionKey: parentSessionKey,
+      nonce,
+    }),
+    genericWakeObserved: elapsed >= gate,
+  };
+}
+
 /** Finalize only after the row has independently observed its spawned child. */
 export function rCd4ReturnReceipt(candidate, childSessionKey) {
   if (!candidate || typeof childSessionKey !== 'string' || childSessionKey.length === 0) {

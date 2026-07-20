@@ -148,7 +148,12 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
       assert.match(scenario, /reason_hash:\s*null/);
       assert.match(scenario, /reason_length:\s*null/);
       assert.match(scenario, /delegate_mode:\s*null/);
-      assert.match(scenario, /promptTemplate\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,/);
+      if (manifest.rowId === 'R-CD-4') {
+        assert.match(manifest.invocation.promptTemplate, /^RCD4:\{\{nonceSuffix16\}\}/);
+        assert.match(scenario, /rCd4TaskPrompt\(inv\.promptTemplate,\s*rowNonce\)/);
+      } else {
+        assert.match(scenario, /promptTemplate\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,/);
+      }
     }
   }
 

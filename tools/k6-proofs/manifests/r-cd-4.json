@@ -30,7 +30,7 @@
     "mode": "silent-wake",
     "delaySeconds": 1,
     "targetSessionKey": "${OPENCLAW_TARGET_SESSION_KEY}",
-    "promptTemplate": "Proof nonce {{nonce}}: reply with TARGET-RECEIVED and the nonce. Do not mutate files.",
+    "promptTemplate": "RCD4:{{nonceSuffix16}} Proof nonce {{nonce}}: reply with TARGET-RECEIVED and the nonce. Do not mutate files.",
     "idempotencyKeyPrefix": "R-CD-4"
   },
   "expectedReceipts": [

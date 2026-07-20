@@ -1,15 +1,23 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  R_CD_4_DURATION_THRESHOLD_MS,
+  R_CD_4_OBSERVATION_WINDOW_MS,
   rCd4ReturnCandidate,
   rCd4ReturnReceipt,
   rCd4SessionMessageObservation,
+  rCd4ShouldScheduleEarlyClose,
   rCd4TaskObservation,
 } from '../lib/r-cd-4-authority.mjs';
 
 const nonce = 'R-CD-4-EXACT-NONCE';
 const target = 'agent:main:r-cd-4-target';
 const parent = 'agent:main:r-cd-4-parent';
+
+test('R-CD-4 duration threshold leaves headroom after the full observation window', () => {
+  assert.ok(R_CD_4_DURATION_THRESHOLD_MS > R_CD_4_OBSERVATION_WINDOW_MS);
+  assert.ok(R_CD_4_DURATION_THRESHOLD_MS < 120_000);
+});
 
 test('R-CD-4 accepts only the exact target marker and binds child identity', () => {
   const candidate = rCd4ReturnCandidate({
@@ -199,4 +207,33 @@ test('R-CD-4 rejects requester sessionKey and nested nonce as tasks.list child a
     nonce,
   });
   assert.equal(rCd4ReturnReceipt(targetCandidate, observation.childSessionKey), null);
+});
+
+test('R-CD-4 keeps observing after a target receipt but closes early on parent failure', () => {
+  const child = 'agent:main:subagent:child';
+  const targetReceipt = rCd4ReturnReceipt(rCd4ReturnCandidate({
+    eventName: 'session.message',
+    eventData: {
+      sessionKey: target,
+      message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+    },
+    expectedSessionKey: target,
+    nonce,
+  }), child);
+  const parentReceipt = rCd4ReturnReceipt(rCd4ReturnCandidate({
+    eventName: 'session.message',
+    eventData: {
+      sessionKey: parent,
+      message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+    },
+    expectedSessionKey: parent,
+    nonce,
+  }), child);
+
+  assert.equal(rCd4ShouldScheduleEarlyClose({ parentReturnReceipt: null }), false);
+  assert.equal(rCd4ShouldScheduleEarlyClose({
+    targetReturnReceipt: targetReceipt,
+    parentReturnReceipt: null,
+  }), false);
+  assert.equal(rCd4ShouldScheduleEarlyClose({ parentReturnReceipt: parentReceipt }), true);
 });

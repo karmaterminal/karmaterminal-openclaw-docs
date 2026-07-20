@@ -88,7 +88,11 @@ function traceContract(manifest, evidence) {
   if (tool === 'continue_delegate') {
     const template = manifest?.invocation?.promptTemplate;
     if (!template) throw new Error('continue_delegate manifest promptTemplate is required');
-    if (nonce) reason = String(template).replaceAll('{{nonce}}', String(nonce));
+    if (nonce) {
+      reason = String(template)
+        .replaceAll('{{nonceSuffix16}}', String(nonce).slice(-16))
+        .replaceAll('{{nonce}}', String(nonce));
+    }
     const manifestMode = manifest.invocation.mode;
     const evidenceMode = evidence.delegate_mode;
     if (manifestMode && evidenceMode && manifestMode !== evidenceMode) {

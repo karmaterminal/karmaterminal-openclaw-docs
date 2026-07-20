@@ -13,14 +13,17 @@ import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
-import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
+import { childSessionKeysForRow } from '../lib/row-child-correlation.mjs';
 import {
   R_CD_4_DURATION_THRESHOLD_MS,
   R_CD_4_OBSERVATION_WINDOW_MS,
+  rCd4ChildAuthority,
   rCd4ReturnReceipt,
   rCd4SessionMessageObservation,
   rCd4ShouldScheduleEarlyClose,
+  rCd4TaskIdentityToken,
   rCd4TaskObservation,
+  rCd4TaskPrompt,
 } from '../lib/r-cd-4-authority.mjs';
 import { closeSocketAfterDelay } from '../lib/socket-close.js';
 
@@ -48,7 +51,7 @@ const DEFAULTS = {
   seat: 'ronan-dgx',
   mode: 'silent-wake',
   delaySeconds: 1,
-  promptTemplate: 'Proof nonce {{nonce}}: reply with TARGET-RECEIVED and the nonce. Do not mutate files. Do not post to any channel.',
+  promptTemplate: 'RCD4:{{nonceSuffix16}} Proof nonce {{nonce}}: reply with TARGET-RECEIVED and the nonce. Do not mutate files. Do not post to any channel.',
   idempotencyKeyPrefix: 'R-CD-4',
 };
 
@@ -76,6 +79,7 @@ export default function () {
   const createDisposableSessions = boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSIONS') || boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSION');
   const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CD-4');
+  const taskIdentityToken = rCd4TaskIdentityToken(rowNonce);
   const inv = invocationCfg();
   let targetSessionKey = inv.targetSessionKey;
 
@@ -102,6 +106,7 @@ export default function () {
     row: 'R-CD-4',
     manifest_loaded: !!manifest,
     nonce: rowNonce,
+    task_identity_token: taskIdentityToken,
     seat,
     requestedSessionKey,
     sessionKey,
@@ -116,6 +121,9 @@ export default function () {
     agent_turn_observed: false,
     child_completed: false,
     child_session: null,
+    child_session_candidates: [],
+    child_session_ambiguous: false,
+    child_session_invalid: false,
     return_in_target: false,
     return_in_parent: false,
     target_return_candidate: null,
@@ -154,6 +162,29 @@ export default function () {
       }
     }
 
+    function observeChildSessionKey(possibleChild) {
+      if (!possibleChild) return false;
+      const authority = rCd4ChildAuthority([
+        ...evidence.child_session_candidates,
+        possibleChild,
+      ]);
+      evidence.child_session_candidates = authority.observedChildSessionKeys;
+      evidence.child_session_invalid = evidence.child_session_candidates
+        .some((value) => value === sessionKey || value === targetSessionKey);
+      evidence.child_session = evidence.child_session_invalid
+        ? null
+        : authority.childSessionKey;
+      evidence.child_session_ambiguous = authority.ambiguous;
+      if (authority.ambiguous || evidence.child_session_invalid) {
+        evidence.child_completed = false;
+        console.warn('✗ conflicting or invalid nonce-bound child identity observed');
+      }
+      finalizeReturnReceipts();
+      return !authority.ambiguous &&
+        !evidence.child_session_invalid &&
+        authority.childSessionKey === possibleChild;
+    }
+
     function createParent(socket) {
       createPhase = 'parent';
       const parentKey = `r-cd-4-parent-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
@@ -177,7 +208,7 @@ export default function () {
       tracker.send(socket, 'sessions.messages.subscribe', { key: targetSessionKey });
 
       socket.setTimeout(() => {
-        const prompt = inv.promptTemplate.replace(/\{\{nonce\}\}/g, rowNonce);
+        const prompt = rCd4TaskPrompt(inv.promptTemplate, rowNonce);
         evidence.reason_hash = crypto.sha256(prompt, 'hex').slice(0, 16);
         evidence.reason_length = prompt.length;
         evidence.delegate_mode = inv.mode;
@@ -261,13 +292,9 @@ export default function () {
           for (const task of tasks) {
             const observation = rCd4TaskObservation(task, rowNonce);
             const possibleChild = observation.childSessionKey;
-            if (!possibleChild ||
-                possibleChild === sessionKey ||
-                possibleChild === targetSessionKey) {
+            if (!observeChildSessionKey(possibleChild)) {
               continue;
             }
-            evidence.child_session = possibleChild;
-            finalizeReturnReceipts();
             if (observation.completed) {
               evidence.child_completed = true;
               console.log('✓ Child task completed');
@@ -279,10 +306,13 @@ export default function () {
         if (classified.kind === 'event') {
           const eventName = classified.event || '';
           const eventData = classified.data || {};
-          const observedChild = childSessionKeyForRow(eventData, rowNonce);
-          if (observedChild && observedChild !== sessionKey && observedChild !== targetSessionKey) {
-            evidence.child_session = observedChild;
-            finalizeReturnReceipts();
+          const observedChildren = childSessionKeysForRow(
+            eventData,
+            rowNonce,
+            taskIdentityToken ? [taskIdentityToken] : [],
+          );
+          for (const observedChild of observedChildren) {
+            observeChildSessionKey(observedChild);
           }
 
           if (eventName === 'agent' && evidence.tool_accepted) {
@@ -348,17 +378,22 @@ export default function () {
     'dispatch accepted': () => evidence.tool_accepted,
     'dispatching agent turn observed': () => evidence.agent_turn_observed,
     'nonce-bound child identity observed': () => evidence.child_session !== null,
+    'nonce-bound child identity is unambiguous': () => !evidence.child_session_ambiguous,
+    'nonce-bound child identity is not parent or target': () => !evidence.child_session_invalid,
     'nonce-bound target return receipt observed': () => evidence.target_return_receipt !== null,
     'no nonce-bound parent return receipt': () => evidence.parent_return_receipt === null,
   });
 
   if (!evidence.tool_accepted || !evidence.agent_turn_observed || !evidence.child_session ||
+      evidence.child_session_ambiguous || evidence.child_session_invalid ||
       !evidence.target_return_receipt || evidence.parent_return_receipt) {
     failures.add(1);
   }
 
   const passed = evidence.tool_accepted && evidence.agent_turn_observed &&
-    evidence.child_session !== null && evidence.target_return_receipt !== null &&
+    evidence.child_session !== null && !evidence.child_session_ambiguous &&
+    !evidence.child_session_invalid &&
+    evidence.target_return_receipt !== null &&
     evidence.parent_return_receipt === null;
 
   console.log(`R_CD_4_EVIDENCE ${JSON.stringify(evidence)}`);

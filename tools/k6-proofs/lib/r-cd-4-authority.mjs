@@ -4,6 +4,7 @@ export const R_CD_4_OBSERVATION_WINDOW_MS = 90_000;
 export const R_CD_4_DURATION_THRESHOLD_MS = 110_000;
 
 const HARNESS_MARKER = '[k6-proof-harness]';
+const R_CD_4_TASK_TOKEN_SUFFIX_CHARS = 16;
 
 function escapeRegex(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -73,6 +74,31 @@ export function rCd4ReturnCandidate({ eventName, eventData, expectedSessionKey, 
   };
 }
 
+export function rCd4TaskIdentityToken(nonce) {
+  if (typeof nonce !== 'string' || nonce.length === 0) return null;
+  return `RCD4:${nonce.slice(-R_CD_4_TASK_TOKEN_SUFFIX_CHARS)}`;
+}
+
+export function rCd4TaskPrompt(template, nonce) {
+  if (typeof template !== 'string' || typeof nonce !== 'string' || nonce.length === 0) {
+    return null;
+  }
+  return template
+    .replaceAll('{{nonceSuffix16}}', nonce.slice(-R_CD_4_TASK_TOKEN_SUFFIX_CHARS))
+    .replaceAll('{{nonce}}', nonce);
+}
+
+export function rCd4ChildAuthority(candidates) {
+  const observedChildSessionKeys = [...new Set(
+    candidates.filter((value) => typeof value === 'string' && value.length > 0),
+  )];
+  return {
+    observedChildSessionKeys,
+    childSessionKey: observedChildSessionKeys.length === 1 ? observedChildSessionKeys[0] : null,
+    ambiguous: observedChildSessionKeys.length > 1,
+  };
+}
+
 /**
  * Inspect return authority for every post-dispatch session.message.
  *
@@ -115,7 +141,12 @@ export function rCd4SessionMessageObservation({
  * binds its real childSessionKey to this row nonce.
  */
 export function rCd4TaskObservation(task, nonce) {
-  const childSessionKey = directChildSessionKeyForRow(task, nonce);
+  const taskIdentityToken = rCd4TaskIdentityToken(nonce);
+  const childSessionKey = directChildSessionKeyForRow(
+    task,
+    nonce,
+    taskIdentityToken ? [taskIdentityToken] : [],
+  );
   if (!childSessionKey) {
     return {
       childSessionKey: null,

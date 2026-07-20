@@ -49,8 +49,9 @@ node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \
 The command refuses a SHA/source mismatch, a missing or altered candidate
 lockfile, or any failure to create and remove its disposable worktree. It runs
 `pnpm install --frozen-lockfile --prefer-offline` only in that disposable
-worktree, never trusts or mutates source `node_modules`, starts a gateway,
-writes OpenClaw config, or touches durable fleet state. It produces `boundary-matrix.json`,
+worktree using the exact version and sha512 integrity pinned by the candidate.
+It never trusts or mutates source `node_modules`, starts a gateway, writes
+OpenClaw config, or touches durable fleet state. It produces `boundary-matrix.json`,
 `dispatch-boundary-suite.json`, `typed-tool-surface.json`, and `cleanup.json`.
 Any missing or failed receipt is `FAIL-fixture`, never a PASS.
 

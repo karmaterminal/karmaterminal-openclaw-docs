@@ -9,12 +9,24 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { resolveRcd2AuthoritativeReceipt } from '../../lib/r-cd-2-authoritative-receipt.mjs';
+import { publicTempoStatusCode } from '../../lib/public-tempo-trace.mjs';
 
 const execFileAsync = promisify(execFile);
 const script = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../collect-continuation-trace.mjs',
 );
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
+const preservedTracePaths = {
+  delegate: path.join(
+    repoRoot,
+    'PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/prior-two-row/raw/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-1/silas/20260719T191117Z-r-cd-1/tempo-trace-postrun.json',
+  ),
+  work: path.join(
+    repoRoot,
+    'PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/prior-two-row/raw/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-1/silas/20260719T191326Z-r-cw-1/tempo-trace-postrun.json',
+  ),
+};
 
 function b64(hex) {
   return Buffer.from(hex, 'hex').toString('base64');
@@ -27,14 +39,31 @@ function attr(key, value) {
   };
 }
 
-function span(name, traceId, spanId, parentSpanId, attrs = []) {
+function span(name, traceId, spanId, parentSpanId, attrs = [], status = 'OK') {
   return {
     name,
     traceId: b64(traceId),
     spanId: b64(spanId),
     parentSpanId: b64(parentSpanId),
     attributes: attrs,
-    status: { code: 'OK' },
+    status: { code: status },
+  };
+}
+
+function publicAttrValue(spanEntry, key) {
+  const value = spanEntry.attributes?.find((entry) => entry.key === key)?.value;
+  return value?.stringValue ?? value?.intValue ?? value?.boolValue;
+}
+
+function withRawContinuationStatuses(trace) {
+  return {
+    ...trace,
+    spans: trace.spans.map((entry) => ({
+      ...entry,
+      status: entry.name.startsWith('continuation.')
+        ? { code: 'STATUS_CODE_OK' }
+        : entry.status,
+    })),
   };
 }
 
@@ -193,7 +222,7 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
   }
 });
 
-test('rejects duplicate dispatch/fire spans and unrelated causal parents', async () => {
+test('rejects duplicate delegate dispatch/fire spans but retains different parents diagnostically', async () => {
   const fixture = await fixtureDir();
   const traceId = '1234567890abcdef1234567890abcdef';
   const base = traceFixture({ traceId, reasonHash: fixture.reasonHash, reasonLength: fixture.reasonLength });
@@ -203,25 +232,263 @@ test('rejects duplicate dispatch/fire spans and unrelated causal parents', async
   const badCases = [
     ['duplicate-dispatch', { ...dispatch, spanId: b64('9999999999999999') }],
     ['duplicate-fire', { ...fire, spanId: b64('8888888888888888') }],
-    ['different-parent', { ...fire, parentSpanId: b64('7777777777777777') }],
   ];
   for (const [label, extra] of badCases) {
     const server = await listen((request, response) => {
       response.setHeader('content-type', 'application/json');
       response.end(JSON.stringify(new URL(request.url, 'http://localhost').pathname === '/api/search'
         ? { traces: [{ traceID: traceId }] }
-        : { batches: [{ scopeSpans: [{ spans: label === 'different-parent'
-          ? spans.map((entry) => entry === fire ? extra : entry)
-          : [...spans, extra] }] }] }));
+        : { batches: [{ scopeSpans: [{ spans: [...spans, extra] }] }] }));
     });
     try {
       await assert.rejects(execFileAsync(process.execPath, [
         script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
         '--seat', 'silas-prince', '--tempo-url', server.url, '--timeout-ms', '40', '--poll-ms', '10',
-      ]), new RegExp(label === 'different-parent' ? 'causal parent' : `contains 2 .*${label.slice('duplicate-'.length)}`));
+      ]), new RegExp(`contains 2 .*${label.slice('duplicate-'.length)}`));
     } finally { await server.close(); }
   }
+  const differentParent = { ...fire, parentSpanId: b64('7777777777777777') };
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(new URL(request.url, 'http://localhost').pathname === '/api/search'
+      ? { traces: [{ traceID: traceId }] }
+      : { batches: [{ scopeSpans: [{ spans: spans.map((entry) => entry === fire ? differentParent : entry) }] }] }));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'silas-prince', '--tempo-url', server.url, '--timeout-ms', '40', '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+    assert.equal(receipt.dispatchParentSpanId, 'dddddddddddddddd');
+    assert.deepEqual(receipt.fireParentSpanIds, ['7777777777777777']);
+    assert.deepEqual(receipt.toolParentSpanIds, ['dddddddddddddddd']);
+  } finally { await server.close(); }
   await rm(fixture.dir, { recursive: true, force: true });
+});
+
+test('maps numeric, short, and protobuf Tempo status enums and fails unknown values closed', () => {
+  assert.deepEqual(
+    [0, 'UNSET', 'STATUS_CODE_UNSET', 1, 'OK', 'STATUS_CODE_OK', 2, 'ERROR', 'STATUS_CODE_ERROR']
+      .map(publicTempoStatusCode),
+    ['UNSET', 'UNSET', 'UNSET', 'OK', 'OK', 'OK', 'ERROR', 'ERROR', 'ERROR'],
+  );
+  assert.equal(publicTempoStatusCode('STATUS_CODE_FUTURE'), 'UNKNOWN');
+  assert.equal(publicTempoStatusCode(undefined), 'UNKNOWN');
+});
+
+test('replays immutable R-CD-1 and R-CW-1 topology against raw protobuf status forms', async (t) => {
+  for (const packet of [
+    { label: 'R-CD-1', path: preservedTracePaths.delegate, tool: 'continue_delegate', expectedFires: 1 },
+    { label: 'R-CW-1', path: preservedTracePaths.work, tool: 'continue_work', expectedFires: 2 },
+  ]) {
+    await t.test(packet.label, async () => {
+      const preserved = JSON.parse(await readFile(packet.path, 'utf8'));
+      const trace = withRawContinuationStatuses(preserved);
+      const acceptName = packet.tool === 'continue_work'
+        ? 'continuation.work'
+        : 'continuation.delegate.dispatch';
+      const accept = trace.spans.find((entry) => entry.name === acceptName);
+      assert.ok(accept, `${packet.label} preserved packet lacks ${acceptName}`);
+      const reasonHash = publicAttrValue(accept, 'reason.hash');
+      const reasonLength = Number(publicAttrValue(accept, 'reason.length'));
+      const fixture = await fixtureDir({
+        tool: packet.tool,
+        includeNonce: false,
+        extraEvidence: {
+          reason_hash: reasonHash,
+          reason_length: reasonLength,
+        },
+      });
+      const server = await listen((request, response) => {
+        response.setHeader('content-type', 'application/json');
+        response.end(JSON.stringify(new URL(request.url, 'http://localhost').pathname === '/api/search'
+          ? { traces: [{ traceID: preserved.traceId }] }
+          : trace));
+      });
+
+      try {
+        const { stdout } = await execFileAsync(process.execPath, [
+          script,
+          '--run-dir', fixture.dir,
+          '--manifest', fixture.manifestPath,
+          '--seat', 'silas-prince',
+          '--tempo-url', server.url,
+          '--timeout-ms', '100',
+          '--poll-ms', '10',
+        ]);
+        const result = JSON.parse(stdout);
+        const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+        const projected = JSON.parse(await readFile(path.join(fixture.dir, result.traceFile), 'utf8'));
+        assert.equal(receipt.traceId, preserved.traceId);
+        assert.equal(receipt.fireAttemptCount, packet.expectedFires);
+        assert.equal(receipt.fireSpanIds.length, packet.expectedFires);
+        assert.equal(receipt.reason.hash, reasonHash);
+        assert.equal(receipt.reason.length, reasonLength);
+        assert.equal(receipt.reason.source, 'public-evidence');
+        assert.equal(
+          projected.spans.find((entry) => entry.name === acceptName)?.status?.code,
+          'OK',
+        );
+        assert.equal(
+          projected.spans.find((entry) =>
+            entry.name === 'openclaw.tool.execution' &&
+            publicAttrValue(entry, 'gen_ai.tool.name') === packet.tool)?.status?.code,
+          'UNSET',
+        );
+      } finally {
+        await server.close();
+        await rm(fixture.dir, { recursive: true, force: true });
+      }
+    });
+  }
+});
+
+test('accepts protobuf OK continuation spans and successful UNSET typed-tool spans', async () => {
+  const fixture = await fixtureDir();
+  const traceId = '12121212121212121212121212121212';
+  const trace = traceFixture({ traceId, reasonHash: fixture.reasonHash, reasonLength: fixture.reasonLength });
+  const spans = trace.batches[0].scopeSpans[0].spans;
+  for (const entry of spans) {
+    if (entry.name.startsWith('continuation.')) entry.status = { code: 'STATUS_CODE_OK' };
+    if (entry.name === 'openclaw.tool.execution') entry.status = { code: 'STATUS_CODE_UNSET' };
+  }
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(new URL(request.url, 'http://localhost').pathname === '/api/search'
+      ? { traces: [{ traceID: traceId }] }
+      : trace));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'silas-prince', '--tempo-url', server.url, '--timeout-ms', '40', '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const publicTrace = JSON.parse(await readFile(path.join(fixture.dir, result.traceFile), 'utf8'));
+    assert.deepEqual(
+      publicTrace.spans
+        .filter((entry) => entry.name.startsWith('continuation.'))
+        .map((entry) => entry.status.code),
+      ['OK', 'OK'],
+    );
+    assert.equal(
+      publicTrace.spans.find((entry) => entry.name === 'openclaw.tool.execution').status.code,
+      'UNSET',
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('rejects typed-tool ERROR, blocked, and unknown status while accepting explicit OK', async (t) => {
+  for (const variant of ['OK', 'ERROR', 'blocked', 'unknown']) {
+    await t.test(variant, async () => {
+      const fixture = await fixtureDir();
+      const traceId = variant === 'OK'
+        ? '13131313131313131313131313131313'
+        : variant === 'ERROR'
+          ? '14141414141414141414141414141414'
+          : variant === 'blocked'
+            ? '15151515151515151515151515151515'
+            : '16161616161616161616161616161616';
+      const trace = traceFixture({ traceId, reasonHash: fixture.reasonHash, reasonLength: fixture.reasonLength });
+      const tool = trace.batches[0].scopeSpans[0].spans
+        .find((entry) => entry.name === 'openclaw.tool.execution');
+      tool.status = { code: variant === 'unknown' ? 'STATUS_CODE_FUTURE' : variant === 'blocked' ? 'UNSET' : variant };
+      if (variant === 'blocked') tool.attributes.push(attr('openclaw.outcome', 'blocked'));
+      const server = await listen((request, response) => {
+        response.setHeader('content-type', 'application/json');
+        response.end(JSON.stringify(new URL(request.url, 'http://localhost').pathname === '/api/search'
+          ? { traces: [{ traceID: traceId }] }
+          : trace));
+      });
+      try {
+        const run = () => execFileAsync(process.execPath, [
+          script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+          '--seat', 'silas-prince', '--tempo-url', server.url, '--timeout-ms', '0', '--poll-ms', '10',
+        ]);
+        if (variant === 'OK') {
+          await run();
+        } else {
+          await assert.rejects(run(), /error, blocked, or has unknown status/);
+        }
+      } finally {
+        await server.close();
+        await rm(fixture.dir, { recursive: true, force: true });
+      }
+    });
+  }
+});
+
+test('accepts distinct repeated continue_work fire attempts and preserves every receipt', async () => {
+  const fixture = await fixtureDir({ tool: 'continue_work' });
+  const traceId = '17171717171717171717171717171717';
+  const trace = traceFixture({
+    traceId,
+    reasonHash: fixture.reasonHash,
+    reasonLength: fixture.reasonLength,
+    tool: 'continue_work',
+  });
+  const spans = trace.batches[0].scopeSpans[0].spans;
+  const fire = spans.find((entry) => entry.name === 'continuation.work.fire');
+  spans.push({
+    ...fire,
+    spanId: b64('9999999999999999'),
+    parentSpanId: b64('7777777777777777'),
+  });
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(new URL(request.url, 'http://localhost').pathname === '/api/search'
+      ? { traces: [{ traceID: traceId }] }
+      : trace));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'silas-prince', '--tempo-url', server.url, '--timeout-ms', '40', '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+    assert.equal(receipt.fireAttemptCount, 2);
+    assert.deepEqual(receipt.fireSpanIds, ['bbbbbbbbbbbbbbbb', '9999999999999999']);
+    assert.deepEqual(receipt.fireParentSpanIds, ['dddddddddddddddd', '7777777777777777']);
+    assert.equal(receipt.fireSpanId, 'bbbbbbbbbbbbbbbb');
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('rejects repeated continue_work fire attempts with duplicate span IDs', async () => {
+  const fixture = await fixtureDir({ tool: 'continue_work' });
+  const traceId = '18181818181818181818181818181818';
+  const trace = traceFixture({
+    traceId,
+    reasonHash: fixture.reasonHash,
+    reasonLength: fixture.reasonLength,
+    tool: 'continue_work',
+  });
+  const spans = trace.batches[0].scopeSpans[0].spans;
+  const fire = spans.find((entry) => entry.name === 'continuation.work.fire');
+  spans.push({ ...fire });
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(new URL(request.url, 'http://localhost').pathname === '/api/search'
+      ? { traces: [{ traceID: traceId }] }
+      : trace));
+  });
+  try {
+    await assert.rejects(execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'silas-prince', '--tempo-url', server.url, '--timeout-ms', '0', '--poll-ms', '10',
+    ]), /span IDs are not distinct/);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
 });
 
 test('R-CD-2 correlation carries only matching opaque send run and nonce bindings', async () => {

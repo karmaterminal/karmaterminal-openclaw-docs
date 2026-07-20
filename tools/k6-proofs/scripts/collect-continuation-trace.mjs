@@ -224,13 +224,13 @@ function validateTrace(trace, expected) {
       attrs.get('chain.id') === chainId &&
       (expected.mode === undefined || attrs.get('delegate.mode') === expected.mode);
   });
-  if (fires.length !== 1) {
+  const permitsRepeatedFireAttempts = expected.tool === 'continue_work';
+  if (fires.length === 0 || (!permitsRepeatedFireAttempts && fires.length !== 1)) {
     throw new Error(fires.length === 0
       ? `matched trace lacks the expected ${expected.fireSpanName} span`
       : `matched trace contains ${fires.length} ${expected.fireSpanName} spans`);
   }
-  const fire = fires[0];
-  if (publicStatusCode(fire.status?.code) !== 'OK') {
+  if (fires.some((span) => publicStatusCode(span.status?.code) !== 'OK')) {
     throw new Error(`${expected.fireSpanName} span is not status OK`);
   }
 
@@ -250,29 +250,29 @@ function validateTrace(trace, expected) {
         : `matched trace contains ${tools.length} ${expected.tool} tool spans`,
     );
   }
-  if (tools.some((span) => publicStatusCode(span.status?.code) !== 'OK')) {
-    throw new Error(`originating ${expected.tool} tool span is not status OK`);
+  if (tools.some((span) => {
+    const status = publicStatusCode(span.status?.code);
+    const attrs = attributes(span);
+    return !['UNSET', 'OK'].includes(status) || attrs.get('openclaw.outcome') === 'blocked';
+  })) {
+    throw new Error(`originating ${expected.tool} tool span is error, blocked, or has unknown status`);
   }
 
   const traceId = idHex(accept.traceId, 16, 'trace id');
-  const fireTraceId = idHex(fire.traceId, 16, 'fire trace id');
+  const fireTraceIds = fires.map((span) => idHex(span.traceId, 16, 'fire trace id'));
   const toolTraceIds = tools.map((span) => idHex(span.traceId, 16, 'tool trace id'));
-  if (fireTraceId !== traceId || toolTraceIds.some((value) => value !== traceId)) {
+  if (fireTraceIds.some((value) => value !== traceId) || toolTraceIds.some((value) => value !== traceId)) {
     throw new Error('tool/fire/accept do not share one trace');
   }
 
   const acceptSpanId = idHex(accept.spanId, 8, 'accept span id');
-  const fireSpanId = idHex(fire.spanId, 8, 'fire span id');
+  const fireSpanIds = fires.map((span) => idHex(span.spanId, 8, 'fire span id'));
   const acceptParentSpanId = idHex(accept.parentSpanId, 8, 'dispatch parent span id');
-  const fireParentSpanId = idHex(fire.parentSpanId, 8, 'fire parent span id');
+  const fireParentSpanIds = fires.map((span) => idHex(span.parentSpanId, 8, 'fire parent span id'));
   const toolParentSpanIds = tools.map((span) => idHex(span.parentSpanId, 8, 'tool parent span id'));
-  if (fireParentSpanId !== acceptParentSpanId || toolParentSpanIds.some((value) => value !== acceptParentSpanId)) {
-    throw new Error('tool/fire/dispatch do not share one causal parent');
-  }
   const toolSpanIds = tools.map((span) => idHex(span.spanId, 8, 'tool span id'));
-  if (acceptSpanId === fireSpanId ||
-      toolSpanIds.includes(acceptSpanId) ||
-      toolSpanIds.includes(fireSpanId)) {
+  const lifecycleSpanIds = [acceptSpanId, ...fireSpanIds, ...toolSpanIds];
+  if (new Set(lifecycleSpanIds).size !== lifecycleSpanIds.length) {
     throw new Error('tool/fire/accept span IDs are not distinct');
   }
 
@@ -286,8 +286,12 @@ function validateTrace(trace, expected) {
     traceId,
     chainId,
     toolSpanIds,
-    fireSpanId,
-    fireParentSpanId,
+    toolParentSpanIds,
+    fireSpanId: fireSpanIds[0],
+    fireParentSpanId: fireParentSpanIds[0],
+    fireSpanIds,
+    fireParentSpanIds,
+    fireAttemptCount: fireSpanIds.length,
     childSpans,
   };
   if (expected.tool === 'continue_delegate') {

@@ -2,6 +2,7 @@ const PUBLIC_TRACE_ATTRIBUTE_KEYS = new Set([
   'chain.id',
   'delegate.mode',
   'gen_ai.tool.name',
+  'openclaw.outcome',
   'openclaw.toolName',
   'reason.hash',
   'reason.length',
@@ -19,6 +20,9 @@ export function allTempoSpans(trace) {
       (batch.scopeSpans || batch.instrumentationLibrarySpans || []).flatMap((scope) => scope.spans || []));
   }
   if (Array.isArray(trace?.trace?.spans)) return trace.trace.spans;
+  if (trace?.schema === 'openclaw.k6.public-tempo-trace.v1' && Array.isArray(trace.spans)) {
+    return trace.spans;
+  }
   return [];
 }
 
@@ -50,6 +54,7 @@ function publicTraceAttribute(attribute) {
   if (attribute.key === 'delegate.mode' && !['normal', 'silent', 'silent-wake', 'post-compaction'].includes(String(value))) return null;
   if (['gen_ai.tool.name', 'openclaw.toolName'].includes(attribute.key) &&
       !['continue_delegate', 'continue_work', 'request_compaction'].includes(String(value))) return null;
+  if (attribute.key === 'openclaw.outcome' && String(value) !== 'blocked') return null;
   if (attribute.key === 'chain.id' &&
       !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(String(value))) return null;
 
@@ -61,10 +66,10 @@ function publicTraceAttribute(attribute) {
 }
 
 export function publicTempoStatusCode(value) {
-  if (value === 0 || value === 'UNSET') return 'UNSET';
-  if (value === 1 || value === 'OK') return 'OK';
-  if (value === 2 || value === 'ERROR') return 'ERROR';
-  return 'UNSET';
+  if (value === 0 || value === 'UNSET' || value === 'STATUS_CODE_UNSET') return 'UNSET';
+  if (value === 1 || value === 'OK' || value === 'STATUS_CODE_OK') return 'OK';
+  if (value === 2 || value === 'ERROR' || value === 'STATUS_CODE_ERROR') return 'ERROR';
+  return 'UNKNOWN';
 }
 
 export function publicTempoSpanName(value) {

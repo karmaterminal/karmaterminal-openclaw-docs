@@ -1,0 +1,32 @@
+[test] queued behind the local heavy-check lock held by test, pid 1229336, cwd <candidate-worktree>...
+[test] still waiting 15s for the local heavy-check lock held by test, pid 1229336, cwd <candidate-worktree>...
+[test] still waiting 30s for the local heavy-check lock held by test, pid 1229348, cwd <candidate-worktree>...
+[test] still waiting 45s for the local heavy-check lock held by test, pid 1229348, cwd <candidate-worktree>...
+[test] starting test/vitest/vitest.infra.config.ts
+
+ RUN  v4.1.10 <candidate-worktree>
+
+ ✓  infra  src/infra/outbound/message-action-runner.plugin-dispatch.test.ts (50 tests) 348ms
+stderr | src/infra/outbound/message-action-runner.send-validation.test.ts > message body alias normalization > normalizes 'SendMessage' alias to message for send
+[message-tool] normalized alias "SendMessage" to "message" for send action
+
+stderr | src/infra/outbound/message-action-runner.send-validation.test.ts > message body alias normalization > normalizes 'content' alias to message for send
+[message-tool] normalized alias "content" to "message" for send action
+
+stderr | src/infra/outbound/message-action-runner.send-validation.test.ts > message body alias normalization > normalizes 'text' alias to message for send
+[message-tool] normalized alias "text" to "message" for send action
+
+stderr | src/infra/outbound/message-action-runner.send-validation.test.ts > message body alias normalization > sanitizes SendMessage alias 'reasoning tag' before delivery
+[message-tool] normalized alias "SendMessage" to "message" for send action
+
+stderr | src/infra/outbound/message-action-runner.send-validation.test.ts > message body alias normalization > sanitizes SendMessage alias 'formatted reasoning prefix' before delivery
+[message-tool] normalized alias "SendMessage" to "message" for send action
+
+ ✓  infra  src/infra/outbound/message-action-runner.send-validation.test.ts (32 tests) 178ms
+
+ Test Files  2 passed (2)
+      Tests  82 passed (82)
+   Start at  11:47:00
+   Duration  11.51s (transform 8.88s, setup 759ms, import 10.08s, tests 526ms, environment 0ms)
+
+[test] passed 1 Vitest shard in 65.02s

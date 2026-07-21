@@ -1,0 +1,31 @@
+Proof basis:
+ceaf8cba72c48914acd1baf8b6796b5f35fc5f1e
+
+Branch:
+frond-scribe-copilot/20260721/micro-proofs-111616-111617-112013-ceaf8cba
+
+Candidate:
+c354b220ba63bf1d56286da383cd8ce3b9eaa71a
+
+Atomic commits:
+- f9e54d68bbc1587549152b169b0fc6b7ef560360
+  source PR #111616 head: 3c40b70ee7c7a2151c7365b0471cacc34ae1da35
+  stable patch-id: e7541e4a27ed3a36729b7ebf05c69d9dbb075b38
+- beedc34e3f38135335a595cbc45dae3aaaef2626
+  source PR #111617 head: e984f33901598f3017161850adcbc884ed8b5b86
+  stable patch-id: 8237f3fcda1f826e40660aed33ebc12e9b9a2a53
+- c354b220ba63bf1d56286da383cd8ce3b9eaa71a
+  source PR #112013 head: 5ab2aa8a87d03ebcc2b8e96dc125af6569c8daa6
+  stable patch-id: 3d424d8368129a70ac2d6ab381b8e3c3dd9e9634
+
+Validation:
+- 4 compaction/continuation files: 198 assertions passed
+- Discord PluralKit preflight: 52 assertions passed
+- 2 outbound-location files: 82 assertions passed
+- total: 7 test files, 332 assertions passed
+- independent interaction review: no significant findings
+
+Disclosure:
+This is a disposable live-proof testbed consisting of continuation assembly
+ceaf8cba... plus exact patch content from PRs #111616, #111617, and #112013.
+It is not PR #85651's protected presentation branch and does not move assembly.

@@ -1,0 +1,20 @@
+[test] queued behind the local heavy-check lock held by test, pid 1229336, cwd <candidate-worktree>...
+[test] still waiting 15s for the local heavy-check lock held by test, pid 1229336, cwd <candidate-worktree>...
+[test] starting test/vitest/vitest.agents.config.ts
+
+ RUN  v4.1.10 <candidate-worktree>
+
+ ✓  agents  src/agents/tools/request-compaction-tool.callsite-threading.test.ts (17 tests) 1053ms
+     ✓ passes inner-scope provider/model to compactEmbeddedAgentSession (not defaults)  1042ms
+ ✓  agents  src/agents/tools/request-compaction-tool.test.ts (31 tests) 1112ms
+     ✓ throws when no session key is provided  1042ms
+ ✓  agents  src/agents/embedded-agent-runner/compact.hooks.test.ts (113 tests) 8640ms
+     ✓ acquires the normal session lock without process-wide reentry  756ms
+ ✓  agents  src/agents/embedded-agent-runner/run.overflow-compaction.loop.test.ts (37 tests) 24245ms
+
+ Test Files  4 passed (4)
+      Tests  198 passed (198)
+   Start at  11:46:33
+   Duration  27.01s (transform 36.93s, setup 8.35s, import 10.37s, tests 35.05s, environment 0ms)
+
+[test] passed 1 Vitest shard in 53.24s

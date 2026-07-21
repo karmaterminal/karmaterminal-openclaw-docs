@@ -1,0 +1,14 @@
+{
+  "runtimeSha": "ceaf8cba72c48914acd1baf8b6796b5f35fc5f1e",
+  "execution": "real embedded-agent message-tool call",
+  "toolArguments": {
+    "action": "send",
+    "channel": "discord",
+    "location": ""
+  },
+  "toolResult": {
+    "status": "error",
+    "error": "location must be an object.",
+    "messageId": null
+  }
+}

@@ -1,0 +1,10 @@
+8025daf6b1c0691c74453f951a019f1ba2156952248d1e46795f8ea351b632dc  ./artifacts/after-controlled-runtime.json
+0622168e2b8d29004a7526b5549b4214c971b86220752f18aca7cd2f1b2730d9  ./artifacts/after-live-ingress.json
+d54161259e5144eea5d9b9eb18c8ee478051a9ae3f49d5f5854cfbfab9558916  ./artifacts/before-controlled-runtime.json
+d5626e961a8597ede487bfb4a6ba4cf6f9bc34bd0b5f0f05e1c9562bf02b3818  ./artifacts/candidate-manifest.txt
+4841f9fa2bfc9fd3856e063d96f348c5f229d48ee685b96b9297bea6306199ae  ./artifacts/focused-tests.log
+326779868de7577e2f939e25d1082fd174cebd30ed8db2374f8212433aa5357f  ./artifacts/platform.json
+30cd48462351dfee5b3534e0bc76ed31584fa11ea93d513925e68b90a49b8419  ./METHOD.md
+65bb0fcae99f3d9a3af81ab68588a19c0680b0cf389a5230e0a0576f7b928942  ./proofs-manifest.json
+0170327a80b53ad95ec487b5a13d38b88d181486b709669c770f954c6b0aac55  ./README.md
+e34f7a1caef1174ed4988b846c3c78ab00fbabf4903c9c6a2964a29219c1ee3d  ./RESOLVED-SHA.md

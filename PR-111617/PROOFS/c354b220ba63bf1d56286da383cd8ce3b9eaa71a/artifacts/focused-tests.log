@@ -1,0 +1,12 @@
+[test] starting test/vitest/vitest.extension-discord.config.ts
+
+ RUN  v4.1.10 <candidate-worktree>
+
+ ✓  extension-discord  extensions/discord/src/monitor/message-handler.preflight.test.ts (52 tests) 10845ms
+
+ Test Files  1 passed (1)
+      Tests  52 passed (52)
+   Start at  11:46:09
+   Duration  23.54s (transform 20.44s, setup 649ms, import 11.90s, tests 10.84s, environment 0ms)
+
+[test] passed 1 Vitest shard in 25.68s

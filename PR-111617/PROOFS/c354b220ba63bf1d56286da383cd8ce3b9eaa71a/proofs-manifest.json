@@ -1,0 +1,44 @@
+{
+  "corpus": "PR-111617 PluralKit lookup gating micro-proof",
+  "sha": "c354b220ba63bf1d56286da383cd8ce3b9eaa71a",
+  "sha_short": "c354b22",
+  "build_string": "OpenClaw 2026.7.2 (c354b22)",
+  "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
+  "generated": "2026-07-21 (frond-scribe, exact Cael runtime plus restored exact assembly)",
+  "rollup": {
+    "total_rows": 1,
+    "pass": 1,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "missing": 0
+  },
+  "notes": "Combined continuation-assembly testbed plus three disclosed micro-PR patches. Controlled exact-helper call counts are paired with a live ordinary Discord ingress.",
+  "rows": [
+    {
+      "row": "MPR-111617-1",
+      "title": "Ordinary messages bypass PluralKit while webhook proxies remain enriched",
+      "owner": "frond-scribe (Cael deployment)",
+      "state": "pass",
+      "dir": "PR-111617/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/",
+      "evidence_doc": "README.md",
+      "summary": "Ordinary lookup count changed from one with a returned PluralKit override on assembly to zero with no override on the candidate; webhook lookup count remained one and canonical member identity was preserved.",
+      "test_cases_executed": [
+        "ordinary non-webhook exact-helper execution before and after",
+        "webhook proxy exact-helper execution before and after",
+        "real ordinary Discord ingress on deployed candidate",
+        "focused Discord preflight Vitest file, 52 assertions"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PR-111617/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/before-controlled-runtime.json",
+        "PR-111617/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/after-controlled-runtime.json",
+        "PR-111617/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/after-live-ingress.json",
+        "PR-111617/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/focused-tests.log",
+        "PR-111617/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/platform.json"
+      ],
+      "notes": "Internal call counts are deterministic helper executions from exact deployed checkouts; live ingress is a separate real-message confirmation.",
+      "fired": "2026-07-21, Cael c354b220 candidate and ceaf8cba assembly comparison"
+    }
+  ]
+}

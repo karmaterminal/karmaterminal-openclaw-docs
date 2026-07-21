@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "key": "agent:main:proof-111616-c354b220",
+  "compacted": true,
+  "result": {
+    "summary": "PROOF-111616-C354B220: preserved non-empty compaction summary anchor; the next 40 messages are tool-only suffix entries.\n\nContext contained 24 messages (0 oversized). Summary unavailable due to size limits.\n\n## Recent turns preserved verbatim\n- User: Reply exactly: SEED-111616-C354B220\n- Assistant: [non-text content: toolCall]\n- Tool result (exec): proof-result-11\n- Assistant: [non-text content: toolCall]\n- Tool result (exec): proof-result-12\n- Assistant: [non-text content: toolCall]\n- Tool result (exec): proof-result-13\n- Assistant: [non-text content: toolCall]\n- Tool result (exec): proof-result-14\n- Assistant: [non-text content: toolCall]\n- Tool result (exec): proof-result-15\n- Assistant: [non-text content: toolCall]\n- Tool result (exec): proof-result-16\n- Assistant: [non-text content: toolCall]\n- Tool result (exec): proof-result-17\n- Assistant: [non-text content: toolCall]\n- Tool result (exec): proof-result-18\n- Assistant: [non-text content: toolCall]\n- Tool result (exec): proof-result-19",
+    "firstKeptEntryId": "51bf2869",
+    "tokensBefore": 280,
+    "tokensAfter": 265,
+    "details": {
+      "readFiles": [],
+      "modifiedFiles": []
+    }
+  }
+}

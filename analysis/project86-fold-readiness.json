@@ -1,0 +1,2793 @@
+{
+  "schema": "frond-scribe.project86.fold-readiness.v1",
+  "generated_at_utc": "2026-07-29T17:09:51Z",
+  "verdict": "READY_AFTER_MECHANICAL_FIXES",
+  "verdict_statement": "The plan is a byte-faithful projection of the reviewed catalog and is structurally sound: identities are unique, every referenced path and command resolves against the docs-base bytes, no body can make a prince halt the fleet on a row-local failure, and HONEST_LIMIT is permitted on R-RC-2 only. It is not yet safe to create. Twelve blocker-class corrections must be applied first, all of them uniform and machine-applicable: the commands pre-attest the deployed runtime SHA and defeat the round's load-bearing identity gate; no body carries the G1-G5 pre-fire gate; the prescribed primary command takes no same-session lock for 18 rows that require one; R-RC-2 is described as concurrency-safe against SAFETY-ROWS.md; and the three support entries are targeted at corpus row directories that would fail validate-corpus.mjs or inflate the 35-row denominator to 38.",
+  "binding": {
+    "umbrella_issue": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451",
+    "umbrella_issue_state": "OPEN",
+    "project": "https://github.com/orgs/karmaterminal/projects/86",
+    "project_title": "2026-07-29 - karmaterminal-openclaw-docs proofs from project 85 (iteration 1)",
+    "project_preexisting_items": 3,
+    "review_branch": "codeagent/project86-fold-review"
+  },
+  "inputs": {
+    "docs_base": {
+      "repo": "karmaterminal/karmaterminal-openclaw-docs",
+      "sha": "abe1f9f0749d849b01da4e5d354c205ecffac946",
+      "verified": true
+    },
+    "catalog": {
+      "repo": "karmaterminal/karmaterminal-openclaw-docs",
+      "branch": "codeagent/project86-proof-catalog",
+      "sha": "366251db79004274f4213e1cb59908aa27ef6693",
+      "verified": true,
+      "files": [
+        "analysis/project86-proof-row-inventory.json",
+        "analysis/project86-proof-row-inventory.md"
+      ],
+      "entries": 38
+    },
+    "contract": {
+      "repo": "karmaterminal/karmaterminal-openclaw-docs",
+      "branch": "codeagent/project86-proof-contract",
+      "sha": "bb4ad4367e67190cba3f0909d58c36c259bf6a3d",
+      "verified": true,
+      "files": [
+        "analysis/project86-proof-issue-template.md",
+        "analysis/project86-proof-round-contract.md",
+        "analysis/project86-regression-triage-template.md"
+      ],
+      "lines": {
+        "project86-proof-round-contract.md": 782,
+        "project86-proof-issue-template.md": 368,
+        "project86-regression-triage-template.md": 258
+      }
+    },
+    "breadcrumbs": {
+      "repo": "karmaterminal/openclaw",
+      "branch": "codeagent/project86-proof-breadcrumbs",
+      "sha": "14355117ec7efb111cb013826c441e62a29954ce",
+      "verified": true,
+      "files": [
+        "analysis/project86-proof-code-breadcrumbs.json",
+        "analysis/project86-proof-code-breadcrumbs.md"
+      ],
+      "rows": 35,
+      "bound_assembly_sha": "b134a64a44351bcbce2d086da4ac30a596c01699"
+    },
+    "issue_plan": {
+      "path": "INPUT-project86-proof-issue-plan.json",
+      "schema": "frond-scribe.project86.issue-plan.v1",
+      "rows": 38,
+      "candidate_sha": null
+    }
+  },
+  "counts": {
+    "planned_issues": 38,
+    "catalog_manifest_entries": 38,
+    "reference_required_corpus_rows": 35,
+    "scenario_files": 35,
+    "runnable_manifest_entries": 36,
+    "runner_live_suite_entries": 34,
+    "scaffold_fixture_entries": 2,
+    "manifest_only_entries": [
+      "preflight",
+      "R-CW-5A",
+      "R-CW-6A"
+    ],
+    "reference_rollup": {
+      "fail": 1,
+      "honest_limit": 0,
+      "missing": 0,
+      "partial": 32,
+      "pass": 2,
+      "total_rows": 35
+    },
+    "execution_class_all_38": {
+      "live k6": 22,
+      "isolated fixture": 2,
+      "static validator": 13,
+      "support": 1
+    },
+    "execution_class_corpus_35": {
+      "live k6": 22,
+      "isolated fixture": 2,
+      "static validator": 11,
+      "support": 0
+    },
+    "serialized_rows_per_manifest": 19,
+    "serialized_rows_after_contract_override": 20,
+    "gateway_serialized_needing_guard": 18,
+    "live_runner_rows": 23,
+    "final_candidate_sha_substitution_sites": 348,
+    "runbook_rows_without_manifests": [
+      "R-CW-ACTIVE-OVERLAP",
+      "R-CONTINUATION-MIXED-SURFACE-FANOUT"
+    ]
+  },
+  "set_reconciliation": {
+    "plan_ids_equal_catalog_ids": true,
+    "plan_bodies_byte_identical_to_catalog_proposed_issue_body": true,
+    "plan_titles_byte_identical_to_catalog_proposed_issue_title": true,
+    "breadcrumb_rows_equal_catalog_reference_required_35": true,
+    "rows_with_no_breadcrumb": [
+      "preflight",
+      "R-CW-5A",
+      "R-CW-6A"
+    ],
+    "duplicate_manifest_paths": 0,
+    "shared_scenario_files": {
+      "tools/k6-proofs/scenarios/static-corpus-row-validator.js": 8
+    },
+    "missing_paths_against_docs_base": 0,
+    "reference_corpus_row_dirs_on_disk": 35,
+    "reference_corpus_support_dirs_on_disk": [
+      "artifacts"
+    ]
+  },
+  "checks": [
+    {
+      "id": "C01",
+      "description": "unique canonical row/support identity"
+    },
+    {
+      "id": "C02",
+      "description": "actionable automation command resolves to committed bytes"
+    },
+    {
+      "id": "C03",
+      "description": "old-runbook fallback present and resolvable"
+    },
+    {
+      "id": "C04",
+      "description": "exact candidate/deployment placeholders present"
+    },
+    {
+      "id": "C05",
+      "description": "pre-fire identity gate (G1-G5) present"
+    },
+    {
+      "id": "C06",
+      "description": "expected receipts + artifacts declared"
+    },
+    {
+      "id": "C07",
+      "description": "redaction boundary stated"
+    },
+    {
+      "id": "C08",
+      "description": "row-owned commit boundary is corpus-legal"
+    },
+    {
+      "id": "C09",
+      "description": "breadcrumb owner/caller/failure-class guidance linked"
+    },
+    {
+      "id": "C10",
+      "description": "same-session serialization declared AND mechanically enforced"
+    },
+    {
+      "id": "C11",
+      "description": "continue/family-swim/halt routing explicit, no fleet halt"
+    },
+    {
+      "id": "C12",
+      "description": "both-forms mandate + named sibling row"
+    },
+    {
+      "id": "C13",
+      "description": "assigned seat compatible with class and workload"
+    },
+    {
+      "id": "C14",
+      "description": "deployed-runtime identity not pre-attested by the command"
+    }
+  ],
+  "issue_matrix": [
+    {
+      "row_id": "preflight",
+      "title": "[Project 86] preflight: Run proof-seat readiness preflight",
+      "assignee_planned": "scribe-dandelion-cult",
+      "assignee_recommended": "scribe-dandelion-cult",
+      "execution_class": "support",
+      "corpus_row": false,
+      "denominator_class": "support/static-companion",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/preflight/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "FAIL",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "PASS",
+        "C13": "WARN",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C08": "artifact_subtree PROOFS/<SHA>/preflight/ is a bare row dir; validate-corpus.mjs no-orphan-row-dirs only tolerates artifacts/, gates/, _*; folding it into rows[] would make total_rows=38 and break the 35-row denominator",
+        "C09": "no breadcrumb/round-contract/triage-template link; no breadcrumb row exists for this support entry",
+        "C13": "assigned to the foreground scribe; contract 1 bars the scribe from firing a row they own as scribe-of-record without a second reviewer, and the body says \"Live assignment: none; claim this issue\"",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CD-1",
+      "title": "[Project 86] R-CD-1: Prove typed continue_delegate schedule, spawn, and return",
+      "assignee_planned": "silas-dandelion-cult",
+      "assignee_recommended": "silas-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CD-1/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "PASS",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CD-2",
+      "title": "[Project 86] R-CD-2: Prove silent-wake delegate lifecycle and no channel delivery",
+      "assignee_planned": "cael-dandelion-cult",
+      "assignee_recommended": "cael-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CD-2/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "PASS",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CD-3",
+      "title": "[Project 86] R-CD-3: Prove the post-compaction delegate lifeboat",
+      "assignee_planned": "ronan-dandelion-cult",
+      "assignee_recommended": "ronan-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CD-3/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "WARN",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "WARN",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "ssc:true but the row can trigger compaction, which holds a session-write-lock (SAFETY-ROWS.md 1); disposable session is hedged as \"when the row can compact\", not mandated",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C13": "seat holds 10 serial-bound rows (round critical path)",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CD-4",
+      "title": "[Project 86] R-CD-4: Prove targeted cross-session delegate return",
+      "assignee_planned": "emeric-dandelion-cult",
+      "assignee_recommended": "emeric-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CD-4/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "WARN",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C13": "substitution: catalog suggests rune, plan assigns emeric-nuc (emeric); contract 1 requires substitutions be named and justified",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CD-CHAINED-DEPTH-2",
+      "title": "[Project 86] R-CD-CHAINED-DEPTH-2: Prove parent-child-grandchild delegate return",
+      "assignee_planned": "ronan-dandelion-cult",
+      "assignee_recommended": "ronan-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CD-CHAINED-DEPTH-2/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "WARN",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C13": "seat holds 10 serial-bound rows (round critical path)",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CD-COLLECTION-ON-COLLAPSE",
+      "title": "[Project 86] R-CD-COLLECTION-ON-COLLAPSE: Prove root collection after intermediate collapse",
+      "assignee_planned": "cael-dandelion-cult",
+      "assignee_recommended": "cael-dandelion-cult",
+      "execution_class": "static validator",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CD-COLLECTION-ON-COLLAPSE/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "WARN",
+        "C13": "PASS",
+        "C14": "PASS"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C12": "static validator: both-forms role not stated, sibling not named"
+      }
+    },
+    {
+      "row_id": "R-CD-MODEL-CHAINED-ALT",
+      "title": "[Project 86] R-CD-MODEL-CHAINED-ALT: Prove alternate model propagation at delegate depth two",
+      "assignee_planned": "cael-dandelion-cult",
+      "assignee_recommended": "cael-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CD-MODEL-CHAINED-ALT/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "PASS",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CD-MODEL-DEFAULT",
+      "title": "[Project 86] R-CD-MODEL-DEFAULT: Prove default delegate model inheritance in both forms",
+      "assignee_planned": "cael-dandelion-cult",
+      "assignee_recommended": "cael-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CD-MODEL-DEFAULT/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "PASS",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CD-MODEL-TOKEN",
+      "title": "[Project 86] R-CD-MODEL-TOKEN: Prove bracket-token delegate model override",
+      "assignee_planned": "cael-dandelion-cult",
+      "assignee_recommended": "cael-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CD-MODEL-TOKEN/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "PASS",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CD-MODEL-TOOL",
+      "title": "[Project 86] R-CD-MODEL-TOOL: Prove typed delegate model override",
+      "assignee_planned": "cael-dandelion-cult",
+      "assignee_recommended": "cael-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CD-MODEL-TOOL/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "PASS",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CD-RETURN-OVERLAP",
+      "title": "[Project 86] R-CD-RETURN-OVERLAP: Prove no delegate-return loss during overlap",
+      "assignee_planned": "cael-dandelion-cult",
+      "assignee_recommended": "cael-dandelion-cult",
+      "execution_class": "static validator",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CD-RETURN-OVERLAP/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "WARN",
+        "C13": "PASS",
+        "C14": "PASS"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C12": "static validator: both-forms role not stated, sibling not named"
+      }
+    },
+    {
+      "row_id": "R-CD-SILENT",
+      "title": "[Project 86] R-CD-SILENT: Prove silent delegate completion stays off-channel",
+      "assignee_planned": "cael-dandelion-cult",
+      "assignee_recommended": "cael-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CD-SILENT/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "PASS",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CD-TOKEN",
+      "title": "[Project 86] R-CD-TOKEN: Prove terminal bracket continue_delegate end to end",
+      "assignee_planned": "elliott-dandelion-cult",
+      "assignee_recommended": "elliott-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CD-TOKEN/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "PASS",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CONFIG-DEFAULTS",
+      "title": "[Project 86] R-CONFIG-DEFAULTS: Prove continuation bootstrap defaults",
+      "assignee_planned": "elliott-dandelion-cult",
+      "assignee_recommended": "elliott-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CONFIG-DEFAULTS/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "PASS",
+        "C13": "PASS",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CONFIG-INTERSESSION",
+      "title": "[Project 86] R-CONFIG-INTERSESSION: Prove cross-session continuation configuration",
+      "assignee_planned": "elliott-dandelion-cult",
+      "assignee_recommended": "elliott-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CONFIG-INTERSESSION/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "PASS",
+        "C13": "PASS",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CW-1",
+      "title": "[Project 86] R-CW-1: Prove typed continue_work schedule and wake",
+      "assignee_planned": "silas-dandelion-cult",
+      "assignee_recommended": "silas-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-1/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "PASS",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CW-2",
+      "title": "[Project 86] R-CW-2: Prove immediate continue_work wake",
+      "assignee_planned": "ronan-dandelion-cult",
+      "assignee_recommended": "silas-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-2/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "WARN",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C13": "seat holds 10 serial-bound rows (round critical path)",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CW-3",
+      "title": "[Project 86] R-CW-3: Prove continue_work reason telemetry and redaction",
+      "assignee_planned": "ronan-dandelion-cult",
+      "assignee_recommended": "silas-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-3/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "WARN",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C13": "seat holds 10 serial-bound rows (round critical path)",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CW-4",
+      "title": "[Project 86] R-CW-4: Prove three-hop continue_work chain depth",
+      "assignee_planned": "ronan-dandelion-cult",
+      "assignee_recommended": "emeric-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-4/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "WARN",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C13": "seat holds 10 serial-bound rows (round critical path)",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CW-5",
+      "title": "[Project 86] R-CW-5: Prove continue_work cost-cap rejection in the isolated fixture",
+      "assignee_planned": "ronan-dandelion-cult",
+      "assignee_recommended": "ronan-dandelion-cult",
+      "execution_class": "isolated fixture",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-5/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "WARN",
+        "C14": "PASS"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "process-local fixture described as a gateway \"runner lock ... same target session\"; contract 3.2 serializes on fixture resources (one invocation per seat, 0700 artifact dir, tracked-clean worktree); the 0700 gate is unstated",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C13": "seat holds 10 serial-bound rows (round critical path)"
+      }
+    },
+    {
+      "row_id": "R-CW-5A",
+      "title": "[Project 86] R-CW-5A: Validate the static R-CW-5 source and harness boundary",
+      "assignee_planned": "ronan-dandelion-cult",
+      "assignee_recommended": "rune-dandelion-cult",
+      "execution_class": "static validator",
+      "corpus_row": false,
+      "denominator_class": "support/static-companion",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-5A/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "FAIL",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "WARN",
+        "C13": "WARN",
+        "C14": "PASS"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C08": "artifact_subtree PROOFS/<SHA>/R-CW-5A/ is a bare row dir; validate-corpus.mjs no-orphan-row-dirs only tolerates artifacts/, gates/, _*; folding it into rows[] would make total_rows=38 and break the 35-row denominator",
+        "C09": "no breadcrumb/round-contract/triage-template link; no breadcrumb row exists for this support entry",
+        "C12": "static validator: both-forms role not stated, sibling not named",
+        "C13": "seat holds 10 serial-bound rows (round critical path)"
+      }
+    },
+    {
+      "row_id": "R-CW-6",
+      "title": "[Project 86] R-CW-6: Prove max-chain rejection and recovery in the isolated fixture",
+      "assignee_planned": "ronan-dandelion-cult",
+      "assignee_recommended": "ronan-dandelion-cult",
+      "execution_class": "isolated fixture",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-6/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "WARN",
+        "C14": "PASS"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "process-local fixture described as a gateway \"runner lock ... same target session\"; contract 3.2 serializes on fixture resources (one invocation per seat, 0700 artifact dir, tracked-clean worktree); the 0700 gate is unstated",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C13": "seat holds 10 serial-bound rows (round critical path)"
+      }
+    },
+    {
+      "row_id": "R-CW-6A",
+      "title": "[Project 86] R-CW-6A: Validate the static R-CW-6 source and harness boundary",
+      "assignee_planned": "ronan-dandelion-cult",
+      "assignee_recommended": "rune-dandelion-cult",
+      "execution_class": "static validator",
+      "corpus_row": false,
+      "denominator_class": "support/static-companion",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-6A/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "FAIL",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "WARN",
+        "C13": "WARN",
+        "C14": "PASS"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C08": "artifact_subtree PROOFS/<SHA>/R-CW-6A/ is a bare row dir; validate-corpus.mjs no-orphan-row-dirs only tolerates artifacts/, gates/, _*; folding it into rows[] would make total_rows=38 and break the 35-row denominator",
+        "C09": "no breadcrumb/round-contract/triage-template link; no breadcrumb row exists for this support entry",
+        "C12": "static validator: both-forms role not stated, sibling not named",
+        "C13": "seat holds 10 serial-bound rows (round critical path)"
+      }
+    },
+    {
+      "row_id": "R-CW-7",
+      "title": "[Project 86] R-CW-7: Prove continuation traceparent propagation",
+      "assignee_planned": "emeric-dandelion-cult",
+      "assignee_recommended": "emeric-dandelion-cult",
+      "execution_class": "static validator",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-7/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "WARN",
+        "C13": "WARN",
+        "C14": "PASS"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C12": "static validator: both-forms role not stated, sibling not named",
+        "C13": "substitution: catalog suggests ronan-dgx, plan assigns emeric-nuc (emeric); contract 1 requires substitutions be named and justified"
+      }
+    },
+    {
+      "row_id": "R-CW-DELEGATE-CHILD-LIVE",
+      "title": "[Project 86] R-CW-DELEGATE-CHILD-LIVE: Prove live continue_work hop two in a delegate child",
+      "assignee_planned": "emeric-dandelion-cult",
+      "assignee_recommended": "emeric-dandelion-cult",
+      "execution_class": "static validator",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-DELEGATE-CHILD-LIVE/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "WARN",
+        "C13": "WARN",
+        "C14": "PASS"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C12": "static validator: both-forms role not stated, sibling not named",
+        "C13": "substitution: catalog suggests ronan-dgx, plan assigns emeric-nuc (emeric); contract 1 requires substitutions be named and justified"
+      }
+    },
+    {
+      "row_id": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "title": "[Project 86] R-CW-DELEGATE-SELF-CONTINUATION: Prove delegate self-continuation",
+      "assignee_planned": "ronan-dandelion-cult",
+      "assignee_recommended": "emeric-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-DELEGATE-SELF-CONTINUATION/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "WARN",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C13": "seat holds 10 serial-bound rows (round critical path)",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-CW-DELEGATE-TOKEN",
+      "title": "[Project 86] R-CW-DELEGATE-TOKEN: Prove bare-token continue_work in a delegate child",
+      "assignee_planned": "emeric-dandelion-cult",
+      "assignee_recommended": "emeric-dandelion-cult",
+      "execution_class": "static validator",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-DELEGATE-TOKEN/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "WARN",
+        "C13": "WARN",
+        "C14": "PASS"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C12": "static validator: both-forms role not stated, sibling not named",
+        "C13": "substitution: catalog suggests ronan-dgx, plan assigns emeric-nuc (emeric); contract 1 requires substitutions be named and justified"
+      }
+    },
+    {
+      "row_id": "R-CW-MULTI-COLLAPSE",
+      "title": "[Project 86] R-CW-MULTI-COLLAPSE: Prove stale continuation election collapse",
+      "assignee_planned": "emeric-dandelion-cult",
+      "assignee_recommended": "emeric-dandelion-cult",
+      "execution_class": "static validator",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-MULTI-COLLAPSE/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "WARN",
+        "C13": "WARN",
+        "C14": "PASS"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C12": "static validator: both-forms role not stated, sibling not named",
+        "C13": "substitution: catalog suggests ronan-dgx, plan assigns emeric-nuc (emeric); contract 1 requires substitutions be named and justified"
+      }
+    },
+    {
+      "row_id": "R-CW-MULTI",
+      "title": "[Project 86] R-CW-MULTI: Prove multiple continue_work elections in one turn",
+      "assignee_planned": "emeric-dandelion-cult",
+      "assignee_recommended": "emeric-dandelion-cult",
+      "execution_class": "static validator",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-MULTI/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "WARN",
+        "C13": "WARN",
+        "C14": "PASS"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C12": "static validator: both-forms role not stated, sibling not named",
+        "C13": "substitution: catalog suggests ronan-dgx, plan assigns emeric-nuc (emeric); contract 1 requires substitutions be named and justified"
+      }
+    },
+    {
+      "row_id": "R-CW-TOKEN",
+      "title": "[Project 86] R-CW-TOKEN: Prove terminal CONTINUE_WORK token execution",
+      "assignee_planned": "ronan-dandelion-cult",
+      "assignee_recommended": "ronan-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-TOKEN/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "WARN",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C12": "no both-forms statement and no named tool-form/token-form sibling; contract 8.2 makes single-surface coverage INCOMPLETE, not pass",
+        "C13": "seat holds 10 serial-bound rows (round critical path)",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-OBS-1",
+      "title": "[Project 86] R-OBS-1: Prove external status visibility for continuation state",
+      "assignee_planned": "elliott-dandelion-cult",
+      "assignee_recommended": "elliott-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-OBS-1/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "PASS",
+        "C13": "PASS",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-OBS-2",
+      "title": "[Project 86] R-OBS-2: Prove continuation Tempo trace-tree lineage",
+      "assignee_planned": "elliott-dandelion-cult",
+      "assignee_recommended": "elliott-dandelion-cult",
+      "execution_class": "static validator",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-OBS-2/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "PASS",
+        "C13": "PASS",
+        "C14": "PASS"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced"
+      }
+    },
+    {
+      "row_id": "R-OBS-STATUS",
+      "title": "[Project 86] R-OBS-STATUS: Prove the exact-SHA status-line source contract",
+      "assignee_planned": "rune-dandelion-cult",
+      "assignee_recommended": "rune-dandelion-cult",
+      "execution_class": "static validator",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-OBS-STATUS/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "PASS",
+        "C13": "WARN",
+        "C14": "PASS"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C13": "substitution: catalog suggests elliott-legion, plan assigns rune-rog-ally (rune); contract 1 requires substitutions be named and justified"
+      }
+    },
+    {
+      "row_id": "R-RC-1",
+      "title": "[Project 86] R-RC-1: Prove below-threshold request_compaction rejection",
+      "assignee_planned": "ronan-dandelion-cult",
+      "assignee_recommended": "ronan-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-RC-1/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "PASS",
+        "C13": "WARN",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "declared serialized but the prescribed run-proofs.sh command never invokes live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) enforces the lock",
+        "C13": "seat holds 10 serial-bound rows (round critical path)",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-RC-2",
+      "title": "[Project 86] R-RC-2: Prove accepted request_compaction or the narrow honest limit",
+      "assignee_planned": "ronan-dandelion-cult",
+      "assignee_recommended": "ronan-dandelion-cult",
+      "execution_class": "live k6",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-RC-2/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "PASS",
+        "C13": "WARN",
+        "C14": "FAIL"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced",
+        "C10": "body declares \"Same-session concurrency safe: true\" against SAFETY-ROWS.md Guardrails 1-2 and round-contract 3.3 which rule R-RC-* serialized fail-closed; R-RC-1-first ordering and human confirmation are absent; live-run-guard cannot lock it because r-rc-2.json declares sameSessionConcurrencySafe:true",
+        "C13": "seat holds 10 serial-bound rows (round critical path)",
+        "C14": "command sets OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>, which forces runner-metadata.json::runtimeBuildSha to equal the candidate and auto-satisfies the R-CD-TOKEN pre-dispatch-build-identity-gate; the deployed SHA is then never independently observed"
+      }
+    },
+    {
+      "row_id": "R-REGRESSION-TRAP-TESTS",
+      "title": "[Project 86] R-REGRESSION-TRAP-TESTS: Validate continuation regression trap tests",
+      "assignee_planned": "elliott-dandelion-cult",
+      "assignee_recommended": "elliott-dandelion-cult",
+      "execution_class": "static validator",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-REGRESSION-TRAP-TESTS/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "PASS",
+        "C13": "PASS",
+        "C14": "PASS"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced"
+      }
+    },
+    {
+      "row_id": "R-TRACE-REDACTION-1121",
+      "title": "[Project 86] R-TRACE-REDACTION-1121: Validate continuation trace-reason redaction",
+      "assignee_planned": "elliott-dandelion-cult",
+      "assignee_recommended": "elliott-dandelion-cult",
+      "execution_class": "static validator",
+      "corpus_row": true,
+      "denominator_class": "exact-sha-corpus-row",
+      "artifact_subtree_planned": "PROOFS/<FINAL_CANDIDATE_SHA>/R-TRACE-REDACTION-1121/<SEAT>/",
+      "verdict": "FAIL",
+      "checks": {
+        "C01": "PASS",
+        "C02": "PASS",
+        "C03": "PASS",
+        "C04": "PASS",
+        "C05": "FAIL",
+        "C06": "PASS",
+        "C07": "PASS",
+        "C08": "PASS",
+        "C09": "FAIL",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "PASS",
+        "C13": "PASS",
+        "C14": "PASS"
+      },
+      "notes": {
+        "C05": "no G1-G5 block; contract 4 requires it be run and pasted pre-fire",
+        "C09": "no breadcrumb/round-contract/triage-template link; breadcrumb row exists but is unreferenced"
+      }
+    }
+  ],
+  "blockers": [
+    "MC-01",
+    "MC-02",
+    "MC-03",
+    "MC-04",
+    "MC-05",
+    "MC-06",
+    "MC-07",
+    "MC-08",
+    "MC-09",
+    "MC-10",
+    "MC-11",
+    "MC-12"
+  ],
+  "mechanical_corrections": [
+    {
+      "id": "MC-01",
+      "severity": "blocker",
+      "kind": "replace_in_body",
+      "title": "Stop pre-attesting the deployed runtime SHA",
+      "rationale": "The command asserts OPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA>. run-proofs.sh honours that value verbatim (DEPLOYED_BUILD_STAMP=\"${OPENCLAW_RUNTIME_BUILD_SHA:-unknown}\") and writes it into runner-metadata.json::runtimeBuildSha, and R-CD-TOKEN's pre-dispatch-build-identity-gate compares exactly those two variables. Supplying it makes the gate unfalsifiable and makes every live identity receipt an assertion rather than an observation. Round contract 4 calls this the single most load-bearing gate.",
+      "find": "OPENCLAW_CANDIDATE_SHA=<FINAL_CANDIDATE_SHA> \\\nOPENCLAW_RUNTIME_BUILD_SHA=<FINAL_CANDIDATE_SHA> \\\n",
+      "replace": "OPENCLAW_CANDIDATE_SHA=<FINAL_CANDIDATE_SHA> \\\n",
+      "applies_to": [
+        "R-CD-1",
+        "R-CD-2",
+        "R-CD-3",
+        "R-CD-4",
+        "R-CD-CHAINED-DEPTH-2",
+        "R-CD-MODEL-CHAINED-ALT",
+        "R-CD-MODEL-DEFAULT",
+        "R-CD-MODEL-TOKEN",
+        "R-CD-MODEL-TOOL",
+        "R-CD-SILENT",
+        "R-CD-TOKEN",
+        "R-CONFIG-DEFAULTS",
+        "R-CONFIG-INTERSESSION",
+        "R-CW-1",
+        "R-CW-2",
+        "R-CW-3",
+        "R-CW-4",
+        "R-CW-DELEGATE-SELF-CONTINUATION",
+        "R-CW-TOKEN",
+        "R-OBS-1",
+        "R-RC-1",
+        "R-RC-2",
+        "preflight"
+      ]
+    },
+    {
+      "id": "MC-02",
+      "severity": "blocker",
+      "kind": "replace_in_body",
+      "title": "Make the disposable session mechanical, not aspirational",
+      "rationale": "Round contract 3.1 condition 4 requires each concurrently running row to use its own disposable session and fresh nonce, and every body already says to use one, but no command sets the variables the scenarios actually read (OPENCLAW_CREATE_DISPOSABLE_SESSION / _SESSIONS). The documented form at PROOF-RUN-METHOD.md:99-109 sets both.",
+      "find": "OPENCLAW_SESSION_KEY=<SESSION_KEY> \\\n./scripts/run-proofs.sh --live ",
+      "replace": "OPENCLAW_SESSION_KEY=<SESSION_KEY> \\\nOPENCLAW_CREATE_DISPOSABLE_SESSION=true \\\nOPENCLAW_CREATE_DISPOSABLE_SESSIONS=true \\\n./scripts/run-proofs.sh --live ",
+      "applies_to": [
+        "R-CD-1",
+        "R-CD-2",
+        "R-CD-3",
+        "R-CD-4",
+        "R-CD-CHAINED-DEPTH-2",
+        "R-CD-MODEL-CHAINED-ALT",
+        "R-CD-MODEL-DEFAULT",
+        "R-CD-MODEL-TOKEN",
+        "R-CD-MODEL-TOOL",
+        "R-CD-SILENT",
+        "R-CD-TOKEN",
+        "R-CONFIG-DEFAULTS",
+        "R-CONFIG-INTERSESSION",
+        "R-CW-1",
+        "R-CW-2",
+        "R-CW-3",
+        "R-CW-4",
+        "R-CW-DELEGATE-SELF-CONTINUATION",
+        "R-CW-TOKEN",
+        "R-OBS-1",
+        "R-RC-1",
+        "R-RC-2",
+        "preflight"
+      ]
+    },
+    {
+      "id": "MC-03",
+      "severity": "blocker",
+      "kind": "insert_in_command_fence",
+      "title": "Restore fail-closed same-session serialization",
+      "rationale": "19 rows declare sameSessionConcurrencySafe:false and round contract 3.2 says enforcement is \"fail-closed and mechanical\". run-proofs.sh contains no reference to live-run-guard.mjs and takes no flock; only run-proof.sh (the fallback) does. As written the primary path for every serialized row has zero enforcement.",
+      "insert_after": "```bash\n",
+      "text": "# same-session lock guard first (fail-closed; this row is NOT same-session concurrency safe)\nOPENCLAW_SESSION_KEY=<SESSION_KEY> \\\n  node tools/k6-proofs/scripts/live-run-guard.mjs \\\n    --manifest tools/k6-proofs/manifests/<row>.json --json\n# If the guard reports an active same-session lock: STOP. That output is a coordination\n# failure, not row evidence, and must not be written into EVIDENCE.md.\n\n",
+      "applies_to": [
+        "R-CD-1",
+        "R-CD-2",
+        "R-CD-4",
+        "R-CD-CHAINED-DEPTH-2",
+        "R-CD-MODEL-CHAINED-ALT",
+        "R-CD-MODEL-DEFAULT",
+        "R-CD-MODEL-TOKEN",
+        "R-CD-MODEL-TOOL",
+        "R-CD-SILENT",
+        "R-CD-TOKEN",
+        "R-CW-1",
+        "R-CW-2",
+        "R-CW-3",
+        "R-CW-4",
+        "R-CW-DELEGATE-SELF-CONTINUATION",
+        "R-CW-TOKEN",
+        "R-RC-1",
+        "R-RC-2"
+      ]
+    },
+    {
+      "id": "MC-04",
+      "severity": "blocker",
+      "kind": "insert_section",
+      "title": "Add the pre-fire identity gate G1-G5 to every issue",
+      "rationale": "Round contract 4 and the issue template both require G1-G5 to be run on the firing seat and pasted into the row issue before the fire window opens. No planned body contains it. With MC-01 unfixed as well, a prince currently has no mechanism at all to detect a seat that is not on the candidate.",
+      "insert_before": "## Run the committed automation first",
+      "text": "## Pre-fire identity gate (run on the firing seat; paste output here BEFORE firing)\n\n```bash\nCANDIDATE_SHA=<FINAL_CANDIDATE_SHA>\n\n# G1 exact 40-char lowercase hex, never trimmed\n[[ \"$CANDIDATE_SHA\" =~ ^[0-9a-f]{40}$ ]] && echo \"G1 ok\"\n\n# G2 this seat's gateway must actually BE on the candidate\nopenclaw --version\nopenclaw version --json | jq -r '.build.sha'      # must equal $CANDIDATE_SHA\ngit -C ~/flesh_beast_tmp/openclaw rev-parse HEAD   # must equal $CANDIDATE_SHA\n\n# G3 the candidate must carry the feature under test\ngh api repos/karmaterminal/openclaw/contents/<FEATURE_SOURCE_PATH>?ref=\"$CANDIDATE_SHA\" \\\n  --jq '.content' | base64 -d | grep -c '<FEATURE_MARKER>'   # want > 0\n\n# G4 seat readiness (public-safe: env presence booleans only)\nOPENCLAW_CANDIDATE_SHA=\"$CANDIDATE_SHA\" \\\nOPENCLAW_SEAT_NAME=<SEAT> \\\nOPENCLAW_SESSION_KEY=<SESSION_KEY> \\\n  node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json \\\n  > /tmp/<row>-seat-readiness.json\n\n# G5 docs authority frozen for this round\ngit rev-parse HEAD    # must equal abe1f9f0749d849b01da4e5d354c205ecffac946\n```\n\n- **G2 != G1** -> deploy the seat first. Do **not** fire; a fire in this state is void and\n  its artifacts are filed as a setup non-fire, never as row evidence.\n- **G3 = 0** -> the candidate lacks the feature. Escalate to the scribe as a **halt-state**\n  on issue #451. Do not classify it as a product failure.\n- **G4 != `PASS-candidate`** -> stay in `in_coding_agent`; this is setup/PARTIAL.\n- Do not set `OPENCLAW_RUNTIME_BUILD_SHA` by hand. The runner must derive the deployed\n  stamp itself so `runner-metadata.json::runtimeBuildSha` is an observation, not an assertion.\n",
+      "applies_to": [
+        "preflight",
+        "R-CD-1",
+        "R-CD-2",
+        "R-CD-3",
+        "R-CD-4",
+        "R-CD-CHAINED-DEPTH-2",
+        "R-CD-COLLECTION-ON-COLLAPSE",
+        "R-CD-MODEL-CHAINED-ALT",
+        "R-CD-MODEL-DEFAULT",
+        "R-CD-MODEL-TOKEN",
+        "R-CD-MODEL-TOOL",
+        "R-CD-RETURN-OVERLAP",
+        "R-CD-SILENT",
+        "R-CD-TOKEN",
+        "R-CONFIG-DEFAULTS",
+        "R-CONFIG-INTERSESSION",
+        "R-CW-1",
+        "R-CW-2",
+        "R-CW-3",
+        "R-CW-4",
+        "R-CW-5",
+        "R-CW-5A",
+        "R-CW-6",
+        "R-CW-6A",
+        "R-CW-7",
+        "R-CW-DELEGATE-CHILD-LIVE",
+        "R-CW-DELEGATE-SELF-CONTINUATION",
+        "R-CW-DELEGATE-TOKEN",
+        "R-CW-MULTI-COLLAPSE",
+        "R-CW-MULTI",
+        "R-CW-TOKEN",
+        "R-OBS-1",
+        "R-OBS-2",
+        "R-OBS-STATUS",
+        "R-RC-1",
+        "R-RC-2",
+        "R-REGRESSION-TRAP-TESTS",
+        "R-TRACE-REDACTION-1121"
+      ]
+    },
+    {
+      "id": "MC-05",
+      "severity": "blocker",
+      "kind": "replace_in_body",
+      "title": "Retarget support/companion artifact subtrees out of the corpus row namespace",
+      "rationale": "validate-corpus.mjs no-orphan-row-dirs treats every subdirectory of PROOFS/<SHA>/ that is not artifacts/, gates/, or _-prefixed and not declared in proofs-manifest.json::rows[].dir as an orphan and fails. It also computes tallied.total_rows = manifest.rows.length. So committing preflight/, R-CW-5A/ and R-CW-6A/ as bare row dirs either fails the validator on the next fold or forces total_rows to 38 and destroys the 35-row denominator. The reference corpus has exactly 35 row dirs plus artifacts/, and no preflight/R-CW-5A/R-CW-6A dir.",
+      "per_row": {
+        "preflight": {
+          "find": "PROOFS/<FINAL_CANDIDATE_SHA>/preflight/<SEAT>/",
+          "replace": "PROOFS/<FINAL_CANDIDATE_SHA>/gates/preflight/<SEAT>/"
+        },
+        "R-CW-5A": {
+          "find": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-5A/<SEAT>/",
+          "replace": "PROOFS/<FINAL_CANDIDATE_SHA>/_static-companions/R-CW-5A/<SEAT>/"
+        },
+        "R-CW-6A": {
+          "find": "PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-6A/<SEAT>/",
+          "replace": "PROOFS/<FINAL_CANDIDATE_SHA>/_static-companions/R-CW-6A/<SEAT>/"
+        }
+      },
+      "applies_to": [
+        "preflight",
+        "R-CW-5A",
+        "R-CW-6A"
+      ]
+    },
+    {
+      "id": "MC-06",
+      "severity": "blocker",
+      "kind": "append_after_line",
+      "title": "Declare the non-corpus status of the three support entries",
+      "rationale": "Nothing in these three bodies tells the prince or the scribe that the entry is outside the 35-row exact-SHA denominator. Without it a folded R-CW-5A can be mistaken for a corpus row, and R-CW-5A/R-CW-6A cannot honestly hold any of the validator states {pass,partial,thin,fail,honest_limit,missing} because their own verdict contract says PASS is \"not permitted as a runtime row PASS\".",
+      "anchor": "Row-owned destination:",
+      "text": "\n> **Not a corpus row.** This entry is manifest-only support. It is NOT a member of the 35-row exact-SHA denominator, MUST NOT appear in `PROOFS/<FINAL_CANDIDATE_SHA>/proofs-manifest.json::required_rows` or `rows[]`, and MUST NOT change `INDEX.json::rollup`. Its evidence is referenced from the corpus README/METHOD prose only.\n",
+      "applies_to": [
+        "preflight",
+        "R-CW-5A",
+        "R-CW-6A"
+      ]
+    },
+    {
+      "id": "MC-07",
+      "severity": "blocker",
+      "kind": "replace_in_body",
+      "title": "R-RC-2 must be serialized fail-closed and ordered after R-RC-1",
+      "rationale": "The body reproduces manifests/r-rc-2.json (sameSessionConcurrencySafe:true, requiresHumanConfirmation:false). SAFETY-ROWS.md Guardrails 1 makes R-RC-* serialization load-bearing (the compaction cycle holds a session-write-lock for up to agents.defaults.compaction.timeoutSeconds, default 180s, and a parallel same-session row becomes a second lock-acquirer), Guardrails 2 fixes the order R-RC-1 -> R-RC-2, and Guardrails 5 requires mutating rows to be marked serialized:true + requiresHumanConfirmation:true. Round contract 3.3 and 15.1 rule serialized (fail-closed) for project 86 and forbid resolving it by improvisation. live-run-guard.mjs sets lockRequired only when sameSessionConcurrencySafe === false, so the guard will NOT lock this row - the serialization must be procedural until the manifest is fixed.",
+      "per_row": {
+        "R-RC-2": {
+          "find": "Same-session concurrency safe: **true**. The manifest permits concurrency, but use a disposable/isolated session when the row can compact or alter session-local state.",
+          "replace": "Same-session concurrency safe: **false (contract override, fail-closed)**.\n\n> `tools/k6-proofs/manifests/r-rc-2.json` declares `liveRunSafety.sameSessionConcurrencySafe: true` and `requiresHumanConfirmation: false`. This contradicts `tools/k6-proofs/docs/SAFETY-ROWS.md` Guardrails 1, 2 and 5 for the whole `R-RC-*` family. For project 86 the runbook wins: treat R-RC-2 as **serialized** and **human-confirmed**. Do not relax the runbook to match the manifest; a docs issue is filed to reconcile the manifest.\n\n- `live-run-guard.mjs` will NOT take a lock for this row (it only locks when the manifest says `false`). Serialization is therefore **procedural**: announce in this issue that you are opening the R-RC-2 window, and get an explicit ack.\n- **Ordering is fixed:** `R-RC-1` must execute and resolve before R-RC-2 is attempted on a session (SAFETY-ROWS.md Guardrails 2). Link the R-RC-1 issue and its outcome here before firing.\n- Never co-fire R-RC-2 with any `R-CW-*` / `R-CD-*` row on the same session.\n- Use a dedicated coordinated disposable session; this row is state-mutating in the accepted-compaction path."
+        }
+      },
+      "applies_to": [
+        "R-RC-2"
+      ]
+    },
+    {
+      "id": "MC-08",
+      "severity": "blocker",
+      "kind": "append_after_line",
+      "title": "R-RC-1 carries the family ordering obligation",
+      "rationale": "SAFETY-ROWS.md Guardrails 2 requires R-RC-1 to resolve before R-RC-2 is attempted; the R-RC-1 body never says so, so the ordering has no owner.",
+      "anchor": "Same-session concurrency safe:",
+      "text": "\n- **Family ordering:** R-RC-1 is the gate for the compaction family. R-RC-2 may not be attempted on a session until this row has executed and resolved (SAFETY-ROWS.md Guardrails 2). Post the outcome in this issue and link it from the R-RC-2 issue.\n",
+      "applies_to": [
+        "R-RC-1"
+      ]
+    },
+    {
+      "id": "MC-09",
+      "severity": "blocker",
+      "kind": "replace_in_body",
+      "title": "R-CW-5 / R-CW-6 serialize on fixture resources, not on a gateway session",
+      "rationale": "Both bodies say \"Serialize this row under the runner lock and do not overlap another continuation row on the same target session\". These rows are transport: process-local / classification: orchestration-required and open no gateway session, so that instruction is unactionable. Round contract 3.2 states the real constraint: one fixture invocation at a time per seat, a private 0700 artifact directory, and a tracked-clean source worktree. The 0700 mode gate is exactly what stopped both seats' first invocations in the reference corpus - a mechanically proven non-fire - and it is currently unstated.",
+      "find": "Same-session concurrency safe: **false**. Serialize this row under the runner lock and do not overlap another continuation row on the same target session.",
+      "replace": "Same-session concurrency safe: **false**, but this is a `process-local` / `orchestration-required` fixture: it opens no gateway session and takes no same-session lock. Serialize on the **fixture resources** instead (round contract 3.2):\n\n- one fixture invocation at a time on this seat;\n- a **new, empty, private artifact directory with mode `0700`** (`mkdir -p <EMPTY_PRIVATE_ARTIFACT_DIR> && chmod 700 <EMPTY_PRIVATE_ARTIFACT_DIR>`). The fixture exits at this gate before any body runs; that exit is a **mechanically proven non-fire**, does not consume the one-fire budget, and must be ledgered here with its exact error string;\n- a tracked-clean exact-candidate source worktree (the fixture refuses staged or unstaged tracked changes);\n- never lower fleet config and never restart a gateway to make this row pass. `gateway-reload.yml` does not exist in this repository and must not be invented.",
+      "applies_to": [
+        "R-CW-5",
+        "R-CW-6"
+      ]
+    },
+    {
+      "id": "MC-10",
+      "severity": "blocker",
+      "kind": "replace_in_body",
+      "title": "Name the accountable prince instead of inviting a claim",
+      "rationale": "Every body says \"Live assignment: none; claim this issue before running.\" That contradicts the plan's own assignee field and round contract 1 (\"A row has one accountable prince at all times\"), and it is the ownership-overlap hazard: two princes can both claim, and a one-fire row can be double-fired. The template requires an Accountable prince field.",
+      "per_row": {
+        "preflight": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@scribe-dandelion-cult` (executing seat: `scribe`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CD-1": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@silas-dandelion-cult` (executing seat: `silas-lothric`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CD-2": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@cael-dandelion-cult` (executing seat: `cael-dgx`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CD-3": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@ronan-dandelion-cult` (executing seat: `ronan-dgx`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CD-4": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@emeric-dandelion-cult` (executing seat: `emeric-nuc`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CD-CHAINED-DEPTH-2": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@ronan-dandelion-cult` (executing seat: `ronan-dgx`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CD-COLLECTION-ON-COLLAPSE": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@cael-dandelion-cult` (executing seat: `cael-dgx`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CD-MODEL-CHAINED-ALT": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@cael-dandelion-cult` (executing seat: `cael-dgx`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CD-MODEL-DEFAULT": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@cael-dandelion-cult` (executing seat: `cael-dgx`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CD-MODEL-TOKEN": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@cael-dandelion-cult` (executing seat: `cael-dgx`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CD-MODEL-TOOL": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@cael-dandelion-cult` (executing seat: `cael-dgx`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CD-RETURN-OVERLAP": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@cael-dandelion-cult` (executing seat: `cael-dgx`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CD-SILENT": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@cael-dandelion-cult` (executing seat: `cael-dgx`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CD-TOKEN": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@elliott-dandelion-cult` (executing seat: `elliott-legion`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CONFIG-DEFAULTS": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@elliott-dandelion-cult` (executing seat: `elliott-legion`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CONFIG-INTERSESSION": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@elliott-dandelion-cult` (executing seat: `elliott-legion`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CW-1": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@silas-dandelion-cult` (executing seat: `silas-lothric`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CW-2": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@silas-dandelion-cult` (executing seat: `silas-lothric`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CW-3": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@silas-dandelion-cult` (executing seat: `silas-lothric`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CW-4": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@emeric-dandelion-cult` (executing seat: `emeric-nuc`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CW-5": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@ronan-dandelion-cult` (executing seat: `ronan-dgx`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CW-5A": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@rune-dandelion-cult` (executing seat: `rune-rog-ally`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CW-6": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@ronan-dandelion-cult` (executing seat: `ronan-dgx`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CW-6A": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@rune-dandelion-cult` (executing seat: `rune-rog-ally`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CW-7": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@emeric-dandelion-cult` (executing seat: `emeric-nuc`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CW-DELEGATE-CHILD-LIVE": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@emeric-dandelion-cult` (executing seat: `emeric-nuc`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CW-DELEGATE-SELF-CONTINUATION": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@emeric-dandelion-cult` (executing seat: `emeric-nuc`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CW-DELEGATE-TOKEN": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@emeric-dandelion-cult` (executing seat: `emeric-nuc`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CW-MULTI-COLLAPSE": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@emeric-dandelion-cult` (executing seat: `emeric-nuc`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CW-MULTI": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@emeric-dandelion-cult` (executing seat: `emeric-nuc`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-CW-TOKEN": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@ronan-dandelion-cult` (executing seat: `ronan-dgx`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-OBS-1": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@elliott-dandelion-cult` (executing seat: `elliott-legion`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-OBS-2": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@elliott-dandelion-cult` (executing seat: `elliott-legion`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-OBS-STATUS": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@rune-dandelion-cult` (executing seat: `rune-rog-ally`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-RC-1": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@ronan-dandelion-cult` (executing seat: `ronan-dgx`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-RC-2": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@ronan-dandelion-cult` (executing seat: `ronan-dgx`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-REGRESSION-TRAP-TESTS": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@elliott-dandelion-cult` (executing seat: `elliott-legion`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        },
+        "R-TRACE-REDACTION-1121": {
+          "find": "- Live assignment: none; claim this issue before running.",
+          "replace": "- Accountable prince: `@elliott-dandelion-cult` (executing seat: `elliott-legion`). Exactly one accountable prince; do not self-claim or reassign in-thread. A substitution is valid only when the canonical seat is unavailable, is named in `EVIDENCE.md`, and is recorded in this issue (round contract 1)."
+        }
+      },
+      "applies_to": [
+        "preflight",
+        "R-CD-1",
+        "R-CD-2",
+        "R-CD-3",
+        "R-CD-4",
+        "R-CD-CHAINED-DEPTH-2",
+        "R-CD-COLLECTION-ON-COLLAPSE",
+        "R-CD-MODEL-CHAINED-ALT",
+        "R-CD-MODEL-DEFAULT",
+        "R-CD-MODEL-TOKEN",
+        "R-CD-MODEL-TOOL",
+        "R-CD-RETURN-OVERLAP",
+        "R-CD-SILENT",
+        "R-CD-TOKEN",
+        "R-CONFIG-DEFAULTS",
+        "R-CONFIG-INTERSESSION",
+        "R-CW-1",
+        "R-CW-2",
+        "R-CW-3",
+        "R-CW-4",
+        "R-CW-5",
+        "R-CW-5A",
+        "R-CW-6",
+        "R-CW-6A",
+        "R-CW-7",
+        "R-CW-DELEGATE-CHILD-LIVE",
+        "R-CW-DELEGATE-SELF-CONTINUATION",
+        "R-CW-DELEGATE-TOKEN",
+        "R-CW-MULTI-COLLAPSE",
+        "R-CW-MULTI",
+        "R-CW-TOKEN",
+        "R-OBS-1",
+        "R-OBS-2",
+        "R-OBS-STATUS",
+        "R-RC-1",
+        "R-RC-2",
+        "R-REGRESSION-TRAP-TESTS",
+        "R-TRACE-REDACTION-1121"
+      ]
+    },
+    {
+      "id": "MC-11",
+      "severity": "blocker",
+      "kind": "append_after_line",
+      "title": "State the both-forms mandate and name the sibling row",
+      "rationale": "Round contract 8.2 and the issue template make a continuation row that proves only the typed tool OR only the token/bracket surface INCOMPLETE, not pass. No body states its surface role or names its sibling, so a prince cannot know whether their row is complete. Surface provenance (raw assistant final text vs message-tool body) is also unstated, and the reference corpus R-CD-TOKEN failure was exactly a message-body misread.",
+      "anchor": "## Verdict contract",
+      "per_row": {
+        "preflight": {
+          "text": "\n**Both-forms mandate:** not applicable\n- support entry; not a behavioral continuation row\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CD-1": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-CD-1`. Token-form sibling row: `R-CD-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CD-2": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-CD-2`. Token-form sibling row: `R-CD-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CD-3": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-CD-3`. Token-form sibling row: `R-CD-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CD-4": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-CD-4`. Token-form sibling row: `R-CD-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CD-CHAINED-DEPTH-2": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-CD-CHAINED-DEPTH-2`. Token-form sibling row: `R-CD-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CD-COLLECTION-ON-COLLAPSE": {
+          "text": "\n**Both-forms mandate:** not applicable\n- read-only/static contract row; it observes rather than invokes a continuation surface\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CD-MODEL-CHAINED-ALT": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-CD-MODEL-CHAINED-ALT`. Token-form sibling row: `R-CD-MODEL-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CD-MODEL-DEFAULT": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: both forms in-row. Tool-form sibling row: `R-CD-MODEL-DEFAULT`. Token-form sibling row: `R-CD-MODEL-DEFAULT`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CD-MODEL-TOKEN": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: bracket token. Tool-form sibling row: `R-CD-MODEL-TOOL`. Token-form sibling row: `R-CD-MODEL-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CD-MODEL-TOOL": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-CD-MODEL-TOOL`. Token-form sibling row: `R-CD-MODEL-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CD-RETURN-OVERLAP": {
+          "text": "\n**Both-forms mandate:** not applicable\n- read-only/static contract row; it observes rather than invokes a continuation surface\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CD-SILENT": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-CD-SILENT`. Token-form sibling row: `R-CD-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CD-TOKEN": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: bracket token. Tool-form sibling row: `R-CD-1`. Token-form sibling row: `R-CD-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CONFIG-DEFAULTS": {
+          "text": "\n**Both-forms mandate:** not applicable\n- read-only/static contract row; it observes rather than invokes a continuation surface\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CONFIG-INTERSESSION": {
+          "text": "\n**Both-forms mandate:** not applicable\n- read-only/static contract row; it observes rather than invokes a continuation surface\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CW-1": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-CW-1`. Token-form sibling row: `R-CW-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CW-2": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-CW-2`. Token-form sibling row: `R-CW-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CW-3": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-CW-3`. Token-form sibling row: `R-CW-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CW-4": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-CW-4`. Token-form sibling row: `R-CW-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CW-5": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-CW-5`. Token-form sibling row: `R-CW-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CW-5A": {
+          "text": "\n**Both-forms mandate:** not applicable\n- support entry; not a behavioral continuation row\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CW-6": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-CW-6`. Token-form sibling row: `R-CW-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CW-6A": {
+          "text": "\n**Both-forms mandate:** not applicable\n- support entry; not a behavioral continuation row\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CW-7": {
+          "text": "\n**Both-forms mandate:** not applicable\n- read-only/static contract row; it observes rather than invokes a continuation surface\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CW-DELEGATE-CHILD-LIVE": {
+          "text": "\n**Both-forms mandate:** not applicable\n- read-only/static contract row; it observes rather than invokes a continuation surface\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CW-DELEGATE-SELF-CONTINUATION": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-CW-DELEGATE-SELF-CONTINUATION`. Token-form sibling row: `R-CW-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CW-DELEGATE-TOKEN": {
+          "text": "\n**Both-forms mandate:** not applicable\n- read-only/static contract row; it observes rather than invokes a continuation surface\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CW-MULTI-COLLAPSE": {
+          "text": "\n**Both-forms mandate:** not applicable\n- read-only/static contract row; it observes rather than invokes a continuation surface\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CW-MULTI": {
+          "text": "\n**Both-forms mandate:** not applicable\n- read-only/static contract row; it observes rather than invokes a continuation surface\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-CW-TOKEN": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: bracket token. Tool-form sibling row: `R-CW-1`. Token-form sibling row: `R-CW-TOKEN`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-OBS-1": {
+          "text": "\n**Both-forms mandate:** required\n- This row exercises: typed tool. Tool-form sibling row: `R-OBS-1`. Token-form sibling row: `None`.\n- A row proving only one surface is **INCOMPLETE**, not `pass`.\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-OBS-2": {
+          "text": "\n**Both-forms mandate:** not applicable\n- read-only/static contract row; it observes rather than invokes a continuation surface\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-OBS-STATUS": {
+          "text": "\n**Both-forms mandate:** not applicable\n- read-only/static contract row; it observes rather than invokes a continuation surface\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-RC-1": {
+          "text": "\n**Both-forms mandate:** not applicable\n- request_compaction is tool-only; no bracket sibling exists\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-RC-2": {
+          "text": "\n**Both-forms mandate:** not applicable\n- request_compaction is tool-only; no bracket sibling exists\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-REGRESSION-TRAP-TESTS": {
+          "text": "\n**Both-forms mandate:** not applicable\n- read-only/static contract row; it observes rather than invokes a continuation surface\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        },
+        "R-TRACE-REDACTION-1121": {
+          "text": "\n**Both-forms mandate:** not applicable\n- read-only/static contract row; it observes rather than invokes a continuation surface\n\n**Surface provenance:** a continuation token inside a `message` tool body is **not** token proof. Record which surface carried the token (raw assistant final text vs message-tool body) in `EVIDENCE.md`.\n"
+        }
+      },
+      "applies_to": [
+        "preflight",
+        "R-CD-1",
+        "R-CD-2",
+        "R-CD-3",
+        "R-CD-4",
+        "R-CD-CHAINED-DEPTH-2",
+        "R-CD-COLLECTION-ON-COLLAPSE",
+        "R-CD-MODEL-CHAINED-ALT",
+        "R-CD-MODEL-DEFAULT",
+        "R-CD-MODEL-TOKEN",
+        "R-CD-MODEL-TOOL",
+        "R-CD-RETURN-OVERLAP",
+        "R-CD-SILENT",
+        "R-CD-TOKEN",
+        "R-CONFIG-DEFAULTS",
+        "R-CONFIG-INTERSESSION",
+        "R-CW-1",
+        "R-CW-2",
+        "R-CW-3",
+        "R-CW-4",
+        "R-CW-5",
+        "R-CW-5A",
+        "R-CW-6",
+        "R-CW-6A",
+        "R-CW-7",
+        "R-CW-DELEGATE-CHILD-LIVE",
+        "R-CW-DELEGATE-SELF-CONTINUATION",
+        "R-CW-DELEGATE-TOKEN",
+        "R-CW-MULTI-COLLAPSE",
+        "R-CW-MULTI",
+        "R-CW-TOKEN",
+        "R-OBS-1",
+        "R-OBS-2",
+        "R-OBS-STATUS",
+        "R-RC-1",
+        "R-RC-2",
+        "R-REGRESSION-TRAP-TESTS",
+        "R-TRACE-REDACTION-1121"
+      ]
+    },
+    {
+      "id": "MC-12",
+      "severity": "blocker",
+      "kind": "insert_section",
+      "title": "Link the governing contract, template and breadcrumbs",
+      "rationale": "No body links the round contract, the regression triage template, or the code breadcrumbs. Round contract 10 requires regressions to be filed with analysis/project86-regression-triage-template.md, and the breadcrumbs are the only source of per-row owner symbols, upstream caller chain, declared failure-class triage, blast radius and halt scope. Without the link a prince cannot classify row-local vs family-local correctly.",
+      "insert_before": "## Failure routing and landing",
+      "text": "## Governing documents\n\n- Round contract: `analysis/project86-proof-round-contract.md`\n  (`codeagent/project86-proof-contract@bb4ad4367e67190cba3f0909d58c36c259bf6a3d`)\n- Issue template: `analysis/project86-proof-issue-template.md`\n- Regression triage template: `analysis/project86-regression-triage-template.md`\n- Row catalog: `analysis/project86-proof-row-inventory.md`\n  (`codeagent/project86-proof-catalog@366251db79004274f4213e1cb59908aa27ef6693`)\n- Code breadcrumbs (owners, caller chain, failure-class triage, blast radius):\n  `karmaterminal/openclaw@14355117ec7efb111cb013826c441e62a29954ce`\n  `analysis/project86-proof-code-breadcrumbs.md` -> row `<ROW-ID>`\n  (bound to assembly SHA `b134a64a44351bcbce2d086da4ac30a596c01699`; triage assistance only,\n  never a behavioral verdict)\n",
+      "applies_to": [
+        "preflight",
+        "R-CD-1",
+        "R-CD-2",
+        "R-CD-3",
+        "R-CD-4",
+        "R-CD-CHAINED-DEPTH-2",
+        "R-CD-COLLECTION-ON-COLLAPSE",
+        "R-CD-MODEL-CHAINED-ALT",
+        "R-CD-MODEL-DEFAULT",
+        "R-CD-MODEL-TOKEN",
+        "R-CD-MODEL-TOOL",
+        "R-CD-RETURN-OVERLAP",
+        "R-CD-SILENT",
+        "R-CD-TOKEN",
+        "R-CONFIG-DEFAULTS",
+        "R-CONFIG-INTERSESSION",
+        "R-CW-1",
+        "R-CW-2",
+        "R-CW-3",
+        "R-CW-4",
+        "R-CW-5",
+        "R-CW-5A",
+        "R-CW-6",
+        "R-CW-6A",
+        "R-CW-7",
+        "R-CW-DELEGATE-CHILD-LIVE",
+        "R-CW-DELEGATE-SELF-CONTINUATION",
+        "R-CW-DELEGATE-TOKEN",
+        "R-CW-MULTI-COLLAPSE",
+        "R-CW-MULTI",
+        "R-CW-TOKEN",
+        "R-OBS-1",
+        "R-OBS-2",
+        "R-OBS-STATUS",
+        "R-RC-1",
+        "R-RC-2",
+        "R-REGRESSION-TRAP-TESTS",
+        "R-TRACE-REDACTION-1121"
+      ]
+    },
+    {
+      "id": "MC-13",
+      "severity": "mechanical",
+      "kind": "replace_title",
+      "title": "Normalise titles to the contract template format",
+      "rationale": "The issue template mandates `[P86] <ROW-ID> - <one-line behavior> (<seat>)`; the plan uses `[Project 86] <ROW-ID>: <behavior>` with no seat.",
+      "per_row": {
+        "preflight": {
+          "find": "[Project 86] preflight: Run proof-seat readiness preflight",
+          "replace": "[P86] preflight — Run proof-seat readiness preflight (scribe)"
+        },
+        "R-CD-1": {
+          "find": "[Project 86] R-CD-1: Prove typed continue_delegate schedule, spawn, and return",
+          "replace": "[P86] R-CD-1 — Prove typed continue_delegate schedule, spawn, and return (silas-lothric)"
+        },
+        "R-CD-2": {
+          "find": "[Project 86] R-CD-2: Prove silent-wake delegate lifecycle and no channel delivery",
+          "replace": "[P86] R-CD-2 — Prove silent-wake delegate lifecycle and no channel delivery (cael-dgx)"
+        },
+        "R-CD-3": {
+          "find": "[Project 86] R-CD-3: Prove the post-compaction delegate lifeboat",
+          "replace": "[P86] R-CD-3 — Prove the post-compaction delegate lifeboat (ronan-dgx)"
+        },
+        "R-CD-4": {
+          "find": "[Project 86] R-CD-4: Prove targeted cross-session delegate return",
+          "replace": "[P86] R-CD-4 — Prove targeted cross-session delegate return (emeric-nuc)"
+        },
+        "R-CD-CHAINED-DEPTH-2": {
+          "find": "[Project 86] R-CD-CHAINED-DEPTH-2: Prove parent-child-grandchild delegate return",
+          "replace": "[P86] R-CD-CHAINED-DEPTH-2 — Prove parent-child-grandchild delegate return (ronan-dgx)"
+        },
+        "R-CD-COLLECTION-ON-COLLAPSE": {
+          "find": "[Project 86] R-CD-COLLECTION-ON-COLLAPSE: Prove root collection after intermediate collapse",
+          "replace": "[P86] R-CD-COLLECTION-ON-COLLAPSE — Prove root collection after intermediate collapse (cael-dgx)"
+        },
+        "R-CD-MODEL-CHAINED-ALT": {
+          "find": "[Project 86] R-CD-MODEL-CHAINED-ALT: Prove alternate model propagation at delegate depth two",
+          "replace": "[P86] R-CD-MODEL-CHAINED-ALT — Prove alternate model propagation at delegate depth two (cael-dgx)"
+        },
+        "R-CD-MODEL-DEFAULT": {
+          "find": "[Project 86] R-CD-MODEL-DEFAULT: Prove default delegate model inheritance in both forms",
+          "replace": "[P86] R-CD-MODEL-DEFAULT — Prove default delegate model inheritance in both forms (cael-dgx)"
+        },
+        "R-CD-MODEL-TOKEN": {
+          "find": "[Project 86] R-CD-MODEL-TOKEN: Prove bracket-token delegate model override",
+          "replace": "[P86] R-CD-MODEL-TOKEN — Prove bracket-token delegate model override (cael-dgx)"
+        },
+        "R-CD-MODEL-TOOL": {
+          "find": "[Project 86] R-CD-MODEL-TOOL: Prove typed delegate model override",
+          "replace": "[P86] R-CD-MODEL-TOOL — Prove typed delegate model override (cael-dgx)"
+        },
+        "R-CD-RETURN-OVERLAP": {
+          "find": "[Project 86] R-CD-RETURN-OVERLAP: Prove no delegate-return loss during overlap",
+          "replace": "[P86] R-CD-RETURN-OVERLAP — Prove no delegate-return loss during overlap (cael-dgx)"
+        },
+        "R-CD-SILENT": {
+          "find": "[Project 86] R-CD-SILENT: Prove silent delegate completion stays off-channel",
+          "replace": "[P86] R-CD-SILENT — Prove silent delegate completion stays off-channel (cael-dgx)"
+        },
+        "R-CD-TOKEN": {
+          "find": "[Project 86] R-CD-TOKEN: Prove terminal bracket continue_delegate end to end",
+          "replace": "[P86] R-CD-TOKEN — Prove terminal bracket continue_delegate end to end (elliott-legion)"
+        },
+        "R-CONFIG-DEFAULTS": {
+          "find": "[Project 86] R-CONFIG-DEFAULTS: Prove continuation bootstrap defaults",
+          "replace": "[P86] R-CONFIG-DEFAULTS — Prove continuation bootstrap defaults (elliott-legion)"
+        },
+        "R-CONFIG-INTERSESSION": {
+          "find": "[Project 86] R-CONFIG-INTERSESSION: Prove cross-session continuation configuration",
+          "replace": "[P86] R-CONFIG-INTERSESSION — Prove cross-session continuation configuration (elliott-legion)"
+        },
+        "R-CW-1": {
+          "find": "[Project 86] R-CW-1: Prove typed continue_work schedule and wake",
+          "replace": "[P86] R-CW-1 — Prove typed continue_work schedule and wake (silas-lothric)"
+        },
+        "R-CW-2": {
+          "find": "[Project 86] R-CW-2: Prove immediate continue_work wake",
+          "replace": "[P86] R-CW-2 — Prove immediate continue_work wake (silas-lothric)"
+        },
+        "R-CW-3": {
+          "find": "[Project 86] R-CW-3: Prove continue_work reason telemetry and redaction",
+          "replace": "[P86] R-CW-3 — Prove continue_work reason telemetry and redaction (silas-lothric)"
+        },
+        "R-CW-4": {
+          "find": "[Project 86] R-CW-4: Prove three-hop continue_work chain depth",
+          "replace": "[P86] R-CW-4 — Prove three-hop continue_work chain depth (emeric-nuc)"
+        },
+        "R-CW-5": {
+          "find": "[Project 86] R-CW-5: Prove continue_work cost-cap rejection in the isolated fixture",
+          "replace": "[P86] R-CW-5 — Prove continue_work cost-cap rejection in the isolated fixture (ronan-dgx)"
+        },
+        "R-CW-5A": {
+          "find": "[Project 86] R-CW-5A: Validate the static R-CW-5 source and harness boundary",
+          "replace": "[P86] R-CW-5A — Validate the static R-CW-5 source and harness boundary (rune-rog-ally)"
+        },
+        "R-CW-6": {
+          "find": "[Project 86] R-CW-6: Prove max-chain rejection and recovery in the isolated fixture",
+          "replace": "[P86] R-CW-6 — Prove max-chain rejection and recovery in the isolated fixture (ronan-dgx)"
+        },
+        "R-CW-6A": {
+          "find": "[Project 86] R-CW-6A: Validate the static R-CW-6 source and harness boundary",
+          "replace": "[P86] R-CW-6A — Validate the static R-CW-6 source and harness boundary (rune-rog-ally)"
+        },
+        "R-CW-7": {
+          "find": "[Project 86] R-CW-7: Prove continuation traceparent propagation",
+          "replace": "[P86] R-CW-7 — Prove continuation traceparent propagation (emeric-nuc)"
+        },
+        "R-CW-DELEGATE-CHILD-LIVE": {
+          "find": "[Project 86] R-CW-DELEGATE-CHILD-LIVE: Prove live continue_work hop two in a delegate child",
+          "replace": "[P86] R-CW-DELEGATE-CHILD-LIVE — Prove live continue_work hop two in a delegate child (emeric-nuc)"
+        },
+        "R-CW-DELEGATE-SELF-CONTINUATION": {
+          "find": "[Project 86] R-CW-DELEGATE-SELF-CONTINUATION: Prove delegate self-continuation",
+          "replace": "[P86] R-CW-DELEGATE-SELF-CONTINUATION — Prove delegate self-continuation (emeric-nuc)"
+        },
+        "R-CW-DELEGATE-TOKEN": {
+          "find": "[Project 86] R-CW-DELEGATE-TOKEN: Prove bare-token continue_work in a delegate child",
+          "replace": "[P86] R-CW-DELEGATE-TOKEN — Prove bare-token continue_work in a delegate child (emeric-nuc)"
+        },
+        "R-CW-MULTI-COLLAPSE": {
+          "find": "[Project 86] R-CW-MULTI-COLLAPSE: Prove stale continuation election collapse",
+          "replace": "[P86] R-CW-MULTI-COLLAPSE — Prove stale continuation election collapse (emeric-nuc)"
+        },
+        "R-CW-MULTI": {
+          "find": "[Project 86] R-CW-MULTI: Prove multiple continue_work elections in one turn",
+          "replace": "[P86] R-CW-MULTI — Prove multiple continue_work elections in one turn (emeric-nuc)"
+        },
+        "R-CW-TOKEN": {
+          "find": "[Project 86] R-CW-TOKEN: Prove terminal CONTINUE_WORK token execution",
+          "replace": "[P86] R-CW-TOKEN — Prove terminal CONTINUE_WORK token execution (ronan-dgx)"
+        },
+        "R-OBS-1": {
+          "find": "[Project 86] R-OBS-1: Prove external status visibility for continuation state",
+          "replace": "[P86] R-OBS-1 — Prove external status visibility for continuation state (elliott-legion)"
+        },
+        "R-OBS-2": {
+          "find": "[Project 86] R-OBS-2: Prove continuation Tempo trace-tree lineage",
+          "replace": "[P86] R-OBS-2 — Prove continuation Tempo trace-tree lineage (elliott-legion)"
+        },
+        "R-OBS-STATUS": {
+          "find": "[Project 86] R-OBS-STATUS: Prove the exact-SHA status-line source contract",
+          "replace": "[P86] R-OBS-STATUS — Prove the exact-SHA status-line source contract (rune-rog-ally)"
+        },
+        "R-RC-1": {
+          "find": "[Project 86] R-RC-1: Prove below-threshold request_compaction rejection",
+          "replace": "[P86] R-RC-1 — Prove below-threshold request_compaction rejection (ronan-dgx)"
+        },
+        "R-RC-2": {
+          "find": "[Project 86] R-RC-2: Prove accepted request_compaction or the narrow honest limit",
+          "replace": "[P86] R-RC-2 — Prove accepted request_compaction or the narrow honest limit (ronan-dgx)"
+        },
+        "R-REGRESSION-TRAP-TESTS": {
+          "find": "[Project 86] R-REGRESSION-TRAP-TESTS: Validate continuation regression trap tests",
+          "replace": "[P86] R-REGRESSION-TRAP-TESTS — Validate continuation regression trap tests (elliott-legion)"
+        },
+        "R-TRACE-REDACTION-1121": {
+          "find": "[Project 86] R-TRACE-REDACTION-1121: Validate continuation trace-reason redaction",
+          "replace": "[P86] R-TRACE-REDACTION-1121 — Validate continuation trace-reason redaction (elliott-legion)"
+        }
+      },
+      "applies_to": [
+        "preflight",
+        "R-CD-1",
+        "R-CD-2",
+        "R-CD-3",
+        "R-CD-4",
+        "R-CD-CHAINED-DEPTH-2",
+        "R-CD-COLLECTION-ON-COLLAPSE",
+        "R-CD-MODEL-CHAINED-ALT",
+        "R-CD-MODEL-DEFAULT",
+        "R-CD-MODEL-TOKEN",
+        "R-CD-MODEL-TOOL",
+        "R-CD-RETURN-OVERLAP",
+        "R-CD-SILENT",
+        "R-CD-TOKEN",
+        "R-CONFIG-DEFAULTS",
+        "R-CONFIG-INTERSESSION",
+        "R-CW-1",
+        "R-CW-2",
+        "R-CW-3",
+        "R-CW-4",
+        "R-CW-5",
+        "R-CW-5A",
+        "R-CW-6",
+        "R-CW-6A",
+        "R-CW-7",
+        "R-CW-DELEGATE-CHILD-LIVE",
+        "R-CW-DELEGATE-SELF-CONTINUATION",
+        "R-CW-DELEGATE-TOKEN",
+        "R-CW-MULTI-COLLAPSE",
+        "R-CW-MULTI",
+        "R-CW-TOKEN",
+        "R-OBS-1",
+        "R-OBS-2",
+        "R-OBS-STATUS",
+        "R-RC-1",
+        "R-RC-2",
+        "R-REGRESSION-TRAP-TESTS",
+        "R-TRACE-REDACTION-1121"
+      ]
+    },
+    {
+      "id": "MC-14",
+      "severity": "mechanical",
+      "kind": "append_section",
+      "title": "Add wave, reviewer sign-off and the completion checklist",
+      "rationale": "The template ends with a 19-item completion checklist plus Wave assignment and a reviewer-not-the-prince sign-off. Without it there is no per-issue exit gate, and project 86 has no Row/Seat/Wave custom fields (verified read-only: 13 fields, none of them Row/Seat/Wave), so this identity can only live in the body.",
+      "text": "\n## Wave\n\nWave: `<0 harness | 1 critical-first | 2 parallel bulk | 3 serialized tail>`\nReviewer (must not be the row prince): `<PRINCE>`\n\n## Completion checklist\n\n- [ ] Project 86 `Status` walked `Todo` -> `in_coding_agent` -> `In Progress` -> `prince_review`\n- [ ] Pre-fire identity gate G1-G5 pasted into this issue; G2 == G1; G3 > 0\n- [ ] `seat-readiness.json` is `PASS-candidate`\n- [ ] Same-session lock guard run (or row is documented concurrency-safe)\n- [ ] Row fired **exactly once**; any prior attempt is a ledgered mechanically-proven non-fire\n- [ ] Both-forms mandate satisfied, or explicitly N/A with the sibling row named\n- [ ] Token-surface provenance recorded (raw final text vs message-tool body)\n- [ ] All required receipts present and byte-readable; none promised\n- [ ] Tempo trace JSON captured (or trace debt stated honestly and the row is not `pass`)\n- [ ] Bounded, redacted gateway journal captured (or debt intentionally retained as PARTIAL)\n- [ ] `EVIDENCE.md` carries the explicit \"no secrets\" line\n- [ ] No secrets anywhere in artifacts, commits, or this issue; no stale `pending_push` /\n      `upload-blame` / `TODO-UPLOAD` tokens\n- [ ] `node tools/k6-proofs/scripts/validate-corpus.mjs --sha <FINAL_CANDIDATE_SHA>` output pasted\n- [ ] Artifacts committed direct to `main` under this issue's declared destination only\n- [ ] Zero edits to `INDEX.json`, `proofs-manifest.json`, or corpus-root docs\n- [ ] Proposed state stated here: `pass` / `partial` / `thin` / `fail` / `honest_limit`, with reasons\n- [ ] Regression issue opened and linked, if applicable\n- [ ] Reviewer (not the row prince) signed off\n- [ ] Scribe folded the row; `validate-corpus.mjs --index` exit 0 pasted\n- [ ] Status set to `Done` (or `swim` with the blocking issue named)\n",
+      "applies_to": [
+        "preflight",
+        "R-CD-1",
+        "R-CD-2",
+        "R-CD-3",
+        "R-CD-4",
+        "R-CD-CHAINED-DEPTH-2",
+        "R-CD-COLLECTION-ON-COLLAPSE",
+        "R-CD-MODEL-CHAINED-ALT",
+        "R-CD-MODEL-DEFAULT",
+        "R-CD-MODEL-TOKEN",
+        "R-CD-MODEL-TOOL",
+        "R-CD-RETURN-OVERLAP",
+        "R-CD-SILENT",
+        "R-CD-TOKEN",
+        "R-CONFIG-DEFAULTS",
+        "R-CONFIG-INTERSESSION",
+        "R-CW-1",
+        "R-CW-2",
+        "R-CW-3",
+        "R-CW-4",
+        "R-CW-5",
+        "R-CW-5A",
+        "R-CW-6",
+        "R-CW-6A",
+        "R-CW-7",
+        "R-CW-DELEGATE-CHILD-LIVE",
+        "R-CW-DELEGATE-SELF-CONTINUATION",
+        "R-CW-DELEGATE-TOKEN",
+        "R-CW-MULTI-COLLAPSE",
+        "R-CW-MULTI",
+        "R-CW-TOKEN",
+        "R-OBS-1",
+        "R-OBS-2",
+        "R-OBS-STATUS",
+        "R-RC-1",
+        "R-RC-2",
+        "R-REGRESSION-TRAP-TESTS",
+        "R-TRACE-REDACTION-1121"
+      ],
+      "note": "Appended verbatim to every body. For the 3 support entries (preflight, R-CW-5A, R-CW-6A) drop the 'validate-corpus.mjs --sha' and 'Scribe folded the row' lines: they are not corpus rows and are never folded into rows[]."
+    },
+    {
+      "id": "MC-15",
+      "severity": "mechanical",
+      "kind": "append_after_line",
+      "title": "R-OBS-1: pre-check the tool inventory that failed it last round",
+      "rationale": "R-OBS-1 is the one reference-corpus `fail`, caused by a disposable session whose effective policy denied `session_status` (docs issue #439). The body carries no warning and no pre-check, so the round is set up to reproduce a known avoidable failure on its one already-failing row.",
+      "anchor": "Same-session concurrency safe:",
+      "text": "\n- **Known repeat-failure guard (docs issue #439):** before firing, confirm `session_status` is present in `tools.effective` for the exact session this row will use. If it is denied, that is a seat/policy setup condition - fix it or classify the row setup/`PARTIAL`; it is not product evidence.\n",
+      "applies_to": [
+        "R-OBS-1"
+      ]
+    },
+    {
+      "id": "MC-16",
+      "severity": "mechanical",
+      "kind": "replace_in_body",
+      "title": "R-CD-3: mandate the dedicated disposable session",
+      "rationale": "R-CD-3 is the post-compaction lifeboat row and can trigger compaction, which per SAFETY-ROWS.md 1 holds a session-write-lock. Its manifest says sameSessionConcurrencySafe:true and the body only hedges \"use a disposable/isolated session when the row can compact\", which is a preference, not a rule.",
+      "per_row": {
+        "R-CD-3": {
+          "find": "Same-session concurrency safe: **true**. The manifest permits concurrency, but use a disposable/isolated session when the row can compact or alter session-local state.",
+          "replace": "Same-session concurrency safe: **true** at the manifest level, but this row can trigger a compaction cycle, which holds a session-write-lock (SAFETY-ROWS.md 1). You **must** use a dedicated disposable session and **must not** co-fire any other `R-CW-*` / `R-CD-*` / `R-RC-*` row against it."
+        }
+      },
+      "applies_to": [
+        "R-CD-3"
+      ]
+    },
+    {
+      "id": "MC-17",
+      "severity": "mechanical",
+      "kind": "global_substitution",
+      "title": "Resolve <FINAL_CANDIDATE_SHA> exactly once, mechanically",
+      "rationale": "plan.candidate_sha is null. The token appears 310 times across the 38 bodies and 38 more times in artifact_subtree (348 sites). It is a single unambiguous literal with no partial-word collisions, so substitution is safe and verifiable. evidence-writer.mjs rejects any non-40-char lowercase SHA, and validate-corpus requires capture_sha == directory name.",
+      "procedure": "1. Freeze the candidate. 2. Assert `[[ \"$SHA\" =~ ^[0-9a-f]{40}$ ]]`. 3. Set `plan.candidate_sha`. 4. `python3 -c` byte substitution of the literal `<FINAL_CANDIDATE_SHA>` -> `$SHA` over `rows[].body`, `rows[].title` and `rows[].artifact_subtree`. 5. Assert zero residual occurrences of `<FINAL_CANDIDATE_SHA>` and exactly 348 occurrences of `$SHA`. 6. Leave `<SEAT>`, `<SESSION_KEY>`, `<EXACT_CANDIDATE_WORKTREE>`, `<EMPTY_PRIVATE_ARTIFACT_DIR>`, `<FEATURE_SOURCE_PATH>`, `<FEATURE_MARKER>` unsubstituted - those are per-seat runtime values.",
+      "counts": {
+        "body_occurrences": 310,
+        "artifact_subtree_occurrences": 38,
+        "total": 348
+      },
+      "applies_to": [
+        "preflight",
+        "R-CD-1",
+        "R-CD-2",
+        "R-CD-3",
+        "R-CD-4",
+        "R-CD-CHAINED-DEPTH-2",
+        "R-CD-COLLECTION-ON-COLLAPSE",
+        "R-CD-MODEL-CHAINED-ALT",
+        "R-CD-MODEL-DEFAULT",
+        "R-CD-MODEL-TOKEN",
+        "R-CD-MODEL-TOOL",
+        "R-CD-RETURN-OVERLAP",
+        "R-CD-SILENT",
+        "R-CD-TOKEN",
+        "R-CONFIG-DEFAULTS",
+        "R-CONFIG-INTERSESSION",
+        "R-CW-1",
+        "R-CW-2",
+        "R-CW-3",
+        "R-CW-4",
+        "R-CW-5",
+        "R-CW-5A",
+        "R-CW-6",
+        "R-CW-6A",
+        "R-CW-7",
+        "R-CW-DELEGATE-CHILD-LIVE",
+        "R-CW-DELEGATE-SELF-CONTINUATION",
+        "R-CW-DELEGATE-TOKEN",
+        "R-CW-MULTI-COLLAPSE",
+        "R-CW-MULTI",
+        "R-CW-TOKEN",
+        "R-OBS-1",
+        "R-OBS-2",
+        "R-OBS-STATUS",
+        "R-RC-1",
+        "R-RC-2",
+        "R-REGRESSION-TRAP-TESTS",
+        "R-TRACE-REDACTION-1121"
+      ]
+    }
+  ],
+  "non_blocking_followups": [
+    {
+      "id": "FU-01",
+      "title": "File a docs issue to reconcile manifests/r-rc-2.json with SAFETY-ROWS.md",
+      "detail": "The manifest declares sameSessionConcurrencySafe:true and requiresHumanConfirmation:false for a state-mutating compaction row. SAFETY-ROWS.md Guardrails 1/2/5 require the opposite. MC-07 works around it procedurally; the manifest itself still needs fixing so live-run-guard.mjs can enforce it mechanically. Round contract 15.1 already asks for this.",
+      "blocking": false
+    },
+    {
+      "id": "FU-02",
+      "title": "Catalog data defect: R-CD-4 suggested_owner_seat_class is the bare name \"rune\"",
+      "detail": "Every other row cites a canon seat name (cael-dgx, ronan-dgx, silas-lothric, elliott-legion, emeric-nuc, rune-rog-ally). R-CD-4 cites \"rune\". Normalise to rune-rog-ally in the catalog.",
+      "blocking": false
+    },
+    {
+      "id": "FU-03",
+      "title": "R-REGRESSION-TRAP-TESTS halt scope disagrees between catalog and breadcrumbs",
+      "detail": "The breadcrumbs classify its haltScope as \"all-proofs\" (\"a failing shared regression trap invalidates the assembly baseline\"), and R-CONFIG-DEFAULTS as \"all-continuation-proofs\". The catalog gives both the generic \"this row or its directly affected continuation family\". The divergence is in the safe direction (it cannot cause a wrongful fleet halt) but it means a genuine baseline invalidation has no declared escalation path in the issue body.",
+      "blocking": false
+    },
+    {
+      "id": "FU-04",
+      "title": "command_source citation is looser than the instantiated command",
+      "detail": "23 rows cite PROOF-RUN-METHOD.md:95-109 as the source. Those lines do document the row-list live form, but as `./scripts/run-proofs.sh R-CD-2,R-CD-4 <sha>` with OPENCLAW_GATEWAY_WS, OPENCLAW_GATEWAY_TOKEN and both disposable-session variables, and without --live or OPENCLAW_RUNTIME_BUILD_SHA. --live is a real flag (run-proofs.sh line 72) so the command executes, but the citation should be widened or the command aligned. MC-01/MC-02 close the material part of the gap.",
+      "blocking": false
+    },
+    {
+      "id": "FU-05",
+      "title": "Breadcrumbs are bound to assembly SHA b134a64a…, not to the final candidate",
+      "detail": "If <FINAL_CANDIDATE_SHA> != b134a64a44351bcbce2d086da4ac30a596c01699, symbol and test paths in the breadcrumbs may drift. The document already declares itself triage assistance and not a behavioral verdict; record the delta in issue #451 when the candidate is frozen.",
+      "blocking": false
+    },
+    {
+      "id": "FU-06",
+      "title": "Workflow-dispatch rung A1 points at a different repository than the committed workflow",
+      "detail": "The issue template A1 block runs `gh workflow run project81-k6-proof.yml --repo karmaterminal/openclaw-bootstrap`, while `.github/workflows/project81-k6-proof.yml` also exists in karmaterminal-openclaw-docs at the docs base. No planned body uses rung A1, so this does not block creation, but the ladder should name the authoritative copy.",
+      "blocking": false
+    },
+    {
+      "id": "FU-07",
+      "title": "Six assignments diverge from the catalog-suggested seat without a substitution record",
+      "detail": "R-CD-4 (suggested rune -> emeric); R-CW-7, R-CW-DELEGATE-CHILD-LIVE, R-CW-DELEGATE-TOKEN, R-CW-MULTI, R-CW-MULTI-COLLAPSE (suggested ronan-dgx -> emeric); R-OBS-STATUS (suggested elliott-legion -> rune). All seven are defensible - six are offline static rows and the moves relieve ronan - but round contract 1 requires substitutions to be named. MC-10 records the accountable prince; the substitution rationale still needs a line in each issue.",
+      "blocking": false
+    },
+    {
+      "id": "FU-08",
+      "title": "Emeric is not in the reference corpus dispatch_allocation",
+      "detail": "The reference manifest allocates cael 8, elliott 8, ronan 16, rune 1, silas 2 - no emeric. Emeric held the independent read-only reconciliation arm. Giving emeric six rows is a sound rebalance, but the scribe must then name a different independent reviewer for emeric's rows and confirm the round still has a non-firing reconciliation arm.",
+      "blocking": false
+    },
+    {
+      "id": "FU-09",
+      "title": "Project 86 already contains three items",
+      "detail": "Read-only check: project 86 holds issue #451 (In Progress), issue #1423 (in_coding_agent) and PR #1425 (Todo). After creation the project must contain exactly 41 items, of which 38 are the new proof issues. Post-create verification must use that number, not 38.",
+      "blocking": false
+    }
+  ],
+  "adjudications": {
+    "r_rc_2_manifest_concurrency_vs_safety_rows": {
+      "question": "R-RC-2 manifest concurrency versus SAFETY-ROWS.md",
+      "finding": "tools/k6-proofs/manifests/r-rc-2.json declares liveRunSafety.sameSessionConcurrencySafe: true and requiresHumanConfirmation: false. SAFETY-ROWS.md classifies R-RC-2 as state-mutating and Guardrails 1 makes serialization load-bearing via an actual session-write-lock held for up to agents.defaults.compaction.timeoutSeconds (default 180s); Guardrails 2 fixes R-RC-1 before R-RC-2; Guardrails 5 requires mutating rows to carry serialized:true + requiresHumanConfirmation:true. The planned R-RC-2 body reproduces the manifest value verbatim (\"Same-session concurrency safe: true\") and mentions neither the ordering nor human confirmation. live-run-guard.mjs sets lockRequired only when sameSessionConcurrencySafe === false, so no mechanical lock will ever be taken for this row on either the primary or the fallback path.",
+      "ruling": "BLOCKER. The runbook wins. R-RC-2 is serialized fail-closed and human-confirmed for project 86, exactly as round contract 3.3 and 15.1 already ruled. Because the guard cannot enforce it, serialization must be made procedural in the body (MC-07) and R-RC-1 must carry the ordering obligation (MC-08). A docs issue is filed to reconcile the manifest (FU-01). Do not relax the runbook to match the manifest and do not resolve this by improvisation at fire time.",
+      "corrections": [
+        "MC-07",
+        "MC-08"
+      ],
+      "followups": [
+        "FU-01"
+      ]
+    },
+    "is_38_correct_against_a_35_row_denominator": {
+      "question": "Whether 38 issues is correct despite the 35-row corpus denominator",
+      "finding": "The catalog reconciles 38 manifest entries as 35 canonical reference rows + preflight + R-CW-5A/R-CW-6A, and that reconciliation checks out against the bytes: 38 manifests and 35 scenario files exist at the docs base; reference_required is true for exactly 35 entries; the reference corpus proofs-manifest.json has rows=35, required_rows=35 and rollup.total_rows=35 with no preflight/R-CW-5A/R-CW-6A row; and the breadcrumbs independently represent exactly the same 35. The plan is a byte-faithful projection with one added assignee field.",
+      "ruling": "38 is correct as an ISSUE count and 35 is correct as the CORPUS denominator. They are different quantities and the round must publish both, with the corpus one cited as authoritative. The risk is not the count; it is that the three support issues currently point at corpus row directories, which would force the scribe to choose between a failing validator and a 38-row rollup. MC-05 and MC-06 remove that choice.",
+      "corrections": [
+        "MC-05",
+        "MC-06"
+      ],
+      "followups": []
+    },
+    "r_cw_5a_6a_representation": {
+      "question": "How R-CW-5A / R-CW-6A are represented without corrupting corpus rollup",
+      "finding": "Both are catalog_scope \"manifest-only static companion\", reference_required false, expected_artifact_class \"construct-only\", and their verdict contract explicitly says PASS is \"not permitted as a runtime row PASS\". Neither has a row object or a row directory in the reference corpus. But their planned Row-owned destination is PROOFS/<FINAL_CANDIDATE_SHA>/R-CW-5A/<SEAT>/ and .../R-CW-6A/<SEAT>/. validate-corpus.mjs no-orphan-row-dirs tolerates only artifacts/, gates/ and _-prefixed subdirectories, and tallied.total_rows is literally manifest.rows.length. So as planned, committing them either fails the validator on the very next fold or forces the scribe to add them to rows[] - which would push total_rows to 38 and demand a state from {pass,partial,thin,fail,honest_limit,missing} that their own contract forbids.",
+      "ruling": "BLOCKER, mechanically fixable. Retarget both to PROOFS/<FINAL_CANDIDATE_SHA>/_static-companions/<ROW-ID>/<SEAT>/ (underscore-prefixed, validator-ignored) and add an explicit \"Not a corpus row\" clause forbidding any appearance in required_rows, rows[] or rollup. Same treatment for preflight, retargeted to PROOFS/<FINAL_CANDIDATE_SHA>/gates/preflight/<SEAT>/, matching the reference corpus which keeps seat/fleet readiness under artifacts/ rather than as a row dir.",
+      "corrections": [
+        "MC-05",
+        "MC-06"
+      ],
+      "followups": []
+    },
+    "absent_gateway_reload_yml": {
+      "question": "Absent gateway-reload.yml",
+      "finding": "Confirmed absent: no path matching gateway-reload anywhere in the docs repository at abe1f9f0749d849b01da4e5d354c205ecffac946. The workflows present are k6-proof.yml and project81-k6-proof.yml. Round contract 5.3 and 15.3 record the absence correctly, and the issue template carries it as a comment. R-CW-5 and R-CW-6 correctly use the process-local fixtures run-cost-cap-fixture.mjs and run-max-chain-fixture.mjs, both of which exist and both of whose flags (--source-dir, --candidate-sha, --artifact-dir, --cap, --max-chain-length, --json) are accepted by the committed scripts.",
+      "ruling": "No blocker. No planned body names gateway-reload.yml or any reload/restart mechanism. The residual risk is that the R-CW-5/R-CW-6 bodies do not repeat the prohibition, so a prince hitting the fixture boundary could improvise a restart. MC-09 folds the prohibition and the 0700 artifact-directory gate into both bodies.",
+      "corrections": [
+        "MC-09"
+      ],
+      "followups": []
+    },
+    "runbook_rows_without_manifests": {
+      "question": "Runbook rows without manifests",
+      "finding": "Round contract 15.4 names R-CW-ACTIVE-OVERLAP and R-CONTINUATION-MIXED-SURFACE-FANOUT as defined in RUNBOOKS/PROOF-CORPUS-METHOD.md but absent from the reference required_rows and from tools/k6-proofs/manifests/. Verified: neither appears in the catalog, the plan, the breadcrumbs, or the 38 manifest files. Every one of the 38 planned issues has a manifest that exists at the docs base, with no duplicates.",
+      "ruling": "No blocker, and the exclusion is correct. A row with no manifest has no declared receipt contract, no liveRunSafety block and no expectedArtifactClass, so rung A4 alone cannot produce foldable evidence for it. Do not add either row to project 86 in this round. If a later round wants them, they need a manifest plus a scenario before dispatch. Record the exclusion in the round denominator statement so the round cannot be accused of silently shrinking its scope.",
+      "corrections": [],
+      "followups": []
+    },
+    "final_candidate_sha_replacement": {
+      "question": "Final mechanical replacement of <FINAL_CANDIDATE_SHA>",
+      "finding": "plan.candidate_sha is null. The literal <FINAL_CANDIDATE_SHA> occurs 310 times across the 38 bodies (7 or 9 per body) and 38 more times in rows[].artifact_subtree, for 348 sites. It never occurs in a title. No other placeholder shares a prefix with it. The remaining placeholders (<SEAT> 132, <SESSION_KEY> 62, <EXACT_CANDIDATE_WORKTREE> 2, <EMPTY_PRIVATE_ARTIFACT_DIR> 2) are per-seat runtime values and must survive substitution.",
+      "ruling": "Safe and mechanically verifiable, with three preconditions. First, freeze and validate the SHA as 40-char lowercase hex before substituting - evidence-writer.mjs rejects anything else and validate-corpus requires capture_sha to equal the directory name. Second, apply MC-01 before substitution, otherwise the substitution is what hard-codes the false runtime attestation into 348 sites. Third, assert post-conditions: zero residual <FINAL_CANDIDATE_SHA> and exactly 348 occurrences of the SHA across body+artifact_subtree.",
+      "corrections": [
+        "MC-17",
+        "MC-01"
+      ],
+      "followups": []
+    },
+    "can_a_prince_halt_the_round_or_launder_context_pressure": {
+      "question": "Whether any issue body can make a prince halt the whole round on a row-local failure, or accept generic context pressure as completion",
+      "finding": "Fleet halt: no. failure_scope.blocks_all_proofs is false on all 38 entries. 35 bodies scope failure to \"this row or its directly affected continuation family\"; R-CONFIG-DEFAULTS and R-CONFIG-INTERSESSION scope to \"live continuation rows on the affected seat\"; preflight scopes to \"all live rows on the affected seat\" and explicitly lets static validators and isolated fixtures continue. All 38 carry \"Continue independent proof rows unless the finding is explicitly classified as a halt-state\" and route non-trivial failures to a karmaterminal/openclaw issue rather than to a stop. Context pressure: no. All 38 carry \"Context pressure, missing lifecycle receipts, or inability to invoke compaction is PARTIAL/incomplete\", and honest_limit.permitted is true for R-RC-2 alone, gated on a nonce-bound request_compaction toolResult with status rejected and guard context_threshold. R-CW-5A and R-CW-6A additionally state that passing static automation while candidate behavior stays unexecuted is still incomplete.",
+      "ruling": "PASS on both, and this is the plan's strongest property. Two residual gaps, neither of which creates a halt: no body uses the word \"swim\" or names the family-local swim path from round contract 9.2, and no body links the breadcrumbs whose declaredFailureClassTriage and haltScope fields are what let a prince tell row-local from family-local. MC-12 supplies both. Note the one genuine escalation asymmetry: the breadcrumbs classify R-REGRESSION-TRAP-TESTS as \"all-proofs\" and R-CONFIG-DEFAULTS as \"all-continuation-proofs\", while the catalog gives them narrower scopes - an under-escalation, tracked as FU-03.",
+      "corrections": [
+        "MC-12"
+      ],
+      "followups": [
+        "FU-03"
+      ]
+    }
+  },
+  "assignment": {
+    "planned": {
+      "scribe": {
+        "total": 1,
+        "serial_bound": 0,
+        "live_k6": 0,
+        "isolated_fixture": 0,
+        "static_validator": 0,
+        "support": 1
+      },
+      "silas": {
+        "total": 2,
+        "serial_bound": 2,
+        "live_k6": 2,
+        "isolated_fixture": 0,
+        "static_validator": 0,
+        "support": 0
+      },
+      "cael": {
+        "total": 8,
+        "serial_bound": 6,
+        "live_k6": 6,
+        "isolated_fixture": 0,
+        "static_validator": 2,
+        "support": 0
+      },
+      "ronan": {
+        "total": 13,
+        "serial_bound": 10,
+        "live_k6": 9,
+        "isolated_fixture": 2,
+        "static_validator": 2,
+        "support": 0
+      },
+      "emeric": {
+        "total": 6,
+        "serial_bound": 1,
+        "live_k6": 1,
+        "isolated_fixture": 0,
+        "static_validator": 5,
+        "support": 0
+      },
+      "elliott": {
+        "total": 7,
+        "serial_bound": 1,
+        "live_k6": 4,
+        "isolated_fixture": 0,
+        "static_validator": 3,
+        "support": 0
+      },
+      "rune": {
+        "total": 1,
+        "serial_bound": 0,
+        "live_k6": 0,
+        "isolated_fixture": 0,
+        "static_validator": 1,
+        "support": 0
+      }
+    },
+    "recommended": {
+      "scribe": {
+        "total": 1,
+        "serial_bound": 0,
+        "live_k6": 0,
+        "isolated_fixture": 0,
+        "static_validator": 0,
+        "support": 1
+      },
+      "silas": {
+        "total": 4,
+        "serial_bound": 4,
+        "live_k6": 4,
+        "isolated_fixture": 0,
+        "static_validator": 0,
+        "support": 0
+      },
+      "cael": {
+        "total": 8,
+        "serial_bound": 6,
+        "live_k6": 6,
+        "isolated_fixture": 0,
+        "static_validator": 2,
+        "support": 0
+      },
+      "ronan": {
+        "total": 7,
+        "serial_bound": 6,
+        "live_k6": 5,
+        "isolated_fixture": 2,
+        "static_validator": 0,
+        "support": 0
+      },
+      "emeric": {
+        "total": 8,
+        "serial_bound": 3,
+        "live_k6": 3,
+        "isolated_fixture": 0,
+        "static_validator": 5,
+        "support": 0
+      },
+      "elliott": {
+        "total": 7,
+        "serial_bound": 1,
+        "live_k6": 4,
+        "isolated_fixture": 0,
+        "static_validator": 3,
+        "support": 0
+      },
+      "rune": {
+        "total": 3,
+        "serial_bound": 0,
+        "live_k6": 0,
+        "isolated_fixture": 0,
+        "static_validator": 3,
+        "support": 0
+      }
+    },
+    "rebalance_moves": [
+      {
+        "row_id": "R-CW-2",
+        "from": "ronan-dandelion-cult",
+        "to": "silas-dandelion-cult"
+      },
+      {
+        "row_id": "R-CW-3",
+        "from": "ronan-dandelion-cult",
+        "to": "silas-dandelion-cult"
+      },
+      {
+        "row_id": "R-CW-4",
+        "from": "ronan-dandelion-cult",
+        "to": "emeric-dandelion-cult"
+      },
+      {
+        "row_id": "R-CW-DELEGATE-SELF-CONTINUATION",
+        "from": "ronan-dandelion-cult",
+        "to": "emeric-dandelion-cult"
+      },
+      {
+        "row_id": "R-CW-5A",
+        "from": "ronan-dandelion-cult",
+        "to": "rune-dandelion-cult"
+      },
+      {
+        "row_id": "R-CW-6A",
+        "from": "ronan-dandelion-cult",
+        "to": "rune-dandelion-cult"
+      }
+    ],
+    "serialized_rows_contract_corrected": [
+      "R-CD-1",
+      "R-CD-2",
+      "R-CD-4",
+      "R-CD-CHAINED-DEPTH-2",
+      "R-CD-MODEL-CHAINED-ALT",
+      "R-CD-MODEL-DEFAULT",
+      "R-CD-MODEL-TOKEN",
+      "R-CD-MODEL-TOOL",
+      "R-CD-SILENT",
+      "R-CD-TOKEN",
+      "R-CW-1",
+      "R-CW-2",
+      "R-CW-3",
+      "R-CW-4",
+      "R-CW-DELEGATE-SELF-CONTINUATION",
+      "R-CW-TOKEN",
+      "R-RC-1",
+      "R-RC-2",
+      "R-CW-5",
+      "R-CW-6"
+    ]
+  },
+  "final_recommendation": {
+    "issue_count": 38,
+    "issue_count_is_correct": true,
+    "denominator_language": "Project 86 dispatches 38 issues. Exactly 35 of them are exact-SHA corpus rows: they are the sole membership of PROOFS/<FINAL_CANDIDATE_SHA>/proofs-manifest.json::required_rows and rows[], and the sole input to INDEX.json::rollup, whose total_rows is 35. The remaining 3 issues are coordination/support and are never folded into rows[] and never counted in any rollup: preflight (seat readiness, support class) and the manifest-only static companions R-CW-5A and R-CW-6A, whose own verdict contract forbids a runtime PASS and whose output is construct-only. The corpus denominator for project 86 is therefore 35, cited as \"35 exact-SHA corpus rows (38 dispatched issues = 35 corpus rows + 1 preflight + 2 static companions)\". The 36/34 numbers produced by list-runnable-rows.mjs --all and --live-suite are runner selectors and must never be published as the round denominator."
+  },
+  "acceptance": {
+    "no_issue_created_from_contradictory_or_unsafe_body": "Satisfied only after MC-01..MC-12 are applied; before that, 38/38 bodies fail at least one blocker check.",
+    "corpus_denominator_stays_distinct": "Satisfied after MC-05 and MC-06 move preflight/R-CW-5A/R-CW-6A out of the row-dir namespace and declare their non-corpus status.",
+    "princes_never_touch_shared_manifests": "Already satisfied: all 38 bodies carry the \"do not edit PROOFS/INDEX.json or proofs-manifest.json\" clause and a disjoint row-owned destination.",
+    "row_local_failure_is_never_a_fleet_halt": "Already satisfied: blocks_all_proofs is false on all 38 entries and all 38 carry \"Continue independent proof rows unless the finding is explicitly classified as a halt-state.\"",
+    "generic_context_pressure_is_never_completion": "Already satisfied: all 38 carry the PARTIAL policy, and honest_limit is permitted on R-RC-2 only, gated on a nonce-bound rejected request_compaction toolResult with guard=context_threshold.",
+    "corrections_are_mechanically_applicable": "Satisfied: every correction is a literal find/replace, an anchored insert, or a single global substitution, specified against exact bytes.",
+    "no_credentials_or_private_session_material_in_outputs": "Satisfied: inputs and outputs scanned; only the literal env var NAME OPENCLAW_GATEWAY_TOKEN and *** placeholders appear, no values."
+  },
+  "pre_create_checklist": [
+    "Freeze the candidate SHA; assert 40-char lowercase hex; record it on issue #451 and set plan.candidate_sha.",
+    "Run G3 once round-wide for the chosen candidate (feature-presence probe). If it returns 0, do not create any issue - the pin is wrong.",
+    "Apply MC-01 through MC-12 (blockers) to the plan JSON, then MC-13 through MC-16.",
+    "Apply MC-17 (<FINAL_CANDIDATE_SHA> substitution) LAST; assert 0 residual tokens and 348 substituted sites.",
+    "Re-run the reconciliation asserts: 38 rows, 35 with reference_required true, 3 support entries, no duplicate row ids, no duplicate manifest paths.",
+    "Assert no body still contains the strings \"OPENCLAW_RUNTIME_BUILD_SHA=\" or \"Live assignment: none\".",
+    "Assert every serialized row body contains \"live-run-guard.mjs\", and that R-RC-2 no longer says \"Same-session concurrency safe: **true**\".",
+    "Assert all three support bodies contain \"_static-companions\" or \"gates/preflight\" and the \"Not a corpus row\" clause.",
+    "Assert all 38 bodies contain \"G1 ok\", \"seat-readiness-preflight.mjs\", \"Both-forms mandate\", \"project86-proof-code-breadcrumbs\" and \"project86-regression-triage-template\".",
+    "Seed C0 first: create PROOFS/<SHA>/ with README.md, METHOD.md, RESOLVED-SHA.md, ARTIFACTS.md and a seed proofs-manifest.json listing all 35 required rows at state \"missing\", plus required_rows[] and dispatch_allocation; point INDEX.json at the new SHA; confirm validate-corpus.mjs --index exits 0 with missing = total_rows = 35.",
+    "Reconcile every assignee against the seeded proofs-manifest.json::dispatch_allocation - not the catalog owner table, not this report. If they conflict, stop dispatch and repair the corpus first.",
+    "Record the six rebalance moves and the seven seat substitutions as explicit substitution notes; name a non-firing independent reviewer for emeric's rows.",
+    "Confirm no credential, session key, nonce or private filesystem path appears in any body; the only permitted token forms are the bare variable name and ***.",
+    "Confirm project 86 currently holds 3 items so the post-create expectation is 41.",
+    "Open Wave 1 issues only (one live row per participating seat); hold Wave 2 in Todo until every Wave 1 row clears prince_review."
+  ],
+  "post_create_verification_checklist": [
+    "Assert exactly 38 new issues exist in karmaterminal/karmaterminal-openclaw-docs, one per row id, no duplicates: gh issue list --search \"[P86]\" --limit 100 --json number,title.",
+    "Assert every created issue body is byte-identical to the corrected plan row body (hash each body and compare to sha256 of plan.rows[].body).",
+    "Assert project 86 holds 41 items total (3 pre-existing + 38 new) and that all 38 new items are at Status = Todo.",
+    "Assert each of the 38 issues has exactly one assignee and that the assignee set matches the recommended allocation: ronan 7, cael 8, elliott 7, emeric 8, silas 4, rune 3, scribe 1.",
+    "Assert each issue is linked to umbrella #451.",
+    "Assert zero issue bodies contain \"<FINAL_CANDIDATE_SHA>\", \"OPENCLAW_RUNTIME_BUILD_SHA=\", \"Live assignment: none\", or a 40-char hex string other than the frozen candidate and the reference corpus SHA 4c235d8c1997e8964160117f8d6bf650ad1e8203 and docs base abe1f9f0749d849b01da4e5d354c205ecffac946.",
+    "Assert the 35 corpus issues name a Row-owned destination under PROOFS/<SHA>/<ROW-ID>/ and that the 3 support issues do not.",
+    "Secret-scan all 38 created bodies for token/bearer/authorization/session_key material; expect zero hits beyond bare variable names.",
+    "Re-run and paste: node tools/k6-proofs/scripts/check-manifest-scenarios.mjs; check-scenario-alignment.mjs; check-proof-row-manifests.mjs; validate-corpus.mjs --index. All must be green before Wave 1 fires.",
+    "Post the denominator statement verbatim on issue #451 before Wave 1, per PROOF-RUN-METHOD.md section 1 and round contract 15.2."
+  ]
+}

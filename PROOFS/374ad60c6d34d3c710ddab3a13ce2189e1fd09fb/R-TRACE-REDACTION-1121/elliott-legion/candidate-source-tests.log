@@ -1,0 +1,13 @@
+[test] starting test/vitest/vitest.infra.config.ts
+
+ RUN  v4.1.10 OPENCLAW_CANDIDATE_SOURCE
+
+ ✓ |infra| src/infra/continuation-tracer.test.ts (35 tests) 644ms
+     ✓ default tracer is the no-op tracer  601ms
+
+ Test Files  1 passed (1)
+      Tests  35 passed (35)
+   Start at  03:34:02
+   Duration  1.57s (transform 1.11s, setup 796ms, import 26ms, tests 644ms, environment 0ms)
+
+[test] passed 1 Vitest shard in 5.59s

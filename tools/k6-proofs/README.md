@@ -423,6 +423,21 @@ The block records:
 
 When `OPENCLAW_ROW_MANIFEST` is set, `run-proof.sh` calls `scripts/live-run-guard.mjs` before invoking k6. The guard fails closed if required token/session/SHA env is absent, if the manifest's live/static classification contradicts its scenario status, or if a same-session unsafe row is already running against the same target session.
 
+The guard **computes** the lock identity; it never takes the lock itself. `--json` and `--shell` report `lockRequired`, `lockRequiredReason` (`manifest-declared` / `caller-override` / `none`) and two lock paths; the caller is responsible for actually holding them — `run-proof.sh` holds `lockPath` on fd 9, and any other caller must wrap its whole run in `flock`. Reporting a lock is not owning one.
+
+- `lockPath` (`/tmp/openclaw-k6-proof-*.lock`) is keyed on `(rowId, target session)` and excludes a second run of **that row** against that session.
+- `sessionLockPath` (`/tmp/openclaw-k6-session-*.lock`) is keyed on the **target session** alone and excludes any *other* continuation row against that session.
+
+Callers that must honour both obligations nest them session-outer then row-inner — always in that order, so the acquisition order is global and cannot deadlock:
+
+```bash
+flock --nonblock --conflict-exit-code 75 "$K6_PROOF_SESSION_LOCK_PATH" \
+  flock --nonblock --conflict-exit-code 75 "$K6_PROOF_LOCK_PATH" \
+    ./scripts/run-proofs.sh --live <ROW> <SHA>
+```
+
+`--require-lock` lets a caller escalate a row whose manifest declares `sameSessionConcurrencySafe: true` but whose proof-round contract overrides it to serialized (for example `R-RC-2`). It can only **add** a lock requirement, never remove one, and sets `lockRequiredReason` to `caller-override` so the escalation is visible in the emitted variables.
+
 ### Redaction boundary
 
 **No secrets in source or public artifacts.** Gateway tokens come from env vars only.
@@ -640,6 +655,9 @@ node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
 
 # Fail-closed live-run safety guard for one manifest
 node tools/k6-proofs/scripts/live-run-guard.mjs --manifest tools/k6-proofs/manifests/r-cd-2.json --json
+
+# Same, escalating a contract-overridden row to serialized, as shell exports to eval
+node tools/k6-proofs/scripts/live-run-guard.mjs --manifest tools/k6-proofs/manifests/r-rc-2.json --shell --require-lock
 
 # Validate workflow scenario choices and row-manifest scenario alignment
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs

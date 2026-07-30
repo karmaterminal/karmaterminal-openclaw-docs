@@ -6,16 +6,29 @@
  * before k6 starts. It validates only the safety contract that affects live runs:
  * required env presence, direct-runnability classification, and same-session
  * concurrency lock metadata.
+ *
+ * `--require-lock` escalates: the caller asserts this row must be serialized even
+ * if the manifest declares `sameSessionConcurrencySafe: true`. It can only add a
+ * lock requirement, never remove one, and the reason is reported as
+ * `lockRequiredReason` so the escalation is visible in evidence.
+ *
+ * The guard COMPUTES lock identity; it never acquires a lock. Two paths are
+ * reported and the caller must hold both, session-outer then row-inner:
+ *   `sessionLockPath` — keyed on the target session alone; excludes any OTHER
+ *                       continuation row from that session.
+ *   `lockPath`        — keyed on (rowId, target session); excludes a second run
+ *                       of THIS row against that session.
+ * The two live in disjoint filename namespaces so they can never alias.
  */
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
 function usage() {
-  console.error('Usage: node tools/k6-proofs/scripts/live-run-guard.mjs --manifest <row-manifest.json> [--shell|--json]');
+  console.error('Usage: node tools/k6-proofs/scripts/live-run-guard.mjs --manifest <row-manifest.json> [--shell|--json] [--require-lock]');
 }
 
 function parseArgs(argv) {
-  const out = { mode: 'text' };
+  const out = { mode: 'text', requireLock: false };
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--shell') {
@@ -24,6 +37,10 @@ function parseArgs(argv) {
     }
     if (arg === '--json') {
       out.mode = 'json';
+      continue;
+    }
+    if (arg === '--require-lock') {
+      out.requireLock = true;
       continue;
     }
     if (arg === '--manifest') {
@@ -110,14 +127,20 @@ function safetyErrors(manifest, env = process.env) {
   return errors;
 }
 
-function buildResult(manifest, env = process.env) {
+function buildResult(manifest, env = process.env, requireLock = false) {
   const safety = manifest.liveRunSafety || {};
   const explicitSession = env.OPENCLAW_SESSION_KEY || '';
   const resolvedSession = explicitSession || resolveEnvPlaceholders(manifest.sessionKey || '', env) || 'unset';
   const rowId = manifest.rowId || 'unknown-row';
-  const lockRequired = safety.sameSessionConcurrencySafe === false;
+  const manifestDeclaresLock = safety.sameSessionConcurrencySafe === false;
+  const lockRequired = manifestDeclaresLock || requireLock === true;
   const lockBasis = `${rowId}\0${resolvedSession}`;
   const lockHash = createHash('sha256').update(lockBasis).digest('hex').slice(0, 24);
+  const sessionLockBasis = `session\0${resolvedSession}`;
+  const sessionLockHash = createHash('sha256').update(sessionLockBasis).digest('hex').slice(0, 24);
+  let lockRequiredReason = 'none';
+  if (manifestDeclaresLock) lockRequiredReason = 'manifest-declared';
+  else if (lockRequired) lockRequiredReason = 'caller-override';
   return {
     ok: true,
     rowId,
@@ -130,8 +153,11 @@ function buildResult(manifest, env = process.env) {
     requiresExternalAgentOrToolInvocation: safety.requiresExternalAgentOrToolInvocation === true,
     sameSessionConcurrencySafe: safety.sameSessionConcurrencySafe === true,
     lockRequired,
+    lockRequiredReason,
     lockPath: lockRequired ? `/tmp/openclaw-k6-proof-${lockHash}.lock` : '',
     lockLabel: lockRequired ? `${rowId}:${resolvedSession}` : '',
+    sessionLockPath: lockRequired ? `/tmp/openclaw-k6-session-${sessionLockHash}.lock` : '',
+    sessionLockLabel: lockRequired ? `session:${resolvedSession}` : '',
   };
 }
 
@@ -157,14 +183,20 @@ if (errors.length) {
   process.exit(1);
 }
 
-const result = buildResult(manifest);
+const result = buildResult(manifest, process.env, args.requireLock);
 if (args.mode === 'json') {
   console.log(JSON.stringify(result, null, 2));
 } else if (args.mode === 'shell') {
   console.log(`K6_PROOF_LOCK_REQUIRED=${result.lockRequired ? '1' : '0'}`);
   console.log(`K6_PROOF_LOCK_PATH=${shellQuote(result.lockPath)}`);
   console.log(`K6_PROOF_LOCK_LABEL=${shellQuote(result.lockLabel)}`);
+  console.log(`K6_PROOF_LOCK_REASON=${shellQuote(result.lockRequiredReason)}`);
+  console.log(`K6_PROOF_SESSION_LOCK_PATH=${shellQuote(result.sessionLockPath)}`);
+  console.log(`K6_PROOF_SESSION_LOCK_LABEL=${shellQuote(result.sessionLockLabel)}`);
 } else {
   console.log(`live-run safety OK: ${result.rowId} (${result.classification}, expected ${result.expectedArtifactClass})`);
-  if (result.lockRequired) console.log(`same-session lock: ${result.lockPath} (${result.lockLabel})`);
+  if (result.lockRequired) {
+    console.log(`same-session lock: ${result.lockPath} (${result.lockLabel}, ${result.lockRequiredReason})`);
+    console.log(`session-wide lock: ${result.sessionLockPath} (${result.sessionLockLabel})`);
+  }
 }

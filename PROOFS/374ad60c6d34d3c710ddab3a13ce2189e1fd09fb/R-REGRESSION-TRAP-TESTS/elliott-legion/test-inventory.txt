@@ -1,0 +1,5 @@
+src/agents/tools/continuation-inventory-opts.test.ts: 5 passed
+src/agents/openclaw-tools.continuation-registration.test.ts: 8 passed
+src/agents/openclaw-tools.continuation-misconfig-warn.test.ts: 7 passed
+src/agents/tools/continuation-tools-registration.test.ts: 13 passed
+Total: 33 passed, 0 failed, 3 Vitest shards

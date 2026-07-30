@@ -1,0 +1,75 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-OUT-PUBLISH",
+  "issue": 491,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": true,
+  "timeoutSeconds": 260,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-out-publish-claim",
+    "description": "Delegate child writes into its delegate-artifacts output root and calls delegate_artifacts_publish; the resulting claim is announced to the originating recipient session with a claim id and no artifact bytes.",
+    "methods": [
+      "sessions.create",
+      "sessions.messages.subscribe",
+      "sessions.send"
+    ],
+    "status": "runnable",
+    "file": "r-cd-out-publish-claim.js"
+  },
+  "invocation": {
+    "tool": "delegate_artifacts_publish",
+    "viaTool": "continue_delegate",
+    "mode": "normal",
+    "delaySeconds": 1,
+    "idempotencyKeyPrefix": "R-CD-OUT-PUBLISH"
+  },
+  "expectedReceipts": [
+    { "name": "tool-invoke-accepted", "required": true, "description": "sessions.send dispatch accepted (agent turn triggered for continue_delegate)" },
+    { "name": "child-publish-accepted", "required": true, "description": "CDOUT-PUBLISHED sentinel: the child's delegate_artifacts_publish call returned a claim id" },
+    { "name": "recipient-bound-claim-announced", "required": true, "description": "CDOUT-CLAIM-ANNOUNCED sentinel on the originating session: the claim is bound to its recipient, not broadcast" },
+    { "name": "claim-id-provenance", "required": true, "description": "The announced claim id matches the published claim id" },
+    { "name": "no-raw-artifact-bytes-on-the-wire", "required": true, "description": "Negative check: artifact content absent from every non-harness frame" },
+    { "name": "no-materialize-without-explicit-action", "required": true, "description": "Negative check: publication alone materialized nothing" },
+    { "name": "trace-id", "required": false, "description": "Trace ID for Tempo fetch when the dispatch response carries one" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-OUT-PUBLISH",
+    "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "PASS-candidate only when publish, recipient-bound announcement, and claim-id provenance all fire and both negative checks hold. The socket is deliberately held open past the last receipt so an automatic materialization would still be caught."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "tool-invoke-accepted",
+      "child-publish-accepted",
+      "recipient-bound-claim-announced",
+      "claim-id-provenance",
+      "no-raw-artifact-bytes-on-the-wire",
+      "no-materialize-without-explicit-action"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Spawns one delegate child that writes a small text file inside its own workspace output root. Nothing is written to the recipient workspace. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Serialize per session."
+  }
+}

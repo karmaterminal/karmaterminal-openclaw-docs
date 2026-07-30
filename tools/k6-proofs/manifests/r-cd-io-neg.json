@@ -1,0 +1,80 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-IO-NEG",
+  "issue": 491,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": true,
+  "timeoutSeconds": 300,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-io-negative-boundary",
+    "description": "Negative boundary for the #491 non-goals: after a claim is announced and with no explicit recipient action, there is no raw-byte mount, no automatic materialization, no Discord/native-media upload, no generic render or forward, and no prompt injection.",
+    "methods": [
+      "sessions.create",
+      "sessions.messages.subscribe",
+      "sessions.send"
+    ],
+    "status": "runnable",
+    "file": "r-cd-io-negative-boundary.js",
+    "notes": "The claim announcement is the positive control: without it the negative window would be vacuously clean."
+  },
+  "invocation": {
+    "tool": "delegate_artifacts_publish",
+    "viaTool": "continue_delegate",
+    "mode": "normal",
+    "delaySeconds": 1,
+    "observationWindowEnv": "OPENCLAW_NEGATIVE_WINDOW_MS",
+    "idempotencyKeyPrefix": "R-CD-IO-NEG"
+  },
+  "expectedReceipts": [
+    { "name": "tool-invoke-accepted", "required": true, "description": "sessions.send dispatch accepted" },
+    { "name": "claim-announced-positive-control", "required": true, "description": "CDNEG-ANNOUNCED sentinel: a real claim was announced, so the negative window is not vacuous" },
+    { "name": "negative-window-elapsed", "required": true, "description": "The bounded observation window ran to term with no violation" },
+    { "name": "no-automatic-raw-byte-mount", "required": true, "description": "Negative check: artifact bytes never crossed the wire unasked" },
+    { "name": "no-automatic-materialization", "required": true, "description": "Negative check: no materialized state without an explicit recipient call" },
+    { "name": "no-native-media-upload", "required": true, "description": "Negative check: no Discord/native-media or channel attachment delivery" },
+    { "name": "no-generic-render-or-forward", "required": true, "description": "Negative check: artifact content never rendered into reply text" },
+    { "name": "no-prompt-injection", "required": true, "description": "Negative check: the announcement carried no injected instruction field" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-IO-NEG",
+    "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "A clean negative window without the positive control is not evidence. Fold only when claim-announced-positive-control and negative-window-elapsed both fired."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "tool-invoke-accepted",
+      "claim-announced-positive-control",
+      "negative-window-elapsed",
+      "no-automatic-raw-byte-mount",
+      "no-automatic-materialization",
+      "no-native-media-upload",
+      "no-generic-render-or-forward",
+      "no-prompt-injection"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Takes no delegate_artifacts action at all — the recipient is instructed to stop after acknowledging the claim. Nothing is written to the recipient workspace. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true."
+  }
+}

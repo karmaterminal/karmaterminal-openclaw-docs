@@ -36,6 +36,14 @@ on:
           - r-cd-model-chained-alt
           - r-cd-model-token
           - r-cd-token-bracket-delegate
+          - r-cd-in-1-typed-input-snapshot
+          - r-cd-in-recovery-queued-restart
+          - r-cd-in-revoke-no-spawn-scrub
+          - r-cd-out-publish-claim
+          - r-cd-out-claim-lifecycle
+          - r-cd-out-unauthorized-reject
+          - r-cd-out-restart-replay
+          - r-cd-io-negative-boundary
           - r-config-defaults
           - r-cw-1
           - r-cw-1-tool-schedule-wake

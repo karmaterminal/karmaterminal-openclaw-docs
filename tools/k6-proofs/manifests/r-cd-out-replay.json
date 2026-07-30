@@ -1,0 +1,74 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-OUT-REPLAY",
+  "issue": 491,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": true,
+  "timeoutSeconds": 420,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-out-restart-replay",
+    "description": "A published claim survives an operator gateway restart with stable claim identity and idempotent replay: one publication yields exactly one claim, and replay materializes nothing.",
+    "methods": [
+      "sessions.messages.subscribe",
+      "sessions.send"
+    ],
+    "status": "runnable",
+    "file": "r-cd-out-restart-replay.js",
+    "notes": "Runnable harness, orchestration-gated verdict. The scenario logs when its restart window opens; the operator restarts the gateway during that window."
+  },
+  "invocation": {
+    "tool": "delegate_artifacts",
+    "actions": ["list"],
+    "viaTool": "continue_delegate",
+    "mode": "normal",
+    "delaySeconds": 1,
+    "idempotencyKeyPrefix": "R-CD-OUT-REPLAY"
+  },
+  "expectedReceipts": [
+    { "name": "pre-restart-claim-established", "required": true, "description": "CDREPLAY-PRE sentinel: claim id captured before the restart window" },
+    { "name": "post-restart-claim-listed", "required": true, "description": "CDREPLAY-POST sentinel: the claim is still listable after the restart window" },
+    { "name": "claim-identity-stable", "required": true, "description": "Post-restart claim id equals the pre-restart claim id" },
+    { "name": "replay-is-idempotent", "required": true, "description": "Exactly one claim carries the row nonce after replay" },
+    { "name": "no-duplicate-claim-after-replay", "required": true, "description": "Negative check: replay minted no second claim" },
+    { "name": "no-auto-materialize-on-replay", "required": true, "description": "Negative check: replay materialized nothing without an explicit recipient call" },
+    { "name": "no-raw-artifact-bytes-on-the-wire", "required": true, "description": "Negative check: artifact content absent from every non-harness frame across replay" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-OUT-REPLAY",
+    "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "PARTIAL-candidate unless an operator genuinely cycled the gateway inside the restart window. The pre-restart legs are still recorded, so a PARTIAL artifact from this row is informative rather than empty."
+  },
+  "liveRunSafety": {
+    "classification": "orchestration-required",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": true,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PARTIAL-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "pre-restart-claim-established",
+      "post-restart-claim-listed",
+      "claim-identity-stable",
+      "replay-is-idempotent"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Requires an operator gateway restart inside OPENCLAW_RESTART_WINDOW_MS (default 120000). The harness never restarts anything. Set OPENCLAW_RESTART_ORCHESTRATED=true only when a restart genuinely happened."
+  }
+}

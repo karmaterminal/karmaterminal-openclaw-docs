@@ -1,0 +1,76 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-OUT-UNAUTHORIZED",
+  "issue": 491,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": true,
+  "timeoutSeconds": 320,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-out-unauthorized-reject",
+    "description": "A non-recipient session holding a valid claim id is rejected on both inspect and materialize, while the true recipient can still inspect — proving recipient binding rather than bearer authorization.",
+    "methods": [
+      "sessions.create",
+      "sessions.messages.subscribe",
+      "sessions.send"
+    ],
+    "status": "runnable",
+    "file": "r-cd-out-unauthorized-reject.js",
+    "notes": "Two sessions: the named recipient session (OPENCLAW_SESSION_KEY) and a disposable non-recipient session created by the scenario."
+  },
+  "invocation": {
+    "tool": "delegate_artifacts",
+    "actions": ["list", "inspect", "materialize"],
+    "viaTool": "continue_delegate",
+    "mode": "normal",
+    "delaySeconds": 1,
+    "idempotencyKeyPrefix": "R-CD-OUT-UNAUTHORIZED"
+  },
+  "expectedReceipts": [
+    { "name": "recipient-claim-established", "required": true, "description": "CDUNAUTH-CLAIM sentinel: the recipient session holds a real claim id" },
+    { "name": "non-recipient-inspect-rejected", "required": true, "description": "CDUNAUTH-INSPECT sentinel reported rejected from the non-recipient session" },
+    { "name": "non-recipient-materialize-rejected", "required": true, "description": "CDUNAUTH-MATERIALIZE sentinel reported rejected from the non-recipient session" },
+    { "name": "recipient-positive-control", "required": true, "description": "CDUNAUTH-OWNER sentinel reported ok: the rejection was authorization, not a dead claim" },
+    { "name": "claim-is-not-bearer-authorized", "required": true, "description": "Negative check: possession of the claim id granted the non-recipient nothing" },
+    { "name": "no-raw-artifact-bytes-on-the-wire", "required": true, "description": "Negative check: artifact content absent from every non-harness frame" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-OUT-UNAUTHORIZED",
+    "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "The positive control is mandatory. Without CDUNAUTH-OWNER=ok the rejections are uninterpretable — the claim could simply have expired — so the row stays PARTIAL-candidate."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": true,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "recipient-claim-established",
+      "non-recipient-inspect-rejected",
+      "non-recipient-materialize-rejected",
+      "recipient-positive-control",
+      "claim-is-not-bearer-authorized",
+      "no-raw-artifact-bytes-on-the-wire"
+    ],
+    "foldRequiresReview": true,
+    "notes": "OPENCLAW_SESSION_KEY must name the recipient session explicitly; the non-recipient session is created disposable by the scenario. Serialize per session."
+  }
+}

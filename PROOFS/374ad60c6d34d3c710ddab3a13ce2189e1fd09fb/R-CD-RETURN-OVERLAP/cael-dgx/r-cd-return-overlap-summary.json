@@ -1,0 +1,16 @@
+{
+  "row": "R-CD-RETURN-OVERLAP",
+  "sha": "374ad60c6d34d3c710ddab3a13ce2189e1fd09fb",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "failures": 0,
+    "duration_ms": {
+      "p(95)": 0,
+      "avg": 0,
+      "min": 0,
+      "med": 0,
+      "max": 0,
+      "p(90)": 0
+    }
+  }
+}

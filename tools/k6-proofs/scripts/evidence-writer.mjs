@@ -35,6 +35,7 @@ import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { sanitizeEvidenceRecords, sanitizeLog } from './sanitize-k6-artifacts.mjs';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import { extractEvidenceData } from '../lib/k6-log-evidence.mjs';
 
 function parseArgs(argv) {
   const out = {};
@@ -94,41 +95,37 @@ const raw = readFileSync(args.input, 'utf-8');
 
 // Extract the evidence JSON block from k6 console output.
 //
-// Historical scenarios emitted row-scoped banners such as:
-//   --- R-CD-2 EVIDENCE SUMMARY ---
-//   { ... }
-//   --- END EVIDENCE ---
+// The workflow feeds this writer the RAW k6 log (`/tmp/k6-out/run.txt`), which
+// is logrus-framed:
+//   time="..." level=info msg="--- R-CD-IN-1 EVIDENCE SUMMARY ---" source=console
+//   time="..." level=info msg="{\n  \"row\": \"R-CD-IN-1\", ...}" source=console
+//   time="..." level=info msg="--- END EVIDENCE ---" source=console
 //
-// The live R-CD-1/R-CD-TOKEN scenarios emit the generic proof banner:
-//   === K6-PROOF-EVIDENCE ===
-//   { ... }
-//   --- END EVIDENCE ---
-//
-// Keep the writer tolerant at the scenario↔writer seam: one post-processor
-// should be able to consume candidate output from every k6 proof scenario.
-const evidencePatterns = [
-  /---\s+[^\n]*\bEVIDENCE SUMMARY\b[^\n]*---\s*\n([\s\S]*?)\n---\s+END EVIDENCE\s+---/,
-  /===\s+K6-PROOF-EVIDENCE\s+===\s*\n([\s\S]*?)\n---\s+END EVIDENCE\s+---/,
-  /===\s+K6-PROOF-EVIDENCE\s+===\s*\n([\s\S]*?)\n===\s+END K6-PROOF-EVIDENCE\s+===/,
-];
-
-const evidenceMatch = evidencePatterns.map((pattern) => raw.match(pattern)).find(Boolean);
-if (!evidenceMatch) {
-  console.error('ERROR: Could not find evidence summary block in k6 output');
-  console.error('Supported markers:');
-  console.error('  --- <ROW> EVIDENCE SUMMARY --- ... --- END EVIDENCE ---');
-  console.error('  === K6-PROOF-EVIDENCE === ... --- END EVIDENCE ---');
-  console.error('  === K6-PROOF-EVIDENCE === ... === END K6-PROOF-EVIDENCE ===');
+// Matching bare marker lines against that text finds nothing, and the writer
+// exits before identity binding, receipt-map recomputation, liveRunSafety
+// capture and sanitized-log writing. The shared decode-aware extractor consumes
+// production framing, bare single-line fixtures and pretty-printed bare blocks
+// alike, so one post-processor can consume candidate output from every scenario.
+const extracted = extractEvidenceData(raw);
+if (extracted.records.length === 0) {
+  if (extracted.markerSeen) {
+    console.error('ERROR: evidence marker found in k6 output but no evidence record parsed');
+    console.error('The block between the markers must be a single JSON object.');
+  } else {
+    console.error('ERROR: Could not find evidence summary block in k6 output');
+    console.error('Supported markers (bare or k6 logrus-framed msg="..." lines):');
+    console.error('  --- <ROW> EVIDENCE SUMMARY --- ... --- END EVIDENCE ---');
+    console.error('  === K6-PROOF-EVIDENCE === ... --- END EVIDENCE ---');
+    console.error('  === K6-PROOF-EVIDENCE === ... === END K6-PROOF-EVIDENCE ===');
+  }
   process.exit(1);
 }
 
-let evidence;
-try {
-  evidence = JSON.parse(evidenceMatch[1]);
-} catch (err) {
-  console.error(`ERROR: Evidence block was found but did not parse as JSON: ${err.message}`);
-  process.exit(1);
-}
+// A run log may carry more than one record (e.g. a re-emitted summary). Prefer
+// the one that names the row under test; identity binding below rejects any
+// other mismatch.
+const evidence = extracted.records.find((record) => record.row === args.row)
+  || extracted.records[0];
 
 if (evidence.row && evidence.row !== args.row) {
   console.error(`ERROR: evidence block row "${evidence.row}" does not match --row "${args.row}"`);

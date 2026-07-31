@@ -2,6 +2,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { decodeK6Message, extractEvidenceData } from '../lib/k6-log-evidence.mjs';
 
 const RAW_PAYLOAD_KEYS = new Set([
   'agentinstruction',
@@ -138,51 +139,51 @@ function assertPublicSafe(value, orderedTokens) {
   visit(value);
 }
 
-function decodeMessage(line) {
-  const marker = ' msg=';
-  const start = line.indexOf(marker);
-  if (start < 0) return line;
-  const encodedStart = start + marker.length;
-  const source = line.lastIndexOf(' source=');
-  const encoded = line.slice(encodedStart, source > encodedStart ? source : undefined).trim();
-  if (!encoded.startsWith('"')) return encoded;
-  try {
-    return JSON.parse(encoded);
-  } catch {
-    return null;
-  }
-}
-
 function sanitizeLog(logText, sanitizedRecords, orderedTokens) {
   const out = [];
-  let awaitingEvidenceRecord = false;
+  let insideEvidenceBlock = false;
+  let emittedForCurrentBlock = false;
   let recordIndex = 0;
 
+  const emitRecord = () => {
+    if (emittedForCurrentBlock) return;
+    if (sanitizedRecords[recordIndex]) {
+      out.push(`PUBLIC_EVIDENCE ${JSON.stringify(sanitizedRecords[recordIndex])}`);
+      recordIndex += 1;
+    }
+    emittedForCurrentBlock = true;
+  };
+
   for (const line of String(logText || '').split(/\r?\n/)) {
-    const message = decodeMessage(line);
+    const message = decodeK6Message(line);
     const text = String(message || '').trim();
     const inlineEvidence = /(?:[A-Z0-9_-]+_EVIDENCE|===\s*K6-PROOF-EVIDENCE\s*===)\s+\{/.test(text);
 
     if (inlineEvidence) {
-      if (sanitizedRecords[recordIndex]) {
-        out.push(`PUBLIC_EVIDENCE ${JSON.stringify(sanitizedRecords[recordIndex])}`);
-        recordIndex += 1;
-      }
+      insideEvidenceBlock = false;
+      emittedForCurrentBlock = false;
+      emitRecord();
       continue;
     }
     if (/\bEVIDENCE SUMMARY\b|===\s*K6-PROOF-EVIDENCE\s*===/.test(text)) {
-      awaitingEvidenceRecord = true;
+      insideEvidenceBlock = true;
+      emittedForCurrentBlock = false;
       continue;
     }
-    if (awaitingEvidenceRecord && text.startsWith('{')) {
-      if (sanitizedRecords[recordIndex]) {
-        out.push(`PUBLIC_EVIDENCE ${JSON.stringify(sanitizedRecords[recordIndex])}`);
-        recordIndex += 1;
-      }
-      awaitingEvidenceRecord = false;
+    if (/---\s*END EVIDENCE\s*---|===\s*END K6-PROOF-EVIDENCE\s*===/.test(text)) {
+      // A block that produced no sanitized record is still fully suppressed.
+      insideEvidenceBlock = false;
+      emittedForCurrentBlock = false;
       continue;
     }
-    if (/---\s*END EVIDENCE\s*---|===\s*END K6-PROOF-EVIDENCE\s*===/.test(text)) continue;
+    if (insideEvidenceBlock) {
+      // Every line between the banner and the terminator belongs to the raw
+      // evidence payload. Emit the sanitized record once and drop the rest:
+      // a pretty-printed multi-line block must not have its tail passed
+      // through as ordinary log text.
+      if (text.startsWith('{')) emitRecord();
+      continue;
+    }
     if (text.includes('[k6-proof-harness]')) {
       out.push('[k6-proof-harness] <redacted-dispatch>');
       continue;
@@ -236,21 +237,20 @@ export { sanitizeLog };
  */
 async function mainLogOnly(args) {
   const logText = await readFile(args.logInput, 'utf8');
-  const records = [];
-  const blockPatterns = [
-    /---\s+[^\n]*\bEVIDENCE SUMMARY\b[^\n]*---\s*\n([\s\S]*?)\n---\s+END EVIDENCE\s+---/g,
-    /===\s+K6-PROOF-EVIDENCE\s+===\s*\n([\s\S]*?)\n(?:---\s+END EVIDENCE\s+---|===\s+END K6-PROOF-EVIDENCE\s+===)/g,
-  ];
-  for (const pattern of blockPatterns) {
-    for (const match of logText.matchAll(pattern)) {
-      try {
-        records.push(JSON.parse(match[1]));
-      } catch {
-        // A block that does not parse cannot be re-emitted safely; the log
-        // sanitizer drops the block entirely rather than passing it through.
-      }
-    }
+
+  // Real k6 stdout is logrus-framed: the whole evidence JSON lives inside one
+  // escaped `msg="..."` value. A block regex over the raw file parses zero
+  // records there, which would silently discard the evidence block, derive no
+  // session/claim/path tokens, and attest `evidenceBlocks: 0` over a log that
+  // still carried the sensitive values. Use the shared decode-aware extractor.
+  const { records, markerSeen } = extractEvidenceData(logText);
+  if (markerSeen && records.length === 0) {
+    throw new Error(
+      'k6 log contains evidence markers but no evidence record parsed; refusing to publish a log '
+      + 'whose sensitive values could not be derived (fail closed)',
+    );
   }
+
   const extraTokens = process.env.OPENCLAW_SESSION_KEY
     ? [[process.env.OPENCLAW_SESSION_KEY, '<redacted-session-key>']]
     : [];
@@ -265,6 +265,7 @@ async function mainLogOnly(args) {
       schema: 'openclaw.k6.public-log-redaction.v1',
       generatedAt: new Date().toISOString(),
       mode: 'log-only',
+      evidenceMarkersSeen: markerSeen,
       evidenceBlocks: sanitized.length,
       removedSensitiveValues: orderedTokens.length,
       output: path.basename(args.logOut),
@@ -272,6 +273,7 @@ async function mainLogOnly(args) {
   }
   console.log(JSON.stringify({
     mode: 'log-only',
+    evidenceMarkersSeen: markerSeen,
     evidenceBlocks: sanitized.length,
     removedSensitiveValues: orderedTokens.length,
   }));
@@ -306,6 +308,13 @@ async function main() {
     : [];
   const { sanitized, orderedTokens } = sanitizeEvidenceRecords(records, extraTokens);
   const logText = await readFile(args.logInput, 'utf8');
+  const logEvidence = extractEvidenceData(logText);
+  if (logEvidence.markerSeen && logEvidence.records.length === 0 && records.length === 0) {
+    throw new Error(
+      'k6 log contains evidence markers but no evidence record parsed; refusing to publish a log '
+      + 'whose sensitive values could not be derived (fail closed)',
+    );
+  }
   const publicLog = sanitizeLog(logText, sanitized, orderedTokens);
   for (const [token] of orderedTokens) {
     if (publicLog.includes(token)) throw new Error('sanitized k6 log still contains a sensitive value');

@@ -404,6 +404,22 @@ Row-specific configuration lives in **manifests** (`tools/k6-proofs/manifests/*.
 
 Manifests use `${ENV_VAR:-default}` placeholders resolved at runtime — no secrets or seat-specific values baked into source.
 
+`OPENCLAW_ROW_MANIFEST` takes the **repo-root form** — the same value the Node
+consumers (`live-run-guard.mjs`, `evidence-writer.mjs`, the workflow's
+`manifest_path` input) take:
+
+```
+OPENCLAW_ROW_MANIFEST="tools/k6-proofs/manifests/r-cd-1.json"
+```
+
+k6 resolves a relative `open()` against the running scenario's directory, so
+`lib/manifest-loader.js` normalizes that value (`normalizeManifestOpenPath`)
+rather than making callers keep two spellings of the same path. An absolute
+path, `manifests/<row>.json`, and a bare `<row>.json` are all accepted and
+resolve to the same file; passing the repo-root form used to produce
+`tools/k6-proofs/tools/k6-proofs/manifests/...` and fail `k6 archive` with
+exit 107.
+
 Manifests follow the schema defined by #100 (foundation): `openclaw.k6.proof-row-manifest.v1`.
 
 ### Live-run safety contract

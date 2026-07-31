@@ -42,6 +42,39 @@ export function resolveManifest(manifest) {
  * post-processor / Node-based validation; in k6 scenarios, inline the manifest
  * data or use open() + JSON.parse() at init time.
  */
+/**
+ * Normalize a manifest path into the form k6's `open()` can resolve.
+ *
+ * Every Node-side consumer (`live-run-guard.mjs`, `evidence-writer.mjs`, the
+ * workflow's `-f manifest_path` existence check) takes the REPO-ROOT form
+ * `tools/k6-proofs/manifests/<row>.json`. k6 resolves a relative `open()`
+ * against the running scenario's directory (`tools/k6-proofs/scenarios/`), so
+ * `'../' + <repo-root form>` yields `tools/k6-proofs/tools/k6-proofs/manifests/...`
+ * and `k6 archive` exits 107. Normalizing here means one manifest value can be
+ * exported as `OPENCLAW_ROW_MANIFEST` and consumed by both worlds.
+ *
+ * Accepts, and returns the k6-resolvable form for:
+ *   tools/k6-proofs/manifests/r-cd-in-1.json  ->  ../manifests/r-cd-in-1.json
+ *   ./manifests/r-cd-in-1.json                ->  ../manifests/r-cd-in-1.json
+ *   manifests/r-cd-in-1.json                  ->  ../manifests/r-cd-in-1.json
+ *   r-cd-in-1.json                            ->  ../manifests/r-cd-in-1.json
+ *   /abs/path/r-cd-in-1.json                  ->  /abs/path/r-cd-in-1.json
+ */
+export function normalizeManifestOpenPath(manifestPath) {
+  const raw = String(manifestPath == null ? '' : manifestPath).trim();
+  if (!raw) return null;
+  if (raw.charAt(0) === '/') return raw;
+
+  let relative = raw.replace(/^\.\//, '');
+  // Tolerate a repo-root prefix regardless of how many times a caller layered it.
+  while (relative.indexOf('tools/k6-proofs/') === 0) {
+    relative = relative.slice('tools/k6-proofs/'.length);
+  }
+  // A bare filename is documented as "call with the manifest filename".
+  if (relative.indexOf('/') < 0) relative = 'manifests/' + relative;
+  return '../' + relative;
+}
+
 export function loadManifestFromEnv() {
   const manifestPath = __ENV.OPENCLAW_ROW_MANIFEST;
   if (!manifestPath) {
@@ -49,7 +82,7 @@ export function loadManifestFromEnv() {
     return null;
   }
   // k6 open() reads at init time
-  const raw = open(manifestPath.startsWith('/') ? manifestPath : '../'+manifestPath);
+  const raw = open(normalizeManifestOpenPath(manifestPath));
   const parsed = JSON.parse(raw);
   return resolveManifest(parsed);
 }

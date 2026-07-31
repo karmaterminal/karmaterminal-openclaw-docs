@@ -136,6 +136,25 @@ choices.
 - Only sanitized logs are uploaded. The raw `k6` console log carries session
   keys, claim ids, child session keys and paths, so it is passed through
   `sanitize-k6-artifacts.mjs` and the raw file is deleted before upload.
+- `manifest_path` is **normalized once** in the validate step and every
+  downstream consumer — `live-run-guard.mjs`, `evidence-writer.mjs`, and the
+  exported `OPENCLAW_ROW_MANIFEST` — reads that single canonical repo-root
+  value. The dry run runs `k6 archive` with that exact env, so an unresolvable
+  manifest fails in dry mode instead of at the head of a live row.
+- Artifacts are uploaded on the **failure path** too (`!cancelled()`). A row
+  that fails still emitted its evidence block, and that PARTIAL/FAIL candidate
+  plus the sanitized log is exactly what a reviewer needs. The one exception is
+  a `flock` 75 conflict, which is skipped because it is a coordination failure
+  rather than row evidence.
+
+**Log framing.** k6 does not print `console.log` verbatim: every call becomes a
+logrus record and the whole evidence JSON lands inside one escaped `msg="..."`
+value. `lib/k6-log-evidence.mjs` is the single decode-aware extractor shared by
+`extract-k6-evidence.mjs`, `sanitize-k6-artifacts.mjs` and
+`evidence-writer.mjs`, so no consumer can silently parse a real run as zero
+records. The sanitizer **fails closed** when evidence markers are present but no
+record parses, rather than attesting `evidenceBlocks: 0` over a log that still
+carries the sensitive values.
 
 ### Row-specific environment
 

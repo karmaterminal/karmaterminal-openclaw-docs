@@ -12,34 +12,44 @@
  *
  * ORCHESTRATION GATE — read this before reading a verdict:
  *   The gateway restart is an operator step. This harness cannot and must not
- *   restart a seat. When `OPENCLAW_RESTART_ORCHESTRATED=true` is not set, or the
- *   post-lifecycle child arrival is not observed, the row terminates
- *   PARTIAL-candidate with an explicit reason. It never reports PASS on an
- *   unperformed precondition.
+ *   restart a seat, and it must not take the operator's word for it either:
+ *   `OPENCLAW_RESTART_ORCHESTRATED=true` is a DECLARATION, never the evidence.
+ *   The restart is credited only from the gateway's own public `/status`
+ *   surface (uptime going backwards, or the endpoint dropping and returning)
+ *   observed between two SEPARATE WebSocket connections — the row deliberately
+ *   disconnects before the window and reconnects after it, so a real restart
+ *   cannot break the run and a missing restart cannot be papered over.
+ *   Without that receipt the row terminates PARTIAL-candidate with a verbatim
+ *   reason. It never reports PASS on an unperformed precondition.
  *
  * References:
  *   - Issue: karmaterminal/karmaterminal-openclaw-docs#491
  *   - Manifest: tools/k6-proofs/manifests/r-cd-in-recovery.json
  */
 import ws from 'k6/ws';
-import { check } from 'k6';
+import { check, sleep } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import {
   baseEvidence,
   boolEnv,
+  breakNegative,
   canaryFor,
   capture,
   computeVerdict,
   contentReceipt,
   declareNegative,
   fire,
+  httpBaseFromWs,
   logEvidence,
   matchGroup,
+  observeGatewayRestart,
   orchestrationGate,
   rowSummary,
+  sampleGatewayStatus,
   scanRawBytes,
+  sentinel,
 } from '../lib/delegate-attachment-io.js';
 
 const ROW = 'R-CD-IN-RECOVERY';
@@ -50,11 +60,11 @@ export const options = {
       executor: 'shared-iterations',
       vus: 1,
       iterations: 1,
-      maxDuration: '400s',
+      maxDuration: '540s',
     },
   },
   thresholds: {
-    r_cd_in_recovery_duration: ['p(95)<380000'],
+    r_cd_in_recovery_duration: ['p(95)<520000'],
   },
 };
 
@@ -66,6 +76,8 @@ const manifest = loadManifestFromEnv();
 const REQUIRED = [
   'tool-invoke-accepted',
   'input-snapshot-queued',
+  'gateway-restart-observed',
+  'reconnected-after-restart',
   'post-lifecycle-child-arrival',
   'snapshot-identity-preserved',
 ];
@@ -79,6 +91,7 @@ export default function () {
   const createDisposableSession = boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSION');
   const restartOrchestrated = boolEnv('OPENCLAW_RESTART_ORCHESTRATED');
   const queueDelaySeconds = Number(__ENV.OPENCLAW_QUEUE_DELAY_SECONDS || 120);
+  const restartWindowMs = Number(__ENV.OPENCLAW_RESTART_WINDOW_MS || 120000);
   const rowNonce = nonce(ROW);
   const canary = canaryFor(rowNonce);
 
@@ -103,6 +116,9 @@ export default function () {
   });
   evidence.content_receipt = contentReceipt(canary);
   evidence.queue_delay_seconds = queueDelaySeconds;
+  evidence.restart_window_ms = restartWindowMs;
+  evidence.restart_declared_by_operator = restartOrchestrated;
+  evidence.lifecycle = { baseline: null, observation: null };
   declareNegative(
     evidence,
     'no-raw-attachment-bytes-on-the-wire',
@@ -115,18 +131,24 @@ export default function () {
   );
 
   const started = Date.now();
+  const httpBase = httpBaseFromWs(url);
 
-  const res = ws.connect(url, {}, (socket) => {
+  // --- Phase 0: external lifecycle baseline (before anything is dispatched) ---
+  const baseline = sampleGatewayStatus(httpBase, token);
+  evidence.lifecycle.baseline = { reachable: baseline.reachable, uptime: baseline.uptime };
+
+  // --- Phase 1: dispatch and observe the queued snapshot, then DISCONNECT ---
+  const phase1 = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
-    let queuedAtMs = null;
 
     function startProofFlow() {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       socket.setTimeout(() => {
         const instruction =
           `[k6-proof-harness] Call continue_delegate exactly once with ` +
-          `task="Reply exactly: CDINREC-CHILD-ARRIVED ${rowNonce} <bytes> where <bytes> is the byte length ` +
-          `of the attachment you were handed. Do not print the file contents.", ` +
+          `task="Reply exactly: CDINREC-CHILD-ARRIVED ${rowNonce} <bytes> <sha256First16> where <bytes> is the ` +
+          `byte length of the attachment you were handed and <sha256First16> is the first 16 hex characters ` +
+          `of its sha256 digest. Do not print the file contents.", ` +
           `mode="normal", delaySeconds=${queueDelaySeconds}, ` +
           `attachments=[{name:"p86-rec-${rowNonce}.txt", content:"${canary}", encoding:"utf8", mimeType:"text/plain"}]. ` +
           `After the tool result reports the delegate is scheduled, reply exactly ` +
@@ -138,7 +160,7 @@ export default function () {
           idempotencyKey: `${ROW}-DISPATCH-${rowNonce}`,
         });
       }, 500);
-      socket.setTimeout(() => socket.close(), 360000);
+      socket.setTimeout(() => socket.close(), 90000);
     }
 
     socket.on('open', () => {
@@ -183,30 +205,26 @@ export default function () {
 
         scanRawBytes(evidence, body, rowNonce, 'no-raw-attachment-bytes-on-the-wire');
 
-        const queuedBytes = matchGroup(body, new RegExp(`CDINREC-QUEUED ${rowNonce} ([0-9]+)`));
+        const queuedBytes = matchGroup(body, sentinel('CDINREC-QUEUED', rowNonce, ' ([0-9]+)'));
         if (queuedBytes) {
           fire(evidence, 'input-snapshot-queued');
-          queuedAtMs = queuedAtMs || Date.now();
           evidence.queued_snapshot_bytes = Number(queuedBytes);
+          evidence.queued_at_ms = Date.now();
+          // Disconnect deliberately: the row must survive an operator restart
+          // that would otherwise tear this socket down mid-run.
+          socket.close();
         }
 
-        const arrivedBytes = matchGroup(body, new RegExp(`CDINREC-CHILD-ARRIVED ${rowNonce} ([0-9]+)`));
-        if (arrivedBytes) {
-          const elapsedMs = queuedAtMs ? Date.now() - queuedAtMs : null;
-          evidence.child_arrival_elapsed_ms = elapsedMs;
-          if (elapsedMs !== null && elapsedMs < queueDelaySeconds * 1000 * 0.5) {
-            // Arrival far inside the queue window means the row never actually
-            // exercised durable recovery; record it rather than crediting it.
-            evidence.early_arrival = true;
-          }
-          fire(evidence, 'post-lifecycle-child-arrival');
-          evidence.arrived_snapshot_bytes = Number(arrivedBytes);
-          if (
-            evidence.queued_snapshot_bytes !== undefined &&
-            Number(arrivedBytes) === evidence.queued_snapshot_bytes
-          ) {
-            fire(evidence, 'snapshot-identity-preserved');
-          }
+        const early = body.match(sentinel('CDINREC-CHILD-ARRIVED', rowNonce, ' ([0-9]+)'));
+        if (early) {
+          // Arrival before the restart window means durable recovery was never
+          // exercised. Record it; do not credit it.
+          evidence.early_arrival = true;
+          breakNegative(
+            evidence,
+            'no-pre-lifecycle-spawn',
+            'the delayed delegate arrived before the restart window opened',
+          );
           socket.close();
         }
       } catch (e) {
@@ -215,36 +233,136 @@ export default function () {
     });
 
     socket.on('error', (e) => {
-      console.error(`ws error: ${e && e.error ? e.error() : e}`);
+      console.error(`ws error (phase 1): ${e && e.error ? e.error() : e}`);
       failures.add(1);
     });
   });
+
+  // --- Phase 2: externally observable restart window, socket intentionally down ---
+  if (evidence.receipts['input-snapshot-queued']) {
+    console.log(
+      `${ROW}: snapshot queued and harness disconnected. Operator restart window is OPEN for ` +
+        `${restartWindowMs}ms — restart the gateway now to exercise durable input recovery.`,
+    );
+    const observation = observeGatewayRestart({
+      httpBase,
+      token,
+      baseline,
+      windowMs: restartWindowMs,
+      pollMs: Number(__ENV.OPENCLAW_RESTART_POLL_MS || 5000),
+      sleep,
+    });
+    evidence.lifecycle.observation = observation;
+    if (observation.observed) fire(evidence, 'gateway-restart-observed');
+  } else {
+    evidence.lifecycle.observation = {
+      observed: false,
+      reason: 'the queued-snapshot receipt never fired, so the restart window was never opened',
+    };
+  }
+
+  // --- Phase 3: RECONNECT on a fresh socket and wait for the child arrival ---
+  let phase2 = null;
+  if (evidence.receipts['gateway-restart-observed']) {
+    phase2 = ws.connect(url, {}, (socket) => {
+      const tracker = new RequestTracker();
+
+      socket.on('open', () => {
+        fire(evidence, 'reconnected-after-restart');
+        socket.send(connectFrame(token));
+        socket.setTimeout(() => {
+          tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
+        }, 500);
+        socket.setTimeout(() => socket.close(), Math.max(30000, queueDelaySeconds * 1000 + 60000));
+      });
+
+      socket.on('message', (raw) => {
+        try {
+          const msg = JSON.parse(raw);
+          const classified = tracker.classify(msg);
+          const body = capture(evidence, classified);
+          if (classified.kind !== 'event' || !body) return;
+
+          scanRawBytes(evidence, body, rowNonce, 'no-raw-attachment-bytes-on-the-wire');
+
+          const arrived = body.match(
+            sentinel('CDINREC-CHILD-ARRIVED', rowNonce, ' ([0-9]+) ([0-9a-f]{16})'),
+          );
+          if (arrived) {
+            const arrivedBytes = Number(arrived[1]);
+            const arrivedDigest = arrived[2];
+            evidence.child_arrival_elapsed_ms = evidence.queued_at_ms
+              ? Date.now() - evidence.queued_at_ms
+              : null;
+            evidence.arrived_snapshot = { bytes: arrivedBytes, sha256_prefix: arrivedDigest };
+            fire(evidence, 'post-lifecycle-child-arrival');
+            // Identity is preserved only when the bytes the child received
+            // still digest to the canary this run staged BEFORE the restart.
+            if (
+              arrivedBytes === evidence.content_receipt.bytes &&
+              arrivedDigest === evidence.content_receipt.sha256_prefix &&
+              (evidence.queued_snapshot_bytes === undefined ||
+                arrivedBytes === evidence.queued_snapshot_bytes)
+            ) {
+              fire(evidence, 'snapshot-identity-preserved');
+            } else {
+              evidence.identity_mismatch = {
+                staged: evidence.content_receipt,
+                queued_bytes: evidence.queued_snapshot_bytes,
+                arrived: evidence.arrived_snapshot,
+              };
+            }
+            socket.close();
+          }
+        } catch (e) {
+          console.warn(`parse error: ${e}`);
+        }
+      });
+
+      socket.on('error', (e) => {
+        console.error(`ws error (phase 3): ${e && e.error ? e.error() : e}`);
+      });
+    });
+  }
 
   evidence.duration_ms = Date.now() - started;
   duration.add(evidence.duration_ms);
 
   orchestrationGate(
     evidence,
-    restartOrchestrated && !!evidence.receipts['post-lifecycle-child-arrival'] && !evidence.early_arrival,
-    restartOrchestrated
-      ? 'operator restart was declared but no post-lifecycle child arrival outside the queue window was observed'
-      : 'OPENCLAW_RESTART_ORCHESTRATED was not set: no operator gateway restart happened during the queue window, so durable input recovery was not exercised',
+    !!evidence.receipts['gateway-restart-observed'] &&
+      !!evidence.receipts['reconnected-after-restart'] &&
+      !!evidence.receipts['post-lifecycle-child-arrival'] &&
+      !evidence.early_arrival,
+    evidence.receipts['gateway-restart-observed']
+      ? 'a gateway restart was observed but the reconnected socket saw no post-lifecycle child arrival for this row'
+      : `no gateway restart was observable on ${httpBase}/status inside the window` +
+        (restartOrchestrated
+          ? ' even though OPENCLAW_RESTART_ORCHESTRATED was declared: the declaration is not evidence'
+          : '') +
+        `: ${evidence.lifecycle.observation?.reason || 'no lifecycle change detected'}`,
   );
 
   const verdict = computeVerdict(evidence, REQUIRED);
 
-  check(res, { 'websocket connected': (r) => r && r.status === 101 });
+  check(phase1, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'typed continue_delegate dispatch accepted': () => !!evidence.receipts['tool-invoke-accepted'],
     'input snapshot reported queued': () => !!evidence.receipts['input-snapshot-queued'],
+    'gateway restart observed on the public status surface': () =>
+      !!evidence.receipts['gateway-restart-observed'],
+    'harness reconnected after the restart': () =>
+      !!evidence.receipts['reconnected-after-restart'],
     'no raw attachment bytes on the wire': () =>
       evidence.negative_checks['no-raw-attachment-bytes-on-the-wire'].held,
+    'no pre-lifecycle spawn': () => evidence.negative_checks['no-pre-lifecycle-spawn'].held,
   });
+  if (phase2) check(phase2, { 'reconnect websocket connected': (r) => r && r.status === 101 });
 
   logEvidence(evidence);
   if (verdict !== 'PASS-candidate') {
     console.log(
-      `[${ROW}] PARTIAL is the honest outcome here unless an operator restart was orchestrated: ` +
+      `[${ROW}] PARTIAL is the honest outcome here unless an operator restart was observed: ` +
         `${evidence.orchestration.reason || 'see missing_receipts'}`,
     );
   }

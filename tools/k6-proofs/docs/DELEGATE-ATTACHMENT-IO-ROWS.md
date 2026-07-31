@@ -22,6 +22,24 @@ These rows close that hole. They are one-command local-gateway WebSocket
 scenarios in the existing harness shape — same manifest schema, same evidence
 writer, same validator, same fold contract.
 
+### Denominator: supplemental, not denominator-changing
+
+**These eight rows do not move the Project 86 denominator.** The merged Project
+86 contract is **38 accountable issues / 35 corpus rows**, and it stays at 38/35.
+Mechanically:
+
+- `check-proof-row-manifests.mjs` still reports `Proof rows: 35` and lists all
+  eight of these as *manifest-only (catalog but not yet on proof board)*.
+- `list-runnable-rows.mjs --live-suite` moves 34 → 39, because the five
+  `k6-runnable` rows join the live suite. The three `orchestration-required`
+  rows are correctly excluded from it. The live suite is an execution list, not
+  the accountable-row denominator.
+
+Any generated plan showing 44 row entries is counting the manifest catalog, not
+the accountable-issue contract. Folding these rows onto the proof board — and
+therefore changing the denominator — is a separate coordinator decision under
+`CONTRIBUTING-ROWS.md`, and this PR does not take it.
+
 ---
 
 ## Runtime controller binding
@@ -99,13 +117,34 @@ node tools/k6-proofs/scripts/evidence-writer.mjs \
 The GitHub `k6 PROOF row` workflow carries all eight scenarios as dispatch
 choices.
 
+**Workflow safety shape (what a reviewer should expect to see):**
+
+- `dry_run=true` (the default) **never executes** a scenario. It compiles it via
+  `k6 archive`, evaluates the manifest live-run safety contract, and runs the
+  static manifest/alignment checks. No live session is contacted.
+- A live run (`dry_run=false`) requires `manifest_path`. Without it there is no
+  lock identity, no safety contract, and no classification metadata for the
+  artifact.
+- Workflow `concurrency` is keyed on the **target session**
+  (`gateway_ws` + `session_key`), not on row+seat, and the run itself is wrapped
+  in the two `flock` locks `live-run-guard.mjs --shell --require-lock` computes:
+  session-outer then row-inner. `flock` exit 75 means a conflicting run owns the
+  session; that output is a coordination failure, not row evidence.
+- The three `orchestration-required` rows are **rejected by `live-run-guard.mjs`**
+  on the plain dispatch path by design. They need an explicit orchestration
+  window with an operator in the loop.
+- Only sanitized logs are uploaded. The raw `k6` console log carries session
+  keys, claim ids, child session keys and paths, so it is passed through
+  `sanitize-k6-artifacts.mjs` and the raw file is deleted before upload.
+
 ### Row-specific environment
 
 | Variable | Rows | Meaning |
 |---|---|---|
 | `OPENCLAW_QUEUE_DELAY_SECONDS` | R-CD-IN-RECOVERY | Queue window the delegate stays pending (default 120) |
-| `OPENCLAW_RESTART_WINDOW_MS` | R-CD-OUT-REPLAY | Window during which the operator restarts the gateway (default 120000) |
-| `OPENCLAW_RESTART_ORCHESTRATED` | R-CD-IN-RECOVERY, R-CD-OUT-REPLAY | Set `true` **only** when a restart genuinely happened |
+| `OPENCLAW_RESTART_WINDOW_MS` | R-CD-IN-RECOVERY, R-CD-OUT-REPLAY | Window during which the operator restarts the gateway (default 120000) |
+| `OPENCLAW_RESTART_POLL_MS` | R-CD-IN-RECOVERY, R-CD-OUT-REPLAY | Poll interval for the `/status` lifecycle probe (default 5000) |
+| `OPENCLAW_RESTART_ORCHESTRATED` | R-CD-IN-RECOVERY, R-CD-OUT-REPLAY | Operator **declaration** only. Recorded in evidence, never credited: the restart receipt comes from `/status` |
 | `OPENCLAW_NEGATIVE_WINDOW_MS` | R-CD-IO-NEG and the OUT rows | Bounded window held open to catch unsolicited delivery |
 
 ---
@@ -129,13 +168,48 @@ must not be faked:
    recorded verbatim in `evidence.orchestration.reason`. It never assumes a
    default and never infers a revoke that was not applied.
 2. *Gateway restart* (R-CD-IN-RECOVERY, R-CD-OUT-REPLAY). Restarting a seat is an
-   operator action. The harness logs when its restart window opens and otherwise
-   does nothing. Without `OPENCLAW_RESTART_ORCHESTRATED=true` **and** an observed
-   post-window receipt, the row is PARTIAL.
+   operator action, and `OPENCLAW_RESTART_ORCHESTRATED=true` is a **declaration,
+   not evidence**. The restart is credited only from the gateway's own public
+   `/status` surface — uptime going backwards, or the endpoint dropping and
+   coming back — observed by `observeGatewayRestart()` while the harness is
+   deliberately disconnected. Each of these rows opens **two** WebSocket
+   connections: one before the window, one after. That is why a real restart
+   cannot fail the row by tearing down a held socket, and why a restart that
+   never happened cannot be declared away. Without both
+   `gateway-restart-observed` and `reconnected-after-restart`, plus the
+   post-restart behavioral receipt, the row is PARTIAL.
 
 A PARTIAL from these rows is still informative: the pre-condition legs that did
 fire are recorded as receipts, so the artifact says exactly how far the run got
 and precisely which operator step was missing.
+
+**Receipts come from authoritative surfaces, not from model prose.** A sentinel
+line sequences a probe; it is never the receipt on its own:
+
+- R-CD-IN-1 credits `child-bytes-bound-to-canary` only when the byte length AND
+  the sha256 prefix the child reports for its mounted file equal the canary this
+  run staged. The canary is known only to the harness, so a matching digest
+  cannot be produced without reading the staged bytes at the path the child
+  named. It also requires a structured `continue_delegate` tool record and a
+  structured child-session binding (`childSessionKeysForRow`).
+- R-CD-IN-REVOKE credits the refusal from a structured `continue_delegate` error
+  record, credits no-spawn from a `sessions.list` inventory taken **before and
+  after** the probe (a diff, not a default-true absence), and credits the scrub
+  only when the follow-up tool record was observed and no observed record still
+  carries delegate attachment state.
+- R-CD-OUT-CLAIM requires `post-discard-inspect-rejected`: the post-discard probe
+  must name the **same** claim id, report a rejection, and be accompanied by a
+  structured `delegate_artifacts` error record.
+
+**Verdict transport.** `computeVerdict` publishes its result on the
+`proof_row_pass` / `proof_row_partial` metrics, and `handleSummary` reads those.
+A summary derived from `proof_failures` alone would print PASS for the
+orchestration-gated rows, which deliberately do not raise that counter.
+
+**Evidence writer.** `evidence-writer.mjs` recomputes the verdict from the
+receipt map and the manifest's `requiredReceipts`, and **refuses to write** a
+PASS the receipts do not support. It also binds identity: `manifest.rowId`, the
+evidence block's own `row`, `--row` and `--scenario` must all agree.
 
 **Positive controls.** Two rows would be vacuous without one, and both carry it:
 

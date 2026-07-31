@@ -23,7 +23,13 @@ function usage() {
   --log-input <private-k6.log> --log-out <k6.log> \\
   [--service-log-input <private-gateway.log> \\
    --service-log-out <gateway-journal.log> \\
-   --service-log-receipt-out <gateway-journal-redaction.json>]`);
+   --service-log-receipt-out <gateway-journal-redaction.json>]
+
+Log-only mode (no private evidence JSONL available, e.g. dry runs and the CI
+upload path). Evidence blocks embedded in the log are re-emitted from their
+sanitized parse; everything else is token-scrubbed:
+  node sanitize-k6-artifacts.mjs --log-input <raw.txt> --log-out <public.txt> \\
+    [--receipt-out <log-redaction.json>]`);
 }
 
 function parseArgs(argv) {
@@ -220,8 +226,63 @@ export function sanitizeEvidenceRecords(records, extraTokens = []) {
   return { sanitized, orderedTokens };
 }
 
+export { sanitizeLog };
+
+/**
+ * Log-only mode: sanitize a raw k6 console log when there is no separate
+ * private evidence JSONL to pair with it (dry runs, and the CI upload path).
+ * The evidence block embedded in the log is re-emitted from the sanitized
+ * parse of that same block, so no raw run text is ever published.
+ */
+async function mainLogOnly(args) {
+  const logText = await readFile(args.logInput, 'utf8');
+  const records = [];
+  const blockPatterns = [
+    /---\s+[^\n]*\bEVIDENCE SUMMARY\b[^\n]*---\s*\n([\s\S]*?)\n---\s+END EVIDENCE\s+---/g,
+    /===\s+K6-PROOF-EVIDENCE\s+===\s*\n([\s\S]*?)\n(?:---\s+END EVIDENCE\s+---|===\s+END K6-PROOF-EVIDENCE\s+===)/g,
+  ];
+  for (const pattern of blockPatterns) {
+    for (const match of logText.matchAll(pattern)) {
+      try {
+        records.push(JSON.parse(match[1]));
+      } catch {
+        // A block that does not parse cannot be re-emitted safely; the log
+        // sanitizer drops the block entirely rather than passing it through.
+      }
+    }
+  }
+  const extraTokens = process.env.OPENCLAW_SESSION_KEY
+    ? [[process.env.OPENCLAW_SESSION_KEY, '<redacted-session-key>']]
+    : [];
+  const { sanitized, orderedTokens } = sanitizeEvidenceRecords(records, extraTokens);
+  const publicLog = sanitizeLog(logText, sanitized, orderedTokens);
+  for (const [token] of orderedTokens) {
+    if (publicLog.includes(token)) throw new Error('sanitized k6 log still contains a sensitive value');
+  }
+  await writeFile(args.logOut, publicLog);
+  if (args.receiptOut) {
+    await writeFile(args.receiptOut, JSON.stringify({
+      schema: 'openclaw.k6.public-log-redaction.v1',
+      generatedAt: new Date().toISOString(),
+      mode: 'log-only',
+      evidenceBlocks: sanitized.length,
+      removedSensitiveValues: orderedTokens.length,
+      output: path.basename(args.logOut),
+    }, null, 2) + '\n');
+  }
+  console.log(JSON.stringify({
+    mode: 'log-only',
+    evidenceBlocks: sanitized.length,
+    removedSensitiveValues: orderedTokens.length,
+  }));
+}
+
 async function main() {
   const args = parseArgs(process.argv);
+  if (!args.input && args.logInput && args.logOut) {
+    await mainLogOnly(args);
+    return;
+  }
   if (!args.input || !args.out || !args.linesOut || !args.receiptOut || !args.logInput || !args.logOut) {
     usage();
     process.exitCode = 2;

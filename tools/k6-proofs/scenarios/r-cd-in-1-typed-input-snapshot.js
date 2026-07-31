@@ -2,12 +2,17 @@
  * Scenario: R-CD-IN-1 — typed continue_delegate INPUT snapshot + provenance.
  *
  * Proves the typed delegate-input surface assembled at the candidate:
- *   1. A typed `continue_delegate({ attachments: [...] })` call is accepted.
- *   2. The tool result reports a staged input snapshot (count/bytes/digest),
- *      NOT the attachment content.
- *   3. The spawned child observes the snapshot at a workspace-relative mount
- *      path — the provenance leg.
- *   4. Negative: the attachment content never appears on a non-harness frame.
+ *   1. A typed `continue_delegate({ attachments: [...] })` call is accepted and
+ *      a STRUCTURED continue_delegate tool record appears on the wire.
+ *   2. The tool result reports a staged input snapshot (count/bytes), NOT the
+ *      attachment content.
+ *   3. A structured record binds a child session key to this row's nonce.
+ *   4. The child reports the workspace-relative mount path together with the
+ *      byte length and sha256 prefix of the file it was handed, and those must
+ *      equal the canary digest the harness staged. The canary is known only to
+ *      this run, so a matching digest cannot be produced without reading the
+ *      staged bytes at the named path: that is the provenance binding.
+ *   5. Negative: the attachment content never appears on a non-harness frame.
  *
  * Only the typed tool carries attachment blobs; the bracket
  * `[[CONTINUE_DELEGATE: ...]]` form cannot, so this row has no token sibling.
@@ -24,6 +29,7 @@ import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { closeSocketAfterDelay } from '../lib/socket-close.js';
+import { childSessionKeysForRow } from '../lib/row-child-correlation.mjs';
 import {
   baseEvidence,
   boolEnv,
@@ -35,9 +41,10 @@ import {
   declareNegative,
   fire,
   logEvidence,
-  matchGroup,
   rowSummary,
   scanRawBytes,
+  sentinel,
+  toolResultRecords,
 } from '../lib/delegate-attachment-io.js';
 
 const ROW = 'R-CD-IN-1';
@@ -64,8 +71,11 @@ const manifest = loadManifestFromEnv();
 
 const REQUIRED = [
   'tool-invoke-accepted',
+  'typed-tool-record-observed',
   'input-snapshot-staged',
+  'child-session-bound',
   'child-mount-provenance',
+  'child-bytes-bound-to-canary',
 ];
 
 export default function () {
@@ -107,6 +117,11 @@ export default function () {
     'no-absolute-path-mount',
     'the child mount path must be workspace-relative, never an absolute host path',
   );
+  declareNegative(
+    evidence,
+    'child-bytes-match-the-known-canary',
+    'the digest/size the child reports for its mounted file must equal the canary the harness staged',
+  );
 
   const started = Date.now();
 
@@ -128,9 +143,11 @@ export default function () {
       socket.setTimeout(() => {
         const instruction =
           `[k6-proof-harness] Call continue_delegate exactly once with ` +
-          `task="Reply exactly: CDIN1-CHILD-SAW ${rowNonce} <mountRelPath> where <mountRelPath> is the ` +
-          `workspace-relative path of the attachment you were handed. Do not print the file contents. ` +
-          `Do not mutate any other file.", ` +
+          `task="Locate the attachment you were handed. Reply exactly: ` +
+          `CDIN1-CHILD-SAW ${rowNonce} <mountRelPath> <byteLength> <sha256First16> where <mountRelPath> is the ` +
+          `workspace-relative path of that file, <byteLength> is its size in bytes, and <sha256First16> is the ` +
+          `first 16 hex characters of its sha256 digest (run: sha256sum <mountRelPath>). ` +
+          `Do not print the file contents. Do not mutate any other file.", ` +
           `mode="normal", delaySeconds=1, ` +
           `attachments=[{name:"p86-in-${rowNonce}.txt", content:"${canary}", encoding:"utf8", mimeType:"text/plain"}]. ` +
           `After the tool result reports the delegate is scheduled, reply exactly ` +
@@ -194,27 +211,58 @@ export default function () {
 
         scanRawBytes(evidence, body, rowNonce, 'no-raw-attachment-bytes-on-the-wire');
 
-        const staged = body.match(
-          new RegExp(`CDIN1-SNAPSHOT-STAGED ${rowNonce} (\\\\d+) (\\\\d+)`),
-        );
+        // Structured authority: a continue_delegate tool record must exist on
+        // the wire. A prose sentinel alone can be produced by a model that
+        // never called the tool.
+        const toolRecords = toolResultRecords(classified.data, 'continue_delegate');
+        if (toolRecords.length > 0) {
+          fire(evidence, 'typed-tool-record-observed');
+          evidence.typed_tool_records = (evidence.typed_tool_records || 0) + toolRecords.length;
+        }
+
+        // Structured child binding: only a record that ties childSessionKey to
+        // this row's nonce is authority for "the delegate child exists".
+        const childKeys = childSessionKeysForRow(classified.data, rowNonce);
+        if (childKeys.length === 1) {
+          fire(evidence, 'child-session-bound');
+          evidence.provenance.child_session_key = childKeys[0];
+        }
+
+        const staged = body.match(sentinel('CDIN1-SNAPSHOT-STAGED', rowNonce, ' ([0-9]+) ([0-9]+)'));
         if (staged) {
           fire(evidence, 'input-snapshot-staged');
           evidence.snapshot_reported = { count: Number(staged[1]), bytes: Number(staged[2]) };
         }
 
-        const mount = matchGroup(body, new RegExp(`CDIN1-CHILD-SAW ${rowNonce} ([^"\\\\s\\\\\\\\]+)`));
-        if (mount) {
+        const saw = body.match(
+          sentinel('CDIN1-CHILD-SAW', rowNonce, ' ([^"\\s\\\\]+) ([0-9]+) ([0-9a-f]{16})'),
+        );
+        if (saw) {
+          const mount = saw[1];
+          const reportedBytes = Number(saw[2]);
+          const reportedDigest = saw[3];
           fire(evidence, 'child-mount-provenance');
           evidence.provenance.mount_rel_path = mount;
+          evidence.child_reported = { bytes: reportedBytes, sha256_prefix: reportedDigest };
           if (mount.startsWith('/') || /^[A-Za-z]:/.test(mount)) {
             breakNegative(evidence, 'no-absolute-path-mount', `mount path is absolute: ${mount}`);
           }
+          // The canary is known to the harness only. A child that reports the
+          // same size AND the same digest necessarily read the staged bytes at
+          // the mount path it named; a hallucinated path cannot produce this.
+          const bytesMatch = reportedBytes === evidence.content_receipt.bytes;
+          const digestMatch = reportedDigest === evidence.content_receipt.sha256_prefix;
+          if (bytesMatch && digestMatch) {
+            fire(evidence, 'child-bytes-bound-to-canary');
+          } else {
+            breakNegative(
+              evidence,
+              'child-bytes-match-the-known-canary',
+              `child reported bytes=${reportedBytes}/digest=${reportedDigest}, harness staged ` +
+                `bytes=${evidence.content_receipt.bytes}/digest=${evidence.content_receipt.sha256_prefix}`,
+            );
+          }
         }
-
-        const childKey = matchGroup(body, /"childSessionKey"\s*:\s*"([^"]+)"/);
-        if (childKey) evidence.provenance.child_session_key = childKey;
-        const flowId = matchGroup(body, /"flowId"\s*:\s*"([^"]+)"/);
-        if (flowId) evidence.provenance.flow_id = flowId;
 
         maybeClose();
       } catch (e) {
@@ -235,11 +283,18 @@ export default function () {
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'typed continue_delegate dispatch accepted': () => !!evidence.receipts['tool-invoke-accepted'],
+    'structured continue_delegate tool record observed': () =>
+      !!evidence.receipts['typed-tool-record-observed'],
     'input snapshot staged receipt observed': () => !!evidence.receipts['input-snapshot-staged'],
+    'child session bound to the row nonce': () => !!evidence.receipts['child-session-bound'],
     'child observed workspace-relative mount': () => !!evidence.receipts['child-mount-provenance'],
+    'child bytes/digest bound to the staged canary': () =>
+      !!evidence.receipts['child-bytes-bound-to-canary'],
     'no raw attachment bytes on the wire': () =>
       evidence.negative_checks['no-raw-attachment-bytes-on-the-wire'].held,
     'mount path is workspace-relative': () => evidence.negative_checks['no-absolute-path-mount'].held,
+    'child bytes match the known canary': () =>
+      evidence.negative_checks['child-bytes-match-the-known-canary'].held,
   });
 
   if (verdict !== 'PASS-candidate') failures.add(1);

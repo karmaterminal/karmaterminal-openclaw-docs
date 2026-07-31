@@ -13,17 +13,22 @@
  *
  * ORCHESTRATION GATE — read this before reading a verdict:
  *   The gateway restart is an operator step. This harness must not restart a
- *   seat. Set `OPENCLAW_RESTART_ORCHESTRATED=true` only when an operator
- *   actually cycled the gateway between the pre- and post-phase of this run.
- *   Without it, the row terminates PARTIAL-candidate naming the missing step;
- *   the pre-restart legs it did observe are still recorded as receipts.
+ *   seat, and `OPENCLAW_RESTART_ORCHESTRATED=true` is a DECLARATION, never the
+ *   evidence. The restart is credited only from the gateway's own public
+ *   `/status` surface (uptime going backwards, or the endpoint dropping and
+ *   returning), observed while this harness is deliberately DISCONNECTED
+ *   between the pre- and post-phase sockets. A real restart therefore cannot
+ *   fail the run by dropping a socket, and a missing restart cannot be
+ *   declared away. Without that receipt the row terminates PARTIAL-candidate
+ *   naming the missing step; the pre-restart legs it did observe are still
+ *   recorded as receipts.
  *
  * References:
  *   - Issue: karmaterminal/karmaterminal-openclaw-docs#491
  *   - Manifest: tools/k6-proofs/manifests/r-cd-out-replay.json
  */
 import ws from 'k6/ws';
-import { check } from 'k6';
+import { check, sleep } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
@@ -37,11 +42,15 @@ import {
   contentReceipt,
   declareNegative,
   fire,
+  httpBaseFromWs,
   logEvidence,
   matchGroup,
+  observeGatewayRestart,
   orchestrationGate,
   rowSummary,
+  sampleGatewayStatus,
   scanRawBytes,
+  sentinel,
 } from '../lib/delegate-attachment-io.js';
 
 const ROW = 'R-CD-OUT-REPLAY';
@@ -52,11 +61,11 @@ export const options = {
       executor: 'shared-iterations',
       vus: 1,
       iterations: 1,
-      maxDuration: '420s',
+      maxDuration: '660s',
     },
   },
   thresholds: {
-    r_cd_out_replay_duration: ['p(95)<400000'],
+    r_cd_out_replay_duration: ['p(95)<640000'],
   },
 };
 
@@ -67,6 +76,8 @@ const manifest = loadManifestFromEnv();
 
 const REQUIRED = [
   'pre-restart-claim-established',
+  'gateway-restart-observed',
+  'reconnected-after-restart',
   'post-restart-claim-listed',
   'claim-identity-stable',
   'replay-is-idempotent',
@@ -120,22 +131,17 @@ export default function () {
   );
 
   const started = Date.now();
+  const httpBase = httpBaseFromWs(url);
+  evidence.restart_declared_by_operator = restartOrchestrated;
+  evidence.lifecycle = { baseline: null, observation: null };
 
-  const res = ws.connect(url, {}, (socket) => {
+  // --- Phase 0: external lifecycle baseline, before anything is published ---
+  const baseline = sampleGatewayStatus(httpBase, token);
+  evidence.lifecycle.baseline = { reachable: baseline.reachable, uptime: baseline.uptime };
+
+  // --- Phase 1: publish + list the claim, then DISCONNECT for the window ---
+  const phase1 = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
-
-    function askPostRestartList() {
-      const instruction =
-        `[k6-proof-harness] Call delegate_artifacts with action="list" and reply exactly ` +
-        `CDREPLAY-POST ${rowNonce} <claimId> <count> where <claimId> is the claim whose name contains ` +
-        `${rowNonce} and <count> is how many claims carry that nonce. Do not materialize anything. ` +
-        `This is a proof run — no other action needed.`;
-      tracker.send(socket, 'sessions.send', {
-        key: recipientSessionKey,
-        message: instruction,
-        idempotencyKey: `${ROW}-POST-${rowNonce}`,
-      });
-    }
 
     socket.on('open', () => {
       socket.send(connectFrame(token));
@@ -155,7 +161,7 @@ export default function () {
           idempotencyKey: `${ROW}-DISPATCH-${rowNonce}`,
         });
       }, 400);
-      socket.setTimeout(() => socket.close(), 400000);
+      socket.setTimeout(() => socket.close(), 240000);
     });
 
     socket.on('message', (raw) => {
@@ -173,41 +179,17 @@ export default function () {
 
         scanRawBytes(evidence, body, rowNonce, 'no-raw-artifact-bytes-on-the-wire');
 
-        const preClaim = matchGroup(body, new RegExp(`CDREPLAY-PRE ${rowNonce} ([A-Za-z0-9_.:-]+)`));
+        const preClaim = matchGroup(body, sentinel('CDREPLAY-PRE', rowNonce, ' ([A-Za-z0-9_.:-]+)'));
         if (preClaim && !evidence.pre_restart_claim_id) {
           evidence.pre_restart_claim_id = preClaim;
           evidence.provenance.claim_id = preClaim;
           fire(evidence, 'pre-restart-claim-established');
-          console.log(
-            `${ROW}: pre-restart claim captured. Operator restart window opens now ` +
-              `(${restartWindowMs}ms) — restart the gateway to exercise durable replay.`,
-          );
-          socket.setTimeout(askPostRestartList, restartWindowMs);
-        }
-
-        const post = body.match(
-          new RegExp(`CDREPLAY-POST ${rowNonce} ([A-Za-z0-9_.:-]+) ([0-9]+)`),
-        );
-        if (post) {
-          fire(evidence, 'post-restart-claim-listed');
-          evidence.post_restart_claim_id = post[1];
-          evidence.post_restart_claim_count = Number(post[2]);
-          if (evidence.pre_restart_claim_id && post[1] === evidence.pre_restart_claim_id) {
-            fire(evidence, 'claim-identity-stable');
-          }
-          if (Number(post[2]) === 1) {
-            fire(evidence, 'replay-is-idempotent');
-          } else if (Number(post[2]) > 1) {
-            breakNegative(
-              evidence,
-              'no-duplicate-claim-after-replay',
-              `replay produced ${post[2]} claims for one publication`,
-            );
-          }
+          // Disconnect on purpose: the operator restart must be survivable, and
+          // a socket held open across it would fail the run for the wrong reason.
           socket.close();
         }
 
-        if (body.includes('"materialized"')) {
+        if (body.indexOf('"materialized"') !== -1) {
           breakNegative(
             evidence,
             'no-auto-materialize-on-replay',
@@ -215,32 +197,152 @@ export default function () {
           );
         }
       } catch (e) {
-        console.warn(`parse error: ${e}`);
+        console.warn(`ws error (phase 1): ${e}`);
       }
     });
 
     socket.on('error', (e) => {
-      console.error(`ws error: ${e && e.error ? e.error() : e}`);
+      console.error(`ws error (phase 1): ${e && e.error ? e.error() : e}`);
       failures.add(1);
     });
   });
+
+  // --- Phase 2: externally observable restart window, socket intentionally down ---
+  if (evidence.receipts['pre-restart-claim-established']) {
+    console.log(
+      `${ROW}: pre-restart claim captured and harness disconnected. Operator restart window is OPEN ` +
+        `for ${restartWindowMs}ms — restart the gateway to exercise durable replay.`,
+    );
+    const observation = observeGatewayRestart({
+      httpBase,
+      token,
+      baseline,
+      windowMs: restartWindowMs,
+      pollMs: Number(__ENV.OPENCLAW_RESTART_POLL_MS || 5000),
+      sleep,
+    });
+    evidence.lifecycle.observation = observation;
+    if (observation.observed) fire(evidence, 'gateway-restart-observed');
+  } else {
+    evidence.lifecycle.observation = {
+      observed: false,
+      reason: 'the pre-restart claim was never established, so the restart window was never opened',
+    };
+  }
+
+  // --- Phase 3: RECONNECT and re-list the claim from durable state ---
+  let phase2 = null;
+  if (evidence.receipts['gateway-restart-observed']) {
+    phase2 = ws.connect(url, {}, (socket) => {
+      const tracker = new RequestTracker();
+
+      socket.on('open', () => {
+        fire(evidence, 'reconnected-after-restart');
+        socket.send(connectFrame(token));
+        socket.setTimeout(() => {
+          tracker.send(socket, 'sessions.messages.subscribe', { key: recipientSessionKey });
+          const instruction =
+            `[k6-proof-harness] Call delegate_artifacts with action="list" and reply exactly ` +
+            `CDREPLAY-POST ${rowNonce} <claimId> <count> where <claimId> is the claim whose name contains ` +
+            `${rowNonce} and <count> is how many claims carry that nonce. Do not materialize anything. ` +
+            `This is a proof run — no other action needed.`;
+          tracker.send(socket, 'sessions.send', {
+            key: recipientSessionKey,
+            message: instruction,
+            idempotencyKey: `${ROW}-POST-${rowNonce}`,
+          });
+        }, 500);
+        socket.setTimeout(() => socket.close(), 180000);
+      });
+
+      socket.on('message', (raw) => {
+        try {
+          const msg = JSON.parse(raw);
+          const classified = tracker.classify(msg);
+          const body = capture(evidence, classified);
+
+          if (classified.kind === 'response' && classified.method === 'sessions.send') {
+            if (!classified.ok) failures.add(1);
+            return;
+          }
+
+          if (classified.kind !== 'event' || !body) return;
+
+          scanRawBytes(evidence, body, rowNonce, 'no-raw-artifact-bytes-on-the-wire');
+
+          const post = body.match(
+            sentinel('CDREPLAY-POST', rowNonce, ' ([A-Za-z0-9_.:-]+) ([0-9]+)'),
+          );
+          if (post) {
+            fire(evidence, 'post-restart-claim-listed');
+            evidence.post_restart_claim_id = post[1];
+            evidence.post_restart_claim_count = Number(post[2]);
+            if (evidence.pre_restart_claim_id && post[1] === evidence.pre_restart_claim_id) {
+              fire(evidence, 'claim-identity-stable');
+            } else {
+              breakNegative(
+                evidence,
+                'no-duplicate-claim-after-replay',
+                `post-restart claim ${post[1]} does not match the pre-restart claim ` +
+                  `${evidence.pre_restart_claim_id}`,
+              );
+            }
+            if (Number(post[2]) === 1) {
+              fire(evidence, 'replay-is-idempotent');
+            } else if (Number(post[2]) > 1) {
+              breakNegative(
+                evidence,
+                'no-duplicate-claim-after-replay',
+                `replay produced ${post[2]} claims for one publication`,
+              );
+            }
+            socket.close();
+          }
+
+          if (body.indexOf('"materialized"') !== -1) {
+            breakNegative(
+              evidence,
+              'no-auto-materialize-on-replay',
+              'a materialized state appeared without any explicit recipient materialize call',
+            );
+          }
+        } catch (e) {
+          console.warn(`parse error: ${e}`);
+        }
+      });
+
+      socket.on('error', (e) => {
+        console.error(`ws error (phase 3): ${e && e.error ? e.error() : e}`);
+      });
+    });
+  }
 
   evidence.duration_ms = Date.now() - started;
   duration.add(evidence.duration_ms);
 
   orchestrationGate(
     evidence,
-    restartOrchestrated && !!evidence.receipts['post-restart-claim-listed'],
-    restartOrchestrated
-      ? 'operator restart was declared but no post-restart claim listing was observed'
-      : 'OPENCLAW_RESTART_ORCHESTRATED was not set: no operator gateway restart happened inside the restart window, so durable replay was not exercised',
+    !!evidence.receipts['gateway-restart-observed'] &&
+      !!evidence.receipts['reconnected-after-restart'] &&
+      !!evidence.receipts['post-restart-claim-listed'],
+    evidence.receipts['gateway-restart-observed']
+      ? 'a gateway restart was observed but the reconnected socket saw no post-restart claim listing'
+      : `no gateway restart was observable on ${httpBase}/status inside the window` +
+        (restartOrchestrated
+          ? ' even though OPENCLAW_RESTART_ORCHESTRATED was declared: the declaration is not evidence'
+          : '') +
+        `: ${evidence.lifecycle.observation?.reason || 'no lifecycle change detected'}`,
   );
 
   const verdict = computeVerdict(evidence, REQUIRED);
 
-  check(res, { 'websocket connected': (r) => r && r.status === 101 });
+  check(phase1, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'pre-restart claim established': () => !!evidence.receipts['pre-restart-claim-established'],
+    'gateway restart observed on the public status surface': () =>
+      !!evidence.receipts['gateway-restart-observed'],
+    'harness reconnected after the restart': () =>
+      !!evidence.receipts['reconnected-after-restart'],
     'no duplicate claim after replay': () =>
       evidence.negative_checks['no-duplicate-claim-after-replay'].held,
     'no automatic materialization on replay': () =>
@@ -248,6 +350,7 @@ export default function () {
     'no raw artifact bytes on the wire': () =>
       evidence.negative_checks['no-raw-artifact-bytes-on-the-wire'].held,
   });
+  if (phase2) check(phase2, { 'reconnect websocket connected': (r) => r && r.status === 101 });
 
   logEvidence(evidence);
   if (verdict !== 'PASS-candidate') {

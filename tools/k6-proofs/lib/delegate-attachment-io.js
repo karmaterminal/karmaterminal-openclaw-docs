@@ -19,11 +19,44 @@
  *   - `orchestrationGate` forces PARTIAL-candidate when a row depends on an
  *     operator step (config revoke, gateway restart) that this run did not
  *     observe. A row must never claim PASS on an unperformed precondition.
+ *   - The row verdict is published on a metric (`proof_row_pass`) so
+ *     `handleSummary` reports the SAME verdict `computeVerdict` produced.
+ *     Deriving a summary verdict from `proof_failures` alone is forbidden: the
+ *     orchestration-gated rows do not raise that counter.
  */
 import crypto from 'k6/crypto';
+import http from 'k6/http';
+import { Counter } from 'k6/metrics';
 import { redactEvent } from './gateway-ws.js';
 
 export const HARNESS_MARKER = '[k6-proof-harness]';
+
+/**
+ * Verdict transport between the iteration and `handleSummary`.
+ * k6 evaluates `handleSummary` in a fresh runtime, so module state does not
+ * survive; a metric does. Exactly one of these is incremented per iteration.
+ */
+export const rowPassCounter = new Counter('proof_row_pass');
+export const rowPartialCounter = new Counter('proof_row_partial');
+export const rowIterationCounter = new Counter('proof_row_iterations');
+
+/** Escape a value for literal use inside a RegExp source. */
+export function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** Build a sentinel matcher: `<SENTINEL> <nonce> <trailing>`. */
+export function sentinel(prefix, rowNonce, trailing = '') {
+  return new RegExp(`${escapeRegex(prefix)} ${escapeRegex(rowNonce)}${trailing}`);
+}
+
+/** Derive the gateway HTTP base from its WS URL. */
+export function httpBaseFromWs(wsUrl) {
+  return String(wsUrl || '')
+    .replace(/^wss:/i, 'https:')
+    .replace(/^ws:/i, 'http:')
+    .replace(/\/+$/, '');
+}
 
 /** Deterministic public-safe canary content for a row nonce. */
 export function canaryFor(rowNonce) {
@@ -160,8 +193,172 @@ export function orchestrationGate(evidence, observed, reason) {
 }
 
 /**
+ * Deep-walk a structured payload and return every plain object for which
+ * `predicate` holds. Used to bind receipts to structured tool/session records
+ * instead of to model prose anywhere in a frame.
+ */
+export function findRecords(value, predicate, seen) {
+  const visited = seen || [];
+  const out = [];
+  if (!value || typeof value !== 'object') return out;
+  for (const entry of visited) if (entry === value) return out;
+  visited.push(value);
+  if (Array.isArray(value)) {
+    for (const child of value) out.push(...findRecords(child, predicate, visited));
+    return out;
+  }
+  if (predicate(value)) out.push(value);
+  for (const key of Object.keys(value)) out.push(...findRecords(value[key], predicate, visited));
+  return out;
+}
+
+/**
+ * Structured tool-result records for `toolName`. A gateway tool frame carries
+ * the tool name plus a result/error container; model prose never does.
+ */
+export function toolResultRecords(eventData, toolName) {
+  return findRecords(eventData, (record) => {
+    const name = typeof record.name === 'string' ? record.name : record.toolName;
+    if (name !== toolName) return false;
+    return 'result' in record || 'error' in record || 'isError' in record || 'ok' in record;
+  });
+}
+
+/** True when a structured tool record reports a refusal/error rather than a success. */
+export function toolRecordRejected(record) {
+  if (!record || typeof record !== 'object') return false;
+  if (record.isError === true) return true;
+  if (record.ok === false) return true;
+  if (record.error) return true;
+  const status = String(record.status || record.result?.status || '').toLowerCase();
+  return ['error', 'rejected', 'denied', 'refused', 'failed'].includes(status);
+}
+
+const ATTACHMENT_STATE_KEYS = [
+  'attachments',
+  'attachmentSnapshot',
+  'attachmentState',
+  'pendingAttachments',
+  'storedAttachments',
+];
+
+/**
+ * True when a structured record still carries non-empty delegate attachment
+ * state. Used as the authority for "the durable snapshot was scrubbed": an
+ * absence claimed in model prose is not a receipt.
+ */
+export function recordCarriesAttachmentState(record) {
+  if (!record || typeof record !== 'object') return false;
+  return ATTACHMENT_STATE_KEYS.some((key) => {
+    const value = record[key];
+    if (value === undefined || value === null) return false;
+    if (Array.isArray(value)) return value.length > 0;
+    if (typeof value === 'object') return Object.keys(value).length > 0;
+    if (typeof value === 'number') return value > 0;
+    return Boolean(value);
+  });
+}
+
+/** Session keys present in a sessions.list payload. */
+export function sessionKeysFromList(payload) {
+  const rows = payload?.sessions || payload?.items || payload?.records || [];
+  if (!Array.isArray(rows)) return [];
+  return rows
+    .map((row) => (typeof row === 'string' ? row : row?.key || row?.sessionKey))
+    .filter((key) => typeof key === 'string' && key.length > 0);
+}
+
+/** Read a public-safe gateway lifecycle sample from the HTTP status surface. */
+export function sampleGatewayStatus(httpBase, token) {
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  let res;
+  try {
+    res = http.get(`${httpBase}/status`, { headers, timeout: '5s' });
+  } catch (error) {
+    return { reachable: false, uptime: null, version: null, error: String(error) };
+  }
+  if (!res || res.status !== 200) {
+    return { reachable: false, uptime: null, version: null, status: res ? res.status : 0 };
+  }
+  let body = null;
+  try {
+    body = JSON.parse(res.body);
+  } catch (error) {
+    return { reachable: true, uptime: null, version: null, parseError: true };
+  }
+  const uptime = typeof body.uptime === 'number' ? body.uptime : Number(body.uptime);
+  return {
+    reachable: true,
+    uptime: Number.isFinite(uptime) ? uptime : null,
+    version: typeof body.version === 'string' ? body.version : null,
+  };
+}
+
+/**
+ * Externally observable gateway restart receipt.
+ *
+ * `OPENCLAW_RESTART_ORCHESTRATED` is an operator DECLARATION and can never be
+ * the evidence. A restart is credited only when the public `/status` surface
+ * shows the process identity change from outside the harness: either the
+ * endpoint went unreachable and came back, or reported uptime went backwards.
+ * Both are properties of the gateway, not of this script's beliefs.
+ *
+ * Returns `{ observed, downtimeObserved, uptimeReset, samples, reason }`.
+ */
+export function observeGatewayRestart(params) {
+  const { httpBase, token, baseline, windowMs, pollMs, sleep } = params;
+  const deadline = Date.now() + Math.max(0, windowMs);
+  const interval = Math.max(1000, pollMs || 5000);
+  const result = {
+    observed: false,
+    downtimeObserved: false,
+    uptimeReset: false,
+    baselineUptime: baseline && baseline.reachable ? baseline.uptime : null,
+    finalUptime: null,
+    samples: 0,
+    reason: null,
+  };
+  if (!baseline || !baseline.reachable) {
+    result.reason = 'gateway /status was not reachable before the restart window, so no lifecycle baseline exists';
+    return result;
+  }
+  if (baseline.uptime === null) {
+    result.reason = 'gateway /status did not expose a numeric uptime, so a restart cannot be observed externally';
+    return result;
+  }
+  while (Date.now() < deadline) {
+    sleep(interval / 1000);
+    const sample = sampleGatewayStatus(httpBase, token);
+    result.samples += 1;
+    if (!sample.reachable) {
+      result.downtimeObserved = true;
+      continue;
+    }
+    result.finalUptime = sample.uptime;
+    if (sample.uptime !== null && sample.uptime < baseline.uptime) {
+      result.uptimeReset = true;
+      result.observed = true;
+      return result;
+    }
+    if (result.downtimeObserved && sample.uptime !== null) {
+      // Came back after an observed outage: that is a process lifecycle event
+      // even if the uptime unit is too coarse to have gone backwards.
+      result.observed = true;
+      return result;
+    }
+  }
+  result.reason = result.downtimeObserved
+    ? 'gateway went unreachable inside the restart window but never came back before the deadline'
+    : 'gateway /status uptime never reset and the endpoint never dropped inside the restart window: no operator restart was observed';
+  return result;
+}
+
+/**
  * PASS-candidate only when every required receipt fired, every negative check
  * held, and any declared orchestration precondition was observed.
+ *
+ * Also publishes the verdict onto `proof_row_pass` / `proof_row_partial` so
+ * `handleSummary` cannot invent a different one.
  */
 export function computeVerdict(evidence, requiredReceipts) {
   const missing = requiredReceipts.filter((name) => !evidence.receipts[name]);
@@ -175,6 +372,9 @@ export function computeVerdict(evidence, requiredReceipts) {
     missing.length === 0 && violated.length === 0 && orchestrationOk
       ? 'PASS-candidate'
       : 'PARTIAL-candidate';
+  rowIterationCounter.add(1);
+  if (evidence.verdict === 'PASS-candidate') rowPassCounter.add(1);
+  else rowPartialCounter.add(1);
   return evidence.verdict;
 }
 
@@ -186,20 +386,41 @@ export function logEvidence(evidence) {
   console.log(`\n[${evidence.row}] VERDICT: ${evidence.verdict}`);
 }
 
-/** Standard handleSummary payload for this row family. */
+/**
+ * Standard handleSummary payload for this row family.
+ *
+ * The verdict is READ from the metric `computeVerdict` published, never
+ * re-derived from `proof_failures`: the orchestration-gated rows deliberately
+ * do not raise that counter, so a failures-only derivation would print PASS
+ * while the authoritative row verdict is PARTIAL.
+ */
 export function rowSummary(params) {
   const { row, data, durationMetric, summaryFile } = params;
   const failures = data.metrics.proof_failures?.values?.count || 0;
+  const passes = data.metrics.proof_row_pass?.values?.count || 0;
+  const partials = data.metrics.proof_row_partial?.values?.count || 0;
+  const iterations = data.metrics.proof_row_iterations?.values?.count || 0;
+  // PASS only when the iteration ran, published PASS, published no PARTIAL,
+  // and raised no failure. A missing verdict metric means the iteration never
+  // reached computeVerdict, which is not a pass.
+  const verdict =
+    iterations > 0 && passes === iterations && partials === 0 && failures === 0
+      ? 'PASS-candidate'
+      : 'PARTIAL-candidate';
   const summary = {
     row,
     issue: 491,
     sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     seat: __ENV.OPENCLAW_SEAT_NAME || 'rune-rog-ally',
     timestamp: new Date().toISOString(),
-    verdict: failures === 0 ? 'PASS-candidate' : 'PARTIAL-candidate',
+    verdict,
+    verdictSource: 'proof_row_pass metric published by computeVerdict',
     metrics: {
       duration_ms: data.metrics[durationMetric]?.values || null,
       failures,
+      iterations,
+      row_pass: passes,
+      row_partial: partials,
     },
   };
   return {

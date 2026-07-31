@@ -39,6 +39,9 @@ import {
   matchGroup,
   rowSummary,
   scanRawBytes,
+  sentinel,
+  toolRecordRejected,
+  toolResultRecords,
 } from '../lib/delegate-attachment-io.js';
 
 const ROW = 'R-CD-OUT-CLAIM';
@@ -69,6 +72,7 @@ const REQUIRED = [
   'claim-inspected',
   'authorized-materialize',
   'claim-discarded',
+  'post-discard-inspect-rejected',
 ];
 
 export default function () {
@@ -115,7 +119,12 @@ export default function () {
   declareNegative(
     evidence,
     'no-read-after-discard',
-    'a discarded claim must not remain readable',
+    'a discarded claim must not remain readable, and the post-discard probe must name that same claim',
+  );
+  declareNegative(
+    evidence,
+    'discard-targets-the-listed-claim',
+    'the discarded claim id must be the claim id that was listed and inspected',
   );
 
   const started = Date.now();
@@ -148,9 +157,10 @@ export default function () {
           `(b) action="inspect", claimId=<claimId> then reply CDCLAIM-INSPECTED ${rowNonce} <bytes> <mimeType>; ` +
           `(c) action="materialize", claimId=<claimId>, destination="${destination}" then reply ` +
           `CDCLAIM-MATERIALIZED ${rowNonce} <destination>; ` +
-          `(d) action="discard", claimId=<claimId> then reply CDCLAIM-DISCARDED ${rowNonce}; ` +
+          `(d) action="discard", claimId=<claimId> then reply CDCLAIM-DISCARDED ${rowNonce} <claimId>; ` +
           `finally call action="inspect" with the same claimId once more and reply ` +
-          `CDCLAIM-POSTDISCARD ${rowNonce} <ok|rejected>. ` +
+          `CDCLAIM-POSTDISCARD ${rowNonce} <claimId> <ok|rejected> <reasonWord> — where <reasonWord> is a ` +
+          `single word taken from that final tool result (use "none" only if it succeeded). ` +
           `Never print the artifact contents. This is a proof run — no other action needed.`;
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
@@ -209,7 +219,7 @@ export default function () {
 
         const listedClaim = matchGroup(
           body,
-          new RegExp(`CDCLAIM-LISTED ${rowNonce} ([A-Za-z0-9_.:-]+)`),
+          sentinel('CDCLAIM-LISTED', rowNonce, ' ([A-Za-z0-9_.:-]+)'),
         );
         if (listedClaim) {
           fire(evidence, 'claim-listed');
@@ -217,7 +227,7 @@ export default function () {
         }
 
         const inspected = body.match(
-          new RegExp(`CDCLAIM-INSPECTED ${rowNonce} ([0-9]+) ([A-Za-z0-9_./+-]+)`),
+          sentinel('CDCLAIM-INSPECTED', rowNonce, ' ([0-9]+) ([A-Za-z0-9_./+-]+)'),
         );
         if (inspected) {
           fire(evidence, 'claim-inspected');
@@ -226,7 +236,7 @@ export default function () {
 
         const materialized = matchGroup(
           body,
-          new RegExp(`CDCLAIM-MATERIALIZED ${rowNonce} ([^"\\\\s\\\\\\\\]+)`),
+          sentinel('CDCLAIM-MATERIALIZED', rowNonce, ' ([^"\\s\\\\]+)'),
         );
         if (materialized) {
           fire(evidence, 'authorized-materialize');
@@ -240,22 +250,65 @@ export default function () {
           }
         }
 
-        if (body.includes(`CDCLAIM-DISCARDED ${rowNonce}`)) {
-          fire(evidence, 'claim-discarded');
+        const discarded = matchGroup(
+          body,
+          sentinel('CDCLAIM-DISCARDED', rowNonce, ' ([A-Za-z0-9_.:-]+)'),
+        );
+        if (discarded) {
+          evidence.discarded_claim_id = discarded;
+          if (evidence.provenance.claim_id && discarded !== evidence.provenance.claim_id) {
+            breakNegative(
+              evidence,
+              'discard-targets-the-listed-claim',
+              `discarded ${discarded} but the listed claim was ${evidence.provenance.claim_id}`,
+            );
+          } else {
+            fire(evidence, 'claim-discarded');
+          }
         }
 
-        const postDiscard = matchGroup(
-          body,
-          new RegExp(`CDCLAIM-POSTDISCARD ${rowNonce} ([A-Za-z]+)`),
+        // A structured rejection on the post-discard delegate_artifacts call is
+        // the authority for "the claim is unreadable". Prose alone is not.
+        const rejectedRecords = toolResultRecords(classified.data, 'delegate_artifacts')
+          .filter((record) => toolRecordRejected(record));
+        if (rejectedRecords.length > 0 && evidence.receipts['claim-discarded']) {
+          evidence.post_discard_tool_rejection = true;
+        }
+
+        const postDiscard = body.match(
+          sentinel('CDCLAIM-POSTDISCARD', rowNonce, ' ([A-Za-z0-9_.:-]+) ([A-Za-z]+) ([A-Za-z0-9_-]+)'),
         );
         if (postDiscard) {
-          evidence.post_discard_inspect = postDiscard;
-          if (postDiscard.toLowerCase() === 'ok') {
+          const [, postClaimId, outcome, reasonWord] = postDiscard;
+          evidence.post_discard_inspect = {
+            claimId: postClaimId,
+            outcome: outcome.toLowerCase(),
+            reasonWord,
+            toolRejectionObserved: evidence.post_discard_tool_rejection === true,
+          };
+          const claimIdMatches =
+            !!evidence.provenance.claim_id && postClaimId === evidence.provenance.claim_id;
+          if (!claimIdMatches) {
+            breakNegative(
+              evidence,
+              'no-read-after-discard',
+              `post-discard inspect named ${postClaimId}, not the discarded claim ` +
+                `${evidence.provenance.claim_id || '(none listed)'}`,
+            );
+          } else if (outcome.toLowerCase() === 'ok') {
             breakNegative(
               evidence,
               'no-read-after-discard',
               'inspect still succeeded after the claim was discarded',
             );
+          } else if (evidence.post_discard_tool_rejection === true) {
+            // Bound on three axes: the same claim id, an explicit rejected
+            // outcome, and a structured delegate_artifacts error record.
+            fire(evidence, 'post-discard-inspect-rejected');
+          } else {
+            evidence.post_discard_unbound_reason =
+              'the recipient reported a rejection but no structured delegate_artifacts error record was ' +
+              'observed on the wire, so the rejection is not receipt-bound';
           }
           socket.close();
         }
@@ -282,9 +335,13 @@ export default function () {
     'recipient inspected the claim': () => !!evidence.receipts['claim-inspected'],
     'recipient-authorized materialize succeeded': () => !!evidence.receipts['authorized-materialize'],
     'recipient discarded the claim': () => !!evidence.receipts['claim-discarded'],
+    'post-discard inspect was rejected for the same claim': () =>
+      !!evidence.receipts['post-discard-inspect-rejected'],
     'materialize destination stayed workspace-relative': () =>
       evidence.negative_checks['materialize-destination-is-workspace-relative'].held,
     'no read after discard': () => evidence.negative_checks['no-read-after-discard'].held,
+    'discard targeted the listed claim': () =>
+      evidence.negative_checks['discard-targets-the-listed-claim'].held,
     'no raw artifact bytes on the wire': () =>
       evidence.negative_checks['no-raw-artifact-bytes-on-the-wire'].held,
   });

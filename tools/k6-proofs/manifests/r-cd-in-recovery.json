@@ -8,7 +8,7 @@
   "transport": "websocket",
   "toolSurface": "typed-tool",
   "mutates": true,
-  "timeoutSeconds": 400,
+  "timeoutSeconds": 540,
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
     "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
@@ -33,12 +33,14 @@
     "idempotencyKeyPrefix": "R-CD-IN-RECOVERY"
   },
   "expectedReceipts": [
-    { "name": "tool-invoke-accepted", "required": true, "description": "sessions.send dispatch accepted for the delayed attachment-bearing delegate" },
-    { "name": "input-snapshot-queued", "required": true, "description": "CDINREC-QUEUED sentinel with the staged byte total, emitted while the delegate is still queued" },
-    { "name": "post-lifecycle-child-arrival", "required": true, "description": "CDINREC-CHILD-ARRIVED sentinel observed after the operator restart window" },
-    { "name": "snapshot-identity-preserved", "required": true, "description": "Arrived byte total equals the queued byte total: the child got the durable snapshot, not a re-read" },
+    { "name": "tool-invoke-accepted", "required": true, "description": "sessions.send dispatch accepted for the delayed typed continue_delegate" },
+    { "name": "input-snapshot-queued", "required": true, "description": "CDINREC-QUEUED sentinel reporting the staged snapshot byte total while the delegate is still queued", "pathHint": "gateway-events.ndjson" },
+    { "name": "gateway-restart-observed", "required": true, "description": "Externally observable gateway lifecycle change on the public /status surface (uptime reset, or endpoint drop and return) while the harness is disconnected. OPENCLAW_RESTART_ORCHESTRATED is an operator declaration and is never sufficient.", "pathHint": "k6-run.log" },
+    { "name": "reconnected-after-restart", "required": true, "description": "The harness opened a SECOND WebSocket connection after the restart window, so the row is proven to survive the socket teardown a real restart causes" },
+    { "name": "post-lifecycle-child-arrival", "required": true, "description": "CDINREC-CHILD-ARRIVED sentinel observed on the reconnected socket", "pathHint": "gateway-events.ndjson" },
+    { "name": "snapshot-identity-preserved", "required": true, "description": "The bytes and sha256 prefix the child received after the restart equal the canary staged before it" },
     { "name": "no-raw-attachment-bytes-on-the-wire", "required": true, "description": "Negative check: queued attachment content absent from every non-harness frame" },
-    { "name": "no-pre-lifecycle-spawn", "required": true, "description": "Negative check: the delayed delegate did not spawn before its queue window elapsed" }
+    { "name": "no-pre-lifecycle-spawn", "required": true, "description": "Negative check: the delayed delegate did not arrive before the restart window opened" }
   ],
   "artifactDestination": {
     "root": "PROOFS",
@@ -50,7 +52,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "PARTIAL-candidate is the expected artifact class unless an operator actually restarted the gateway inside the queue window. The scenario records the precise reason in evidence.orchestration.reason; a PASS without an observed restart must be rejected at fold."
+    "notes": "Orchestration-gated. PARTIAL-candidate is the expected artifact class unless an operator restart is OBSERVED on the gateway's public /status surface during the window and the reconnected socket then sees the child arrive with the same snapshot identity. The operator declaration OPENCLAW_RESTART_ORCHESTRATED is recorded but never credited as evidence."
   },
   "liveRunSafety": {
     "classification": "orchestration-required",
@@ -64,6 +66,8 @@
       "seat-readiness",
       "tool-invoke-accepted",
       "input-snapshot-queued",
+      "gateway-restart-observed",
+      "reconnected-after-restart",
       "post-lifecycle-child-arrival",
       "snapshot-identity-preserved"
     ],

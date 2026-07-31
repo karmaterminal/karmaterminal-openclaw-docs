@@ -42,7 +42,9 @@
     { "name": "claim-discarded", "required": true, "description": "CDCLAIM-DISCARDED sentinel: the recipient discarded the claim" },
     { "name": "no-read-after-discard", "required": true, "description": "Negative check: CDCLAIM-POSTDISCARD reported rejected, not ok" },
     { "name": "materialize-destination-is-workspace-relative", "required": true, "description": "Negative check: the destination did not escape the workspace" },
-    { "name": "no-raw-artifact-bytes-on-the-wire", "required": true, "description": "Negative check: artifact content absent from every non-harness frame, including inspect results" }
+    { "name": "no-raw-artifact-bytes-on-the-wire", "required": true, "description": "Negative check: artifact content absent from every non-harness frame, including inspect results" },
+    { "name": "post-discard-inspect-rejected", "required": true, "description": "CDCLAIM-POSTDISCARD names the SAME claim id, reports rejected, and a structured delegate_artifacts error record was observed: the discarded claim is proven unreadable rather than assumed", "pathHint": "gateway-events.ndjson" },
+    { "name": "discard-targets-the-listed-claim", "required": true, "description": "Negative check: the discarded claim id is the claim id that was listed and inspected" }
   ],
   "artifactDestination": {
     "root": "PROOFS",
@@ -54,7 +56,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Every lifecycle leg must be an explicit recipient action. A run where materialize happened without the list/inspect legs is PARTIAL, not PASS: the point of the row is that the recipient drives it."
+    "notes": "Every lifecycle leg must be an explicit recipient action. A run where materialize happened without the list/inspect legs is PARTIAL, not PASS: the point of the row is that the recipient drives it. The post-discard leg is required, not advisory: without a claim-id-bound rejection receipt backed by a structured delegate_artifacts error record, the row could PASS while the discarded claim is still readable."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -73,7 +75,9 @@
       "claim-discarded",
       "no-read-after-discard",
       "materialize-destination-is-workspace-relative",
-      "no-raw-artifact-bytes-on-the-wire"
+      "no-raw-artifact-bytes-on-the-wire",
+      "post-discard-inspect-rejected",
+      "discard-targets-the-listed-claim"
     ],
     "foldRequiresReview": true,
     "notes": "Writes exactly one small file into the recipient workspace under p86-materialized/ as the authorized-materialize leg, then discards the claim. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Serialize per session."

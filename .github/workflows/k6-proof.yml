@@ -13,8 +13,18 @@ name: k6 PROOF row
 # The target gateway WS URL is a workflow input (the gateway runs on a prince
 # seat, not the runner). For a network-reachable target, point gateway_ws at it
 # and run on a runner with a route to that seat (self-hosted runner on/near the
-# seat is the typical shape). dry_run=true (default) runs preflight only and
-# writes no proof verdicts, so it is safe to exercise the plumbing first.
+# seat is the typical shape).
+#
+# dry_run=true (default) NEVER executes the scenario: it compiles/archives it,
+# evaluates the manifest live-run safety contract, and runs the static manifest
+# and alignment checks. No live session is contacted and no proof verdict is
+# written, so it is safe to exercise the plumbing first.
+#
+# Live runs (dry_run=false) require a manifest_path: it supplies the live-run
+# safety contract, the flock lock identity, and the classification metadata that
+# lands in the artifact. Rows classified `orchestration-required` are rejected by
+# live-run-guard.mjs by design — they need an explicit orchestration window, not
+# a plain workflow_dispatch.
 
 on:
   workflow_dispatch:
@@ -86,7 +96,7 @@ on:
         type: string
         default: "main"
       dry_run:
-        description: "Preflight/dry mode: run preflight only, write NO proof verdicts"
+        description: "Dry mode: validate scenario/manifest/safety WITHOUT executing the scenario against a live session. Writes NO proof verdicts."
         required: false
         type: boolean
         default: true
@@ -97,9 +107,11 @@ permissions:
   contents: read
 
 concurrency:
-  # Serialize proof runs on the same row+seat — k6 proof rows are single-VU and
-  # must not run in parallel against the same session.
-  group: k6-proof-${{ github.event.inputs.seat }}-${{ github.event.inputs.row }}
+  # Serialize on the TARGET SESSION, not on row+seat. Two different rows aimed
+  # at the same session are exactly the overlap live-run-guard.mjs exists to
+  # prevent; a row-scoped group would let them run side by side. The workflow
+  # group is the coarse fence; the flock pair below is the enforced one.
+  group: k6-proof-session-${{ github.event.inputs.gateway_ws }}-${{ github.event.inputs.session_key }}
   cancel-in-progress: false
 
 jobs:
@@ -141,6 +153,13 @@ jobs:
               echo "::error::candidate_sha must be a 40-char hex string when dry_run=false"
               exit 1
             fi
+            # A live run without a manifest cannot compute its lock identity,
+            # cannot check its own live-run safety contract, and cannot carry
+            # classification/safety metadata into the artifact.
+            if [ -z "$MANIFEST_PATH" ]; then
+              echo "::error::manifest_path is required when dry_run=false"
+              exit 1
+            fi
           fi
           echo "inputs validated (dry_run=$DRY_RUN, scenario=$SCENARIO)"
 
@@ -169,18 +188,86 @@ jobs:
           set +x
           set -euo pipefail
           if ! node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json | tee /tmp/seat-readiness.json; then
+            # Fail closed. A dry run may report the failure and keep going only
+            # because a dry run never touches a live session; the live path is
+            # gated on this step succeeding, so it cannot "return success and
+            # continue into execution".
             if [ "$DRY_RUN" = "true" ]; then
-              echo "::warning::seat readiness preflight did not pass; dry_run continues, but output is not proof-standard"
+              echo "::warning::seat readiness preflight did not pass; this dry run validates artifacts only and executes nothing"
               exit 0
             fi
             echo "::error::seat readiness preflight did not pass; inspect /tmp/seat-readiness.json before treating k6 output as proof-standard"
             exit 1
           fi
 
-      - name: Run k6 scenario
+      - name: Dry run — validate without executing
+        # A dry run must not mutate a live session. Executing the scenario would
+        # invoke its default function, which for every row in this harness
+        # dispatches a real agent turn. The dry path therefore compiles and
+        # inspects the scenario (`k6 archive`, which loads the module graph and
+        # evaluates only the init context) and validates the manifest/safety
+        # contract. No iteration is executed.
+        if: ${{ github.event.inputs.dry_run == 'true' }}
+        env:
+          SCENARIO: ${{ github.event.inputs.scenario }}
+          MANIFEST_PATH: ${{ github.event.inputs.manifest_path }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/k6-out
+          {
+            echo "== dry run: no scenario execution, no live session contact =="
+            k6 archive "tools/k6-proofs/scenarios/${SCENARIO}.js" -O /tmp/k6-out/archive.tar
+            echo "scenario compiled and archived: ${SCENARIO}.js"
+            if [ -n "$MANIFEST_PATH" ]; then
+              node tools/k6-proofs/scripts/live-run-guard.mjs --manifest "$MANIFEST_PATH" --json || \
+                echo "live-run-guard reported a safety contract failure for $MANIFEST_PATH"
+            else
+              echo "no manifest_path supplied: live-run safety contract not evaluated"
+            fi
+            node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
+            node tools/k6-proofs/scripts/check-scenario-alignment.mjs
+          } 2>&1 | tee /tmp/k6-out/run.txt
+          echo "dry run complete — no k6 iteration was executed"
+
+      - name: Compute live-run lock identity
+        # The guard COMPUTES lock identity and fails closed on the manifest
+        # safety contract; the flock pair below is what actually serializes.
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        id: guard
+        env:
+          OPENCLAW_SESSION_KEY: ${{ github.event.inputs.session_key }}
+          OPENCLAW_CANDIDATE_SHA: ${{ github.event.inputs.candidate_sha }}
+          MANIFEST_PATH: ${{ github.event.inputs.manifest_path }}
+        run: |
+          export OPENCLAW_GATEWAY_TOKEN="$(python3 -c 'import json, os; print(json.load(open(os.path.expanduser("~/.openclaw/openclaw.json")))["gateway"]["auth"]["token"])')"
+          set +x
+          set -euo pipefail
+          command -v flock >/dev/null || { echo "::error::flock is required to serialize live proof rows"; exit 1; }
+          GUARD_VARS="$(node tools/k6-proofs/scripts/live-run-guard.mjs --manifest "$MANIFEST_PATH" --shell --require-lock)"
+          eval "$GUARD_VARS"
+          if [ "${K6_PROOF_LOCK_REQUIRED:-0}" != "1" ] || [ -z "${K6_PROOF_LOCK_PATH:-}" ] || [ -z "${K6_PROOF_SESSION_LOCK_PATH:-}" ]; then
+            echo "::error::live-run-guard did not produce both lock paths"
+            exit 1
+          fi
+          {
+            echo "lock_path=$K6_PROOF_LOCK_PATH"
+            echo "session_lock_path=$K6_PROOF_SESSION_LOCK_PATH"
+            echo "lock_reason=$K6_PROOF_LOCK_REASON"
+          } >> "$GITHUB_OUTPUT"
+          node tools/k6-proofs/scripts/live-run-guard.mjs --manifest "$MANIFEST_PATH" --json > /tmp/live-run-guard.json
+
+      - name: Run k6 scenario (live)
         # Token is injected ONLY here, ONLY as env. Never echoed; runner masks
         # registered secrets in logs, and we keep `set +x` so the env line is
         # not traced. k6 reads OPENCLAW_GATEWAY_TOKEN from the environment.
+        #
+        # Two nested locks, always session-outer then row-inner, so the ordering
+        # is global and cannot deadlock (both are --nonblock in any case):
+        #   session lock  no OTHER continuation row on this target session
+        #   row lock      no second run of THIS row on this target session
+        # flock exit 75 means a conflicting run owns the session: that output is
+        # a coordination failure, not row evidence.
+        if: ${{ github.event.inputs.dry_run != 'true' }}
         env:
           OPENCLAW_GATEWAY_WS: ${{ github.event.inputs.gateway_ws }}
           OPENCLAW_SESSION_KEY: ${{ github.event.inputs.session_key }}
@@ -188,8 +275,10 @@ jobs:
           OPENCLAW_SEAT_NAME: ${{ github.event.inputs.seat }}
           OPENCLAW_ROW_MANIFEST: ${{ github.event.inputs.manifest_path }}
           SCENARIO: ${{ github.event.inputs.scenario }}
+          SESSION_LOCK_PATH: ${{ steps.guard.outputs.session_lock_path }}
+          ROW_LOCK_PATH: ${{ steps.guard.outputs.lock_path }}
         run: |
-          export OPENCLAW_GATEWAY_TOKEN="$(python3 -c 'import json, os; print(json.load(open(os.path.expanduser(\"~/.openclaw/openclaw.json\")))[\"gateway\"][\"auth\"][\"token\"])')"
+          export OPENCLAW_GATEWAY_TOKEN="$(python3 -c 'import json, os; print(json.load(open(os.path.expanduser("~/.openclaw/openclaw.json")))["gateway"]["auth"]["token"])')"
           set +x
           set -euo pipefail
           if [ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]; then
@@ -199,8 +288,17 @@ jobs:
           mkdir -p /tmp/k6-out
           # tee to a file for the evidence post-processor; k6's own stdout is the
           # human log. The token is never printed by k6 or by us.
-          k6 run "tools/k6-proofs/scenarios/${SCENARIO}.js" 2>&1 | tee /tmp/k6-out/run.txt
-          echo "k6 run complete"
+          set +e
+          flock --nonblock --conflict-exit-code 75 "$SESSION_LOCK_PATH" \
+            flock --nonblock --conflict-exit-code 75 "$ROW_LOCK_PATH" \
+              k6 run "tools/k6-proofs/scenarios/${SCENARIO}.js" 2>&1 | tee /tmp/k6-out/run.txt
+          status=${PIPESTATUS[0]}
+          set -e
+          if [ "$status" = "75" ]; then
+            echo "::error::another proof row already holds this target session (flock 75); this output is a coordination failure, not row evidence"
+            exit 75
+          fi
+          exit "$status"
 
       - name: Write evidence artifacts
         # Skipped on dry_run: a preflight/dry run writes NO proof verdicts.
@@ -209,6 +307,9 @@ jobs:
           ROW: ${{ github.event.inputs.row }}
           SEAT: ${{ github.event.inputs.seat }}
           CANDIDATE_SHA: ${{ github.event.inputs.candidate_sha }}
+          MANIFEST_PATH: ${{ github.event.inputs.manifest_path }}
+          SCENARIO: ${{ github.event.inputs.scenario }}
+          OPENCLAW_SESSION_KEY: ${{ github.event.inputs.session_key }}
         run: |
           set -euo pipefail
           node tools/k6-proofs/scripts/evidence-writer.mjs \
@@ -216,16 +317,40 @@ jobs:
             --row "$ROW" \
             --seat "$SEAT" \
             --sha "$CANDIDATE_SHA" \
+            --manifest "$MANIFEST_PATH" \
+            --scenario "${SCENARIO}.js" \
             --seat-readiness /tmp/seat-readiness.json
+          run_dir="$(ls -d PROOFS/${CANDIDATE_SHA}/${ROW}/${SEAT}/k6-run-* | tail -1)"
+          cp /tmp/live-run-guard.json "$run_dir/live-run-guard.json"
           echo "evidence written under PROOFS/${CANDIDATE_SHA}/${ROW}/${SEAT}/"
+
+      - name: Sanitize run log for upload
+        # The raw k6 console log carries session keys, claim ids, child session
+        # keys and workspace paths. Nothing raw is ever uploaded.
+        if: ${{ always() }}
+        env:
+          OPENCLAW_SESSION_KEY: ${{ github.event.inputs.session_key }}
+        run: |
+          set -euo pipefail
+          if [ ! -f /tmp/k6-out/run.txt ]; then
+            echo "no run log to sanitize"
+            exit 0
+          fi
+          node tools/k6-proofs/scripts/sanitize-k6-artifacts.mjs \
+            --log-input /tmp/k6-out/run.txt \
+            --log-out /tmp/k6-out/run.public.txt \
+            --receipt-out /tmp/k6-out/run-log-redaction.json
+          rm -f /tmp/k6-out/run.txt
 
       - name: Upload run log (dry_run)
         if: ${{ github.event.inputs.dry_run == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: k6-dry-run-log
+          # Sanitized log only — the raw tee output is deleted above.
           path: |
-            /tmp/k6-out/run.txt
+            /tmp/k6-out/run.public.txt
+            /tmp/k6-out/run-log-redaction.json
             /tmp/seat-readiness.json
           if-no-files-found: warn
           retention-days: 14
@@ -238,5 +363,7 @@ jobs:
           # CANDIDATE artifacts only — human review folds into canonical PROOFS/.
           path: |
             PROOFS/${{ github.event.inputs.candidate_sha }}/${{ github.event.inputs.row }}/${{ github.event.inputs.seat }}/
+            /tmp/k6-out/run.public.txt
+            /tmp/k6-out/run-log-redaction.json
           if-no-files-found: error
           retention-days: 30

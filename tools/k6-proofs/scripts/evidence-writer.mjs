@@ -12,13 +12,20 @@
  *     --row R-CD-1 \
  *     --seat ronan-dgx \
  *     --sha <40-char-hex> \
- *     [--manifest tools/k6-proofs/manifests/r-cd-1.json]
+ *     [--manifest tools/k6-proofs/manifests/r-cd-1.json] \
+ *     [--scenario r-cd-1.js]
+ *
+ * Identity binding: when --manifest is supplied, manifest.rowId, the evidence
+ * block's own `row`, and --row must agree, and --scenario (when supplied) must
+ * match manifest.scenario.file. A run directory that files one row's behavior
+ * under another row's name is not evidence.
  *
  * Writes:
  *   PROOFS/<sha>/<row>/<seat>/k6-run-<timestamp>/
  *     ├── EVIDENCE.md
  *     ├── k6-summary.json
  *     ├── gateway-events.ndjson  (redacted only)
+ *     ├── k6-run.log             (sanitized console log)
  *     ├── row-result.json
  *     └── seat-readiness.json  (when --seat-readiness is supplied)
  */
@@ -26,7 +33,7 @@
 import { copyFileSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
-import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
+import { sanitizeEvidenceRecords, sanitizeLog } from './sanitize-k6-artifacts.mjs';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 
 function parseArgs(argv) {
@@ -48,7 +55,7 @@ function stamp() {
 }
 
 function usage() {
-  console.error(`Usage: node evidence-writer.mjs --input <k6-output> --row <ROW> --seat <SEAT> --sha <SHA> [--manifest <row-manifest.json>]`);
+  console.error(`Usage: node evidence-writer.mjs --input <k6-output> --row <ROW> --seat <SEAT> --sha <SHA> [--manifest <row-manifest.json>] [--scenario <scenario-file.js>]`);
   process.exit(2);
 }
 
@@ -65,6 +72,21 @@ if (!/^[0-9a-f]{40}$/.test(args.sha)) {
 const manifest = args.manifest ? JSON.parse(readFileSync(args.manifest, 'utf-8')) : null;
 if (manifest && (manifest.review?.foldRequiresReview !== true || manifest.liveRunSafety?.foldRequiresReview === false)) {
   console.error('ERROR: manifest must keep foldRequiresReview=true for candidate evidence');
+  process.exit(1);
+}
+
+// --- IDENTITY BINDING ---
+// A run directory is named by (row, seat, sha). If the manifest, the scenario
+// and the evidence block do not all agree on the row, the artifact would file
+// one row's behavior under another row's name.
+if (manifest && manifest.rowId !== args.row) {
+  console.error(`ERROR: manifest rowId "${manifest.rowId}" does not match --row "${args.row}"`);
+  process.exit(1);
+}
+if (args.scenario && manifest?.scenario?.file && manifest.scenario.file !== args.scenario) {
+  console.error(
+    `ERROR: --scenario "${args.scenario}" does not match manifest scenario.file "${manifest.scenario.file}"`,
+  );
   process.exit(1);
 }
 
@@ -105,6 +127,11 @@ try {
   evidence = JSON.parse(evidenceMatch[1]);
 } catch (err) {
   console.error(`ERROR: Evidence block was found but did not parse as JSON: ${err.message}`);
+  process.exit(1);
+}
+
+if (evidence.row && evidence.row !== args.row) {
+  console.error(`ERROR: evidence block row "${evidence.row}" does not match --row "${args.row}"`);
   process.exit(1);
 }
 
@@ -167,10 +194,93 @@ writeFileSync(join(outDir, 'evidence-redaction.json'), JSON.stringify({
   records: 1,
 }, null, 2) + '\n');
 
-// Determine verdict
-const verdict = authoritativeReceipt ? authoritativeReceipt.verdict : (evidence.tool_accepted || evidence.prompt_sent
-  ? (evidence.task_created || evidence.child_spawned ? 'PASS-candidate' : 'PARTIAL-candidate')
-  : 'FAIL-candidate');
+// The raw k6 console log carries session keys, claim ids, child keys and paths.
+// It is published only through the shared sanitizer, never verbatim.
+const publicRunLog = sanitizeLog(raw, [summary], orderedTokens);
+for (const [token] of orderedTokens) {
+  if (publicRunLog.includes(token)) {
+    console.error('ERROR: sanitized k6 run log still contains a sensitive value');
+    process.exit(1);
+  }
+}
+writeFileSync(join(outDir, 'k6-run.log'), publicRunLog);
+
+// --- VERDICT RESOLUTION ---
+//
+// Three evidence shapes reach this writer:
+//   1. an R-CD-2 authoritative receipt (signed, row-scoped) — highest authority;
+//   2. the receipt-map shape (`verdict` + `receipts` + `negative_checks` +
+//      `orchestration`) used by the delegate attachment I/O family;
+//   3. the legacy flag shape (`tool_accepted` / `task_created` / ...).
+//
+// Shape 2 must NOT be read with shape 3's rules: a valid PASS-candidate would
+// be rewritten to FAIL-candidate because it carries no `tool_accepted` flag.
+// When the receipt map is present the writer recomputes the verdict from it
+// and from the manifest's requiredReceipts, and refuses to publish a verdict
+// stronger than what the receipts support.
+function hasReceiptMap(record) {
+  return (
+    record
+    && typeof record.verdict === 'string'
+    && record.receipts
+    && typeof record.receipts === 'object'
+  );
+}
+
+function recomputeReceiptMapVerdict(record, manifestDoc) {
+  const receipts = record.receipts || {};
+  const negatives = record.negative_checks || {};
+  const manifestRequired = (manifestDoc?.liveRunSafety?.requiredReceipts || [])
+    // `seat-readiness` is produced by the preflight, not by the scenario.
+    .filter((name) => name !== 'seat-readiness');
+  const declaredRequired = Array.isArray(record.missing_receipts) ? record.missing_receipts : [];
+  const missing = [
+    ...declaredRequired,
+    ...manifestRequired.filter((name) => !receipts[name] && !(name in negatives)),
+  ];
+  const violated = Object.keys(negatives).filter((name) => negatives[name]?.held !== true);
+  const orchestrationRequired = Boolean(record.orchestration?.required);
+  const orchestrationObserved = record.orchestration?.observed === true;
+  const uniqueMissing = [...new Set(missing)];
+  const ok = uniqueMissing.length === 0
+    && violated.length === 0
+    && (!orchestrationRequired || orchestrationObserved);
+  return {
+    verdict: ok ? 'PASS-candidate' : 'PARTIAL-candidate',
+    missingReceipts: uniqueMissing,
+    violatedNegativeChecks: violated,
+    orchestrationRequired,
+    orchestrationObserved,
+    orchestrationReason: record.orchestration?.reason || null,
+  };
+}
+
+let verdict;
+let verdictSource;
+let receiptAudit = null;
+if (authoritativeReceipt) {
+  verdict = authoritativeReceipt.verdict;
+  verdictSource = 'r-cd-2-authoritative-receipt';
+} else if (hasReceiptMap(evidence)) {
+  receiptAudit = recomputeReceiptMapVerdict(evidence, manifest);
+  verdict = receiptAudit.verdict;
+  verdictSource = 'receipt-map-recomputed';
+  if (evidence.verdict === 'PASS-candidate' && verdict !== 'PASS-candidate') {
+    console.error(
+      `ERROR: scenario reported PASS-candidate but the receipt map does not support it ` +
+        `(missing: ${receiptAudit.missingReceipts.join(', ') || 'none'}; ` +
+        `violated: ${receiptAudit.violatedNegativeChecks.join(', ') || 'none'}; ` +
+        `orchestration observed: ${receiptAudit.orchestrationObserved}).`,
+    );
+    process.exit(1);
+  }
+} else {
+  verdict = (evidence.tool_accepted || evidence.prompt_sent
+    ? (evidence.task_created || evidence.child_spawned ? 'PASS-candidate' : 'PARTIAL-candidate')
+    : 'FAIL-candidate');
+  verdictSource = 'generic-evidence';
+}
+
 
 // Write row-result.json
 const result = {
@@ -181,7 +291,11 @@ const result = {
   candidateSha: args.sha,
   seat: args.seat,
   outcome: verdict,
-  verdictSource: authoritativeReceipt ? 'r-cd-2-authoritative-receipt' : 'generic-evidence',
+  verdictSource,
+  scenario: manifest?.scenario?.file || args.scenario || null,
+  manifest: args.manifest || null,
+  scenarioReportedVerdict: hasReceiptMap(evidence) ? evidence.verdict : null,
+  ...(receiptAudit ? { receiptAudit } : {}),
   ...(authoritativeReceiptDigest ? { authoritativeReceipt: {
     schema: authoritativeReceipt.schema, validated: true, source: 'r-cd-2-row-scoped-resolver',
     file: 'r-cd-2-authoritative-receipt.json', sha256: authoritativeReceiptDigest,
@@ -221,15 +335,29 @@ const md = `# ${args.row} — ${args.seat} — ${verdict}
 
 **${verdict}**
 
+- Verdict source: \`${verdictSource}\`
+- Scenario: \`${result.scenario || 'not supplied'}\`
+- Manifest: \`${args.manifest || 'not supplied to writer'}\`
+
 ## Evidence receipts
 
-| Check | Result |
+${receiptAudit ? `| Receipt | Result |
+|---------|--------|
+${Object.keys(evidence.receipts).map((name) => `| \`${name}\` | ✓ |`).join('\n') || '| _(none fired)_ | ✗ |'}
+${receiptAudit.missingReceipts.map((name) => `| \`${name}\` | ✗ missing |`).join('\n')}
+
+| Negative check | Held |
+|----------------|------|
+${Object.entries(evidence.negative_checks || {}).map(([name, entry]) => `| \`${name}\` | ${entry.held ? '✓' : `✗ — ${entry.violation || 'violated'}`} |`).join('\n') || '| _(none declared)_ | — |'}
+
+- Orchestration precondition: ${receiptAudit.orchestrationRequired ? `\`${evidence.orchestration.required}\`` : 'none'}
+- Orchestration observed: ${receiptAudit.orchestrationRequired ? (receiptAudit.orchestrationObserved ? 'yes' : `no — ${receiptAudit.orchestrationReason || 'reason not recorded'}`) : 'n/a'}` : `| Check | Result |
 |-------|--------|
 | Tool/prompt accepted | ${evidence.tool_accepted || evidence.prompt_sent ? '✓' : '✗'} |
 | Task/child created | ${evidence.task_created || evidence.child_spawned ? '✓' : '✗'} |
 | Parent return observed | ${evidence.parent_return ? '✓' : '✗'} |
 | Safe reason fingerprint | \`${summary.reason_hash || 'N/A'}\` / length \`${summary.reason_length || 'N/A'}\` |
-| Manifest loaded | ${evidence.manifest_loaded ? '✓' : '✗ (defaults used)'} |
+| Manifest loaded | ${evidence.manifest_loaded ? '✓' : '✗ (defaults used)'} |`}
 
 ## Artifacts
 
@@ -237,6 +365,7 @@ const md = `# ${args.row} — ${args.seat} — ${verdict}
 - \`gateway-events.ndjson\` — redacted WS frames (${safeEvents.length} captured)
 - \`evidence-redaction.json\` — public-safe redaction receipt
 - \`row-result.json\` — normalized outcome
+- \`k6-run.log\` — sanitized k6 console log (${args.input ? 'written' : 'not available'})
 - \`seat-readiness.json\` — public-safe seat/tooling preflight (${args['seat-readiness'] ? 'captured' : 'not supplied to writer'})
 - \`artifacts/\` — optional copied receipts (Tempo trace, logs)
 

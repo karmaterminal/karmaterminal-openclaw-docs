@@ -107,7 +107,7 @@ See [`docs/GOLDEN-PATH.md`](docs/GOLDEN-PATH.md). Output remains
 `PASS-candidate` / review-required and must not be folded automatically.
 
 - [`docs/PROOF-RUN-METHOD.md`](docs/PROOF-RUN-METHOD.md) is the short GATES/proof-round entrypoint: row enumeration, dry-run/live run shape, bootstrap workflow anchor, and the #331 receipt boundary.
-- [`docs/DELEGATE-ATTACHMENT-IO-ROWS.md`](docs/DELEGATE-ATTACHMENT-IO-ROWS.md) covers the P86 delegate attachment I/O family (docs#491): typed `continue_delegate` input snapshots and the managed `delegate_artifacts` claim lifecycle, including which rows are orchestration-gated to `PARTIAL-candidate` by construction.
+- [`docs/DELEGATE-ATTACHMENT-IO-ROWS.md`](docs/DELEGATE-ATTACHMENT-IO-ROWS.md) covers the P86 delegate attachment I/O family (docs#491): typed `continue_delegate` input snapshots and the managed `delegate_artifacts` claim lifecycle, including which rows are orchestration-gated to `PARTIAL-candidate` by construction. These eight rows are **supplemental**: the Project 86 accountable contract stays at 38 issues / 35 corpus rows, and they remain manifest-only until a coordinator folds them onto the proof board.
 
 ### 1. Seat readiness / version preflight
 

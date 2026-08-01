@@ -15,23 +15,23 @@
   "toolSurface": "typed-tool",
   "scenario": {
     "name": "r-cd-model-tool",
-    "description": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
+    "description": "continue_delegate typed tool form forwards the fixed available override openai/gpt-5.6-luna to the delegate child; any other observed runtime identity is a failure candidate.",
     "methods": [
       "sessions.send",
       "sessions.messages.subscribe"
     ],
     "status": "runnable",
     "expectedFile": "r-cd-model-tool.js",
-    "notes": "Alternate-model rows are blocked on karmaterminal/openclaw#1103 until the child runtime observes the requested model instead of inheriting gpt-5.5.",
+    "notes": "This row deliberately requests the available OpenAI model openai/gpt-5.6-luna. It remains blocked on karmaterminal/openclaw#1103 until authoritative child runtime metadata reports that exact identity instead of an inherited, fallback, or otherwise different model.",
     "file": "r-cd-model-tool.js",
-    "registryNotes": "Runnable k6 scenario exercises typed continue_delegate with explicit model override; authoritative model mismatch is FAIL-candidate and unavailable metadata is PARTIAL-candidate."
+    "registryNotes": "Runnable k6 scenario exercises typed continue_delegate with the fixed Luna override. An authoritative child identity that differs from Luna is a FAIL verdict; absent, ambiguous, or execution-unbound effective-model evidence produces no row verdict. Only authoritative exact Luna identity can proceed toward PASS."
   },
   "invocation": {
     "tool": "continue_delegate",
     "forms": [
       "typed-tool-model-override"
     ],
-    "model": "${OPENCLAW_ALT_MODEL:-openai/gpt-5.6-luna}",
+    "model": "openai/gpt-5.6-luna",
     "promptTemplate": "Proof nonce {{nonce}}: report the current model identity from runtime context and the nonce only. The requested model is intentionally omitted from the child task to prevent echo-based false PASS. Do not mutate files. Do not post to any channel.",
     "idempotencyKeyPrefix": "R-CD-MODEL-TOOL"
   },
@@ -77,7 +77,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "PASS-candidate only when the requested model byte matches authoritative gateway child-session metadata or spawn-record model bytes. The child task omits the requested model and its self-report is auxiliary only; mismatch is FAIL-candidate and unavailable metadata is PARTIAL-candidate."
+    "notes": "A PASS-candidate exists only when the fixed requested byte openai/gpt-5.6-luna matches authoritative gateway child-session metadata or spawn-record model bytes. The child task omits the requested model and its self-report is auxiliary only. If authoritative effective identity is bound to this execution and differs from Luna, emit a FAIL verdict. If effective identity is absent, ambiguous, or cannot be authoritatively bound to this execution, fail closed with no row verdict."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -96,6 +96,6 @@
       "return-payload"
     ],
     "foldRequiresReview": true,
-    "notes": "Explicit model override row. Prevent echo-based false PASS by omitting requested model from the child task; authoritative fallback/inheritance is FAIL-candidate, while unavailable authoritative metadata is PARTIAL-candidate."
+    "notes": "Explicit fixed openai/gpt-5.6-luna override row. Prevent echo-based false PASS by omitting the requested model from the child task. An authoritative bound fallback, inheritance, or any other model identity produces a FAIL verdict; unavailable, ambiguous, or unbound effective-model evidence produces no row verdict."
   }
 }

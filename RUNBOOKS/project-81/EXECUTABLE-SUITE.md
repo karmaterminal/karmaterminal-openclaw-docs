@@ -95,7 +95,8 @@ preflight (`check-manifest-scenarios`, `check-scenario-alignment`,
 Artifacts are written under `${K6_PROOF_OUT_DIR:-/tmp/k6-proof-runs}`:
 
 ```text
-<out-dir>/harness-provenance.json
+<out-dir>/harness-provenance.json              # newest matrix
+<out-dir>/harness-provenance/<matrix-id>.json  # immutable per-matrix copy
 <out-dir>/<candidate-sha>/<ROW>/<seat>/<timestamp-row>/
 ```
 

@@ -123,12 +123,16 @@ commit. A stale, dirty, mixed, or unrecorded harness fails once as infrastructur
 (`harness-control-receipt.json`, exit 78) and never synthesizes a row verdict.
 
 An approved run writes `harness-provenance.json` at the artifact root before the
-first row fires (docs ref, repository, candidate SHA, runtime identity receipt,
-runner script digest, row selection and per-row manifest/scenario digests, start
-time), records `docsRef` / `repository` / `manifestSha256` / `scenarioSha256` in
-every `runner-metadata.json`, and copies the exact scenario source next to each
-receipt as `row-scenario.js`. A candidate routing envelope is withheld unless
-those values bind to the approved ref and the copied source bytes.
+first row fires (matrix id, docs ref, repository, candidate SHA, runtime identity
+receipt, runner script digest, row selection and per-row manifest/scenario
+digests, start time), keeps an immutable per-matrix copy under
+`harness-provenance/<matrix-id>.json`, records `docsRef` / `repository` /
+`matrixId` / `manifestSha256` / `scenarioSha256` in every
+`runner-metadata.json`, and copies the exact scenario source next to each receipt
+as `row-scenario.js`. Because the working tree is what k6 actually reads, the
+frozen digests are re-asserted immediately before capture and again immediately
+before k6 executes. A candidate routing envelope is withheld unless those values
+bind to the approved ref and the copied source bytes.
 
 Each row remains candidate evidence until reviewed and folded.
 

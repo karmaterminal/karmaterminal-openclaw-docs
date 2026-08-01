@@ -233,7 +233,7 @@ test('candidate envelope binds the approved docs ref and both harness source dig
       });
       assert.equal(candidateEnvelopeMatchesSiblings(siblings()), true);
 
-      for (const omitted of ['docsRef', 'repository', 'manifestSha256', 'scenarioSha256']) {
+      for (const omitted of ['docsRef', 'repository', 'manifestPath', 'scenarioPath', 'manifestSha256', 'scenarioSha256']) {
         const stripped = { ...metadata };
         delete stripped[omitted];
         assert.equal(
@@ -246,9 +246,68 @@ test('candidate envelope binds the approved docs ref and both harness source dig
       assert.equal(candidateEnvelopeMatchesSiblings(siblings({
         envelope: { ...envelope, harness: { ...envelope.harness, docsRef: 'c'.repeat(40) } },
       })), false);
+      assert.equal(candidateEnvelopeMatchesSiblings(siblings({
+        envelope: { ...envelope, harness: { ...envelope.harness, manifestPath: 'tools/k6-proofs/manifests/other.json' } },
+      })), false);
 
       await writeFile(path.join(setup.candidateDir, 'row-scenario.js'), '// swapped after the envelope was written\n');
       assert.equal(candidateEnvelopeMatchesSiblings(siblings()), false);
+    } finally { await rm(setup.root, { recursive: true, force: true }); }
+  });
+
+  await t.test('a supplied manifest that is not the captured manifest is refused', async () => {
+    const setup = await fixture();
+    const otherManifest = path.join(setup.root, 'other-manifest.json');
+    try {
+      await writeFile(otherManifest, `${JSON.stringify({ ...manifest(), seat: 'elliott' }, null, 2)}\n`);
+      await assert.rejects(
+        invoke({ ...setup, manifestPath: otherManifest }),
+        /supplied manifest is not the manifest captured for this run/,
+      );
+    } finally { await rm(setup.root, { recursive: true, force: true }); }
+  });
+
+  await t.test('unsafe or unrecorded harness paths are refused', async (sub) => {
+    for (const [label, override, expected] of [
+      ['omitted manifest path', { manifestPath: undefined }, /runner metadata manifestPath must be a non-empty string/],
+      ['escaping manifest path', { manifestPath: '../../etc/passwd' }, /manifestPath must be a tools\/k6-proofs\/manifests/],
+      ['omitted scenario path', { scenarioPath: undefined }, /runner metadata scenarioPath must be a non-empty string/],
+      ['absolute scenario path', { scenarioPath: '/home/someone/scenarios/r-cw-test.js' }, /scenarioPath must be a tools\/k6-proofs\/scenarios/],
+    ]) {
+      await sub.test(label, async () => {
+        const setup = await fixture({ metadata: override });
+        try {
+          await assert.rejects(invoke(setup), expected);
+        } finally { await rm(setup.root, { recursive: true, force: true }); }
+      });
+    }
+  });
+
+  await t.test('a sidecar carrying fields the emitter never writes is refused', async () => {
+    const setup = await fixture();
+    try {
+      const envelope = JSON.parse((await invoke(setup)).stdout);
+      const metadata = JSON.parse(await readFile(path.join(setup.candidateDir, 'runner-metadata.json'), 'utf8'));
+      const siblings = (value) => candidateEnvelopeMatchesSiblings({
+        envelope: value,
+        manifest: manifest(),
+        metadata,
+        runResult: runResult(),
+        runDir: setup.candidateDir,
+      });
+      assert.equal(siblings(envelope), true);
+
+      // Smuggling extra material past review must not be possible even when
+      // every checked identity field still agrees.
+      assert.equal(siblings({ ...envelope, gatewayToken: 'not-a-real-token' }), false);
+      assert.equal(siblings({ ...envelope, harness: { ...envelope.harness, operatorNote: '/home/someone/private' } }), false);
+      assert.equal(siblings({ ...envelope, candidate: { ...envelope.candidate, sessionKey: 'agent:main' } }), false);
+      assert.equal(siblings({
+        ...envelope,
+        artifacts: { ...envelope.artifacts, files: [...envelope.artifacts.files, 'gateway.token'] },
+      }), false);
+      const { harness, ...withoutHarness } = envelope;
+      assert.equal(siblings(withoutHarness), false);
     } finally { await rm(setup.root, { recursive: true, force: true }); }
   });
 });

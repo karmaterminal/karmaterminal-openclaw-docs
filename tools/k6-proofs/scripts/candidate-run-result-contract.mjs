@@ -10,9 +10,73 @@ export const PROOF_ROW_MANIFEST_SCHEMA = 'openclaw.k6.proof-row-manifest.v1';
 const SHA = /^[0-9a-f]{40}$/;
 const DIGEST = /^[0-9a-f]{64}$/;
 const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
-const COPIED_MANIFEST = 'row-manifest.json';
-const COPIED_SCENARIO = 'row-scenario.js';
+const HARNESS_MANIFEST_PATH = /^tools\/k6-proofs\/manifests\/[A-Za-z0-9._-]+\.json$/;
+const HARNESS_SCENARIO_PATH = /^tools\/k6-proofs\/scenarios\/[A-Za-z0-9._-]+\.js$/;
+export const COPIED_MANIFEST = 'row-manifest.json';
+export const COPIED_SCENARIO = 'row-scenario.js';
 const OUTCOMES = new Set(['PASS-candidate', 'HONEST-LIMIT-candidate', 'PARTIAL-candidate', 'FAIL-candidate', 'construct-only']);
+
+// The exact public-safe artifact names a candidate directory may publish. Both
+// the emitter and this consumer contract use this one list.
+export const SAFE_CANDIDATE_ARTIFACTS = new Set([
+  COPIED_MANIFEST, COPIED_SCENARIO, 'runner-metadata.json', 'run-result.json',
+  'candidate-run-result.json', 'seat-readiness.json', 'evidence.jsonl',
+  'r-cd-2-authoritative-receipt.json',
+  'attempt-state.json', 'build-identity-gate.json', 'interruption-receipt.json',
+  'r-cd-token-authoritative-receipt.json',
+  'evidence-lines.log', 'evidence-redaction.json', 'gateway-journal.log',
+  'gateway-journal-capture.json', 'gateway-journal-redaction.json',
+]);
+
+export function isSafeCandidateArtifact(name) {
+  return SAFE_CANDIDATE_ARTIFACTS.has(name) || /(?:^|-)summary\.json$/i.test(name);
+}
+
+// The envelope is machine-generated with a fixed shape. Refusing unknown keys
+// stops a hand-edited sidecar from smuggling extra material (a token, a private
+// path, raw process output) past review while every checked field still agrees.
+const ENVELOPE_KEYS = {
+  root: {
+    required: ['schema', 'candidateOnly', 'foldRequiresReview', 'canonicalFoldForbidden', 'candidate', 'harness', 'run', 'result', 'observability', 'review', 'artifacts'],
+    optional: ['authoritativeReceipt'],
+  },
+  candidate: { required: ['sha', 'docsRef'], optional: [] },
+  harness: {
+    required: ['docsRef', 'repository', 'manifestPath', 'manifestSha256', 'scenarioPath', 'scenarioSha256', 'manifestArtifact', 'scenarioArtifact'],
+    optional: [],
+  },
+  run: { required: ['id', 'rowId', 'seat', 'scenario', 'executionKind'], optional: [] },
+  result: { required: ['outcome', 'outcomeSource', 'effectiveExitCode', 'behaviorProof'], optional: [] },
+  observability: { required: ['traceStatus', 'traceCaptured', 'correlationReceiptPresent'], optional: [] },
+  review: { required: ['status', 'pendingReceipts', 'complete'], optional: [] },
+  artifacts: {
+    required: ['manifest', 'scenario', 'runnerMetadata', 'runResult', 'files', 'tempoTraceJson', 'correlationReceipt'],
+    optional: [],
+  },
+  authoritativeReceipt: { required: ['file', 'sha256'], optional: [] },
+};
+
+function hasExactKeys(value, spec) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const keys = Object.keys(value);
+  const allowed = new Set([...spec.required, ...spec.optional]);
+  if (keys.some((key) => !allowed.has(key))) return false;
+  return spec.required.every((key) => Object.prototype.hasOwnProperty.call(value, key));
+}
+
+function envelopeShapeIsCanonical(envelope) {
+  if (!hasExactKeys(envelope, ENVELOPE_KEYS.root)) return false;
+  for (const section of ['candidate', 'harness', 'run', 'result', 'observability', 'review', 'artifacts']) {
+    if (!hasExactKeys(envelope[section], ENVELOPE_KEYS[section])) return false;
+  }
+  if (Object.prototype.hasOwnProperty.call(envelope, 'authoritativeReceipt') &&
+      !hasExactKeys(envelope.authoritativeReceipt, ENVELOPE_KEYS.authoritativeReceipt)) return false;
+  const artifacts = envelope.artifacts;
+  if (artifacts.manifest !== COPIED_MANIFEST || artifacts.scenario !== COPIED_SCENARIO) return false;
+  if (artifacts.runnerMetadata !== 'runner-metadata.json' || artifacts.runResult !== 'run-result.json') return false;
+  if (!Array.isArray(artifacts.files) || !artifacts.files.every((name) => typeof name === 'string' && isSafeCandidateArtifact(name))) return false;
+  return true;
+}
 
 function nonEmptyString(value) {
   return typeof value === 'string' && value.trim() ? value : null;
@@ -30,20 +94,25 @@ function fileDigest(file) {
  * Re-verify the immutable harness identity a sidecar envelope claims (#496).
  *
  * A sidecar may only suppress its raw sibling when the run metadata records the
- * approved docs ref plus both source digests, the envelope repeats them exactly,
- * and the copied manifest/scenario bytes still hash to those digests.
+ * approved docs ref, the repository identity, both harness source paths, and
+ * both source digests; when the envelope repeats every one of them exactly; and
+ * when the copied manifest/scenario bytes still hash to those digests.
  */
 function harnessIdentityMatches({ envelope, metadata, runDir }) {
   const harness = envelope?.harness;
   if (!harness) return false;
   const docsRef = nonEmptyString(metadata.docsRef);
   const repository = nonEmptyString(metadata.repository);
+  const manifestPath = nonEmptyString(metadata.manifestPath);
+  const scenarioPath = nonEmptyString(metadata.scenarioPath);
   const manifestSha256 = nonEmptyString(metadata.manifestSha256);
   const scenarioSha256 = nonEmptyString(metadata.scenarioSha256);
   if (!SHA.test(docsRef || '') || !REPOSITORY.test(repository || '')) return false;
+  if (!HARNESS_MANIFEST_PATH.test(manifestPath || '') || !HARNESS_SCENARIO_PATH.test(scenarioPath || '')) return false;
   if (!DIGEST.test(manifestSha256 || '') || !DIGEST.test(scenarioSha256 || '')) return false;
   if (envelope.candidate?.docsRef !== docsRef) return false;
   if (harness.docsRef !== docsRef || harness.repository !== repository) return false;
+  if (harness.manifestPath !== manifestPath || harness.scenarioPath !== scenarioPath) return false;
   if (harness.manifestSha256 !== manifestSha256 || harness.scenarioSha256 !== scenarioSha256) return false;
   if (harness.manifestArtifact !== COPIED_MANIFEST || harness.scenarioArtifact !== COPIED_SCENARIO) return false;
   if (fileDigest(path.join(runDir, COPIED_MANIFEST)) !== manifestSha256) return false;
@@ -114,6 +183,7 @@ function authoritativeReceiptContract(rowId) {
 // canonical fold or behavioral PASS.
 export function candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata, runResult, runDir }) {
   if (!envelope || envelope.schema !== CANDIDATE_RUN_RESULT_SCHEMA) return false;
+  if (!envelopeShapeIsCanonical(envelope)) return false;
   if (envelope.candidateOnly !== true || envelope.foldRequiresReview !== true || envelope.canonicalFoldForbidden !== true) return false;
   if (envelope.result?.behaviorProof !== false || !OUTCOMES.has(envelope.result?.outcome)) return false;
   if (envelope.result?.effectiveExitCode !== 0) return false;

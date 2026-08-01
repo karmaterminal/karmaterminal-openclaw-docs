@@ -46,6 +46,7 @@ cleanup_private_artifacts() {
     "${PRIVATE_K6_LOG:-}" \
     "${PRIVATE_EVIDENCE_FILE:-}" \
     "${PRIVATE_GATEWAY_LOG:-}" \
+    "${CATALOG_PREFLIGHT_RAW_FILE:-}" \
     "${SOURCE_CONTRACT_FILE:-}"
 }
 
@@ -126,9 +127,61 @@ OUT_ROOT="$(cd "$OUT_ROOT" && pwd)"
 # relative to tools/k6-proofs, never to an ambient caller working directory.
 cd "$PROOFS_DIR"
 
+# Identity git calls must describe the real object store. refs/replace/* is
+# honoured by default, so an ambient replacement object could let `rev-parse
+# HEAD` report the approved SHA while `show`/`cat-file` served different bytes.
+# Ambient GIT_DIR/GIT_WORK_TREE style overrides are cleared for the same reason.
+harness_git() {
+  env \
+    -u GIT_DIR \
+    -u GIT_WORK_TREE \
+    -u GIT_INDEX_FILE \
+    -u GIT_OBJECT_DIRECTORY \
+    -u GIT_ALTERNATE_OBJECT_DIRECTORIES \
+    -u GIT_COMMON_DIR \
+    -u GIT_CEILING_DIRECTORIES \
+    GIT_NO_REPLACE_OBJECTS=1 \
+    git --no-replace-objects -C "$REPO_ROOT" "$@"
+}
+
+# Harness code runs before its identity is proven, so it must never see live
+# credentials or session material.
+run_without_secrets() {
+  env \
+    -u OPENCLAW_GATEWAY_TOKEN \
+    -u OPENCLAW_SESSION_KEY \
+    -u OPENCLAW_ROW_NONCE \
+    -u OPENCLAW_PROOF_ATTEMPT_ID \
+    -u OPENCLAW_ROW_MANIFEST \
+    "$@"
+}
+
+# Replace local filesystem locations with stable placeholders before any
+# captured text becomes a public artifact.
+scrub_public_text() {
+  node -e '
+    let data = "";
+    process.stdin.setEncoding("utf8");
+    process.stdin.on("data", (chunk) => { data += chunk; });
+    process.stdin.on("end", () => {
+      const replacements = [
+        [process.argv[1], "<repo-root>"],
+        [process.argv[2], "<out-root>"],
+        [process.argv[3], "<home>"],
+      ];
+      let out = data;
+      for (const [value, placeholder] of replacements) {
+        if (value && value.length > 4) out = out.split(value).join(placeholder);
+      }
+      process.stdout.write(out);
+    });
+  ' "$REPO_ROOT" "$OUT_ROOT" "${HOME:-}"
+}
+
 # One harness infrastructure receipt, written instead of any per-row product
 # verdict. A catalog/identity failure is a setup fault: no row may execute, and
-# nothing here may be read as candidate behavior.
+# nothing here may be read as candidate behavior. Only validated values reach
+# this receipt: rejected operator input is recorded as "malformed", never echoed.
 write_harness_control_receipt() {
   local stage="$1"
   local reason="$2"
@@ -141,12 +194,12 @@ write_harness_control_receipt() {
     --arg reason "$reason" \
     --arg mode "$RUN_MODE" \
     --arg docsRef "$DOCS_REF" \
-    --arg docsRefInput "$(if [[ "$DOCS_REF_INPUT" =~ ^[0-9a-f]{40}$ ]]; then printf '%s' "$DOCS_REF_INPUT"; elif [[ -n "$DOCS_REF_INPUT" ]]; then printf 'malformed'; fi)" \
-    --arg candidate "${OPENCLAW_CANDIDATE_SHA:-}" \
-    --arg repository "$DOCS_REPOSITORY" \
+    --arg docsRefInput "$(safe_sha_or_marker "$DOCS_REF_INPUT")" \
+    --arg candidate "$(safe_sha_or_marker "${OPENCLAW_CANDIDATE_SHA:-}")" \
+    --arg repository "$(safe_repository_or_marker "$DOCS_REPOSITORY")" \
     --arg recordedAt "$recorded_at" \
     --argjson exitCode "$HARNESS_INFRA_EXIT" \
-    --argjson rowSelection "$ROW_SELECTION_JSON" \
+    --argjson rowSelection "$(safe_row_selection_json)" \
     --argjson detail "$detail_json" \
     '{
       schema: "openclaw.k6.harness-control-receipt.v1",
@@ -172,13 +225,39 @@ write_harness_control_receipt() {
   echo "No rows executed; no per-row candidate verdict was synthesized." >&2
 }
 
+safe_sha_or_marker() {
+  if [[ "$1" =~ ^[0-9a-f]{40}$ ]]; then printf '%s' "$1"
+  elif [[ -n "$1" ]]; then printf 'malformed'
+  fi
+}
+
+safe_repository_or_marker() {
+  if [[ "$1" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then printf '%s' "$1"
+  elif [[ -n "$1" ]]; then printf 'malformed'
+  fi
+}
+
+safe_row_selection_json() {
+  jq -c 'map(if test("^[A-Z0-9][A-Z0-9._-]*$") then . else "malformed" end)' <<< "$ROW_SELECTION_JSON"
+}
+
+# Product version stamps are public, but they come from external process output.
+# Anything that is not an exact SHA or a conservative version string is withheld.
+safe_runtime_stamp() {
+  local sha_pattern='^[0-9a-f]{40}$'
+  local version_pattern='^[A-Za-z0-9][A-Za-z0-9 ()._-]*$'
+  if [[ "$1" =~ $sha_pattern || "$1" =~ $version_pattern ]]; then printf '%s' "$1"
+  elif [[ -n "$1" ]]; then printf 'unverified'
+  fi
+}
+
 fail_harness() {
   write_harness_control_receipt "$1" "$2" "${3:-null}"
   exit "$HARNESS_INFRA_EXIT"
 }
 
 if [[ -z "$CANDIDATE_SHA" && -z "${OPENCLAW_CANDIDATE_SHA:-}" ]]; then
-  CANDIDATE_SHA="$(git -C "$REPO_ROOT" rev-parse HEAD 2>/dev/null || echo 'unknown')"
+  CANDIDATE_SHA="$(harness_git rev-parse HEAD 2>/dev/null || echo 'unknown')"
 fi
 
 if [[ -n "$CANDIDATE_SHA" ]]; then export OPENCLAW_CANDIDATE_SHA="${CANDIDATE_SHA}"; fi
@@ -240,17 +319,28 @@ echo "Artifact root: $OUT_ROOT"
 # so they inspect the same files whatever directory the caller started in. A
 # failure here stops the matrix before any row executes.
 CATALOG_PREFLIGHT_LOG="$OUT_ROOT/catalog-preflight.log"
-: > "$CATALOG_PREFLIGHT_LOG"
+CATALOG_PREFLIGHT_RAW="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-catalog.XXXXXX")"
+CATALOG_PREFLIGHT_RAW_FILE="$CATALOG_PREFLIGHT_RAW"
+: > "$CATALOG_PREFLIGHT_RAW"
 echo "Running catalog preflight (repository root: $PROOFS_TOOL_RELPATH resolved once)..."
+publish_catalog_preflight_log() {
+  scrub_public_text < "$CATALOG_PREFLIGHT_RAW" > "$CATALOG_PREFLIGHT_LOG"
+}
 for CATALOG_CHECK in "${CATALOG_CHECKS[@]}"; do
-  printf '### %s\n' "$CATALOG_CHECK" >> "$CATALOG_PREFLIGHT_LOG"
-  if ! node "$SCRIPT_DIR/$CATALOG_CHECK" --repo-root "$REPO_ROOT" >> "$CATALOG_PREFLIGHT_LOG" 2>&1; then
+  printf '### %s\n' "$CATALOG_CHECK" >> "$CATALOG_PREFLIGHT_RAW"
+  # Catalog code executes before its own identity is proven, so it runs without
+  # the gateway token or session material in its environment.
+  if ! run_without_secrets node "$SCRIPT_DIR/$CATALOG_CHECK" --repo-root "$REPO_ROOT" >> "$CATALOG_PREFLIGHT_RAW" 2>&1; then
+    publish_catalog_preflight_log
     fail_harness \
       "catalog-preflight" \
       "catalog validator '$CATALOG_CHECK' failed; the row catalog could not be resolved" \
       "$(jq -n --arg check "$CATALOG_CHECK" '{failedCheck:$check, log:"catalog-preflight.log"}')"
   fi
 done
+publish_catalog_preflight_log
+rm -f "$CATALOG_PREFLIGHT_RAW"
+CATALOG_PREFLIGHT_RAW_FILE=""
 echo "CATALOG PREFLIGHT: $CATALOG_PREFLIGHT_LOG"
 
 if [[ "$ROWS" == "all" ]]; then
@@ -293,7 +383,7 @@ resolve_docs_repository() {
     printf '%s' "$override"
     return 0
   fi
-  url="$(git -C "$REPO_ROOT" config --get remote.origin.url 2>/dev/null || true)"
+  url="$(harness_git config --get remote.origin.url 2>/dev/null || true)"
   case "$url" in
     *://*|*@*:*) ;;
     *) return 0 ;;
@@ -309,12 +399,59 @@ resolve_docs_repository() {
 # untracked at that commit.
 tracked_blob_sha256() {
   local relpath="$1"
-  git -C "$REPO_ROOT" cat-file -e "$DOCS_REF:$relpath" 2>/dev/null || return 1
-  git -C "$REPO_ROOT" show "$DOCS_REF:$relpath" 2>/dev/null | sha256sum | cut -d' ' -f1
+  harness_git cat-file -e "$DOCS_REF:$relpath" 2>/dev/null || return 1
+  harness_git show "$DOCS_REF:$relpath" 2>/dev/null | sha256sum | cut -d' ' -f1
 }
 
 worktree_sha256() {
   sha256sum "$REPO_ROOT/$1" | cut -d' ' -f1
+}
+
+# The digests are frozen once at startup, but k6 and the scenario read the
+# working tree at row time. Re-assert the frozen bytes at every step that can
+# still change what actually executes, so a mid-matrix mutation fails closed as
+# infrastructure instead of producing a receipt for unapproved source.
+assert_row_bytes_frozen() {
+  local row="$1"
+  local phase="$2"
+  local manifest_rel="${ROW_MANIFEST_RELPATH[$row]:-}"
+  local scenario_rel="${ROW_SCENARIO_RELPATH[$row]:-}"
+  local expected_manifest="${ROW_MANIFEST_SHA256[$row]:-}"
+  local expected_scenario="${ROW_SCENARIO_SHA256[$row]:-}"
+  if [[ -z "$manifest_rel" || -z "$scenario_rel" || -z "$expected_manifest" || -z "$expected_scenario" ]]; then
+    fail_harness \
+      "harness-identity" \
+      "row $row has no frozen manifest/scenario digest bound to the approved docs ref" \
+      "$(jq -n --arg row "$row" --arg phase "$phase" '{check:"row-bound-to-docs-ref", row:$row, phase:$phase}')"
+  fi
+  local actual_manifest actual_scenario
+  actual_manifest="$(worktree_sha256 "$manifest_rel")"
+  actual_scenario="$(worktree_sha256 "$scenario_rel")"
+  if [[ "$actual_manifest" != "$expected_manifest" || "$actual_scenario" != "$expected_scenario" ]]; then
+    fail_harness \
+      "harness-identity" \
+      "row $row harness bytes changed after the approved docs ref was frozen; refusing to execute unapproved source" \
+      "$(jq -n \
+        --arg row "$row" \
+        --arg phase "$phase" \
+        --argjson manifestChanged "$(if [[ "$actual_manifest" != "$expected_manifest" ]]; then printf 'true'; else printf 'false'; fi)" \
+        --argjson scenarioChanged "$(if [[ "$actual_scenario" != "$expected_scenario" ]]; then printf 'true'; else printf 'false'; fi)" \
+        '{check:"frozen-bytes-still-current", row:$row, phase:$phase, manifestChanged:$manifestChanged, scenarioChanged:$scenarioChanged}')"
+  fi
+}
+
+assert_copied_artifact_frozen() {
+  local row="$1"
+  local artifact="$2"
+  local expected="$3"
+  local actual
+  actual="$(sha256sum "$artifact" | cut -d' ' -f1)"
+  if [[ "$actual" != "$expected" ]]; then
+    fail_harness \
+      "harness-identity" \
+      "row $row captured artifact $(basename "$artifact") does not match its frozen digest" \
+      "$(jq -n --arg row "$row" --arg artifact "$(basename "$artifact")" '{check:"captured-artifact-matches-frozen-digest", row:$row, artifact:$artifact}')"
+  fi
 }
 
 DOCS_REPOSITORY="$(resolve_docs_repository)"
@@ -330,7 +467,7 @@ if [[ "$DRY_RUN" == "false" ]]; then
   DOCS_REF_SOURCE="approved-input"
   readonly DOCS_REF
 
-  HEAD_SHA="$(git -C "$REPO_ROOT" rev-parse HEAD 2>/dev/null || true)"
+  HEAD_SHA="$(harness_git rev-parse HEAD 2>/dev/null || true)"
   if [[ "$HEAD_SHA" != "$DOCS_REF" ]]; then
     fail_harness \
       "harness-identity" \
@@ -338,7 +475,7 @@ if [[ "$DRY_RUN" == "false" ]]; then
       "$(jq -n --arg head "$HEAD_SHA" --arg approved "$DOCS_REF" '{check:"head-equals-docs-ref", head:(if $head == "" then null else $head end), approved:$approved}')"
   fi
 
-  HARNESS_DIRTY="$(git -C "$REPO_ROOT" status --porcelain --untracked-files=no -- "$PROOFS_TOOL_RELPATH" 2>/dev/null || printf 'git-unavailable')"
+  HARNESS_DIRTY="$(harness_git status --porcelain --untracked-files=no -- "$PROOFS_TOOL_RELPATH" 2>/dev/null || printf 'git-unavailable')"
   if [[ -n "$HARNESS_DIRTY" ]]; then
     fail_harness \
       "harness-identity" \
@@ -430,6 +567,13 @@ fi
 HARNESS_PROVENANCE_JSON="$OUT_ROOT/harness-provenance.json"
 RUNNER_SCRIPT_SHA256="$(sha256sum "$RUNNER_SCRIPT_PATH" | cut -d' ' -f1)"
 RUN_MATRIX_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+# A reused artifact root must not let a later matrix overwrite the provenance of
+# rows an earlier one already wrote, so each matrix also keeps an immutable copy
+# and stamps its id into every row's runner-metadata.json.
+MATRIX_ID="$(date -u +%Y%m%dT%H%M%SZ)-${DOCS_REF:0:12}"
+if [[ -z "$DOCS_REF" ]]; then MATRIX_ID="${MATRIX_ID}unbound"; fi
+HARNESS_PROVENANCE_ARCHIVE="$OUT_ROOT/harness-provenance/$MATRIX_ID.json"
+mkdir -p "$OUT_ROOT/harness-provenance"
 PROVENANCE_ROWS_JSON='[]'
 for PROV_ROW in "${ROW_ARRAY[@]}"; do
   PROV_ROW="$(printf '%s' "$PROV_ROW" | tr '[:lower:]' '[:upper:]')"
@@ -453,31 +597,33 @@ done
 jq -n \
   --arg docsRef "$DOCS_REF" \
   --arg docsRefSource "$DOCS_REF_SOURCE" \
-  --arg repository "$DOCS_REPOSITORY" \
-  --arg candidate "$OPENCLAW_CANDIDATE_SHA" \
-  --arg runtimeBuildSha "$OPENCLAW_RUNTIME_BUILD_SHA" \
+  --arg repository "$(safe_repository_or_marker "$DOCS_REPOSITORY")" \
+  --arg candidate "$(safe_sha_or_marker "$OPENCLAW_CANDIDATE_SHA")" \
+  --arg runtimeBuildSha "$(safe_runtime_stamp "$OPENCLAW_RUNTIME_BUILD_SHA")" \
   --arg seat "$OPENCLAW_SEAT_NAME" \
   --arg seatReadinessSha256 "$SEAT_READINESS_SHA256" \
   --arg runnerScript "$PROOFS_TOOL_RELPATH/scripts/run-proofs.sh" \
   --arg runnerScriptSha256 "$RUNNER_SCRIPT_SHA256" \
   --arg mode "$RUN_MODE" \
+  --arg matrixId "$MATRIX_ID" \
   --arg startedAt "$RUN_MATRIX_STARTED_AT" \
   --argjson identityVerified "$HARNESS_IDENTITY_VERIFIED" \
-  --argjson rowSelection "$ROW_SELECTION_JSON" \
+  --argjson rowSelection "$(safe_row_selection_json)" \
   --argjson rows "$PROVENANCE_ROWS_JSON" \
   '{
     schema: "openclaw.k6.harness-provenance.v1",
     classification: "harness-provenance",
+    matrixId: $matrixId,
     mode: $mode,
     docsRef: (if $docsRef == "" then null else $docsRef end),
     docsRefSource: $docsRefSource,
     repository: (if $repository == "" then null else $repository end),
     harnessIdentityVerified: $identityVerified,
-    candidateSha: (if $candidate == "" or $candidate == "unknown" then null else $candidate end),
+    candidateSha: (if $candidate == "" then null else $candidate end),
     runtimeIdentity: {
       seat: $seat,
       runtimeBuildSha: (if $runtimeBuildSha == "" or $runtimeBuildSha == "unknown" then null else $runtimeBuildSha end),
-      candidateMatchesRuntime: ($candidate == $runtimeBuildSha),
+      candidateMatchesRuntime: ($candidate != "" and $candidate == $runtimeBuildSha),
       seatReadinessReceipt: (if $seatReadinessSha256 == "" then null else "seat-readiness.json" end),
       seatReadinessSha256: (if $seatReadinessSha256 == "" then null else $seatReadinessSha256 end)
     },
@@ -489,7 +635,9 @@ jq -n \
     foldRequiresReview: true,
     startedAt: $startedAt
   }' > "$HARNESS_PROVENANCE_JSON"
+cp "$HARNESS_PROVENANCE_JSON" "$HARNESS_PROVENANCE_ARCHIVE"
 echo "HARNESS PROVENANCE: $HARNESS_PROVENANCE_JSON"
+echo "HARNESS PROVENANCE (matrix $MATRIX_ID): $HARNESS_PROVENANCE_ARCHIVE"
 rm -f "$OUT_ROOT/harness-control-receipt.json"
 
 for ROW_ID in "${ROW_ARRAY[@]}"; do
@@ -544,17 +692,9 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     ROW_MANIFEST_DIGEST="${ROW_MANIFEST_SHA256[$ROW_ID]:-}"
     ROW_SCENARIO_REL="${ROW_SCENARIO_RELPATH[$ROW_ID]:-}"
     ROW_SCENARIO_DIGEST="${ROW_SCENARIO_SHA256[$ROW_ID]:-}"
-    # Frozen at startup by the harness identity gate. An unbound row means the
-    # gate never saw it, so it must not fire and must not produce a verdict.
-    if [[ -z "$ROW_MANIFEST_DIGEST" || -z "$ROW_SCENARIO_DIGEST" ]]; then
-      fail_harness \
-        "harness-identity" \
-        "row $ROW_ID has no frozen manifest/scenario digest bound to the approved docs ref" \
-        "$(jq -n --arg row "$ROW_ID" '{check:"row-bound-to-docs-ref", row:$row}')"
-    fi
+    assert_row_bytes_frozen "$ROW_ID" "pre-capture"
 
     echo "[$ROW_ID] RUNNING..."
-    export OPENCLAW_ROW_MANIFEST="$MANIFEST_FILE"
 
     RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-$(printf '%s' "$ROW_ID" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
     RUN_DIR="$OUT_ROOT/$OPENCLAW_CANDIDATE_SHA/$ROW_ID/$OPENCLAW_SEAT_NAME/$RUN_ID"
@@ -564,6 +704,13 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     # The exact scenario source travels with the receipt so a reviewer can prove
     # which contract bytes produced it without trusting the run directory name.
     cp "scenarios/$SCENARIO_FILE" "$RUN_DIR/row-scenario.js"
+    assert_copied_artifact_frozen "$ROW_ID" "$RUN_DIR/row-manifest.json" "$ROW_MANIFEST_DIGEST"
+    assert_copied_artifact_frozen "$ROW_ID" "$RUN_DIR/row-scenario.js" "$ROW_SCENARIO_DIGEST"
+    # Everything downstream reads the verified copy, never the mutable worktree
+    # manifest, so the contract the scenario loads is the contract that was
+    # digest-bound to the approved docs ref.
+    MANIFEST_FILE="$RUN_DIR/row-manifest.json"
+    export OPENCLAW_ROW_MANIFEST="$MANIFEST_FILE"
     RUN_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     jq -n \
       --arg row "$ROW_ID" \
@@ -574,11 +721,12 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg started "$RUN_STARTED_AT" \
       --arg docsRef "$DOCS_REF" \
       --arg repository "$DOCS_REPOSITORY" \
+      --arg matrixId "$MATRIX_ID" \
       --arg manifestPath "$ROW_MANIFEST_REL" \
       --arg manifestSha256 "$ROW_MANIFEST_DIGEST" \
       --arg scenarioPath "$ROW_SCENARIO_REL" \
       --arg scenarioSha256 "$ROW_SCENARIO_DIGEST" \
-      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started, docsRef:$docsRef, repository:$repository, manifestPath:$manifestPath, manifestSha256:$manifestSha256, scenarioPath:$scenarioPath, scenarioSha256:$scenarioSha256}' \
+      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started, docsRef:$docsRef, repository:$repository, matrixId:$matrixId, manifestPath:$manifestPath, manifestSha256:$manifestSha256, scenarioPath:$scenarioPath, scenarioSha256:$scenarioSha256}' \
       > "$RUN_DIR/runner-metadata.json"
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       if [[ ! "$OPENCLAW_CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ||
@@ -683,6 +831,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     fi
     POSTPROCESS_RC=0
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then ACTIVE_TOKEN_PHASE="k6-running"; fi
+    # Last assertion before unapproved bytes could be executed.
+    assert_row_bytes_frozen "$ROW_ID" "pre-k6-execution"
     set +e
     k6 run "scenarios/$SCENARIO_FILE" > "$PRIVATE_K6_LOG" 2>&1
     k6_rc=$?

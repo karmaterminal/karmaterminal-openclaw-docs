@@ -10,12 +10,13 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
+import { COPIED_MANIFEST, COPIED_SCENARIO, isSafeCandidateArtifact } from './candidate-run-result-contract.mjs';
 
 const SHA = /^[0-9a-f]{40}$/;
 const DIGEST = /^[0-9a-f]{64}$/;
 const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
-const COPIED_MANIFEST = 'row-manifest.json';
-const COPIED_SCENARIO = 'row-scenario.js';
+const HARNESS_MANIFEST_PATH = /^tools\/k6-proofs\/manifests\/[A-Za-z0-9._-]+\.json$/;
+const HARNESS_SCENARIO_PATH = /^tools\/k6-proofs\/scenarios\/[A-Za-z0-9._-]+\.js$/;
 const OUTCOME = new Set(['PASS-candidate', 'HONEST-LIMIT-candidate', 'PARTIAL-candidate', 'FAIL-candidate', 'construct-only']);
 
 function usage() {
@@ -75,11 +76,15 @@ async function fileDigest(file, label) {
  * Metadata that omits the ref or either digest, or whose digests disagree with
  * the copied source, cannot produce an envelope.
  */
-async function harnessIdentity(metadata, candidateDir, docsRef) {
+async function harnessIdentity(metadata, candidateDir, docsRef, manifestPath) {
   const metadataDocsRef = requireSha(metadata.docsRef, 'runner metadata docsRef');
   same(metadataDocsRef, docsRef, 'docs ref');
   const repository = requireString(metadata.repository, 'runner metadata repository');
   if (!REPOSITORY.test(repository)) throw new Error('runner metadata repository must be a safe <owner>/<repo> identity');
+  const harnessManifestPath = requireString(metadata.manifestPath, 'runner metadata manifestPath');
+  if (!HARNESS_MANIFEST_PATH.test(harnessManifestPath)) throw new Error('runner metadata manifestPath must be a tools/k6-proofs/manifests/*.json harness path');
+  const harnessScenarioPath = requireString(metadata.scenarioPath, 'runner metadata scenarioPath');
+  if (!HARNESS_SCENARIO_PATH.test(harnessScenarioPath)) throw new Error('runner metadata scenarioPath must be a tools/k6-proofs/scenarios/*.js harness path');
   const manifestSha256 = requireDigest(metadata.manifestSha256, 'runner metadata manifestSha256');
   const scenarioSha256 = requireDigest(metadata.scenarioSha256, 'runner metadata scenarioSha256');
 
@@ -91,13 +96,19 @@ async function harnessIdentity(metadata, candidateDir, docsRef) {
   if (copiedScenarioDigest !== scenarioSha256) {
     throw new Error(`copied row scenario digest mismatch: ${copiedScenarioDigest} != ${scenarioSha256}`);
   }
+  // The semantic manifest checks below must describe the same bytes the run
+  // captured, not a different manifest handed in on the command line.
+  const suppliedManifestDigest = await fileDigest(manifestPath, 'supplied manifest');
+  if (suppliedManifestDigest !== manifestSha256) {
+    throw new Error('supplied manifest is not the manifest captured for this run: digest mismatch');
+  }
 
   return {
     docsRef: metadataDocsRef,
     repository,
-    manifestPath: safeRelative(metadata.manifestPath, 'manifest path'),
+    manifestPath: harnessManifestPath,
     manifestSha256,
-    scenarioPath: safeRelative(metadata.scenarioPath, 'scenario path'),
+    scenarioPath: harnessScenarioPath,
     scenarioSha256,
     manifestArtifact: COPIED_MANIFEST,
     scenarioArtifact: COPIED_SCENARIO,
@@ -179,17 +190,8 @@ function authoritativeReceiptContract(rowId) {
 
 async function listSafeArtifacts(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
-  const allowed = new Set([
-    'row-manifest.json', 'row-scenario.js', 'runner-metadata.json', 'run-result.json',
-    'candidate-run-result.json', 'seat-readiness.json', 'evidence.jsonl',
-    'r-cd-2-authoritative-receipt.json',
-    'attempt-state.json', 'build-identity-gate.json', 'interruption-receipt.json',
-    'r-cd-token-authoritative-receipt.json',
-    'evidence-lines.log', 'evidence-redaction.json', 'gateway-journal.log',
-    'gateway-journal-capture.json', 'gateway-journal-redaction.json',
-  ]);
   return entries
-    .filter((entry) => entry.isFile() && (allowed.has(entry.name) || /(?:^|-)summary\.json$/i.test(entry.name)))
+    .filter((entry) => entry.isFile() && isSafeCandidateArtifact(entry.name))
     .map((entry) => entry.name)
     .sort();
 }
@@ -212,7 +214,7 @@ async function main() {
   const candidateSha = requireSha(metadata.candidateSha, 'runner metadata candidateSha');
   const seat = requireString(metadata.seat, 'runner metadata seat');
   const scenario = requireString(metadata.scenario, 'runner metadata scenario').replace(/\.js$/, '');
-  const harness = await harnessIdentity(metadata, candidateDir, docsRef);
+  const harness = await harnessIdentity(metadata, candidateDir, docsRef, manifestPath);
   same(rowId, manifest.rowId, 'row ID');
   same(scenario, scenarioName(manifest), 'scenario');
   const declaredSha = manifestCandidateSha(manifest);

@@ -168,3 +168,20 @@ test('validators fail closed with an explicit contract error outside any harness
     await rm(elsewhere, { recursive: true, force: true });
   }
 });
+
+test('an incidental tools/k6-proofs directory is not mistaken for a harness root', async () => {
+  // A bare directory of the right name is not a proof catalog. Without a
+  // sentinel the walk-up would bind to it and validate nothing.
+  const decoy = await mkdtemp(path.join(tmpdir(), 'p81-catalog-root-decoy-'));
+  try {
+    await mkdir(path.join(decoy, 'tools/k6-proofs/notes'), { recursive: true });
+    await mkdir(path.join(decoy, 'work'), { recursive: true });
+    for (const check of CATALOG_READERS) {
+      const result = invoke(check, path.join(decoy, 'work'));
+      assert.notEqual(result.status, 0, `${check} bound to a directory with no proof catalog`);
+      assert.match(result.stderr, /unable to resolve a repository root/);
+    }
+  } finally {
+    await rm(decoy, { recursive: true, force: true });
+  }
+});

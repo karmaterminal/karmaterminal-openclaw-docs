@@ -109,7 +109,8 @@ Rows promoted as static committed-packet validators or honest-limit canaries may
 5. Preserve candidate output. For live runs, `run-proofs.sh` writes artifacts under `--out-dir` (default `/tmp/k6-proof-runs`):
 
    ```text
-   <out-dir>/harness-provenance.json   # docs ref, candidate, digests, row selection
+   <out-dir>/harness-provenance.json             # docs ref, candidate, digests, row selection
+   <out-dir>/harness-provenance/<matrix-id>.json # immutable per-matrix copy
    <out-dir>/<candidate-sha>/<ROW>/<seat>/<timestamp-row>/
    ├── row-manifest.json
    ├── row-scenario.js                 # the exact scenario source that fired

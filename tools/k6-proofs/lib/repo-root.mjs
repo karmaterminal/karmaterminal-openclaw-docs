@@ -19,12 +19,16 @@
  * this module: a caller standing outside any proof harness fails closed with an
  * explicit contract error instead of validating an unrelated catalog.
  */
-import { statSync } from 'node:fs';
+import { realpathSync, statSync } from 'node:fs';
 import path from 'node:path';
 
 export const PROOFS_TOOL_DIR = path.join('tools', 'k6-proofs');
 export const REPO_ROOT_ENV_VAR = 'OPENCLAW_PROOFS_REPO_ROOT';
 export const REPO_ROOT_FLAG = '--repo-root';
+// A bare `tools/k6-proofs` directory is not enough: require at least one of the
+// catalog directories so an unrelated ancestor that merely happens to contain a
+// similarly named path cannot be mistaken for the harness root.
+const CATALOG_SENTINELS = ['manifests', 'scenarios'];
 
 function isDirectory(candidate) {
   try {
@@ -34,9 +38,23 @@ function isDirectory(candidate) {
   }
 }
 
-/** A directory is a repository root when it directly contains `tools/k6-proofs`. */
+function canonical(candidate) {
+  try {
+    return realpathSync(candidate);
+  } catch {
+    return path.resolve(candidate);
+  }
+}
+
+/**
+ * A directory is a repository root when it directly contains `tools/k6-proofs`
+ * and that directory holds a recognizable proof catalog.
+ */
 export function isRepositoryRoot(candidate) {
-  return Boolean(candidate) && isDirectory(path.join(candidate, PROOFS_TOOL_DIR));
+  if (!candidate) return false;
+  const toolDir = path.join(candidate, PROOFS_TOOL_DIR);
+  if (!isDirectory(toolDir)) return false;
+  return CATALOG_SENTINELS.some((sentinel) => isDirectory(path.join(toolDir, sentinel)));
 }
 
 /**
@@ -67,15 +85,16 @@ export function parseRepoRootArg(argv = []) {
 }
 
 function explicitRoot(value, source) {
-  const resolved = path.resolve(value);
+  const resolved = canonical(path.resolve(value));
   if (!isRepositoryRoot(resolved)) {
-    throw new Error(`${source} is not a repository root: no ${PROOFS_TOOL_DIR} directory under ${resolved}`);
+    throw new Error(`${source} is not a repository root: no ${PROOFS_TOOL_DIR} proof catalog under ${resolved}`);
   }
   return resolved;
 }
 
 function walkUpFrom(cwd) {
-  let current = path.resolve(cwd);
+  // Canonicalize first so a symlinked working directory walks the real tree.
+  let current = canonical(path.resolve(cwd));
   for (;;) {
     if (isRepositoryRoot(current)) return current;
     const parent = path.dirname(current);
@@ -101,7 +120,7 @@ export function resolveRepositoryRoot({ argv = [], cwd = process.cwd(), env = pr
   if (!discovered) {
     throw new Error(
       `unable to resolve a repository root from ${path.resolve(cwd)}: ` +
-      `no ancestor contains ${PROOFS_TOOL_DIR}. Pass ${REPO_ROOT_FLAG} <dir> or set ${REPO_ROOT_ENV_VAR}.`,
+      `no ancestor contains a ${PROOFS_TOOL_DIR} proof catalog. Pass ${REPO_ROOT_FLAG} <dir> or set ${REPO_ROOT_ENV_VAR}.`,
     );
   }
   return { root: discovered, source: 'cwd-ancestor', rest };

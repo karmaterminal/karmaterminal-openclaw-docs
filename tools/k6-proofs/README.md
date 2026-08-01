@@ -149,7 +149,8 @@ layout as a live proof run:
 
 ```bash
 cd tools/k6-proofs
-OPENCLAW_GATEWAY_TOKEN="***" ./scripts/run-proofs.sh --live preflight <candidate-sha>
+OPENCLAW_GATEWAY_TOKEN="***" ./scripts/run-proofs.sh --live \
+  --docs-ref "$(git rev-parse HEAD)" preflight <candidate-sha>
 ```
 
 ### 3. Run an existing scenario (manifest-driven)
@@ -433,7 +434,7 @@ Callers that must honour both obligations nest them session-outer then row-inner
 ```bash
 flock --nonblock --conflict-exit-code 75 "$K6_PROOF_SESSION_LOCK_PATH" \
   flock --nonblock --conflict-exit-code 75 "$K6_PROOF_LOCK_PATH" \
-    ./scripts/run-proofs.sh --live <ROW> <SHA>
+    ./scripts/run-proofs.sh --live --docs-ref "$DOCS_REF" <ROW> <SHA>
 ```
 
 `--require-lock` lets a caller escalate a row whose manifest declares `sameSessionConcurrencySafe: true` but whose proof-round contract overrides it to serialized (for example `R-RC-2`). It can only **add** a lock requirement, never remove one, and sets `lockRequiredReason` to `caller-override` so the escalation is visible in the emitted variables.
@@ -700,9 +701,14 @@ explicit contract error, never a silently empty catalog.
 ### Immutable harness identity for live matrices (#496)
 
 `scripts/run-proofs.sh` runs the three catalog validators as a preflight before
-any row executes. A preflight failure is classified as harness infrastructure:
-the runner writes one `harness-control-receipt.json` under the artifact root,
-executes no rows, synthesizes no per-row verdict, and exits `78`.
+any row executes. The validators run with the gateway token and session material
+stripped from their environment (unproven harness code must never see live
+credentials), and their captured output is scrubbed of local filesystem
+locations before it is published as `catalog-preflight.log`. A preflight failure
+is classified as harness infrastructure: the runner writes one
+`harness-control-receipt.json` under the artifact root, executes no rows,
+synthesizes no per-row verdict, and exits `78`. Only validated values reach that
+receipt — rejected operator input is recorded as `malformed`, never echoed.
 
 A live run additionally refuses to fire unless an approved docs/harness ref is
 supplied through `--docs-ref <40-hex>` or `OPENCLAW_PROOFS_DOCS_REF`, and:
@@ -713,16 +719,30 @@ supplied through `--docs-ref <40-hex>` or `OPENCLAW_PROOFS_DOCS_REF`, and:
 - every selected runnable row's manifest and scenario are tracked at that exact
   commit with matching bytes.
 
+All identity `git` calls run with `--no-replace-objects` / `GIT_NO_REPLACE_OBJECTS=1`
+and with ambient `GIT_DIR`/`GIT_WORK_TREE`-style overrides cleared, so a
+`refs/replace/*` entry cannot make `rev-parse` and `cat-file` describe different
+trees.
+
 The ref is resolved and frozen once at startup; ambient `HEAD` is never re-read
-after rows have run. The runner then writes a public-safe
-`harness-provenance.json` (docs ref, repository identity, candidate SHA, runtime
-identity receipt, runner script digest, row selection with per-row
-manifest/scenario digests, start time) before the first row fires, and records
-`docsRef`, `repository`, `manifestPath`/`manifestSha256`, and
-`scenarioPath`/`scenarioSha256` in every `runner-metadata.json`. The exact
-scenario source travels with each receipt as `row-scenario.js`, and the
-candidate routing envelope is withheld unless those values bind to the approved
-ref and the copied manifest/scenario bytes.
+after rows have run. Because k6 and the scenario read the working tree at row
+time, the frozen digests are re-asserted immediately before capture and again
+immediately before k6 executes, and the copied artifacts are checked against
+them — a mid-matrix mutation fails closed as infrastructure rather than
+producing a receipt for unapproved source. `OPENCLAW_ROW_MANIFEST` points at the
+verified copy in the run directory, not at the mutable worktree manifest.
+
+The runner then writes a public-safe `harness-provenance.json` (matrix id, docs
+ref, repository identity, candidate SHA, runtime identity receipt, runner script
+digest, row selection with per-row manifest/scenario digests, start time) before
+the first row fires, plus an immutable per-matrix copy at
+`harness-provenance/<matrixId>.json` so a reused artifact root cannot lose the
+provenance of rows an earlier matrix wrote. Every `runner-metadata.json` records
+`docsRef`, `repository`, `matrixId`, `manifestPath`/`manifestSha256`, and
+`scenarioPath`/`scenarioSha256`. The exact scenario source travels with each
+receipt as `row-scenario.js`, and the candidate routing envelope is withheld
+unless those values bind to the approved ref and the copied manifest/scenario
+bytes.
 
 Set `OPENCLAW_PROOFS_DOCS_REPOSITORY=<owner>/<repo>` when the checkout has no
 public remote; only a real remote (or that override) is accepted, so a local

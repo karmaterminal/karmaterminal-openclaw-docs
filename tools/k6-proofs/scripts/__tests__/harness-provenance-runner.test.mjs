@@ -233,18 +233,21 @@ test('a catalog preflight failure stops the matrix as harness infrastructure', a
     async (harness) => {
       const result = await invokeRunner(harness, { args: ['--docs-ref', harness.docsRef] });
       const receipt = await assertInfrastructureFailure(harness, result, { stage: 'catalog-preflight' });
-      assert.equal(receipt.detail.failedCheck, 'check-scenario-alignment.mjs');
+      assert.equal(receipt.detail.failedCheck, 'check-proof-row-manifests.mjs');
       assert.equal(receipt.detail.log, 'catalog-preflight.log');
       const log = await readFile(path.join(harness.out, 'catalog-preflight.log'), 'utf8');
-      assert.match(log, /k6-proof\.yml/);
+      assert.match(log, /proof rows missing manifest entries: R-PHANTOM/);
       assert.match(result.stderr, /catalog validator .* failed/);
       assert.doesNotMatch(log, /tools\/k6-proofs\/tools\/k6-proofs/);
     },
     {
-      // Break the catalog outside tools/k6-proofs so the harness identity gate,
-      // which now runs first, still passes and the preflight is what fails.
+      // Every tracked tree is byte-verified before the preflight runs, so the
+      // catalog is broken with an untracked stray corpus directory instead:
+      // a real, tracked-byte-preserving way to reach a preflight failure.
       mutate: async (harness) => {
-        await rm(path.join(harness.checkout, '.github/workflows/k6-proof.yml'));
+        const indexRaw = await readFile(path.join(harness.checkout, 'PROOFS/INDEX.json'), 'utf8');
+        const currentSha = JSON.parse(indexRaw).current_sha;
+        await mkdir(path.join(harness.checkout, 'PROOFS', currentSha, 'R-PHANTOM'), { recursive: true });
       },
     },
   );
@@ -257,7 +260,7 @@ test('catalog validators run with no inherited environment at all', async () => 
     '#!/bin/sh',
     'case "$*" in',
     '  *check-manifest-scenarios.mjs*)',
-    '    printf \'PROBE TOKEN_SEEN=%s HOME_SEEN=%s\\n\' "${OPENCLAW_GATEWAY_TOKEN:-<absent>}" "${HOME:-<absent>}"',
+    '    printf \'PROBE TOKEN_SEEN=%s HOME_SEEN=%s CWD=%s\\n\' "${OPENCLAW_GATEWAY_TOKEN:-<absent>}" "${HOME:-<absent>}" "$(pwd)"',
     '    ;;',
     'esac',
     `exec ${process.execPath} "$@"`,
@@ -271,6 +274,9 @@ test('catalog validators run with no inherited environment at all', async () => 
       const log = await readFile(path.join(harness.out, 'catalog-preflight.log'), 'utf8');
       assert.match(log, /PROBE TOKEN_SEEN=<absent> HOME_SEEN=<absent>/);
       assert.doesNotMatch(log, new RegExp(APPROVED_TOKEN));
+      // The validator ran from the snapshot, and that private path is scrubbed
+      // out of the published log.
+      assert.match(log, /CWD=<harness>\/tools\/k6-proofs/);
     },
     { nodeShim: probe },
   );
@@ -394,17 +400,25 @@ test('the catalog preflight log is public-safe: no credentials, no local paths',
     assert.ok(!log.includes(harness.out), 'the artifact root path must not reach a public log');
   });
 
-  // Force a validator to print an absolute path and require it to be scrubbed.
+  // The failure path publishes validator output too, and must be just as safe.
   await withApprovedMatrix(
     async (harness) => {
       const result = await harness.invoke();
       assert.equal(result.code, HARNESS_INFRA_EXIT);
       const log = await readFile(path.join(harness.out, 'catalog-preflight.log'), 'utf8');
-      assert.match(log, /<(?:repo-root|harness)>\/PROOFS\/INDEX\.json/);
+      assert.match(log, /proof rows missing manifest entries: R-PHANTOM/);
       assert.ok(!log.includes(harness.checkout), 'the checkout path must not reach a public log');
+      assert.ok(!log.includes(harness.out), 'the artifact root path must not reach a public log');
       assert.doesNotMatch(log, new RegExp(APPROVED_TOKEN));
+      assert.doesNotMatch(log, /\/tmp\/openclaw-k6-harness\./, 'the snapshot path must not reach a public log');
     },
-    { afterCommit: async (harness) => rm(path.join(harness.checkout, 'PROOFS/INDEX.json')) },
+    {
+      afterCommit: async (harness) => {
+        const indexRaw = await readFile(path.join(harness.checkout, 'PROOFS/INDEX.json'), 'utf8');
+        const currentSha = JSON.parse(indexRaw).current_sha;
+        await mkdir(path.join(harness.checkout, 'PROOFS', currentSha, 'R-PHANTOM'), { recursive: true });
+      },
+    },
   );
 });
 

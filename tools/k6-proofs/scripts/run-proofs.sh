@@ -14,11 +14,21 @@
 
 set -euo pipefail
 
+ORIGINAL_ARGS=("$@")
+
 RUNNER_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RUNNER_SCRIPT_PATH="$RUNNER_SCRIPT_DIR/$(basename "${BASH_SOURCE[0]}")"
-# The operator's checkout. Identity is always verified against this tree.
-REPO_ROOT="$(cd "$RUNNER_SCRIPT_DIR/../../.." && pwd)"
+# The operator's checkout. Identity is always verified against this tree, even
+# when this process is the re-executed snapshot copy of the runner.
+if [[ -n "${OPENCLAW_PROOFS_ORIGIN_ROOT:-}" ]]; then
+  REPO_ROOT="$OPENCLAW_PROOFS_ORIGIN_ROOT"
+else
+  REPO_ROOT="$(cd "$RUNNER_SCRIPT_DIR/../../.." && pwd)"
+fi
 PROOFS_TOOL_RELPATH="tools/k6-proofs"
+# Every tree whose bytes a row can consume: the harness itself, the proof corpus
+# that static rows read, and the workflow the catalog validators parse.
+HARNESS_VERIFIED_PATHS=("tools/k6-proofs" "PROOFS" ".github")
 # The tree harness components are executed from. For a live run this is replaced
 # by an immutable snapshot of the approved docs ref (see bind_execution_roots).
 EXEC_ROOT="$REPO_ROOT"
@@ -401,21 +411,26 @@ tracked_blob_sha256() {
 # comparing against the blob names recorded in the approved commit cannot be
 # suppressed that way. `--stdin-paths` keeps this to one process for the whole
 # tree, so it is cheap enough to re-assert before every row.
+harness_tree_listing() {
+  harness_git ls-tree -r "$DOCS_REF" -- "${HARNESS_VERIFIED_PATHS[@]}" 2>/dev/null || true
+}
+
 assert_harness_tree_matches_docs_ref() {
   local check="$1"
   local phase="$2"
   local row="$3"
+  local root="${4:-$REPO_ROOT}"
   local listing expected_objects paths actual_objects
-  listing="$(harness_git ls-tree -r "$DOCS_REF" -- "$PROOFS_TOOL_RELPATH" 2>/dev/null || true)"
+  listing="$(harness_tree_listing)"
   if [[ -z "$listing" ]]; then
     fail_harness \
       "harness-identity" \
-      "the approved docs ref records no $PROOFS_TOOL_RELPATH tree; refusing to fire an unrecorded harness" \
+      "the approved docs ref records no ${HARNESS_VERIFIED_PATHS[*]} trees; refusing to fire an unrecorded harness" \
       "$(jq -n --arg check "$check" --arg phase "$phase" --arg row "$row" \
         '{check:$check, phase:$phase, row:(if $row == "" then null else $row end), reason:"empty-tree-listing"}')"
   fi
   expected_objects="$(printf '%s\n' "$listing" | cut -f1 | awk '{print $3}')"
-  paths="$(printf '%s\n' "$listing" | cut -f2-)"
+  paths="$(printf '%s\n' "$listing" | cut -f2- | awk -v root="$root" '{print root "/" $0}')"
   # --no-filters: a configured clean filter would otherwise be able to transform
   # dirty bytes into the approved blob hash, and would itself execute here.
   actual_objects="$(printf '%s\n' "$paths" | harness_git hash-object --no-filters --stdin-paths 2>/dev/null || true)"
@@ -425,7 +440,7 @@ assert_harness_tree_matches_docs_ref() {
     actual_count="$(printf '%s\n' "$actual_objects" | grep -c . || true)"
     fail_harness \
       "harness-identity" \
-      "tracked bytes under $PROOFS_TOOL_RELPATH do not match the approved docs ref; refusing to fire a mutated or mixed harness" \
+      "bytes under ${HARNESS_VERIFIED_PATHS[*]} do not match the approved docs ref; refusing to fire a mutated or mixed harness" \
       "$(jq -n \
         --arg check "$check" \
         --arg phase "$phase" \
@@ -480,7 +495,10 @@ assert_row_bytes_frozen() {
   # the operator's checkout exists for a different reason: bash reads this very
   # script incrementally, so run-proofs.sh itself must still match the approved
   # ref while it is running.
-  assert_harness_tree_matches_docs_ref "harness-tree-still-current" "$phase" "$row"
+  assert_harness_tree_matches_docs_ref "harness-tree-still-current" "$phase" "$row" "$REPO_ROOT"
+  if [[ "$EXEC_ROOT" != "$REPO_ROOT" ]]; then
+    assert_harness_tree_matches_docs_ref "harness-snapshot-still-current" "$phase" "$row" "$EXEC_ROOT"
+  fi
 }
 
 assert_copied_artifact_frozen() {
@@ -518,7 +536,7 @@ if [[ "$DRY_RUN" == "false" ]]; then
       "$(jq -n --arg head "$HEAD_SHA" --arg approved "$DOCS_REF" '{check:"head-equals-docs-ref", head:(if $head == "" then null else $head end), approved:$approved}')"
   fi
 
-  assert_harness_tree_matches_docs_ref "harness-tree-clean" "startup" ""
+  assert_harness_tree_matches_docs_ref "harness-tree-clean" "startup" "" "$REPO_ROOT"
 
   if [[ ! "${OPENCLAW_CANDIDATE_SHA:-}" =~ ^[0-9a-f]{40}$ ]]; then
     fail_harness \
@@ -538,26 +556,45 @@ if [[ "$DRY_RUN" == "false" ]]; then
   # approved commit, not the operator's mutable working tree. This closes the
   # check-then-use window for the catalog validators, seat readiness, k6, and
   # every scenario import: those bytes cannot change while the matrix runs.
-  HARNESS_SNAPSHOT_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/openclaw-k6-harness.XXXXXX")"
-  chmod 700 "$HARNESS_SNAPSHOT_ROOT"
-  if ! harness_git archive "$DOCS_REF" -- "$PROOFS_TOOL_RELPATH" | tar -x -C "$HARNESS_SNAPSHOT_ROOT"; then
-    fail_harness \
-      "harness-identity" \
-      "the approved $PROOFS_TOOL_RELPATH tree could not be extracted for immutable execution" \
-      "$(jq -n '{check:"harness-snapshot-extractable"}')"
+  #
+  # That includes this script. Bash reads its source incrementally, so the only
+  # way the remaining commands are guaranteed to be approved bytes is to hand
+  # execution to the snapshot's own copy before any credential is loaded.
+  if [[ -z "${OPENCLAW_PROOFS_HARNESS_SNAPSHOT:-}" ]]; then
+    HARNESS_SNAPSHOT_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/openclaw-k6-harness.XXXXXX")"
+    chmod 700 "$HARNESS_SNAPSHOT_ROOT"
+    if ! harness_git archive "$DOCS_REF" -- "$PROOFS_TOOL_RELPATH" | tar -x -C "$HARNESS_SNAPSHOT_ROOT"; then
+      fail_harness \
+        "harness-identity" \
+        "the approved $PROOFS_TOOL_RELPATH tree could not be extracted for immutable execution" \
+        "$(jq -n '{check:"harness-snapshot-extractable"}')"
+    fi
+    # The corpus and workflow trees are byte-verified against the approved ref
+    # above, so they are referenced rather than copied; PROOFS alone is hundreds
+    # of megabytes and every one of its bytes is checked before and between rows.
+    ln -s "$REPO_ROOT/PROOFS" "$HARNESS_SNAPSHOT_ROOT/PROOFS"
+    ln -s "$REPO_ROOT/.github" "$HARNESS_SNAPSHOT_ROOT/.github"
+    export OPENCLAW_PROOFS_HARNESS_SNAPSHOT="$HARNESS_SNAPSHOT_ROOT"
+    export OPENCLAW_PROOFS_ORIGIN_ROOT="$REPO_ROOT"
+    echo "Harness execution: handing off to the approved runner in an immutable snapshot."
+    # `exec` replaces this process, so no EXIT trap fires here and the snapshot
+    # survives into the approved runner, which owns its cleanup.
+    exec bash "$HARNESS_SNAPSHOT_ROOT/$PROOFS_TOOL_RELPATH/scripts/run-proofs.sh" \
+      "${ORIGINAL_ARGS[@]}" --out-dir "$OUT_ROOT"
   fi
-  # Read-only corpus/workflow inputs the catalog validators need. They are never
-  # executed, so they are referenced rather than copied.
-  ln -s "$REPO_ROOT/PROOFS" "$HARNESS_SNAPSHOT_ROOT/PROOFS"
-  ln -s "$REPO_ROOT/.github" "$HARNESS_SNAPSHOT_ROOT/.github"
+
+  # Re-executed copy: adopt the snapshot and prove it is the approved tree before
+  # trusting anything in it.
+  HARNESS_SNAPSHOT_ROOT="$OPENCLAW_PROOFS_HARNESS_SNAPSHOT"
   EXEC_ROOT="$HARNESS_SNAPSHOT_ROOT"
   bind_execution_roots
   cd "$PROOFS_DIR"
+  assert_harness_tree_matches_docs_ref "harness-snapshot-matches-docs-ref" "startup" "" "$EXEC_ROOT"
 
   HARNESS_IDENTITY_VERIFIED=true
   echo "Approved docs ref: $DOCS_REF ($DOCS_REPOSITORY)"
   echo "Harness identity: every tracked byte under $PROOFS_TOOL_RELPATH matches the approved docs ref."
-  echo "Harness execution: immutable snapshot of the approved tree."
+  echo "Harness execution: immutable snapshot of the approved tree (runner included)."
 elif [[ "$DOCS_REF_INPUT" =~ ^[0-9a-f]{40}$ ]]; then
   DOCS_REF="$DOCS_REF_INPUT"
   DOCS_REF_SOURCE="approved-input"

@@ -715,8 +715,10 @@ supplied through `--docs-ref <40-hex>` or `OPENCLAW_PROOFS_DOCS_REF`, and:
 
 - the ref is a 40-character lowercase SHA;
 - repository `HEAD` equals that ref;
-- every tracked file under `tools/k6-proofs` hashes to the blob recorded in that
-  commit;
+- every tracked file under `tools/k6-proofs`, `PROOFS`, and `.github` hashes to
+  the blob recorded in that commit — the proof corpus is included because static
+  rows read it, so a locally modified corpus must not be able to produce a
+  candidate verdict;
 - every selected runnable row's manifest and scenario are tracked at that exact
   commit with matching bytes.
 
@@ -732,10 +734,13 @@ catalog is parsed before it is validated:
    repository identity, and the full tracked-tree hash comparison. No manifest is
    parsed here.
 2. **immutable snapshot** — the approved `tools/k6-proofs` tree is extracted with
-   `git archive` into a private temporary directory, and every harness component
-   (catalog validators, seat readiness, k6, scenarios and their imports, the
-   evidence/receipt helpers) executes from that extract. The operator's working
-   tree cannot change what runs once the matrix has started.
+   `git archive` into a private temporary directory, and the runner then hands
+   execution to that extract's own `run-proofs.sh` with `exec`, before any
+   credential is loaded. Every harness component (the runner itself, the catalog
+   validators, seat readiness, k6, scenarios and their imports, the
+   evidence/receipt helpers) therefore executes from bytes that cannot change
+   once the matrix has started. The re-executed copy re-proves the snapshot
+   against the approved ref before trusting it.
 3. **catalog preflight** — the three validators run from the snapshot under
    `env -i` with a minimal allowlist.
 4. **row selection and contract binding** — `all` expansion and the per-row

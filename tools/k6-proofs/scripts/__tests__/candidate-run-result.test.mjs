@@ -306,6 +306,26 @@ test('candidate envelope binds the approved docs ref and both harness source dig
         ...envelope,
         artifacts: { ...envelope.artifacts, files: [...envelope.artifacts.files, 'gateway.token'] },
       }), false);
+      // An allowed field is not automatically a safe value.
+      assert.equal(siblings({
+        ...envelope,
+        artifacts: { ...envelope.artifacts, files: [...envelope.artifacts.files, '../../private-summary.json'] },
+      }), false);
+      assert.equal(siblings({
+        ...envelope,
+        artifacts: { ...envelope.artifacts, tempoTraceJson: '../../../etc/passwd' },
+      }), false);
+      // Observability artifact names must still agree with the raw sibling.
+      assert.equal(siblings({
+        ...envelope,
+        artifacts: { ...envelope.artifacts, correlationReceipt: 'invented-correlation.json' },
+      }), false);
+      assert.equal(siblings({ ...envelope, run: { ...envelope.run, executionKind: 'hand-written' } }), false);
+      // R-CW-TEST has no row-scoped resolver, so it may not carry one.
+      assert.equal(siblings({
+        ...envelope,
+        authoritativeReceipt: { file: 'r-cd-2-authoritative-receipt.json', sha256: 'a'.repeat(64) },
+      }), false);
       const { harness, ...withoutHarness } = envelope;
       assert.equal(siblings(withoutHarness), false);
     } finally { await rm(setup.root, { recursive: true, force: true }); }

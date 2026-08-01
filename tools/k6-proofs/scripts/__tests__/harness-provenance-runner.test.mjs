@@ -198,18 +198,46 @@ test('a catalog preflight failure stops the matrix as harness infrastructure', a
     async (harness) => {
       const result = await invokeRunner(harness, { args: ['--docs-ref', harness.docsRef] });
       const receipt = await assertInfrastructureFailure(harness, result, { stage: 'catalog-preflight' });
-      assert.equal(receipt.detail.failedCheck, 'check-manifest-scenarios.mjs');
+      assert.equal(receipt.detail.failedCheck, 'check-scenario-alignment.mjs');
       assert.equal(receipt.detail.log, 'catalog-preflight.log');
       const log = await readFile(path.join(harness.out, 'catalog-preflight.log'), 'utf8');
-      assert.match(log, /r-cd-2-silent-wake\.js' is missing/);
+      assert.match(log, /k6-proof\.yml/);
       assert.match(result.stderr, /catalog validator .* failed/);
       assert.doesNotMatch(log, /tools\/k6-proofs\/tools\/k6-proofs/);
     },
     {
+      // Break the catalog outside tools/k6-proofs so the harness identity gate,
+      // which now runs first, still passes and the preflight is what fails.
       mutate: async (harness) => {
-        await rm(path.join(harness.proofsDir, 'scenarios/r-cd-2-silent-wake.js'));
+        await rm(path.join(harness.checkout, '.github/workflows/k6-proof.yml'));
       },
     },
+  );
+});
+
+test('catalog validators run with no inherited environment at all', async () => {
+  // A validator is executed by the runner, so it must be unable to observe any
+  // ambient credential even if it tries.
+  const probe = [
+    '#!/bin/sh',
+    'case "$*" in',
+    '  *check-manifest-scenarios.mjs*)',
+    '    printf \'PROBE TOKEN_SEEN=%s HOME_SEEN=%s\\n\' "${OPENCLAW_GATEWAY_TOKEN:-<absent>}" "${HOME:-<absent>}"',
+    '    ;;',
+    'esac',
+    `exec ${process.execPath} "$@"`,
+    '',
+  ].join('\n');
+
+  await withApprovedMatrix(
+    async (harness) => {
+      const result = await harness.invoke();
+      assert.equal(result.code, 0, result.stderr);
+      const log = await readFile(path.join(harness.out, 'catalog-preflight.log'), 'utf8');
+      assert.match(log, /PROBE TOKEN_SEEN=<absent> HOME_SEEN=<absent>/);
+      assert.doesNotMatch(log, new RegExp(APPROVED_TOKEN));
+    },
+    { nodeShim: probe },
   );
 });
 
@@ -258,7 +286,7 @@ const APPROVED_TOKEN = 'harness-provenance-test-token-do-not-log';
  * provenance emission with stubbed tooling. R-CW-5A is runnable but
  * static-preflight-only, so no live k6 row is dispatched.
  */
-async function withApprovedMatrix(fn, { afterCommit = null, rows = 'R-CW-5A', nodeShim = null, envFor = null } = {}) {
+async function withApprovedMatrix(fn, { afterCommit = null, rows = 'R-CW-5A', nodeShim = null, nodeShimFor = null, journalShimFor = null, envFor = null } = {}) {
   const root = await mkdtemp(path.join(tmpdir(), 'p86-harness-provenance-ok-'));
   const bin = path.join(root, 'bin');
   const out = path.join(root, 'out');
@@ -280,7 +308,9 @@ async function withApprovedMatrix(fn, { afterCommit = null, rows = 'R-CW-5A', no
     await executable('k6', "#!/bin/sh\nif [ \"${1:-}\" = version ]; then printf '%s\\n' 'k6 v2.0.0'; exit 0; fi\nexit 0\n");
     await executable('openclaw', '#!/bin/sh\nprintf \'%s\\n\' \'{"enabled":true,"maxChainLength":3,"maxDelegatesPerTurn":3,"costCapTokens":3}\'\n');
     await executable('hostname', "#!/bin/sh\nprintf '%s\\n' contract-seat\n");
-    if (nodeShim) await executable('node', nodeShim);
+    const shimSource = nodeShimFor ? nodeShimFor(harness) : nodeShim;
+    if (shimSource) await executable('node', shimSource);
+    if (journalShimFor) await executable('journalctl', journalShimFor(harness));
 
     const invoke = async () => {
       try {
@@ -345,14 +375,14 @@ test('the catalog preflight log is public-safe: no credentials, no local paths',
 test('harness bytes mutated after the gate froze them fail closed before capture', async () => {
   // The shim mutates a selected scenario while seat readiness runs, i.e. after
   // the identity gate froze its digest but before the row is captured.
-  const shim = [
+  const shimFor = (harness) => [
     '#!/bin/sh',
     'case "$*" in',
     '  *seat-readiness-preflight.mjs*)',
-    '    printf \'\\n// mutated after the approved ref was frozen\\n\' >> "$MUTATE_TARGET"',
+    `    printf '\\n// mutated after the approved ref was frozen\\n' >> ${path.join(harness.proofsDir, 'scenarios/r-cd-2-silent-wake.js')}`,
     '    ;;',
     'esac',
-    'exec "$REAL_NODE" "$@"',
+    `exec ${process.execPath} "$@"`,
     '',
   ].join('\n');
 
@@ -370,14 +400,44 @@ test('harness bytes mutated after the gate froze them fail closed before capture
       assert.match(result.stderr, /refusing to execute unapproved source/);
       await assert.rejects(readFile(path.join(harness.out, candidateSha, 'R-CD-2'), 'utf8'), /ENOENT/);
     },
-    {
-      rows: 'R-CD-2',
-      nodeShim: shim,
-      envFor: (harness) => ({
-        REAL_NODE: process.execPath,
-        MUTATE_TARGET: path.join(harness.proofsDir, 'scenarios/r-cd-2-silent-wake.js'),
-      }),
+    { rows: 'R-CD-2', nodeShimFor: shimFor },
+  );
+});
+
+test('a mutation caught after capture removes the provisional run directory', async () => {
+  // journalctl is invoked after the run directory exists but before k6 starts,
+  // so mutating there exercises the pre-k6-execution assertion with a partially
+  // written row on disk. That directory holds no candidate evidence and must not
+  // survive as one.
+  const journalFor = (harness) => [
+    '#!/bin/sh',
+    'case " $* " in',
+    '  *" --show-cursor "*)',
+    `    printf '\\n// mutated between capture and execution\\n' >> ${path.join(harness.proofsDir, 'scenarios/r-cd-2-silent-wake.js')}`,
+    "    printf '%s\\n' '-- cursor: provisional-purge'",
+    '    ;;',
+    'esac',
+    '',
+  ].join('\n');
+
+  await withApprovedMatrix(
+    async (harness) => {
+      const result = await harness.invoke();
+      assert.equal(result.code, HARNESS_INFRA_EXIT, result.stderr);
+      const receipt = JSON.parse(await readFile(path.join(harness.out, 'harness-control-receipt.json'), 'utf8'));
+      assert.equal(receipt.stage, 'harness-identity');
+      assert.equal(receipt.detail.check, 'frozen-bytes-still-current');
+      assert.equal(receipt.detail.phase, 'pre-k6-execution');
+      assert.equal(receipt.rowsExecuted, 0);
+      assert.equal(receipt.rowVerdictsSynthesized, false);
+      const seatDir = path.join(harness.out, candidateSha, 'R-CD-2', 'contract-seat');
+      assert.deepEqual(
+        await readdir(seatDir),
+        [],
+        'a provisional run directory must not survive a pre-execution infrastructure failure',
+      );
     },
+    { rows: 'R-CD-2', journalShimFor: journalFor },
   );
 });
 

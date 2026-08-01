@@ -10,7 +10,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
-import { COPIED_MANIFEST, COPIED_SCENARIO, isSafeCandidateArtifact } from './candidate-run-result-contract.mjs';
+import { COPIED_MANIFEST, COPIED_SCENARIO, isSafeArtifactReference, isSafeCandidateArtifact } from './candidate-run-result-contract.mjs';
 
 const SHA = /^[0-9a-f]{40}$/;
 const DIGEST = /^[0-9a-f]{64}$/;
@@ -117,10 +117,12 @@ async function harnessIdentity(metadata, candidateDir, docsRef, manifestPath) {
 
 function safeRelative(value, label) {
   if (value == null) return null;
-  if (typeof value !== 'string' || !value || path.isAbsolute(value) || value.split(/[\\/]+/).some((part) => part === '..')) {
-    throw new Error(`${label} must be a safe artifact-relative path`);
+  // Basename only: an artifact reference may never traverse out of the
+  // candidate directory it is published from.
+  if (!isSafeArtifactReference(value)) {
+    throw new Error(`${label} must be a safe artifact file name inside the candidate directory`);
   }
-  return value.replaceAll('\\', '/');
+  return value;
 }
 
 function same(value, expected, label) {

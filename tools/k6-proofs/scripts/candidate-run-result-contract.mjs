@@ -29,6 +29,9 @@ export const SAFE_CANDIDATE_ARTIFACTS = new Set([
 ]);
 
 export function isSafeCandidateArtifact(name) {
+  // Basename only. `../../private-summary.json` must never satisfy the summary
+  // pattern, and no artifact entry may traverse out of the candidate directory.
+  if (typeof name !== 'string' || !name || name.includes('/') || name.includes('\\') || name === '.' || name === '..') return false;
   return SAFE_CANDIDATE_ARTIFACTS.has(name) || /(?:^|-)summary\.json$/i.test(name);
 }
 
@@ -71,11 +74,31 @@ function envelopeShapeIsCanonical(envelope) {
   }
   if (Object.prototype.hasOwnProperty.call(envelope, 'authoritativeReceipt') &&
       !hasExactKeys(envelope.authoritativeReceipt, ENVELOPE_KEYS.authoritativeReceipt)) return false;
+  if (envelope.run.executionKind !== 'row-list-runner') return false;
   const artifacts = envelope.artifacts;
   if (artifacts.manifest !== COPIED_MANIFEST || artifacts.scenario !== COPIED_SCENARIO) return false;
   if (artifacts.runnerMetadata !== 'runner-metadata.json' || artifacts.runResult !== 'run-result.json') return false;
-  if (!Array.isArray(artifacts.files) || !artifacts.files.every((name) => typeof name === 'string' && isSafeCandidateArtifact(name))) return false;
+  if (!Array.isArray(artifacts.files) || !artifacts.files.every(isSafeCandidateArtifact)) return false;
+  for (const optional of ['tempoTraceJson', 'correlationReceipt']) {
+    const value = artifacts[optional];
+    if (value !== null && !isSafeArtifactReference(value)) return false;
+  }
   return true;
+}
+
+// Observability artifact names are emitted straight from the raw run result, so
+// they must be basename-only and must still agree with that sibling.
+export function isSafeArtifactReference(value) {
+  return typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(value);
+}
+
+function artifactReferencesMatchRunResult(envelope, runResult) {
+  const observability = runResult?.observability || {};
+  const pairs = [
+    [envelope.artifacts.tempoTraceJson, observability.tempoTraceJson],
+    [envelope.artifacts.correlationReceipt, observability.correlationReceipt],
+  ];
+  return pairs.every(([declared, raw]) => (declared ?? null) === (raw ?? null));
 }
 
 function nonEmptyString(value) {
@@ -200,6 +223,11 @@ export function candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata,
   if (!rowId || !candidateSha || !seat || !scenario || !SHA.test(candidateSha)) return false;
   if (!hasVerifiedRrc2Outcome(rowId, envelope.result.outcome, runResult.evidence)) return false;
   const authoritative = authoritativeReceiptContract(rowId);
+  // A row with no row-scoped resolver must not carry an authoritative receipt
+  // declaration at all: that block is the sole verdict authority where it
+  // applies, and it may not be introduced anywhere else.
+  if (!authoritative && Object.prototype.hasOwnProperty.call(envelope, 'authoritativeReceipt')) return false;
+  if (authoritative && !Object.prototype.hasOwnProperty.call(envelope, 'authoritativeReceipt')) return false;
   if (authoritative && (
     runResult.verdictSource !== authoritative.verdictSource ||
     runResult.authoritativeReceipt?.validated !== true ||
@@ -207,6 +235,7 @@ export function candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata,
     runResult.authoritativeReceipt?.file !== authoritative.file ||
     !existsSync(path.join(runDir, authoritative.file))
   )) return false;
+  if (!artifactReferencesMatchRunResult(envelope, runResult)) return false;
   if (manifest.rowId !== rowId || scenarioName(manifest) !== scenario) return false;
   if (manifest.candidateSha && manifest.candidateSha !== candidateSha) return false;
   if (envelope.candidate?.sha !== candidateSha || !SHA.test(envelope.candidate?.docsRef || '')) return false;

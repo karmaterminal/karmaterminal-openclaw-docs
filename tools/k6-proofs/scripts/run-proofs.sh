@@ -84,6 +84,7 @@ DOCS_REF_SOURCE="none"
 DOCS_REPOSITORY=""
 HARNESS_IDENTITY_VERIFIED=false
 ROW_SELECTION_JSON='[]'
+PROVISIONAL_RUN_DIR=""
 declare -A ROW_MANIFEST_RELPATH=()
 declare -A ROW_MANIFEST_SHA256=()
 declare -A ROW_SCENARIO_RELPATH=()
@@ -144,15 +145,17 @@ harness_git() {
     git --no-replace-objects -C "$REPO_ROOT" "$@"
 }
 
-# Harness code runs before its identity is proven, so it must never see live
-# credentials or session material.
-run_without_secrets() {
-  env \
-    -u OPENCLAW_GATEWAY_TOKEN \
-    -u OPENCLAW_SESSION_KEY \
-    -u OPENCLAW_ROW_NONCE \
-    -u OPENCLAW_PROOF_ATTEMPT_ID \
-    -u OPENCLAW_ROW_MANIFEST \
+# Catalog code is executed by this runner, so it is run with an explicit minimal
+# environment rather than an inherited one: no credential of any kind (gateway,
+# provider, cloud, registry) can reach it, whatever it does. For a live run the
+# harness identity gate has already proven these validators are the approved
+# committed bytes.
+run_with_minimal_env() {
+  env -i \
+    PATH="$PATH" \
+    LANG="${LANG:-C}" \
+    LC_ALL="${LC_ALL:-C}" \
+    TMPDIR="${TMPDIR:-/tmp}" \
     "$@"
 }
 
@@ -237,6 +240,13 @@ safe_repository_or_marker() {
   fi
 }
 
+safe_row_id_or_marker() {
+  local row_pattern='^[A-Z0-9][A-Z0-9._-]*$'
+  if [[ "$1" =~ $row_pattern ]]; then printf '%s' "$1"
+  elif [[ -n "$1" ]]; then printf 'malformed'
+  fi
+}
+
 safe_row_selection_json() {
   jq -c 'map(if test("^[A-Z0-9][A-Z0-9._-]*$") then . else "malformed" end)' <<< "$ROW_SELECTION_JSON"
 }
@@ -252,6 +262,15 @@ safe_runtime_stamp() {
 }
 
 fail_harness() {
+  # A pre-execution infrastructure failure can happen after a run directory was
+  # created but before the row dispatched. That directory holds no candidate
+  # evidence, so it is removed and the interruption writer is disarmed: the
+  # control receipt's rowsExecuted:0 must stay literally true.
+  if [[ -n "${PROVISIONAL_RUN_DIR:-}" ]]; then
+    rm -rf "$PROVISIONAL_RUN_DIR"
+    PROVISIONAL_RUN_DIR=""
+  fi
+  ACTIVE_TOKEN_RUN_DIR=""
   write_harness_control_receipt "$1" "$2" "${3:-null}"
   exit "$HARNESS_INFRA_EXIT"
 }
@@ -262,17 +281,6 @@ fi
 
 if [[ -n "$CANDIDATE_SHA" ]]; then export OPENCLAW_CANDIDATE_SHA="${CANDIDATE_SHA}"; fi
 export OPENCLAW_SEAT_NAME="$(hostname)"
-
-# Local Gateway Auth extraction (never logged/committed)
-if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" && -f ~/.openclaw/openclaw.json ]]; then
-  export OPENCLAW_GATEWAY_TOKEN="$(jq -r '.gateway.auth.token // .auth.operatorToken // empty' ~/.openclaw/openclaw.json)"
-fi
-if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then
-  echo "Warning: OPENCLAW_GATEWAY_TOKEN not found in local config."
-  if [[ "$DRY_RUN" == "false" ]]; then
-    exit 1
-  fi
-fi
 
 # Fetch deployed runtime build stamp explicitly (do not collapse into CANDIDATE_SHA).
 # Operators may provide OPENCLAW_RUNTIME_BUILD_SHA when they have an external deploy
@@ -315,36 +323,16 @@ echo "Deployed Runtime SHA: $OPENCLAW_RUNTIME_BUILD_SHA"
 echo "Session configured: true"
 echo "Artifact root: $OUT_ROOT"
 
-# Catalog preflight (#495). The validators receive one explicit repository root,
-# so they inspect the same files whatever directory the caller started in. A
-# failure here stops the matrix before any row executes.
-CATALOG_PREFLIGHT_LOG="$OUT_ROOT/catalog-preflight.log"
-CATALOG_PREFLIGHT_RAW="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-catalog.XXXXXX")"
-CATALOG_PREFLIGHT_RAW_FILE="$CATALOG_PREFLIGHT_RAW"
-: > "$CATALOG_PREFLIGHT_RAW"
-echo "Running catalog preflight (repository root: $PROOFS_TOOL_RELPATH resolved once)..."
-publish_catalog_preflight_log() {
-  scrub_public_text < "$CATALOG_PREFLIGHT_RAW" > "$CATALOG_PREFLIGHT_LOG"
-}
-for CATALOG_CHECK in "${CATALOG_CHECKS[@]}"; do
-  printf '### %s\n' "$CATALOG_CHECK" >> "$CATALOG_PREFLIGHT_RAW"
-  # Catalog code executes before its own identity is proven, so it runs without
-  # the gateway token or session material in its environment.
-  if ! run_without_secrets node "$SCRIPT_DIR/$CATALOG_CHECK" --repo-root "$REPO_ROOT" >> "$CATALOG_PREFLIGHT_RAW" 2>&1; then
-    publish_catalog_preflight_log
-    fail_harness \
-      "catalog-preflight" \
-      "catalog validator '$CATALOG_CHECK' failed; the row catalog could not be resolved" \
-      "$(jq -n --arg check "$CATALOG_CHECK" '{failedCheck:$check, log:"catalog-preflight.log"}')"
-  fi
-done
-publish_catalog_preflight_log
-rm -f "$CATALOG_PREFLIGHT_RAW"
-CATALOG_PREFLIGHT_RAW_FILE=""
-echo "CATALOG PREFLIGHT: $CATALOG_PREFLIGHT_LOG"
 
 if [[ "$ROWS" == "all" ]]; then
-  ROWS="$(for f in manifests/*.json; do jq -r 'select(.scenario.status == "runnable") | .rowId' "$f"; done | paste -sd, -)"
+  # Data-only read of the manifest catalog. A malformed catalog is an
+  # infrastructure fault, not an empty row list.
+  if ! ROWS="$(for f in manifests/*.json; do jq -r 'select(.scenario.status == "runnable") | .rowId' "$f"; done | paste -sd, -)"; then
+    fail_harness \
+      "catalog-preflight" \
+      "the manifest catalog could not be read to resolve the 'all' row selection" \
+      "$(jq -n '{check:"row-selection-resolvable"}')"
+  fi
 fi
 
 if [[ -z "$ROWS" ]]; then
@@ -404,13 +392,15 @@ tracked_blob_sha256() {
 }
 
 worktree_sha256() {
-  sha256sum "$REPO_ROOT/$1" | cut -d' ' -f1
+  sha256sum "$REPO_ROOT/$1" 2>/dev/null | cut -d' ' -f1
 }
 
 # The digests are frozen once at startup, but k6 and the scenario read the
-# working tree at row time. Re-assert the frozen bytes at every step that can
-# still change what actually executes, so a mid-matrix mutation fails closed as
-# infrastructure instead of producing a receipt for unapproved source.
+# working tree at row time, and a scenario also imports tools/k6-proofs/lib/*.
+# Re-assert both the row's own bytes and the cleanliness of every tracked byte
+# under tools/k6-proofs at each step that can still change what executes, so a
+# mid-matrix mutation fails closed as infrastructure instead of producing a
+# receipt for unapproved source.
 assert_row_bytes_frozen() {
   local row="$1"
   local phase="$2"
@@ -425,9 +415,10 @@ assert_row_bytes_frozen() {
       "$(jq -n --arg row "$row" --arg phase "$phase" '{check:"row-bound-to-docs-ref", row:$row, phase:$phase}')"
   fi
   local actual_manifest actual_scenario
-  actual_manifest="$(worktree_sha256 "$manifest_rel")"
-  actual_scenario="$(worktree_sha256 "$scenario_rel")"
-  if [[ "$actual_manifest" != "$expected_manifest" || "$actual_scenario" != "$expected_scenario" ]]; then
+  actual_manifest="$(worktree_sha256 "$manifest_rel" || true)"
+  actual_scenario="$(worktree_sha256 "$scenario_rel" || true)"
+  if [[ -z "$actual_manifest" || -z "$actual_scenario" ||
+        "$actual_manifest" != "$expected_manifest" || "$actual_scenario" != "$expected_scenario" ]]; then
     fail_harness \
       "harness-identity" \
       "row $row harness bytes changed after the approved docs ref was frozen; refusing to execute unapproved source" \
@@ -438,6 +429,18 @@ assert_row_bytes_frozen() {
         --argjson scenarioChanged "$(if [[ "$actual_scenario" != "$expected_scenario" ]]; then printf 'true'; else printf 'false'; fi)" \
         '{check:"frozen-bytes-still-current", row:$row, phase:$phase, manifestChanged:$manifestChanged, scenarioChanged:$scenarioChanged}')"
   fi
+  # A scenario is not self-contained: it imports the shared harness library.
+  # Re-checking the whole tracked tree covers lib/, scripts/, and every other
+  # file a row can reach.
+  local dirty
+  dirty="$(harness_git status --porcelain --untracked-files=no -- "$PROOFS_TOOL_RELPATH" 2>/dev/null || printf 'git-unavailable')"
+  if [[ -n "$dirty" ]]; then
+    fail_harness \
+      "harness-identity" \
+      "tracked bytes under $PROOFS_TOOL_RELPATH changed after the approved docs ref was frozen; refusing to execute unapproved source" \
+      "$(jq -n --arg row "$row" --arg phase "$phase" --arg count "$(printf '%s\n' "$dirty" | grep -c . || true)" \
+        '{check:"harness-tree-still-clean", row:$row, phase:$phase, dirtyEntries:($count|tonumber)}')"
+  fi
 }
 
 assert_copied_artifact_frozen() {
@@ -445,8 +448,8 @@ assert_copied_artifact_frozen() {
   local artifact="$2"
   local expected="$3"
   local actual
-  actual="$(sha256sum "$artifact" | cut -d' ' -f1)"
-  if [[ "$actual" != "$expected" ]]; then
+  actual="$(sha256sum "$artifact" 2>/dev/null | cut -d' ' -f1 || true)"
+  if [[ -z "$actual" || "$actual" != "$expected" ]]; then
     fail_harness \
       "harness-identity" \
       "row $row captured artifact $(basename "$artifact") does not match its frozen digest" \
@@ -542,10 +545,50 @@ elif [[ "$DOCS_REF_INPUT" =~ ^[0-9a-f]{40}$ ]]; then
   echo "Docs ref (recorded, unenforced in dry run): $DOCS_REF"
 fi
 
+# Catalog preflight (#495). The validators receive one explicit repository root,
+# so they inspect the same files whatever directory the caller started in. A
+# failure here stops the matrix before any row executes.
+CATALOG_PREFLIGHT_LOG="$OUT_ROOT/catalog-preflight.log"
+CATALOG_PREFLIGHT_RAW="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-catalog.XXXXXX")"
+CATALOG_PREFLIGHT_RAW_FILE="$CATALOG_PREFLIGHT_RAW"
+: > "$CATALOG_PREFLIGHT_RAW"
+echo "Running catalog preflight (repository root: $PROOFS_TOOL_RELPATH resolved once)..."
+publish_catalog_preflight_log() {
+  scrub_public_text < "$CATALOG_PREFLIGHT_RAW" > "$CATALOG_PREFLIGHT_LOG"
+}
+for CATALOG_CHECK in "${CATALOG_CHECKS[@]}"; do
+  printf '### %s\n' "$CATALOG_CHECK" >> "$CATALOG_PREFLIGHT_RAW"
+  if ! run_with_minimal_env node "$SCRIPT_DIR/$CATALOG_CHECK" --repo-root "$REPO_ROOT" >> "$CATALOG_PREFLIGHT_RAW" 2>&1; then
+    publish_catalog_preflight_log
+    fail_harness \
+      "catalog-preflight" \
+      "catalog validator '$CATALOG_CHECK' failed; the row catalog could not be resolved" \
+      "$(jq -n --arg check "$CATALOG_CHECK" '{failedCheck:$check, log:"catalog-preflight.log"}')"
+  fi
+done
+publish_catalog_preflight_log
+rm -f "$CATALOG_PREFLIGHT_RAW"
+CATALOG_PREFLIGHT_RAW_FILE=""
+echo "CATALOG PREFLIGHT: $CATALOG_PREFLIGHT_LOG"
+
 # Check for Live Bridge alignment (candidate vs deployed runtime)
 if [[ "$DRY_RUN" == "false" && "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_BUILD_SHA" && "$OPENCLAW_RUNTIME_BUILD_SHA" != *"(${OPENCLAW_CANDIDATE_SHA:0:7})"* ]]; then
   echo "WARNING: Candidate SHA ($OPENCLAW_CANDIDATE_SHA) does not match Deployed Runtime SHA ($OPENCLAW_RUNTIME_BUILD_SHA)."
   echo "Unless this is a known stale-stamp or you have proven a rebuild bridge, live proofs will be marked PARTIAL."
+fi
+
+# Local Gateway Auth extraction (never logged/committed).
+# Deliberately last: neither the harness identity gate nor the catalog
+# validators run with this credential in their environment.
+if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" && -f ~/.openclaw/openclaw.json ]]; then
+  OPENCLAW_GATEWAY_TOKEN="$(jq -r '.gateway.auth.token // .auth.operatorToken // empty' ~/.openclaw/openclaw.json)"
+  export OPENCLAW_GATEWAY_TOKEN
+fi
+if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then
+  echo "Warning: OPENCLAW_GATEWAY_TOKEN not found in local config."
+  if [[ "$DRY_RUN" == "false" ]]; then
+    exit 1
+  fi
 fi
 
 SEAT_READINESS_JSON="$OUT_ROOT/seat-readiness.json"
@@ -572,6 +615,8 @@ RUN_MATRIX_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 # and stamps its id into every row's runner-metadata.json.
 MATRIX_ID="$(date -u +%Y%m%dT%H%M%SZ)-${DOCS_REF:0:12}"
 if [[ -z "$DOCS_REF" ]]; then MATRIX_ID="${MATRIX_ID}unbound"; fi
+# Two matrices for the same docs ref can start within the same second.
+MATRIX_ID="${MATRIX_ID}-$(cat /proc/sys/kernel/random/uuid 2>/dev/null | tr -d '-' | cut -c1-8 || printf '%08x' "$RANDOM")"
 HARNESS_PROVENANCE_ARCHIVE="$OUT_ROOT/harness-provenance/$MATRIX_ID.json"
 mkdir -p "$OUT_ROOT/harness-provenance"
 PROVENANCE_ROWS_JSON='[]'
@@ -580,7 +625,7 @@ for PROV_ROW in "${ROW_ARRAY[@]}"; do
   PROVENANCE_ROWS_JSON="$(
     jq -cn \
       --argjson rows "$PROVENANCE_ROWS_JSON" \
-      --arg row "$PROV_ROW" \
+      --arg row "$(safe_row_id_or_marker "$PROV_ROW")" \
       --arg manifest "${ROW_MANIFEST_RELPATH[$PROV_ROW]:-}" \
       --arg manifestSha256 "${ROW_MANIFEST_SHA256[$PROV_ROW]:-}" \
       --arg scenario "${ROW_SCENARIO_RELPATH[$PROV_ROW]:-}" \
@@ -699,6 +744,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-$(printf '%s' "$ROW_ID" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
     RUN_DIR="$OUT_ROOT/$OPENCLAW_CANDIDATE_SHA/$ROW_ID/$OPENCLAW_SEAT_NAME/$RUN_ID"
     mkdir -p "$RUN_DIR"
+    PROVISIONAL_RUN_DIR="$RUN_DIR"
     touch "$RUN_DIR/.started"
     cp "$MANIFEST_FILE" "$RUN_DIR/row-manifest.json"
     # The exact scenario source travels with the receipt so a reviewer can prove
@@ -716,7 +762,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg row "$ROW_ID" \
       --arg scenario "$SCENARIO_FILE" \
       --arg candidate "$OPENCLAW_CANDIDATE_SHA" \
-      --arg runtime "$OPENCLAW_RUNTIME_BUILD_SHA" \
+      --arg runtime "$(safe_runtime_stamp "$OPENCLAW_RUNTIME_BUILD_SHA")" \
       --arg seat "$OPENCLAW_SEAT_NAME" \
       --arg started "$RUN_STARTED_AT" \
       --arg docsRef "$DOCS_REF" \
@@ -744,6 +790,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-build-identity-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["exact-candidate-runtime-identity","attempt-state","raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
           > "$RUN_DIR/run-result.json"
         rm -f "$RUN_DIR/.started"
+        PROVISIONAL_RUN_DIR=""
         echo "[$ROW_ID] PARTIAL-candidate: exact equal candidate/runtime SHAs are required; no dispatch occurred."
         continue
       fi
@@ -784,6 +831,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         rm -f "$RUN_DIR/.started"
         ACTIVE_TOKEN_PHASE="pre-dispatch-surface-gate"
         ACTIVE_TOKEN_RUN_DIR=""
+        PROVISIONAL_RUN_DIR=""
         echo "[$ROW_ID] PARTIAL-candidate: seat readiness class '$OPENCLAW_SEAT_CLASS' is not scanner-supported raw-final-text; no dispatch occurred."
         continue
       fi
@@ -833,6 +881,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then ACTIVE_TOKEN_PHASE="k6-running"; fi
     # Last assertion before unapproved bytes could be executed.
     assert_row_bytes_frozen "$ROW_ID" "pre-k6-execution"
+    # From here the directory holds real candidate evidence and must survive.
+    PROVISIONAL_RUN_DIR=""
     set +e
     k6 run "scenarios/$SCENARIO_FILE" > "$PRIVATE_K6_LOG" 2>&1
     k6_rc=$?

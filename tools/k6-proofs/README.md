@@ -149,7 +149,8 @@ layout as a live proof run:
 
 ```bash
 cd tools/k6-proofs
-OPENCLAW_GATEWAY_TOKEN="***" ./scripts/run-proofs.sh --live preflight <candidate-sha>
+OPENCLAW_GATEWAY_TOKEN="***" ./scripts/run-proofs.sh --live \
+  --docs-ref "$(git rev-parse HEAD)" preflight <candidate-sha>
 ```
 
 ### 3. Run an existing scenario (manifest-driven)
@@ -433,7 +434,7 @@ Callers that must honour both obligations nest them session-outer then row-inner
 ```bash
 flock --nonblock --conflict-exit-code 75 "$K6_PROOF_SESSION_LOCK_PATH" \
   flock --nonblock --conflict-exit-code 75 "$K6_PROOF_LOCK_PATH" \
-    ./scripts/run-proofs.sh --live <ROW> <SHA>
+    ./scripts/run-proofs.sh --live --docs-ref "$DOCS_REF" <ROW> <SHA>
 ```
 
 `--require-lock` lets a caller escalate a row whose manifest declares `sameSessionConcurrencySafe: true` but whose proof-round contract overrides it to serialized (for example `R-RC-2`). It can only **add** a lock requirement, never remove one, and sets `lockRequiredReason` to `caller-override` so the escalation is visible in the emitted variables.
@@ -679,6 +680,129 @@ supplied. The script never mutates corpus data.
 `check-manifest-scenarios.mjs` is the row-harness registry check: runnable
 manifests must point at an existing `tools/k6-proofs/scenarios/*.js`; rows with
 no runnable file must say `scenario.status` is `scaffold` or `construct-only`.
+
+### Repository-root contract for catalog validators (#495)
+
+`check-manifest-scenarios.mjs`, `check-scenario-alignment.mjs`, and
+`check-proof-row-manifests.mjs` share one repository-root contract
+(`tools/k6-proofs/lib/repo-root.mjs`) and join `tools/k6-proofs` exactly once.
+The root is resolved in this order:
+
+1. `--repo-root <dir>`;
+2. `OPENCLAW_PROOFS_REPO_ROOT`;
+3. the nearest ancestor-or-self of the working directory containing
+   `tools/k6-proofs`.
+
+Because of rule 3, running a validator from the repository root, from
+`tools/k6-proofs`, or from `tools/k6-proofs/scripts` inspects the same files and
+produces identical output and exit status. Standing outside any harness is an
+explicit contract error, never a silently empty catalog.
+
+### Immutable harness identity for live matrices (#496)
+
+`scripts/run-proofs.sh` runs the three catalog validators as a preflight before
+any row executes. The validators run with the gateway token and session material
+stripped from their environment (unproven harness code must never see live
+credentials), and their captured output is scrubbed of local filesystem
+locations before it is published as `catalog-preflight.log`. A preflight failure
+is classified as harness infrastructure: the runner writes one
+`harness-control-receipt.json` under the artifact root, executes no rows,
+synthesizes no per-row verdict, and exits `78`. Only validated values reach that
+receipt — rejected operator input is recorded as `malformed`, never echoed.
+
+A live run additionally refuses to fire unless an approved docs/harness ref is
+supplied through `--docs-ref <40-hex>` or `OPENCLAW_PROOFS_DOCS_REF`, and:
+
+- the ref is a 40-character lowercase SHA;
+- repository `HEAD` equals that ref;
+- every tracked file under `tools/k6-proofs`, `PROOFS`, and `.github` hashes to
+  the blob recorded in that commit — the proof corpus is included because static
+  rows read it, so a locally modified corpus must not be able to produce a
+  candidate verdict;
+- every selected runnable row's manifest and scenario are tracked at that exact
+  commit with matching bytes.
+
+The tree check hashes working-tree bytes with `git hash-object` and compares them
+to `git ls-tree` of the approved commit. `git status` is deliberately not used:
+it consults the index, so an `assume-unchanged` or `skip-worktree` entry could
+hide a modified shared library that a scenario imports.
+
+Verification runs in ordered stages so that no unproven byte is executed and no
+catalog is parsed before it is validated:
+
+1. **byte-only identity** — ref shape, `HEAD` equality, candidate SHA shape,
+   repository identity, and the full tracked-tree hash comparison. No manifest is
+   parsed here.
+2. **immutable snapshot** — every consumed tree (`tools/k6-proofs`, `PROOFS`,
+   `.github`) is extracted with `git archive` into a private temporary directory,
+   and the runner then hands execution to that extract's own `run-proofs.sh`
+   with `exec`, before any credential is loaded or any external tool is invoked.
+   Every harness component (the runner itself, the catalog validators, seat
+   readiness, k6, scenarios and their imports, the evidence/receipt helpers) and
+   every corpus byte a static row reads therefore comes from bytes that cannot
+   change once the matrix has started. Nothing is symlinked back to the
+   operator's checkout. The re-executed copy proves it really is the snapshot's
+   own runner, that the snapshot is a distinct tree from the checkout, and that
+   the snapshot matches the approved ref, before trusting any of it.
+3. **catalog preflight** — the three validators run from the snapshot under
+   `env -i` with a minimal allowlist.
+4. **row selection and contract binding** — `all` expansion and the per-row
+   manifest/scenario digest freeze, on a catalog the validators have approved. A
+   selected row with no manifest at the approved ref fails closed rather than
+   being silently skipped.
+
+The gateway token, the deployed runtime stamp and the session key are all
+resolved only inside the verified snapshot runner, after those stages complete.
+The bootstrap phase — the copy of the runner the operator invoked — parses
+arguments, resolves roots, verifies bytes, extracts the snapshot and hands off.
+It reads no credential and invokes no product tooling, though it does of course
+use `git`, `jq`, `tar` and coreutils to do that work. A gateway token already
+exported by the caller is inherited by that process by construction and cannot be
+dropped from inside the same script.
+
+The handoff is authenticated rather than trusted: the re-executed process must be
+the snapshot's own runner, the snapshot must be a distinct tree outside the
+checkout, and it must carry an unguessable ownership sentinel written by the
+process that created it. A claimed snapshot failing any of those checks is never
+adopted, and therefore never becomes eligible for cleanup.
+
+The tree comparison is repeated before each row against both the snapshot and the
+operator's checkout. The snapshot side proves the executing bytes are still the
+approved ones; the checkout side reports that the operator's tree has drifted
+from the ref the matrix is bound to. Either fails closed as infrastructure.
+
+Failure receipts and provenance carry only validated values; the snapshot path,
+the checkout path, the artifact root and `$HOME` are replaced with placeholders
+in any captured text that becomes a public artifact.
+
+All identity `git` calls run with `--no-replace-objects` / `GIT_NO_REPLACE_OBJECTS=1`
+and with ambient `GIT_DIR`/`GIT_WORK_TREE`-style overrides cleared, so a
+`refs/replace/*` entry cannot make `rev-parse` and `cat-file` describe different
+trees.
+
+The ref is resolved and frozen once at startup; ambient `HEAD` is never re-read
+after rows have run. Because k6 and the scenario read the working tree at row
+time, the frozen digests are re-asserted immediately before capture and again
+immediately before k6 executes, and the copied artifacts are checked against
+them — a mid-matrix mutation fails closed as infrastructure rather than
+producing a receipt for unapproved source. `OPENCLAW_ROW_MANIFEST` points at the
+verified copy in the run directory, not at the mutable worktree manifest.
+
+The runner then writes a public-safe `harness-provenance.json` (matrix id, docs
+ref, repository identity, candidate SHA, runtime identity receipt, runner script
+digest, row selection with per-row manifest/scenario digests, start time) before
+the first row fires, plus an immutable per-matrix copy at
+`harness-provenance/<matrixId>.json` so a reused artifact root cannot lose the
+provenance of rows an earlier matrix wrote. Every `runner-metadata.json` records
+`docsRef`, `repository`, `matrixId`, `manifestPath`/`manifestSha256`, and
+`scenarioPath`/`scenarioSha256`. The exact scenario source travels with each
+receipt as `row-scenario.js`, and the candidate routing envelope is withheld
+unless those values bind to the approved ref and the copied manifest/scenario
+bytes.
+
+Set `OPENCLAW_PROOFS_DOCS_REPOSITORY=<owner>/<repo>` when the checkout has no
+public remote; only a real remote (or that override) is accepted, so a local
+clone path can never reach a public receipt.
 
 ## Coordination
 

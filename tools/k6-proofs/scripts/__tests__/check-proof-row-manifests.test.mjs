@@ -17,6 +17,8 @@ async function withFixture({ rows = ['R-OK'], manifests = [{ file: 'r-ok.json', 
     const manifestsDir = join(root, 'tools/k6-proofs/manifests');
     await mkdir(corpus, { recursive: true });
     await mkdir(manifestsDir, { recursive: true });
+    // Both catalog directories define a harness root (see lib/repo-root.mjs).
+    await mkdir(join(root, 'tools/k6-proofs/scenarios'), { recursive: true });
     await writeFile(join(root, 'PROOFS/INDEX.json'), `${JSON.stringify({ current_sha: SHA })}\n`);
     for (const row of rows) await mkdir(join(corpus, row), { recursive: true });
     for (const manifest of manifests) {

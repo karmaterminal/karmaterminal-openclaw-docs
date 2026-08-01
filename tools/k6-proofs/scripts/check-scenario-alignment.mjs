@@ -8,13 +8,17 @@
  * - every manifest uses the current scenario.status registry contract:
  *   - runnable manifests point at an existing scenario via scenario.file or name
  *   - scaffold / construct-only manifests explicitly mark intentional non-runnable rows
+ *
+ * The repository root comes from the shared repo-root contract, so running this
+ * from the repository root and from tools/k6-proofs inspects the same files.
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { proofsToolPath, resolveRepositoryRoot } from '../lib/repo-root.mjs';
 
-const ROOT = process.cwd();
-const SCENARIO_DIR = path.join(ROOT, 'tools/k6-proofs/scenarios');
-const MANIFEST_DIR = path.join(ROOT, 'tools/k6-proofs/manifests');
+const { root: ROOT } = resolveRepositoryRoot({ argv: process.argv.slice(2) });
+const SCENARIO_DIR = proofsToolPath(ROOT, 'scenarios');
+const MANIFEST_DIR = proofsToolPath(ROOT, 'manifests');
 const WORKFLOW_PATH = path.join(ROOT, '.github/workflows/k6-proof.yml');
 const VALID_STATUSES = new Set(['runnable', 'scaffold', 'construct-only']);
 const VALID_SAFETY_CLASSES = new Set(['static-preflight-only', 'k6-runnable', 'orchestration-required', 'construct-only']);

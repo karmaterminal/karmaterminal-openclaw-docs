@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { buildHarnessCheckout } from './helpers/harness-checkout.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 const manifestsDir = path.join(repoRoot, 'tools/k6-proofs/manifests');
@@ -56,11 +57,16 @@ async function writeExecutable(file, source) {
   await chmod(file, 0o755);
 }
 
+/**
+ * Build a throwaway git checkout that contains exactly the harness bytes under
+ * test, commit them, and return the immutable ref the runner must be bound to.
+ */
 async function runRcd2RunnerFixture({ tamper = false } = {}) {
   const root = await mkdtemp(path.join(tmpdir(), 'r-cd-2-runner-contract-'));
   const bin = path.join(root, 'bin');
   const out = path.join(root, 'out');
   await Promise.all([mkdir(bin, { recursive: true }), mkdir(out, { recursive: true })]);
+  const harness = await buildHarnessCheckout(repoRoot, path.join(root, 'harness'));
 
   const manifest = JSON.parse(await readFile(path.join(manifestsDir, 'r-cd-2.json'), 'utf8'));
   const nonce = 'RCD2-RUNNER-CONTRACT-NONCE';
@@ -124,13 +130,13 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
       OPENCLAW_SESSION_KEY: 'main',
       OPENCLAW_SEAT_NAME: 'cael-dgx',
     };
-    const result = await run('bash', ['scripts/run-proofs.sh', '--live', '--out-dir', out, 'R-CD-2', candidateSha], {
-      cwd: path.join(repoRoot, 'tools/k6-proofs'), env, timeout: 30_000,
+    const result = await run('bash', ['scripts/run-proofs.sh', '--live', '--docs-ref', harness.docsRef, '--out-dir', out, 'R-CD-2', candidateSha], {
+      cwd: path.join(harness.checkout, 'tools/k6-proofs'), env, timeout: 60_000,
     });
     const runBase = path.join(out, candidateSha, 'R-CD-2', 'cael-dgx');
     const [runId] = await readdir(runBase);
     const runDir = path.join(runBase, runId);
-    return { root, out, runDir, result };
+    return { root, out, runDir, result, docsRef: harness.docsRef, checkout: harness.checkout };
   } catch (error) {
     await rm(root, { recursive: true, force: true });
     throw error;
@@ -313,6 +319,36 @@ test('R-CD-2 live runner emits an envelope only for an untampered authoritative 
       assert.equal(envelope.result.outcome, 'PASS-candidate');
       assert.equal(envelope.authoritativeReceipt.sha256, result.authoritativeReceipt.sha256);
       assert.match(fixture.result.stdout, /CANDIDATE REVIEW ENVELOPE/);
+
+      // The live receipt carries the immutable harness identity it was fired
+      // from, recomputable from the copied source bytes (#496).
+      const metadata = JSON.parse(await readFile(path.join(fixture.runDir, 'runner-metadata.json'), 'utf8'));
+      const sha256 = async (file) => createHash('sha256').update(await readFile(path.join(fixture.runDir, file))).digest('hex');
+      assert.equal(metadata.docsRef, fixture.docsRef);
+      assert.equal(metadata.repository, 'karmaterminal/karmaterminal-openclaw-docs');
+      assert.equal(metadata.manifestPath, 'tools/k6-proofs/manifests/r-cd-2.json');
+      assert.equal(metadata.scenarioPath, 'tools/k6-proofs/scenarios/r-cd-2-silent-wake.js');
+      assert.equal(metadata.manifestSha256, await sha256('row-manifest.json'));
+      assert.equal(metadata.scenarioSha256, await sha256('row-scenario.js'));
+      assert.equal(envelope.candidate.docsRef, fixture.docsRef);
+      assert.equal(envelope.harness.docsRef, fixture.docsRef);
+      assert.equal(envelope.harness.manifestSha256, metadata.manifestSha256);
+      assert.equal(envelope.harness.scenarioSha256, metadata.scenarioSha256);
+
+      const provenance = JSON.parse(await readFile(path.join(fixture.out, 'harness-provenance.json'), 'utf8'));
+      assert.equal(provenance.schema, 'openclaw.k6.harness-provenance.v1');
+      assert.equal(provenance.docsRef, fixture.docsRef);
+      assert.equal(provenance.harnessIdentityVerified, true);
+      assert.equal(provenance.candidateSha, candidateSha);
+      assert.match(provenance.runnerScriptSha256, /^[a-f0-9]{64}$/);
+      assert.deepEqual(provenance.rowSelection, ['R-CD-2']);
+      assert.deepEqual(provenance.rows, [{
+        rowId: 'R-CD-2',
+        manifestPath: 'tools/k6-proofs/manifests/r-cd-2.json',
+        manifestSha256: metadata.manifestSha256,
+        scenarioPath: 'tools/k6-proofs/scenarios/r-cd-2-silent-wake.js',
+        scenarioSha256: metadata.scenarioSha256,
+      }]);
     } finally {
       await rm(fixture.root, { recursive: true, force: true });
     }

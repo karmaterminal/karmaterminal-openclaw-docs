@@ -5,13 +5,17 @@
  * This does not require every proof row to be k6-runnable. Manual-only rows may be
  * construct-only or scaffold, but they should still be explicit in the catalog so
  * the public executable-suite surface can explain the full 29-row corpus.
+ *
+ * The repository root comes from the shared repo-root contract, so running this
+ * from the repository root and from tools/k6-proofs inspects the same files.
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { proofsToolPath, resolveRepositoryRoot } from '../lib/repo-root.mjs';
 
-const root = process.cwd();
+const { root } = resolveRepositoryRoot({ argv: process.argv.slice(2) });
 const indexPath = path.join(root, 'PROOFS', 'INDEX.json');
-const manifestsDir = path.join(root, 'tools', 'k6-proofs', 'manifests');
+const manifestsDir = proofsToolPath(root, 'manifests');
 const failures = [];
 const SUPPORT_DIRECTORIES = new Set(['artifacts', 'gates']);
 

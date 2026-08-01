@@ -86,10 +86,14 @@ jobs:
       OPENCLAW_CREATE_DISPOSABLE_SESSIONS: ${{ inputs.create_disposable_sessions }}
       OPENCLAW_ALT_MODEL: ${{ inputs.openclaw_alt_model }}
       OPENCLAW_PROOFS_K6_OTLP_ENDPOINT: ${{ inputs.metrics_otlp_endpoint }}
+      OPENCLAW_PROOFS_DOCS_REPOSITORY: ${{ github.repository }}
+      DOCS_REF: ${{ github.sha }}
       K6_PROOF_OUT_DIR: ${{ github.workspace }}/project81-k6-proof-artifacts
     steps:
       - name: Checkout proof catalog
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
 
       - name: Validate catalog and resolve rows
         id: rows
@@ -110,9 +114,11 @@ jobs:
           fi
           node --check tools/k6-proofs/scripts/list-runnable-rows.mjs
           node --check tools/k6-proofs/scripts/summarize-review-debt.mjs
-          node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
-          node tools/k6-proofs/scripts/check-scenario-alignment.mjs
-          node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
+          # One repository-root contract (#495): these produce identical results
+          # from the repository root and from tools/k6-proofs.
+          node tools/k6-proofs/scripts/check-manifest-scenarios.mjs --repo-root "$GITHUB_WORKSPACE"
+          node tools/k6-proofs/scripts/check-scenario-alignment.mjs --repo-root "$GITHUB_WORKSPACE"
+          node tools/k6-proofs/scripts/check-proof-row-manifests.mjs --repo-root "$GITHUB_WORKSPACE"
           if [[ "$ROWS_INPUT" == "live-suite" ]]; then
             rows="$(node tools/k6-proofs/scripts/list-runnable-rows.mjs --live-suite)"
           elif [[ "$ROWS_INPUT" == "all" ]]; then
@@ -144,7 +150,10 @@ jobs:
           if [[ "${{ inputs.metrics_push }}" != "true" ]]; then
             unset OPENCLAW_PROOFS_K6_OTLP_ENDPOINT
           fi
-          ./scripts/run-proofs.sh "$mode" "${{ steps.rows.outputs.rows }}" "${OPENCLAW_CANDIDATE_SHA:-}"
+          # Bind the matrix to the exact immutable docs/harness commit this job
+          # checked out (#496). The runner freezes it before any row fires and
+          # fails closed as harness infrastructure if the tree is stale or dirty.
+          ./scripts/run-proofs.sh "$mode" --docs-ref "$DOCS_REF" "${{ steps.rows.outputs.rows }}" "${OPENCLAW_CANDIDATE_SHA:-}"
 
       - name: Summarize review debt
         if: ${{ always() && !inputs.dry_run }}

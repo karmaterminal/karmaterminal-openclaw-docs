@@ -7,14 +7,17 @@
  *     tools/k6-proofs/scenarios/*.js file via scenario.file (or scenario.name), or
  *   - declares scenario.status="scaffold" / "construct-only" to make a missing
  *     scenario intentionally non-runnable instead of accidental.
+ *
+ * The repository root comes from the shared repo-root contract, so running this
+ * from the repository root and from tools/k6-proofs inspects the same files.
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { proofsToolPath, resolveRepositoryRoot } from '../lib/repo-root.mjs';
 
-const root = process.cwd();
-const proofsDir = path.join(root, 'tools', 'k6-proofs');
-const manifestsDir = path.join(proofsDir, 'manifests');
-const scenariosDir = path.join(proofsDir, 'scenarios');
+const { root } = resolveRepositoryRoot({ argv: process.argv.slice(2) });
+const manifestsDir = proofsToolPath(root, 'manifests');
+const scenariosDir = proofsToolPath(root, 'scenarios');
 const validStatuses = new Set(['runnable', 'scaffold', 'construct-only']);
 const validSafetyClasses = new Set(['static-preflight-only', 'k6-runnable', 'orchestration-required', 'construct-only']);
 const validArtifactClasses = new Set(['PASS-candidate', 'HONEST-LIMIT-candidate', 'PARTIAL-candidate', 'FAIL-candidate', 'construct-only']);

@@ -79,8 +79,14 @@ test('candidate/report surfaces depend on the signed row-scoped receipt', async 
     'scripts/run-proofs.sh',
     'scripts/validate-candidate-run-result.mjs',
     'scripts/candidate-run-result-contract.mjs',
-    'scripts/render-run-report.mjs',
+    'scripts/authoritative-row-authority.mjs',
   ]) {
     assert.match(await read(file), /r-cd-token-authoritative-receipt/);
   }
+  // The renderer no longer inlines the contract; it must route every row-scoped
+  // verdict through the single authority module instead of re-deriving it.
+  const report = await read('scripts/render-run-report.mjs');
+  assert.match(report, /from '\.\/authoritative-row-authority\.mjs'/);
+  assert.match(report, /resolveAuthoritativeRowOutcome\(/);
+  assert.doesNotMatch(report, /validateRcd(2|Token|ModelTool)AuthoritativeReceipt/);
 });

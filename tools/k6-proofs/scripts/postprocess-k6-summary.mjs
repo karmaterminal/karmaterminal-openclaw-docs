@@ -247,15 +247,44 @@ async function main() {
           source: 'r-cd-model-tool-row-scoped-resolver',
           verdictSource: 'r-cd-model-tool-authoritative-receipt',
           validate: validateRcdModelToolAuthoritativeReceipt,
+          requiresRunnerEnvelope: true,
         }
       : null;
   if (authoritativeConfig) {
     if (!args['authoritative-receipt']) {
       throw new Error(`${manifest.rowId} requires --authoritative-receipt`);
     }
+    // The postprocessor mints its own publication run id, so the receipt's
+    // binding must be checked against the runner envelope that produced it.
+    let authorityEnvelope;
+    if (authoritativeConfig.requiresRunnerEnvelope) {
+      if (!args['runner-metadata']) {
+        throw new Error(
+          `${manifest.rowId} requires --runner-metadata to bind the authoritative receipt to its run`,
+        );
+      }
+      const runnerMetadata = JSON.parse(readFileSync(args['runner-metadata'], 'utf8'));
+      // The envelope must describe this row's scenario and name the run it
+      // belongs to. Candidate/seat identity is not asserted here because the
+      // committed manifest carries deployment placeholders for those fields;
+      // every downstream consumer re-derives them from this same envelope.
+      const runnerScenario = (runnerMetadata?.scenario || '').replace(/\.js$/u, '');
+      if (runnerMetadata?.row !== manifest.rowId ||
+          runnerScenario !== scenarioFromManifest(manifest) ||
+          typeof runnerMetadata?.runId !== 'string' || !runnerMetadata.runId) {
+        throw new Error(
+          `${manifest.rowId} runner metadata does not describe this row's scenario and run`,
+        );
+      }
+      authorityEnvelope = { metadata: runnerMetadata, runId: runnerMetadata.runId };
+    }
     authoritativeReceiptRaw = readFileSync(args['authoritative-receipt']);
     const receipt = JSON.parse(authoritativeReceiptRaw.toString('utf8'));
-    const validation = authoritativeConfig.validate(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
+    const validation = authoritativeConfig.validate(
+      receipt,
+      process.env.OPENCLAW_GATEWAY_TOKEN,
+      authorityEnvelope,
+    );
     if (!validation.valid || validation.verdict == null) {
       throw new Error(
         `${manifest.rowId} authoritative receipt rejected: ${validation.reason || 'no verdict'}`,

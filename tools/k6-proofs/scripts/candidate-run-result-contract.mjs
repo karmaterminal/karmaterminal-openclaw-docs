@@ -263,7 +263,11 @@ export function candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata,
       const raw = readFileSync(path.join(runDir, declared.file));
       if (createHash('sha256').update(raw).digest('hex') !== declared.sha256) return false;
       const receipt = JSON.parse(raw.toString('utf8'));
-      const integrity = authoritative.validate(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
+      const integrity = authoritative.validate(receipt, process.env.OPENCLAW_GATEWAY_TOKEN, {
+        metadata,
+        runId: path.basename(runDir),
+        traceId: runResult.observability?.traceId,
+      });
       if (!integrity.valid || integrity.verdict !== runResult.verdict) return false;
       if (rowId === 'R-CD-TOKEN' && (
         receipt.binding?.candidateSha !== candidateSha ||

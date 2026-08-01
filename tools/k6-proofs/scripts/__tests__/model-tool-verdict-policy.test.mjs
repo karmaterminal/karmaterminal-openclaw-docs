@@ -126,6 +126,75 @@ test('Luna telemetry cannot PASS with an incomplete or wrong-row lifecycle', () 
   }
 });
 
+test('incomplete non-Luna telemetry is NO-VERDICT, not FAIL', () => {
+  // Classification order matters: an incomplete lifecycle is not authoritative
+  // enough to accuse a fallback identity, so it may never become FAIL.
+  for (const modelExecution of [
+    {
+      bound: true,
+      complete: false,
+      identityComplete: true,
+      lifecycleComplete: false,
+      calls: [{
+        provider: 'openai',
+        model: 'gpt-5.4',
+        identity: 'openai/gpt-5.4',
+        complete: true,
+      }],
+    },
+    {
+      bound: true,
+      complete: false,
+      identityComplete: true,
+      lifecycleComplete: true,
+      calls: [{
+        provider: 'openrouter',
+        model: 'anthropic/claude-sonnet',
+        identity: 'openrouter/anthropic/claude-sonnet',
+        complete: true,
+      }],
+    },
+    {
+      bound: true,
+      complete: false,
+      identityComplete: false,
+      lifecycleComplete: false,
+      calls: [{
+        provider: 'openai',
+        model: 'gpt-5.4',
+        identity: 'openai/gpt-5.4',
+        complete: true,
+      }],
+    },
+  ]) {
+    const result = classifyRcdModelToolVerdict(evidence({ modelExecution }));
+    assert.equal(result.verdict, null);
+    assert.doesNotMatch(result.reason, /does not match/);
+  }
+});
+
+test('complete non-Luna identity still FAILs regardless of slash count', () => {
+  for (const call of [
+    { provider: 'openai', model: 'gpt-5.4', identity: 'openai/gpt-5.4', complete: true },
+    {
+      provider: 'openrouter',
+      model: 'anthropic/claude-sonnet',
+      identity: 'openrouter/anthropic/claude-sonnet',
+      complete: true,
+    },
+  ]) {
+    assert.equal(classifyRcdModelToolVerdict(evidence({
+      modelExecution: {
+        bound: true,
+        complete: true,
+        identityComplete: true,
+        lifecycleComplete: true,
+        calls: [call],
+      },
+    })).verdict, 'FAIL-candidate');
+  }
+});
+
 test('scenario and manifest keep selected-model projections auxiliary', async () => {
   const [scenario, manifest] = await Promise.all([
     readFile(path.join(repoRoot, 'tools/k6-proofs/scenarios/r-cd-model-tool.js'), 'utf8'),

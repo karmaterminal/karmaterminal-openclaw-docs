@@ -119,7 +119,47 @@ function modelCallIdentity(span) {
   };
 }
 
-function modelExecutionTopology(spans, accept, fires) {
+function spanLifecycle(span) {
+  const startNs = spanTimeNs(span, 'startTimeUnixNano');
+  const endNs = spanTimeNs(span, 'endTimeUnixNano');
+  const status = publicStatusCode(span?.status?.code);
+  const outcome = attributes(span).get('openclaw.outcome');
+  return {
+    startNs,
+    endNs,
+    status,
+    outcome: typeof outcome === 'string' ? outcome : null,
+    // "Open" spans (no exported end) and inverted spans are never terminal.
+    timingComplete: startNs !== null && endNs !== null && endNs >= startNs,
+    statusComplete: !['ERROR', 'UNKNOWN'].includes(status),
+    outcomeComplete: outcome === 'completed',
+  };
+}
+
+function contains(outer, inner) {
+  return outer.timingComplete && inner.timingComplete &&
+    outer.startNs <= inner.startNs && inner.endNs <= outer.endNs;
+}
+
+// A deferred continuation legitimately outlives the turn that scheduled it, so
+// the dispatch chain only has to prove that no hop began before the hop that
+// caused it. Inside the child harness the run and its model calls must be
+// wholly contained.
+function startsWithin(outer, inner) {
+  return outer.timingComplete && inner.timingComplete && outer.startNs <= inner.startNs;
+}
+
+function modelExecutionTopology(allTraceSpans, accept, fires) {
+  const traceId = idHex(accept.traceId, 16, 'trace id');
+  // Anything that does not belong to the nonce-bound trace is causally
+  // detached from this proof and can never contribute execution authority.
+  const spans = allTraceSpans.filter((span) => {
+    try {
+      return idHex(span.traceId, 16, 'span trace id') === traceId;
+    } catch {
+      return false;
+    }
+  });
   const outerHarnessSpanId = idHex(accept.parentSpanId, 8, 'dispatch parent span id');
   const outerHarness = spans.find((span) =>
     span.name === 'openclaw.harness.run' &&
@@ -178,18 +218,60 @@ function modelExecutionTopology(spans, accept, fires) {
 
   const childRun = childRuns[0];
   const childRunSpanId = idHex(childRun.spanId, 8, 'child run span id');
-  const calls = spans
-    .filter((span) =>
-      span.name === 'openclaw.model.call' &&
-      idHex(span.parentSpanId, 8, 'model-call parent span id') === childRunSpanId)
-    .map(modelCallIdentity);
-  const childHarnessOutcome = attributes(childHarness).get('openclaw.outcome');
-  const childRunOutcome = attributes(childRun).get('openclaw.outcome');
-  const lifecycleComplete =
-    childHarnessOutcome === 'completed' &&
-    childRunOutcome === 'completed' &&
-    !['ERROR', 'UNKNOWN'].includes(publicStatusCode(childHarness.status?.code)) &&
-    !['ERROR', 'UNKNOWN'].includes(publicStatusCode(childRun.status?.code));
+  const callSpans = spans.filter((span) =>
+    span.name === 'openclaw.model.call' &&
+    idHex(span.parentSpanId, 8, 'model-call parent span id') === childRunSpanId);
+  const calls = callSpans.map(modelCallIdentity);
+
+  const outerLifecycle = spanLifecycle(outerHarness);
+  const childHarnessLifecycle = spanLifecycle(childHarness);
+  const childRunLifecycle = spanLifecycle(childRun);
+  const dispatchLifecycle = spanLifecycle(accept);
+  const callLifecycles = callSpans.map(spanLifecycle);
+
+  const outerComplete = outerLifecycle.timingComplete &&
+    outerLifecycle.statusComplete &&
+    outerLifecycle.outcomeComplete;
+  const childHarnessComplete = childHarnessLifecycle.timingComplete &&
+    childHarnessLifecycle.statusComplete &&
+    childHarnessLifecycle.outcomeComplete;
+  const childRunComplete = childRunLifecycle.timingComplete &&
+    childRunLifecycle.statusComplete &&
+    childRunLifecycle.outcomeComplete;
+  const callTimingComplete = callLifecycles.length > 0 &&
+    callLifecycles.every((entry) => entry.timingComplete && entry.statusComplete);
+
+  // Consistent topology: the dispatch, outer harness, child harness, child run,
+  // and every model call must be five distinct spans. A repeated or
+  // self-parented span id is a collapsed topology, not an execution chain.
+  const structuralSpanIds = [
+    outerHarnessSpanId,
+    idHex(accept.spanId, 8, 'dispatch span id'),
+    childHarnessSpanId,
+    childRunSpanId,
+    ...callSpans.map((span) => idHex(span.spanId, 8, 'model-call span id')),
+  ];
+  const distinctTopology = new Set(structuralSpanIds).size === structuralSpanIds.length;
+
+  // Causal containment: every hop must be wholly inside the hop that spawned
+  // it. A child that starts before its parent, or outlives it, is not the
+  // execution this dispatch caused.
+  const causallyContained = distinctTopology &&
+    startsWithin(outerLifecycle, dispatchLifecycle) &&
+    startsWithin(dispatchLifecycle, childHarnessLifecycle) &&
+    contains(childHarnessLifecycle, childRunLifecycle) &&
+    callLifecycles.every((entry) => contains(childRunLifecycle, entry));
+
+  const timingComplete = outerLifecycle.timingComplete &&
+    dispatchLifecycle.timingComplete &&
+    childHarnessLifecycle.timingComplete &&
+    childRunLifecycle.timingComplete &&
+    callTimingComplete;
+  const lifecycleComplete = outerComplete &&
+    childHarnessComplete &&
+    childRunComplete &&
+    timingComplete &&
+    causallyContained;
   const identityComplete = calls.length > 0 && calls.every((call) => call.complete);
   const complete = lifecycleComplete && identityComplete;
   return {
@@ -199,15 +281,29 @@ function modelExecutionTopology(spans, accept, fires) {
       ? null
       : calls.length === 0
         ? 'child run has no model-call span'
-        : !lifecycleComplete
-          ? 'child harness/run lifecycle is incomplete'
-          : 'child model-call identity is missing, inconsistent, or error-status',
+        : !timingComplete
+          ? 'outer harness, dispatch, child harness, child run, or model-call timing is incomplete'
+          : !causallyContained
+            ? (distinctTopology
+                ? 'child harness, child run, or model-call span is not causally contained by its parent'
+                : 'continuation topology collapses into a repeated or self-parented span id')
+            : !outerComplete
+              ? 'outer harness lifecycle is incomplete'
+              : !(childHarnessComplete && childRunComplete)
+                ? 'child harness/run lifecycle is incomplete'
+                : 'child model-call identity is missing, inconsistent, or error-status',
     childHarnessCount: 1,
+    outerHarnessSpanId,
+    outerHarnessOutcome: outerLifecycle.outcome,
+    outerHarnessComplete: outerComplete,
     childHarnessSpanId,
     childRunCount: 1,
     childRunSpanId,
-    childHarnessOutcome: childHarnessOutcome || null,
-    childRunOutcome: childRunOutcome || null,
+    childHarnessOutcome: childHarnessLifecycle.outcome,
+    childRunOutcome: childRunLifecycle.outcome,
+    timingComplete,
+    causallyContained,
+    distinctTopology,
     lifecycleComplete,
     identityComplete,
     calls,

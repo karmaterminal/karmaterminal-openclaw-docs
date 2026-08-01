@@ -31,6 +31,17 @@ export function classifyRcdModelToolVerdict(evidence) {
     };
   }
 
+  // Completeness is established before any identity classification. An
+  // incomplete outer-harness/child-harness/child-run/model-call lifecycle can
+  // never certify PASS and can never accuse a non-Luna identity either: the
+  // telemetry is simply not authoritative yet, so it stays NO-VERDICT.
+  if (execution?.lifecycleComplete !== true || execution?.complete !== true) {
+    return {
+      verdict: null,
+      reason: 'authoritative child execution telemetry is incomplete',
+    };
+  }
+
   const mismatches = [...new Set(
     identities.filter((identity) => identity !== RCD_MODEL_TOOL_REQUIRED_MODEL),
   )];
@@ -38,13 +49,6 @@ export function classifyRcdModelToolVerdict(evidence) {
     return {
       verdict: 'FAIL-candidate',
       reason: `authoritative child execution identity ${mismatches.join(', ')} does not match ${RCD_MODEL_TOOL_REQUIRED_MODEL}`,
-    };
-  }
-
-  if (execution?.lifecycleComplete !== true) {
-    return {
-      verdict: null,
-      reason: 'authoritative child execution telemetry is incomplete',
     };
   }
 

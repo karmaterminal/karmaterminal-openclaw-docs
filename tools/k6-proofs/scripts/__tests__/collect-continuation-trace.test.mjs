@@ -10,6 +10,10 @@ import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { resolveRcd2AuthoritativeReceipt } from '../../lib/r-cd-2-authoritative-receipt.mjs';
 import { publicTempoStatusCode } from '../../lib/public-tempo-trace.mjs';
+import {
+  classifyRcdModelToolVerdict,
+  RCD_MODEL_TOOL_REQUIRED_MODEL,
+} from '../../lib/r-cd-model-tool-verdict.js';
 
 const execFileAsync = promisify(execFile);
 const script = path.resolve(
@@ -131,10 +135,47 @@ function modelTraceFixture({
   model = 'gpt-5.6-luna',
   includeChildModelCall = true,
   extraChildHarness = false,
+  outerHarnessOutcome = 'completed',
+  outerHarnessStatus = 'OK',
+  outerHarnessTiming,
+  childHarnessOutcome = 'completed',
+  childHarnessStatus = 'OK',
+  childHarnessTiming,
+  childRunOutcome = 'completed',
+  childRunStatus = 'OK',
+  childRunTiming,
+  childModelCallTiming,
+  childModelCallParent = '8888888888888888',
+  childModelCallSpanId = '5555555555555555',
+  childModelCallTraceId,
 }) {
   const trace = traceFixture({ traceId, reasonHash, reasonLength });
   const spans = trace.batches[0].scopeSpans[0].spans;
   const modelStartNs = 1785580560000000000n;
+  const outerTiming = outerHarnessTiming === undefined
+    ? {
+        startTimeUnixNano: String(1785580554337000000n),
+        endTimeUnixNano: String(modelStartNs + 20000n),
+      }
+    : outerHarnessTiming;
+  const childHarnessSpanTiming = childHarnessTiming === undefined
+    ? {
+        startTimeUnixNano: String(modelStartNs - 1000000n),
+        endTimeUnixNano: String(modelStartNs + 10000n),
+      }
+    : childHarnessTiming;
+  const childRunSpanTiming = childRunTiming === undefined
+    ? {
+        startTimeUnixNano: String(modelStartNs),
+        endTimeUnixNano: String(modelStartNs + 9000n),
+      }
+    : childRunTiming;
+  const childCallTiming = childModelCallTiming === undefined
+    ? {
+        startTimeUnixNano: String(modelStartNs + 2000n),
+        endTimeUnixNano: String(modelStartNs + 3000n),
+      }
+    : childModelCallTiming;
   const childHarnessIndex = spans.findIndex((entry) =>
     Buffer.from(entry.spanId, 'base64').toString('hex') === 'eeeeeeeeeeeeeeee');
   spans[childHarnessIndex] = span(
@@ -142,8 +183,9 @@ function modelTraceFixture({
     traceId,
     'eeeeeeeeeeeeeeee',
     'cccccccccccccccc',
-    [attr('openclaw.outcome', 'completed')],
-    'OK',
+    childHarnessOutcome === null ? [] : [attr('openclaw.outcome', childHarnessOutcome)],
+    childHarnessStatus,
+    childHarnessSpanTiming,
   );
   spans.push(
     span(
@@ -151,8 +193,9 @@ function modelTraceFixture({
       traceId,
       'dddddddddddddddd',
       '9999999999999999',
-      [attr('openclaw.outcome', 'completed')],
-      'OK',
+      outerHarnessOutcome === null ? [] : [attr('openclaw.outcome', outerHarnessOutcome)],
+      outerHarnessStatus,
+      outerTiming,
     ),
     span(
       'openclaw.run',
@@ -161,6 +204,10 @@ function modelTraceFixture({
       'dddddddddddddddd',
       [attr('openclaw.outcome', 'completed')],
       'OK',
+      {
+        startTimeUnixNano: String(1785580554338000000n),
+        endTimeUnixNano: String(modelStartNs + 15000n),
+      },
     ),
     // This Luna call belongs to the parent turn and must never certify the
     // delegated child's execution identity.
@@ -186,16 +233,17 @@ function modelTraceFixture({
       traceId,
       '8888888888888888',
       'eeeeeeeeeeeeeeee',
-      [attr('openclaw.outcome', 'completed')],
-      'OK',
+      childRunOutcome === null ? [] : [attr('openclaw.outcome', childRunOutcome)],
+      childRunStatus,
+      childRunSpanTiming,
     ),
   );
   if (includeChildModelCall) {
     spans.push(span(
       'openclaw.model.call',
-      traceId,
-      '5555555555555555',
-      '8888888888888888',
+      childModelCallTraceId || traceId,
+      childModelCallSpanId,
+      childModelCallParent,
       [
         attr('openclaw.provider', provider),
         attr('gen_ai.system', provider),
@@ -203,10 +251,7 @@ function modelTraceFixture({
         attr('gen_ai.request.model', model),
       ],
       'OK',
-      {
-        startTimeUnixNano: String(modelStartNs + 2000n),
-        endTimeUnixNano: String(modelStartNs + 3000n),
-      },
+      childCallTiming,
     ));
   }
   if (extraChildHarness) {
@@ -218,6 +263,10 @@ function modelTraceFixture({
         'cccccccccccccccc',
         [attr('openclaw.outcome', 'completed')],
         'OK',
+        {
+          startTimeUnixNano: String(modelStartNs + 1000n),
+          endTimeUnixNano: String(modelStartNs + 11000n),
+        },
       ),
       span(
         'openclaw.run',
@@ -226,6 +275,10 @@ function modelTraceFixture({
         '1212121212121212',
         [attr('openclaw.outcome', 'completed')],
         'OK',
+        {
+          startTimeUnixNano: String(modelStartNs + 2000n),
+          endTimeUnixNano: String(modelStartNs + 10000n),
+        },
       ),
       span(
         'openclaw.model.call',
@@ -472,6 +525,199 @@ test('R-CD-MODEL-TOOL binds only the nonce-correlated child run model calls', as
         if (entry.expected.childHarnessCount !== undefined) {
           assert.equal(execution.childHarnessCount, entry.expected.childHarnessCount);
         }
+      } finally {
+        await server.close();
+        await rm(fixture.dir, { recursive: true, force: true });
+      }
+    });
+  }
+});
+
+test('R-CD-MODEL-TOOL withholds authority for every incomplete lifecycle class', async (t) => {
+  const modelStartNs = 1785580560000000000n;
+  const cases = [
+    {
+      name: 'errored child harness status',
+      options: { childHarnessStatus: 'ERROR' },
+      expected: { lifecycleComplete: false, timingComplete: true, causallyContained: true },
+    },
+    {
+      name: 'non-terminal child harness outcome',
+      options: { childHarnessOutcome: 'interrupted' },
+      expected: { lifecycleComplete: false, timingComplete: true, causallyContained: true },
+    },
+    {
+      name: 'errored child run status',
+      options: { childRunStatus: 'ERROR' },
+      expected: { lifecycleComplete: false, timingComplete: true, causallyContained: true },
+    },
+    {
+      name: 'missing child run outcome',
+      options: { childRunOutcome: null },
+      expected: { lifecycleComplete: false, timingComplete: true, causallyContained: true },
+    },
+    {
+      name: 'errored outer harness status',
+      options: { outerHarnessStatus: 'ERROR' },
+      expected: {
+        lifecycleComplete: false,
+        timingComplete: true,
+        causallyContained: true,
+        outerHarnessComplete: false,
+      },
+    },
+    {
+      name: 'non-terminal outer harness outcome',
+      options: { outerHarnessOutcome: 'interrupted' },
+      expected: {
+        lifecycleComplete: false,
+        timingComplete: true,
+        causallyContained: true,
+        outerHarnessComplete: false,
+      },
+    },
+    {
+      name: 'open outer harness span',
+      options: {
+        outerHarnessTiming: { startTimeUnixNano: String(1785580554337000000n) },
+      },
+      expected: { lifecycleComplete: false, timingComplete: false },
+    },
+    {
+      name: 'open child run span',
+      options: {
+        childRunTiming: { startTimeUnixNano: String(modelStartNs) },
+      },
+      expected: { lifecycleComplete: false, timingComplete: false },
+    },
+    {
+      name: 'timing-free child harness span',
+      options: { childHarnessTiming: {} },
+      expected: { lifecycleComplete: false, timingComplete: false },
+    },
+    {
+      name: 'inverted child harness timing',
+      options: {
+        childHarnessTiming: {
+          startTimeUnixNano: String(modelStartNs + 10000n),
+          endTimeUnixNano: String(modelStartNs - 1000000n),
+        },
+      },
+      expected: { lifecycleComplete: false, timingComplete: false },
+    },
+    {
+      name: 'model call escaping the child run window',
+      options: {
+        childModelCallTiming: {
+          startTimeUnixNano: String(modelStartNs + 8000n),
+          endTimeUnixNano: String(modelStartNs + 30000n),
+        },
+      },
+      expected: { lifecycleComplete: false, timingComplete: true, causallyContained: false },
+    },
+    {
+      name: 'child harness starting before its dispatch',
+      options: {
+        childHarnessTiming: {
+          startTimeUnixNano: String(1785580554000000000n),
+          endTimeUnixNano: String(modelStartNs + 10000n),
+        },
+      },
+      expected: { lifecycleComplete: false, timingComplete: true, causallyContained: false },
+    },
+    {
+      name: 'model call reparented outside the child run',
+      options: { childModelCallParent: '6666666666666666' },
+      expected: { lifecycleComplete: false, callCount: 0 },
+    },
+    {
+      name: 'model call collapsing onto the child run span id',
+      options: { childModelCallSpanId: '8888888888888888' },
+      expected: {
+        lifecycleComplete: false,
+        timingComplete: true,
+        causallyContained: false,
+        distinctTopology: false,
+      },
+    },
+    {
+      name: 'model call detached into another trace',
+      options: { childModelCallTraceId: 'f'.repeat(32) },
+      expected: { lifecycleComplete: false, callCount: 0 },
+    },
+  ];
+
+  for (const [index, entry] of cases.entries()) {
+    await t.test(entry.name, async () => {
+      const traceId = createHash('sha256')
+        .update(`lifecycle-negative-${index}`)
+        .digest('hex')
+        .slice(0, 32);
+      const fixture = await fixtureDir({
+        rowId: 'R-CD-MODEL-TOOL',
+        delegateMode: 'normal',
+        extraEvidence: { accepted_send_trace_id: traceId },
+      });
+      const trace = modelTraceFixture({
+        traceId,
+        reasonHash: fixture.reasonHash,
+        reasonLength: fixture.reasonLength,
+        ...entry.options,
+      });
+      const server = await listen((request, response) => {
+        response.setHeader('content-type', 'application/json');
+        response.end(JSON.stringify(
+          new URL(request.url, 'http://localhost').pathname === '/api/search'
+            ? { traces: [{ traceID: traceId }] }
+            : trace,
+        ));
+      });
+      try {
+        const { stdout } = await execFileAsync(process.execPath, [
+          script,
+          '--run-dir', fixture.dir,
+          '--manifest', fixture.manifestPath,
+          '--seat', 'cael-dgx',
+          '--tempo-url', server.url,
+          '--timeout-ms', '100',
+          '--poll-ms', '10',
+        ]);
+        const receipt = JSON.parse(await readFile(
+          path.join(fixture.dir, JSON.parse(stdout).receiptFile),
+          'utf8',
+        ));
+        const execution = receipt.modelExecution;
+        assert.equal(execution.bound, true);
+        assert.equal(execution.complete, false);
+        assert.equal(execution.lifecycleComplete, entry.expected.lifecycleComplete);
+        if (entry.expected.timingComplete !== undefined) {
+          assert.equal(execution.timingComplete, entry.expected.timingComplete);
+        }
+        if (entry.expected.causallyContained !== undefined) {
+          assert.equal(execution.causallyContained, entry.expected.causallyContained);
+        }
+        if (entry.expected.distinctTopology !== undefined) {
+          assert.equal(execution.distinctTopology, entry.expected.distinctTopology);
+        }
+        if (entry.expected.outerHarnessComplete !== undefined) {
+          assert.equal(execution.outerHarnessComplete, entry.expected.outerHarnessComplete);
+        }
+        if (entry.expected.callCount !== undefined) {
+          assert.equal(execution.calls.length, entry.expected.callCount);
+        }
+        assert.equal(
+          classifyRcdModelToolVerdict({
+            row: 'R-CD-MODEL-TOOL',
+            requested_model_byte: RCD_MODEL_TOOL_REQUIRED_MODEL,
+            manifest_model_matches_required: true,
+            dispatch_accepted: true,
+            parent_scheduled_sentinel: true,
+            child_session_observed: true,
+            return_payload: true,
+            modelExecution: execution,
+          }).verdict,
+          null,
+        );
       } finally {
         await server.close();
         await rm(fixture.dir, { recursive: true, force: true });

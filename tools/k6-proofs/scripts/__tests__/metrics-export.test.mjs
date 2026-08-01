@@ -116,7 +116,9 @@ test('exports row-list runner directory and marks trace-missing as pending recei
     const run = runExporter(['--run-dir', runDir, '--prometheus-out', prom]);
     assert.equal(run.status, 0, run.stderr || run.stdout);
     const receipt = JSON.parse(run.stdout);
-    assert.equal(receipt.outcome, 'PASS-candidate');
+    // R-CD-2 owns a row-scoped resolver, so a summary-only PASS claim carries no
+    // authority here: the exporter downgrades exactly like the report renderer.
+    assert.equal(receipt.outcome, 'PARTIAL-candidate');
     const promText = await readFile(prom, 'utf8');
     assert.match(promText, /openclaw_proofs_k6_run_total\{[^\n]*run_id="20260707T133429Z-r-cd-2"/);
     assert.match(promText, /openclaw_proofs_k6_candidate_pending_review\{[^\n]*run_id="20260707T133429Z-r-cd-2"[^\n]*fold_requires_review="true"[^\n]*\} 1/);

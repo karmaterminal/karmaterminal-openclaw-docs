@@ -50,7 +50,7 @@ function stamp() {
 }
 
 function usage() {
-  console.error(`Usage: node evidence-writer.mjs --input <k6-output> --row <ROW> --seat <SEAT> --sha <SHA> [--manifest <row-manifest.json>]`);
+  console.error(`Usage: node evidence-writer.mjs --input <k6-output> --row <ROW> --seat <SEAT> --sha <SHA> [--manifest <row-manifest.json>] [--runner-metadata <runner-metadata.json>]`);
   process.exit(2);
 }
 
@@ -123,6 +123,7 @@ const authoritativeConfig = args.row === 'R-CD-2'
         source: 'r-cd-model-tool-row-scoped-resolver',
         verdictSource: 'r-cd-model-tool-authoritative-receipt',
         validate: validateRcdModelToolAuthoritativeReceipt,
+        requiresRunnerEnvelope: true,
       }
     : null;
 let authoritativeReceipt = null;
@@ -130,10 +131,26 @@ if (authoritativeConfig) {
   if (!args['authoritative-receipt']) {
     throw new Error(`${args.row} requires --authoritative-receipt; generic evidence cannot promote this row`);
   }
+  // The receipt binds to the runner identity that produced it, not to the
+  // publication directory this writer happens to create, so the envelope has
+  // to be supplied explicitly rather than inferred from the output path.
+  let authorityEnvelope;
+  if (authoritativeConfig.requiresRunnerEnvelope) {
+    if (!args['runner-metadata']) {
+      throw new Error(`${args.row} requires --runner-metadata to bind the authoritative receipt to its run`);
+    }
+    const runnerMetadata = JSON.parse(readFileSync(args['runner-metadata'], 'utf8'));
+    if (runnerMetadata?.row !== args.row || runnerMetadata?.seat !== args.seat ||
+        runnerMetadata?.candidateSha !== args.sha) {
+      throw new Error(`${args.row} runner metadata does not describe this row/seat/candidate`);
+    }
+    authorityEnvelope = { metadata: runnerMetadata, runId: runnerMetadata.runId };
+  }
   authoritativeReceipt = JSON.parse(readFileSync(args['authoritative-receipt'], 'utf8'));
   const validation = authoritativeConfig.validate(
     authoritativeReceipt,
     process.env.OPENCLAW_GATEWAY_TOKEN,
+    authorityEnvelope,
   );
   if (!validation.valid || validation.verdict == null) {
     throw new Error(`${args.row} authoritative receipt rejected: ${validation.reason || 'no verdict'}`);

@@ -1,11 +1,38 @@
 import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
 const script = path.resolve('tools/k6-proofs/scripts/render-run-report.mjs');
+const docsRef = 'a'.repeat(40);
+const repository = 'karmaterminal/karmaterminal-openclaw-docs';
+const scenarioSource = 'export default function scenario() { return true; }\n';
+const digest = (value) => createHash('sha256').update(value).digest('hex');
+
+/**
+ * Write the copied manifest/scenario sources the runner captures alongside a
+ * live row and return the matching immutable harness identity (#496). Without
+ * it a sidecar envelope can never suppress its raw sibling.
+ */
+async function writeHarnessIdentity(runDir, { manifestBody, rowFile }) {
+  await writeFile(path.join(runDir, 'row-manifest.json'), manifestBody);
+  await writeFile(path.join(runDir, 'row-scenario.js'), scenarioSource);
+  return {
+    docsRef,
+    repository,
+    manifestPath: `tools/k6-proofs/manifests/${rowFile}.json`,
+    manifestSha256: digest(manifestBody),
+    scenarioPath: `tools/k6-proofs/scenarios/${rowFile}.js`,
+    scenarioSha256: digest(scenarioSource),
+  };
+}
+
+function envelopeHarness(identity) {
+  return { ...identity, manifestArtifact: 'row-manifest.json', scenarioArtifact: 'row-scenario.js' };
+}
 
 test('renders public-safe HTML report from row-list runner artifacts', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'k6-proof-report-'));
@@ -62,11 +89,12 @@ test('uses candidate-run-result.v1 as the unambiguous review input when present'
     const runDir = path.join(root, 'candidate', 'R-CW-1', 'cael', 'k6-run-1');
     await mkdir(runDir, { recursive: true });
     const sha = 'b40e59f08c7a8997e50a5c8a24b00bc68f653882';
-    await writeFile(path.join(runDir, 'row-manifest.json'), `${JSON.stringify({
+    const manifestBody = `${JSON.stringify({
       schema: 'openclaw.k6.proof-row-manifest.v1', rowId: 'R-CW-1', candidateSha: sha,
       scenario: { name: 'r-cw-1' }, review: { candidateOnly: true, foldRequiresReview: true },
-    })}\n`);
-    await writeFile(path.join(runDir, 'runner-metadata.json'), `${JSON.stringify({ row: 'R-CW-1', candidateSha: sha, seat: 'cael', scenario: 'r-cw-1' })}\n`);
+    })}\n`;
+    const identity = await writeHarnessIdentity(runDir, { manifestBody, rowFile: 'r-cw-1' });
+    await writeFile(path.join(runDir, 'runner-metadata.json'), `${JSON.stringify({ row: 'R-CW-1', candidateSha: sha, seat: 'cael', scenario: 'r-cw-1', ...identity })}\n`);
     await writeFile(path.join(runDir, 'run-result.json'), `${JSON.stringify({
       candidateOnly: true, foldRequiresReview: true, effectiveExitCode: 0, verdict: 'PASS-candidate', verdictSource: 'k6-summary',
       observability: { traceStatus: 'present', traceId: 'safe-trace-id', correlationReceipt: 'continuation-correlation.json' },
@@ -75,7 +103,8 @@ test('uses candidate-run-result.v1 as the unambiguous review input when present'
     await writeFile(path.join(runDir, 'candidate-run-result.json'), `${JSON.stringify({
       schema: 'openclaw.k6.candidate-run-result.v1',
       candidateOnly: true, foldRequiresReview: true, canonicalFoldForbidden: true,
-      candidate: { sha, docsRef: 'a'.repeat(40) },
+      candidate: { sha, docsRef },
+      harness: envelopeHarness(identity),
       run: { id: 'k6-run-1', rowId: 'R-CW-1', seat: 'cael', scenario: 'r-cw-1' },
       result: { outcome: 'PASS-candidate', outcomeSource: 'k6-summary', effectiveExitCode: 0, behaviorProof: false },
       observability: { traceStatus: 'present', traceCaptured: true, correlationReceiptPresent: true },
@@ -124,11 +153,12 @@ test('falls back to raw trace debt when an identity-valid sidecar forges observa
     const runDir = path.join(root, 'candidate', 'R-CD-2', 'cael', 'k6-run-2');
     const sha = 'b40e59f08c7a8997e50a5c8a24b00bc68f653882';
     await mkdir(runDir, { recursive: true });
-    await writeFile(path.join(runDir, 'row-manifest.json'), `${JSON.stringify({
+    const manifestBody = `${JSON.stringify({
       schema: 'openclaw.k6.proof-row-manifest.v1', rowId: 'R-CD-2', candidateSha: sha,
       scenario: { name: 'r-cd-2' }, review: { candidateOnly: true, foldRequiresReview: true },
-    })}\n`);
-    await writeFile(path.join(runDir, 'runner-metadata.json'), `${JSON.stringify({ row: 'R-CD-2', candidateSha: sha, seat: 'cael', scenario: 'r-cd-2' })}\n`);
+    })}\n`;
+    const identity = await writeHarnessIdentity(runDir, { manifestBody, rowFile: 'r-cd-2' });
+    await writeFile(path.join(runDir, 'runner-metadata.json'), `${JSON.stringify({ row: 'R-CD-2', candidateSha: sha, seat: 'cael', scenario: 'r-cd-2', ...identity })}\n`);
     await writeFile(path.join(runDir, 'run-result.json'), `${JSON.stringify({
       candidateOnly: true, foldRequiresReview: true, effectiveExitCode: 0, verdict: 'PASS-candidate', verdictSource: 'k6-summary',
       observability: { traceStatus: 'missing', traceId: null, correlationReceipt: null },
@@ -136,7 +166,9 @@ test('falls back to raw trace debt when an identity-valid sidecar forges observa
     })}\n`);
     await writeFile(path.join(runDir, 'candidate-run-result.json'), `${JSON.stringify({
       schema: 'openclaw.k6.candidate-run-result.v1', candidateOnly: true, foldRequiresReview: true, canonicalFoldForbidden: true,
-      candidate: { sha, docsRef: 'a'.repeat(40) }, run: { id: 'k6-run-2', rowId: 'R-CD-2', seat: 'cael', scenario: 'r-cd-2' },
+      candidate: { sha, docsRef },
+      harness: envelopeHarness(identity),
+      run: { id: 'k6-run-2', rowId: 'R-CD-2', seat: 'cael', scenario: 'r-cd-2' },
       result: { outcome: 'PASS-candidate', outcomeSource: 'k6-summary', effectiveExitCode: 0, behaviorProof: false },
       observability: { traceStatus: 'present', traceCaptured: true, correlationReceiptPresent: true },
       review: { status: 'ready-for-human-review', pendingReceipts: [], complete: true },

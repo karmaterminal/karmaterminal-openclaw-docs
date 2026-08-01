@@ -140,7 +140,7 @@ write_harness_control_receipt() {
     --arg reason "$reason" \
     --arg mode "$RUN_MODE" \
     --arg docsRef "$DOCS_REF" \
-    --arg docsRefInput "$DOCS_REF_INPUT" \
+    --arg docsRefInput "$(if [[ "$DOCS_REF_INPUT" =~ ^[0-9a-f]{40}$ ]]; then printf '%s' "$DOCS_REF_INPUT"; elif [[ -n "$DOCS_REF_INPUT" ]]; then printf 'malformed'; fi)" \
     --arg candidate "${OPENCLAW_CANDIDATE_SHA:-}" \
     --arg repository "$DOCS_REPOSITORY" \
     --arg recordedAt "$recorded_at" \
@@ -324,8 +324,7 @@ if [[ "$DRY_RUN" == "false" ]]; then
       "harness-identity" \
       "a live matrix requires an approved docs/harness ref: pass --docs-ref <40-char-lowercase-sha> or set OPENCLAW_PROOFS_DOCS_REF" \
       "$(jq -n --arg provided "$DOCS_REF_INPUT" '{check:"docs-ref-shape", provided:(if $provided == "" then null else "malformed" end)}')"
-  fi
-  # Frozen for the whole run. Ambient HEAD is never consulted again.
+  fi  # Frozen for the whole run. Ambient HEAD is never consulted again.
   DOCS_REF="$DOCS_REF_INPUT"
   DOCS_REF_SOURCE="approved-input"
   readonly DOCS_REF

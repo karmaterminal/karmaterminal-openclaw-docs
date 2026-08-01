@@ -14,7 +14,13 @@ const script = path.resolve('tools/k6-proofs/scripts/validate-candidate-run-resu
 const corpusValidator = path.resolve('tools/k6-proofs/scripts/validate-corpus.mjs');
 const sha = 'a'.repeat(40);
 const docsRef = 'b'.repeat(40);
+const repository = 'karmaterminal/karmaterminal-openclaw-docs';
+const scenarioSource = 'export default function scenario() { return true; }\n';
 const gatewayKey = 'candidate-test-gateway-key';
+
+function digest(value) {
+  return createHash('sha256').update(value).digest('hex');
+}
 
 function manifest() {
   return {
@@ -41,17 +47,45 @@ function runResult(overrides = {}) {
   };
 }
 
+/**
+ * The runner copies the exact manifest and scenario bytes it fired into the
+ * candidate directory and records their digests plus the frozen docs ref, so a
+ * faithful fixture must carry the same immutable harness identity (#496).
+ */
+async function writeHarnessSources(candidateDir, manifestBody, scenario = scenarioSource) {
+  await writeFile(path.join(candidateDir, 'row-manifest.json'), manifestBody);
+  await writeFile(path.join(candidateDir, 'row-scenario.js'), scenario);
+}
+
+function harnessMetadata({ manifestBody, scenario = scenarioSource, rowFile = 'r-cw-test' } = {}) {
+  return {
+    docsRef,
+    repository,
+    manifestPath: `tools/k6-proofs/manifests/${rowFile}.json`,
+    manifestSha256: digest(manifestBody),
+    scenarioPath: `tools/k6-proofs/scenarios/${rowFile}.js`,
+    scenarioSha256: digest(scenario),
+  };
+}
+
 async function fixture({ result = runResult(), metadata = null, manifestValue = manifest() } = {}) {
   const root = await mkdtemp(path.join(tmpdir(), 'candidate-run-result-'));
   const candidateDir = path.join(root, 'candidate');
   await mkdir(candidateDir);
   const manifestPath = path.join(root, 'manifest.json');
-  await writeFile(manifestPath, `${JSON.stringify(manifestValue, null, 2)}\n`);
-  await writeFile(path.join(candidateDir, 'runner-metadata.json'), `${JSON.stringify(metadata || {
-    row: 'R-CW-TEST', candidateSha: sha, seat: 'cael', scenario: 'r-cw-test.js',
+  const manifestBody = `${JSON.stringify(manifestValue, null, 2)}\n`;
+  await writeFile(manifestPath, manifestBody);
+  await writeHarnessSources(candidateDir, manifestBody);
+  await writeFile(path.join(candidateDir, 'runner-metadata.json'), `${JSON.stringify({
+    row: 'R-CW-TEST',
+    candidateSha: sha,
+    seat: 'cael',
+    scenario: 'r-cw-test.js',
+    ...harnessMetadata({ manifestBody }),
+    ...(metadata || {}),
   }, null, 2)}\n`);
   await writeFile(path.join(candidateDir, 'run-result.json'), `${JSON.stringify(result, null, 2)}\n`);
-  return { root, candidateDir, manifestPath };
+  return { root, candidateDir, manifestPath, manifestBody };
 }
 
 async function invoke({ manifestPath, candidateDir, out = null }) {
@@ -69,6 +103,13 @@ test('emits a public-safe, candidate-only routing envelope for a complete candid
     assert.equal(result.schema, 'openclaw.k6.candidate-run-result.v1');
     assert.equal(result.candidate.sha, sha);
     assert.equal(result.candidate.docsRef, docsRef);
+    assert.equal(result.harness.docsRef, docsRef);
+    assert.equal(result.harness.repository, repository);
+    assert.equal(result.harness.manifestSha256, digest(setup.manifestBody));
+    assert.equal(result.harness.scenarioSha256, digest(scenarioSource));
+    assert.equal(result.harness.manifestArtifact, 'row-manifest.json');
+    assert.equal(result.harness.scenarioArtifact, 'row-scenario.js');
+    assert.ok(result.artifacts.files.includes('row-scenario.js'));
     assert.equal(result.run.rowId, 'R-CW-TEST');
     assert.equal(result.result.outcome, 'PASS-candidate');
     assert.equal(result.result.behaviorProof, false);
@@ -110,6 +151,108 @@ test('rejects malformed, identity-mismatched, and review-incomplete candidates',
   });
 });
 
+test('candidate envelope binds the approved docs ref and both harness source digests', async (t) => {
+  await t.test('omitted docs ref', async () => {
+    const setup = await fixture({ metadata: { docsRef: undefined } });
+    try {
+      await assert.rejects(invoke(setup), /runner metadata docsRef must be a 40-character lowercase SHA/);
+    } finally { await rm(setup.root, { recursive: true, force: true }); }
+  });
+
+  await t.test('mismatched docs ref', async () => {
+    const setup = await fixture({ metadata: { docsRef: 'c'.repeat(40) } });
+    try {
+      await assert.rejects(invoke(setup), /docs ref mismatch/);
+    } finally { await rm(setup.root, { recursive: true, force: true }); }
+  });
+
+  await t.test('omitted repository identity', async () => {
+    const setup = await fixture({ metadata: { repository: undefined } });
+    try {
+      await assert.rejects(invoke(setup), /runner metadata repository must be a non-empty string/);
+    } finally { await rm(setup.root, { recursive: true, force: true }); }
+  });
+
+  await t.test('private path smuggled as repository identity', async () => {
+    const setup = await fixture({ metadata: { repository: '/home/someone/private/checkout' } });
+    try {
+      await assert.rejects(invoke(setup), /safe <owner>\/<repo> identity/);
+    } finally { await rm(setup.root, { recursive: true, force: true }); }
+  });
+
+  await t.test('omitted manifest digest', async () => {
+    const setup = await fixture({ metadata: { manifestSha256: undefined } });
+    try {
+      await assert.rejects(invoke(setup), /runner metadata manifestSha256 must be a 64-character lowercase sha256 digest/);
+    } finally { await rm(setup.root, { recursive: true, force: true }); }
+  });
+
+  await t.test('omitted scenario digest', async () => {
+    const setup = await fixture({ metadata: { scenarioSha256: undefined } });
+    try {
+      await assert.rejects(invoke(setup), /runner metadata scenarioSha256 must be a 64-character lowercase sha256 digest/);
+    } finally { await rm(setup.root, { recursive: true, force: true }); }
+  });
+
+  await t.test('manifest source mutated after capture', async () => {
+    const setup = await fixture();
+    try {
+      await writeFile(path.join(setup.candidateDir, 'row-manifest.json'), '{"rowId":"R-CW-TEST"}\n');
+      await assert.rejects(invoke(setup), /copied row manifest digest mismatch/);
+    } finally { await rm(setup.root, { recursive: true, force: true }); }
+  });
+
+  await t.test('scenario source mutated after capture', async () => {
+    const setup = await fixture();
+    try {
+      await writeFile(path.join(setup.candidateDir, 'row-scenario.js'), '// swapped\n');
+      await assert.rejects(invoke(setup), /copied row scenario digest mismatch/);
+    } finally { await rm(setup.root, { recursive: true, force: true }); }
+  });
+
+  await t.test('scenario source missing entirely', async () => {
+    const setup = await fixture();
+    try {
+      await rm(path.join(setup.candidateDir, 'row-scenario.js'));
+      await assert.rejects(invoke(setup), /copied row scenario missing or unreadable/);
+    } finally { await rm(setup.root, { recursive: true, force: true }); }
+  });
+
+  await t.test('sibling contract rejects a sidecar whose harness identity is unrecorded or mutated', async () => {
+    const setup = await fixture();
+    try {
+      const envelope = JSON.parse((await invoke(setup)).stdout);
+      const metadata = JSON.parse(await readFile(path.join(setup.candidateDir, 'runner-metadata.json'), 'utf8'));
+      const siblings = (overrides = {}) => ({
+        envelope,
+        manifest: manifest(),
+        metadata,
+        runResult: runResult(),
+        runDir: setup.candidateDir,
+        ...overrides,
+      });
+      assert.equal(candidateEnvelopeMatchesSiblings(siblings()), true);
+
+      for (const omitted of ['docsRef', 'repository', 'manifestSha256', 'scenarioSha256']) {
+        const stripped = { ...metadata };
+        delete stripped[omitted];
+        assert.equal(
+          candidateEnvelopeMatchesSiblings(siblings({ metadata: stripped })),
+          false,
+          `metadata omitting ${omitted} must not satisfy the sibling contract`,
+        );
+      }
+
+      assert.equal(candidateEnvelopeMatchesSiblings(siblings({
+        envelope: { ...envelope, harness: { ...envelope.harness, docsRef: 'c'.repeat(40) } },
+      })), false);
+
+      await writeFile(path.join(setup.candidateDir, 'row-scenario.js'), '// swapped after the envelope was written\n');
+      assert.equal(candidateEnvelopeMatchesSiblings(siblings()), false);
+    } finally { await rm(setup.root, { recursive: true, force: true }); }
+  });
+});
+
 test('R-RC-2 honest limit requires the nonce-bound structured threshold receipt in both validation layers', async () => {
   const manifestValue = {
     schema: 'openclaw.k6.proof-row-manifest.v1',
@@ -120,11 +263,13 @@ test('R-RC-2 honest limit requires the nonce-bound structured threshold receipt 
     review: { candidateOnly: true, foldRequiresReview: true },
     liveRunSafety: { expectedArtifactClass: 'HONEST-LIMIT-candidate' },
   };
+  const rrc2ManifestBody = `${JSON.stringify(manifestValue, null, 2)}\n`;
   const metadata = {
     row: 'R-RC-2',
     candidateSha: sha,
     seat: 'cael',
     scenario: 'r-rc-2-delegate-request-compaction.js',
+    ...harnessMetadata({ manifestBody: rrc2ManifestBody, rowFile: 'r-rc-2-delegate-request-compaction' }),
   };
   const verifiedEvidence = {
     row: 'R-RC-2',
@@ -261,9 +406,16 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
   await mkdir(candidateDir);
   const manifestPath = path.join(root, 'manifest.json');
   const h = (character) => character.repeat(16);
+  const tokenManifestBody = `${JSON.stringify({
+    schema: 'openclaw.k6.proof-row-manifest.v1', rowId: 'R-CD-TOKEN', candidateSha: sha,
+    scenario: { name: 'r-cd-token-bracket-delegate' },
+    review: { candidateOnly: true, foldRequiresReview: true },
+    liveRunSafety: { expectedArtifactClass: 'PASS-candidate' },
+  }, null, 2)}\n`;
   const metadata = {
     row: 'R-CD-TOKEN', candidateSha: sha, runtimeBuildSha: sha,
     seat: 'elliott', scenario: 'r-cd-token-bracket-delegate.js',
+    ...harnessMetadata({ manifestBody: tokenManifestBody, rowFile: 'r-cd-token-bracket-delegate' }),
   };
   const evidence = {
     surface_class: 'raw-final-text', session_created: true, disposable_origin_ready: true,
@@ -299,13 +451,9 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
     evidence, correlation, attemptState, metadata, signingKey: gatewayKey,
   });
   const raw = `${JSON.stringify(receipt, null, 2)}\n`;
-  const digest = createHash('sha256').update(raw).digest('hex');
-  await writeFile(manifestPath, `${JSON.stringify({
-    schema: 'openclaw.k6.proof-row-manifest.v1', rowId: 'R-CD-TOKEN', candidateSha: sha,
-    scenario: { name: 'r-cd-token-bracket-delegate' },
-    review: { candidateOnly: true, foldRequiresReview: true },
-    liveRunSafety: { expectedArtifactClass: 'PASS-candidate' },
-  }, null, 2)}\n`);
+  const receiptDigest = createHash('sha256').update(raw).digest('hex');
+  await writeFile(manifestPath, tokenManifestBody);
+  await writeHarnessSources(candidateDir, tokenManifestBody);
   await writeFile(path.join(candidateDir, 'runner-metadata.json'), `${JSON.stringify(metadata)}\n`);
   await writeFile(path.join(candidateDir, 'r-cd-token-authoritative-receipt.json'), raw);
   await writeFile(path.join(candidateDir, 'run-result.json'), `${JSON.stringify({
@@ -313,7 +461,7 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
     verdictSource: 'r-cd-token-authoritative-receipt', candidateOnly: true,
     foldRequiresReview: true,
     authoritativeReceipt: {
-      file: 'r-cd-token-authoritative-receipt.json', sha256: digest,
+      file: 'r-cd-token-authoritative-receipt.json', sha256: receiptDigest,
       validated: true, source: 'r-cd-token-row-scoped-resolver',
     },
     observability: {
@@ -324,7 +472,8 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
   }, null, 2)}\n`);
   try {
     const good = JSON.parse((await invoke({ manifestPath, candidateDir })).stdout);
-    assert.equal(good.authoritativeReceipt.sha256, digest);
+    assert.equal(good.authoritativeReceipt.sha256, receiptDigest);
+    assert.equal(good.harness.docsRef, docsRef);
     await writeFile(
       path.join(candidateDir, 'runner-metadata.json'),
       `${JSON.stringify({ ...metadata, runtimeBuildSha: 'f'.repeat(40) })}\n`,

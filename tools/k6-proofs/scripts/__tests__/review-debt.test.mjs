@@ -1,6 +1,7 @@
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import test from 'node:test';
@@ -8,6 +9,10 @@ import assert from 'node:assert/strict';
 
 const script = path.resolve('tools/k6-proofs/scripts/summarize-review-debt.mjs');
 const runNode = promisify(execFile);
+const docsRef = 'b'.repeat(40);
+const repository = 'karmaterminal/karmaterminal-openclaw-docs';
+const scenarioSource = 'export default function scenario() { return true; }\n';
+const digest = (value) => createHash('sha256').update(value).digest('hex');
 
 async function writeResult(root, row, body) {
   const dir = path.join(root, 'candidate-sha', row, 'seat', `run-${row}`);
@@ -25,11 +30,24 @@ async function writeValidatedEnvelopeFixture(root, row) {
   const dir = path.join(root, 'candidate-sha', row, 'seat', `run-${row}`);
   const sha = 'a'.repeat(40);
   await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, 'row-manifest.json'), `${JSON.stringify({
+  const manifestBody = `${JSON.stringify({
     schema: 'openclaw.k6.proof-row-manifest.v1', rowId: row, candidateSha: sha,
     scenario: { name: 'r-cw-1' }, review: { candidateOnly: true, foldRequiresReview: true },
-  })}\n`);
-  await writeFile(path.join(dir, 'runner-metadata.json'), `${JSON.stringify({ row, candidateSha: sha, seat: 'seat', scenario: 'r-cw-1' })}\n`);
+  })}\n`;
+  // The runner copies the fired manifest/scenario bytes next to the receipt and
+  // records their digests; a sidecar without that identity cannot suppress its
+  // raw sibling (#496).
+  await writeFile(path.join(dir, 'row-manifest.json'), manifestBody);
+  await writeFile(path.join(dir, 'row-scenario.js'), scenarioSource);
+  const identity = {
+    docsRef,
+    repository,
+    manifestPath: 'tools/k6-proofs/manifests/r-cw-1.json',
+    manifestSha256: digest(manifestBody),
+    scenarioPath: 'tools/k6-proofs/scenarios/r-cw-1.js',
+    scenarioSha256: digest(scenarioSource),
+  };
+  await writeFile(path.join(dir, 'runner-metadata.json'), `${JSON.stringify({ row, candidateSha: sha, seat: 'seat', scenario: 'r-cw-1', ...identity })}\n`);
   await writeResult(root, row, {
     candidateOnly: true, foldRequiresReview: true, effectiveExitCode: 0, verdict: 'PASS-candidate', verdictSource: 'k6-summary',
     observability: { traceStatus: 'present', traceId: 'safe-trace-id', correlationReceipt: 'continuation-correlation.json' },
@@ -37,11 +55,14 @@ async function writeValidatedEnvelopeFixture(root, row) {
   });
   await writeCandidateResult(root, row, {
     schema: 'openclaw.k6.candidate-run-result.v1', candidateOnly: true, foldRequiresReview: true, canonicalFoldForbidden: true,
-    candidate: { sha, docsRef: 'b'.repeat(40) }, run: { id: `run-${row}`, rowId: row, seat: 'seat', scenario: 'r-cw-1' },
+    candidate: { sha, docsRef },
+    harness: { ...identity, manifestArtifact: 'row-manifest.json', scenarioArtifact: 'row-scenario.js' },
+    run: { id: `run-${row}`, rowId: row, seat: 'seat', scenario: 'r-cw-1' },
     result: { outcome: 'PASS-candidate', outcomeSource: 'k6-summary', effectiveExitCode: 0, behaviorProof: false },
     observability: { traceStatus: 'present', traceCaptured: true, correlationReceiptPresent: true },
     review: { status: 'ready-for-human-review', pendingReceipts: [], complete: true },
   });
+  return identity;
 }
 
 test('summarizes trace-missing debt as unfetchable when no trace id exists', async () => {
@@ -134,7 +155,7 @@ test('falls back to raw review debt when an identity-valid sidecar forges trace 
   const root = await mkdtemp(path.join(tmpdir(), 'review-debt-envelope-observability-forgery-'));
   try {
     const row = 'R-CD-2';
-    await writeValidatedEnvelopeFixture(root, row);
+    const identity = await writeValidatedEnvelopeFixture(root, row);
     const dir = path.join(root, 'candidate-sha', row, 'seat', `run-${row}`);
     await writeResult(root, row, {
       candidateOnly: true, foldRequiresReview: true, effectiveExitCode: 0, verdict: 'PASS-candidate', verdictSource: 'k6-summary',
@@ -143,7 +164,9 @@ test('falls back to raw review debt when an identity-valid sidecar forges trace 
     });
     await writeFile(path.join(dir, 'candidate-run-result.json'), `${JSON.stringify({
       schema: 'openclaw.k6.candidate-run-result.v1', candidateOnly: true, foldRequiresReview: true, canonicalFoldForbidden: true,
-      candidate: { sha: 'a'.repeat(40), docsRef: 'b'.repeat(40) }, run: { id: `run-${row}`, rowId: row, seat: 'seat', scenario: 'r-cw-1' },
+      candidate: { sha: 'a'.repeat(40), docsRef },
+      harness: { ...identity, manifestArtifact: 'row-manifest.json', scenarioArtifact: 'row-scenario.js' },
+      run: { id: `run-${row}`, rowId: row, seat: 'seat', scenario: 'r-cw-1' },
       result: { outcome: 'PASS-candidate', outcomeSource: 'k6-summary', effectiveExitCode: 0, behaviorProof: false },
       observability: { traceStatus: 'present', traceCaptured: true, correlationReceiptPresent: true },
       review: { status: 'ready-for-human-review', pendingReceipts: [], complete: true },

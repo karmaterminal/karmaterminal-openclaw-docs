@@ -20,6 +20,7 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 const CHECKS = ['check-manifest-scenarios.mjs', 'check-scenario-alignment.mjs', 'check-proof-row-manifests.mjs'];
+const CATALOG_READERS = [...CHECKS, 'list-runnable-rows.mjs'];
 const scriptPath = (name) => path.join(repoRoot, 'tools/k6-proofs/scripts', name);
 const CORPUS_SHA = '0123456789abcdef0123456789abcdef01234567';
 
@@ -71,10 +72,10 @@ function invoke(check, cwd, extraArgs = [], env = {}) {
   return { status: result.status, stdout: result.stdout, stderr: result.stderr };
 }
 
-test('catalog validators produce identical results from every supported working directory', async () => {
+test('catalog readers produce identical results from every supported working directory', async () => {
   const fixture = await fixtureRepo();
   try {
-    for (const check of CHECKS) {
+    for (const check of CATALOG_READERS) {
       const fromRepoRoot = invoke(check, fixture.root);
       const fromToolDir = invoke(check, fixture.proofs);
       const fromScriptsDir = invoke(check, path.join(fixture.proofs, 'scripts'));
@@ -136,7 +137,7 @@ test('an explicit repository root overrides the working directory for every vali
   const fixture = await fixtureRepo();
   const elsewhere = await mkdtemp(path.join(tmpdir(), 'p81-catalog-root-elsewhere-'));
   try {
-    for (const check of CHECKS) {
+    for (const check of CATALOG_READERS) {
       const expected = invoke(check, fixture.root);
       assert.deepEqual(invoke(check, elsewhere, ['--repo-root', fixture.root]), expected, `${check} ignored --repo-root`);
       assert.deepEqual(
@@ -154,7 +155,7 @@ test('an explicit repository root overrides the working directory for every vali
 test('validators fail closed with an explicit contract error outside any harness', async () => {
   const elsewhere = await mkdtemp(path.join(tmpdir(), 'p81-catalog-root-none-'));
   try {
-    for (const check of CHECKS) {
+    for (const check of CATALOG_READERS) {
       const result = invoke(check, elsewhere);
       assert.notEqual(result.status, 0, `${check} must not silently validate an unrelated catalog`);
       assert.match(result.stderr, /unable to resolve a repository root/);

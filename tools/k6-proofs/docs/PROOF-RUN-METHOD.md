@@ -47,6 +47,13 @@ node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
 node tools/k6-proofs/scripts/validate-corpus.mjs --current
 ```
 
+The three catalog validators share one repository-root contract (#495), so the
+same commands produce identical results from `tools/k6-proofs` or
+`tools/k6-proofs/scripts`. Use `--repo-root <dir>` or `OPENCLAW_PROOFS_REPO_ROOT`
+to point them at an explicit checkout. `run-proofs.sh` runs all three as a
+preflight; a failure is harness infrastructure (`harness-control-receipt.json`,
+exit 78, zero rows executed), never a per-row product verdict.
+
 The “all” denominator includes `preflight`; the live-suite denominator may be smaller when it excludes static/support rows. Record which denominator you cite.
 
 ### 2. Offline artifact smoke
@@ -105,8 +112,23 @@ OPENCLAW_CANDIDATE_SHA=<40-char-sha> \
 OPENCLAW_SEAT_NAME=<seat> \
 OPENCLAW_CREATE_DISPOSABLE_SESSION=true \
 OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true \
-./scripts/run-proofs.sh R-CD-2,R-CD-4 <40-char-sha>
+./scripts/run-proofs.sh --live --docs-ref <40-char-docs-sha> R-CD-2,R-CD-4 <40-char-sha>
 ```
+
+`--docs-ref` (or `OPENCLAW_PROOFS_DOCS_REF`) is mandatory for a live run (#496).
+It is resolved and frozen once at startup; the runner refuses to fire unless
+repository `HEAD` equals it, tracked bytes under `tools/k6-proofs` are clean, and
+every selected runnable row's manifest and scenario are tracked at that exact
+commit. A stale, dirty, mixed, or unrecorded harness fails once as infrastructure
+(`harness-control-receipt.json`, exit 78) and never synthesizes a row verdict.
+
+An approved run writes `harness-provenance.json` at the artifact root before the
+first row fires (docs ref, repository, candidate SHA, runtime identity receipt,
+runner script digest, row selection and per-row manifest/scenario digests, start
+time), records `docsRef` / `repository` / `manifestSha256` / `scenarioSha256` in
+every `runner-metadata.json`, and copies the exact scenario source next to each
+receipt as `row-scenario.js`. A candidate routing envelope is withheld unless
+those values bind to the approved ref and the copied source bytes.
 
 Each row remains candidate evidence until reviewed and folded.
 

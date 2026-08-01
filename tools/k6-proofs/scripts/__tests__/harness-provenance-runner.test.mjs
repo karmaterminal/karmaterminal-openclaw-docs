@@ -213,6 +213,44 @@ test('a catalog preflight failure stops the matrix as harness infrastructure', a
   );
 });
 
+test('the runner resolves its own harness root regardless of the caller working directory', async () => {
+  await withRunner(async (harness) => {
+    const dryRun = async (cwd, script) => {
+      const out = await mkdtemp(path.join(harness.root, 'dry-'));
+      const result = await run('bash', [script, '--dry-run', '--out-dir', out, 'R-CD-2,R-CW-1', candidateSha], {
+        cwd,
+        encoding: 'utf8',
+        timeout: 60_000,
+        env: {
+          ...process.env,
+          OPENCLAW_PROOFS_DOCS_REF: '',
+          OPENCLAW_SESSION_KEY: 'main',
+          OPENCLAW_SEAT_NAME: 'contract-seat',
+          OPENCLAW_CANDIDATE_SHA: candidateSha,
+        },
+      });
+      const provenance = JSON.parse(await readFile(path.join(out, 'harness-provenance.json'), 'utf8'));
+      return { provenance, stdout: result.stdout };
+    };
+
+    const fromToolDir = await dryRun(harness.proofsDir, 'scripts/run-proofs.sh');
+    const fromRepoRoot = await dryRun(harness.checkout, './tools/k6-proofs/scripts/run-proofs.sh');
+
+    const expectedRunnerDigest = createHash('sha256')
+      .update(await readFile(path.join(harness.proofsDir, 'scripts/run-proofs.sh')))
+      .digest('hex');
+    for (const invocation of [fromToolDir, fromRepoRoot]) {
+      assert.deepEqual(invocation.provenance.rowSelection, ['R-CD-2', 'R-CW-1']);
+      assert.equal(invocation.provenance.mode, 'dry-run');
+      assert.equal(invocation.provenance.harnessIdentityVerified, false);
+      assert.equal(invocation.provenance.runnerScriptSha256, expectedRunnerDigest);
+      assert.match(invocation.stdout, /\[R-CD-2\] DRY RUN/);
+      assert.match(invocation.stdout, /CATALOG PREFLIGHT/);
+    }
+    assert.deepEqual(fromRepoRoot.provenance.rows, fromToolDir.provenance.rows);
+  });
+});
+
 test('an approved live run freezes the docs ref and records the exact harness digests', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'p86-harness-provenance-ok-'));
   const bin = path.join(root, 'bin');

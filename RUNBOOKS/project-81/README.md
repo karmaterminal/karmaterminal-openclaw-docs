@@ -90,21 +90,30 @@ Rows promoted as static committed-packet validators or honest-limit canaries may
      ./scripts/run-proofs.sh --dry-run <ROW-or-comma-list-or-all> <candidate-sha>
    ```
 
-4. Live-run only when the row runbook says it is safe:
+4. Live-run only when the row runbook says it is safe. A live run must be bound
+   to the exact immutable docs/harness commit it is running from (#496):
 
    ```bash
    cd tools/k6-proofs
    OPENCLAW_GATEWAY_TOKEN=*** \
    OPENCLAW_SESSION_KEY=<target-session-key> \
-     ./scripts/run-proofs.sh --live <ROW> <candidate-sha>
+     ./scripts/run-proofs.sh --live --docs-ref "$(git rev-parse HEAD)" <ROW> <candidate-sha>
    ```
+
+   The runner refuses to fire when the ref is missing/malformed, when `HEAD` is
+   not that ref, when tracked bytes under `tools/k6-proofs` are dirty, when a
+   selected row's manifest/scenario is untracked at that commit, or when the
+   catalog preflight fails. Each of those writes one
+   `<out-dir>/harness-control-receipt.json`, exits 78, and executes no rows.
 
 5. Preserve candidate output. For live runs, `run-proofs.sh` writes artifacts under `--out-dir` (default `/tmp/k6-proof-runs`):
 
    ```text
+   <out-dir>/harness-provenance.json   # docs ref, candidate, digests, row selection
    <out-dir>/<candidate-sha>/<ROW>/<seat>/<timestamp-row>/
    ├── row-manifest.json
-   ├── runner-metadata.json
+   ├── row-scenario.js                 # the exact scenario source that fired
+   ├── runner-metadata.json            # incl. docsRef / manifestSha256 / scenarioSha256
    ├── k6.log
    ├── evidence-lines.log
    ├── evidence.jsonl

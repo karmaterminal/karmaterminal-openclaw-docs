@@ -78,16 +78,33 @@ Use disposable sessions unless you are deliberately proving behavior on a named 
 ```bash
 export OPENCLAW_CREATE_DISPOSABLE_SESSION=true
 export OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true
-./scripts/run-proofs.sh --live "$ROWS"
+export OPENCLAW_PROOFS_DOCS_REF="$(git rev-parse HEAD)"
+./scripts/run-proofs.sh --live --docs-ref "$OPENCLAW_PROOFS_DOCS_REF" "$ROWS"
 ```
+
+A live run is bound to one immutable docs/harness commit (#496). `--docs-ref`
+(or `OPENCLAW_PROOFS_DOCS_REF`) is required and frozen at startup; the runner
+refuses to fire when the ref is missing or malformed, when `HEAD` is not that
+ref, when tracked bytes under `tools/k6-proofs` are dirty, or when a selected
+row's manifest/scenario is not tracked at that commit. Those are harness
+infrastructure failures: one `harness-control-receipt.json`, exit 78, zero rows
+executed, no synthesized per-row verdict. The same applies when the catalog
+preflight (`check-manifest-scenarios`, `check-scenario-alignment`,
+`check-proof-row-manifests`) fails.
 
 Artifacts are written under `${K6_PROOF_OUT_DIR:-/tmp/k6-proof-runs}`:
 
 ```text
+<out-dir>/harness-provenance.json
 <out-dir>/<candidate-sha>/<ROW>/<seat>/<timestamp-row>/
 ```
 
-Each row emits `row-manifest.json`, `runner-metadata.json`, `k6.log`, `evidence-lines.log`, `evidence.jsonl`, `run-result.json`, metrics files, and summary files when available. A review-complete row also emits `candidate-run-result.json` (`openclaw.k6.candidate-run-result.v1`): a public-safe routing envelope that binds the manifest, candidate SHA, docs ref, row, seat, and run identity. It remains candidate-only (`behaviorProof:false`, `canonicalFoldForbidden:true`); review-pending rows deliberately receive no envelope and remain in the review-debt queue.
+`harness-provenance.json` is written before the first row fires and records the
+approved docs ref, repository identity, candidate SHA, runtime identity receipt,
+runner script digest, row selection with per-row manifest/scenario digests, and
+the start time.
+
+Each row emits `row-manifest.json`, `row-scenario.js`, `runner-metadata.json`, `k6.log`, `evidence-lines.log`, `evidence.jsonl`, `run-result.json`, metrics files, and summary files when available. `runner-metadata.json` carries `docsRef`, `repository`, and the `manifestSha256` / `scenarioSha256` of the exact contract bytes that fired. A review-complete row also emits `candidate-run-result.json` (`openclaw.k6.candidate-run-result.v1`): a public-safe routing envelope that binds the manifest, candidate SHA, docs ref, harness source digests, row, seat, and run identity. It remains candidate-only (`behaviorProof:false`, `canonicalFoldForbidden:true`); review-pending rows deliberately receive no envelope and remain in the review-debt queue.
 
 ## 7. Review before folding
 

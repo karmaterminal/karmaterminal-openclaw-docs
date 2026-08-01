@@ -15,6 +15,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+RUNNER_SCRIPT_PATH="$SCRIPT_DIR/$(basename "${BASH_SOURCE[0]}")"
 PROOFS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT="$(cd "$PROOFS_DIR/../.." && pwd)"
 PROOFS_TOOL_RELPATH="tools/k6-proofs"
@@ -427,7 +428,7 @@ fi
 # fires so the bundle always states which harness bytes and which product
 # candidate produced everything beneath it.
 HARNESS_PROVENANCE_JSON="$OUT_ROOT/harness-provenance.json"
-RUNNER_SCRIPT_SHA256="$(sha256sum "${BASH_SOURCE[0]}" | cut -d' ' -f1)"
+RUNNER_SCRIPT_SHA256="$(sha256sum "$RUNNER_SCRIPT_PATH" | cut -d' ' -f1)"
 RUN_MATRIX_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 PROVENANCE_ROWS_JSON='[]'
 for PROV_ROW in "${ROW_ARRAY[@]}"; do

@@ -680,6 +680,54 @@ supplied. The script never mutates corpus data.
 manifests must point at an existing `tools/k6-proofs/scenarios/*.js`; rows with
 no runnable file must say `scenario.status` is `scaffold` or `construct-only`.
 
+### Repository-root contract for catalog validators (#495)
+
+`check-manifest-scenarios.mjs`, `check-scenario-alignment.mjs`, and
+`check-proof-row-manifests.mjs` share one repository-root contract
+(`tools/k6-proofs/lib/repo-root.mjs`) and join `tools/k6-proofs` exactly once.
+The root is resolved in this order:
+
+1. `--repo-root <dir>`;
+2. `OPENCLAW_PROOFS_REPO_ROOT`;
+3. the nearest ancestor-or-self of the working directory containing
+   `tools/k6-proofs`.
+
+Because of rule 3, running a validator from the repository root, from
+`tools/k6-proofs`, or from `tools/k6-proofs/scripts` inspects the same files and
+produces identical output and exit status. Standing outside any harness is an
+explicit contract error, never a silently empty catalog.
+
+### Immutable harness identity for live matrices (#496)
+
+`scripts/run-proofs.sh` runs the three catalog validators as a preflight before
+any row executes. A preflight failure is classified as harness infrastructure:
+the runner writes one `harness-control-receipt.json` under the artifact root,
+executes no rows, synthesizes no per-row verdict, and exits `78`.
+
+A live run additionally refuses to fire unless an approved docs/harness ref is
+supplied through `--docs-ref <40-hex>` or `OPENCLAW_PROOFS_DOCS_REF`, and:
+
+- the ref is a 40-character lowercase SHA;
+- repository `HEAD` equals that ref;
+- tracked bytes under `tools/k6-proofs` are clean;
+- every selected runnable row's manifest and scenario are tracked at that exact
+  commit with matching bytes.
+
+The ref is resolved and frozen once at startup; ambient `HEAD` is never re-read
+after rows have run. The runner then writes a public-safe
+`harness-provenance.json` (docs ref, repository identity, candidate SHA, runtime
+identity receipt, runner script digest, row selection with per-row
+manifest/scenario digests, start time) before the first row fires, and records
+`docsRef`, `repository`, `manifestPath`/`manifestSha256`, and
+`scenarioPath`/`scenarioSha256` in every `runner-metadata.json`. The exact
+scenario source travels with each receipt as `row-scenario.js`, and the
+candidate routing envelope is withheld unless those values bind to the approved
+ref and the copied manifest/scenario bytes.
+
+Set `OPENCLAW_PROOFS_DOCS_REPOSITORY=<owner>/<repo>` when the checkout has no
+public remote; only a real remote (or that override) is accepted, so a local
+clone path can never reach a public receipt.
+
 ## Coordination
 
 - Epic: [#106](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/106)

@@ -27,6 +27,8 @@ function attr(key, value) {
 }
 
 function rcd2Trace({ reasonHash, reasonLength }) {
+  const toolOriginNs = 1785580554339000000n;
+  const fireNs = toolOriginNs + 5000000000n;
   const continuationAttrs = [
     attr('reason.hash', reasonHash),
     attr('reason.length', reasonLength),
@@ -35,9 +37,9 @@ function rcd2Trace({ reasonHash, reasonLength }) {
   ];
   return {
     batches: [{ scopeSpans: [{ spans: [
-      { name: 'continuation.delegate.dispatch', traceId, spanId: dispatchSpanId, parentSpanId: sharedParentSpanId, status: { code: 1 }, attributes: continuationAttrs },
-      { name: 'continuation.delegate.fire', traceId, spanId: fireSpanId, parentSpanId: sharedParentSpanId, status: { code: 1 }, attributes: continuationAttrs },
-      { name: 'openclaw.tool.execution', traceId, spanId: toolSpanId, parentSpanId: sharedParentSpanId, status: { code: 1 }, attributes: [attr('gen_ai.tool.name', 'continue_delegate')] },
+      { name: 'continuation.delegate.dispatch', traceId, spanId: dispatchSpanId, parentSpanId: sharedParentSpanId, status: { code: 1 }, attributes: continuationAttrs, startTimeUnixNano: String(fireNs), endTimeUnixNano: String(fireNs + 1000000n) },
+      { name: 'continuation.delegate.fire', traceId, spanId: fireSpanId, parentSpanId: sharedParentSpanId, status: { code: 1 }, attributes: [...continuationAttrs, attr('fire.deferred_ms', 5000)], startTimeUnixNano: String(fireNs), endTimeUnixNano: String(fireNs + 1000n) },
+      { name: 'openclaw.tool.execution', traceId, spanId: toolSpanId, parentSpanId: sharedParentSpanId, status: { code: 1 }, attributes: [attr('gen_ai.tool.name', 'continue_delegate')], startTimeUnixNano: String(toolOriginNs), endTimeUnixNano: String(toolOriginNs + 1000000n) },
     ] }] }],
   };
 }
@@ -70,6 +72,8 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
     delegate_mode: 'silent-wake', reason_hash: reasonHash, reason_length: reason.length,
     session_created: true, session_unbound_confirmed: true, send_accepted: true,
     send_run_captured: true, terminal_success_same_run: true, typed_delegate_success_same_run: true,
+    dispatch_terminal_sentinel_observed: true,
+    dispatch_terminal_sentinel_same_run_window: true,
     wake_lifecycle_observed: true, post_wake_quiet: true, channel_message_observed: false,
     dispatch_failure_observed: false, send_run_fingerprint: 'a'.repeat(16),
     terminal_run_fingerprint: 'a'.repeat(16), wake_run_fingerprint: 'a'.repeat(16),
@@ -175,7 +179,21 @@ test('R-CD-2 scenario and resolver use the same no-channel-delivery evidence fie
   );
   assert.match(scenario, /channel_message_observed:\s*false/);
   assert.match(resolver, /evidence\?\.channel_message_observed === false/);
+  assert.match(resolver, /evidence\?\.dispatch_terminal_sentinel_observed === true/);
+  assert.match(resolver, /evidence\?\.dispatch_terminal_sentinel_same_run_window === true/);
   assert.doesNotMatch(resolver, /channel_delivery_observed/);
+});
+
+test('R-CD-2 dispatch turn requires an exact post-tool terminal sentinel', async () => {
+  const scenario = await readFile(path.join(scenariosDir, 'r-cd-2-silent-wake.js'), 'utf8');
+  assert.match(
+    scenario,
+    /After the continue_delegate tool result reports scheduled, reply exactly RCD2-DELEGATE-SCHEDULED \$\{rowNonce\}/,
+  );
+  assert.match(scenario, /observesRcd2DispatchTerminalSentinel\(/);
+  assert.match(scenario, /dispatchLifecycleActive/);
+  assert.match(scenario, /wakeLifecycleObserved:\s*evidence\.wake_lifecycle_observed/);
+  assert.doesNotMatch(scenario, /execute the tool call immediately, no other action needed/);
 });
 
 test('every trace-required continue_work row persists the safe fingerprint contract', async () => {

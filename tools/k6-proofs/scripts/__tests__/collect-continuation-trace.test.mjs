@@ -39,7 +39,7 @@ function attr(key, value) {
   };
 }
 
-function span(name, traceId, spanId, parentSpanId, attrs = [], status = 'OK') {
+function span(name, traceId, spanId, parentSpanId, attrs = [], status = 'OK', timing = {}) {
   return {
     name,
     traceId: b64(traceId),
@@ -47,6 +47,7 @@ function span(name, traceId, spanId, parentSpanId, attrs = [], status = 'OK') {
     parentSpanId: b64(parentSpanId),
     attributes: attrs,
     status: { code: status },
+    ...timing,
   };
 }
 
@@ -72,10 +73,13 @@ function traceFixture({ traceId, reasonHash, reasonLength, tool = 'continue_dele
   const isWork = tool === 'continue_work';
   const acceptSpanName = isWork ? 'continuation.work' : 'continuation.delegate.dispatch';
   const fireSpanName = isWork ? 'continuation.work.fire' : 'continuation.delegate.fire';
+  const toolOriginNs = 1785580554339000000n;
+  const fireNs = toolOriginNs + 5000000000n;
   const continuationAttrs = [
     attr('chain.id', '11111111-1111-4111-8111-111111111111'),
     attr('reason.hash', reasonHash),
     attr('reason.length', reasonLength),
+    attr('delay.ms', 5000),
     ...(isWork ? [] : [attr('delegate.mode', mode)]),
   ];
   return {
@@ -88,9 +92,30 @@ function traceFixture({ traceId, reasonHash, reasonLength, tool = 'continue_dele
             index === 0 ? 'aaaaaaaaaaaaaaaa' : 'ffffffffffffffff',
             parent,
             [attr('gen_ai.tool.name', tool)],
+            'OK',
+            {
+              startTimeUnixNano: String(toolOriginNs - 1000000n + BigInt(index)),
+              endTimeUnixNano: String(toolOriginNs + BigInt(index)),
+            },
           )),
-          span(fireSpanName, traceId, 'bbbbbbbbbbbbbbbb', parent, continuationAttrs),
-          span(acceptSpanName, traceId, 'cccccccccccccccc', parent, continuationAttrs),
+          span(
+            fireSpanName,
+            traceId,
+            'bbbbbbbbbbbbbbbb',
+            parent,
+            [...continuationAttrs, attr('fire.deferred_ms', 5000)],
+            'OK',
+            { startTimeUnixNano: String(fireNs), endTimeUnixNano: String(fireNs + 1000n) },
+          ),
+          span(
+            acceptSpanName,
+            traceId,
+            'cccccccccccccccc',
+            parent,
+            continuationAttrs,
+            'OK',
+            { startTimeUnixNano: String(fireNs), endTimeUnixNano: String(fireNs + 1000000n) },
+          ),
           span('openclaw.harness.run', traceId, 'eeeeeeeeeeeeeeee', 'cccccccccccccccc'),
         ],
       }],
@@ -590,6 +615,8 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
       session_unbound_confirmed: true,
       send_accepted: true,
       send_run_captured: true,
+      dispatch_terminal_sentinel_observed: true,
+      dispatch_terminal_sentinel_same_run_window: true,
       terminal_success_same_run: true,
       typed_delegate_success_same_run: true,
       wake_lifecycle_observed: true,
@@ -648,6 +675,344 @@ test('R-CD-2 collector rejects repeated continue_delegate tool spans', async () 
         return true;
       },
     );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-2 scopes a reused trace to the continue_delegate call that scheduled the matched dispatch', async () => {
+  const fixture = await fixtureDir({ rowId: 'R-CD-2', delegateMode: 'silent-wake' });
+  const traceId = '4'.repeat(32);
+  const trace = traceFixture({
+    traceId,
+    reasonHash: fixture.reasonHash,
+    reasonLength: fixture.reasonLength,
+    mode: 'silent-wake',
+  });
+  const spans = trace.batches[0].scopeSpans[0].spans;
+  const priorAttrs = [
+    attr('chain.id', '22222222-2222-4222-8222-222222222222'),
+    attr('reason.hash', 'f'.repeat(16)),
+    attr('reason.length', 139),
+    attr('delay.ms', 5000),
+    attr('delegate.mode', 'normal'),
+  ];
+  spans.unshift(
+    span(
+      'openclaw.tool.execution',
+      traceId,
+      '9999999999999999',
+      'dddddddddddddddd',
+      [attr('gen_ai.tool.name', 'continue_delegate')],
+      'OK',
+      {
+        startTimeUnixNano: '1785580316865000000',
+        endTimeUnixNano: '1785580316868000000',
+      },
+    ),
+    span(
+      'continuation.delegate.fire',
+      traceId,
+      '8888888888888888',
+      'dddddddddddddddd',
+      [...priorAttrs, attr('fire.deferred_ms', 5000)],
+      'OK',
+      {
+        startTimeUnixNano: '1785580321868000000',
+        endTimeUnixNano: '1785580321868001000',
+      },
+    ),
+    span(
+      'continuation.delegate.dispatch',
+      traceId,
+      '7777777777777777',
+      'dddddddddddddddd',
+      priorAttrs,
+      'OK',
+      {
+        startTimeUnixNano: '1785580321868000000',
+        endTimeUnixNano: '1785580321869000000',
+      },
+    ),
+  );
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(
+      new URL(request.url, 'http://localhost').pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : trace,
+    ));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'cael-prince', '--tempo-url', server.url, '--timeout-ms', '100', '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+    const publicTrace = JSON.parse(await readFile(path.join(fixture.dir, result.traceFile), 'utf8'));
+    assert.deepEqual(receipt.toolSpanIds, ['aaaaaaaaaaaaaaaa']);
+    assert.deepEqual(
+      publicTrace.spans
+        .filter((entry) => entry.name === 'openclaw.tool.execution')
+        .map((entry) => entry.spanId),
+      ['aaaaaaaaaaaaaaaa'],
+    );
+    assert.equal(
+      publicTrace.spans.some((entry) => ['7777777777777777', '8888888888888888', '9999999999999999'].includes(entry.spanId)),
+      false,
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-2 rejects partially timed traces that cannot establish the tool generation', async () => {
+  const fixture = await fixtureDir({ rowId: 'R-CD-2', delegateMode: 'silent-wake' });
+  const traceId = '5'.repeat(32);
+  const trace = traceFixture({
+    traceId,
+    reasonHash: fixture.reasonHash,
+    reasonLength: fixture.reasonLength,
+    mode: 'silent-wake',
+  });
+  for (const entry of trace.batches[0].scopeSpans[0].spans) {
+    if (entry.name === 'continuation.delegate.fire' ||
+        entry.name === 'continuation.delegate.dispatch') {
+      entry.attributes = entry.attributes.filter((attribute) =>
+        !['fire.deferred_ms', 'delay.ms'].includes(attribute.key));
+    }
+  }
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(
+      new URL(request.url, 'http://localhost').pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : trace,
+    ));
+  });
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+        '--seat', 'cael-prince', '--tempo-url', server.url, '--timeout-ms', '0', '--poll-ms', '10',
+      ]),
+      (error) => {
+        assert.match(error.stderr, /lacks complete causal timing/);
+        return true;
+      },
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-2 does not use projected-trace compatibility for timing-free raw Tempo data', async () => {
+  const fixture = await fixtureDir({ rowId: 'R-CD-2', delegateMode: 'silent-wake' });
+  const traceId = '7'.repeat(32);
+  const trace = traceFixture({
+    traceId,
+    reasonHash: fixture.reasonHash,
+    reasonLength: fixture.reasonLength,
+    mode: 'silent-wake',
+  });
+  for (const entry of trace.batches[0].scopeSpans[0].spans) {
+    delete entry.startTimeUnixNano;
+    delete entry.endTimeUnixNano;
+  }
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(
+      new URL(request.url, 'http://localhost').pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : trace,
+    ));
+  });
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+        '--seat', 'cael-prince', '--tempo-url', server.url, '--timeout-ms', '0', '--poll-ms', '10',
+      ]),
+      (error) => {
+        assert.match(error.stderr, /lacks complete causal timing/);
+        return true;
+      },
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-2 rejects end-only typed-tool timing instead of using it as the causal origin', async () => {
+  const fixture = await fixtureDir({ rowId: 'R-CD-2', delegateMode: 'silent-wake' });
+  const traceId = '8'.repeat(32);
+  const trace = traceFixture({
+    traceId,
+    reasonHash: fixture.reasonHash,
+    reasonLength: fixture.reasonLength,
+    mode: 'silent-wake',
+  });
+  const tool = trace.batches[0].scopeSpans[0].spans
+    .find((entry) => entry.name === 'openclaw.tool.execution');
+  delete tool.startTimeUnixNano;
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(
+      new URL(request.url, 'http://localhost').pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : trace,
+    ));
+  });
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+        '--seat', 'cael-prince', '--tempo-url', server.url, '--timeout-ms', '0', '--poll-ms', '10',
+      ]),
+      (error) => {
+        assert.match(error.stderr, /lacks complete causal timing/);
+        return true;
+      },
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-2 rejects non-canonical causal timing values', async (t) => {
+  const cases = [
+    {
+      name: 'zero fire timestamp',
+      mutate(trace) {
+        trace.batches[0].scopeSpans[0].spans
+          .find((entry) => entry.name === 'continuation.delegate.fire')
+          .startTimeUnixNano = '0';
+      },
+    },
+    {
+      name: 'zero tool timestamp',
+      mutate(trace) {
+        trace.batches[0].scopeSpans[0].spans
+          .find((entry) => entry.name === 'openclaw.tool.execution')
+          .startTimeUnixNano = '0';
+      },
+    },
+    {
+      name: 'zero deferred delay',
+      mutate(trace) {
+        const fire = trace.batches[0].scopeSpans[0].spans
+          .find((entry) => entry.name === 'continuation.delegate.fire');
+        fire.attributes.find((entry) => entry.key === 'fire.deferred_ms').value.intValue = '0';
+      },
+    },
+    {
+      name: 'string-typed deferred delay',
+      mutate(trace) {
+        const fire = trace.batches[0].scopeSpans[0].spans
+          .find((entry) => entry.name === 'continuation.delegate.fire');
+        fire.attributes.find((entry) => entry.key === 'fire.deferred_ms').value = {
+          stringValue: '5000',
+        };
+      },
+    },
+    {
+      name: 'boolean deferred delay',
+      mutate(trace) {
+        const fire = trace.batches[0].scopeSpans[0].spans
+          .find((entry) => entry.name === 'continuation.delegate.fire');
+        fire.attributes.find((entry) => entry.key === 'fire.deferred_ms').value = {
+          boolValue: false,
+        };
+      },
+    },
+  ];
+
+  for (const entry of cases) {
+    await t.test(entry.name, async () => {
+      const fixture = await fixtureDir({ rowId: 'R-CD-2', delegateMode: 'silent-wake' });
+      const traceId = '9'.repeat(32);
+      const trace = traceFixture({
+        traceId,
+        reasonHash: fixture.reasonHash,
+        reasonLength: fixture.reasonLength,
+        mode: 'silent-wake',
+      });
+      entry.mutate(trace);
+      const server = await listen((request, response) => {
+        response.setHeader('content-type', 'application/json');
+        response.end(JSON.stringify(
+          new URL(request.url, 'http://localhost').pathname === '/api/search'
+            ? { traces: [{ traceID: traceId }] }
+            : trace,
+        ));
+      });
+      try {
+        await assert.rejects(
+          execFileAsync(process.execPath, [
+            script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+            '--seat', 'cael-prince', '--tempo-url', server.url,
+            '--timeout-ms', '0', '--poll-ms', '10',
+          ]),
+          (error) => {
+            assert.match(error.stderr, /lacks complete causal timing/);
+            return true;
+          },
+        );
+      } finally {
+        await server.close();
+        await rm(fixture.dir, { recursive: true, force: true });
+      }
+    });
+  }
+});
+
+test('R-CD-2 does not select a later unrelated tool inside the old symmetric tolerance', async () => {
+  const fixture = await fixtureDir({ rowId: 'R-CD-2', delegateMode: 'silent-wake' });
+  const traceId = '6'.repeat(32);
+  const trace = traceFixture({
+    traceId,
+    reasonHash: fixture.reasonHash,
+    reasonLength: fixture.reasonLength,
+    mode: 'silent-wake',
+  });
+  const spans = trace.batches[0].scopeSpans[0].spans;
+  const fire = spans.find((entry) => entry.name === 'continuation.delegate.fire');
+  spans.unshift(
+    span(
+      'openclaw.tool.execution',
+      traceId,
+      '6666666666666667',
+      'dddddddddddddddd',
+      [attr('gen_ai.tool.name', 'continue_delegate')],
+      'OK',
+      {
+        startTimeUnixNano: fire.startTimeUnixNano,
+        endTimeUnixNano: String(BigInt(fire.startTimeUnixNano) + 1000000n),
+      },
+    ),
+  );
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(
+      new URL(request.url, 'http://localhost').pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : trace,
+    ));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'cael-prince', '--tempo-url', server.url, '--timeout-ms', '100', '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+    assert.deepEqual(receipt.toolSpanIds, ['aaaaaaaaaaaaaaaa']);
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });
@@ -1129,6 +1494,20 @@ test('correlates terminal bracket-token topology without a typed continue_delega
   const trace = traceFixture({ traceId, reasonHash: fixture.reasonHash, reasonLength: fixture.reasonLength });
   trace.batches[0].scopeSpans[0].spans = trace.batches[0].scopeSpans[0].spans
     .filter((entry) => entry.name !== 'openclaw.tool.execution');
+  trace.batches[0].scopeSpans[0].spans.unshift(
+    span(
+      'openclaw.tool.execution',
+      traceId,
+      '9999999999999998',
+      'dddddddddddddddd',
+      [attr('gen_ai.tool.name', 'continue_delegate')],
+      'OK',
+      {
+        startTimeUnixNano: '1785580316865000000',
+        endTimeUnixNano: '1785580316868000000',
+      },
+    ),
+  );
   const server = await listen((request, response) => {
     const url = new URL(request.url, 'http://localhost');
     response.setHeader('content-type', 'application/json');
@@ -1146,6 +1525,44 @@ test('correlates terminal bracket-token topology without a typed continue_delega
     assert.equal(receipt.attribution, 'bracket-token-reason-hash-length-mode');
     assert.equal(receipt.continuation.originSurface, 'raw-final-text');
     assert.deepEqual(receipt.toolSpanIds, []);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('bracket-token topology rejects invalid raw timing rather than certifying typed-tool absence', async () => {
+  const fixture = await fixtureDir();
+  const manifest = JSON.parse(await readFile(fixture.manifestPath, 'utf8'));
+  manifest.rowId = 'R-CD-TOKEN';
+  manifest.invocation.originSurface = 'raw-final-text';
+  await writeFile(fixture.manifestPath, JSON.stringify(manifest));
+  const traceId = '99999999999999999999999999999998';
+  const trace = traceFixture({ traceId, reasonHash: fixture.reasonHash, reasonLength: fixture.reasonLength });
+  trace.batches[0].scopeSpans[0].spans = trace.batches[0].scopeSpans[0].spans
+    .filter((entry) => entry.name !== 'openclaw.tool.execution');
+  const fire = trace.batches[0].scopeSpans[0].spans
+    .find((entry) => entry.name === 'continuation.delegate.fire');
+  delete fire.startTimeUnixNano;
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(
+      new URL(request.url, 'http://localhost').pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : trace,
+    ));
+  });
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+        '--seat', 'elliott-prince', '--tempo-url', server.url, '--timeout-ms', '0', '--poll-ms', '10',
+      ]),
+      (error) => {
+        assert.match(error.stderr, /lacks complete causal timing/);
+        return true;
+      },
+    );
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });

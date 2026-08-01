@@ -24,6 +24,7 @@ import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { gatewayLifecycleRunId, gatewayLifecyclePhase, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../lib/gateway-lifecycle.js';
+import { observesRcd2DispatchTerminalSentinel } from '../lib/r-cd-2-terminal-sentinel.js';
 
 export const options = {
   scenarios: {
@@ -93,6 +94,7 @@ export default function () {
   const createDisposableSession = (__ENV.OPENCLAW_CREATE_DISPOSABLE_SESSION || 'true').toLowerCase() === 'true';
   const seat = manifest && manifest.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CD-2');
+  const dispatchTerminalSentinel = `RCD2-DELEGATE-SCHEDULED ${rowNonce}`;
 
   if (!token) {
     console.error('OPENCLAW_GATEWAY_TOKEN is required');
@@ -128,6 +130,9 @@ export default function () {
     send_run_fingerprint: null,
     terminal_run_fingerprint: null,
     wake_run_fingerprint: null,
+    send_run_success_end_observed: false,
+    dispatch_terminal_sentinel_observed: false,
+    dispatch_terminal_sentinel_same_run_window: false,
     terminal_success_same_run: false,
     typed_delegate_success_same_run: false,
     // The silent wake is a fresh parent turn.  Its identity is therefore a
@@ -160,9 +165,21 @@ export default function () {
 
   const started = Date.now();
   let acceptedRunId = null;
+  let dispatchLifecycleActive = false;
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+
+    function maybeRecordDispatchTerminalSuccess() {
+      if (!acceptedRunId ||
+          !evidence.send_run_success_end_observed ||
+          !evidence.dispatch_terminal_sentinel_observed ||
+          !evidence.dispatch_terminal_sentinel_same_run_window) {
+        return;
+      }
+      evidence.terminal_success_same_run = true;
+      evidence.terminal_run_fingerprint = crypto.sha256(String(acceptedRunId), 'hex').slice(0, 16);
+    }
 
     function startProofFlow(socket) {
       // Subscribe to parent session messages to detect wake + verify no channel delivery.
@@ -179,7 +196,10 @@ export default function () {
         evidence.reason_hash = crypto.sha256(prompt, 'hex').slice(0, 16);
         evidence.reason_length = prompt.length;
         evidence.delegate_mode = inv.mode;
-        const agentInstruction = `[k6-proof-harness] Call continue_delegate with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. This is a proof run — execute the tool call immediately, no other action needed.`;
+        const agentInstruction =
+          `[k6-proof-harness] Call continue_delegate with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. ` +
+          `After the continue_delegate tool result reports scheduled, reply exactly RCD2-DELEGATE-SCHEDULED ${rowNonce}. ` +
+          'Do not call another tool or send any channel message.';
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
           message: agentInstruction,
@@ -309,15 +329,19 @@ export default function () {
             const eventRunId = lifecycleRunId(eventData);
             const sameRun = Boolean(acceptedRunId && eventRunId === acceptedRunId);
             const phase = gatewayLifecyclePhase(eventData);
+            if (sameRun && phase === 'start') {
+              dispatchLifecycleActive = true;
+            }
             if (phase === 'end' && eventRunId === acceptedRunId) {
+              dispatchLifecycleActive = false;
               if (!sameRun) evidence.send_run_mismatch = true;
               else if (!gatewayLifecycleSucceeded(eventData)) {
                 evidence.dispatch_failure_observed = true;
                 evidence.failureCategory = eventData.data?.replayInvalid === true
                   ? 'delegate-replay-unsafe' : 'provider-or-turn-failure';
               } else {
-                evidence.terminal_success_same_run = true;
-                evidence.terminal_run_fingerprint = crypto.sha256(String(eventRunId), 'hex').slice(0, 16);
+                evidence.send_run_success_end_observed = true;
+                maybeRecordDispatchTerminalSuccess();
               }
             }
             // The deployed gateway gives agent lifecycle events a top-level
@@ -348,6 +372,19 @@ export default function () {
             // lifecycle run identity. It is diagnostic only, never a wake
             // receipt; otherwise a delayed unrelated message could certify.
             evidence.agent_turn_observed = true;
+            if (observesRcd2DispatchTerminalSentinel(
+              eventData,
+              dispatchTerminalSentinel,
+              {
+                dispatchLifecycleActive,
+                wakeLifecycleObserved: evidence.wake_lifecycle_observed,
+              },
+            )) {
+              evidence.dispatch_terminal_sentinel_observed = true;
+              evidence.dispatch_terminal_sentinel_same_run_window = true;
+              maybeRecordDispatchTerminalSuccess();
+              console.log('✓ exact post-tool dispatch terminal sentinel observed within dispatch lifecycle');
+            }
             console.log('ℹ session.message observed (non-authoritative for wake identity)');
           }
 
@@ -400,6 +437,13 @@ export default function () {
 
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
+  if (evidence.send_run_success_end_observed &&
+      (!evidence.dispatch_terminal_sentinel_observed ||
+       !evidence.dispatch_terminal_sentinel_same_run_window) &&
+      evidence.dispatch_failure_observed !== true) {
+    evidence.dispatch_failure_observed = true;
+    evidence.failureCategory = 'missing-terminal-sentinel';
+  }
   finalEvidence = evidence;
   duration.add(evidence.duration_ms);
 
@@ -413,11 +457,17 @@ export default function () {
   check(null, {
     'agent turn triggered (sessions.send accepted)': () => evidence.send_accepted,
     'dispatching agent turn observed': () => evidence.agent_turn_observed,
+    'exact post-tool dispatch terminal sentinel observed': () => evidence.dispatch_terminal_sentinel_observed,
+    'terminal sentinel observed within dispatch lifecycle': () => evidence.dispatch_terminal_sentinel_same_run_window,
     'delayed parent wake candidate observed': () => evidence.parent_wake_observed,
     'no channel delivery (silent verified)': () => !evidence.channel_message_observed,
   });
 
-  if (!evidence.send_accepted || !evidence.agent_turn_observed || !evidence.parent_wake_observed) {
+  if (!evidence.send_accepted ||
+      !evidence.agent_turn_observed ||
+      !evidence.dispatch_terminal_sentinel_observed ||
+      !evidence.dispatch_terminal_sentinel_same_run_window ||
+      !evidence.parent_wake_observed) {
     failures.add(1);
   }
   if (evidence.channel_message_observed) {

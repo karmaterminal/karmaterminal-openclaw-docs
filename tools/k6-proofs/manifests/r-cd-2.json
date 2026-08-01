@@ -15,7 +15,7 @@
   },
   "scenario": {
     "name": "r-cd-2-silent-wake",
-    "description": "continue_delegate(mode='silent-wake') full path. Fires a delegate that returns silently and triggers a fresh parent turn without channel output.",
+    "description": "continue_delegate(mode='silent-wake') full path. The dispatch turn closes with an exact post-tool sentinel; the delegate return stays silent while triggering a fresh parent turn without channel output.",
     "methods": [
       "sessions.send",
       "sessions.create",
@@ -56,7 +56,7 @@
     {
       "name": "send-run-lifecycle",
       "required": true,
-      "description": "Accepted sessions.send run/turn ID is bound to same-run terminal success and same-run parent wake; generic delayed messages cannot satisfy it"
+      "description": "Accepted sessions.send run/turn ID is bound to lifecycle-start/end success, an exact sentinel observed only while that dispatch lifecycle is active, and a distinct same-session parent wake; generic delayed messages cannot satisfy it"
     },
     {
       "name": "task-ledger-entry",
@@ -71,7 +71,7 @@
     {
       "name": "typed-delegate-topology",
       "required": true,
-      "description": "One continue_delegate silent-wake tool execution plus continuation.delegate.dispatch/fire spans share one non-zero trace and chain"
+      "description": "One topology-scoped continue_delegate silent-wake tool execution plus continuation.delegate.dispatch/fire spans share one non-zero trace and chain, even when the trace carries older unrelated activity"
     },
     {
       "name": "tempo-trace-json",
@@ -99,6 +99,6 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Silent-wake path. Only the row-scoped authoritative receipt can produce PASS-candidate: accepted send/turn and terminal/wake must share identity, one typed continue_delegate must complete, Tempo must prove same trace/chain dispatch+fire topology, and no channel delivery may occur."
+    "notes": "Silent-wake path. Only the row-scoped authoritative receipt can produce PASS-candidate: the accepted dispatch turn must reach its explicit post-tool terminal boundary, one topology-scoped typed continue_delegate must complete, Tempo must prove same trace/chain dispatch+fire topology, the distinct wake lifecycle must be observed, and no channel delivery may occur."
   }
 }

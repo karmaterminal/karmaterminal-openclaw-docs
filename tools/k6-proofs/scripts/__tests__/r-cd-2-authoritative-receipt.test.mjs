@@ -22,6 +22,8 @@ function evidence(overrides = {}) {
   return {
     session_created: true, session_unbound_confirmed: true,
     send_accepted: true, send_run_captured: true,
+    dispatch_terminal_sentinel_observed: true,
+    dispatch_terminal_sentinel_same_run_window: true,
     terminal_success_same_run: true, typed_delegate_success_same_run: true,
     wake_lifecycle_observed: true, post_wake_quiet: true,
     channel_message_observed: false, dispatch_failure_observed: false,
@@ -96,6 +98,38 @@ test('R-CD-2 rejects replay failure, wrong mode, and mismatched trace topology',
     const receipt = resolveRcd2AuthoritativeReceipt({ evidence: evidence(), correlation: bad, signingKey });
     assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'invalid-continuation-topology']);
   }
+});
+
+test('R-CD-2 rejects a successful lifecycle end without the exact post-tool sentinel', () => {
+  const receipt = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence({
+      dispatch_terminal_sentinel_observed: false,
+      dispatch_failure_observed: true,
+      failureCategory: 'missing-terminal-sentinel',
+    }),
+    correlation: correlation(),
+    signingKey,
+  });
+  assert.deepEqual(
+    [receipt.verdict, receipt.failureCategory],
+    ['PARTIAL-candidate', 'missing-terminal-sentinel'],
+  );
+});
+
+test('R-CD-2 rejects a terminal sentinel observed outside the accepted dispatch lifecycle', () => {
+  const receipt = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence({
+      dispatch_terminal_sentinel_same_run_window: false,
+      dispatch_failure_observed: true,
+      failureCategory: 'missing-terminal-sentinel',
+    }),
+    correlation: correlation(),
+    signingKey,
+  });
+  assert.deepEqual(
+    [receipt.verdict, receipt.failureCategory],
+    ['PARTIAL-candidate', 'missing-terminal-sentinel'],
+  );
 });
 
 test('R-CD-2 writer and postprocessor accept only the authoritative receipt', async () => {

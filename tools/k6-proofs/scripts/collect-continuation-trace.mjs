@@ -14,6 +14,8 @@ import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
 const CORRELATION_WINDOW_PADDING_SECONDS = 60;
+const TOOL_ORIGIN_EARLY_TOLERANCE_MS = 15000;
+const TOOL_ORIGIN_LATE_TOLERANCE_MS = 1000;
 
 function usage() {
   console.error(`Usage: node collect-continuation-trace.mjs \\
@@ -203,6 +205,82 @@ function matchesContinuationSpan(span, expected, name) {
     (expected.mode === undefined || attrs.get('delegate.mode') === expected.mode);
 }
 
+function spanTimeNs(span, field) {
+  const value = span?.[field];
+  return typeof value === 'string' && /^[1-9]\d*$/u.test(value) ? BigInt(value) : null;
+}
+
+function hasTimingMetadata(span) {
+  return Object.hasOwn(span || {}, 'startTimeUnixNano') ||
+    Object.hasOwn(span || {}, 'endTimeUnixNano');
+}
+
+function positiveIntegerAttribute(spansAndKeys) {
+  for (const [span, key] of spansAndKeys) {
+    const attribute = (span?.attributes || []).find((entry) => entry?.key === key);
+    if (!attribute) continue;
+    const value = attribute.value;
+    if (!value || Object.keys(value).length !== 1 ||
+        typeof value.intValue !== 'string' ||
+        !/^[1-9]\d*$/u.test(value.intValue)) {
+      return null;
+    }
+    return BigInt(value.intValue);
+  }
+  return null;
+}
+
+function scopeDelegateToolSpans(trace, tools, accept, fires) {
+  const fire = fires[0];
+  const lifecycleSpans = [accept, ...fires, ...tools];
+  const hasAnyTimingMetadata = lifecycleSpans.some(hasTimingMetadata);
+  const anchorNs = spanTimeNs(fire, 'startTimeUnixNano');
+  const deferredMs = positiveIntegerAttribute([
+    [fire, 'fire.deferred_ms'],
+    [fire, 'delay.ms'],
+    [accept, 'delay.ms'],
+  ]);
+  if (trace?.schema === 'openclaw.k6.public-tempo-trace.v1' && !hasAnyTimingMetadata) {
+    return { kind: 'legacy-projected', tools };
+  }
+  if (anchorNs === null ||
+      deferredMs === null ||
+      tools.some((span) => spanTimeNs(span, 'startTimeUnixNano') === null)) {
+    return { kind: 'invalid-timing', tools: [] };
+  }
+
+  const expectedOriginNs = anchorNs - deferredMs * 1_000_000n;
+  if (expectedOriginNs <= 0n) {
+    return { kind: 'invalid-timing', tools: [] };
+  }
+  const earliestOriginNs =
+    expectedOriginNs - BigInt(TOOL_ORIGIN_EARLY_TOLERANCE_MS) * 1_000_000n;
+  const latestOriginNs =
+    expectedOriginNs + BigInt(TOOL_ORIGIN_LATE_TOLERANCE_MS) * 1_000_000n;
+  return {
+    kind: 'scoped',
+    tools: tools.filter((span) => {
+      const observedNs = spanTimeNs(span, 'startTimeUnixNano');
+      return observedNs >= earliestOriginNs && observedNs <= latestOriginNs;
+    }),
+  };
+}
+
+function projectScopedContinuationTrace(trace, traceId, topology) {
+  const projected = projectPublicTempoTrace(trace, traceId);
+  const spanIds = new Set([
+    topology.dispatchSpanId,
+    topology.workSpanId,
+    ...topology.toolSpanIds,
+    ...topology.fireSpanIds,
+    ...topology.childSpans.map((span) => span.spanId),
+  ].filter(Boolean));
+  return {
+    ...projected,
+    spans: projected.spans.filter((span) => spanIds.has(span.spanId)),
+  };
+}
+
 function validateTrace(trace, expected) {
   const spans = allSpans(trace);
   const accepts = spans.filter((span) =>
@@ -238,11 +316,18 @@ function validateTrace(trace, expected) {
     throw new Error(`${expected.fireSpanName} span is not status OK`);
   }
 
-  const tools = spans.filter((span) => {
+  const matchingTools = spans.filter((span) => {
     const attrs = attributes(span);
     return span.name === 'openclaw.tool.execution' &&
       attrs.get('gen_ai.tool.name') === expected.tool;
   });
+  const toolScope = expected.tool === 'continue_delegate'
+    ? scopeDelegateToolSpans(trace, matchingTools, accept, fires)
+    : null;
+  if (toolScope?.kind === 'invalid-timing') {
+    throw new Error('matched raw trace lacks complete causal timing for continue_delegate generation scope');
+  }
+  const tools = toolScope?.tools ?? matchingTools;
   if (expected.originSurface === 'raw-final-text') {
     if (tools.length !== 0) {
       throw new Error(`bracket-token trace must not contain a typed ${expected.tool} tool span`);
@@ -429,7 +514,9 @@ async function main() {
     throw new Error(`no Tempo trace matched ${fingerprint} before timeout`);
   }
   assertTraceIsPublicSafe(trace, evidence, contract);
-  const publicTrace = projectPublicTempoTrace(trace, traceId);
+  const publicTrace = contract.kind === 'continuation'
+    ? projectScopedContinuationTrace(trace, traceId, topology)
+    : projectPublicTempoTrace(trace, traceId);
 
   const traceOut = path.join(runDir, `tempo-trace-${traceId.slice(0, 12)}.json`);
   const receiptOut = path.join(

@@ -10,6 +10,7 @@ const FAILURE_CATEGORIES = new Set([
   'send-run-mismatch',
   'provider-or-turn-failure',
   'delegate-replay-unsafe',
+  'missing-terminal-sentinel',
   'send-topology-mismatch',
   'missing-continuation-topology',
   'invalid-continuation-topology',
@@ -49,6 +50,8 @@ function evidencePasses(evidence) {
     evidence?.session_unbound_confirmed === true &&
     evidence?.send_accepted === true &&
     evidence?.send_run_captured === true &&
+    evidence?.dispatch_terminal_sentinel_observed === true &&
+    evidence?.dispatch_terminal_sentinel_same_run_window === true &&
     evidence?.terminal_success_same_run === true &&
     evidence?.typed_delegate_success_same_run === true &&
     evidence?.wake_lifecycle_observed === true &&
@@ -96,7 +99,13 @@ function sameRowBinding(evidence, correlation) {
 
 function categoryFor(evidence, correlation) {
   if (evidence?.failureCategory === 'delegate-replay-unsafe') return 'delegate-replay-unsafe';
+  if (evidence?.failureCategory === 'missing-terminal-sentinel') return 'missing-terminal-sentinel';
   if (evidence?.dispatch_failure_observed) return 'provider-or-turn-failure';
+  if (evidence?.send_run_captured &&
+      (evidence?.dispatch_terminal_sentinel_observed !== true ||
+       evidence?.dispatch_terminal_sentinel_same_run_window !== true)) {
+    return 'missing-terminal-sentinel';
+  }
   if (!evidence?.send_run_captured || !evidence?.terminal_success_same_run || !evidence?.wake_lifecycle_observed) {
     return evidence?.send_run_mismatch ? 'send-run-mismatch' : 'missing-send-run-lifecycle';
   }
@@ -119,6 +128,9 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
         wake: evidence?.wake_run_fingerprint || null,
         acceptedSendTrace: evidence?.accepted_send_trace_id || null,
         nonce: evidence?.row_nonce_fingerprint || null,
+        dispatchTerminalSentinel: evidence?.dispatch_terminal_sentinel_observed === true,
+        dispatchTerminalSentinelSameRunWindow:
+          evidence?.dispatch_terminal_sentinel_same_run_window === true,
         terminalSuccess: evidence?.terminal_success_same_run === true,
         typedDelegate: evidence?.typed_delegate_success_same_run === true,
         quiet: evidence?.post_wake_quiet === true,
@@ -153,6 +165,8 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
       typedToolObserved: true,
       dispatchObserved: true,
       fireObserved: true,
+      dispatchTerminalSentinelObserved: true,
+      dispatchTerminalSentinelSameRunWindow: true,
       terminalSuccessSameRun: true,
       wakeLifecycleObserved: true,
       unboundSessionVerified: true,
@@ -179,7 +193,7 @@ export function validateRcd2AuthoritativeReceipt(receipt, signingKey) {
     ? { valid: true, verdict: receipt.verdict } : { valid: false, reason: 'invalid-failure-category' };
   const life = receipt.lifecycle;
   const pass = receipt.verdict === 'PASS-candidate' && life?.typedTool === 'continue_delegate' && life.mode === 'silent-wake' &&
-    ['sameTrace', 'sameChain', 'typedToolObserved', 'dispatchObserved', 'fireObserved', 'terminalSuccessSameRun', 'wakeLifecycleObserved', 'unboundSessionVerified', 'noChannelVerified'].every((key) => life[key] === true) &&
+    ['sameTrace', 'sameChain', 'typedToolObserved', 'dispatchObserved', 'fireObserved', 'dispatchTerminalSentinelObserved', 'dispatchTerminalSentinelSameRunWindow', 'terminalSuccessSameRun', 'wakeLifecycleObserved', 'unboundSessionVerified', 'noChannelVerified'].every((key) => life[key] === true) &&
     hex(life.traceFingerprint, 16) && hex(life.acceptedSendTraceFingerprint, 16) &&
     life.traceFingerprint === life.acceptedSendTraceFingerprint &&
     hex(life.acceptedSendRunFingerprint, 16) && hex(life.rowNonceFingerprint, 16) &&

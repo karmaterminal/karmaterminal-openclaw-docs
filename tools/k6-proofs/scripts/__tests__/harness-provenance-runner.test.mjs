@@ -43,11 +43,11 @@ async function withRunner(fn, { mutate = null } = {}) {
   }
 }
 
-async function invokeRunner(harness, { rows = 'R-CD-2', args = [], env = {} } = {}) {
+async function invokeRunner(harness, { rows = 'R-CD-2', args = [], env = {}, candidate = candidateSha } = {}) {
   try {
     const result = await run(
       'bash',
-      ['scripts/run-proofs.sh', '--live', '--out-dir', harness.out, ...args, rows, candidateSha],
+      ['scripts/run-proofs.sh', '--live', '--out-dir', harness.out, ...args, rows, candidate],
       {
         cwd: harness.proofsDir,
         encoding: 'utf8',
@@ -201,10 +201,10 @@ test('a row whose contract is untracked at the approved ref fails closed', async
   await withRunner(
     async (harness) => {
       const result = await invokeRunner(harness, { rows: 'R-UNRECORDED', args: ['--docs-ref', harness.docsRef] });
-      const receipt = await assertInfrastructureFailure(harness, result, { stage: 'harness-identity', check: 'tracked-at-docs-ref' });
+      const receipt = await assertInfrastructureFailure(harness, result, { stage: 'harness-identity', check: 'row-recorded-at-docs-ref' });
       assert.equal(receipt.detail.row, 'R-UNRECORDED');
-      assert.match(receipt.detail.path, /^tools\/k6-proofs\//);
-      assert.match(result.stderr, /not tracked at the approved docs ref/);
+      assert.equal(receipt.detail.approved, harness.docsRef);
+      assert.match(result.stderr, /unrecorded rows cannot be fired or counted/);
     },
     {
       // Untracked-but-present bytes: `git status` on tracked files stays clean,
@@ -321,12 +321,13 @@ const APPROVED_TOKEN = 'harness-provenance-test-token-do-not-log';
  * provenance emission with stubbed tooling. R-CW-5A is runnable but
  * static-preflight-only, so no live k6 row is dispatched.
  */
-async function withApprovedMatrix(fn, { afterCommit = null, rows = 'R-CW-5A', nodeShim = null, nodeShimFor = null, journalShimFor = null, envFor = null } = {}) {
+async function withApprovedMatrix(fn, { afterCommit = null, rows = 'R-CW-5A', nodeShim = null, nodeShimFor = null, journalShimFor = null, k6ShimFor = null, envFor = null } = {}) {
   const root = await mkdtemp(path.join(tmpdir(), 'p86-harness-provenance-ok-'));
   const bin = path.join(root, 'bin');
   const out = path.join(root, 'out');
   await Promise.all([mkdir(bin, { recursive: true }), mkdir(out, { recursive: true })]);
-  const harness = await buildHarnessCheckout(repoRoot, path.join(root, 'harness'));
+  const built = await buildHarnessCheckout(repoRoot, path.join(root, 'harness'));
+  const harness = { ...built, root, out };
   if (afterCommit) await afterCommit(harness);
 
   const gateway = createServer((req, res) => res.writeHead(req.url.startsWith('/health') || req.url.startsWith('/status') ? 200 : 404).end('{}'));
@@ -340,7 +341,7 @@ async function withApprovedMatrix(fn, { afterCommit = null, rows = 'R-CW-5A', no
   };
 
   try {
-    await executable('k6', "#!/bin/sh\nif [ \"${1:-}\" = version ]; then printf '%s\\n' 'k6 v2.0.0'; exit 0; fi\nexit 0\n");
+    await executable('k6', k6ShimFor ? k6ShimFor(harness) : "#!/bin/sh\nif [ \"${1:-}\" = version ]; then printf '%s\\n' 'k6 v2.0.0'; exit 0; fi\nexit 0\n");
     await executable('openclaw', '#!/bin/sh\nprintf \'%s\\n\' \'{"enabled":true,"maxChainLength":3,"maxDelegatesPerTurn":3,"costCapTokens":3}\'\n');
     await executable('hostname', "#!/bin/sh\nprintf '%s\\n' contract-seat\n");
     const shimSource = nodeShimFor ? nodeShimFor(harness) : nodeShim;
@@ -376,7 +377,7 @@ async function withApprovedMatrix(fn, { afterCommit = null, rows = 'R-CW-5A', no
       }
     };
 
-    return await fn({ ...harness, out, root, invoke });
+    return await fn({ ...harness, invoke });
   } finally {
     await new Promise((resolve) => gateway.close(resolve));
     await rm(root, { recursive: true, force: true });
@@ -399,7 +400,7 @@ test('the catalog preflight log is public-safe: no credentials, no local paths',
       const result = await harness.invoke();
       assert.equal(result.code, HARNESS_INFRA_EXIT);
       const log = await readFile(path.join(harness.out, 'catalog-preflight.log'), 'utf8');
-      assert.match(log, /<repo-root>\/PROOFS\/INDEX\.json/);
+      assert.match(log, /<(?:repo-root|harness)>\/PROOFS\/INDEX\.json/);
       assert.ok(!log.includes(harness.checkout), 'the checkout path must not reach a public log');
       assert.doesNotMatch(log, new RegExp(APPROVED_TOKEN));
     },
@@ -408,8 +409,10 @@ test('the catalog preflight log is public-safe: no credentials, no local paths',
 });
 
 test('harness bytes mutated after the gate froze them fail closed before capture', async () => {
-  // The shim mutates a selected scenario while seat readiness runs, i.e. after
-  // the identity gate froze its digest but before the row is captured.
+  // The shim mutates the operator's copy of a selected scenario while seat
+  // readiness runs. The executed bytes live in the immutable snapshot, so this
+  // cannot change what runs — but run-proofs.sh itself is read incrementally
+  // from that same checkout, so a mid-matrix mutation must still fail closed.
   const shimFor = (harness) => [
     '#!/bin/sh',
     'case "$*" in',
@@ -427,12 +430,12 @@ test('harness bytes mutated after the gate froze them fail closed before capture
       assert.equal(result.code, HARNESS_INFRA_EXIT, result.stderr);
       const receipt = JSON.parse(await readFile(path.join(harness.out, 'harness-control-receipt.json'), 'utf8'));
       assert.equal(receipt.stage, 'harness-identity');
-      assert.equal(receipt.detail.check, 'frozen-bytes-still-current');
+      assert.equal(receipt.detail.check, 'harness-tree-still-current');
       assert.equal(receipt.detail.phase, 'pre-capture');
-      assert.equal(receipt.detail.scenarioChanged, true);
+      assert.ok(receipt.detail.trackedFiles > 1);
       assert.equal(receipt.rowsExecuted, 0);
       assert.equal(receipt.rowVerdictsSynthesized, false);
-      assert.match(result.stderr, /refusing to execute unapproved source/);
+      assert.match(result.stderr, /do not match the approved docs ref/);
       await assert.rejects(readFile(path.join(harness.out, candidateSha, 'R-CD-2'), 'utf8'), /ENOENT/);
     },
     { rows: 'R-CD-2', nodeShimFor: shimFor },
@@ -461,7 +464,7 @@ test('a mutation caught after capture removes the provisional run directory', as
       assert.equal(result.code, HARNESS_INFRA_EXIT, result.stderr);
       const receipt = JSON.parse(await readFile(path.join(harness.out, 'harness-control-receipt.json'), 'utf8'));
       assert.equal(receipt.stage, 'harness-identity');
-      assert.equal(receipt.detail.check, 'frozen-bytes-still-current');
+      assert.equal(receipt.detail.check, 'harness-tree-still-current');
       assert.equal(receipt.detail.phase, 'pre-k6-execution');
       assert.equal(receipt.rowsExecuted, 0);
       assert.equal(receipt.rowVerdictsSynthesized, false);
@@ -473,6 +476,60 @@ test('a mutation caught after capture removes the provisional run directory', as
       );
     },
     { rows: 'R-CD-2', journalShimFor: journalFor },
+  );
+});
+
+test('a live matrix refuses an unvalidated candidate SHA before creating artifacts', async () => {
+  await withRunner(async (harness) => {
+    const result = await invokeRunner(harness, {
+      args: ['--docs-ref', harness.docsRef],
+      candidate: '../../etc/passwd',
+      env: { OPENCLAW_CANDIDATE_SHA: '' },
+    });
+    await assertInfrastructureFailure(harness, result, { stage: 'harness-identity', check: 'candidate-sha-shape' });
+    const receipt = await controlReceipt(harness);
+    // Rejected input must not survive anywhere in the public receipt.
+    assert.equal(receipt.candidateSha, 'malformed');
+    assert.ok(!JSON.stringify(receipt).includes('passwd'));
+  });
+});
+
+test('rows execute from an immutable snapshot, not from the operator checkout', async () => {
+  // Direct observation: the k6 process records where it was actually run from
+  // and the bytes of the scenario it was handed.
+  await withApprovedMatrix(
+    async (harness) => {
+      // The row's own verdict is irrelevant here; only where it executed is.
+      await harness.invoke();
+      const [cwd, scenarioDigest] = (await readFile(path.join(harness.root, 'k6-observed.txt'), 'utf8')).trim().split('\n');
+
+      assert.ok(cwd, 'k6 must have run');
+      assert.ok(
+        !cwd.startsWith(harness.checkout),
+        `k6 must not execute from the operator checkout, ran in ${cwd.startsWith(harness.checkout) ? '<checkout>' : '<snapshot>'}`,
+      );
+      const approved = (await run(
+        'git',
+        ['-C', harness.checkout, 'show', `${harness.docsRef}:tools/k6-proofs/scenarios/r-cd-2-silent-wake.js`],
+        { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
+      )).stdout;
+      assert.equal(
+        scenarioDigest,
+        createHash('sha256').update(approved).digest('hex'),
+        'the executed scenario bytes must be the approved committed bytes',
+      );
+    },
+    {
+      rows: 'R-CD-2',
+      k6ShimFor: (harness) => [
+        '#!/bin/sh',
+        'if [ "${1:-}" = version ]; then printf \'%s\\n\' \'k6 v2.0.0\'; exit 0; fi',
+        `{ pwd; sha256sum "$2" | cut -d' ' -f1; } > ${path.join(harness.root, 'k6-observed.txt')}`,
+        "printf '%s %s\\n' '=== K6-PROOF-EVIDENCE ===' '{\"row\":\"R-CD-2\"}'",
+        'exit 0',
+        '',
+      ].join('\n'),
+    },
   );
 });
 
@@ -506,93 +563,49 @@ test('an approved live run tolerates a git replacement object without trusting i
 });
 
 test('an approved live run freezes the docs ref and records the exact harness digests', async () => {
-  const root = await mkdtemp(path.join(tmpdir(), 'p86-harness-provenance-ok-'));
-  const bin = path.join(root, 'bin');
-  const out = path.join(root, 'out');
-  await Promise.all([mkdir(bin, { recursive: true }), mkdir(out, { recursive: true })]);
-  const harness = await buildHarnessCheckout(repoRoot, path.join(root, 'harness'));
+  await withApprovedMatrix(async (harness) => {
+    const result = await harness.invoke();
+    assert.equal(result.code, 0, result.stderr);
+    await assert.rejects(readFile(path.join(harness.out, 'harness-control-receipt.json'), 'utf8'), /ENOENT/);
+      const provenance = JSON.parse(await readFile(path.join(harness.out, 'harness-provenance.json'), 'utf8'));
+      assert.equal(provenance.schema, 'openclaw.k6.harness-provenance.v1');
+      assert.equal(provenance.mode, 'live');
+      assert.equal(provenance.docsRef, harness.docsRef);
+      assert.equal(provenance.docsRefSource, 'approved-input');
+      assert.equal(provenance.harnessIdentityVerified, true);
+      assert.equal(provenance.repository, HARNESS_REPOSITORY);
+      assert.equal(provenance.candidateSha, candidateSha);
+      assert.equal(provenance.runtimeIdentity.runtimeBuildSha, candidateSha);
+      assert.equal(provenance.runtimeIdentity.candidateMatchesRuntime, true);
+      assert.equal(provenance.runtimeIdentity.seatReadinessReceipt, 'seat-readiness.json');
+      assert.match(provenance.runtimeIdentity.seatReadinessSha256, /^[a-f0-9]{64}$/);
+      assert.equal(provenance.runnerScript, 'tools/k6-proofs/scripts/run-proofs.sh');
+      assert.match(provenance.runnerScriptSha256, /^[a-f0-9]{64}$/);
+      assert.equal(provenance.candidateOnly, true);
+      assert.equal(provenance.foldRequiresReview, true);
+      assert.match(provenance.startedAt, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
+      assert.deepEqual(provenance.rowSelection, ['R-CW-5A']);
 
-  const gateway = createServer((req, res) => res.writeHead(req.url.startsWith('/health') || req.url.startsWith('/status') ? 200 : 404).end('{}'));
-  await new Promise((resolve) => gateway.listen(0, '127.0.0.1', resolve));
-  const gatewayPort = gateway.address().port;
+      const sha256 = async (relative) => createHash('sha256')
+        .update(await readFile(path.join(harness.checkout, relative)))
+        .digest('hex');
+      assert.deepEqual(provenance.rows, [{
+        rowId: 'R-CW-5A',
+        manifestPath: 'tools/k6-proofs/manifests/r-cw-5a-static.json',
+        manifestSha256: await sha256('tools/k6-proofs/manifests/r-cw-5a-static.json'),
+        scenarioPath: 'tools/k6-proofs/scenarios/static-corpus-row-validator.js',
+        scenarioSha256: await sha256('tools/k6-proofs/scenarios/static-corpus-row-validator.js'),
+      }]);
 
-  const executable = async (name, source) => {
-    const file = path.join(bin, name);
-    await writeFile(file, source, { mode: 0o755 });
-    await chmod(file, 0o755);
-  };
+      // The runner script digest is a real digest of the script it just ran.
+      assert.equal(provenance.runnerScriptSha256, await sha256('tools/k6-proofs/scripts/run-proofs.sh'));
+      assert.match(result.stdout, /Approved docs ref: [0-9a-f]{40}/);
+      assert.match(result.stdout, /Harness identity: every tracked byte under tools\/k6-proofs matches the approved docs ref/);
+      assert.match(result.stdout, /Harness contract binding: frozen manifest\/scenario digests/);
+      assert.match(result.stdout, /\[R-CW-5A\] SKIPPED: liveRunSafety classification/);
 
-  try {
-    await executable('k6', "#!/bin/sh\nif [ \"${1:-}\" = version ]; then printf '%s\\n' 'k6 v2.0.0'; exit 0; fi\nexit 0\n");
-    await executable('openclaw', '#!/bin/sh\nprintf \'%s\\n\' \'{"enabled":true,"maxChainLength":3,"maxDelegatesPerTurn":3,"costCapTokens":3}\'\n');
-    await executable('hostname', "#!/bin/sh\nprintf '%s\\n' contract-seat\n");
-
-    // R-CW-5A is runnable but static-preflight-only, so the identity gate and
-    // provenance receipt are exercised without dispatching a live k6 row.
-    const result = await run(
-      'bash',
-      ['scripts/run-proofs.sh', '--live', '--out-dir', out, '--docs-ref', harness.docsRef, 'R-CW-5A', candidateSha],
-      {
-        cwd: harness.proofsDir,
-        encoding: 'utf8',
-        timeout: 60_000,
-        env: {
-          ...process.env,
-          PATH: `${bin}:${process.env.PATH}`,
-          K6_BIN: path.join(bin, 'k6'),
-          OPENCLAW_GATEWAY_TOKEN: 'harness-provenance-test-token',
-          OPENCLAW_GATEWAY_WS: `ws://127.0.0.1:${gatewayPort}`,
-          OPENCLAW_SESSION_KEY: 'main',
-          OPENCLAW_SEAT_NAME: 'contract-seat',
-          OPENCLAW_CANDIDATE_SHA: candidateSha,
-          OPENCLAW_RUNTIME_BUILD_SHA: candidateSha,
-        },
-      },
-    );
-
-    await assert.rejects(readFile(path.join(out, 'harness-control-receipt.json'), 'utf8'), /ENOENT/);
-    const provenance = JSON.parse(await readFile(path.join(out, 'harness-provenance.json'), 'utf8'));
-    assert.equal(provenance.schema, 'openclaw.k6.harness-provenance.v1');
-    assert.equal(provenance.mode, 'live');
-    assert.equal(provenance.docsRef, harness.docsRef);
-    assert.equal(provenance.docsRefSource, 'approved-input');
-    assert.equal(provenance.harnessIdentityVerified, true);
-    assert.equal(provenance.repository, HARNESS_REPOSITORY);
-    assert.equal(provenance.candidateSha, candidateSha);
-    assert.equal(provenance.runtimeIdentity.runtimeBuildSha, candidateSha);
-    assert.equal(provenance.runtimeIdentity.candidateMatchesRuntime, true);
-    assert.equal(provenance.runtimeIdentity.seatReadinessReceipt, 'seat-readiness.json');
-    assert.match(provenance.runtimeIdentity.seatReadinessSha256, /^[a-f0-9]{64}$/);
-    assert.equal(provenance.runnerScript, 'tools/k6-proofs/scripts/run-proofs.sh');
-    assert.match(provenance.runnerScriptSha256, /^[a-f0-9]{64}$/);
-    assert.equal(provenance.candidateOnly, true);
-    assert.equal(provenance.foldRequiresReview, true);
-    assert.match(provenance.startedAt, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
-    assert.deepEqual(provenance.rowSelection, ['R-CW-5A']);
-
-    const sha256 = async (relative) => createHash('sha256')
-      .update(await readFile(path.join(harness.checkout, relative)))
-      .digest('hex');
-    assert.deepEqual(provenance.rows, [{
-      rowId: 'R-CW-5A',
-      manifestPath: 'tools/k6-proofs/manifests/r-cw-5a-static.json',
-      manifestSha256: await sha256('tools/k6-proofs/manifests/r-cw-5a-static.json'),
-      scenarioPath: 'tools/k6-proofs/scenarios/static-corpus-row-validator.js',
-      scenarioSha256: await sha256('tools/k6-proofs/scenarios/static-corpus-row-validator.js'),
-    }]);
-
-    // The runner script digest is a real digest of the script it just ran.
-    assert.equal(provenance.runnerScriptSha256, await sha256('tools/k6-proofs/scripts/run-proofs.sh'));
-    assert.match(result.stdout, /Approved docs ref: [0-9a-f]{40}/);
-    assert.match(result.stdout, /Harness identity: every tracked byte under tools\/k6-proofs matches the approved docs ref/);
-    assert.match(result.stdout, /Harness contract binding: frozen manifest\/scenario digests/);
-    assert.match(result.stdout, /\[R-CW-5A\] SKIPPED: liveRunSafety classification/);
-
-    const receipt = JSON.stringify(provenance);
-    assert.doesNotMatch(receipt, /harness-provenance-test-token/);
-    assert.doesNotMatch(receipt, new RegExp(root.replaceAll('/', '\\/')));
-  } finally {
-    await new Promise((resolve) => gateway.close(resolve));
-    await rm(root, { recursive: true, force: true });
-  }
+      const receipt = JSON.stringify(provenance);
+      assert.doesNotMatch(receipt, /harness-provenance-test-token/);
+      assert.doesNotMatch(receipt, new RegExp(harness.root.replaceAll('/', '\\/')));
+  });
 });

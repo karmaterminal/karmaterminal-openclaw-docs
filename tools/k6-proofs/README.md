@@ -725,17 +725,32 @@ to `git ls-tree` of the approved commit. `git status` is deliberately not used:
 it consults the index, so an `assume-unchanged` or `skip-worktree` entry could
 hide a modified shared library that a scenario imports.
 
-Verification runs in three ordered stages so that no unproven byte is ever
-executed and no catalog is parsed before it is validated:
+Verification runs in ordered stages so that no unproven byte is executed and no
+catalog is parsed before it is validated:
 
-1. **byte-only identity** — ref shape, `HEAD` equality, repository identity, and
-   the full tracked-tree hash comparison. No manifest is parsed here.
-2. **catalog preflight** — the three validators, now proven to be the approved
-   committed bytes, run under `env -i` with a minimal allowlist.
-3. **row selection and contract binding** — `all` expansion and the per-row
-   manifest/scenario digest freeze, on a catalog the validators have approved.
+1. **byte-only identity** — ref shape, `HEAD` equality, candidate SHA shape,
+   repository identity, and the full tracked-tree hash comparison. No manifest is
+   parsed here.
+2. **immutable snapshot** — the approved `tools/k6-proofs` tree is extracted with
+   `git archive` into a private temporary directory, and every harness component
+   (catalog validators, seat readiness, k6, scenarios and their imports, the
+   evidence/receipt helpers) executes from that extract. The operator's working
+   tree cannot change what runs once the matrix has started.
+3. **catalog preflight** — the three validators run from the snapshot under
+   `env -i` with a minimal allowlist.
+4. **row selection and contract binding** — `all` expansion and the per-row
+   manifest/scenario digest freeze, on a catalog the validators have approved. A
+   selected row with no manifest at the approved ref fails closed rather than
+   being silently skipped.
 
-The gateway token is extracted only after all three stages complete.
+The gateway token is extracted only after all of those stages complete. The
+tracked-tree comparison is repeated before each row for a different reason: bash
+reads `run-proofs.sh` itself incrementally from the operator's checkout, so that
+one file must still match the approved ref while the matrix is running.
+
+Failure receipts and provenance carry only validated values; the snapshot path,
+the checkout path, the artifact root and `$HOME` are replaced with placeholders
+in any captured text that becomes a public artifact.
 
 All identity `git` calls run with `--no-replace-objects` / `GIT_NO_REPLACE_OBJECTS=1`
 and with ambient `GIT_DIR`/`GIT_WORK_TREE`-style overrides cleared, so a

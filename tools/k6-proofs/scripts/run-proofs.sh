@@ -14,23 +14,36 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RUNNER_SCRIPT_PATH="$SCRIPT_DIR/$(basename "${BASH_SOURCE[0]}")"
-PROOFS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-REPO_ROOT="$(cd "$PROOFS_DIR/../.." && pwd)"
+RUNNER_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+RUNNER_SCRIPT_PATH="$RUNNER_SCRIPT_DIR/$(basename "${BASH_SOURCE[0]}")"
+# The operator's checkout. Identity is always verified against this tree.
+REPO_ROOT="$(cd "$RUNNER_SCRIPT_DIR/../../.." && pwd)"
 PROOFS_TOOL_RELPATH="tools/k6-proofs"
+# The tree harness components are executed from. For a live run this is replaced
+# by an immutable snapshot of the approved docs ref (see bind_execution_roots).
+EXEC_ROOT="$REPO_ROOT"
+SCRIPT_DIR="$RUNNER_SCRIPT_DIR"
+PROOFS_DIR="$(cd "$RUNNER_SCRIPT_DIR/.." && pwd)"
+HARNESS_SNAPSHOT_ROOT=""
 # Infrastructure exit code (EX_CONFIG). It is deliberately distinct from a row's
 # effective exit code so a harness setup failure can never be read as a product
 # verdict.
 HARNESS_INFRA_EXIT=78
 CATALOG_CHECKS=(check-manifest-scenarios.mjs check-scenario-alignment.mjs check-proof-row-manifests.mjs)
-EVIDENCE_EXTRACTOR="$SCRIPT_DIR/extract-k6-evidence.mjs"
-CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
-R_CD_2_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-2-authoritative-receipt.mjs"
-ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
-CANDIDATE_RESULT_VALIDATOR="$SCRIPT_DIR/validate-candidate-run-result.mjs"
-INTERRUPTED_RESULT_WRITER="$SCRIPT_DIR/write-interrupted-run-result.mjs"
-R_CD_TOKEN_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-token-authoritative-receipt.mjs"
+
+# Point every executed harness component at the current execution root.
+bind_execution_roots() {
+  PROOFS_DIR="$EXEC_ROOT/$PROOFS_TOOL_RELPATH"
+  SCRIPT_DIR="$PROOFS_DIR/scripts"
+  EVIDENCE_EXTRACTOR="$SCRIPT_DIR/extract-k6-evidence.mjs"
+  CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
+  R_CD_2_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-2-authoritative-receipt.mjs"
+  ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
+  CANDIDATE_RESULT_VALIDATOR="$SCRIPT_DIR/validate-candidate-run-result.mjs"
+  INTERRUPTED_RESULT_WRITER="$SCRIPT_DIR/write-interrupted-run-result.mjs"
+  R_CD_TOKEN_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-token-authoritative-receipt.mjs"
+}
+bind_execution_roots
 PRIVATE_K6_LOG=""
 PRIVATE_EVIDENCE_FILE=""
 PRIVATE_GATEWAY_LOG=""
@@ -48,6 +61,7 @@ cleanup_private_artifacts() {
     "${PRIVATE_GATEWAY_LOG:-}" \
     "${CATALOG_PREFLIGHT_RAW_FILE:-}" \
     "${SOURCE_CONTRACT_FILE:-}"
+  if [[ -n "${HARNESS_SNAPSHOT_ROOT:-}" ]]; then rm -rf "$HARNESS_SNAPSHOT_ROOT"; fi
 }
 
 finalize_interrupted_token_run() {
@@ -86,6 +100,7 @@ HARNESS_IDENTITY_VERIFIED=false
 ROW_SELECTION_JSON='[]'
 PROVISIONAL_RUN_DIR=""
 ROWS_DISPATCHED=0
+ROWS_TERMINAL_PRE_DISPATCH=0
 MATRIX_NONCE=""
 declare -A ROW_MANIFEST_RELPATH=()
 declare -A ROW_MANIFEST_SHA256=()
@@ -170,6 +185,7 @@ scrub_public_text() {
     process.stdin.on("data", (chunk) => { data += chunk; });
     process.stdin.on("end", () => {
       const replacements = [
+        [process.argv[4], "<harness>"],
         [process.argv[1], "<repo-root>"],
         [process.argv[2], "<out-root>"],
         [process.argv[3], "<home>"],
@@ -180,7 +196,7 @@ scrub_public_text() {
       }
       process.stdout.write(out);
     });
-  ' "$REPO_ROOT" "$OUT_ROOT" "${HOME:-}"
+  ' "$REPO_ROOT" "$OUT_ROOT" "${HOME:-}" "${HARNESS_SNAPSHOT_ROOT:-}"
 }
 
 # One harness infrastructure receipt, written instead of any per-row product
@@ -205,6 +221,7 @@ write_harness_control_receipt() {
     --arg recordedAt "$recorded_at" \
     --argjson exitCode "$HARNESS_INFRA_EXIT" \
     --argjson rowsExecuted "${ROWS_DISPATCHED:-0}" \
+    --argjson rowsTerminatedPreDispatch "${ROWS_TERMINAL_PRE_DISPATCH:-0}" \
     --argjson rowSelection "$(safe_row_selection_json)" \
     --argjson detail "$detail_json" \
     '{
@@ -220,6 +237,7 @@ write_harness_control_receipt() {
       repository: (if $repository == "" then null else $repository end),
       rowSelection: $rowSelection,
       rowsExecuted: $rowsExecuted,
+      rowsTerminatedPreDispatch: $rowsTerminatedPreDispatch,
       rowVerdictsSynthesized: false,
       productVerdict: null,
       exitCode: $exitCode,
@@ -228,7 +246,7 @@ write_harness_control_receipt() {
     }' > "$OUT_ROOT/harness-control-receipt.json"
   echo "HARNESS INFRASTRUCTURE FAILURE [$stage]: $reason" >&2
   echo "CONTROL RECEIPT: $OUT_ROOT/harness-control-receipt.json" >&2
-  echo "Rows dispatched before this failure: ${ROWS_DISPATCHED:-0}. No per-row candidate verdict was synthesized." >&2
+  echo "k6 dispatches before this failure: ${ROWS_DISPATCHED:-0}; pre-dispatch terminal results: ${ROWS_TERMINAL_PRE_DISPATCH:-0}. No per-row candidate verdict was synthesized." >&2
 }
 
 safe_sha_or_marker() {
@@ -398,7 +416,9 @@ assert_harness_tree_matches_docs_ref() {
   fi
   expected_objects="$(printf '%s\n' "$listing" | cut -f1 | awk '{print $3}')"
   paths="$(printf '%s\n' "$listing" | cut -f2-)"
-  actual_objects="$(printf '%s\n' "$paths" | harness_git hash-object --stdin-paths 2>/dev/null || true)"
+  # --no-filters: a configured clean filter would otherwise be able to transform
+  # dirty bytes into the approved blob hash, and would itself execute here.
+  actual_objects="$(printf '%s\n' "$paths" | harness_git hash-object --no-filters --stdin-paths 2>/dev/null || true)"
   if [[ "$expected_objects" != "$actual_objects" ]]; then
     local expected_count actual_count
     expected_count="$(printf '%s\n' "$expected_objects" | grep -c . || true)"
@@ -417,8 +437,9 @@ assert_harness_tree_matches_docs_ref() {
   fi
 }
 
-worktree_sha256() {
-  sha256sum "$REPO_ROOT/$1" 2>/dev/null | cut -d' ' -f1
+# Hash the bytes that will actually execute (the snapshot for a live run).
+exec_sha256() {
+  sha256sum "$EXEC_ROOT/$1" 2>/dev/null | cut -d' ' -f1
 }
 
 # The digests are frozen once at startup, but k6 and the scenario read the
@@ -441,8 +462,8 @@ assert_row_bytes_frozen() {
       "$(jq -n --arg row "$row" --arg phase "$phase" '{check:"row-bound-to-docs-ref", row:$row, phase:$phase}')"
   fi
   local actual_manifest actual_scenario
-  actual_manifest="$(worktree_sha256 "$manifest_rel" || true)"
-  actual_scenario="$(worktree_sha256 "$scenario_rel" || true)"
+  actual_manifest="$(exec_sha256 "$manifest_rel" || true)"
+  actual_scenario="$(exec_sha256 "$scenario_rel" || true)"
   if [[ -z "$actual_manifest" || -z "$actual_scenario" ||
         "$actual_manifest" != "$expected_manifest" || "$actual_scenario" != "$expected_scenario" ]]; then
     fail_harness \
@@ -455,9 +476,10 @@ assert_row_bytes_frozen() {
         --argjson scenarioChanged "$(if [[ "$actual_scenario" != "$expected_scenario" ]]; then printf 'true'; else printf 'false'; fi)" \
         '{check:"frozen-bytes-still-current", row:$row, phase:$phase, manifestChanged:$manifestChanged, scenarioChanged:$scenarioChanged}')"
   fi
-  # A scenario is not self-contained: it imports the shared harness library.
-  # Re-verifying the whole tracked tree covers lib/, scripts/, and every other
-  # file a row can reach.
+  # The executed bytes live in an immutable snapshot, so this re-verification of
+  # the operator's checkout exists for a different reason: bash reads this very
+  # script incrementally, so run-proofs.sh itself must still match the approved
+  # ref while it is running.
   assert_harness_tree_matches_docs_ref "harness-tree-still-current" "$phase" "$row"
 }
 
@@ -498,6 +520,13 @@ if [[ "$DRY_RUN" == "false" ]]; then
 
   assert_harness_tree_matches_docs_ref "harness-tree-clean" "startup" ""
 
+  if [[ ! "${OPENCLAW_CANDIDATE_SHA:-}" =~ ^[0-9a-f]{40}$ ]]; then
+    fail_harness \
+      "harness-identity" \
+      "a live matrix requires an exact 40-character lowercase candidate SHA; unvalidated input must not reach artifact paths or metadata" \
+      "$(jq -n '{check:"candidate-sha-shape"}')"
+  fi
+
   if [[ ! "$DOCS_REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
     fail_harness \
       "harness-identity" \
@@ -505,9 +534,30 @@ if [[ "$DRY_RUN" == "false" ]]; then
       "$(jq -n '{check:"repository-identity"}')"
   fi
 
+  # Everything executed from here on comes out of an immutable extract of the
+  # approved commit, not the operator's mutable working tree. This closes the
+  # check-then-use window for the catalog validators, seat readiness, k6, and
+  # every scenario import: those bytes cannot change while the matrix runs.
+  HARNESS_SNAPSHOT_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/openclaw-k6-harness.XXXXXX")"
+  chmod 700 "$HARNESS_SNAPSHOT_ROOT"
+  if ! harness_git archive "$DOCS_REF" -- "$PROOFS_TOOL_RELPATH" | tar -x -C "$HARNESS_SNAPSHOT_ROOT"; then
+    fail_harness \
+      "harness-identity" \
+      "the approved $PROOFS_TOOL_RELPATH tree could not be extracted for immutable execution" \
+      "$(jq -n '{check:"harness-snapshot-extractable"}')"
+  fi
+  # Read-only corpus/workflow inputs the catalog validators need. They are never
+  # executed, so they are referenced rather than copied.
+  ln -s "$REPO_ROOT/PROOFS" "$HARNESS_SNAPSHOT_ROOT/PROOFS"
+  ln -s "$REPO_ROOT/.github" "$HARNESS_SNAPSHOT_ROOT/.github"
+  EXEC_ROOT="$HARNESS_SNAPSHOT_ROOT"
+  bind_execution_roots
+  cd "$PROOFS_DIR"
+
   HARNESS_IDENTITY_VERIFIED=true
   echo "Approved docs ref: $DOCS_REF ($DOCS_REPOSITORY)"
   echo "Harness identity: every tracked byte under $PROOFS_TOOL_RELPATH matches the approved docs ref."
+  echo "Harness execution: immutable snapshot of the approved tree."
 elif [[ "$DOCS_REF_INPUT" =~ ^[0-9a-f]{40}$ ]]; then
   DOCS_REF="$DOCS_REF_INPUT"
   DOCS_REF_SOURCE="approved-input"
@@ -527,7 +577,7 @@ publish_catalog_preflight_log() {
 }
 for CATALOG_CHECK in "${CATALOG_CHECKS[@]}"; do
   printf '### %s\n' "$CATALOG_CHECK" >> "$CATALOG_PREFLIGHT_RAW"
-  if ! run_with_minimal_env node "$SCRIPT_DIR/$CATALOG_CHECK" --repo-root "$REPO_ROOT" >> "$CATALOG_PREFLIGHT_RAW" 2>&1; then
+  if ! run_with_minimal_env node "$SCRIPT_DIR/$CATALOG_CHECK" --repo-root "$EXEC_ROOT" >> "$CATALOG_PREFLIGHT_RAW" 2>&1; then
     publish_catalog_preflight_log
     fail_harness \
       "catalog-preflight" \
@@ -576,9 +626,16 @@ if [[ "$DRY_RUN" == "false" ]]; then
     BIND_ROW="$(printf '%s' "$BIND_ROW" | tr '[:lower:]' '[:upper:]')"
     BIND_MANIFEST=""
     BIND_MANIFEST="$(find_manifest_relpath "$BIND_ROW" || true)"
-    # A row with no manifest is reported as SKIPPED by the row loop; it never
-    # fires, so it has no harness contract to bind.
-    [[ -n "$BIND_MANIFEST" ]] || continue
+    # The approved harness defines every row it can prove. A selected row with no
+    # manifest at the approved ref must fail once as infrastructure rather than
+    # be silently skipped, which is exactly how a matrix acquires a phantom
+    # denominator.
+    if [[ -z "$BIND_MANIFEST" ]]; then
+      fail_harness \
+        "harness-identity" \
+        "row $BIND_ROW has no manifest at the approved docs ref; unrecorded rows cannot be fired or counted" \
+        "$(jq -n --arg row "$BIND_ROW" --arg approved "$DOCS_REF" '{check:"row-recorded-at-docs-ref", row:$row, approved:$approved}')"
+    fi
     BIND_STATUS=""
     if ! BIND_STATUS="$(jq -r '.scenario.status // empty' "$BIND_MANIFEST" 2>/dev/null)"; then
       fail_harness \
@@ -611,8 +668,8 @@ if [[ "$DRY_RUN" == "false" ]]; then
           "$BIND_PATH is not tracked at the approved docs ref; unrecorded harness bytes cannot produce a receipt" \
           "$(jq -n --arg row "$BIND_ROW" --arg path "$BIND_PATH" --arg approved "$DOCS_REF" '{check:"tracked-at-docs-ref", row:$row, path:$path, approved:$approved}')"
       fi
-      BIND_WORKTREE="$(worktree_sha256 "$BIND_PATH")"
-      if [[ "$BIND_TRACKED" != "$BIND_WORKTREE" ]]; then
+      BIND_EXEC="$(exec_sha256 "$BIND_PATH")"
+      if [[ -z "$BIND_EXEC" || "$BIND_TRACKED" != "$BIND_EXEC" ]]; then
         fail_harness \
           "harness-identity" \
           "$BIND_PATH differs from the approved docs ref; refusing to fire mutated harness bytes" \
@@ -620,10 +677,10 @@ if [[ "$DRY_RUN" == "false" ]]; then
       fi
       if [[ "$BIND_PATH" == "$BIND_MANIFEST_REL" ]]; then
         ROW_MANIFEST_RELPATH["$BIND_ROW"]="$BIND_MANIFEST_REL"
-        ROW_MANIFEST_SHA256["$BIND_ROW"]="$BIND_WORKTREE"
+        ROW_MANIFEST_SHA256["$BIND_ROW"]="$BIND_EXEC"
       else
         ROW_SCENARIO_RELPATH["$BIND_ROW"]="$BIND_SCENARIO_REL"
-        ROW_SCENARIO_SHA256["$BIND_ROW"]="$BIND_WORKTREE"
+        ROW_SCENARIO_SHA256["$BIND_ROW"]="$BIND_EXEC"
       fi
     done
   done
@@ -808,13 +865,15 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     # earlier run for the same candidate/row/seat within the same second.
     RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-$(printf '%s' "$ROW_ID" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')-${MATRIX_NONCE}"
     RUN_DIR="$OUT_ROOT/$OPENCLAW_CANDIDATE_SHA/$ROW_ID/$OPENCLAW_SEAT_NAME/$RUN_ID"
-    if [[ -e "$RUN_DIR" ]]; then
+    # Atomic: the leaf mkdir fails if anything already owns this path, so this
+    # process can only ever purge a directory it created itself.
+    mkdir -p "$(dirname "$RUN_DIR")"
+    if ! mkdir "$RUN_DIR" 2>/dev/null; then
       fail_harness \
         "harness-identity" \
         "row $ROW_ID run directory already exists; refusing to write into another invocation's artifacts" \
         "$(jq -n --arg row "$ROW_ID" '{check:"run-directory-exclusive", row:$row}')"
     fi
-    mkdir -p "$RUN_DIR"
     PROVISIONAL_RUN_DIR="$RUN_DIR"
     touch "$RUN_DIR/.started"
     cp "$MANIFEST_FILE" "$RUN_DIR/row-manifest.json"
@@ -862,7 +921,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           > "$RUN_DIR/run-result.json"
         rm -f "$RUN_DIR/.started"
         PROVISIONAL_RUN_DIR=""
-        ROWS_DISPATCHED=$((ROWS_DISPATCHED + 1))
+        ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
         echo "[$ROW_ID] PARTIAL-candidate: exact equal candidate/runtime SHAs are required; no dispatch occurred."
         continue
       fi
@@ -904,7 +963,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         ACTIVE_TOKEN_PHASE="pre-dispatch-surface-gate"
         ACTIVE_TOKEN_RUN_DIR=""
         PROVISIONAL_RUN_DIR=""
-        ROWS_DISPATCHED=$((ROWS_DISPATCHED + 1))
+        ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
         echo "[$ROW_ID] PARTIAL-candidate: seat readiness class '$OPENCLAW_SEAT_CLASS' is not scanner-supported raw-final-text; no dispatch occurred."
         continue
       fi

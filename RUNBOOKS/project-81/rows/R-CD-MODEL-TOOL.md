@@ -24,7 +24,8 @@ Live candidate run:
 
 ```bash
 cd tools/k6-proofs
-OPENCLAW_GATEWAY_TOKEN=*** OPENCLAW_SESSION_KEY=<target-session-key> OPENCLAW_CREATE_DISPOSABLE_SESSION=true OPENCLAW_ALT_MODEL=<provider/model>   ./scripts/run-proofs.sh --live R-CD-MODEL-TOOL <candidate-sha>
+OPENCLAW_GATEWAY_TOKEN=*** OPENCLAW_SESSION_KEY=<target-session-key> OPENCLAW_CREATE_DISPOSABLE_SESSION=true OPENCLAW_ALT_MODEL=openai/gpt-5.6-luna \\
+  ./scripts/run-proofs.sh --live R-CD-MODEL-TOOL <candidate-sha>
 ```
 
 When using the GitHub Actions wrapper, include `R-CD-MODEL-TOOL` in the `rows` input and keep `create_disposable_sessions=true` for broad slices.
@@ -42,6 +43,7 @@ When using the GitHub Actions wrapper, include `R-CD-MODEL-TOOL` in the `rows` i
 - Review `run-result.json` for `review.status` and `pendingReceipts`; trace/receipt-marker gaps make the row review-pending, not failed.
 - Fetch and commit Tempo trace JSON when a trace id is emitted.
 - For model rows, record the requested model byte and observed child runtime-context model byte in the fold note.
+- `openai/gpt-5.6-luna` is the committed available-model probe for this row. Do not override it ad hoc: the scenario treats any request outside the manifest allowlist as a failed candidate observation, and a selected model that differs from Luna is `FAIL-candidate`.
 - Confirm the child task did not include the requested model string; otherwise the run is echo-contaminated and cannot be folded as PASS.
 - For token/bracket rows, record the surface class used (raw final text vs message-body) because scanner availability is the proof boundary.
 
@@ -57,4 +59,4 @@ A k6 `PASS-candidate` is review input, not a canonical proof fold. Fold only aft
 
 ## Nuance / caveat
 
-If the child observes fallback/inherited/UNKNOWN model instead of the requested model, package as HONEST-LIMIT-candidate with mismatch evidence, not pass. A child self-report is only useful when the requested model was not present in the child prompt; otherwise it proves echo, not runtime selection.
+If the child observes fallback/inherited/UNKNOWN model instead of `openai/gpt-5.6-luna`, classify it as `FAIL-candidate` and attach the authoritative metadata plus the requested/available model bytes. A child self-report is only useful when the requested model was not present in the child prompt; otherwise it proves echo, not runtime selection.

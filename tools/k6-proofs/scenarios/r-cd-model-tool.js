@@ -44,6 +44,10 @@ export default function() {
   const rowNonce = nonce('R-CD-MODEL-TOOL');
   const inv = manifest?.invocation || {};
   const requestedModel = normalizeModel(__ENV.OPENCLAW_ALT_MODEL || inv.model || DEFAULTS.requestedModel);
+  const availableModels = Array.isArray(inv.availableModels) && inv.availableModels.length > 0
+    ? inv.availableModels.map(normalizeModel)
+    : [DEFAULTS.requestedModel];
+  const requestedModelAvailable = availableModels.includes(requestedModel);
   const delaySeconds = Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds);
   const idPrefix = inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix;
   if (!token) { console.error('OPENCLAW_GATEWAY_TOKEN is required'); failures.add(1); return; }
@@ -62,6 +66,8 @@ export default function() {
     started: new Date().toISOString(),
     requested_model_byte: requestedModel,
     requested_model_source: 'continue_delegate.model parameter',
+    available_model_bytes: availableModels,
+    requested_model_available: requestedModelAvailable,
     dispatch_accepted: false,
     parent_scheduled_sentinel: false,
     child_session_observed: false,
@@ -158,10 +164,14 @@ export default function() {
               model: child.model || null,
               modelSelectionLocked: child.modelSelectionLocked === true,
             };
-            evidence.model_matches = evidence.child_metadata_model_byte === requestedModel;
+            evidence.model_matches =
+              evidence.requested_model_available &&
+              evidence.child_metadata_model_byte === requestedModel;
             if (!evidence.model_matches) {
               evidence.model_classification_reason =
-                'requested model does not match authoritative child-session metadata';
+                evidence.requested_model_available
+                  ? 'requested model does not match authoritative child-session metadata'
+                  : 'requested model is outside this row’s available-model allowlist';
             }
             console.log('✓ child session metadata observed');
           } else if (!classified.ok) {
@@ -216,12 +226,14 @@ export default function() {
     'child session observed': () => evidence.child_session_observed,
     'authoritative child-session model byte': () => !!evidence.child_metadata_model_byte,
     'return payload': () => evidence.return_payload,
+    'requested model is in this seat’s available set': () => evidence.requested_model_available,
     'requested model observed': () => evidence.model_matches,
   });
   const authoritativeMismatch =
-    evidence.child_session_metadata_observed &&
-    !!evidence.child_metadata_model_byte &&
-    !evidence.model_matches;
+    !evidence.requested_model_available ||
+    (evidence.child_session_metadata_observed &&
+      !!evidence.child_metadata_model_byte &&
+      !evidence.model_matches);
   const verdict = authoritativeMismatch
     ? 'FAIL-candidate'
     : (complete ? 'PASS-candidate' : 'PARTIAL-candidate');
@@ -234,12 +246,13 @@ export function handleSummary(data) {
   const failuresCount = data.metrics.proof_failures?.values?.count || 0;
   const complete = !!(finalEvidence?.dispatch_accepted && finalEvidence?.parent_scheduled_sentinel && finalEvidence?.child_session_metadata_observed && finalEvidence?.child_metadata_model_byte && finalEvidence?.return_payload);
   const authoritativeMismatch =
-    finalEvidence?.child_session_metadata_observed &&
-    !!finalEvidence?.child_metadata_model_byte &&
-    !finalEvidence?.model_matches;
+    finalEvidence?.requested_model_available === false ||
+    (finalEvidence?.child_session_metadata_observed &&
+      !!finalEvidence?.child_metadata_model_byte &&
+      !finalEvidence?.model_matches);
   const verdict = authoritativeMismatch
     ? 'FAIL-candidate'
     : (complete ? 'PASS-candidate' : 'PARTIAL-candidate');
-  const summary = { row: 'R-CD-MODEL-TOOL', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict, requestedModel: finalEvidence?.requested_model_byte || __ENV.OPENCLAW_ALT_MODEL || null, observedModel: finalEvidence?.child_metadata_model_byte || null, observedModelSource: finalEvidence?.child_metadata_model_source || null, auxiliarySelfReport: finalEvidence?.child_self_reported_model || null, classificationReason: finalEvidence?.model_classification_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_tool_duration?.values || null, failures: failuresCount } };
+  const summary = { row: 'R-CD-MODEL-TOOL', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict, requestedModel: finalEvidence?.requested_model_byte || __ENV.OPENCLAW_ALT_MODEL || null, availableModels: finalEvidence?.available_model_bytes || null, requestedModelAvailable: finalEvidence?.requested_model_available ?? null, observedModel: finalEvidence?.child_metadata_model_byte || null, observedModelSource: finalEvidence?.child_metadata_model_source || null, auxiliarySelfReport: finalEvidence?.child_self_reported_model || null, classificationReason: finalEvidence?.model_classification_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_tool_duration?.values || null, failures: failuresCount } };
   return { stdout: '\n[R-CD-MODEL-TOOL] Summary: ' + summary.verdict + ' | SHA: ' + summary.sha + ' | Seat: ' + summary.seat + '\n', 'r-cd-model-tool-summary.json': JSON.stringify(summary, null, 2) };
 }

@@ -66,7 +66,9 @@ function publicTraceAttribute(attribute) {
 }
 
 export function publicTempoStatusCode(value) {
-  if (value === 0 || value === 'UNSET' || value === 'STATUS_CODE_UNSET') return 'UNSET';
+  if (value == null || value === 0 || value === 'UNSET' || value === 'STATUS_CODE_UNSET') {
+    return 'UNSET';
+  }
   if (value === 1 || value === 'OK' || value === 'STATUS_CODE_OK') return 'OK';
   if (value === 2 || value === 'ERROR' || value === 'STATUS_CODE_ERROR') return 'ERROR';
   return 'UNKNOWN';

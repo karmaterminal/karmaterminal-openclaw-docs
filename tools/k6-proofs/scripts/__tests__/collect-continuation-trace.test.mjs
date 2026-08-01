@@ -268,14 +268,13 @@ test('rejects duplicate delegate dispatch/fire spans but retains different paren
   await rm(fixture.dir, { recursive: true, force: true });
 });
 
-test('maps numeric, short, and protobuf Tempo status enums and fails unknown values closed', () => {
+test('maps omitted, numeric, short, and protobuf Tempo status enums and fails unknown values closed', () => {
   assert.deepEqual(
-    [0, 'UNSET', 'STATUS_CODE_UNSET', 1, 'OK', 'STATUS_CODE_OK', 2, 'ERROR', 'STATUS_CODE_ERROR']
+    [undefined, null, 0, 'UNSET', 'STATUS_CODE_UNSET', 1, 'OK', 'STATUS_CODE_OK', 2, 'ERROR', 'STATUS_CODE_ERROR']
       .map(publicTempoStatusCode),
-    ['UNSET', 'UNSET', 'UNSET', 'OK', 'OK', 'OK', 'ERROR', 'ERROR', 'ERROR'],
+    ['UNSET', 'UNSET', 'UNSET', 'UNSET', 'UNSET', 'OK', 'OK', 'OK', 'ERROR', 'ERROR', 'ERROR'],
   );
   assert.equal(publicTempoStatusCode('STATUS_CODE_FUTURE'), 'UNKNOWN');
-  assert.equal(publicTempoStatusCode(undefined), 'UNKNOWN');
 });
 
 test('replays immutable R-CD-1 and R-CW-1 topology against raw protobuf status forms', async (t) => {
@@ -342,6 +341,42 @@ test('replays immutable R-CD-1 and R-CW-1 topology against raw protobuf status f
         await rm(fixture.dir, { recursive: true, force: true });
       }
     });
+  }
+});
+
+test('accepts Tempo typed-tool spans with canonical empty protobuf status objects', async () => {
+  const fixture = await fixtureDir();
+  const traceId = '12121212121212121212121212121213';
+  const trace = traceFixture({
+    traceId,
+    reasonHash: fixture.reasonHash,
+    reasonLength: fixture.reasonLength,
+  });
+  const spans = trace.batches[0].scopeSpans[0].spans;
+  for (const entry of spans) {
+    if (entry.name.startsWith('continuation.')) entry.status = { code: 'STATUS_CODE_OK' };
+    if (entry.name === 'openclaw.tool.execution') entry.status = {};
+  }
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(new URL(request.url, 'http://localhost').pathname === '/api/search'
+      ? { traces: [{ traceID: traceId }] }
+      : trace));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'silas-prince', '--tempo-url', server.url, '--timeout-ms', '40', '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const publicTrace = JSON.parse(await readFile(path.join(fixture.dir, result.traceFile), 'utf8'));
+    assert.equal(
+      publicTrace.spans.find((entry) => entry.name === 'openclaw.tool.execution').status.code,
+      'UNSET',
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
   }
 });
 

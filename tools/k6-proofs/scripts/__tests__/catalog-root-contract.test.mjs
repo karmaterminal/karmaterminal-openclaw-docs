@@ -175,6 +175,7 @@ test('an incidental tools/k6-proofs directory is not mistaken for a harness root
   for (const [label, contents] of [
     ['no catalog directory at all', 'notes'],
     ['scenarios but no manifest catalog', 'scenarios'],
+    ['manifests but no scenario catalog', 'manifests'],
   ]) {
     await t.test(label, async () => {
       const decoy = await mkdtemp(path.join(tmpdir(), 'p81-catalog-root-decoy-'));

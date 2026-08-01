@@ -715,9 +715,27 @@ supplied through `--docs-ref <40-hex>` or `OPENCLAW_PROOFS_DOCS_REF`, and:
 
 - the ref is a 40-character lowercase SHA;
 - repository `HEAD` equals that ref;
-- tracked bytes under `tools/k6-proofs` are clean;
+- every tracked file under `tools/k6-proofs` hashes to the blob recorded in that
+  commit;
 - every selected runnable row's manifest and scenario are tracked at that exact
   commit with matching bytes.
+
+The tree check hashes working-tree bytes with `git hash-object` and compares them
+to `git ls-tree` of the approved commit. `git status` is deliberately not used:
+it consults the index, so an `assume-unchanged` or `skip-worktree` entry could
+hide a modified shared library that a scenario imports.
+
+Verification runs in three ordered stages so that no unproven byte is ever
+executed and no catalog is parsed before it is validated:
+
+1. **byte-only identity** — ref shape, `HEAD` equality, repository identity, and
+   the full tracked-tree hash comparison. No manifest is parsed here.
+2. **catalog preflight** — the three validators, now proven to be the approved
+   committed bytes, run under `env -i` with a minimal allowlist.
+3. **row selection and contract binding** — `all` expansion and the per-row
+   manifest/scenario digest freeze, on a catalog the validators have approved.
+
+The gateway token is extracted only after all three stages complete.
 
 All identity `git` calls run with `--no-replace-objects` / `GIT_NO_REPLACE_OBJECTS=1`
 and with ambient `GIT_DIR`/`GIT_WORK_TREE`-style overrides cleared, so a

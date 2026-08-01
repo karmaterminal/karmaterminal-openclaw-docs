@@ -25,10 +25,11 @@ import path from 'node:path';
 export const PROOFS_TOOL_DIR = path.join('tools', 'k6-proofs');
 export const REPO_ROOT_ENV_VAR = 'OPENCLAW_PROOFS_REPO_ROOT';
 export const REPO_ROOT_FLAG = '--repo-root';
-// A bare `tools/k6-proofs` directory is not enough: the manifest catalog is the
-// defining artifact of a proof harness, so an unrelated ancestor that merely
-// happens to contain a similarly named path cannot be mistaken for the root.
-const CATALOG_SENTINEL = 'manifests';
+// A bare `tools/k6-proofs` directory is not enough, and neither is one catalog
+// directory: a proof harness always has both a manifest catalog and a scenario
+// catalog. Requiring both stops an unrelated ancestor that merely happens to
+// contain a similarly named path from capturing discovery.
+const CATALOG_SENTINELS = ['manifests', 'scenarios'];
 
 function isDirectory(candidate) {
   try {
@@ -48,13 +49,13 @@ function canonical(candidate) {
 
 /**
  * A directory is a repository root when it directly contains `tools/k6-proofs`
- * and that directory holds a `manifests` proof catalog.
+ * and that directory holds both proof catalogs (`manifests` and `scenarios`).
  */
 export function isRepositoryRoot(candidate) {
   if (!candidate) return false;
   const toolDir = path.join(candidate, PROOFS_TOOL_DIR);
   if (!isDirectory(toolDir)) return false;
-  return isDirectory(path.join(toolDir, CATALOG_SENTINEL));
+  return CATALOG_SENTINELS.every((sentinel) => isDirectory(path.join(toolDir, sentinel)));
 }
 
 /**

@@ -150,8 +150,9 @@ test('mutated tracked harness bytes fail closed before any row runs', async () =
     async (harness) => {
       const result = await invokeRunner(harness, { args: ['--docs-ref', harness.docsRef] });
       const receipt = await assertInfrastructureFailure(harness, result, { stage: 'harness-identity', check: 'harness-tree-clean' });
-      assert.ok(receipt.detail.dirtyEntries >= 1);
-      assert.match(result.stderr, /dirty harness cannot certify/);
+      assert.equal(receipt.detail.phase, 'startup');
+      assert.ok(receipt.detail.trackedFiles > 1, 'the whole tracked tree must be verified, not one file');
+      assert.match(result.stderr, /do not match the approved docs ref/);
     },
     {
       mutate: async (harness) => {
@@ -160,6 +161,40 @@ test('mutated tracked harness bytes fail closed before any row runs', async () =
       },
     },
   );
+});
+
+test('an index-hidden mutation cannot pass as a clean harness', async (t) => {
+  // `git status` consults the index, so assume-unchanged / skip-worktree hide a
+  // modified file from it. The gate hashes working-tree bytes instead, which
+  // cannot be suppressed that way.
+  for (const flag of ['--assume-unchanged', '--skip-worktree']) {
+    await t.test(`hidden with ${flag}`, async () => {
+      await withRunner(
+        async (harness) => {
+          const status = await run(
+            'git',
+            ['-C', harness.checkout, 'status', '--porcelain', '--untracked-files=no', '--', 'tools/k6-proofs'],
+            { encoding: 'utf8' },
+          );
+          assert.equal(status.stdout, '', 'the mutation must be invisible to git status for this test to mean anything');
+
+          const result = await invokeRunner(harness, { args: ['--docs-ref', harness.docsRef] });
+          const receipt = await assertInfrastructureFailure(harness, result, { stage: 'harness-identity', check: 'harness-tree-clean' });
+          assert.ok(receipt.detail.trackedFiles > 1);
+          assert.match(result.stderr, /do not match the approved docs ref/);
+        },
+        {
+          mutate: async (harness) => {
+            // A shared library a scenario imports, not the scenario itself.
+            const library = 'tools/k6-proofs/lib/gateway-ws.js';
+            await run('git', ['-C', harness.checkout, 'update-index', flag, '--', library], { encoding: 'utf8' });
+            const file = path.join(harness.checkout, library);
+            await writeFile(file, `${await readFile(file, 'utf8')}\n// hidden from the index\n`);
+          },
+        },
+      );
+    });
+  }
 });
 
 test('a row whose contract is untracked at the approved ref fails closed', async () => {
@@ -549,7 +584,8 @@ test('an approved live run freezes the docs ref and records the exact harness di
     // The runner script digest is a real digest of the script it just ran.
     assert.equal(provenance.runnerScriptSha256, await sha256('tools/k6-proofs/scripts/run-proofs.sh'));
     assert.match(result.stdout, /Approved docs ref: [0-9a-f]{40}/);
-    assert.match(result.stdout, /Harness identity: verified clean and tracked/);
+    assert.match(result.stdout, /Harness identity: every tracked byte under tools\/k6-proofs matches the approved docs ref/);
+    assert.match(result.stdout, /Harness contract binding: frozen manifest\/scenario digests/);
     assert.match(result.stdout, /\[R-CW-5A\] SKIPPED: liveRunSafety classification/);
 
     const receipt = JSON.stringify(provenance);

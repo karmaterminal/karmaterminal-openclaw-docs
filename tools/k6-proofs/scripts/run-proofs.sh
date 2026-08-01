@@ -34,7 +34,11 @@ HARNESS_VERIFIED_PATHS=("tools/k6-proofs" "PROOFS" ".github")
 EXEC_ROOT="$REPO_ROOT"
 SCRIPT_DIR="$RUNNER_SCRIPT_DIR"
 PROOFS_DIR="$(cd "$RUNNER_SCRIPT_DIR/.." && pwd)"
+# Only ever set for a snapshot THIS process created, or one whose handoff has
+# been fully authenticated. The EXIT trap removes it recursively, so an
+# unauthenticated claimed path must never reach this variable.
 HARNESS_SNAPSHOT_ROOT=""
+HARNESS_SNAPSHOT_SENTINEL=".openclaw-harness-snapshot"
 # Infrastructure exit code (EX_CONFIG). It is deliberately distinct from a row's
 # effective exit code so a harness setup failure can never be read as a product
 # verdict.
@@ -206,7 +210,7 @@ scrub_public_text() {
       }
       process.stdout.write(out);
     });
-  ' "$REPO_ROOT" "$OUT_ROOT" "${HOME:-}" "${HARNESS_SNAPSHOT_ROOT:-}"
+  ' "$REPO_ROOT" "$OUT_ROOT" "${HOME:-}" "${EXEC_ROOT:-}"
 }
 
 # One harness infrastructure receipt, written instead of any per-row product
@@ -532,6 +536,7 @@ if [[ "$DRY_RUN" == "false" ]]; then
   # way the remaining commands are guaranteed to be approved bytes is to hand
   # execution to the snapshot's own copy before any credential is loaded.
   if [[ -z "${OPENCLAW_PROOFS_HARNESS_SNAPSHOT:-}" ]]; then
+    # Created here, so this process owns its cleanup from the moment it exists.
     HARNESS_SNAPSHOT_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/openclaw-k6-harness.XXXXXX")"
     chmod 700 "$HARNESS_SNAPSHOT_ROOT"
     # Every consumed tree is materialized, not referenced: static rows read the
@@ -544,7 +549,12 @@ if [[ "$DRY_RUN" == "false" ]]; then
         "the approved ${HARNESS_VERIFIED_PATHS[*]} trees could not be extracted for immutable execution" \
         "$(jq -n '{check:"harness-snapshot-extractable"}')"
     fi
+    # An unguessable ownership sentinel. Only a process that was handed this
+    # value may adopt (and therefore later delete) the snapshot.
+    HARNESS_SNAPSHOT_TOKEN="$(tr -d '-' < /proc/sys/kernel/random/uuid 2>/dev/null || printf '%04x%04x%04x%04x' "$RANDOM" "$RANDOM" "$RANDOM" "$RANDOM")"
+    (umask 077; printf '%s' "$HARNESS_SNAPSHOT_TOKEN" > "$HARNESS_SNAPSHOT_ROOT/$HARNESS_SNAPSHOT_SENTINEL")
     export OPENCLAW_PROOFS_HARNESS_SNAPSHOT="$HARNESS_SNAPSHOT_ROOT"
+    export OPENCLAW_PROOFS_HARNESS_SNAPSHOT_TOKEN="$HARNESS_SNAPSHOT_TOKEN"
     export OPENCLAW_PROOFS_ORIGIN_ROOT="$REPO_ROOT"
     echo "Harness execution: handing off to the approved runner in an immutable snapshot."
     # `exec` replaces this process, so no EXIT trap fires here and the snapshot
@@ -558,23 +568,31 @@ if [[ "$DRY_RUN" == "false" ]]; then
   # runner and that the snapshot is a distinct tree from the checkout. Otherwise
   # a modified external copy could set both variables, point them at clean
   # trees, skip the exec, and keep running.
-  HARNESS_SNAPSHOT_ROOT="$OPENCLAW_PROOFS_HARNESS_SNAPSHOT"
-  SNAPSHOT_RUNNER="$(readlink -f "$HARNESS_SNAPSHOT_ROOT/$PROOFS_TOOL_RELPATH/scripts/run-proofs.sh" 2>/dev/null || true)"
+  # The claimed path stays untrusted — and therefore NOT cleanup-owned — until
+  # every check below passes. Assigning it to HARNESS_SNAPSHOT_ROOT early would
+  # let a rejected handoff hand an arbitrary directory to the EXIT trap's rm -rf.
+  CLAIMED_SNAPSHOT_ROOT="$OPENCLAW_PROOFS_HARNESS_SNAPSHOT"
+  CLAIMED_SNAPSHOT_TOKEN="${OPENCLAW_PROOFS_HARNESS_SNAPSHOT_TOKEN:-}"
+  SNAPSHOT_RUNNER="$(readlink -f "$CLAIMED_SNAPSHOT_ROOT/$PROOFS_TOOL_RELPATH/scripts/run-proofs.sh" 2>/dev/null || true)"
   EXECUTING_RUNNER="$(readlink -f "$RUNNER_SCRIPT_PATH" 2>/dev/null || true)"
-  CANONICAL_SNAPSHOT="$(readlink -f "$HARNESS_SNAPSHOT_ROOT" 2>/dev/null || true)"
+  CANONICAL_SNAPSHOT="$(readlink -f "$CLAIMED_SNAPSHOT_ROOT" 2>/dev/null || true)"
   CANONICAL_ORIGIN="$(readlink -f "$REPO_ROOT" 2>/dev/null || true)"
+  SENTINEL_VALUE="$(cat "$CLAIMED_SNAPSHOT_ROOT/$HARNESS_SNAPSHOT_SENTINEL" 2>/dev/null || true)"
   if [[ -z "$SNAPSHOT_RUNNER" || -z "$EXECUTING_RUNNER" || "$EXECUTING_RUNNER" != "$SNAPSHOT_RUNNER" ||
         -z "$CANONICAL_SNAPSHOT" || -z "$CANONICAL_ORIGIN" ||
-        "$CANONICAL_SNAPSHOT" == "$CANONICAL_ORIGIN" || "$CANONICAL_SNAPSHOT" == "$CANONICAL_ORIGIN"/* ]]; then
+        "$CANONICAL_SNAPSHOT" == "$CANONICAL_ORIGIN" || "$CANONICAL_SNAPSHOT" == "$CANONICAL_ORIGIN"/* ||
+        -z "$CLAIMED_SNAPSHOT_TOKEN" || "$SENTINEL_VALUE" != "$CLAIMED_SNAPSHOT_TOKEN" ]]; then
     fail_harness \
       "harness-identity" \
       "the executing runner is not the approved snapshot's own runner; refusing a spoofed or aliased handoff" \
       "$(jq -n '{check:"snapshot-handoff-authentic"}')"
   fi
-  EXEC_ROOT="$HARNESS_SNAPSHOT_ROOT"
+  EXEC_ROOT="$CLAIMED_SNAPSHOT_ROOT"
   bind_execution_roots
   cd "$PROOFS_DIR"
   assert_harness_tree_matches_docs_ref "harness-snapshot-matches-docs-ref" "startup" "" "$EXEC_ROOT"
+  # Authenticated and verified: this process may now own its removal.
+  HARNESS_SNAPSHOT_ROOT="$CLAIMED_SNAPSHOT_ROOT"
 
   HARNESS_IDENTITY_VERIFIED=true
   echo "Approved docs ref: $DOCS_REF ($DOCS_REPOSITORY)"

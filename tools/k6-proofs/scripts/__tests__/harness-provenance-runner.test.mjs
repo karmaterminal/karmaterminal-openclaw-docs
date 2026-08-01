@@ -174,10 +174,16 @@ test('a spoofed snapshot handoff is refused', async (t) => {
         env: {
           OPENCLAW_PROOFS_HARNESS_SNAPSHOT: harness.checkout,
           OPENCLAW_PROOFS_ORIGIN_ROOT: harness.checkout,
+          OPENCLAW_PROOFS_HARNESS_SNAPSHOT_TOKEN: 'forged-token',
         },
       });
       await assertInfrastructureFailure(harness, result, { stage: 'harness-identity', check: 'snapshot-handoff-authentic' });
       assert.match(result.stderr, /spoofed or aliased handoff/);
+      // A rejected claim must never become cleanup-owned.
+      assert.ok(
+        (await readdir(harness.checkout)).includes('tools'),
+        'a rejected handoff must not delete the directory it claimed',
+      );
     });
   });
 
@@ -192,9 +198,37 @@ test('a spoofed snapshot handoff is refused', async (t) => {
         env: {
           OPENCLAW_PROOFS_HARNESS_SNAPSHOT: snapshot,
           OPENCLAW_PROOFS_ORIGIN_ROOT: harness.checkout,
+          OPENCLAW_PROOFS_HARNESS_SNAPSHOT_TOKEN: 'forged-token',
         },
       });
       await assertInfrastructureFailure(harness, result, { stage: 'harness-identity', check: 'snapshot-handoff-authentic' });
+      assert.ok(
+        (await readdir(snapshot)).includes('tools'),
+        'a rejected handoff must not delete the directory it claimed',
+      );
+      assert.ok((await readdir(harness.checkout)).includes('tools'));
+    });
+  });
+
+  await t.test('an arbitrary writable directory claimed as a snapshot survives', async () => {
+    await withRunner(async (harness) => {
+      const bystander = path.join(harness.root, 'unrelated-directory');
+      await mkdir(bystander, { recursive: true });
+      await writeFile(path.join(bystander, 'important.txt'), 'must survive\n');
+      const result = await invokeRunner(harness, {
+        args: ['--docs-ref', harness.docsRef],
+        env: {
+          OPENCLAW_PROOFS_HARNESS_SNAPSHOT: bystander,
+          OPENCLAW_PROOFS_ORIGIN_ROOT: harness.checkout,
+          OPENCLAW_PROOFS_HARNESS_SNAPSHOT_TOKEN: 'forged-token',
+        },
+      });
+      await assertInfrastructureFailure(harness, result, { stage: 'harness-identity', check: 'snapshot-handoff-authentic' });
+      assert.deepEqual(
+        await readdir(bystander),
+        ['important.txt'],
+        'a rejected handoff must never recursively delete an arbitrary claimed path',
+      );
     });
   });
 });

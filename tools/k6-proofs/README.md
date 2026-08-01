@@ -752,10 +752,24 @@ catalog is parsed before it is validated:
    being silently skipped.
 
 The gateway token, the deployed runtime stamp and the session key are all
-resolved only inside the verified snapshot runner, after those stages complete. The
-tracked-tree comparison is repeated before each row for a different reason: bash
-reads `run-proofs.sh` itself incrementally from the operator's checkout, so that
-one file must still match the approved ref while the matrix is running.
+resolved only inside the verified snapshot runner, after those stages complete.
+The bootstrap phase — the copy of the runner the operator invoked — parses
+arguments, resolves roots, verifies bytes, extracts the snapshot and hands off.
+It reads no credential and invokes no product tooling, though it does of course
+use `git`, `jq`, `tar` and coreutils to do that work. A gateway token already
+exported by the caller is inherited by that process by construction and cannot be
+dropped from inside the same script.
+
+The handoff is authenticated rather than trusted: the re-executed process must be
+the snapshot's own runner, the snapshot must be a distinct tree outside the
+checkout, and it must carry an unguessable ownership sentinel written by the
+process that created it. A claimed snapshot failing any of those checks is never
+adopted, and therefore never becomes eligible for cleanup.
+
+The tree comparison is repeated before each row against both the snapshot and the
+operator's checkout. The snapshot side proves the executing bytes are still the
+approved ones; the checkout side reports that the operator's tree has drifted
+from the ref the matrix is bound to. Either fails closed as infrastructure.
 
 Failure receipts and provenance carry only validated values; the snapshot path,
 the checkout path, the artifact root and `$HOME` are replaced with placeholders

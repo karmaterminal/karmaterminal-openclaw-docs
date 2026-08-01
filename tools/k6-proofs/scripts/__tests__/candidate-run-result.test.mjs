@@ -330,6 +330,33 @@ test('candidate envelope binds the approved docs ref and both harness source dig
       assert.equal(siblings(withoutHarness), false);
     } finally { await rm(setup.root, { recursive: true, force: true }); }
   });
+
+  await t.test('isolated observability mismatches cannot suppress the raw sibling', async () => {
+    const setup = await fixture();
+    try {
+      const envelope = JSON.parse((await invoke(setup)).stdout);
+      const metadata = JSON.parse(await readFile(path.join(setup.candidateDir, 'runner-metadata.json'), 'utf8'));
+      const siblings = (value) => candidateEnvelopeMatchesSiblings({
+        envelope: value,
+        manifest: manifest(),
+        metadata,
+        runResult: runResult(),
+        runDir: setup.candidateDir,
+      });
+      assert.equal(siblings(envelope), true);
+
+      for (const [field, value] of [
+        ['traceStatus', 'missing'],
+        ['traceCaptured', false],
+        ['correlationReceiptPresent', false],
+      ]) {
+        assert.equal(siblings({
+          ...envelope,
+          observability: { ...envelope.observability, [field]: value },
+        }), false, `${field} mismatch must not suppress the raw sibling`);
+      }
+    } finally { await rm(setup.root, { recursive: true, force: true }); }
+  });
 });
 
 test('R-RC-2 honest limit requires the nonce-bound structured threshold receipt in both validation layers', async () => {

@@ -152,7 +152,7 @@ Review-boundary invariants are unchanged: `candidateOnly:true`,
 
 ---
 
-## 2. Exact changed files (20 files, +1524 / −62)
+## 2. Exact changed files (22 files, +3163 / −134)
 
 New:
 
@@ -198,7 +198,7 @@ was installed.
 ```
 node --test tools/k6-proofs/scripts/__tests__/*.test.mjs
   baseline @ fb9d26b1 : 263 pass / 0 fail
-  final    @ HEAD     : 318 pass / 0 fail   (+55)
+  final    @ HEAD     : 319 pass / 0 fail   (+56)
 
 node --test tools/k6-proofs/tests/*.test.mjs
   baseline @ fb9d26b1 :  31 pass / 0 fail
@@ -327,8 +327,10 @@ approved run's full provenance receipt.
 
 Existing suites that would otherwise have started passing for the wrong reason
 were repaired rather than left green: the `report-render` and `review-debt`
-envelope-consumption fixtures now carry a valid harness identity, so they still
-exercise the acceptance path.
+envelope-consumption fixtures now carry the complete canonical envelope shape
+and valid harness identity. The report fixture proves the accepted sidecar path
+by suppressing raw-only timing output, while the debt fixture directly verifies
+the acceptance predicate before checking that the raw sibling is not counted.
 
 ---
 

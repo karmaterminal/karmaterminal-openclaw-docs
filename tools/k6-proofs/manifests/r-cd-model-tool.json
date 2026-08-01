@@ -22,7 +22,7 @@
     ],
     "status": "runnable",
     "expectedFile": "r-cd-model-tool.js",
-    "notes": "Alternate-model rows are blocked on karmaterminal/openclaw#1103 until the child runtime observes the requested model instead of inheriting gpt-5.5.",
+    "notes": "The canonical available-model probe is openai/gpt-5.6-luna. karmaterminal/openclaw#1103 remains open until authoritative child-session metadata proves that the requested override, rather than inheritance or fallback, was selected.",
     "file": "r-cd-model-tool.js",
     "registryNotes": "Runnable k6 scenario exercises typed continue_delegate with explicit model override; authoritative model mismatch is FAIL-candidate and unavailable metadata is PARTIAL-candidate."
   },
@@ -32,6 +32,9 @@
       "typed-tool-model-override"
     ],
     "model": "${OPENCLAW_ALT_MODEL:-openai/gpt-5.6-luna}",
+    "availableModels": [
+      "openai/gpt-5.6-luna"
+    ],
     "promptTemplate": "Proof nonce {{nonce}}: report the current model identity from runtime context and the nonce only. The requested model is intentionally omitted from the child task to prevent echo-based false PASS. Do not mutate files. Do not post to any channel.",
     "idempotencyKeyPrefix": "R-CD-MODEL-TOOL"
   },
@@ -77,7 +80,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "PASS-candidate only when the requested model byte matches authoritative gateway child-session metadata or spawn-record model bytes. The child task omits the requested model and its self-report is auxiliary only; mismatch is FAIL-candidate and unavailable metadata is PARTIAL-candidate."
+    "notes": "PASS-candidate only when the requested model is in this row’s committed available-model set and matches authoritative gateway child-session metadata or spawn-record model bytes. The child task omits the requested model and its self-report is auxiliary only; a fallback, inheritance, unavailable requested model, or mismatch is FAIL-candidate; unavailable authoritative metadata is PARTIAL-candidate."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -96,6 +99,6 @@
       "return-payload"
     ],
     "foldRequiresReview": true,
-    "notes": "Explicit model override row. Prevent echo-based false PASS by omitting requested model from the child task; authoritative fallback/inheritance is FAIL-candidate, while unavailable authoritative metadata is PARTIAL-candidate."
+    "notes": "Explicit model override row. The committed available model is openai/gpt-5.6-luna. Prevent echo-based false PASS by omitting requested model from the child task; authoritative fallback/inheritance, a model outside the committed available set, or a mismatch is FAIL-candidate, while unavailable authoritative metadata is PARTIAL-candidate."
   }
 }

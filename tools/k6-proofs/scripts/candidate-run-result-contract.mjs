@@ -8,10 +8,47 @@ export const CANDIDATE_RUN_RESULT_SCHEMA = 'openclaw.k6.candidate-run-result.v1'
 export const PROOF_ROW_MANIFEST_SCHEMA = 'openclaw.k6.proof-row-manifest.v1';
 
 const SHA = /^[0-9a-f]{40}$/;
+const DIGEST = /^[0-9a-f]{64}$/;
+const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
+const COPIED_MANIFEST = 'row-manifest.json';
+const COPIED_SCENARIO = 'row-scenario.js';
 const OUTCOMES = new Set(['PASS-candidate', 'HONEST-LIMIT-candidate', 'PARTIAL-candidate', 'FAIL-candidate', 'construct-only']);
 
 function nonEmptyString(value) {
   return typeof value === 'string' && value.trim() ? value : null;
+}
+
+function fileDigest(file) {
+  try {
+    return createHash('sha256').update(readFileSync(file)).digest('hex');
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Re-verify the immutable harness identity a sidecar envelope claims (#496).
+ *
+ * A sidecar may only suppress its raw sibling when the run metadata records the
+ * approved docs ref plus both source digests, the envelope repeats them exactly,
+ * and the copied manifest/scenario bytes still hash to those digests.
+ */
+function harnessIdentityMatches({ envelope, metadata, runDir }) {
+  const harness = envelope?.harness;
+  if (!harness) return false;
+  const docsRef = nonEmptyString(metadata.docsRef);
+  const repository = nonEmptyString(metadata.repository);
+  const manifestSha256 = nonEmptyString(metadata.manifestSha256);
+  const scenarioSha256 = nonEmptyString(metadata.scenarioSha256);
+  if (!SHA.test(docsRef || '') || !REPOSITORY.test(repository || '')) return false;
+  if (!DIGEST.test(manifestSha256 || '') || !DIGEST.test(scenarioSha256 || '')) return false;
+  if (envelope.candidate?.docsRef !== docsRef) return false;
+  if (harness.docsRef !== docsRef || harness.repository !== repository) return false;
+  if (harness.manifestSha256 !== manifestSha256 || harness.scenarioSha256 !== scenarioSha256) return false;
+  if (harness.manifestArtifact !== COPIED_MANIFEST || harness.scenarioArtifact !== COPIED_SCENARIO) return false;
+  if (fileDigest(path.join(runDir, COPIED_MANIFEST)) !== manifestSha256) return false;
+  if (fileDigest(path.join(runDir, COPIED_SCENARIO)) !== scenarioSha256) return false;
+  return true;
 }
 
 function scenarioName(manifest) {
@@ -103,6 +140,7 @@ export function candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata,
   if (manifest.rowId !== rowId || scenarioName(manifest) !== scenario) return false;
   if (manifest.candidateSha && manifest.candidateSha !== candidateSha) return false;
   if (envelope.candidate?.sha !== candidateSha || !SHA.test(envelope.candidate?.docsRef || '')) return false;
+  if (!harnessIdentityMatches({ envelope, metadata, runDir })) return false;
   if (envelope.run?.id !== path.basename(runDir) || envelope.run?.rowId !== rowId || envelope.run?.seat !== seat || envelope.run?.scenario !== scenario) return false;
   if (envelope.result?.outcome !== runResult.verdict || envelope.result?.outcomeSource !== runResult.verdictSource) return false;
   if (authoritative) {

@@ -1,15 +1,28 @@
 #!/usr/bin/env bash
 #
 # Seat-aware row-list runner for Project 81 / k6-proofs
-# References: #178 / #106 / #119 / #179 / #403
+# References: #178 / #106 / #119 / #179 / #403 / #495 / #496
 #
 # Usage:
 #   cd tools/k6-proofs
-#   ./scripts/run-proofs.sh [--dry-run] [--out-dir /tmp/k6-proof-runs] [R-CD-2,R-CD-4] [candidate_sha]
+#   ./scripts/run-proofs.sh [--dry-run] [--out-dir /tmp/k6-proof-runs] \
+#     [--docs-ref <40-hex>] [R-CD-2,R-CD-4] [candidate_sha]
+#
+# A live run binds itself to one immutable docs/harness commit before any row
+# fires. --docs-ref (or OPENCLAW_PROOFS_DOCS_REF) is resolved and frozen once at
+# startup; ambient HEAD is never re-read after rows have run.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROOFS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$PROOFS_DIR/../.." && pwd)"
+PROOFS_TOOL_RELPATH="tools/k6-proofs"
+# Infrastructure exit code (EX_CONFIG). It is deliberately distinct from a row's
+# effective exit code so a harness setup failure can never be read as a product
+# verdict.
+HARNESS_INFRA_EXIT=78
+CATALOG_CHECKS=(check-manifest-scenarios.mjs check-scenario-alignment.mjs check-proof-row-manifests.mjs)
 EVIDENCE_EXTRACTOR="$SCRIPT_DIR/extract-k6-evidence.mjs"
 CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
 R_CD_2_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-2-authoritative-receipt.mjs"
@@ -63,6 +76,16 @@ trap 'ACTIVE_TOKEN_CAUSE=signal-term; exit 143' TERM
 DRY_RUN=true
 ROWS=""
 CANDIDATE_SHA=""
+DOCS_REF_INPUT="${OPENCLAW_PROOFS_DOCS_REF:-}"
+DOCS_REF=""
+DOCS_REF_SOURCE="none"
+DOCS_REPOSITORY=""
+HARNESS_IDENTITY_VERIFIED=false
+ROW_SELECTION_JSON='[]'
+declare -A ROW_MANIFEST_RELPATH=()
+declare -A ROW_MANIFEST_SHA256=()
+declare -A ROW_SCENARIO_RELPATH=()
+declare -A ROW_SCENARIO_SHA256=()
 SESSION_SELECTOR="discord-channel:1466192485440164011"
 OUT_ROOT="${K6_PROOF_OUT_DIR:-/tmp/k6-proof-runs}"
 
@@ -72,6 +95,7 @@ while [[ "$#" -gt 0 ]]; do
     --live) DRY_RUN=false; shift ;;
     --session) SESSION_SELECTOR="$2"; shift 2 ;;
     --out-dir) OUT_ROOT="$2"; shift 2 ;;
+    --docs-ref) DOCS_REF_INPUT="$2"; shift 2 ;;
     *)
       if [[ -z "$ROWS" ]]; then
         ROWS="$1"
@@ -91,8 +115,69 @@ if [[ -z "$ROWS" ]]; then
   exit 1
 fi
 
+RUN_MODE="live"
+if [[ "$DRY_RUN" == "true" ]]; then RUN_MODE="dry-run"; fi
+ROW_SELECTION_JSON="$(printf '%s' "$ROWS" | jq -R 'split(",") | map(ascii_upcase)')"
+
+mkdir -p "$OUT_ROOT"
+OUT_ROOT="$(cd "$OUT_ROOT" && pwd)"
+# The runner owns its own harness root. Row/scenario/manifest lookups are always
+# relative to tools/k6-proofs, never to an ambient caller working directory.
+cd "$PROOFS_DIR"
+
+# One harness infrastructure receipt, written instead of any per-row product
+# verdict. A catalog/identity failure is a setup fault: no row may execute, and
+# nothing here may be read as candidate behavior.
+write_harness_control_receipt() {
+  local stage="$1"
+  local reason="$2"
+  local detail_json="${3:-null}"
+  local recorded_at
+  recorded_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  mkdir -p "$OUT_ROOT"
+  jq -n \
+    --arg stage "$stage" \
+    --arg reason "$reason" \
+    --arg mode "$RUN_MODE" \
+    --arg docsRef "$DOCS_REF" \
+    --arg docsRefInput "$DOCS_REF_INPUT" \
+    --arg candidate "${OPENCLAW_CANDIDATE_SHA:-}" \
+    --arg repository "$DOCS_REPOSITORY" \
+    --arg recordedAt "$recorded_at" \
+    --argjson exitCode "$HARNESS_INFRA_EXIT" \
+    --argjson rowSelection "$ROW_SELECTION_JSON" \
+    --argjson detail "$detail_json" \
+    '{
+      schema: "openclaw.k6.harness-control-receipt.v1",
+      classification: "harness-infrastructure",
+      ok: false,
+      stage: $stage,
+      reason: $reason,
+      mode: $mode,
+      docsRef: (if $docsRef == "" then null else $docsRef end),
+      docsRefRequested: (if $docsRefInput == "" then null else $docsRefInput end),
+      candidateSha: (if $candidate == "" then null else $candidate end),
+      repository: (if $repository == "" then null else $repository end),
+      rowSelection: $rowSelection,
+      rowsExecuted: 0,
+      rowVerdictsSynthesized: false,
+      productVerdict: null,
+      exitCode: $exitCode,
+      detail: $detail,
+      recordedAt: $recordedAt
+    }' > "$OUT_ROOT/harness-control-receipt.json"
+  echo "HARNESS INFRASTRUCTURE FAILURE [$stage]: $reason" >&2
+  echo "CONTROL RECEIPT: $OUT_ROOT/harness-control-receipt.json" >&2
+  echo "No rows executed; no per-row candidate verdict was synthesized." >&2
+}
+
+fail_harness() {
+  write_harness_control_receipt "$1" "$2" "${3:-null}"
+  exit "$HARNESS_INFRA_EXIT"
+}
+
 if [[ -z "$CANDIDATE_SHA" && -z "${OPENCLAW_CANDIDATE_SHA:-}" ]]; then
-  CANDIDATE_SHA="$(git rev-parse HEAD 2>/dev/null || echo 'unknown')"
+  CANDIDATE_SHA="$(git -C "$REPO_ROOT" rev-parse HEAD 2>/dev/null || echo 'unknown')"
 fi
 
 if [[ -n "$CANDIDATE_SHA" ]]; then export OPENCLAW_CANDIDATE_SHA="${CANDIDATE_SHA}"; fi
@@ -149,6 +234,24 @@ echo "Target Candidate SHA: $OPENCLAW_CANDIDATE_SHA"
 echo "Deployed Runtime SHA: $OPENCLAW_RUNTIME_BUILD_SHA"
 echo "Session configured: true"
 echo "Artifact root: $OUT_ROOT"
+
+# Catalog preflight (#495). The validators receive one explicit repository root,
+# so they inspect the same files whatever directory the caller started in. A
+# failure here stops the matrix before any row executes.
+CATALOG_PREFLIGHT_LOG="$OUT_ROOT/catalog-preflight.log"
+: > "$CATALOG_PREFLIGHT_LOG"
+echo "Running catalog preflight (repository root: $PROOFS_TOOL_RELPATH resolved once)..."
+for CATALOG_CHECK in "${CATALOG_CHECKS[@]}"; do
+  printf '### %s\n' "$CATALOG_CHECK" >> "$CATALOG_PREFLIGHT_LOG"
+  if ! node "$SCRIPT_DIR/$CATALOG_CHECK" --repo-root "$REPO_ROOT" >> "$CATALOG_PREFLIGHT_LOG" 2>&1; then
+    fail_harness \
+      "catalog-preflight" \
+      "catalog validator '$CATALOG_CHECK' failed; the row catalog could not be resolved" \
+      "$(jq -n --arg check "$CATALOG_CHECK" '{failedCheck:$check, log:"catalog-preflight.log"}')"
+  fi
+done
+echo "CATALOG PREFLIGHT: $CATALOG_PREFLIGHT_LOG"
+
 if [[ "$ROWS" == "all" ]]; then
   ROWS="$(for f in manifests/*.json; do jq -r 'select(.scenario.status == "runnable") | .rowId' "$f"; done | paste -sd, -)"
 fi
@@ -158,9 +261,149 @@ if [[ -z "$ROWS" ]]; then
   exit 1
 fi
 
+ROW_SELECTION_JSON="$(printf '%s' "$ROWS" | jq -R 'split(",") | map(ascii_upcase)')"
+IFS=',' read -ra ROW_ARRAY <<< "$ROWS"
+
 echo "Rows: $ROWS"
 echo "Dry Run: $DRY_RUN"
 echo "=========================================================="
+
+# ---------------------------------------------------------------------------
+# Immutable harness identity (#496)
+# ---------------------------------------------------------------------------
+# Locate the manifest for a row id, echoing its tools/k6-proofs-relative path.
+find_manifest_relpath() {
+  local row="$1" candidate
+  for candidate in manifests/*.json; do
+    if jq -e --arg row "$row" '(.rowId | ascii_upcase) == $row' "$candidate" >/dev/null; then
+      printf '%s' "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Public-safe repository identity. Only a real remote (scheme or scp form) is
+# accepted so a local clone path can never leak into a public receipt.
+resolve_docs_repository() {
+  local override url
+  override="${OPENCLAW_PROOFS_DOCS_REPOSITORY:-}"
+  if [[ -n "$override" ]]; then
+    printf '%s' "$override"
+    return 0
+  fi
+  url="$(git -C "$REPO_ROOT" config --get remote.origin.url 2>/dev/null || true)"
+  case "$url" in
+    *://*|*@*:*) ;;
+    *) return 0 ;;
+  esac
+  url="${url%.git}"
+  url="${url%/}"
+  local slug
+  slug="$(printf '%s' "$url" | sed -nE 's#^.*[:/]([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)$#\1/\2#p')"
+  printf '%s' "$slug"
+}
+
+# sha256 of the bytes tracked at the frozen docs ref, or failure when the path is
+# untracked at that commit.
+tracked_blob_sha256() {
+  local relpath="$1"
+  git -C "$REPO_ROOT" cat-file -e "$DOCS_REF:$relpath" 2>/dev/null || return 1
+  git -C "$REPO_ROOT" show "$DOCS_REF:$relpath" 2>/dev/null | sha256sum | cut -d' ' -f1
+}
+
+worktree_sha256() {
+  sha256sum "$REPO_ROOT/$1" | cut -d' ' -f1
+}
+
+DOCS_REPOSITORY="$(resolve_docs_repository)"
+
+if [[ "$DRY_RUN" == "false" ]]; then
+  if [[ ! "$DOCS_REF_INPUT" =~ ^[0-9a-f]{40}$ ]]; then
+    fail_harness \
+      "harness-identity" \
+      "a live matrix requires an approved docs/harness ref: pass --docs-ref <40-char-lowercase-sha> or set OPENCLAW_PROOFS_DOCS_REF" \
+      "$(jq -n --arg provided "$DOCS_REF_INPUT" '{check:"docs-ref-shape", provided:(if $provided == "" then null else "malformed" end)}')"
+  fi
+  # Frozen for the whole run. Ambient HEAD is never consulted again.
+  DOCS_REF="$DOCS_REF_INPUT"
+  DOCS_REF_SOURCE="approved-input"
+  readonly DOCS_REF
+
+  HEAD_SHA="$(git -C "$REPO_ROOT" rev-parse HEAD 2>/dev/null || true)"
+  if [[ "$HEAD_SHA" != "$DOCS_REF" ]]; then
+    fail_harness \
+      "harness-identity" \
+      "harness checkout does not match the approved docs ref; refusing to fire a stale or mixed harness" \
+      "$(jq -n --arg head "$HEAD_SHA" --arg approved "$DOCS_REF" '{check:"head-equals-docs-ref", head:(if $head == "" then null else $head end), approved:$approved}')"
+  fi
+
+  HARNESS_DIRTY="$(git -C "$REPO_ROOT" status --porcelain --untracked-files=no -- "$PROOFS_TOOL_RELPATH" 2>/dev/null || printf 'git-unavailable')"
+  if [[ -n "$HARNESS_DIRTY" ]]; then
+    fail_harness \
+      "harness-identity" \
+      "tracked bytes under $PROOFS_TOOL_RELPATH are modified; a dirty harness cannot certify which contract produced a receipt" \
+      "$(jq -n --arg count "$(printf '%s\n' "$HARNESS_DIRTY" | grep -c . || true)" '{check:"harness-tree-clean", dirtyEntries:($count|tonumber)}')"
+  fi
+
+  if [[ ! "$DOCS_REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+    fail_harness \
+      "harness-identity" \
+      "no public-safe repository identity for the harness; set OPENCLAW_PROOFS_DOCS_REPOSITORY=<owner>/<repo>" \
+      "$(jq -n '{check:"repository-identity"}')"
+  fi
+
+  for BIND_ROW in "${ROW_ARRAY[@]}"; do
+    BIND_ROW="$(printf '%s' "$BIND_ROW" | tr '[:lower:]' '[:upper:]')"
+    BIND_MANIFEST=""
+    BIND_MANIFEST="$(find_manifest_relpath "$BIND_ROW" || true)"
+    # A row with no manifest is reported as SKIPPED by the row loop; it never
+    # fires, so it has no harness contract to bind.
+    [[ -n "$BIND_MANIFEST" ]] || continue
+    BIND_STATUS="$(jq -r '.scenario.status // empty' "$BIND_MANIFEST")"
+    [[ "$BIND_STATUS" == "runnable" ]] || continue
+    BIND_SCENARIO="$(jq -r '.scenario.file // .scenario.name // empty' "$BIND_MANIFEST")"
+    if [[ -z "$BIND_SCENARIO" || ! -f "scenarios/$BIND_SCENARIO" ]]; then
+      fail_harness \
+        "harness-identity" \
+        "row $BIND_ROW is runnable but its scenario file is missing from the harness tree" \
+        "$(jq -n --arg row "$BIND_ROW" --arg scenario "$BIND_SCENARIO" '{check:"scenario-present", row:$row, scenario:(if $scenario == "" then null else $scenario end)}')"
+    fi
+    BIND_MANIFEST_REL="$PROOFS_TOOL_RELPATH/$BIND_MANIFEST"
+    BIND_SCENARIO_REL="$PROOFS_TOOL_RELPATH/scenarios/$BIND_SCENARIO"
+    for BIND_PATH in "$BIND_MANIFEST_REL" "$BIND_SCENARIO_REL"; do
+      BIND_TRACKED=""
+      BIND_TRACKED="$(tracked_blob_sha256 "$BIND_PATH" || true)"
+      if [[ -z "$BIND_TRACKED" ]]; then
+        fail_harness \
+          "harness-identity" \
+          "$BIND_PATH is not tracked at the approved docs ref; unrecorded harness bytes cannot produce a receipt" \
+          "$(jq -n --arg row "$BIND_ROW" --arg path "$BIND_PATH" --arg approved "$DOCS_REF" '{check:"tracked-at-docs-ref", row:$row, path:$path, approved:$approved}')"
+      fi
+      BIND_WORKTREE="$(worktree_sha256 "$BIND_PATH")"
+      if [[ "$BIND_TRACKED" != "$BIND_WORKTREE" ]]; then
+        fail_harness \
+          "harness-identity" \
+          "$BIND_PATH differs from the approved docs ref; refusing to fire mutated harness bytes" \
+          "$(jq -n --arg row "$BIND_ROW" --arg path "$BIND_PATH" '{check:"bytes-match-docs-ref", row:$row, path:$path}')"
+      fi
+      if [[ "$BIND_PATH" == "$BIND_MANIFEST_REL" ]]; then
+        ROW_MANIFEST_RELPATH["$BIND_ROW"]="$BIND_MANIFEST_REL"
+        ROW_MANIFEST_SHA256["$BIND_ROW"]="$BIND_WORKTREE"
+      else
+        ROW_SCENARIO_RELPATH["$BIND_ROW"]="$BIND_SCENARIO_REL"
+        ROW_SCENARIO_SHA256["$BIND_ROW"]="$BIND_WORKTREE"
+      fi
+    done
+  done
+  HARNESS_IDENTITY_VERIFIED=true
+  echo "Approved docs ref: $DOCS_REF ($DOCS_REPOSITORY)"
+  echo "Harness identity: verified clean and tracked for every selected runnable row."
+elif [[ "$DOCS_REF_INPUT" =~ ^[0-9a-f]{40}$ ]]; then
+  DOCS_REF="$DOCS_REF_INPUT"
+  DOCS_REF_SOURCE="approved-input"
+  echo "Docs ref (recorded, unenforced in dry run): $DOCS_REF"
+fi
 
 # Check for Live Bridge alignment (candidate vs deployed runtime)
 if [[ "$DRY_RUN" == "false" && "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_BUILD_SHA" && "$OPENCLAW_RUNTIME_BUILD_SHA" != *"(${OPENCLAW_CANDIDATE_SHA:0:7})"* ]]; then
@@ -168,8 +411,8 @@ if [[ "$DRY_RUN" == "false" && "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_B
   echo "Unless this is a known stale-stamp or you have proven a rebuild bridge, live proofs will be marked PARTIAL."
 fi
 
-mkdir -p "$OUT_ROOT"
 SEAT_READINESS_JSON="$OUT_ROOT/seat-readiness.json"
+SEAT_READINESS_SHA256=""
 if [[ "$DRY_RUN" == "false" ]]; then
   echo "Running seat-readiness preflight (k6/tooling/gateway/continuation config)..."
   if ! node scripts/seat-readiness-preflight.mjs --json > "$SEAT_READINESS_JSON"; then
@@ -177,10 +420,77 @@ if [[ "$DRY_RUN" == "false" ]]; then
     jq -r '.outcome as $out | "outcome=\($out) continuation=\(.continuation.enabled) defaults=\(.continuation.defaultsPresent) notes=\(.notes|join("; "))"' "$SEAT_READINESS_JSON" >&2 || true
     exit 1
   fi
+  SEAT_READINESS_SHA256="$(sha256sum "$SEAT_READINESS_JSON" | cut -d' ' -f1)"
   echo "SEAT READINESS: $SEAT_READINESS_JSON"
 fi
 
-IFS=',' read -ra ROW_ARRAY <<< "$ROWS"
+# Public-safe top-level provenance receipt. It is written before the first row
+# fires so the bundle always states which harness bytes and which product
+# candidate produced everything beneath it.
+HARNESS_PROVENANCE_JSON="$OUT_ROOT/harness-provenance.json"
+RUNNER_SCRIPT_SHA256="$(sha256sum "${BASH_SOURCE[0]}" | cut -d' ' -f1)"
+RUN_MATRIX_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+PROVENANCE_ROWS_JSON='[]'
+for PROV_ROW in "${ROW_ARRAY[@]}"; do
+  PROV_ROW="$(printf '%s' "$PROV_ROW" | tr '[:lower:]' '[:upper:]')"
+  PROVENANCE_ROWS_JSON="$(
+    jq -cn \
+      --argjson rows "$PROVENANCE_ROWS_JSON" \
+      --arg row "$PROV_ROW" \
+      --arg manifest "${ROW_MANIFEST_RELPATH[$PROV_ROW]:-}" \
+      --arg manifestSha256 "${ROW_MANIFEST_SHA256[$PROV_ROW]:-}" \
+      --arg scenario "${ROW_SCENARIO_RELPATH[$PROV_ROW]:-}" \
+      --arg scenarioSha256 "${ROW_SCENARIO_SHA256[$PROV_ROW]:-}" \
+      '$rows + [{
+        rowId: $row,
+        manifestPath: (if $manifest == "" then null else $manifest end),
+        manifestSha256: (if $manifestSha256 == "" then null else $manifestSha256 end),
+        scenarioPath: (if $scenario == "" then null else $scenario end),
+        scenarioSha256: (if $scenarioSha256 == "" then null else $scenarioSha256 end)
+      }]'
+  )"
+done
+jq -n \
+  --arg docsRef "$DOCS_REF" \
+  --arg docsRefSource "$DOCS_REF_SOURCE" \
+  --arg repository "$DOCS_REPOSITORY" \
+  --arg candidate "$OPENCLAW_CANDIDATE_SHA" \
+  --arg runtimeBuildSha "$OPENCLAW_RUNTIME_BUILD_SHA" \
+  --arg seat "$OPENCLAW_SEAT_NAME" \
+  --arg seatReadinessSha256 "$SEAT_READINESS_SHA256" \
+  --arg runnerScript "$PROOFS_TOOL_RELPATH/scripts/run-proofs.sh" \
+  --arg runnerScriptSha256 "$RUNNER_SCRIPT_SHA256" \
+  --arg mode "$RUN_MODE" \
+  --arg startedAt "$RUN_MATRIX_STARTED_AT" \
+  --argjson identityVerified "$HARNESS_IDENTITY_VERIFIED" \
+  --argjson rowSelection "$ROW_SELECTION_JSON" \
+  --argjson rows "$PROVENANCE_ROWS_JSON" \
+  '{
+    schema: "openclaw.k6.harness-provenance.v1",
+    classification: "harness-provenance",
+    mode: $mode,
+    docsRef: (if $docsRef == "" then null else $docsRef end),
+    docsRefSource: $docsRefSource,
+    repository: (if $repository == "" then null else $repository end),
+    harnessIdentityVerified: $identityVerified,
+    candidateSha: (if $candidate == "" or $candidate == "unknown" then null else $candidate end),
+    runtimeIdentity: {
+      seat: $seat,
+      runtimeBuildSha: (if $runtimeBuildSha == "" or $runtimeBuildSha == "unknown" then null else $runtimeBuildSha end),
+      candidateMatchesRuntime: ($candidate == $runtimeBuildSha),
+      seatReadinessReceipt: (if $seatReadinessSha256 == "" then null else "seat-readiness.json" end),
+      seatReadinessSha256: (if $seatReadinessSha256 == "" then null else $seatReadinessSha256 end)
+    },
+    runnerScript: $runnerScript,
+    runnerScriptSha256: $runnerScriptSha256,
+    rowSelection: $rowSelection,
+    rows: $rows,
+    candidateOnly: true,
+    foldRequiresReview: true,
+    startedAt: $startedAt
+  }' > "$HARNESS_PROVENANCE_JSON"
+echo "HARNESS PROVENANCE: $HARNESS_PROVENANCE_JSON"
+rm -f "$OUT_ROOT/harness-control-receipt.json"
 
 for ROW_ID in "${ROW_ARRAY[@]}"; do
   # Normalize row ID
@@ -230,6 +540,19 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
   if [[ "$DRY_RUN" == "true" ]]; then
     echo "[$ROW_ID] DRY RUN: Would execute k6 run scenarios/$SCENARIO_FILE"
   else
+    ROW_MANIFEST_REL="${ROW_MANIFEST_RELPATH[$ROW_ID]:-}"
+    ROW_MANIFEST_DIGEST="${ROW_MANIFEST_SHA256[$ROW_ID]:-}"
+    ROW_SCENARIO_REL="${ROW_SCENARIO_RELPATH[$ROW_ID]:-}"
+    ROW_SCENARIO_DIGEST="${ROW_SCENARIO_SHA256[$ROW_ID]:-}"
+    # Frozen at startup by the harness identity gate. An unbound row means the
+    # gate never saw it, so it must not fire and must not produce a verdict.
+    if [[ -z "$ROW_MANIFEST_DIGEST" || -z "$ROW_SCENARIO_DIGEST" ]]; then
+      fail_harness \
+        "harness-identity" \
+        "row $ROW_ID has no frozen manifest/scenario digest bound to the approved docs ref" \
+        "$(jq -n --arg row "$ROW_ID" '{check:"row-bound-to-docs-ref", row:$row}')"
+    fi
+
     echo "[$ROW_ID] RUNNING..."
     export OPENCLAW_ROW_MANIFEST="$MANIFEST_FILE"
 
@@ -238,6 +561,9 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     mkdir -p "$RUN_DIR"
     touch "$RUN_DIR/.started"
     cp "$MANIFEST_FILE" "$RUN_DIR/row-manifest.json"
+    # The exact scenario source travels with the receipt so a reviewer can prove
+    # which contract bytes produced it without trusting the run directory name.
+    cp "scenarios/$SCENARIO_FILE" "$RUN_DIR/row-scenario.js"
     RUN_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     jq -n \
       --arg row "$ROW_ID" \
@@ -246,7 +572,13 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg runtime "$OPENCLAW_RUNTIME_BUILD_SHA" \
       --arg seat "$OPENCLAW_SEAT_NAME" \
       --arg started "$RUN_STARTED_AT" \
-      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started}' \
+      --arg docsRef "$DOCS_REF" \
+      --arg repository "$DOCS_REPOSITORY" \
+      --arg manifestPath "$ROW_MANIFEST_REL" \
+      --arg manifestSha256 "$ROW_MANIFEST_DIGEST" \
+      --arg scenarioPath "$ROW_SCENARIO_REL" \
+      --arg scenarioSha256 "$ROW_SCENARIO_DIGEST" \
+      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started, docsRef:$docsRef, repository:$repository, manifestPath:$manifestPath, manifestSha256:$manifestSha256, scenarioPath:$scenarioPath, scenarioSha256:$scenarioSha256}' \
       > "$RUN_DIR/runner-metadata.json"
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       if [[ ! "$OPENCLAW_CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ||
@@ -761,8 +1093,11 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     # envelope. Review-pending runs intentionally remain represented only by
     # run-result.json so review-debt can route their missing receipts; neither
     # form is canonical proof or an automatic fold input.
-    DOCS_REF="$(git rev-parse HEAD 2>/dev/null || true)"
-    if [[ "$DOCS_REF" =~ ^[0-9a-f]{40}$ ]] && node "$CANDIDATE_RESULT_VALIDATOR" \
+    #
+    # DOCS_REF was frozen before the first row fired. Ambient HEAD is never
+    # re-read here: a mid-matrix checkout change must not silently relabel the
+    # harness that produced this receipt.
+    if node "$CANDIDATE_RESULT_VALIDATOR" \
       --manifest "$MANIFEST_FILE" \
       --candidate-dir "$RUN_DIR" \
       --docs-ref "$DOCS_REF" \

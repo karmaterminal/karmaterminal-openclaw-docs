@@ -12,6 +12,10 @@ import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-re
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 
 const SHA = /^[0-9a-f]{40}$/;
+const DIGEST = /^[0-9a-f]{64}$/;
+const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
+const COPIED_MANIFEST = 'row-manifest.json';
+const COPIED_SCENARIO = 'row-scenario.js';
 const OUTCOME = new Set(['PASS-candidate', 'HONEST-LIMIT-candidate', 'PARTIAL-candidate', 'FAIL-candidate', 'construct-only']);
 
 function usage() {
@@ -49,6 +53,55 @@ function requireString(value, label) {
 function requireSha(value, label) {
   if (!SHA.test(value || '')) throw new Error(`${label} must be a 40-character lowercase SHA`);
   return value;
+}
+
+function requireDigest(value, label) {
+  if (!DIGEST.test(value || '')) throw new Error(`${label} must be a 64-character lowercase sha256 digest`);
+  return value;
+}
+
+async function fileDigest(file, label) {
+  let raw;
+  try { raw = await readFile(file); }
+  catch (error) { throw new Error(`${label} missing or unreadable: ${error.message}`); }
+  return createHash('sha256').update(raw).digest('hex');
+}
+
+/**
+ * Bind the candidate directory to one immutable docs/harness commit (#496).
+ *
+ * The runner freezes the approved docs ref before the first row fires and copies
+ * the exact manifest and scenario bytes it used into the candidate directory.
+ * Metadata that omits the ref or either digest, or whose digests disagree with
+ * the copied source, cannot produce an envelope.
+ */
+async function harnessIdentity(metadata, candidateDir, docsRef) {
+  const metadataDocsRef = requireSha(metadata.docsRef, 'runner metadata docsRef');
+  same(metadataDocsRef, docsRef, 'docs ref');
+  const repository = requireString(metadata.repository, 'runner metadata repository');
+  if (!REPOSITORY.test(repository)) throw new Error('runner metadata repository must be a safe <owner>/<repo> identity');
+  const manifestSha256 = requireDigest(metadata.manifestSha256, 'runner metadata manifestSha256');
+  const scenarioSha256 = requireDigest(metadata.scenarioSha256, 'runner metadata scenarioSha256');
+
+  const copiedManifestDigest = await fileDigest(path.join(candidateDir, COPIED_MANIFEST), 'copied row manifest');
+  if (copiedManifestDigest !== manifestSha256) {
+    throw new Error(`copied row manifest digest mismatch: ${copiedManifestDigest} != ${manifestSha256}`);
+  }
+  const copiedScenarioDigest = await fileDigest(path.join(candidateDir, COPIED_SCENARIO), 'copied row scenario');
+  if (copiedScenarioDigest !== scenarioSha256) {
+    throw new Error(`copied row scenario digest mismatch: ${copiedScenarioDigest} != ${scenarioSha256}`);
+  }
+
+  return {
+    docsRef: metadataDocsRef,
+    repository,
+    manifestPath: safeRelative(metadata.manifestPath, 'manifest path'),
+    manifestSha256,
+    scenarioPath: safeRelative(metadata.scenarioPath, 'scenario path'),
+    scenarioSha256,
+    manifestArtifact: COPIED_MANIFEST,
+    scenarioArtifact: COPIED_SCENARIO,
+  };
 }
 
 function safeRelative(value, label) {
@@ -127,7 +180,7 @@ function authoritativeReceiptContract(rowId) {
 async function listSafeArtifacts(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
   const allowed = new Set([
-    'row-manifest.json', 'runner-metadata.json', 'run-result.json',
+    'row-manifest.json', 'row-scenario.js', 'runner-metadata.json', 'run-result.json',
     'candidate-run-result.json', 'seat-readiness.json', 'evidence.jsonl',
     'r-cd-2-authoritative-receipt.json',
     'attempt-state.json', 'build-identity-gate.json', 'interruption-receipt.json',
@@ -159,6 +212,7 @@ async function main() {
   const candidateSha = requireSha(metadata.candidateSha, 'runner metadata candidateSha');
   const seat = requireString(metadata.seat, 'runner metadata seat');
   const scenario = requireString(metadata.scenario, 'runner metadata scenario').replace(/\.js$/, '');
+  const harness = await harnessIdentity(metadata, candidateDir, docsRef);
   same(rowId, manifest.rowId, 'row ID');
   same(scenario, scenarioName(manifest), 'scenario');
   const declaredSha = manifestCandidateSha(manifest);
@@ -197,7 +251,8 @@ async function main() {
     )) throw new Error('R-CD-TOKEN authoritative receipt build identity mismatch');
   }
   const artifacts = {
-    manifest: 'row-manifest.json',
+    manifest: COPIED_MANIFEST,
+    scenario: COPIED_SCENARIO,
     runnerMetadata: 'runner-metadata.json',
     runResult: 'run-result.json',
     files: await listSafeArtifacts(candidateDir),
@@ -210,6 +265,7 @@ async function main() {
     foldRequiresReview: true,
     canonicalFoldForbidden: true,
     candidate: { sha: candidateSha, docsRef },
+    harness,
     run: {
       id: path.basename(candidateDir),
       rowId,

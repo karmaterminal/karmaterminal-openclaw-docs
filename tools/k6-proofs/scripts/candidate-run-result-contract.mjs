@@ -2,6 +2,8 @@ import path from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import { validateRcdModelToolAuthoritativeReceipt } from
+  '../lib/r-cd-model-tool-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 
 export const CANDIDATE_RUN_RESULT_SCHEMA = 'openclaw.k6.candidate-run-result.v1';
@@ -22,6 +24,7 @@ export const SAFE_CANDIDATE_ARTIFACTS = new Set([
   COPIED_MANIFEST, COPIED_SCENARIO, 'runner-metadata.json', 'run-result.json',
   'candidate-run-result.json', 'seat-readiness.json', 'evidence.jsonl',
   'r-cd-2-authoritative-receipt.json',
+  'r-cd-model-tool-authoritative-receipt.json',
   'attempt-state.json', 'build-identity-gate.json', 'interruption-receipt.json',
   'r-cd-token-authoritative-receipt.json',
   'evidence-lines.log', 'evidence-redaction.json', 'gateway-journal.log',
@@ -196,6 +199,14 @@ function authoritativeReceiptContract(rowId) {
       source: 'r-cd-token-row-scoped-resolver',
       verdictSource: 'r-cd-token-authoritative-receipt',
       validate: validateRcdTokenAuthoritativeReceipt,
+    };
+  }
+  if (rowId === 'R-CD-MODEL-TOOL') {
+    return {
+      file: 'r-cd-model-tool-authoritative-receipt.json',
+      source: 'r-cd-model-tool-row-scoped-resolver',
+      verdictSource: 'r-cd-model-tool-authoritative-receipt',
+      validate: validateRcdModelToolAuthoritativeReceipt,
     };
   }
   return null;

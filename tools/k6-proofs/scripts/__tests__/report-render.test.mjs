@@ -95,6 +95,37 @@ test('renders public-safe HTML report from row-list runner artifacts', async () 
   }
 });
 
+test('renders explicit null verdict as NO-VERDICT without incrementing FAIL', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'k6-proof-no-verdict-report-'));
+  try {
+    const runDir = path.join(root, 'candidate', 'R-CD-MODEL-TOOL', 'cael', 'k6-run-no-verdict');
+    await mkdir(runDir, { recursive: true });
+    await writeFile(path.join(runDir, 'run-result.json'), `${JSON.stringify({
+      k6ExitCode: 99,
+      verdict: null,
+      verdictSource: 'none',
+      candidateOnly: true,
+      foldRequiresReview: true,
+    })}\n`);
+    await writeFile(path.join(runDir, 'r-cd-model-tool-summary.json'), `${JSON.stringify({
+      verdict: null,
+      summaryAuthority: 'NO-VERDICT',
+      metrics: { failures: 1 },
+    })}\n`);
+
+    const out = path.join(root, 'report.html');
+    const run = spawnSync(process.execPath, [script, '--root', root, '--out', out], { encoding: 'utf8' });
+    assert.equal(run.status, 0, run.stderr);
+    const html = await readFile(out, 'utf8');
+    assert.match(html, /<td>NO-VERDICT<\/td>/);
+    assert.match(html, /NO-VERDICT: 1/);
+    assert.match(html, /FAIL-candidate: 0/);
+    assert.doesNotMatch(html, /<td>FAIL-candidate<\/td>/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test('uses candidate-run-result.v1 as the unambiguous review input when present', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'k6-proof-envelope-report-'));
   try {

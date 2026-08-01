@@ -18,6 +18,7 @@
  */
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { resolveArtifactOutcome } from './run-outcome.mjs';
 
 const METRIC_PREFIX = 'openclaw_proofs_k6';
 
@@ -187,7 +188,7 @@ async function normalizeFromRunDir(runDir) {
   const candidateSha = metadata.candidateSha || manifest.candidateSha || summary.sha || 'unknown';
   const seat = metadata.seat || manifest.seat || summary.seat || 'unknown';
   const scenario = metadata.scenario || manifest?.scenario?.name || manifest?.scenario?.file?.replace(/\.js$/, '') || 'unknown';
-  const outcome = summary.verdict || (runResult.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate');
+  const outcome = resolveArtifactOutcome({ runResult, summary });
   const proofFailures = Number(summary?.metrics?.failures ?? runResult.proofFailures ?? (runResult.k6ExitCode === 0 ? 0 : 1));
   const candidateOnly = runResult.candidateOnly !== undefined ? Boolean(runResult.candidateOnly) : true;
   const foldRequiresReview = runResult.foldRequiresReview !== undefined ? Boolean(runResult.foldRequiresReview) : true;

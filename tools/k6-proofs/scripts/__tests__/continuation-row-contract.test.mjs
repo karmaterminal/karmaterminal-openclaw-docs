@@ -183,6 +183,7 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
     'R-CD-2',
     'R-CD-4',
     'R-CD-CHAINED-DEPTH-2',
+    'R-CD-MODEL-TOOL',
     'R-CD-TOKEN',
     'R-RC-2',
   ]);

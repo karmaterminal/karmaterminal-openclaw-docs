@@ -71,6 +71,149 @@ function attributes(span) {
   return new Map((span?.attributes || []).map((attribute) => [attribute.key, attributeValue(attribute)]));
 }
 
+function normalizedAttribute(value) {
+  return typeof value === 'string' ? value.trim().replace(/[.,;:]+$/u, '') : '';
+}
+
+function uniqueValues(values) {
+  return [...new Set(values.map(normalizedAttribute).filter(Boolean))];
+}
+
+function modelCallIdentity(span) {
+  const attrs = attributes(span);
+  const providers = uniqueValues([
+    attrs.get('openclaw.provider'),
+    attrs.get('gen_ai.system'),
+  ]);
+  const models = uniqueValues([
+    attrs.get('openclaw.model'),
+    attrs.get('gen_ai.request.model'),
+  ]);
+  const status = publicStatusCode(span.status?.code);
+  const startNs = spanTimeNs(span, 'startTimeUnixNano');
+  const endNs = spanTimeNs(span, 'endTimeUnixNano');
+  const timingComplete = startNs !== null && endNs !== null && endNs >= startNs;
+  if (providers.length !== 1 || models.length !== 1 ||
+      !/^[A-Za-z0-9._-]+$/u.test(providers[0] || '') ||
+      !/^[A-Za-z0-9._:/-]+$/u.test(models[0] || '') ||
+      !['UNSET', 'OK'].includes(status) ||
+      !timingComplete) {
+    return {
+      spanId: idHex(span.spanId, 8, 'model-call span id'),
+      status,
+      provider: providers.length === 1 ? providers[0] : null,
+      model: models.length === 1 ? models[0] : null,
+      identity: null,
+      complete: false,
+    };
+  }
+  const [provider] = providers;
+  const [model] = models;
+  return {
+    spanId: idHex(span.spanId, 8, 'model-call span id'),
+    status,
+    provider,
+    model,
+    identity: model.startsWith(`${provider}/`) ? model : `${provider}/${model}`,
+    complete: true,
+  };
+}
+
+function modelExecutionTopology(spans, accept, fires) {
+  const outerHarnessSpanId = idHex(accept.parentSpanId, 8, 'dispatch parent span id');
+  const outerHarness = spans.find((span) =>
+    span.name === 'openclaw.harness.run' &&
+    idHex(span.spanId, 8, 'harness span id') === outerHarnessSpanId);
+  if (!outerHarness || fires.some((span) =>
+    idHex(span.parentSpanId, 8, 'fire parent span id') !== outerHarnessSpanId)) {
+    return {
+      bound: false,
+      complete: false,
+      reason: 'continuation lifecycle is not rooted in one outer harness span',
+      childHarnessCount: 0,
+      calls: [],
+    };
+  }
+
+  const childHarnesses = spans.filter((span) =>
+    span.name === 'openclaw.harness.run' &&
+    idHex(span.spanId, 8, 'harness span id') !== outerHarnessSpanId);
+  if (childHarnesses.length !== 1) {
+    return {
+      bound: false,
+      complete: false,
+      reason: `expected one non-parent child harness, found ${childHarnesses.length}`,
+      childHarnessCount: childHarnesses.length,
+      calls: [],
+    };
+  }
+
+  const childHarness = childHarnesses[0];
+  const childHarnessSpanId = idHex(childHarness.spanId, 8, 'child harness span id');
+  if (idHex(childHarness.parentSpanId, 8, 'child harness parent span id') !==
+      idHex(accept.spanId, 8, 'dispatch span id')) {
+    return {
+      bound: false,
+      complete: false,
+      reason: 'the sole non-parent harness is not a direct child of the nonce-bound dispatch',
+      childHarnessCount: 1,
+      childHarnessSpanId,
+      calls: [],
+    };
+  }
+  const childRuns = spans.filter((span) =>
+    span.name === 'openclaw.run' &&
+    idHex(span.parentSpanId, 8, 'run parent span id') === childHarnessSpanId);
+  if (childRuns.length !== 1) {
+    return {
+      bound: false,
+      complete: false,
+      reason: `expected one run under the child harness, found ${childRuns.length}`,
+      childHarnessCount: 1,
+      childHarnessSpanId,
+      childRunCount: childRuns.length,
+      calls: [],
+    };
+  }
+
+  const childRun = childRuns[0];
+  const childRunSpanId = idHex(childRun.spanId, 8, 'child run span id');
+  const calls = spans
+    .filter((span) =>
+      span.name === 'openclaw.model.call' &&
+      idHex(span.parentSpanId, 8, 'model-call parent span id') === childRunSpanId)
+    .map(modelCallIdentity);
+  const childHarnessOutcome = attributes(childHarness).get('openclaw.outcome');
+  const childRunOutcome = attributes(childRun).get('openclaw.outcome');
+  const lifecycleComplete =
+    childHarnessOutcome === 'completed' &&
+    childRunOutcome === 'completed' &&
+    !['ERROR', 'UNKNOWN'].includes(publicStatusCode(childHarness.status?.code)) &&
+    !['ERROR', 'UNKNOWN'].includes(publicStatusCode(childRun.status?.code));
+  const identityComplete = calls.length > 0 && calls.every((call) => call.complete);
+  const complete = lifecycleComplete && identityComplete;
+  return {
+    bound: true,
+    complete,
+    reason: complete
+      ? null
+      : calls.length === 0
+        ? 'child run has no model-call span'
+        : !lifecycleComplete
+          ? 'child harness/run lifecycle is incomplete'
+          : 'child model-call identity is missing, inconsistent, or error-status',
+    childHarnessCount: 1,
+    childHarnessSpanId,
+    childRunCount: 1,
+    childRunSpanId,
+    childHarnessOutcome: childHarnessOutcome || null,
+    childRunOutcome: childRunOutcome || null,
+    lifecycleComplete,
+    identityComplete,
+    calls,
+  };
+}
+
 async function readEvidence(evidencePath) {
   const text = await readFile(evidencePath, 'utf8');
   const records = text.split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
@@ -274,6 +417,9 @@ function projectScopedContinuationTrace(trace, traceId, topology) {
     ...topology.toolSpanIds,
     ...topology.fireSpanIds,
     ...topology.childSpans.map((span) => span.spanId),
+    topology.modelExecution?.childHarnessSpanId,
+    topology.modelExecution?.childRunSpanId,
+    ...(topology.modelExecution?.calls || []).map((call) => call.spanId),
   ].filter(Boolean));
   return {
     ...projected,
@@ -382,6 +528,9 @@ function validateTrace(trace, expected) {
     fireParentSpanIds,
     fireAttemptCount: fireSpanIds.length,
     childSpans,
+    ...(expected.row === 'R-CD-MODEL-TOOL'
+      ? { modelExecution: modelExecutionTopology(spans, accept, fires) }
+      : {}),
   };
   if (expected.tool === 'continue_delegate') {
     return {
@@ -485,6 +634,7 @@ async function main() {
       try {
         topology = contract.kind === 'continuation'
           ? validateTrace(trace, {
+              row: evidence.row || manifest.rowId,
               tool: contract.tool,
               reasonHash: contract.hash,
               reasonLength: contract.length,
@@ -560,7 +710,7 @@ async function main() {
           // the accepted sessions.send lifecycle and the Tempo topology. The
           // trace has already been selected by this evidence's nonce-derived
           // reason hash; retain only fingerprints, never raw run IDs/nonces.
-          ...(evidence.row === 'R-CD-2'
+          ...(['R-CD-2', 'R-CD-MODEL-TOOL'].includes(evidence.row)
             ? {
                 // The resolver consumes the native continuation/delegate
                 // shape emitted below plus topology.toolSpanIds.  Keep the
@@ -569,9 +719,13 @@ async function main() {
                 rowBinding: {
                   acceptedSendRunFingerprint: evidence.send_run_fingerprint || null,
                   nonceFingerprint: evidence.row_nonce_fingerprint || null,
-                  acceptedSendTraceId: evidence.accepted_send_trace_id || null,
+                  acceptedSendTraceId:
+                    evidence.accepted_send_trace_id || evidence.trace_id || null,
                 },
               }
+            : {}),
+          ...(evidence.row === 'R-CD-MODEL-TOOL'
+            ? { modelExecution: topology.modelExecution }
             : {}),
           ...(contract.mode === undefined ? {} : { delegate: { mode: contract.mode } }),
           sameTrace: true,

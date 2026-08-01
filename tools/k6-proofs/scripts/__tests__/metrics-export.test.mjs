@@ -128,6 +128,42 @@ test('exports row-list runner directory and marks trace-missing as pending recei
   });
 });
 
+test('exports explicit null verdict as NO-VERDICT even when k6 exits 99', async () => {
+  await withTmp(async (dir) => {
+    const runDir = join(dir, '20260801T000000Z-r-cd-model-tool');
+    await mkdir(runDir, { recursive: true });
+    await writeFile(join(runDir, 'row-manifest.json'), `${JSON.stringify({
+      rowId: 'R-CD-MODEL-TOOL',
+      candidateSha: 'a837e2b0fe7adc4f71d0c0f2446a2d18a34e28ee',
+      seat: 'cael',
+      transport: 'websocket',
+      toolSurface: 'typed-tool',
+      scenario: { name: 'r-cd-model-tool', file: 'r-cd-model-tool.js' },
+    })}\n`);
+    await writeFile(join(runDir, 'run-result.json'), `${JSON.stringify({
+      k6ExitCode: 99,
+      verdict: null,
+      verdictSource: 'none',
+      candidateOnly: true,
+      foldRequiresReview: true,
+    })}\n`);
+    await writeFile(join(runDir, 'r-cd-model-tool-summary.json'), `${JSON.stringify({
+      verdict: null,
+      summaryAuthority: 'NO-VERDICT',
+      metrics: { failures: 1 },
+    })}\n`);
+
+    const prom = join(dir, 'metrics.prom');
+    const run = runExporter(['--run-dir', runDir, '--prometheus-out', prom]);
+    assert.equal(run.status, 0, run.stderr || run.stdout);
+    assert.equal(JSON.parse(run.stdout).outcome, 'NO-VERDICT');
+    const promText = await readFile(prom, 'utf8');
+    assert.match(promText, /outcome="NO-VERDICT"/);
+    assert.match(promText, /openclaw_proofs_k6_proof_failures_total\{[^\n]*\} 1/);
+    assert.doesNotMatch(promText, /outcome="FAIL-candidate"/);
+  });
+});
+
 
 test('marks direct operator config-get receipts present from public-safe evidence', async () => {
   await withTmp(async (dir) => {

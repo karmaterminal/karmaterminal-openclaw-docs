@@ -123,6 +123,130 @@ function traceFixture({ traceId, reasonHash, reasonLength, tool = 'continue_dele
   };
 }
 
+function modelTraceFixture({
+  traceId,
+  reasonHash,
+  reasonLength,
+  provider = 'openai',
+  model = 'gpt-5.6-luna',
+  includeChildModelCall = true,
+  extraChildHarness = false,
+}) {
+  const trace = traceFixture({ traceId, reasonHash, reasonLength });
+  const spans = trace.batches[0].scopeSpans[0].spans;
+  const modelStartNs = 1785580560000000000n;
+  const childHarnessIndex = spans.findIndex((entry) =>
+    Buffer.from(entry.spanId, 'base64').toString('hex') === 'eeeeeeeeeeeeeeee');
+  spans[childHarnessIndex] = span(
+    'openclaw.harness.run',
+    traceId,
+    'eeeeeeeeeeeeeeee',
+    'cccccccccccccccc',
+    [attr('openclaw.outcome', 'completed')],
+    'OK',
+  );
+  spans.push(
+    span(
+      'openclaw.harness.run',
+      traceId,
+      'dddddddddddddddd',
+      '9999999999999999',
+      [attr('openclaw.outcome', 'completed')],
+      'OK',
+    ),
+    span(
+      'openclaw.run',
+      traceId,
+      '6666666666666666',
+      'dddddddddddddddd',
+      [attr('openclaw.outcome', 'completed')],
+      'OK',
+    ),
+    // This Luna call belongs to the parent turn and must never certify the
+    // delegated child's execution identity.
+    span(
+      'openclaw.model.call',
+      traceId,
+      '7777777777777777',
+      '6666666666666666',
+      [
+        attr('openclaw.provider', 'openai'),
+        attr('gen_ai.system', 'openai'),
+        attr('openclaw.model', 'gpt-5.6-luna'),
+        attr('gen_ai.request.model', 'gpt-5.6-luna'),
+      ],
+      'OK',
+      {
+        startTimeUnixNano: String(modelStartNs),
+        endTimeUnixNano: String(modelStartNs + 1000n),
+      },
+    ),
+    span(
+      'openclaw.run',
+      traceId,
+      '8888888888888888',
+      'eeeeeeeeeeeeeeee',
+      [attr('openclaw.outcome', 'completed')],
+      'OK',
+    ),
+  );
+  if (includeChildModelCall) {
+    spans.push(span(
+      'openclaw.model.call',
+      traceId,
+      '5555555555555555',
+      '8888888888888888',
+      [
+        attr('openclaw.provider', provider),
+        attr('gen_ai.system', provider),
+        attr('openclaw.model', model),
+        attr('gen_ai.request.model', model),
+      ],
+      'OK',
+      {
+        startTimeUnixNano: String(modelStartNs + 2000n),
+        endTimeUnixNano: String(modelStartNs + 3000n),
+      },
+    ));
+  }
+  if (extraChildHarness) {
+    spans.push(
+      span(
+        'openclaw.harness.run',
+        traceId,
+        '1212121212121212',
+        'cccccccccccccccc',
+        [attr('openclaw.outcome', 'completed')],
+        'OK',
+      ),
+      span(
+        'openclaw.run',
+        traceId,
+        '1313131313131313',
+        '1212121212121212',
+        [attr('openclaw.outcome', 'completed')],
+        'OK',
+      ),
+      span(
+        'openclaw.model.call',
+        traceId,
+        '1414141414141414',
+        '1313131313131313',
+        [
+          attr('openclaw.provider', 'openai'),
+          attr('openclaw.model', 'gpt-5.6-luna'),
+        ],
+        'OK',
+        {
+          startTimeUnixNano: String(modelStartNs + 4000n),
+          endTimeUnixNano: String(modelStartNs + 5000n),
+        },
+      ),
+    );
+  }
+  return trace;
+}
+
 function toolTraceFixture({ traceId, tool }) {
   return {
     batches: [{
@@ -244,6 +368,115 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-MODEL-TOOL binds only the nonce-correlated child run model calls', async (t) => {
+  const cases = [
+    {
+      name: 'exact Luna child passes topology extraction',
+      options: {},
+      expected: {
+        bound: true,
+        complete: true,
+        identity: 'openai/gpt-5.6-luna',
+      },
+    },
+    {
+      name: 'unrelated parent Luna cannot mask child fallback',
+      options: { model: 'gpt-5.4' },
+      expected: {
+        bound: true,
+        complete: true,
+        identity: 'openai/gpt-5.4',
+      },
+    },
+    {
+      name: 'nested model ID retains separate provider',
+      options: { provider: 'openrouter', model: 'anthropic/claude-sonnet' },
+      expected: {
+        bound: true,
+        complete: true,
+        identity: 'openrouter/anthropic/claude-sonnet',
+      },
+    },
+    {
+      name: 'missing child model call remains incomplete',
+      options: { includeChildModelCall: false },
+      expected: {
+        bound: true,
+        complete: false,
+        callCount: 0,
+      },
+    },
+    {
+      name: 'multiple child harnesses remain ambiguous',
+      options: { extraChildHarness: true },
+      expected: {
+        bound: false,
+        complete: false,
+        childHarnessCount: 2,
+      },
+    },
+  ];
+
+  for (const [index, entry] of cases.entries()) {
+    await t.test(entry.name, async () => {
+      const traceId = String(index + 1).repeat(32);
+      const fixture = await fixtureDir({
+        rowId: 'R-CD-MODEL-TOOL',
+        delegateMode: 'normal',
+        extraEvidence: {
+          accepted_send_trace_id: traceId,
+        },
+      });
+      const trace = modelTraceFixture({
+        traceId,
+        reasonHash: fixture.reasonHash,
+        reasonLength: fixture.reasonLength,
+        ...entry.options,
+      });
+      const server = await listen((request, response) => {
+        response.setHeader('content-type', 'application/json');
+        response.end(JSON.stringify(
+          new URL(request.url, 'http://localhost').pathname === '/api/search'
+            ? { traces: [{ traceID: traceId }] }
+            : trace,
+        ));
+      });
+      try {
+        const { stdout } = await execFileAsync(process.execPath, [
+          script,
+          '--run-dir', fixture.dir,
+          '--manifest', fixture.manifestPath,
+          '--seat', 'cael-dgx',
+          '--tempo-url', server.url,
+          '--timeout-ms', '100',
+          '--poll-ms', '10',
+        ]);
+        const result = JSON.parse(stdout);
+        const receipt = JSON.parse(
+          await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'),
+        );
+        const execution = receipt.modelExecution;
+        assert.equal(execution.bound, entry.expected.bound);
+        assert.equal(execution.complete, entry.expected.complete);
+        assert.equal(receipt.rowBinding.acceptedSendTraceId, traceId);
+        if (entry.expected.identity) {
+          assert.equal(execution.calls.length, 1);
+          assert.equal(execution.calls[0].identity, entry.expected.identity);
+        }
+        if (entry.expected.callCount !== undefined) {
+          assert.equal(execution.calls.length, entry.expected.callCount);
+        }
+        if (entry.expected.childHarnessCount !== undefined) {
+          assert.equal(execution.childHarnessCount, entry.expected.childHarnessCount);
+        }
+      } finally {
+        await server.close();
+        await rm(fixture.dir, { recursive: true, force: true });
+      }
+    });
   }
 });
 

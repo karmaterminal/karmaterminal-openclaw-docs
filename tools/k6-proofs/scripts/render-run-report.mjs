@@ -13,6 +13,7 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
+import { resolveArtifactOutcome } from './run-outcome.mjs';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 
@@ -145,7 +146,7 @@ async function rowFromRunResult(root, runResultPath) {
   const evidenceRows = files.includes('evidence.jsonl') ? await readEvidenceJsonl(path.join(runDir, 'evidence.jsonl')) : [];
   const rel = path.relative(root, runDir).split(path.sep).join('/');
   const proofFailures = Number(summary?.metrics?.failures ?? runResult.proofFailures ?? (runResult.k6ExitCode === 0 ? 0 : 1));
-  let outcome = safeText(runResult.verdict || summary?.verdict || (runResult.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate'));
+  let outcome = safeText(resolveArtifactOutcome({ runResult, summary }));
   const authoritative = authoritativeReceiptContract(metadata?.row || manifest?.rowId);
   if (authoritative) {
     const declared = runResult.authoritativeReceipt;
@@ -233,6 +234,7 @@ body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:2rem;backgro
 <span class="pill">rows: ${totals.total}</span>
 <span class="pill">PASS-candidate: ${totals['PASS-candidate'] || 0}</span>
 <span class="pill">FAIL-candidate: ${totals['FAIL-candidate'] || 0}</span>
+<span class="pill">NO-VERDICT: ${totals['NO-VERDICT'] || 0}</span>
 <span class="pill">review-pending: ${totals.reviewPending}</span>
 <span class="pill">trace-missing: ${totals.traceMissing}</span>
 </div>

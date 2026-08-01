@@ -12,6 +12,7 @@
 
 import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
+import { resolveArtifactOutcome } from './run-outcome.mjs';
 
 function parseArgs(argv) {
   const out = { root: 'PROOFS', out: null };
@@ -125,7 +126,7 @@ function normalizeRun(root, resultPath) {
   const candidateSha = result.candidateSha || summary.sha || manifest.candidateSha || pathInfo.candidateSha;
   const seat = result.seat || summary.seat || manifest.seat || pathInfo.seat;
   const runId = result.runId || pathInfo.runId;
-  const outcome = result.outcome || summary.verdict || (result.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate');
+  const outcome = resolveArtifactOutcome({ runResult: result, summary });
   const scenario = result.scenario || manifest?.scenario?.name || manifest?.scenario?.file?.replace(/\.js$/, '') || 'unknown';
   const toolSurface = result.toolSurface || manifest.toolSurface || 'unknown';
   const transport = result.transport || manifest.transport || 'unknown';

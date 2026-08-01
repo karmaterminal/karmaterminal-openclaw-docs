@@ -2,8 +2,10 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { RCD_MODEL_TOOL_REQUIRED_MODEL } from '../lib/r-cd-model-tool-verdict.js';
 import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
 
 export const options = {
@@ -19,7 +21,6 @@ const DEFAULTS = {
   seat: 'cael-dgx',
   delaySeconds: 1,
   idempotencyKeyPrefix: 'R-CD-MODEL-TOOL',
-  requestedModel: 'openai/gpt-5.6-luna',
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
 
@@ -32,7 +33,6 @@ function modelFromSessionMetadata(session) {
   if (!model) return null;
   return model.includes('/') ? model : (provider ? `${provider}/${model}` : model);
 }
-let finalEvidence = null;
 
 export default function() {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
@@ -43,7 +43,8 @@ export default function() {
   const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CD-MODEL-TOOL');
   const inv = manifest?.invocation || {};
-  const requestedModel = normalizeModel(__ENV.OPENCLAW_ALT_MODEL || inv.model || DEFAULTS.requestedModel);
+  const requestedModel = RCD_MODEL_TOOL_REQUIRED_MODEL;
+  const manifestModel = normalizeModel(inv.model);
   const delaySeconds = Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds);
   const idPrefix = inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix;
   if (!token) { console.error('OPENCLAW_GATEWAY_TOKEN is required'); failures.add(1); return; }
@@ -56,42 +57,62 @@ export default function() {
     seat,
     requestedSessionKey,
     sessionKey,
+    disposable_session_required: createDisposableSession,
     session_created: false,
     created_session_key: null,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
     requested_model_byte: requestedModel,
     requested_model_source: 'continue_delegate.model parameter',
+    manifest_model_byte: manifestModel || null,
+    manifest_model_matches_required: manifestModel === requestedModel,
     dispatch_accepted: false,
+    delegate_mode: null,
+    reason_hash: null,
+    reason_length: null,
     parent_scheduled_sentinel: false,
     child_session_observed: false,
     child_session_key: null,
-    child_session_metadata_observed: false,
-    child_metadata_model_byte: null,
-    child_metadata_model_source: null,
+    child_selected_model_projection_observed: false,
+    child_selected_model_projection_byte: null,
+    child_selected_model_projection_source: null,
     child_self_reported_model: null,
     child_self_reported_model_source: null,
-    child_session_metadata: null,
-    child_metadata_requested: false,
-    model_matches: false,
+    child_selected_model_projection: null,
+    child_selected_model_projection_requested: false,
+    selected_model_projection_matches_request: false,
     return_payload: false,
     trace_id: null,
+    accepted_send_trace_id: null,
     model_classification_reason: null,
     redacted_events: [],
   };
   const started = Date.now();
+  if (manifestModel !== requestedModel) {
+    evidence.model_classification_reason =
+      `manifest invocation.model must equal ${requestedModel}`;
+    evidence.ended = new Date().toISOString();
+    evidence.duration_ms = Date.now() - started;
+    duration.add(evidence.duration_ms);
+    failures.add(1);
+    console.error(evidence.model_classification_reason);
+    console.log('\n--- R-CD-MODEL-TOOL EVIDENCE SUMMARY ---');
+    console.log(JSON.stringify(evidence, null, 2));
+    console.log('--- END EVIDENCE ---');
+    console.log('\n[R-CD-MODEL-TOOL] NO VERDICT: manifest model contract mismatch');
+    return;
+  }
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
     function start(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       socket.setTimeout(() => {
-        // Deliberately do NOT include requestedModel in the child task. The child
-        // must report its own runtime identity instead of echoing the request.
-        const childTask =
-          'Proof nonce ' + rowNonce + ': read your runtime context/current model identity. ' +
-          'Reply exactly MODEL-TOOL-CHILD ' + rowNonce + ' MODEL <provider/model>. ' +
-          'Use UNKNOWN only if no runtime model identity is available. Do not mutate files. Do not post externally.';
+        const promptTemplate = String(inv.promptTemplate || '');
+        const childTask = promptTemplate.replace(/\{\{nonce\}\}/g, rowNonce);
+        evidence.reason_hash = crypto.sha256(childTask, 'hex').slice(0, 16);
+        evidence.reason_length = childTask.length;
+        evidence.delegate_mode = 'normal';
         const instruction =
           HARNESS_MARKER + ' R-CD-MODEL-TOOL nonce ' + rowNonce + '. ' +
           'Call continue_delegate with task=' + JSON.stringify(childTask) +
@@ -140,7 +161,10 @@ export default function() {
         if (classified.kind === 'response' && classified.method === 'sessions.send') {
           if (classified.ok) {
             evidence.dispatch_accepted = true;
-            if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
+            if (classified.payload?.traceId) {
+              evidence.accepted_send_trace_id = classified.payload.traceId;
+              evidence.trace_id = classified.payload.traceId;
+            }
             console.log('✓ sessions.send accepted — explicit model delegate turn triggered');
           } else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); }
         }
@@ -149,24 +173,22 @@ export default function() {
           const child = sessions.find((session) => session?.key === evidence.child_session_key);
           if (child) {
             evidence.child_session_observed = true;
-            evidence.child_session_metadata_observed = true;
-            evidence.child_metadata_model_byte = modelFromSessionMetadata(child);
-            evidence.child_metadata_model_source = 'gateway sessions.list persisted provider/model metadata';
-            evidence.child_session_metadata = {
+            evidence.child_selected_model_projection_observed = true;
+            evidence.child_selected_model_projection_byte = modelFromSessionMetadata(child);
+            evidence.child_selected_model_projection_source =
+              'gateway sessions.list selected-model projection; auxiliary, not execution authority';
+            evidence.child_selected_model_projection = {
               key: child.key || null,
               provider: child.modelProvider || child.provider || null,
               model: child.model || null,
               modelSelectionLocked: child.modelSelectionLocked === true,
             };
-            evidence.model_matches = evidence.child_metadata_model_byte === requestedModel;
-            if (!evidence.model_matches) {
-              evidence.model_classification_reason =
-                'requested model does not match authoritative child-session metadata';
-            }
-            console.log('✓ child session metadata observed');
+            evidence.selected_model_projection_matches_request =
+              evidence.child_selected_model_projection_byte === requestedModel;
+            console.log('✓ auxiliary selected-model projection observed');
           } else if (!classified.ok) {
             evidence.model_classification_reason =
-              'gateway sessions.list unavailable while resolving child session metadata';
+              'gateway sessions.list unavailable while collecting auxiliary selected-model evidence';
           }
         }
         if (classified.kind === 'event') {
@@ -177,8 +199,8 @@ export default function() {
           if (observedChildSessionKey) {
             evidence.child_session_observed = true;
             evidence.child_session_key = observedChildSessionKey;
-            if (!evidence.child_metadata_requested) {
-              evidence.child_metadata_requested = true;
+            if (!evidence.child_selected_model_projection_requested) {
+              evidence.child_selected_model_projection_requested = true;
               socket.setTimeout(() => tracker.send(socket, 'sessions.list', { limit: 100 }), 500);
             }
           }
@@ -197,7 +219,8 @@ export default function() {
             }
           }
         }
-        if (evidence.dispatch_accepted && evidence.child_session_metadata_observed && evidence.return_payload) {
+        if (evidence.dispatch_accepted && evidence.parent_scheduled_sentinel &&
+            evidence.child_session_observed && evidence.return_payload) {
           console.log('R-CD-MODEL-TOOL return gathered, closing early');
           socket.close();
         }
@@ -207,39 +230,39 @@ export default function() {
   });
 
   evidence.ended = new Date().toISOString(); evidence.duration_ms = Date.now() - started; duration.add(evidence.duration_ms);
-  finalEvidence = evidence;
-  const complete = (!createDisposableSession || evidence.session_created) && evidence.dispatch_accepted && evidence.parent_scheduled_sentinel && evidence.child_session_metadata_observed && evidence.child_metadata_model_byte && evidence.return_payload;
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'dispatch accepted': () => evidence.dispatch_accepted,
     'parent scheduled sentinel': () => evidence.parent_scheduled_sentinel,
     'child session observed': () => evidence.child_session_observed,
-    'authoritative child-session model byte': () => !!evidence.child_metadata_model_byte,
     'return payload': () => evidence.return_payload,
-    'requested model observed': () => evidence.model_matches,
   });
-  const authoritativeMismatch =
-    evidence.child_session_metadata_observed &&
-    !!evidence.child_metadata_model_byte &&
-    !evidence.model_matches;
-  const verdict = authoritativeMismatch
-    ? 'FAIL-candidate'
-    : (complete ? 'PASS-candidate' : 'PARTIAL-candidate');
-  if (verdict !== 'PASS-candidate') failures.add(1);
-  console.log('\n--- R-CD-MODEL-TOOL EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-TOOL] VERDICT: ' + verdict);
+  console.log('\n--- R-CD-MODEL-TOOL EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---');
+  console.log('\n[R-CD-MODEL-TOOL] NO VERDICT: execution identity is resolved only from the nonce-bound Tempo child model-call span');
 }
 
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
   const failuresCount = data.metrics.proof_failures?.values?.count || 0;
-  const complete = !!(finalEvidence?.dispatch_accepted && finalEvidence?.parent_scheduled_sentinel && finalEvidence?.child_session_metadata_observed && finalEvidence?.child_metadata_model_byte && finalEvidence?.return_payload);
-  const authoritativeMismatch =
-    finalEvidence?.child_session_metadata_observed &&
-    !!finalEvidence?.child_metadata_model_byte &&
-    !finalEvidence?.model_matches;
-  const verdict = authoritativeMismatch
-    ? 'FAIL-candidate'
-    : (complete ? 'PASS-candidate' : 'PARTIAL-candidate');
-  const summary = { row: 'R-CD-MODEL-TOOL', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict, requestedModel: finalEvidence?.requested_model_byte || __ENV.OPENCLAW_ALT_MODEL || null, observedModel: finalEvidence?.child_metadata_model_byte || null, observedModelSource: finalEvidence?.child_metadata_model_source || null, auxiliarySelfReport: finalEvidence?.child_self_reported_model || null, classificationReason: finalEvidence?.model_classification_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_tool_duration?.values || null, failures: failuresCount } };
-  return { stdout: '\n[R-CD-MODEL-TOOL] Summary: ' + summary.verdict + ' | SHA: ' + summary.sha + ' | Seat: ' + summary.seat + '\n', 'r-cd-model-tool-summary.json': JSON.stringify(summary, null, 2) };
+  const summary = {
+    row: 'R-CD-MODEL-TOOL',
+    sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
+    seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx',
+    timestamp,
+    verdict: null,
+    requestedModel: RCD_MODEL_TOOL_REQUIRED_MODEL,
+    observedModel: null,
+    observedModelSource: null,
+    auxiliarySelfReport: null,
+    classificationReason: null,
+    summaryAuthority: 'NO-VERDICT',
+    metrics: {
+      duration_ms: data.metrics.r_cd_model_tool_duration?.values || null,
+      failures: failuresCount,
+    },
+  };
+  return {
+    stdout: '\n[R-CD-MODEL-TOOL] Summary: NO-VERDICT | SHA: ' + summary.sha + ' | Seat: ' + summary.seat + '\n',
+    'r-cd-model-tool-summary.json': JSON.stringify(summary, null, 2),
+  };
 }

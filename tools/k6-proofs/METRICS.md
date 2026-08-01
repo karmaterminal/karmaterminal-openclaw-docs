@@ -15,7 +15,7 @@ PROOFS/<candidate-sha>/<row-id>/<seat>/k6-run-<timestamp>/
 The first Grafana dashboard should answer:
 
 - Which rows / seats / SHAs have candidate runs?
-- Which runs are `PASS-candidate`, `PARTIAL-candidate`, `FAIL-candidate`, or the single allowed `R-RC-2` below-threshold `HONEST-LIMIT-candidate`?
+- Which runs are `PASS-candidate`, `PARTIAL-candidate`, `FAIL-candidate`, explicit `NO-VERDICT`, or the single allowed `R-RC-2` below-threshold `HONEST-LIMIT-candidate`?
 - Where did `proof_failures` occur?
 - Which runs timed out or took unusually long?
 - Which required receipts are present / missing?
@@ -31,7 +31,7 @@ Allowed metric labels are low-cardinality and non-secret:
 - `scenario` — k6 scenario name, for example `r-cd-1-typed-delegate`
 - `tool_surface` — `typed-tool`, `bracket-token`, etc.
 - `transport` — `websocket`, etc.
-- `outcome` — `PASS-candidate`, `PARTIAL-candidate`, `FAIL-candidate`, or `HONEST-LIMIT-candidate` only for `R-RC-2` below-threshold refusal
+- `outcome` — `PASS-candidate`, `PARTIAL-candidate`, `FAIL-candidate`, explicit `NO-VERDICT`, or `HONEST-LIMIT-candidate` only for `R-RC-2` below-threshold refusal. `NO-VERDICT` means the run failed or ended without authoritative behavioral classification and is never fold-ready.
 - `run_id` — proof-run artifact id; required for latest/current views and receipt joins
 - `candidate_only` — `true` / `false`
 - `fold_requires_review` — `true` / `false`

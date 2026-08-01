@@ -20,7 +20,24 @@ const postprocessorPath = path.join(repoRoot, 'scripts/postprocess-k6-summary.mj
 
 function evidence(overrides = {}) {
   return {
+    default_agent_observed: true,
     session_created: true, session_unbound_confirmed: true,
+    session_creation_preflight_clear: true,
+    session_create_accepted: true,
+    session_create_response_verified: true,
+    created_session_id_fingerprint: '8'.repeat(16),
+    runtime_catalog_observed: true,
+    runtime_selection_verified: true,
+    selected_session_model_verified: true,
+    runtime_selection_action: 'explicit-create',
+    model_selection_scope: 'new-session-only',
+    sticky_model_mutation_used: false,
+    selected_execution_runtime_id: 'openclaw',
+    selected_execution_runtime_source: 'model',
+    selected_session_runtime_source: 'model',
+    selected_session_runtime_verified: true,
+    selected_execution_model_provider: 'openai',
+    selected_execution_model_fingerprint: '9'.repeat(16),
     send_accepted: true, send_run_captured: true,
     dispatch_terminal_sentinel_observed: true,
     dispatch_terminal_sentinel_same_run_window: true,
@@ -98,6 +115,80 @@ test('R-CD-2 rejects replay failure, wrong mode, and mismatched trace topology',
     const receipt = resolveRcd2AuthoritativeReceipt({ evidence: evidence(), correlation: bad, signingKey });
     assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'invalid-continuation-topology']);
   }
+});
+
+test('R-CD-2 rejects unavailable, sticky, or unverified execution runtime selection', () => {
+  for (const badEvidence of [
+    evidence({
+      runtime_selection_verified: false,
+      dispatch_failure_observed: true,
+      failureCategory: 'runtime-selection-mismatch',
+    }),
+    evidence({
+      selected_execution_runtime_id: 'codex',
+      dispatch_failure_observed: true,
+      failureCategory: 'runtime-selection-unavailable',
+    }),
+    evidence({
+      sticky_model_mutation_used: true,
+      dispatch_failure_observed: true,
+      failureCategory: 'runtime-selection-mismatch',
+    }),
+    evidence({
+      session_creation_preflight_clear: false,
+      dispatch_failure_observed: true,
+      failureCategory: 'session-creation-unverified',
+    }),
+    evidence({
+      default_agent_observed: false,
+      dispatch_failure_observed: true,
+      failureCategory: 'session-creation-unverified',
+    }),
+    evidence({
+      created_session_id_fingerprint: null,
+      dispatch_failure_observed: true,
+      failureCategory: 'session-creation-unverified',
+    }),
+    evidence({
+      selected_execution_runtime_source: null,
+      dispatch_failure_observed: true,
+      failureCategory: 'runtime-selection-unavailable',
+    }),
+    evidence({
+      selected_session_runtime_source: 'provider',
+      dispatch_failure_observed: true,
+      failureCategory: 'runtime-selection-mismatch',
+    }),
+    evidence({
+      selected_session_runtime_verified: false,
+      dispatch_failure_observed: true,
+      failureCategory: 'runtime-selection-mismatch',
+    }),
+  ]) {
+    const receipt = resolveRcd2AuthoritativeReceipt({
+      evidence: badEvidence,
+      correlation: correlation(),
+      signingKey,
+    });
+    assert.equal(receipt.verdict, 'PARTIAL-candidate');
+    assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true);
+    assert.match(receipt.failureCategory, /^(runtime-selection-|session-creation-)/);
+  }
+});
+
+test('R-CD-2 rejects the legacy receipt schema after runtime-source hardening', () => {
+  const receipt = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence(),
+    correlation: correlation(),
+    signingKey,
+  });
+  assert.equal(
+    validateRcd2AuthoritativeReceipt({
+      ...receipt,
+      schema: 'openclaw.k6.r-cd-2-authoritative-receipt.v1',
+    }, signingKey).valid,
+    false,
+  );
 });
 
 test('R-CD-2 rejects a successful lifecycle end without the exact post-tool sentinel', () => {

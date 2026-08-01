@@ -70,7 +70,18 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
   const evidence = {
     row: 'R-CD-2', nonce, started: now, ended: now, dispatch_accepted_at_ms: Date.now(),
     delegate_mode: 'silent-wake', reason_hash: reasonHash, reason_length: reason.length,
-    session_created: true, session_unbound_confirmed: true, send_accepted: true,
+    default_agent_observed: true,
+    session_created: true, session_creation_preflight_clear: true,
+    session_create_accepted: true, session_create_response_verified: true,
+    created_session_id_fingerprint: '8'.repeat(16),
+    session_unbound_confirmed: true, runtime_catalog_observed: true,
+    runtime_selection_verified: true, selected_session_model_verified: true,
+    selected_session_runtime_verified: true,
+    runtime_selection_action: 'explicit-create', model_selection_scope: 'new-session-only',
+    sticky_model_mutation_used: false, selected_execution_runtime_id: 'openclaw',
+    selected_execution_runtime_source: 'model', selected_session_runtime_source: 'model',
+    selected_execution_model_provider: 'openai',
+    selected_execution_model_fingerprint: '9'.repeat(16), send_accepted: true,
     send_run_captured: true, terminal_success_same_run: true, typed_delegate_success_same_run: true,
     dispatch_terminal_sentinel_observed: true,
     dispatch_terminal_sentinel_same_run_window: true,
@@ -194,6 +205,40 @@ test('R-CD-2 dispatch turn requires an exact post-tool terminal sentinel', async
   assert.match(scenario, /dispatchLifecycleActive/);
   assert.match(scenario, /wakeLifecycleObserved:\s*evidence\.wake_lifecycle_observed/);
   assert.doesNotMatch(scenario, /execute the tool call immediately, no other action needed/);
+});
+
+test('R-CD-2 selects a built-in runtime before honest write-scoped session creation', async () => {
+  const scenario = await readFile(path.join(scenariosDir, 'r-cd-2-silent-wake.js'), 'utf8');
+  const manifest = JSON.parse(
+    await readFile(path.join(manifestsDir, 'r-cd-2.json'), 'utf8'),
+  );
+  const gatewayWs = await readFile(
+    path.join(repoRoot, 'tools/k6-proofs/lib/gateway-ws.js'),
+    'utf8',
+  );
+
+  const agentsList = scenario.indexOf("tracker.send(socket, 'agents.list'");
+  const modelsList = scenario.indexOf("tracker.send(socket, 'models.list'");
+  const sessionCreate = scenario.indexOf("tracker.send(socket, 'sessions.create'");
+  const listedVerification = scenario.indexOf('verifyRcd2ListedSession(');
+  const createdClaim = scenario.indexOf('evidence.session_created = true');
+
+  assert.ok(agentsList >= 0 && modelsList > agentsList && sessionCreate > modelsList);
+  assert.ok(listedVerification >= 0 && createdClaim > listedVerification);
+  assert.match(scenario, /model:\s*rcd2ModelRef\(selectedExecutionModel\)/);
+  assert.match(scenario, /agentId:\s*disposableAgentId/);
+  assert.match(scenario, /if \(!classified\.ok\) \{\s*failRuntimeSelection\(\s*'session-creation-unverified',\s*`sessions\.list failed during \$\{sessionInspectionPhase\}`/);
+  assert.match(scenario, /session_creation_preflight_clear = true/);
+  assert.match(scenario, /selected_session_runtime_verified = true/);
+  assert.match(scenario, /sticky_model_mutation_used:\s*false/);
+  assert.doesNotMatch(scenario, /sessions\.patch/);
+  assert.ok(manifest.scenario.methods.includes('models.list'));
+  assert.ok(manifest.scenario.methods.includes('sessions.create'));
+  assert.ok(manifest.scenario.methods.includes('sessions.list'));
+  assert.ok(!manifest.scenario.methods.includes('sessions.patch'));
+  assert.equal(manifest.liveRunSafety.requiresTargetSessionKey, false);
+  assert.match(gatewayWs, /'operator\.write'/);
+  assert.doesNotMatch(gatewayWs, /'operator\.admin'/);
 });
 
 test('every trace-required continue_work row persists the safe fingerprint contract', async () => {

@@ -25,6 +25,14 @@ import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { gatewayLifecycleRunId, gatewayLifecyclePhase, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../lib/gateway-lifecycle.js';
 import { observesRcd2DispatchTerminalSentinel } from '../lib/r-cd-2-terminal-sentinel.js';
+import {
+  findRcd2Session,
+  rcd2ModelRef,
+  resolveRcd2ExecutionRuntime,
+  selectRcd2ExecutionModel,
+  verifyRcd2ListedSession,
+  verifyRcd2SessionCreateResponse,
+} from '../lib/r-cd-2-runtime-selection.js';
 
 export const options = {
   scenarios: {
@@ -90,10 +98,13 @@ export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
   const requestedSessionKey = manifest && manifest.sessionKey || __ENV.OPENCLAW_SESSION_KEY || DEFAULTS.sessionKey;
-  let sessionKey = requestedSessionKey;
-  const createDisposableSession = (__ENV.OPENCLAW_CREATE_DISPOSABLE_SESSION || 'true').toLowerCase() === 'true';
   const seat = manifest && manifest.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CD-2');
+  const disposableSuffix = `r-cd-2-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+  let disposableAgentId = null;
+  let disposableKey = null;
+  let sessionKey = null;
+  let createdSessionId = null;
   const dispatchTerminalSentinel = `RCD2-DELEGATE-SCHEDULED ${rowNonce}`;
 
   if (!token) {
@@ -117,9 +128,27 @@ export default function () {
     seat,
     sessionKey,
     requestedSessionKey,
+    default_agent_observed: false,
     session_created: false,
+    session_creation_preflight_clear: false,
+    session_create_accepted: false,
+    session_create_response_verified: false,
+    created_session_id_fingerprint: null,
     session_unbound_confirmed: false,
     created_session_key: null,
+    runtime_catalog_observed: false,
+    runtime_catalog_model_count: 0,
+    runtime_selection_action: null,
+    model_selection_scope: null,
+    sticky_model_mutation_used: false,
+    selected_execution_model_provider: null,
+    selected_execution_model_fingerprint: null,
+    selected_execution_runtime_id: null,
+    selected_execution_runtime_source: null,
+    selected_session_model_verified: false,
+    selected_session_runtime_source: null,
+    selected_session_runtime_verified: false,
+    runtime_selection_verified: false,
     candidateSha: manifest && manifest.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
     // Required receipts
@@ -166,9 +195,26 @@ export default function () {
   const started = Date.now();
   let acceptedRunId = null;
   let dispatchLifecycleActive = false;
+  let selectedExecutionModel = null;
+  let sessionInspectionPhase = 'catalog';
+  let proofFlowStarted = false;
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+
+    function modelFingerprint(provider, model) {
+      return provider && model
+        ? crypto.sha256(`${provider}/${model}`, 'hex').slice(0, 16)
+        : null;
+    }
+
+    function failRuntimeSelection(category, message) {
+      evidence.dispatch_failure_observed = true;
+      evidence.failureCategory = category;
+      failures.add(1);
+      console.error(`✗ R-CD-2 runtime selection failed: ${message}`);
+      socket.close();
+    }
 
     function maybeRecordDispatchTerminalSuccess() {
       if (!acceptedRunId ||
@@ -182,6 +228,18 @@ export default function () {
     }
 
     function startProofFlow(socket) {
+      if (proofFlowStarted) return;
+      if (!evidence.session_created ||
+          !evidence.runtime_selection_verified ||
+          !evidence.selected_session_model_verified ||
+          !evidence.selected_session_runtime_verified) {
+        failRuntimeSelection(
+          'runtime-selection-mismatch',
+          'the disposable session was not verified on the required OpenClaw runtime',
+        );
+        return;
+      }
+      proofFlowStarted = true;
       // Subscribe to parent session messages to detect wake + verify no channel delivery.
       // Protocol: sessions.messages.subscribe uses 'key' not 'sessionKey'.
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
@@ -218,18 +276,7 @@ export default function () {
 
     socket.on('open', () => {
       socket.send(connectFrame(token));
-
-      if (createDisposableSession) {
-        socket.setTimeout(() => {
-          const disposableKey = `r-cd-2-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-          tracker.send(socket, 'sessions.create', {
-            key: disposableKey,
-            label: `k6 R-CD-2 ${rowNonce}`,
-          });
-        }, 250);
-      } else {
-        socket.setTimeout(() => startProofFlow(socket), 500);
-      }
+      socket.setTimeout(() => tracker.send(socket, 'agents.list', {}), 250);
     });
 
     socket.on('message', (raw) => {
@@ -246,34 +293,151 @@ export default function () {
           data: classified.payload ? redactEvent(classified.payload) : null,
         });
 
-        if (classified.kind === 'response' && classified.method === 'sessions.create') {
-          if (classified.ok && classified.payload) {
-            sessionKey = classified.payload.key || sessionKey;
-            evidence.sessionKey = sessionKey;
-            evidence.session_created = true;
-            evidence.created_session_key = sessionKey;
-            console.log(`✓ disposable session created: ${sessionKey}`);
-            tracker.send(socket, 'sessions.list', { limit: 20 });
-          } else {
-            console.error(`✗ sessions.create rejected: ${JSON.stringify(classified.error)}`);
-            failures.add(1);
-            socket.close();
+        if (classified.kind === 'response' && classified.method === 'agents.list') {
+          if (!classified.ok) {
+            failRuntimeSelection('session-creation-unverified', 'agents.list was unavailable');
+            return;
           }
+          disposableAgentId = String(classified.payload?.defaultId || '').trim().toLowerCase();
+          if (!disposableAgentId) {
+            failRuntimeSelection(
+              'session-creation-unverified',
+              'agents.list did not identify the configured default agent',
+            );
+            return;
+          }
+          disposableKey = `agent:${disposableAgentId}:${disposableSuffix}`;
+          sessionKey = disposableKey;
+          evidence.default_agent_observed = true;
+          evidence.sessionKey = sessionKey;
+          tracker.send(socket, 'models.list', { view: 'configured' });
+        }
+
+        if (classified.kind === 'response' && classified.method === 'models.list') {
+          if (!classified.ok) {
+            failRuntimeSelection('runtime-selection-unavailable', 'models.list was unavailable');
+            return;
+          }
+          const models = classified.payload?.models || [];
+          evidence.runtime_catalog_observed = true;
+          evidence.runtime_catalog_model_count = Array.isArray(models) ? models.length : 0;
+          selectedExecutionModel = selectRcd2ExecutionModel(models, {
+            requestedModel: __ENV.OPENCLAW_RCD2_MODEL,
+          });
+          if (!selectedExecutionModel) {
+            failRuntimeSelection(
+              'runtime-selection-unavailable',
+              'no available configured model resolves to the built-in OpenClaw runtime',
+            );
+            return;
+          }
+          const selectedRuntime = resolveRcd2ExecutionRuntime(selectedExecutionModel);
+          evidence.runtime_selection_action = 'explicit-create';
+          evidence.model_selection_scope = 'new-session-only';
+          evidence.selected_execution_model_provider = selectedExecutionModel.provider;
+          evidence.selected_execution_model_fingerprint = modelFingerprint(
+            selectedExecutionModel.provider,
+            selectedExecutionModel.id,
+          );
+          evidence.selected_execution_runtime_id = selectedRuntime.id;
+          evidence.selected_execution_runtime_source = selectedRuntime.source;
+          sessionInspectionPhase = 'precreate-list';
+          tracker.send(socket, 'sessions.list', {
+            search: disposableKey,
+            archived: 'all',
+            limit: 10,
+          });
+        }
+
+        if (classified.kind === 'response' && classified.method === 'sessions.create') {
+          if (!classified.ok || !classified.payload) {
+            failRuntimeSelection(
+              'session-creation-unverified',
+              `sessions.create rejected the selected model: ${JSON.stringify(classified.error)}`,
+            );
+            return;
+          }
+          evidence.session_create_accepted = true;
+          if (!verifyRcd2SessionCreateResponse(
+            classified.payload,
+            disposableKey,
+            selectedExecutionModel,
+          )) {
+            failRuntimeSelection(
+              'session-creation-unverified',
+              'sessions.create did not prove a fresh session at the requested key and model',
+            );
+            return;
+          }
+          createdSessionId = String(classified.payload.sessionId || '').trim();
+          sessionKey = classified.payload.key;
+          evidence.sessionKey = sessionKey;
+          evidence.session_create_response_verified = true;
+          evidence.created_session_id_fingerprint = crypto.sha256(
+            createdSessionId,
+            'hex',
+          ).slice(0, 16);
+          sessionInspectionPhase = 'postcreate-list';
+          tracker.send(socket, 'sessions.list', {
+            search: sessionKey,
+            archived: 'all',
+            limit: 10,
+          });
         }
 
         if (classified.kind === 'response' && classified.method === 'sessions.list') {
-          const sessions = classified.payload?.sessions || classified.payload?.items || [];
-          const created = sessions.find((session) => session?.key === sessionKey);
-          const bound = Boolean(created?.channelId || created?.channel || created?.deliveryChannel);
-          if (evidence.session_created && created && !bound) {
-            evidence.session_unbound_confirmed = true;
-            startProofFlow(socket);
-          } else {
-            evidence.dispatch_failure_observed = true;
-            console.error('✗ disposable session is missing or bound');
-            failures.add(1);
-            socket.close();
+          if (!classified.ok) {
+            failRuntimeSelection(
+              'session-creation-unverified',
+              `sessions.list failed during ${sessionInspectionPhase}`,
+            );
+            return;
           }
+          const sessions = classified.payload?.sessions || classified.payload?.items || [];
+          if (sessionInspectionPhase === 'precreate-list') {
+            if (findRcd2Session(sessions, disposableKey)) {
+              failRuntimeSelection(
+                'session-creation-unverified',
+                'the generated disposable session key already exists',
+              );
+              return;
+            }
+            evidence.session_creation_preflight_clear = true;
+            sessionInspectionPhase = 'creating';
+            tracker.send(socket, 'sessions.create', {
+              agentId: disposableAgentId,
+              key: disposableKey,
+              label: `k6 R-CD-2 ${rowNonce}`,
+              model: rcd2ModelRef(selectedExecutionModel),
+            });
+            return;
+          }
+
+          if (sessionInspectionPhase !== 'postcreate-list') return;
+          const created = findRcd2Session(sessions, sessionKey);
+          if (!verifyRcd2ListedSession(
+            created,
+            sessionKey,
+            createdSessionId,
+            selectedExecutionModel,
+          )) {
+            failRuntimeSelection(
+              'runtime-selection-mismatch',
+              'sessions.list did not verify the new unbound session on the selected provider/model/runtime',
+            );
+            return;
+          }
+          const createdRuntime = resolveRcd2ExecutionRuntime(created);
+          evidence.session_created = true;
+          evidence.created_session_key = sessionKey;
+          evidence.session_unbound_confirmed = true;
+          evidence.selected_session_model_verified = true;
+          evidence.selected_session_runtime_source = createdRuntime.source;
+          evidence.selected_session_runtime_verified = true;
+          evidence.runtime_selection_verified = true;
+          sessionInspectionPhase = 'ready';
+          console.log(`✓ disposable session created with explicit OpenClaw model: ${sessionKey}`);
+          startProofFlow(socket);
         }
 
         // Check sessions.send accepted (agent turn triggered)

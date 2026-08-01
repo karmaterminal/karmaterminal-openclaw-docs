@@ -3,7 +3,7 @@ import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 // R-CD-2 has one authority.  The scenario gathers private, nonce-bound
 // acquisition data; this module joins it with the private Tempo topology and
 // emits the only public-safe receipt allowed to promote a candidate verdict.
-export const R_CD_2_AUTHORITATIVE_RECEIPT_SCHEMA = 'openclaw.k6.r-cd-2-authoritative-receipt.v1';
+export const R_CD_2_AUTHORITATIVE_RECEIPT_SCHEMA = 'openclaw.k6.r-cd-2-authoritative-receipt.v2';
 
 const FAILURE_CATEGORIES = new Set([
   'missing-send-run-lifecycle',
@@ -11,14 +11,28 @@ const FAILURE_CATEGORIES = new Set([
   'provider-or-turn-failure',
   'delegate-replay-unsafe',
   'missing-terminal-sentinel',
+  'runtime-selection-unavailable',
+  'runtime-selection-mismatch',
+  'session-creation-unverified',
   'send-topology-mismatch',
   'missing-continuation-topology',
   'invalid-continuation-topology',
+]);
+const RUNTIME_SOURCES = new Set([
+  'env',
+  'agent',
+  'defaults',
+  'model',
+  'provider',
+  'implicit',
+  'session',
+  'session-key',
 ]);
 
 const hex = (value, length) => typeof value === 'string' && new RegExp(`^[a-f0-9]{${length}}$`, 'i').test(value);
 const fingerprint = (value) => createHash('sha256').update(String(value)).digest('hex').slice(0, 16);
 const binding = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+const runtimeSource = (value) => typeof value === 'string' && RUNTIME_SOURCES.has(value);
 
 function canonical(receipt) {
   return JSON.stringify({
@@ -46,8 +60,26 @@ function seal(receipt, key) {
 }
 
 function evidencePasses(evidence) {
-  return evidence?.session_created === true &&
+  return evidence?.default_agent_observed === true &&
+    evidence?.session_created === true &&
+    evidence?.session_creation_preflight_clear === true &&
+    evidence?.session_create_accepted === true &&
+    evidence?.session_create_response_verified === true &&
+    hex(evidence?.created_session_id_fingerprint, 16) &&
     evidence?.session_unbound_confirmed === true &&
+    evidence?.runtime_catalog_observed === true &&
+    evidence?.runtime_selection_verified === true &&
+    evidence?.selected_session_model_verified === true &&
+    evidence?.selected_session_runtime_verified === true &&
+    evidence?.selected_execution_runtime_id === 'openclaw' &&
+    runtimeSource(evidence?.selected_execution_runtime_source) &&
+    evidence?.selected_session_runtime_source === evidence.selected_execution_runtime_source &&
+    typeof evidence?.selected_execution_model_provider === 'string' &&
+    evidence.selected_execution_model_provider.length > 0 &&
+    hex(evidence?.selected_execution_model_fingerprint, 16) &&
+    evidence?.runtime_selection_action === 'explicit-create' &&
+    evidence?.model_selection_scope === 'new-session-only' &&
+    evidence?.sticky_model_mutation_used === false &&
     evidence?.send_accepted === true &&
     evidence?.send_run_captured === true &&
     evidence?.dispatch_terminal_sentinel_observed === true &&
@@ -98,6 +130,9 @@ function sameRowBinding(evidence, correlation) {
 }
 
 function categoryFor(evidence, correlation) {
+  if (evidence?.failureCategory === 'runtime-selection-unavailable') return 'runtime-selection-unavailable';
+  if (evidence?.failureCategory === 'runtime-selection-mismatch') return 'runtime-selection-mismatch';
+  if (evidence?.failureCategory === 'session-creation-unverified') return 'session-creation-unverified';
   if (evidence?.failureCategory === 'delegate-replay-unsafe') return 'delegate-replay-unsafe';
   if (evidence?.failureCategory === 'missing-terminal-sentinel') return 'missing-terminal-sentinel';
   if (evidence?.dispatch_failure_observed) return 'provider-or-turn-failure';
@@ -128,6 +163,23 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
         wake: evidence?.wake_run_fingerprint || null,
         acceptedSendTrace: evidence?.accepted_send_trace_id || null,
         nonce: evidence?.row_nonce_fingerprint || null,
+        defaultAgentObserved: evidence?.default_agent_observed === true,
+        sessionCreationPreflight: evidence?.session_creation_preflight_clear === true,
+        sessionCreateAccepted: evidence?.session_create_accepted === true,
+        sessionCreateResponseVerified: evidence?.session_create_response_verified === true,
+        createdSession: evidence?.created_session_id_fingerprint || null,
+        runtimeCatalog: evidence?.runtime_catalog_observed === true,
+        runtimeSelection: evidence?.runtime_selection_action || null,
+        modelSelectionScope: evidence?.model_selection_scope || null,
+        stickyModelMutationUsed: evidence?.sticky_model_mutation_used === true,
+        runtime: evidence?.selected_execution_runtime_id || null,
+        runtimeSource: evidence?.selected_execution_runtime_source || null,
+        sessionRuntimeSource: evidence?.selected_session_runtime_source || null,
+        modelProvider: evidence?.selected_execution_model_provider || null,
+        model: evidence?.selected_execution_model_fingerprint || null,
+        selectedSessionModelVerified: evidence?.selected_session_model_verified === true,
+        selectedSessionRuntimeVerified: evidence?.selected_session_runtime_verified === true,
+        runtimeSelectionVerified: evidence?.runtime_selection_verified === true,
         dispatchTerminalSentinel: evidence?.dispatch_terminal_sentinel_observed === true,
         dispatchTerminalSentinelSameRunWindow:
           evidence?.dispatch_terminal_sentinel_same_run_window === true,
@@ -160,6 +212,19 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
     lifecycle: {
       typedTool: 'continue_delegate',
       mode: 'silent-wake',
+      executionRuntime: 'openclaw',
+      executionRuntimeSource: evidence.selected_execution_runtime_source,
+      executionModelProvider: evidence.selected_execution_model_provider,
+      executionModelFingerprint: evidence.selected_execution_model_fingerprint,
+      runtimeSelectionAction: 'explicit-create',
+      modelSelectionScope: 'new-session-only',
+      defaultAgentObserved: true,
+      sessionCreationPreflightVerified: true,
+      sessionIdFingerprint: evidence.created_session_id_fingerprint,
+      sessionModelVerified: true,
+      sessionRuntimeVerified: true,
+      stickyModelMutationUsed: false,
+      runtimeSelectionVerified: true,
       sameTrace: true,
       sameChain: true,
       typedToolObserved: true,
@@ -193,7 +258,15 @@ export function validateRcd2AuthoritativeReceipt(receipt, signingKey) {
     ? { valid: true, verdict: receipt.verdict } : { valid: false, reason: 'invalid-failure-category' };
   const life = receipt.lifecycle;
   const pass = receipt.verdict === 'PASS-candidate' && life?.typedTool === 'continue_delegate' && life.mode === 'silent-wake' &&
-    ['sameTrace', 'sameChain', 'typedToolObserved', 'dispatchObserved', 'fireObserved', 'dispatchTerminalSentinelObserved', 'dispatchTerminalSentinelSameRunWindow', 'terminalSuccessSameRun', 'wakeLifecycleObserved', 'unboundSessionVerified', 'noChannelVerified'].every((key) => life[key] === true) &&
+    life.executionRuntime === 'openclaw' &&
+    runtimeSource(life.executionRuntimeSource) &&
+    typeof life.executionModelProvider === 'string' && life.executionModelProvider.length > 0 &&
+    hex(life.executionModelFingerprint, 16) &&
+    life.runtimeSelectionAction === 'explicit-create' &&
+    life.modelSelectionScope === 'new-session-only' &&
+    life.stickyModelMutationUsed === false &&
+    ['defaultAgentObserved', 'sessionCreationPreflightVerified', 'sessionModelVerified', 'sessionRuntimeVerified', 'runtimeSelectionVerified', 'sameTrace', 'sameChain', 'typedToolObserved', 'dispatchObserved', 'fireObserved', 'dispatchTerminalSentinelObserved', 'dispatchTerminalSentinelSameRunWindow', 'terminalSuccessSameRun', 'wakeLifecycleObserved', 'unboundSessionVerified', 'noChannelVerified'].every((key) => life[key] === true) &&
+    hex(life.sessionIdFingerprint, 16) &&
     hex(life.traceFingerprint, 16) && hex(life.acceptedSendTraceFingerprint, 16) &&
     life.traceFingerprint === life.acceptedSendTraceFingerprint &&
     hex(life.acceptedSendRunFingerprint, 16) && hex(life.rowNonceFingerprint, 16) &&

@@ -15,11 +15,13 @@
   },
   "scenario": {
     "name": "r-cd-2-silent-wake",
-    "description": "continue_delegate(mode='silent-wake') full path. The dispatch turn closes with an exact post-tool sentinel; the delegate return stays silent while triggering a fresh parent turn without channel output.",
+    "description": "continue_delegate(mode='silent-wake') full path from a new unbound session created with an available explicit built-in OpenClaw model. The dispatch turn closes with an exact post-tool sentinel; the delegate return stays silent while triggering a fresh parent turn without channel output.",
     "methods": [
-      "sessions.send",
-      "sessions.create",
+      "agents.list",
+      "models.list",
       "sessions.list",
+      "sessions.create",
+      "sessions.send",
       "sessions.messages.subscribe",
       "tasks.list"
     ],
@@ -36,13 +38,14 @@
   "liveRunSafety": {
     "classification": "k6-runnable",
     "requiresLiveGatewayToken": true,
-    "requiresTargetSessionKey": true,
+    "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
     "requiresExternalAgentOrToolInvocation": true,
     "sameSessionConcurrencySafe": false,
     "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
       "seat-readiness",
+      "execution-runtime-selection",
       "send-run-lifecycle",
       "typed-delegate-topology",
       "row-scoped-authoritative-receipt",
@@ -53,6 +56,11 @@
     "notes": "Live continuation row. Fail closed when token/session env is missing, serialize per target session, and treat generated output as a PASS-candidate until required receipts are reviewed."
   },
   "expectedReceipts": [
+    {
+      "name": "execution-runtime-selection",
+      "required": true,
+      "description": "Before session creation, public agents.list identifies the configured default agent and public models.list metadata selects an available explicit model whose agentRuntime explicitly identifies the built-in OpenClaw runtime and records its policy source; omitted/auto/default/plugin runtime metadata is rejected. A successful collision preflight uses the canonical session key; write-scoped sessions.create must return that same key, a self-consistent session ID, and the selected provider/model; a successful sessions.list then verifies the same session ID plus the new unbound session's provider, model, runtime, and runtime source. No sessions.patch or sticky model mutation is used."
+    },
     {
       "name": "send-run-lifecycle",
       "required": true,
@@ -99,6 +107,6 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Silent-wake path. Only the row-scoped authoritative receipt can produce PASS-candidate: the accepted dispatch turn must reach its explicit post-tool terminal boundary, one topology-scoped typed continue_delegate must complete, Tempo must prove same trace/chain dispatch+fire topology, the distinct wake lifecycle must be observed, and no channel delivery may occur."
+    "notes": "Silent-wake path. Only the row-scoped authoritative receipt can produce PASS-candidate: a new unbound session must be verified on an explicit available built-in OpenClaw model without sticky mutation, the accepted dispatch turn must reach its explicit post-tool terminal boundary, one topology-scoped typed continue_delegate must complete, Tempo must prove same trace/chain dispatch+fire topology, the distinct wake lifecycle must be observed, and no channel delivery may occur."
   }
 }

@@ -313,45 +313,16 @@ fi
 if [[ -n "$CANDIDATE_SHA" ]]; then export OPENCLAW_CANDIDATE_SHA="${CANDIDATE_SHA}"; fi
 export OPENCLAW_SEAT_NAME="$(hostname)"
 
-# Fetch deployed runtime build stamp explicitly (do not collapse into CANDIDATE_SHA).
-# Operators may provide OPENCLAW_RUNTIME_BUILD_SHA when they have an external deploy
-# receipt for the exact SHA. Otherwise prefer a structured CLI receipt when available
-# and fall back to the human version string (for example, "OpenClaw ... (1cc8f4e)").
-DEPLOYED_BUILD_STAMP="${OPENCLAW_RUNTIME_BUILD_SHA:-unknown}"
-if [[ "$DEPLOYED_BUILD_STAMP" == "unknown" && -f ~/.openclaw/openclaw.json ]]; then
-  if openclaw version --json >/dev/null 2>&1; then
-    DEPLOYED_BUILD_STAMP="$(openclaw version --json | jq -r '.build.sha // empty')"
-  elif openclaw --version >/dev/null 2>&1; then
-    DEPLOYED_BUILD_STAMP="$(openclaw --version | head -n 1)"
-  fi
-fi
-export OPENCLAW_RUNTIME_BUILD_SHA="$DEPLOYED_BUILD_STAMP"
-
 # Portable observability endpoints. Defaults preserve the dandelion fleet, but
 # reviewers can override without editing scripts or docs-local config.
 export OPENCLAW_PROOFS_TEMPO_BASE_URL="${OPENCLAW_PROOFS_TEMPO_BASE_URL:-${TEMPO_BASE_URL:-http://tempo.dandelion.cult}}"
 export OPENCLAW_PROOFS_LOKI_BASE_URL="${OPENCLAW_PROOFS_LOKI_BASE_URL:-${LOKI_BASE_URL:-http://loki.dandelion.cult}}"
 export OPENCLAW_PROOFS_PROMETHEUS_BASE_URL="${OPENCLAW_PROOFS_PROMETHEUS_BASE_URL:-${PROMETHEUS_BASE_URL:-http://prometheus.dandelion.cult}}"
 
-# Resolve Session Key
-if [[ -z "${OPENCLAW_SESSION_KEY:-}" ]]; then
-  echo "Resolving session key for selector: $SESSION_SELECTOR"
-  case "$SESSION_SELECTOR" in
-    main|agent:*)
-      export OPENCLAW_SESSION_KEY="$SESSION_SELECTOR"
-      ;;
-    *)
-      export OPENCLAW_SESSION_KEY="main" # Fallback/stub. In a full implementation this shells out to `openclaw sessions --json`
-      ;;
-  esac
-fi
-
 echo "=========================================================="
 echo "Project 81: Seat-Aware k6 Proof Runner"
 echo "Seat: $OPENCLAW_SEAT_NAME"
 echo "Target Candidate SHA: $OPENCLAW_CANDIDATE_SHA"
-echo "Deployed Runtime SHA: $OPENCLAW_RUNTIME_BUILD_SHA"
-echo "Session configured: true"
 echo "Artifact root: $OUT_ROOT"
 
 
@@ -563,17 +534,16 @@ if [[ "$DRY_RUN" == "false" ]]; then
   if [[ -z "${OPENCLAW_PROOFS_HARNESS_SNAPSHOT:-}" ]]; then
     HARNESS_SNAPSHOT_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/openclaw-k6-harness.XXXXXX")"
     chmod 700 "$HARNESS_SNAPSHOT_ROOT"
-    if ! harness_git archive "$DOCS_REF" -- "$PROOFS_TOOL_RELPATH" | tar -x -C "$HARNESS_SNAPSHOT_ROOT"; then
+    # Every consumed tree is materialized, not referenced: static rows read the
+    # proof corpus during k6 execution, so a symlink back to the operator's
+    # checkout would leave exactly the check-then-use hole the snapshot exists
+    # to close. The full corpus extracts in about a second.
+    if ! harness_git archive "$DOCS_REF" -- "${HARNESS_VERIFIED_PATHS[@]}" | tar -x -C "$HARNESS_SNAPSHOT_ROOT"; then
       fail_harness \
         "harness-identity" \
-        "the approved $PROOFS_TOOL_RELPATH tree could not be extracted for immutable execution" \
+        "the approved ${HARNESS_VERIFIED_PATHS[*]} trees could not be extracted for immutable execution" \
         "$(jq -n '{check:"harness-snapshot-extractable"}')"
     fi
-    # The corpus and workflow trees are byte-verified against the approved ref
-    # above, so they are referenced rather than copied; PROOFS alone is hundreds
-    # of megabytes and every one of its bytes is checked before and between rows.
-    ln -s "$REPO_ROOT/PROOFS" "$HARNESS_SNAPSHOT_ROOT/PROOFS"
-    ln -s "$REPO_ROOT/.github" "$HARNESS_SNAPSHOT_ROOT/.github"
     export OPENCLAW_PROOFS_HARNESS_SNAPSHOT="$HARNESS_SNAPSHOT_ROOT"
     export OPENCLAW_PROOFS_ORIGIN_ROOT="$REPO_ROOT"
     echo "Harness execution: handing off to the approved runner in an immutable snapshot."
@@ -583,9 +553,24 @@ if [[ "$DRY_RUN" == "false" ]]; then
       "${ORIGINAL_ARGS[@]}" --out-dir "$OUT_ROOT"
   fi
 
-  # Re-executed copy: adopt the snapshot and prove it is the approved tree before
-  # trusting anything in it.
+  # Re-executed copy. The handoff variables are ambient input, so before any of
+  # it is trusted this process must prove that it really is the snapshot's own
+  # runner and that the snapshot is a distinct tree from the checkout. Otherwise
+  # a modified external copy could set both variables, point them at clean
+  # trees, skip the exec, and keep running.
   HARNESS_SNAPSHOT_ROOT="$OPENCLAW_PROOFS_HARNESS_SNAPSHOT"
+  SNAPSHOT_RUNNER="$(readlink -f "$HARNESS_SNAPSHOT_ROOT/$PROOFS_TOOL_RELPATH/scripts/run-proofs.sh" 2>/dev/null || true)"
+  EXECUTING_RUNNER="$(readlink -f "$RUNNER_SCRIPT_PATH" 2>/dev/null || true)"
+  CANONICAL_SNAPSHOT="$(readlink -f "$HARNESS_SNAPSHOT_ROOT" 2>/dev/null || true)"
+  CANONICAL_ORIGIN="$(readlink -f "$REPO_ROOT" 2>/dev/null || true)"
+  if [[ -z "$SNAPSHOT_RUNNER" || -z "$EXECUTING_RUNNER" || "$EXECUTING_RUNNER" != "$SNAPSHOT_RUNNER" ||
+        -z "$CANONICAL_SNAPSHOT" || -z "$CANONICAL_ORIGIN" ||
+        "$CANONICAL_SNAPSHOT" == "$CANONICAL_ORIGIN" || "$CANONICAL_SNAPSHOT" == "$CANONICAL_ORIGIN"/* ]]; then
+    fail_harness \
+      "harness-identity" \
+      "the executing runner is not the approved snapshot's own runner; refusing a spoofed or aliased handoff" \
+      "$(jq -n '{check:"snapshot-handoff-authentic"}')"
+  fi
   EXEC_ROOT="$HARNESS_SNAPSHOT_ROOT"
   bind_execution_roots
   cd "$PROOFS_DIR"
@@ -723,6 +708,39 @@ if [[ "$DRY_RUN" == "false" ]]; then
   done
   echo "Harness contract binding: frozen manifest/scenario digests for every selected runnable row."
 fi
+
+# Runtime and session resolution run only in the verified snapshot runner: the
+# bootstrap must not invoke external tooling or resolve session state while it is
+# still executing unproven bytes.
+# Fetch deployed runtime build stamp explicitly (do not collapse into CANDIDATE_SHA).
+# Operators may provide OPENCLAW_RUNTIME_BUILD_SHA when they have an external deploy
+# receipt for the exact SHA. Otherwise prefer a structured CLI receipt when available
+# and fall back to the human version string (for example, "OpenClaw ... (1cc8f4e)").
+DEPLOYED_BUILD_STAMP="${OPENCLAW_RUNTIME_BUILD_SHA:-unknown}"
+if [[ "$DEPLOYED_BUILD_STAMP" == "unknown" && -f ~/.openclaw/openclaw.json ]]; then
+  if openclaw version --json >/dev/null 2>&1; then
+    DEPLOYED_BUILD_STAMP="$(openclaw version --json | jq -r '.build.sha // empty')"
+  elif openclaw --version >/dev/null 2>&1; then
+    DEPLOYED_BUILD_STAMP="$(openclaw --version | head -n 1)"
+  fi
+fi
+export OPENCLAW_RUNTIME_BUILD_SHA="$DEPLOYED_BUILD_STAMP"
+
+# Resolve Session Key
+if [[ -z "${OPENCLAW_SESSION_KEY:-}" ]]; then
+  echo "Resolving session key for selector: $SESSION_SELECTOR"
+  case "$SESSION_SELECTOR" in
+    main|agent:*)
+      export OPENCLAW_SESSION_KEY="$SESSION_SELECTOR"
+      ;;
+    *)
+      export OPENCLAW_SESSION_KEY="main" # Fallback/stub. In a full implementation this shells out to `openclaw sessions --json`
+      ;;
+  esac
+fi
+
+echo "Deployed Runtime SHA: $OPENCLAW_RUNTIME_BUILD_SHA"
+echo "Session configured: true"
 
 # Check for Live Bridge alignment (candidate vs deployed runtime)
 if [[ "$DRY_RUN" == "false" && "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_BUILD_SHA" && "$OPENCLAW_RUNTIME_BUILD_SHA" != *"(${OPENCLAW_CANDIDATE_SHA:0:7})"* ]]; then

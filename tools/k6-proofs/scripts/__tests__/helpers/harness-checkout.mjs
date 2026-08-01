@@ -15,9 +15,10 @@ import { promisify } from 'node:util';
 const run = promisify(execFile);
 
 export const HARNESS_REPOSITORY = 'karmaterminal/karmaterminal-openclaw-docs';
+export const CORPUS_EVIDENCE_FILE = 'corpus-evidence.txt';
 export const HARNESS_REMOTE = `https://github.com/${HARNESS_REPOSITORY}.git`;
 
-export async function buildHarnessCheckout(repoRoot, checkout) {
+export async function buildHarnessCheckout(repoRoot, checkout, { beforeCommit = null } = {}) {
   await mkdir(path.join(checkout, 'tools'), { recursive: true });
   await mkdir(path.join(checkout, '.github/workflows'), { recursive: true });
   await mkdir(path.join(checkout, 'PROOFS'), { recursive: true });
@@ -34,7 +35,13 @@ export async function buildHarnessCheckout(repoRoot, checkout) {
   await writeFile(path.join(checkout, 'PROOFS/INDEX.json'), indexRaw);
   const currentSha = JSON.parse(indexRaw).current_sha;
   for (const entry of await readdir(path.join(repoRoot, 'PROOFS', currentSha), { withFileTypes: true })) {
-    if (entry.isDirectory()) await mkdir(path.join(checkout, 'PROOFS', currentSha, entry.name), { recursive: true });
+    if (!entry.isDirectory()) continue;
+    const rowDir = path.join(checkout, 'PROOFS', currentSha, entry.name);
+    await mkdir(rowDir, { recursive: true });
+    // Static rows read committed corpus evidence during k6 execution, so the
+    // fixture carries a real tracked file per row: the corpus is part of the
+    // verified, materialized input set, not just a set of directory names.
+    await writeFile(path.join(rowDir, CORPUS_EVIDENCE_FILE), `${entry.name} corpus evidence fixture\n`);
   }
 
   const git = (...args) => run('git', ['-C', checkout, ...args], { encoding: 'utf8' });
@@ -43,8 +50,16 @@ export async function buildHarnessCheckout(repoRoot, checkout) {
   await git('config', 'user.email', 'p81-harness-contract@example.invalid');
   await git('config', 'commit.gpgsign', 'false');
   await git('remote', 'add', 'origin', HARNESS_REMOTE);
+  // Lets a test commit a genuine catalog defect, so the defect survives the
+  // runner materializing every consumed tree from the approved ref.
+  if (beforeCommit) await beforeCommit({ checkout, proofsDir: path.join(checkout, 'tools/k6-proofs'), corpusSha: currentSha });
   await git('add', '--all');
   await git('commit', '--quiet', '--message', 'harness under contract test');
   const { stdout } = await git('rev-parse', 'HEAD');
-  return { checkout, proofsDir: path.join(checkout, 'tools/k6-proofs'), docsRef: stdout.trim() };
+  return {
+    checkout,
+    proofsDir: path.join(checkout, 'tools/k6-proofs'),
+    corpusSha: currentSha,
+    docsRef: stdout.trim(),
+  };
 }

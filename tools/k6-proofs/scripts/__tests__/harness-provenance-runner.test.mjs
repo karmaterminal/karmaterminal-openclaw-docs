@@ -30,11 +30,11 @@ const run = promisify(execFile);
 const candidateSha = 'a'.repeat(40);
 const HARNESS_INFRA_EXIT = 78;
 
-async function withRunner(fn, { mutate = null } = {}) {
+async function withRunner(fn, { mutate = null, beforeCommit = null } = {}) {
   const root = await mkdtemp(path.join(tmpdir(), 'p86-harness-provenance-'));
   const out = path.join(root, 'out');
   await mkdir(out, { recursive: true });
-  const harness = await buildHarnessCheckout(repoRoot, path.join(root, 'harness'));
+  const harness = await buildHarnessCheckout(repoRoot, path.join(root, 'harness'), { beforeCommit });
   if (mutate) await mutate(harness);
   try {
     return await fn({ ...harness, out, root });
@@ -163,6 +163,61 @@ test('mutated tracked harness bytes fail closed before any row runs', async () =
   );
 });
 
+test('a spoofed snapshot handoff is refused', async (t) => {
+  // The handoff variables are ambient input. A modified external copy of the
+  // runner could otherwise set them, point them at clean trees, skip the exec,
+  // and keep executing its own bytes.
+  await t.test('snapshot aliased to the checkout', async () => {
+    await withRunner(async (harness) => {
+      const result = await invokeRunner(harness, {
+        args: ['--docs-ref', harness.docsRef],
+        env: {
+          OPENCLAW_PROOFS_HARNESS_SNAPSHOT: harness.checkout,
+          OPENCLAW_PROOFS_ORIGIN_ROOT: harness.checkout,
+        },
+      });
+      await assertInfrastructureFailure(harness, result, { stage: 'harness-identity', check: 'snapshot-handoff-authentic' });
+      assert.match(result.stderr, /spoofed or aliased handoff/);
+    });
+  });
+
+  await t.test('checkout runner claiming a real snapshot', async () => {
+    await withRunner(async (harness) => {
+      // A genuine, byte-correct snapshot — but this process is not its runner.
+      const snapshot = path.join(harness.root, 'external-snapshot');
+      await mkdir(snapshot, { recursive: true });
+      await run('bash', ['-c', `git -C ${harness.checkout} archive ${harness.docsRef} -- tools/k6-proofs PROOFS .github | tar -x -C ${snapshot}`], { encoding: 'utf8' });
+      const result = await invokeRunner(harness, {
+        args: ['--docs-ref', harness.docsRef],
+        env: {
+          OPENCLAW_PROOFS_HARNESS_SNAPSHOT: snapshot,
+          OPENCLAW_PROOFS_ORIGIN_ROOT: harness.checkout,
+        },
+      });
+      await assertInfrastructureFailure(harness, result, { stage: 'harness-identity', check: 'snapshot-handoff-authentic' });
+    });
+  });
+});
+
+test('a mutated proof corpus cannot produce a candidate verdict', async () => {
+  // Static rows read committed corpus evidence during k6 execution, so the
+  // corpus is part of the verified, materialized input set.
+  await withRunner(
+    async (harness) => {
+      const result = await invokeRunner(harness, { args: ['--docs-ref', harness.docsRef] });
+      const receipt = await assertInfrastructureFailure(harness, result, { stage: 'harness-identity', check: 'harness-tree-clean' });
+      assert.ok(receipt.detail.trackedFiles > 1);
+      assert.match(result.stderr, /do not match the approved docs ref/);
+    },
+    {
+      mutate: async (harness) => {
+        const evidence = path.join(harness.checkout, 'PROOFS', harness.corpusSha, 'R-CD-2', 'corpus-evidence.txt');
+        await writeFile(evidence, 'locally edited corpus evidence\n');
+      },
+    },
+  );
+});
+
 test('an index-hidden mutation cannot pass as a clean harness', async (t) => {
   // `git status` consults the index, so assume-unchanged / skip-worktree hide a
   // modified file from it. The gate hashes working-tree bytes instead, which
@@ -241,13 +296,13 @@ test('a catalog preflight failure stops the matrix as harness infrastructure', a
       assert.doesNotMatch(log, /tools\/k6-proofs\/tools\/k6-proofs/);
     },
     {
-      // Every tracked tree is byte-verified before the preflight runs, so the
-      // catalog is broken with an untracked stray corpus directory instead:
-      // a real, tracked-byte-preserving way to reach a preflight failure.
-      mutate: async (harness) => {
-        const indexRaw = await readFile(path.join(harness.checkout, 'PROOFS/INDEX.json'), 'utf8');
-        const currentSha = JSON.parse(indexRaw).current_sha;
-        await mkdir(path.join(harness.checkout, 'PROOFS', currentSha, 'R-PHANTOM'), { recursive: true });
+      // Every consumed tree is materialized from the approved ref, so a local
+      // stray cannot reach the validators. The catalog defect must therefore be
+      // committed: a corpus row the manifest catalog does not describe.
+      beforeCommit: async ({ checkout, corpusSha }) => {
+        const phantom = path.join(checkout, 'PROOFS', corpusSha, 'R-PHANTOM');
+        await mkdir(phantom, { recursive: true });
+        await writeFile(path.join(phantom, 'corpus-evidence.txt'), 'phantom row\n');
       },
     },
   );
@@ -327,12 +382,12 @@ const APPROVED_TOKEN = 'harness-provenance-test-token-do-not-log';
  * provenance emission with stubbed tooling. R-CW-5A is runnable but
  * static-preflight-only, so no live k6 row is dispatched.
  */
-async function withApprovedMatrix(fn, { afterCommit = null, rows = 'R-CW-5A', nodeShim = null, nodeShimFor = null, journalShimFor = null, k6ShimFor = null, envFor = null } = {}) {
+async function withApprovedMatrix(fn, { afterCommit = null, beforeCommit = null, rows = 'R-CW-5A', nodeShim = null, nodeShimFor = null, journalShimFor = null, k6ShimFor = null, envFor = null } = {}) {
   const root = await mkdtemp(path.join(tmpdir(), 'p86-harness-provenance-ok-'));
   const bin = path.join(root, 'bin');
   const out = path.join(root, 'out');
   await Promise.all([mkdir(bin, { recursive: true }), mkdir(out, { recursive: true })]);
-  const built = await buildHarnessCheckout(repoRoot, path.join(root, 'harness'));
+  const built = await buildHarnessCheckout(repoRoot, path.join(root, 'harness'), { beforeCommit });
   const harness = { ...built, root, out };
   if (afterCommit) await afterCommit(harness);
 
@@ -413,10 +468,10 @@ test('the catalog preflight log is public-safe: no credentials, no local paths',
       assert.doesNotMatch(log, /\/tmp\/openclaw-k6-harness\./, 'the snapshot path must not reach a public log');
     },
     {
-      afterCommit: async (harness) => {
-        const indexRaw = await readFile(path.join(harness.checkout, 'PROOFS/INDEX.json'), 'utf8');
-        const currentSha = JSON.parse(indexRaw).current_sha;
-        await mkdir(path.join(harness.checkout, 'PROOFS', currentSha, 'R-PHANTOM'), { recursive: true });
+      beforeCommit: async ({ checkout, corpusSha }) => {
+        const phantom = path.join(checkout, 'PROOFS', corpusSha, 'R-PHANTOM');
+        await mkdir(phantom, { recursive: true });
+        await writeFile(path.join(phantom, 'corpus-evidence.txt'), 'phantom row\n');
       },
     },
   );

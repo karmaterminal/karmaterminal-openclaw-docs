@@ -733,14 +733,17 @@ catalog is parsed before it is validated:
 1. **byte-only identity** — ref shape, `HEAD` equality, candidate SHA shape,
    repository identity, and the full tracked-tree hash comparison. No manifest is
    parsed here.
-2. **immutable snapshot** — the approved `tools/k6-proofs` tree is extracted with
-   `git archive` into a private temporary directory, and the runner then hands
-   execution to that extract's own `run-proofs.sh` with `exec`, before any
-   credential is loaded. Every harness component (the runner itself, the catalog
-   validators, seat readiness, k6, scenarios and their imports, the
-   evidence/receipt helpers) therefore executes from bytes that cannot change
-   once the matrix has started. The re-executed copy re-proves the snapshot
-   against the approved ref before trusting it.
+2. **immutable snapshot** — every consumed tree (`tools/k6-proofs`, `PROOFS`,
+   `.github`) is extracted with `git archive` into a private temporary directory,
+   and the runner then hands execution to that extract's own `run-proofs.sh`
+   with `exec`, before any credential is loaded or any external tool is invoked.
+   Every harness component (the runner itself, the catalog validators, seat
+   readiness, k6, scenarios and their imports, the evidence/receipt helpers) and
+   every corpus byte a static row reads therefore comes from bytes that cannot
+   change once the matrix has started. Nothing is symlinked back to the
+   operator's checkout. The re-executed copy proves it really is the snapshot's
+   own runner, that the snapshot is a distinct tree from the checkout, and that
+   the snapshot matches the approved ref, before trusting any of it.
 3. **catalog preflight** — the three validators run from the snapshot under
    `env -i` with a minimal allowlist.
 4. **row selection and contract binding** — `all` expansion and the per-row
@@ -748,7 +751,8 @@ catalog is parsed before it is validated:
    selected row with no manifest at the approved ref fails closed rather than
    being silently skipped.
 
-The gateway token is extracted only after all of those stages complete. The
+The gateway token, the deployed runtime stamp and the session key are all
+resolved only inside the verified snapshot runner, after those stages complete. The
 tracked-tree comparison is repeated before each row for a different reason: bash
 reads `run-proofs.sh` itself incrementally from the operator's checkout, so that
 one file must still match the approved ref while the matrix is running.

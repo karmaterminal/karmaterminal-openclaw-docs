@@ -1,0 +1,30 @@
+{
+  "schema": "openclaw.p86.safe-upload-manifest.v1",
+  "row": "R-CW-5A",
+  "productSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "harnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "runId": "static-20260802T131438Z-50be3360",
+  "files": [
+    {
+      "path": "row-manifest.json",
+      "sha256": "054c194a417ec4ce5f030090c70d995b65ac66f3a205aea2b315931e8c3d93b5"
+    },
+    {
+      "path": "row-scenario.js",
+      "sha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    },
+    {
+      "path": "run-result.json",
+      "sha256": "e10794e1e96fddf45a29493e62f6a00d14104c776f2eb303d7fbf9a911688670"
+    },
+    {
+      "path": "runner-metadata.json",
+      "sha256": "96d6b5d00d52ca174f09d5d80dd39d6764650bc9af5bda7f8699b392fe901da2"
+    },
+    {
+      "path": "skip-receipt.json",
+      "sha256": "60903104e354f3b8b487b1b8f6bb5b0770c20da52bd4e9d77bea25ca22ca24b1"
+    }
+  ]
+}

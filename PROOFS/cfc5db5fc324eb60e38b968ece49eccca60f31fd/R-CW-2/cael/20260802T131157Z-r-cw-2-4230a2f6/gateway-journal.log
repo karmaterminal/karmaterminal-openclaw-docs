@@ -1,0 +1,3 @@
+2026-08-02T06:12:01.228746-07:00 cael node[2207111]: 2026-08-02T06:12:01.228-07:00 [ws] ⇄ res ✓ sessions.send 252ms runId=R-CW-2-DISPATCH-<redacted-nonce> conn=9469d703…65cf id=1-0-1785676320974-720oxm
+2026-08-02T06:12:14.040014-07:00 cael node[2207111]: 2026-08-02T06:12:14.039-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-02T06:12:14.050051-07:00 cael node[2207111]: 2026-08-02T06:12:14.040-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>

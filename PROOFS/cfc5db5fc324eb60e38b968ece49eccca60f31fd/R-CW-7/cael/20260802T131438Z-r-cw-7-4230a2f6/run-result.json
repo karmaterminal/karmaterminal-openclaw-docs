@@ -1,0 +1,59 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-02T13:14:41Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "summary-file",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": null,
+  "summaryFiles": [
+    "static-corpus-row-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CW-7",
+    "sourceRow": "R-CW-7",
+    "staticBoundaryVariant": false,
+    "manifest_loaded": true,
+    "candidateSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+    "currentProofSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+    "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+    "carriedFrom": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+    "started": "2026-08-02T13:14:41.047Z",
+    "checks": {
+      "passScope": true,
+      "internalNotPublic": true,
+      "autoPickup": true,
+      "dispatchPreserves": true,
+      "childReceives": true,
+      "testsPassed": true,
+      "sourceSha": true
+    },
+    "source_files": {
+      "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/EVIDENCE.md",
+      "testLog": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/test/focused-traceparent-tests.log",
+      "sourceSnippets": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/source/source-snippets.md"
+    },
+    "ended": "2026-08-02T13:14:41.047Z",
+    "duration_ms": 0,
+    "verdict": "PASS-candidate"
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema": "openclaw.proof-corpus-index.v1",
+  "entries": [
+    {
+      "productSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+      "executionHarnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "seat": "cael",
+      "manifest": "proofs-manifest.json",
+      "matrix": "terminal-matrix.json",
+      "readme": "README.md"
+    }
+  ]
+}

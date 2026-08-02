@@ -1,0 +1,12 @@
+{
+  "schema": "openclaw.k6.runner-metadata.v1",
+  "rowId": "R-CW-6A",
+  "candidateSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "runtimeBuildSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "seat": "cael",
+  "startedAt": "2026-08-02T13:14:38Z",
+  "endedAt": "2026-08-02T13:14:38Z",
+  "dispatched": false
+}

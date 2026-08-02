@@ -1,0 +1,46 @@
+{
+  "schema": "openclaw.p86.safe-upload-manifest.v1",
+  "row": "R-CW-5",
+  "productSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "harnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "runId": "fixture-20260802T132959Z-50be3360",
+  "files": [
+    {
+      "path": "boundary-matrix.json",
+      "sha256": "612a70a1ee92d67de3bf74df77365e515086951f37b8bec295687eb9b5114a0a"
+    },
+    {
+      "path": "cleanup.json",
+      "sha256": "dbe6937b0332cb463e23724cfba22a8e7a435148bd2060aa5bce14155f72e0f0"
+    },
+    {
+      "path": "dispatch-boundary-suite.json",
+      "sha256": "24a1f239d47604e9ec74439ce119d8e4f691c47a6552cd25a1fe485c3736691f"
+    },
+    {
+      "path": "fixture-readiness.json",
+      "sha256": "75e73f12e948ff985e2d0789a139e08891172beb78853832190e2034b64f0864"
+    },
+    {
+      "path": "fixture-result.json",
+      "sha256": "93d4d4f298df0873739a7e2f18fda5c3ee0f29d9d082c3d581d38cfdcc1ae393"
+    },
+    {
+      "path": "row-manifest.json",
+      "sha256": "8d1c7fad84f4a06e0973ff1ae4a52c9f28c0b01fc960bbf0f01653255b4a5e8e"
+    },
+    {
+      "path": "run-result.json",
+      "sha256": "6a79bcaa98390a177e2163f93bce297d55b9e7cb801cb20564a9c1bc277a03dc"
+    },
+    {
+      "path": "runner-metadata.json",
+      "sha256": "2652ba3d7858dd95cc274f956c6c3afe355fd4e04e5aec1db9c65c69cfb568a4"
+    },
+    {
+      "path": "typed-tool-surface.json",
+      "sha256": "6fb18986d7370304ce8df4ee334764503e9421815a8c055deeef91ff23790fe3"
+    }
+  ]
+}

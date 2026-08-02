@@ -1,0 +1,115 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "issue": 140,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "mutates": false,
+  "timeoutSeconds": 180,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "rowId": "R-CD-MODEL-TOOL",
+  "toolSurface": "typed-tool",
+  "scenario": {
+    "name": "r-cd-model-tool",
+    "description": "continue_delegate typed tool form forwards the fixed available override openai/gpt-5.6-luna to the delegate child; the nonce-bound child model-call span is the sole execution-identity authority.",
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe"
+    ],
+    "status": "runnable",
+    "expectedFile": "r-cd-model-tool.js",
+    "notes": "This row deliberately requests openai/gpt-5.6-luna. sessions.list and child prose are auxiliary only because selected-model metadata can differ from the model that actually executes. A nonce-correlated Tempo child model-call span is required.",
+    "file": "r-cd-model-tool.js",
+    "registryNotes": "Runnable k6 scenario exercises typed continue_delegate with the fixed Luna override. An authoritative child identity that differs from Luna is a FAIL verdict; absent, ambiguous, or execution-unbound effective-model evidence produces no row verdict. Only authoritative exact Luna identity can proceed toward PASS."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "normal",
+    "forms": [
+      "typed-tool-model-override"
+    ],
+    "model": "openai/gpt-5.6-luna",
+    "promptTemplate": "Proof nonce {{nonce}}: read your runtime context/current model identity. Reply exactly MODEL-TOOL-CHILD {{nonce}} MODEL <provider/model>. Use UNKNOWN only if no runtime model identity is available. Do not mutate files. Do not post externally.",
+    "idempotencyKeyPrefix": "R-CD-MODEL-TOOL"
+  },
+  "expectedReceipts": [
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the parent request that asks the agent to call continue_delegate for this model row"
+    },
+    {
+      "name": "child-session-observed",
+      "required": true,
+      "description": "A nonce-correlated delegate child session/run is observed on the subscribed session stream or session history"
+    },
+    {
+      "name": "execution-bound-child-model-byte",
+      "required": true,
+      "description": "Observed provider/model byte from the nonce-correlated child openclaw.model.call span; selected-model projections and child prose are auxiliary only"
+    },
+    {
+      "name": "return-payload",
+      "required": true,
+      "description": "Delegate return includes the row nonce and observed model/provider summary"
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "Nonce-derived reason hash and continuation topology tie the dispatch to one child harness/run"
+    },
+    {
+      "name": "trace-id",
+      "required": true,
+      "description": "The accepted sessions.send trace ID exactly matches the nonce-correlated Tempo trace"
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo projection containing the bound continuation and child model-call topology"
+    },
+    {
+      "name": "requested-model-byte",
+      "required": true,
+      "description": "Committed request byte showing continue_delegate model=<provider/model>"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-MODEL-TOOL",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "A PASS-candidate exists only when every model-call span under the uniquely nonce-bound child run reports exact openai/gpt-5.6-luna and the row lifecycle is complete. sessions.list selected-model projection and child prose are auxiliary only. A bound runtime mismatch is FAIL; missing, ambiguous, or incomplete execution telemetry produces no row verdict."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "dispatch-accepted",
+      "requested-model-byte",
+      "child-session-observed",
+      "return-payload",
+      "trace-id",
+      "tempo-trace-json",
+      "continuation-trace-correlation",
+      "execution-bound-child-model-byte"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Explicit fixed openai/gpt-5.6-luna override row. Prevent echo-based false PASS by omitting the requested model from the child task. Only the nonce-bound child model-call span is execution authority. A bound fallback or any other runtime identity produces FAIL; unavailable, ambiguous, or unbound telemetry produces no row verdict."
+  }
+}

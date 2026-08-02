@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+    "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2"
+  },
+  "harness": {
+    "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cw-3.json",
+    "manifestSha256": "55857909cb34dfacbd2188f7301431416f2deab56b58d288fdcf3807a96592b0",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-cw-3-reason-telemetry.js",
+    "scenarioSha256": "825e4d1afdb39ce03312e64006cce47cad58ed9abbf306a93b51c5a80aeac788",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20260802T132154Z-r-cw-3-6018400e",
+    "rowId": "R-CW-3",
+    "seat": "cael",
+    "scenario": "r-cw-3-reason-telemetry",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PARTIAL-candidate",
+    "outcomeSource": "vu-log",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "present",
+    "traceCaptured": true,
+    "correlationReceiptPresent": true
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "r-cw-3-reason-telemetry-summary.json",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": "tempo-trace-ce3cad2d62f5.json",
+    "correlationReceipt": "continuation-trace-correlation.json"
+  }
+}

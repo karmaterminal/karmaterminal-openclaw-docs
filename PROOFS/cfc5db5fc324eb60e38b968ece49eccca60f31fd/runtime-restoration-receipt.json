@@ -1,0 +1,17 @@
+{
+  "schema": "openclaw.p86.cael-final-runtime.v1",
+  "seat": "cael",
+  "productSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "harnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "configSha256": "002e5564bdfe03972e9a4ba851043900a8df6d99d9447b3e979ba381bcc69d0e",
+  "gateway": {
+    "activeState": "active",
+    "subState": "running",
+    "nRestarts": 0,
+    "health": "ok"
+  },
+  "doctorRerun": false,
+  "redeployed": false,
+  "configMutated": false,
+  "recordedAt": "2026-08-02T13:36:26Z"
+}

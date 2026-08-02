@@ -1,0 +1,18 @@
+{
+  "row": "R-CD-4",
+  "sha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "seat": "cael",
+  "timestamp": "2026-08-02T12:52:25.443Z",
+  "verdict": "PARTIAL-candidate",
+  "metrics": {
+    "duration_ms": {
+      "max": 91652,
+      "p(90)": 91652,
+      "p(95)": 91652,
+      "avg": 91652,
+      "min": 91652,
+      "med": 91652
+    },
+    "failures": 1
+  }
+}

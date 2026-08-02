@@ -1,0 +1,26 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-02T13:35:05Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "fixture-result.json",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "evidence": {
+    "checks": {
+      "matrixPassed": true,
+      "dispatchPassed": true,
+      "toolSurfacePassed": true,
+      "noRejectedHopSpawn": true
+    }
+  },
+  "observability": {
+    "traceStatus": "not-applicable",
+    "traceId": null
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

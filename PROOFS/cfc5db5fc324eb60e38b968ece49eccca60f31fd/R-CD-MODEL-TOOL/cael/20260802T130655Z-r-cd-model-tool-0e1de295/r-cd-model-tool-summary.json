@@ -1,0 +1,24 @@
+{
+  "row": "R-CD-MODEL-TOOL",
+  "sha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "seat": "cael",
+  "timestamp": "2026-08-02T13:09:59.280Z",
+  "verdict": null,
+  "requestedModel": "openai/gpt-5.6-luna",
+  "observedModel": null,
+  "observedModelSource": null,
+  "auxiliarySelfReport": null,
+  "classificationReason": null,
+  "summaryAuthority": "NO-VERDICT",
+  "metrics": {
+    "duration_ms": {
+      "min": 180768,
+      "med": 180768,
+      "max": 180768,
+      "p(90)": 180768,
+      "p(95)": 180768,
+      "avg": 180768
+    },
+    "failures": 0
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "k6ExitCode": 127,
+  "postprocessExitCode": 1,
+  "effectiveExitCode": 127,
+  "endedAt": "2026-08-02T12:42:01Z",
+  "verdict": null,
+  "verdictSource": "none",
+  "summaryFileVerdict": null,
+  "vuLogVerdict": null,
+  "summaryFiles": [],
+  "evidence": null,
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "public-safe-evidence"
+    ]
+  }
+}

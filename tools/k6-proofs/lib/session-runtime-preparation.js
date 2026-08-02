@@ -7,6 +7,16 @@ import {
   verifyRcd2ListedSession,
   verifyRcd2SessionCreateResponse,
 } from './r-cd-2-runtime-selection.js';
+import {
+  gatewayLifecyclePhase,
+  gatewayLifecycleRunId,
+  gatewayLifecycleSucceeded,
+} from './gateway-lifecycle.js';
+
+const PREPARATION_TRANSITIONS = {
+  'session-verified': 'runtime-run-accepted',
+  'runtime-run-accepted': 'runtime-lifecycle-complete',
+};
 
 function normalizedText(value) {
   return typeof value === 'string' ? value.trim() : '';
@@ -75,7 +85,7 @@ export function verifyCreatedPreparedSession({
   return { key, sessionId, session, selectedModel };
 }
 
-export function completePreparationAuthority({
+export function sessionVerifiedPreparationAuthority({
   source,
   sessionClass,
   agentId,
@@ -84,7 +94,8 @@ export function completePreparationAuthority({
 }) {
   const runtime = resolveRcd2ExecutionRuntime(session);
   return {
-    preparation_status: 'complete',
+    preparation_status: 'setup-in-progress',
+    preparation_stage: 'session-verified',
     session_source: source,
     session_class: sessionClass,
     resolved_agent_id: normalizedText(agentId) || null,
@@ -94,8 +105,8 @@ export function completePreparationAuthority({
     effective_model: normalizedText(session?.model) || null,
     effective_runtime_id: runtime.id,
     effective_runtime_source: runtime.source,
-    preparation_complete: true,
-    tools_effective_call_stage: 'after-session-list-verification',
+    preparation_complete: false,
+    tools_effective_call_stage: null,
     setup_failure_code: null,
   };
 }
@@ -103,6 +114,7 @@ export function completePreparationAuthority({
 export function incompletePreparationAuthority(code) {
   return {
     preparation_status: 'setup-incomplete',
+    preparation_stage: null,
     session_source: null,
     session_class: null,
     resolved_agent_id: null,
@@ -118,13 +130,72 @@ export function incompletePreparationAuthority(code) {
   };
 }
 
-export function preparedToolsEffectiveParams(sessionKey, authority) {
-  const key = normalizedText(sessionKey);
-  if (!key || authority?.preparation_complete !== true ||
-      authority?.tools_effective_call_stage !== 'after-session-list-verification') {
+export function advancePreparationAuthority(authority, nextStage) {
+  if (PREPARATION_TRANSITIONS[authority?.preparation_stage] !== nextStage ||
+      authority?.preparation_complete === true) {
     return null;
   }
-  return { sessionKey: key };
+  return {
+    ...authority,
+    preparation_stage: nextStage,
+    preparation_status: 'setup-in-progress',
+    tools_effective_call_stage: null,
+  };
+}
+
+export function toolsEffectiveRequest(sessionKey, authority, requiredStage) {
+  const key = normalizedText(sessionKey);
+  if (!key || authority?.preparation_complete === true ||
+      authority?.preparation_stage !== requiredStage ||
+      !['session-verified', 'runtime-lifecycle-complete'].includes(requiredStage)) {
+    return null;
+  }
+  return {
+    params: { sessionKey: key },
+    authority: {
+      ...authority,
+      tools_effective_call_stage: `after-${requiredStage}`,
+    },
+  };
+}
+
+export function completePreparationAuthority(authority, requiredPriorStage) {
+  if (authority?.preparation_stage !== requiredPriorStage ||
+      authority?.tools_effective_call_stage !== `after-${requiredPriorStage}` ||
+      authority?.preparation_complete === true) {
+    return null;
+  }
+  return {
+    ...authority,
+    preparation_status: 'complete',
+    preparation_stage: 'tools-effective-complete',
+    preparation_complete: true,
+    setup_failure_code: null,
+  };
+}
+
+export function preparationAcceptedRunId(payload) {
+  return gatewayLifecycleRunId(payload);
+}
+
+export function classifyPreparationLifecycle(event, acceptedRunId) {
+  const runId = gatewayLifecycleRunId(event);
+  if (!acceptedRunId || runId !== acceptedRunId) return 'unrelated';
+  const phase = gatewayLifecyclePhase(event);
+  if (phase === 'start') return 'active';
+  if (phase !== 'end') return 'unrelated';
+  return gatewayLifecycleSucceeded(event) ? 'succeeded' : 'failed';
+}
+
+export function publicPreparationEvent(value) {
+  if (Array.isArray(value)) return value.map(publicPreparationEvent);
+  if (!value || typeof value !== 'object') return value;
+  const out = {};
+  for (const [key, child] of Object.entries(value)) {
+    if (['sessionKey', 'childSessionKey', 'runId'].includes(key)) continue;
+    out[key] = publicPreparationEvent(child);
+  }
+  return out;
 }
 
 export { rcd2ModelRef };

@@ -11,15 +11,15 @@
   "timeoutSeconds": 60,
   "scenario": {
     "name": "r-rc-1-threshold-reject",
-    "description": "request_compaction below-threshold structured reject after explicit disposable session model/runtime preparation",
+    "description": "request_compaction below-threshold structured reject after an exact disposable session completes a bounded benign preparation run",
     "methods": [
       "agents.list",
       "models.list",
       "sessions.list",
       "sessions.create",
-      "tools.effective",
       "sessions.messages.subscribe",
       "sessions.send",
+      "tools.effective",
       "sessions.get"
     ],
     "status": "runnable",
@@ -32,7 +32,7 @@
     {
       "name": "runtime-prepared",
       "required": true,
-      "description": "sessions.create and the post-create sessions.list response agree on the selected provider/model and published OpenClaw runtime before inventory"
+      "description": "The exact disposable session completes a matching successful sessions.send lifecycle before tools.effective, which then succeeds for that session"
     },
     {
       "name": "tool-registered",
@@ -82,6 +82,6 @@
       "tool-invoke-rejected"
     ],
     "foldRequiresReview": true,
-    "notes": "Live request_compaction reject row. Always creates and verifies an explicitly modeled disposable session before tools.effective. Preparation or inventory setup failures remain NO-VERDICT. PASS still requires this row's nonce-bearing typed invocation and matching authoritative role=toolResult context_threshold rejection."
+    "notes": "Live request_compaction reject row. Always creates and verifies an explicitly modeled disposable session, completes a matching bounded benign sessions.send lifecycle, and then calls tools.effective for that exact session. Preparation or inventory setup failures remain NO-VERDICT. PASS still requires this row's distinct nonce-bearing typed invocation and matching authoritative role=toolResult context_threshold rejection."
   }
 }

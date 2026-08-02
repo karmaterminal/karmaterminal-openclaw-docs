@@ -15,7 +15,7 @@
   },
   "scenario": {
     "name": "preflight",
-    "description": "Authenticate and resolve a model/runtime-prepared session from sessions.list, or explicitly create and verify a disposable session, before read-only tools.effective inventory.",
+    "description": "Authenticate and resolve a model-selected session from sessions.list, or explicitly create and verify a disposable session, before a read-only exact-session tools.effective probe completes preparation authority.",
     "methods": [
       "health",
       "status",
@@ -43,7 +43,7 @@
       "session-preparation-authority"
     ],
     "foldRequiresReview": true,
-    "notes": "The default live path validates a prepared session returned by sessions.list and remains read-only. OPENCLAW_PREFLIGHT_CREATE_DISPOSABLE_SESSION=true selects the explicit create-and-verify path. Session-resolution failures remain NO-VERDICT."
+    "notes": "The default live path validates a session returned by sessions.list and remains read-only. OPENCLAW_PREFLIGHT_CREATE_DISPOSABLE_SESSION=true selects the explicit create-and-verify path. Metadata alone never marks preparation complete; only a successful exact-session tools.effective probe does. Session-resolution or inventory failures remain NO-VERDICT."
   },
   "expectedReceipts": [
     {
@@ -80,7 +80,7 @@
       "name": "session-preparation-authority",
       "required": true,
       "pathHint": "runner-metadata.json",
-      "description": "Public-safe listed/disposable session class plus agent, model, runtime, preparation completion, and tools.effective call stage; raw session keys are excluded."
+      "description": "Public-safe listed/disposable session class plus product/runtime/harness identity, agent, model, runtime, explicit preparation stage, and tools.effective call stage; raw session keys are excluded."
     }
   ],
   "artifactDestination": {

@@ -12,11 +12,13 @@ import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js
 import {
   completePreparationAuthority,
   incompletePreparationAuthority,
-  preparedToolsEffectiveParams,
+  publicPreparationEvent,
   rcd2ModelRef,
   resolvePreparationAgentId,
   resolvePreparedListedSession,
+  sessionVerifiedPreparationAuthority,
   selectPreparationModel,
+  toolsEffectiveRequest,
   verifyCreatedPreparedSession,
 } from '../lib/session-runtime-preparation.js';
 
@@ -112,13 +114,14 @@ export default function () {
     const tracker = new RequestTracker();
 
     function requestToolsEffective(authority) {
-      const params = preparedToolsEffectiveParams(sessionKey, authority);
-      if (!params) {
+      const request = toolsEffectiveRequest(sessionKey, authority, 'session-verified');
+      if (!request) {
         failSetup('tools-effective-before-preparation', 'session preparation was not complete');
         socket.close();
         return;
       }
-      tracker.send(socket, 'tools.effective', params);
+      applyAuthority(request.authority);
+      tracker.send(socket, 'tools.effective', request.params);
     }
 
     socket.on('open', () => {
@@ -137,7 +140,9 @@ export default function () {
           method: classified.method || null,
           event: classified.event || null,
           ok: classified.ok !== undefined ? classified.ok : null,
-          data: classified.payload ? redactEvent(classified.payload) : null,
+          data: classified.payload
+            ? publicPreparationEvent(redactEvent(classified.payload))
+            : null,
         });
 
         if (classified.kind === 'response' && classified.method === 'agents.list') {
@@ -231,7 +236,7 @@ export default function () {
             }
             sessionKey = listed.key;
             evidence.sessions_list_ok = true;
-            const authority = completePreparationAuthority({
+            const authority = sessionVerifiedPreparationAuthority({
               source: 'sessions-list',
               sessionClass: 'existing-listed',
               agentId: listed.agentId,
@@ -278,7 +283,7 @@ export default function () {
             }
             sessionKey = created.key;
             evidence.sessions_list_ok = true;
-            const authority = completePreparationAuthority({
+            const authority = sessionVerifiedPreparationAuthority({
               source: 'sessions-create',
               sessionClass: 'disposable-unbound',
               agentId: disposableAgentId,
@@ -301,6 +306,16 @@ export default function () {
               'tools.effective rejected the verified session',
               true,
             );
+          } else {
+            const completed = completePreparationAuthority(evidence, 'session-verified');
+            if (!completed) {
+              failSetup(
+                'tools-effective-authority-invalid',
+                'tools.effective succeeded outside the verified-session stage',
+              );
+            } else {
+              applyAuthority(completed);
+            }
           }
           socket.close();
         }

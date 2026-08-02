@@ -7,9 +7,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import {
+  advancePreparationAuthority,
+  classifyPreparationLifecycle,
   completePreparationAuthority,
   incompletePreparationAuthority,
-  preparedToolsEffectiveParams,
+  publicPreparationEvent,
+  sessionVerifiedPreparationAuthority,
+  toolsEffectiveRequest,
   resolvePreparedListedSession,
   verifyCreatedPreparedSession,
 } from '../../lib/session-runtime-preparation.js';
@@ -33,21 +37,23 @@ const session = {
   agentRuntime: model.agentRuntime,
 };
 
-test('validated listed and disposable sessions pass only their exact returned key to tools.effective', () => {
+test('metadata-only session verification cannot mark runtime preparation complete', () => {
   const listed = resolvePreparedListedSession(
     { sessions: [{ ...session, channelId: 'discord-channel' }] },
     { models: [model] },
     key,
   );
   assert.equal(listed.key, key);
-  const listedAuthority = completePreparationAuthority({
+  const listedAuthority = sessionVerifiedPreparationAuthority({
     source: 'sessions-list',
     sessionClass: 'existing-listed',
     agentId: listed.agentId,
     selectedModel: listed.selectedModel,
     session: listed.session,
   });
-  assert.deepEqual(preparedToolsEffectiveParams(listed.key, listedAuthority), { sessionKey: key });
+  assert.equal(listedAuthority.preparation_stage, 'session-verified');
+  assert.equal(listedAuthority.preparation_complete, false);
+  assert.equal(toolsEffectiveRequest(listed.key, listedAuthority, 'runtime-lifecycle-complete'), null);
 
   const created = verifyCreatedPreparedSession({
     createPayload: {
@@ -61,27 +67,74 @@ test('validated listed and disposable sessions pass only their exact returned ke
     selectedModel: model,
   });
   assert.equal(created.key, key);
-  const createdAuthority = completePreparationAuthority({
+  const createdAuthority = sessionVerifiedPreparationAuthority({
     source: 'sessions-create',
     sessionClass: 'disposable-unbound',
     agentId: 'main',
     selectedModel: model,
     session: created.session,
   });
-  assert.deepEqual(preparedToolsEffectiveParams(created.key, createdAuthority), { sessionKey: key });
+  assert.equal(createdAuthority.preparation_stage, 'session-verified');
+  assert.equal(createdAuthority.preparation_complete, false);
+  assert.equal(toolsEffectiveRequest(created.key, createdAuthority, 'runtime-lifecycle-complete'), null);
 });
 
-test('unknown, absent, or incompletely prepared sessions cannot reach tools.effective', () => {
-  assert.equal(resolvePreparedListedSession({ sessions: [session] }, { models: [model] }, 'agent:main:unknown'), null);
-  assert.equal(resolvePreparedListedSession({ sessions: [] }, { models: [model] }, key), null);
-  assert.equal(preparedToolsEffectiveParams(key, incompletePreparationAuthority('session-not-listed')), null);
-  assert.equal(preparedToolsEffectiveParams('', completePreparationAuthority({
+test('PREFLIGHT completes only after its exact-session tools.effective probe succeeds', () => {
+  const verified = sessionVerifiedPreparationAuthority({
     source: 'sessions-list',
     sessionClass: 'existing-listed',
     agentId: 'main',
     selectedModel: model,
     session,
-  })), null);
+  });
+  const request = toolsEffectiveRequest(key, verified, 'session-verified');
+  assert.deepEqual(request.params, { sessionKey: key });
+  assert.equal(request.authority.tools_effective_call_stage, 'after-session-verified');
+  const complete = completePreparationAuthority(request.authority, 'session-verified');
+  assert.equal(complete.preparation_stage, 'tools-effective-complete');
+  assert.equal(complete.preparation_complete, true);
+});
+
+test('R-RC-1 gates tools.effective on the matching successful preparation lifecycle', () => {
+  const verified = sessionVerifiedPreparationAuthority({
+    source: 'sessions-create',
+    sessionClass: 'disposable-unbound',
+    agentId: 'main',
+    selectedModel: model,
+    session,
+  });
+  const accepted = advancePreparationAuthority(verified, 'runtime-run-accepted');
+  assert.equal(accepted.preparation_complete, false);
+  const lifecycleComplete = advancePreparationAuthority(accepted, 'runtime-lifecycle-complete');
+  const request = toolsEffectiveRequest(key, lifecycleComplete, 'runtime-lifecycle-complete');
+  assert.deepEqual(request.params, { sessionKey: key });
+  assert.equal(request.authority.tools_effective_call_stage, 'after-runtime-lifecycle-complete');
+  assert.equal(
+    completePreparationAuthority(request.authority, 'runtime-lifecycle-complete').preparation_complete,
+    true,
+  );
+});
+
+test('only the exact top-level preparation run lifecycle can satisfy preparation', () => {
+  const runId = 'preparation-run';
+  assert.equal(classifyPreparationLifecycle({ data: { runId, phase: 'end', status: 'ok' } }, runId), 'unrelated');
+  assert.equal(classifyPreparationLifecycle({ runId: 'lookalike', stream: 'lifecycle', data: { phase: 'end', status: 'ok' } }, runId), 'unrelated');
+  assert.equal(classifyPreparationLifecycle({ runId, stream: 'lifecycle', data: { phase: 'start' } }, runId), 'active');
+  assert.equal(classifyPreparationLifecycle({ runId, stream: 'lifecycle', data: { phase: 'end', status: 'failed' } }, runId), 'failed');
+  assert.equal(classifyPreparationLifecycle({ runId, stream: 'lifecycle', data: { phase: 'end', status: 'ok' } }, runId), 'succeeded');
+});
+
+test('unknown, absent, or incompletely prepared sessions cannot reach tools.effective', () => {
+  assert.equal(resolvePreparedListedSession({ sessions: [session] }, { models: [model] }, 'agent:main:unknown'), null);
+  assert.equal(resolvePreparedListedSession({ sessions: [] }, { models: [model] }, key), null);
+  assert.equal(toolsEffectiveRequest(key, incompletePreparationAuthority('session-not-listed'), 'session-verified'), null);
+  assert.equal(toolsEffectiveRequest('', sessionVerifiedPreparationAuthority({
+    source: 'sessions-list',
+    sessionClass: 'existing-listed',
+    agentId: 'main',
+    selectedModel: model,
+    session,
+  }), 'session-verified'), null);
 });
 
 test('public preparation authority cannot disclose raw session keys', async () => {
@@ -89,18 +142,24 @@ test('public preparation authority cannot disclose raw session keys', async () =
     row: 'PREFLIGHT',
     sessionKey: key,
     created_session_key: key,
-    ...completePreparationAuthority({
+    ...completePreparationAuthority(toolsEffectiveRequest(key, sessionVerifiedPreparationAuthority({
       source: 'sessions-create',
       sessionClass: 'disposable-unbound',
       agentId: 'main',
       selectedModel: model,
       session,
-    }),
+    }), 'session-verified').authority, 'session-verified'),
   };
   const authority = authorityFromEvidence('PREFLIGHT', evidence);
   assert.equal(authority.preparationComplete, true);
   assert.equal(authority.sessionSource, 'sessions-create');
   assert.equal(JSON.stringify(authority).includes(key), false);
+  const publicEvent = publicPreparationEvent({
+    sessionKey: key,
+    runId: 'private-run-id',
+    nested: { childSessionKey: key, status: 'ok' },
+  });
+  assert.deepEqual(publicEvent, { nested: { status: 'ok' } });
 
   const dir = await mkdtemp(path.join(tmpdir(), 'preparation-authority-'));
   try {
@@ -143,18 +202,21 @@ test('changed-row manifests and scenarios keep canonical identity and preparatio
     true,
   );
   assert.deepEqual(
-    ['agents.list', 'models.list', 'sessions.create', 'sessions.list', 'tools.effective']
+    ['agents.list', 'models.list', 'sessions.create', 'sessions.list', 'sessions.messages.subscribe', 'sessions.send', 'tools.effective']
       .every((method) => rrc1Manifest.scenario.methods.includes(method)),
     true,
   );
   for (const source of [preflight, rrc1]) {
-    assert.match(source, /preparedToolsEffectiveParams\(/);
+    assert.match(source, /toolsEffectiveRequest\(/);
     assert.match(source, /preparation_complete/);
     assert.match(source, /VERDICT: \$\{verdict\}/);
   }
   assert.match(preflight, /resolvePreparedListedSession\(/);
   assert.match(preflight, /verifyCreatedPreparedSession\(/);
   assert.match(rrc1, /verifyCreatedPreparedSession\(/);
+  assert.match(rrc1, /classifyPreparationLifecycle\(/);
+  assert.match(rrc1, /runtime-lifecycle-complete/);
+  assert.doesNotMatch(rrc1, /evidence\.(?:sessionKey|created_session_key)\s*=/);
   assert.match(preflight, /row:\s*'PREFLIGHT'/);
   assert.match(rrc1, /classifyRequestCompactionReceipt/);
   assert.match(rrc1, /findRequestCompactionReceipt/);

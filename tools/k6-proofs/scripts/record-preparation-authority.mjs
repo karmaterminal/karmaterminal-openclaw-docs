@@ -10,10 +10,14 @@ function safeText(value) {
   return typeof value === 'string' && SAFE_TEXT.test(value) ? value : null;
 }
 
-function authorityFromEvidence(row, evidence = {}) {
+function authorityFromEvidence(row, evidence = {}, metadata = {}) {
   return {
     schema: 'openclaw.k6.session-preparation-authority.v1',
     row,
+    candidateSha: safeText(evidence.candidateSha || metadata.candidateSha),
+    runtimeBuildSha: safeText(evidence.runtimeBuildSha || metadata.runtimeBuildSha),
+    harnessSha: safeText(metadata.docsRef),
+    seat: safeText(evidence.seat || metadata.seat),
     sessionSource: safeText(evidence.session_source),
     sessionClass: safeText(evidence.session_class),
     agentId: safeText(evidence.resolved_agent_id),
@@ -29,6 +33,7 @@ function authorityFromEvidence(row, evidence = {}) {
       id: safeText(evidence.effective_runtime_id),
       source: safeText(evidence.effective_runtime_source),
     },
+    preparationStage: safeText(evidence.preparation_stage),
     preparationComplete: evidence.preparation_complete === true,
     toolsEffectiveCallStage: safeText(evidence.tools_effective_call_stage),
     setupFailureCode: safeText(evidence.setup_failure_code),
@@ -70,7 +75,7 @@ async function main() {
     }
   }
 
-  metadata.preparationAuthority = authorityFromEvidence(row, evidence);
+  metadata.preparationAuthority = authorityFromEvidence(row, evidence, metadata);
   const temporary = `${metadataPath}.preparation.tmp`;
   await writeFile(temporary, `${JSON.stringify(metadata, null, 2)}\n`);
   await rename(temporary, metadataPath);

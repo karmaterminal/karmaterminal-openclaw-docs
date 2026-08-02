@@ -17,12 +17,17 @@ import {
   hasEffectiveTool,
 } from '../lib/request-compaction-receipt.js';
 import {
+  advancePreparationAuthority,
+  classifyPreparationLifecycle,
   completePreparationAuthority,
   incompletePreparationAuthority,
-  preparedToolsEffectiveParams,
+  preparationAcceptedRunId,
+  publicPreparationEvent,
   rcd2ModelRef,
   resolvePreparationAgentId,
+  sessionVerifiedPreparationAuthority,
   selectPreparationModel,
+  toolsEffectiveRequest,
   verifyCreatedPreparedSession,
 } from '../lib/session-runtime-preparation.js';
 
@@ -59,6 +64,7 @@ export default function () {
   let selectedModel = null;
   let createPayload = null;
   let inspectionPhase = 'unstarted';
+  let acceptedPreparationRunId = '';
   let setupFailureRecorded = false;
 
   if (!token) {
@@ -77,9 +83,7 @@ export default function () {
     manifest_loaded: !!manifest,
     nonce: rowNonce,
     seat,
-    sessionKey,
     session_created: false,
-    created_session_key: null,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
     tool_inventory_checked: false,
@@ -127,8 +131,12 @@ export default function () {
     const tracker = new RequestTracker();
 
     function startProofFlow() {
-      const params = preparedToolsEffectiveParams(sessionKey, evidence);
-      if (!params) {
+      const request = toolsEffectiveRequest(
+        sessionKey,
+        evidence,
+        'runtime-lifecycle-complete',
+      );
+      if (!request) {
         failSetup(
           'tools-effective-before-preparation',
           'model/runtime preparation was not complete',
@@ -136,8 +144,21 @@ export default function () {
         socket.close();
         return;
       }
-      tracker.send(socket, 'tools.effective', params);
+      applyAuthority(request.authority);
+      tracker.send(socket, 'tools.effective', request.params);
       socket.setTimeout(() => socket.close(), 60000);
+    }
+
+    function dispatchPreparationTurn() {
+      const instruction =
+        `${HARNESS_MARKER} Preparation only. Reply exactly PREPARED ${rowNonce}. ` +
+        'Do not call tools and take no other action.';
+      inspectionPhase = 'preparation-send';
+      tracker.send(socket, 'sessions.send', {
+        key: sessionKey,
+        message: instruction,
+        idempotencyKey: `R-RC-1-PREP-${rowNonce}`,
+      });
     }
 
     function dispatchRequestCompaction() {
@@ -192,7 +213,7 @@ export default function () {
       socket.send(connectFrame(token));
       socket.setTimeout(() => tracker.send(socket, 'agents.list', {}), 250);
       socket.setTimeout(() => {
-        if (inspectionPhase !== 'ready') {
+        if (evidence.preparation_complete !== true) {
           failSetup(
             'session-preparation-timeout',
             'session model/runtime preparation did not complete within the bounded window',
@@ -212,7 +233,9 @@ export default function () {
           method: classified.method || null,
           event: classified.event || null,
           ok: classified.ok !== undefined ? classified.ok : null,
-          data: redactEvent(classified.data || classified.payload || null),
+          data: publicPreparationEvent(
+            redactEvent(classified.data || classified.payload || null),
+          ),
         });
 
         if (classified.kind === 'response' && classified.method === 'agents.list') {
@@ -312,10 +335,8 @@ export default function () {
             return;
           }
           sessionKey = created.key;
-          evidence.sessionKey = sessionKey;
           evidence.session_created = true;
-          evidence.created_session_key = sessionKey;
-          const authority = completePreparationAuthority({
+          const authority = sessionVerifiedPreparationAuthority({
             source: 'sessions-create',
             sessionClass: 'disposable-unbound',
             agentId: disposableAgentId,
@@ -323,9 +344,9 @@ export default function () {
             session: created.session,
           });
           applyAuthority(authority);
-          inspectionPhase = 'ready';
-          console.log('✓ disposable session model/runtime preparation verified');
-          startProofFlow();
+          inspectionPhase = 'preparation-subscribe';
+          console.log('✓ disposable session and model selection verified');
+          tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
         }
 
         if (classified.kind === 'response' && classified.method === 'tools.effective') {
@@ -339,23 +360,68 @@ export default function () {
             );
             socket.close();
           } else {
+            const completed = completePreparationAuthority(
+              evidence,
+              'runtime-lifecycle-complete',
+            );
+            if (!completed) {
+              failSetup(
+                'tools-effective-authority-invalid',
+                'tools.effective succeeded outside the completed preparation lifecycle',
+                true,
+              );
+              socket.close();
+              return;
+            }
+            applyAuthority(completed);
+            inspectionPhase = 'ready';
             console.log('✓ request_compaction present in effective inventory');
-            tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
+            dispatchRequestCompaction();
           }
         }
 
         if (classified.kind === 'response' && classified.method === 'sessions.messages.subscribe') {
-          if (classified.ok) {
-            dispatchRequestCompaction();
-          } else {
+          if (!classified.ok) {
             console.error(`✗ sessions.messages.subscribe rejected: ${JSON.stringify(classified.error)}`);
-            failures.add(1);
+            failSetup(
+              'preparation-subscribe-rejected',
+              'could not subscribe to the disposable preparation session',
+            );
             socket.close();
+          } else if (inspectionPhase === 'preparation-subscribe') {
+            dispatchPreparationTurn();
           }
         }
 
         if (classified.kind === 'response' && classified.method === 'sessions.send') {
-          if (classified.ok) {
+          if (inspectionPhase === 'preparation-send') {
+            acceptedPreparationRunId = classified.ok
+              ? preparationAcceptedRunId(classified.payload)
+              : '';
+            if (!acceptedPreparationRunId) {
+              failSetup(
+                'preparation-run-unaccepted',
+                'sessions.send did not return an exact top-level preparation runId',
+              );
+              socket.close();
+              return;
+            }
+            const accepted = advancePreparationAuthority(
+              evidence,
+              'runtime-run-accepted',
+            );
+            if (!accepted) {
+              failSetup(
+                'preparation-stage-invalid',
+                'preparation run was accepted outside the session-verified stage',
+              );
+              socket.close();
+              return;
+            }
+            applyAuthority(accepted);
+            inspectionPhase = 'preparation-lifecycle';
+            console.log('✓ bounded preparation turn accepted; awaiting matching lifecycle end');
+          } else if (inspectionPhase === 'ready' && classified.ok) {
             evidence.dispatch_accepted = true;
             evidence.dispatch_accepted_at_ms = Date.now();
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
@@ -387,6 +453,39 @@ export default function () {
         }
 
         if (classified.kind === 'event') {
+          if (inspectionPhase === 'preparation-lifecycle') {
+            const lifecycle = classifyPreparationLifecycle(
+              classified.data,
+              acceptedPreparationRunId,
+            );
+            if (lifecycle === 'succeeded') {
+              const completed = advancePreparationAuthority(
+                evidence,
+                'runtime-lifecycle-complete',
+              );
+              if (!completed) {
+                failSetup(
+                  'preparation-stage-invalid',
+                  'matching lifecycle completed outside the accepted-run stage',
+                );
+                socket.close();
+                return;
+              }
+              applyAuthority(completed);
+              inspectionPhase = 'preparation-inventory';
+              console.log('✓ matching preparation lifecycle completed successfully');
+              startProofFlow();
+              return;
+            }
+            if (lifecycle === 'failed') {
+              failSetup(
+                'preparation-lifecycle-failed',
+                'the matching preparation run failed or aborted',
+              );
+              socket.close();
+              return;
+            }
+          }
           const receiptResult = classifyRequestCompactionReceipt(classified.data);
           // Subscription events can be delayed or replayed. Never accept an
           // unbound tool result directly; use it only as a signal to fetch the

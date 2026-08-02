@@ -135,12 +135,23 @@ If k6 is missing, the version differs, continuation is disabled/missing, require
 ### 2. Preflight check
 
 The supported live preflight never guesses a session key. By default it selects
-and validates a model/runtime-prepared session returned by `sessions.list`
-before calling `tools.effective`. Set
+and validates model selection for a session returned by `sessions.list` before
+calling `tools.effective` with that exact key. Metadata verification records only
+`session-verified`; preparation becomes complete only after that read-only probe
+succeeds. Set
 `OPENCLAW_PREFLIGHT_CREATE_DISPOSABLE_SESSION=true` to use the explicit
 `agents.list` → `models.list` → `sessions.create` → `sessions.list`
 create-and-verify path instead. Neither path dispatches a continuation or fires
-a proof row; unresolved preparation is explicit `NO-VERDICT`.
+a proof row; session resolution or inventory failure is explicit `NO-VERDICT`.
+
+`R-RC-1` uses a stronger boundary: after disposable-session verification and
+subscription, it sends one bounded benign no-tools preparation turn, binds the
+top-level `runId` returned by `sessions.send` to the matching successful
+lifecycle `end`, and only then calls `tools.effective` for that exact session.
+Its stages are public-safe (`session-verified`, `runtime-run-accepted`,
+`runtime-lifecycle-complete`, `tools-effective-complete`) and never expose the
+session key, prompt, or run ID. The later request-compaction proof turn remains
+distinct and retains its invocation/result binding.
 
 ```bash
 OPENCLAW_GATEWAY_TOKEN="***" \

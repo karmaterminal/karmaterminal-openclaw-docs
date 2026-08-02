@@ -1,5 +1,6 @@
+a9255b8574e78134cc221206929620b57599f2f1b967e54ddd748d1158efe823  ./cael-recertification-preflight.json
 4e25f100aaa3b30870432dbfbe959e96877027f9ca6af59d19229118675b8d5a  ./harness-suite-410.log
-cf5e880b83c748761af7d49775e46a3a3e6f74ad8f25b92e86cf63e9ee613d21  ./INDEX.json
+858eeda127f03167e345ff198312dde612c1ff4190d9f1dbf891b893b4d3bc52  ./INDEX.json
 d5596cb8e69cadd945660796b20b977f994d5cdf17425955c123d328556159d0  ./PREFLIGHT/cael/20260802T003428Z-preflight-f06d71d8/candidate-run-result-validation.error.log
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./PREFLIGHT/cael/20260802T003428Z-preflight-f06d71d8/candidate-run-result-validation.json
 40d267109232aa868d3c18358928d68d2c54c53e10104ed51e5df1380ae15306  ./PREFLIGHT/cael/20260802T003428Z-preflight-f06d71d8/evidence-extraction.error.log
@@ -78,7 +79,8 @@ ca6c3300d2bcb6147168e6abf0c09314c0bc4f4edc1cc22e64c934a50d3bde79  ./PREFLIGHT/ca
 90e6b25d893ac63f0fbaf62bcb749da93bd5260446ce513ef30892a0f253bfb8  ./PREFLIGHT/cael/20260802T011907Z-preflight-9d687f3c/runner-metadata.json
 8bef897661cbbcf02467ebffee991149f309ccdfcb9272fe852f4a5c9371c091  ./PREFLIGHT/cael/20260802T011907Z-preflight-9d687f3c/run-result.json
 6a7dbf43d1a3262cade7c62b3e23b3c7034ddb1f14e8d180fbd6f347db7cc60e  ./PREFLIGHT/cael/20260802T011907Z-preflight-9d687f3c/seat-readiness.json
-47224e981ebe90d011c2c3e99f701d617d79d6ea70bd1948cd3f71e64419493e  ./proofs-manifest.json
+f470f25a713a5ae3e3f0605b4ef386684233fd2e4b4ef2e8f65d0c9566e51b17  ./PREFLIGHT/EVIDENCE.md
+474c97eebfd98097c291450d7f196cd8f011a8b10241632e912e437d18f06a19  ./proofs-manifest.json
 7f3b8cb98866b6767e228965e913ec85d8c823b2a35c2f58c1a0711bedc4fa3b  ./R-CD-1/cael/20260802T011914Z-r-cd-1-9d687f3c/candidate-run-result.json
 7f3b8cb98866b6767e228965e913ec85d8c823b2a35c2f58c1a0711bedc4fa3b  ./R-CD-1/cael/20260802T011914Z-r-cd-1-9d687f3c/candidate-run-result-validation.json
 d472abd30fa0d16bdb2acf4f5f0970e977349460568cf2bc08957e78f6d143f3  ./R-CD-1/cael/20260802T011914Z-r-cd-1-9d687f3c/continuation-trace-collector.json
@@ -102,6 +104,7 @@ ea30420f910a056de795189f6b22611d87ef941ec7479d77ab29ed1592da3266  ./R-CD-1/cael/
 e1cb911710125ac50554932c8eb1b2ad34e122080067a7afdc46f4feee89c051  ./R-CD-1/cael/20260802T011914Z-r-cd-1-9d687f3c/run-result.json
 6a7dbf43d1a3262cade7c62b3e23b3c7034ddb1f14e8d180fbd6f347db7cc60e  ./R-CD-1/cael/20260802T011914Z-r-cd-1-9d687f3c/seat-readiness.json
 85d4d44c01b26a6a0e32bbaa648b78bf0c3fe08086c7e46de2dd274be8f1c837  ./R-CD-1/cael/20260802T011914Z-r-cd-1-9d687f3c/tempo-trace-6de082f0c991.json
+8eb642c2040eeb59d945772e5c727051d6f68ab4eb298d6c206c90dccb6bf7ce  ./R-CD-1/EVIDENCE.md
 ecec5fb19d2654bb916eab4cf93b5d24efc84c3bdbb5ec622304e1944492ce1a  ./R-CD-2/cael/20260802T011954Z-r-cd-2-9d687f3c/candidate-run-result-validation.error.log
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./R-CD-2/cael/20260802T011954Z-r-cd-2-9d687f3c/candidate-run-result-validation.json
 3e2de37155f75f6f5360198085b4c28f6bbabbb049cb1c80e18eaf727f0be764  ./R-CD-2/cael/20260802T011954Z-r-cd-2-9d687f3c/continuation-trace-collector.error.log
@@ -150,6 +153,7 @@ dfd065b1f3ae75bc14395f1ea337dfa093eaa76c4aade8a978df4eee9b5519a0  ./R-CD-2/cael/
 a5e14a1a1238bdf92a90276c58aeef91ed4bbf4dd2b9fbadde7ffa3ef07c0dad  ./R-CD-2/cael/20260802T012315Z-r-cd-2-3b245cf3/runner-metadata.json
 5a91db2f3f88c0d715d152b319172f765fdbf121a9440abe1eb47a9b49ed1b81  ./R-CD-2/cael/20260802T012315Z-r-cd-2-3b245cf3/run-result.json
 424d140fc5d3ba65cf0bac6be548adb13969bbd66cef1cd2a1bf2e427e2581b7  ./R-CD-2/cael/20260802T012315Z-r-cd-2-3b245cf3/seat-readiness.json
+767135d73e347257d0384f927f36882bc3a5b8d68a5aee8e1aebf55db29b2067  ./R-CD-2/EVIDENCE.md
 c4c84e3b72d29e928f4a4b5e7fd4c95f9f3467dc5dcf7531552a976c224c7d6f  ./R-CD-3/cael/20260802T012610Z-r-cd-3-8ccace3a/candidate-run-result.json
 c4c84e3b72d29e928f4a4b5e7fd4c95f9f3467dc5dcf7531552a976c224c7d6f  ./R-CD-3/cael/20260802T012610Z-r-cd-3-8ccace3a/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CD-3/cael/20260802T012610Z-r-cd-3-8ccace3a/evidence-extraction.json
@@ -170,6 +174,7 @@ dcd26f9f9006d7bfe7ad445cdd736c1271949b1f4d5f98e9d58bc4b63abb2c05  ./R-CD-3/cael/
 d42e1f339b3b36b09e6cf0d3cabf08a4fcbeaff34389ca628f0992da958859c4  ./R-CD-3/cael/20260802T012610Z-r-cd-3-8ccace3a/runner-metadata.json
 b33e78b268bf45a275402bce7886cf64fb4042fb0ddb491015b365582a7139e2  ./R-CD-3/cael/20260802T012610Z-r-cd-3-8ccace3a/run-result.json
 3496f3a4b66d589117064547ce6f34fe48896ed5f7fc74da87e0b6194f9cc81d  ./R-CD-3/cael/20260802T012610Z-r-cd-3-8ccace3a/seat-readiness.json
+6b07f9e4584cc72a2d611173d39e4bd8372ec0d89577f3d2b97191ae502fbfc8  ./R-CD-3/EVIDENCE.md
 ecec5fb19d2654bb916eab4cf93b5d24efc84c3bdbb5ec622304e1944492ce1a  ./R-CD-4/cael/20260802T012645Z-r-cd-4-83bc87cd/candidate-run-result-validation.error.log
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./R-CD-4/cael/20260802T012645Z-r-cd-4-83bc87cd/candidate-run-result-validation.json
 67f6e279cd729ee912e3c06605b994add7dc903d1dfbc2e1210e41fb8c6c3617  ./R-CD-4/cael/20260802T012645Z-r-cd-4-83bc87cd/continuation-trace-collector.json
@@ -216,6 +221,7 @@ c4c463960f6b945d325e1f6615e937b358ff47f42ff6ba4811c06f3446d6a4b5  ./R-CD-4/cael/
 2cde7537ee964332178d21946ce17fb74f773c4230147bafb882530e41ea84e5  ./R-CD-4/cael/20260802T015151Z-r-cd-4-51ea6bad/run-result.json
 02ad5febd74d65e3194e61b33400bdff2408eb5845884c6208ac3878ed66d6a2  ./R-CD-4/cael/20260802T015151Z-r-cd-4-51ea6bad/seat-readiness.json
 e9fb7f35d9ad4a8400802902d5b3fea6bfb716741c1be97459aed931e6125bb2  ./R-CD-4/cael/20260802T015151Z-r-cd-4-51ea6bad/tempo-trace-1837d5e62094.json
+4e5cb664a5057ec1180e0736a8df7bfa0366e253a7e11c785c0e411d92827b7e  ./R-CD-4/EVIDENCE.md
 ecec5fb19d2654bb916eab4cf93b5d24efc84c3bdbb5ec622304e1944492ce1a  ./R-CD-CHAINED-DEPTH-2/cael/20260802T012829Z-r-cd-chained-depth-2-79acb3e1/candidate-run-result-validation.error.log
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./R-CD-CHAINED-DEPTH-2/cael/20260802T012829Z-r-cd-chained-depth-2-79acb3e1/candidate-run-result-validation.json
 392f8f81c6f72022a2de44ffe427a36a5428177a6bc5ca1298980f3f5ed749df  ./R-CD-CHAINED-DEPTH-2/cael/20260802T012829Z-r-cd-chained-depth-2-79acb3e1/continuation-trace-collector.json
@@ -262,6 +268,7 @@ d44024c864d60db8fb5823de931b4015131fbae055b50813518cbad1b8d174a2  ./R-CD-CHAINED
 3daad37d00ee6e98fec437a5ba8080852caedf140f95d97daa80f66768673e2d  ./R-CD-CHAINED-DEPTH-2/cael/20260802T015335Z-r-cd-chained-depth-2-ed4f0600/run-result.json
 5b7a82c9ac77dd3197f1ecabb6e9a0e7627b789def07a07b50ad80e66d7a2d31  ./R-CD-CHAINED-DEPTH-2/cael/20260802T015335Z-r-cd-chained-depth-2-ed4f0600/seat-readiness.json
 ff683fb928731f63b0774adcf3afe351cb1ae56ec667c3412feb7ef09bf263a7  ./R-CD-CHAINED-DEPTH-2/cael/20260802T015335Z-r-cd-chained-depth-2-ed4f0600/tempo-trace-1837d5e62094.json
+df494a3b69618ec98a09435fb4b4649a84a784576d252e5373cde8e4f5007aaf  ./R-CD-CHAINED-DEPTH-2/EVIDENCE.md
 36a89050f49869498fcace6d56a7b7089af9065e9bd0a07bb317865de2a53fda  ./R-CD-COLLECTION-ON-COLLAPSE/cael/20260802T013113Z-r-cd-collection-on-collapse-c6d81661/candidate-run-result.json
 36a89050f49869498fcace6d56a7b7089af9065e9bd0a07bb317865de2a53fda  ./R-CD-COLLECTION-ON-COLLAPSE/cael/20260802T013113Z-r-cd-collection-on-collapse-c6d81661/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CD-COLLECTION-ON-COLLAPSE/cael/20260802T013113Z-r-cd-collection-on-collapse-c6d81661/evidence-extraction.json
@@ -282,6 +289,7 @@ ad6310f8dc2e41bb27f4739d13d2ca37cb7333337be52165fd278a9ec8a73c44  ./R-CD-COLLECT
 eeccef4a4b80cc68614c593af46799e2cc8a59a51fb01c1f1b93b9b53a439e43  ./R-CD-COLLECTION-ON-COLLAPSE/cael/20260802T013113Z-r-cd-collection-on-collapse-c6d81661/run-result.json
 65a2d7898355a3e23667902c6c9d9268dd03d58be5c7e2e7b7a5cc354e32ae61  ./R-CD-COLLECTION-ON-COLLAPSE/cael/20260802T013113Z-r-cd-collection-on-collapse-c6d81661/seat-readiness.json
 5c5afe649a10e4fb18f69a06c024ebab00ff18ae048599fa30ac3b1d4931c4cc  ./R-CD-COLLECTION-ON-COLLAPSE/cael/20260802T013113Z-r-cd-collection-on-collapse-c6d81661/static-corpus-row-summary.json
+4f57c9448bd0b89c8729eb6a0fa350e0f13e18ff0d312e02aa7dcbc26ac17ae0  ./R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md
 5e677aca30a2104d80403c9d422fd3760dc36abaafeae1c69a1e70ff0c62f58d  ./R-CD-MODEL-CHAINED-ALT/cael/20260802T013125Z-r-cd-model-chained-alt-4af07273/candidate-run-result.json
 5e677aca30a2104d80403c9d422fd3760dc36abaafeae1c69a1e70ff0c62f58d  ./R-CD-MODEL-CHAINED-ALT/cael/20260802T013125Z-r-cd-model-chained-alt-4af07273/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CD-MODEL-CHAINED-ALT/cael/20260802T013125Z-r-cd-model-chained-alt-4af07273/evidence-extraction.json
@@ -302,6 +310,7 @@ de50133fa3196c53f3fa0095c29a94926afe71e370a884720347c832a3cc7f20  ./R-CD-MODEL-C
 6a112d866d89be4cd889b4d77f59171e0c21c88ff7f92c307ceedb50e46fb35c  ./R-CD-MODEL-CHAINED-ALT/cael/20260802T013125Z-r-cd-model-chained-alt-4af07273/runner-metadata.json
 8390995f6f507f03bcb2231fbeebb07916c946c6cab8ca6174799822a1dc4fc0  ./R-CD-MODEL-CHAINED-ALT/cael/20260802T013125Z-r-cd-model-chained-alt-4af07273/run-result.json
 ac0345971399b10f6253c417dc34b524938a0a80ad79ed3e70f182e99c378ff5  ./R-CD-MODEL-CHAINED-ALT/cael/20260802T013125Z-r-cd-model-chained-alt-4af07273/seat-readiness.json
+9102499a785f4d627446f80af3e530039b14b0f749e02da1d93f26be80496498  ./R-CD-MODEL-CHAINED-ALT/EVIDENCE.md
 8bb724bf0e70b291867b007329eb06e83ae56b22cc3071e4ef943ad997476999  ./R-CD-MODEL-DEFAULT/cael/20260802T013155Z-r-cd-model-default-ef23416d/candidate-run-result.json
 8bb724bf0e70b291867b007329eb06e83ae56b22cc3071e4ef943ad997476999  ./R-CD-MODEL-DEFAULT/cael/20260802T013155Z-r-cd-model-default-ef23416d/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CD-MODEL-DEFAULT/cael/20260802T013155Z-r-cd-model-default-ef23416d/evidence-extraction.json
@@ -322,6 +331,7 @@ ddc4181d0e1cfe874c36f52dfcd457ee1f8a3c569fd95d6f91a7fad7de276d3e  ./R-CD-MODEL-D
 45d09a45911d6546753286dd48cdf64d69da143f73041f28fd015ca9d7fa7b31  ./R-CD-MODEL-DEFAULT/cael/20260802T013155Z-r-cd-model-default-ef23416d/runner-metadata.json
 822a670ba0e9b71d303f447ce8953f54cc86da6e73e6542dd82f0221590d2d0c  ./R-CD-MODEL-DEFAULT/cael/20260802T013155Z-r-cd-model-default-ef23416d/run-result.json
 20bc597ba678469fa1e2e0248b8d7f2a814983a1fd84daa8907b5423dcfd86f5  ./R-CD-MODEL-DEFAULT/cael/20260802T013155Z-r-cd-model-default-ef23416d/seat-readiness.json
+0dc9fa3396b26728b7fbd5ddf5f20db80827a467f42df483120552cca1ae7e97  ./R-CD-MODEL-DEFAULT/EVIDENCE.md
 f97377c1585c54410c6692cfa081cc444e0fc7e925c268ca65eff977392302ec  ./R-CD-MODEL-TOKEN/cael/20260802T013221Z-r-cd-model-token-86497ef8/candidate-run-result.json
 f97377c1585c54410c6692cfa081cc444e0fc7e925c268ca65eff977392302ec  ./R-CD-MODEL-TOKEN/cael/20260802T013221Z-r-cd-model-token-86497ef8/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CD-MODEL-TOKEN/cael/20260802T013221Z-r-cd-model-token-86497ef8/evidence-extraction.json
@@ -342,6 +352,7 @@ e094c6587283725cafc16f4eb50ee403ff2d276b522a5e7fdd2c3cbc6680faa6  ./R-CD-MODEL-T
 93e7de506551bc1d302a25e9eb64f9d88ba56b0e6adbfaf0fdebde26f60d71cc  ./R-CD-MODEL-TOKEN/cael/20260802T013221Z-r-cd-model-token-86497ef8/runner-metadata.json
 3bc135ab83888a704e890bc88884f00c848a4207af3d8abdb52143818440a924  ./R-CD-MODEL-TOKEN/cael/20260802T013221Z-r-cd-model-token-86497ef8/run-result.json
 5bed6fa8d8db8f28b40026d806d1967e041be43766b1049f541b66185b3811d6  ./R-CD-MODEL-TOKEN/cael/20260802T013221Z-r-cd-model-token-86497ef8/seat-readiness.json
+9c332e967c0094b193a5648ebc8de763ab708ab72677a113f40ac2180592035e  ./R-CD-MODEL-TOKEN/EVIDENCE.md
 fa63dc83b6c8672b84361a866e6c4840b0d7d4e45fab01cfc26a29bf3b5200a1  ./R-CD-MODEL-TOOL/cael/20260802T013249Z-r-cd-model-tool-45d3e0db/candidate-run-result-validation.error.log
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./R-CD-MODEL-TOOL/cael/20260802T013249Z-r-cd-model-tool-45d3e0db/candidate-run-result-validation.json
 3b8695c5f044a86cfeae3bf67c824801cc327153534bfac957ba434486bb24a1  ./R-CD-MODEL-TOOL/cael/20260802T013249Z-r-cd-model-tool-45d3e0db/continuation-trace-collector.json
@@ -392,6 +403,7 @@ cdd69b28223db1966d5d114a9ff731dfe77a7b183726ee5643ce666c28857d62  ./R-CD-MODEL-T
 d81a17cc2c4ff5bd4b3117e7c05d7380243ac1aa6631e7a1fabd17dab1d41d1b  ./R-CD-MODEL-TOOL/cael/20260802T015619Z-r-cd-model-tool-843ac3f1/run-result.json
 0f3e56e0f4c7bee8ccddb0d933d6fc4ae0d13e9d98f5088e2b6c9a7a362d25fb  ./R-CD-MODEL-TOOL/cael/20260802T015619Z-r-cd-model-tool-843ac3f1/seat-readiness.json
 3176021c8a383ffd0348d0ed2f87380e9eff821e526c49a17e6bbe84989281f1  ./R-CD-MODEL-TOOL/cael/20260802T015619Z-r-cd-model-tool-843ac3f1/tempo-trace-d29a2e7a338d.json
+1f50f1b70080c8b03e3c0619e64f69237fcc15359c6ee2be029ba60181629eb4  ./R-CD-MODEL-TOOL/EVIDENCE.md
 7e60422a9552b4d44b2b4f1f74cf49541b6373d7ef7000f4250fd3ee9b7fc99a  ./R-CD-RETURN-OVERLAP/cael/20260802T013604Z-r-cd-return-overlap-2932408c/candidate-run-result.json
 7e60422a9552b4d44b2b4f1f74cf49541b6373d7ef7000f4250fd3ee9b7fc99a  ./R-CD-RETURN-OVERLAP/cael/20260802T013604Z-r-cd-return-overlap-2932408c/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CD-RETURN-OVERLAP/cael/20260802T013604Z-r-cd-return-overlap-2932408c/evidence-extraction.json
@@ -412,6 +424,7 @@ e01f4f63f21808500bdb14428148becf7069ddb751fc9fb02e7aea50c433f49e  ./R-CD-RETURN-
 70721ed71caf414a8dbe2bdf66df0b19efa9ff10c6b73686783ea88e59638e21  ./R-CD-RETURN-OVERLAP/cael/20260802T013604Z-r-cd-return-overlap-2932408c/runner-metadata.json
 57f94fba6a443c8529094bf54f3f043c4dc09d82b3a339f6a3d9ef77c0005361  ./R-CD-RETURN-OVERLAP/cael/20260802T013604Z-r-cd-return-overlap-2932408c/run-result.json
 ec3e340064efbfea07e7d2751819b0421bf93339894683f02b5adcb33c469f22  ./R-CD-RETURN-OVERLAP/cael/20260802T013604Z-r-cd-return-overlap-2932408c/seat-readiness.json
+aac8488e6fd9d9661d1925676a3a9ad2968023acc8b9ad8a4d9eca6198cc0a24  ./R-CD-RETURN-OVERLAP/EVIDENCE.md
 bc7938652fb74d9497345cbb2777f50e7d330e9ee8ebf1875577a8fc38ebffc0  ./R-CD-SILENT/cael/20260802T013617Z-r-cd-silent-87af0d80/candidate-run-result.json
 bc7938652fb74d9497345cbb2777f50e7d330e9ee8ebf1875577a8fc38ebffc0  ./R-CD-SILENT/cael/20260802T013617Z-r-cd-silent-87af0d80/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CD-SILENT/cael/20260802T013617Z-r-cd-silent-87af0d80/evidence-extraction.json
@@ -432,6 +445,7 @@ add3636eedc7c647cd4d7a22db38eb4e8b4c814f0874064b0bda933b6590ed05  ./R-CD-SILENT/
 9fa8f556fbc078e79c19d819a2a64bfbc3c4e241b07701d5791929eef3e9a9b4  ./R-CD-SILENT/cael/20260802T013617Z-r-cd-silent-87af0d80/runner-metadata.json
 b9c8cc3f49f40849e7b36fd5d5ee0e272284b2b1e9dc4b1bdb69b6ffde2721f3  ./R-CD-SILENT/cael/20260802T013617Z-r-cd-silent-87af0d80/run-result.json
 f6ce5958479cde2dc06139186e3bd836f4e15a7e8f39eb766c38bda2e9615bb5  ./R-CD-SILENT/cael/20260802T013617Z-r-cd-silent-87af0d80/seat-readiness.json
+4aef9e36839946e7c36a20f64eb1f0a525b6f090348f870bbdcea1707995d0d6  ./R-CD-SILENT/EVIDENCE.md
 f917a509f9f9a2e039cb24b25dc017d30ceebd7aff4e7b26cd0d4730bc3f8482  ./R-CD-TOKEN/cael/20260802T013705Z-r-cd-token-0cc31f01/attempt-state.json
 7b96ff52671575220a8fcfe283afa19e4ec2d921b7b2fda634cf63d722cf4f4d  ./R-CD-TOKEN/cael/20260802T013705Z-r-cd-token-0cc31f01/row-manifest.json
 e4da30a666b0ef9e59b4edf1677cc3a8da80b59d5385ee00fdb8905556422699  ./R-CD-TOKEN/cael/20260802T013705Z-r-cd-token-0cc31f01/row-scenario.js
@@ -463,6 +477,7 @@ e4da30a666b0ef9e59b4edf1677cc3a8da80b59d5385ee00fdb8905556422699  ./R-CD-TOKEN/c
 c35119d8843075306664ab5c7bbc1ea7c599b9577518d727cde08857a82f6204  ./R-CD-TOKEN/cael/20260802T015932Z-r-cd-token-5ceaaeea/runner-metadata.json
 9e0e1b141a0cf4490855e34dad9750d5804500ef018dcdcf1bb76949e7fd54fe  ./R-CD-TOKEN/cael/20260802T015932Z-r-cd-token-5ceaaeea/run-result.json
 0b2f9f01bca354fe706834bbbd03b28e0394f3aaa4f833ec814f63c4fb5d8bce  ./R-CD-TOKEN/cael/20260802T015932Z-r-cd-token-5ceaaeea/seat-readiness.json
+38930319f10271b90df081c6db7c82b2716874f77aa9257603637679cb514c77  ./R-CD-TOKEN/EVIDENCE.md
 cad4960a129b768aced722ec2006f04ae9859060319f5ec2ad67d9a590bb4588  ./R-CONFIG-DEFAULTS/cael/20260802T013715Z-r-config-defaults-4c541533/candidate-run-result.json
 cad4960a129b768aced722ec2006f04ae9859060319f5ec2ad67d9a590bb4588  ./R-CONFIG-DEFAULTS/cael/20260802T013715Z-r-config-defaults-4c541533/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CONFIG-DEFAULTS/cael/20260802T013715Z-r-config-defaults-4c541533/evidence-extraction.json
@@ -482,6 +497,7 @@ ee6994ff6e2963dce172f078f24d05f504719db4fb49876a4eb08250c908dada  ./R-CONFIG-DEF
 1c68052a8c55d5fb4d1edea2c7209edcf3ae7c0cfc451e5e4ba0533b307d5d5e  ./R-CONFIG-DEFAULTS/cael/20260802T013715Z-r-config-defaults-4c541533/runner-metadata.json
 47d59ebb40a21c333f073521fc605e5c72cbdd51d84e24e384bf8574d7134c57  ./R-CONFIG-DEFAULTS/cael/20260802T013715Z-r-config-defaults-4c541533/run-result.json
 c17c0a1a2a09df4df2a3d440e1058a6da0a0ddbd88a1ec79ebbd3d93e1db3791  ./R-CONFIG-DEFAULTS/cael/20260802T013715Z-r-config-defaults-4c541533/seat-readiness.json
+9b1131c3eb4d38c04ff32e6c2f6f0b409e365e98e7866267d65ced41637859ad  ./R-CONFIG-DEFAULTS/EVIDENCE.md
 6b4d56fe3d2db3962ecb3245369556fead94784101b75bd17f05416ab697671e  ./R-CONFIG-INTERSESSION/cael/20260802T013729Z-r-config-intersession-f5bfac78/candidate-run-result.json
 6b4d56fe3d2db3962ecb3245369556fead94784101b75bd17f05416ab697671e  ./R-CONFIG-INTERSESSION/cael/20260802T013729Z-r-config-intersession-f5bfac78/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CONFIG-INTERSESSION/cael/20260802T013729Z-r-config-intersession-f5bfac78/evidence-extraction.json
@@ -501,6 +517,7 @@ cbdbb12d0d7f46ffecc9bfda4e19a2ce61632897b623407abbcfebad28759685  ./R-CONFIG-INT
 ee6024ffc3f839fdebbc80d9ce005c30b4058ec76fbf480c87e8495d4eda2a6f  ./R-CONFIG-INTERSESSION/cael/20260802T013729Z-r-config-intersession-f5bfac78/runner-metadata.json
 f9912aa0b43f4cdb9a7922b246c80ce828c990f3f63ae2de8e09f654a00b6f14  ./R-CONFIG-INTERSESSION/cael/20260802T013729Z-r-config-intersession-f5bfac78/run-result.json
 2233a4063b181f509ff23f7f3c13df1a860bd51e6a069ca0e2562678ceeea51d  ./R-CONFIG-INTERSESSION/cael/20260802T013729Z-r-config-intersession-f5bfac78/seat-readiness.json
+eaf264ee43339656fe955cb4087281570651b34c04304e6d48611d3f08607150  ./R-CONFIG-INTERSESSION/EVIDENCE.md
 3cae3dd2cb6a7f54619be2da28b80fe042c2c9dadd60600f9c8801a76201e9a8  ./R-CW-1/cael/20260802T013742Z-r-cw-1-60da5998/candidate-run-result.json
 3cae3dd2cb6a7f54619be2da28b80fe042c2c9dadd60600f9c8801a76201e9a8  ./R-CW-1/cael/20260802T013742Z-r-cw-1-60da5998/candidate-run-result-validation.json
 407b375c7b8d2422cb27862e3c577ec02c17bf5632374c5adba0b4dbd4f2c2b8  ./R-CW-1/cael/20260802T013742Z-r-cw-1-60da5998/continuation-trace-collector.json
@@ -524,6 +541,7 @@ a511f5815c9dffe1baf1d14d1a04612bcc3f86c7b0ecb0b4a2659cf39880c2f5  ./R-CW-1/cael/
 4bd7aadbfcd306342bb6ece5b68b9ecb588aaf045c0e60ae398340f48e077a83  ./R-CW-1/cael/20260802T013742Z-r-cw-1-60da5998/run-result.json
 79bb357270e828a9bf58490fbcc269fd79be570a943323380eeb7d3322d3449c  ./R-CW-1/cael/20260802T013742Z-r-cw-1-60da5998/seat-readiness.json
 f503ddcad79ddb4da27e6cb293e5ff2e720ae59673a77d1966f74d07f73bfac4  ./R-CW-1/cael/20260802T013742Z-r-cw-1-60da5998/tempo-trace-1837d5e62094.json
+49d3e94b4710f5968192873b548985cd04c3dee7646c8ab441de2bf69f0b2c78  ./R-CW-1/EVIDENCE.md
 b4836031aee9bfee40dbe4deae0f0da161eda8199c84878c5bc511ebc978bbda  ./R-CW-2/cael/20260802T013824Z-r-cw-2-30570ff0/candidate-run-result.json
 b4836031aee9bfee40dbe4deae0f0da161eda8199c84878c5bc511ebc978bbda  ./R-CW-2/cael/20260802T013824Z-r-cw-2-30570ff0/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CW-2/cael/20260802T013824Z-r-cw-2-30570ff0/evidence-extraction.json
@@ -544,6 +562,7 @@ d601711e6dab0404bb42923e2013f9463b2bb07f4f4b338874a2ee2ba869de10  ./R-CW-2/cael/
 87f42c6486b307c6152c79c6ca4367a15492cdd1899cf97b52bab469af497039  ./R-CW-2/cael/20260802T013824Z-r-cw-2-30570ff0/runner-metadata.json
 d51421a1def7cac341c27d3be4244bba7cfe1d1eaa612bf3d441849ffcf01be8  ./R-CW-2/cael/20260802T013824Z-r-cw-2-30570ff0/run-result.json
 79f4c4db5660a8cf66165ae3472da3770404a3eda1d5a67d9af520a854b46cc2  ./R-CW-2/cael/20260802T013824Z-r-cw-2-30570ff0/seat-readiness.json
+8cd9b836c8fb4c6eaa570a5660e42429759272be3c26db7d22ca433ba34770b2  ./R-CW-2/EVIDENCE.md
 035422e76458e664bf234c7185662814ec39d18c7f2caa6efa92a6f7c40be534  ./R-CW-3/cael/20260802T013850Z-r-cw-3-f6f863e5/candidate-run-result-validation.error.log
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./R-CW-3/cael/20260802T013850Z-r-cw-3-f6f863e5/candidate-run-result-validation.json
 5b5cad4a9e05b7297b106b0676362ba962ef947c9eb65c483ab78de93aae9566  ./R-CW-3/cael/20260802T013850Z-r-cw-3-f6f863e5/continuation-trace-collector.error.log
@@ -589,6 +608,7 @@ baf5451d0f4b163587174d9200718c498418c436741327f9ec404f5c9fb1d47d  ./R-CW-3/cael/
 be25726998b0f783319b5bc08aa2aa9860d8511a931ab84c49b512edb55ab371  ./R-CW-3/cael/20260802T020346Z-r-cw-3-c2f38a4f/run-result.json
 97ea20d41a51b7760c472ca40d65dc996cb0209e856d9020f3491491e3764c0a  ./R-CW-3/cael/20260802T020346Z-r-cw-3-c2f38a4f/seat-readiness.json
 a60474270335413cf7359a2dfbc477b8307184749b785396d485e69cd94f0842  ./R-CW-3/cael/20260802T020346Z-r-cw-3-c2f38a4f/tempo-trace-d29a2e7a338d.json
+5cfc57010fbae81ea7ed0bcf96c50a6b7e41753e4120f5c3f9431674e58556bd  ./R-CW-3/EVIDENCE.md
 0eb7022f0e4ac45f34ed3b8192f84932b1326107f81f0a2f796759e50c90f310  ./R-CW-4/cael/20260802T014016Z-r-cw-4-6b6c4ec2/candidate-run-result.json
 0eb7022f0e4ac45f34ed3b8192f84932b1326107f81f0a2f796759e50c90f310  ./R-CW-4/cael/20260802T014016Z-r-cw-4-6b6c4ec2/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CW-4/cael/20260802T014016Z-r-cw-4-6b6c4ec2/evidence-extraction.json
@@ -609,14 +629,28 @@ b2758e873fa5d7157cb57ca35ee129e30f89c215d2bce3e55285341c5df7b1e7  ./R-CW-4/cael/
 2a4a2b70a7ec9bfcffdef2ad6d95c01879d229b92c1cc820955406cdd428ee97  ./R-CW-4/cael/20260802T014016Z-r-cw-4-6b6c4ec2/runner-metadata.json
 3c12ddf656df24690a360aafcfdf8e2936b2461d540817474cecb91732161abb  ./R-CW-4/cael/20260802T014016Z-r-cw-4-6b6c4ec2/run-result.json
 61f6293c802f88fddb194b9bc3e78c0a841c51c406f041fa7a270788ea482915  ./R-CW-4/cael/20260802T014016Z-r-cw-4-6b6c4ec2/seat-readiness.json
+c73aeaf8b8769658aff232ee4224a7e9fed4d3ccbdbd486ee605a75d5ad91d8d  ./R-CW-4/EVIDENCE.md
 aba9ad6332f8516ee1e4a3cee6ab31963bd1020e0a0698b320640913e45e5d57  ./R-CW-5A/cael/static-20260802T020835Z/k6.log
+2161a6bfb0bff38ebf905350dc7478b6ce31e72630fb305440a816085087f191  ./R-CW-5A/EVIDENCE.md
 d98ce601cd11439d106d7148a59f75f4069b514e6ab7b65b43b3a03c8e5c027f  ./R-CW-5/cael/fixture-20260802T014909Z/boundary-matrix.json
 ce196ab91a32b53924837d101116506893a8dbd1bfe4d349dfea3596d3a1a950  ./R-CW-5/cael/fixture-20260802T014909Z/cleanup.json
 98a60d254114c3280e323b9052c16bf6d65f82ab1d58efbb795e1ae08de96bee  ./R-CW-5/cael/fixture-20260802T014909Z/dispatch-boundary-suite.json
 199bd0890d9fbfd900a7c35d167c59a39e492d589ae964fb86850fb5c05c25f9  ./R-CW-5/cael/fixture-20260802T014909Z/fixture-readiness.json
 afd3b326295e42f7a7b17c8e4fb0d47b4ecde9b2a0b5c50663cbd301222c1fac  ./R-CW-5/cael/fixture-20260802T014909Z/fixture-result.json
 3e790325757745bd154d68aba21a4f33b0c3d2fde86152d3a14e97f483ac8233  ./R-CW-5/cael/fixture-20260802T014909Z/typed-tool-surface.json
+d98ce601cd11439d106d7148a59f75f4069b514e6ab7b65b43b3a03c8e5c027f  ./R-CW-5/cael/fixture-20260802T035255Z-627ee339/boundary-matrix.json
+ce196ab91a32b53924837d101116506893a8dbd1bfe4d349dfea3596d3a1a950  ./R-CW-5/cael/fixture-20260802T035255Z-627ee339/cleanup.json
+98a60d254114c3280e323b9052c16bf6d65f82ab1d58efbb795e1ae08de96bee  ./R-CW-5/cael/fixture-20260802T035255Z-627ee339/dispatch-boundary-suite.json
+9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa  ./R-CW-5/cael/fixture-20260802T035255Z-627ee339/fixture-exit-code.txt
+199bd0890d9fbfd900a7c35d167c59a39e492d589ae964fb86850fb5c05c25f9  ./R-CW-5/cael/fixture-20260802T035255Z-627ee339/fixture-readiness.json
+087720dd6449aa235b08b78036a8ef248b84d2be724846a7bf43731eefdcbb4d  ./R-CW-5/cael/fixture-20260802T035255Z-627ee339/fixture-result.json
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./R-CW-5/cael/fixture-20260802T035255Z-627ee339/fixture-stderr.log
+73dd6ade41f9eaa3364304d4fa786a492d3cad70c11cd12067d361d1801b6f3b  ./R-CW-5/cael/fixture-20260802T035255Z-627ee339/fixture-stdout.log
+0a1c08eb7948887afa753f1defe59c02210550655f12bb20b99c1d70307e5ea1  ./R-CW-5/cael/fixture-20260802T035255Z-627ee339/row-manifest.json
+f17257a3e384713e4fb678dfc624f7b9cff7f896d4dc604e00bd2ac3cd66710e  ./R-CW-5/cael/fixture-20260802T035255Z-627ee339/typed-tool-surface.json
+4a422f27a704ffa1ea78cc928f8309199ec1deb1f649aedd3732ab5e3d27c9b0  ./R-CW-5/EVIDENCE.md
 31cae872e04af38ba6938c7e307de9367abdad867a77d3ab7744dfdbe06521a6  ./R-CW-6A/cael/static-20260802T020836Z/k6.log
+0ca11b3017160fd7829755f9047a34b37ab320fdc58fc0e44cc852437f301abb  ./R-CW-6A/EVIDENCE.md
 8852c473a29247a236d4848be6252ac9976e741f0217f95854ee539f8f41cc7f  ./R-CW-6/cael/fixture-20260802T015035Z/boundary-matrix.json
 946504889bcc02aa58a35f12b9e1ac94813f6fc222fb4f5643e18505cfc1b15a  ./R-CW-6/cael/fixture-20260802T015035Z/cleanup.json
 23d0fd3253197665ac1d0e5962c6a3ef58efd55be2ed76b184d0b66e28a4a38b  ./R-CW-6/cael/fixture-20260802T015035Z/dispatch-boundary-suite.json
@@ -626,6 +660,20 @@ ebaa41d1cdcd23b2c95a84517a103b4053b20bb8355163e74e9c2353921e3536  ./R-CW-6/cael/
 02fc34f4db90c17aee40f4f8476bc19633068eed4ff9ea68b1cb938f611fcf51  ./R-CW-6/cael/fixture-20260802T015035Z/public-artifact-safety.json
 f8b25e2e1a23a939528b467b26877d3a14f9d39fd28e4e1c3c5e859209e49035  ./R-CW-6/cael/fixture-20260802T015035Z/runtime-boundary.json
 41a8ad0db57849f45f9196f5272cc3534136e70e9fe22dd9dd0a8d26ce59e513  ./R-CW-6/cael/fixture-20260802T015035Z/typed-tool-surface.json
+8852c473a29247a236d4848be6252ac9976e741f0217f95854ee539f8f41cc7f  ./R-CW-6/cael/fixture-20260802T035356Z-627ee339/boundary-matrix.json
+946504889bcc02aa58a35f12b9e1ac94813f6fc222fb4f5643e18505cfc1b15a  ./R-CW-6/cael/fixture-20260802T035356Z-627ee339/cleanup.json
+23d0fd3253197665ac1d0e5962c6a3ef58efd55be2ed76b184d0b66e28a4a38b  ./R-CW-6/cael/fixture-20260802T035356Z-627ee339/dispatch-boundary-suite.json
+d50b9a81ccf0df5c6ab40bcadc018d50f33720d1e0d79afe8f49d26291746960  ./R-CW-6/cael/fixture-20260802T035356Z-627ee339/durable-state-recovery.json
+9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa  ./R-CW-6/cael/fixture-20260802T035356Z-627ee339/fixture-exit-code.txt
+c59f1fa40e35ab21927b35b692c02f2df3734490335198d9449f94c6420c7dad  ./R-CW-6/cael/fixture-20260802T035356Z-627ee339/fixture-readiness.json
+d0756b8e553119732da028b5d70d01a4e94f59d66d91b66c83722595c508eb76  ./R-CW-6/cael/fixture-20260802T035356Z-627ee339/fixture-result.json
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./R-CW-6/cael/fixture-20260802T035356Z-627ee339/fixture-stderr.log
+e6d17a3c75ddf79a179605671e53283c67dd4a87f60460a28f3796ca5b26baf5  ./R-CW-6/cael/fixture-20260802T035356Z-627ee339/fixture-stdout.log
+02fc34f4db90c17aee40f4f8476bc19633068eed4ff9ea68b1cb938f611fcf51  ./R-CW-6/cael/fixture-20260802T035356Z-627ee339/public-artifact-safety.json
+ba307cfefb9f84762516282f5a8e6ca16e5a2fbfe6e12820fff74c033a2d4c9a  ./R-CW-6/cael/fixture-20260802T035356Z-627ee339/row-manifest.json
+157b9b5ca4520adcbd827830872dee6aa06f80b019c809f15622723f61875a07  ./R-CW-6/cael/fixture-20260802T035356Z-627ee339/runtime-boundary.json
+1d85604f4c53893496a36b881728d247fbfacc529fdd0c34eb33cf0cc9c1fe76  ./R-CW-6/cael/fixture-20260802T035356Z-627ee339/typed-tool-surface.json
+77763a94d0da04d5e125f1fd8f5633782a5efd23fc49f7b924f7547b8638cf6f  ./R-CW-6/EVIDENCE.md
 06dabd1bc8b1eeb2e9686f5a7154b8a7c9a38f38293625655e4f4379df063a09  ./R-CW-7/cael/20260802T014142Z-r-cw-7-f14f662f/candidate-run-result.json
 06dabd1bc8b1eeb2e9686f5a7154b8a7c9a38f38293625655e4f4379df063a09  ./R-CW-7/cael/20260802T014142Z-r-cw-7-f14f662f/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CW-7/cael/20260802T014142Z-r-cw-7-f14f662f/evidence-extraction.json
@@ -646,6 +694,7 @@ d04b2c9f08c7457ec4351a91c5742b907f3d75c901d2bf67f5938bcfade4f39e  ./R-CW-7/cael/
 e446f5f88ae16bb661c930478e66ee6ebfd45936b00376bddf9264ff17748dfa  ./R-CW-7/cael/20260802T014142Z-r-cw-7-f14f662f/run-result.json
 ec21df8ec96d53d68c009a9e42940cb2db6121bc2f4fc589603b76d156923177  ./R-CW-7/cael/20260802T014142Z-r-cw-7-f14f662f/seat-readiness.json
 89a5396c2161bf0723c893c8dcc93f378c3c1fa54bffe84c9c3ad182b21c3244  ./R-CW-7/cael/20260802T014142Z-r-cw-7-f14f662f/static-corpus-row-summary.json
+a4f591e7c18b97eabfcd995e71fecb10c5c2b8f714b30d8fcf72eb41f9761fc9  ./R-CW-7/EVIDENCE.md
 024e09c1984e1b678c20f77983b7b295652ab64339663a14c44d0cc0848c2813  ./R-CW-DELEGATE-CHILD-LIVE/cael/20260802T014155Z-r-cw-delegate-child-live-1e62df1c/candidate-run-result.json
 024e09c1984e1b678c20f77983b7b295652ab64339663a14c44d0cc0848c2813  ./R-CW-DELEGATE-CHILD-LIVE/cael/20260802T014155Z-r-cw-delegate-child-live-1e62df1c/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CW-DELEGATE-CHILD-LIVE/cael/20260802T014155Z-r-cw-delegate-child-live-1e62df1c/evidence-extraction.json
@@ -666,6 +715,7 @@ d5f509007c2e7eca6395076f541af010bbf1b41d17b5472ba9c39db73463547d  ./R-CW-DELEGAT
 2f37f4f126589c56217691f1c7583a0c0894c6ef4816e80f9dd3713cc321e256  ./R-CW-DELEGATE-CHILD-LIVE/cael/20260802T014155Z-r-cw-delegate-child-live-1e62df1c/run-result.json
 32370409ffece3cc19cad0d93c14d5efb368dccdb2e9961da58b9e3748e94122  ./R-CW-DELEGATE-CHILD-LIVE/cael/20260802T014155Z-r-cw-delegate-child-live-1e62df1c/seat-readiness.json
 64fabff3399bb733172e881332d906aec55bd45d428b267d7aa5e04996a155e6  ./R-CW-DELEGATE-CHILD-LIVE/cael/20260802T014155Z-r-cw-delegate-child-live-1e62df1c/static-corpus-row-summary.json
+54efec2fd93594fb512edb65a8784d4080c3d3efbd2ef46ad20d086aefc45a05  ./R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md
 dec169710b4688b47ee9a02284c0e9f20cbe2adb6a162c153415eb56d98ee9cf  ./R-CW-DELEGATE-SELF-CONTINUATION/cael/20260802T014208Z-r-cw-delegate-self-continuation-531fc938/candidate-run-result.json
 dec169710b4688b47ee9a02284c0e9f20cbe2adb6a162c153415eb56d98ee9cf  ./R-CW-DELEGATE-SELF-CONTINUATION/cael/20260802T014208Z-r-cw-delegate-self-continuation-531fc938/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CW-DELEGATE-SELF-CONTINUATION/cael/20260802T014208Z-r-cw-delegate-self-continuation-531fc938/evidence-extraction.json
@@ -686,6 +736,7 @@ f815f57e84c463854e64341957a1637c50bbdecf454df025134e9e753bb8cf81  ./R-CW-DELEGAT
 8e0b3f35a12ae393ce501d1c615b0d23bb38a4bbb9ec1e533c3970894515698c  ./R-CW-DELEGATE-SELF-CONTINUATION/cael/20260802T014208Z-r-cw-delegate-self-continuation-531fc938/runner-metadata.json
 ad47dd9b6684e8ce03cbbcfe22d5c2d2942e431318f958672d1ea5596137ef84  ./R-CW-DELEGATE-SELF-CONTINUATION/cael/20260802T014208Z-r-cw-delegate-self-continuation-531fc938/run-result.json
 c311cbb596cf365a9583814b8b0582f1cd3f177774f02cbc2cb1fd42fc039c95  ./R-CW-DELEGATE-SELF-CONTINUATION/cael/20260802T014208Z-r-cw-delegate-self-continuation-531fc938/seat-readiness.json
+5fd1bcc85c59d9acb360039661d032932892aa656c2f9245314a6bf8e8a53753  ./R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md
 45dc804ef886ae48d49b2f5eabc0ea88f57ec3551b48788c31bc1da97ceb2f79  ./R-CW-DELEGATE-TOKEN/cael/20260802T014243Z-r-cw-delegate-token-eac85ceb/candidate-run-result.json
 45dc804ef886ae48d49b2f5eabc0ea88f57ec3551b48788c31bc1da97ceb2f79  ./R-CW-DELEGATE-TOKEN/cael/20260802T014243Z-r-cw-delegate-token-eac85ceb/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CW-DELEGATE-TOKEN/cael/20260802T014243Z-r-cw-delegate-token-eac85ceb/evidence-extraction.json
@@ -706,6 +757,7 @@ c30e0cbf658927116fab0aa42bbcdca2a6da71a433c5df6fbd18c2cb1c32349e  ./R-CW-DELEGAT
 b43ae8a9f304723141a3343e48393ab8e6e3cefa3b055bbecc370327907f3df6  ./R-CW-DELEGATE-TOKEN/cael/20260802T014243Z-r-cw-delegate-token-eac85ceb/run-result.json
 e38d607ab67236ea646485fe81fd60c355e7e32d3650fc1e51929be0c184a175  ./R-CW-DELEGATE-TOKEN/cael/20260802T014243Z-r-cw-delegate-token-eac85ceb/seat-readiness.json
 1746825c6d6130cce74c76a4a8c14e671380eb154a57f654af1b4b1931b999e9  ./R-CW-DELEGATE-TOKEN/cael/20260802T014243Z-r-cw-delegate-token-eac85ceb/static-corpus-row-summary.json
+4e7b4374de83b8608fb2905281d71c0e9e0e2c30387479661fa46d0df4a4b6c9  ./R-CW-DELEGATE-TOKEN/EVIDENCE.md
 ff8c9d0554a707322d8fe5ee76896be8119a2d4f5c9a71c0929ec0c2c3996685  ./R-CW-MULTI/cael/20260802T014309Z-r-cw-multi-8c19b456/candidate-run-result.json
 ff8c9d0554a707322d8fe5ee76896be8119a2d4f5c9a71c0929ec0c2c3996685  ./R-CW-MULTI/cael/20260802T014309Z-r-cw-multi-8c19b456/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CW-MULTI/cael/20260802T014309Z-r-cw-multi-8c19b456/evidence-extraction.json
@@ -746,6 +798,8 @@ e920ce36f434d52117d05bbbab435c47e827bec6aec914b1b41d71563a083ffa  ./R-CW-MULTI-C
 2ae36a848abeecfc1ca0b0921257726ad239dfe21a21852d828fb5a521f79947  ./R-CW-MULTI-COLLAPSE/cael/20260802T014256Z-r-cw-multi-collapse-9949767f/run-result.json
 ed6e814096666319e0b7aa21586fdcabd7d33d374324200284c15e6483391c2a  ./R-CW-MULTI-COLLAPSE/cael/20260802T014256Z-r-cw-multi-collapse-9949767f/seat-readiness.json
 cdba790f80d9a586c8e05443e4f18970a8f81ddbd2edcfcb5ec17a1eb16fd2dc  ./R-CW-MULTI-COLLAPSE/cael/20260802T014256Z-r-cw-multi-collapse-9949767f/static-corpus-row-summary.json
+09bb0ca088223ee59a313d5b5fb18451df9e2ce919dc3bc66a4bb5e981175802  ./R-CW-MULTI-COLLAPSE/EVIDENCE.md
+cc61a81079bbe2dde9fa48637f9196ae08ac173495fe886a323e9aabd4b3992d  ./R-CW-MULTI/EVIDENCE.md
 9ea40cbfecebaf6a9e5506160d674fa23f117d452273eadb6638a28d5bff0c9f  ./R-CW-TOKEN/cael/20260802T014322Z-r-cw-token-be029d2f/candidate-run-result.json
 9ea40cbfecebaf6a9e5506160d674fa23f117d452273eadb6638a28d5bff0c9f  ./R-CW-TOKEN/cael/20260802T014322Z-r-cw-token-be029d2f/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-CW-TOKEN/cael/20260802T014322Z-r-cw-token-be029d2f/evidence-extraction.json
@@ -766,7 +820,8 @@ c74e75c9115145160a97f54b7c6f980a73509d9f27a248d3f1823fb1e2373478  ./R-CW-TOKEN/c
 af2114c1d6401c464999dfe89fd34813d8071e392d8c5148560089d6054cabcc  ./R-CW-TOKEN/cael/20260802T014322Z-r-cw-token-be029d2f/runner-metadata.json
 0ef5bb52747ec108d79233ab5b258f6291737b59d23e1c762d3ea36cd1586d8b  ./R-CW-TOKEN/cael/20260802T014322Z-r-cw-token-be029d2f/run-result.json
 9db4f539cc9e71d5ea16f9b6f204da14d68403dbbc6d3b7d5bf9660212be14d4  ./R-CW-TOKEN/cael/20260802T014322Z-r-cw-token-be029d2f/seat-readiness.json
-c8f7dd376a91ce5030a8af650477ecef6d59d42ed4c621ff8f0b627d08da2cd8  ./README.md
+9d0d127dd8340b0dad7e36a9a4d288d4e14a95ecd148ac2ae2684fd5bb88ce83  ./R-CW-TOKEN/EVIDENCE.md
+682646e6acd1c503413b0ebdadae033a3f95ecd2d6365a12a346305738fcdacf  ./README.md
 4715b3216410f91f293407429fe5560be0e3ddcafdd8af9d1b110f2288e5c590  ./R-OBS-1/cael/20260802T014349Z-r-obs-1-35b4cece/candidate-run-result.json
 4715b3216410f91f293407429fe5560be0e3ddcafdd8af9d1b110f2288e5c590  ./R-OBS-1/cael/20260802T014349Z-r-obs-1-35b4cece/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-OBS-1/cael/20260802T014349Z-r-obs-1-35b4cece/evidence-extraction.json
@@ -787,6 +842,7 @@ e4ff43d0a361cf20f0a82cbe25fd77417131dfd44362d77577e3a701cf7f41c1  ./R-OBS-1/cael
 56e782157467377969754eae12a54c70caf6240f94ad596832578c86f882da45  ./R-OBS-1/cael/20260802T014349Z-r-obs-1-35b4cece/runner-metadata.json
 110f79ba5a687d51aab6241742738dd6eb8601346d47657aa6ec165fe5f3df79  ./R-OBS-1/cael/20260802T014349Z-r-obs-1-35b4cece/run-result.json
 039f9004ce1311a5e949814e035edf5ca2a7cfd589a28628e1cea171379eec0e  ./R-OBS-1/cael/20260802T014349Z-r-obs-1-35b4cece/seat-readiness.json
+a645a2385e132af49ee5bc59885b5b935c08d6570ec10ba436c7cbb34ecdf72c  ./R-OBS-1/EVIDENCE.md
 f8858a02bcd80c6cb81868f7920e79f1333ac6ebcf6491fdc42630a4cfcf2116  ./R-OBS-2/cael/20260802T014420Z-r-obs-2-f548fc61/candidate-run-result.json
 f8858a02bcd80c6cb81868f7920e79f1333ac6ebcf6491fdc42630a4cfcf2116  ./R-OBS-2/cael/20260802T014420Z-r-obs-2-f548fc61/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-OBS-2/cael/20260802T014420Z-r-obs-2-f548fc61/evidence-extraction.json
@@ -807,6 +863,7 @@ d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3  ./R-OBS-2/cael
 87df827d4c546da266115ad84c91827b734e00c781cb7d535fe0a6aa899f6134  ./R-OBS-2/cael/20260802T014420Z-r-obs-2-f548fc61/runner-metadata.json
 ea10aefe08128032f6bda88874eb74194413ab135a9ec4e7b4adc7705645cf49  ./R-OBS-2/cael/20260802T014420Z-r-obs-2-f548fc61/run-result.json
 e455c4ed08b55cf945874b947b066584b573e1a14f6f1777cdfc6203ca0f0ebc  ./R-OBS-2/cael/20260802T014420Z-r-obs-2-f548fc61/seat-readiness.json
+63b10298b1458e867a211cf2f3869da4018072c81190ea754bdd15391288dd6f  ./R-OBS-2/EVIDENCE.md
 d5381df04c046f1e864ac455fe7fdf20bc1d0b11109d6bdb63e0eb4c550b2db7  ./R-OBS-STATUS/cael/20260802T014433Z-r-obs-status-12620640/candidate-run-result.json
 d5381df04c046f1e864ac455fe7fdf20bc1d0b11109d6bdb63e0eb4c550b2db7  ./R-OBS-STATUS/cael/20260802T014433Z-r-obs-status-12620640/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-OBS-STATUS/cael/20260802T014433Z-r-obs-status-12620640/evidence-extraction.json
@@ -827,6 +884,7 @@ b602749906647dc3c97a6b10cbcd88c61e5f5e54e279ca9578e3810b7b85a27c  ./R-OBS-STATUS
 86d6423ccca429416046453e4afe65ce09a8a1e4f115d511bdba5432d80a1be3  ./R-OBS-STATUS/cael/20260802T014433Z-r-obs-status-12620640/runner-metadata.json
 6baa82a778dbe88b06239a4d53c54ba65b24cb7704469696ef1dd094d37d3620  ./R-OBS-STATUS/cael/20260802T014433Z-r-obs-status-12620640/run-result.json
 0d34ab50f4bea8a401c755395c151a6629d1d5d50756663445e1e79c80569d76  ./R-OBS-STATUS/cael/20260802T014433Z-r-obs-status-12620640/seat-readiness.json
+5ca0c93ce8aad449c74c0b0c60924fea1b85b0cffc85434f79fe952399e0940d  ./R-OBS-STATUS/EVIDENCE.md
 f2df99b53dfa088acf7dfc872b080ed1383162df93fde942e2aeb2695f94a27f  ./R-RC-1/cael/20260802T014446Z-r-rc-1-73569f3a/candidate-run-result.json
 f2df99b53dfa088acf7dfc872b080ed1383162df93fde942e2aeb2695f94a27f  ./R-RC-1/cael/20260802T014446Z-r-rc-1-73569f3a/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-RC-1/cael/20260802T014446Z-r-rc-1-73569f3a/evidence-extraction.json
@@ -847,6 +905,7 @@ cf5e1499846b497a653b0fea5dc49e089c1b375e3eeabf943c6cc3c984b974c0  ./R-RC-1/cael/
 91b2248499cec1be4ac8259c00a12371aea46d043f7540c59d7fa867c3b56ec3  ./R-RC-1/cael/20260802T014446Z-r-rc-1-73569f3a/runner-metadata.json
 bfc964bd25a16654e156f4740a139f33fc1b69229a39b3c24a2e750a635995c9  ./R-RC-1/cael/20260802T014446Z-r-rc-1-73569f3a/run-result.json
 a7c024aad45ff6f82616fe8a3e088f1eb20eaf3e5b9a4e3cf8bf949dff5108c8  ./R-RC-1/cael/20260802T014446Z-r-rc-1-73569f3a/seat-readiness.json
+419b49020a60073b9d048219f19c2d58fc6a4e541b942d6535e4d1941179e2ab  ./R-RC-1/EVIDENCE.md
 035422e76458e664bf234c7185662814ec39d18c7f2caa6efa92a6f7c40be534  ./R-RC-2/cael/20260802T014511Z-r-rc-2-3a0dd3b1/candidate-run-result-validation.error.log
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./R-RC-2/cael/20260802T014511Z-r-rc-2-3a0dd3b1/candidate-run-result-validation.json
 2a80be54474523fa9c3d673ba9dba4556b80d5a295835a4311890d5492e8ca1e  ./R-RC-2/cael/20260802T014511Z-r-rc-2-3a0dd3b1/continuation-trace-collector.error.log
@@ -893,6 +952,7 @@ ebc4d1a79cb524d16e9197b74e36cb5faf7fa385fc59bfb332a865c054f311ce  ./R-RC-2/cael/
 6967fe32243ccdae947d3fe66c67808b9198a0eab8c84a74e02174f2c88db6f3  ./R-RC-2/cael/20260802T020433Z-r-rc-2-55899ebc/run-result.json
 015f44b3555e62814d02bbd0ab7984f67e8e740659253d8523aab2560ee98a1d  ./R-RC-2/cael/20260802T020433Z-r-rc-2-55899ebc/seat-readiness.json
 312f453fc6ab077077229ace5f119fce581dbefaafbc93bd1166ad596b5b05f8  ./R-RC-2/cael/20260802T020433Z-r-rc-2-55899ebc/verdict-reconciliation.json
+1c5d81dee1b55b9316ebc9acb44e6c36af495e342a61f11e70cb0d8817a12587  ./R-RC-2/EVIDENCE.md
 8d72ce10b6408f7d9567fc5cc1ab619c11ae4570f9f29969058037d28fb55324  ./R-REGRESSION-TRAP-TESTS/cael/20260802T014826Z-r-regression-trap-tests-0f08f108/candidate-run-result.json
 8d72ce10b6408f7d9567fc5cc1ab619c11ae4570f9f29969058037d28fb55324  ./R-REGRESSION-TRAP-TESTS/cael/20260802T014826Z-r-regression-trap-tests-0f08f108/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-REGRESSION-TRAP-TESTS/cael/20260802T014826Z-r-regression-trap-tests-0f08f108/evidence-extraction.json
@@ -913,6 +973,7 @@ e1abadd3cd17b950bc1e01823bf1db99d41036f3fcf47988f5f8348103c47f59  ./R-REGRESSION
 d114cc24bad61d1e2ff8fd81387e9ede5b9a1905cbc27f4f837f619810e28f3c  ./R-REGRESSION-TRAP-TESTS/cael/20260802T014826Z-r-regression-trap-tests-0f08f108/runner-metadata.json
 f53d05ccf374530afcc0a9ef43369e67113cc6ba49917e618c2a619b79df9c70  ./R-REGRESSION-TRAP-TESTS/cael/20260802T014826Z-r-regression-trap-tests-0f08f108/run-result.json
 35fd6cbd11c3c5420ac91a21a7fe75a7691369637cdc3350d5de8b07d2a6569e  ./R-REGRESSION-TRAP-TESTS/cael/20260802T014826Z-r-regression-trap-tests-0f08f108/seat-readiness.json
+677f06f82dc82b635cac163907b250d380beaa165b0059dd072611f5f03b8ff6  ./R-REGRESSION-TRAP-TESTS/EVIDENCE.md
 4fd36bf76d8e3cb82210a28af75273ed1fd937d4c81b6c0cfc61071285a1c9d9  ./R-TRACE-REDACTION-1121/cael/20260802T014839Z-r-trace-redaction-1121-6f51c2bf/candidate-run-result.json
 4fd36bf76d8e3cb82210a28af75273ed1fd937d4c81b6c0cfc61071285a1c9d9  ./R-TRACE-REDACTION-1121/cael/20260802T014839Z-r-trace-redaction-1121-6f51c2bf/candidate-run-result-validation.json
 071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc  ./R-TRACE-REDACTION-1121/cael/20260802T014839Z-r-trace-redaction-1121-6f51c2bf/evidence-extraction.json
@@ -933,6 +994,7 @@ bfa25185ac4fcd8fd1229964e3b109bc237da72242a86e82aef7c102b20aaa09  ./R-TRACE-REDA
 ca1395ee72b39fe7bab848ce8815d8563e2a8dba61f0eb4c22a7c8b477b30982  ./R-TRACE-REDACTION-1121/cael/20260802T014839Z-r-trace-redaction-1121-6f51c2bf/runner-metadata.json
 e9d15c3b0915a69980c9f0d6ecdbe7683c8d419669534dd1ddf59e0d8ee202ea  ./R-TRACE-REDACTION-1121/cael/20260802T014839Z-r-trace-redaction-1121-6f51c2bf/run-result.json
 8c609a772926605afdf940bb982ac0c77d769180b8660f99739e3f075e249bf0  ./R-TRACE-REDACTION-1121/cael/20260802T014839Z-r-trace-redaction-1121-6f51c2bf/seat-readiness.json
+90a7fed7c978c0c8cbe93b5d8002f2d4f7a5e3403a6d293073c365f3e7782f9d  ./R-TRACE-REDACTION-1121/EVIDENCE.md
 7ae6fade18e9a626e004bce1671f9c9644ec4456745ab26bca663b5bd64f0f0f  ./runtime-restoration-receipt.json
-b4c729b5b1ecdd6219054806d05bd86a21c90dbba83e8c7cbe610fc789a3871c  ./terminal-matrix.json
-6f5966a0785d1fdad411efebfe2fd9c11d1c7e3e8a563664cc82f663259255f1  ./terminal-matrix.tsv
+74bcff9f094db4f202b14a04a4194fe618f713fae68b50e1b7e3d1f2847f2feb  ./terminal-matrix.json
+5c95dcabd8dca9df73633b2dc6beff23493bf32d2581e383b4287fe39f6c450b  ./terminal-matrix.tsv

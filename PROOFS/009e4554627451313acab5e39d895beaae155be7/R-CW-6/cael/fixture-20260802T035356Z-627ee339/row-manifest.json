@@ -1,0 +1,29 @@
+{
+  "schema": "openclaw.proofs.recertification-row.v1",
+  "row": "R-CW-6",
+  "seat": "cael",
+  "product_sha": "009e4554627451313acab5e39d895beaae155be7",
+  "original_harness_sha": "9fcf215674720803840d15efa93bd925180135b9",
+  "execution_harness_sha": "627ee3396b658b38a131bb573a89e126faa9cf3c",
+  "config_sha256": "002e5564bdfe03972e9a4ba851043900a8df6d99d9447b3e979ba381bcc69d0e",
+  "selected_artifact": "R-CW-6/cael/fixture-20260802T035356Z-627ee339",
+  "prior_harness_invalid_attempt": "R-CW-6/cael/fixture-20260802T015035Z",
+  "verdict": "PASS-candidate",
+  "exit_code": 0,
+  "fixture": "tools/k6-proofs/scripts/run-max-chain-fixture.mjs --max-chain-length 3",
+  "execution_preflight": "cael-recertification-preflight.json",
+  "receipts_sha256": {
+    "boundary-matrix.json": "8852c473a29247a236d4848be6252ac9976e741f0217f95854ee539f8f41cc7f",
+    "cleanup.json": "946504889bcc02aa58a35f12b9e1ac94813f6fc222fb4f5643e18505cfc1b15a",
+    "dispatch-boundary-suite.json": "23d0fd3253197665ac1d0e5962c6a3ef58efd55be2ed76b184d0b66e28a4a38b",
+    "durable-state-recovery.json": "d50b9a81ccf0df5c6ab40bcadc018d50f33720d1e0d79afe8f49d26291746960",
+    "fixture-exit-code.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "fixture-readiness.json": "c59f1fa40e35ab21927b35b692c02f2df3734490335198d9449f94c6420c7dad",
+    "fixture-result.json": "d0756b8e553119732da028b5d70d01a4e94f59d66d91b66c83722595c508eb76",
+    "fixture-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fixture-stdout.log": "e6d17a3c75ddf79a179605671e53283c67dd4a87f60460a28f3796ca5b26baf5",
+    "public-artifact-safety.json": "02fc34f4db90c17aee40f4f8476bc19633068eed4ff9ea68b1cb938f611fcf51",
+    "runtime-boundary.json": "157b9b5ca4520adcbd827830872dee6aa06f80b019c809f15622723f61875a07",
+    "typed-tool-surface.json": "1d85604f4c53893496a36b881728d247fbfacc529fdd0c34eb33cf0cc9c1fe76"
+  }
+}

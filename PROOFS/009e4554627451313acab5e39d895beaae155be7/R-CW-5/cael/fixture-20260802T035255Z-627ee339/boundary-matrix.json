@@ -1,0 +1,79 @@
+{
+  "schema": "openclaw.project81.r-cw-5.boundary-matrix.v1",
+  "cap": 100,
+  "passed": true,
+  "cases": [
+    {
+      "accumulatedChainTokens": 99,
+      "outcome": null
+    },
+    {
+      "accumulatedChainTokens": 100,
+      "outcome": null
+    },
+    {
+      "accumulatedChainTokens": 101,
+      "outcome": "cost-capped"
+    }
+  ],
+  "command": [
+    "node",
+    "<candidate-local-tsx>",
+    "--eval",
+    "<production-module-eval>"
+  ],
+  "exitCode": 0,
+  "dependency": {
+    "packageManager": "pnpm@11.15.1+sha512.81350b07e53c9538a02f1f2303b4290fa2d7be04e56e2a970c4cc4b417dc761de196edabd49d55c7dc9580db81007c44143e4e3d7e462b3000d23c255122d065",
+    "pnpmVersion": "11.15.1",
+    "pnpmIntegritySha512": "81350b07e53c9538a02f1f2303b4290fa2d7be04e56e2a970c4cc4b417dc761de196edabd49d55c7dc9580db81007c44143e4e3d7e462b3000d23c255122d065",
+    "installCommand": [
+      "node",
+      "<candidate-pinned-pnpm>",
+      "install",
+      "--frozen-lockfile",
+      "--prefer-offline",
+      "--ignore-scripts",
+      "--ignore-pnpmfile",
+      "--store-dir",
+      "<private-disposable-store>",
+      "--virtual-store-dir",
+      "node_modules/.pnpm"
+    ],
+    "packageManagerStateConfinedToDisposableWorktree": true,
+    "lockfileSha256": "ddb3450d2d4bcb71ed68ffae4c92a212230057a73851b6337009210d626537a0",
+    "virtualStoreLockSha256": "ddb3450d2d4bcb71ed68ffae4c92a212230057a73851b6337009210d626537a0",
+    "frozenLockfileVerified": true,
+    "sourceNodeModulesTrusted": false,
+    "executionWorktreeIntegrity": {
+      "beforeInstall": {
+        "head": "009e4554627451313acab5e39d895beaae155be7",
+        "trackedClean": true,
+        "candidateFileSha256": {
+          "package.json": "6d669967ab6f98e28534536fc875d2b2cbe5e26e301a6366a0639eaeb9857b79",
+          "pnpm-lock.yaml": "ddb3450d2d4bcb71ed68ffae4c92a212230057a73851b6337009210d626537a0"
+        }
+      },
+      "afterInstall": {
+        "head": "009e4554627451313acab5e39d895beaae155be7",
+        "trackedClean": true,
+        "candidateFileSha256": {
+          "package.json": "6d669967ab6f98e28534536fc875d2b2cbe5e26e301a6366a0639eaeb9857b79",
+          "pnpm-lock.yaml": "ddb3450d2d4bcb71ed68ffae4c92a212230057a73851b6337009210d626537a0"
+        }
+      },
+      "afterExecution": {
+        "head": "009e4554627451313acab5e39d895beaae155be7",
+        "trackedClean": true,
+        "candidateFileSha256": {
+          "package.json": "6d669967ab6f98e28534536fc875d2b2cbe5e26e301a6366a0639eaeb9857b79",
+          "pnpm-lock.yaml": "ddb3450d2d4bcb71ed68ffae4c92a212230057a73851b6337009210d626537a0"
+        }
+      }
+    },
+    "cleanup": {
+      "disposableWorktreeCreated": true,
+      "disposableWorktreeRemoved": true
+    }
+  }
+}

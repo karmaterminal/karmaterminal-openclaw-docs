@@ -3,11 +3,17 @@
   "entries": [
     {
       "productSha": "009e4554627451313acab5e39d895beaae155be7",
-      "harnessSha": "9fcf215674720803840d15efa93bd925180135b9",
+      "originalHarnessSha": "9fcf215674720803840d15efa93bd925180135b9",
+      "recertificationHarnessSha": "627ee3396b658b38a131bb573a89e126faa9cf3c",
       "seat": "cael",
       "manifest": "proofs-manifest.json",
       "matrix": "terminal-matrix.json",
-      "readme": "README.md"
+      "readme": "README.md",
+      "executionHarnessByRow": {
+        "default": "9fcf215674720803840d15efa93bd925180135b9",
+        "R-CW-5": "627ee3396b658b38a131bb573a89e126faa9cf3c",
+        "R-CW-6": "627ee3396b658b38a131bb573a89e126faa9cf3c"
+      }
     }
   ]
 }

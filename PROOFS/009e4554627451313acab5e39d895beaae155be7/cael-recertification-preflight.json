@@ -1,0 +1,40 @@
+{
+  "schema": "openclaw.proofs.cael-recertification-preflight.v1",
+  "checked_at": "2026-08-02T03:52:41Z",
+  "seat": "cael",
+  "outcome": "PASS",
+  "gateway": {
+    "active": true,
+    "substate": "running",
+    "health_exit_code": 0,
+    "health_probe": "gateway event loop ok",
+    "service_started_at": "2026-08-01T18:14:33-07:00",
+    "restart_performed": false
+  },
+  "product": {
+    "required_sha": "009e4554627451313acab5e39d895beaae155be7",
+    "deployed_source_sha": "009e4554627451313acab5e39d895beaae155be7",
+    "runtime_build_sha": "009e4554627451313acab5e39d895beaae155be7",
+    "source_tracked_clean": true,
+    "running_entrypoint_sha256": "3f51f8d3f7c53d00bca8cedf78c707729125886d60047de4009f57e02ab5bddb",
+    "source_entrypoint_sha256": "3f51f8d3f7c53d00bca8cedf78c707729125886d60047de4009f57e02ab5bddb",
+    "source_build_identity_agrees": true,
+    "openclaw_version": "2026.7.2 (009e455)"
+  },
+  "harness": {
+    "required_sha": "627ee3396b658b38a131bb573a89e126faa9cf3c",
+    "checked_out_sha": "627ee3396b658b38a131bb573a89e126faa9cf3c"
+  },
+  "config": {
+    "required_sha256": "002e5564bdfe03972e9a4ba851043900a8df6d99d9447b3e979ba381bcc69d0e",
+    "observed_sha256": "002e5564bdfe03972e9a4ba851043900a8df6d99d9447b3e979ba381bcc69d0e",
+    "unchanged": true
+  },
+  "prohibited_actions_required": {
+    "deploy": false,
+    "doctor": false,
+    "config_migration": false,
+    "config_mutation": false,
+    "restart": false
+  }
+}

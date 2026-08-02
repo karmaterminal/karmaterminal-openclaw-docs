@@ -1,6 +1,6 @@
 {
   "schema": "openclaw.k6.proof-row-manifest.v1",
-  "rowId": "preflight",
+  "rowId": "PREFLIGHT",
   "issue": 101,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-ci-runner}",
@@ -15,11 +15,14 @@
   },
   "scenario": {
     "name": "preflight",
-    "description": "Authenticate/read-only gateway inventory plus seat-readiness contract: health/status, sessions.list, tools.effective, k6 version/path, env presence, and candidate metadata. Offline mode validates manifest shape without gateway traffic.",
+    "description": "Authenticate and resolve a model/runtime-prepared session from sessions.list, or explicitly create and verify a disposable session, before read-only tools.effective inventory.",
     "methods": [
       "health",
       "status",
+      "agents.list",
+      "models.list",
       "sessions.list",
+      "sessions.create",
       "tools.effective"
     ],
     "status": "runnable",
@@ -36,10 +39,11 @@
     "requiredReceipts": [
       "manifest-loaded",
       "k6-summary",
-      "seat-readiness"
+      "seat-readiness",
+      "session-preparation-authority"
     ],
     "foldRequiresReview": true,
-    "notes": "The live preflight is read-only and concurrency-safe, but it authenticates to the gateway. Use the documented runner command with an operator token; offline golden-path validation remains available without secrets."
+    "notes": "The default live path validates a prepared session returned by sessions.list and remains read-only. OPENCLAW_PREFLIGHT_CREATE_DISPOSABLE_SESSION=true selects the explicit create-and-verify path. Session-resolution failures remain NO-VERDICT."
   },
   "expectedReceipts": [
     {
@@ -71,18 +75,24 @@
       "required": false,
       "pathHint": "artifacts/session-inventory.json",
       "description": "Live preflight only: sessions.list/session resolution receipt."
+    },
+    {
+      "name": "session-preparation-authority",
+      "required": true,
+      "pathHint": "runner-metadata.json",
+      "description": "Public-safe listed/disposable session class plus agent, model, runtime, preparation completion, and tools.effective call stage; raw session keys are excluded."
     }
   ],
   "artifactDestination": {
     "root": "PROOFS",
     "sha": "${OPENCLAW_CANDIDATE_SHA}",
-    "row": "preflight",
+    "row": "PREFLIGHT",
     "seat": "${OPENCLAW_SEAT_NAME:-ci-runner}",
     "runDirPrefix": "k6-run"
   },
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Preflight is non-mutating and should never write a final proof verdict by itself. k6 version/env/gateway mismatches are PARTIAL/setup candidates, not product failures."
+    "notes": "Preflight should never write a product verdict by itself. Session/model preparation and gateway readiness failures are setup NO-VERDICT outcomes."
   }
 }

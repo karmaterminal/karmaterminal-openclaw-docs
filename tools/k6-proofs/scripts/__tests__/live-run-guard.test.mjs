@@ -100,13 +100,13 @@ test('live-run guard still permits ordinary k6-runnable manifests with required 
   assert.equal(parsed.classification, 'k6-runnable');
 });
 
-test('read-only preflight uses the supported live k6 runner contract', async () => {
+test('PREFLIGHT uses the supported live k6 runner contract', async () => {
   const manifest = join(repoRoot, 'tools/k6-proofs/manifests/preflight.example.json');
   const run = runGuard(manifest);
   assert.equal(run.status, 0, run.stderr || run.stdout);
   const parsed = JSON.parse(run.stdout);
   assert.equal(parsed.ok, true);
-  assert.equal(parsed.rowId, 'preflight');
+  assert.equal(parsed.rowId, 'PREFLIGHT');
   assert.equal(parsed.classification, 'k6-runnable');
   assert.equal(parsed.requiresLiveGatewayToken, true);
   assert.equal(parsed.requiresTargetSessionKey, false);
@@ -165,7 +165,7 @@ test('R-CW-6 stays process-local and fixture-gated while static variants cannot 
   assert.equal(liveSuite.status, 0, liveSuite.stderr || liveSuite.stdout);
   const liveRows = liveSuite.stdout.trim().split(',');
   assert.equal(liveRows.length, 34);
-  assert.equal(liveRows[0], 'preflight');
+  assert.equal(liveRows[0], 'PREFLIGHT');
   assert.doesNotMatch(liveSuite.stdout, /R-CW-5(?:,|$)/);
   assert.doesNotMatch(liveSuite.stdout, /R-CW-6(?:,|$)/);
   assert.doesNotMatch(liveSuite.stdout, /R-CW-[56]A/);

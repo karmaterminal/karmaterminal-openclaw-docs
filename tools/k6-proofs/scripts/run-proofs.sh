@@ -54,6 +54,7 @@ bind_execution_roots() {
   R_CD_2_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-2-authoritative-receipt.mjs"
   R_CD_MODEL_TOOL_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-model-tool-authoritative-receipt.mjs"
   ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
+  PREPARATION_AUTHORITY_RECORDER="$SCRIPT_DIR/record-preparation-authority.mjs"
   CANDIDATE_RESULT_VALIDATOR="$SCRIPT_DIR/validate-candidate-run-result.mjs"
   INTERRUPTED_RESULT_WRITER="$SCRIPT_DIR/write-interrupted-run-result.mjs"
   R_CD_TOKEN_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-token-authoritative-receipt.mjs"
@@ -121,7 +122,7 @@ declare -A ROW_MANIFEST_RELPATH=()
 declare -A ROW_MANIFEST_SHA256=()
 declare -A ROW_SCENARIO_RELPATH=()
 declare -A ROW_SCENARIO_SHA256=()
-SESSION_SELECTOR="discord-channel:1466192485440164011"
+SESSION_SELECTOR=""
 OUT_ROOT="${K6_PROOF_OUT_DIR:-/tmp/k6-proof-runs}"
 
 while [[ "$#" -gt 0 ]]; do
@@ -745,21 +746,14 @@ if [[ "$DEPLOYED_BUILD_STAMP" == "unknown" && -f ~/.openclaw/openclaw.json ]]; t
 fi
 export OPENCLAW_RUNTIME_BUILD_SHA="$DEPLOYED_BUILD_STAMP"
 
-# Resolve Session Key
-if [[ -z "${OPENCLAW_SESSION_KEY:-}" ]]; then
-  echo "Resolving session key for selector: $SESSION_SELECTOR"
-  case "$SESSION_SELECTOR" in
-    main|agent:*)
-      export OPENCLAW_SESSION_KEY="$SESSION_SELECTOR"
-      ;;
-    *)
-      export OPENCLAW_SESSION_KEY="main" # Fallback/stub. In a full implementation this shells out to `openclaw sessions --json`
-      ;;
-  esac
+# Pass through only an explicit selector. Scenarios must validate it against
+# sessions.list or create a session and use the exact returned key.
+if [[ -z "${OPENCLAW_SESSION_KEY:-}" && -n "$SESSION_SELECTOR" ]]; then
+  export OPENCLAW_SESSION_KEY="$SESSION_SELECTOR"
 fi
 
 echo "Deployed Runtime SHA: $OPENCLAW_RUNTIME_BUILD_SHA"
-echo "Session configured: true"
+echo "Session selector supplied: $([[ -n "${OPENCLAW_SESSION_KEY:-}" ]] && echo true || echo false)"
 
 # Check for Live Bridge alignment (candidate vs deployed runtime)
 if [[ "$DRY_RUN" == "false" && "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_BUILD_SHA" && "$OPENCLAW_RUNTIME_BUILD_SHA" != *"(${OPENCLAW_CANDIDATE_SHA:0:7})"* ]]; then
@@ -1161,7 +1155,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     SUMMARY_VERDICT_SOURCE="none"
     SUMMARY_FILE_VERDICT="unknown"
     VU_LOG_VERDICT="$(
-      grep -oE 'VERDICT: (PASS|PARTIAL|HONEST-LIMIT|FAIL)-candidate' "$PRIVATE_K6_LOG" \
+      grep -oE 'VERDICT: ((PASS|PARTIAL|HONEST-LIMIT|FAIL)-candidate|NO-VERDICT)' "$PRIVATE_K6_LOG" \
         | tail -n 1 \
         | sed 's/^VERDICT: //' \
         || true
@@ -1452,6 +1446,19 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       [[ -f "$RUN_DIR/evidence-lines.log" ]] || : > "$RUN_DIR/evidence-lines.log"
     else
       rm -f "$RUN_DIR/evidence-redaction.error.log"
+    fi
+    if [[ "$ROW_ID" == "PREFLIGHT" || "$ROW_ID" == "R-RC-1" ]]; then
+      if ! node "$PREPARATION_AUTHORITY_RECORDER" \
+        --row "$ROW_ID" \
+        --evidence "$RUN_DIR/evidence.jsonl" \
+        --metadata "$RUN_DIR/runner-metadata.json"; then
+        echo "[$ROW_ID] PREPARATION AUTHORITY RECORDING FAILED" >&2
+        REVIEW_PENDING_RECEIPTS="$(
+          jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
+            '$current + ["session-preparation-authority"] | unique'
+        )"
+        POSTPROCESS_RC=1
+      fi
     fi
     if [[ "$ROW_ID" == "R-CD-2" && -f "$RUN_DIR/$R_CD_2_RECEIPT" ]]; then
       # Provider/RPC/journal capture remains private for this row.  The signed,

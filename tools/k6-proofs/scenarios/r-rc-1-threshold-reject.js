@@ -16,6 +16,15 @@ import {
   findRequestCompactionReceipt,
   hasEffectiveTool,
 } from '../lib/request-compaction-receipt.js';
+import {
+  completePreparationAuthority,
+  incompletePreparationAuthority,
+  preparedToolsEffectiveParams,
+  rcd2ModelRef,
+  resolvePreparationAgentId,
+  selectPreparationModel,
+  verifyCreatedPreparedSession,
+} from '../lib/session-runtime-preparation.js';
 
 export const options = {
   scenarios: {
@@ -28,31 +37,34 @@ export const options = {
   },
   thresholds: {
     proof_failures: ['count==0'],
+    proof_setup_failures: ['count==0'],
     r_rc_1_duration: ['p(95)<75000'],
   },
 };
 
 const failures = new Counter('proof_failures');
+const setupFailures = new Counter('proof_setup_failures');
 const duration = new Trend('r_rc_1_duration');
 const manifest = loadManifestFromEnv();
 const HARNESS_MARKER = '[k6-proof-harness]';
 
-function boolEnv(name) {
-  return (__ENV[name] || '').toLowerCase() === 'true';
-}
-
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
-  const requestedSessionKey = manifest?.sessionKey || __ENV.OPENCLAW_SESSION_KEY || 'main';
-  let sessionKey = requestedSessionKey;
-  const createDisposableSession = boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSION') || boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSIONS') || true;
+  let sessionKey = '';
   const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx';
   const rowNonce = nonce('R-RC-1');
+  let disposableAgentId = '';
+  let disposableKey = '';
+  let selectedModel = null;
+  let createPayload = null;
+  let inspectionPhase = 'unstarted';
+  let setupFailureRecorded = false;
 
   if (!token) {
     console.error('OPENCLAW_GATEWAY_TOKEN is required');
     failures.add(1);
+    setupFailures.add(1);
     return;
   }
   if (manifest) {
@@ -65,7 +77,6 @@ export default function () {
     manifest_loaded: !!manifest,
     nonce: rowNonce,
     seat,
-    requestedSessionKey,
     sessionKey,
     session_created: false,
     created_session_key: null,
@@ -90,8 +101,25 @@ export default function () {
     history_requested: false,
     history_attempts: 0,
     trace_id: null,
+    runtimeBuildSha: __ENV.OPENCLAW_RUNTIME_BUILD_SHA || 'unset',
+    ...incompletePreparationAuthority('preparation-not-started'),
     redacted_events: [],
   };
+
+  function applyAuthority(authority) {
+    Object.assign(evidence, authority);
+  }
+
+  function failSetup(code, message, preservePreparation = false) {
+    if (!preservePreparation) applyAuthority(incompletePreparationAuthority(code));
+    else evidence.setup_failure_code = code;
+    if (!setupFailureRecorded) {
+      setupFailureRecorded = true;
+      setupFailures.add(1);
+      failures.add(1);
+    }
+    console.error(`R-RC-1 setup incomplete (${code}): ${message}`);
+  }
 
   const started = Date.now();
 
@@ -99,7 +127,16 @@ export default function () {
     const tracker = new RequestTracker();
 
     function startProofFlow() {
-      tracker.send(socket, 'tools.effective', { sessionKey });
+      const params = preparedToolsEffectiveParams(sessionKey, evidence);
+      if (!params) {
+        failSetup(
+          'tools-effective-before-preparation',
+          'model/runtime preparation was not complete',
+        );
+        socket.close();
+        return;
+      }
+      tracker.send(socket, 'tools.effective', params);
       socket.setTimeout(() => socket.close(), 60000);
     }
 
@@ -153,14 +190,16 @@ export default function () {
 
     socket.on('open', () => {
       socket.send(connectFrame(token));
-      if (createDisposableSession) {
-        socket.setTimeout(() => {
-          const disposableKey = `r-rc-1-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-          tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-RC-1 ${rowNonce}` });
-        }, 250);
-      } else {
-        socket.setTimeout(startProofFlow, 500);
-      }
+      socket.setTimeout(() => tracker.send(socket, 'agents.list', {}), 250);
+      socket.setTimeout(() => {
+        if (inspectionPhase !== 'ready') {
+          failSetup(
+            'session-preparation-timeout',
+            'session model/runtime preparation did not complete within the bounded window',
+          );
+          socket.close();
+        }
+      }, 45000);
     });
 
     socket.on('message', (raw) => {
@@ -176,27 +215,128 @@ export default function () {
           data: redactEvent(classified.data || classified.payload || null),
         });
 
-        if (classified.kind === 'response' && classified.method === 'sessions.create') {
-          if (classified.ok && classified.payload) {
-            sessionKey = classified.payload.key || sessionKey;
-            evidence.sessionKey = sessionKey;
-            evidence.session_created = true;
-            evidence.created_session_key = sessionKey;
-            console.log(`✓ disposable session created: ${sessionKey}`);
-            startProofFlow();
-          } else {
-            console.error(`✗ sessions.create rejected: ${JSON.stringify(classified.error)}`);
-            failures.add(1);
+        if (classified.kind === 'response' && classified.method === 'agents.list') {
+          if (!classified.ok) {
+            failSetup('agent-resolution-unavailable', 'agents.list was unavailable');
             socket.close();
+            return;
           }
+          disposableAgentId = resolvePreparationAgentId(classified.payload);
+          if (!disposableAgentId) {
+            failSetup('agent-resolution-unavailable', 'agents.list did not return a default agent');
+            socket.close();
+            return;
+          }
+          disposableKey = `agent:${disposableAgentId}:${
+            `r-rc-1-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-')
+          }`;
+          tracker.send(socket, 'models.list', { view: 'configured' });
+        }
+
+        if (classified.kind === 'response' && classified.method === 'models.list') {
+          if (!classified.ok) {
+            failSetup('runtime-selection-unavailable', 'models.list was unavailable');
+            socket.close();
+            return;
+          }
+          selectedModel = selectPreparationModel(
+            classified.payload,
+            __ENV.OPENCLAW_RRC1_MODEL,
+          );
+          if (!selectedModel) {
+            failSetup(
+              'runtime-selection-unavailable',
+              'no configured model publishes the built-in OpenClaw runtime',
+            );
+            socket.close();
+            return;
+          }
+          inspectionPhase = 'precreate-list';
+          tracker.send(socket, 'sessions.list', {
+            search: disposableKey,
+            archived: 'all',
+            limit: 10,
+          });
+        }
+
+        if (classified.kind === 'response' && classified.method === 'sessions.create') {
+          if (!classified.ok || !classified.payload) {
+            failSetup('session-create-unverified', 'sessions.create rejected the selected model');
+            socket.close();
+            return;
+          }
+          createPayload = classified.payload;
+          inspectionPhase = 'postcreate-list';
+          tracker.send(socket, 'sessions.list', {
+            search: disposableKey,
+            archived: 'all',
+            limit: 10,
+          });
+        }
+
+        if (classified.kind === 'response' && classified.method === 'sessions.list') {
+          if (!classified.ok) {
+            failSetup('session-list-unavailable', `sessions.list failed during ${inspectionPhase}`);
+            socket.close();
+            return;
+          }
+          if (inspectionPhase === 'precreate-list') {
+            const sessions = classified.payload?.sessions || classified.payload?.items || [];
+            if (sessions.some((entry) => String(entry?.key || '').trim() === disposableKey)) {
+              failSetup('disposable-session-collision', 'generated disposable session already exists');
+              socket.close();
+              return;
+            }
+            inspectionPhase = 'creating';
+            tracker.send(socket, 'sessions.create', {
+              agentId: disposableAgentId,
+              key: disposableKey,
+              label: 'k6 R-RC-1 disposable',
+              model: rcd2ModelRef(selectedModel),
+            });
+            return;
+          }
+          if (inspectionPhase !== 'postcreate-list') return;
+          const created = verifyCreatedPreparedSession({
+            createPayload,
+            listedPayload: classified.payload,
+            key: disposableKey,
+            selectedModel,
+          });
+          if (!created) {
+            failSetup(
+              'session-create-unverified',
+              'create response and sessions.list did not prove one prepared disposable session',
+            );
+            socket.close();
+            return;
+          }
+          sessionKey = created.key;
+          evidence.sessionKey = sessionKey;
+          evidence.session_created = true;
+          evidence.created_session_key = sessionKey;
+          const authority = completePreparationAuthority({
+            source: 'sessions-create',
+            sessionClass: 'disposable-unbound',
+            agentId: disposableAgentId,
+            selectedModel,
+            session: created.session,
+          });
+          applyAuthority(authority);
+          inspectionPhase = 'ready';
+          console.log('✓ disposable session model/runtime preparation verified');
+          startProofFlow();
         }
 
         if (classified.kind === 'response' && classified.method === 'tools.effective') {
           evidence.tool_inventory_checked = true;
           evidence.tool_registered = classified.ok && hasEffectiveTool(classified.payload, 'request_compaction');
           if (!evidence.tool_registered) {
-            console.error(`✗ request_compaction absent from effective inventory: ${JSON.stringify(classified.error || classified.payload)}`);
-            failures.add(1);
+            failSetup(
+              'tool-inventory-unavailable',
+              'request_compaction inventory could not be established after preparation',
+              true,
+            );
             socket.close();
           } else {
             console.log('✓ request_compaction present in effective inventory');
@@ -267,13 +407,13 @@ export default function () {
           }
         }
       } catch (e) {
-        console.warn(`parse error: ${e}`);
+        failSetup('gateway-response-invalid', `gateway response could not be classified: ${e}`);
+        socket.close();
       }
     });
 
     socket.on('error', (e) => {
-      console.error(`ws error: ${e && e.error ? e.error() : e}`);
-      failures.add(1);
+      failSetup('gateway-connection-error', `${e && e.error ? e.error() : e}`);
     });
   });
 
@@ -283,6 +423,7 @@ export default function () {
 
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
+    'model/runtime preparation complete': () => evidence.preparation_complete,
     'request_compaction registered': () => evidence.tool_inventory_checked && evidence.tool_registered,
     'dispatch accepted': () => evidence.dispatch_accepted,
     'typed tool invocation observed': () => evidence.tool_invocation_observed,
@@ -293,32 +434,49 @@ export default function () {
     'no compaction side effect': () => evidence.no_compaction_side_effect,
   });
 
-  if (!evidence.tool_inventory_checked || !evidence.tool_registered || !evidence.dispatch_accepted ||
+  if (!evidence.preparation_complete || !evidence.tool_inventory_checked ||
+      !evidence.tool_registered || !evidence.dispatch_accepted ||
       !evidence.tool_invocation_observed || !evidence.tool_result_observed ||
       !evidence.tool_invoke_rejected ||
       !evidence.tool_call_nonce_bound || evidence.guard !== 'context_threshold' ||
       !evidence.no_compaction_side_effect) {
-    failures.add(1);
+    if (!setupFailureRecorded && !evidence.dispatch_accepted) {
+      failSetup('proof-flow-not-reached', 'row ended before the product behavior boundary');
+    } else if (!setupFailureRecorded) {
+      failures.add(1);
+    }
   }
 
   console.log(`\n--- R-RC-1 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));
   console.log(`--- END EVIDENCE ---`);
-  console.log(`\n[R-RC-1] VERDICT: ${evidence.tool_invoke_rejected ? 'PASS-candidate' : 'PARTIAL-candidate'}`);
+  const verdict = evidence.setup_failure_code
+    ? 'NO-VERDICT'
+    : evidence.tool_invoke_rejected
+      ? 'PASS-candidate'
+      : 'PARTIAL-candidate';
+  console.log(`\n[R-RC-1] VERDICT: ${verdict}`);
 }
 
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
   const passRate = data.metrics.proof_failures?.values?.count === 0;
+  const setupFailureCount = data.metrics.proof_setup_failures?.values?.count || 0;
+  const verdict = setupFailureCount > 0
+    ? 'NO-VERDICT'
+    : passRate
+      ? 'PASS-candidate'
+      : 'PARTIAL-candidate';
   const summary = {
     row: 'R-RC-1',
     sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx',
     timestamp,
-    verdict: passRate ? 'PASS-candidate' : 'PARTIAL-candidate',
+    verdict,
     metrics: {
       duration_ms: data.metrics.r_rc_1_duration?.values || null,
       failures: data.metrics.proof_failures?.values?.count || 0,
+      setup_failures: setupFailureCount,
     },
   };
   return {

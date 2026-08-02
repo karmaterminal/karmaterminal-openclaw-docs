@@ -134,9 +134,13 @@ If k6 is missing, the version differs, continuation is disabled/missing, require
 
 ### 2. Preflight check
 
-The supported live preflight is non-mutating: it authenticates only to read
-gateway/session/tool inventory and writes its declared review receipts. It does
-not create a session, dispatch a continuation, or fire a proof row.
+The supported live preflight never guesses a session key. By default it selects
+and validates a model/runtime-prepared session returned by `sessions.list`
+before calling `tools.effective`. Set
+`OPENCLAW_PREFLIGHT_CREATE_DISPOSABLE_SESSION=true` to use the explicit
+`agents.list` → `models.list` → `sessions.create` → `sessions.list`
+create-and-verify path instead. Neither path dispatches a continuation or fires
+a proof row; unresolved preparation is explicit `NO-VERDICT`.
 
 ```bash
 OPENCLAW_GATEWAY_TOKEN="***" \
@@ -414,7 +418,7 @@ The block records:
 
 - `classification`: `static-preflight-only`, `k6-runnable`, `orchestration-required`, or `construct-only`.
 - `requiresLiveGatewayToken`: whether `OPENCLAW_GATEWAY_TOKEN` must be present before the row can run.
-- `requiresTargetSessionKey`: whether `OPENCLAW_SESSION_KEY` must be set explicitly instead of falling back to `main`.
+- `requiresTargetSessionKey`: whether `OPENCLAW_SESSION_KEY` must be set explicitly. The row-list runner never invents or falls back to a session key.
 - `requiresCandidateSha`: whether `OPENCLAW_CANDIDATE_SHA` must be present and a 40-character hex SHA before the row can run.
 - `requiresExternalAgentOrToolInvocation`: whether k6 REST/WS alone is insufficient and an agent/tool invocation is part of the proof path.
 - `sameSessionConcurrencySafe`: `false` means the runner serializes the row per `(rowId, target session)` and fails closed if another run already holds that lock.
@@ -490,7 +494,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 
 | Row | Scenario | Surface | Expected outcome |
 |-----|----------|---------|------------------|
-| preflight | `preflight` | websocket/read-only | PASS-candidate; readiness helper requiring row review |
+| PREFLIGHT | `preflight` | websocket/read-only inventory | PASS-candidate only after listed or disposable session preparation; setup gaps are NO-VERDICT |
 | R-CD-1 | `r-cd-1-typed-delegate` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-2 | `r-cd-2-silent-wake` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-3 | `r-cd-3-post-compaction` | websocket/typed-tool | PARTIAL-candidate until a real lifeboat return proves PASS |
@@ -522,12 +526,15 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-OBS-1 | `r-obs-1` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-OBS-2 | `r-obs-2` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-OBS-STATUS | `r-obs-status` | github-source-contract/#1172 | PASS-candidate; runnable exact-SHA status-line contract requiring row review |
-| R-RC-1 | `r-rc-1-threshold-reject` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
+| R-RC-1 | `r-rc-1-threshold-reject` | websocket/typed-tool | PASS-candidate only after explicit model/runtime preparation and an invocation-bound context_threshold toolResult; setup gaps are NO-VERDICT |
 | R-RC-2 | `r-rc-2-delegate-request-compaction` | websocket/typed-tool | HONEST-LIMIT-candidate; reaches safe threshold/staging path, accepted compaction remains fixture-gated |
 | R-REGRESSION-TRAP-TESTS | `r-regression-trap-tests` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-TRACE-REDACTION-1121 | `r-trace-redaction-1121` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 
-`preflight` remains the read-only readiness row; the runner also performs seat-readiness before live runs. Neither readiness surface promotes a cap row.
+`PREFLIGHT` remains a readiness row; its default listed-session path is
+read-only and its opt-in disposable path changes only session control-plane
+state. The runner also performs seat-readiness before live runs. Neither
+readiness surface promotes a cap row.
 
 `R-CW-5` and `R-CW-6` are also excluded from `--live-suite`: they are process-local, fixture-gated cap rows rather than unattended WebSocket rows. `R-CW-5A` and `R-CW-6A` are their static source/harness boundary checks; they emit only `construct-only`, never runtime R-CW-5/6 PASS evidence.
 

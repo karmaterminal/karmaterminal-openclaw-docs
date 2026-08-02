@@ -1,0 +1,30 @@
+{
+  "schema": "openclaw.proofs-manifest.v1",
+  "productSha": "009e4554627451313acab5e39d895beaae155be7",
+  "harnessSha": "9fcf215674720803840d15efa93bd925180135b9",
+  "seat": "cael",
+  "configSha256": "002e5564bdfe03972e9a4ba851043900a8df6d99d9447b3e979ba381bcc69d0e",
+  "createdAt": "2026-08-02T02:10:00Z",
+  "denominator": 38,
+  "classifications": {
+    "PASS-candidate": 27,
+    "FAIL-candidate": 2,
+    "HONEST-LIMIT-candidate": 0,
+    "NO-VERDICT": 9
+  },
+  "terminalMatrix": {
+    "path": "terminal-matrix.json",
+    "sha256": "b4c729b5b1ecdd6219054806d05bd86a21c90dbba83e8c7cbe610fc789a3871c"
+  },
+  "harnessValidation": {
+    "passed": 410,
+    "total": 410,
+    "path": "harness-suite-410.log"
+  },
+  "constraints": {
+    "caelOnly": true,
+    "redeployed": false,
+    "doctorRerun": false,
+    "protectedRefsMoved": false
+  }
+}

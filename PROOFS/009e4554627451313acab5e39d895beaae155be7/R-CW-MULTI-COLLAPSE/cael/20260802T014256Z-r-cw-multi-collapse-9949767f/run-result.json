@@ -1,0 +1,66 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-02T01:42:59Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "summary-file",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": null,
+  "summaryFiles": [
+    "static-corpus-row-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CW-MULTI-COLLAPSE",
+    "sourceRow": "R-CW-MULTI-COLLAPSE",
+    "staticBoundaryVariant": false,
+    "manifest_loaded": true,
+    "candidateSha": "009e4554627451313acab5e39d895beaae155be7",
+    "currentProofSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+    "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+    "carriedFrom": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+    "started": "2026-08-02T01:42:59.243Z",
+    "checks": {
+      "verdictPassScoped": true,
+      "syntheticCaveat": true,
+      "twoRowsInserted": true,
+      "oldSuperseded": true,
+      "newestGranted": true,
+      "noRemainingQueued": true,
+      "configRestored": true,
+      "tempoExactChain": true
+    },
+    "source_files": {
+      "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/EVIDENCE.md",
+      "insertVars": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/insert-vars.json",
+      "postInsert": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/post-insert-sqlite.txt",
+      "finalTerminal": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/final-terminal-sqlite.txt",
+      "finalQueued": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/final-queued-running.txt",
+      "flowRows": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/flow-runs-final.json",
+      "journal": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/journal-continuation-window.txt",
+      "restoreHash": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/restore-verified-sha256.txt",
+      "tempoAttrs": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-attribute-receipt.txt"
+    },
+    "ended": "2026-08-02T01:42:59.243Z",
+    "duration_ms": 0,
+    "verdict": "PASS-candidate"
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

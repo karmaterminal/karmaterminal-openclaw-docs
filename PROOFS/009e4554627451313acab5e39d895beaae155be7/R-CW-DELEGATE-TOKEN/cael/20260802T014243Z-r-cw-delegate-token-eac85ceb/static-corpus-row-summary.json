@@ -1,0 +1,16 @@
+{
+  "row": "R-CW-DELEGATE-TOKEN",
+  "sha": "009e4554627451313acab5e39d895beaae155be7",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "failures": 0,
+    "duration_ms": {
+      "med": 1,
+      "max": 1,
+      "p(90)": 1,
+      "p(95)": 1,
+      "avg": 1,
+      "min": 1
+    }
+  }
+}

@@ -1,0 +1,19 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-08-01T19:08:36-07:00" level=info msg="STATIC_CORPUS_ROW_EVIDENCE {\"row\":\"R-CW-6A\",\"sourceRow\":\"R-CW-6\",\"staticBoundaryVariant\":true,\"manifest_loaded\":true,\"candidateSha\":\"009e4554627451313acab5e39d895beaae155be7\",\"currentProofSha\":\"4c235d8c1997e8964160117f8d6bf650ad1e8203\",\"sourceEvidenceSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"carriedFrom\":\"4c235d8c1997e8964160117f8d6bf650ad1e8203\",\"started\":\"2026-08-02T02:08:36.032Z\",\"checks\":{\"verdictPass\":true,\"boundaryPredicate\":true,\"earlyReturn\":true,\"schedulerUnitTest\":true,\"harnessCapped\":true,\"noLiveMutationScope\":true,\"nonLiveBoundary\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-6/cael-dgx/EVIDENCE.md\",\"schedulerSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-6/cael-dgx/source/scheduler-source-snippet.txt\",\"workDispatchSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-6/cael-dgx/source/work-dispatch-source-snippet.txt\",\"schedulerTest\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-6/cael-dgx/source/scheduler-test-snippet.txt\",\"harnessLog\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-6/cael-dgx/harness/scheduler-boundary-harness.log\"},\"ended\":\"2026-08-02T02:08:36.032Z\",\"duration_ms\":0,\"verdict\":\"construct-only\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters

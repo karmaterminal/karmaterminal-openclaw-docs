@@ -1,0 +1,2 @@
+2026-08-01T18:42:59.201478-07:00 cael node[701649]: 2026-08-01T18:42:59.201-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-01T18:42:59.202166-07:00 cael node[701649]: 2026-08-01T18:42:59.202-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

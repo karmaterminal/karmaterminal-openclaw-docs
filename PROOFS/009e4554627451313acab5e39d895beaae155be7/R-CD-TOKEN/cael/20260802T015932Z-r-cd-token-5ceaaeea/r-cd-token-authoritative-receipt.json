@@ -1,0 +1,19 @@
+{
+  "schema": "openclaw.k6.r-cd-token-authoritative-receipt.v1",
+  "row": "R-CD-TOKEN",
+  "authoritativeSource": "r-cd-token-row-scoped-resolver",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "binding": {
+    "candidateSha": "009e4554627451313acab5e39d895beaae155be7",
+    "runtimeBuildSha": "009e4554627451313acab5e39d895beaae155be7",
+    "localEvidenceFingerprint": "f517da5c28243ef459b9127f22e94a45dc303c980f877f4e8ae5d2396dcf1dd9",
+    "topologyFingerprint": "244f3c719812055b8cf2f285c258b44b51c664d25fad45087a7e4aa4efd2ff19"
+  },
+  "verdict": "PARTIAL-candidate",
+  "failureCategory": "incomplete-or-nonunique-lifecycle",
+  "integrity": {
+    "algorithm": "hmac-sha256-gateway-token-v1",
+    "signature": "1c1f8dc459b179e7a4eecfaca7e2000aa9df3c0023ac993579e11e2dd0231894"
+  }
+}

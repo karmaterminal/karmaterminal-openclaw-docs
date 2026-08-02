@@ -1,0 +1,31 @@
+2026-08-01T18:59:37.225375-07:00 cael node[701649]: 2026-08-01T18:59:37.225-07:00 [ws] ⇄ res ✓ sessions.send 217ms runId=R-CD-TOKEN-DISPATCH-<redacted-nonce> conn=41895d6d…681d id=1-0-1785635977006-tt1d9o
+2026-08-01T18:59:50.523752-07:00 cael node[701649]: 2026-08-01T18:59:50.523-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-01T18:59:50.554482-07:00 cael node[701649]: 2026-08-01T18:59:50.554-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-01T18:59:51.364628-07:00 cael node[701649]: 2026-08-01T18:59:51.364-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>-<redacted-nonce>
+2026-08-01T18:59:51.365350-07:00 cael node[701649]: 2026-08-01T18:59:51.365-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>-<redacted-nonce>
+2026-08-01T18:59:54.957414-07:00 cael node[701649]: 2026-08-01T18:59:54.957-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=0 [0]text=true session=<redacted-session-key>
+2026-08-01T18:59:54.958039-07:00 cael node[701649]: 2026-08-01T18:59:54.958-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=delegate delayMs=10000 session=<redacted-session-key>
+2026-08-01T18:59:54.958824-07:00 cael node[701649]: 2026-08-01T18:59:54.958-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=delegate session=<redacted-session-key>
+2026-08-01T18:59:55.087018-07:00 cael node[701649]: 2026-08-01T18:59:55.085-07:00 RCDT-HOP1-<redacted-nonce>
+2026-08-01T18:59:55.087018-07:00 cael node[701649]: [[CONTINUE_DELEGATE: D-9fd62ebf7b97 reply exactly RCDT-RETURN-<redacted-nonce> +10s]]
+2026-08-01T18:59:55.516610-07:00 cael node[701649]: 2026-08-01T18:59:55.516-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=9878ms fireAt=1785636005393 session=<redacted-session-key>
+2026-08-01T19:00:05.399443-07:00 cael node[701649]: 2026-08-01T19:00:05.399-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-fired] session=<redacted-session-key>
+2026-08-01T19:00:05.402263-07:00 cael node[701649]: 2026-08-01T19:00:05.402-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-08-01T19:00:06.146887-07:00 cael node[701649]: 2026-08-01T19:00:06.146-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=2/200 mode=normal session=<redacted-session-key> task=<redacted-payload>
+2026-08-01T19:00:07.528876-07:00 cael node[701649]: 2026-08-01T19:00:07.528-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-01T19:00:07.559479-07:00 cael node[701649]: 2026-08-01T19:00:07.559-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-01T19:00:09.405169-07:00 cael node[701649]: 2026-08-01T19:00:09.405-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>-<redacted-nonce>
+2026-08-01T19:00:09.405873-07:00 cael node[701649]: 2026-08-01T19:00:09.405-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>-<redacted-nonce>
+2026-08-01T19:00:09.536063-07:00 cael node[701649]: 2026-08-01T19:00:09.535-07:00 RCDT-HOP1-<redacted-nonce>
+2026-08-01T19:00:09.536850-07:00 cael node[701649]: 2026-08-01T19:00:09.536-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key> ended with stopReason=stop
+2026-08-01T19:00:11.079493-07:00 cael node[701649]: 2026-08-01T19:00:11.079-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-01T19:00:11.080125-07:00 cael node[701649]: 2026-08-01T19:00:11.080-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-01T19:00:11.208955-07:00 cael node[701649]: 2026-08-01T19:00:11.207-07:00 RCDT-RETURN-<redacted-nonce>
+2026-08-01T19:00:11.209744-07:00 cael node[701649]: 2026-08-01T19:00:11.209-07:00 [agents/agent-command] [agent] run continuation-delegate-313414dc75ceb124c160f0cce583e099 ended with stopReason=stop
+2026-08-01T19:00:17.818944-07:00 cael node[701649]: 2026-08-01T19:00:17.818-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>-<redacted-nonce>
+2026-08-01T19:00:17.819354-07:00 cael node[701649]: 2026-08-01T19:00:17.819-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>-<redacted-nonce>
+2026-08-01T19:00:17.947033-07:00 cael node[701649]: 2026-08-01T19:00:17.945-07:00 RCDT-RETURN-<redacted-nonce>
+2026-08-01T19:00:17.947530-07:00 cael node[701649]: 2026-08-01T19:00:17.947-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key> ended with stopReason=stop
+2026-08-01T19:00:30.811256-07:00 cael node[701649]: 2026-08-01T19:00:30.811-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-01T19:00:30.811912-07:00 cael node[701649]: 2026-08-01T19:00:30.811-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-01T19:00:30.824443-07:00 cael node[701649]: 2026-08-01T19:00:30.824-07:00 [turn/execution] visible channel turn dispatched with no queued reply payloads: channel=discord messageId=unknown sessionKey=<redacted-session-key>

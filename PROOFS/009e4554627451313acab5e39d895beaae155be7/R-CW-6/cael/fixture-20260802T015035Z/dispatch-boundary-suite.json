@@ -1,0 +1,104 @@
+{
+  "schema": "openclaw.project81.r-cw-6.dispatch-boundary-suite.v1",
+  "passed": true,
+  "configuredMaximum": 3,
+  "selectedBoundary": {
+    "schema": "openclaw.project81.r-cw-6.selected-delegate-boundary.v1",
+    "configuredMaximum": 3,
+    "initialCurrentChainCount": 2,
+    "attemptedHops": [
+      3,
+      4
+    ],
+    "dispatched": 1,
+    "rejected": 1,
+    "resultingChainCount": 3,
+    "spawnCalls": 1,
+    "rejectedBeforeSecondSpawn": true,
+    "rejectedFlowStatus": "failed",
+    "chainCappedNoticeObserved": true,
+    "passed": true,
+    "asserted": {
+      "selectedMaximum": true,
+      "startsOneBelowMaximum": true,
+      "attemptsAtAndFirstOver": true,
+      "oneDispatchOneReject": true,
+      "rejectedBeforeSecondSpawn": true,
+      "rejectedFlowFailed": true,
+      "chainCappedNoticeObserved": true,
+      "resultingCountAtMaximum": true
+    },
+    "command": [
+      "node_modules/.bin/vitest",
+      "run",
+      "--config",
+      "test/vitest/vitest.auto-reply.config.ts",
+      "--dir",
+      "test/r-cw-6-delegate-fixture",
+      "--reporter=verbose"
+    ],
+    "exitCode": 0
+  },
+  "candidateRegressionSuite": {
+    "passed": true,
+    "command": [
+      "node_modules/.bin/vitest",
+      "run",
+      "--config",
+      "test/vitest/vitest.auto-reply.config.ts",
+      "src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts",
+      "--reporter=verbose"
+    ],
+    "exitCode": 0,
+    "asserted": {
+      "atLimitRejectsBeforeSpawn": true,
+      "boundaryHopSpawnsThenNextRejects": true,
+      "rejectedFlowMarkedFailed": true
+    }
+  },
+  "exactCandidateDisposableWorktree": true,
+  "candidateWorktreeHead": "009e4554627451313acab5e39d895beaae155be7",
+  "candidateLockfileSha256": "ddb3450d2d4bcb71ed68ffae4c92a212230057a73851b6337009210d626537a0",
+  "installedLockfileSha256": "ddb3450d2d4bcb71ed68ffae4c92a212230057a73851b6337009210d626537a0",
+  "lockfileMatchesCandidate": true,
+  "candidatePackageManager": "pnpm@11.15.1+sha512.81350b07e53c9538a02f1f2303b4290fa2d7be04e56e2a970c4cc4b417dc761de196edabd49d55c7dc9580db81007c44143e4e3d7e462b3000d23c255122d065",
+  "candidatePackageManagerVersion": "11.15.1",
+  "executingPackageManagerVersion": "11.15.1",
+  "installedPackageManager": "pnpm@11.15.1",
+  "installedPackageManagerVersion": "11.15.1",
+  "virtualStoreDir": ".pnpm",
+  "virtualStoreContainedWithinCandidateNodeModules": true,
+  "installCommand": [
+    "pnpm",
+    "install",
+    "--frozen-lockfile",
+    "--prefer-offline",
+    "--ignore-scripts"
+  ],
+  "installExitCode": 0,
+  "localExecutableContract": {
+    "tsx": {
+      "path": "node_modules/.bin/tsx",
+      "realpathWithinVerifiedDependencyTree": true
+    },
+    "vitest": {
+      "path": "node_modules/.bin/vitest",
+      "realpathWithinVerifiedDependencyTree": true
+    }
+  },
+  "worktreeIntegrity": {
+    "beforeInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterProofSurfaces": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    }
+  },
+  "hostToolchainHermetic": false
+}

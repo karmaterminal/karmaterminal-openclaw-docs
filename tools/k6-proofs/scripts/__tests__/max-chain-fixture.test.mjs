@@ -326,7 +326,9 @@ test('R-CW-6 runtime template proves the real budget and durable recovery path',
   assert.match(template, /scheduleContinuationWork/);
   assert.match(template, /checkContinuationBudget/);
   assert.match(template, /persistContinuationChainState/);
-  assert.match(template, /loadSessionStore/);
+  assert.match(template, /loadSessionEntry/);
+  assert.match(template, /closeOpenClawAgentDatabaseByPath/);
+  assert.doesNotMatch(template, /loadSessionStore|saveSessionStore/);
   assert.match(template, /reason:\s*structuredReason/);
   assert.match(template, /flowCountBeforeRejectedHop/);
   assert.match(template, /flowCountAfterRejectedHop/);
@@ -345,7 +347,9 @@ test('R-CW-6 typed template enters runAgentAttempt and omits the rejected flow',
   assert.match(template, /continueWorkOpts/);
   assert.match(template, /typed first-over-limit/);
   assert.match(template, /firstOverLimitFlowPresent:\s*false/);
-  assert.match(template, /capNoticeObserved/);
+  assert.match(template, /acceptedBeforeReopen/);
+  assert.match(template, /rejectedAfterReopen/);
+  assert.match(template, /databaseReopened:\s*true/);
 });
 
 test('R-CW-6 delegate template uses the selected maximum and proves reject-before-spawn', async () => {

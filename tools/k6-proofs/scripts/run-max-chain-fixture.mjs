@@ -832,7 +832,7 @@ export function runFixture(args) {
   );
   const typedSurfacePassed = Boolean(
     typedReceipt?.configuredMaximum === args.maxChainLength &&
-      typedReceipt?.registeredContinueWorkTools === 1 &&
+      typedReceipt?.registeredContinueWorkTools === 2 &&
       typedReceipt?.continueWorkToolExecutions === 3 &&
       typedReceipt?.realToolExecutorInvoked === true &&
       typedReceipt?.capturedElections === 3 &&
@@ -840,7 +840,11 @@ export function runFixture(args) {
       typedReceipt?.firstOverLimitFlowPresent === false &&
       typedReceipt?.finalInMemoryCount === args.maxChainLength &&
       typedReceipt?.finalPersistedCount === args.maxChainLength &&
-      typedReceipt?.capNoticeObserved === true,
+      typedReceipt?.acceptedBeforeReopen === 2 &&
+      typedReceipt?.rejectedAfterReopen === 1 &&
+      typedReceipt?.flowCountBeforeRejectedAttempt === 2 &&
+      typedReceipt?.flowCountAfterRejectedAttempt === 2 &&
+      typedReceipt?.databaseReopened === true,
   );
   const runtimeSurfacePassed =
     runtimeSurface.passed &&

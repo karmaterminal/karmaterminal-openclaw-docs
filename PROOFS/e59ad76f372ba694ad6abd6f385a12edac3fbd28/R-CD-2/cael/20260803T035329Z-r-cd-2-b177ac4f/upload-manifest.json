@@ -1,0 +1,131 @@
+{
+  "schema": "openclaw.proofs.upload-manifest.v1",
+  "row": "R-CD-2",
+  "productSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "executionHarnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "runId": "20260803T035329Z-r-cd-2-b177ac4f",
+  "generatedAt": "2026-08-03T04:48:10Z",
+  "files": [
+    {
+      "path": "candidate-run-result-validation.error.log",
+      "sha256": "ecec5fb19d2654bb916eab4cf93b5d24efc84c3bdbb5ec622304e1944492ce1a",
+      "size": 61
+    },
+    {
+      "path": "candidate-run-result-validation.json",
+      "sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "size": 5
+    },
+    {
+      "path": "continuation-trace-collector.error.log",
+      "sha256": "1237706596fffb5a0927b0fb7f9b1d404e211db967e576c29a1108b52ea5433f",
+      "size": 67
+    },
+    {
+      "path": "continuation-trace-collector.json",
+      "sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "size": 5
+    },
+    {
+      "path": "evidence-extraction.json",
+      "sha256": "071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc",
+      "size": 14
+    },
+    {
+      "path": "evidence-lines.log",
+      "sha256": "7b40050193093e05e2718db9b09da265f8ac61f412bd7a33ffa5783a9023db1f",
+      "size": 72
+    },
+    {
+      "path": "evidence-redaction.json",
+      "sha256": "d59cc41f722758a540fa6bb343ead73b1ae68787d43f35c6d61876c5bddacd67",
+      "size": 380
+    },
+    {
+      "path": "evidence-redaction.stdout.json",
+      "sha256": "e61ac74239af3eebce3a293ccb828cfdeb611f7fec44156e2c82d8f3b823ff84",
+      "size": 41
+    },
+    {
+      "path": "evidence.jsonl",
+      "sha256": "8e4020569c93b8efe2e0766a60d6e3f158386238dceb63da259d00801d16e696",
+      "size": 106
+    },
+    {
+      "path": "gateway-journal-capture.json",
+      "sha256": "33373de0fc39fe1ec83f9d0c3077e02bbd257fec8f2eb26cdc4c8fc8b0395b8b",
+      "size": 244
+    },
+    {
+      "path": "gateway-journal-redaction.json",
+      "sha256": "f137e096514968c56ddbaf4e0692b3babf83bc392200046c7d057ffaeb61b16b",
+      "size": 216
+    },
+    {
+      "path": "gateway-journal.log",
+      "sha256": "0faee7d306cec744928af9527fff69ef3b1ce2bc16baee2d529e8e85b0418196",
+      "size": 80
+    },
+    {
+      "path": "k6.log",
+      "sha256": "5d839d8b608d546da3f08097b0cbaade5254240a941627c389309b28ed6db97a",
+      "size": 75
+    },
+    {
+      "path": "metrics-export.json",
+      "sha256": "bcb8735e0cbfa06de395d8c47141edf9b7180c0181716ed0925541d6d1d0f70a",
+      "size": 553
+    },
+    {
+      "path": "openclaw-proofs-k6.otlp.json",
+      "sha256": "0cd001d967c9e386f505a1a44debd52411ee0b0ed8750d7cb3f5881a7857f89c",
+      "size": 23360
+    },
+    {
+      "path": "openclaw-proofs-k6.prom",
+      "sha256": "eed5a3a85402f11abf67dbff89bdf19b972bb10fc66fe9d3728cfc7c32f12bb1",
+      "size": 3287
+    },
+    {
+      "path": "r-cd-2-authoritative-receipt.json",
+      "sha256": "5c16d08b55e30bb64962a8bb938ae19650602555634aaa3b4a2f56672023e4ee",
+      "size": 644
+    },
+    {
+      "path": "r-cd-2-authoritative-resolution.json",
+      "sha256": "119afecd05499bf64e67c211977351ba7303172759a3e56711d0cd94d67da4d4",
+      "size": 78
+    },
+    {
+      "path": "r-cd-2-summary.json",
+      "sha256": "90806c915c8c28d685080f904bc4c97d96adc1dd8e566f99fa169edc9fd42ae3",
+      "size": 718
+    },
+    {
+      "path": "row-manifest.json",
+      "sha256": "29e0f19446dd3f545098334be31455d18e32d2ebc85058988c4417a780f036d4",
+      "size": 5267
+    },
+    {
+      "path": "row-scenario.js",
+      "sha256": "dfd065b1f3ae75bc14395f1ea337dfa093eaa76c4aade8a978df4eee9b5519a0",
+      "size": 29401
+    },
+    {
+      "path": "run-result.json",
+      "sha256": "5573a4f62b40fdc8db24d8920ab2a81dbb5eee5542e8a5b5f9599587ded398f1",
+      "size": 1307
+    },
+    {
+      "path": "runner-metadata.json",
+      "sha256": "6cf2c5c04a5c83c0ce423cb9a81df40ec8ac14e78b30b2f3c55921e298eba95b",
+      "size": 799
+    },
+    {
+      "path": "seat-readiness.json",
+      "sha256": "952edea9e8872b9f6a34261f3a37266350ac62f4b7909cfd0405e1fb906ad00a",
+      "size": 3334
+    }
+  ]
+}

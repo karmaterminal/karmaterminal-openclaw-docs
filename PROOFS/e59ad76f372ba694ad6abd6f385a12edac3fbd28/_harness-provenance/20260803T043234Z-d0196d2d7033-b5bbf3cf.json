@@ -1,0 +1,139 @@
+{
+  "schema": "openclaw.k6.harness-provenance.v1",
+  "classification": "harness-provenance",
+  "matrixId": "20260803T043234Z-d0196d2d7033-b5bbf3cf",
+  "mode": "live",
+  "docsRef": "d0196d2d70338d939c1830d8f381b6d0e2a58493",
+  "docsRefSource": "approved-input",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "harnessIdentityVerified": true,
+  "candidateSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "runtimeIdentity": {
+    "seat": "cael",
+    "runtimeBuildSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "candidateMatchesRuntime": true,
+    "seatReadinessReceipt": "seat-readiness.json",
+    "seatReadinessSha256": "fe3f912c1a154f0ffd766a48ea262d66b86a5f15f2a30883ca5025ba6ddc001c"
+  },
+  "runnerScript": "tools/k6-proofs/scripts/run-proofs.sh",
+  "runnerScriptSha256": "f81c422874f1acaf722275f2b87bbed048cb8d913435df0a0090c29b49ea31f4",
+  "rowSelection": [
+    "R-CW-4",
+    "R-CW-5A",
+    "R-CW-6A",
+    "R-CW-7",
+    "R-CW-DELEGATE-CHILD-LIVE",
+    "R-CW-DELEGATE-SELF-CONTINUATION",
+    "R-CW-DELEGATE-TOKEN",
+    "R-CW-MULTI-COLLAPSE",
+    "R-CW-MULTI",
+    "R-CW-TOKEN",
+    "R-OBS-1",
+    "R-OBS-2",
+    "R-OBS-STATUS",
+    "R-RC-1"
+  ],
+  "rows": [
+    {
+      "rowId": "R-CW-4",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-4.json",
+      "manifestSha256": "125e0aec0a3bd35f53b70b456db32fb727d80f3e428a47bd9ec2456cc7be173d",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-4-chain-depth.js",
+      "scenarioSha256": "44af78e59957c8cb5ca883c3c831d827c171cfd51d7688b4f1fb3cde863f8cd1"
+    },
+    {
+      "rowId": "R-CW-5A",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-5a-static.json",
+      "manifestSha256": "054c194a417ec4ce5f030090c70d995b65ac66f3a205aea2b315931e8c3d93b5",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    },
+    {
+      "rowId": "R-CW-6A",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-6a-static.json",
+      "manifestSha256": "c2f05fde08f7a319192741b216553d801c1fd5f13edeaa1c2f96c3c7a1293f56",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    },
+    {
+      "rowId": "R-CW-7",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-7.json",
+      "manifestSha256": "d04b2c9f08c7457ec4351a91c5742b907f3d75c901d2bf67f5938bcfade4f39e",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    },
+    {
+      "rowId": "R-CW-DELEGATE-CHILD-LIVE",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-delegate-child-live.json",
+      "manifestSha256": "d5f509007c2e7eca6395076f541af010bbf1b41d17b5472ba9c39db73463547d",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    },
+    {
+      "rowId": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-delegate-self.json",
+      "manifestSha256": "6cc1830e3c59ce06a805e81b9f8040a8835ab1fc958c10058a52c1060b1c9ef1",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-delegate-self-continuation.js",
+      "scenarioSha256": "5ad5eff1472f8c100bfb435749b1f4b8833b277d78930a9777784f1c8b8a94a9"
+    },
+    {
+      "rowId": "R-CW-DELEGATE-TOKEN",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-delegate-token.json",
+      "manifestSha256": "47d84651c824c6bcafd85a82db1055916bc9217b9ac8df5c7c24809014b4e885",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    },
+    {
+      "rowId": "R-CW-MULTI-COLLAPSE",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-multi-collapse.json",
+      "manifestSha256": "e920ce36f434d52117d05bbbab435c47e827bec6aec914b1b41d71563a083ffa",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    },
+    {
+      "rowId": "R-CW-MULTI",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-multi.json",
+      "manifestSha256": "86de2caeffe602761e478eb0e5ecac284358839395f37b113eb19569e6b24e03",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    },
+    {
+      "rowId": "R-CW-TOKEN",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-token.json",
+      "manifestSha256": "a46013967060b6a71e90e30b7ce67607c030209829998845e002d116402f3fe4",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-token-bracket.js",
+      "scenarioSha256": "c74e75c9115145160a97f54b7c6f980a73509d9f27a248d3f1823fb1e2373478"
+    },
+    {
+      "rowId": "R-OBS-1",
+      "manifestPath": "tools/k6-proofs/manifests/r-obs-1.json",
+      "manifestSha256": "63588a11932ad7895575790664389d29ed9bfbd64cb205b0f9735044f8246655",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-obs-1.js",
+      "scenarioSha256": "e4ff43d0a361cf20f0a82cbe25fd77417131dfd44362d77577e3a701cf7f41c1"
+    },
+    {
+      "rowId": "R-OBS-2",
+      "manifestPath": "tools/k6-proofs/manifests/r-obs-2.json",
+      "manifestSha256": "510d7c0c9f97266df3882aaf9b56758510505b713f50f9baee25c258d3d47c90",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-obs-2.js",
+      "scenarioSha256": "2a3ec93e45021f6f26bec3d70e23a0e2ca3f1055d588c3e67a4d28b225216b95"
+    },
+    {
+      "rowId": "R-OBS-STATUS",
+      "manifestPath": "tools/k6-proofs/manifests/r-obs-status.json",
+      "manifestSha256": "446221805fa8d5c116f2dc68d8eda605592d38a54aff56dd369eac3a878bc8ab",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-obs-status.js",
+      "scenarioSha256": "945bfa4f13fbde27530afe9eea079f4ab69a0054e8ccba1b6eb67dbe08173253"
+    },
+    {
+      "rowId": "R-RC-1",
+      "manifestPath": "tools/k6-proofs/manifests/r-rc-1.json",
+      "manifestSha256": "8e2cb6d5333545ec014270f185c71cc5a777c367d66383bb581098d17498daea",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-rc-1-threshold-reject.js",
+      "scenarioSha256": "57608c4f10ddcb6da3edf416d880ced0ec16bcd17ebc797207ddf4a0ffdaa2ab"
+    }
+  ],
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "startedAt": "2026-08-03T04:32:34Z"
+}

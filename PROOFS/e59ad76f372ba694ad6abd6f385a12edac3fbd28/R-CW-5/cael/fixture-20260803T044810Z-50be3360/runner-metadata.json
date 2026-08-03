@@ -1,0 +1,13 @@
+{
+  "row": "R-CW-5",
+  "candidateSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "runtimeBuildSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "executionHarnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "publicationBase": "d0196d2d70338d939c1830d8f381b6d0e2a58493",
+  "seat": "cael",
+  "runId": "fixture-20260803T044810Z-50be3360",
+  "startedAt": "2026-08-03T04:48:10Z",
+  "endedAt": "2026-08-03T04:48:10Z",
+  "configSha256": "002e5564bdfe03972e9a4ba851043900a8df6d99d9447b3e979ba381bcc69d0e",
+  "executionClass": "isolated-exact-candidate-fixture"
+}

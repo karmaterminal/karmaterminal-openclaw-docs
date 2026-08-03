@@ -1,0 +1,3 @@
+2026-08-02T21:34:04.202383-07:00 cael node[4125351]: 2026-08-02T21:34:04.202-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=<redacted-session-key> task=<redacted-payload>
+2026-08-02T21:34:05.036278-07:00 cael node[4125351]: 2026-08-02T21:34:05.036-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-02T21:34:05.059188-07:00 cael node[4125351]: 2026-08-02T21:34:05.059-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send

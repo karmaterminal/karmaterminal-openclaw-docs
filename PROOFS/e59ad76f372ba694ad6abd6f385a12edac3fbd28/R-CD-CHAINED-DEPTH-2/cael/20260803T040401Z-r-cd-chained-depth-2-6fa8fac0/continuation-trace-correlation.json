@@ -1,0 +1,60 @@
+{
+  "schema": "openclaw.k6.continuation-trace-correlation.v1",
+  "row": "R-CD-CHAINED-DEPTH-2",
+  "seat": "cael",
+  "attribution": "reason-hash-length-mode",
+  "query": "{ resource.service.name=\"cael-prince\" && name=\"continuation.delegate.dispatch\" && .reason.hash=\"3b9bdfb40b797072\" && .reason.length=441 && .delegate.mode=\"silent-wake\" }",
+  "searchWindow": {
+    "startUnixSeconds": 1785729786,
+    "endUnixSeconds": 1785730055,
+    "paddingSeconds": 60,
+    "source": "dispatch-and-evidence-ended"
+  },
+  "traceJson": "tempo-trace-5dbc6326be13.json",
+  "traceId": "5dbc6326be131bab1e6ed9fbf8042ab0",
+  "chainId": "b2597edb-eee3-4abc-b8bd-0566891ae3df",
+  "toolSpanIds": [
+    "81a103b86d4a4d84"
+  ],
+  "toolParentSpanIds": [
+    "4b836d0187999c27"
+  ],
+  "fireSpanId": "66c9bff498d0653c",
+  "fireParentSpanId": "4b836d0187999c27",
+  "fireSpanIds": [
+    "66c9bff498d0653c"
+  ],
+  "fireParentSpanIds": [
+    "4b836d0187999c27"
+  ],
+  "fireAttemptCount": 1,
+  "childSpans": [
+    {
+      "name": "openclaw.harness.run",
+      "spanId": "39e377e5155017de"
+    },
+    {
+      "name": "continuation.queue.drain",
+      "spanId": "4e3d61ecf34f4e79"
+    }
+  ],
+  "dispatchSpanId": "08f791edc38bd2a7",
+  "dispatchParentSpanId": "4b836d0187999c27",
+  "reason": {
+    "hash": "3b9bdfb40b797072",
+    "length": 441,
+    "source": "manifest-nonce",
+    "rawPersisted": false
+  },
+  "continuation": {
+    "tool": "continue_delegate",
+    "originSurface": "typed-tool",
+    "acceptSpan": "continuation.delegate.dispatch",
+    "fireSpan": "continuation.delegate.fire"
+  },
+  "delegate": {
+    "mode": "silent-wake"
+  },
+  "sameTrace": true,
+  "distinctSpans": true
+}

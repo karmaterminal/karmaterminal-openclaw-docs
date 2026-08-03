@@ -1,0 +1,69 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-03T04:33:28Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-cw-4-chain-depth-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CW-4",
+    "manifest_loaded": true,
+    "seat": "cael",
+    "session_created": true,
+    "candidateSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "started": "2026-08-03T04:32:40.590Z",
+    "dispatch_accepted": true,
+    "hop1_scheduled": true,
+    "hop2_scheduled": true,
+    "hop3_scheduled": true,
+    "final_done": true,
+    "hop_events": [
+      {
+        "marker": "CW4-HOP1-SCHEDULED",
+        "ts": 1785731571781,
+        "event": "agent"
+      },
+      {
+        "marker": "CW4-HOP2-SCHEDULED",
+        "ts": 1785731585950,
+        "event": "agent"
+      },
+      {
+        "marker": "CW4-HOP3-SCHEDULED",
+        "ts": 1785731597082,
+        "event": "agent"
+      },
+      {
+        "marker": "CW4-DONE",
+        "ts": 1785731608015,
+        "event": "agent"
+      }
+    ],
+    "trace_id": null,
+    "ended": "2026-08-03T04:33:28.015Z",
+    "duration_ms": 47425
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

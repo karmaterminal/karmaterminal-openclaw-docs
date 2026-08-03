@@ -1,0 +1,41 @@
+{
+  "schema": "openclaw.proofs.upload-manifest.v1",
+  "row": "R-CD-TOKEN",
+  "productSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "executionHarnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "runId": "20260803T042301Z-r-cd-token-7c2e8621",
+  "generatedAt": "2026-08-03T04:48:10Z",
+  "files": [
+    {
+      "path": "attempt-state.json",
+      "sha256": "7d283ea703be000e1de28087970b2dce84b507efe2015db06e439c3bdee68062",
+      "size": 594
+    },
+    {
+      "path": "row-manifest.json",
+      "sha256": "7b96ff52671575220a8fcfe283afa19e4ec2d921b7b2fda634cf63d722cf4f4d",
+      "size": 5659
+    },
+    {
+      "path": "row-scenario.js",
+      "sha256": "e4da30a666b0ef9e59b4edf1677cc3a8da80b59d5385ee00fdb8905556422699",
+      "size": 18916
+    },
+    {
+      "path": "run-result.json",
+      "sha256": "4802b32809170fdfc85dfa83193f12bdd9b0fc324e5b2785a58fe8d4d741590f",
+      "size": 1027
+    },
+    {
+      "path": "runner-metadata.json",
+      "sha256": "19c6cad4f2841e8857d920de7fbed6137cab9b5f99fcf9240e43dd30a5503f76",
+      "size": 829
+    },
+    {
+      "path": "seat-readiness.json",
+      "sha256": "3c730561d7d3dd4e1fa41328d9fcd8e7112f3be8ab76f0beb7357e42d1c104d8",
+      "size": 3334
+    }
+  ]
+}

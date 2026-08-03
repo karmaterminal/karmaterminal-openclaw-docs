@@ -1,0 +1,51 @@
+{
+  "schema": "openclaw.proofs.upload-manifest.v1",
+  "row": "R-CW-5",
+  "productSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "executionHarnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "runId": "fixture-20260803T044810Z-50be3360",
+  "generatedAt": "2026-08-03T04:48:10Z",
+  "files": [
+    {
+      "path": "boundary-matrix.json",
+      "sha256": "e2a3f13c720fbc93caada2c8da6df1f66cf1f5acfc9f05de59aeb7084cbb0b21",
+      "size": 2697
+    },
+    {
+      "path": "cleanup.json",
+      "sha256": "d2c68856c6cfcf62b79f9ff953b9bdce3141e9541498c45138b3131c67b7e5e0",
+      "size": 1436
+    },
+    {
+      "path": "dispatch-boundary-suite.json",
+      "sha256": "b879b7cce835819be0468509551739e507f2994c3065fac7e5daaf457720974e",
+      "size": 2743
+    },
+    {
+      "path": "fixture-readiness.json",
+      "sha256": "d7082b5df410dcf5ca860243d92e842f30a7ebbc80ed9934bf7b0df0941507a7",
+      "size": 557
+    },
+    {
+      "path": "fixture-result.json",
+      "sha256": "9370ae0ff147e810cfba623a8350b4ac087c12ebfb0cb2b4a7cfeba1012b892a",
+      "size": 563
+    },
+    {
+      "path": "run-result.json",
+      "sha256": "fce31db9ed8d69415d56f53b61fc07e3c3af5f5ffad09ba10b5ab4111a633f56",
+      "size": 734
+    },
+    {
+      "path": "runner-metadata.json",
+      "sha256": "fd4170ff2d13a3c6149f0120a810e0d4e1061a85e07396e7827ee2c7539d9f89",
+      "size": 567
+    },
+    {
+      "path": "typed-tool-surface.json",
+      "sha256": "fe391ef2f183d673857771c043f87e05b45947577f9f43598511ea80b6a9127b",
+      "size": 2777
+    }
+  ]
+}

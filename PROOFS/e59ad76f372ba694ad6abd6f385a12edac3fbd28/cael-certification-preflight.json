@@ -1,0 +1,20 @@
+{
+  "schema": "openclaw.proofs.cael-certification-preflight.v1",
+  "productSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "deployedBuildSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "cliVersion": "OpenClaw 2026.7.2 (e59ad76)",
+  "executionHarnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "publicationBase": "d0196d2d70338d939c1830d8f381b6d0e2a58493",
+  "configSha256": "002e5564bdfe03972e9a4ba851043900a8df6d99d9447b3e979ba381bcc69d0e",
+  "gateway": {
+    "active": true,
+    "nRestarts": 0
+  },
+  "harnessTests": {
+    "pass": 410,
+    "fail": 0,
+    "total": 410
+  },
+  "canonicalRows": 38,
+  "checkedAt": "2026-08-03T04:48:10Z"
+}

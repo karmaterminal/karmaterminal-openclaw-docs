@@ -1,0 +1,4 @@
+2026-08-02T21:11:00.126718-07:00 cael node[4125351]: 2026-08-02T21:11:00.126-07:00 [ws] ⇄ res ✓ sessions.send 240ms runId=R-CD-MODEL-CHAINED-ALT-DISPATCH-<redacted-nonce> conn=08426445…0842 id=1-0-1785730259884-754vx3
+2026-08-02T21:11:17.708290-07:00 cael node[4125351]: 2026-08-02T21:11:17.708-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-02T21:11:17.709075-07:00 cael node[4125351]: 2026-08-02T21:11:17.709-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-02T21:11:17.717402-07:00 cael node[4125351]: 2026-08-02T21:11:17.717-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=3487ms fireAt=1785730281203 session=<redacted-session-key>

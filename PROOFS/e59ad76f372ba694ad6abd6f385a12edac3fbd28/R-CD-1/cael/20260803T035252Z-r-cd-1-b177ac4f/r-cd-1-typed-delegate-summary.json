@@ -1,0 +1,18 @@
+{
+  "row": "R-CD-1",
+  "sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "seat": "cael",
+  "timestamp": "2026-08-03T03:53:26.084Z",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "duration_ms": {
+      "max": 30843,
+      "p(90)": 30843,
+      "p(95)": 30843,
+      "avg": 30843,
+      "min": 30843,
+      "med": 30843
+    },
+    "failures": 0
+  }
+}

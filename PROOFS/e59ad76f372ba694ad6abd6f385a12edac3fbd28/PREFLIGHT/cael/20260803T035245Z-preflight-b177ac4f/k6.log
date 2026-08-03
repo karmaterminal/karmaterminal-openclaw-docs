@@ -1,0 +1,66 @@
+
+         /\      Grafana   /‾‾/
+    /\  /  \     |\  __   /  /
+   /  \/    \    | |/ /  /   ‾‾\
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/
+
+
+     execution: local
+        script: scenarios/preflight.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m15s max duration (incl. graceful stop):
+              * preflight_inventory: 1 iterations shared among 1 VUs (maxDuration: 45s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  01.0s/45s  0/1 shared iters
+PUBLIC_EVIDENCE {"row":"preflight","manifest_loaded":true,"seat":"cael","candidateSha":"e59ad76f372ba694ad6abd6f385a12edac3fbd28","started":"2026-08-03T03:52:48.312Z","connected":true,"sessions_list_ok":true,"tools_effective_ok":true,"tool_inventory_count":0,"ended":"2026-08-03T03:52:49.599Z","duration_ms":1287}
+
+
+  █ THRESHOLDS
+
+    preflight_duration
+    ✓ 'p(95)<30000' p(95)=1287
+
+    proof_failures
+    ✓ 'count==0' count=0
+
+
+  █ TOTAL RESULTS
+
+    checks_total.......: 3       2.330535/s
+    checks_succeeded...: 100.00% 3 out of 3
+    checks_failed......: 0.00%   0 out of 3
+
+    ✓ websocket connected
+    ✓ sessions.list accepted
+    ✓ tools.effective accepted
+
+    CUSTOM
+    preflight_duration....: avg=1287   min=1287   med=1287   max=1287   p(90)=1287   p(95)=1287
+    proof_failures........: 0     0/s
+
+    EXECUTION
+    iteration_duration....: avg=1.28s  min=1.28s  med=1.28s  max=1.28s  p(90)=1.28s  p(95)=1.28s
+    iterations............: 1     0.776845/s
+    vus...................: 1     min=1      max=1
+    vus_max...............: 1     min=1      max=1
+
+    NETWORK
+    data_received.........: 71 kB 55 kB/s
+    data_sent.............: 874 B 679 B/s
+
+    WEBSOCKET
+    ws_connecting.........: avg=1.35ms min=1.35ms med=1.35ms max=1.35ms p(90)=1.35ms p(95)=1.35ms
+    ws_msgs_received......: 5     3.884225/s
+    ws_msgs_sent..........: 3     2.330535/s
+    ws_session_duration...: avg=1.28s  min=1.28s  med=1.28s  max=1.28s  p(90)=1.28s  p(95)=1.28s
+    ws_sessions...........: 1     0.776845/s
+
+
+
+
+running (0m01.3s), 0/1 VUs, 1 complete and 0 interrupted iterations
+preflight_inventory ✓ [ 100% ] 1 VUs  01.3s/45s  1/1 shared iters

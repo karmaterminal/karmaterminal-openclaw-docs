@@ -1,0 +1,13 @@
+{
+  "schema": "openclaw.proofs.runtime-restoration.v1",
+  "productSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "deployedBuildSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "configSha256": "002e5564bdfe03972e9a4ba851043900a8df6d99d9447b3e979ba381bcc69d0e",
+  "expectedConfigSha256": "002e5564bdfe03972e9a4ba851043900a8df6d99d9447b3e979ba381bcc69d0e",
+  "configRestored": true,
+  "gatewayActive": true,
+  "nRestarts": 0,
+  "redeployed": false,
+  "doctorRepairRun": false,
+  "checkedAt": "2026-08-03T04:48:10Z"
+}

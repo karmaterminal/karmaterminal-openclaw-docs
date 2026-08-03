@@ -1,0 +1,66 @@
+{
+  "schema": "openclaw.proofs.upload-manifest.v1",
+  "row": "R-CW-6",
+  "productSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "executionHarnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "runId": "fixture-20260803T044810Z-50be3360",
+  "generatedAt": "2026-08-03T04:48:10Z",
+  "files": [
+    {
+      "path": "boundary-matrix.json",
+      "sha256": "dcf70f9cf8f26cd8aff28f439e3451d8260e254290a84b581528538366948345",
+      "size": 2070
+    },
+    {
+      "path": "cleanup.json",
+      "sha256": "ed8b6f767d50ba515615303c631fe0701efa4aef96aa344932186fac44f1620b",
+      "size": 1938
+    },
+    {
+      "path": "dispatch-boundary-suite.json",
+      "sha256": "6a57ba938c48c9b1bd13e4f46c12ea73953c0bc2642885553e0654995ae4d4b6",
+      "size": 3146
+    },
+    {
+      "path": "durable-state-recovery.json",
+      "sha256": "d91f71aef962fa6c965643a5fa190b0be53dd8243d1827e80f6b2a9aee08073d",
+      "size": 1754
+    },
+    {
+      "path": "fixture-readiness.json",
+      "sha256": "d5ac3b587f0c4221a6098d6566a5ff2a4c2e7497900eac31df0a97680cf92f78",
+      "size": 1997
+    },
+    {
+      "path": "fixture-result.json",
+      "sha256": "87c8938710b31b0208106505c139d6e2a831b0d506e034995eb02794241a1d2b",
+      "size": 2811
+    },
+    {
+      "path": "public-artifact-safety.json",
+      "sha256": "02fc34f4db90c17aee40f4f8476bc19633068eed4ff9ea68b1cb938f611fcf51",
+      "size": 425
+    },
+    {
+      "path": "run-result.json",
+      "sha256": "07ca51495542a558dde1e3d34662b53183b420984f454d21e65c9eab42b19eb1",
+      "size": 1193
+    },
+    {
+      "path": "runner-metadata.json",
+      "sha256": "2da372fea2e85806e41f4b2f4644b97effcc10e9d1af203262d61110615690ab",
+      "size": 567
+    },
+    {
+      "path": "runtime-boundary.json",
+      "sha256": "5f2fe49dfb195d801efaf9884492e3a1ffafd24741c6e2d2202efac5e14c0d17",
+      "size": 2775
+    },
+    {
+      "path": "typed-tool-surface.json",
+      "sha256": "97de9c60e9963e8ef79f18f641e99a3a75fa3b662cdd849758c8e9c136fed7ee",
+      "size": 2492
+    }
+  ]
+}

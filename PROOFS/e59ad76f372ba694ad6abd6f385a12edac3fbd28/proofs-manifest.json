@@ -1,0 +1,531 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "capture_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "product_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "original_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "recertification_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "config_sha256": "002e5564bdfe03972e9a4ba851043900a8df6d99d9447b3e979ba381bcc69d0e",
+  "created_at": "2026-08-03T04:48:10Z",
+  "recertified_at": "2026-08-03T04:48:10Z",
+  "denominator": {
+    "project": 86,
+    "canonical_rows": 38
+  },
+  "terminal_matrix": "terminal-matrix.json",
+  "rollup": {
+    "pass": 28,
+    "partial": 8,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 0,
+    "missing": 2,
+    "total_rows": 38
+  },
+  "classifications": {
+    "pass": "PASS-candidate complete authority",
+    "partial": "NO-VERDICT with bounded evidence gap",
+    "missing": "NO-VERDICT static-preflight-only skip"
+  },
+  "harness_validation": {
+    "tests": 410,
+    "pass": 410,
+    "fail": 0,
+    "unit_contract_log": "harness-suite-410.log"
+  },
+  "constraints": {
+    "cael_only": true,
+    "redeployed": false,
+    "broad_ci": false,
+    "root_index_updated": false,
+    "prior_corpus_modified": false,
+    "max_attempts_per_row": 2
+  },
+  "rows": [
+    {
+      "row": "PREFLIGHT",
+      "state": "partial",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/PREFLIGHT",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/PREFLIGHT/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/PREFLIGHT/cael/20260803T035245Z-preflight-b177ac4f",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "fresh preflight checks passed on the final attempt, but run-result verdict is null and no candidate routing envelope exists",
+      "attempts": 2,
+      "traces": []
+    },
+    {
+      "row": "R-CD-1",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-1",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-1/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-1/cael/20260803T035252Z-r-cd-1-b177ac4f",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope and bounded Tempo receipt",
+      "attempts": 1,
+      "traces": [
+        {
+          "path": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-1/cael/20260803T035252Z-r-cd-1-b177ac4f/continuation-trace-correlation.json"
+        },
+        {
+          "path": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-1/cael/20260803T035252Z-r-cd-1-b177ac4f/tempo-trace-8e19b397d7ad.json"
+        }
+      ]
+    },
+    {
+      "row": "R-CD-2",
+      "state": "partial",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-2",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-2/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-2/cael/20260803T035655Z-r-cd-2-fcfb7c4e",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "candidate routing envelope absent after 2 attempt(s); harness verdict PARTIAL-candidate; pending authority: continuation-trace-correlation, tempo-trace-json",
+      "attempts": 2,
+      "traces": []
+    },
+    {
+      "row": "R-CD-3",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-3",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-3/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-3/cael/20260803T035953Z-r-cd-3-b1c58ed9",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CD-4",
+      "state": "partial",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-4",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-4/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-4/cael/20260803T040206Z-r-cd-4-f5448e85",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "candidate routing envelope absent after 2 attempt(s); harness verdict PARTIAL-candidate",
+      "attempts": 2,
+      "traces": [
+        {
+          "path": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-4/cael/20260803T040206Z-r-cd-4-f5448e85/continuation-trace-correlation.json"
+        },
+        {
+          "path": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-4/cael/20260803T040206Z-r-cd-4-f5448e85/tempo-trace-3881d0f8a049.json"
+        }
+      ]
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "state": "partial",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-CHAINED-DEPTH-2",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-CHAINED-DEPTH-2/cael/20260803T040653Z-r-cd-chained-depth-2-99560e32",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "candidate routing envelope absent after 2 attempt(s); harness verdict PARTIAL-candidate; pending authority: continuation-trace-correlation, tempo-trace-json",
+      "attempts": 2,
+      "traces": []
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-COLLECTION-ON-COLLAPSE",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-COLLECTION-ON-COLLAPSE/cael/20260803T041049Z-r-cd-collection-on-collapse-106c388b",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-MODEL-CHAINED-ALT",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-MODEL-CHAINED-ALT/cael/20260803T041055Z-r-cd-model-chained-alt-106c388b",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CD-MODEL-DEFAULT",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-MODEL-DEFAULT",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-MODEL-DEFAULT/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-MODEL-DEFAULT/cael/20260803T041429Z-r-cd-model-default-0133a65f",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 2,
+      "traces": []
+    },
+    {
+      "row": "R-CD-MODEL-TOKEN",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-MODEL-TOKEN",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-MODEL-TOKEN/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-MODEL-TOKEN/cael/20260803T041504Z-r-cd-model-token-9ec0085d",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CD-MODEL-TOOL",
+      "state": "partial",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-MODEL-TOOL",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-MODEL-TOOL/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-MODEL-TOOL/cael/20260803T041849Z-r-cd-model-tool-d41653c3",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "candidate routing envelope absent after 2 attempt(s); harness verdict null; pending authority: execution-bound-child-model-byte",
+      "attempts": 2,
+      "traces": [
+        {
+          "path": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-MODEL-TOOL/cael/20260803T041849Z-r-cd-model-tool-d41653c3/continuation-trace-correlation.json"
+        },
+        {
+          "path": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-MODEL-TOOL/cael/20260803T041849Z-r-cd-model-tool-d41653c3/tempo-trace-5dbc6326be13.json"
+        }
+      ]
+    },
+    {
+      "row": "R-CD-RETURN-OVERLAP",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-RETURN-OVERLAP",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-RETURN-OVERLAP/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-RETURN-OVERLAP/cael/20260803T042213Z-r-cd-return-overlap-7c2e8621",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CD-SILENT",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-SILENT",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-SILENT/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-SILENT/cael/20260803T042219Z-r-cd-silent-7c2e8621",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "state": "partial",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-TOKEN",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-TOKEN/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CD-TOKEN/cael/20260803T042328Z-r-cd-token-1f9ff9b8",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "candidate routing envelope absent after 2 attempt(s); harness verdict PARTIAL-candidate; pending authority: continuation-trace-correlation, tempo-trace-json",
+      "attempts": 2,
+      "traces": []
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CONFIG-DEFAULTS",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CONFIG-DEFAULTS/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CONFIG-DEFAULTS/cael/20260803T042807Z-r-config-defaults-7101e784",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CONFIG-INTERSESSION",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CONFIG-INTERSESSION/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CONFIG-INTERSESSION/cael/20260803T042814Z-r-config-intersession-7101e784",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-1",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-1",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-1/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-1/cael/20260803T042820Z-r-cw-1-7101e784",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope and bounded Tempo receipt",
+      "attempts": 1,
+      "traces": [
+        {
+          "path": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-1/cael/20260803T042820Z-r-cw-1-7101e784/continuation-trace-correlation.json"
+        },
+        {
+          "path": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-1/cael/20260803T042820Z-r-cw-1-7101e784/tempo-trace-6352dcc332e5.json"
+        }
+      ]
+    },
+    {
+      "row": "R-CW-2",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-2",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-2/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-2/cael/20260803T042856Z-r-cw-2-7101e784",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-3",
+      "state": "partial",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-3",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-3/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-3/cael/20260803T043053Z-r-cw-3-840fa23b",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "candidate routing envelope absent after 2 attempt(s); harness verdict PARTIAL-candidate; pending authority: continuation-trace-correlation, tempo-trace-json",
+      "attempts": 2,
+      "traces": []
+    },
+    {
+      "row": "R-CW-4",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-4",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-4/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-4/cael/20260803T043237Z-r-cw-4-b5bbf3cf",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-5",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-5",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-5/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-5/cael/fixture-20260803T044810Z-50be3360",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "isolated exact-candidate fixture passed all declared production-boundary checks",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-5A",
+      "state": "missing",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-5A",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-5A/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-5A/cael/static-20260803T044810Z-50be3360",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "static-preflight-only row was explicitly skipped by live safety policy; no product verdict promoted",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-6",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-6",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-6/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-6/cael/fixture-20260803T044810Z-50be3360",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "isolated exact-candidate fixture passed all declared production-boundary checks",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-6A",
+      "state": "missing",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-6A",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-6A/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-6A/cael/static-20260803T044810Z-50be3360",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "static-preflight-only row was explicitly skipped by live safety policy; no product verdict promoted",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-7",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-7",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-7/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-7/cael/20260803T043331Z-r-cw-7-b5bbf3cf",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-DELEGATE-CHILD-LIVE",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-DELEGATE-CHILD-LIVE/cael/20260803T043337Z-r-cw-delegate-child-live-b5bbf3cf",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-DELEGATE-SELF-CONTINUATION",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-DELEGATE-SELF-CONTINUATION/cael/20260803T043343Z-r-cw-delegate-self-continuation-b5bbf3cf",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-DELEGATE-TOKEN",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-DELEGATE-TOKEN/cael/20260803T043403Z-r-cw-delegate-token-b5bbf3cf",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-MULTI-COLLAPSE",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-MULTI-COLLAPSE/cael/20260803T043409Z-r-cw-multi-collapse-b5bbf3cf",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-MULTI",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-MULTI",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-MULTI/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-MULTI/cael/20260803T043415Z-r-cw-multi-b5bbf3cf",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-TOKEN",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-TOKEN/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-CW-TOKEN/cael/20260803T043422Z-r-cw-token-b5bbf3cf",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-OBS-1",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-OBS-1",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-OBS-1/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-OBS-1/cael/20260803T043444Z-r-obs-1-b5bbf3cf",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-OBS-2",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-OBS-2",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-OBS-2/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-OBS-2/cael/20260803T043509Z-r-obs-2-b5bbf3cf",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-OBS-STATUS",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-OBS-STATUS",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-OBS-STATUS/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-OBS-STATUS/cael/20260803T043515Z-r-obs-status-b5bbf3cf",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-RC-1",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-RC-1",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-RC-1/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-RC-1/cael/20260803T043522Z-r-rc-1-b5bbf3cf",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-RC-2",
+      "state": "partial",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-RC-2",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-RC-2/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-RC-2/cael/20260803T043931Z-r-rc-2-4cef90fd",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "candidate routing envelope absent after 2 attempt(s); harness verdict PARTIAL-candidate; pending authority: continuation-trace-correlation, tempo-trace-json",
+      "attempts": 2,
+      "traces": []
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-REGRESSION-TRAP-TESTS",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-REGRESSION-TRAP-TESTS/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-TRACE-REDACTION-1121",
+      "state": "pass",
+      "dir": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-TRACE-REDACTION-1121",
+      "evidence_doc": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-TRACE-REDACTION-1121/EVIDENCE.md",
+      "selected_artifact": "PROOFS/e59ad76f372ba694ad6abd6f385a12edac3fbd28/R-TRACE-REDACTION-1121/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope",
+      "attempts": 1,
+      "traces": []
+    }
+  ]
+}

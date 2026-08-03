@@ -155,44 +155,21 @@ const events = evidence.redacted_events || [];
 const { sanitized: [summary], orderedTokens } = sanitizeEvidenceRecords([evidence]);
 const { sanitized: safeEvents } = sanitizeEvidenceRecords(events, orderedTokens);
 
-// Build output directory
+// Validate all public-safe data and resolve the verdict BEFORE creating a run
+// directory. A rejected scenario-reported PASS must leave no uploadable
+// success-shaped summary behind.
 const runId = `k6-run-${stamp()}`;
 const outDir = join('PROOFS', args.sha, args.row, args.seat, runId);
-mkdirSync(join(outDir, 'artifacts'), { recursive: true });
 
 let authoritativeReceiptDigest = null;
 if (authoritativeReceipt) {
   const raw = readFileSync(args['authoritative-receipt']);
   authoritativeReceiptDigest = createHash('sha256').update(raw).digest('hex');
-  writeFileSync(join(outDir, 'r-cd-2-authoritative-receipt.json'), raw);
 }
-
-if (args['seat-readiness']) {
-  copyFileSync(args['seat-readiness'], join(outDir, 'seat-readiness.json'));
-}
-if (authoritativeReceipt) {
-  // Carry the signed authority alongside every public candidate surface so a
-  // report/envelope cannot cite an uninspectable generic PASS.
-  copyFileSync(args['authoritative-receipt'], join(outDir, 'r-cd-2-authoritative-receipt.json'));
-}
-
-// Write k6-summary.json through the same public-safe boundary as run-proofs.sh.
-writeFileSync(join(outDir, 'k6-summary.json'), JSON.stringify(summary, null, 2) + '\n');
-
-// Write gateway-events.ndjson (redacted only)
-if (safeEvents.length > 0) {
-  const ndjson = safeEvents.map((e) => JSON.stringify(e)).join('\n') + '\n';
-  writeFileSync(join(outDir, 'gateway-events.ndjson'), ndjson);
-}
-writeFileSync(join(outDir, 'evidence-redaction.json'), JSON.stringify({
-  schema: 'openclaw.k6.public-evidence-redaction.v1',
-  generatedAt: new Date().toISOString(),
-  removedSensitiveValues: orderedTokens.length,
-  records: 1,
-}, null, 2) + '\n');
 
 // The raw k6 console log carries session keys, claim ids, child keys and paths.
-// It is published only through the shared sanitizer, never verbatim.
+// Prepare it through the shared sanitizer now, but do not write it until the
+// authoritative verdict validation below has accepted the candidate output.
 const publicRunLog = sanitizeLog(raw, [summary], orderedTokens);
 for (const [token] of orderedTokens) {
   if (publicRunLog.includes(token)) {
@@ -200,7 +177,6 @@ for (const [token] of orderedTokens) {
     process.exit(1);
   }
 }
-writeFileSync(join(outDir, 'k6-run.log'), publicRunLog);
 
 // --- VERDICT RESOLUTION ---
 //
@@ -277,6 +253,32 @@ if (authoritativeReceipt) {
     : 'FAIL-candidate');
   verdictSource = 'generic-evidence';
 }
+
+// Only an accepted verdict may materialize public candidate artifacts. This is
+// deliberately below the unsupported-PASS refusal: the workflow uploads its
+// failure path, so a partial directory without row-result.json would otherwise
+// look like an accepted PASS to downstream reviewers.
+mkdirSync(join(outDir, 'artifacts'), { recursive: true });
+if (args['seat-readiness']) {
+  copyFileSync(args['seat-readiness'], join(outDir, 'seat-readiness.json'));
+}
+if (authoritativeReceipt) {
+  // Carry the signed authority alongside every public candidate surface so a
+  // report/envelope cannot cite an uninspectable generic PASS.
+  copyFileSync(args['authoritative-receipt'], join(outDir, 'r-cd-2-authoritative-receipt.json'));
+}
+writeFileSync(join(outDir, 'k6-summary.json'), JSON.stringify(summary, null, 2) + '\n');
+if (safeEvents.length > 0) {
+  const ndjson = safeEvents.map((e) => JSON.stringify(e)).join('\n') + '\n';
+  writeFileSync(join(outDir, 'gateway-events.ndjson'), ndjson);
+}
+writeFileSync(join(outDir, 'evidence-redaction.json'), JSON.stringify({
+  schema: 'openclaw.k6.public-evidence-redaction.v1',
+  generatedAt: new Date().toISOString(),
+  removedSensitiveValues: orderedTokens.length,
+  records: 1,
+}, null, 2) + '\n');
+writeFileSync(join(outDir, 'k6-run.log'), publicRunLog);
 
 
 // Write row-result.json

@@ -237,13 +237,15 @@ jobs:
           mkdir -p /tmp/k6-out
           {
             echo "== dry run: no scenario execution, no live session contact =="
-            # Export the EXACT env a live run would export. `k6 archive`
-            # evaluates the init context, which is where loadManifestFromEnv()
-            # calls open(); an unresolvable manifest path therefore fails here
-            # (k6 exit 107) instead of at the head of a live row.
+            # `k6 archive` excludes system env by default. Pass this through
+            # k6's explicit environment flag, otherwise __ENV would not see
+            # it and the init-context manifest open() would silently take its
+            # defaults branch.
             if [ -n "$MANIFEST_PATH" ]; then
-              OPENCLAW_ROW_MANIFEST="$MANIFEST_PATH" \
-                k6 archive "tools/k6-proofs/scenarios/${SCENARIO}.js" -O /tmp/k6-out/archive.tar
+              k6 archive \
+                -e "OPENCLAW_ROW_MANIFEST=$MANIFEST_PATH" \
+                "tools/k6-proofs/scenarios/${SCENARIO}.js" \
+                -O /tmp/k6-out/archive.tar
               echo "scenario compiled and archived with OPENCLAW_ROW_MANIFEST=$MANIFEST_PATH"
             else
               k6 archive "tools/k6-proofs/scenarios/${SCENARIO}.js" -O /tmp/k6-out/archive.tar

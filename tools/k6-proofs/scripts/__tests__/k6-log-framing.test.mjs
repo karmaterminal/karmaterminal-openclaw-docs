@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -275,6 +276,12 @@ test('evidence-writer refuses an unsupported PASS through production framing too
   try {
     assert.equal(run.status, 1);
     assert.match(run.stderr, /receipt map does not support it/);
+    const proofsRoot = path.join(dir, 'PROOFS');
+    await assert.rejects(
+      readFile(proofsRoot),
+      /ENOENT/,
+      'a rejected PASS must not leave an uploadable success-shaped run directory',
+    );
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
@@ -345,6 +352,33 @@ test('manifest-loader normalizes every accepted manifest_path form for k6 open()
   }
 });
 
+test('k6 archive receives a present manifest env and rejects malformed JSON in init context', async (t) => {
+  const k6Bin = process.env.K6_BIN || '/home/figs/bin/k6';
+  if (!existsSync(k6Bin)) {
+    t.skip('k6 binary unavailable at ' + k6Bin);
+    return;
+  }
+
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'p86-k6-archive-'));
+  const malformedManifest = path.join(dir, 'malformed.json');
+  try {
+    await writeFile(malformedManifest, '{ this is not JSON');
+    const run = spawnSync(
+      k6Bin,
+      [
+        'archive',
+        '-e', 'OPENCLAW_ROW_MANIFEST=' + malformedManifest,
+        path.join(k6Root, 'scenarios', 'r-cd-in-1-typed-input-snapshot.js'),
+        '-O', path.join(dir, 'archive.tar'),
+      ],
+      { cwd: repoRoot, encoding: 'utf8' },
+    );
+    assert.equal(run.status, 107, run.stdout + '\\n' + run.stderr);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 // --- workflow contract -------------------------------------------------------
 
 test('the workflow normalizes manifest_path once and exercises it in dry-run archive', async () => {
@@ -366,8 +400,8 @@ test('the workflow normalizes manifest_path once and exercises it in dry-run arc
   );
   assert.match(
     workflow,
-    /OPENCLAW_ROW_MANIFEST="\$MANIFEST_PATH" \\\n\s*k6 archive/,
-    'the dry run must compile with the exact manifest env a live run would use',
+    /k6 archive \\\n\s*-e "OPENCLAW_ROW_MANIFEST=\$MANIFEST_PATH"/,
+    'the dry run must pass the manifest through k6, whose archive mode excludes system env by default',
   );
 });
 

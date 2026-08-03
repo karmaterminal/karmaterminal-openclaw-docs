@@ -107,6 +107,7 @@ See [`docs/GOLDEN-PATH.md`](docs/GOLDEN-PATH.md). Output remains
 `PASS-candidate` / review-required and must not be folded automatically.
 
 - [`docs/PROOF-RUN-METHOD.md`](docs/PROOF-RUN-METHOD.md) is the short GATES/proof-round entrypoint: row enumeration, dry-run/live run shape, bootstrap workflow anchor, and the #331 receipt boundary.
+- [`docs/DELEGATE-ATTACHMENT-IO-ROWS.md`](docs/DELEGATE-ATTACHMENT-IO-ROWS.md) covers the P86 delegate attachment I/O family (docs#491): typed `continue_delegate` input snapshots and the managed `delegate_artifacts` claim lifecycle, including which rows are orchestration-gated to `PARTIAL-candidate` by construction. These eight rows are **supplemental**: the Project 86 accountable contract stays at 38 issues / 35 corpus rows, and they remain manifest-only until a coordinator folds them onto the proof board.
 
 ### 1. Seat readiness / version preflight
 
@@ -403,6 +404,22 @@ Cost-cap boundary rows should take their low test value from `OPENCLAW_K6_COST_C
 Row-specific configuration lives in **manifests** (`tools/k6-proofs/manifests/*.json`), not hardcoded in scenario logic. Scenarios load their manifest at init time via `OPENCLAW_ROW_MANIFEST` env var.
 
 Manifests use `${ENV_VAR:-default}` placeholders resolved at runtime — no secrets or seat-specific values baked into source.
+
+`OPENCLAW_ROW_MANIFEST` takes the **repo-root form** — the same value the Node
+consumers (`live-run-guard.mjs`, `evidence-writer.mjs`, the workflow's
+`manifest_path` input) take:
+
+```
+OPENCLAW_ROW_MANIFEST="tools/k6-proofs/manifests/r-cd-1.json"
+```
+
+k6 resolves a relative `open()` against the running scenario's directory, so
+`lib/manifest-loader.js` normalizes that value (`normalizeManifestOpenPath`)
+rather than making callers keep two spellings of the same path. An absolute
+path, `manifests/<row>.json`, and a bare `<row>.json` are all accepted and
+resolve to the same file; passing the repo-root form used to produce
+`tools/k6-proofs/tools/k6-proofs/manifests/...` and fail `k6 archive` with
+exit 107.
 
 Manifests follow the schema defined by #100 (foundation): `openclaw.k6.proof-row-manifest.v1`.
 

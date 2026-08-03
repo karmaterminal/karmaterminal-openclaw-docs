@@ -1,0 +1,77 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-IN-RECOVERY",
+  "issue": 491,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": true,
+  "timeoutSeconds": 540,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-in-recovery-queued-restart",
+    "description": "A queued typed delegate input snapshot survives an operator gateway restart and is handed to the child from durable state with identical snapshot identity.",
+    "methods": [
+      "sessions.create",
+      "sessions.messages.subscribe",
+      "sessions.send"
+    ],
+    "status": "runnable",
+    "file": "r-cd-in-recovery-queued-restart.js",
+    "notes": "Runnable harness, orchestration-gated verdict. The gateway restart is an operator step the harness must not perform; without OPENCLAW_RESTART_ORCHESTRATED=true the row is PARTIAL-candidate by construction."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "normal",
+    "delaySecondsEnv": "OPENCLAW_QUEUE_DELAY_SECONDS",
+    "attachmentCount": 1,
+    "idempotencyKeyPrefix": "R-CD-IN-RECOVERY"
+  },
+  "expectedReceipts": [
+    { "name": "tool-invoke-accepted", "required": true, "description": "sessions.send dispatch accepted for the delayed typed continue_delegate" },
+    { "name": "input-snapshot-queued", "required": true, "description": "CDINREC-QUEUED sentinel reporting the staged snapshot byte total while the delegate is still queued", "pathHint": "gateway-events.ndjson" },
+    { "name": "gateway-restart-observed", "required": true, "description": "Externally observable gateway lifecycle change on the public /status surface (uptime reset, or endpoint drop and return) while the harness is disconnected. OPENCLAW_RESTART_ORCHESTRATED is an operator declaration and is never sufficient.", "pathHint": "k6-run.log" },
+    { "name": "reconnected-after-restart", "required": true, "description": "The harness opened a SECOND WebSocket connection after the restart window, so the row is proven to survive the socket teardown a real restart causes" },
+    { "name": "post-lifecycle-child-arrival", "required": true, "description": "CDINREC-CHILD-ARRIVED sentinel observed on the reconnected socket", "pathHint": "gateway-events.ndjson" },
+    { "name": "snapshot-identity-preserved", "required": true, "description": "The bytes and sha256 prefix the child received after the restart equal the canary staged before it" },
+    { "name": "no-raw-attachment-bytes-on-the-wire", "required": true, "description": "Negative check: queued attachment content absent from every non-harness frame" },
+    { "name": "no-pre-lifecycle-spawn", "required": true, "description": "Negative check: the delayed delegate did not arrive before the restart window opened" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-IN-RECOVERY",
+    "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Orchestration-gated. PARTIAL-candidate is the expected artifact class unless an operator restart is OBSERVED on the gateway's public /status surface during the window and the reconnected socket then sees the child arrive with the same snapshot identity. The operator declaration OPENCLAW_RESTART_ORCHESTRATED is recorded but never credited as evidence."
+  },
+  "liveRunSafety": {
+    "classification": "orchestration-required",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": true,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PARTIAL-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "tool-invoke-accepted",
+      "input-snapshot-queued",
+      "gateway-restart-observed",
+      "reconnected-after-restart",
+      "post-lifecycle-child-arrival",
+      "snapshot-identity-preserved"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Requires an operator gateway restart during the queue window (OPENCLAW_QUEUE_DELAY_SECONDS, default 120). The harness never restarts anything. Set OPENCLAW_RESTART_ORCHESTRATED=true only when a restart genuinely happened."
+  }
+}

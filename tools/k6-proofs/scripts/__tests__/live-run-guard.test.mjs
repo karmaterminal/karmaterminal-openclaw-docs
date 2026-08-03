@@ -164,7 +164,10 @@ test('R-CW-6 stays process-local and fixture-gated while static variants cannot 
   const liveSuite = spawnSync(process.execPath, [rowListScript, '--live-suite'], { cwd: repoRoot, encoding: 'utf8' });
   assert.equal(liveSuite.status, 0, liveSuite.stderr || liveSuite.stdout);
   const liveRows = liveSuite.stdout.trim().split(',');
-  assert.equal(liveRows.length, 34);
+  // 34 baseline + the 5 k6-runnable P86 delegate attachment I/O rows (docs#491).
+  // The 3 orchestration-required rows of that family (R-CD-IN-RECOVERY,
+  // R-CD-IN-REVOKE, R-CD-OUT-REPLAY) are correctly excluded from the live suite.
+  assert.equal(liveRows.length, 39);
   assert.equal(liveRows[0], 'preflight');
   assert.doesNotMatch(liveSuite.stdout, /R-CW-5(?:,|$)/);
   assert.doesNotMatch(liveSuite.stdout, /R-CW-6(?:,|$)/);

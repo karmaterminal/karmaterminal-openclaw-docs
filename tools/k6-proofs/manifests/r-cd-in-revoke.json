@@ -1,0 +1,80 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-IN-REVOKE",
+  "issue": 491,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "mixed",
+  "mutates": true,
+  "timeoutSeconds": 200,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-in-revoke-no-spawn-scrub",
+    "description": "With the delegate-input attachment policy revoked, a typed attachment-bearing continue_delegate is refused at the tool boundary, spawns no child, and leaves no retained attachment state.",
+    "methods": [
+      "config.get",
+      "sessions.create",
+      "sessions.messages.subscribe",
+      "sessions.send"
+    ],
+    "status": "runnable",
+    "file": "r-cd-in-revoke-no-spawn-scrub.js",
+    "notes": "Mixed surface: the read-only operator config.get establishes the live policy precondition, then the typed tool is probed. The gateway exposes no config.set, so applying the revoke is an operator step."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "normal",
+    "delaySeconds": 1,
+    "attachmentCount": 1,
+    "policyKey": "tools.sessions_spawn.attachments.enabled",
+    "idempotencyKeyPrefix": "R-CD-IN-REVOKE"
+  },
+  "expectedReceipts": [
+    { "name": "operator-policy-snapshot", "required": true, "description": "config.get read of tools.sessions_spawn.attachments.enabled establishing the live precondition" },
+    { "name": "tool-invoke-accepted", "required": true, "description": "sessions.send dispatch accepted for the refused probe" },
+    { "name": "pre-probe-session-inventory", "required": true, "description": "sessions.list taken BEFORE the probe, so \"no child was spawned\" is a diff against an observed baseline rather than a default-true absence" },
+    { "name": "policy-revoke-tool-refusal", "required": true, "description": "A structured continue_delegate tool record carrying an error/refusal. Model prose naming a refusal is corroboration, not the receipt.", "pathHint": "gateway-events.ndjson" },
+    { "name": "no-child-session-observed", "required": true, "description": "sessions.list taken AFTER the probe shows no added session and no session bound to the row nonce" },
+    { "name": "durable-state-scrubbed", "required": true, "description": "The follow-up continue_delegate tool record is observed on the wire and no observed record still carries delegate attachment state", "pathHint": "gateway-events.ndjson" },
+    { "name": "no-child-spawn-under-revoke", "required": true, "description": "Negative check: no child session bound to this row and no session inventory growth" },
+    { "name": "no-retained-attachment-state", "required": true, "description": "Negative check: no observed continue_delegate record still carries delegate attachment state" },
+    { "name": "no-raw-attachment-bytes-on-the-wire", "required": true, "description": "Negative check: refused attachment content absent from every non-harness frame" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-IN-REVOKE",
+    "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Orchestration-gated on an operator config revoke the gateway exposes no API for. Every behavioral leg is credited from an authoritative surface: a structured continue_delegate error record for the refusal, a before/after sessions.list diff for no-spawn, and the follow-up tool record for the scrub. Prose sentinels only sequence the probe."
+  },
+  "liveRunSafety": {
+    "classification": "orchestration-required",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": true,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PARTIAL-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "operator-policy-snapshot",
+      "tool-invoke-accepted",
+      "pre-probe-session-inventory",
+      "policy-revoke-tool-refusal",
+      "no-child-session-observed",
+      "durable-state-scrubbed"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Requires an operator to have revoked tools.sessions_spawn.attachments.enabled on the target seat before the row fires. The harness only reads config.get; it never mutates configuration and never reloads or restarts a gateway."
+  }
+}

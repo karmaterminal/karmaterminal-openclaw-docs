@@ -1,0 +1,83 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-IN-1",
+  "issue": 491,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": true,
+  "timeoutSeconds": 200,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-in-1-typed-input-snapshot",
+    "description": "Typed continue_delegate({attachments}) input snapshot: staged snapshot receipt on the parent, workspace-relative mount provenance in the child, and no attachment content on the wire.",
+    "methods": [
+      "sessions.create",
+      "sessions.messages.subscribe",
+      "sessions.send"
+    ],
+    "status": "runnable",
+    "file": "r-cd-in-1-typed-input-snapshot.js",
+    "notes": "Only the typed tool carries attachment blobs; the bracket [[CONTINUE_DELEGATE: ...]] form cannot, so the both-forms mandate is not applicable to this row."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "normal",
+    "delaySeconds": 1,
+    "attachmentCount": 1,
+    "attachmentEncoding": "utf8",
+    "idempotencyKeyPrefix": "R-CD-IN-1"
+  },
+  "expectedReceipts": [
+    { "name": "tool-invoke-accepted", "required": true, "description": "sessions.send dispatch accepted (agent turn triggered for typed continue_delegate with attachments)" },
+    { "name": "typed-tool-record-observed", "required": true, "description": "Structured continue_delegate tool record observed on the wire, so the typed call is not credited from model prose alone", "pathHint": "gateway-events.ndjson" },
+    { "name": "input-snapshot-staged", "required": true, "description": "CDIN1-SNAPSHOT-STAGED sentinel carrying the tool-result attachment count and byte total (never the content)", "pathHint": "gateway-events.ndjson" },
+    { "name": "child-session-bound", "required": true, "description": "A structured record binds a child session key to this row nonce (row-child-correlation authority)", "pathHint": "gateway-events.ndjson" },
+    { "name": "child-mount-provenance", "required": true, "description": "CDIN1-CHILD-SAW sentinel naming the workspace-relative mount path the child received", "pathHint": "gateway-events.ndjson" },
+    { "name": "child-bytes-bound-to-canary", "required": true, "description": "The byte length and sha256 prefix the child reports for its mounted file equal the canary digest the harness staged: the mount path is bound to known bytes, not asserted", "pathHint": "gateway-events.ndjson" },
+    { "name": "no-raw-attachment-bytes-on-the-wire", "required": true, "description": "Negative check: attachment content absent from every non-harness frame" },
+    { "name": "no-absolute-path-mount", "required": true, "description": "Negative check: the reported mount path is workspace-relative" },
+    { "name": "child-bytes-match-the-known-canary", "required": true, "description": "Negative check: a child-reported digest/size that differs from the staged canary breaks the row" },
+    { "name": "trace-id", "required": false, "description": "Trace ID for Tempo fetch when the dispatch response carries one" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-IN-1",
+    "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "PASS-candidate only when dispatch is accepted, a structured continue_delegate record is observed, the staged-snapshot receipt fires, a child session is bound to the row nonce, and the child reports a workspace-relative mount path whose bytes and sha256 prefix equal the canary the harness staged. Any missing receipt or broken negative is PARTIAL-candidate."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "tool-invoke-accepted",
+      "typed-tool-record-observed",
+      "input-snapshot-staged",
+      "child-session-bound",
+      "child-mount-provenance",
+      "child-bytes-bound-to-canary",
+      "no-raw-attachment-bytes-on-the-wire",
+      "no-absolute-path-mount",
+      "child-bytes-match-the-known-canary"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Spawns one delegate child with an inline attachment. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Serialize per session. Public-safe: the harness records a byte count and a truncated sha256 digest of the canary, never the canary content."
+  }
+}

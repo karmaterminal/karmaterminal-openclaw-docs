@@ -1,0 +1,85 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-OUT-CLAIM",
+  "issue": 491,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": true,
+  "timeoutSeconds": 320,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-out-claim-lifecycle",
+    "description": "Recipient-bound delegate_artifacts lifecycle: list, inspect, recipient-authorized workspace-relative materialize, discard, and a post-discard inspect that must be rejected.",
+    "methods": [
+      "sessions.create",
+      "sessions.messages.subscribe",
+      "sessions.send"
+    ],
+    "status": "runnable",
+    "file": "r-cd-out-claim-lifecycle.js"
+  },
+  "invocation": {
+    "tool": "delegate_artifacts",
+    "actions": ["list", "inspect", "materialize", "discard"],
+    "viaTool": "continue_delegate",
+    "mode": "normal",
+    "delaySeconds": 1,
+    "destinationTemplate": "p86-materialized/{{nonce}}.txt",
+    "idempotencyKeyPrefix": "R-CD-OUT-CLAIM"
+  },
+  "expectedReceipts": [
+    { "name": "tool-invoke-accepted", "required": true, "description": "sessions.send dispatch accepted" },
+    { "name": "child-publish-accepted", "required": false, "description": "CDCLAIM-CHILD-PUBLISHED sentinel: context that the claim under test came from a real child publication" },
+    { "name": "claim-listed", "required": true, "description": "CDCLAIM-LISTED sentinel: delegate_artifacts action=list returned the recipient's claim id" },
+    { "name": "claim-inspected", "required": true, "description": "CDCLAIM-INSPECTED sentinel: metadata only (byte count and mime type), never content" },
+    { "name": "authorized-materialize", "required": true, "description": "CDCLAIM-MATERIALIZED sentinel: recipient-authorized materialize to a workspace-relative destination" },
+    { "name": "claim-discarded", "required": true, "description": "CDCLAIM-DISCARDED sentinel: the recipient discarded the claim" },
+    { "name": "no-read-after-discard", "required": true, "description": "Negative check: CDCLAIM-POSTDISCARD reported rejected, not ok" },
+    { "name": "materialize-destination-is-workspace-relative", "required": true, "description": "Negative check: the destination did not escape the workspace" },
+    { "name": "no-raw-artifact-bytes-on-the-wire", "required": true, "description": "Negative check: artifact content absent from every non-harness frame, including inspect results" },
+    { "name": "post-discard-inspect-rejected", "required": true, "description": "CDCLAIM-POSTDISCARD names the SAME claim id, reports rejected, and a structured delegate_artifacts error record was observed: the discarded claim is proven unreadable rather than assumed", "pathHint": "gateway-events.ndjson" },
+    { "name": "discard-targets-the-listed-claim", "required": true, "description": "Negative check: the discarded claim id is the claim id that was listed and inspected" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-OUT-CLAIM",
+    "seat": "${OPENCLAW_SEAT_NAME:-rune-rog-ally}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Every lifecycle leg must be an explicit recipient action. A run where materialize happened without the list/inspect legs is PARTIAL, not PASS: the point of the row is that the recipient drives it. The post-discard leg is required, not advisory: without a claim-id-bound rejection receipt backed by a structured delegate_artifacts error record, the row could PASS while the discarded claim is still readable."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "tool-invoke-accepted",
+      "claim-listed",
+      "claim-inspected",
+      "authorized-materialize",
+      "claim-discarded",
+      "no-read-after-discard",
+      "materialize-destination-is-workspace-relative",
+      "no-raw-artifact-bytes-on-the-wire",
+      "post-discard-inspect-rejected",
+      "discard-targets-the-listed-claim"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Writes exactly one small file into the recipient workspace under p86-materialized/ as the authorized-materialize leg, then discards the claim. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Serialize per session."
+  }
+}

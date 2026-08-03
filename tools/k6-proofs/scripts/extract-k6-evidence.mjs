@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
+import { extractEvidenceData } from '../lib/k6-log-evidence.mjs';
 
 function usage() {
   console.error('Usage: node extract-k6-evidence.mjs --input <k6.log> --out <evidence.jsonl> [--lines-out <evidence-lines.log>]');
@@ -17,82 +18,6 @@ function parseArgs(argv) {
     i += 1;
   }
   return out;
-}
-
-function decodeMessage(line) {
-  const marker = ' msg=';
-  const start = line.indexOf(marker);
-  if (start < 0) return line;
-  const encodedStart = start + marker.length;
-  const source = line.lastIndexOf(' source=');
-  const encoded = line.slice(encodedStart, source > encodedStart ? source : undefined).trim();
-  if (!encoded) return null;
-  if (!encoded.startsWith('"')) return encoded;
-  try {
-    return JSON.parse(encoded);
-  } catch {
-    return null;
-  }
-}
-
-function parseJsonCandidate(value) {
-  const text = String(value || '').trim();
-  if (!text.startsWith('{')) return null;
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
-}
-
-function extractEvidenceData(logText) {
-  const records = [];
-  const lines = [];
-  let awaitingRecord = false;
-
-  for (const line of String(logText || '').split(/\r?\n/)) {
-    const message = decodeMessage(line);
-    if (!message) continue;
-    const text = String(message).trim();
-
-    const inline = text.match(/(?:[A-Z0-9_-]+_EVIDENCE|===\s*K6-PROOF-EVIDENCE\s*===)\s+(\{[\s\S]*\})$/);
-    if (inline) {
-      const record = parseJsonCandidate(inline[1]);
-      if (record) {
-        records.push(record);
-        lines.push(line);
-      }
-      awaitingRecord = false;
-      continue;
-    }
-
-    if (/\bEVIDENCE SUMMARY\b|===\s*K6-PROOF-EVIDENCE\s*===/.test(text)) {
-      lines.push(line);
-      const sameMessageJson = text.match(/(?:SUMMARY\b|===)\s*[\r\n]+(\{[\s\S]*\})/);
-      const record = sameMessageJson ? parseJsonCandidate(sameMessageJson[1]) : null;
-      if (record) {
-        records.push(record);
-        awaitingRecord = false;
-      } else {
-        awaitingRecord = true;
-      }
-      continue;
-    }
-
-    if (awaitingRecord) {
-      const record = parseJsonCandidate(text);
-      if (record) {
-        records.push(record);
-        lines.push(line);
-        awaitingRecord = false;
-      }
-    }
-  }
-
-  const uniqueRecords = [...new Map(
-    records.map((record) => [JSON.stringify(record), record]),
-  ).values()];
-  return { records: uniqueRecords, lines };
 }
 
 export function extractEvidence(logText) {

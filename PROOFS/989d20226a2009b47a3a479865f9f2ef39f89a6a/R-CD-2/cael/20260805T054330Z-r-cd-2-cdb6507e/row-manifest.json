@@ -1,0 +1,112 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-2",
+  "issue": 119,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-2-silent-wake",
+    "description": "continue_delegate(mode='silent-wake') full path from a new unbound session created with an available explicit built-in OpenClaw model. The dispatch turn closes with an exact post-tool sentinel; the delegate return stays silent while triggering a fresh parent turn without channel output.",
+    "methods": [
+      "agents.list",
+      "models.list",
+      "sessions.list",
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "tasks.list"
+    ],
+    "status": "runnable",
+    "file": "r-cd-2-silent-wake.js"
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "silent-wake",
+    "delaySeconds": 1,
+    "promptTemplate": "Proof nonce {{nonce}}: reply with DONE and the nonce only. Do not mutate files. Do not post to any channel.",
+    "idempotencyKeyPrefix": "R-CD-2"
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "execution-runtime-selection",
+      "send-run-lifecycle",
+      "typed-delegate-topology",
+      "row-scoped-authoritative-receipt",
+      "no-channel-delivery",
+      "tempo-trace-json"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live continuation row. Fail closed when token/session env is missing, serialize per target session, and treat generated output as a PASS-candidate until required receipts are reviewed."
+  },
+  "expectedReceipts": [
+    {
+      "name": "execution-runtime-selection",
+      "required": true,
+      "description": "Before session creation, public agents.list identifies the configured default agent and public models.list metadata selects an available explicit model whose agentRuntime explicitly identifies the built-in OpenClaw runtime and records its policy source; omitted/auto/default/plugin runtime metadata is rejected. A successful collision preflight uses the canonical session key; write-scoped sessions.create must return that same key, a self-consistent session ID, and the selected provider/model; a successful sessions.list then verifies the same session ID plus the new unbound session's provider, model, runtime, and runtime source. No sessions.patch or sticky model mutation is used."
+    },
+    {
+      "name": "send-run-lifecycle",
+      "required": true,
+      "description": "Accepted sessions.send run/turn ID is bound to lifecycle-start/end success, an exact sentinel observed only while that dispatch lifecycle is active, and a distinct same-session parent wake; generic delayed messages cannot satisfy it"
+    },
+    {
+      "name": "task-ledger-entry",
+      "required": false,
+      "description": "Optional extra context from the generic TaskFlow task ledger; continue_delegate does not reliably write here"
+    },
+    {
+      "name": "child-session-key",
+      "required": false,
+      "description": "Child session key from task metadata"
+    },
+    {
+      "name": "typed-delegate-topology",
+      "required": true,
+      "description": "One topology-scoped continue_delegate silent-wake tool execution plus continuation.delegate.dispatch/fire spans share one non-zero trace and chain, even when the trace carries older unrelated activity"
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace projection that carries the same authoritative trace and chain binding as the accepted send lifecycle"
+    },
+    {
+      "name": "no-channel-delivery",
+      "required": true,
+      "description": "Delegate return does NOT produce a channel message (silent mode verified)"
+    },
+    {
+      "name": "row-scoped-authoritative-receipt",
+      "required": true,
+      "description": "Validated public-safe R-CD-2 receipt is the sole authority for candidate verdict surfaces"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-2",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Silent-wake path. Only the row-scoped authoritative receipt can produce PASS-candidate: a new unbound session must be verified on an explicit available built-in OpenClaw model without sticky mutation, the accepted dispatch turn must reach its explicit post-tool terminal boundary, one topology-scoped typed continue_delegate must complete, Tempo must prove same trace/chain dispatch+fire topology, the distinct wake lifecycle must be observed, and no channel delivery may occur."
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "k6ExitCode": 99,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 99,
+  "endedAt": "2026-08-05T05:41:08Z",
+  "verdict": null,
+  "verdictSource": "none",
+  "summaryFileVerdict": null,
+  "vuLogVerdict": null,
+  "summaryFiles": [],
+  "evidence": {
+    "row": "preflight",
+    "manifest_loaded": true,
+    "seat": "cael",
+    "candidateSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "started": "2026-08-05T05:40:56.486Z",
+    "connected": true,
+    "sessions_list_ok": true,
+    "tools_effective_ok": false,
+    "tool_inventory_count": 0,
+    "ended": "2026-08-05T05:41:08.490Z",
+    "duration_ms": 12004
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

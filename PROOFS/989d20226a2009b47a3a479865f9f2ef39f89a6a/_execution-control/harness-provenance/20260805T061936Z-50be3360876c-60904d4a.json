@@ -1,0 +1,35 @@
+{
+  "schema": "openclaw.k6.harness-provenance.v1",
+  "classification": "harness-provenance",
+  "matrixId": "20260805T061936Z-50be3360876c-60904d4a",
+  "mode": "live",
+  "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "docsRefSource": "approved-input",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "harnessIdentityVerified": true,
+  "candidateSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "runtimeIdentity": {
+    "seat": "cael",
+    "runtimeBuildSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "candidateMatchesRuntime": true,
+    "seatReadinessReceipt": "seat-readiness.json",
+    "seatReadinessSha256": "6add5f5537c8afa007cb0d5ec380bc9a9f93a31e5e7071da322cea65cbc87f0f"
+  },
+  "runnerScript": "tools/k6-proofs/scripts/run-proofs.sh",
+  "runnerScriptSha256": "f81c422874f1acaf722275f2b87bbed048cb8d913435df0a0090c29b49ea31f4",
+  "rowSelection": [
+    "R-RC-1"
+  ],
+  "rows": [
+    {
+      "rowId": "R-RC-1",
+      "manifestPath": "tools/k6-proofs/manifests/r-rc-1.json",
+      "manifestSha256": "8e2cb6d5333545ec014270f185c71cc5a777c367d66383bb581098d17498daea",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-rc-1-threshold-reject.js",
+      "scenarioSha256": "57608c4f10ddcb6da3edf416d880ced0ec16bcd17ebc797207ddf4a0ffdaa2ab"
+    }
+  ],
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "startedAt": "2026-08-05T06:19:36Z"
+}

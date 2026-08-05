@@ -1,0 +1,35 @@
+{
+  "schema": "openclaw.k6.harness-provenance.v1",
+  "classification": "harness-provenance",
+  "matrixId": "20260805T055111Z-50be3360876c-f745583e",
+  "mode": "live",
+  "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "docsRefSource": "approved-input",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "harnessIdentityVerified": true,
+  "candidateSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "runtimeIdentity": {
+    "seat": "cael",
+    "runtimeBuildSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "candidateMatchesRuntime": true,
+    "seatReadinessReceipt": "seat-readiness.json",
+    "seatReadinessSha256": "0cf9f5c5e632406f3c70b65b1d03094cf31b0374b339a24e4830b95f811f81b8"
+  },
+  "runnerScript": "tools/k6-proofs/scripts/run-proofs.sh",
+  "runnerScriptSha256": "f81c422874f1acaf722275f2b87bbed048cb8d913435df0a0090c29b49ea31f4",
+  "rowSelection": [
+    "R-CD-COLLECTION-ON-COLLAPSE"
+  ],
+  "rows": [
+    {
+      "rowId": "R-CD-COLLECTION-ON-COLLAPSE",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-collection-on-collapse.json",
+      "manifestSha256": "044ac50b2109d3ee4c1cef32b7d048b5e8021e09c407f7ef298c383438ef4bbc",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    }
+  ],
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "startedAt": "2026-08-05T05:51:11Z"
+}

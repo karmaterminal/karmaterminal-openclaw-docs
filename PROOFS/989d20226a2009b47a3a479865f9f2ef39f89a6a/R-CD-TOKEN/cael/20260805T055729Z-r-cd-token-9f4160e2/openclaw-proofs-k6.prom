@@ -1,0 +1,20 @@
+# TYPE openclaw_proofs_k6_run_total counter
+openclaw_proofs_k6_run_total{row_id="R-CD-TOKEN",seat="cael",candidate_sha="989d20226a2009b47a3a479865f9f2ef39f89a6a",scenario="r-cd-token-bracket-delegate.js",run_id="20260805T055729Z-r-cd-token-9f4160e2",tool_surface="bracket-token",transport="websocket",outcome="PARTIAL-candidate",candidate_only="true",fold_requires_review="true",failure_class="threshold"} 1
+# TYPE openclaw_proofs_k6_proof_failures_total counter
+openclaw_proofs_k6_proof_failures_total{row_id="R-CD-TOKEN",seat="cael",candidate_sha="989d20226a2009b47a3a479865f9f2ef39f89a6a",scenario="r-cd-token-bracket-delegate.js",run_id="20260805T055729Z-r-cd-token-9f4160e2",failure_class="threshold"} 1
+# TYPE openclaw_proofs_k6_candidate_pending_review gauge
+openclaw_proofs_k6_candidate_pending_review{row_id="R-CD-TOKEN",seat="cael",candidate_sha="989d20226a2009b47a3a479865f9f2ef39f89a6a",run_id="20260805T055729Z-r-cd-token-9f4160e2",outcome="PARTIAL-candidate",fold_requires_review="true"} 1
+# TYPE openclaw_proofs_k6_duration_ms gauge
+openclaw_proofs_k6_duration_ms{row_id="R-CD-TOKEN",seat="cael",candidate_sha="989d20226a2009b47a3a479865f9f2ef39f89a6a",scenario="r-cd-token-bracket-delegate.js",run_id="20260805T055729Z-r-cd-token-9f4160e2",outcome="PARTIAL-candidate"} 180882
+# TYPE openclaw_proofs_k6_receipt_status gauge
+openclaw_proofs_k6_receipt_status{row_id="R-CD-TOKEN",seat="cael",candidate_sha="989d20226a2009b47a3a479865f9f2ef39f89a6a",run_id="20260805T055729Z-r-cd-token-9f4160e2",receipt_name="continuation-trace-correlation",receipt_required="true",receipt_status="missing"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-TOKEN",seat="cael",candidate_sha="989d20226a2009b47a3a479865f9f2ef39f89a6a",run_id="20260805T055729Z-r-cd-token-9f4160e2",receipt_name="tempo-trace-json",receipt_required="true",receipt_status="missing"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-TOKEN",seat="cael",candidate_sha="989d20226a2009b47a3a479865f9f2ef39f89a6a",run_id="20260805T055729Z-r-cd-token-9f4160e2",receipt_name="exact-candidate-runtime-identity",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-TOKEN",seat="cael",candidate_sha="989d20226a2009b47a3a479865f9f2ef39f89a6a",run_id="20260805T055729Z-r-cd-token-9f4160e2",receipt_name="attempt-state",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-TOKEN",seat="cael",candidate_sha="989d20226a2009b47a3a479865f9f2ef39f89a6a",run_id="20260805T055729Z-r-cd-token-9f4160e2",receipt_name="raw-final-text-origin",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-TOKEN",seat="cael",candidate_sha="989d20226a2009b47a3a479865f9f2ef39f89a6a",run_id="20260805T055729Z-r-cd-token-9f4160e2",receipt_name="prompt-injected",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-TOKEN",seat="cael",candidate_sha="989d20226a2009b47a3a479865f9f2ef39f89a6a",run_id="20260805T055729Z-r-cd-token-9f4160e2",receipt_name="parser-detected",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-TOKEN",seat="cael",candidate_sha="989d20226a2009b47a3a479865f9f2ef39f89a6a",run_id="20260805T055729Z-r-cd-token-9f4160e2",receipt_name="queue-identity",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-TOKEN",seat="cael",candidate_sha="989d20226a2009b47a3a479865f9f2ef39f89a6a",run_id="20260805T055729Z-r-cd-token-9f4160e2",receipt_name="child-spawned",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-TOKEN",seat="cael",candidate_sha="989d20226a2009b47a3a479865f9f2ef39f89a6a",run_id="20260805T055729Z-r-cd-token-9f4160e2",receipt_name="child-completed",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-TOKEN",seat="cael",candidate_sha="989d20226a2009b47a3a479865f9f2ef39f89a6a",run_id="20260805T055729Z-r-cd-token-9f4160e2",receipt_name="parent-return-event",receipt_required="true",receipt_status="unknown"} 0

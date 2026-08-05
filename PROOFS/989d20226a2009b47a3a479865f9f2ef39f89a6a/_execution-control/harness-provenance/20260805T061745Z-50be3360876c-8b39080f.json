@@ -1,0 +1,35 @@
+{
+  "schema": "openclaw.k6.harness-provenance.v1",
+  "classification": "harness-provenance",
+  "matrixId": "20260805T061745Z-50be3360876c-8b39080f",
+  "mode": "live",
+  "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "docsRefSource": "approved-input",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "harnessIdentityVerified": true,
+  "candidateSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "runtimeIdentity": {
+    "seat": "cael",
+    "runtimeBuildSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "candidateMatchesRuntime": true,
+    "seatReadinessReceipt": "seat-readiness.json",
+    "seatReadinessSha256": "34c07106eb24bd72404ad716a1e136f078d813ba7166c7a5577173ed50269a57"
+  },
+  "runnerScript": "tools/k6-proofs/scripts/run-proofs.sh",
+  "runnerScriptSha256": "f81c422874f1acaf722275f2b87bbed048cb8d913435df0a0090c29b49ea31f4",
+  "rowSelection": [
+    "R-CW-MULTI-COLLAPSE"
+  ],
+  "rows": [
+    {
+      "rowId": "R-CW-MULTI-COLLAPSE",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-multi-collapse.json",
+      "manifestSha256": "e920ce36f434d52117d05bbbab435c47e827bec6aec914b1b41d71563a083ffa",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    }
+  ],
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "startedAt": "2026-08-05T06:17:45Z"
+}

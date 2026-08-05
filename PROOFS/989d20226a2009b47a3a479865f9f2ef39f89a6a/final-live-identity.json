@@ -1,0 +1,12 @@
+{
+  "schema": "openclaw.proofs.final-live-identity.v1",
+  "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "target_tree": "bb0b4f0d4ae4606d41d49a8ed16f103c2593b614",
+  "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "service_active": true,
+  "service_substate": "running",
+  "nrestarts": 0,
+  "final_config_sha256": "3a4ef466200d23e56460fea25807f224870890e641d9ea34c440de625092721e",
+  "recorded_at": "2026-08-05T06:32:25Z"
+}

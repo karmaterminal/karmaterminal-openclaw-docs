@@ -1,0 +1,18 @@
+{
+  "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+  "sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "seat": "cael",
+  "timestamp": "2026-08-05T06:17:16.788Z",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "duration_ms": {
+      "p(95)": 22820,
+      "avg": 22820,
+      "min": 22820,
+      "med": 22820,
+      "max": 22820,
+      "p(90)": 22820
+    },
+    "failures": 0
+  }
+}

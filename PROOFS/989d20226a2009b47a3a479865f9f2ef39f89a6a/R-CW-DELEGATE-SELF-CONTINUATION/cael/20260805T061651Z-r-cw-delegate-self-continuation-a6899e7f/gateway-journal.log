@@ -1,0 +1,17 @@
+2026-08-04T23:16:52.983108-07:00 cael node[3546538]: 2026-08-04T23:16:52.982-07:00 [warn] Subagent completion direct announce failed for run continuation-delegate-8e40e923b9f37cf26d09477e5bff9ddc: completion agent did not produce a visible reply
+2026-08-04T23:16:55.449138-07:00 cael node[3546538]: 2026-08-04T23:16:55.448-07:00 [ws] ⇄ res ✓ sessions.send 278ms runId=R-CW-DELEGATE-SELF-DISPATCH-<redacted-nonce> conn=af99cae4…d54f id=1-0-1785910615164-t4ghrk
+2026-08-04T23:17:00.889313-07:00 cael node[3546538]: 2026-08-04T23:17:00.889-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-08-04T23:17:05.077981-07:00 cael node[3546538]: 2026-08-04T23:17:05.077-07:00 [warn] Subagent completion direct announce failed for run continuation-delegate-0f0685e9b4413001f1ec608aad1413ef: completion agent did not produce a visible reply
+2026-08-04T23:17:05.533981-07:00 cael node[3546538]: 2026-08-04T23:17:05.533-07:00 [memory] sync failed (search-bootstrap): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:17:05.534770-07:00 cael node[3546538]: 2026-08-04T23:17:05.534-07:00 [memory] sync failed (search-bootstrap): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:17:05.535438-07:00 cael node[3546538]: 2026-08-04T23:17:05.535-07:00 [memory] sync failed (search): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:17:05.535968-07:00 cael node[3546538]: 2026-08-04T23:17:05.535-07:00 [memory] sync failed (session-start): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:17:05.536472-07:00 cael node[3546538]: 2026-08-04T23:17:05.536-07:00 [memory] sync failed (session update): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:17:12.646617-07:00 cael node[3546538]: 2026-08-04T23:17:12.646-07:00 [memory] sync failed (search): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:17:12.647149-07:00 cael node[3546538]: 2026-08-04T23:17:12.647-07:00 [memory] sync failed (session-start): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:17:12.647719-07:00 cael node[3546538]: 2026-08-04T23:17:12.647-07:00 [memory] sync failed (search): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:17:12.648234-07:00 cael node[3546538]: 2026-08-04T23:17:12.648-07:00 [memory] sync failed (session-start): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:17:16.728704-07:00 cael node[3546538]: 2026-08-04T23:17:16.728-07:00 [agent/embedded] codex app-server turn released after terminal dynamic tool result
+2026-08-04T23:17:16.877467-07:00 cael node[3546538]: 2026-08-04T23:17:16.877-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-04T23:17:16.878109-07:00 cael node[3546538]: 2026-08-04T23:17:16.878-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-04T23:17:16.887143-07:00 cael node[3546538]: 2026-08-04T23:17:16.886-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>

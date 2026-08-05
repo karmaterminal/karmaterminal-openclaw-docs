@@ -1,0 +1,8 @@
+{
+  "schema": "openclaw.proofs.config-restoration.v1",
+  "source_config_sha256": "002e5564bdfe03972e9a4ba851043900a8df6d99d9447b3e979ba381bcc69d0e",
+  "target_config_sha256": "3a4ef466200d23e56460fea25807f224870890e641d9ea34c440de625092721e",
+  "staged_config_rows": [],
+  "restoration_required": false,
+  "final_config_sha256": "3a4ef466200d23e56460fea25807f224870890e641d9ea34c440de625092721e"
+}

@@ -1,0 +1,10 @@
+2026-08-04T22:46:18.620769-07:00 cael node[3546538]: 2026-08-04T22:46:18.620-07:00 [ws] ⇄ res ✓ sessions.send 263ms runId=R-CD-3-<redacted-nonce> conn=665eaeab…7e08 id=1-0-1785908778354-s5ssrq
+2026-08-04T22:46:28.496704-07:00 cael node[3546538]: 2026-08-04T22:46:28.496-07:00 [memory] sync failed (search-bootstrap): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:46:28.497520-07:00 cael node[3546538]: 2026-08-04T22:46:28.497-07:00 [memory] sync failed (search-bootstrap): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:46:28.498153-07:00 cael node[3546538]: 2026-08-04T22:46:28.498-07:00 [memory] sync failed (search): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:46:28.498692-07:00 cael node[3546538]: 2026-08-04T22:46:28.498-07:00 [memory] sync failed (session-start): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:46:28.499283-07:00 cael node[3546538]: 2026-08-04T22:46:28.499-07:00 [memory] sync failed (session update): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:46:36.030247-07:00 cael node[3546538]: 2026-08-04T22:46:36.030-07:00 [memory] sync failed (search): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:46:36.030711-07:00 cael node[3546538]: 2026-08-04T22:46:36.030-07:00 [memory] sync failed (session-start): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:46:36.031257-07:00 cael node[3546538]: 2026-08-04T22:46:36.031-07:00 [memory] sync failed (search): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:46:36.031763-07:00 cael node[3546538]: 2026-08-04T22:46:36.031-07:00 [memory] sync failed (session-start): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}

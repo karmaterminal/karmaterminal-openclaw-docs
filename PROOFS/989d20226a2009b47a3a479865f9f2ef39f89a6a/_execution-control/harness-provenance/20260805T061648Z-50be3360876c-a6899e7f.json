@@ -1,0 +1,35 @@
+{
+  "schema": "openclaw.k6.harness-provenance.v1",
+  "classification": "harness-provenance",
+  "matrixId": "20260805T061648Z-50be3360876c-a6899e7f",
+  "mode": "live",
+  "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "docsRefSource": "approved-input",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "harnessIdentityVerified": true,
+  "candidateSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "runtimeIdentity": {
+    "seat": "cael",
+    "runtimeBuildSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "candidateMatchesRuntime": true,
+    "seatReadinessReceipt": "seat-readiness.json",
+    "seatReadinessSha256": "5331fae9072ff3fed2758d6ec09e6f75b7519ae2824d97d227a8ed0e47375a03"
+  },
+  "runnerScript": "tools/k6-proofs/scripts/run-proofs.sh",
+  "runnerScriptSha256": "f81c422874f1acaf722275f2b87bbed048cb8d913435df0a0090c29b49ea31f4",
+  "rowSelection": [
+    "R-CW-DELEGATE-SELF-CONTINUATION"
+  ],
+  "rows": [
+    {
+      "rowId": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-delegate-self.json",
+      "manifestSha256": "6cc1830e3c59ce06a805e81b9f8040a8835ab1fc958c10058a52c1060b1c9ef1",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-delegate-self-continuation.js",
+      "scenarioSha256": "5ad5eff1472f8c100bfb435749b1f4b8833b277d78930a9777784f1c8b8a94a9"
+    }
+  ],
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "startedAt": "2026-08-05T06:16:48Z"
+}

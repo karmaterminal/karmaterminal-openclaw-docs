@@ -1,0 +1,35 @@
+{
+  "schema": "openclaw.k6.harness-provenance.v1",
+  "classification": "harness-provenance",
+  "matrixId": "20260805T061758Z-50be3360876c-bebd2aea",
+  "mode": "live",
+  "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "docsRefSource": "approved-input",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "harnessIdentityVerified": true,
+  "candidateSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "runtimeIdentity": {
+    "seat": "cael",
+    "runtimeBuildSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "candidateMatchesRuntime": true,
+    "seatReadinessReceipt": "seat-readiness.json",
+    "seatReadinessSha256": "58dd8ff40a16a16ecf6e623cafdd49a365b1322c9a8e0a71921680c51a057bdc"
+  },
+  "runnerScript": "tools/k6-proofs/scripts/run-proofs.sh",
+  "runnerScriptSha256": "f81c422874f1acaf722275f2b87bbed048cb8d913435df0a0090c29b49ea31f4",
+  "rowSelection": [
+    "R-CW-MULTI"
+  ],
+  "rows": [
+    {
+      "rowId": "R-CW-MULTI",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-multi.json",
+      "manifestSha256": "86de2caeffe602761e478eb0e5ecac284358839395f37b113eb19569e6b24e03",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    }
+  ],
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "startedAt": "2026-08-05T06:17:58Z"
+}

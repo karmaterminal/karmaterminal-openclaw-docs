@@ -1,0 +1,102 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/preflight.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m15s max duration (incl. graceful stop):
+              * preflight_inventory: 1 iterations shared among 1 VUs (maxDuration: 45s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  01.0s/45s  0/1 shared iters
+time="2026-08-04T22:40:57-07:00" level=error msg="tools.effective failed: {\"code\":\"INVALID_REQUEST\",\"message\":\"unknown session key \\\"<redacted-session-key>\\\"\"}" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  02.0s/45s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  03.0s/45s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  04.0s/45s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  05.0s/45s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  06.0s/45s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  07.0s/45s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  08.0s/45s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  09.0s/45s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  10.0s/45s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  11.0s/45s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  12.0s/45s  0/1 shared iters
+PUBLIC_EVIDENCE {"row":"preflight","manifest_loaded":true,"seat":"cael","candidateSha":"989d20226a2009b47a3a479865f9f2ef39f89a6a","started":"2026-08-05T05:40:56.486Z","connected":true,"sessions_list_ok":true,"tools_effective_ok":false,"tool_inventory_count":0,"ended":"2026-08-05T05:41:08.490Z","duration_ms":12004}
+
+
+  █ THRESHOLDS 
+
+    preflight_duration
+    ✓ 'p(95)<30000' p(95)=12004
+
+    proof_failures
+    ✗ 'count==0' count=2
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 3      0.249919/s
+    checks_succeeded...: 66.66% 2 out of 3
+    checks_failed......: 33.33% 1 out of 3
+
+    ✓ websocket connected
+    ✓ sessions.list accepted
+    ✗ tools.effective accepted
+      ↳  0% — ✓ 0 / ✗ 1
+
+    CUSTOM
+    preflight_duration....: avg=12004  min=12004  med=12004  max=12004  p(90)=12004  p(95)=12004 
+    proof_failures........: 2     0.166613/s
+
+    EXECUTION
+    iteration_duration....: avg=12s    min=12s    med=12s    max=12s    p(90)=12s    p(95)=12s   
+    iterations............: 1     0.083306/s
+    vus...................: 1     min=1      max=1
+    vus_max...............: 1     min=1      max=1
+
+    NETWORK
+    data_received.........: 43 kB 3.6 kB/s
+    data_sent.............: 860 B 72 B/s
+
+    WEBSOCKET
+    ws_connecting.........: avg=2.18ms min=2.18ms med=2.18ms max=2.18ms p(90)=2.18ms p(95)=2.18ms
+    ws_msgs_received......: 7     0.583145/s
+    ws_msgs_sent..........: 3     0.249919/s
+    ws_session_duration...: avg=12s    min=12s    med=12s    max=12s    p(90)=12s    p(95)=12s   
+    ws_sessions...........: 1     0.083306/s
+
+
+
+
+running (0m12.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+preflight_inventory ✓ [ 100% ] 1 VUs  12.0s/45s  1/1 shared iters
+time="2026-08-04T22:41:08-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"

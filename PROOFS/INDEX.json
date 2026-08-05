@@ -1,29 +1,23 @@
 {
-  "capture_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
-  "corpus_path": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203",
-  "current_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
-  "execution_seat": "elliott-legion",
-  "manifest_path": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/proofs-manifest.json",
-  "owner_policy": "canonical owners preserved; Elliott is comparator only",
-  "proof_push_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
-  "proof_source_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
-  "provenance": {
-    "policy": "historical receipts are provenance only; all exact-candidate rows reopen missing; only R-RC-2 may earn honest_limit for proven low context pressure",
-    "previous_corpus": "PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",
-    "template_source_commit": "246c447ad9d93039ff4777890d4b4027613bd9f3"
-  },
-  "publication_role": "comparator",
-  "readme_path": "PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/README.md",
+  "schema": "openclaw.proofs.index.v1",
+  "purpose": "Top-level signpost for the current proof corpus.",
+  "current_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "current_sha_short": "989d202",
+  "build_string": "OpenClaw 2026.7.2 (989d202)",
+  "corpus_path": "PROOFS/989d20226a2009b47a3a479865f9f2ef39f89a6a/",
+  "manifest_path": "PROOFS/989d20226a2009b47a3a479865f9f2ef39f89a6a/proofs-manifest.json",
+  "readme_path": "PROOFS/989d20226a2009b47a3a479865f9f2ef39f89a6a/README.md",
   "rollup": {
-    "fail": 1,
+    "pass": 27,
+    "partial": 11,
+    "thin": 0,
+    "fail": 0,
     "honest_limit": 0,
     "missing": 0,
-    "partial": 32,
-    "pass": 2,
-    "thin": 0,
-    "total_rows": 35
+    "total_rows": 38
   },
-  "schema": "openclaw.proofs.index.v1",
-  "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
-  "validation_path": "PROOFS/publication-validation/4c235d8c1997e8964160117f8d6bf650ad1e8203/invariants.json"
+  "disposition_note": "33 fresh Cael target executions plus five reviewed immutable source transpositions",
+  "navigation": "read INDEX.json -> current_sha -> manifest_path -> rows[]",
+  "generated": "2026-08-05T06:32:25Z",
+  "generated_by": "cael"
 }

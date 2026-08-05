@@ -1,0 +1,96 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-delegate-self-continuation.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m0s max duration (incl. graceful stop):
+              * r_cw_delegate_self: 1 iterations shared among 1 VUs (maxDuration: 2m30s, gracefulStop: 30s)
+
+time="2026-08-04T23:16:54-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m01.0s/2m30s  0/1 shared iters
+time="2026-08-04T23:16:55-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered (will call continue_delegate)" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m02.0s/2m30s  0/1 shared iters
+time="2026-08-04T23:16:56-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m03.0s/2m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m04.0s/2m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m05.0s/2m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m06.0s/2m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m07.0s/2m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m08.0s/2m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m09.0s/2m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m10.0s/2m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m11.0s/2m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m12.0s/2m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m13.0s/2m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m14.0s/2m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m15.0s/2m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m16.0s/2m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m17.0s/2m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m18.0s/2m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m19.0s/2m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m20.0s/2m30s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m21.0s/2m30s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_delegate_self   [   0% ] 1 VUs  0m22.0s/2m30s  0/1 shared iters
+time="2026-08-04T23:17:16-07:00" level=info msg="✓ Parent return event from delegate observed post-dispatch" source=console
+time="2026-08-04T23:17:16-07:00" level=info msg="✓ CHILD-CW-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-08-04T23:17:16-07:00" level=info msg="✓ CHILD-HOP2-DONE sentinel observed post-dispatch" source=console
+time="2026-08-04T23:17:16-07:00" level=info msg="✓ Parent return event from delegate observed post-dispatch" source=console
+time="2026-08-04T23:17:16-07:00" level=info msg="Primary R-CW-DELEGATE-SELF evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CW-DELEGATE-SELF-CONTINUATION","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"989d20226a2009b47a3a479865f9f2ef39f89a6a","started":"2026-08-05T06:16:53.966Z","delegate_accepted":true,"child_spawned":false,"child_continue_work_accepted":true,"child_hop_2_woke":true,"parent_return":true,"dispatch_accepted_at_ms":1785910615448,"trace_id":null,"ended":"2026-08-05T06:17:16.786Z","duration_ms":22820}
+time="2026-08-04T23:17:16-07:00" level=info msg="\n[R-CW-DELEGATE-SELF-CONTINUATION] VERDICT: PASS-candidate" source=console
+
+[R-CW-DELEGATE-SELF-CONTINUATION] Summary: PASS-candidate | SHA: 989d20226a2009b47a3a479865f9f2ef39f89a6a | Seat: cael
+
+running (0m22.8s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_delegate_self ✓ [ 100% ] 1 VUs  0m22.8s/2m30s  1/1 shared iters

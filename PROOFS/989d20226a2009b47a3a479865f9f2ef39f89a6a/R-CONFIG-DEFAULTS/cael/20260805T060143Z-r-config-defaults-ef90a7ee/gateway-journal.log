@@ -1,0 +1,4 @@
+2026-08-04T23:01:43.259805-07:00 cael node[3546538]: 2026-08-04T23:01:43.259-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-04T23:01:43.260859-07:00 cael node[3546538]: 2026-08-04T23:01:43.260-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-04T23:01:43.475655-07:00 cael node[3546538]: 2026-08-04T23:01:43.473-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key> ended with stopReason=stop
+2026-08-04T23:01:43.487940-07:00 cael node[3546538]: 2026-08-04T23:01:43.486-07:00 [warn] Subagent completion direct announce failed for run continuation-delegate-8e40e923b9f37cf26d09477e5bff9ddc: completion agent did not produce a visible reply

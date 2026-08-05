@@ -1,0 +1,11 @@
+2026-08-04T23:18:17.712873-07:00 cael node[3546538]: 2026-08-04T23:18:17.712-07:00 [ws] ⇄ res ✓ sessions.send 214ms runId=R-CW-TOKEN-DISPATCH-<redacted-nonce> conn=36e7d932…7e99 id=1-0-1785910697064-yi7nck
+2026-08-04T23:18:18.684319-07:00 cael node[3546538]: 2026-08-04T23:18:18.684-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-04T23:18:18.685067-07:00 cael node[3546538]: 2026-08-04T23:18:18.684-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-04T23:18:27.968283-07:00 cael node[3546538]: 2026-08-04T23:18:27.967-07:00 [memory] sync failed (search-bootstrap): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:18:27.968681-07:00 cael node[3546538]: 2026-08-04T23:18:27.968-07:00 [memory] sync failed (search-bootstrap): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:18:27.969247-07:00 cael node[3546538]: 2026-08-04T23:18:27.969-07:00 [memory] sync failed (search-bootstrap): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:18:27.969798-07:00 cael node[3546538]: 2026-08-04T23:18:27.969-07:00 [memory] sync failed (session update): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:18:27.970295-07:00 cael node[3546538]: 2026-08-04T23:18:27.970-07:00 [memory] sync failed (session update): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:18:35.705688-07:00 cael node[3546538]: 2026-08-04T23:18:35.705-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-04T23:18:35.804364-07:00 cael node[3546538]: 2026-08-04T23:18:35.804-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-04T23:18:35.811653-07:00 cael node[3546538]: 2026-08-04T23:18:35.811-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>

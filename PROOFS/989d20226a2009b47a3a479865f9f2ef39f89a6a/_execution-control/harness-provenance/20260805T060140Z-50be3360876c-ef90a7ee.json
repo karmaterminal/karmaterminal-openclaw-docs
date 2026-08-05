@@ -1,0 +1,35 @@
+{
+  "schema": "openclaw.k6.harness-provenance.v1",
+  "classification": "harness-provenance",
+  "matrixId": "20260805T060140Z-50be3360876c-ef90a7ee",
+  "mode": "live",
+  "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "docsRefSource": "approved-input",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "harnessIdentityVerified": true,
+  "candidateSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "runtimeIdentity": {
+    "seat": "cael",
+    "runtimeBuildSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "candidateMatchesRuntime": true,
+    "seatReadinessReceipt": "seat-readiness.json",
+    "seatReadinessSha256": "a5276587d1ec5e75222ea1f3a762e12c34b7049d55ed6808a608da689a7b7299"
+  },
+  "runnerScript": "tools/k6-proofs/scripts/run-proofs.sh",
+  "runnerScriptSha256": "f81c422874f1acaf722275f2b87bbed048cb8d913435df0a0090c29b49ea31f4",
+  "rowSelection": [
+    "R-CONFIG-DEFAULTS"
+  ],
+  "rows": [
+    {
+      "rowId": "R-CONFIG-DEFAULTS",
+      "manifestPath": "tools/k6-proofs/manifests/r-config-defaults.json",
+      "manifestSha256": "dec0be0a591aecf9ea4c74371d9c54b2239aa95f498e3d9e9933659112a2e29b",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-config-defaults.js",
+      "scenarioSha256": "ee6994ff6e2963dce172f078f24d05f504719db4fb49876a4eb08250c908dada"
+    }
+  ],
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "startedAt": "2026-08-05T06:01:40Z"
+}

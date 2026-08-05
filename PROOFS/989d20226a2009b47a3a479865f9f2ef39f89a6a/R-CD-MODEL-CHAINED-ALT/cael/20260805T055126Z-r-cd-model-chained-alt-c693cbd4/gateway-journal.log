@@ -1,0 +1,13 @@
+2026-08-04T22:51:30.460208-07:00 cael node[3546538]: 2026-08-04T22:51:30.460-07:00 [ws] ⇄ res ✓ sessions.send 281ms runId=R-CD-MODEL-CHAINED-ALT-DISPATCH-<redacted-nonce> conn=253602fa…8613 id=1-0-1785909090177-vono51
+2026-08-04T22:51:40.441495-07:00 cael node[3546538]: 2026-08-04T22:51:40.440-07:00 [memory] sync failed (search-bootstrap): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:51:40.442217-07:00 cael node[3546538]: 2026-08-04T22:51:40.441-07:00 [memory] sync failed (search-bootstrap): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:51:40.442425-07:00 cael node[3546538]: 2026-08-04T22:51:40.442-07:00 [memory] sync failed (search): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:51:40.442949-07:00 cael node[3546538]: 2026-08-04T22:51:40.442-07:00 [memory] sync failed (session-start): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:51:40.443450-07:00 cael node[3546538]: 2026-08-04T22:51:40.443-07:00 [memory] sync failed (session update): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:51:48.007969-07:00 cael node[3546538]: 2026-08-04T22:51:48.007-07:00 [memory] sync failed (search): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:51:48.008474-07:00 cael node[3546538]: 2026-08-04T22:51:48.008-07:00 [memory] sync failed (session-start): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:51:48.009024-07:00 cael node[3546538]: 2026-08-04T22:51:48.009-07:00 [memory] sync failed (search): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:51:48.009525-07:00 cael node[3546538]: 2026-08-04T22:51:48.009-07:00 [memory] sync failed (session-start): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:51:48.256532-07:00 cael node[3546538]: 2026-08-04T22:51:48.256-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-04T22:51:48.257306-07:00 cael node[3546538]: 2026-08-04T22:51:48.257-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-04T22:51:48.267063-07:00 cael node[3546538]: 2026-08-04T22:51:48.266-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=2998ms fireAt=1785909111263 session=<redacted-session-key>

@@ -1,0 +1,56 @@
+{
+  "schema": "openclaw.project81.r-cw-6.cleanup.v1",
+  "productionConfigTouched": false,
+  "productionStateTouched": false,
+  "gatewayStarted": false,
+  "sourceMutated": false,
+  "sourceHeadMatchesCandidateAfter": true,
+  "sourceTrackedCleanAfter": true,
+  "disposableWorktreeRemoved": true,
+  "cleanupRequired": false,
+  "result": "disposable process-local fixture left no gateway/config/fleet-state process to restore",
+  "candidateWorktreeHead": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "candidateLockfileSha256": "af78da254282eae16bf07a193ae0e28475ea70e731ad55248e66261df9413299",
+  "installedLockfileSha256": "af78da254282eae16bf07a193ae0e28475ea70e731ad55248e66261df9413299",
+  "lockfileMatchesCandidate": true,
+  "candidatePackageManager": "pnpm@11.15.1+sha512.81350b07e53c9538a02f1f2303b4290fa2d7be04e56e2a970c4cc4b417dc761de196edabd49d55c7dc9580db81007c44143e4e3d7e462b3000d23c255122d065",
+  "candidatePackageManagerVersion": "11.15.1",
+  "executingPackageManagerVersion": "11.15.1",
+  "installedPackageManager": "pnpm@11.15.1",
+  "installedPackageManagerVersion": "11.15.1",
+  "virtualStoreDir": ".pnpm",
+  "virtualStoreContainedWithinCandidateNodeModules": true,
+  "installCommand": [
+    "pnpm",
+    "install",
+    "--frozen-lockfile",
+    "--prefer-offline",
+    "--ignore-scripts"
+  ],
+  "installExitCode": 0,
+  "localExecutableContract": {
+    "tsx": {
+      "path": "node_modules/.bin/tsx",
+      "realpathWithinVerifiedDependencyTree": true
+    },
+    "vitest": {
+      "path": "node_modules/.bin/vitest",
+      "realpathWithinVerifiedDependencyTree": true
+    }
+  },
+  "worktreeIntegrity": {
+    "beforeInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterProofSurfaces": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    }
+  },
+  "hostToolchainHermetic": false
+}

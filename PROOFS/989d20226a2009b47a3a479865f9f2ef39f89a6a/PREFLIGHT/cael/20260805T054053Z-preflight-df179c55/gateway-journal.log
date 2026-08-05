@@ -1,0 +1,5 @@
+2026-08-04T22:40:57.502884-07:00 cael node[3546538]: 2026-08-04T22:40:57.502-07:00 [ws] ⇄ res ✗ tools.effective 10ms errorCode=INVALID_REQUEST errorMessage=unknown session key "<redacted-session-key>" conn=c05b63f4…3f01 id=1-0-1785908457490-ruyn29
+2026-08-04T22:41:01.816899-07:00 cael node[3546538]: 2026-08-04T22:41:01.816-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-04T22:41:01.817283-07:00 cael node[3546538]: 2026-08-04T22:41:01.817-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-04T22:41:07.336801-07:00 cael node[3546538]: 2026-08-04T22:41:07.336-07:00 [memory] sync failed (session update): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:41:07.337350-07:00 cael node[3546538]: 2026-08-04T22:41:07.337-07:00 [memory] sync failed (session update): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}

@@ -1,0 +1,11 @@
+{
+  "schema": "openclaw.k6.static-preflight-skip.v1",
+  "row": "R-CW-6A",
+  "candidateSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "executionHarnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "recordedAt": "2026-08-03T04:48:10Z",
+  "classification": "static-preflight-only",
+  "dispatched": false,
+  "reason": "liveRunSafety rejects unattended live fire; no fresh product behavior authority"
+}

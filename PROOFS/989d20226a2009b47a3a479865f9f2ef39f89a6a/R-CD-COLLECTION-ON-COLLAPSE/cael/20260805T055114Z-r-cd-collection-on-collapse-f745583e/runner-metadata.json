@@ -1,0 +1,17 @@
+{
+  "row": "R-CD-COLLECTION-ON-COLLAPSE",
+  "scenario": "static-corpus-row-validator.js",
+  "candidateSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "runtimeBuildSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-05T05:51:14Z",
+  "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260805T055111Z-50be3360876c-f745583e",
+  "runId": "20260805T055114Z-r-cd-collection-on-collapse-f745583e",
+  "manifestPath": "tools/k6-proofs/manifests/r-cd-collection-on-collapse.json",
+  "manifestSha256": "044ac50b2109d3ee4c1cef32b7d048b5e8021e09c407f7ef298c383438ef4bbc",
+  "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+  "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+}

@@ -36,7 +36,7 @@ function run(root) {
 }
 
 test('ignores proof-corpus support directories while checking real rows', async () => {
-  await withFixture({ rows: ['R-OK', 'artifacts', 'gates'] }, async (root) => {
+  await withFixture({ rows: ['R-OK', '_execution-control', 'artifacts', 'gates'] }, async (root) => {
     const result = run(root);
     assert.equal(result.status, 0, result.stderr || result.stdout);
     assert.match(result.stdout, /Proof rows: 1/);

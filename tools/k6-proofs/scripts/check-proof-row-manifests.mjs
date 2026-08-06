@@ -17,7 +17,7 @@ const { root } = resolveRepositoryRoot({ argv: process.argv.slice(2) });
 const indexPath = path.join(root, 'PROOFS', 'INDEX.json');
 const manifestsDir = proofsToolPath(root, 'manifests');
 const failures = [];
-const SUPPORT_DIRECTORIES = new Set(['artifacts', 'gates']);
+const SUPPORT_DIRECTORIES = new Set(['_execution-control', 'artifacts', 'gates']);
 
 if (!existsSync(indexPath)) failures.push(`missing ${indexPath}`);
 if (!existsSync(manifestsDir)) failures.push(`missing ${manifestsDir}`);
@@ -70,7 +70,7 @@ const duplicateManifestRows = [...manifestRows.reduce((byRow, row) => {
 // board corpus (e.g. model-override rows, R-CW-4, R-OBS-STATUS, or static boundary
 // checks). These are intentional catalog entries, not proof-corpus gaps.
 const manifestOnly = manifestRows.filter(
-  (row) => row.rowId !== 'preflight' && !proofRowUpperSet.has(row.rowId.toUpperCase()),
+  (row) => row.rowId !== 'PREFLIGHT' && !proofRowUpperSet.has(row.rowId.toUpperCase()),
 );
 
 if (missing.length) {

@@ -1,0 +1,16 @@
+{
+  "row": "R-REGRESSION-TRAP-TESTS",
+  "sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "failures": 0,
+    "duration_ms": {
+      "p(95)": 0,
+      "avg": 0,
+      "min": 0,
+      "med": 0,
+      "max": 0,
+      "p(90)": 0
+    }
+  }
+}

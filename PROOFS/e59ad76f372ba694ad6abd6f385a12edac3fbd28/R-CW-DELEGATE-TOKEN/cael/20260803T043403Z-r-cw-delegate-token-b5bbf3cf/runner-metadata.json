@@ -1,0 +1,17 @@
+{
+  "row": "R-CW-DELEGATE-TOKEN",
+  "scenario": "static-corpus-row-validator.js",
+  "candidateSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "runtimeBuildSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-03T04:34:03Z",
+  "docsRef": "d0196d2d70338d939c1830d8f381b6d0e2a58493",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260803T043234Z-d0196d2d7033-b5bbf3cf",
+  "runId": "20260803T043403Z-r-cw-delegate-token-b5bbf3cf",
+  "manifestPath": "tools/k6-proofs/manifests/r-cw-delegate-token.json",
+  "manifestSha256": "47d84651c824c6bcafd85a82db1055916bc9217b9ac8df5c7c24809014b4e885",
+  "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+  "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+}

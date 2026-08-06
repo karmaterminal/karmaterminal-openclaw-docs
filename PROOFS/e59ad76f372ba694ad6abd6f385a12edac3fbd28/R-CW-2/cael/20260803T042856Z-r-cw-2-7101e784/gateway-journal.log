@@ -1,0 +1,6 @@
+2026-08-02T21:29:00.762989-07:00 cael node[4125351]: 2026-08-02T21:29:00.762-07:00 [ws] ⇄ res ✓ sessions.send 245ms runId=R-CW-2-DISPATCH-<redacted-nonce> conn=3c1e51bb…d282 id=1-0-1785731340515-dz5c97
+2026-08-02T21:29:02.052986-07:00 cael node[4125351]: 2026-08-02T21:29:02.052-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-02T21:29:02.053698-07:00 cael node[4125351]: 2026-08-02T21:29:02.053-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-02T21:29:02.066224-07:00 cael node[4125351]: 2026-08-02T21:29:02.066-07:00 [turn/execution] visible channel turn dispatched with no queued reply payloads: channel=discord messageId=unknown sessionKey=<redacted-session-key>
+2026-08-02T21:29:17.863637-07:00 cael node[4125351]: 2026-08-02T21:29:17.863-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-02T21:29:17.864441-07:00 cael node[4125351]: 2026-08-02T21:29:17.864-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>

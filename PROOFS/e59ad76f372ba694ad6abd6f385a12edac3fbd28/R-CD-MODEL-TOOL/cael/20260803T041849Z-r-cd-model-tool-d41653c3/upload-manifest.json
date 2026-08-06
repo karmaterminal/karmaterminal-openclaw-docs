@@ -1,0 +1,136 @@
+{
+  "schema": "openclaw.proofs.upload-manifest.v1",
+  "row": "R-CD-MODEL-TOOL",
+  "productSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "executionHarnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "runId": "20260803T041849Z-r-cd-model-tool-d41653c3",
+  "generatedAt": "2026-08-03T04:48:10Z",
+  "files": [
+    {
+      "path": "candidate-run-result-validation.error.log",
+      "sha256": "fa63dc83b6c8672b84361a866e6c4840b0d7d4e45fab01cfc26a29bf3b5200a1",
+      "size": 57
+    },
+    {
+      "path": "candidate-run-result-validation.json",
+      "sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "size": 5
+    },
+    {
+      "path": "continuation-trace-collector.json",
+      "sha256": "d83a1df911f977dafb97dba59f31b8c92570608d643d952f20be36ddcd2c39a6",
+      "size": 243
+    },
+    {
+      "path": "continuation-trace-correlation.json",
+      "sha256": "6bdb2f84c2b46b5c8f6c43b970acde87a3cf3ccc05956d7220feb446f85e72f3",
+      "size": 1864
+    },
+    {
+      "path": "evidence-extraction.json",
+      "sha256": "071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc",
+      "size": 14
+    },
+    {
+      "path": "evidence-lines.log",
+      "sha256": "b57a261e92d12fae2ad36db23d27cf1de307321b2e4f12a76c9e30b100d2c4ed",
+      "size": 1099
+    },
+    {
+      "path": "evidence-redaction.json",
+      "sha256": "e87a9649850113f7eadcbfb90e26be6dd416e2eea103e6faebcdfef1b9f2a9eb",
+      "size": 380
+    },
+    {
+      "path": "evidence-redaction.stdout.json",
+      "sha256": "8fa6326c3faf71de6465a27a4c0396ec20723bb4b8902d9bfa4d0b4b0cc8a141",
+      "size": 41
+    },
+    {
+      "path": "evidence.jsonl",
+      "sha256": "4a3507858bd7ffaca39abcec6cbd3086532dd8f1b44e104c0f735b16bbf76430",
+      "size": 1083
+    },
+    {
+      "path": "gateway-journal-capture.json",
+      "sha256": "74f5e9a80a5089c9ed214956c9313e67272c18e92bb94ef1b30d702a6ddff5f4",
+      "size": 244
+    },
+    {
+      "path": "gateway-journal-redaction.json",
+      "sha256": "5b42c0a3450bd6e3705ebf9d1801ee34dbb933d83b62ba8e767bc6e60248d484",
+      "size": 216
+    },
+    {
+      "path": "gateway-journal.log",
+      "sha256": "3f5ed6ba39226c9ad6193a14ecf3c2d276163ca6fe6f9563d1ad73120c9ef9e5",
+      "size": 3066
+    },
+    {
+      "path": "k6.log",
+      "sha256": "b3f905d524423c2d4f89a4e76c358c056d0276253b6b8402203028f5c1f312df",
+      "size": 34137
+    },
+    {
+      "path": "metrics-export.json",
+      "sha256": "29a31e9fe143cea82084365e47c951c76f0fb0149249da86a7c99d0d461d1157",
+      "size": 555
+    },
+    {
+      "path": "openclaw-proofs-k6.otlp.json",
+      "sha256": "630583983721b889894e1b2e51eb68adb61ca920b47e57db296ef0d9947876b4",
+      "size": 25427
+    },
+    {
+      "path": "openclaw-proofs-k6.prom",
+      "sha256": "854d0b234a0c902b60fc77688cde2f044eb1fb3bc027dad96b187b91d225d9ba",
+      "size": 3727
+    },
+    {
+      "path": "r-cd-model-tool-authoritative-receipt.json",
+      "sha256": "7768ef61147981a1ce3c80d9f0b186b971dec194ff65655a0a015e4614632e00",
+      "size": 2150
+    },
+    {
+      "path": "r-cd-model-tool-authoritative-resolution.json",
+      "sha256": "2c4c1a3f93c21b0cc985b84c0421919a23dabb08232a4b8e38298052f28e544d",
+      "size": 148
+    },
+    {
+      "path": "r-cd-model-tool-summary.json",
+      "sha256": "0fe5467bc8b3a09f55b051e530908e72ee8204ef662c12dcb426c677894a2606",
+      "size": 556
+    },
+    {
+      "path": "row-manifest.json",
+      "sha256": "dd30ac2561472192db25623824d647309280ee960a9c1d4028f26adff49cf6fc",
+      "size": 5198
+    },
+    {
+      "path": "row-scenario.js",
+      "sha256": "cdd69b28223db1966d5d114a9ff731dfe77a7b183726ee5643ce666c28857d62",
+      "size": 13340
+    },
+    {
+      "path": "run-result.json",
+      "sha256": "181ddaac47b708d453d45f875e799d9838a7c4694d97482335e4c331acd96ec9",
+      "size": 2472
+    },
+    {
+      "path": "runner-metadata.json",
+      "sha256": "6d368589ca8ed2e9eb2d845d1f28eddd03df77e911a0c43547134421dc2a1947",
+      "size": 820
+    },
+    {
+      "path": "seat-readiness.json",
+      "sha256": "ac3e30207035ddd1a4641867a1ae8278112236e1e3028d65bfffd0fc86e5ffb5",
+      "size": 3334
+    },
+    {
+      "path": "tempo-trace-5dbc6326be13.json",
+      "sha256": "d25f93032530ae204aeb9d5caea30d8991ce053b0fe80d5a3bad67cbc5b02a0a",
+      "size": 2734
+    }
+  ]
+}

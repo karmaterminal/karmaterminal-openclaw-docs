@@ -1,0 +1,17 @@
+{
+  "row": "R-TRACE-REDACTION-1121",
+  "scenario": "r-trace-redaction-1121.js",
+  "candidateSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "runtimeBuildSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-02T13:26:06Z",
+  "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260802T132251Z-50be3360876c-d9f0579d",
+  "runId": "20260802T132606Z-r-trace-redaction-1121-d9f0579d",
+  "manifestPath": "tools/k6-proofs/manifests/r-trace-redaction-1121.json",
+  "manifestSha256": "120f3e13dec6093237a6a5a7a1fdaba446604d17b95532fb9506004456078338",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-trace-redaction-1121.js",
+  "scenarioSha256": "48cba2a240f2b86ebefe45ff4a9b63a40563e08eeb7872506290be46cf37d5e7"
+}

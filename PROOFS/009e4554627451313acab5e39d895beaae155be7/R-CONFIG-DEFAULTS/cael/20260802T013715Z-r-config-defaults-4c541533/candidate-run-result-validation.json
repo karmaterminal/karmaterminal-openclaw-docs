@@ -1,0 +1,64 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "009e4554627451313acab5e39d895beaae155be7",
+    "docsRef": "9fcf215674720803840d15efa93bd925180135b9"
+  },
+  "harness": {
+    "docsRef": "9fcf215674720803840d15efa93bd925180135b9",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-config-defaults.json",
+    "manifestSha256": "dec0be0a591aecf9ea4c74371d9c54b2239aa95f498e3d9e9933659112a2e29b",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-config-defaults.js",
+    "scenarioSha256": "ee6994ff6e2963dce172f078f24d05f504719db4fb49876a4eb08250c908dada",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20260802T013715Z-r-config-defaults-4c541533",
+    "rowId": "R-CONFIG-DEFAULTS",
+    "seat": "cael",
+    "scenario": "r-config-defaults",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "vu-log",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "unknown",
+    "traceCaptured": false,
+    "correlationReceiptPresent": false
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": null,
+    "correlationReceipt": null
+  }
+}

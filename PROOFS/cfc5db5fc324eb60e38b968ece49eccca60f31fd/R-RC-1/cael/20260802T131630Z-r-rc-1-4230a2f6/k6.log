@@ -1,0 +1,25 @@
+
+         /\      Grafana   /‾‾/
+    /\  /  \     |\  __   /  /
+   /  \/    \    | |/ /  /   ‾‾\
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/
+
+
+     execution: local
+        script: scenarios/r-rc-1-threshold-reject.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m0s max duration (incl. graceful stop):
+              * r_rc_1_threshold_reject: 1 iterations shared among 1 VUs (maxDuration: 1m30s, gracefulStop: 30s)
+
+time="2026-08-02T06:16:33-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-08-02T06:16:33-07:00" level=error msg="✗ request_compaction absent from effective inventory: {\"code\":\"UNAVAILABLE\",\"message\":\"tools.effective failed: Error: prepared model runtime is not published for synchronous model resolution (/home/figs/.openclaw/agents/main/agent); use resolveModelAsync before lifecycle publication\"}" source=console
+PUBLIC_EVIDENCE {"row":"R-RC-1","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"cfc5db5fc324eb60e38b968ece49eccca60f31fd","started":"2026-08-02T13:16:32.825Z","tool_inventory_checked":true,"tool_registered":false,"dispatch_accepted":false,"dispatch_accepted_at_ms":null,"tool_name":"request_compaction","tool_invocation_observed":false,"tool_result_observed":false,"tool_call_id":null,"tool_result_status":null,"tool_invoke_rejected":false,"guard":null,"context_usage":null,"threshold":null,"no_compaction_side_effect":false,"assistant_sentinel_observed":false,"history_requested":false,"history_attempts":0,"trace_id":null,"ended":"2026-08-02T13:16:33.532Z","duration_ms":707}
+time="2026-08-02T06:16:33-07:00" level=info msg="\n[R-RC-1] VERDICT: PARTIAL-candidate" source=console
+
+[R-RC-1] Summary: PARTIAL-candidate | SHA: cfc5db5fc324eb60e38b968ece49eccca60f31fd | Seat: cael
+
+running (0m00.7s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_rc_1_threshold_reject ✓ [ 100% ] 1 VUs  0m00.7s/1m30s  1/1 shared iters
+time="2026-08-02T06:16:33-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"

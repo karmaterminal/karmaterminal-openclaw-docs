@@ -1,0 +1,114 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CW-6",
+  "issue": 117,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-rune}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "process-local",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cw-6-max-chain-length",
+    "description": "The max-chain boundary uses a disposable exact-candidate runtime fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
+    "methods": [
+      "scheduleContinuationWorkBatch",
+      "scheduleContinuationWork",
+      "runAgentAttempt",
+      "TaskFlow.assert-no-rejected-row"
+    ],
+    "status": "scaffold",
+    "expectedFile": "r-cw-6-max-chain-length.js",
+    "registryNotes": "The legacy k6 entry remains fail-closed because it cannot invoke continue_work through WebSocket/MCP and must not mutate shared config. Use run-max-chain-fixture.mjs; see docs/R-CW-6-ISOLATED-MAX-CHAIN.md."
+  },
+  "invocation": {
+    "tool": "continue_work",
+    "delaySeconds": 60,
+    "reason": "k6-proof-R-CW-6-chain-cap-{{nonce}}",
+    "idempotencyKeyPrefix": "R-CW-6",
+    "fixture": "tools/k6-proofs/scripts/run-max-chain-fixture.mjs",
+    "fixtureMaxChainLength": 3,
+    "fixtureState": "temporary session store seeded at maxChainLength-2; two valid elections advance to the limit and the first over-limit election is rejected"
+  },
+  "expectedReceipts": [
+    {
+      "name": "fixture-readiness",
+      "required": true,
+      "description": "Exact source/SHA, installed dependencies, explicit maxChainLength, and zero production mutation are proven before execution."
+    },
+    {
+      "name": "boundary-matrix",
+      "required": true,
+      "description": "The production budget predicate permits attempted hops max-1 and max, then returns chain-capped for attempted hop max+1."
+    },
+    {
+      "name": "runtime-boundary",
+      "required": true,
+      "description": "Production scheduleContinuationWorkBatch and scheduleContinuationWork emit below/at/first-over outcomes plus a structured chain-capped receipt."
+    },
+    {
+      "name": "durable-state-recovery",
+      "required": true,
+      "description": "The at-limit chain count is persisted, reloaded from the temporary session store, and still rejects the first recovered over-limit election."
+    },
+    {
+      "name": "typed-tool-surface",
+      "required": true,
+      "description": "The real attempt runner forwards its continuation options into the production continuation tool registry; the registered continue_work executor is invoked three times, schedules only the two in-budget hops, and persists the at-limit count."
+    },
+    {
+      "name": "dispatch-boundary-suite",
+      "required": true,
+      "description": "The production delegate dispatcher is exercised at the selected fixture maximum, proving one at-limit dispatch, first-over rejection before a second spawn, and failed rejected-flow state; the candidate regression suite also passes."
+    },
+    {
+      "name": "cleanup",
+      "required": true,
+      "description": "The disposable worktree/state are removed and no production gateway/config/state/source mutation occurred."
+    },
+    {
+      "name": "public-artifact-safety",
+      "required": true,
+      "description": "Every emitted receipt is checked for private filesystem paths and secret/session/environment/process-output fields before PASS-candidate is written."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CW-6",
+    "seat": "${OPENCLAW_SEAT_NAME:-rune}",
+    "runDirPrefix": "fixture-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "This is an exact-candidate process-local typed-tool/runtime claim. It is not an external gateway invocation and is not promoted automatically."
+  },
+  "liveRunSafety": {
+    "classification": "orchestration-required",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "fixture-readiness",
+      "boundary-matrix",
+      "runtime-boundary",
+      "durable-state-recovery",
+      "typed-tool-surface",
+      "dispatch-boundary-suite",
+      "cleanup",
+      "public-artifact-safety"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Fail closed for k6/WebSocket: continue_work is internal-only. The supported path is the process-local exact-candidate fixture described in docs/R-CW-6-ISOLATED-MAX-CHAIN.md; review remains mandatory before corpus promotion."
+  }
+}

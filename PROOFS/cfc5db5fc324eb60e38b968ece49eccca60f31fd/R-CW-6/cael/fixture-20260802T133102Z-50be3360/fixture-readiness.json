@@ -1,0 +1,54 @@
+{
+  "schema": "openclaw.project81.r-cw-6.fixture-readiness.v1",
+  "candidateSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "sourceHeadMatchesCandidate": true,
+  "sourceTrackedCleanBefore": true,
+  "productionConfigTouched": false,
+  "productionStateTouched": false,
+  "gatewayStarted": false,
+  "fixtureKind": "disposable-exact-candidate-production-runtime-boundary-plus-dispatch-suite",
+  "dependencyTree": "candidate-worktree-pnpm-install-frozen-lockfile-prefer-offline-ignore-scripts; lockfile/tree/version-aligned; source-node_modules-ignored",
+  "hostToolchainHermetic": false,
+  "candidateLockfileSha256": "610345592125bb4370fbae64dcc8500acc587a552633ef7b93e2ce8c7d0d0f12",
+  "installedLockfileSha256": "610345592125bb4370fbae64dcc8500acc587a552633ef7b93e2ce8c7d0d0f12",
+  "lockfileMatchesCandidate": true,
+  "candidatePackageManager": "pnpm@11.15.1+sha512.81350b07e53c9538a02f1f2303b4290fa2d7be04e56e2a970c4cc4b417dc761de196edabd49d55c7dc9580db81007c44143e4e3d7e462b3000d23c255122d065",
+  "candidatePackageManagerVersion": "11.15.1",
+  "executingPackageManagerVersion": "11.15.1",
+  "installedPackageManager": "pnpm@11.15.1",
+  "installedPackageManagerVersion": "11.15.1",
+  "virtualStoreDir": ".pnpm",
+  "virtualStoreContainedWithinCandidateNodeModules": true,
+  "installCommand": [
+    "pnpm",
+    "install",
+    "--frozen-lockfile",
+    "--prefer-offline",
+    "--ignore-scripts"
+  ],
+  "localExecutableContract": {
+    "tsx": {
+      "path": "node_modules/.bin/tsx",
+      "realpathWithinVerifiedDependencyTree": true
+    },
+    "vitest": {
+      "path": "node_modules/.bin/vitest",
+      "realpathWithinVerifiedDependencyTree": true
+    }
+  },
+  "worktreeIntegrity": {
+    "beforeInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterProofSurfaces": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    }
+  },
+  "maxChainLength": 3
+}

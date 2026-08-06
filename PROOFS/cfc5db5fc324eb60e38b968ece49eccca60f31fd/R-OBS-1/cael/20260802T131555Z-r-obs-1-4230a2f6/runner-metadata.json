@@ -1,0 +1,17 @@
+{
+  "row": "R-OBS-1",
+  "scenario": "r-obs-1.js",
+  "candidateSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "runtimeBuildSha": "OpenClaw 2026.7.2 (cfc5db5)",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-02T13:15:55Z",
+  "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260802T131024Z-50be3360876c-4230a2f6",
+  "runId": "20260802T131555Z-r-obs-1-4230a2f6",
+  "manifestPath": "tools/k6-proofs/manifests/r-obs-1.json",
+  "manifestSha256": "63588a11932ad7895575790664389d29ed9bfbd64cb205b0f9735044f8246655",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-obs-1.js",
+  "scenarioSha256": "e4ff43d0a361cf20f0a82cbe25fd77417131dfd44362d77577e3a701cf7f41c1"
+}

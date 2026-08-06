@@ -1,0 +1,39 @@
+{
+  "schema": "openclaw.proofs.cael-certification-preflight.v1",
+  "checked_at": "2026-08-02T13:35:48Z",
+  "seat": "cael",
+  "outcome": "PASS",
+  "gateway": {
+    "active": true,
+    "substate": "running",
+    "health_exit_code": 0,
+    "health_probe": "gateway event loop ok",
+    "nRestarts": 0,
+    "restart_performed": false
+  },
+  "product": {
+    "required_sha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+    "deployed_source_sha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+    "runtime_build_sha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+    "openclaw_version": "2026.7.2 (cfc5db5)"
+  },
+  "harness": {
+    "required_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "checked_out_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "tests_passed": 410,
+    "tests_total": 410
+  },
+  "config": {
+    "required_sha256": "002e5564bdfe03972e9a4ba851043900a8df6d99d9447b3e979ba381bcc69d0e",
+    "observed_sha256": "002e5564bdfe03972e9a4ba851043900a8df6d99d9447b3e979ba381bcc69d0e",
+    "unchanged": true
+  },
+  "prohibited_actions_required": {
+    "deploy": false,
+    "doctor": false,
+    "config_migration": false,
+    "config_mutation": false,
+    "restart": false,
+    "broad_ci": false
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "k6ExitCode": null,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-03T04:48:10Z",
+  "verdict": null,
+  "verdictSource": "static-preflight-skip",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "terminal": true,
+  "evidence": null,
+  "observability": {
+    "traceStatus": "not-applicable",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "fresh-product-behavior-authority"
+    ]
+  }
+}

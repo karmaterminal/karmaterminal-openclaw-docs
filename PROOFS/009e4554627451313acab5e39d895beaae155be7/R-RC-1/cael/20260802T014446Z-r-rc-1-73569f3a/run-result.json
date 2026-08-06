@@ -1,0 +1,59 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-02T01:45:01Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-rc-1-summary.json"
+  ],
+  "evidence": {
+    "row": "R-RC-1",
+    "manifest_loaded": true,
+    "seat": "cael",
+    "session_created": true,
+    "candidateSha": "009e4554627451313acab5e39d895beaae155be7",
+    "started": "2026-08-02T01:44:49.722Z",
+    "tool_inventory_checked": true,
+    "tool_registered": true,
+    "dispatch_accepted": true,
+    "dispatch_accepted_at_ms": 1785635090681,
+    "tool_name": "request_compaction",
+    "tool_invocation_observed": true,
+    "tool_result_observed": true,
+    "tool_call_id": "exec-b732b052-b0ea-4c01-a557-2f5c73230363",
+    "tool_result_status": "rejected",
+    "tool_invoke_rejected": true,
+    "guard": "context_threshold",
+    "context_usage": null,
+    "threshold": null,
+    "no_compaction_side_effect": true,
+    "assistant_sentinel_observed": true,
+    "history_requested": true,
+    "history_attempts": 1,
+    "trace_id": null,
+    "ended": "2026-08-02T01:45:01.251Z",
+    "duration_ms": 11529
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

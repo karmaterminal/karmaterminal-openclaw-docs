@@ -1,0 +1,126 @@
+{
+  "schema": "openclaw.proofs.upload-manifest.v1",
+  "row": "R-RC-2",
+  "productSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "executionHarnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "runId": "20260803T043559Z-r-rc-2-4e357dc2",
+  "generatedAt": "2026-08-03T04:48:10Z",
+  "files": [
+    {
+      "path": "candidate-run-result-validation.error.log",
+      "sha256": "035422e76458e664bf234c7185662814ec39d18c7f2caa6efa92a6f7c40be534",
+      "size": 90
+    },
+    {
+      "path": "candidate-run-result-validation.json",
+      "sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "size": 5
+    },
+    {
+      "path": "continuation-trace-collector.error.log",
+      "sha256": "2a80be54474523fa9c3d673ba9dba4556b80d5a295835a4311890d5492e8ca1e",
+      "size": 135
+    },
+    {
+      "path": "continuation-trace-collector.json",
+      "sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "size": 5
+    },
+    {
+      "path": "evidence-extraction.json",
+      "sha256": "071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc",
+      "size": 14
+    },
+    {
+      "path": "evidence-lines.log",
+      "sha256": "72a34bab19ed93929b52e9e556d477588539fab1ddaecb2c5cbc268d35b0e209",
+      "size": 1130
+    },
+    {
+      "path": "evidence-redaction.json",
+      "sha256": "e9dd4315c4b046f58f77df656ca0f3ca9685a51e7b46c437cd8bda8a9733eca9",
+      "size": 380
+    },
+    {
+      "path": "evidence-redaction.stdout.json",
+      "sha256": "8fa6326c3faf71de6465a27a4c0396ec20723bb4b8902d9bfa4d0b4b0cc8a141",
+      "size": 41
+    },
+    {
+      "path": "evidence.jsonl",
+      "sha256": "68905d4ada8c90dcbe69cbfcb157761c53710e70efd0f6f6453716ad572ba025",
+      "size": 1114
+    },
+    {
+      "path": "gateway-journal-capture.json",
+      "sha256": "4bf7131e670fa220369868f01783397407a859f3250229b88eafd82449f09506",
+      "size": 244
+    },
+    {
+      "path": "gateway-journal-redaction.json",
+      "sha256": "e10d52c04a947608a8ff284f6c687acbfa52f656b09b6a5cbc5247dc5a050791",
+      "size": 216
+    },
+    {
+      "path": "gateway-journal.log",
+      "sha256": "13ca390cadfc24f31c7a79427edd923b1391a238d7310b8465baaa7af38bac6c",
+      "size": 3472
+    },
+    {
+      "path": "k6.log",
+      "sha256": "db9f8796f2eafb23115f2e90f3d12819092c9588c80b5d9af73d1d801f14467e",
+      "size": 20612
+    },
+    {
+      "path": "metrics-export.json",
+      "sha256": "e6a7067960c43cb93463d0a388e9ffd69b9a37c22e3b4fea73a8d2f06d2d59d1",
+      "size": 553
+    },
+    {
+      "path": "openclaw-proofs-k6.otlp.json",
+      "sha256": "8daa0071dbc7354f40cf2f4e8f2e48e40f5c9a94b05813c0469875d47baff13c",
+      "size": 21545
+    },
+    {
+      "path": "openclaw-proofs-k6.prom",
+      "sha256": "e6811c31cbd02f91f01781397ad2f40ce2020b70dacf3d0e796d3fbdf483621d",
+      "size": 3099
+    },
+    {
+      "path": "r-rc-2-summary.json",
+      "sha256": "98900d6286e4a1d99df28af8377b9083c30e5446b45e372bc5990452c421e5e4",
+      "size": 381
+    },
+    {
+      "path": "row-manifest.json",
+      "sha256": "229d9f7b30df3e18465f659b1c499cc7afae3cdf2e33c7869f71b0cccb30b120",
+      "size": 4014
+    },
+    {
+      "path": "row-scenario.js",
+      "sha256": "0e155329a73c2695eb0f4ebd0048b1437945d638abeea2fb24012bacee04bcb6",
+      "size": 18620
+    },
+    {
+      "path": "run-result.json",
+      "sha256": "5ec0f0e54655b388d521d142b86d9d9490f348d3e1e3134886015139dc0424e9",
+      "size": 2245
+    },
+    {
+      "path": "runner-metadata.json",
+      "sha256": "deab90558869f78a13f670572eb97e6243f31ff599b43470c633ec8ebdaa2a1e",
+      "size": 831
+    },
+    {
+      "path": "seat-readiness.json",
+      "sha256": "a51ea375194e726e3c7c66c8e4e449875ad6f933c1b68d8259ec97710755efba",
+      "size": 3334
+    },
+    {
+      "path": "verdict-reconciliation.json",
+      "sha256": "312f453fc6ab077077229ace5f119fce581dbefaafbc93bd1166ad596b5b05f8",
+      "size": 395
+    }
+  ]
+}

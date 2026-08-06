@@ -1,0 +1,5 @@
+2026-08-02T06:14:53.713522-07:00 cael node[2207111]: 2026-08-02T06:14:53.713-07:00 [ws] ⇄ res ✓ sessions.send 223ms runId=R-CW-DELEGATE-SELF-DISPATCH-<redacted-nonce> conn=553cf446…bfbe id=1-0-1785676493488-vzlpy2
+2026-08-02T06:15:14.874767-07:00 cael node[2207111]: 2026-08-02T06:15:14.874-07:00 [agent/embedded] codex app-server turn released after terminal dynamic tool result
+2026-08-02T06:15:15.013981-07:00 cael node[2207111]: 2026-08-02T06:15:15.013-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-02T06:15:15.014743-07:00 cael node[2207111]: 2026-08-02T06:15:15.014-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-02T06:15:15.023200-07:00 cael node[2207111]: 2026-08-02T06:15:15.023-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=312ms fireAt=1785676515334 session=<redacted-session-key>

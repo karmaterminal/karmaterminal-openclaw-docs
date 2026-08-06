@@ -116,7 +116,9 @@ test('exports row-list runner directory and marks trace-missing as pending recei
     const run = runExporter(['--run-dir', runDir, '--prometheus-out', prom]);
     assert.equal(run.status, 0, run.stderr || run.stdout);
     const receipt = JSON.parse(run.stdout);
-    assert.equal(receipt.outcome, 'PASS-candidate');
+    // R-CD-2 owns a row-scoped resolver, so a summary-only PASS claim carries no
+    // authority here: the exporter downgrades exactly like the report renderer.
+    assert.equal(receipt.outcome, 'PARTIAL-candidate');
     const promText = await readFile(prom, 'utf8');
     assert.match(promText, /openclaw_proofs_k6_run_total\{[^\n]*run_id="20260707T133429Z-r-cd-2"/);
     assert.match(promText, /openclaw_proofs_k6_candidate_pending_review\{[^\n]*run_id="20260707T133429Z-r-cd-2"[^\n]*fold_requires_review="true"[^\n]*\} 1/);
@@ -125,6 +127,42 @@ test('exports row-list runner directory and marks trace-missing as pending recei
     assert.match(promText, /receipt_name="dispatch-accepted"[^\n]*receipt_status="present"[^\n]*\} 1/);
     assert.match(promText, /receipt_name="parent-wake-event"[^\n]*receipt_status="present"[^\n]*\} 1/);
     assert.match(promText, /receipt_name="no-channel-delivery"[^\n]*receipt_status="present"[^\n]*\} 1/);
+  });
+});
+
+test('exports explicit null verdict as NO-VERDICT even when k6 exits 99', async () => {
+  await withTmp(async (dir) => {
+    const runDir = join(dir, '20260801T000000Z-r-cd-model-tool');
+    await mkdir(runDir, { recursive: true });
+    await writeFile(join(runDir, 'row-manifest.json'), `${JSON.stringify({
+      rowId: 'R-CD-MODEL-TOOL',
+      candidateSha: 'a837e2b0fe7adc4f71d0c0f2446a2d18a34e28ee',
+      seat: 'cael',
+      transport: 'websocket',
+      toolSurface: 'typed-tool',
+      scenario: { name: 'r-cd-model-tool', file: 'r-cd-model-tool.js' },
+    })}\n`);
+    await writeFile(join(runDir, 'run-result.json'), `${JSON.stringify({
+      k6ExitCode: 99,
+      verdict: null,
+      verdictSource: 'none',
+      candidateOnly: true,
+      foldRequiresReview: true,
+    })}\n`);
+    await writeFile(join(runDir, 'r-cd-model-tool-summary.json'), `${JSON.stringify({
+      verdict: null,
+      summaryAuthority: 'NO-VERDICT',
+      metrics: { failures: 1 },
+    })}\n`);
+
+    const prom = join(dir, 'metrics.prom');
+    const run = runExporter(['--run-dir', runDir, '--prometheus-out', prom]);
+    assert.equal(run.status, 0, run.stderr || run.stdout);
+    assert.equal(JSON.parse(run.stdout).outcome, 'NO-VERDICT');
+    const promText = await readFile(prom, 'utf8');
+    assert.match(promText, /outcome="NO-VERDICT"/);
+    assert.match(promText, /openclaw_proofs_k6_proof_failures_total\{[^\n]*\} 1/);
+    assert.doesNotMatch(promText, /outcome="FAIL-candidate"/);
   });
 });
 

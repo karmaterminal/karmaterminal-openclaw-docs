@@ -1,0 +1,18 @@
+{
+  "row": "R-CD-CHAINED-DEPTH-2",
+  "sha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "seat": "cael",
+  "timestamp": "2026-08-02T13:00:27.028Z",
+  "verdict": "PARTIAL-candidate",
+  "metrics": {
+    "duration_ms": {
+      "avg": 150706,
+      "min": 150706,
+      "med": 150706,
+      "max": 150706,
+      "p(90)": 150706,
+      "p(95)": 150706
+    },
+    "failures": 1
+  }
+}

@@ -1,0 +1,2 @@
+2026-08-02T06:16:31.484101-07:00 cael node[2207111]: 2026-08-02T06:16:31.483-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-08-02T06:16:33.534370-07:00 cael node[2207111]: 2026-08-02T06:16:33.534-07:00 [ws] ⇄ res ✗ tools.effective 8ms errorCode=UNAVAILABLE errorMessage=tools.effective failed: Error: prepared model runtime is not published for synchronous model resolution (/home/figs/.openclaw/agents/main/agent); use resolveModelAsync before lifecycle publication conn=1e07d412…6ead id=1-0-1785676593521-o669ct

@@ -1,0 +1,538 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "capture_sha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "product_sha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "original_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "recertification_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "config_sha256": "002e5564bdfe03972e9a4ba851043900a8df6d99d9447b3e979ba381bcc69d0e",
+  "created_at": "2026-08-02T13:35:48Z",
+  "recertified_at": "2026-08-02T13:35:48Z",
+  "denominator": {
+    "project": 86,
+    "canonical_rows": 38
+  },
+  "terminal_matrix": "terminal-matrix.json",
+  "rollup": {
+    "pass": 27,
+    "partial": 9,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 0,
+    "missing": 2,
+    "total_rows": 38
+  },
+  "classifications": {
+    "pass": "PASS-candidate complete authority",
+    "partial": "NO-VERDICT with bounded evidence gap",
+    "missing": "NO-VERDICT static-preflight-only skip"
+  },
+  "harness_validation": {
+    "tests": 410,
+    "pass": 410,
+    "fail": 0,
+    "unit_contract_log": "harness-suite-410.log"
+  },
+  "constraints": {
+    "cael_only": true,
+    "redeployed": false,
+    "broad_ci": false,
+    "root_index_updated": false,
+    "prior_corpus_modified": false,
+    "max_attempts_per_row": 2
+  },
+  "rows": [
+    {
+      "row": "PREFLIGHT",
+      "state": "partial",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/PREFLIGHT",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/PREFLIGHT/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/PREFLIGHT/cael/20260802T124245Z-preflight-06936fe1",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "second and final attempt connected and listed sessions but tools.effective rejected the non-existent scratch session key; no third attempt authorized",
+      "attempts": 2,
+      "traces": []
+    },
+    {
+      "row": "R-CD-1",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-1",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-1/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-1/cael/20260802T124344Z-r-cd-1-fbfef216",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete with candidate envelope and Tempo trace",
+      "attempts": 1,
+      "traces": [
+        {
+          "path": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-1/cael/20260802T124344Z-r-cd-1-fbfef216/continuation-trace-correlation.json"
+        },
+        {
+          "path": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-1/cael/20260802T124344Z-r-cd-1-fbfef216/tempo-trace-adc9d74ba9ea.json"
+        }
+      ]
+    },
+    {
+      "row": "R-CD-2",
+      "state": "partial",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-2",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-2/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-2/cael/20260802T124728Z-r-cd-2-99aa17f2",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "required terminal sentinel and matching bounded Tempo trace remained absent on the single diagnostic rerun",
+      "attempts": 2,
+      "traces": []
+    },
+    {
+      "row": "R-CD-3",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-3",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-3/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-3/cael/20260802T125030Z-r-cd-3-1b528f5f",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CD-4",
+      "state": "partial",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-4",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-4/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-4/cael/20260802T125249Z-r-cd-4-a73dc0d9",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "child completed but targeted and parent returns plus trace remained absent after bounded rerun",
+      "attempts": 2,
+      "traces": [
+        {
+          "path": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-4/cael/20260802T125249Z-r-cd-4-a73dc0d9/continuation-trace-correlation.json"
+        },
+        {
+          "path": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-4/cael/20260802T125249Z-r-cd-4-a73dc0d9/tempo-trace-217bd086bcac.json"
+        }
+      ]
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "state": "partial",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-CHAINED-DEPTH-2",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-CHAINED-DEPTH-2/cael/20260802T125753Z-r-cd-chained-depth-2-a4e670bd",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "root chain return and matching trace remained absent after bounded rerun; no third attempt authorized",
+      "attempts": 2,
+      "traces": []
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-COLLECTION-ON-COLLAPSE",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-COLLECTION-ON-COLLAPSE/cael/20260802T130154Z-r-cd-collection-on-collapse-f7832ee0",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-MODEL-CHAINED-ALT",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-MODEL-CHAINED-ALT/cael/20260802T130159Z-r-cd-model-chained-alt-f7832ee0",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CD-MODEL-DEFAULT",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-MODEL-DEFAULT",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-MODEL-DEFAULT/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-MODEL-DEFAULT/cael/20260802T130222Z-r-cd-model-default-f7832ee0",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CD-MODEL-TOKEN",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-MODEL-TOKEN",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-MODEL-TOKEN/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-MODEL-TOKEN/cael/20260802T130245Z-r-cd-model-token-f7832ee0",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CD-MODEL-TOOL",
+      "state": "partial",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-MODEL-TOOL",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-MODEL-TOOL/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-MODEL-TOOL/cael/20260802T130655Z-r-cd-model-tool-0e1de295",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "nonce-bound child execution/model span and return remained absent on bounded rerun; trace presence cannot substitute for execution binding",
+      "attempts": 2,
+      "traces": [
+        {
+          "path": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-MODEL-TOOL/cael/20260802T130655Z-r-cd-model-tool-0e1de295/continuation-trace-correlation.json"
+        },
+        {
+          "path": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-MODEL-TOOL/cael/20260802T130655Z-r-cd-model-tool-0e1de295/tempo-trace-a2639a610883.json"
+        }
+      ]
+    },
+    {
+      "row": "R-CD-RETURN-OVERLAP",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-RETURN-OVERLAP",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-RETURN-OVERLAP/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-RETURN-OVERLAP/cael/20260802T131027Z-r-cd-return-overlap-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CD-SILENT",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-SILENT",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-SILENT/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-SILENT/cael/20260802T131032Z-r-cd-silent-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "state": "partial",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-TOKEN",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-TOKEN/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CD-TOKEN/cael/20260802T131723Z-r-cd-token-b5e7a36f",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "exact product/runtime binding passed on rerun, but lifecycle authority was incomplete/nonunique and bounded Tempo trace remained missing",
+      "attempts": 2,
+      "traces": []
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CONFIG-DEFAULTS",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CONFIG-DEFAULTS/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CONFIG-DEFAULTS/cael/20260802T131113Z-r-config-defaults-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CONFIG-INTERSESSION",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CONFIG-INTERSESSION/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CONFIG-INTERSESSION/cael/20260802T131119Z-r-config-intersession-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-1",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-1",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-1/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-1/cael/20260802T131125Z-r-cw-1-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": [
+        {
+          "path": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-1/cael/20260802T131125Z-r-cw-1-4230a2f6/continuation-trace-correlation.json"
+        },
+        {
+          "path": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-1/cael/20260802T131125Z-r-cw-1-4230a2f6/tempo-trace-391955d0a089.json"
+        }
+      ]
+    },
+    {
+      "row": "R-CW-2",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-2",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-2/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-2/cael/20260802T131157Z-r-cw-2-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-3",
+      "state": "partial",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-3",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-3/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-3/cael/20260802T132154Z-r-cw-3-6018400e",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "trace became present on rerun but harness remained PARTIAL-candidate, so complete authority was not established",
+      "attempts": 2,
+      "traces": [
+        {
+          "path": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-3/cael/20260802T132154Z-r-cw-3-6018400e/continuation-trace-correlation.json"
+        },
+        {
+          "path": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-3/cael/20260802T132154Z-r-cw-3-6018400e/tempo-trace-ce3cad2d62f5.json"
+        }
+      ]
+    },
+    {
+      "row": "R-CW-4",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-4",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-4/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-4/cael/20260802T131333Z-r-cw-4-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-5",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-5",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-5/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-5/cael/fixture-20260802T132959Z-50be3360",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "exact-candidate cost-cap fixture passed matrix, dispatch, typed-tool, no-spawn, and cleanup contracts",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-5A",
+      "state": "missing",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-5A",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-5A/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-5A/cael/static-20260802T131438Z-50be3360",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "runner explicitly skipped static-preflight-only row; no fresh product behavior authority",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-6",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-6",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-6/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-6/cael/fixture-20260802T133102Z-50be3360",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "exact-candidate max-chain fixture passed boundary, durable recovery, typed surface, dispatch, dependency integrity, cleanup, and public-artifact safety contracts",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-6A",
+      "state": "missing",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-6A",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-6A/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-6A/cael/static-20260802T131438Z-50be3360",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "runner explicitly skipped static-preflight-only row; no fresh product behavior authority",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-7",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-7",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-7/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-7/cael/20260802T131438Z-r-cw-7-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-DELEGATE-CHILD-LIVE",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-DELEGATE-CHILD-LIVE/cael/20260802T131443Z-r-cw-delegate-child-live-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-DELEGATE-SELF-CONTINUATION",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-DELEGATE-SELF-CONTINUATION/cael/20260802T131449Z-r-cw-delegate-self-continuation-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-DELEGATE-TOKEN",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-DELEGATE-TOKEN/cael/20260802T131517Z-r-cw-delegate-token-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-MULTI-COLLAPSE",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-MULTI-COLLAPSE/cael/20260802T131523Z-r-cw-multi-collapse-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-MULTI",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-MULTI",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-MULTI/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-MULTI/cael/20260802T131529Z-r-cw-multi-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-TOKEN",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-TOKEN/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-CW-TOKEN/cael/20260802T131534Z-r-cw-token-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-OBS-1",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-OBS-1",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-OBS-1/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-OBS-1/cael/20260802T131555Z-r-obs-1-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-OBS-2",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-OBS-2",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-OBS-2/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-OBS-2/cael/20260802T131618Z-r-obs-2-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-OBS-STATUS",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-OBS-STATUS",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-OBS-STATUS/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-OBS-STATUS/cael/20260802T131624Z-r-obs-status-4230a2f6",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-RC-1",
+      "state": "partial",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-RC-1",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-RC-1/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-RC-1/cael/20260802T132227Z-r-rc-1-6018400e",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "tools.effective repeated the prepared-model-runtime publication error; request_compaction was never invoked",
+      "attempts": 2,
+      "traces": []
+    },
+    {
+      "row": "R-RC-2",
+      "state": "partial",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-RC-2",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-RC-2/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-RC-2/cael/20260802T132638Z-r-rc-2-131c7ea2",
+      "classification": "NO-VERDICT",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "rerun again produced only PARTIAL-candidate: no invocation-bound request_compaction result, no accepted lifecycle, no structured below-threshold receipt, and no trace",
+      "attempts": 2,
+      "traces": []
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-REGRESSION-TRAP-TESTS",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-REGRESSION-TRAP-TESTS/cael/20260802T132600Z-r-regression-trap-tests-d9f0579d",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    },
+    {
+      "row": "R-TRACE-REDACTION-1121",
+      "state": "pass",
+      "dir": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-TRACE-REDACTION-1121",
+      "evidence_doc": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-TRACE-REDACTION-1121/EVIDENCE.md",
+      "selected_artifact": "PROOFS/cfc5db5fc324eb60e38b968ece49eccca60f31fd/R-TRACE-REDACTION-1121/cael/20260802T132606Z-r-trace-redaction-1121-d9f0579d",
+      "classification": "PASS-candidate",
+      "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "summary": "authority contract complete",
+      "attempts": 1,
+      "traces": []
+    }
+  ]
+}

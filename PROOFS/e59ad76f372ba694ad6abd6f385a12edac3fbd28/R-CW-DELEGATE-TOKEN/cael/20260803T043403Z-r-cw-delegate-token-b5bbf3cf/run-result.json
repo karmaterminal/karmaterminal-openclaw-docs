@@ -1,0 +1,61 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-03T04:34:06Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "summary-file",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": null,
+  "summaryFiles": [
+    "static-corpus-row-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CW-DELEGATE-TOKEN",
+    "sourceRow": "R-CW-DELEGATE-TOKEN",
+    "staticBoundaryVariant": false,
+    "manifest_loaded": true,
+    "candidateSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "currentProofSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+    "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+    "carriedFrom": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+    "started": "2026-08-03T04:34:06.211Z",
+    "checks": {
+      "verdictPass": true,
+      "bareToken": true,
+      "tokenOrigin": true,
+      "noTypedChildTool": true,
+      "secondTurn": true,
+      "durableWork": true,
+      "tempoWorkFire": true
+    },
+    "source_files": {
+      "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/EVIDENCE.md",
+      "childAudit": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/child-transcript-tool-audit.md",
+      "journal": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/journal-continuation-excerpt.log",
+      "flowRows": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/flow-runs-matching-full.jsonl",
+      "tempoAudit": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/tempo-child-tool-audit.txt"
+    },
+    "ended": "2026-08-03T04:34:06.211Z",
+    "duration_ms": 0,
+    "verdict": "PASS-candidate"
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

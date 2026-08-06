@@ -1,0 +1,12 @@
+2026-08-01T18:43:49.615020-07:00 cael node[701649]: 2026-08-01T18:43:49.614-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-01T18:43:49.644686-07:00 cael node[701649]: 2026-08-01T18:43:49.644-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-01T18:43:51.415139-07:00 cael node[701649]: 2026-08-01T18:43:51.414-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-01T18:43:51.415753-07:00 cael node[701649]: 2026-08-01T18:43:51.415-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-01T18:43:51.463800-07:00 cael node[701649]: 2026-08-01T18:43:51.463-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key> ended with stopReason=stop
+2026-08-01T18:43:51.514243-07:00 cael node[701649]: 2026-08-01T18:43:51.513-07:00 [warn] Subagent completion direct announce failed for run 741f0230-97de-4d06-83a5-c8f5a8850f6e: completion agent did not produce a visible reply
+2026-08-01T18:43:52.869999-07:00 cael node[701649]: 2026-08-01T18:43:52.869-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-08-01T18:43:53.502576-07:00 cael node[701649]: 2026-08-01T18:43:53.502-07:00 [ws] ⇄ res ✓ sessions.send 199ms runId=R-OBS-1-<redacted-nonce> conn=db5b657c…2bed id=1-0-1785635033301-o7ppto
+2026-08-01T18:43:55.236575-07:00 cael node[701649]: 2026-08-01T18:43:55.236-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-01T18:43:55.237323-07:00 cael node[701649]: 2026-08-01T18:43:55.237-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-01T18:43:55.296948-07:00 cael node[701649]: 2026-08-01T18:43:55.295-07:00 [warn] Subagent completion direct announce failed for run 741f0230-97de-4d06-83a5-c8f5a8850f6e: completion agent did not produce a visible reply
+2026-08-01T18:43:57.971115-07:00 cael node[701649]: 2026-08-01T18:43:57.970-07:00 [warn] Subagent orphan run pruned source=resume run=741f0230-97de-4d06-83a5-c8f5a8850f6e child=<redacted-session-key> reason=missing-session-entry

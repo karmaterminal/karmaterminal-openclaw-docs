@@ -1,0 +1,51 @@
+{
+  "schema": "openclaw.k6.harness-provenance.v1",
+  "classification": "harness-provenance",
+  "matrixId": "20260803T042211Z-d0196d2d7033-7c2e8621",
+  "mode": "live",
+  "docsRef": "d0196d2d70338d939c1830d8f381b6d0e2a58493",
+  "docsRefSource": "approved-input",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "harnessIdentityVerified": true,
+  "candidateSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "runtimeIdentity": {
+    "seat": "cael",
+    "runtimeBuildSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "candidateMatchesRuntime": true,
+    "seatReadinessReceipt": "seat-readiness.json",
+    "seatReadinessSha256": "3c730561d7d3dd4e1fa41328d9fcd8e7112f3be8ab76f0beb7357e42d1c104d8"
+  },
+  "runnerScript": "tools/k6-proofs/scripts/run-proofs.sh",
+  "runnerScriptSha256": "f81c422874f1acaf722275f2b87bbed048cb8d913435df0a0090c29b49ea31f4",
+  "rowSelection": [
+    "R-CD-RETURN-OVERLAP",
+    "R-CD-SILENT",
+    "R-CD-TOKEN"
+  ],
+  "rows": [
+    {
+      "rowId": "R-CD-RETURN-OVERLAP",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-return-overlap.json",
+      "manifestSha256": "e01f4f63f21808500bdb14428148becf7069ddb751fc9fb02e7aea50c433f49e",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-return-overlap.js",
+      "scenarioSha256": "6cd48219e45615cd36a43f72d1500b9d5583dff381c14602a97f35a382762561"
+    },
+    {
+      "rowId": "R-CD-SILENT",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-silent.json",
+      "manifestSha256": "9c9576d2704a6e7e7d145beb3275d1f054779bf81f98bbf484f01467600e92a1",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-silent.js",
+      "scenarioSha256": "34a5813f9cf00c55f9c15487e7f987973e48ff82a8fd06e1da20e13bc833e5b1"
+    },
+    {
+      "rowId": "R-CD-TOKEN",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-token.json",
+      "manifestSha256": "7b96ff52671575220a8fcfe283afa19e4ec2d921b7b2fda634cf63d722cf4f4d",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-token-bracket-delegate.js",
+      "scenarioSha256": "e4da30a666b0ef9e59b4edf1677cc3a8da80b59d5385ee00fdb8905556422699"
+    }
+  ],
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "startedAt": "2026-08-03T04:22:11Z"
+}

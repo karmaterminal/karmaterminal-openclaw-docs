@@ -1,0 +1,17 @@
+{
+  "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+  "scenario": "r-cw-delegate-self-continuation.js",
+  "candidateSha": "009e4554627451313acab5e39d895beaae155be7",
+  "runtimeBuildSha": "009e4554627451313acab5e39d895beaae155be7",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-02T01:42:08Z",
+  "docsRef": "9fcf215674720803840d15efa93bd925180135b9",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260802T014205Z-9fcf21567472-531fc938",
+  "runId": "20260802T014208Z-r-cw-delegate-self-continuation-531fc938",
+  "manifestPath": "tools/k6-proofs/manifests/r-cw-delegate-self.json",
+  "manifestSha256": "6cc1830e3c59ce06a805e81b9f8040a8835ab1fc958c10058a52c1060b1c9ef1",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-cw-delegate-self-continuation.js",
+  "scenarioSha256": "5ad5eff1472f8c100bfb435749b1f4b8833b277d78930a9777784f1c8b8a94a9"
+}

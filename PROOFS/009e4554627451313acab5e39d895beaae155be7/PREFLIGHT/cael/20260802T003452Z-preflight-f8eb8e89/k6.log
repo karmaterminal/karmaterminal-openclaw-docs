@@ -1,0 +1,104 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/preflight.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m15s max duration (incl. graceful stop):
+              * preflight_inventory: 1 iterations shared among 1 VUs (maxDuration: 45s, gracefulStop: 30s)
+
+time="2026-08-01T17:34:55-07:00" level=error msg="sessions.list failed: {\"code\":\"UNAVAILABLE\",\"message\":\"SessionCanonicalKeyMigrationRequiredError: invalid persisted session row requires repair for <redacted-session-key>; stop the Gateway and run openclaw doctor --fix: code=SESSION_CANONICAL_KEY_MIGRATION_REQUIRE...\"}" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  01.0s/45s  0/1 shared iters
+time="2026-08-01T17:34:56-07:00" level=error msg="tools.effective failed: {\"code\":\"INVALID_REQUEST\",\"message\":\"unknown session key \\\"main\\\"\"}" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  02.0s/45s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  03.0s/45s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  04.0s/45s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  05.0s/45s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  06.0s/45s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  07.0s/45s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  08.0s/45s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  09.0s/45s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  10.0s/45s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  11.0s/45s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  12.0s/45s  0/1 shared iters
+PUBLIC_EVIDENCE {"row":"preflight","manifest_loaded":true,"seat":"cael","candidateSha":"009e4554627451313acab5e39d895beaae155be7","started":"2026-08-02T00:34:54.979Z","connected":true,"sessions_list_ok":false,"tools_effective_ok":false,"tool_inventory_count":0,"ended":"2026-08-02T00:35:06.983Z","duration_ms":12004}
+
+
+  █ THRESHOLDS 
+
+    preflight_duration
+    ✓ 'p(95)<30000' p(95)=12004
+
+    proof_failures
+    ✗ 'count==0' count=3
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 3      0.249912/s
+    checks_succeeded...: 33.33% 1 out of 3
+    checks_failed......: 66.66% 2 out of 3
+
+    ✓ websocket connected
+    ✗ sessions.list accepted
+      ↳  0% — ✓ 0 / ✗ 1
+    ✗ tools.effective accepted
+      ↳  0% — ✓ 0 / ✗ 1
+
+    CUSTOM
+    preflight_duration....: avg=12004 min=12004 med=12004 max=12004 p(90)=12004 p(95)=12004
+    proof_failures........: 3     0.249912/s
+
+    EXECUTION
+    iteration_duration....: avg=12s   min=12s   med=12s   max=12s   p(90)=12s   p(95)=12s  
+    iterations............: 1     0.083304/s
+    vus...................: 1     min=1      max=1
+    vus_max...............: 1     min=1      max=1
+
+    NETWORK
+    data_received.........: 10 kB 856 B/s
+    data_sent.............: 830 B 69 B/s
+
+    WEBSOCKET
+    ws_connecting.........: avg=2.5ms min=2.5ms med=2.5ms max=2.5ms p(90)=2.5ms p(95)=2.5ms
+    ws_msgs_received......: 4     0.333216/s
+    ws_msgs_sent..........: 3     0.249912/s
+    ws_session_duration...: avg=12s   min=12s   med=12s   max=12s   p(90)=12s   p(95)=12s  
+    ws_sessions...........: 1     0.083304/s
+
+
+
+
+running (0m12.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+preflight_inventory ✓ [ 100% ] 1 VUs  12.0s/45s  1/1 shared iters
+time="2026-08-01T17:35:07-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"

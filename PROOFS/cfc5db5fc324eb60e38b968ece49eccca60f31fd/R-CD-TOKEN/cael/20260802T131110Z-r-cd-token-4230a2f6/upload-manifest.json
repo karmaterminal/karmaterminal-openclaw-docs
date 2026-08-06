@@ -1,0 +1,30 @@
+{
+  "schema": "openclaw.p86.safe-upload-manifest.v1",
+  "row": "R-CD-TOKEN",
+  "productSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "harnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "runId": "20260802T131110Z-r-cd-token-4230a2f6",
+  "files": [
+    {
+      "path": "build-identity-gate.json",
+      "sha256": "ec66cedc3030bf733a525a5e37cc2d42bc6298bd8ea2f5a625e29195b59cd92c"
+    },
+    {
+      "path": "row-manifest.json",
+      "sha256": "7b96ff52671575220a8fcfe283afa19e4ec2d921b7b2fda634cf63d722cf4f4d"
+    },
+    {
+      "path": "row-scenario.js",
+      "sha256": "e4da30a666b0ef9e59b4edf1677cc3a8da80b59d5385ee00fdb8905556422699"
+    },
+    {
+      "path": "run-result.json",
+      "sha256": "950a1e747468b4783183bfc69ed9b6510ca5e03d5993b5623c71283566ef9b2c"
+    },
+    {
+      "path": "runner-metadata.json",
+      "sha256": "6d0bc48652962bb0d0a7e8032bef28794efe5c8cf99970454cd014fd21a2c42e"
+    }
+  ]
+}

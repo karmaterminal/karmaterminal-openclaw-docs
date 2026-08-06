@@ -500,7 +500,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-CD-MODEL-CHAINED-ALT | `r-cd-model-chained-alt` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-DEFAULT | `r-cd-model-default` | websocket/mixed | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
-| R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | PASS on authoritative requested/observed match; mismatch FAIL; unavailable metadata PARTIAL |
+| R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | PASS only from nonce-bound child model-call telemetry; bound mismatch FAIL; missing/ambiguous telemetry NO-VERDICT |
 | R-CD-RETURN-OVERLAP | `r-cd-return-overlap` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CD-SILENT | `r-cd-silent` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-TOKEN | `r-cd-token-bracket-delegate` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |

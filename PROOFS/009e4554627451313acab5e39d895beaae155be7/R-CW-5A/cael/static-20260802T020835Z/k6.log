@@ -1,0 +1,19 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-08-01T19:08:35-07:00" level=info msg="STATIC_CORPUS_ROW_EVIDENCE {\"row\":\"R-CW-5A\",\"sourceRow\":\"R-CW-5\",\"staticBoundaryVariant\":true,\"manifest_loaded\":true,\"candidateSha\":\"009e4554627451313acab5e39d895beaae155be7\",\"currentProofSha\":\"4c235d8c1997e8964160117f8d6bf650ad1e8203\",\"sourceEvidenceSha\":\"1cc8f4e3d617ef6f173283ef83d7b739a4995734\",\"carriedFrom\":\"4c235d8c1997e8964160117f8d6bf650ad1e8203\",\"started\":\"2026-08-02T02:08:35.919Z\",\"checks\":{\"verdictPass\":true,\"sourceGuard\":true,\"delegateRejection\":true,\"announceGuards\":true,\"costCapSuite\":true,\"boundaryAllowed\":true,\"noLiveMutationScope\":true,\"nonLiveBoundary\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/EVIDENCE.md\",\"schedulerSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/scheduler-source.txt\",\"delegateSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/delegate-dispatch-cost-cap-source.txt\",\"announceBracketSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/subagent-announce-bracket-cost-cap-source.txt\",\"announceToolSource\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/subagent-announce-tool-cost-cap-source.txt\",\"costCapLog\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/vitest-delegate-dispatch-cost-cap-exhaustion.log\",\"chainGuardLog\":\"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-5/cael-dgx/vitest-chain-guard-cost-cap.log\"},\"ended\":\"2026-08-02T02:08:35.919Z\",\"duration_ms\":0,\"verdict\":\"construct-only\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters

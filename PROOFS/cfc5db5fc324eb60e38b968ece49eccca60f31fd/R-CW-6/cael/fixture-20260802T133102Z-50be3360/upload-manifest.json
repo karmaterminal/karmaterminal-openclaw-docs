@@ -1,0 +1,58 @@
+{
+  "schema": "openclaw.p86.safe-upload-manifest.v1",
+  "row": "R-CW-6",
+  "productSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "harnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "runId": "fixture-20260802T133102Z-50be3360",
+  "files": [
+    {
+      "path": "boundary-matrix.json",
+      "sha256": "19160819f949652a5846caebe092ca5e1769eb17767e1909529cea8c10d41cef"
+    },
+    {
+      "path": "cleanup.json",
+      "sha256": "0e92bb261942299250e79fe56af614918a7bbb243b006486e852097e3e0fd36e"
+    },
+    {
+      "path": "dispatch-boundary-suite.json",
+      "sha256": "fad28b14b9e6a65219439832d31662fa243d26a4afb3c97bb0b5a2fa268a1499"
+    },
+    {
+      "path": "durable-state-recovery.json",
+      "sha256": "8afdd79b4099749408a16888fc230de8420bf16c488bbc5d8abcc8d929d7ba4d"
+    },
+    {
+      "path": "fixture-readiness.json",
+      "sha256": "5bfce270c0d66afe435d82aac7a5f7fd1c4f7d0c26a28395d5a55bf2b0485f03"
+    },
+    {
+      "path": "fixture-result.json",
+      "sha256": "23d4e57da4fc3450839eb1d5ad9df1f0627aa33149e165f55d21949fd2ce4b55"
+    },
+    {
+      "path": "public-artifact-safety.json",
+      "sha256": "02fc34f4db90c17aee40f4f8476bc19633068eed4ff9ea68b1cb938f611fcf51"
+    },
+    {
+      "path": "row-manifest.json",
+      "sha256": "9922efaf52a56e771204a384f1ec59c6c6ae01c71a4aa8878439595fcafac3ff"
+    },
+    {
+      "path": "run-result.json",
+      "sha256": "bc3368b5b71806a728963f0d8eaf52975e003cd1e850cd2338de1a449e0bb34e"
+    },
+    {
+      "path": "runner-metadata.json",
+      "sha256": "b216d572035545b2cbdcc85b70c289e8cc7ccb4decb511e957a7943687ff8350"
+    },
+    {
+      "path": "runtime-boundary.json",
+      "sha256": "3483461b4a15593b494ce4d67177b24c0a35069de2db981658db1d278d716a52"
+    },
+    {
+      "path": "typed-tool-surface.json",
+      "sha256": "0635058cd1497a5b10ac3ec7d3414672d6c31f8eec19e92510f0893807512dfa"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "schema": "openclaw.proofs.upload-manifest.v1",
+  "row": "R-CW-5A",
+  "productSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "executionHarnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "runId": "static-20260803T044810Z-50be3360",
+  "generatedAt": "2026-08-03T04:48:10Z",
+  "files": [
+    {
+      "path": "row-manifest.json",
+      "sha256": "054c194a417ec4ce5f030090c70d995b65ac66f3a205aea2b315931e8c3d93b5",
+      "size": 1712
+    },
+    {
+      "path": "row-scenario.js",
+      "sha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48",
+      "size": 19736
+    },
+    {
+      "path": "run-result.json",
+      "sha256": "6f4081efd0187e666f0862fb6273f4be1790fca03ba4111391824010f1b2dc2d",
+      "size": 540
+    },
+    {
+      "path": "runner-metadata.json",
+      "sha256": "c03d8bcdeae616cdbc6a75fcccb5a0084b7e4c1beb1af0742536031f88b0bbaa",
+      "size": 556
+    },
+    {
+      "path": "skip-receipt.json",
+      "sha256": "77615168eddf6654869da36a91d313e2d842056b9fbfebe52d6a316bbde9d606",
+      "size": 427
+    }
+  ]
+}

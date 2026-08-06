@@ -1,0 +1,15 @@
+2026-08-02T21:18:53.744014-07:00 cael node[4125351]: 2026-08-02T21:18:53.743-07:00 [ws] ⇄ res ✓ sessions.send 243ms runId=R-CD-MODEL-TOOL-DISPATCH-<redacted-nonce> conn=e3ee162c…a078 id=1-0-1785730733499-dxhynj
+2026-08-02T21:19:09.021155-07:00 cael node[4125351]: 2026-08-02T21:19:09.020-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-02T21:19:09.021538-07:00 cael node[4125351]: 2026-08-02T21:19:09.021-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-02T21:19:09.029814-07:00 cael node[4125351]: 2026-08-02T21:19:09.029-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=3306ms fireAt=1785730752334 session=<redacted-session-key>
+2026-08-02T21:19:12.338667-07:00 cael node[4125351]: 2026-08-02T21:19:12.338-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-fired] session=<redacted-session-key>
+2026-08-02T21:19:12.341789-07:00 cael node[4125351]: 2026-08-02T21:19:12.341-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-08-02T21:19:13.043776-07:00 cael node[4125351]: 2026-08-02T21:19:13.043-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=<redacted-session-key> task=<redacted-payload>
+2026-08-02T21:19:29.065618-07:00 cael node[4125351]: 2026-08-02T21:19:29.064-07:00 [subagent-chain-hop] Token data unavailable for <redacted-session-key> after retry, proceeding with zero token accumulation
+2026-08-02T21:19:35.621043-07:00 cael node[4125351]: 2026-08-02T21:19:35.620-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-02T21:19:35.621664-07:00 cael node[4125351]: 2026-08-02T21:19:35.621-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-02T21:19:35.673550-07:00 cael node[4125351]: 2026-08-02T21:19:35.672-07:00 The requested child model is not permitted by this runtime’s model policy, so the delegated proof did not run.
+2026-08-02T21:19:35.674502-07:00 cael node[4125351]: 2026-08-02T21:19:35.674-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key> ended with stopReason=stop
+2026-08-02T21:20:42.480796-07:00 cael node[4125351]: 2026-08-02T21:20:42.480-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-02T21:20:42.481478-07:00 cael node[4125351]: 2026-08-02T21:20:42.481-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-02T21:20:42.494378-07:00 cael node[4125351]: 2026-08-02T21:20:42.494-07:00 [turn/execution] visible channel turn dispatched with no queued reply payloads: channel=discord messageId=unknown sessionKey=<redacted-session-key>

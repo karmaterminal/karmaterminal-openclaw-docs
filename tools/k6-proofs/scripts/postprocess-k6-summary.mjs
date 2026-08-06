@@ -4,6 +4,8 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { readFileSync } from 'node:fs';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import { validateRcdModelToolAuthoritativeReceipt } from
+  '../lib/r-cd-model-tool-authoritative-receipt.mjs';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \\
@@ -232,16 +234,70 @@ async function main() {
   let authoritativeReceiptDigest = null;
   let authoritativeReceiptRaw = null;
   let authoritativeReceipt = null;
-  if (manifest.rowId === 'R-CD-2') {
-    if (!args['authoritative-receipt']) throw new Error('R-CD-2 requires --authoritative-receipt');
+  const authoritativeConfig = manifest.rowId === 'R-CD-2'
+    ? {
+        file: 'r-cd-2-authoritative-receipt.json',
+        source: 'r-cd-2-row-scoped-resolver',
+        verdictSource: 'r-cd-2-authoritative-receipt',
+        validate: validateRcd2AuthoritativeReceipt,
+      }
+    : manifest.rowId === 'R-CD-MODEL-TOOL'
+      ? {
+          file: 'r-cd-model-tool-authoritative-receipt.json',
+          source: 'r-cd-model-tool-row-scoped-resolver',
+          verdictSource: 'r-cd-model-tool-authoritative-receipt',
+          validate: validateRcdModelToolAuthoritativeReceipt,
+          requiresRunnerEnvelope: true,
+        }
+      : null;
+  if (authoritativeConfig) {
+    if (!args['authoritative-receipt']) {
+      throw new Error(`${manifest.rowId} requires --authoritative-receipt`);
+    }
+    // The postprocessor mints its own publication run id, so the receipt's
+    // binding must be checked against the runner envelope that produced it.
+    let authorityEnvelope;
+    if (authoritativeConfig.requiresRunnerEnvelope) {
+      if (!args['runner-metadata']) {
+        throw new Error(
+          `${manifest.rowId} requires --runner-metadata to bind the authoritative receipt to its run`,
+        );
+      }
+      const runnerMetadata = JSON.parse(readFileSync(args['runner-metadata'], 'utf8'));
+      // The envelope must describe this row's scenario and name the run it
+      // belongs to. Candidate/seat identity is not asserted here because the
+      // committed manifest carries deployment placeholders for those fields;
+      // every downstream consumer re-derives them from this same envelope.
+      const runnerScenario = (runnerMetadata?.scenario || '').replace(/\.js$/u, '');
+      if (runnerMetadata?.row !== manifest.rowId ||
+          runnerScenario !== scenarioFromManifest(manifest) ||
+          typeof runnerMetadata?.runId !== 'string' || !runnerMetadata.runId) {
+        throw new Error(
+          `${manifest.rowId} runner metadata does not describe this row's scenario and run`,
+        );
+      }
+      authorityEnvelope = { metadata: runnerMetadata, runId: runnerMetadata.runId };
+    }
     authoritativeReceiptRaw = readFileSync(args['authoritative-receipt']);
     const receipt = JSON.parse(authoritativeReceiptRaw.toString('utf8'));
-    const validation = validateRcd2AuthoritativeReceipt(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
-    if (!validation.valid) throw new Error(`R-CD-2 authoritative receipt rejected: ${validation.reason}`);
+    const validation = authoritativeConfig.validate(
+      receipt,
+      process.env.OPENCLAW_GATEWAY_TOKEN,
+      authorityEnvelope,
+    );
+    if (!validation.valid || validation.verdict == null) {
+      throw new Error(
+        `${manifest.rowId} authoritative receipt rejected: ${validation.reason || 'no verdict'}`,
+      );
+    }
     outcome = receipt.verdict;
-    verdictSource = 'r-cd-2-authoritative-receipt';
+    verdictSource = authoritativeConfig.verdictSource;
     authoritativeReceiptDigest = createHash('sha256').update(authoritativeReceiptRaw).digest('hex');
-    authoritativeReceipt = { schema: receipt.schema, validated: true, source: 'r-cd-2-row-scoped-resolver' };
+    authoritativeReceipt = {
+      schema: receipt.schema,
+      validated: true,
+      source: authoritativeConfig.source,
+    };
   }
   const failures = requiredMetric(summary, 'proof_failures');
   const failureCount = failures ? Number(failures.count || 0) : 0;
@@ -265,7 +321,7 @@ async function main() {
     transport: manifest.transport,
     outcome,
     verdictSource,
-    ...(authoritativeReceiptDigest ? { authoritativeReceipt: { ...authoritativeReceipt, file: 'r-cd-2-authoritative-receipt.json', sha256: authoritativeReceiptDigest } } : {}),
+    ...(authoritativeReceiptDigest ? { authoritativeReceipt: { ...authoritativeReceipt, file: authoritativeConfig.file, sha256: authoritativeReceiptDigest } } : {}),
     metrics: {
       proofFailures: failureCount,
       checksRate: checkRate,
@@ -299,7 +355,9 @@ async function main() {
   await writeFile(path.join(runDir, 'row-manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   await writeFile(path.join(runDir, 'k6-summary.json'), JSON.stringify(summary, null, 2) + '\n');
   await writeFile(path.join(runDir, 'row-result.json'), JSON.stringify(result, null, 2) + '\n');
-  if (authoritativeReceiptRaw) await writeFile(path.join(runDir, 'r-cd-2-authoritative-receipt.json'), authoritativeReceiptRaw);
+  if (authoritativeReceiptRaw) {
+    await writeFile(path.join(runDir, authoritativeConfig.file), authoritativeReceiptRaw);
+  }
   await writeFile(path.join(runDir, 'EVIDENCE.md'), evidenceDraft({ manifest, summary, result }));
 
   console.log(JSON.stringify({ runDir, outcome, rowId: manifest.rowId, candidateOnly: true }, null, 2));

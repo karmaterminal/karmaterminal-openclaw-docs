@@ -1,0 +1,36 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-02T13:35:05Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "fixture-result.json",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "evidence": {
+    "checks": {
+      "matrixPassed": true,
+      "dispatchPassed": true,
+      "runtimeSurfacePassed": true,
+      "structuredChainCapped": true,
+      "noRejectedHopSpawn": true,
+      "durableRecoveryPassed": true,
+      "typedSurfacePassed": true,
+      "exactCandidateDisposableWorktree": true,
+      "candidatePackageManagerVersionMatchesExecuting": true,
+      "installedLockMatchesCandidate": true,
+      "verifiedDependencyTreeContainsLocalExecutables": true,
+      "worktreeIntegrityAfterInstall": true,
+      "worktreeIntegrityAfterProofSurfaces": true,
+      "publicArtifactsSafe": true
+    }
+  },
+  "observability": {
+    "traceStatus": "not-applicable",
+    "traceId": null
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

@@ -12,6 +12,8 @@
 
 import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
+import { resolveArtifactOutcome } from './run-outcome.mjs';
+import { resolveAuthoritativeRowOutcome } from './authoritative-row-authority.mjs';
 
 function parseArgs(argv) {
   const out = { root: 'PROOFS', out: null };
@@ -125,7 +127,35 @@ function normalizeRun(root, resultPath) {
   const candidateSha = result.candidateSha || summary.sha || manifest.candidateSha || pathInfo.candidateSha;
   const seat = result.seat || summary.seat || manifest.seat || pathInfo.seat;
   const runId = result.runId || pathInfo.runId;
-  const outcome = result.outcome || summary.verdict || (result.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate');
+  const metadata = readJson(path.join(runDir, 'runner-metadata.json'));
+  // row-result.json is a normalized view and never carries the receipt
+  // declaration, so authority is always resolved from the run-result envelope
+  // that sits beside it.
+  const runResult = path.basename(resultPath) === 'run-result.json'
+    ? result
+    : (readJson(path.join(runDir, 'run-result.json')) || result);
+  // Row identity for the authority decision comes from the runner envelope and
+  // the artifact path, never from the unsigned result body: otherwise a
+  // relabelled row-result could opt itself out of receipt enforcement.
+  const authorityRowId = metadata?.row || manifest.rowId || pathInfo.rowId;
+  // Rows with a row-scoped resolver may only be exported through their signed
+  // receipt; unverifiable authority is downgraded rather than published.
+  const authority = resolveAuthoritativeRowOutcome({
+    runDir,
+    rowId: authorityRowId,
+    runResult,
+    metadata,
+    signingKey: process.env.OPENCLAW_GATEWAY_TOKEN,
+  });
+  // A result that disagrees with the runner envelope about which row, seat, or
+  // candidate it describes is not the run the receipt certifies.
+  const identityAgrees = !authority ||
+    ((!result.rowId || result.rowId === authorityRowId) &&
+      (!metadata?.seat || seat === metadata.seat) &&
+      (!metadata?.candidateSha || candidateSha === metadata.candidateSha));
+  const outcome = authority
+    ? (identityAgrees ? authority.outcome : 'NO-VERDICT')
+    : resolveArtifactOutcome({ runResult: result, summary });
   const scenario = result.scenario || manifest?.scenario?.name || manifest?.scenario?.file?.replace(/\.js$/, '') || 'unknown';
   const toolSurface = result.toolSurface || manifest.toolSurface || 'unknown';
   const transport = result.transport || manifest.transport || 'unknown';

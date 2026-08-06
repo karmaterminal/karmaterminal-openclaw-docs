@@ -1,0 +1,366 @@
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "openclaw-k6-proofs"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {
+            "name": "openclaw-k6-proofs-exporter",
+            "version": "1"
+          },
+          "metrics": [
+            {
+              "name": "openclaw_proofs_k6_run_total",
+              "sum": {
+                "aggregationTemporality": 2,
+                "isMonotonic": true,
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-TRACE-REDACTION-1121"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "009e4554627451313acab5e39d895beaae155be7"
+                        }
+                      },
+                      {
+                        "key": "scenario",
+                        "value": {
+                          "stringValue": "r-trace-redaction-1121.js"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260802T014839Z-r-trace-redaction-1121-6f51c2bf"
+                        }
+                      },
+                      {
+                        "key": "tool_surface",
+                        "value": {
+                          "stringValue": "read-only"
+                        }
+                      },
+                      {
+                        "key": "transport",
+                        "value": {
+                          "stringValue": "offline"
+                        }
+                      },
+                      {
+                        "key": "outcome",
+                        "value": {
+                          "stringValue": "PASS-candidate"
+                        }
+                      },
+                      {
+                        "key": "candidate_only",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "fold_requires_review",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "failure_class",
+                        "value": {
+                          "stringValue": "none"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1785635322792000000",
+                    "asInt": "1"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_proof_failures_total",
+              "sum": {
+                "aggregationTemporality": 2,
+                "isMonotonic": true,
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-TRACE-REDACTION-1121"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "009e4554627451313acab5e39d895beaae155be7"
+                        }
+                      },
+                      {
+                        "key": "scenario",
+                        "value": {
+                          "stringValue": "r-trace-redaction-1121.js"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260802T014839Z-r-trace-redaction-1121-6f51c2bf"
+                        }
+                      },
+                      {
+                        "key": "failure_class",
+                        "value": {
+                          "stringValue": "none"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1785635322792000000",
+                    "asInt": "0"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_candidate_pending_review",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-TRACE-REDACTION-1121"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "009e4554627451313acab5e39d895beaae155be7"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260802T014839Z-r-trace-redaction-1121-6f51c2bf"
+                        }
+                      },
+                      {
+                        "key": "outcome",
+                        "value": {
+                          "stringValue": "PASS-candidate"
+                        }
+                      },
+                      {
+                        "key": "fold_requires_review",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1785635322792000000",
+                    "asInt": "1"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_duration_ms",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-TRACE-REDACTION-1121"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "009e4554627451313acab5e39d895beaae155be7"
+                        }
+                      },
+                      {
+                        "key": "scenario",
+                        "value": {
+                          "stringValue": "r-trace-redaction-1121.js"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260802T014839Z-r-trace-redaction-1121-6f51c2bf"
+                        }
+                      },
+                      {
+                        "key": "outcome",
+                        "value": {
+                          "stringValue": "PASS-candidate"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1785635322792000000",
+                    "asDouble": 0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_receipt_status",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-TRACE-REDACTION-1121"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "009e4554627451313acab5e39d895beaae155be7"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260802T014839Z-r-trace-redaction-1121-6f51c2bf"
+                        }
+                      },
+                      {
+                        "key": "receipt_name",
+                        "value": {
+                          "stringValue": "trace-redaction-contract"
+                        }
+                      },
+                      {
+                        "key": "receipt_required",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "receipt_status",
+                        "value": {
+                          "stringValue": "unknown"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1785635322792000000",
+                    "asInt": "0"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_receipt_status",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-TRACE-REDACTION-1121"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "009e4554627451313acab5e39d895beaae155be7"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260802T014839Z-r-trace-redaction-1121-6f51c2bf"
+                        }
+                      },
+                      {
+                        "key": "receipt_name",
+                        "value": {
+                          "stringValue": "trace-redaction-tests-passed"
+                        }
+                      },
+                      {
+                        "key": "receipt_required",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "receipt_status",
+                        "value": {
+                          "stringValue": "unknown"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1785635322792000000",
+                    "asInt": "0"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "openclaw.proofs.corpus-index.v1",
+  "product_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "publication_base": "d0196d2d70338d939c1830d8f381b6d0e2a58493",
+  "seat": "cael",
+  "manifest": "proofs-manifest.json",
+  "terminal_matrix": "terminal-matrix.json",
+  "rollup": {
+    "pass": 28,
+    "partial": 8,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 0,
+    "missing": 2,
+    "total_rows": 38
+  },
+  "generated_at": "2026-08-03T04:48:10Z"
+}

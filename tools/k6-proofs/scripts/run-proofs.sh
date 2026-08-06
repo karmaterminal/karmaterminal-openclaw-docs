@@ -52,6 +52,7 @@ bind_execution_roots() {
   EVIDENCE_EXTRACTOR="$SCRIPT_DIR/extract-k6-evidence.mjs"
   CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
   R_CD_2_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-2-authoritative-receipt.mjs"
+  R_CD_MODEL_TOOL_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-model-tool-authoritative-receipt.mjs"
   ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
   CANDIDATE_RESULT_VALIDATOR="$SCRIPT_DIR/validate-candidate-run-result.mjs"
   INTERRUPTED_RESULT_WRITER="$SCRIPT_DIR/write-interrupted-run-result.mjs"
@@ -971,11 +972,12 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg docsRef "$DOCS_REF" \
       --arg repository "$DOCS_REPOSITORY" \
       --arg matrixId "$MATRIX_ID" \
+      --arg runId "$RUN_ID" \
       --arg manifestPath "$ROW_MANIFEST_REL" \
       --arg manifestSha256 "$ROW_MANIFEST_DIGEST" \
       --arg scenarioPath "$ROW_SCENARIO_REL" \
       --arg scenarioSha256 "$ROW_SCENARIO_DIGEST" \
-      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started, docsRef:$docsRef, repository:$repository, matrixId:$matrixId, manifestPath:$manifestPath, manifestSha256:$manifestSha256, scenarioPath:$scenarioPath, scenarioSha256:$scenarioSha256}' \
+      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started, docsRef:$docsRef, repository:$repository, matrixId:$matrixId, runId:$runId, manifestPath:$manifestPath, manifestSha256:$manifestSha256, scenarioPath:$scenarioPath, scenarioSha256:$scenarioSha256}' \
       > "$RUN_DIR/runner-metadata.json"
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       if [[ ! "$OPENCLAW_CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ||
@@ -1389,6 +1391,43 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       fi
     fi
 
+    R_CD_MODEL_TOOL_RECEIPT=""
+    R_CD_MODEL_TOOL_RECEIPT_SHA256=""
+    if [[ "$ROW_ID" == "R-CD-MODEL-TOOL" ]]; then
+      R_CD_MODEL_TOOL_RECEIPT="r-cd-model-tool-authoritative-receipt.json"
+      MODEL_RESOLVER_ARGS=(--run-dir "$RUN_DIR" --evidence "$PRIVATE_EVIDENCE_FILE")
+      if [[ -n "$CORRELATION_RECEIPT_PATH" && -f "$CORRELATION_RECEIPT_PATH" ]]; then
+        MODEL_RESOLVER_ARGS+=(--correlation "$CORRELATION_RECEIPT_PATH")
+      fi
+      if node "$R_CD_MODEL_TOOL_RECEIPT_RESOLVER" "${MODEL_RESOLVER_ARGS[@]}" \
+        > "$RUN_DIR/r-cd-model-tool-authoritative-resolution.json"; then
+        SUMMARY_VERDICT="$(jq -r '.verdict // "unknown"' "$RUN_DIR/$R_CD_MODEL_TOOL_RECEIPT")"
+        SUMMARY_VERDICT_SOURCE="r-cd-model-tool-authoritative-receipt"
+        SUMMARY_FILE_VERDICT="$SUMMARY_VERDICT"
+        VU_LOG_VERDICT=""
+        R_CD_MODEL_TOOL_RECEIPT_SHA256="$(
+          sha256sum "$RUN_DIR/$R_CD_MODEL_TOOL_RECEIPT" | cut -d' ' -f1
+        )"
+        if [[ "$SUMMARY_VERDICT" != "PASS-candidate" ]]; then
+          POSTPROCESS_RC=1
+        fi
+        if [[ "$SUMMARY_VERDICT" == "unknown" ]]; then
+          REVIEW_PENDING_RECEIPTS="$(
+            jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
+              '$current + ["execution-bound-child-model-byte"] | unique'
+          )"
+        fi
+      else
+        SUMMARY_VERDICT="unknown"
+        SUMMARY_VERDICT_SOURCE="r-cd-model-tool-authoritative-receipt-missing"
+        REVIEW_PENDING_RECEIPTS="$(
+          jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
+            '$current + ["execution-bound-child-model-byte"] | unique'
+        )"
+        POSTPROCESS_RC=1
+      fi
+    fi
+
     if ! node "$ARTIFACT_SANITIZER" \
       --input "$PRIVATE_EVIDENCE_FILE" \
       --out "$RUN_DIR/evidence.jsonl" \
@@ -1456,6 +1495,10 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       AUTHORITATIVE_RECEIPT="$R_CD_2_RECEIPT"
       AUTHORITATIVE_RECEIPT_SHA256="$R_CD_2_RECEIPT_SHA256"
       AUTHORITATIVE_RECEIPT_SOURCE="r-cd-2-row-scoped-resolver"
+    elif [[ "$ROW_ID" == "R-CD-MODEL-TOOL" ]]; then
+      AUTHORITATIVE_RECEIPT="$R_CD_MODEL_TOOL_RECEIPT"
+      AUTHORITATIVE_RECEIPT_SHA256="$R_CD_MODEL_TOOL_RECEIPT_SHA256"
+      AUTHORITATIVE_RECEIPT_SOURCE="r-cd-model-tool-row-scoped-resolver"
     elif [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       AUTHORITATIVE_RECEIPT="$R_CD_TOKEN_RECEIPT"
       AUTHORITATIVE_RECEIPT_SHA256="$R_CD_TOKEN_RECEIPT_SHA256"

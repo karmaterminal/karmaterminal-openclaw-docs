@@ -1,0 +1,31 @@
+{
+  "k6ExitCode": null,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-03T04:48:10Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "isolated-exact-candidate-fixture",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "terminal": true,
+  "evidence": {
+    "row": "R-CW-5",
+    "fixtureResult": "fixture-result.json",
+    "checks": {
+      "matrixPassed": true,
+      "dispatchPassed": true,
+      "toolSurfacePassed": true,
+      "noRejectedHopSpawn": true
+    }
+  },
+  "observability": {
+    "traceStatus": "not-applicable",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null
+  },
+  "review": {
+    "status": "reviewed-for-corpus",
+    "pendingReceipts": []
+  }
+}

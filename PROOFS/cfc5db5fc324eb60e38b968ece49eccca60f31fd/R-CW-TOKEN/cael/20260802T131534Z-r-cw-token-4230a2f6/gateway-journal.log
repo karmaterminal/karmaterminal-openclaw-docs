@@ -1,0 +1,11 @@
+2026-08-02T06:15:36.952166-07:00 cael node[2207111]: 2026-08-02T06:15:36.952-07:00 [agent/embedded] codex app-server turn released after terminal dynamic tool result
+2026-08-02T06:15:37.049472-07:00 cael node[2207111]: 2026-08-02T06:15:37.049-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-02T06:15:37.052681-07:00 cael node[2207111]: 2026-08-02T06:15:37.052-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-02T06:15:37.108485-07:00 cael node[2207111]: 2026-08-02T06:15:37.107-07:00 ⚠️ Turn yielded without a continuation source. Send a message to resume.
+2026-08-02T06:15:37.274065-07:00 cael node[2207111]: 2026-08-02T06:15:37.273-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-02T06:15:37.274862-07:00 cael node[2207111]: 2026-08-02T06:15:37.274-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-02T06:15:39.130070-07:00 cael node[2207111]: 2026-08-02T06:15:39.129-07:00 [ws] ⇄ res ✓ sessions.send 248ms runId=R-CW-TOKEN-DISPATCH-<redacted-nonce> conn=62c8c2cd…9927 id=1-0-1785676538879-mz9mzl
+2026-08-02T06:15:51.148848-07:00 cael node[2207111]: 2026-08-02T06:15:51.148-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-02T06:15:51.179208-07:00 cael node[2207111]: 2026-08-02T06:15:51.179-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-02T06:15:52.331948-07:00 cael node[2207111]: 2026-08-02T06:15:52.331-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-02T06:15:52.332604-07:00 cael node[2207111]: 2026-08-02T06:15:52.332-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

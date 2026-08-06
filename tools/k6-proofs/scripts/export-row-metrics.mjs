@@ -18,6 +18,8 @@
  */
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { resolveArtifactOutcome } from './run-outcome.mjs';
+import { resolveAuthoritativeRowOutcome, authoritativeReceiptContract } from './authoritative-row-authority.mjs';
 
 const METRIC_PREFIX = 'openclaw_proofs_k6';
 
@@ -187,7 +189,16 @@ async function normalizeFromRunDir(runDir) {
   const candidateSha = metadata.candidateSha || manifest.candidateSha || summary.sha || 'unknown';
   const seat = metadata.seat || manifest.seat || summary.seat || 'unknown';
   const scenario = metadata.scenario || manifest?.scenario?.name || manifest?.scenario?.file?.replace(/\.js$/, '') || 'unknown';
-  const outcome = summary.verdict || (runResult.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate');
+  // Rows with a row-scoped resolver may only be exported through their signed
+  // receipt; unverifiable authority is downgraded rather than published.
+  const authority = resolveAuthoritativeRowOutcome({
+    runDir,
+    rowId,
+    runResult,
+    metadata: files.includes('runner-metadata.json') ? metadata : null,
+    signingKey: process.env.OPENCLAW_GATEWAY_TOKEN,
+  });
+  const outcome = authority ? authority.outcome : resolveArtifactOutcome({ runResult, summary });
   const proofFailures = Number(summary?.metrics?.failures ?? runResult.proofFailures ?? (runResult.k6ExitCode === 0 ? 0 : 1));
   const candidateOnly = runResult.candidateOnly !== undefined ? Boolean(runResult.candidateOnly) : true;
   const foldRequiresReview = runResult.foldRequiresReview !== undefined ? Boolean(runResult.foldRequiresReview) : true;
@@ -220,9 +231,43 @@ async function normalizeFromRunDir(runDir) {
   };
 }
 
+/**
+ * A normalized row-result carries no signature, so a resolver-owned row read
+ * back through --row-result must be re-authorized against the signed receipt
+ * that lives beside it. When that authority cannot be re-established the
+ * outcome is downgraded rather than republished on the pre-computed word of
+ * the artifact.
+ */
+async function reauthorizeRowResult(result, runDir) {
+  const contract = authoritativeReceiptContract(result?.rowId);
+  // Scoped to the rows whose authority is bound to an independent runner
+  // envelope; the other resolvers keep their existing publication behaviour.
+  if (!contract?.requiresRunnerEnvelope) return result;
+  let metadata = null;
+  let runResult = null;
+  try {
+    metadata = JSON.parse(await readFile(path.join(runDir, 'runner-metadata.json'), 'utf8'));
+    runResult = JSON.parse(await readFile(path.join(runDir, 'run-result.json'), 'utf8'));
+  } catch {
+    return { ...result, outcome: contract.invalidOutcome };
+  }
+  if (metadata?.row !== result.rowId) return { ...result, outcome: contract.invalidOutcome };
+  const authority = resolveAuthoritativeRowOutcome({
+    runDir,
+    rowId: metadata.row,
+    runResult,
+    metadata,
+    signingKey: process.env.OPENCLAW_GATEWAY_TOKEN,
+  });
+  return { ...result, outcome: authority ? authority.outcome : result.outcome };
+}
+
 async function normalizeInput(args) {
   if (args['row-result'] && args['run-dir']) throw new Error('choose exactly one of --row-result or --run-dir');
-  if (args['row-result']) return readJson(args['row-result']);
+  if (args['row-result']) {
+    const result = await readJson(args['row-result']);
+    return reauthorizeRowResult(result, path.dirname(path.resolve(args['row-result'])));
+  }
   if (args['run-dir']) return normalizeFromRunDir(args['run-dir']);
   throw new Error('missing --row-result or --run-dir');
 }

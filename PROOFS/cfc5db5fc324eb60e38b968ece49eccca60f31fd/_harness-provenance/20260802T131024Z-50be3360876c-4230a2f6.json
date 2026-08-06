@@ -1,0 +1,227 @@
+{
+  "schema": "openclaw.k6.harness-provenance.v1",
+  "classification": "harness-provenance",
+  "matrixId": "20260802T131024Z-50be3360876c-4230a2f6",
+  "mode": "live",
+  "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "docsRefSource": "approved-input",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "harnessIdentityVerified": true,
+  "candidateSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "runtimeIdentity": {
+    "seat": "cael",
+    "runtimeBuildSha": "OpenClaw 2026.7.2 (cfc5db5)",
+    "candidateMatchesRuntime": false,
+    "seatReadinessReceipt": "seat-readiness.json",
+    "seatReadinessSha256": "9b233aed25d9a55da130f88dfdff1c574577744e65af1e9433a7152e9acb591f"
+  },
+  "runnerScript": "tools/k6-proofs/scripts/run-proofs.sh",
+  "runnerScriptSha256": "f81c422874f1acaf722275f2b87bbed048cb8d913435df0a0090c29b49ea31f4",
+  "rowSelection": [
+    "R-CD-RETURN-OVERLAP",
+    "R-CD-SILENT",
+    "R-CD-TOKEN",
+    "R-CONFIG-DEFAULTS",
+    "R-CONFIG-INTERSESSION",
+    "R-CW-1",
+    "R-CW-2",
+    "R-CW-3",
+    "R-CW-4",
+    "R-CW-5A",
+    "R-CW-6A",
+    "R-CW-7",
+    "R-CW-DELEGATE-CHILD-LIVE",
+    "R-CW-DELEGATE-SELF-CONTINUATION",
+    "R-CW-DELEGATE-TOKEN",
+    "R-CW-MULTI-COLLAPSE",
+    "R-CW-MULTI",
+    "R-CW-TOKEN",
+    "R-OBS-1",
+    "R-OBS-2",
+    "R-OBS-STATUS",
+    "R-RC-1",
+    "R-RC-2",
+    "R-REGRESSION-TRAP-TESTS",
+    "R-TRACE-REDACTION-1121"
+  ],
+  "rows": [
+    {
+      "rowId": "R-CD-RETURN-OVERLAP",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-return-overlap.json",
+      "manifestSha256": "e01f4f63f21808500bdb14428148becf7069ddb751fc9fb02e7aea50c433f49e",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-return-overlap.js",
+      "scenarioSha256": "6cd48219e45615cd36a43f72d1500b9d5583dff381c14602a97f35a382762561"
+    },
+    {
+      "rowId": "R-CD-SILENT",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-silent.json",
+      "manifestSha256": "9c9576d2704a6e7e7d145beb3275d1f054779bf81f98bbf484f01467600e92a1",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-silent.js",
+      "scenarioSha256": "34a5813f9cf00c55f9c15487e7f987973e48ff82a8fd06e1da20e13bc833e5b1"
+    },
+    {
+      "rowId": "R-CD-TOKEN",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-token.json",
+      "manifestSha256": "7b96ff52671575220a8fcfe283afa19e4ec2d921b7b2fda634cf63d722cf4f4d",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-token-bracket-delegate.js",
+      "scenarioSha256": "e4da30a666b0ef9e59b4edf1677cc3a8da80b59d5385ee00fdb8905556422699"
+    },
+    {
+      "rowId": "R-CONFIG-DEFAULTS",
+      "manifestPath": "tools/k6-proofs/manifests/r-config-defaults.json",
+      "manifestSha256": "dec0be0a591aecf9ea4c74371d9c54b2239aa95f498e3d9e9933659112a2e29b",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-config-defaults.js",
+      "scenarioSha256": "ee6994ff6e2963dce172f078f24d05f504719db4fb49876a4eb08250c908dada"
+    },
+    {
+      "rowId": "R-CONFIG-INTERSESSION",
+      "manifestPath": "tools/k6-proofs/manifests/r-config-intersession.json",
+      "manifestSha256": "3465c20187d5c8a72317e2107e59c4d808ce92ef32e3cb01477c6fbdb85c67c5",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-config-intersession.js",
+      "scenarioSha256": "4ffbae9d40ce25ed44ef68bc1434b004a047de58d1fe62097cc9232901215a6c"
+    },
+    {
+      "rowId": "R-CW-1",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-1.json",
+      "manifestSha256": "6159bf0cdeb38e3ee7905a4eeaff01e33e0b4ffedafef48682441f9c0ffb4a78",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-1-tool-schedule-wake.js",
+      "scenarioSha256": "a511f5815c9dffe1baf1d14d1a04612bcc3f86c7b0ecb0b4a2659cf39880c2f5"
+    },
+    {
+      "rowId": "R-CW-2",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-2.json",
+      "manifestSha256": "412976b30208d875edae6a3c00228a19cde014a24de2c30249fe0360a386de22",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-2-immediate-wake.js",
+      "scenarioSha256": "d601711e6dab0404bb42923e2013f9463b2bb07f4f4b338874a2ee2ba869de10"
+    },
+    {
+      "rowId": "R-CW-3",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-3.json",
+      "manifestSha256": "55857909cb34dfacbd2188f7301431416f2deab56b58d288fdcf3807a96592b0",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-3-reason-telemetry.js",
+      "scenarioSha256": "825e4d1afdb39ce03312e64006cce47cad58ed9abbf306a93b51c5a80aeac788"
+    },
+    {
+      "rowId": "R-CW-4",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-4.json",
+      "manifestSha256": "125e0aec0a3bd35f53b70b456db32fb727d80f3e428a47bd9ec2456cc7be173d",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-4-chain-depth.js",
+      "scenarioSha256": "44af78e59957c8cb5ca883c3c831d827c171cfd51d7688b4f1fb3cde863f8cd1"
+    },
+    {
+      "rowId": "R-CW-5A",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-5a-static.json",
+      "manifestSha256": "054c194a417ec4ce5f030090c70d995b65ac66f3a205aea2b315931e8c3d93b5",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    },
+    {
+      "rowId": "R-CW-6A",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-6a-static.json",
+      "manifestSha256": "c2f05fde08f7a319192741b216553d801c1fd5f13edeaa1c2f96c3c7a1293f56",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    },
+    {
+      "rowId": "R-CW-7",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-7.json",
+      "manifestSha256": "d04b2c9f08c7457ec4351a91c5742b907f3d75c901d2bf67f5938bcfade4f39e",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    },
+    {
+      "rowId": "R-CW-DELEGATE-CHILD-LIVE",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-delegate-child-live.json",
+      "manifestSha256": "d5f509007c2e7eca6395076f541af010bbf1b41d17b5472ba9c39db73463547d",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    },
+    {
+      "rowId": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-delegate-self.json",
+      "manifestSha256": "6cc1830e3c59ce06a805e81b9f8040a8835ab1fc958c10058a52c1060b1c9ef1",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-delegate-self-continuation.js",
+      "scenarioSha256": "5ad5eff1472f8c100bfb435749b1f4b8833b277d78930a9777784f1c8b8a94a9"
+    },
+    {
+      "rowId": "R-CW-DELEGATE-TOKEN",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-delegate-token.json",
+      "manifestSha256": "47d84651c824c6bcafd85a82db1055916bc9217b9ac8df5c7c24809014b4e885",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    },
+    {
+      "rowId": "R-CW-MULTI-COLLAPSE",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-multi-collapse.json",
+      "manifestSha256": "e920ce36f434d52117d05bbbab435c47e827bec6aec914b1b41d71563a083ffa",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    },
+    {
+      "rowId": "R-CW-MULTI",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-multi.json",
+      "manifestSha256": "86de2caeffe602761e478eb0e5ecac284358839395f37b113eb19569e6b24e03",
+      "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+      "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+    },
+    {
+      "rowId": "R-CW-TOKEN",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-token.json",
+      "manifestSha256": "a46013967060b6a71e90e30b7ce67607c030209829998845e002d116402f3fe4",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-token-bracket.js",
+      "scenarioSha256": "c74e75c9115145160a97f54b7c6f980a73509d9f27a248d3f1823fb1e2373478"
+    },
+    {
+      "rowId": "R-OBS-1",
+      "manifestPath": "tools/k6-proofs/manifests/r-obs-1.json",
+      "manifestSha256": "63588a11932ad7895575790664389d29ed9bfbd64cb205b0f9735044f8246655",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-obs-1.js",
+      "scenarioSha256": "e4ff43d0a361cf20f0a82cbe25fd77417131dfd44362d77577e3a701cf7f41c1"
+    },
+    {
+      "rowId": "R-OBS-2",
+      "manifestPath": "tools/k6-proofs/manifests/r-obs-2.json",
+      "manifestSha256": "510d7c0c9f97266df3882aaf9b56758510505b713f50f9baee25c258d3d47c90",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-obs-2.js",
+      "scenarioSha256": "2a3ec93e45021f6f26bec3d70e23a0e2ca3f1055d588c3e67a4d28b225216b95"
+    },
+    {
+      "rowId": "R-OBS-STATUS",
+      "manifestPath": "tools/k6-proofs/manifests/r-obs-status.json",
+      "manifestSha256": "446221805fa8d5c116f2dc68d8eda605592d38a54aff56dd369eac3a878bc8ab",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-obs-status.js",
+      "scenarioSha256": "945bfa4f13fbde27530afe9eea079f4ab69a0054e8ccba1b6eb67dbe08173253"
+    },
+    {
+      "rowId": "R-RC-1",
+      "manifestPath": "tools/k6-proofs/manifests/r-rc-1.json",
+      "manifestSha256": "8e2cb6d5333545ec014270f185c71cc5a777c367d66383bb581098d17498daea",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-rc-1-threshold-reject.js",
+      "scenarioSha256": "57608c4f10ddcb6da3edf416d880ced0ec16bcd17ebc797207ddf4a0ffdaa2ab"
+    },
+    {
+      "rowId": "R-RC-2",
+      "manifestPath": "tools/k6-proofs/manifests/r-rc-2.json",
+      "manifestSha256": "229d9f7b30df3e18465f659b1c499cc7afae3cdf2e33c7869f71b0cccb30b120",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-rc-2-delegate-request-compaction.js",
+      "scenarioSha256": "0e155329a73c2695eb0f4ebd0048b1437945d638abeea2fb24012bacee04bcb6"
+    },
+    {
+      "rowId": "R-REGRESSION-TRAP-TESTS",
+      "manifestPath": "tools/k6-proofs/manifests/r-regression-trap-tests.json",
+      "manifestSha256": "5c9577e54a2006354fab72703132cf5ca17a4b1901d28bc4196cd207cfbabf5d",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-regression-trap-tests.js",
+      "scenarioSha256": "14cfdb0ec302aecf389f1d2d914c7f281cd15d6f2382c6383ce22d4e79e867d6"
+    },
+    {
+      "rowId": "R-TRACE-REDACTION-1121",
+      "manifestPath": "tools/k6-proofs/manifests/r-trace-redaction-1121.json",
+      "manifestSha256": "120f3e13dec6093237a6a5a7a1fdaba446604d17b95532fb9506004456078338",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-trace-redaction-1121.js",
+      "scenarioSha256": "48cba2a240f2b86ebefe45ff4a9b63a40563e08eeb7872506290be46cf37d5e7"
+    }
+  ],
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "startedAt": "2026-08-02T13:10:24Z"
+}

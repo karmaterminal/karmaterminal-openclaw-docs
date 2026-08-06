@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "docsRef": "d0196d2d70338d939c1830d8f381b6d0e2a58493"
+  },
+  "harness": {
+    "docsRef": "d0196d2d70338d939c1830d8f381b6d0e2a58493",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cw-multi-collapse.json",
+    "manifestSha256": "e920ce36f434d52117d05bbbab435c47e827bec6aec914b1b41d71563a083ffa",
+    "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+    "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20260803T043409Z-r-cw-multi-collapse-b5bbf3cf",
+    "rowId": "R-CW-MULTI-COLLAPSE",
+    "seat": "cael",
+    "scenario": "static-corpus-row-validator",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "summary-file",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "unknown",
+    "traceCaptured": false,
+    "correlationReceiptPresent": false
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json",
+      "static-corpus-row-summary.json"
+    ],
+    "tempoTraceJson": null,
+    "correlationReceipt": null
+  }
+}

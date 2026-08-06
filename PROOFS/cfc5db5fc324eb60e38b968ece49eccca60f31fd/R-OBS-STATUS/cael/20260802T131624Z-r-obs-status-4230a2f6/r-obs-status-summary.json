@@ -1,0 +1,17 @@
+{
+  "row": "R-OBS-STATUS",
+  "sha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "verdict": "PASS-candidate",
+  "contract": "issue-1172-continuation-status-line",
+  "metrics": {
+    "failures": 0,
+    "duration_ms": {
+      "min": 0,
+      "med": 0,
+      "max": 0,
+      "p(90)": 0,
+      "p(95)": 0,
+      "avg": 0
+    }
+  }
+}

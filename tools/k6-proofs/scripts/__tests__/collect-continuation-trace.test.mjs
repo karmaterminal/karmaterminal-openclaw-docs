@@ -10,6 +10,10 @@ import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { resolveRcd2AuthoritativeReceipt } from '../../lib/r-cd-2-authoritative-receipt.mjs';
 import { publicTempoStatusCode } from '../../lib/public-tempo-trace.mjs';
+import {
+  classifyRcdModelToolVerdict,
+  RCD_MODEL_TOOL_REQUIRED_MODEL,
+} from '../../lib/r-cd-model-tool-verdict.js';
 
 const execFileAsync = promisify(execFile);
 const script = path.resolve(
@@ -121,6 +125,179 @@ function traceFixture({ traceId, reasonHash, reasonLength, tool = 'continue_dele
       }],
     }],
   };
+}
+
+function modelTraceFixture({
+  traceId,
+  reasonHash,
+  reasonLength,
+  provider = 'openai',
+  model = 'gpt-5.6-luna',
+  includeChildModelCall = true,
+  extraChildHarness = false,
+  outerHarnessOutcome = 'completed',
+  outerHarnessStatus = 'OK',
+  outerHarnessTiming,
+  childHarnessOutcome = 'completed',
+  childHarnessStatus = 'OK',
+  childHarnessTiming,
+  childRunOutcome = 'completed',
+  childRunStatus = 'OK',
+  childRunTiming,
+  childModelCallTiming,
+  childModelCallParent = '8888888888888888',
+  childModelCallSpanId = '5555555555555555',
+  childModelCallTraceId,
+}) {
+  const trace = traceFixture({ traceId, reasonHash, reasonLength });
+  const spans = trace.batches[0].scopeSpans[0].spans;
+  const modelStartNs = 1785580560000000000n;
+  const outerTiming = outerHarnessTiming === undefined
+    ? {
+        startTimeUnixNano: String(1785580554337000000n),
+        endTimeUnixNano: String(modelStartNs + 20000n),
+      }
+    : outerHarnessTiming;
+  const childHarnessSpanTiming = childHarnessTiming === undefined
+    ? {
+        startTimeUnixNano: String(modelStartNs - 1000000n),
+        endTimeUnixNano: String(modelStartNs + 10000n),
+      }
+    : childHarnessTiming;
+  const childRunSpanTiming = childRunTiming === undefined
+    ? {
+        startTimeUnixNano: String(modelStartNs),
+        endTimeUnixNano: String(modelStartNs + 9000n),
+      }
+    : childRunTiming;
+  const childCallTiming = childModelCallTiming === undefined
+    ? {
+        startTimeUnixNano: String(modelStartNs + 2000n),
+        endTimeUnixNano: String(modelStartNs + 3000n),
+      }
+    : childModelCallTiming;
+  const childHarnessIndex = spans.findIndex((entry) =>
+    Buffer.from(entry.spanId, 'base64').toString('hex') === 'eeeeeeeeeeeeeeee');
+  spans[childHarnessIndex] = span(
+    'openclaw.harness.run',
+    traceId,
+    'eeeeeeeeeeeeeeee',
+    'cccccccccccccccc',
+    childHarnessOutcome === null ? [] : [attr('openclaw.outcome', childHarnessOutcome)],
+    childHarnessStatus,
+    childHarnessSpanTiming,
+  );
+  spans.push(
+    span(
+      'openclaw.harness.run',
+      traceId,
+      'dddddddddddddddd',
+      '9999999999999999',
+      outerHarnessOutcome === null ? [] : [attr('openclaw.outcome', outerHarnessOutcome)],
+      outerHarnessStatus,
+      outerTiming,
+    ),
+    span(
+      'openclaw.run',
+      traceId,
+      '6666666666666666',
+      'dddddddddddddddd',
+      [attr('openclaw.outcome', 'completed')],
+      'OK',
+      {
+        startTimeUnixNano: String(1785580554338000000n),
+        endTimeUnixNano: String(modelStartNs + 15000n),
+      },
+    ),
+    // This Luna call belongs to the parent turn and must never certify the
+    // delegated child's execution identity.
+    span(
+      'openclaw.model.call',
+      traceId,
+      '7777777777777777',
+      '6666666666666666',
+      [
+        attr('openclaw.provider', 'openai'),
+        attr('gen_ai.system', 'openai'),
+        attr('openclaw.model', 'gpt-5.6-luna'),
+        attr('gen_ai.request.model', 'gpt-5.6-luna'),
+      ],
+      'OK',
+      {
+        startTimeUnixNano: String(modelStartNs),
+        endTimeUnixNano: String(modelStartNs + 1000n),
+      },
+    ),
+    span(
+      'openclaw.run',
+      traceId,
+      '8888888888888888',
+      'eeeeeeeeeeeeeeee',
+      childRunOutcome === null ? [] : [attr('openclaw.outcome', childRunOutcome)],
+      childRunStatus,
+      childRunSpanTiming,
+    ),
+  );
+  if (includeChildModelCall) {
+    spans.push(span(
+      'openclaw.model.call',
+      childModelCallTraceId || traceId,
+      childModelCallSpanId,
+      childModelCallParent,
+      [
+        attr('openclaw.provider', provider),
+        attr('gen_ai.system', provider),
+        attr('openclaw.model', model),
+        attr('gen_ai.request.model', model),
+      ],
+      'OK',
+      childCallTiming,
+    ));
+  }
+  if (extraChildHarness) {
+    spans.push(
+      span(
+        'openclaw.harness.run',
+        traceId,
+        '1212121212121212',
+        'cccccccccccccccc',
+        [attr('openclaw.outcome', 'completed')],
+        'OK',
+        {
+          startTimeUnixNano: String(modelStartNs + 1000n),
+          endTimeUnixNano: String(modelStartNs + 11000n),
+        },
+      ),
+      span(
+        'openclaw.run',
+        traceId,
+        '1313131313131313',
+        '1212121212121212',
+        [attr('openclaw.outcome', 'completed')],
+        'OK',
+        {
+          startTimeUnixNano: String(modelStartNs + 2000n),
+          endTimeUnixNano: String(modelStartNs + 10000n),
+        },
+      ),
+      span(
+        'openclaw.model.call',
+        traceId,
+        '1414141414141414',
+        '1313131313131313',
+        [
+          attr('openclaw.provider', 'openai'),
+          attr('openclaw.model', 'gpt-5.6-luna'),
+        ],
+        'OK',
+        {
+          startTimeUnixNano: String(modelStartNs + 4000n),
+          endTimeUnixNano: String(modelStartNs + 5000n),
+        },
+      ),
+    );
+  }
+  return trace;
 }
 
 function toolTraceFixture({ traceId, tool }) {
@@ -244,6 +421,308 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-MODEL-TOOL binds only the nonce-correlated child run model calls', async (t) => {
+  const cases = [
+    {
+      name: 'exact Luna child passes topology extraction',
+      options: {},
+      expected: {
+        bound: true,
+        complete: true,
+        identity: 'openai/gpt-5.6-luna',
+      },
+    },
+    {
+      name: 'unrelated parent Luna cannot mask child fallback',
+      options: { model: 'gpt-5.4' },
+      expected: {
+        bound: true,
+        complete: true,
+        identity: 'openai/gpt-5.4',
+      },
+    },
+    {
+      name: 'nested model ID retains separate provider',
+      options: { provider: 'openrouter', model: 'anthropic/claude-sonnet' },
+      expected: {
+        bound: true,
+        complete: true,
+        identity: 'openrouter/anthropic/claude-sonnet',
+      },
+    },
+    {
+      name: 'missing child model call remains incomplete',
+      options: { includeChildModelCall: false },
+      expected: {
+        bound: true,
+        complete: false,
+        callCount: 0,
+      },
+    },
+    {
+      name: 'multiple child harnesses remain ambiguous',
+      options: { extraChildHarness: true },
+      expected: {
+        bound: false,
+        complete: false,
+        childHarnessCount: 2,
+      },
+    },
+  ];
+
+  for (const [index, entry] of cases.entries()) {
+    await t.test(entry.name, async () => {
+      const traceId = String(index + 1).repeat(32);
+      const fixture = await fixtureDir({
+        rowId: 'R-CD-MODEL-TOOL',
+        delegateMode: 'normal',
+        extraEvidence: {
+          accepted_send_trace_id: traceId,
+        },
+      });
+      const trace = modelTraceFixture({
+        traceId,
+        reasonHash: fixture.reasonHash,
+        reasonLength: fixture.reasonLength,
+        ...entry.options,
+      });
+      const server = await listen((request, response) => {
+        response.setHeader('content-type', 'application/json');
+        response.end(JSON.stringify(
+          new URL(request.url, 'http://localhost').pathname === '/api/search'
+            ? { traces: [{ traceID: traceId }] }
+            : trace,
+        ));
+      });
+      try {
+        const { stdout } = await execFileAsync(process.execPath, [
+          script,
+          '--run-dir', fixture.dir,
+          '--manifest', fixture.manifestPath,
+          '--seat', 'cael-dgx',
+          '--tempo-url', server.url,
+          '--timeout-ms', '100',
+          '--poll-ms', '10',
+        ]);
+        const result = JSON.parse(stdout);
+        const receipt = JSON.parse(
+          await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'),
+        );
+        const execution = receipt.modelExecution;
+        assert.equal(execution.bound, entry.expected.bound);
+        assert.equal(execution.complete, entry.expected.complete);
+        assert.equal(receipt.rowBinding.acceptedSendTraceId, traceId);
+        if (entry.expected.identity) {
+          assert.equal(execution.calls.length, 1);
+          assert.equal(execution.calls[0].identity, entry.expected.identity);
+        }
+        if (entry.expected.callCount !== undefined) {
+          assert.equal(execution.calls.length, entry.expected.callCount);
+        }
+        if (entry.expected.childHarnessCount !== undefined) {
+          assert.equal(execution.childHarnessCount, entry.expected.childHarnessCount);
+        }
+      } finally {
+        await server.close();
+        await rm(fixture.dir, { recursive: true, force: true });
+      }
+    });
+  }
+});
+
+test('R-CD-MODEL-TOOL withholds authority for every incomplete lifecycle class', async (t) => {
+  const modelStartNs = 1785580560000000000n;
+  const cases = [
+    {
+      name: 'errored child harness status',
+      options: { childHarnessStatus: 'ERROR' },
+      expected: { lifecycleComplete: false, timingComplete: true, causallyContained: true },
+    },
+    {
+      name: 'non-terminal child harness outcome',
+      options: { childHarnessOutcome: 'interrupted' },
+      expected: { lifecycleComplete: false, timingComplete: true, causallyContained: true },
+    },
+    {
+      name: 'errored child run status',
+      options: { childRunStatus: 'ERROR' },
+      expected: { lifecycleComplete: false, timingComplete: true, causallyContained: true },
+    },
+    {
+      name: 'missing child run outcome',
+      options: { childRunOutcome: null },
+      expected: { lifecycleComplete: false, timingComplete: true, causallyContained: true },
+    },
+    {
+      name: 'errored outer harness status',
+      options: { outerHarnessStatus: 'ERROR' },
+      expected: {
+        lifecycleComplete: false,
+        timingComplete: true,
+        causallyContained: true,
+        outerHarnessComplete: false,
+      },
+    },
+    {
+      name: 'non-terminal outer harness outcome',
+      options: { outerHarnessOutcome: 'interrupted' },
+      expected: {
+        lifecycleComplete: false,
+        timingComplete: true,
+        causallyContained: true,
+        outerHarnessComplete: false,
+      },
+    },
+    {
+      name: 'open outer harness span',
+      options: {
+        outerHarnessTiming: { startTimeUnixNano: String(1785580554337000000n) },
+      },
+      expected: { lifecycleComplete: false, timingComplete: false },
+    },
+    {
+      name: 'open child run span',
+      options: {
+        childRunTiming: { startTimeUnixNano: String(modelStartNs) },
+      },
+      expected: { lifecycleComplete: false, timingComplete: false },
+    },
+    {
+      name: 'timing-free child harness span',
+      options: { childHarnessTiming: {} },
+      expected: { lifecycleComplete: false, timingComplete: false },
+    },
+    {
+      name: 'inverted child harness timing',
+      options: {
+        childHarnessTiming: {
+          startTimeUnixNano: String(modelStartNs + 10000n),
+          endTimeUnixNano: String(modelStartNs - 1000000n),
+        },
+      },
+      expected: { lifecycleComplete: false, timingComplete: false },
+    },
+    {
+      name: 'model call escaping the child run window',
+      options: {
+        childModelCallTiming: {
+          startTimeUnixNano: String(modelStartNs + 8000n),
+          endTimeUnixNano: String(modelStartNs + 30000n),
+        },
+      },
+      expected: { lifecycleComplete: false, timingComplete: true, causallyContained: false },
+    },
+    {
+      name: 'child harness starting before its dispatch',
+      options: {
+        childHarnessTiming: {
+          startTimeUnixNano: String(1785580554000000000n),
+          endTimeUnixNano: String(modelStartNs + 10000n),
+        },
+      },
+      expected: { lifecycleComplete: false, timingComplete: true, causallyContained: false },
+    },
+    {
+      name: 'model call reparented outside the child run',
+      options: { childModelCallParent: '6666666666666666' },
+      expected: { lifecycleComplete: false, callCount: 0 },
+    },
+    {
+      name: 'model call collapsing onto the child run span id',
+      options: { childModelCallSpanId: '8888888888888888' },
+      expected: {
+        lifecycleComplete: false,
+        timingComplete: true,
+        causallyContained: false,
+        distinctTopology: false,
+      },
+    },
+    {
+      name: 'model call detached into another trace',
+      options: { childModelCallTraceId: 'f'.repeat(32) },
+      expected: { lifecycleComplete: false, callCount: 0 },
+    },
+  ];
+
+  for (const [index, entry] of cases.entries()) {
+    await t.test(entry.name, async () => {
+      const traceId = createHash('sha256')
+        .update(`lifecycle-negative-${index}`)
+        .digest('hex')
+        .slice(0, 32);
+      const fixture = await fixtureDir({
+        rowId: 'R-CD-MODEL-TOOL',
+        delegateMode: 'normal',
+        extraEvidence: { accepted_send_trace_id: traceId },
+      });
+      const trace = modelTraceFixture({
+        traceId,
+        reasonHash: fixture.reasonHash,
+        reasonLength: fixture.reasonLength,
+        ...entry.options,
+      });
+      const server = await listen((request, response) => {
+        response.setHeader('content-type', 'application/json');
+        response.end(JSON.stringify(
+          new URL(request.url, 'http://localhost').pathname === '/api/search'
+            ? { traces: [{ traceID: traceId }] }
+            : trace,
+        ));
+      });
+      try {
+        const { stdout } = await execFileAsync(process.execPath, [
+          script,
+          '--run-dir', fixture.dir,
+          '--manifest', fixture.manifestPath,
+          '--seat', 'cael-dgx',
+          '--tempo-url', server.url,
+          '--timeout-ms', '100',
+          '--poll-ms', '10',
+        ]);
+        const receipt = JSON.parse(await readFile(
+          path.join(fixture.dir, JSON.parse(stdout).receiptFile),
+          'utf8',
+        ));
+        const execution = receipt.modelExecution;
+        assert.equal(execution.bound, true);
+        assert.equal(execution.complete, false);
+        assert.equal(execution.lifecycleComplete, entry.expected.lifecycleComplete);
+        if (entry.expected.timingComplete !== undefined) {
+          assert.equal(execution.timingComplete, entry.expected.timingComplete);
+        }
+        if (entry.expected.causallyContained !== undefined) {
+          assert.equal(execution.causallyContained, entry.expected.causallyContained);
+        }
+        if (entry.expected.distinctTopology !== undefined) {
+          assert.equal(execution.distinctTopology, entry.expected.distinctTopology);
+        }
+        if (entry.expected.outerHarnessComplete !== undefined) {
+          assert.equal(execution.outerHarnessComplete, entry.expected.outerHarnessComplete);
+        }
+        if (entry.expected.callCount !== undefined) {
+          assert.equal(execution.calls.length, entry.expected.callCount);
+        }
+        assert.equal(
+          classifyRcdModelToolVerdict({
+            row: 'R-CD-MODEL-TOOL',
+            requested_model_byte: RCD_MODEL_TOOL_REQUIRED_MODEL,
+            manifest_model_matches_required: true,
+            dispatch_accepted: true,
+            parent_scheduled_sentinel: true,
+            child_session_observed: true,
+            return_payload: true,
+            modelExecution: execution,
+          }).verdict,
+          null,
+        );
+      } finally {
+        await server.close();
+        await rm(fixture.dir, { recursive: true, force: true });
+      }
+    });
   }
 });
 
@@ -611,8 +1090,25 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
       wake_run_fingerprint: runFingerprint,
       row_nonce_fingerprint: nonceFingerprint,
       accepted_send_trace_id: traceId,
+      default_agent_observed: true,
       session_created: true,
+      session_creation_preflight_clear: true,
+      session_create_accepted: true,
+      session_create_response_verified: true,
+      created_session_id_fingerprint: '8'.repeat(16),
       session_unbound_confirmed: true,
+      runtime_catalog_observed: true,
+      runtime_selection_verified: true,
+      selected_session_model_verified: true,
+      selected_session_runtime_verified: true,
+      runtime_selection_action: 'explicit-create',
+      model_selection_scope: 'new-session-only',
+      sticky_model_mutation_used: false,
+      selected_execution_runtime_id: 'openclaw',
+      selected_execution_runtime_source: 'model',
+      selected_session_runtime_source: 'model',
+      selected_execution_model_provider: 'openai',
+      selected_execution_model_fingerprint: '9'.repeat(16),
       send_accepted: true,
       send_run_captured: true,
       dispatch_terminal_sentinel_observed: true,

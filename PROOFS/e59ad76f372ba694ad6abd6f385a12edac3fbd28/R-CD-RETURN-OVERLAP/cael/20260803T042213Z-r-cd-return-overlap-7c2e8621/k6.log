@@ -1,0 +1,19 @@
+
+         /\      Grafana   /‾‾/
+    /\  /  \     |\  __   /  /
+   /  \/    \    | |/ /  /   ‾‾\
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/
+
+
+     execution: local
+        script: scenarios/r-cd-return-overlap.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * r_cd_return_overlap_static: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CD-RETURN-OVERLAP","manifest_loaded":true,"candidateSha":"e59ad76f372ba694ad6abd6f385a12edac3fbd28","currentProofSha":"4c235d8c1997e8964160117f8d6bf650ad1e8203","sourceEvidenceSha":"1cc8f4e3d617ef6f173283ef83d7b739a4995734","started":"2026-08-03T04:22:16.739Z","pass_with_caveat_present":true,"silent_flow_present":true,"silent_wake_flow_present":true,"both_markers_in_tasks":true,"both_targeted_returns_in_journal":true,"no_duplicate_storm_claim_present":true,"tempo_trace_present":true,"source_files":{"evidence":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/EVIDENCE.md","flowRows":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/db/flow-rows-concise.json","taskRows":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/db/task-rows-concise.json","journal":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/journal/journal-filtered.log","tempo":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/tempo/trace-0d676f84623ebfe6499a324d039ee050-summary.json"},"ended":"2026-08-03T04:22:16.741Z","duration_ms":2,"verdict":"PASS-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_return_overlap_static ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters

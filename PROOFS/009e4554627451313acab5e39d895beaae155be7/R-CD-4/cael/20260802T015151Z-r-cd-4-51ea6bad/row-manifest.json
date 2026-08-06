@@ -1,0 +1,111 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-4",
+  "issue": 119,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-4-target-session-key",
+    "description": "continue_delegate with targetSessionKey: delegate return lands in a SPECIFIED target session, not the dispatching session. Cross-session targeted delivery.",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "tasks.list"
+    ],
+    "status": "runnable",
+    "file": "r-cd-4-target-session-key.js"
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "silent-wake",
+    "delaySeconds": 1,
+    "targetSessionKey": "${OPENCLAW_TARGET_SESSION_KEY}",
+    "promptTemplate": "RCD4:{{nonceSuffix16}} Proof nonce {{nonce}}: reply with TARGET-RECEIVED and the nonce. Do not mutate files.",
+    "idempotencyKeyPrefix": "R-CD-4"
+  },
+  "expectedReceipts": [
+    {
+      "name": "parent-session-created",
+      "required": true,
+      "description": "Disposable parent session was created via sessions.create when disposable mode is enabled"
+    },
+    {
+      "name": "target-session-created",
+      "required": true,
+      "description": "Disposable target session was created via sessions.create when disposable mode is enabled"
+    },
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the dispatching sessions.send request that asks the agent to call continue_delegate with targetSessionKey"
+    },
+    {
+      "name": "target-return-event",
+      "required": true,
+      "description": "The TARGET session receives the exact TARGET-RECEIVED {{nonce}} marker in a structured role=system session.message event"
+    },
+    {
+      "name": "child-session-identity",
+      "required": true,
+      "description": "A structured spawn/task record binds the child session key to the same row nonce"
+    },
+    {
+      "name": "no-parent-return",
+      "required": true,
+      "description": "Dispatching parent session does NOT receive the delayed return/wake"
+    },
+    {
+      "name": "task-ledger-entry",
+      "required": false,
+      "description": "Optional context only; continue_delegate may not appear in generic TaskFlow task ledger"
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID for Tempo correlation when emitted"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-4",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Cross-session targeted return. PASS-candidate requires dispatch acceptance, a nonce-bound child identity, the exact TARGET-RECEIVED {{nonce}} marker in a role=system TARGET event, and no matching parent receipt. Unrelated/assistant messages and nested session-key mentions fail closed."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "parent-session-created",
+      "target-session-created",
+      "dispatch-accepted",
+      "child-session-identity",
+      "target-return-event",
+      "no-parent-return",
+      "trace-id"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true for repeatability; explicit OPENCLAW_TARGET_SESSION_KEY still supported for reviewed manual runs. The detector requires exact row marker, structured target session, and separately nonce-bound child identity."
+  }
+}

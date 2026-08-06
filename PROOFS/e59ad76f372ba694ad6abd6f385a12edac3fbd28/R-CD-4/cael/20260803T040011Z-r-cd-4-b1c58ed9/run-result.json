@@ -1,0 +1,63 @@
+{
+  "k6ExitCode": 99,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 99,
+  "endedAt": "2026-08-03T04:01:45Z",
+  "verdict": "PARTIAL-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": "PARTIAL-candidate",
+  "vuLogVerdict": "PARTIAL-candidate",
+  "summaryFiles": [
+    "r-cd-4-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CD-4",
+    "manifest_loaded": true,
+    "task_identity_token": "RCD4:9614304-o0wuiomx",
+    "seat": "cael",
+    "parent_session_created": true,
+    "target_session_created": true,
+    "candidateSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "started": "2026-08-03T04:00:14.304Z",
+    "tool_accepted": true,
+    "agent_turn_observed": true,
+    "child_completed": true,
+    "child_session_candidates": [
+      "<redacted-session-key>"
+    ],
+    "child_session_ambiguous": false,
+    "child_session_invalid": false,
+    "return_in_target": false,
+    "return_in_parent": false,
+    "target_return_candidate": null,
+    "parent_return_candidate": null,
+    "target_return_receipt": null,
+    "parent_return_receipt": null,
+    "dispatch_accepted_at_ms": 1785729616204,
+    "wake_gate_ms": 5000,
+    "reason_hash": "74e8eb437f11f2c2",
+    "reason_length": 127,
+    "delegate_mode": "silent-wake",
+    "trace_id": null,
+    "ended": "2026-08-03T04:01:45.478Z",
+    "duration_ms": 91174
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "present",
+    "traceId": "8e19b397d7ad25736e62066f174ead5d",
+    "tempoTraceJson": "tempo-trace-8e19b397d7ad.json",
+    "correlationReceipt": "continuation-trace-correlation.json",
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

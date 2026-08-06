@@ -1,0 +1,126 @@
+{
+  "schema": "openclaw.proofs.upload-manifest.v1",
+  "row": "R-CD-CHAINED-DEPTH-2",
+  "productSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "executionHarnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "runId": "20260803T040401Z-r-cd-chained-depth-2-6fa8fac0",
+  "generatedAt": "2026-08-03T04:48:10Z",
+  "files": [
+    {
+      "path": "candidate-run-result-validation.error.log",
+      "sha256": "ecec5fb19d2654bb916eab4cf93b5d24efc84c3bdbb5ec622304e1944492ce1a",
+      "size": 61
+    },
+    {
+      "path": "candidate-run-result-validation.json",
+      "sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "size": 5
+    },
+    {
+      "path": "continuation-trace-collector.json",
+      "sha256": "3bdb40aed213b2317032cf4a29051ff58058520ba7e795720a47fb0db2dc331b",
+      "size": 243
+    },
+    {
+      "path": "continuation-trace-correlation.json",
+      "sha256": "ac01c8dc43da437690edf1e48fb307ab53a940e20fecd60d804f6f26f2367382",
+      "size": 1664
+    },
+    {
+      "path": "evidence-extraction.json",
+      "sha256": "071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc",
+      "size": 14
+    },
+    {
+      "path": "evidence-lines.log",
+      "sha256": "3239982dc8f7b28c34698100e986ce203ea13dc73a1ddc2c6145be1d3814635c",
+      "size": 644
+    },
+    {
+      "path": "evidence-redaction.json",
+      "sha256": "8baf7b11cb9048315f3b91b59e46bb35ac8d49a9b6801df4d2b089fec26b4ae0",
+      "size": 380
+    },
+    {
+      "path": "evidence-redaction.stdout.json",
+      "sha256": "fa769ea22ac28684cab6977cd5e2826d304105e78fded0b71186418822a1e424",
+      "size": 41
+    },
+    {
+      "path": "evidence.jsonl",
+      "sha256": "c280e10aa860025fd64592064fe3a094d3cee8c2c892e59023399f3db230a2ee",
+      "size": 628
+    },
+    {
+      "path": "gateway-journal-capture.json",
+      "sha256": "d49672560be961891240d5bf62ddbd7fae48a3773bacecb8fa78439bb122f634",
+      "size": 244
+    },
+    {
+      "path": "gateway-journal-redaction.json",
+      "sha256": "471b924368917d883d169c41262c64fa77865331f276f0bdfa0b9c41ca7103d5",
+      "size": 216
+    },
+    {
+      "path": "gateway-journal.log",
+      "sha256": "8292d577db9e99adfbd6d4ec8dcffcbc3aeffe651ec4e32446b20d6e6aec55c1",
+      "size": 5368
+    },
+    {
+      "path": "k6.log",
+      "sha256": "c1737f5dce38bf08fd99dfad7652584bbb199f2a10469e4adcca5af185781617",
+      "size": 25703
+    },
+    {
+      "path": "metrics-export.json",
+      "sha256": "2cd411a43fd41d8e87ecc02786c1c08e2187c110396193b336ca87e5a137c8d8",
+      "size": 567
+    },
+    {
+      "path": "openclaw-proofs-k6.otlp.json",
+      "sha256": "d0793491e1897c783e47d8ffaee7431b893385615d6a75cb9999441100106356",
+      "size": 23667
+    },
+    {
+      "path": "openclaw-proofs-k6.prom",
+      "sha256": "ef15b7eaf94658cee20ae2747dbf0ea66ad7f686060e72f607d61bffd736a3ba",
+      "size": 3594
+    },
+    {
+      "path": "r-cd-chained-depth-2-summary.json",
+      "sha256": "39f79f63267d3ef3e2e716730945c3a84a1c97833c73db6664970d487c18c074",
+      "size": 378
+    },
+    {
+      "path": "row-manifest.json",
+      "sha256": "d44024c864d60db8fb5823de931b4015131fbae055b50813518cbad1b8d174a2",
+      "size": 4292
+    },
+    {
+      "path": "row-scenario.js",
+      "sha256": "2ae9db893db5ff4745a8cd57d2af0340228205ac87c6acbd82f3e39c37d3bdf6",
+      "size": 15482
+    },
+    {
+      "path": "run-result.json",
+      "sha256": "10944578629377f8583e0fd1df3bf48bb8a887b10e7204e9a632e20d3f3a9d56",
+      "size": 1728
+    },
+    {
+      "path": "runner-metadata.json",
+      "sha256": "238d7ca1e94a0fbc9b37916994bcdbf7b4c9ca6c0daef33d86cf46ab7a1f10a9",
+      "size": 845
+    },
+    {
+      "path": "seat-readiness.json",
+      "sha256": "d6ee7a223d2baeada1c7b51b509bf240bb6fbe0aa2125edb78d7ab2a240d7490",
+      "size": 3334
+    },
+    {
+      "path": "tempo-trace-5dbc6326be13.json",
+      "sha256": "51c038ec6ef029c5dc4c1e2737775a818e927fa7b2b6213cb7e9fbcf19750823",
+      "size": 3001
+    }
+  ]
+}

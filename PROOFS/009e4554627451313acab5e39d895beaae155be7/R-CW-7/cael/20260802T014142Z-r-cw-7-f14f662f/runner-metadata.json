@@ -1,0 +1,17 @@
+{
+  "row": "R-CW-7",
+  "scenario": "static-corpus-row-validator.js",
+  "candidateSha": "009e4554627451313acab5e39d895beaae155be7",
+  "runtimeBuildSha": "009e4554627451313acab5e39d895beaae155be7",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-02T01:41:42Z",
+  "docsRef": "9fcf215674720803840d15efa93bd925180135b9",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260802T014139Z-9fcf21567472-f14f662f",
+  "runId": "20260802T014142Z-r-cw-7-f14f662f",
+  "manifestPath": "tools/k6-proofs/manifests/r-cw-7.json",
+  "manifestSha256": "d04b2c9f08c7457ec4351a91c5742b907f3d75c901d2bf67f5938bcfade4f39e",
+  "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+  "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+}

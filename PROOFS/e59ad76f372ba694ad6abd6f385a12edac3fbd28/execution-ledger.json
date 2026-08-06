@@ -1,0 +1,361 @@
+{
+  "schema": "openclaw.proofs.execution-ledger.v1",
+  "productSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "executionHarnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "publicationBase": "d0196d2d70338d939c1830d8f381b6d0e2a58493",
+  "seat": "cael",
+  "createdAt": "2026-08-03T04:48:10Z",
+  "rows": [
+    {
+      "row": "PREFLIGHT",
+      "issue": "453",
+      "attempts": [
+        "PREFLIGHT/cael/20260803T035213Z-preflight-877f59e2",
+        "PREFLIGHT/cael/20260803T035245Z-preflight-b177ac4f"
+      ],
+      "selected": "PREFLIGHT/cael/20260803T035245Z-preflight-b177ac4f",
+      "classification": "NO-VERDICT"
+    },
+    {
+      "row": "R-CD-1",
+      "issue": "454",
+      "attempts": [
+        "R-CD-1/cael/20260803T035252Z-r-cd-1-b177ac4f"
+      ],
+      "selected": "R-CD-1/cael/20260803T035252Z-r-cd-1-b177ac4f",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CD-2",
+      "issue": "455",
+      "attempts": [
+        "R-CD-2/cael/20260803T035329Z-r-cd-2-b177ac4f",
+        "R-CD-2/cael/20260803T035655Z-r-cd-2-fcfb7c4e"
+      ],
+      "selected": "R-CD-2/cael/20260803T035655Z-r-cd-2-fcfb7c4e",
+      "classification": "NO-VERDICT"
+    },
+    {
+      "row": "R-CD-3",
+      "issue": "456",
+      "attempts": [
+        "R-CD-3/cael/20260803T035953Z-r-cd-3-b1c58ed9"
+      ],
+      "selected": "R-CD-3/cael/20260803T035953Z-r-cd-3-b1c58ed9",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CD-4",
+      "issue": "457",
+      "attempts": [
+        "R-CD-4/cael/20260803T040011Z-r-cd-4-b1c58ed9",
+        "R-CD-4/cael/20260803T040206Z-r-cd-4-f5448e85"
+      ],
+      "selected": "R-CD-4/cael/20260803T040206Z-r-cd-4-f5448e85",
+      "classification": "NO-VERDICT"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "issue": "458",
+      "attempts": [
+        "R-CD-CHAINED-DEPTH-2/cael/20260803T040401Z-r-cd-chained-depth-2-6fa8fac0",
+        "R-CD-CHAINED-DEPTH-2/cael/20260803T040653Z-r-cd-chained-depth-2-99560e32"
+      ],
+      "selected": "R-CD-CHAINED-DEPTH-2/cael/20260803T040653Z-r-cd-chained-depth-2-99560e32",
+      "classification": "NO-VERDICT"
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "issue": "459",
+      "attempts": [
+        "R-CD-COLLECTION-ON-COLLAPSE/cael/20260803T041049Z-r-cd-collection-on-collapse-106c388b"
+      ],
+      "selected": "R-CD-COLLECTION-ON-COLLAPSE/cael/20260803T041049Z-r-cd-collection-on-collapse-106c388b",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "issue": "460",
+      "attempts": [
+        "R-CD-MODEL-CHAINED-ALT/cael/20260803T041055Z-r-cd-model-chained-alt-106c388b"
+      ],
+      "selected": "R-CD-MODEL-CHAINED-ALT/cael/20260803T041055Z-r-cd-model-chained-alt-106c388b",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CD-MODEL-DEFAULT",
+      "issue": "461",
+      "attempts": [
+        "R-CD-MODEL-DEFAULT/cael/20260803T041120Z-r-cd-model-default-106c388b",
+        "R-CD-MODEL-DEFAULT/cael/20260803T041429Z-r-cd-model-default-0133a65f"
+      ],
+      "selected": "R-CD-MODEL-DEFAULT/cael/20260803T041429Z-r-cd-model-default-0133a65f",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CD-MODEL-TOKEN",
+      "issue": "462",
+      "attempts": [
+        "R-CD-MODEL-TOKEN/cael/20260803T041504Z-r-cd-model-token-9ec0085d"
+      ],
+      "selected": "R-CD-MODEL-TOKEN/cael/20260803T041504Z-r-cd-model-token-9ec0085d",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CD-MODEL-TOOL",
+      "issue": "463",
+      "attempts": [
+        "R-CD-MODEL-TOOL/cael/20260803T041525Z-r-cd-model-tool-9ec0085d",
+        "R-CD-MODEL-TOOL/cael/20260803T041849Z-r-cd-model-tool-d41653c3"
+      ],
+      "selected": "R-CD-MODEL-TOOL/cael/20260803T041849Z-r-cd-model-tool-d41653c3",
+      "classification": "NO-VERDICT"
+    },
+    {
+      "row": "R-CD-RETURN-OVERLAP",
+      "issue": "464",
+      "attempts": [
+        "R-CD-RETURN-OVERLAP/cael/20260803T042213Z-r-cd-return-overlap-7c2e8621"
+      ],
+      "selected": "R-CD-RETURN-OVERLAP/cael/20260803T042213Z-r-cd-return-overlap-7c2e8621",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CD-SILENT",
+      "issue": "465",
+      "attempts": [
+        "R-CD-SILENT/cael/20260803T042219Z-r-cd-silent-7c2e8621"
+      ],
+      "selected": "R-CD-SILENT/cael/20260803T042219Z-r-cd-silent-7c2e8621",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "issue": "466",
+      "attempts": [
+        "R-CD-TOKEN/cael/20260803T042301Z-r-cd-token-7c2e8621",
+        "R-CD-TOKEN/cael/20260803T042328Z-r-cd-token-1f9ff9b8"
+      ],
+      "selected": "R-CD-TOKEN/cael/20260803T042328Z-r-cd-token-1f9ff9b8",
+      "classification": "NO-VERDICT"
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "issue": "467",
+      "attempts": [
+        "R-CONFIG-DEFAULTS/cael/20260803T042807Z-r-config-defaults-7101e784"
+      ],
+      "selected": "R-CONFIG-DEFAULTS/cael/20260803T042807Z-r-config-defaults-7101e784",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "issue": "468",
+      "attempts": [
+        "R-CONFIG-INTERSESSION/cael/20260803T042814Z-r-config-intersession-7101e784"
+      ],
+      "selected": "R-CONFIG-INTERSESSION/cael/20260803T042814Z-r-config-intersession-7101e784",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CW-1",
+      "issue": "469",
+      "attempts": [
+        "R-CW-1/cael/20260803T042820Z-r-cw-1-7101e784"
+      ],
+      "selected": "R-CW-1/cael/20260803T042820Z-r-cw-1-7101e784",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CW-2",
+      "issue": "470",
+      "attempts": [
+        "R-CW-2/cael/20260803T042856Z-r-cw-2-7101e784"
+      ],
+      "selected": "R-CW-2/cael/20260803T042856Z-r-cw-2-7101e784",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CW-3",
+      "issue": "471",
+      "attempts": [
+        "R-CW-3/cael/20260803T042920Z-r-cw-3-7101e784",
+        "R-CW-3/cael/20260803T043053Z-r-cw-3-840fa23b"
+      ],
+      "selected": "R-CW-3/cael/20260803T043053Z-r-cw-3-840fa23b",
+      "classification": "NO-VERDICT"
+    },
+    {
+      "row": "R-CW-4",
+      "issue": "472",
+      "attempts": [
+        "R-CW-4/cael/20260803T043237Z-r-cw-4-b5bbf3cf"
+      ],
+      "selected": "R-CW-4/cael/20260803T043237Z-r-cw-4-b5bbf3cf",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CW-5",
+      "issue": "473",
+      "attempts": [
+        "R-CW-5/cael/fixture-20260803T044810Z-50be3360"
+      ],
+      "selected": "R-CW-5/cael/fixture-20260803T044810Z-50be3360",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CW-5A",
+      "issue": "474",
+      "attempts": [
+        "R-CW-5A/cael/static-20260803T044810Z-50be3360"
+      ],
+      "selected": "R-CW-5A/cael/static-20260803T044810Z-50be3360",
+      "classification": "NO-VERDICT"
+    },
+    {
+      "row": "R-CW-6",
+      "issue": "475",
+      "attempts": [
+        "R-CW-6/cael/fixture-20260803T044810Z-50be3360"
+      ],
+      "selected": "R-CW-6/cael/fixture-20260803T044810Z-50be3360",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CW-6A",
+      "issue": "476",
+      "attempts": [
+        "R-CW-6A/cael/static-20260803T044810Z-50be3360"
+      ],
+      "selected": "R-CW-6A/cael/static-20260803T044810Z-50be3360",
+      "classification": "NO-VERDICT"
+    },
+    {
+      "row": "R-CW-7",
+      "issue": "477",
+      "attempts": [
+        "R-CW-7/cael/20260803T043331Z-r-cw-7-b5bbf3cf"
+      ],
+      "selected": "R-CW-7/cael/20260803T043331Z-r-cw-7-b5bbf3cf",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "issue": "478",
+      "attempts": [
+        "R-CW-DELEGATE-CHILD-LIVE/cael/20260803T043337Z-r-cw-delegate-child-live-b5bbf3cf"
+      ],
+      "selected": "R-CW-DELEGATE-CHILD-LIVE/cael/20260803T043337Z-r-cw-delegate-child-live-b5bbf3cf",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "issue": "479",
+      "attempts": [
+        "R-CW-DELEGATE-SELF-CONTINUATION/cael/20260803T043343Z-r-cw-delegate-self-continuation-b5bbf3cf"
+      ],
+      "selected": "R-CW-DELEGATE-SELF-CONTINUATION/cael/20260803T043343Z-r-cw-delegate-self-continuation-b5bbf3cf",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "issue": "480",
+      "attempts": [
+        "R-CW-DELEGATE-TOKEN/cael/20260803T043403Z-r-cw-delegate-token-b5bbf3cf"
+      ],
+      "selected": "R-CW-DELEGATE-TOKEN/cael/20260803T043403Z-r-cw-delegate-token-b5bbf3cf",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "issue": "481",
+      "attempts": [
+        "R-CW-MULTI-COLLAPSE/cael/20260803T043409Z-r-cw-multi-collapse-b5bbf3cf"
+      ],
+      "selected": "R-CW-MULTI-COLLAPSE/cael/20260803T043409Z-r-cw-multi-collapse-b5bbf3cf",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CW-MULTI",
+      "issue": "482",
+      "attempts": [
+        "R-CW-MULTI/cael/20260803T043415Z-r-cw-multi-b5bbf3cf"
+      ],
+      "selected": "R-CW-MULTI/cael/20260803T043415Z-r-cw-multi-b5bbf3cf",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "issue": "483",
+      "attempts": [
+        "R-CW-TOKEN/cael/20260803T043422Z-r-cw-token-b5bbf3cf"
+      ],
+      "selected": "R-CW-TOKEN/cael/20260803T043422Z-r-cw-token-b5bbf3cf",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-OBS-1",
+      "issue": "484",
+      "attempts": [
+        "R-OBS-1/cael/20260803T043444Z-r-obs-1-b5bbf3cf"
+      ],
+      "selected": "R-OBS-1/cael/20260803T043444Z-r-obs-1-b5bbf3cf",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-OBS-2",
+      "issue": "485",
+      "attempts": [
+        "R-OBS-2/cael/20260803T043509Z-r-obs-2-b5bbf3cf"
+      ],
+      "selected": "R-OBS-2/cael/20260803T043509Z-r-obs-2-b5bbf3cf",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-OBS-STATUS",
+      "issue": "486",
+      "attempts": [
+        "R-OBS-STATUS/cael/20260803T043515Z-r-obs-status-b5bbf3cf"
+      ],
+      "selected": "R-OBS-STATUS/cael/20260803T043515Z-r-obs-status-b5bbf3cf",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-RC-1",
+      "issue": "487",
+      "attempts": [
+        "R-RC-1/cael/20260803T043522Z-r-rc-1-b5bbf3cf"
+      ],
+      "selected": "R-RC-1/cael/20260803T043522Z-r-rc-1-b5bbf3cf",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-RC-2",
+      "issue": "488",
+      "attempts": [
+        "R-RC-2/cael/20260803T043559Z-r-rc-2-4e357dc2",
+        "R-RC-2/cael/20260803T043931Z-r-rc-2-4cef90fd"
+      ],
+      "selected": "R-RC-2/cael/20260803T043931Z-r-rc-2-4cef90fd",
+      "classification": "NO-VERDICT"
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "issue": "489",
+      "attempts": [
+        "R-REGRESSION-TRAP-TESTS/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2"
+      ],
+      "selected": "R-REGRESSION-TRAP-TESTS/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2",
+      "classification": "PASS-candidate"
+    },
+    {
+      "row": "R-TRACE-REDACTION-1121",
+      "issue": "490",
+      "attempts": [
+        "R-TRACE-REDACTION-1121/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2"
+      ],
+      "selected": "R-TRACE-REDACTION-1121/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2",
+      "classification": "PASS-candidate"
+    }
+  ]
+}

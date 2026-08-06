@@ -9,6 +9,8 @@ import { readFile, writeFile, readdir, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import { validateRcdModelToolAuthoritativeReceipt } from
+  '../lib/r-cd-model-tool-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 import { COPIED_MANIFEST, COPIED_SCENARIO, isSafeArtifactReference, isSafeCandidateArtifact } from './candidate-run-result-contract.mjs';
 
@@ -176,6 +178,7 @@ function authoritativeReceiptContract(rowId) {
   if (rowId === 'R-CD-2') {
     return {
       file: 'r-cd-2-authoritative-receipt.json',
+      source: 'r-cd-2-row-scoped-resolver',
       verdictSource: 'r-cd-2-authoritative-receipt',
       validate: validateRcd2AuthoritativeReceipt,
     };
@@ -183,8 +186,17 @@ function authoritativeReceiptContract(rowId) {
   if (rowId === 'R-CD-TOKEN') {
     return {
       file: 'r-cd-token-authoritative-receipt.json',
+      source: 'r-cd-token-row-scoped-resolver',
       verdictSource: 'r-cd-token-authoritative-receipt',
       validate: validateRcdTokenAuthoritativeReceipt,
+    };
+  }
+  if (rowId === 'R-CD-MODEL-TOOL') {
+    return {
+      file: 'r-cd-model-tool-authoritative-receipt.json',
+      source: 'r-cd-model-tool-row-scoped-resolver',
+      verdictSource: 'r-cd-model-tool-authoritative-receipt',
+      validate: validateRcdModelToolAuthoritativeReceipt,
     };
   }
   return null;
@@ -240,13 +252,21 @@ async function main() {
   const authoritative = authoritativeReceiptContract(rowId);
   if (authoritative) {
     const declared = runResult.authoritativeReceipt;
-    if (runResult.verdictSource !== authoritative.verdictSource || declared?.file !== authoritative.file || !/^[a-f0-9]{64}$/iu.test(declared?.sha256 || '')) {
+    if (runResult.verdictSource !== authoritative.verdictSource ||
+        declared?.validated !== true ||
+        declared?.source !== authoritative.source ||
+        declared?.file !== authoritative.file ||
+        !/^[a-f0-9]{64}$/iu.test(declared?.sha256 || '')) {
       throw new Error(`${rowId} candidate requires a declared authoritative receipt digest`);
     }
     const raw = await readFile(path.join(candidateDir, declared.file));
     if (createHash('sha256').update(raw).digest('hex') !== declared.sha256) throw new Error(`${rowId} authoritative receipt digest mismatch`);
     authoritativeReceipt = JSON.parse(raw);
-    const integrity = authoritative.validate(authoritativeReceipt, process.env.OPENCLAW_GATEWAY_TOKEN);
+    const integrity = authoritative.validate(authoritativeReceipt, process.env.OPENCLAW_GATEWAY_TOKEN, {
+      metadata,
+      runId: path.basename(candidateDir),
+      traceId: observability.traceId,
+    });
     if (!integrity.valid || integrity.verdict !== runResult.verdict) throw new Error(`${rowId} authoritative receipt invalid: ${integrity.reason || 'verdict mismatch'}`);
     if (rowId === 'R-CD-TOKEN' && (
       authoritativeReceipt.binding?.candidateSha !== candidateSha ||

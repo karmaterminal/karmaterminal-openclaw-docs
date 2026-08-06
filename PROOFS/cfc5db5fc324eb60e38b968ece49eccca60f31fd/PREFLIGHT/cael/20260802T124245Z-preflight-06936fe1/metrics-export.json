@@ -1,0 +1,17 @@
+{
+  "schema": "openclaw.k6.proof-metrics-export.v1",
+  "rowId": "PREFLIGHT",
+  "candidateSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "seat": "cael",
+  "outcome": "NO-VERDICT",
+  "sampleCount": 6,
+  "metricNames": [
+    "openclaw_proofs_k6_run_total",
+    "openclaw_proofs_k6_proof_failures_total",
+    "openclaw_proofs_k6_candidate_pending_review",
+    "openclaw_proofs_k6_receipt_status"
+  ],
+  "prometheusOut": "openclaw-proofs-k6.prom",
+  "otlpOut": "openclaw-proofs-k6.otlp.json",
+  "push": null
+}

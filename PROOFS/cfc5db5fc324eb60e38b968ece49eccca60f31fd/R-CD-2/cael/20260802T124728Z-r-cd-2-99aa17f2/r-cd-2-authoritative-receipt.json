@@ -1,0 +1,17 @@
+{
+  "schema": "openclaw.k6.r-cd-2-authoritative-receipt.v2",
+  "row": "R-CD-2",
+  "authoritativeSource": "r-cd-2-row-scoped-resolver",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "binding": {
+    "localEvidenceFingerprint": "ec7e02902d9189af915a18a1c3c63c4c9f11136d597427bb88f2a5cdde6d96b6",
+    "topologyFingerprint": "f41e217f48e677d9e03682e5075a52f001610ee578eb1f1426a623f58eeb6c45"
+  },
+  "verdict": "PARTIAL-candidate",
+  "failureCategory": "missing-terminal-sentinel",
+  "integrity": {
+    "algorithm": "hmac-sha256-gateway-token-v1",
+    "signature": "40a507e9b82e9ee83031d45f9aa3656def559cffde3c36f3ae8c8002c0f27810"
+  }
+}

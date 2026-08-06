@@ -1,0 +1,35 @@
+{
+  "schema": "openclaw.k6.harness-provenance.v1",
+  "classification": "harness-provenance",
+  "matrixId": "20260803T040359Z-d0196d2d7033-6fa8fac0",
+  "mode": "live",
+  "docsRef": "d0196d2d70338d939c1830d8f381b6d0e2a58493",
+  "docsRefSource": "approved-input",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "harnessIdentityVerified": true,
+  "candidateSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "runtimeIdentity": {
+    "seat": "cael",
+    "runtimeBuildSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "candidateMatchesRuntime": true,
+    "seatReadinessReceipt": "seat-readiness.json",
+    "seatReadinessSha256": "d6ee7a223d2baeada1c7b51b509bf240bb6fbe0aa2125edb78d7ab2a240d7490"
+  },
+  "runnerScript": "tools/k6-proofs/scripts/run-proofs.sh",
+  "runnerScriptSha256": "f81c422874f1acaf722275f2b87bbed048cb8d913435df0a0090c29b49ea31f4",
+  "rowSelection": [
+    "R-CD-CHAINED-DEPTH-2"
+  ],
+  "rows": [
+    {
+      "rowId": "R-CD-CHAINED-DEPTH-2",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-chained-depth-2.json",
+      "manifestSha256": "d44024c864d60db8fb5823de931b4015131fbae055b50813518cbad1b8d174a2",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-chained-depth-2.js",
+      "scenarioSha256": "2ae9db893db5ff4745a8cd57d2af0340228205ac87c6acbd82f3e39c37d3bdf6"
+    }
+  ],
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "startedAt": "2026-08-03T04:03:59Z"
+}

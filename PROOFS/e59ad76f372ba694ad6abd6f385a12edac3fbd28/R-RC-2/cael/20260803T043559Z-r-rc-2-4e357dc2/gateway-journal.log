@@ -1,0 +1,17 @@
+2026-08-02T21:36:03.865678-07:00 cael node[4125351]: 2026-08-02T21:36:03.865-07:00 [ws] ⇄ res ✓ sessions.send 280ms runId=R-RC-2-<redacted-nonce> conn=97f416b8…07d4 id=1-0-1785731763584-6b3v7e
+2026-08-02T21:36:16.177038-07:00 cael node[4125351]: 2026-08-02T21:36:16.176-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-02T21:36:16.177507-07:00 cael node[4125351]: 2026-08-02T21:36:16.177-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-02T21:36:16.185463-07:00 cael node[4125351]: 2026-08-02T21:36:16.185-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-08-02T21:36:16.868403-07:00 cael node[4125351]: 2026-08-02T21:36:16.868-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=<redacted-session-key> task=<redacted-payload>
+2026-08-02T21:36:17.692650-07:00 cael node[4125351]: 2026-08-02T21:36:17.692-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-02T21:36:17.715197-07:00 cael node[4125351]: 2026-08-02T21:36:17.715-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-02T21:36:30.043734-07:00 cael node[4125351]: 2026-08-02T21:36:30.043-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-02T21:36:30.044482-07:00 cael node[4125351]: 2026-08-02T21:36:30.044-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-02T21:36:30.210842-07:00 cael node[4125351]: 2026-08-02T21:36:30.209-07:00 REQUEST_COMPACTION_REJECTED_UNAVAILABLE <redacted-nonce> CONTEXT unknown THRESHOLD unknown
+2026-08-02T21:36:30.211743-07:00 cael node[4125351]: 2026-08-02T21:36:30.211-07:00 [agents/agent-command] [agent] run continuation-delegate-e52bf33b1b92349d9d4fab127aec814d ended with stopReason=stop
+2026-08-02T21:36:37.487884-07:00 cael node[4125351]: 2026-08-02T21:36:37.487-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-02T21:36:37.488507-07:00 cael node[4125351]: 2026-08-02T21:36:37.488-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-02T21:36:37.654638-07:00 cael node[4125351]: 2026-08-02T21:36:37.653-07:00 REQUEST_COMPACTION_REJECTED_UNAVAILABLE <redacted-nonce> CONTEXT unknown THRESHOLD unknown
+2026-08-02T21:36:37.655551-07:00 cael node[4125351]: 2026-08-02T21:36:37.655-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key> ended with stopReason=stop
+2026-08-02T21:37:51.407054-07:00 cael node[4125351]: 2026-08-02T21:37:51.406-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-02T21:37:51.407657-07:00 cael node[4125351]: 2026-08-02T21:37:51.407-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

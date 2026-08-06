@@ -1,0 +1,5 @@
+2026-08-01T18:43:26.883040-07:00 cael node[701649]: 2026-08-01T18:43:26.882-07:00 [ws] ⇄ res ✓ sessions.send 213ms runId=R-CW-TOKEN-DISPATCH-<redacted-nonce> conn=48c19cc4…21ff id=1-0-1785635006667-92ccrl
+2026-08-01T18:43:38.840148-07:00 cael node[701649]: 2026-08-01T18:43:38.840-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-01T18:43:38.867110-07:00 cael node[701649]: 2026-08-01T18:43:38.866-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-01T18:43:39.134109-07:00 cael node[701649]: 2026-08-01T18:43:39.133-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-01T18:43:39.134417-07:00 cael node[701649]: 2026-08-01T18:43:39.134-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

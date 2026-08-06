@@ -28,6 +28,8 @@ import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import { validateRcdModelToolAuthoritativeReceipt } from
+  '../lib/r-cd-model-tool-authoritative-receipt.mjs';
 
 function parseArgs(argv) {
   const out = {};
@@ -48,7 +50,7 @@ function stamp() {
 }
 
 function usage() {
-  console.error(`Usage: node evidence-writer.mjs --input <k6-output> --row <ROW> --seat <SEAT> --sha <SHA> [--manifest <row-manifest.json>]`);
+  console.error(`Usage: node evidence-writer.mjs --input <k6-output> --row <ROW> --seat <SEAT> --sha <SHA> [--manifest <row-manifest.json>] [--runner-metadata <runner-metadata.json>]`);
   process.exit(2);
 }
 
@@ -108,14 +110,51 @@ try {
   process.exit(1);
 }
 
+const authoritativeConfig = args.row === 'R-CD-2'
+  ? {
+      file: 'r-cd-2-authoritative-receipt.json',
+      source: 'r-cd-2-row-scoped-resolver',
+      verdictSource: 'r-cd-2-authoritative-receipt',
+      validate: validateRcd2AuthoritativeReceipt,
+    }
+  : args.row === 'R-CD-MODEL-TOOL'
+    ? {
+        file: 'r-cd-model-tool-authoritative-receipt.json',
+        source: 'r-cd-model-tool-row-scoped-resolver',
+        verdictSource: 'r-cd-model-tool-authoritative-receipt',
+        validate: validateRcdModelToolAuthoritativeReceipt,
+        requiresRunnerEnvelope: true,
+      }
+    : null;
 let authoritativeReceipt = null;
-if (args.row === 'R-CD-2') {
+if (authoritativeConfig) {
   if (!args['authoritative-receipt']) {
-    throw new Error('R-CD-2 requires --authoritative-receipt; generic evidence cannot promote this row');
+    throw new Error(`${args.row} requires --authoritative-receipt; generic evidence cannot promote this row`);
+  }
+  // The receipt binds to the runner identity that produced it, not to the
+  // publication directory this writer happens to create, so the envelope has
+  // to be supplied explicitly rather than inferred from the output path.
+  let authorityEnvelope;
+  if (authoritativeConfig.requiresRunnerEnvelope) {
+    if (!args['runner-metadata']) {
+      throw new Error(`${args.row} requires --runner-metadata to bind the authoritative receipt to its run`);
+    }
+    const runnerMetadata = JSON.parse(readFileSync(args['runner-metadata'], 'utf8'));
+    if (runnerMetadata?.row !== args.row || runnerMetadata?.seat !== args.seat ||
+        runnerMetadata?.candidateSha !== args.sha) {
+      throw new Error(`${args.row} runner metadata does not describe this row/seat/candidate`);
+    }
+    authorityEnvelope = { metadata: runnerMetadata, runId: runnerMetadata.runId };
   }
   authoritativeReceipt = JSON.parse(readFileSync(args['authoritative-receipt'], 'utf8'));
-  const validation = validateRcd2AuthoritativeReceipt(authoritativeReceipt, process.env.OPENCLAW_GATEWAY_TOKEN);
-  if (!validation.valid) throw new Error(`R-CD-2 authoritative receipt rejected: ${validation.reason}`);
+  const validation = authoritativeConfig.validate(
+    authoritativeReceipt,
+    process.env.OPENCLAW_GATEWAY_TOKEN,
+    authorityEnvelope,
+  );
+  if (!validation.valid || validation.verdict == null) {
+    throw new Error(`${args.row} authoritative receipt rejected: ${validation.reason || 'no verdict'}`);
+  }
 }
 
 // --- REDACTION BOUNDARY ---
@@ -140,7 +179,7 @@ let authoritativeReceiptDigest = null;
 if (authoritativeReceipt) {
   const raw = readFileSync(args['authoritative-receipt']);
   authoritativeReceiptDigest = createHash('sha256').update(raw).digest('hex');
-  writeFileSync(join(outDir, 'r-cd-2-authoritative-receipt.json'), raw);
+  writeFileSync(join(outDir, authoritativeConfig.file), raw);
 }
 
 if (args['seat-readiness']) {
@@ -149,7 +188,7 @@ if (args['seat-readiness']) {
 if (authoritativeReceipt) {
   // Carry the signed authority alongside every public candidate surface so a
   // report/envelope cannot cite an uninspectable generic PASS.
-  copyFileSync(args['authoritative-receipt'], join(outDir, 'r-cd-2-authoritative-receipt.json'));
+  copyFileSync(args['authoritative-receipt'], join(outDir, authoritativeConfig.file));
 }
 
 // Write k6-summary.json through the same public-safe boundary as run-proofs.sh.
@@ -181,10 +220,10 @@ const result = {
   candidateSha: args.sha,
   seat: args.seat,
   outcome: verdict,
-  verdictSource: authoritativeReceipt ? 'r-cd-2-authoritative-receipt' : 'generic-evidence',
+  verdictSource: authoritativeReceipt ? authoritativeConfig.verdictSource : 'generic-evidence',
   ...(authoritativeReceiptDigest ? { authoritativeReceipt: {
-    schema: authoritativeReceipt.schema, validated: true, source: 'r-cd-2-row-scoped-resolver',
-    file: 'r-cd-2-authoritative-receipt.json', sha256: authoritativeReceiptDigest,
+    schema: authoritativeReceipt.schema, validated: true, source: authoritativeConfig.source,
+    file: authoritativeConfig.file, sha256: authoritativeReceiptDigest,
   } } : {}),
   liveRunSafety: manifest?.liveRunSafety ? {
     classification: manifest.liveRunSafety.classification,

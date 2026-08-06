@@ -1,0 +1,12 @@
+{
+  "schema": "openclaw.p86.static-row-skip.v1",
+  "row": "R-CW-5A",
+  "productSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "harnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "attemptedAt": "2026-08-02T13:14:38Z",
+  "classification": "static-preflight-only",
+  "runnerDisposition": "skipped",
+  "reason": "liveRunSafety classification rejects unattended live fire",
+  "productBehaviorAuthority": false
+}

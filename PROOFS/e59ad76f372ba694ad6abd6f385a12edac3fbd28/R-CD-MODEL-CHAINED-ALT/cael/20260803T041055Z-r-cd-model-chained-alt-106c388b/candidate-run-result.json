@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "docsRef": "d0196d2d70338d939c1830d8f381b6d0e2a58493"
+  },
+  "harness": {
+    "docsRef": "d0196d2d70338d939c1830d8f381b6d0e2a58493",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cd-model-chained-alt.json",
+    "manifestSha256": "446175736a4588ba94b5695207ff75a6ad4f5dd5276ef51cdbef53ca45bb8a73",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-cd-model-chained-alt.js",
+    "scenarioSha256": "9656024a7dfaf749cb478b853baff3198a845b374ab3646fa54927bf89017afe",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20260803T041055Z-r-cd-model-chained-alt-106c388b",
+    "rowId": "R-CD-MODEL-CHAINED-ALT",
+    "seat": "cael",
+    "scenario": "r-cd-model-chained-alt",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "vu-log",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "unknown",
+    "traceCaptured": false,
+    "correlationReceiptPresent": false
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "r-cd-model-chained-alt-summary.json",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": null,
+    "correlationReceipt": null
+  }
+}

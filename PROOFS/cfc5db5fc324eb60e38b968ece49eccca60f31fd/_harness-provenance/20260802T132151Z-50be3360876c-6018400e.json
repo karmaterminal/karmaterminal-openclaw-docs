@@ -1,0 +1,43 @@
+{
+  "schema": "openclaw.k6.harness-provenance.v1",
+  "classification": "harness-provenance",
+  "matrixId": "20260802T132151Z-50be3360876c-6018400e",
+  "mode": "live",
+  "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "docsRefSource": "approved-input",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "harnessIdentityVerified": true,
+  "candidateSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+  "runtimeIdentity": {
+    "seat": "cael",
+    "runtimeBuildSha": "cfc5db5fc324eb60e38b968ece49eccca60f31fd",
+    "candidateMatchesRuntime": true,
+    "seatReadinessReceipt": "seat-readiness.json",
+    "seatReadinessSha256": "6b4c79fb1331dd12bb48e27abe4898901f003d0927bd386946bbb04950eb8baa"
+  },
+  "runnerScript": "tools/k6-proofs/scripts/run-proofs.sh",
+  "runnerScriptSha256": "f81c422874f1acaf722275f2b87bbed048cb8d913435df0a0090c29b49ea31f4",
+  "rowSelection": [
+    "R-CW-3",
+    "R-RC-1"
+  ],
+  "rows": [
+    {
+      "rowId": "R-CW-3",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-3.json",
+      "manifestSha256": "55857909cb34dfacbd2188f7301431416f2deab56b58d288fdcf3807a96592b0",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-3-reason-telemetry.js",
+      "scenarioSha256": "825e4d1afdb39ce03312e64006cce47cad58ed9abbf306a93b51c5a80aeac788"
+    },
+    {
+      "rowId": "R-RC-1",
+      "manifestPath": "tools/k6-proofs/manifests/r-rc-1.json",
+      "manifestSha256": "8e2cb6d5333545ec014270f185c71cc5a777c367d66383bb581098d17498daea",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-rc-1-threshold-reject.js",
+      "scenarioSha256": "57608c4f10ddcb6da3edf416d880ced0ec16bcd17ebc797207ddf4a0ffdaa2ab"
+    }
+  ],
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "startedAt": "2026-08-02T13:21:51Z"
+}

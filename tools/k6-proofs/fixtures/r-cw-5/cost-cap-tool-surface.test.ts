@@ -7,9 +7,12 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { clearRuntimeConfigSnapshot, setRuntimeConfigSnapshot } from "../../src/config/config.js";
-import { clearSessionStoreCacheForTest, saveSessionStore, type SessionEntry } from "../../src/config/sessions.js";
+import type { SessionEntry } from "../../src/config/sessions.js";
+import { replaceSessionEntrySync } from "../../src/config/sessions/session-accessor.js";
+import { clearSessionStoreCacheForTest } from "../../src/config/sessions/store-writer-state.js";
 import type { OpenClawConfig } from "../../src/config/types.openclaw.js";
 import { peekSystemEvents, resetSystemEventsForTest } from "../../src/infra/system-events.js";
+import { closeOpenClawAgentDatabasesForTest } from "../../src/state/openclaw-agent-db.js";
 import { runAgentAttempt } from "../../src/agents/command/attempt-execution.js";
 
 const runEmbeddedAgentMock = vi.hoisted(() => vi.fn());
@@ -57,6 +60,12 @@ describe("R-CW-5 disposable typed tool surface", () => {
   let sessionEntry: SessionEntry;
 
   beforeEach(async () => {
+    const { resetContinuationWorkDispatchForTests } =
+      await import("../../src/auto-reply/continuation/work-dispatch.js");
+    const { resetTaskFlowRegistryForTests } =
+      await import("../../src/tasks/task-runtime.test-helpers.js");
+    resetContinuationWorkDispatchForTests();
+    resetTaskFlowRegistryForTests({ persist: false });
     root = await fs.mkdtemp(path.join(os.tmpdir(), "rcw5-tool-surface-"));
     storePath = path.join(root, "sessions.json");
     sessionKey = `agent:main:subagent:rcw5:${crypto.randomUUID()}`;
@@ -67,7 +76,7 @@ describe("R-CW-5 disposable typed tool surface", () => {
       continuationChainStartedAt: Date.now(),
       continuationChainTokens: __RCW5_OVER_CAP__,
     } as SessionEntry;
-    await saveSessionStore(storePath, { [sessionKey]: sessionEntry }, { skipMaintenance: true });
+    replaceSessionEntrySync({ storePath, sessionKey }, sessionEntry);
     clearSessionStoreCacheForTest();
     setRuntimeConfigSnapshot(cfg);
     runEmbeddedAgentMock.mockReset();
@@ -75,8 +84,15 @@ describe("R-CW-5 disposable typed tool surface", () => {
   });
 
   afterEach(async () => {
+    const { resetContinuationWorkDispatchForTests } =
+      await import("../../src/auto-reply/continuation/work-dispatch.js");
+    const { resetTaskFlowRegistryForTests } =
+      await import("../../src/tasks/task-runtime.test-helpers.js");
+    resetContinuationWorkDispatchForTests();
+    resetTaskFlowRegistryForTests({ persist: false });
     clearRuntimeConfigSnapshot();
     clearSessionStoreCacheForTest();
+    closeOpenClawAgentDatabasesForTest();
     resetSystemEventsForTest();
     await fs.rm(root, { recursive: true, force: true });
   });

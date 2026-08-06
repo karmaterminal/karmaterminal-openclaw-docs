@@ -238,6 +238,9 @@ test('R-CW-5 typed tool-surface template asserts no durable work after exhausted
     fileURLToPath(new URL('../../fixtures/r-cw-5/cost-cap-tool-surface.test.ts', import.meta.url)),
     'utf8',
   );
+  assert.match(template, /config\/sessions\/session-accessor\.js/);
+  assert.match(template, /config\/sessions\/store-writer-state\.js/);
+  assert.doesNotMatch(template, /saveSessionStore/);
   assert.match(template, /runAgentAttempt/);
   assert.match(template, /continueWorkOpts/);
   assert.match(template, /continuationChainTokens:\s*__RCW5_OVER_CAP__/);

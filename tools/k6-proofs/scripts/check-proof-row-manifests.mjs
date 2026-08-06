@@ -17,7 +17,9 @@ const { root } = resolveRepositoryRoot({ argv: process.argv.slice(2) });
 const indexPath = path.join(root, 'PROOFS', 'INDEX.json');
 const manifestsDir = proofsToolPath(root, 'manifests');
 const failures = [];
-const SUPPORT_DIRECTORIES = new Set(['artifacts', 'gates']);
+// Corpus bookkeeping is not a proof row: it has no scenario manifest and must
+// not block live execution of the actual rows.
+const SUPPORT_DIRECTORIES = new Set(['artifacts', 'gates', '_execution-control']);
 
 if (!existsSync(indexPath)) failures.push(`missing ${indexPath}`);
 if (!existsSync(manifestsDir)) failures.push(`missing ${manifestsDir}`);
@@ -52,7 +54,11 @@ const manifestByUpper = new Map(manifestRows.map((row) => [row.rowId.toUpperCase
 const missing = proofRows.filter((row) => !manifestByUpper.has(row.toUpperCase()));
 const caseMismatches = proofRows.flatMap((row) => {
   const manifest = manifestByUpper.get(row.toUpperCase());
+  // The corpus labels the executable preflight row as PREFLIGHT while the
+  // long-lived manifest/schema identifier is intentionally lowercase.
+  const canonicalPreflightAlias = row === 'PREFLIGHT' && manifest?.rowId === 'preflight';
   return manifest && manifest.rowId !== row
+    && !canonicalPreflightAlias
     ? [`${row} != ${manifest.rowId} (${manifest.file})`]
     : [];
 });

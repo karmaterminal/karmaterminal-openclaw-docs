@@ -326,7 +326,14 @@ test('R-CW-6 runtime template proves the real budget and durable recovery path',
   assert.match(template, /scheduleContinuationWork/);
   assert.match(template, /checkContinuationBudget/);
   assert.match(template, /persistContinuationChainState/);
-  assert.match(template, /loadSessionStore/);
+  assert.match(template, /config\/sessions\/session-accessor\.js/);
+  assert.match(template, /config\/sessions\/store-writer-state\.js/);
+  assert.match(template, /loadSessionEntry/);
+  assert.doesNotMatch(template, /saveSessionStore|loadSessionStore/);
+  assert.match(
+    template,
+    /replaceSessionEntrySync\(\{ storePath, sessionKey \}, sessionEntry\);\s*clearSessionStoreCacheForTest\(\);\s*closeOpenClawAgentDatabasesForTest\(\);\s*const recoveredEntry = loadSessionEntry\(\{ storePath, sessionKey \}\);/,
+  );
   assert.match(template, /reason:\s*structuredReason/);
   assert.match(template, /flowCountBeforeRejectedHop/);
   assert.match(template, /flowCountAfterRejectedHop/);

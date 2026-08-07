@@ -539,6 +539,7 @@ async function main() {
       endUnixSeconds: end,
       paddingSeconds: CORRELATION_WINDOW_PADDING_SECONDS,
       source: Number.isFinite(evidenceEndMs) ? 'dispatch-and-evidence-ended' : 'dispatch-only',
+      inheritedRootSpanDurationUsed: false,
     },
     traceJson: path.basename(traceOut),
     ...topology,

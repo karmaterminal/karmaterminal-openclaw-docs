@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os';
 const repoRoot = new URL('../../../..', import.meta.url).pathname;
 const script = join(repoRoot, 'tools/k6-proofs/scripts/live-run-guard.mjs');
 const rowListScript = join(repoRoot, 'tools/k6-proofs/scripts/list-runnable-rows.mjs');
+const runnerScript = join(repoRoot, 'tools/k6-proofs/scripts/run-proofs.sh');
 const validEnv = {
   ...process.env,
   OPENCLAW_GATEWAY_TOKEN: 'unit-token-not-printed',
@@ -100,13 +101,22 @@ test('live-run guard still permits ordinary k6-runnable manifests with required 
   assert.equal(parsed.classification, 'k6-runnable');
 });
 
+test('row-list runner holds session-outer and row-inner locks across dispatch', async () => {
+  const runner = await readFile(runnerScript, 'utf8');
+  const sessionOpen = runner.indexOf('exec 8>"$K6_PROOF_SESSION_LOCK_PATH"');
+  const rowOpen = runner.indexOf('exec 9>"$K6_PROOF_LOCK_PATH"');
+  assert.ok(sessionOpen >= 0 && sessionOpen < rowOpen);
+  assert.match(runner, /flock -n 8[\s\S]*flock -n 9/);
+  assert.match(runner, /exec 9>&-\n\s+exec 8>&-/);
+});
+
 test('read-only preflight uses the supported live k6 runner contract', async () => {
   const manifest = join(repoRoot, 'tools/k6-proofs/manifests/preflight.example.json');
   const run = runGuard(manifest);
   assert.equal(run.status, 0, run.stderr || run.stdout);
   const parsed = JSON.parse(run.stdout);
   assert.equal(parsed.ok, true);
-  assert.equal(parsed.rowId, 'preflight');
+  assert.equal(parsed.rowId, 'PREFLIGHT');
   assert.equal(parsed.classification, 'k6-runnable');
   assert.equal(parsed.requiresLiveGatewayToken, true);
   assert.equal(parsed.requiresTargetSessionKey, false);
@@ -165,7 +175,7 @@ test('R-CW-6 stays process-local and fixture-gated while static variants cannot 
   assert.equal(liveSuite.status, 0, liveSuite.stderr || liveSuite.stdout);
   const liveRows = liveSuite.stdout.trim().split(',');
   assert.equal(liveRows.length, 34);
-  assert.equal(liveRows[0], 'preflight');
+  assert.equal(liveRows[0], 'PREFLIGHT');
   assert.doesNotMatch(liveSuite.stdout, /R-CW-5(?:,|$)/);
   assert.doesNotMatch(liveSuite.stdout, /R-CW-6(?:,|$)/);
   assert.doesNotMatch(liveSuite.stdout, /R-CW-[56]A/);

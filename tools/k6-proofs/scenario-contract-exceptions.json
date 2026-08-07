@@ -1,0 +1,35 @@
+{
+  "schema": "openclaw.k6.scenario-contract-exceptions.v1",
+  "scenarios": [
+    {
+      "file": "r-cd-collection-on-collapse.js",
+      "status": "legacy-unregistered",
+      "reason": "Superseded by the manifest-declared static-corpus-row-validator.js contract for R-CD-COLLECTION-ON-COLLAPSE."
+    },
+    {
+      "file": "r-cw-1.js",
+      "status": "legacy-unregistered",
+      "reason": "Superseded by r-cw-1-tool-schedule-wake.js for the canonical R-CW-1 manifest."
+    },
+    {
+      "file": "r-cw-5-cost-cap-reject.js",
+      "status": "fixture-only",
+      "reason": "The canonical R-CW-5 manifest is orchestration-required and names the process-local run-cost-cap-fixture.mjs path; this legacy k6 entry must not fire."
+    },
+    {
+      "file": "r-cw-6-max-chain-length.js",
+      "status": "fixture-only",
+      "reason": "The canonical R-CW-6 manifest is orchestration-required and names the process-local run-max-chain-fixture.mjs path; this legacy k6 entry must not fire."
+    },
+    {
+      "file": "r-cw.js",
+      "status": "legacy-unregistered",
+      "reason": "Legacy broad smoke retained for history; it is not a manifest-declared proof row."
+    },
+    {
+      "file": "r-rc-2.js",
+      "status": "legacy-unregistered",
+      "reason": "Superseded by r-rc-2-delegate-request-compaction.js for the canonical R-RC-2 manifest."
+    }
+  ]
+}

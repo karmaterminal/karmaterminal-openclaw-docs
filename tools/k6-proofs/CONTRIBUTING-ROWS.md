@@ -54,6 +54,10 @@ into `PROOFS/<sha>/` without back-and-forth.
    `expectedArtifactClass`, `requiredReceipts`, and `foldRequiresReview:true`.
    `OPENCLAW_SESSION_KEY` must be explicit when the row mutates/wakes a session; do
    not rely on the `main` fallback for live continuation rows.
+5. Run `node tools/k6-proofs/scripts/check-proof-contracts.mjs`. Every runnable
+   scenario must emit evidence plus one summary verdict, and any intentionally
+   unregistered scenario must have a specific entry in
+   `scenario-contract-exceptions.json`.
 
 ## Running the row
 

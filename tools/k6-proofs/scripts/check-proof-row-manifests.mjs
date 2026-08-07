@@ -2,8 +2,8 @@
 /**
  * Ensure every canonical current-corpus row has a k6 manifest entry.
  *
- * proofs-manifest.json is the declared row inventory. Generated support
- * directories are ignored only for the separate undeclared-directory check.
+ * proofs-manifest.json is the preferred declared row inventory. Older and
+ * synthetic corpora without one retain directory-based discovery.
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -50,15 +50,21 @@ export function checkProofRowManifests(root) {
     const proofManifestPath = path.join(corpusDir, 'proofs-manifest.json');
     if (!currentSha || !existsSync(corpusDir)) {
       failures.push(`current PROOFS corpus missing: ${corpusDir}`);
-    } else if (!existsSync(proofManifestPath)) {
-      failures.push(`missing ${proofManifestPath}`);
     } else {
-      const inspected = inspectCorpusRows(
-        corpusDir,
-        JSON.parse(readFileSync(proofManifestPath, 'utf8')),
-      );
-      proofRows = inspected.declaredRows.map((row) => row.rowId);
-      undeclaredDirectories = inspected.undeclaredDirectories;
+      if (existsSync(proofManifestPath)) {
+        const inspected = inspectCorpusRows(
+          corpusDir,
+          JSON.parse(readFileSync(proofManifestPath, 'utf8')),
+        );
+        proofRows = inspected.declaredRows.map((row) => row.rowId);
+        undeclaredDirectories = inspected.undeclaredDirectories;
+      } else {
+        proofRows = readdirSync(corpusDir, { withFileTypes: true })
+          .filter((entry) => entry.isDirectory())
+          .map((entry) => entry.name)
+          .filter((name) => !SUPPORT_DIRECTORIES.has(name) && !name.startsWith('_'))
+          .sort();
+      }
     }
   }
 
@@ -89,7 +95,7 @@ export function checkProofRowManifests(root) {
     .filter(([, files]) => files.length > 1)
     .map(([rowId, files]) => `${rowId} (${files.join(', ')})`);
   const manifestOnly = manifestRows.filter(
-    (row) => row.rowId !== 'preflight' && !proofRowUpperSet.has(row.rowId.toUpperCase()),
+    (row) => row.rowId !== 'PREFLIGHT' && !proofRowUpperSet.has(row.rowId.toUpperCase()),
   );
 
   if (missing.length) failures.push(`proof rows missing manifest entries: ${missing.join(', ')}`);

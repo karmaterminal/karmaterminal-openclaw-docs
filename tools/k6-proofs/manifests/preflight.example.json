@@ -1,6 +1,6 @@
 {
   "schema": "openclaw.k6.proof-row-manifest.v1",
-  "rowId": "preflight",
+  "rowId": "PREFLIGHT",
   "issue": 101,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-ci-runner}",
@@ -76,7 +76,7 @@
   "artifactDestination": {
     "root": "PROOFS",
     "sha": "${OPENCLAW_CANDIDATE_SHA}",
-    "row": "preflight",
+    "row": "PREFLIGHT",
     "seat": "${OPENCLAW_SEAT_NAME:-ci-runner}",
     "runDirPrefix": "k6-run"
   },

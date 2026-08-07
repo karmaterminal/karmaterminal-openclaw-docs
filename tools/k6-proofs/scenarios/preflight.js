@@ -60,7 +60,7 @@ export default function () {
   }
 
   const evidence = {
-    row: 'preflight',
+    row: 'PREFLIGHT',
     manifest_loaded: !!manifest,
     seat,
     sessionKey,
@@ -147,4 +147,18 @@ export default function () {
   }
 
   console.log(`PREFLIGHT_EVIDENCE ${JSON.stringify(evidence)}`);
+}
+
+export function handleSummary(data) {
+  const failuresCount = data.metrics.proof_failures?.values?.count || 0;
+  return {
+    'preflight-summary.json': JSON.stringify({
+      row: 'PREFLIGHT',
+      verdict: failuresCount === 0 ? 'PASS-candidate' : 'FAIL-candidate',
+      metrics: {
+        failures: failuresCount,
+        duration_ms: data.metrics.preflight_duration?.values || null,
+      },
+    }, null, 2),
+  };
 }

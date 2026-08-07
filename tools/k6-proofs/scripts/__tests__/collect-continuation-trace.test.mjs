@@ -235,6 +235,8 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
     assert.equal(receipt.reason.source, 'manifest-nonce');
     assert.equal(receipt.sameTrace, true);
     assert.equal(receipt.distinctSpans, true);
+    assert.equal(receipt.searchWindow.inheritedRootSpanDurationUsed, false);
+    assert.ok(receipt.searchWindow.endUnixSeconds > receipt.searchWindow.startUnixSeconds);
     assert.deepEqual(receipt.childSpans, [{
       name: 'openclaw.harness.run',
       spanId: 'eeeeeeeeeeeeeeee',
@@ -1147,6 +1149,7 @@ test('recovers a unique non-continuation tool trace by seat, tool, and evidence 
       endUnixSeconds: Math.floor(Date.parse('2026-07-13T03:20:53.324Z') / 1000) + 60,
       paddingSeconds: 60,
       source: 'dispatch-and-evidence-ended',
+      inheritedRootSpanDurationUsed: false,
     });
     assert.match(observedQuery, /service\.name="ronan-prince"/);
     assert.match(observedQuery, /gen_ai\.tool\.name="request_compaction"/);
@@ -1208,6 +1211,7 @@ test('uses a fixed dispatch-only window when evidence has no ended time', async 
       endUnixSeconds: dispatchSeconds + 60,
       paddingSeconds: 60,
       source: 'dispatch-only',
+      inheritedRootSpanDurationUsed: false,
     });
   } finally {
     await server.close();

@@ -44,6 +44,7 @@ node tools/k6-proofs/scripts/list-runnable-rows.mjs --all
 node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs
 node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
+node tools/k6-proofs/scripts/check-proof-contracts.mjs
 node tools/k6-proofs/scripts/validate-corpus.mjs --current
 ```
 
@@ -172,6 +173,7 @@ Minimum patch shape:
 node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs
 node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
+node tools/k6-proofs/scripts/check-proof-contracts.mjs
 node --test tools/k6-proofs/scripts/__tests__/*.test.mjs
 ```
 

@@ -22,11 +22,16 @@
     "schema": { "const": "openclaw.k6.proof-row-manifest.v1" },
     "rowId": { "type": "string", "minLength": 1 },
     "issue": { "type": "integer", "minimum": 1 },
-    "candidateSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "candidateSha": {
+      "oneOf": [
+        { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        { "const": "${OPENCLAW_CANDIDATE_SHA}" }
+      ]
+    },
     "seat": { "type": "string", "minLength": 1 },
     "sessionKey": { "type": "string", "minLength": 1 },
-    "transport": { "enum": ["websocket", "http-tools-invoke", "offline"] },
-    "toolSurface": { "enum": ["typed-tool", "token", "bracket-token", "read-only", "mixed"] },
+    "transport": { "enum": ["websocket", "http-tools-invoke", "offline", "process-local", "github-source-contract"] },
+    "toolSurface": { "enum": ["typed-tool", "token", "bracket-token", "read-only", "mixed", "source-status-formatter"] },
     "mutates": { "type": "boolean" },
     "timeoutSeconds": { "type": "integer", "minimum": 1 },
     "gateway": {
@@ -62,6 +67,24 @@
         "registryNotes": { "type": "string" }
       }
     },
+    "invocation": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Row-specific invocation or fixture inputs. Nonces remain templates and are generated at run time."
+    },
+    "sourceContract": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Immutable candidate-source contract for source-only rows."
+    },
+    "prerequisites": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "seatClassExpectation": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "liveRunSafety": {
       "type": "object",
       "additionalProperties": false,
@@ -91,6 +114,8 @@
           "type": "boolean",
           "description": "True when k6 REST/WS alone is not enough and an agent/tool invocation outside the raw k6 transport is required."
         },
+        "requiresHumanConfirmation": { "type": "boolean" },
+        "requiresDisposableSession": { "type": "boolean" },
         "sameSessionConcurrencySafe": {
           "type": "boolean",
           "description": "False means do not run this row concurrently against the same target session unless the row explicitly proves concurrency behavior."
@@ -129,7 +154,12 @@
       "required": ["root", "sha", "row", "seat", "runDirPrefix"],
       "properties": {
         "root": { "type": "string", "default": "PROOFS" },
-        "sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "sha": {
+          "oneOf": [
+            { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+            { "const": "${OPENCLAW_CANDIDATE_SHA}" }
+          ]
+        },
         "row": { "type": "string", "minLength": 1 },
         "seat": { "type": "string", "minLength": 1 },
         "runDirPrefix": { "type": "string", "default": "k6-run" }

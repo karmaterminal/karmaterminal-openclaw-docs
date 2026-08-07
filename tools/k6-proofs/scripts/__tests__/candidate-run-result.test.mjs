@@ -36,6 +36,7 @@ function manifest() {
 
 function runResult(overrides = {}) {
   return {
+    schema: 'openclaw.k6.run-result.v1',
     effectiveExitCode: 0,
     verdict: 'PASS-candidate',
     verdictSource: 'summary-file',
@@ -563,6 +564,7 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
   await writeFile(path.join(candidateDir, 'runner-metadata.json'), `${JSON.stringify(metadata)}\n`);
   await writeFile(path.join(candidateDir, 'r-cd-token-authoritative-receipt.json'), raw);
   await writeFile(path.join(candidateDir, 'run-result.json'), `${JSON.stringify({
+    schema: 'openclaw.k6.run-result.v1',
     effectiveExitCode: 0, verdict: 'PASS-candidate',
     verdictSource: 'r-cd-token-authoritative-receipt', candidateOnly: true,
     foldRequiresReview: true,

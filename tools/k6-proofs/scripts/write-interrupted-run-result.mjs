@@ -56,6 +56,7 @@ async function main() {
   }
   await writeFile(path.join(dir, 'interruption-receipt.json'), `${JSON.stringify(receipt, null, 2)}\n`, { flag: 'wx' });
   await writeFile(runResult, `${JSON.stringify({
+    schema: 'openclaw.k6.run-result.v1',
     k6ExitCode: 130,
     postprocessExitCode: 1,
     effectiveExitCode: 130,

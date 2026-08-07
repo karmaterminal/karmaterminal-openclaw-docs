@@ -210,6 +210,7 @@ async function main() {
   const runResult = await readJson(path.join(candidateDir, 'run-result.json'), 'run result');
 
   same(manifest.schema, 'openclaw.k6.proof-row-manifest.v1', 'manifest schema');
+  same(runResult.schema, 'openclaw.k6.run-result.v1', 'run result schema');
   if (manifest.review?.candidateOnly !== true || manifest.review?.foldRequiresReview !== true) throw new Error('manifest must remain candidateOnly and require human fold review');
   if (runResult.candidateOnly !== true || runResult.foldRequiresReview !== true) throw new Error('run result must remain candidateOnly and require human fold review');
   const rowId = requireString(metadata.row, 'runner metadata row');

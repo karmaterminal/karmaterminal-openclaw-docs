@@ -54,6 +54,8 @@ bind_execution_roots() {
   R_CD_2_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-2-authoritative-receipt.mjs"
   ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
   CANDIDATE_RESULT_VALIDATOR="$SCRIPT_DIR/validate-candidate-run-result.mjs"
+  LIVE_RUN_GUARD="$SCRIPT_DIR/live-run-guard.mjs"
+  RUN_VERDICT_RESOLVER="$SCRIPT_DIR/resolve-run-verdict.mjs"
   INTERRUPTED_RESULT_WRITER="$SCRIPT_DIR/write-interrupted-run-result.mjs"
   R_CD_TOKEN_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-token-authoritative-receipt.mjs"
 }
@@ -960,6 +962,29 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     # digest-bound to the approved docs ref.
     MANIFEST_FILE="$RUN_DIR/row-manifest.json"
     export OPENCLAW_ROW_MANIFEST="$MANIFEST_FILE"
+    if ! GUARD_VARS="$(node "$LIVE_RUN_GUARD" --manifest "$MANIFEST_FILE" --shell)"; then
+      fail_harness \
+        "live-run-guard" \
+        "row $ROW_ID failed its manifest-declared invocation guard before dispatch" \
+        "$(jq -n --arg row "$ROW_ID" '{check:"manifest-live-run-safety",row:$row}')"
+    fi
+    eval "$GUARD_VARS"
+    if [[ "${K6_PROOF_LOCK_REQUIRED:-0}" == "1" ]]; then
+      exec 8>"$K6_PROOF_SESSION_LOCK_PATH"
+      if ! flock -n 8; then
+        fail_harness \
+          "live-run-guard" \
+          "row $ROW_ID cannot acquire its manifest-declared session-wide lock" \
+          "$(jq -n --arg row "$ROW_ID" '{check:"session-wide-concurrency",row:$row}')"
+      fi
+      exec 9>"$K6_PROOF_LOCK_PATH"
+      if ! flock -n 9; then
+        fail_harness \
+          "live-run-guard" \
+          "row $ROW_ID cannot acquire its manifest-declared same-session lock" \
+          "$(jq -n --arg row "$ROW_ID" '{check:"same-session-concurrency",row:$row}')"
+      fi
+    fi
     RUN_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     jq -n \
       --arg row "$ROW_ID" \
@@ -990,12 +1015,14 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           > "$RUN_DIR/build-identity-gate.json"
         jq -n \
           --arg endedAt "$RUN_ENDED_AT" \
-          '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-build-identity-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["exact-candidate-runtime-identity","attempt-state","raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
+          '{schema:"openclaw.k6.run-result.v1",k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-build-identity-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["exact-candidate-runtime-identity","attempt-state","raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
           > "$RUN_DIR/run-result.json"
         rm -f "$RUN_DIR/.started"
         PROVISIONAL_RUN_DIR=""
         ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
         echo "[$ROW_ID] PARTIAL-candidate: exact equal candidate/runtime SHAs are required; no dispatch occurred."
+        exec 9>&-
+        exec 8>&-
         continue
       fi
       ATTEMPT_UUID="$(cat /proc/sys/kernel/random/uuid)"
@@ -1030,7 +1057,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         jq -n \
           --arg endedAt "$RUN_ENDED_AT" \
           --arg surfaceClass "$OPENCLAW_SEAT_CLASS" \
-          '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-surface-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",surface_class:$surfaceClass,dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
+          '{schema:"openclaw.k6.run-result.v1",k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-surface-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",surface_class:$surfaceClass,dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
           > "$RUN_DIR/run-result.json"
         rm -f "$RUN_DIR/.started"
         ACTIVE_TOKEN_PHASE="pre-dispatch-surface-gate"
@@ -1038,6 +1065,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         PROVISIONAL_RUN_DIR=""
         ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
         echo "[$ROW_ID] PARTIAL-candidate: seat readiness class '$OPENCLAW_SEAT_CLASS' is not scanner-supported raw-final-text; no dispatch occurred."
+        exec 9>&-
+        exec 8>&-
         continue
       fi
       # R-CD-TOKEN is never allowed to fall back to the configured/live
@@ -1155,28 +1184,15 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     else
       rm -f "$RUN_DIR/evidence-extraction.error.log"
     fi
-    SUMMARY_VERDICT="unknown"
-    SUMMARY_VERDICT_SOURCE="none"
-    SUMMARY_FILE_VERDICT="unknown"
-    VU_LOG_VERDICT="$(
-      grep -oE 'VERDICT: (PASS|PARTIAL|HONEST-LIMIT|FAIL)-candidate' "$PRIVATE_K6_LOG" \
-        | tail -n 1 \
-        | sed 's/^VERDICT: //' \
-        || true
-    )"
-    SUMMARY_FILES_JSON="[]"
-    if find "$RUN_DIR" -maxdepth 1 -type f -name '*summary.json' | grep -q .; then
-      SUMMARY_FILES_JSON="$(find "$RUN_DIR" -maxdepth 1 -type f -name '*summary.json' -print0 | xargs -0 -r -n1 basename | jq -R . | jq -s .)"
-      SUMMARY_FILE_VERDICT="$(find "$RUN_DIR" -maxdepth 1 -type f -name '*summary.json' -print0 | xargs -0 -r jq -r 'select(.verdict != null) | .verdict' | head -n 1)"
-      if [[ -z "$SUMMARY_FILE_VERDICT" ]]; then SUMMARY_FILE_VERDICT="unknown"; fi
+    RUN_VERDICT_JSON="$RUN_DIR/resolved-run-verdict.json"
+    if ! node "$RUN_VERDICT_RESOLVER" --run-dir "$RUN_DIR" --log "$PRIVATE_K6_LOG" > "$RUN_VERDICT_JSON"; then
+      if [[ "$ROW_ID" != "R-CD-2" && "$ROW_ID" != "R-CD-TOKEN" ]]; then POSTPROCESS_RC=1; fi
     fi
-    if [[ -n "$VU_LOG_VERDICT" ]]; then
-      SUMMARY_VERDICT="$VU_LOG_VERDICT"
-      SUMMARY_VERDICT_SOURCE="vu-log"
-    elif [[ "$SUMMARY_FILE_VERDICT" != "unknown" ]]; then
-      SUMMARY_VERDICT="$SUMMARY_FILE_VERDICT"
-      SUMMARY_VERDICT_SOURCE="summary-file"
-    fi
+    SUMMARY_VERDICT="$(jq -r '.verdict' "$RUN_VERDICT_JSON")"
+    SUMMARY_VERDICT_SOURCE="$(jq -r '.verdictSource' "$RUN_VERDICT_JSON")"
+    SUMMARY_FILE_VERDICT="$(jq -r '.summaryFileVerdict // "unknown"' "$RUN_VERDICT_JSON")"
+    VU_LOG_VERDICT="$(jq -r '.vuLogVerdict // empty' "$RUN_VERDICT_JSON")"
+    SUMMARY_FILES_JSON="$(jq -c '.summaryFiles' "$RUN_VERDICT_JSON")"
     ORIGINAL_SUMMARY_VERDICT="$SUMMARY_VERDICT"
     VERDICT_POLICY_APPLIED="false"
     VERDICT_POLICY_REASON=""
@@ -1482,7 +1498,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --argjson summaryFiles "$SUMMARY_FILES_JSON" \
       --argjson evidence "$EVIDENCE_JSON" \
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
-      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, authoritativeReceipt:(if $authoritativeReceiptSha256 == "" then null else {file:$authoritativeReceipt, sha256:$authoritativeReceiptSha256, validated:true, source:$authoritativeReceiptSource} end), observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
+      '{schema:"openclaw.k6.run-result.v1", k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:$verdict, verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, authoritativeReceipt:(if $authoritativeReceiptSha256 == "" then null else {file:$authoritativeReceipt, sha256:$authoritativeReceiptSha256, validated:true, source:$authoritativeReceiptSource} end), observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       jq \
@@ -1534,6 +1550,10 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     if [[ "$EFFECTIVE_RC" -ne 0 ]]; then
       echo "[$ROW_ID] FAILED with effective exit code $EFFECTIVE_RC. Public-safe artifacts preserved."
       exit "$EFFECTIVE_RC"
+    fi
+    if [[ "${K6_PROOF_LOCK_REQUIRED:-0}" == "1" ]]; then
+      exec 9>&-
+      exec 8>&-
     fi
 
     echo "[$ROW_ID] COMPLETED."

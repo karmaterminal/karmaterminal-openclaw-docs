@@ -10,6 +10,7 @@ tools/k6-proofs/
 │   ├── gateway-ws.js              # WS helpers (frame, connect, nonce, RequestTracker, redaction)
 │   └── manifest-loader.js         # Manifest loading, env-var resolution, validation
 ├── manifests/                    # Row manifests (R-CD, R-CW, R-RC, R-OBS, safety/config rows)
+├── scenario-contract-exceptions.json # Explicit legacy/non-runnable scenario exclusions
 ├── scenarios/
 │   ├── preflight.js               # Scenario 0: auth + tool inventory check
 │   ├── r-cd-*.js                  # continue_delegate rows
@@ -131,6 +132,24 @@ The helper emits `openclaw.k6.seat-readiness.v1` JSON and never prints secret va
 - whether the check is safe to run concurrently
 
 If k6 is missing, the version differs, continuation is disabled/missing, required env is absent, or gateway health/status is unreachable, treat row output as `PARTIAL-candidate` / setup failure until the seat is fixed. Do not fold it as product behavior evidence. Use `--no-gateway` only for offline docs/schema checks; live proof rows need a checked gateway and live continuation rows need continuation enabled.
+
+### Canonical scenario contract matrix
+
+The manifest catalog is the row authority. Generate the complete
+machine-readable matrix, or its Markdown rendering, without inferring rows from
+directory names:
+
+```bash
+node tools/k6-proofs/scripts/check-proof-contracts.mjs
+node tools/k6-proofs/scripts/check-proof-contracts.mjs --markdown
+```
+
+The matrix records every row's applicability (`live`, `static`, `fixture`,
+`preflight`, or `source-contract`), nonce/session input strategy, required
+predicate receipts, expected candidate class, normalized result schema, and
+Tempo strategy. Scenario files intentionally outside the canonical catalog must
+be named in `scenario-contract-exceptions.json`; an undocumented or stale
+exception fails the check.
 
 ### 2. Preflight check
 
@@ -283,6 +302,11 @@ configured; it never persists the session key.
 An empty or unsanitizable evidence stream is a postprocess failure, not a
 successful proof with missing artifacts. Trace and correlation paths in
 `run-result.json` are artifact basenames rather than local run-directory paths.
+Every terminal runner path writes `openclaw.k6.run-result.v1`. Summary parsing
+accepts exactly one supported candidate verdict; missing, malformed, ambiguous,
+or summary/VU-disagreeing output becomes `NO-VERDICT-candidate` with a non-zero
+postprocess result. `PARTIAL-candidate`, `FAIL-candidate`, and
+`HONEST-LIMIT-candidate` remain distinct and are never promoted by fallback.
 
 ## Tempo trace receipts
 
@@ -423,6 +447,8 @@ The block records:
 - `foldRequiresReview`: always `true`; generated artifacts are candidates, never final proof verdicts.
 
 When `OPENCLAW_ROW_MANIFEST` is set, `run-proof.sh` calls `scripts/live-run-guard.mjs` before invoking k6. The guard fails closed if required token/session/SHA env is absent, if the manifest's live/static classification contradicts its scenario status, or if a same-session unsafe row is already running against the same target session.
+The row-list runner applies the same guard and lock to each immutable,
+digest-bound manifest copy immediately before dispatch.
 
 The guard **computes** the lock identity; it never takes the lock itself. `--json` and `--shell` report `lockRequired`, `lockRequiredReason` (`manifest-declared` / `caller-override` / `none`) and two lock paths; the caller is responsible for actually holding them — `run-proof.sh` holds `lockPath` on fd 9, and any other caller must wrap its whole run in `flock`. Reporting a lock is not owning one.
 

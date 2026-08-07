@@ -1,0 +1,12 @@
+{
+  "schema": "openclaw.project81.r-cw-5.fixture-readiness.v1",
+  "candidateSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "sourceHeadMatchesCandidate": true,
+  "sourceTrackedCleanBefore": true,
+  "productionConfigTouched": false,
+  "productionStateTouched": false,
+  "fixtureKind": "source-only-production-module-plus-dispatch-boundary-suite",
+  "lockfileSha256": "af78da254282eae16bf07a193ae0e28475ea70e731ad55248e66261df9413299",
+  "dependencyTree": "fresh-disposable-pnpm-install-frozen-lockfile; source node_modules never trusted",
+  "cap": 100
+}

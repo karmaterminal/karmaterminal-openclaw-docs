@@ -17,8 +17,8 @@ import {
 } from '../lib/accepted-compaction-orchestrator.mjs';
 
 test('NON_PASS_OUTCOMES exposes the review-gate and preflight-only markers', () => {
-  assert.equal(NON_PASS_OUTCOMES.REVIEW_GATE, 'HONEST-LIMIT-live-orchestration-review-gate');
-  assert.equal(NON_PASS_OUTCOMES.LIVE_SEND_NOT_IMPLEMENTED, 'HONEST-LIMIT-live-orchestration-preflight-only');
+  assert.equal(NON_PASS_OUTCOMES.REVIEW_GATE, 'PARTIAL-live-orchestration-review-gate');
+  assert.equal(NON_PASS_OUTCOMES.LIVE_SEND_NOT_IMPLEMENTED, 'PARTIAL-live-orchestration-preflight-only');
   assert.equal(NON_PASS_OUTCOMES.OPENCLAW_DIR_MISSING, 'BLOCKED-openclaw-dir-missing');
 });
 
@@ -189,7 +189,7 @@ test('runOrchestration classifies BLOCKED-temp-gateway-start when startTempGatew
   }
 });
 
-test('runOrchestration stops at HONEST-LIMIT when startMockProvider is unimplemented', async () => {
+test('runOrchestration stops at PARTIAL when startMockProvider is unimplemented', async () => {
   const { dir, args, paths } = await makeOrchestrationFixture();
   try {
     const result = await runOrchestration({ args, paths });

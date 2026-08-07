@@ -1,0 +1,47 @@
+{
+  "corpus": "PR-111616 embedded compaction continuity micro-proof",
+  "sha": "c354b220ba63bf1d56286da383cd8ce3b9eaa71a",
+  "sha_short": "c354b22",
+  "build_string": "OpenClaw 2026.7.2 (c354b22)",
+  "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
+  "generated": "2026-07-21 (frond-scribe, exact Cael runtime plus restored exact assembly)",
+  "rollup": {
+    "total_rows": 1,
+    "pass": 1,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "missing": 0
+  },
+  "notes": "Combined continuation-assembly testbed plus three disclosed micro-PR patches. Manual gateway compaction of an overflow-shaped transcript; no naturally generated provider overflow is claimed.",
+  "rows": [
+    {
+      "row": "MPR-111616-1",
+      "title": "Compaction summary counts as real conversation and preserves same-session continuation",
+      "owner": "frond-scribe (Cael deployment)",
+      "state": "pass",
+      "dir": "PR-111616/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/",
+      "evidence_doc": "README.md",
+      "summary": "The same 41-message shape changed from classifier false and compaction skipped on assembly to classifier true, compaction succeeded, and a subsequent turn completed under the same session ID on the candidate.",
+      "test_cases_executed": [
+        "production classifier on summary-plus-tool-only transcript",
+        "gateway sessions.compact before/after comparison",
+        "same-session embedded agent continuation",
+        "four focused Vitest files, 198 assertions"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PR-111616/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/before-transcript-shape.json",
+        "PR-111616/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/before-compaction.json",
+        "PR-111616/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/after-transcript-shape.json",
+        "PR-111616/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/after-compaction.json",
+        "PR-111616/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/after-continuation.json",
+        "PR-111616/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/runtime-excerpt.log",
+        "PR-111616/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/focused-tests.log",
+        "PR-111616/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/platform.json"
+      ],
+      "notes": "Manual gateway compaction entered the production compaction implementation; organic provider overflow was not induced.",
+      "fired": "2026-07-21, Cael c354b220 candidate and ceaf8cba assembly comparison"
+    }
+  ]
+}

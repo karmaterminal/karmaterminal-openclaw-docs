@@ -1,0 +1,32 @@
+{
+  "schema": "openclaw.k6.continuation-trace-correlation.v1",
+  "generatedAt": "2026-07-17T10:27:29.633Z",
+  "row": "R-CW-3",
+  "seat": "ronan",
+  "attribution": "reason-hash-length",
+  "query": "{ resource.service.name=\"ronan-prince\" && name=\"continuation.work\" && .reason.hash=\"766c2fa6b44eb138\" && .reason.length=139 }",
+  "traceJson": "tempo-trace-80523631037f.json",
+  "traceId": "80523631037f40616c31a5deb833b9ae",
+  "chainId": "8bd37612-b325-471e-8e41-72098d7e2226",
+  "toolSpanIds": [
+    "31cf542ff4ecd965"
+  ],
+  "fireSpanId": "34ebcb86f2ec4a9c",
+  "fireParentSpanId": "75f5d2612ec7a0b3",
+  "childSpans": [],
+  "workSpanId": "7f9a4fbb8879eaba",
+  "workParentSpanId": "75f5d2612ec7a0b3",
+  "reason": {
+    "hash": "766c2fa6b44eb138",
+    "length": 139,
+    "source": "manifest-nonce",
+    "rawPersisted": false
+  },
+  "continuation": {
+    "tool": "continue_work",
+    "acceptSpan": "continuation.work",
+    "fireSpan": "continuation.work.fire"
+  },
+  "sameTrace": true,
+  "distinctSpans": true
+}

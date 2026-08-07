@@ -1,0 +1,1034 @@
+[
+  {
+    "row": "PREFLIGHT",
+    "issue": "453",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "NO-VERDICT",
+    "target_classification": "NO-VERDICT",
+    "classification": "NO-VERDICT",
+    "attempts": 2,
+    "terminal_reason": "candidate envelope authority incomplete; harness verdict null",
+    "harness_verdict": null,
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "PREFLIGHT/cael/20260805T054202Z-preflight-3955e092",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CD-1",
+    "issue": "454",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "present",
+    "selected_target_artifact": "R-CD-1/cael/20260805T054237Z-r-cd-1-7dc42d52",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CD-2",
+    "issue": "455",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "NO-VERDICT",
+    "target_classification": "NO-VERDICT",
+    "classification": "NO-VERDICT",
+    "attempts": 1,
+    "terminal_reason": "candidate envelope authority incomplete; harness verdict PARTIAL-candidate; pending: continuation-trace-correlation, tempo-trace-json",
+    "harness_verdict": "PARTIAL-candidate",
+    "exit_code": 99,
+    "trace_status": "r-cd-2-authoritative-receipt",
+    "selected_target_artifact": "R-CD-2/cael/20260805T054330Z-r-cd-2-cdb6507e",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CD-3",
+    "issue": "456",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CD-3/cael/20260805T054614Z-r-cd-3-7ec46e8f",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CD-4",
+    "issue": "457",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "NO-VERDICT",
+    "target_classification": "NO-VERDICT",
+    "classification": "NO-VERDICT",
+    "attempts": 1,
+    "terminal_reason": "candidate envelope authority incomplete; harness verdict PARTIAL-candidate",
+    "harness_verdict": "PARTIAL-candidate",
+    "exit_code": 99,
+    "trace_status": "present",
+    "selected_target_artifact": "R-CD-4/cael/20260805T054646Z-r-cd-4-b241335c",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CD-CHAINED-DEPTH-2",
+    "issue": "458",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "NO-VERDICT",
+    "target_classification": "NO-VERDICT",
+    "classification": "NO-VERDICT",
+    "attempts": 1,
+    "terminal_reason": "candidate envelope authority incomplete; harness verdict PARTIAL-candidate",
+    "harness_verdict": "PARTIAL-candidate",
+    "exit_code": 99,
+    "trace_status": "present",
+    "selected_target_artifact": "R-CD-CHAINED-DEPTH-2/cael/20260805T054831Z-r-cd-chained-depth-2-9e04c539",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CD-COLLECTION-ON-COLLAPSE",
+    "issue": "459",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CD-COLLECTION-ON-COLLAPSE/cael/20260805T055114Z-r-cd-collection-on-collapse-f745583e",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CD-MODEL-CHAINED-ALT",
+    "issue": "460",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CD-MODEL-CHAINED-ALT/cael/20260805T055126Z-r-cd-model-chained-alt-c693cbd4",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CD-MODEL-DEFAULT",
+    "issue": "461",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CD-MODEL-DEFAULT/cael/20260805T055158Z-r-cd-model-default-952f0480",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CD-MODEL-TOKEN",
+    "issue": "462",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CD-MODEL-TOKEN/cael/20260805T055230Z-r-cd-model-token-478a030b",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CD-MODEL-TOOL",
+    "issue": "463",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "NO-VERDICT",
+    "target_classification": "NO-VERDICT",
+    "classification": "NO-VERDICT",
+    "attempts": 1,
+    "terminal_reason": "candidate envelope authority incomplete; harness verdict null; pending: execution-bound-child-model-byte",
+    "harness_verdict": null,
+    "exit_code": 99,
+    "trace_status": "present",
+    "selected_target_artifact": "R-CD-MODEL-TOOL/cael/20260805T055303Z-r-cd-model-tool-d8351200",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CD-RETURN-OVERLAP",
+    "issue": "464",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CD-RETURN-OVERLAP/cael/20260805T055622Z-r-cd-return-overlap-d4400266",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CD-SILENT",
+    "issue": "465",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CD-SILENT/cael/20260805T055634Z-r-cd-silent-7ec3df52",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CD-TOKEN",
+    "issue": "466",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "NO-VERDICT",
+    "target_classification": "NO-VERDICT",
+    "classification": "NO-VERDICT",
+    "attempts": 1,
+    "terminal_reason": "candidate envelope authority incomplete; harness verdict PARTIAL-candidate; pending: continuation-trace-correlation, tempo-trace-json",
+    "harness_verdict": "PARTIAL-candidate",
+    "exit_code": 99,
+    "trace_status": "missing",
+    "selected_target_artifact": "R-CD-TOKEN/cael/20260805T055729Z-r-cd-token-9f4160e2",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CONFIG-DEFAULTS",
+    "issue": "467",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CONFIG-DEFAULTS/cael/20260805T060143Z-r-config-defaults-ef90a7ee",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CONFIG-INTERSESSION",
+    "issue": "468",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CONFIG-INTERSESSION/cael/20260805T060156Z-r-config-intersession-e074a760",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CW-1",
+    "issue": "469",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "NO-VERDICT",
+    "classification": "NO-VERDICT",
+    "attempts": 2,
+    "terminal_reason": "candidate envelope authority incomplete; harness verdict PASS-candidate; pending: continuation-trace-correlation, tempo-trace-json",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "missing",
+    "selected_target_artifact": "R-CW-1/cael/20260805T062552Z-r-cw-1-04049967",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CW-2",
+    "issue": "470",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CW-2/cael/20260805T061258Z-r-cw-2-27b7c96e",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CW-3",
+    "issue": "471",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "NO-VERDICT",
+    "target_classification": "NO-VERDICT",
+    "classification": "NO-VERDICT",
+    "attempts": 1,
+    "terminal_reason": "candidate envelope authority incomplete; harness verdict PARTIAL-candidate; pending: continuation-trace-correlation, tempo-trace-json",
+    "harness_verdict": "PARTIAL-candidate",
+    "exit_code": 0,
+    "trace_status": "missing",
+    "selected_target_artifact": "R-CW-3/cael/20260805T061330Z-r-cw-3-5f55bcf7",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CW-4",
+    "issue": "472",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CW-4/cael/20260805T061458Z-r-cw-4-4281bc63",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CW-5",
+    "issue": "473",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "exact-candidate process-local fixture satisfied every declared authority receipt",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "not-applicable-process-local",
+    "selected_target_artifact": "R-CW-5/cael/fixture-attempt-1",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CW-5A",
+    "issue": "474",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": false,
+    "source_classification": "NO-VERDICT",
+    "target_classification": null,
+    "classification": "NO-VERDICT",
+    "attempts": 0,
+    "terminal_reason": "reviewed behavior-neutral transposition; no execution occurred on target",
+    "selected_target_artifact": null,
+    "immutable_source_artifact": "R-CW-5A/source-immutable",
+    "immutable_source_checksums": [
+      {
+        "path": "R-CW-5A/source-immutable/EVIDENCE.md",
+        "sha256": "2b2f19ee9896dbac907dcb119a2a4b4887b58341946c9866143500426da64397"
+      },
+      {
+        "path": "R-CW-5A/source-immutable/cael/static-20260803T044810Z-50be3360/row-manifest.json",
+        "sha256": "054c194a417ec4ce5f030090c70d995b65ac66f3a205aea2b315931e8c3d93b5"
+      },
+      {
+        "path": "R-CW-5A/source-immutable/cael/static-20260803T044810Z-50be3360/row-scenario.js",
+        "sha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+      },
+      {
+        "path": "R-CW-5A/source-immutable/cael/static-20260803T044810Z-50be3360/run-result.json",
+        "sha256": "6f4081efd0187e666f0862fb6273f4be1790fca03ba4111391824010f1b2dc2d"
+      },
+      {
+        "path": "R-CW-5A/source-immutable/cael/static-20260803T044810Z-50be3360/runner-metadata.json",
+        "sha256": "c03d8bcdeae616cdbc6a75fcccb5a0084b7e4c1beb1af0742536031f88b0bbaa"
+      },
+      {
+        "path": "R-CW-5A/source-immutable/cael/static-20260803T044810Z-50be3360/skip-receipt.json",
+        "sha256": "77615168eddf6654869da36a91d313e2d842056b9fbfebe52d6a316bbde9d606"
+      },
+      {
+        "path": "R-CW-5A/source-immutable/cael/static-20260803T044810Z-50be3360/upload-manifest.json",
+        "sha256": "c0236efde016997f9276591d791bb1326b6c86fe2ff75bcc19c97ca1e4a2d282"
+      }
+    ]
+  },
+  {
+    "row": "R-CW-6",
+    "issue": "475",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "exact-candidate process-local fixture satisfied every declared authority receipt",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "not-applicable-process-local",
+    "selected_target_artifact": "R-CW-6/cael/fixture-attempt-1",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CW-6A",
+    "issue": "476",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": false,
+    "source_classification": "NO-VERDICT",
+    "target_classification": null,
+    "classification": "NO-VERDICT",
+    "attempts": 0,
+    "terminal_reason": "reviewed behavior-neutral transposition; no execution occurred on target",
+    "selected_target_artifact": null,
+    "immutable_source_artifact": "R-CW-6A/source-immutable",
+    "immutable_source_checksums": [
+      {
+        "path": "R-CW-6A/source-immutable/EVIDENCE.md",
+        "sha256": "581f10fb8edefaea1fa1b3bd186e3c4f3001c9804c0b41bcc2e86c58bac84f19"
+      },
+      {
+        "path": "R-CW-6A/source-immutable/cael/static-20260803T044810Z-50be3360/row-manifest.json",
+        "sha256": "c2f05fde08f7a319192741b216553d801c1fd5f13edeaa1c2f96c3c7a1293f56"
+      },
+      {
+        "path": "R-CW-6A/source-immutable/cael/static-20260803T044810Z-50be3360/row-scenario.js",
+        "sha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+      },
+      {
+        "path": "R-CW-6A/source-immutable/cael/static-20260803T044810Z-50be3360/run-result.json",
+        "sha256": "6f4081efd0187e666f0862fb6273f4be1790fca03ba4111391824010f1b2dc2d"
+      },
+      {
+        "path": "R-CW-6A/source-immutable/cael/static-20260803T044810Z-50be3360/runner-metadata.json",
+        "sha256": "f535ab5ce62c6e9c41b21be3dd2844527dacef94f4389d1d2bb4a84c73f81bdb"
+      },
+      {
+        "path": "R-CW-6A/source-immutable/cael/static-20260803T044810Z-50be3360/skip-receipt.json",
+        "sha256": "efafa962458c18969d1da966c596b6f511769ae5ed16b1620f7a300c5272a4c6"
+      },
+      {
+        "path": "R-CW-6A/source-immutable/cael/static-20260803T044810Z-50be3360/upload-manifest.json",
+        "sha256": "08b791d361f83d083681a91c5da41f35e3ddb81b644d2400ccbdc42af980c4f3"
+      }
+    ]
+  },
+  {
+    "row": "R-CW-7",
+    "issue": "477",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CW-7/cael/20260805T061618Z-r-cw-7-ca6fbc8e",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CW-DELEGATE-CHILD-LIVE",
+    "issue": "478",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CW-DELEGATE-CHILD-LIVE/cael/20260805T061639Z-r-cw-delegate-child-live-9e3512e0",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+    "issue": "479",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CW-DELEGATE-SELF-CONTINUATION/cael/20260805T061651Z-r-cw-delegate-self-continuation-a6899e7f",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CW-DELEGATE-TOKEN",
+    "issue": "480",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CW-DELEGATE-TOKEN/cael/20260805T061727Z-r-cw-delegate-token-0037dfc0",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CW-MULTI-COLLAPSE",
+    "issue": "481",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CW-MULTI-COLLAPSE/cael/20260805T061748Z-r-cw-multi-collapse-8b39080f",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CW-MULTI",
+    "issue": "482",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CW-MULTI/cael/20260805T061800Z-r-cw-multi-bebd2aea",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-CW-TOKEN",
+    "issue": "483",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-CW-TOKEN/cael/20260805T061813Z-r-cw-token-8f6efc66",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-OBS-1",
+    "issue": "484",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-OBS-1/cael/20260805T061847Z-r-obs-1-45970e25",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-OBS-2",
+    "issue": "485",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-OBS-2/cael/20260805T061926Z-r-obs-2-1f81f088",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-OBS-STATUS",
+    "issue": "486",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": false,
+    "source_classification": "PASS-candidate",
+    "target_classification": null,
+    "classification": "PASS-candidate",
+    "attempts": 0,
+    "terminal_reason": "reviewed behavior-neutral transposition; no execution occurred on target",
+    "selected_target_artifact": null,
+    "immutable_source_artifact": "R-OBS-STATUS/source-immutable",
+    "immutable_source_checksums": [
+      {
+        "path": "R-OBS-STATUS/source-immutable/EVIDENCE.md",
+        "sha256": "0735fe8a68c8fb10ca6c9d45c24b64574605c306baaf7135658b6d1606bbac1d"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/candidate-run-result-validation.json",
+        "sha256": "ae087c18245721443bc5be3882cdea6d70cfc6b15943d80590347e7c725c03de"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/candidate-run-result.json",
+        "sha256": "ae087c18245721443bc5be3882cdea6d70cfc6b15943d80590347e7c725c03de"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/evidence-extraction.json",
+        "sha256": "071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/evidence-lines.log",
+        "sha256": "48f46b797c6dcfa2747b7a7b74ded9b7be2f57bc8f4bbd4db894f1c4aaa11ad2"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/evidence-redaction.json",
+        "sha256": "07f91f5715136acf2b4ecc359f6b68e85bab64e16be3aa559d2f9328b0d23990"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/evidence-redaction.stdout.json",
+        "sha256": "b9d814380d87639b4bb6e2fef548f36676a91bee6c46b7d22313c84253194f6d"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/evidence.jsonl",
+        "sha256": "966e470aaff437cb4b58f5760298e012a1db9c3a1b5df482b47110db0d2a8dbd"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/gateway-journal-capture.json",
+        "sha256": "e748e1e83c893ce74def2b9804a11c46165310ee2dbc2611e410a8eeee990a5f"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/gateway-journal-redaction.json",
+        "sha256": "5f3145de690fb41918100b6b0ae31312bc249c5f2a0631b1949656ae9f51be78"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/gateway-journal.log",
+        "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/k6.log",
+        "sha256": "516ca7f594467ffca837280cbc286c5619c2f2a3ed95493b57dc020ad95fae39"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/metrics-export.json",
+        "sha256": "f623ee09d81f567614de1a6765aec033f01c14ccbbb8fa678f0b31430bf0d024"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/openclaw-proofs-k6.otlp.json",
+        "sha256": "9c7155efe8e00c4110f1a0a8d7744aca163e52f654112cf681ec1298551007ee"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/openclaw-proofs-k6.prom",
+        "sha256": "e5705a0a9b51bfe80ad5480806f85ee24d27d59cfe7a805d6e820250b46975eb"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/r-obs-status-summary.json",
+        "sha256": "c4235e9bdceb495eb9a35051e01fc956f246363c6913699ce84d10e0417b4b57"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/row-manifest.json",
+        "sha256": "446221805fa8d5c116f2dc68d8eda605592d38a54aff56dd369eac3a878bc8ab"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/row-scenario.js",
+        "sha256": "945bfa4f13fbde27530afe9eea079f4ab69a0054e8ccba1b6eb67dbe08173253"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/run-result.json",
+        "sha256": "e26cc5a0eb292fadee18208b07a85473366b5e361994eb6434e290e8e5167ec8"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/runner-metadata.json",
+        "sha256": "8ee8c10733971aa9fa1c1900a3af8d34f1e3951f6bbdd1c352adb51d05120493"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/seat-readiness.json",
+        "sha256": "fe3f912c1a154f0ffd766a48ea262d66b86a5f15f2a30883ca5025ba6ddc001c"
+      },
+      {
+        "path": "R-OBS-STATUS/source-immutable/cael/20260803T043515Z-r-obs-status-b5bbf3cf/upload-manifest.json",
+        "sha256": "6063be3005b927969c69498f1125df7cae7e20ab4d696d5a16b91ad5231ff182"
+      }
+    ]
+  },
+  {
+    "row": "R-RC-1",
+    "issue": "487",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "PASS-candidate",
+    "target_classification": "PASS-candidate",
+    "classification": "PASS-candidate",
+    "attempts": 1,
+    "terminal_reason": "complete authority contract with validated candidate envelope",
+    "harness_verdict": "PASS-candidate",
+    "exit_code": 0,
+    "trace_status": "unknown",
+    "selected_target_artifact": "R-RC-1/cael/20260805T061939Z-r-rc-1-60904d4a",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-RC-2",
+    "issue": "488",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": true,
+    "source_classification": "NO-VERDICT",
+    "target_classification": "NO-VERDICT",
+    "classification": "NO-VERDICT",
+    "attempts": 1,
+    "terminal_reason": "candidate envelope authority incomplete; harness verdict PARTIAL-candidate; pending: continuation-trace-correlation, tempo-trace-json",
+    "harness_verdict": "PARTIAL-candidate",
+    "exit_code": 0,
+    "trace_status": "missing",
+    "selected_target_artifact": "R-RC-2/cael/20260805T062015Z-r-rc-2-5dd41db2",
+    "immutable_source_artifact": null,
+    "immutable_source_checksums": []
+  },
+  {
+    "row": "R-REGRESSION-TRAP-TESTS",
+    "issue": "489",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": false,
+    "source_classification": "PASS-candidate",
+    "target_classification": null,
+    "classification": "PASS-candidate",
+    "attempts": 0,
+    "terminal_reason": "reviewed behavior-neutral transposition; no execution occurred on target",
+    "selected_target_artifact": null,
+    "immutable_source_artifact": "R-REGRESSION-TRAP-TESTS/source-immutable",
+    "immutable_source_checksums": [
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/EVIDENCE.md",
+        "sha256": "cf3e42e9ce4a94a4d09c9a6afb1ad353386f9f2f2502428ce67a44b5f8855e61"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/candidate-run-result-validation.json",
+        "sha256": "2f828b5dc0db100aa35d9e2392ba5034892e467bd7a43285dbb58d4d9bf1a9aa"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/candidate-run-result.json",
+        "sha256": "2f828b5dc0db100aa35d9e2392ba5034892e467bd7a43285dbb58d4d9bf1a9aa"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/evidence-extraction.json",
+        "sha256": "071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/evidence-lines.log",
+        "sha256": "4c859a17d82c3034b22ef4fcb0abd99a095ce491c2ddac3b70ef300604e39efa"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/evidence-redaction.json",
+        "sha256": "36fae08d6ef53ad2af6c733e44f4c1aae5722cb412b889676d06a8dd5a883eae"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/evidence-redaction.stdout.json",
+        "sha256": "b9d814380d87639b4bb6e2fef548f36676a91bee6c46b7d22313c84253194f6d"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/evidence.jsonl",
+        "sha256": "f7534939dc81fdff9176d6c8351bacf2658190f62c00ed9f307b957dee4c6b6a"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/gateway-journal-capture.json",
+        "sha256": "f2b0bd4d7ee74e4f57323ef8b6bc1260f8205d781c31164d718e90c6a9ecf314"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/gateway-journal-redaction.json",
+        "sha256": "0aab7ee9629c539eba77073f26d7a2300a7ad3446f43037677d624c6201bd77f"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/gateway-journal.log",
+        "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/k6.log",
+        "sha256": "ead646d58d0609ea7a04cb5edac4c34954b407f912fe1a53232952d167cf9505"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/metrics-export.json",
+        "sha256": "25bde279cecfd4886ff435aea4290820343ada54027cd976d8456861894ea2cc"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/openclaw-proofs-k6.otlp.json",
+        "sha256": "6034001b3eeb3000f4bf1831f85310998c1e11ae1bff155de0ed8f138489fbb1"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/openclaw-proofs-k6.prom",
+        "sha256": "ece0b50d70cef6f146a3551a6929eb782975f23b70ebc6f1a116836580c43dd5"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/r-regression-trap-tests-summary.json",
+        "sha256": "422240a55c85a2ea4a6a340bbb6ec1a325b37458fb6604561c11ac50cb92941a"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/row-manifest.json",
+        "sha256": "5c9577e54a2006354fab72703132cf5ca17a4b1901d28bc4196cd207cfbabf5d"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/row-scenario.js",
+        "sha256": "14cfdb0ec302aecf389f1d2d914c7f281cd15d6f2382c6383ce22d4e79e867d6"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/run-result.json",
+        "sha256": "e8af3bdadb55f63f08c986501b358d2b4a3a402941fff3b1c228f3799eca9c24"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/runner-metadata.json",
+        "sha256": "d6262aeab2966a1d938bcd34831ec70f4e2313f949110735df1b9c745c7e94bb"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/seat-readiness.json",
+        "sha256": "a51ea375194e726e3c7c66c8e4e449875ad6f933c1b68d8259ec97710755efba"
+      },
+      {
+        "path": "R-REGRESSION-TRAP-TESTS/source-immutable/cael/20260803T043907Z-r-regression-trap-tests-4e357dc2/upload-manifest.json",
+        "sha256": "0bf1edc2b96cb510f3abcdf26b3dbd30dd1aea1592a29bd84bf16bcc95dedba0"
+      }
+    ]
+  },
+  {
+    "row": "R-TRACE-REDACTION-1121",
+    "issue": "490",
+    "source_execution_sha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+    "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "execution_harness_sha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+    "target_execution": false,
+    "source_classification": "PASS-candidate",
+    "target_classification": null,
+    "classification": "PASS-candidate",
+    "attempts": 0,
+    "terminal_reason": "reviewed behavior-neutral transposition; no execution occurred on target",
+    "selected_target_artifact": null,
+    "immutable_source_artifact": "R-TRACE-REDACTION-1121/source-immutable",
+    "immutable_source_checksums": [
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/EVIDENCE.md",
+        "sha256": "f95211b2eec8b3df8c5a8a317f01ce336108a6de9ee8b5b795f29fd181165545"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/candidate-run-result-validation.json",
+        "sha256": "0bdcfd2977c88b7dd1bd785f96bd9596d439164a761d5849b5078d7cc8a237e5"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/candidate-run-result.json",
+        "sha256": "0bdcfd2977c88b7dd1bd785f96bd9596d439164a761d5849b5078d7cc8a237e5"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/evidence-extraction.json",
+        "sha256": "071e2122745db6393c897454d3918f72297a8c3c989dc13c997bb677992fa7dc"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/evidence-lines.log",
+        "sha256": "635b48ba704def51c16dfb216c1354d0f91d420c33cbcc181aa40744d2f1d418"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/evidence-redaction.json",
+        "sha256": "6b686b7a8108f9f9c9ec4fb5c8e18e9a144b9f889b66c7ddf129966b4a420342"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/evidence-redaction.stdout.json",
+        "sha256": "b9d814380d87639b4bb6e2fef548f36676a91bee6c46b7d22313c84253194f6d"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/evidence.jsonl",
+        "sha256": "41d34b875603a2a1ef45fa91a61e42a9428c8b110e7ed49f8f1b8d13d44cca35"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/gateway-journal-capture.json",
+        "sha256": "b36f8b8996c80208cf5a6e088a0da9101b1fe99bd79a945405255eaf37adb435"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/gateway-journal-redaction.json",
+        "sha256": "a30688a3cbe7b2f1ac52ce02b4495a2b17fbea27785a75fb34cd00b3da1ad0ff"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/gateway-journal.log",
+        "sha256": "d45cb86f68e5266503b1e5a0537b9e981258bc99b9213b6841191694abcdc0c3"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/k6.log",
+        "sha256": "80471c74b1e6db48d07804b8953a45931af1dd48a51fcb6df8b30d202dc5177c"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/metrics-export.json",
+        "sha256": "bbe3b67f9e58d50c37cff693522f757935c793979277219ef74108cacce7498d"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/openclaw-proofs-k6.otlp.json",
+        "sha256": "b76875152f2087d3ad04365fcdf42474f4d355f3157910b8a1303719f6fbfd70"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/openclaw-proofs-k6.prom",
+        "sha256": "1d6530043ceac18a4c9dbcf11f0043c5c4095ab2f4383baa01664197394a9724"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/r-trace-redaction-1121-summary.json",
+        "sha256": "d0208aa1163a0b02e45f261fc67469d76df733fd56b01204f7d36fd6c5cf5e82"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/row-manifest.json",
+        "sha256": "120f3e13dec6093237a6a5a7a1fdaba446604d17b95532fb9506004456078338"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/row-scenario.js",
+        "sha256": "48cba2a240f2b86ebefe45ff4a9b63a40563e08eeb7872506290be46cf37d5e7"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/run-result.json",
+        "sha256": "03e4d49d0abec1bcc48e14f20c815b78e60bd584bf6c139a4406a52581d06f7a"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/runner-metadata.json",
+        "sha256": "9030a46a745ee95a132ba6829d12139f33786237330a1b3084c6f8f46020a849"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/seat-readiness.json",
+        "sha256": "a51ea375194e726e3c7c66c8e4e449875ad6f933c1b68d8259ec97710755efba"
+      },
+      {
+        "path": "R-TRACE-REDACTION-1121/source-immutable/cael/20260803T043914Z-r-trace-redaction-1121-4e357dc2/upload-manifest.json",
+        "sha256": "f9126e1b6c93c7f389f1cfc5b53b58e839eb4095e9a90ef4d5607795ffe6aa91"
+      }
+    ]
+  }
+]

@@ -1,0 +1,314 @@
+{
+  "schema": "openclaw.k6.public-tempo-trace.v1",
+  "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+  "spans": [
+    {
+      "name": "openclaw.message.processed",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "1eb96ed8ce231949",
+      "parentSpanId": null,
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.model.usage",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "7479c6cb4bfa0177",
+      "parentSpanId": "59802c3d6473343f",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.harness.run",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "59802c3d6473343f",
+      "parentSpanId": "1eb96ed8ce231949",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.run",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "6c61a0c3dfb8b7af",
+      "parentSpanId": "59802c3d6473343f",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.model.call",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "5964e01263d3776a",
+      "parentSpanId": "6c61a0c3dfb8b7af",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.harness.run",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "fd930ce99cb5c302",
+      "parentSpanId": "59802c3d6473343f",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.run",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "4428efba7c5c82b6",
+      "parentSpanId": "fd930ce99cb5c302",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.model.call",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "edee51e840ed74f2",
+      "parentSpanId": "4428efba7c5c82b6",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.tool.execution",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "9095d4695c2c271e",
+      "parentSpanId": "4428efba7c5c82b6",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.model.call",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "bb72ccda99045e70",
+      "parentSpanId": "4428efba7c5c82b6",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.context.assembled",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "57ea55074295ff18",
+      "parentSpanId": "6c61a0c3dfb8b7af",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.model.call",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "611d870a73984e3a",
+      "parentSpanId": "6c61a0c3dfb8b7af",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.tool.execution",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "48cb8eaf80626756",
+      "parentSpanId": "6c61a0c3dfb8b7af",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": [
+        {
+          "key": "openclaw.toolName",
+          "value": {
+            "stringValue": "continue_work"
+          }
+        },
+        {
+          "key": "gen_ai.tool.name",
+          "value": {
+            "stringValue": "continue_work"
+          }
+        }
+      ]
+    },
+    {
+      "name": "openclaw.context.assembled",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "3e67a1f50d5abb72",
+      "parentSpanId": "4428efba7c5c82b6",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "continuation.work",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "7074cb0ea373bcfd",
+      "parentSpanId": "1eb96ed8ce231949",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": [
+        {
+          "key": "chain.id",
+          "value": {
+            "stringValue": "1cc31841-dd31-47e1-9cac-927de11ea50f"
+          }
+        },
+        {
+          "key": "reason.present",
+          "value": {
+            "boolValue": true
+          }
+        },
+        {
+          "key": "reason.length",
+          "value": {
+            "intValue": "121"
+          }
+        },
+        {
+          "key": "reason.hash",
+          "value": {
+            "stringValue": "07952e46f79c3d49"
+          }
+        }
+      ]
+    },
+    {
+      "name": "continuation.work.fire",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "6e18cd8a235f5439",
+      "parentSpanId": "1eb96ed8ce231949",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": [
+        {
+          "key": "chain.id",
+          "value": {
+            "stringValue": "1cc31841-dd31-47e1-9cac-927de11ea50f"
+          }
+        },
+        {
+          "key": "reason.present",
+          "value": {
+            "boolValue": true
+          }
+        },
+        {
+          "key": "reason.length",
+          "value": {
+            "intValue": "121"
+          }
+        },
+        {
+          "key": "reason.hash",
+          "value": {
+            "stringValue": "07952e46f79c3d49"
+          }
+        }
+      ]
+    },
+    {
+      "name": "continuation.work.fire",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "0ee8b6fe089f8379",
+      "parentSpanId": "1eb96ed8ce231949",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": [
+        {
+          "key": "chain.id",
+          "value": {
+            "stringValue": "1cc31841-dd31-47e1-9cac-927de11ea50f"
+          }
+        },
+        {
+          "key": "reason.present",
+          "value": {
+            "boolValue": true
+          }
+        },
+        {
+          "key": "reason.length",
+          "value": {
+            "intValue": "121"
+          }
+        },
+        {
+          "key": "reason.hash",
+          "value": {
+            "stringValue": "07952e46f79c3d49"
+          }
+        }
+      ]
+    },
+    {
+      "name": "openclaw.model.usage",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "3d0a315fd4c4bb30",
+      "parentSpanId": "834b6eb728542ad2",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.harness.run",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "834b6eb728542ad2",
+      "parentSpanId": "1eb96ed8ce231949",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.run",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "98793db6e6ec0cf5",
+      "parentSpanId": "834b6eb728542ad2",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.context.assembled",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "1c1d21fd2ffaa2f2",
+      "parentSpanId": "98793db6e6ec0cf5",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.model.call",
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "spanId": "99db417f3487358c",
+      "parentSpanId": "98793db6e6ec0cf5",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    }
+  ]
+}

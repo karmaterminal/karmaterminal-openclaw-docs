@@ -1,0 +1,18 @@
+{
+  "schema": "openclaw.proofs.gateway-journal-receipt.v1",
+  "source": "systemd user journal",
+  "windowStart": "2026-07-13T03:38:15Z",
+  "windowEnd": "2026-07-13T03:38:45Z",
+  "inspection": "bounded diagnostic projection: config/gateway/rpc/websocket/auth/deny/reject/error/warn/exception/trace/otel lines; raw journal and config payload were not retained",
+  "conclusion": "The bounded window contains successful config.get WebSocket response breadcrumbs and no matching gateway error, denial, rejection, warning, or exception record.",
+  "row": "R-CONFIG-INTERSESSION",
+  "candidateSha": "cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
+  "events": [
+    {
+      "timestamp": "2026-07-13T03:38:33.333Z",
+      "method": "config.get",
+      "result": "success",
+      "latencyMs": 139
+    }
+  ]
+}

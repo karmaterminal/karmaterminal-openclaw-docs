@@ -1,0 +1,20 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CW-6A",
+  "issue": 117,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "offline",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 15,
+  "scenario": {"name":"static-corpus-row-validator","description":"Offline source/harness contract check for R-CW-6; cannot establish the process-local runtime boundary receipt.","methods":["static-artifact-parse","source-harness-contract"],"status":"runnable","file":"static-corpus-row-validator.js"},
+  "expectedReceipts": [
+    {"name":"static-source-harness-evidence","required":true,"description":"Static source and harness checks for the chain-cap guard."},
+    {"name":"non-runtime-boundary","required":true,"description":"The output explicitly says it is not R-CW-6 process-local runtime evidence."}
+  ],
+  "artifactDestination": {"root":"PROOFS","sha":"${OPENCLAW_CANDIDATE_SHA}","row":"R-CW-6A","seat":"${OPENCLAW_SEAT_NAME:-rune}","runDirPrefix":"k6-run"},
+  "review": {"candidateOnly":true,"foldRequiresReview":true,"notes":"Static boundary check only; it cannot produce or fold a runtime R-CW-6 PASS."},
+  "liveRunSafety": {"classification":"static-preflight-only","requiresLiveGatewayToken":false,"requiresTargetSessionKey":false,"requiresCandidateSha":true,"requiresExternalAgentOrToolInvocation":false,"sameSessionConcurrencySafe":true,"expectedArtifactClass":"construct-only","requiredReceipts":["static-source-harness-evidence","non-runtime-boundary"],"foldRequiresReview":true,"notes":"Offline validation is intentionally excluded from live-suite and from process-local R-CW-6 certification."}
+}

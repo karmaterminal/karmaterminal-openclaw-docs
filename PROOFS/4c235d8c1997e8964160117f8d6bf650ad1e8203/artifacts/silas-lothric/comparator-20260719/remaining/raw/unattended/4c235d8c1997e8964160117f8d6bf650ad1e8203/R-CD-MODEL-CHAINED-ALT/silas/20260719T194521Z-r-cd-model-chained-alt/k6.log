@@ -1,0 +1,126 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-model-chained-alt.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 4m30s max duration (incl. graceful stop):
+              * r_cd_model_chained_alt: 1 iterations shared among 1 VUs (maxDuration: 4m0s, gracefulStop: 30s)
+
+time="2026-07-19T12:45:21-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m01.0s/4m0s  0/1 shared iters
+time="2026-07-19T12:45:22-07:00" level=info msg="✓ sessions.send accepted — chained model parent turn triggered" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m02.0s/4m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m03.0s/4m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m04.0s/4m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m05.0s/4m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m06.0s/4m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m07.0s/4m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m08.0s/4m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m09.0s/4m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m10.0s/4m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m11.0s/4m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m12.0s/4m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m13.0s/4m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m14.0s/4m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m15.0s/4m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m16.0s/4m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m17.0s/4m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m18.0s/4m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m19.0s/4m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m20.0s/4m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m21.0s/4m0s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m22.0s/4m0s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m23.0s/4m0s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m24.0s/4m0s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m25.0s/4m0s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m26.0s/4m0s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m27.0s/4m0s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m28.0s/4m0s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m29.0s/4m0s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m30.0s/4m0s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m31.0s/4m0s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m32.0s/4m0s  0/1 shared iters
+time="2026-07-19T12:45:54-07:00" level=info msg="✓ depth-1 scheduled depth-2 sentinel observed" source=console
+time="2026-07-19T12:45:54-07:00" level=info msg="✓ depth-2 model return observed" source=console
+time="2026-07-19T12:45:54-07:00" level=info msg="All required R-CD-MODEL-CHAINED-ALT evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-MODEL-CHAINED-ALT","manifest_loaded":true,"seat":"silas","session_created":true,"candidateSha":"4c235d8c1997e8964160117f8d6bf650ad1e8203","started":"2026-07-19T19:45:21.414Z","requested_model_byte":"gpt","dispatch_accepted":true,"dispatch_accepted_at_ms":1784490322512,"depth_1_child_observed":true,"depth_2_child_observed":true,"depth_1_scheduled_inner":true,"depth_2_model_byte":"gpt.","model_matches":true,"return_payload":true,"trace_id":null,"ended":"2026-07-19T19:45:54.412Z","duration_ms":32998}
+time="2026-07-19T12:45:54-07:00" level=info msg="\n[R-CD-MODEL-CHAINED-ALT] VERDICT: PASS-candidate" source=console
+
+[R-CD-MODEL-CHAINED-ALT] Summary: PASS-candidate | SHA: 4c235d8c1997e8964160117f8d6bf650ad1e8203 | Seat: silas
+
+running (0m33.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_model_chained_alt ✓ [ 100% ] 1 VUs  0m33.0s/4m0s  1/1 shared iters
+
+running (0m33.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_model_chained_alt ✓ [ 100% ] 1 VUs  0m33.0s/4m0s  1/1 shared iters

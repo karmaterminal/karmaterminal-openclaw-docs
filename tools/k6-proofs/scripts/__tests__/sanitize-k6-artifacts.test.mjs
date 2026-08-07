@@ -64,12 +64,22 @@ test('CLI writes only public-safe evidence and log artifacts', async () => {
   const linesOutput = path.join(dir, 'evidence-lines.log');
   const receiptOutput = path.join(dir, 'evidence-redaction.json');
   const logOutput = path.join(dir, 'k6.log');
+  const serviceLogInput = path.join(dir, 'private-gateway.log');
+  const serviceLogOutput = path.join(dir, 'gateway-journal.log');
+  const serviceLogReceipt = path.join(dir, 'gateway-journal-redaction.json');
   await writeFile(input, `${JSON.stringify(evidence)}\n`);
   await writeFile(logInput, [
     k6Line(`[k6-proof-harness] Call continue_delegate task="Proof nonce ${nonce}" session=${sessionKey}`),
     k6Line('\n--- R-CD-1 EVIDENCE SUMMARY ---'),
     k6Line(JSON.stringify(evidence, null, 2)),
     k6Line('--- END EVIDENCE ---'),
+  ].join('\n'));
+  await writeFile(serviceLogInput, [
+    `Jul 12 19:42:00 host openclaw[123]: continuation dispatch session=${sessionKey}`,
+    `Jul 12 19:42:01 host openclaw[123]: Model override "github-copilot/claude-sonnet-4.6" is not allowed for agent "main" nonce=${nonce}`,
+    'Jul 12 19:42:02 host openclaw[123]: OPENCLAW_GATEWAY_TOKEN=super-secret-gateway-token failure',
+    `Jul 12 19:42:02 host openclaw[123]: continuation:delegate-spawned task=Proof nonce ${nonce}: read your runtime context/current model identity`,
+    'Jul 12 19:42:03 host openclaw[123]: unrelated routine heartbeat',
   ].join('\n'));
 
   try {
@@ -81,15 +91,32 @@ test('CLI writes only public-safe evidence and log artifacts', async () => {
       '--receipt-out', receiptOutput,
       '--log-input', logInput,
       '--log-out', logOutput,
+      '--service-log-input', serviceLogInput,
+      '--service-log-out', serviceLogOutput,
+      '--service-log-receipt-out', serviceLogReceipt,
     ], { env: { ...process.env, OPENCLAW_SESSION_KEY: sessionKey } });
 
-    for (const file of [output, linesOutput, receiptOutput, logOutput]) {
+    for (const file of [
+      output,
+      linesOutput,
+      receiptOutput,
+      logOutput,
+      serviceLogOutput,
+      serviceLogReceipt,
+    ]) {
       const text = await readFile(file, 'utf8');
       assert.doesNotMatch(text, new RegExp(nonce));
       assert.doesNotMatch(text, new RegExp(sessionKey));
     }
     assert.match(await readFile(logOutput, 'utf8'), /\[k6-proof-harness\] <redacted-dispatch>/);
     assert.match(await readFile(linesOutput, 'utf8'), /PUBLIC_EVIDENCE/);
+    const serviceLog = await readFile(serviceLogOutput, 'utf8');
+    assert.match(serviceLog, /Model override "github-copilot\/claude-sonnet-4\.6" is not allowed/);
+    assert.match(serviceLog, /OPENCLAW_GATEWAY_TOKEN=<redacted-secret>/);
+    assert.match(serviceLog, /delegate-spawned task=<redacted-payload>/);
+    assert.doesNotMatch(serviceLog, /super-secret-gateway-token/);
+    assert.doesNotMatch(serviceLog, /read your runtime context/);
+    assert.doesNotMatch(serviceLog, /unrelated routine heartbeat/);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

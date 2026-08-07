@@ -24,7 +24,7 @@ into `PROOFS/<sha>/` without back-and-forth.
        > /tmp/seat-readiness.json
    ```
    A missing/mismatched k6 binary, missing required env, invalid candidate SHA, or
-   unreachable checked gateway is `HONEST-LIMIT-candidate` / setup failure — not
+   unreachable checked gateway is `PARTIAL-candidate` / setup failure — not
    product behavior evidence. The report prints env presence booleans only; no
    token/secret values, prompt bodies, or raw gateway payloads are allowed.
 3. **Verify the gateway you fire against is actually deployed to the corpus-pin SHA.**
@@ -94,7 +94,7 @@ Every `PROOFS/<sha>/<row>/<seat>/k6-run-<ts>/` directory must contain:
 
 - `seat-readiness.json` — public-safe readiness report from
   `scripts/seat-readiness-preflight.mjs`. If this is not `PASS-candidate`, the row
-  must stay setup/HONEST-LIMIT until the seat is fixed or the row issue declares a
+  must stay setup/PARTIAL until the seat is fixed or the row issue declares a
   different expectation.
 - `EVIDENCE.md` — candidate evidence document. Captures the run context, the
   candidate outcome, receipts table, and the review checklist (`evidence-writer.mjs`
@@ -104,7 +104,8 @@ Every `PROOFS/<sha>/<row>/<seat>/k6-run-<ts>/` directory must contain:
 - `gateway-events.ndjson` — redacted gateway events, one JSON object per line. Skip
   only if the row genuinely captured no frames; note the absence in EVIDENCE.md.
 - `row-result.json` — normalised outcome (`PASS-candidate` / `PARTIAL-candidate` /
-  `HONEST-LIMIT-candidate` / `FAIL-candidate`).
+  `FAIL-candidate`, plus `HONEST-LIMIT-candidate` only for `R-RC-2` when a structured
+  receipt proves below-threshold `request_compaction` refusal).
 - Trace JSON (e.g. Tempo dump) under `artifacts/` if the row produced one. Trace
   evidence is required before a continuation row can be folded as `pass`.
 
@@ -118,9 +119,9 @@ Every `PROOFS/<sha>/<row>/<seat>/k6-run-<ts>/` directory must contain:
   tokens, no prompt bodies, no user content.
 - The live-run safety classification, expected artifact class, required receipts,
   same-session concurrency safety, and `foldRequiresReview:true`.
-- For HONEST-LIMIT outcomes: the declared seat-class expectation that explains
-  why it is honest-limit and not a fail (e.g. message-body seat killed the bracket
-  scanner — must be declared in the manifest before the run, not retro-justified).
+- For the sole `R-RC-2` HONEST-LIMIT outcome: the structured below-threshold
+  `request_compaction` receipt. Every other missing seat, trace, model, lifecycle,
+  or scanner receipt remains PARTIAL and must not be retro-justified.
 
 ## PR contract
 

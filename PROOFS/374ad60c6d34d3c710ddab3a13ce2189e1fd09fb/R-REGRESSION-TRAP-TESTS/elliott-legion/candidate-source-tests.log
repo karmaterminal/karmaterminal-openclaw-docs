@@ -1,0 +1,36 @@
+[test] starting test/vitest/vitest.unit-fast.config.ts
+
+ RUN  v4.1.10 OPENCLAW_CANDIDATE_SOURCE
+
+ ✓ |unit-fast| src/agents/tools/continuation-inventory-opts.test.ts (5 tests) 4ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  03:33:22
+   Duration  1.19s (transform 855ms, setup 133ms, import 947ms, tests 4ms, environment 0ms)
+
+[test] starting test/vitest/vitest.agents-core.config.ts
+
+ RUN  v4.1.10 OPENCLAW_CANDIDATE_SOURCE
+
+ ✓ |agents-core| src/agents/openclaw-tools.continuation-registration.test.ts (8 tests) 996ms
+ ✓ |agents-core| src/agents/openclaw-tools.continuation-misconfig-warn.test.ts (7 tests) 387ms
+
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+   Start at  03:33:24
+   Duration  16.75s (transform 11.90s, setup 791ms, import 14.41s, tests 1.38s, environment 0ms)
+
+[test] starting test/vitest/vitest.agents-tools.config.ts
+
+ RUN  v4.1.10 OPENCLAW_CANDIDATE_SOURCE
+
+ ✓ |agents-tools| src/agents/tools/continuation-tools-registration.test.ts (13 tests) 2614ms
+     ✓ exposes continue_delegate on normal turns when continuation is enabled  393ms
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Start at  03:33:41
+   Duration  16.68s (transform 11.17s, setup 719ms, import 13.19s, tests 2.61s, environment 0ms)
+
+[test] passed 3 Vitest shards in 43.81s

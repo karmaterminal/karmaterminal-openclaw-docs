@@ -1,0 +1,42 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-07-19T19:43:24Z",
+  "verdict": "PARTIAL-candidate",
+  "verdictSource": "pre-dispatch-surface-gate",
+  "summaryFileVerdict": null,
+  "vuLogVerdict": null,
+  "summaryFiles": [],
+  "evidence": {
+    "row": "R-CD-TOKEN",
+    "surface_class": "message-body",
+    "dispatched": false
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "terminal": true,
+  "observability": {
+    "traceStatus": "not-applicable",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "serviceLogStatus": "not-started",
+    "serviceLog": null,
+    "serviceLogCapture": null,
+    "serviceLogRedaction": null
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "raw-final-text-origin",
+      "parser-detected",
+      "queue-identity",
+      "child-spawned",
+      "child-completed",
+      "parent-return-event",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ]
+  }
+}

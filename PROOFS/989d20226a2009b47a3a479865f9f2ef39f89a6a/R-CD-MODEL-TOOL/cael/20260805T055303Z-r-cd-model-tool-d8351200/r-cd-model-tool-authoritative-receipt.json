@@ -1,0 +1,55 @@
+{
+  "schema": "openclaw.k6.r-cd-model-tool-authoritative-receipt.v2",
+  "row": "R-CD-MODEL-TOOL",
+  "authoritativeSource": "r-cd-model-tool-row-scoped-resolver",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "verdict": null,
+  "failureCategory": "invalid-continuation-topology",
+  "binding": {
+    "candidateSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "runtimeBuildSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "run": {
+      "rowId": "R-CD-MODEL-TOOL",
+      "seat": "cael",
+      "scenario": "r-cd-model-tool",
+      "runId": "20260805T055303Z-r-cd-model-tool-d8351200",
+      "matrixId": "20260805T055300Z-50be3360876c-d8351200",
+      "startedAt": "2026-08-05T05:53:03Z"
+    },
+    "runner": {
+      "repository": "karmaterminal/karmaterminal-openclaw-docs",
+      "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-model-tool.json",
+      "manifestSha256": "dd30ac2561472192db25623824d647309280ee960a9c1d4028f26adff49cf6fc",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-model-tool.js",
+      "scenarioSha256": "cdd69b28223db1966d5d114a9ff731dfe77a7b183726ee5643ce666c28857d62"
+    },
+    "trace": {
+      "traceId": "de3715934d9220208f787e399acb0cb0",
+      "chainId": "211aa2b3-4653-4146-8cca-5869f0fd56ec",
+      "dispatchSpanId": "1ed68d23afbddefa",
+      "fireSpanId": "4343423dcc4061b4",
+      "childHarnessSpanId": null,
+      "childRunSpanId": null,
+      "callSpanIds": []
+    },
+    "localEvidenceFingerprint": "65c1350623e65e8e4e245974c4a8394698a8954d09b07c08c77dbf30d902141d",
+    "topologyFingerprint": "c24650e8142af670db700bcda4b7a405a3980f569cc748d7d6ac51b8247e4382"
+  },
+  "lifecycle": {
+    "rowBound": true,
+    "requestedModelBound": true,
+    "manifestModelBound": true,
+    "dispatchAccepted": true,
+    "parentScheduledSentinel": true,
+    "childSessionObserved": false,
+    "returnPayloadObserved": false,
+    "disposableSessionVerified": true
+  },
+  "execution": null,
+  "integrity": {
+    "algorithm": "hmac-sha256-gateway-token-v1",
+    "signature": "98b2f4140a425f20f72b88330688ec892f4174fcd5640edc3569b58aad32f602"
+  }
+}

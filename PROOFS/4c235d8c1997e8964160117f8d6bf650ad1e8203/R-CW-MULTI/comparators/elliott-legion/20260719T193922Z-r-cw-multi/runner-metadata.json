@@ -1,0 +1,9 @@
+{
+  "row": "R-CW-MULTI",
+  "scenario": "static-corpus-row-validator.js",
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "runtimeBuildSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "seat": "elliott",
+  "sessionConfigured": true,
+  "startedAt": "2026-07-19T19:39:22Z"
+}

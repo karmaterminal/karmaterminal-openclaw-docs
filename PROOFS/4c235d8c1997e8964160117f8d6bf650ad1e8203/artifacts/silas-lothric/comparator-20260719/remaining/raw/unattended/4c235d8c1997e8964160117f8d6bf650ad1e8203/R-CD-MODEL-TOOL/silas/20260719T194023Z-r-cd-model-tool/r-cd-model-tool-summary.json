@@ -1,0 +1,23 @@
+{
+  "row": "R-CD-MODEL-TOOL",
+  "sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "seat": "silas",
+  "timestamp": "2026-07-19T19:43:23.725Z",
+  "verdict": "PARTIAL-candidate",
+  "requestedModel": null,
+  "observedModel": null,
+  "observedModelSource": null,
+  "auxiliarySelfReport": null,
+  "classificationReason": null,
+  "metrics": {
+    "duration_ms": {
+      "p(95)": 180337,
+      "avg": 180337,
+      "min": 180337,
+      "med": 180337,
+      "max": 180337,
+      "p(90)": 180337
+    },
+    "failures": 1
+  }
+}

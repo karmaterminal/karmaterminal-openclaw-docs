@@ -1,0 +1,231 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: silas
+Target Candidate SHA: 4c235d8c1997e8964160117f8d6bf650ad1e8203
+Deployed Runtime SHA: 4c235d8c1997e8964160117f8d6bf650ad1e8203
+Session configured: true
+Artifact root: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended
+Rows: R-CW-2
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/seat-readiness.json
+
+----------------------------------------
+Row: R-CW-2
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cw-2.json
+Scenario: scenarios/r-cw-2-immediate-wake.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-2] RUNNING...
+./r-cw-2-immediate-wake-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-2-immediate-wake.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m30s max duration (incl. graceful stop):
+              * r_cw_2_immediate_wake: 1 iterations shared among 1 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+time="2026-07-19T12:48:27-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m01.0s/2m0s  0/1 shared iters
+time="2026-07-19T12:48:28-07:00" level=info msg="✓ sessions.send accepted — immediate continue_work turn triggered" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m02.0s/2m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m03.0s/2m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m04.0s/2m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m05.0s/2m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m06.0s/2m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m07.0s/2m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m08.0s/2m0s  0/1 shared iters
+time="2026-07-19T12:48:35-07:00" level=info msg="✓ CW2-SCHEDULED sentinel observed" source=console
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m09.0s/2m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m10.0s/2m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m11.0s/2m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m12.0s/2m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m13.0s/2m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m14.0s/2m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m15.0s/2m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m16.0s/2m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m17.0s/2m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m18.0s/2m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m19.0s/2m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m20.0s/2m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m21.0s/2m0s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m22.0s/2m0s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m23.0s/2m0s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m24.0s/2m0s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m25.0s/2m0s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m26.0s/2m0s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m27.0s/2m0s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m28.0s/2m0s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m29.0s/2m0s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m30.0s/2m0s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m31.0s/2m0s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m32.0s/2m0s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m33.0s/2m0s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m34.0s/2m0s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m35.0s/2m0s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m36.0s/2m0s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m37.0s/2m0s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m38.0s/2m0s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m39.0s/2m0s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m40.0s/2m0s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m41.0s/2m0s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m42.0s/2m0s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m43.0s/2m0s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m44.0s/2m0s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m45.0s/2m0s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m46.0s/2m0s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m47.0s/2m0s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m48.0s/2m0s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m49.0s/2m0s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m50.0s/2m0s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m51.0s/2m0s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m52.0s/2m0s  0/1 shared iters
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m53.0s/2m0s  0/1 shared iters
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m54.0s/2m0s  0/1 shared iters
+
+running (0m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m55.0s/2m0s  0/1 shared iters
+
+running (0m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m56.0s/2m0s  0/1 shared iters
+
+running (0m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m57.0s/2m0s  0/1 shared iters
+
+running (0m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m58.0s/2m0s  0/1 shared iters
+time="2026-07-19T12:49:25-07:00" level=info msg="✓ CW2-WOKE sentinel observed" source=console
+time="2026-07-19T12:49:25-07:00" level=info msg="All required R-CW-2 evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CW-2","manifest_loaded":true,"seat":"silas","session_created":true,"candidateSha":"4c235d8c1997e8964160117f8d6bf650ad1e8203","started":"2026-07-19T19:48:27.465Z","dispatch_accepted":true,"scheduled_sentinel":true,"immediate_wake_observed":true,"prompt_echo_ignored":true,"dispatch_accepted_at_ms":1784490508584,"scheduled_result_at_ms":1784490515858,"wake_delay_ms":50033,"trace_id":null,"ended":"2026-07-19T19:49:25.891Z","duration_ms":58426}
+time="2026-07-19T12:49:25-07:00" level=info msg="\n[R-CW-2] VERDICT: PASS-candidate" source=console
+
+[R-CW-2] Summary: PASS-candidate | SHA: 4c235d8c1997e8964160117f8d6bf650ad1e8203 | Seat: silas
+
+running (0m58.4s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_2_immediate_wake ✓ [ 100% ] 1 VUs  0m58.4s/2m0s  1/1 shared iters
+[R-CW-2] CANDIDATE REVIEW ENVELOPE: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-2/silas/20260719T194827Z-r-cw-2/candidate-run-result.json
+[R-CW-2] METRICS: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-2/silas/20260719T194827Z-r-cw-2/openclaw-proofs-k6.prom
+[R-CW-2] ARTIFACTS: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-2/silas/20260719T194827Z-r-cw-2
+[R-CW-2] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/report.html
+
+==========================================================
+Runner execution finished.

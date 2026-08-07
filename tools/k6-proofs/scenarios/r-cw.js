@@ -119,8 +119,8 @@ export default function () {
   console.log(`[R-CW]   R-CW-1 (schedule+wake):    gateway ${healthOk ? '✓' : '✗'}`);
   console.log(`[R-CW]   R-CW-3 (reason in span):   tempo ${tempoOk ? '✓' : '✗'}`);
   console.log(`[R-CW]   R-CW-4 (chain depth):      gateway ${healthOk ? '✓' : '✗'}`);
-  console.log(`[R-CW]   R-CW-5 (cost-cap reject):  gateway ${healthOk ? '✓' : '✗'} (mutates config)`);
-  console.log(`[R-CW]   R-CW-6 (maxChainLength):   gateway ${healthOk ? '✓' : '✗'} (mutates config + restart)`);
+  console.log(`[R-CW]   R-CW-5 (cost-cap reject):  process-local exact-candidate fixture (review required)`);
+  console.log(`[R-CW]   R-CW-6 (maxChainLength):   process-local exact-candidate fixture (review required)`);
   console.log(`[R-CW]   R-CW-7 (traceparent E2E):  tempo ${tempoOk ? '✓' : '✗'}`);
   console.log('');
 
@@ -147,8 +147,8 @@ export function handleSummary(data) {
       'R-CW-1': 'tool-form schedule+wake (gateway only)',
       'R-CW-3': 'reason.preview in OTel span (needs Tempo)',
       'R-CW-4': 'chain depth hop counter 1/N→3/N (gateway only)',
-      'R-CW-5': 'cost-cap exhaustion reject (mutates config temporarily)',
-      'R-CW-6': 'maxChainLength boundary (mutates config + requires restart)',
+      'R-CW-5': 'cost-cap exhaustion reject (process-local exact-candidate fixture)',
+      'R-CW-6': 'maxChainLength boundary (process-local exact-candidate fixture)',
       'R-CW-7': 'traceparent E2E propagation (needs Tempo)',
     },
   };

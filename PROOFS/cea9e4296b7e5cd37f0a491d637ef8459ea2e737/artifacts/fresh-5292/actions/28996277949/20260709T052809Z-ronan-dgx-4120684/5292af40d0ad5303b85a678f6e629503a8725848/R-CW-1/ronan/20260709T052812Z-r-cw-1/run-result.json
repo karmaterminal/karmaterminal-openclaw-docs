@@ -1,0 +1,20 @@
+{
+  "k6ExitCode": 0,
+  "endedAt": "2026-07-09T05:29:05Z",
+  "verdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-cw-1-tool-schedule-wake-summary.json"
+  ],
+  "evidence": null,
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

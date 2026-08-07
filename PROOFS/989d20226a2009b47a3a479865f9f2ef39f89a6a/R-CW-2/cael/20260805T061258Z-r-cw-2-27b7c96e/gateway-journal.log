@@ -1,0 +1,8 @@
+2026-08-04T23:13:02.623104-07:00 cael node[3546538]: 2026-08-04T23:13:02.622-07:00 [ws] ⇄ res ✓ sessions.send 307ms runId=R-CW-2-DISPATCH-<redacted-nonce> conn=a2f2b2a1…fb35 id=1-0-1785910382313-ftrkk1
+2026-08-04T23:13:12.747512-07:00 cael node[3546538]: 2026-08-04T23:13:12.747-07:00 [memory] sync failed (search-bootstrap): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:13:12.748254-07:00 cael node[3546538]: 2026-08-04T23:13:12.748-07:00 [memory] sync failed (search-bootstrap): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:13:12.748962-07:00 cael node[3546538]: 2026-08-04T23:13:12.748-07:00 [memory] sync failed (search): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:13:12.749473-07:00 cael node[3546538]: 2026-08-04T23:13:12.749-07:00 [memory] sync failed (session-start): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:13:12.749977-07:00 cael node[3546538]: 2026-08-04T23:13:12.749-07:00 [memory] sync failed (session update): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:13:21.114531-07:00 cael node[3546538]: 2026-08-04T23:13:21.114-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-04T23:13:21.115284-07:00 cael node[3546538]: 2026-08-04T23:13:21.115-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>

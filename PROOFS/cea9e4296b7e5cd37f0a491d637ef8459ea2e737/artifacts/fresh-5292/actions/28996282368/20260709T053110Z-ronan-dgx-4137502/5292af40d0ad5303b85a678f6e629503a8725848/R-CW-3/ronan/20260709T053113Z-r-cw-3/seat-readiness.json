@@ -1,0 +1,122 @@
+{
+  "schema": "openclaw.k6.seat-readiness.v1",
+  "generatedAt": "2026-07-09T05:31:13.198Z",
+  "outcome": "PASS-candidate",
+  "policy": {
+    "name": "k6 PROOFS seat readiness policy",
+    "version": "2026-07-07",
+    "source": "tools/k6-proofs/seat-readiness.policy.json"
+  },
+  "expectedK6Version": "v2.0.0",
+  "k6": {
+    "ok": true,
+    "path": "/home/figs/bin/k6",
+    "version": "v2.0.0",
+    "rawVersion": "k6 v2.0.0 (commit/8c3be52cc1, go1.26.3, linux/arm64)",
+    "checked": [
+      {
+        "path": "/home/figs/bin/k6",
+        "exists": true,
+        "version": "v2.0.0",
+        "rawVersion": "k6 v2.0.0 (commit/8c3be52cc1, go1.26.3, linux/arm64)"
+      }
+    ],
+    "matchesExpected": true
+  },
+  "gateway": {
+    "url": "ws://127.0.0.1:18789",
+    "healthReachable": true,
+    "statusReachable": true,
+    "mode": "checked"
+  },
+  "continuation": {
+    "mode": "checked",
+    "enabled": true,
+    "maxChainLengthPresent": true,
+    "maxDelegatesPerTurnPresent": true,
+    "costCapTokensPresent": true,
+    "error": null,
+    "defaultsPresent": true
+  },
+  "candidate": {
+    "sha": "5292af40d0ad5303b85a678f6e629503a8725848",
+    "valid40Hex": true
+  },
+  "seat": {
+    "name": "ronan",
+    "class": "message-body"
+  },
+  "session": {
+    "scope": "configured-session"
+  },
+  "env": [
+    {
+      "name": "OPENCLAW_GATEWAY_TOKEN",
+      "present": true,
+      "secret": true,
+      "required": true,
+      "purpose": "operator auth token; presence only is reported"
+    },
+    {
+      "name": "OPENCLAW_GATEWAY_WS",
+      "present": true,
+      "secret": false,
+      "required": false,
+      "purpose": "target gateway websocket URL; defaults to local gateway"
+    },
+    {
+      "name": "OPENCLAW_SESSION_KEY",
+      "present": true,
+      "secret": true,
+      "required": true,
+      "purpose": "target session key or coarse session class"
+    },
+    {
+      "name": "OPENCLAW_CANDIDATE_SHA",
+      "present": true,
+      "secret": false,
+      "required": true,
+      "purpose": "40-character OpenClaw deploy SHA under test"
+    },
+    {
+      "name": "OPENCLAW_SEAT_NAME",
+      "present": true,
+      "secret": false,
+      "required": true,
+      "purpose": "public seat identifier used in proof artifacts"
+    },
+    {
+      "name": "OPENCLAW_SEAT_CLASS",
+      "present": false,
+      "secret": false,
+      "required": false,
+      "purpose": "seat behavior class used by token/bracket rows"
+    },
+    {
+      "name": "OPENCLAW_ROW_MANIFEST",
+      "present": false,
+      "secret": false,
+      "required": false,
+      "purpose": "manifest path for a specific row run"
+    },
+    {
+      "name": "OPENCLAW_GATEWAY_RESTART_CMD",
+      "present": false,
+      "secret": false,
+      "required": false,
+      "purpose": "optional self-contained restart command for config-mutating proof fixtures; default is documented as openclaw gateway restart --safe --wait 10s"
+    },
+    {
+      "name": "OPENCLAW_K6_COST_CAP_TEST_VALUE",
+      "present": false,
+      "secret": false,
+      "required": false,
+      "purpose": "optional low costCapTokens value for cost-cap boundary rows; default must be row-local and restored"
+    }
+  ],
+  "concurrency": {
+    "safeToRunConcurrently": true,
+    "reason": "read-only seat readiness preflight; no continuation/delegate/compaction calls are fired"
+  },
+  "notes": []
+}

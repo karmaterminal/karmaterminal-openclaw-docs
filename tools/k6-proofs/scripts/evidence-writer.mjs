@@ -24,8 +24,10 @@
  */
 
 import { copyFileSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
+import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 
 function parseArgs(argv) {
   const out = {};
@@ -106,6 +108,16 @@ try {
   process.exit(1);
 }
 
+let authoritativeReceipt = null;
+if (args.row === 'R-CD-2') {
+  if (!args['authoritative-receipt']) {
+    throw new Error('R-CD-2 requires --authoritative-receipt; generic evidence cannot promote this row');
+  }
+  authoritativeReceipt = JSON.parse(readFileSync(args['authoritative-receipt'], 'utf8'));
+  const validation = validateRcd2AuthoritativeReceipt(authoritativeReceipt, process.env.OPENCLAW_GATEWAY_TOKEN);
+  if (!validation.valid) throw new Error(`R-CD-2 authoritative receipt rejected: ${validation.reason}`);
+}
+
 // --- REDACTION BOUNDARY ---
 // Refuse to write if evidence has raw 'events' but no 'redacted_events'
 if (evidence.events && !evidence.redacted_events) {
@@ -124,8 +136,20 @@ const runId = `k6-run-${stamp()}`;
 const outDir = join('PROOFS', args.sha, args.row, args.seat, runId);
 mkdirSync(join(outDir, 'artifacts'), { recursive: true });
 
+let authoritativeReceiptDigest = null;
+if (authoritativeReceipt) {
+  const raw = readFileSync(args['authoritative-receipt']);
+  authoritativeReceiptDigest = createHash('sha256').update(raw).digest('hex');
+  writeFileSync(join(outDir, 'r-cd-2-authoritative-receipt.json'), raw);
+}
+
 if (args['seat-readiness']) {
   copyFileSync(args['seat-readiness'], join(outDir, 'seat-readiness.json'));
+}
+if (authoritativeReceipt) {
+  // Carry the signed authority alongside every public candidate surface so a
+  // report/envelope cannot cite an uninspectable generic PASS.
+  copyFileSync(args['authoritative-receipt'], join(outDir, 'r-cd-2-authoritative-receipt.json'));
 }
 
 // Write k6-summary.json through the same public-safe boundary as run-proofs.sh.
@@ -144,9 +168,9 @@ writeFileSync(join(outDir, 'evidence-redaction.json'), JSON.stringify({
 }, null, 2) + '\n');
 
 // Determine verdict
-const verdict = evidence.tool_accepted || evidence.prompt_sent
+const verdict = authoritativeReceipt ? authoritativeReceipt.verdict : (evidence.tool_accepted || evidence.prompt_sent
   ? (evidence.task_created || evidence.child_spawned ? 'PASS-candidate' : 'PARTIAL-candidate')
-  : 'FAIL-candidate';
+  : 'FAIL-candidate');
 
 // Write row-result.json
 const result = {
@@ -157,6 +181,11 @@ const result = {
   candidateSha: args.sha,
   seat: args.seat,
   outcome: verdict,
+  verdictSource: authoritativeReceipt ? 'r-cd-2-authoritative-receipt' : 'generic-evidence',
+  ...(authoritativeReceiptDigest ? { authoritativeReceipt: {
+    schema: authoritativeReceipt.schema, validated: true, source: 'r-cd-2-row-scoped-resolver',
+    file: 'r-cd-2-authoritative-receipt.json', sha256: authoritativeReceiptDigest,
+  } } : {}),
   liveRunSafety: manifest?.liveRunSafety ? {
     classification: manifest.liveRunSafety.classification,
     requiresLiveGatewayToken: Boolean(manifest.liveRunSafety.requiresLiveGatewayToken),

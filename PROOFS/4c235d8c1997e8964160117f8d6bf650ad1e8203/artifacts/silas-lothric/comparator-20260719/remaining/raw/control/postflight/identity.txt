@@ -1,0 +1,6 @@
+captured_at=2026-07-19T13:06:26-07:00
+docs_head=1303a03c2858fce82c235992b7ee06385e8e6304
+runtime_head=4c235d8c1997e8964160117f8d6bf650ad1e8203
+gateway_active=active
+gateway_nrestarts=1
+gateway_mainpid=1155689

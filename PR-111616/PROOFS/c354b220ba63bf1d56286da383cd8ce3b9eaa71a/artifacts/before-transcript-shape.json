@@ -1,0 +1,31 @@
+{
+  "runtimeHead": "ceaf8cba72c48914acd1baf8b6796b5f35fc5f1e",
+  "sessionId": "593fc133-edf7-43b7-81a6-9e43429c880b",
+  "sessionFile": "sqlite:main:593fc133-edf7-43b7-81a6-9e43429c880b:<redacted-seat-state>/openclaw-agent.sqlite",
+  "afterMessages": 41,
+  "roles": {
+    "compactionSummary": 1,
+    "assistant": 20,
+    "toolResult": 20
+  },
+  "firstMessage": {
+    "role": "compactionSummary",
+    "summary": "PROOF-111616-BEFORE-CEAF8CBA: preserved non-empty compaction summary anchor; the next 40 messages are tool-only suffix entries.",
+    "tokensBefore": 240000,
+    "timestamp": 1784662881596
+  },
+  "lastMessage": {
+    "role": "toolResult",
+    "toolCallId": "proof-before-call-19",
+    "toolName": "exec",
+    "content": [
+      {
+        "type": "text",
+        "text": "before-result-19"
+      }
+    ],
+    "isError": false,
+    "timestamp": 1784662881691
+  },
+  "containsRealConversationMessages": false
+}

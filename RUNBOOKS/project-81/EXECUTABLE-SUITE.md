@@ -2,7 +2,7 @@
 
 Goal: give a reviewer or maintainer a small, repeatable path from a normal OpenClaw checkout to a candidate proof bundle.
 
-This quickstart intentionally covers unattended `k6-runnable` rows. At this catalog floor the unattended suite resolves to 35 rows, but that does **not** mean 35 fresh live behavior captures: the suite includes live WebSocket rows, read-only/status rows, offline static committed-packet validators, and threshold/honest-limit canaries. Rows that still require an accepted-path fixture remain documented as review debt instead of being over-claimed.
+This quickstart intentionally covers unattended `k6-runnable` rows. At this catalog floor the unattended suite resolves to 34 rows, but that does **not** mean 34 fresh live behavior captures: the suite includes live WebSocket rows, read-only/status rows, offline static committed-packet validators, and threshold/honest-limit canaries. Rows that still require an accepted-path fixture remain documented as review debt instead of being over-claimed.
 
 ## 1. Install k6
 
@@ -45,10 +45,10 @@ ROWS="$(node scripts/list-runnable-rows.mjs --live-suite)"
 printf '%s\n' "$ROWS"
 ```
 
-This excludes the static preflight helper. As of this catalog, it prints the 35-row unattended suite:
+As of this catalog, the resolver prints the following 34-row unattended suite:
 
 ```text
-R-CD-1,R-CD-2,R-CD-3,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-COLLECTION-ON-COLLAPSE,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-RETURN-OVERLAP,R-CD-SILENT,R-CD-TOKEN,R-CONFIG-defaults,R-CONFIG-INTERSESSION,R-CW-1,R-CW-2,R-CW-3,R-CW-4,R-CW-5,R-CW-6,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI-COLLAPSE,R-CW-MULTI,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-status,R-RC-1,R-RC-2,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121
+preflight,R-CD-1,R-CD-2,R-CD-3,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-COLLECTION-ON-COLLAPSE,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-RETURN-OVERLAP,R-CD-SILENT,R-CD-TOKEN,R-CONFIG-defaults,R-CONFIG-INTERSESSION,R-CW-1,R-CW-2,R-CW-3,R-CW-4,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI-COLLAPSE,R-CW-MULTI,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-status,R-RC-1,R-RC-2,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121
 ```
 
 Treat that list as a runnable review queue, not a single proof class. `transport=offline` rows parse committed proof packets; `HONEST-LIMIT-candidate` rows prove the safe reachable canary path when the full behavior needs a fixture.
@@ -78,16 +78,34 @@ Use disposable sessions unless you are deliberately proving behavior on a named 
 ```bash
 export OPENCLAW_CREATE_DISPOSABLE_SESSION=true
 export OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true
-./scripts/run-proofs.sh --live "$ROWS"
+export OPENCLAW_PROOFS_DOCS_REF="$(git rev-parse HEAD)"
+./scripts/run-proofs.sh --live --docs-ref "$OPENCLAW_PROOFS_DOCS_REF" "$ROWS"
 ```
+
+A live run is bound to one immutable docs/harness commit (#496). `--docs-ref`
+(or `OPENCLAW_PROOFS_DOCS_REF`) is required and frozen at startup; the runner
+refuses to fire when the ref is missing or malformed, when `HEAD` is not that
+ref, when tracked bytes under `tools/k6-proofs` are dirty, or when a selected
+row's manifest/scenario is not tracked at that commit. Those are harness
+infrastructure failures: one `harness-control-receipt.json`, exit 78, zero rows
+executed, no synthesized per-row verdict. The same applies when the catalog
+preflight (`check-manifest-scenarios`, `check-scenario-alignment`,
+`check-proof-row-manifests`) fails.
 
 Artifacts are written under `${K6_PROOF_OUT_DIR:-/tmp/k6-proof-runs}`:
 
 ```text
+<out-dir>/harness-provenance.json              # newest matrix
+<out-dir>/harness-provenance/<matrix-id>.json  # immutable per-matrix copy
 <out-dir>/<candidate-sha>/<ROW>/<seat>/<timestamp-row>/
 ```
 
-Each row emits `row-manifest.json`, `runner-metadata.json`, `k6.log`, `evidence-lines.log`, `evidence.jsonl`, `run-result.json`, metrics files, and summary files when available.
+`harness-provenance.json` is written before the first row fires and records the
+approved docs ref, repository identity, candidate SHA, runtime identity receipt,
+runner script digest, row selection with per-row manifest/scenario digests, and
+the start time.
+
+Each row emits `row-manifest.json`, `row-scenario.js`, `runner-metadata.json`, `k6.log`, `evidence-lines.log`, `evidence.jsonl`, `run-result.json`, metrics files, and summary files when available. `runner-metadata.json` carries `docsRef`, `repository`, and the `manifestSha256` / `scenarioSha256` of the exact contract bytes that fired. A review-complete row also emits `candidate-run-result.json` (`openclaw.k6.candidate-run-result.v1`): a public-safe routing envelope that binds the manifest, candidate SHA, docs ref, harness source digests, row, seat, and run identity. It remains candidate-only (`behaviorProof:false`, `canonicalFoldForbidden:true`); review-pending rows deliberately receive no envelope and remain in the review-debt queue.
 
 ## 7. Review before folding
 
@@ -107,12 +125,13 @@ Fetch Tempo trace JSON when a row records a non-null trace id. If a row records 
 
 ## Coverage caveats
 
-No Project 81 proof row is currently hidden from `live-suite` because of a `scaffold`, `construct-only`, or `orchestration-required` manifest. `preflight` remains outside the suite because it is the static readiness helper.
+R-CW-5 and R-CW-6 are intentionally hidden from `live-suite`: their cap claims are process-local, exact-candidate fixtures rather than unattended WebSocket rows. R-CW-5 uses `run-cost-cap-fixture.mjs`; R-CW-6 uses `run-max-chain-fixture.mjs` with temporary state, durable recovery, no-spawn, cleanup, and public-artifact-safety receipts. R-CW-5A/R-CW-6A remain outside the suite because they are static non-runtime helpers.
 
 Several rows are runnable only as bounded review candidates:
 
 - `R-CD-3` stages the post-compaction lifeboat and accepts threshold refusal as an honest limit; a naturally accepted compaction seam remains review debt until a fixture drives the over-threshold path.
 - `R-RC-2` proves delegated `request_compaction` reaches the child and returns a structured threshold rejection in ordinary disposable sessions; accepted compaction is a separate fixture problem.
-- `R-CD-COLLECTION-ON-COLLAPSE`, `R-CW-5`, `R-CW-6`, and `R-CW-MULTI-COLLAPSE` are static committed-packet validators. They make historical proof packets mechanically checkable; they do not mutate config or rerun the original live collapse/cost-cap/max-chain behavior.
+- `R-CD-COLLECTION-ON-COLLAPSE` and `R-CW-MULTI-COLLAPSE` are static committed-packet validators. They make historical proof packets mechanically checkable; they do not mutate config or rerun the original live behavior.
+- `R-CW-5A` and `R-CW-6A` are static source/harness boundary rows. They emit `construct-only` and cannot be used as live R-CW-5/6 PASS evidence.
 
-If a future PR adds an accepted-compaction or config-mutating live fixture, it must include backup/restore or isolated-temp-state receipts before claiming a fresh live PASS.
+If a future PR adds an accepted-compaction or config-mutating live fixture, it must include backup/restore or isolated-temp-state receipts before claiming a fresh live PASS. The R-CW-5/R-CW-6 component fixtures never imply gateway behavior or automatic corpus promotion.

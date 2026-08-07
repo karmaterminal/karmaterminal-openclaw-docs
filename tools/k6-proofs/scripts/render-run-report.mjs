@@ -11,6 +11,10 @@
  */
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
+import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 
 function usage() {
   console.error('Usage: node render-run-report.mjs --root <run-out-root> [--out report.html]');
@@ -77,6 +81,24 @@ function numberFromDuration(raw) {
   return Number(raw);
 }
 
+function authoritativeReceiptContract(rowId) {
+  if (rowId === 'R-CD-2') {
+    return {
+      file: 'r-cd-2-authoritative-receipt.json',
+      verdictSource: 'r-cd-2-authoritative-receipt',
+      validate: validateRcd2AuthoritativeReceipt,
+    };
+  }
+  if (rowId === 'R-CD-TOKEN') {
+    return {
+      file: 'r-cd-token-authoritative-receipt.json',
+      verdictSource: 'r-cd-token-authoritative-receipt',
+      validate: validateRcdTokenAuthoritativeReceipt,
+    };
+  }
+  return null;
+}
+
 function receiptSummary({ manifest, runResult, evidenceRows }) {
   const receipts = [];
   for (const name of manifest?.liveRunSafety?.requiredReceipts || []) {
@@ -123,7 +145,27 @@ async function rowFromRunResult(root, runResultPath) {
   const evidenceRows = files.includes('evidence.jsonl') ? await readEvidenceJsonl(path.join(runDir, 'evidence.jsonl')) : [];
   const rel = path.relative(root, runDir).split(path.sep).join('/');
   const proofFailures = Number(summary?.metrics?.failures ?? runResult.proofFailures ?? (runResult.k6ExitCode === 0 ? 0 : 1));
-  const outcome = safeText(summary?.verdict || (runResult.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate'));
+  let outcome = safeText(runResult.verdict || summary?.verdict || (runResult.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate'));
+  const authoritative = authoritativeReceiptContract(metadata?.row || manifest?.rowId);
+  if (authoritative) {
+    const declared = runResult.authoritativeReceipt;
+    try {
+      if (runResult.verdictSource !== authoritative.verdictSource || declared?.file !== authoritative.file || !/^[a-f0-9]{64}$/iu.test(declared?.sha256 || '')) throw new Error('missing authoritative receipt declaration');
+      const raw = await readFile(path.join(runDir, declared.file));
+      if (createHash('sha256').update(raw).digest('hex') !== declared.sha256) throw new Error('authoritative receipt digest mismatch');
+      const receipt = JSON.parse(raw.toString('utf8'));
+      const integrity = authoritative.validate(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
+      if (!integrity.valid || integrity.verdict !== runResult.verdict) throw new Error('authoritative receipt invalid');
+      if ((metadata?.row || manifest?.rowId) === 'R-CD-TOKEN' && (
+        receipt.binding?.candidateSha !== metadata?.candidateSha ||
+        receipt.binding?.runtimeBuildSha !== metadata?.runtimeBuildSha ||
+        metadata?.candidateSha !== metadata?.runtimeBuildSha
+      )) throw new Error('authoritative receipt build identity mismatch');
+      outcome = safeText(receipt.verdict);
+    } catch {
+      outcome = 'PARTIAL-candidate';
+    }
+  }
   return {
     rowId: safeText(metadata?.row || manifest?.rowId),
     candidateSha: safeText(metadata?.candidateSha || manifest?.candidateSha || summary?.sha),
@@ -136,6 +178,32 @@ async function rowFromRunResult(root, runResultPath) {
     checksRate: summary?.metrics?.checks?.rate ?? summary?.metrics?.checksRate ?? null,
     traceStatus: safeText(runResult?.observability?.traceStatus || 'unknown'),
     receipts: receiptSummary({ manifest, runResult, evidenceRows }),
+    rel,
+  };
+}
+
+async function rowFromCandidateEnvelope(root, envelopePath) {
+  const envelope = await readJson(envelopePath) || {};
+  const runDir = path.dirname(envelopePath);
+  const [manifest, metadata, runResult] = await Promise.all([
+    readJson(path.join(runDir, 'row-manifest.json')),
+    readJson(path.join(runDir, 'runner-metadata.json')),
+    readJson(path.join(runDir, 'run-result.json')),
+  ]);
+  if (!candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata, runResult, runDir })) return null;
+  const rel = path.relative(root, path.dirname(envelopePath)).split(path.sep).join('/');
+  return {
+    rowId: safeText(envelope.run?.rowId),
+    candidateSha: safeText(envelope.candidate?.sha),
+    seat: safeText(envelope.run?.seat),
+    scenario: safeText(envelope.run?.scenario),
+    outcome: safeText(envelope.result?.outcome),
+    reviewStatus: safeText(envelope.review?.status),
+    proofFailures: null,
+    durationMs: null,
+    checksRate: null,
+    traceStatus: safeText(envelope.observability?.traceStatus),
+    receipts: [],
     rel,
   };
 }
@@ -184,9 +252,20 @@ async function main() {
   if (args.help) { usage(); return; }
   if (!args.root) throw new Error('missing --root');
   const root = path.resolve(args.root);
-  const files = await walk(root, 'run-result.json');
+  const candidateFiles = (await walk(root, 'candidate-run-result.json')).sort();
+  const candidateRows = await Promise.all(candidateFiles.map((file) => rowFromCandidateEnvelope(root, file)));
+  const validCandidateDirs = new Set();
   const rows = [];
-  for (const file of files.sort()) rows.push(await rowFromRunResult(root, file));
+  for (let index = 0; index < candidateRows.length; index += 1) {
+    const row = candidateRows[index];
+    if (!row) continue;
+    validCandidateDirs.add(path.dirname(candidateFiles[index]));
+    rows.push(row);
+  }
+  const files = await walk(root, 'run-result.json');
+  for (const file of files.sort()) {
+    if (!validCandidateDirs.has(path.dirname(file))) rows.push(await rowFromRunResult(root, file));
+  }
   const html = render(rows);
   const out = args.out ? path.resolve(args.out) : path.join(root, 'report.html');
   await writeFile(out, html);

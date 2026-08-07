@@ -1,0 +1,22 @@
+{
+  "schema": "openclaw.k6.silas-comparator.final-review.v1",
+  "reviewedAt": "2026-07-19T20:12:24.315Z",
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "docsRef": "1303a03c2858fce82c235992b7ee06385e8e6304",
+  "row": "R-CW-DELEGATE-CHILD-LIVE",
+  "canonicalOwner": "🌊 ronan-dgx",
+  "executionSeat": "silas-lothric",
+  "runnerSeat": "silas",
+  "runId": "20260719T200115Z-r-cw-delegate-child-live",
+  "runnerVerdict": "PASS-candidate",
+  "effectiveExitCode": 0,
+  "finalClassification": "PASS",
+  "comparatorClassificationFinal": true,
+  "canonicalFoldAllowed": false,
+  "canonicalFoldReason": "Independent Silas comparator evidence does not overwrite or substitute for the exact manifest canonical owner.",
+  "refireAllowed": false,
+  "basis": [
+    "Exact candidate/docs identity matched; runner outcome PASS-candidate with effective exit 0; candidate envelope and validation mirror are byte-equivalent; review complete with no pending receipts; sanitized runner/journal packet preserved."
+  ],
+  "blockers": []
+}

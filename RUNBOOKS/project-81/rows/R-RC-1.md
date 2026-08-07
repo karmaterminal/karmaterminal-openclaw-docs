@@ -5,8 +5,8 @@
 Runnable local k6 scenario exists.
 
 - Manifest: `tools/k6-proofs/manifests/r-rc-1.json`
-- Scenario: `tools/k6-proofs/scenarios/r-rc-1.js`
-- Workflow choice: `r-rc-1`
+- Scenario: `tools/k6-proofs/scenarios/r-rc-1-threshold-reject.js`
+- Workflow choice: `r-rc-1-threshold-reject`
 - Live safety: `k6-runnable`; same-session concurrency unsafe; prefer disposable session.
 
 ## Purpose
@@ -32,7 +32,7 @@ OPENCLAW_SESSION_KEY=<target-session-key> \
 OPENCLAW_CREATE_DISPOSABLE_SESSION=true \
 OPENCLAW_ROW_MANIFEST="$PWD/manifests/r-rc-1.json" \
 OPENCLAW_CANDIDATE_SHA=<candidate-sha> \
-  ./run-proof.sh r-rc-1 --summary-export /tmp/r-rc-1-k6-summary.json \
+  ./run-proof.sh r-rc-1-threshold-reject --summary-export /tmp/r-rc-1-k6-summary.json \
     2>&1 | tee /tmp/r-rc-1-k6.log
 ```
 
@@ -40,8 +40,12 @@ OPENCLAW_CANDIDATE_SHA=<candidate-sha> \
 
 - Creates or uses a target session.
 - Drives an agent turn that calls typed `request_compaction`.
-- Observes `RC1-REJECTED <nonce> GUARD context_threshold ...` after the tool result.
-- Fails if the row returns `RC1-NOT-REJECTED` or no rejection sentinel appears.
+- Confirms `request_compaction` is present in the disposable session's effective tool inventory.
+- Fetches the session transcript and binds the current row nonce to the assistant's `request_compaction` tool-call ID.
+- Accepts only the `role=toolResult`, `toolName=request_compaction` receipt with that exact tool-call ID.
+- Requires structured `status=rejected` and `guard=context_threshold`.
+- Treats the assistant's `RC1-RESULT-OBSERVED <nonce>` sentinel as diagnostic only; sentinel prose can never satisfy the row.
+- Fails closed if a prior valid result exists but the current nonce has no matching call/result pair.
 
 ## Receipt nuances
 
@@ -56,9 +60,9 @@ This is still a valid rejection-path receipt when `guard=context_threshold`. A m
 ## Manual collection still needed
 
 - Save raw k6 stdout and generated summary JSON.
-- Save session transcript excerpt showing the request_compaction tool result and final sentinel.
+- Save the session transcript excerpt showing the nonce-bearing request_compaction tool call, its matching toolCallId result, and final sentinel.
 - Preserve seat-readiness and live-run-guard receipts.
-- No Tempo trace is expected on the synchronous reject path unless the runtime emits one; do not require an internal Tempo URL for this reject-only row.
+- No Tempo trace is expected on the synchronous reject path unless the runtime emits one. Preserve an explicit trace-unavailable receipt; do not let a Tempo span substitute for the nonce-bound typed call/result chain.
 
 ## Fold guidance
 

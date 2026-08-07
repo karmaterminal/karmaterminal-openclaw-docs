@@ -21,15 +21,15 @@ cd tools/k6-proofs
 
 For an external/reviewer-facing path from “install k6” to “run the unattended suite,” use [EXECUTABLE-SUITE.md](EXECUTABLE-SUITE.md).
 
-As of the current Project 81 surface, `list-runnable-rows --live-suite` resolves to 35 unattended rows:
+As of the current Project 81 surface, `list-runnable-rows --live-suite` resolves to 34 unattended rows:
 
 ```text
-R-CD-1,R-CD-2,R-CD-3,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-COLLECTION-ON-COLLAPSE,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-RETURN-OVERLAP,R-CD-SILENT,R-CD-TOKEN,R-CONFIG-defaults,R-CONFIG-INTERSESSION,R-CW-1,R-CW-2,R-CW-3,R-CW-4,R-CW-5,R-CW-6,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI-COLLAPSE,R-CW-MULTI,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-status,R-RC-1,R-RC-2,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121
+preflight,R-CD-1,R-CD-2,R-CD-3,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-COLLECTION-ON-COLLAPSE,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-RETURN-OVERLAP,R-CD-SILENT,R-CD-TOKEN,R-CONFIG-defaults,R-CONFIG-INTERSESSION,R-CW-1,R-CW-2,R-CW-3,R-CW-4,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI-COLLAPSE,R-CW-MULTI,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-status,R-RC-1,R-RC-2,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121
 ```
 
-That count is a runner surface, not a proof-class claim. It includes fresh live WebSocket rows, read-only/status probes, offline static committed-packet validators, and threshold/honest-limit canaries. A `PASS-candidate` or `HONEST-LIMIT-candidate` still needs row-specific review before any canonical fold.
+That count is a runner surface, not a proof-class claim. It includes fresh live WebSocket rows, read-only/status probes, offline static committed-packet validators, and threshold/honest-limit canaries. R-CW-5/R-CW-6 are excluded because their cap claims run through explicit process-local exact-candidate fixtures rather than the unattended WebSocket suite; R-CW-5A/R-CW-6A are non-live construct-only boundary checks. A `PASS-candidate` or `HONEST-LIMIT-candidate` still needs row-specific review before any canonical fold.
 
-`preflight` remains `static-preflight-only`: the runner performs seat-readiness preflight for live runs, but the preflight manifest row is intentionally skipped by live-run guard.
+`preflight` remains a readiness helper with its own manifest contract; live cap rows are never promoted by that helper.
 
 Use this directory as the accumulator. When a scaffold row becomes runnable, add or update `RUNBOOKS/project-81/rows/<ROW>.md` or a fixture note in the same PR as the scenario/manifest change. Static committed-packet validators may stay manifest-driven when the manifest and executable-suite docs already describe the review caveat.
 
@@ -90,25 +90,36 @@ Rows promoted as static committed-packet validators or honest-limit canaries may
      ./scripts/run-proofs.sh --dry-run <ROW-or-comma-list-or-all> <candidate-sha>
    ```
 
-4. Live-run only when the row runbook says it is safe:
+4. Live-run only when the row runbook says it is safe. A live run must be bound
+   to the exact immutable docs/harness commit it is running from (#496):
 
    ```bash
    cd tools/k6-proofs
    OPENCLAW_GATEWAY_TOKEN=*** \
    OPENCLAW_SESSION_KEY=<target-session-key> \
-     ./scripts/run-proofs.sh --live <ROW> <candidate-sha>
+     ./scripts/run-proofs.sh --live --docs-ref "$(git rev-parse HEAD)" <ROW> <candidate-sha>
    ```
+
+   The runner refuses to fire when the ref is missing/malformed, when `HEAD` is
+   not that ref, when tracked bytes under `tools/k6-proofs` are dirty, when a
+   selected row's manifest/scenario is untracked at that commit, or when the
+   catalog preflight fails. Each of those writes one
+   `<out-dir>/harness-control-receipt.json`, exits 78, and executes no rows.
 
 5. Preserve candidate output. For live runs, `run-proofs.sh` writes artifacts under `--out-dir` (default `/tmp/k6-proof-runs`):
 
    ```text
+   <out-dir>/harness-provenance.json             # docs ref, candidate, digests, row selection
+   <out-dir>/harness-provenance/<matrix-id>.json # immutable per-matrix copy
    <out-dir>/<candidate-sha>/<ROW>/<seat>/<timestamp-row>/
    ├── row-manifest.json
-   ├── runner-metadata.json
+   ├── row-scenario.js                 # the exact scenario source that fired
+   ├── runner-metadata.json            # incl. docsRef / manifestSha256 / scenarioSha256
    ├── k6.log
    ├── evidence-lines.log
    ├── evidence.jsonl
    ├── run-result.json
+   ├── candidate-run-result.json  # only when review-complete; never canonical proof
    └── *summary.json
    ```
 

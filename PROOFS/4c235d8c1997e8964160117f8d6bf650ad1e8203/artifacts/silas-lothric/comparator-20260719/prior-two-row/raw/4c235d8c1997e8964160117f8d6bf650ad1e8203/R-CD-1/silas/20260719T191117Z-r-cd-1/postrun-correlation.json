@@ -1,0 +1,79 @@
+{
+  "schema": "openclaw.k6.postrun-correlation-review.v1",
+  "row": "R-CD-1",
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "docsRef": "1303a03c2858fce82c235992b7ee06385e8e6304",
+  "seat": "silas-lothric",
+  "trace": {
+    "id": "6a904ad5ab0224352d0b92d5df09d5c6",
+    "fetched": true,
+    "publicProjection": "tempo-trace-postrun.json",
+    "sha256": "39d1a36b2c390f3882fa42646e84ca44cfed23a3e9a71f423f382634c269f344",
+    "totalSpans": 36
+  },
+  "expected": {
+    "acceptSpan": "continuation.delegate.dispatch",
+    "fireSpan": "continuation.delegate.fire",
+    "tool": "continue_delegate",
+    "acceptCount": 1,
+    "fireCount": 1,
+    "toolCount": 1,
+    "status": "OK",
+    "sameTrace": true,
+    "sameChain": true,
+    "sameCausalParent": true
+  },
+  "observed": {
+    "acceptCount": 1,
+    "fireCount": 1,
+    "toolCount": 1,
+    "acceptStatuses": [
+      "UNSET"
+    ],
+    "fireStatuses": [
+      "UNSET"
+    ],
+    "toolStatuses": [
+      "UNSET"
+    ],
+    "sameTrace": true,
+    "sameChain": true,
+    "sameCausalParent": false,
+    "chainIds": [
+      "28bc1676-bfd8-4c71-833e-0c4ab7237437"
+    ],
+    "relevantSpans": [
+      {
+        "name": "continuation.delegate.dispatch",
+        "status": "UNSET",
+        "spanId": "41e39a13cbf27d43",
+        "parentSpanId": "0c810a87e2115459",
+        "traceId": "6a904ad5ab0224352d0b92d5df09d5c6",
+        "chainId": "28bc1676-bfd8-4c71-833e-0c4ab7237437"
+      },
+      {
+        "name": "continuation.delegate.fire",
+        "status": "UNSET",
+        "spanId": "9c5bc58cd8ac1f6e",
+        "parentSpanId": "0c810a87e2115459",
+        "traceId": "6a904ad5ab0224352d0b92d5df09d5c6",
+        "chainId": "28bc1676-bfd8-4c71-833e-0c4ab7237437"
+      },
+      {
+        "name": "openclaw.tool.execution",
+        "status": "UNSET",
+        "spanId": "591fb15d9da8c283",
+        "parentSpanId": "35b4a51da8fe12f5",
+        "traceId": "6a904ad5ab0224352d0b92d5df09d5c6",
+        "chainId": null
+      }
+    ]
+  },
+  "contractOutcome": "invalid",
+  "blockers": [
+    "required continuation/tool spans are status UNSET rather than OK",
+    "tool, accept, and fire spans do not share one causal parent"
+  ],
+  "rawNoncePersisted": false,
+  "rawSessionKeyPersisted": false
+}

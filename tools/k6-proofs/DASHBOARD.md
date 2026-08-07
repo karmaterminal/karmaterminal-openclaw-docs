@@ -21,7 +21,7 @@ The dashboard consists of 10 panels designed to monitor run outcomes, performanc
 * **Viz Type:** Stat (Multiple gauges/numbers)
 * **Fields Read:** `outcome`
 * **Group By:** `outcome`
-* **Purpose:** High-level view of how many runs are `PASS-candidate`, `HONEST-LIMIT-candidate`, or `FAIL-candidate`.
+* **Purpose:** High-level view of how many runs are `PASS-candidate`, `PARTIAL-candidate`, `FAIL-candidate`, or the single allowed `R-RC-2` below-threshold `HONEST-LIMIT-candidate`.
 
 ### Panel 2: Outcome Distribution by Seat
 * **Title:** Outcomes per Seat

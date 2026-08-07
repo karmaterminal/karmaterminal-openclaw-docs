@@ -137,10 +137,25 @@ async function readEvidenceJsonl(file) {
     .filter(Boolean);
 }
 
-function receiptStatusFromEvidence(name, evidenceRows) {
+function receiptStatusFromEvidence(name, evidenceRows, readiness = null) {
   const safe = safeLabelValue(name);
   const evidence = evidenceRows[0] || {};
   switch (safe) {
+    case 'seat-readiness':
+      return readiness?.outcome === 'PASS-candidate' ? 'present' : 'unknown';
+    case 'config-read':
+      return evidence.config_read === true ? 'present' : 'unknown';
+    case 'continuation-values':
+      return typeof evidence.enabled === 'boolean'
+        && Number.isFinite(evidence.max_chain_length)
+        && Number.isFinite(evidence.max_delegates_per_turn)
+        && Number.isFinite(evidence.cost_cap_tokens)
+        ? 'present'
+        : 'unknown';
+    case 'cross-session-targeting':
+      return evidence.cross_session_targeting === 'enabled'
+        ? 'present'
+        : 'unknown';
     case 'dispatch-accepted':
     case 'tool-accepted':
     case 'tool-invoke-accepted':
@@ -163,6 +178,7 @@ async function normalizeFromRunDir(runDir) {
   const manifest = files.includes('row-manifest.json') ? await readJson(path.join(runDir, 'row-manifest.json')) : {};
   const runResult = files.includes('run-result.json') ? await readJson(path.join(runDir, 'run-result.json')) : {};
   const metadata = files.includes('runner-metadata.json') ? await readJson(path.join(runDir, 'runner-metadata.json')) : {};
+  const readiness = files.includes('seat-readiness.json') ? await readJson(path.join(runDir, 'seat-readiness.json')) : null;
   const evidenceRows = files.includes('evidence.jsonl') ? await readEvidenceJsonl(path.join(runDir, 'evidence.jsonl')) : [];
   const summaryName = pickSummaryFile(files);
   const summary = summaryName ? await readJson(path.join(runDir, summaryName)) : {};
@@ -194,7 +210,7 @@ async function normalizeFromRunDir(runDir) {
     },
     receipts: receiptRowsFrom({ result: {}, manifest, runResult }).map((receipt) => ({
       ...receipt,
-      status: receipt.status === 'unknown' ? receiptStatusFromEvidence(receipt.name, evidenceRows) : receipt.status,
+      status: receipt.status === 'unknown' ? receiptStatusFromEvidence(receipt.name, evidenceRows, readiness) : receipt.status,
     })),
     failureClass: proofFailures > 0 ? 'threshold' : (runResult?.review?.pendingReceipts?.length ? 'missing-receipt' : 'none'),
     candidateOnly,

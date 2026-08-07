@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
+import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \\
@@ -83,14 +86,60 @@ function receiptStatusFromName(name, summary) {
   }
 }
 
-function outcomeFromSummary(summary) {
+function verifiedRrc2ThresholdEvidence(evidence) {
+  return evidence?.row === 'R-RC-2' &&
+    evidence.parent_dispatch_accepted === true &&
+    evidence.delegate_requested === true &&
+    evidence.child_session_observed === true &&
+    evidence.delegate_child_report_observed === true &&
+    evidence.child_reported_context_threshold === true &&
+    evidence.request_compaction_tool_result_observed === true &&
+    evidence.request_compaction_receipt_role === 'toolResult' &&
+    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
+    evidence.request_compaction_receipt_status === 'rejected' &&
+    evidence.request_compaction_invocation_bound === true &&
+    evidence.request_compaction_rejected_context_threshold === true &&
+    evidence.guard === 'context_threshold';
+}
+
+function verifiedRrc2AcceptedEvidence(evidence) {
+  return evidence?.row === 'R-RC-2' &&
+    evidence.parent_dispatch_accepted === true &&
+    evidence.delegate_requested === true &&
+    evidence.child_session_observed === true &&
+    evidence.delegate_child_report_observed === true &&
+    evidence.post_compaction_path_observed === true &&
+    evidence.request_compaction_tool_result_observed === true &&
+    evidence.request_compaction_receipt_role === 'toolResult' &&
+    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
+    evidence.request_compaction_receipt_status === 'accepted' &&
+    evidence.request_compaction_invocation_bound === true &&
+    evidence.request_compaction_accepted === true;
+}
+
+function outcomeFromSummary(summary, expectedArtifactClass, rowId) {
+  // Some rows deliberately validate only a static contract.  A green k6
+  // summary must not upgrade that contract into a candidate behavioral PASS.
+  if (expectedArtifactClass === 'construct-only') return 'construct-only';
+  if (rowId === 'R-RC-2') {
+    if (verifiedRrc2AcceptedEvidence(summary?.evidence)) return 'PASS-candidate';
+    if (verifiedRrc2ThresholdEvidence(summary?.evidence)) return 'HONEST-LIMIT-candidate';
+    return 'PARTIAL-candidate';
+  }
+  if (summary?.verdict === 'FAIL-candidate') return 'FAIL-candidate';
+  if (
+    summary?.verdict === 'PARTIAL-candidate' ||
+    summary?.verdict === 'HONEST-LIMIT-candidate'
+  ) return 'PARTIAL-candidate';
+
   const failures = requiredMetric(summary, 'proof_failures');
   const failureCount = failures ? Number(failures.count || 0) : 0;
   const checks = requiredMetric(summary, 'checks');
   const checkRate = checks ? Number(checks.rate ?? 0) : null;
 
   if (failureCount > 0) return 'FAIL-candidate';
-  if (checkRate !== null && checkRate < 1) return 'HONEST-LIMIT-candidate';
+  if (checkRate !== null && checkRate < 1) return 'PARTIAL-candidate';
+  if (expectedArtifactClass === 'PARTIAL-candidate') return 'PARTIAL-candidate';
   return 'PASS-candidate';
 }
 
@@ -177,7 +226,23 @@ async function main() {
   const runId = args['run-id'] || `${dest.runDirPrefix || 'k6-run'}-${stamp()}`;
   const runDir = path.join(outRoot, sha, row, seat, runId);
 
-  const outcome = outcomeFromSummary(summary);
+  const expectedArtifactClass = manifest.liveRunSafety?.expectedArtifactClass;
+  let outcome = outcomeFromSummary(summary, expectedArtifactClass, manifest.rowId);
+  let verdictSource = 'k6-summary';
+  let authoritativeReceiptDigest = null;
+  let authoritativeReceiptRaw = null;
+  let authoritativeReceipt = null;
+  if (manifest.rowId === 'R-CD-2') {
+    if (!args['authoritative-receipt']) throw new Error('R-CD-2 requires --authoritative-receipt');
+    authoritativeReceiptRaw = readFileSync(args['authoritative-receipt']);
+    const receipt = JSON.parse(authoritativeReceiptRaw.toString('utf8'));
+    const validation = validateRcd2AuthoritativeReceipt(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
+    if (!validation.valid) throw new Error(`R-CD-2 authoritative receipt rejected: ${validation.reason}`);
+    outcome = receipt.verdict;
+    verdictSource = 'r-cd-2-authoritative-receipt';
+    authoritativeReceiptDigest = createHash('sha256').update(authoritativeReceiptRaw).digest('hex');
+    authoritativeReceipt = { schema: receipt.schema, validated: true, source: 'r-cd-2-row-scoped-resolver' };
+  }
   const failures = requiredMetric(summary, 'proof_failures');
   const failureCount = failures ? Number(failures.count || 0) : 0;
   const checks = requiredMetric(summary, 'checks');
@@ -199,6 +264,8 @@ async function main() {
     toolSurface: manifest.toolSurface,
     transport: manifest.transport,
     outcome,
+    verdictSource,
+    ...(authoritativeReceiptDigest ? { authoritativeReceipt: { ...authoritativeReceipt, file: 'r-cd-2-authoritative-receipt.json', sha256: authoritativeReceiptDigest } } : {}),
     metrics: {
       proofFailures: failureCount,
       checksRate: checkRate,
@@ -217,10 +284,12 @@ async function main() {
       foldRequiresReview: manifest.liveRunSafety.foldRequiresReview === true,
     } : null,
     failureClass,
-    reason: outcome === 'FAIL-candidate'
+    reason: outcome === 'construct-only'
+      ? 'manifest caps this row at construct-only; it is not behavioral candidate evidence'
+      : outcome === 'FAIL-candidate'
       ? 'k6 proof_failures metric is non-zero'
-      : outcome === 'HONEST-LIMIT-candidate'
-        ? 'k6 checks did not all pass; classify for human review'
+      : outcome === 'PARTIAL-candidate'
+        ? 'k6 checks or required receipts did not all pass; preserve as proof debt'
         : 'k6 checks passed and proof_failures is zero; receipts still need human review',
     candidateOnly: true,
     foldRequiresReview: true,
@@ -230,6 +299,7 @@ async function main() {
   await writeFile(path.join(runDir, 'row-manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   await writeFile(path.join(runDir, 'k6-summary.json'), JSON.stringify(summary, null, 2) + '\n');
   await writeFile(path.join(runDir, 'row-result.json'), JSON.stringify(result, null, 2) + '\n');
+  if (authoritativeReceiptRaw) await writeFile(path.join(runDir, 'r-cd-2-authoritative-receipt.json'), authoritativeReceiptRaw);
   await writeFile(path.join(runDir, 'EVIDENCE.md'), evidenceDraft({ manifest, summary, result }));
 
   console.log(JSON.stringify({ runDir, outcome, rowId: manifest.rowId, candidateOnly: true }, null, 2));

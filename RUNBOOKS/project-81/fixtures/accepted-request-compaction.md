@@ -53,7 +53,7 @@ If the proof runner can drive the same compaction code path with injected contex
 
 ### Manual fallback: local model server behind temp config
 
-A local GPU/CPU model server may be used only inside the isolated temp config. It must be optional, not assumed available for all maintainers. The fixture must emit `HONEST-LIMIT-local-model-unavailable` when no suitable local provider is present.
+A local GPU/CPU model server may be used only inside the isolated temp config. It must be optional, not assumed available for all maintainers. The fixture must emit `PARTIAL-local-model-unavailable` when no suitable local provider is present.
 
 ## Config knobs the implementation must make explicit
 
@@ -89,7 +89,7 @@ Tempo trace JSON should be fetched when trace ids are emitted. If the isolated f
 
 The fixture should emit structured non-PASS outcomes rather than fail opaquely:
 
-- `HONEST-LIMIT-local-model-unavailable` — optional local provider requested but not available.
+- `PARTIAL-local-model-unavailable` — optional local provider requested but not available.
 - `BLOCKED-temp-gateway-start` — isolated Gateway could not start or become ready.
 - `BLOCKED-context-budget-not-forced` — fixture could not prove the session crossed the acceptance floor.
 - `FAIL-request-compaction-rejected` — tool returned a structured below-threshold rejection in a fixture intended to be over threshold.

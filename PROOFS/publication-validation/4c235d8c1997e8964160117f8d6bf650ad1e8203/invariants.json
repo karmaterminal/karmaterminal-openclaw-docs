@@ -1,0 +1,13 @@
+{
+  "canonicalOwnerMismatches": [],
+  "canonicalRowCount": 35,
+  "exactCandidate": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "invalidHonestLimitRows": [],
+  "mappingPolicy": "at most one selected artifact; ambiguous/refired rows select none and classify fail",
+  "note": "rowsWithAmbiguousMapping may be non-empty while structural validation passes because the fail-closed classification is intentional.",
+  "requiredRowCount": 35,
+  "rowsWithAmbiguousMapping": [],
+  "schema": "openclaw.project81.comparator-publication-validation.v1",
+  "status": "pass",
+  "uniqueRows": 35
+}

@@ -1,0 +1,371 @@
+{
+  "workflowChoices": [
+    "preflight",
+    "r-cd-1-typed-delegate",
+    "r-cd-2-silent-wake",
+    "r-cd-4-target-session-key",
+    "r-cd-chained-depth-2",
+    "r-cd-silent",
+    "r-cd-model-default",
+    "r-cd-model-tool",
+    "r-cd-model-chained-alt",
+    "r-cd-model-token",
+    "r-cd-token-bracket-delegate",
+    "r-config-defaults",
+    "r-cw-1",
+    "r-cw-1-tool-schedule-wake",
+    "r-cw-2-immediate-wake",
+    "r-cw-3-reason-telemetry",
+    "r-cw-4-chain-depth",
+    "r-cw-delegate-self-continuation",
+    "r-cw-token-bracket",
+    "r-obs-status",
+    "r-rc-1-threshold-reject",
+    "r-cw"
+  ],
+  "scenarioFiles": [
+    "preflight",
+    "r-cd-1-typed-delegate",
+    "r-cd-2-silent-wake",
+    "r-cd-3-post-compaction",
+    "r-cd-4-target-session-key",
+    "r-cd-chained-depth-2",
+    "r-cd-collection-on-collapse",
+    "r-cd-model-chained-alt",
+    "r-cd-model-default",
+    "r-cd-model-token",
+    "r-cd-model-tool",
+    "r-cd-return-overlap",
+    "r-cd-silent",
+    "r-cd-token-bracket-delegate",
+    "r-config-defaults",
+    "r-config-intersession",
+    "r-cw",
+    "r-cw-1",
+    "r-cw-1-tool-schedule-wake",
+    "r-cw-2-immediate-wake",
+    "r-cw-3-reason-telemetry",
+    "r-cw-4-chain-depth",
+    "r-cw-5-cost-cap-reject",
+    "r-cw-6-max-chain-length",
+    "r-cw-delegate-self-continuation",
+    "r-cw-token-bracket",
+    "r-obs-1",
+    "r-obs-2",
+    "r-obs-status",
+    "r-rc-1-threshold-reject",
+    "r-rc-2",
+    "r-rc-2-delegate-request-compaction",
+    "r-regression-trap-tests",
+    "r-trace-redaction-1121",
+    "static-corpus-row-validator"
+  ],
+  "manifests": [
+    {
+      "file": "preflight.example.json",
+      "rowId": "preflight",
+      "status": "runnable",
+      "runnableRef": "preflight",
+      "expectedRef": "preflight",
+      "existing": true
+    },
+    {
+      "file": "r-cd-1.json",
+      "rowId": "R-CD-1",
+      "status": "runnable",
+      "runnableRef": "r-cd-1-typed-delegate",
+      "expectedRef": "r-cd-1-typed-delegate",
+      "existing": true
+    },
+    {
+      "file": "r-cd-2.json",
+      "rowId": "R-CD-2",
+      "status": "runnable",
+      "runnableRef": "r-cd-2-silent-wake",
+      "expectedRef": "r-cd-2-silent-wake",
+      "existing": true
+    },
+    {
+      "file": "r-cd-3.json",
+      "rowId": "R-CD-3",
+      "status": "runnable",
+      "runnableRef": "r-cd-3-post-compaction",
+      "expectedRef": "r-cd-3-post-compaction",
+      "existing": true
+    },
+    {
+      "file": "r-cd-4.json",
+      "rowId": "R-CD-4",
+      "status": "runnable",
+      "runnableRef": "r-cd-4-target-session-key",
+      "expectedRef": "r-cd-4-target-session-key",
+      "existing": true
+    },
+    {
+      "file": "r-cd-chained-depth-2.json",
+      "rowId": "R-CD-CHAINED-DEPTH-2",
+      "status": "runnable",
+      "runnableRef": "r-cd-chained-depth-2",
+      "expectedRef": "r-cd-chained-depth-2",
+      "existing": true
+    },
+    {
+      "file": "r-cd-collection-on-collapse.json",
+      "rowId": "R-CD-COLLECTION-ON-COLLAPSE",
+      "status": "runnable",
+      "runnableRef": "static-corpus-row-validator",
+      "expectedRef": "static-corpus-row-validator",
+      "existing": true
+    },
+    {
+      "file": "r-cd-model-chained-alt.json",
+      "rowId": "R-CD-MODEL-CHAINED-ALT",
+      "status": "runnable",
+      "runnableRef": "r-cd-model-chained-alt",
+      "expectedRef": "r-cd-model-chained-alt",
+      "existing": true
+    },
+    {
+      "file": "r-cd-model-default.json",
+      "rowId": "R-CD-MODEL-DEFAULT",
+      "status": "runnable",
+      "runnableRef": "r-cd-model-default",
+      "expectedRef": "r-cd-model-default",
+      "existing": true
+    },
+    {
+      "file": "r-cd-model-token.json",
+      "rowId": "R-CD-MODEL-TOKEN",
+      "status": "runnable",
+      "runnableRef": "r-cd-model-token",
+      "expectedRef": "r-cd-model-token",
+      "existing": true
+    },
+    {
+      "file": "r-cd-model-tool.json",
+      "rowId": "R-CD-MODEL-TOOL",
+      "status": "runnable",
+      "runnableRef": "r-cd-model-tool",
+      "expectedRef": "r-cd-model-tool",
+      "existing": true
+    },
+    {
+      "file": "r-cd-return-overlap.json",
+      "rowId": "R-CD-RETURN-OVERLAP",
+      "status": "runnable",
+      "runnableRef": "r-cd-return-overlap",
+      "expectedRef": "r-cd-return-overlap",
+      "existing": true
+    },
+    {
+      "file": "r-cd-silent.json",
+      "rowId": "R-CD-SILENT",
+      "status": "runnable",
+      "runnableRef": "r-cd-silent",
+      "expectedRef": "r-cd-silent",
+      "existing": true
+    },
+    {
+      "file": "r-cd-token.json",
+      "rowId": "R-CD-TOKEN",
+      "status": "runnable",
+      "runnableRef": "r-cd-token-bracket-delegate",
+      "expectedRef": "r-cd-token-bracket-delegate",
+      "existing": true
+    },
+    {
+      "file": "r-config-defaults.json",
+      "rowId": "R-CONFIG-DEFAULTS",
+      "status": "runnable",
+      "runnableRef": "r-config-defaults",
+      "expectedRef": "r-config-defaults",
+      "existing": true
+    },
+    {
+      "file": "r-config-intersession.json",
+      "rowId": "R-CONFIG-INTERSESSION",
+      "status": "runnable",
+      "runnableRef": "r-config-intersession",
+      "expectedRef": "r-config-intersession",
+      "existing": true
+    },
+    {
+      "file": "r-cw-1.json",
+      "rowId": "R-CW-1",
+      "status": "runnable",
+      "runnableRef": "r-cw-1-tool-schedule-wake",
+      "expectedRef": "r-cw-1-tool-schedule-wake",
+      "existing": true
+    },
+    {
+      "file": "r-cw-2.json",
+      "rowId": "R-CW-2",
+      "status": "runnable",
+      "runnableRef": "r-cw-2-immediate-wake",
+      "expectedRef": "r-cw-2-immediate-wake",
+      "existing": true
+    },
+    {
+      "file": "r-cw-3.json",
+      "rowId": "R-CW-3",
+      "status": "runnable",
+      "runnableRef": "r-cw-3-reason-telemetry",
+      "expectedRef": "r-cw-3-reason-telemetry",
+      "existing": true
+    },
+    {
+      "file": "r-cw-4.json",
+      "rowId": "R-CW-4",
+      "status": "runnable",
+      "runnableRef": "r-cw-4-chain-depth",
+      "expectedRef": "r-cw-4-chain-depth",
+      "existing": true
+    },
+    {
+      "file": "r-cw-5.json",
+      "rowId": "R-CW-5",
+      "status": "scaffold",
+      "runnableRef": "",
+      "expectedRef": "r-cw-5-cost-cap-reject",
+      "existing": false
+    },
+    {
+      "file": "r-cw-5a-static.json",
+      "rowId": "R-CW-5A",
+      "status": "runnable",
+      "runnableRef": "static-corpus-row-validator",
+      "expectedRef": "static-corpus-row-validator",
+      "existing": true
+    },
+    {
+      "file": "r-cw-6.json",
+      "rowId": "R-CW-6",
+      "status": "scaffold",
+      "runnableRef": "",
+      "expectedRef": "r-cw-6-max-chain-length",
+      "existing": false
+    },
+    {
+      "file": "r-cw-6a-static.json",
+      "rowId": "R-CW-6A",
+      "status": "runnable",
+      "runnableRef": "static-corpus-row-validator",
+      "expectedRef": "static-corpus-row-validator",
+      "existing": true
+    },
+    {
+      "file": "r-cw-7.json",
+      "rowId": "R-CW-7",
+      "status": "runnable",
+      "runnableRef": "static-corpus-row-validator",
+      "expectedRef": "static-corpus-row-validator",
+      "existing": true
+    },
+    {
+      "file": "r-cw-delegate-child-live.json",
+      "rowId": "R-CW-DELEGATE-CHILD-LIVE",
+      "status": "runnable",
+      "runnableRef": "static-corpus-row-validator",
+      "expectedRef": "static-corpus-row-validator",
+      "existing": true
+    },
+    {
+      "file": "r-cw-delegate-self.json",
+      "rowId": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "status": "runnable",
+      "runnableRef": "r-cw-delegate-self-continuation",
+      "expectedRef": "r-cw-delegate-self-continuation",
+      "existing": true
+    },
+    {
+      "file": "r-cw-delegate-token.json",
+      "rowId": "R-CW-DELEGATE-TOKEN",
+      "status": "runnable",
+      "runnableRef": "static-corpus-row-validator",
+      "expectedRef": "static-corpus-row-validator",
+      "existing": true
+    },
+    {
+      "file": "r-cw-multi-collapse.json",
+      "rowId": "R-CW-MULTI-COLLAPSE",
+      "status": "runnable",
+      "runnableRef": "static-corpus-row-validator",
+      "expectedRef": "static-corpus-row-validator",
+      "existing": true
+    },
+    {
+      "file": "r-cw-multi.json",
+      "rowId": "R-CW-MULTI",
+      "status": "runnable",
+      "runnableRef": "static-corpus-row-validator",
+      "expectedRef": "static-corpus-row-validator",
+      "existing": true
+    },
+    {
+      "file": "r-cw-token.json",
+      "rowId": "R-CW-TOKEN",
+      "status": "runnable",
+      "runnableRef": "r-cw-token-bracket",
+      "expectedRef": "r-cw-token-bracket",
+      "existing": true
+    },
+    {
+      "file": "r-obs-1.json",
+      "rowId": "R-OBS-1",
+      "status": "runnable",
+      "runnableRef": "r-obs-1",
+      "expectedRef": "r-obs-1",
+      "existing": true
+    },
+    {
+      "file": "r-obs-2.json",
+      "rowId": "R-OBS-2",
+      "status": "runnable",
+      "runnableRef": "r-obs-2",
+      "expectedRef": "r-obs-2",
+      "existing": true
+    },
+    {
+      "file": "r-obs-status.json",
+      "rowId": "R-OBS-STATUS",
+      "status": "runnable",
+      "runnableRef": "r-obs-status",
+      "expectedRef": "r-obs-status",
+      "existing": true
+    },
+    {
+      "file": "r-rc-1.json",
+      "rowId": "R-RC-1",
+      "status": "runnable",
+      "runnableRef": "r-rc-1-threshold-reject",
+      "expectedRef": "r-rc-1-threshold-reject",
+      "existing": true
+    },
+    {
+      "file": "r-rc-2.json",
+      "rowId": "R-RC-2",
+      "status": "runnable",
+      "runnableRef": "r-rc-2-delegate-request-compaction",
+      "expectedRef": "r-rc-2-delegate-request-compaction",
+      "existing": true
+    },
+    {
+      "file": "r-regression-trap-tests.json",
+      "rowId": "R-REGRESSION-TRAP-TESTS",
+      "status": "runnable",
+      "runnableRef": "r-regression-trap-tests",
+      "expectedRef": "r-regression-trap-tests",
+      "existing": true
+    },
+    {
+      "file": "r-trace-redaction-1121.json",
+      "rowId": "R-TRACE-REDACTION-1121",
+      "status": "runnable",
+      "runnableRef": "r-trace-redaction-1121",
+      "expectedRef": "r-trace-redaction-1121",
+      "existing": true
+    }
+  ],
+  "ok": true,
+  "errors": []
+}

@@ -1,0 +1,22 @@
+2026-08-04T22:42:41.947685-07:00 cael node[3546538]: 2026-08-04T22:42:41.947-07:00 [ws] ⇄ res ✓ sessions.send 332ms runId=R-CD-1-DISPATCH-<redacted-nonce> conn=2786bb99…2fcf id=1-0-1785908561613-fu8y7t
+2026-08-04T22:42:52.336483-07:00 cael node[3546538]: 2026-08-04T22:42:52.336-07:00 [memory] sync failed (search-bootstrap): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:42:52.337214-07:00 cael node[3546538]: 2026-08-04T22:42:52.337-07:00 [memory] sync failed (search-bootstrap): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:42:52.338270-07:00 cael node[3546538]: 2026-08-04T22:42:52.338-07:00 [memory] sync failed (search): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:42:52.338842-07:00 cael node[3546538]: 2026-08-04T22:42:52.338-07:00 [memory] sync failed (session-start): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:42:52.339379-07:00 cael node[3546538]: 2026-08-04T22:42:52.339-07:00 [memory] sync failed (session-startup-catchup): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:42:59.679180-07:00 cael node[3546538]: 2026-08-04T22:42:59.679-07:00 [memory] sync failed (search): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:42:59.679701-07:00 cael node[3546538]: 2026-08-04T22:42:59.679-07:00 [memory] sync failed (session-start): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:42:59.680257-07:00 cael node[3546538]: 2026-08-04T22:42:59.680-07:00 [memory] sync failed (search): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:42:59.680862-07:00 cael node[3546538]: 2026-08-04T22:42:59.680-07:00 [memory] sync failed (session-start): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T22:43:05.439801-07:00 cael node[3546538]: 2026-08-04T22:43:05.439-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-04T22:43:05.440426-07:00 cael node[3546538]: 2026-08-04T22:43:05.440-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-04T22:43:05.450982-07:00 cael node[3546538]: 2026-08-04T22:43:05.450-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=3656ms fireAt=1785908589105 session=<redacted-session-key>
+2026-08-04T22:43:09.108726-07:00 cael node[3546538]: 2026-08-04T22:43:09.108-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-fired] session=<redacted-session-key>
+2026-08-04T22:43:09.110560-07:00 cael node[3546538]: 2026-08-04T22:43:09.110-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-08-04T22:43:09.849012-07:00 cael node[3546538]: 2026-08-04T22:43:09.848-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=<redacted-session-key> task=<redacted-payload>
+2026-08-04T22:43:11.403549-07:00 cael node[3546538]: 2026-08-04T22:43:11.403-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-04T22:43:11.505553-07:00 cael node[3546538]: 2026-08-04T22:43:11.505-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-04T22:43:19.195868-07:00 cael node[3546538]: 2026-08-04T22:43:19.195-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-04T22:43:19.196911-07:00 cael node[3546538]: 2026-08-04T22:43:19.196-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-04T22:43:19.274253-07:00 cael node[3546538]: 2026-08-04T22:43:19.273-07:00 CD1-DONE <redacted-nonce>
+2026-08-04T22:43:19.275272-07:00 cael node[3546538]: 2026-08-04T22:43:19.275-07:00 [agents/agent-command] [agent] run continuation-delegate-692499fe3a79dc8f65d57979b0a0740d ended with stopReason=stop

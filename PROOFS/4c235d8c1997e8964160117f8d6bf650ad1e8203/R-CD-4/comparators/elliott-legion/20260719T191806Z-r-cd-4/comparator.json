@@ -1,0 +1,16 @@
+{
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "canonicalOwner": "ᚱ rune",
+  "classification": "partial",
+  "executionRole": "comparator",
+  "executionSeat": "elliott-legion",
+  "reasons": [
+    "review is incomplete or has pending receipts",
+    "review-complete candidate envelope is absent",
+    "behavior/publication authority is absent",
+    "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+  ],
+  "row": "R-CD-4",
+  "schema": "openclaw.project81.comparator-execution.v1",
+  "sourceKind": "elliott-run"
+}

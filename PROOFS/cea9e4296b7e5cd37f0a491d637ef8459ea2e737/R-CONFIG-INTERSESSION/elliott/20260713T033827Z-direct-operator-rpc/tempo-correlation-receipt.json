@@ -1,0 +1,25 @@
+{
+  "schema": "openclaw.proofs.tempo-correlation-receipt.v1",
+  "row": "R-CONFIG-INTERSESSION",
+  "candidateSha": "cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
+  "workflow": {
+    "run": "29222117717",
+    "url": "https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/29222117717",
+    "artifact": "8268529284"
+  },
+  "query": {
+    "service": "elliott-prince",
+    "endpoint": "https://tempo.dandelion.cult/api/search",
+    "traceql": "{ resource.service.name=\"elliott-prince\" && .gen_ai.tool.name=\"config.get\" }",
+    "windowStart": "2026-07-13T03:38:32.890Z",
+    "windowEnd": "2026-07-13T03:38:33.335Z"
+  },
+  "result": {
+    "rawPublicSafeFile": "tempo-search-config-get.json",
+    "sha256": "aedd4e670955d802b4c1e62be4659d1f573c0b83d8af2a277524b68bf58c308a",
+    "matchingTraces": 0,
+    "attributableTraceId": null,
+    "topology": null
+  },
+  "classification": "No config.get tool-execution span is present in this exact row window. The empty query is retained as a negative correlation receipt; nearby/unrelated service spans were deliberately not attributed."
+}

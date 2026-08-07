@@ -1,0 +1,46 @@
+{
+  "schema": "openclaw.project81.elliott-comparator-execution-summary.v1",
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "docsSha": "1303a03c2858fce82c235992b7ee06385e8e6304",
+  "executionSeat": "elliott-legion",
+  "executionRole": "comparator",
+  "attempts": {
+    "totalIncludingPreflight": 36,
+    "canonicalRows": 35,
+    "preflight": 1,
+    "uniqueCanonicalRows": 35,
+    "duplicates": 0,
+    "refires": 0
+  },
+  "runnerPostureBeforeHumanReview": {
+    "passCandidate": 26,
+    "partialCandidate": 7,
+    "failCandidate": 1,
+    "badProof": 1
+  },
+  "conservativePublicationRollup": {
+    "pass": 2,
+    "partial": 32,
+    "fail": 1,
+    "honest_limit": 0,
+    "missing": 0,
+    "total_rows": 35
+  },
+  "fixtures": {
+    "R-CW-5": "PASS-candidate",
+    "R-CW-6": "PASS-candidate",
+    "scope": "process-local exact-candidate component fixtures; not fleet-gateway proof"
+  },
+  "preflight": {
+    "connected": true,
+    "sessionsListOk": true,
+    "toolsEffectiveOk": false,
+    "toolInventoryCount": 0,
+    "scope": "readiness execution, outside the 35 canonical rows"
+  },
+  "notes": [
+    "All attempts were consumed exactly once.",
+    "Candidate runner outcomes remain candidate evidence; the publication is deliberately fail-closed on missing authority or mandatory topology/Tempo receipts.",
+    "Canonical owners are preserved; Elliott is labeled only as comparator."
+  ]
+}

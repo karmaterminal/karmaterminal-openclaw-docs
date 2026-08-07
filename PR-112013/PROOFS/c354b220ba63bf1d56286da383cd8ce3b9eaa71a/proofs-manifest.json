@@ -1,0 +1,44 @@
+{
+  "corpus": "PR-112013 empty outbound location normalization micro-proof",
+  "sha": "c354b220ba63bf1d56286da383cd8ce3b9eaa71a",
+  "sha_short": "c354b22",
+  "build_string": "OpenClaw 2026.7.2 (c354b22)",
+  "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
+  "generated": "2026-07-21 (frond-scribe, exact Cael runtime plus restored exact assembly)",
+  "rollup": {
+    "total_rows": 1,
+    "pass": 1,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "missing": 0
+  },
+  "notes": "Combined continuation-assembly testbed plus three disclosed micro-PR patches. Curated redacted tool call/result records replace the unnecessary full agent trajectory.",
+  "rows": [
+    {
+      "row": "MPR-112013-1",
+      "title": "Explicit empty location is normalized and the outbound message is delivered",
+      "owner": "frond-scribe (Cael deployment)",
+      "state": "pass",
+      "dir": "PR-112013/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/",
+      "evidence_doc": "README.md",
+      "summary": "The same real embedded-agent message-tool arguments failed with a location validation error on assembly and delivered with a returned Discord message ID on the candidate.",
+      "test_cases_executed": [
+        "real embedded-agent message-tool call with location empty string on assembly",
+        "same real argument shape on exact deployed candidate",
+        "Discord marker search and delivery receipt",
+        "focused outbound Vitest files, 82 assertions"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PR-112013/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/before-message-tool.json",
+        "PR-112013/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/after-message-tool.json",
+        "PR-112013/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/discord-marker-search.json",
+        "PR-112013/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/focused-tests.log",
+        "PR-112013/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/artifacts/platform.json"
+      ],
+      "notes": "Full trajectory context is intentionally excluded; the decisive redacted call, result, and receipt are published.",
+      "fired": "2026-07-21, Cael c354b220 candidate and ceaf8cba assembly comparison"
+    }
+  ]
+}

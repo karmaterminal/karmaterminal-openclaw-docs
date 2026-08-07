@@ -1,0 +1,71 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-05T06:22:19Z",
+  "verdict": "PARTIAL-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": "PARTIAL-candidate",
+  "summaryFiles": [
+    "r-rc-2-summary.json"
+  ],
+  "evidence": {
+    "row": "R-RC-2",
+    "manifest_loaded": true,
+    "seat": "cael",
+    "session_created": true,
+    "candidateSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+    "started": "2026-08-05T06:20:18.067Z",
+    "parent_dispatch_accepted": true,
+    "dispatch_accepted_at_ms": 1785910819988,
+    "delegate_requested": true,
+    "reason_hash": "fd39dc33a01480e8",
+    "reason_length": 618,
+    "delegate_mode": "normal",
+    "child_session_observed": false,
+    "child_history_requests": 0,
+    "child_history_available": false,
+    "delegate_child_report_observed": true,
+    "child_reported_context_threshold": true,
+    "request_compaction_tool_result_observed": false,
+    "request_compaction_receipt_role": null,
+    "request_compaction_receipt_tool_name": null,
+    "request_compaction_receipt_status": null,
+    "request_compaction_invocation_bound": false,
+    "request_compaction_rejected_context_threshold": false,
+    "request_compaction_accepted": false,
+    "request_compaction_accepted_reported": false,
+    "post_compaction_path_observed": false,
+    "guard": null,
+    "context_usage": null,
+    "threshold": null,
+    "reported_context_usage": null,
+    "reported_threshold": null,
+    "trace_id": null,
+    "ended": "2026-08-05T06:22:19.167Z",
+    "duration_ms": 121100,
+    "verdict": "PARTIAL-candidate"
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "missing",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "continuation-trace-correlation",
+      "tempo-trace-json"
+    ]
+  }
+}

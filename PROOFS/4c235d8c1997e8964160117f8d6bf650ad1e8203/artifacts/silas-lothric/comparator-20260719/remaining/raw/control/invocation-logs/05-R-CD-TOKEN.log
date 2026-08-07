@@ -1,0 +1,25 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: silas
+Target Candidate SHA: 4c235d8c1997e8964160117f8d6bf650ad1e8203
+Deployed Runtime SHA: 4c235d8c1997e8964160117f8d6bf650ad1e8203
+Session configured: true
+Artifact root: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended
+Rows: R-CD-TOKEN
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/seat-readiness.json
+
+----------------------------------------
+Row: R-CD-TOKEN
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-cd-token.json
+Scenario: scenarios/r-cd-token-bracket-delegate.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-TOKEN] RUNNING...
+[R-CD-TOKEN] PARTIAL-candidate: seat readiness class 'message-body' is not scanner-supported raw-final-text; no dispatch occurred.
+REPORT: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/report.html
+
+==========================================================
+Runner execution finished.

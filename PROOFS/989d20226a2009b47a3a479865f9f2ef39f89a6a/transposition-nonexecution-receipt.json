@@ -1,0 +1,13 @@
+{
+  "schema": "openclaw.proofs.transposition-nonexecution.v1",
+  "target_candidate_sha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "target_execution": false,
+  "rows": [
+    "R-CW-5A",
+    "R-CW-6A",
+    "R-OBS-STATUS",
+    "R-REGRESSION-TRAP-TESTS",
+    "R-TRACE-REDACTION-1121"
+  ],
+  "statement": "No execution occurred on the target for these five reviewed rows."
+}

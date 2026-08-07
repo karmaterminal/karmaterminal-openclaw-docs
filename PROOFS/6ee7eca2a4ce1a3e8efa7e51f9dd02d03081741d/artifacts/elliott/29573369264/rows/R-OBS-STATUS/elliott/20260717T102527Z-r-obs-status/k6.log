@@ -1,0 +1,19 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-status.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m0s max duration (incl. graceful stop):
+              * r_obs_status: 1 iterations shared among 1 VUs (maxDuration: 30s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-OBS-status","candidate_sha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","source_repository":"karmaterminal/openclaw","source_path":"src/status/status-text.ts","source_fetch_ok":true,"source_sha256":"82704fafe96ca308c9b95bc9e79ab33153b8184f9f172d307dae3920005a1148","formatter_extracted":true,"active_continuation_line_present":true,"clean_session_continuation_line_absent":true,"ended":"2026-07-17T10:25:28.128Z","duration_ms":0}
+
+running (0m00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_status ✓ [ 100% ] 1 VUs  00.0s/30s  1/1 shared iters

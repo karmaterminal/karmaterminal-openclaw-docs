@@ -1,0 +1,17 @@
+{
+  "schema": "openclaw.k6.r-cd-token.attempt-state.v1",
+  "row": "R-CD-TOKEN",
+  "attemptIdHash": "c026b76bb67df6ec",
+  "rowNonceHash": "44634a983485b46a",
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "runtimeBuildSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "startedAt": "2026-07-19T19:43:24Z",
+  "phase": "pre-dispatch-surface-gate",
+  "proofTerminal": true,
+  "consumptionState": "not-dispatched",
+  "automaticRetryAllowed": false,
+  "endedAt": "2026-07-19T19:43:24Z",
+  "verdict": "PARTIAL-candidate",
+  "surfaceClass": "message-body",
+  "effectiveExitCode": 0
+}

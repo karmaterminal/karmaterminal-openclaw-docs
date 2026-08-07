@@ -39,7 +39,7 @@ export const DEFAULT_OPENCLAW_SOURCE_DIR = path.join(
 
 /** Canonical non-PASS outcomes for the live orchestration state machine. */
 export const NON_PASS_OUTCOMES = Object.freeze({
-  REVIEW_GATE: 'HONEST-LIMIT-live-orchestration-review-gate',
+  REVIEW_GATE: 'PARTIAL-live-orchestration-review-gate',
   OPENCLAW_DIR_MISSING: 'BLOCKED-openclaw-dir-missing',
   OPENCLAW_DIR_PRODUCTION: 'BLOCKED-openclaw-dir-inside-production',
   OPENCLAW_ENTRYPOINT_MISSING: 'BLOCKED-openclaw-entrypoint-missing',
@@ -53,7 +53,7 @@ export const NON_PASS_OUTCOMES = Object.freeze({
   LIFEBOAT_MISSING: 'FAIL-lifeboat-missing',
   SENTINEL_MISSING: 'FAIL-sentinel-missing',
   CLEANUP: 'FAIL-cleanup',
-  LIVE_SEND_NOT_IMPLEMENTED: 'HONEST-LIMIT-live-orchestration-preflight-only',
+  LIVE_SEND_NOT_IMPLEMENTED: 'PARTIAL-live-orchestration-preflight-only',
 });
 
 /**
@@ -502,7 +502,7 @@ export async function runOrchestration({
     const reason = String(error?.message ?? error);
     if (error && error.code === 'LIVE_NOT_IMPLEMENTED') {
       emit('live-orchestration-not-yet-implemented.json', {
-        schema: 'openclaw.project81.accepted-request-compaction.honest-limit.v1',
+        schema: 'openclaw.project81.accepted-request-compaction.partial.v1',
         step: 'startMockProvider',
         reason,
       });
@@ -565,9 +565,9 @@ export async function runOrchestration({
     } catch (error) {
       const reason = String(error?.message ?? error);
       if (error && error.code === 'LIVE_NOT_IMPLEMENTED') {
-        // Preflight-only mode: emit an honest-limit marker and stop cleanly.
+        // Preflight-only mode: emit a partial marker and stop cleanly.
         emit('live-orchestration-not-yet-implemented.json', {
-          schema: 'openclaw.project81.accepted-request-compaction.honest-limit.v1',
+          schema: 'openclaw.project81.accepted-request-compaction.partial.v1',
           step,
           reason,
         });

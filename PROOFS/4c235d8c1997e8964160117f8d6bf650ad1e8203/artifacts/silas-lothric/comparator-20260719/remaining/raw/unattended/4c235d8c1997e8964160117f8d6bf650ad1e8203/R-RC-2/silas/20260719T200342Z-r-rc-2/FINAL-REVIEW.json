@@ -1,0 +1,22 @@
+{
+  "schema": "openclaw.k6.silas-comparator.final-review.v1",
+  "reviewedAt": "2026-07-19T20:12:24.315Z",
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "docsRef": "1303a03c2858fce82c235992b7ee06385e8e6304",
+  "row": "R-RC-2",
+  "canonicalOwner": "🌊 ronan-dgx",
+  "executionSeat": "silas-lothric",
+  "runnerSeat": "silas",
+  "runId": "20260719T200342Z-r-rc-2",
+  "runnerVerdict": "HONEST-LIMIT-candidate",
+  "effectiveExitCode": 1,
+  "finalClassification": "HONEST_LIMIT",
+  "comparatorClassificationFinal": true,
+  "canonicalFoldAllowed": false,
+  "canonicalFoldReason": "Independent Silas comparator evidence does not overwrite or substitute for the exact manifest canonical owner.",
+  "refireAllowed": false,
+  "basis": [],
+  "blockers": [
+    "Only row authorized for HONEST_LIMIT: authoritative request_compaction toolResult was invocation-bound and rejected by guard=context_threshold; acceptance and post-compaction path were therefore unavailable without mutating seat pressure."
+  ]
+}

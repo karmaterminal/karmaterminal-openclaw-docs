@@ -1,0 +1,16 @@
+{
+  "row": "R-OBS-1",
+  "sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "verdict": "FAIL-candidate",
+  "metrics": {
+    "failures": 1,
+    "duration_ms": {
+      "min": 61098,
+      "med": 61098,
+      "max": 61098,
+      "p(90)": 61098,
+      "p(95)": 61098,
+      "avg": 61098
+    }
+  }
+}

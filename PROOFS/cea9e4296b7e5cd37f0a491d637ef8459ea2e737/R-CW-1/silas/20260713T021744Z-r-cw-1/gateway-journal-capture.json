@@ -1,0 +1,11 @@
+{
+  "schema": "openclaw.k6.gateway-journal-capture.v1",
+  "unit": "openclaw-gateway",
+  "method": "retrospective-utc-window-recovery",
+  "status": "captured",
+  "startedAt": "2026-07-12 19:17:44.034",
+  "endedAt": "2026-07-12 19:18:44.062",
+  "exitCode": 0,
+  "rawLines": 75,
+  "note": "Raw journal bytes were captured only transiently for this exact historical proof window; committed artifact is the sanitizer-filtered public log."
+}

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { proofsToolPath, resolveRepositoryRoot } from '../lib/repo-root.mjs';
 
-const args = new Set(process.argv.slice(2));
-const root = process.cwd().endsWith('/tools/k6-proofs') ? process.cwd() : join(process.cwd(), 'tools/k6-proofs');
-const manifestsDir = join(root, 'manifests');
+const { root, rest } = resolveRepositoryRoot({ argv: process.argv.slice(2) });
+const args = new Set(rest);
+const manifestsDir = proofsToolPath(root, 'manifests');
 const rows = [];
 for (const file of readdirSync(manifestsDir).filter((name) => name.endsWith('.json')).sort()) {
   const manifest = JSON.parse(readFileSync(join(manifestsDir, file), 'utf8'));

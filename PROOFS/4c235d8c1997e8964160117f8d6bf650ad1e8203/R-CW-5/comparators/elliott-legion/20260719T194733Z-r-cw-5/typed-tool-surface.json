@@ -1,0 +1,17 @@
+{
+  "schema": "openclaw.project81.r-cw-5.typed-tool-surface.v1",
+  "passed": true,
+  "cap": 100,
+  "fixtureKind": "disposable-exact-candidate-worktree-with-real-attempt-execution-and-typed-tool-capture",
+  "productionConfigTouched": false,
+  "productionStateTouched": false,
+  "sourceDirMutated": false,
+  "disposableWorktreeCreated": true,
+  "exitCode": 0,
+  "asserted": {
+    "typedToolCaptured": true,
+    "overCapRejected": true,
+    "rejectedHopNoDurableWork": true
+  },
+  "disposableWorktreeRemoved": true
+}

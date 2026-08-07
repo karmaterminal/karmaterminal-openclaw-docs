@@ -1,0 +1,18 @@
+{
+  "row": "R-CD-1",
+  "sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "seat": "silas",
+  "timestamp": "2026-07-19T19:12:01.782Z",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "duration_ms": {
+      "avg": 43847,
+      "min": 43847,
+      "med": 43847,
+      "max": 43847,
+      "p(90)": 43847,
+      "p(95)": 43847
+    },
+    "failures": 0
+  }
+}

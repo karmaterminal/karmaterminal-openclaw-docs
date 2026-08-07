@@ -1,0 +1,27 @@
+{
+  "schema": "openclaw.project81.r-cw-5.boundary-matrix.v1",
+  "cap": 100,
+  "passed": true,
+  "cases": [
+    {
+      "accumulatedChainTokens": 99,
+      "outcome": null
+    },
+    {
+      "accumulatedChainTokens": 100,
+      "outcome": null
+    },
+    {
+      "accumulatedChainTokens": 101,
+      "outcome": "cost-capped"
+    }
+  ],
+  "command": [
+    "pnpm",
+    "exec",
+    "tsx",
+    "--eval",
+    "<production-module-eval>"
+  ],
+  "exitCode": 0
+}

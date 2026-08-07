@@ -1,0 +1,18 @@
+{
+  "schema": "openclaw.micro-proof.platform.v1",
+  "pr": 111616,
+  "test_platform": {
+    "description": "Continuation feature assembly from upstream PR #85651 plus the three disclosed micro-PR patches",
+    "assembly_sha": "ceaf8cba72c48914acd1baf8b6796b5f35fc5f1e",
+    "candidate_sha": "c354b220ba63bf1d56286da383cd8ce3b9eaa71a",
+    "build_string": "OpenClaw 2026.7.2 (c354b22)"
+  },
+  "deployment": {
+    "seat": "Cael",
+    "candidate_workflow_run": 29859630214,
+    "candidate_state": "active; zero restarts; exact checkout c354b220ba63bf1d56286da383cd8ce3b9eaa71a",
+    "restore_workflow_run": 29861596727,
+    "restored_state": "active; zero restarts; exact checkout ceaf8cba72c48914acd1baf8b6796b5f35fc5f1e"
+  },
+  "protected_presentation_branch_modified": false
+}

@@ -1,0 +1,344 @@
+{
+  "schema": "openclaw.proofs.execution-ledger.v1",
+  "productSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "sourceExecutionSha": "e59ad76f372ba694ad6abd6f385a12edac3fbd28",
+  "executionHarnessSha": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "seat": "cael",
+  "createdAt": "2026-08-05T06:32:25Z",
+  "rows": [
+    {
+      "row": "PREFLIGHT",
+      "attempts": [
+        "PREFLIGHT/cael/20260805T054053Z-preflight-df179c55",
+        "PREFLIGHT/cael/20260805T054202Z-preflight-3955e092"
+      ],
+      "selected": "PREFLIGHT/cael/20260805T054202Z-preflight-3955e092",
+      "classification": "NO-VERDICT",
+      "target_execution": true
+    },
+    {
+      "row": "R-CD-1",
+      "attempts": [
+        "R-CD-1/cael/20260805T054237Z-r-cd-1-7dc42d52"
+      ],
+      "selected": "R-CD-1/cael/20260805T054237Z-r-cd-1-7dc42d52",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CD-2",
+      "attempts": [
+        "R-CD-2/cael/20260805T054330Z-r-cd-2-cdb6507e"
+      ],
+      "selected": "R-CD-2/cael/20260805T054330Z-r-cd-2-cdb6507e",
+      "classification": "NO-VERDICT",
+      "target_execution": true
+    },
+    {
+      "row": "R-CD-3",
+      "attempts": [
+        "R-CD-3/cael/20260805T054614Z-r-cd-3-7ec46e8f"
+      ],
+      "selected": "R-CD-3/cael/20260805T054614Z-r-cd-3-7ec46e8f",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CD-4",
+      "attempts": [
+        "R-CD-4/cael/20260805T054646Z-r-cd-4-b241335c"
+      ],
+      "selected": "R-CD-4/cael/20260805T054646Z-r-cd-4-b241335c",
+      "classification": "NO-VERDICT",
+      "target_execution": true
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "attempts": [
+        "R-CD-CHAINED-DEPTH-2/cael/20260805T054831Z-r-cd-chained-depth-2-9e04c539"
+      ],
+      "selected": "R-CD-CHAINED-DEPTH-2/cael/20260805T054831Z-r-cd-chained-depth-2-9e04c539",
+      "classification": "NO-VERDICT",
+      "target_execution": true
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "attempts": [
+        "R-CD-COLLECTION-ON-COLLAPSE/cael/20260805T055114Z-r-cd-collection-on-collapse-f745583e"
+      ],
+      "selected": "R-CD-COLLECTION-ON-COLLAPSE/cael/20260805T055114Z-r-cd-collection-on-collapse-f745583e",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "attempts": [
+        "R-CD-MODEL-CHAINED-ALT/cael/20260805T055126Z-r-cd-model-chained-alt-c693cbd4"
+      ],
+      "selected": "R-CD-MODEL-CHAINED-ALT/cael/20260805T055126Z-r-cd-model-chained-alt-c693cbd4",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CD-MODEL-DEFAULT",
+      "attempts": [
+        "R-CD-MODEL-DEFAULT/cael/20260805T055158Z-r-cd-model-default-952f0480"
+      ],
+      "selected": "R-CD-MODEL-DEFAULT/cael/20260805T055158Z-r-cd-model-default-952f0480",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CD-MODEL-TOKEN",
+      "attempts": [
+        "R-CD-MODEL-TOKEN/cael/20260805T055230Z-r-cd-model-token-478a030b"
+      ],
+      "selected": "R-CD-MODEL-TOKEN/cael/20260805T055230Z-r-cd-model-token-478a030b",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CD-MODEL-TOOL",
+      "attempts": [
+        "R-CD-MODEL-TOOL/cael/20260805T055303Z-r-cd-model-tool-d8351200"
+      ],
+      "selected": "R-CD-MODEL-TOOL/cael/20260805T055303Z-r-cd-model-tool-d8351200",
+      "classification": "NO-VERDICT",
+      "target_execution": true
+    },
+    {
+      "row": "R-CD-RETURN-OVERLAP",
+      "attempts": [
+        "R-CD-RETURN-OVERLAP/cael/20260805T055622Z-r-cd-return-overlap-d4400266"
+      ],
+      "selected": "R-CD-RETURN-OVERLAP/cael/20260805T055622Z-r-cd-return-overlap-d4400266",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CD-SILENT",
+      "attempts": [
+        "R-CD-SILENT/cael/20260805T055634Z-r-cd-silent-7ec3df52"
+      ],
+      "selected": "R-CD-SILENT/cael/20260805T055634Z-r-cd-silent-7ec3df52",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "attempts": [
+        "R-CD-TOKEN/cael/20260805T055729Z-r-cd-token-9f4160e2"
+      ],
+      "selected": "R-CD-TOKEN/cael/20260805T055729Z-r-cd-token-9f4160e2",
+      "classification": "NO-VERDICT",
+      "target_execution": true
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "attempts": [
+        "R-CONFIG-DEFAULTS/cael/20260805T060143Z-r-config-defaults-ef90a7ee"
+      ],
+      "selected": "R-CONFIG-DEFAULTS/cael/20260805T060143Z-r-config-defaults-ef90a7ee",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "attempts": [
+        "R-CONFIG-INTERSESSION/cael/20260805T060156Z-r-config-intersession-e074a760"
+      ],
+      "selected": "R-CONFIG-INTERSESSION/cael/20260805T060156Z-r-config-intersession-e074a760",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CW-1",
+      "attempts": [
+        "R-CW-1/cael/20260805T060209Z-r-cw-1-efa94ab7",
+        "R-CW-1/cael/20260805T062552Z-r-cw-1-04049967"
+      ],
+      "selected": "R-CW-1/cael/20260805T062552Z-r-cw-1-04049967",
+      "classification": "NO-VERDICT",
+      "target_execution": true
+    },
+    {
+      "row": "R-CW-2",
+      "attempts": [
+        "R-CW-2/cael/20260805T061258Z-r-cw-2-27b7c96e"
+      ],
+      "selected": "R-CW-2/cael/20260805T061258Z-r-cw-2-27b7c96e",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CW-3",
+      "attempts": [
+        "R-CW-3/cael/20260805T061330Z-r-cw-3-5f55bcf7"
+      ],
+      "selected": "R-CW-3/cael/20260805T061330Z-r-cw-3-5f55bcf7",
+      "classification": "NO-VERDICT",
+      "target_execution": true
+    },
+    {
+      "row": "R-CW-4",
+      "attempts": [
+        "R-CW-4/cael/20260805T061458Z-r-cw-4-4281bc63"
+      ],
+      "selected": "R-CW-4/cael/20260805T061458Z-r-cw-4-4281bc63",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CW-5",
+      "attempts": [
+        "R-CW-5/cael/fixture-attempt-1"
+      ],
+      "selected": "R-CW-5/cael/fixture-attempt-1",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CW-5A",
+      "attempts": [],
+      "selected": null,
+      "classification": "NO-VERDICT",
+      "target_execution": false
+    },
+    {
+      "row": "R-CW-6",
+      "attempts": [
+        "R-CW-6/cael/fixture-attempt-1"
+      ],
+      "selected": "R-CW-6/cael/fixture-attempt-1",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CW-6A",
+      "attempts": [],
+      "selected": null,
+      "classification": "NO-VERDICT",
+      "target_execution": false
+    },
+    {
+      "row": "R-CW-7",
+      "attempts": [
+        "R-CW-7/cael/20260805T061618Z-r-cw-7-ca6fbc8e"
+      ],
+      "selected": "R-CW-7/cael/20260805T061618Z-r-cw-7-ca6fbc8e",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "attempts": [
+        "R-CW-DELEGATE-CHILD-LIVE/cael/20260805T061639Z-r-cw-delegate-child-live-9e3512e0"
+      ],
+      "selected": "R-CW-DELEGATE-CHILD-LIVE/cael/20260805T061639Z-r-cw-delegate-child-live-9e3512e0",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "attempts": [
+        "R-CW-DELEGATE-SELF-CONTINUATION/cael/20260805T061651Z-r-cw-delegate-self-continuation-a6899e7f"
+      ],
+      "selected": "R-CW-DELEGATE-SELF-CONTINUATION/cael/20260805T061651Z-r-cw-delegate-self-continuation-a6899e7f",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "attempts": [
+        "R-CW-DELEGATE-TOKEN/cael/20260805T061727Z-r-cw-delegate-token-0037dfc0"
+      ],
+      "selected": "R-CW-DELEGATE-TOKEN/cael/20260805T061727Z-r-cw-delegate-token-0037dfc0",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "attempts": [
+        "R-CW-MULTI-COLLAPSE/cael/20260805T061748Z-r-cw-multi-collapse-8b39080f"
+      ],
+      "selected": "R-CW-MULTI-COLLAPSE/cael/20260805T061748Z-r-cw-multi-collapse-8b39080f",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CW-MULTI",
+      "attempts": [
+        "R-CW-MULTI/cael/20260805T061800Z-r-cw-multi-bebd2aea"
+      ],
+      "selected": "R-CW-MULTI/cael/20260805T061800Z-r-cw-multi-bebd2aea",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "attempts": [
+        "R-CW-TOKEN/cael/20260805T061813Z-r-cw-token-8f6efc66"
+      ],
+      "selected": "R-CW-TOKEN/cael/20260805T061813Z-r-cw-token-8f6efc66",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-OBS-1",
+      "attempts": [
+        "R-OBS-1/cael/20260805T061847Z-r-obs-1-45970e25"
+      ],
+      "selected": "R-OBS-1/cael/20260805T061847Z-r-obs-1-45970e25",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-OBS-2",
+      "attempts": [
+        "R-OBS-2/cael/20260805T061926Z-r-obs-2-1f81f088"
+      ],
+      "selected": "R-OBS-2/cael/20260805T061926Z-r-obs-2-1f81f088",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-OBS-STATUS",
+      "attempts": [],
+      "selected": null,
+      "classification": "PASS-candidate",
+      "target_execution": false
+    },
+    {
+      "row": "R-RC-1",
+      "attempts": [
+        "R-RC-1/cael/20260805T061939Z-r-rc-1-60904d4a"
+      ],
+      "selected": "R-RC-1/cael/20260805T061939Z-r-rc-1-60904d4a",
+      "classification": "PASS-candidate",
+      "target_execution": true
+    },
+    {
+      "row": "R-RC-2",
+      "attempts": [
+        "R-RC-2/cael/20260805T062015Z-r-rc-2-5dd41db2"
+      ],
+      "selected": "R-RC-2/cael/20260805T062015Z-r-rc-2-5dd41db2",
+      "classification": "NO-VERDICT",
+      "target_execution": true
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "attempts": [],
+      "selected": null,
+      "classification": "PASS-candidate",
+      "target_execution": false
+    },
+    {
+      "row": "R-TRACE-REDACTION-1121",
+      "attempts": [],
+      "selected": null,
+      "classification": "PASS-candidate",
+      "target_execution": false
+    }
+  ]
+}

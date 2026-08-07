@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 
 const repoRoot = new URL('../../../..', import.meta.url).pathname;
 const script = join(repoRoot, 'tools/k6-proofs/scripts/live-run-guard.mjs');
+const rowListScript = join(repoRoot, 'tools/k6-proofs/scripts/list-runnable-rows.mjs');
 const validEnv = {
   ...process.env,
   OPENCLAW_GATEWAY_TOKEN: 'unit-token-not-printed',
@@ -95,26 +96,56 @@ test('live-run guard still permits ordinary k6-runnable manifests with required 
   assert.equal(run.status, 0, run.stderr || run.stdout);
   const parsed = JSON.parse(run.stdout);
   assert.equal(parsed.ok, true);
-  assert.equal(parsed.rowId, 'R-CONFIG-defaults');
+  assert.equal(parsed.rowId, 'R-CONFIG-DEFAULTS');
   assert.equal(parsed.classification, 'k6-runnable');
 });
 
-test('live-run guard still permits static preflight manifests without live candidate env', async () => {
+test('read-only preflight uses the supported live k6 runner contract', async () => {
   const manifest = join(repoRoot, 'tools/k6-proofs/manifests/preflight.example.json');
-  const run = runGuard(manifest, {
-    OPENCLAW_GATEWAY_TOKEN: '',
-    OPENCLAW_CANDIDATE_SHA: '',
-    OPENCLAW_SESSION_KEY: '',
-  });
+  const run = runGuard(manifest);
   assert.equal(run.status, 0, run.stderr || run.stdout);
   const parsed = JSON.parse(run.stdout);
   assert.equal(parsed.ok, true);
   assert.equal(parsed.rowId, 'preflight');
-  assert.equal(parsed.classification, 'static-preflight-only');
+  assert.equal(parsed.classification, 'k6-runnable');
+  assert.equal(parsed.requiresLiveGatewayToken, true);
+  assert.equal(parsed.requiresTargetSessionKey, false);
+  assert.equal(parsed.requiresCandidateSha, false);
+  assert.equal(parsed.requiresExternalAgentOrToolInvocation, false);
 });
 
-test('static corpus validator rows are read-only broad-suite rows', async () => {
-  for (const manifestName of ['r-cw-5.json', 'r-cw-6.json']) {
+test('R-CW-5 stays process-local and fail-closed rather than using a shared gateway config mutation', async () => {
+  const manifestPath = join(repoRoot, 'tools/k6-proofs/manifests/r-cw-5.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  assert.equal(manifest.mutates, false);
+  assert.equal(manifest.transport, 'process-local');
+  assert.equal(manifest.scenario.status, 'scaffold');
+  assert.equal(manifest.liveRunSafety.classification, 'orchestration-required');
+  assert.equal(manifest.liveRunSafety.expectedArtifactClass, 'PARTIAL-candidate');
+  assert.equal(manifest.liveRunSafety.requiresLiveGatewayToken, false);
+  const run = runGuard(manifestPath);
+  assert.equal(run.status, 1, `${manifest.rowId} unexpectedly passed: ${run.stdout}`);
+  assert.match(run.stdout, /orchestration-required is not directly runnable/);
+});
+
+test('R-CW-6 stays process-local and fixture-gated while static variants cannot certify it', async () => {
+  for (const manifestName of ['r-cw-6.json']) {
+    const manifestPath = join(repoRoot, 'tools/k6-proofs/manifests', manifestName);
+    const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+    assert.equal(manifest.mutates, false);
+    assert.equal(manifest.transport, 'process-local');
+    assert.equal(manifest.scenario.status, 'scaffold');
+    assert.equal(manifest.invocation.fixture, 'tools/k6-proofs/scripts/run-max-chain-fixture.mjs');
+    assert.equal(manifest.liveRunSafety.classification, 'orchestration-required');
+    assert.equal(manifest.liveRunSafety.expectedArtifactClass, 'PASS-candidate');
+    assert.equal(manifest.liveRunSafety.requiresLiveGatewayToken, false);
+    assert.equal(manifest.liveRunSafety.requiresExternalAgentOrToolInvocation, false);
+    const run = runGuard(manifestPath);
+    assert.equal(run.status, 1, `${manifest.rowId} unexpectedly passed: ${run.stdout}`);
+    assert.match(run.stdout, /orchestration-required is not directly runnable/);
+  }
+
+  for (const manifestName of ['r-cw-5a-static.json', 'r-cw-6a-static.json']) {
     const manifestPath = join(repoRoot, 'tools/k6-proofs/manifests', manifestName);
     const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
     assert.equal(manifest.mutates, false);
@@ -122,9 +153,25 @@ test('static corpus validator rows are read-only broad-suite rows', async () => 
     assert.equal(manifest.toolSurface, 'read-only');
     assert.equal(manifest.scenario.status, 'runnable');
     assert.equal(manifest.scenario.name, 'static-corpus-row-validator');
-    assert.equal(manifest.liveRunSafety.classification, 'k6-runnable');
+    assert.equal(manifest.liveRunSafety.classification, 'static-preflight-only');
+    assert.equal(manifest.liveRunSafety.expectedArtifactClass, 'construct-only');
     assert.equal(manifest.liveRunSafety.requiresLiveGatewayToken, false);
-    assert.equal(manifest.liveRunSafety.requiresExternalAgentOrToolInvocation, false);
-    assert.equal(manifest.liveRunSafety.foldRequiresReview, true);
+    const run = runGuard(manifestPath);
+    assert.equal(run.status, 0, run.stderr || run.stdout);
+    assert.equal(JSON.parse(run.stdout).expectedArtifactClass, 'construct-only');
   }
+
+  const liveSuite = spawnSync(process.execPath, [rowListScript, '--live-suite'], { cwd: repoRoot, encoding: 'utf8' });
+  assert.equal(liveSuite.status, 0, liveSuite.stderr || liveSuite.stdout);
+  const liveRows = liveSuite.stdout.trim().split(',');
+  assert.equal(liveRows.length, 34);
+  assert.equal(liveRows[0], 'preflight');
+  assert.doesNotMatch(liveSuite.stdout, /R-CW-5(?:,|$)/);
+  assert.doesNotMatch(liveSuite.stdout, /R-CW-6(?:,|$)/);
+  assert.doesNotMatch(liveSuite.stdout, /R-CW-[56]A/);
+
+  const allRows = spawnSync(process.execPath, [rowListScript, '--all'], { cwd: repoRoot, encoding: 'utf8' });
+  assert.equal(allRows.status, 0, allRows.stderr || allRows.stdout);
+  assert.match(allRows.stdout, /R-CW-5A/);
+  assert.match(allRows.stdout, /R-CW-6A/);
 });

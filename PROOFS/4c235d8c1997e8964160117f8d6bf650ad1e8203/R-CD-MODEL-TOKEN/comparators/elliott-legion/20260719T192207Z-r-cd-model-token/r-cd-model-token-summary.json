@@ -1,0 +1,18 @@
+{
+  "row": "R-CD-MODEL-TOKEN",
+  "sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "seat": "elliott",
+  "timestamp": "2026-07-19T19:23:02.695Z",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "duration_ms": {
+      "avg": 55342,
+      "min": 55342,
+      "med": 55342,
+      "max": 55342,
+      "p(90)": 55342,
+      "p(95)": 55342
+    },
+    "failures": 0
+  }
+}

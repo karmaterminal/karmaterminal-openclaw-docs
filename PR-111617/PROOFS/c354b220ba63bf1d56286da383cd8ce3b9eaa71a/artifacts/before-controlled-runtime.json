@@ -1,0 +1,48 @@
+{
+  "sha": "ceaf8cba72c48914acd1baf8b6796b5f35fc5f1e",
+  "runtime": "deployed-source",
+  "declaredIngress": {
+    "ordinaryWebhookId": null,
+    "webhookProxyId": "webhook-base-111617"
+  },
+  "ordinary": {
+    "result": {
+      "id": "controlled-111617",
+      "original": "ordinary-source-111617",
+      "sender": "discord-user",
+      "system": {
+        "id": "sys-base",
+        "name": "Proof System"
+      },
+      "member": {
+        "id": "member-base",
+        "name": "Proof Member"
+      }
+    },
+    "fetchCalls": 1,
+    "request": {
+      "url": "https://api.pluralkit.me/v2/messages/ordinary-base-111617",
+      "method": "GET"
+    }
+  },
+  "webhookProxy": {
+    "result": {
+      "id": "controlled-111617",
+      "original": "ordinary-source-111617",
+      "sender": "discord-user",
+      "system": {
+        "id": "sys-base",
+        "name": "Proof System"
+      },
+      "member": {
+        "id": "member-base",
+        "name": "Proof Member"
+      }
+    },
+    "fetchCalls": 1,
+    "request": {
+      "url": "https://api.pluralkit.me/v2/messages/proxy-base-111617",
+      "method": "GET"
+    }
+  }
+}

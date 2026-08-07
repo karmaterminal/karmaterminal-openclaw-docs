@@ -1,0 +1,49 @@
+{
+  "schema": "openclaw.project81.r-cw-6.durable-state-recovery.v1",
+  "passed": false,
+  "configuredMaximum": 3,
+  "candidateWorktreeHead": "374ad60c6d34d3c710ddab3a13ce2189e1fd09fb",
+  "candidateLockfileSha256": "5c720286a0c5ad3574f9745f39366b4e01665b4e75d488f2a57160f93306b344",
+  "installedLockfileSha256": "5c720286a0c5ad3574f9745f39366b4e01665b4e75d488f2a57160f93306b344",
+  "lockfileMatchesCandidate": true,
+  "candidatePackageManager": "pnpm@11.15.1+sha512.81350b07e53c9538a02f1f2303b4290fa2d7be04e56e2a970c4cc4b417dc761de196edabd49d55c7dc9580db81007c44143e4e3d7e462b3000d23c255122d065",
+  "candidatePackageManagerVersion": "11.15.1",
+  "executingPackageManagerVersion": "11.15.1",
+  "installedPackageManager": "pnpm@11.15.1",
+  "installedPackageManagerVersion": "11.15.1",
+  "virtualStoreDir": ".pnpm",
+  "virtualStoreContainedWithinCandidateNodeModules": true,
+  "installCommand": [
+    "pnpm",
+    "install",
+    "--frozen-lockfile",
+    "--prefer-offline",
+    "--ignore-scripts"
+  ],
+  "installExitCode": 0,
+  "localExecutableContract": {
+    "tsx": {
+      "path": "node_modules/.bin/tsx",
+      "realpathWithinVerifiedDependencyTree": true
+    },
+    "vitest": {
+      "path": "node_modules/.bin/vitest",
+      "realpathWithinVerifiedDependencyTree": true
+    }
+  },
+  "worktreeIntegrity": {
+    "beforeInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterProofSurfaces": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    }
+  },
+  "hostToolchainHermetic": false
+}

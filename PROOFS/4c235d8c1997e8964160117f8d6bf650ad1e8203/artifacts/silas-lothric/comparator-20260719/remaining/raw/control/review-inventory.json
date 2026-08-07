@@ -1,0 +1,1383 @@
+{
+  "schema": "openclaw.k6.silas-comparator-review-inventory.v1",
+  "generatedAt": "2026-07-19T20:06:26.117Z",
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "rows": [
+    {
+      "row": "PREFLIGHT",
+      "source": "unattended",
+      "runId": "20260719T193730Z-preflight",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/PREFLIGHT/silas/20260719T193730Z-preflight",
+      "verdict": null,
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": false,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "preflight",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T19:37:30.382Z",
+          "connected": true,
+          "sessions_list_ok": true,
+          "tools_effective_ok": true,
+          "tool_inventory_count": 0,
+          "ended": "2026-07-19T19:37:31.469Z",
+          "duration_ms": 1087
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CD-1",
+      "source": "preserved-consumed",
+      "runId": "20260719T191117Z-r-cd-1",
+      "dir": "/home/figs/.openclaw-data/workspace/proof-artifacts/silas-comparator-4c235d8c-20260719T1908Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-1/silas/20260719T191117Z-r-cd-1",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": "6a904ad5ab0224352d0b92d5df09d5c6",
+      "candidateEnvelopePresent": false,
+      "evidenceCount": 0,
+      "evidence": [],
+      "traceError": "Tempo trace did not reach valid continuation topology before timeout: continuation.delegate.dispatch span is not status OK",
+      "preservedFinalClassification": "PARTIAL"
+    },
+    {
+      "row": "R-CD-2",
+      "source": "unattended",
+      "runId": "20260719T194325Z-r-cd-2",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-2/silas/20260719T194325Z-r-cd-2",
+      "verdict": "PARTIAL-candidate",
+      "effectiveExitCode": 1,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": false,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CD-2",
+          "verdict": "PARTIAL-candidate",
+          "authoritativeReceipt": "r-cd-2-authoritative-receipt.json"
+        }
+      ],
+      "traceError": "Tempo trace did not reach valid continuation topology before timeout: continuation.delegate.dispatch span is not status OK"
+    },
+    {
+      "row": "R-CD-3",
+      "source": "unattended",
+      "runId": "20260719T194510Z-r-cd-3",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-3/silas/20260719T194510Z-r-cd-3",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CD-3",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T19:45:10.275Z",
+          "dispatch_accepted": true,
+          "delegate_staging_requested": true,
+          "compaction_requested": true,
+          "threshold_refusal_observed": false,
+          "compaction_accepted": false,
+          "lifeboat_return_observed": true,
+          "guard": null,
+          "context_usage": null,
+          "threshold": null,
+          "trace_id": null,
+          "ended": "2026-07-19T19:45:19.256Z",
+          "duration_ms": 8981,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CD-4",
+      "source": "unattended",
+      "runId": "20260719T193848Z-r-cd-4",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-4/silas/20260719T193848Z-r-cd-4",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 1,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": false,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CD-4",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "parent_session_created": true,
+          "target_session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T19:38:48.746Z",
+          "tool_accepted": true,
+          "agent_turn_observed": true,
+          "child_completed": true,
+          "return_in_target": true,
+          "return_in_parent": false,
+          "dispatch_accepted_at_ms": 1784489930304,
+          "wake_gate_ms": 5000,
+          "reason_hash": "7abd4a7a6a0afd7c",
+          "reason_length": 105,
+          "delegate_mode": "silent-wake",
+          "trace_id": null,
+          "ended": "2026-07-19T19:39:21.176Z",
+          "duration_ms": 32430
+        }
+      ],
+      "traceError": "Tempo trace did not reach valid continuation topology before timeout: continuation.delegate.dispatch span is not status OK"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "source": "unattended",
+      "runId": "20260719T193732Z-r-cd-chained-depth-2",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-CHAINED-DEPTH-2/silas/20260719T193732Z-r-cd-chained-depth-2",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 1,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": false,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CD-CHAINED-DEPTH-2",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T19:37:32.514Z",
+          "parent_dispatch_accepted": true,
+          "child_spawned": true,
+          "grandchild_spawned": true,
+          "child_done_sentinel": true,
+          "grandchild_done_sentinel": true,
+          "chain_return_received": true,
+          "dispatch_accepted_at_ms": 1784489853423,
+          "max_depth_observed": 2,
+          "reason_hash": "185e5762438bc512",
+          "reason_length": 441,
+          "delegate_mode": "silent-wake",
+          "trace_id": null,
+          "ended": "2026-07-19T19:37:46.596Z",
+          "duration_ms": 14082
+        }
+      ],
+      "traceError": "Tempo trace did not reach valid continuation topology before timeout: continuation.delegate.dispatch span is not status OK"
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "source": "unattended",
+      "runId": "20260719T194520Z-r-cd-collection-on-collapse",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-COLLECTION-ON-COLLAPSE/silas/20260719T194520Z-r-cd-collection-on-collapse",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CD-COLLECTION-ON-COLLAPSE",
+          "sourceRow": "R-CD-COLLECTION-ON-COLLAPSE",
+          "staticBoundaryVariant": false,
+          "manifest_loaded": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "currentProofSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+          "carriedFrom": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T19:45:20.328Z",
+          "checks": {
+            "verdictPass": true,
+            "methodScope": true,
+            "bTypedDelegate": true,
+            "cAfterB": true,
+            "cSentinelPresent": true,
+            "rootCollection": true,
+            "durableRows": true,
+            "evaluationPass": true,
+            "tracePresent": true
+          },
+          "source_files": {
+            "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/EVIDENCE.md",
+            "evaluation": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/evaluation.json",
+            "flowRows": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/flow-rows-concise.json",
+            "taskRows": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/task-rows-concise.json",
+            "rootReceipt": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/main/root-collection-receipt.md",
+            "journal": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/journal/filtered.log",
+            "traceSummary": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/tempo/trace-summary.json"
+          },
+          "ended": "2026-07-19T19:45:20.328Z",
+          "duration_ms": 0,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "source": "unattended",
+      "runId": "20260719T194521Z-r-cd-model-chained-alt",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-CHAINED-ALT/silas/20260719T194521Z-r-cd-model-chained-alt",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CD-MODEL-CHAINED-ALT",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T19:45:21.414Z",
+          "requested_model_byte": "gpt",
+          "dispatch_accepted": true,
+          "dispatch_accepted_at_ms": 1784490322512,
+          "depth_1_child_observed": true,
+          "depth_2_child_observed": true,
+          "depth_1_scheduled_inner": true,
+          "depth_2_model_byte": "gpt.",
+          "model_matches": true,
+          "return_payload": true,
+          "trace_id": null,
+          "ended": "2026-07-19T19:45:54.412Z",
+          "duration_ms": 32998
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CD-MODEL-DEFAULT",
+      "source": "unattended",
+      "runId": "20260719T194555Z-r-cd-model-default",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-DEFAULT/silas/20260719T194555Z-r-cd-model-default",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CD-MODEL-DEFAULT",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T19:45:55.456Z",
+          "parent_model_byte": "github-copilot/gpt-5.5",
+          "dispatch_accepted": true,
+          "child_session_observed": true,
+          "child_model_byte": "github-copilot/gpt-5.5",
+          "model_matches": true,
+          "return_payload": true,
+          "trace_id": null,
+          "ended": "2026-07-19T19:46:26.917Z",
+          "duration_ms": 31461
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CD-MODEL-TOKEN",
+      "source": "unattended",
+      "runId": "20260719T194627Z-r-cd-model-token",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOKEN/silas/20260719T194627Z-r-cd-model-token",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CD-MODEL-TOKEN",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T19:46:27.968Z",
+          "requested_model_byte": "gpt",
+          "prompt_injected": true,
+          "subagent_spawn_requested": true,
+          "subagent_spawn_accepted": true,
+          "bracket_token_observed": true,
+          "bracket_model_modifier_observed": true,
+          "child_session_observed": true,
+          "child_model_byte": "gpt",
+          "model_matches": true,
+          "return_payload": true,
+          "dispatch_accepted_at_ms": 1784490389409,
+          "trace_id": null,
+          "ended": "2026-07-19T19:47:06.754Z",
+          "duration_ms": 38786
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CD-MODEL-TOOL",
+      "source": "unattended",
+      "runId": "20260719T194023Z-r-cd-model-tool",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-MODEL-TOOL/silas/20260719T194023Z-r-cd-model-tool",
+      "verdict": "PARTIAL-candidate",
+      "effectiveExitCode": 99,
+      "k6ExitCode": 99,
+      "traceId": null,
+      "candidateEnvelopePresent": false,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CD-MODEL-TOOL",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T19:40:23.382Z",
+          "requested_model_byte": "openai/gpt-5.6-luna",
+          "requested_model_source": "continue_delegate.model parameter",
+          "dispatch_accepted": true,
+          "parent_scheduled_sentinel": true,
+          "child_session_observed": false,
+          "child_session_metadata_observed": false,
+          "child_metadata_model_byte": null,
+          "child_metadata_model_source": null,
+          "child_self_reported_model": null,
+          "child_self_reported_model_source": null,
+          "child_session_metadata": null,
+          "child_metadata_requested": false,
+          "model_matches": false,
+          "return_payload": false,
+          "trace_id": null,
+          "model_classification_reason": null,
+          "ended": "2026-07-19T19:43:23.719Z",
+          "duration_ms": 180337
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CD-RETURN-OVERLAP",
+      "source": "unattended",
+      "runId": "20260719T194708Z-r-cd-return-overlap",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-RETURN-OVERLAP/silas/20260719T194708Z-r-cd-return-overlap",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CD-RETURN-OVERLAP",
+          "manifest_loaded": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "currentProofSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+          "started": "2026-07-19T19:47:08.673Z",
+          "pass_with_caveat_present": true,
+          "silent_flow_present": true,
+          "silent_wake_flow_present": true,
+          "both_markers_in_tasks": true,
+          "both_targeted_returns_in_journal": true,
+          "no_duplicate_storm_claim_present": true,
+          "tempo_trace_present": true,
+          "source_files": {
+            "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/EVIDENCE.md",
+            "flowRows": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/db/flow-rows-concise.json",
+            "taskRows": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/db/task-rows-concise.json",
+            "journal": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/journal/journal-filtered.log",
+            "tempo": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/tempo/trace-0d676f84623ebfe6499a324d039ee050-summary.json"
+          },
+          "ended": "2026-07-19T19:47:08.674Z",
+          "duration_ms": 1,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CD-SILENT",
+      "source": "unattended",
+      "runId": "20260719T194709Z-r-cd-silent",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-SILENT/silas/20260719T194709Z-r-cd-silent",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CD-SILENT",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T19:47:09.891Z",
+          "dispatch_accepted": true,
+          "scheduled_sentinel": true,
+          "child_completion_observed": true,
+          "followup_accepted": true,
+          "parent_internal_context_observed": true,
+          "no_channel_delivery": true,
+          "child_channel_delivery_observed": false,
+          "dispatch_accepted_at_ms": 1784490430921,
+          "followup_sent_at_ms": 1784490498399,
+          "trace_id": null,
+          "ended": "2026-07-19T19:48:22.455Z",
+          "duration_ms": 72564
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "source": "unattended",
+      "runId": "20260719T194324Z-r-cd-token",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CD-TOKEN/silas/20260719T194324Z-r-cd-token",
+      "verdict": "PARTIAL-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": false,
+      "evidenceCount": 0,
+      "evidence": [],
+      "traceError": null
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "source": "unattended",
+      "runId": "20260719T194823Z-r-config-defaults",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-DEFAULTS/silas/20260719T194823Z-r-config-defaults",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CONFIG-DEFAULTS",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T19:48:23.592Z",
+          "rpc": {
+            "method": "config.get",
+            "operator_surface": true,
+            "response_ok": true,
+            "response_shape": {
+              "config_present": true,
+              "continuation_present": true
+            }
+          },
+          "config_read": true,
+          "enabled": true,
+          "max_chain_length": 200,
+          "max_delegates_per_turn": 500,
+          "cost_cap_tokens": 50000000,
+          "trace_id": null,
+          "correlation": {
+            "service": "silas-prince",
+            "query_window_start": "2026-07-19T19:48:23.592Z",
+            "query_window_end": "2026-07-19T19:48:24.179Z"
+          },
+          "ended": "2026-07-19T19:48:24.179Z",
+          "duration_ms": 587
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "source": "unattended",
+      "runId": "20260719T194825Z-r-config-intersession",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CONFIG-INTERSESSION/silas/20260719T194825Z-r-config-intersession",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CONFIG-INTERSESSION",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T19:48:25.350Z",
+          "rpc": {
+            "method": "config.get",
+            "operator_surface": true,
+            "response_ok": true,
+            "response_shape": {
+              "config_present": true,
+              "continuation_present": true
+            }
+          },
+          "config_read": true,
+          "cross_session_targeting": "enabled",
+          "trace_id": null,
+          "correlation": {
+            "service": "silas-prince",
+            "query_window_start": "2026-07-19T19:48:25.350Z",
+            "query_window_end": "2026-07-19T19:48:26.063Z"
+          },
+          "ended": "2026-07-19T19:48:26.063Z",
+          "duration_ms": 713
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CW-1",
+      "source": "preserved-consumed",
+      "runId": "20260719T191326Z-r-cw-1",
+      "dir": "/home/figs/.openclaw-data/workspace/proof-artifacts/silas-comparator-4c235d8c-20260719T1908Z/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-1/silas/20260719T191326Z-r-cw-1",
+      "verdict": "PARTIAL-candidate",
+      "effectiveExitCode": 99,
+      "k6ExitCode": 99,
+      "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+      "candidateEnvelopePresent": false,
+      "evidenceCount": 0,
+      "evidence": [],
+      "traceError": "Tempo trace did not reach valid continuation topology before timeout: continuation.work span is not status OK",
+      "preservedFinalClassification": "PARTIAL"
+    },
+    {
+      "row": "R-CW-2",
+      "source": "unattended",
+      "runId": "20260719T194827Z-r-cw-2",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-2/silas/20260719T194827Z-r-cw-2",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CW-2",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T19:48:27.465Z",
+          "dispatch_accepted": true,
+          "scheduled_sentinel": true,
+          "immediate_wake_observed": true,
+          "prompt_echo_ignored": true,
+          "dispatch_accepted_at_ms": 1784490508584,
+          "scheduled_result_at_ms": 1784490515858,
+          "wake_delay_ms": 50033,
+          "trace_id": null,
+          "ended": "2026-07-19T19:49:25.891Z",
+          "duration_ms": 58426
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CW-3",
+      "source": "unattended",
+      "runId": "20260719T194927Z-r-cw-3",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-3/silas/20260719T194927Z-r-cw-3",
+      "verdict": "PARTIAL-candidate",
+      "effectiveExitCode": 99,
+      "k6ExitCode": 99,
+      "traceId": null,
+      "candidateEnvelopePresent": false,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CW-3",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T19:49:27.387Z",
+          "dispatch_accepted": true,
+          "scheduled_sentinel": true,
+          "wake_observed": false,
+          "public_artifact_raw_reason_absent": true,
+          "tempo_assertion": "pending-review",
+          "reason_hash": "7902b342ed091aff",
+          "reason_length": 139,
+          "trace_id": null,
+          "trace_id_source": null,
+          "dispatch_accepted_at_ms": 1784490568394,
+          "scheduled_result_at_ms": 1784490603036,
+          "wake_delay_ms": null,
+          "ended": "2026-07-19T19:59:27.811Z",
+          "duration_ms": 600424
+        }
+      ],
+      "traceError": "Tempo trace did not reach valid continuation topology before timeout: continuation.work span is not status OK"
+    },
+    {
+      "row": "R-CW-4",
+      "source": "unattended",
+      "runId": "20260719T200029Z-r-cw-4",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-4/silas/20260719T200029Z-r-cw-4",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CW-4",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T20:00:29.279Z",
+          "dispatch_accepted": true,
+          "hop1_scheduled": true,
+          "hop2_scheduled": true,
+          "hop3_scheduled": true,
+          "final_done": true,
+          "hop_events": [
+            {
+              "marker": "CW4-HOP1-SCHEDULED",
+              "ts": 1784491241508,
+              "event": "session.message"
+            },
+            {
+              "marker": "CW4-HOP2-SCHEDULED",
+              "ts": 1784491253640,
+              "event": "session.message"
+            },
+            {
+              "marker": "CW4-HOP3-SCHEDULED",
+              "ts": 1784491265179,
+              "event": "session.message"
+            },
+            {
+              "marker": "CW4-DONE",
+              "ts": 1784491273327,
+              "event": "session.message"
+            }
+          ],
+          "trace_id": null,
+          "ended": "2026-07-19T20:01:13.327Z",
+          "duration_ms": 44048
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CW-5",
+      "source": "process-local-fixture",
+      "runId": "R-CW-5-attempt-2",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/fixtures/R-CW-5-attempt-2",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": null,
+      "traceId": null,
+      "candidateEnvelopePresent": false,
+      "evidenceCount": 0,
+      "evidence": [],
+      "traceError": null,
+      "fixtureResult": {
+        "schema": "openclaw.project81.r-cw-5.fixture-result.v1",
+        "verdict": "PASS-candidate",
+        "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+        "cap": 100,
+        "receipts": {
+          "fixtureReadiness": "fixture-readiness.json",
+          "boundaryMatrix": "boundary-matrix.json",
+          "dispatchBoundarySuite": "dispatch-boundary-suite.json",
+          "typedToolSurface": "typed-tool-surface.json",
+          "cleanup": "cleanup.json"
+        },
+        "checks": {
+          "matrixPassed": true,
+          "dispatchPassed": true,
+          "toolSurfacePassed": true,
+          "noRejectedHopSpawn": true
+        }
+      }
+    },
+    {
+      "row": "R-CW-6",
+      "source": "process-local-fixture",
+      "runId": "R-CW-6-attempt-2",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/fixtures/R-CW-6-attempt-2",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": null,
+      "traceId": null,
+      "candidateEnvelopePresent": false,
+      "evidenceCount": 0,
+      "evidence": [],
+      "traceError": null,
+      "fixtureResult": {
+        "schema": "openclaw.project81.r-cw-6.fixture-result.v1",
+        "verdict": "PASS-candidate",
+        "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+        "maxChainLength": 3,
+        "dependencyProvenance": {
+          "candidateWorktreeHead": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "candidateLockfileSha256": "cb900f20f2fb2fa30ddf489786338984bd6cf8aa79af6e214abbd101d1c02a13",
+          "installedLockfileSha256": "cb900f20f2fb2fa30ddf489786338984bd6cf8aa79af6e214abbd101d1c02a13",
+          "lockfileMatchesCandidate": true,
+          "candidatePackageManager": "pnpm@11.2.2+sha512.36e6621fad506178936455e70247b8808ef4ec25797a9f437a93281a020484e2607f6a469a22e982987c3dbb8866e3071514ab10a4a1749e06edcd1ec118436f",
+          "candidatePackageManagerVersion": "11.2.2",
+          "executingPackageManagerVersion": "11.2.2",
+          "installedPackageManager": "pnpm@11.2.2",
+          "installedPackageManagerVersion": "11.2.2",
+          "virtualStoreDir": ".pnpm",
+          "virtualStoreContainedWithinCandidateNodeModules": true,
+          "installCommand": [
+            "pnpm",
+            "install",
+            "--frozen-lockfile",
+            "--prefer-offline",
+            "--ignore-scripts"
+          ],
+          "installExitCode": 0,
+          "localExecutableContract": {
+            "tsx": {
+              "path": "node_modules/.bin/tsx",
+              "realpathWithinVerifiedDependencyTree": true
+            },
+            "vitest": {
+              "path": "node_modules/.bin/vitest",
+              "realpathWithinVerifiedDependencyTree": true
+            }
+          },
+          "worktreeIntegrity": {
+            "beforeInstall": {
+              "headMatchesCandidate": true,
+              "trackedClean": true
+            },
+            "afterInstall": {
+              "headMatchesCandidate": true,
+              "trackedClean": true
+            },
+            "afterProofSurfaces": {
+              "headMatchesCandidate": true,
+              "trackedClean": true
+            }
+          },
+          "hostToolchainHermetic": false
+        },
+        "receipts": {
+          "fixtureReadiness": "fixture-readiness.json",
+          "boundaryMatrix": "boundary-matrix.json",
+          "runtimeBoundary": "runtime-boundary.json",
+          "durableStateRecovery": "durable-state-recovery.json",
+          "typedToolSurface": "typed-tool-surface.json",
+          "dispatchBoundarySuite": "dispatch-boundary-suite.json",
+          "cleanup": "cleanup.json",
+          "publicArtifactSafety": "public-artifact-safety.json"
+        },
+        "checks": {
+          "matrixPassed": true,
+          "dispatchPassed": true,
+          "runtimeSurfacePassed": true,
+          "structuredChainCapped": true,
+          "noRejectedHopSpawn": true,
+          "durableRecoveryPassed": true,
+          "typedSurfacePassed": true,
+          "exactCandidateDisposableWorktree": true,
+          "candidatePackageManagerVersionMatchesExecuting": true,
+          "installedLockMatchesCandidate": true,
+          "verifiedDependencyTreeContainsLocalExecutables": true,
+          "worktreeIntegrityAfterInstall": true,
+          "worktreeIntegrityAfterProofSurfaces": true,
+          "publicArtifactsSafe": true
+        }
+      }
+    },
+    {
+      "row": "R-CW-7",
+      "source": "unattended",
+      "runId": "20260719T200114Z-r-cw-7",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-7/silas/20260719T200114Z-r-cw-7",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CW-7",
+          "sourceRow": "R-CW-7",
+          "staticBoundaryVariant": false,
+          "manifest_loaded": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "currentProofSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+          "carriedFrom": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T20:01:14.388Z",
+          "checks": {
+            "passScope": true,
+            "internalNotPublic": true,
+            "autoPickup": true,
+            "dispatchPreserves": true,
+            "childReceives": true,
+            "testsPassed": true,
+            "sourceSha": true
+          },
+          "source_files": {
+            "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/EVIDENCE.md",
+            "testLog": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/test/focused-traceparent-tests.log",
+            "sourceSnippets": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/source/source-snippets.md"
+          },
+          "ended": "2026-07-19T20:01:14.388Z",
+          "duration_ms": 0,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "source": "unattended",
+      "runId": "20260719T200115Z-r-cw-delegate-child-live",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-CHILD-LIVE/silas/20260719T200115Z-r-cw-delegate-child-live",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CW-DELEGATE-CHILD-LIVE",
+          "sourceRow": "R-CW-DELEGATE-CHILD-LIVE",
+          "staticBoundaryVariant": false,
+          "manifest_loaded": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "currentProofSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+          "carriedFrom": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T20:01:15.493Z",
+          "checks": {
+            "verdictPass": true,
+            "hop1BeforeWork": true,
+            "hop2AfterWake": true,
+            "verifierBoth": true,
+            "parentDelegateTrace": true,
+            "childWorkFireTrace": true,
+            "flowReceipts": true
+          },
+          "source_files": {
+            "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/EVIDENCE.md",
+            "hop1": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/hop1.txt",
+            "hop2": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/hop2.txt",
+            "verifier": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/verifier-receipt.txt",
+            "tempo": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/tempo-attribute-receipt.txt"
+          },
+          "ended": "2026-07-19T20:01:15.493Z",
+          "duration_ms": 0,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "source": "unattended",
+      "runId": "20260719T200116Z-r-cw-delegate-self-continuation",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-SELF-CONTINUATION/silas/20260719T200116Z-r-cw-delegate-self-continuation",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T20:01:16.587Z",
+          "delegate_accepted": true,
+          "child_spawned": false,
+          "child_continue_work_accepted": true,
+          "child_hop_2_woke": true,
+          "parent_return": true,
+          "dispatch_accepted_at_ms": 1784491277527,
+          "trace_id": null,
+          "ended": "2026-07-19T20:01:32.881Z",
+          "duration_ms": 16294
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "source": "unattended",
+      "runId": "20260719T200133Z-r-cw-delegate-token",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-DELEGATE-TOKEN/silas/20260719T200133Z-r-cw-delegate-token",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CW-DELEGATE-TOKEN",
+          "sourceRow": "R-CW-DELEGATE-TOKEN",
+          "staticBoundaryVariant": false,
+          "manifest_loaded": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "currentProofSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+          "carriedFrom": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T20:01:33.982Z",
+          "checks": {
+            "verdictPass": true,
+            "bareToken": true,
+            "tokenOrigin": true,
+            "noTypedChildTool": true,
+            "secondTurn": true,
+            "durableWork": true,
+            "tempoWorkFire": true
+          },
+          "source_files": {
+            "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/EVIDENCE.md",
+            "childAudit": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/child-transcript-tool-audit.md",
+            "journal": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/journal-continuation-excerpt.log",
+            "flowRows": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/flow-runs-matching-full.jsonl",
+            "tempoAudit": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-TOKEN/cael-dgx/tempo-child-tool-audit.txt"
+          },
+          "ended": "2026-07-19T20:01:33.982Z",
+          "duration_ms": 0,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CW-MULTI",
+      "source": "unattended",
+      "runId": "20260719T200136Z-r-cw-multi",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI/silas/20260719T200136Z-r-cw-multi",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CW-MULTI",
+          "sourceRow": "R-CW-MULTI",
+          "staticBoundaryVariant": false,
+          "manifest_loaded": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "currentProofSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+          "carriedFrom": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T20:01:36.215Z",
+          "checks": {
+            "verdictPass": true,
+            "threeToolReceipts": true,
+            "grantedA": true,
+            "foldedBC": true,
+            "journalFolded": true,
+            "noInventedMarkers": true,
+            "traceThreeWorkSpans": true
+          },
+          "source_files": {
+            "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/EVIDENCE.md",
+            "sourceReceipts": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/source-tool-receipts.jsonl",
+            "flowRows": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/flow-runs-final.json",
+            "journal": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/journal-continuation-lines.txt",
+            "traceSummary": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/tempo/trace-summary.jsonl"
+          },
+          "ended": "2026-07-19T20:01:36.215Z",
+          "duration_ms": 0,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "source": "unattended",
+      "runId": "20260719T200135Z-r-cw-multi-collapse",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-MULTI-COLLAPSE/silas/20260719T200135Z-r-cw-multi-collapse",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CW-MULTI-COLLAPSE",
+          "sourceRow": "R-CW-MULTI-COLLAPSE",
+          "staticBoundaryVariant": false,
+          "manifest_loaded": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "currentProofSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+          "carriedFrom": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T20:01:35.077Z",
+          "checks": {
+            "verdictPassScoped": true,
+            "syntheticCaveat": true,
+            "twoRowsInserted": true,
+            "oldSuperseded": true,
+            "newestGranted": true,
+            "noRemainingQueued": true,
+            "configRestored": true,
+            "tempoExactChain": true
+          },
+          "source_files": {
+            "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/EVIDENCE.md",
+            "insertVars": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/insert-vars.json",
+            "postInsert": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/post-insert-sqlite.txt",
+            "finalTerminal": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/final-terminal-sqlite.txt",
+            "finalQueued": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/final-queued-running.txt",
+            "flowRows": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/flow-runs-final.json",
+            "journal": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/journal-continuation-window.txt",
+            "restoreHash": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/restore-verified-sha256.txt",
+            "tempoAttrs": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI-COLLAPSE/cael-dgx/tempo-attribute-receipt.txt"
+          },
+          "ended": "2026-07-19T20:01:35.078Z",
+          "duration_ms": 1,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "source": "unattended",
+      "runId": "20260719T200137Z-r-cw-token",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-TOKEN/silas/20260719T200137Z-r-cw-token",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-CW-TOKEN",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T20:01:37.371Z",
+          "parent_dispatch_accepted": true,
+          "subagent_spawn_requested": true,
+          "subagent_spawn_accepted": true,
+          "token_emitted_or_stripped": true,
+          "hop_2_executed": true,
+          "parent_return": true,
+          "dispatch_accepted_at_ms": 1784491298634,
+          "hop_2_at_ms": 1784491313687,
+          "trace_id": null,
+          "ended": "2026-07-19T20:01:53.687Z",
+          "duration_ms": 16316
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-OBS-1",
+      "source": "unattended",
+      "runId": "20260719T200155Z-r-obs-1",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-1/silas/20260719T200155Z-r-obs-1",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-OBS-1",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T20:01:55.700Z",
+          "dispatch_accepted": true,
+          "status_card_observed": true,
+          "build_visible": true,
+          "context_visible": true,
+          "continuation_chain_visible": true,
+          "route_visible": true,
+          "trace_id": null,
+          "ended": "2026-07-19T20:02:49.227Z",
+          "duration_ms": 53527
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-OBS-2",
+      "source": "unattended",
+      "runId": "20260719T200250Z-r-obs-2",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-2/silas/20260719T200250Z-r-obs-2",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-OBS-2",
+          "manifest_loaded": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "currentProofSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+          "started": "2026-07-19T20:02:50.444Z",
+          "trace_ids_hex": [
+            "0cf17ea0b7eab7a5e998f6a581e7b5bf"
+          ],
+          "span_count": 46,
+          "root_count": 1,
+          "orphan_count": 0,
+          "required_span_names_present": {
+            "continuation.delegate.dispatch": true,
+            "openclaw.harness.run": true,
+            "openclaw.run": true,
+            "openclaw.tool.execution": true,
+            "continuation.queue.fanout": true,
+            "continuation.queue.drain": true
+          },
+          "source_files": {
+            "traceTree": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/trace-tree.json",
+            "spanTree": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-tree.txt",
+            "spanCounts": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-counts.json"
+          },
+          "ended": "2026-07-19T20:02:50.444Z",
+          "duration_ms": 0,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-OBS-STATUS",
+      "source": "unattended",
+      "runId": "20260719T200251Z-r-obs-status",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-OBS-STATUS/silas/20260719T200251Z-r-obs-status",
+      "verdict": "BAD_PROOF",
+      "effectiveExitCode": 99,
+      "k6ExitCode": 99,
+      "traceId": null,
+      "candidateEnvelopePresent": false,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-OBS-STATUS",
+          "candidate_sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "source_repository": "karmaterminal/openclaw",
+          "source_path": "src/status/status-text.ts",
+          "source_fetch_ok": true,
+          "source_sha256": "7dd1f0c6d5d411f85fbcf4e3c68bee8b6e750b33c67b097889f15347f7d1f5bc",
+          "formatter_extracted": false,
+          "active_continuation_line_present": false,
+          "clean_session_continuation_line_absent": false,
+          "ended": "2026-07-19T20:02:51.893Z",
+          "duration_ms": 0
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-RC-1",
+      "source": "unattended",
+      "runId": "20260719T200253Z-r-rc-1",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-1/silas/20260719T200253Z-r-rc-1",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-RC-1",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T20:02:53.073Z",
+          "tool_inventory_checked": true,
+          "tool_registered": true,
+          "dispatch_accepted": true,
+          "dispatch_accepted_at_ms": 1784491373596,
+          "tool_name": "request_compaction",
+          "tool_invocation_observed": true,
+          "tool_result_observed": true,
+          "tool_call_id": "call_UWmVugpRugm7KJpKNNc59tXR|fc_069918827f27cdf5016a5d2d9a3c9c8199882d276e67462d62",
+          "tool_result_status": "rejected",
+          "tool_invoke_rejected": true,
+          "guard": "context_threshold",
+          "context_usage": null,
+          "threshold": null,
+          "no_compaction_side_effect": true,
+          "assistant_sentinel_observed": true,
+          "history_requested": true,
+          "history_attempts": 1,
+          "trace_id": null,
+          "ended": "2026-07-19T20:03:41.706Z",
+          "duration_ms": 48633
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-RC-2",
+      "source": "unattended",
+      "runId": "20260719T200342Z-r-rc-2",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-RC-2/silas/20260719T200342Z-r-rc-2",
+      "verdict": "HONEST-LIMIT-candidate",
+      "effectiveExitCode": 1,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": false,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-RC-2",
+          "manifest_loaded": true,
+          "seat": "silas",
+          "session_created": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "started": "2026-07-19T20:03:42.779Z",
+          "parent_dispatch_accepted": true,
+          "dispatch_accepted_at_ms": 1784491423721,
+          "delegate_requested": true,
+          "reason_hash": "c1191e27025c0ab9",
+          "reason_length": 618,
+          "delegate_mode": "normal",
+          "child_session_observed": true,
+          "child_history_requests": 1,
+          "child_history_available": true,
+          "delegate_child_report_observed": true,
+          "child_reported_context_threshold": true,
+          "request_compaction_tool_result_observed": true,
+          "request_compaction_receipt_role": "toolResult",
+          "request_compaction_receipt_tool_name": "request_compaction",
+          "request_compaction_receipt_status": "rejected",
+          "request_compaction_invocation_bound": true,
+          "request_compaction_rejected_context_threshold": true,
+          "request_compaction_accepted": false,
+          "request_compaction_accepted_reported": false,
+          "post_compaction_path_observed": false,
+          "guard": "context_threshold",
+          "context_usage": null,
+          "threshold": null,
+          "reported_context_usage": null,
+          "reported_threshold": 70,
+          "trace_id": null,
+          "ended": "2026-07-19T20:04:53.370Z",
+          "duration_ms": 70591,
+          "verdict": "HONEST-LIMIT-candidate"
+        }
+      ],
+      "traceError": "Tempo trace did not reach valid continuation topology before timeout: continuation.delegate.dispatch span is not status OK"
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "source": "unattended",
+      "runId": "20260719T200556Z-r-regression-trap-tests",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-REGRESSION-TRAP-TESTS/silas/20260719T200556Z-r-regression-trap-tests",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-REGRESSION-TRAP-TESTS",
+          "manifest_loaded": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "currentProofSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+          "sourceCheckoutSha": "bca2b0b89ab886bf23a10e4983926f6b374b3188",
+          "started": "2026-07-19T20:05:56.065Z",
+          "verdict_text_present": true,
+          "shard_pass_text_present": true,
+          "test_count_text_present": true,
+          "source_sha_present": true,
+          "required_tests_present": {
+            "src/agents/tools/continuation-inventory-opts.test.ts": true,
+            "src/agents/openclaw-tools.continuation-registration.test.ts": true,
+            "src/agents/tools/continuation-tools-registration.test.ts": true,
+            "src/agents/openclaw-tools.continuation-misconfig-warn.test.ts": true
+          },
+          "source_files": {
+            "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/EVIDENCE.md",
+            "log": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/regression-trap.log",
+            "sourceStatus": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/source-git-status.txt",
+            "testInventory": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/test-inventory.txt"
+          },
+          "ended": "2026-07-19T20:05:56.065Z",
+          "duration_ms": 0,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "traceError": null
+    },
+    {
+      "row": "R-TRACE-REDACTION-1121",
+      "source": "unattended",
+      "runId": "20260719T200557Z-r-trace-redaction-1121",
+      "dir": "/tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-TRACE-REDACTION-1121/silas/20260719T200557Z-r-trace-redaction-1121",
+      "verdict": "PASS-candidate",
+      "effectiveExitCode": 0,
+      "k6ExitCode": 0,
+      "traceId": null,
+      "candidateEnvelopePresent": true,
+      "evidenceCount": 1,
+      "evidence": [
+        {
+          "row": "R-TRACE-REDACTION-1121",
+          "manifest_loaded": true,
+          "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "currentProofSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+          "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+          "started": "2026-07-19T20:05:57.169Z",
+          "pass_heading_present": true,
+          "safe_attrs_present": true,
+          "no_preview_contract_present": true,
+          "raw_reason_guard_present": true,
+          "test_pass_present": true,
+          "source_surface_present": true,
+          "source_files": {
+            "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-TRACE-REDACTION-1121/EVIDENCE.md"
+          },
+          "ended": "2026-07-19T20:05:57.169Z",
+          "duration_ms": 0,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "traceError": null
+    }
+  ]
+}

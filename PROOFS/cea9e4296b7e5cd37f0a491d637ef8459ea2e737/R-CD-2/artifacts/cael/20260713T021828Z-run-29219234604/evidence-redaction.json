@@ -1,0 +1,11 @@
+{
+  "schema": "openclaw.k6.public-evidence-redaction.v1",
+  "generatedAt": "2026-07-13T02:18:54.598Z",
+  "records": 1,
+  "removedSensitiveValues": 3,
+  "outputs": {
+    "evidence": "evidence.jsonl",
+    "evidenceLines": "evidence-lines.log",
+    "k6Log": "k6.log"
+  }
+}

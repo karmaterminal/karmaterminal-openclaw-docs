@@ -1,0 +1,14 @@
+{
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "canonicalOwner": "🌊 ronan-dgx",
+  "classification": "partial",
+  "executionRole": "comparator",
+  "executionSeat": "elliott-legion",
+  "reasons": [
+    "behavior/publication authority is absent",
+    "one or more allowlisted artifacts were withheld by the secret/private-path scan"
+  ],
+  "row": "R-CW-7",
+  "schema": "openclaw.project81.comparator-execution.v1",
+  "sourceKind": "elliott-run"
+}

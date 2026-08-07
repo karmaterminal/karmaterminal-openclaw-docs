@@ -1,0 +1,17 @@
+{
+  "row": "R-OBS-STATUS",
+  "sha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "verdict": "BAD_PROOF",
+  "contract": "issue-1172-continuation-status-line",
+  "metrics": {
+    "failures": 1,
+    "duration_ms": {
+      "med": 0,
+      "max": 0,
+      "p(90)": 0,
+      "p(95)": 0,
+      "avg": 0,
+      "min": 0
+    }
+  }
+}

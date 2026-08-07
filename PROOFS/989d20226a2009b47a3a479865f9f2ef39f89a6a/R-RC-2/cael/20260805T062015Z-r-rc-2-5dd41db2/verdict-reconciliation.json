@@ -1,0 +1,10 @@
+{
+  "schema": "openclaw.k6.verdict-reconciliation.v1",
+  "selectedVerdict": "PARTIAL-candidate",
+  "selectedSource": "vu-log",
+  "vuLogVerdict": "PARTIAL-candidate",
+  "summaryFileVerdict": "PASS-candidate",
+  "verdictPolicyApplied": false,
+  "honestLimitPolicyApplied": false,
+  "reason": "k6 handleSummary executes outside VU state; the VU-emitted verdict owns live evidence classification"
+}

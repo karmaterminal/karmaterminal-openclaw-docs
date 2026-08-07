@@ -146,7 +146,7 @@ test('run mode with healthy mock gateway allocates a free port and stops cleanly
     assert.equal(run.status, 3, run.stderr || run.stdout);
     const parsed = JSON.parse(run.stdout);
     assert.equal(parsed.ok, false);
-    assert.equal(parsed.outcome, 'HONEST-LIMIT-live-orchestration-preflight-only');
+    assert.equal(parsed.outcome, 'PARTIAL-live-orchestration-preflight-only');
 
     const readiness = await readJson(join(dir, 'artifacts', 'fixture-readiness.json'));
     const outcome = await readJson(join(dir, 'artifacts', 'outcome.json'));

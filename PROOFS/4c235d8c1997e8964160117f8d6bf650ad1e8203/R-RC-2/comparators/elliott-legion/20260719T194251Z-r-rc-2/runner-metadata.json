@@ -1,0 +1,9 @@
+{
+  "row": "R-RC-2",
+  "scenario": "r-rc-2-delegate-request-compaction.js",
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "runtimeBuildSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "seat": "elliott",
+  "sessionConfigured": true,
+  "startedAt": "2026-07-19T19:42:51Z"
+}

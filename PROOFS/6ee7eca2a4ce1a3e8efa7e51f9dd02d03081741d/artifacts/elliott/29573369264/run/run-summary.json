@@ -1,0 +1,21 @@
+{
+  "status": "live-run-complete",
+  "runId": "20260717T102449Z-elliott-legion-3352919",
+  "targetPrince": "elliott",
+  "seatName": "elliott-legion",
+  "candidateSha": "6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",
+  "docsCatalog": {
+    "root": "/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/../karmaterminal-openclaw-docs",
+    "ref": "246c447ad9d93039ff4777890d4b4027613bd9f3"
+  },
+  "rows": "R-CONFIG-DEFAULTS,R-CONFIG-INTERSESSION,R-OBS-1,R-OBS-2,R-OBS-STATUS,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121",
+  "sessionSelector": "project84-6ee7eca-elliott",
+  "sessionKey": "project84-6ee7eca-elliott",
+  "outRoot": "/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919",
+  "dryRun": false,
+  "openclawAltModel": "",
+  "artifacts": {
+    "log": "project81-docs-catalog.log",
+    "outRoot": "/home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919"
+  }
+}

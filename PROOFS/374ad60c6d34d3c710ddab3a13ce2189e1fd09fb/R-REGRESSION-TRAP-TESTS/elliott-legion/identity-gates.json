@@ -1,0 +1,27 @@
+{
+  "candidateSha": "374ad60c6d34d3c710ddab3a13ce2189e1fd09fb",
+  "sourceCheckoutSha": "374ad60c6d34d3c710ddab3a13ce2189e1fd09fb",
+  "docsHarnessSha": "a566100da92a87a7fa61d5d742a745f5964d4dbf",
+  "g1": {
+    "status": "pass",
+    "detail": "candidate is exact 40-character lowercase hexadecimal"
+  },
+  "g2": {
+    "status": "not-applicable",
+    "detail": "source-test row; no deployed runtime was used"
+  },
+  "g3": {
+    "status": "pass",
+    "sourcePath": "src/agents/tools/continuation-inventory-opts.test.ts",
+    "marker": "continue",
+    "count": 3
+  },
+  "g4": {
+    "status": "not-applicable",
+    "detail": "offline source-test row; no gateway or session was used"
+  },
+  "g5": {
+    "status": "pass",
+    "detail": "reviewed docs authority exactly matched"
+  }
+}

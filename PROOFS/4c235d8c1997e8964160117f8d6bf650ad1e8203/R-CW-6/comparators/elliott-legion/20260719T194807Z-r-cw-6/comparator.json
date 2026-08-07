@@ -1,0 +1,13 @@
+{
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "canonicalOwner": "🌊 ronan-dgx",
+  "classification": "pass",
+  "executionRole": "comparator",
+  "executionSeat": "elliott-legion",
+  "reasons": [
+    "terminal PASS with complete mandatory receipts and publication authority"
+  ],
+  "row": "R-CW-6",
+  "schema": "openclaw.project81.comparator-execution.v1",
+  "sourceKind": "process-local-fixture"
+}

@@ -44,8 +44,8 @@ const DEFAULT_GATEWAY_PROBE_TIMEOUT_MS = 15_000;
 const DEFAULT_GATEWAY_STOP_TIMEOUT_MS = 10_000;
 const NON_PASS_EXIT_CODE = 3;
 const VALID_LIVE_OUTCOMES = new Set([
-  'HONEST-LIMIT-local-model-unavailable',
-  'HONEST-LIMIT-live-orchestration-preflight-only',
+  'PARTIAL-local-model-unavailable',
+  'PARTIAL-live-orchestration-preflight-only',
   'BLOCKED-temp-gateway-start',
   'BLOCKED-context-budget-not-forced',
   'FAIL-request-compaction-rejected',
@@ -826,7 +826,7 @@ async function runLiveFailClosed(args, paths, runtime) {
        artifacts.outcome = orchestrationResult.artifacts.outcome;
     }
     artifacts.outcome.phase = phase;
-    if (artifacts.outcome.gatewayReady && outcome === 'HONEST-LIMIT-live-orchestration-preflight-only') {
+    if (artifacts.outcome.gatewayReady && outcome === 'PARTIAL-live-orchestration-preflight-only') {
        artifacts.outcome.remainingBlocker = 'forceContextBudget not implemented; accepted-compaction RPC/lifecycle/lifeboat receipts remain unwired';
     } else if (!artifacts.outcome.remainingBlocker) {
        artifacts.outcome.remainingBlocker = 'gateway-is-ready-but-request-compaction-session-orchestration-is-not-implemented';

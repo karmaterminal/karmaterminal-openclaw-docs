@@ -1,0 +1,22 @@
+{
+  "schema": "openclaw.proofs.index.v1",
+  "purpose": "PR-111616 exact-runtime proof signpost for clawsweeper and human reviewers.",
+  "current_sha": "c354b220ba63bf1d56286da383cd8ce3b9eaa71a",
+  "current_sha_short": "c354b22",
+  "build_string": "OpenClaw 2026.7.2 (c354b22)",
+  "corpus_path": "PR-111616/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/",
+  "manifest_path": "PR-111616/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/proofs-manifest.json",
+  "readme_path": "PR-111616/PROOFS/c354b220ba63bf1d56286da383cd8ce3b9eaa71a/README.md",
+  "rollup": {
+    "total_rows": 1,
+    "pass": 1,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "missing": 0
+  },
+  "disposition_note": "Focused micro-PR proof on a disclosed continuation-assembly testbed; no protected PR-85651 presentation bytes were changed.",
+  "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
+  "generated": "2026-07-21",
+  "generated_by": "frond-scribe on Cael exact-runtime proof lane"
+}

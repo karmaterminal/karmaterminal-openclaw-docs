@@ -1,0 +1,224 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: ronan
+Target Candidate SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d
+Deployed Runtime SHA: OpenClaw 2026.7.2 (6ee7eca)
+Session configured: true
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-ronan-dgx-2595524
+Rows: R-RC-2
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-ronan-dgx-2595524/seat-readiness.json
+
+----------------------------------------
+Row: R-RC-2
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-rc-2.json
+Scenario: scenarios/r-rc-2-delegate-request-compaction.js
+Status: runnable
+Live Safety: k6-runnable
+[R-RC-2] RUNNING...
+./r-rc-2-summary.json
+[R-RC-2] TRACE CORRELATION FAILED; see /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-ronan-dgx-2595524/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-RC-2/ronan/20260717T104108Z-r-rc-2/continuation-trace-collector.error.log
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-rc-2-delegate-request-compaction.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m0s max duration (incl. graceful stop):
+              * r_rc_2_delegate_request_compaction: 1 iterations shared among 1 VUs (maxDuration: 2m30s, gracefulStop: 30s)
+
+time="2026-07-17T03:41:09-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-07-17T03:41:09-07:00" level=info msg="✓ sessions.send accepted — parent agent turn triggered for R-RC-2" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m01.0s/2m30s  0/1 shared iters
+time="2026-07-17T03:41:10-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m02.0s/2m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m03.0s/2m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m04.0s/2m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m05.0s/2m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m06.0s/2m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m07.0s/2m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m08.0s/2m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m09.0s/2m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m10.0s/2m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m11.0s/2m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m12.0s/2m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m13.0s/2m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m14.0s/2m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m15.0s/2m30s  0/1 shared iters
+time="2026-07-17T03:41:24-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m16.0s/2m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m17.0s/2m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m18.0s/2m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m19.0s/2m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m20.0s/2m30s  0/1 shared iters
+time="2026-07-17T03:41:29-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m21.0s/2m30s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m22.0s/2m30s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m23.0s/2m30s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m24.0s/2m30s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m25.0s/2m30s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m26.0s/2m30s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m27.0s/2m30s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m28.0s/2m30s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m29.0s/2m30s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m30.0s/2m30s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m31.0s/2m30s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m32.0s/2m30s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m33.0s/2m30s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m34.0s/2m30s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m35.0s/2m30s  0/1 shared iters
+time="2026-07-17T03:41:44-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m36.0s/2m30s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m37.0s/2m30s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m38.0s/2m30s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m39.0s/2m30s  0/1 shared iters
+time="2026-07-17T03:41:47-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m40.0s/2m30s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m41.0s/2m30s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m42.0s/2m30s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m43.0s/2m30s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m44.0s/2m30s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m45.0s/2m30s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m46.0s/2m30s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m47.0s/2m30s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m48.0s/2m30s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m49.0s/2m30s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m50.0s/2m30s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m51.0s/2m30s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m52.0s/2m30s  0/1 shared iters
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m53.0s/2m30s  0/1 shared iters
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m54.0s/2m30s  0/1 shared iters
+
+running (0m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m55.0s/2m30s  0/1 shared iters
+time="2026-07-17T03:42:04-07:00" level=info msg="✓ delegated request_compaction threshold rejection observed: context=unknown threshold=unknown" source=console
+PUBLIC_EVIDENCE {"row":"R-RC-2","manifest_loaded":true,"seat":"ronan","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:41:08.683Z","parent_dispatch_accepted":true,"dispatch_accepted_at_ms":1784284869670,"delegate_requested":true,"reason_hash":"99e8a75a0c1efcd4","reason_length":618,"delegate_mode":"normal","delegate_child_report_observed":true,"request_compaction_rejected_context_threshold":true,"request_compaction_accepted":false,"post_compaction_path_observed":false,"guard":"context_threshold","context_usage":null,"threshold":null,"trace_id":null,"ended":"2026-07-17T10:42:04.646Z","duration_ms":55963,"verdict":"HONEST-LIMIT-candidate"}
+time="2026-07-17T03:42:04-07:00" level=info msg="\n[R-RC-2] VERDICT: HONEST-LIMIT-candidate" source=console
+
+running (0m56.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com... ✓ [ 100% ] 1 VUs  0m56.0s/2m30s  1/1 shared iters
+[R-RC-2] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate.
+[R-RC-2] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-ronan-dgx-2595524/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-RC-2/ronan/20260717T104108Z-r-rc-2/openclaw-proofs-k6.prom
+[R-RC-2] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-ronan-dgx-2595524/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-RC-2/ronan/20260717T104108Z-r-rc-2
+[R-RC-2] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-ronan-dgx-2595524/report.html
+
+==========================================================
+Runner execution finished.

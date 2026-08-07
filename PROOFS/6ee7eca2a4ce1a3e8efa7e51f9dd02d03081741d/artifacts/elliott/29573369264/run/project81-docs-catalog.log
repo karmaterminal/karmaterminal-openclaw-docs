@@ -1,0 +1,350 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: elliott
+Target Candidate SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d
+Deployed Runtime SHA: OpenClaw 2026.7.2 (6ee7eca)
+Session configured: true
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919
+Rows: R-CONFIG-DEFAULTS,R-CONFIG-INTERSESSION,R-OBS-1,R-OBS-2,R-OBS-STATUS,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/seat-readiness.json
+
+----------------------------------------
+Row: R-CONFIG-DEFAULTS
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-config-defaults.json
+Scenario: scenarios/r-config-defaults.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CONFIG-DEFAULTS] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-config-defaults.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m15s max duration (incl. graceful stop):
+              * r_config_defaults: 1 iterations shared among 1 VUs (maxDuration: 45s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CONFIG-defaults","manifest_loaded":true,"seat":"elliott","candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:24:53.885Z","rpc":{"method":"config.get","operator_surface":true,"response_ok":true,"response_shape":{"config_present":true,"continuation_present":true}},"config_read":true,"enabled":true,"max_chain_length":200,"max_delegates_per_turn":500,"cost_cap_tokens":50000000,"trace_id":null,"correlation":{"service":"elliott-prince","query_window_start":"2026-07-17T10:24:53.885Z","query_window_end":"2026-07-17T10:24:54.750Z"},"ended":"2026-07-17T10:24:54.750Z","duration_ms":866}
+time="2026-07-17T03:24:54-07:00" level=info msg="\n[R-CONFIG-defaults] VERDICT: PASS-candidate" source=console
+
+[R-CONFIG-defaults] Summary: PASS-candidate | SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d | Seat: elliott
+
+running (0m00.9s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_config_defaults ✓ [ 100% ] 1 VUs  00.9s/45s  1/1 shared iters
+[R-CONFIG-DEFAULTS] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate.
+[R-CONFIG-DEFAULTS] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CONFIG-DEFAULTS/elliott/20260717T102453Z-r-config-defaults/openclaw-proofs-k6.prom
+[R-CONFIG-DEFAULTS] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CONFIG-DEFAULTS/elliott/20260717T102453Z-r-config-defaults
+[R-CONFIG-DEFAULTS] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CONFIG-INTERSESSION
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-config-intersession.json
+Scenario: scenarios/r-config-intersession.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CONFIG-INTERSESSION] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-config-intersession.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m15s max duration (incl. graceful stop):
+              * r_config_intersession: 1 iterations shared among 1 VUs (maxDuration: 45s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CONFIG-INTERSESSION","manifest_loaded":true,"seat":"elliott","candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:24:55.074Z","rpc":{"method":"config.get","operator_surface":true,"response_ok":true,"response_shape":{"config_present":true,"continuation_present":true}},"config_read":true,"cross_session_targeting":"enabled","trace_id":null,"correlation":{"service":"elliott-prince","query_window_start":"2026-07-17T10:24:55.074Z","query_window_end":"2026-07-17T10:24:55.516Z"},"ended":"2026-07-17T10:24:55.516Z","duration_ms":442}
+time="2026-07-17T03:24:55-07:00" level=info msg="\n[R-CONFIG-INTERSESSION] VERDICT: PASS-candidate" source=console
+
+[R-CONFIG-INTERSESSION] Summary: PASS-candidate | SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d | Seat: elliott
+
+running (0m00.4s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_config_intersession ✓ [ 100% ] 1 VUs  00.4s/45s  1/1 shared iters
+[R-CONFIG-INTERSESSION] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CONFIG-INTERSESSION/elliott/20260717T102455Z-r-config-intersession/candidate-run-result.json
+[R-CONFIG-INTERSESSION] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CONFIG-INTERSESSION/elliott/20260717T102455Z-r-config-intersession/openclaw-proofs-k6.prom
+[R-CONFIG-INTERSESSION] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CONFIG-INTERSESSION/elliott/20260717T102455Z-r-config-intersession
+[R-CONFIG-INTERSESSION] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-OBS-1
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-obs-1.json
+Scenario: scenarios/r-obs-1.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-1] RUNNING...
+./r-obs-1-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-1.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m0s max duration (incl. graceful stop):
+              * r_obs_1: 1 iterations shared among 1 VUs (maxDuration: 1m30s, gracefulStop: 30s)
+
+time="2026-07-17T03:24:56-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-07-17T03:24:56-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for R-OBS-1 status-card read" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m01.0s/1m30s  0/1 shared iters
+time="2026-07-17T03:24:57-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m02.0s/1m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m03.0s/1m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m04.0s/1m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m05.0s/1m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m06.0s/1m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m07.0s/1m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m08.0s/1m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m09.0s/1m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m10.0s/1m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m11.0s/1m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m12.0s/1m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m13.0s/1m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m14.0s/1m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m15.0s/1m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m16.0s/1m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m17.0s/1m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m18.0s/1m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m19.0s/1m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m20.0s/1m30s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m21.0s/1m30s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m22.0s/1m30s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m23.0s/1m30s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m24.0s/1m30s  0/1 shared iters
+time="2026-07-17T03:25:20-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m25.0s/1m30s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m26.0s/1m30s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m27.0s/1m30s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m28.0s/1m30s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m29.0s/1m30s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m30.0s/1m30s  0/1 shared iters
+time="2026-07-17T03:25:26-07:00" level=info msg="ℹ OBS1-STATUS sentinel prefix observed; waiting for complete streamed sentinel" source=console
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_obs_1   [   0% ] 1 VUs  0m31.0s/1m30s  0/1 shared iters
+time="2026-07-17T03:25:27-07:00" level=info msg="✓ OBS1-STATUS sentinel observed: {\"build\":\"yes\",\"context\":\"yes\",\"chain\":\"yes\",\"route\":\"yes\"}" source=console
+PUBLIC_EVIDENCE {"row":"R-OBS-1","manifest_loaded":true,"seat":"elliott","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:24:55.870Z","dispatch_accepted":true,"status_card_observed":true,"build_visible":true,"context_visible":true,"continuation_chain_visible":true,"route_visible":true,"trace_id":null,"ended":"2026-07-17T10:25:27.192Z","duration_ms":31322}
+
+running (0m31.3s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_1 ✓ [ 100% ] 1 VUs  0m31.3s/1m30s  1/1 shared iters
+[R-OBS-1] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-OBS-1/elliott/20260717T102455Z-r-obs-1/candidate-run-result.json
+[R-OBS-1] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-OBS-1/elliott/20260717T102455Z-r-obs-1/openclaw-proofs-k6.prom
+[R-OBS-1] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-OBS-1/elliott/20260717T102455Z-r-obs-1
+[R-OBS-1] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-OBS-2
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-obs-2.json
+Scenario: scenarios/r-obs-2.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-2] RUNNING...
+./r-obs-2-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-2.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * r_obs_2_static: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-OBS-2","manifest_loaded":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","currentProofSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","sourceEvidenceSha":"1cc8f4e3d617ef6f173283ef83d7b739a4995734","started":"2026-07-17T10:25:27.563Z","trace_ids_hex":["0cf17ea0b7eab7a5e998f6a581e7b5bf"],"span_count":46,"root_count":1,"orphan_count":0,"required_span_names_present":{"continuation.delegate.dispatch":true,"openclaw.harness.run":true,"openclaw.run":true,"openclaw.tool.execution":true,"continuation.queue.fanout":true,"continuation.queue.drain":true},"source_files":{"traceTree":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/trace-tree.json","spanTree":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-tree.txt","spanCounts":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-counts.json"},"ended":"2026-07-17T10:25:27.563Z","duration_ms":0,"verdict":"PASS-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_2_static ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+[R-OBS-2] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-OBS-2/elliott/20260717T102527Z-r-obs-2/candidate-run-result.json
+[R-OBS-2] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-OBS-2/elliott/20260717T102527Z-r-obs-2/openclaw-proofs-k6.prom
+[R-OBS-2] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-OBS-2/elliott/20260717T102527Z-r-obs-2
+[R-OBS-2] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-OBS-STATUS
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-obs-status.json
+Scenario: scenarios/r-obs-status.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-STATUS] RUNNING...
+./r-obs-status-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-status.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m0s max duration (incl. graceful stop):
+              * r_obs_status: 1 iterations shared among 1 VUs (maxDuration: 30s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-OBS-status","candidate_sha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","source_repository":"karmaterminal/openclaw","source_path":"src/status/status-text.ts","source_fetch_ok":true,"source_sha256":"82704fafe96ca308c9b95bc9e79ab33153b8184f9f172d307dae3920005a1148","formatter_extracted":true,"active_continuation_line_present":true,"clean_session_continuation_line_absent":true,"ended":"2026-07-17T10:25:28.128Z","duration_ms":0}
+
+running (0m00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_status ✓ [ 100% ] 1 VUs  00.0s/30s  1/1 shared iters
+[R-OBS-STATUS] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate.
+[R-OBS-STATUS] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-OBS-STATUS/elliott/20260717T102527Z-r-obs-status/openclaw-proofs-k6.prom
+[R-OBS-STATUS] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-OBS-STATUS/elliott/20260717T102527Z-r-obs-status
+[R-OBS-STATUS] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-REGRESSION-TRAP-TESTS
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-regression-trap-tests.json
+Scenario: scenarios/r-regression-trap-tests.js
+Status: runnable
+Live Safety: k6-runnable
+[R-REGRESSION-TRAP-TESTS] RUNNING...
+./r-regression-trap-tests-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-regression-trap-tests.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * r_regression_trap_tests_static: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-REGRESSION-TRAP-TESTS","manifest_loaded":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","currentProofSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","sourceEvidenceSha":"1cc8f4e3d617ef6f173283ef83d7b739a4995734","sourceCheckoutSha":"bca2b0b89ab886bf23a10e4983926f6b374b3188","started":"2026-07-17T10:25:28.494Z","verdict_text_present":true,"shard_pass_text_present":true,"test_count_text_present":true,"source_sha_present":true,"required_tests_present":{"src/agents/tools/continuation-inventory-opts.test.ts":true,"src/agents/openclaw-tools.continuation-registration.test.ts":true,"src/agents/tools/continuation-tools-registration.test.ts":true,"src/agents/openclaw-tools.continuation-misconfig-warn.test.ts":true},"source_files":{"evidence":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/EVIDENCE.md","log":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/regression-trap.log","sourceStatus":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/source-git-status.txt","testInventory":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-REGRESSION-TRAP-TESTS/cael-dgx/test-inventory.txt"},"ended":"2026-07-17T10:25:28.494Z","duration_ms":0,"verdict":"PASS-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_regression_trap_tests_static ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+[R-REGRESSION-TRAP-TESTS] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-REGRESSION-TRAP-TESTS/elliott/20260717T102528Z-r-regression-trap-tests/candidate-run-result.json
+[R-REGRESSION-TRAP-TESTS] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-REGRESSION-TRAP-TESTS/elliott/20260717T102528Z-r-regression-trap-tests/openclaw-proofs-k6.prom
+[R-REGRESSION-TRAP-TESTS] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-REGRESSION-TRAP-TESTS/elliott/20260717T102528Z-r-regression-trap-tests
+[R-REGRESSION-TRAP-TESTS] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-TRACE-REDACTION-1121
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-trace-redaction-1121.json
+Scenario: scenarios/r-trace-redaction-1121.js
+Status: runnable
+Live Safety: k6-runnable
+[R-TRACE-REDACTION-1121] RUNNING...
+./r-trace-redaction-1121-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-trace-redaction-1121.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 40s max duration (incl. graceful stop):
+              * r_trace_redaction_1121_static: 1 iterations shared among 1 VUs (maxDuration: 10s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-TRACE-REDACTION-1121","manifest_loaded":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","currentProofSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","sourceEvidenceSha":"1cc8f4e3d617ef6f173283ef83d7b739a4995734","started":"2026-07-17T10:25:28.871Z","pass_heading_present":true,"safe_attrs_present":true,"no_preview_contract_present":true,"raw_reason_guard_present":true,"test_pass_present":true,"source_surface_present":true,"source_files":{"evidence":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-TRACE-REDACTION-1121/EVIDENCE.md"},"ended":"2026-07-17T10:25:28.871Z","duration_ms":1,"verdict":"PASS-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_trace_redaction_1121_static ✓ [ 100% ] 1 VUs  00.0s/10s  1/1 shared iters
+[R-TRACE-REDACTION-1121] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-TRACE-REDACTION-1121/elliott/20260717T102528Z-r-trace-redaction-1121/candidate-run-result.json
+[R-TRACE-REDACTION-1121] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-TRACE-REDACTION-1121/elliott/20260717T102528Z-r-trace-redaction-1121/openclaw-proofs-k6.prom
+[R-TRACE-REDACTION-1121] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-TRACE-REDACTION-1121/elliott/20260717T102528Z-r-trace-redaction-1121
+[R-TRACE-REDACTION-1121] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T102449Z-elliott-legion-3352919/report.html
+
+==========================================================
+Runner execution finished.

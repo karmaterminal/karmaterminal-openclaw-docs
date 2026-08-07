@@ -1,27 +1,29 @@
 #!/usr/bin/env node
 /**
- * check-proof-row-manifests.mjs — ensure every current PROOFS row has a k6 manifest entry.
+ * Ensure every canonical current-corpus row has a k6 manifest entry.
  *
- * This does not require every proof row to be k6-runnable. Manual-only rows may be
- * construct-only or scaffold, but they should still be explicit in the catalog so
- * the public executable-suite surface can explain the full 29-row corpus.
+ * proofs-manifest.json is the declared row inventory. Generated support
+ * directories are ignored only for the separate undeclared-directory check.
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { proofsToolPath, resolveRepositoryRoot } from '../lib/repo-root.mjs';
 
-const SUPPORT_DIRS = new Set(['artifacts', 'gates']);
+const SUPPORT_DIRECTORIES = new Set(['artifacts', 'gates']);
 
 export function inspectCorpusRows(corpusDir, proofManifest) {
-  const declaredRows = (proofManifest.rows || []).map((entry) => ({
-    rowId: entry.row,
-    directory: path.basename(String(entry.dir || '').replace(/\/+$/, '')),
-  })).filter((entry) => entry.rowId && entry.directory);
+  const declaredRows = (proofManifest.rows || [])
+    .map((entry) => ({
+      rowId: entry.row,
+      directory: path.basename(String(entry.dir || '').replace(/\/+$/, '')),
+    }))
+    .filter((entry) => entry.rowId && entry.directory);
   const declaredDirectories = new Set(declaredRows.map((entry) => entry.directory));
   const onDiskDirectories = readdirSync(corpusDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
-    .filter((name) => !SUPPORT_DIRS.has(name) && !name.startsWith('_'))
+    .filter((name) => !SUPPORT_DIRECTORIES.has(name) && !name.startsWith('_'))
     .sort();
 
   return {
@@ -30,9 +32,9 @@ export function inspectCorpusRows(corpusDir, proofManifest) {
   };
 }
 
-export function checkProofRowManifests(root = process.cwd()) {
+export function checkProofRowManifests(root) {
   const indexPath = path.join(root, 'PROOFS', 'INDEX.json');
-  const manifestsDir = path.join(root, 'tools', 'k6-proofs', 'manifests');
+  const manifestsDir = proofsToolPath(root, 'manifests');
   const failures = [];
 
   if (!existsSync(indexPath)) failures.push(`missing ${indexPath}`);
@@ -45,20 +47,18 @@ export function checkProofRowManifests(root = process.cwd()) {
     const index = JSON.parse(readFileSync(indexPath, 'utf8'));
     currentSha = index.current_sha;
     const corpusDir = path.join(root, 'PROOFS', currentSha);
+    const proofManifestPath = path.join(corpusDir, 'proofs-manifest.json');
     if (!currentSha || !existsSync(corpusDir)) {
       failures.push(`current PROOFS corpus missing: ${corpusDir}`);
+    } else if (!existsSync(proofManifestPath)) {
+      failures.push(`missing ${proofManifestPath}`);
     } else {
-      const proofManifestPath = path.join(corpusDir, 'proofs-manifest.json');
-      if (!existsSync(proofManifestPath)) {
-        failures.push(`missing ${proofManifestPath}`);
-      } else {
-        const { declaredRows, undeclaredDirectories: undeclared } = inspectCorpusRows(
-          corpusDir,
-          JSON.parse(readFileSync(proofManifestPath, 'utf8')),
-        );
-        proofRows = declaredRows.map((row) => row.rowId);
-        undeclaredDirectories = undeclared;
-      }
+      const inspected = inspectCorpusRows(
+        corpusDir,
+        JSON.parse(readFileSync(proofManifestPath, 'utf8')),
+      );
+      proofRows = inspected.declaredRows.map((row) => row.rowId);
+      undeclaredDirectories = inspected.undeclaredDirectories;
     }
   }
 
@@ -70,47 +70,75 @@ export function checkProofRowManifests(root = process.cwd()) {
     }
   }
 
-  const proofRowUpperSet = new Set(proofRows.map((r) => r.toUpperCase()));
+  const proofRowUpperSet = new Set(proofRows.map((row) => row.toUpperCase()));
   const manifestByUpper = new Map(manifestRows.map((row) => [row.rowId.toUpperCase(), row]));
   const missing = proofRows.filter((row) => !manifestByUpper.has(row.toUpperCase()));
-
-// Manifest-only rows: in the live-suite manifest catalog but not yet in the canonical proof
-// board corpus (e.g. model-override rows, R-CW-4, R-OBS-status). These are k6-runnable
-// candidates pending a canonical fold — they are intentional, not gaps.
+  const caseMismatches = proofRows.flatMap((row) => {
+    const manifest = manifestByUpper.get(row.toUpperCase());
+    return manifest && manifest.rowId !== row
+      ? [`${row} != ${manifest.rowId} (${manifest.file})`]
+      : [];
+  });
+  const duplicateManifestRows = [...manifestRows.reduce((byRow, row) => {
+    const key = row.rowId.toUpperCase();
+    const entries = byRow.get(key) ?? [];
+    entries.push(row.file);
+    byRow.set(key, entries);
+    return byRow;
+  }, new Map())]
+    .filter(([, files]) => files.length > 1)
+    .map(([rowId, files]) => `${rowId} (${files.join(', ')})`);
   const manifestOnly = manifestRows.filter(
     (row) => row.rowId !== 'preflight' && !proofRowUpperSet.has(row.rowId.toUpperCase()),
   );
 
-  if (missing.length) {
-    failures.push(`proof rows missing manifest entries: ${missing.join(', ')}`);
+  if (missing.length) failures.push(`proof rows missing manifest entries: ${missing.join(', ')}`);
+  if (caseMismatches.length) {
+    failures.push(`proof row/manifest ID case mismatches: ${caseMismatches.join('; ')}`);
+  }
+  if (duplicateManifestRows.length) {
+    failures.push(`duplicate manifest row IDs: ${duplicateManifestRows.join('; ')}`);
   }
   if (undeclaredDirectories.length) {
     failures.push(`undeclared proof row directories: ${undeclaredDirectories.join(', ')}`);
   }
 
-  return { currentSha, proofRows, manifestRows, missing, manifestOnly, undeclaredDirectories, failures };
+  return {
+    currentSha,
+    proofRows,
+    manifestRows,
+    missing,
+    manifestOnly,
+    undeclaredDirectories,
+    caseMismatches,
+    duplicateManifestRows,
+    failures,
+  };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const { currentSha, proofRows, manifestRows, missing, manifestOnly, undeclaredDirectories, failures } = checkProofRowManifests();
-  console.log(`Current corpus: PROOFS/${currentSha}`);
-  console.log(`Proof rows: ${proofRows.length}`);
-  console.log(`Manifest entries: ${manifestRows.length}`);
-  if (missing.length) console.log(`Missing manifests: ${missing.join(', ')}`);
-  else console.log('Missing manifests: 0');
-  if (manifestOnly.length) {
+  const { root } = resolveRepositoryRoot({ argv: process.argv.slice(2) });
+  const result = checkProofRowManifests(root);
+  console.log(`Current corpus: PROOFS/${result.currentSha}`);
+  console.log(`Proof rows: ${result.proofRows.length}`);
+  console.log(`Manifest entries: ${result.manifestRows.length}`);
+  console.log(result.missing.length ? `Missing manifests: ${result.missing.join(', ')}` : 'Missing manifests: 0');
+  if (result.manifestOnly.length) {
     console.log(
-      `Manifest-only (live-suite but not yet on proof board): ${manifestOnly.map((r) => r.rowId).join(', ')}`,
+      `Manifest-only (catalog but not yet on proof board): ${result.manifestOnly.map((row) => row.rowId).join(', ')}`,
     );
   } else {
     console.log('Manifest-only rows: 0');
   }
-  if (undeclaredDirectories.length) console.log(`Undeclared row directories: ${undeclaredDirectories.join(', ')}`);
-  else console.log('Undeclared row directories: 0');
+  console.log(
+    result.undeclaredDirectories.length
+      ? `Undeclared row directories: ${result.undeclaredDirectories.join(', ')}`
+      : 'Undeclared row directories: 0',
+  );
 
-  if (failures.length) {
+  if (result.failures.length) {
     console.error('\nProof row manifest coverage check failed:');
-    for (const failure of failures) console.error(`- ${failure}`);
+    for (const failure of result.failures) console.error(`- ${failure}`);
     process.exitCode = 1;
   } else {
     console.log('Proof row manifest coverage check passed.');

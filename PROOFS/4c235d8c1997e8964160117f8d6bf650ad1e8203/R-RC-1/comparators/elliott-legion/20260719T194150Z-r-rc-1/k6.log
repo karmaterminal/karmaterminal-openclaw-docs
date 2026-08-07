@@ -1,0 +1,201 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-rc-1-threshold-reject.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m0s max duration (incl. graceful stop):
+              * r_rc_1_threshold_reject: 1 iterations shared among 1 VUs (maxDuration: 1m30s, gracefulStop: 30s)
+
+time="2026-07-19T12:41:50-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-07-19T12:41:50-07:00" level=info msg="✓ request_compaction present in effective inventory" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m01.0s/1m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m02.0s/1m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m03.0s/1m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m04.0s/1m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m05.0s/1m30s  0/1 shared iters
+time="2026-07-19T12:41:55-07:00" level=info msg="✓ sessions.send accepted — awaiting authoritative request_compaction tool result" source=console
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m06.0s/1m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m07.0s/1m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m08.0s/1m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m09.0s/1m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m10.0s/1m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m11.0s/1m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m12.0s/1m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m13.0s/1m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m14.0s/1m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m15.0s/1m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m16.0s/1m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m17.0s/1m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m18.0s/1m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m19.0s/1m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m20.0s/1m30s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m21.0s/1m30s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m22.0s/1m30s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m23.0s/1m30s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m24.0s/1m30s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m25.0s/1m30s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m26.0s/1m30s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m27.0s/1m30s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m28.0s/1m30s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m29.0s/1m30s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m30.0s/1m30s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m31.0s/1m30s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m32.0s/1m30s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m33.0s/1m30s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m34.0s/1m30s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m35.0s/1m30s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m36.0s/1m30s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m37.0s/1m30s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m38.0s/1m30s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m39.0s/1m30s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m40.0s/1m30s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m41.0s/1m30s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m42.0s/1m30s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m43.0s/1m30s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m44.0s/1m30s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m45.0s/1m30s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m46.0s/1m30s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m47.0s/1m30s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m48.0s/1m30s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m49.0s/1m30s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m50.0s/1m30s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m51.0s/1m30s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m52.0s/1m30s  0/1 shared iters
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m53.0s/1m30s  0/1 shared iters
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m54.0s/1m30s  0/1 shared iters
+
+running (0m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m55.0s/1m30s  0/1 shared iters
+
+running (0m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m56.0s/1m30s  0/1 shared iters
+
+running (0m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m57.0s/1m30s  0/1 shared iters
+
+running (0m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m58.0s/1m30s  0/1 shared iters
+time="2026-07-19T12:42:48-07:00" level=info msg="ℹ assistant sentinel observed (diagnostic only; not accepted as row evidence)" source=console
+time="2026-07-19T12:42:48-07:00" level=info msg="✓ authoritative toolResult: status=rejected guard=context_threshold context=unknown threshold=unknown" source=console
+PUBLIC_EVIDENCE {"row":"R-RC-1","manifest_loaded":true,"seat":"elliott","session_created":true,"candidateSha":"4c235d8c1997e8964160117f8d6bf650ad1e8203","started":"2026-07-19T19:41:50.088Z","tool_inventory_checked":true,"tool_registered":true,"dispatch_accepted":true,"dispatch_accepted_at_ms":1784490115563,"tool_name":"request_compaction","tool_invocation_observed":true,"tool_result_observed":true,"tool_call_id":"call_1vL0jFewjRCqMVqmvOmZJODk|fc_02ebeef58f05385f016a5d28a9d4408198a1c991fb87031972","tool_result_status":"rejected","tool_invoke_rejected":true,"guard":"context_threshold","context_usage":null,"threshold":null,"no_compaction_side_effect":true,"assistant_sentinel_observed":true,"history_requested":true,"history_attempts":1,"trace_id":null,"ended":"2026-07-19T19:42:48.404Z","duration_ms":58316}
+time="2026-07-19T12:42:48-07:00" level=info msg="\n[R-RC-1] VERDICT: PASS-candidate" source=console
+
+[R-RC-1] Summary: PASS-candidate | SHA: 4c235d8c1997e8964160117f8d6bf650ad1e8203 | Seat: elliott
+
+running (0m58.3s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_rc_1_threshold_reject ✓ [ 100% ] 1 VUs  0m58.3s/1m30s  1/1 shared iters

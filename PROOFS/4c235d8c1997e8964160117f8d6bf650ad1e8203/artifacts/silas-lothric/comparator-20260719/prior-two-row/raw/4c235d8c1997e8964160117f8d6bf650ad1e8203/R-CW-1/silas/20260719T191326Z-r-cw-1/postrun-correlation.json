@@ -1,0 +1,89 @@
+{
+  "schema": "openclaw.k6.postrun-correlation-review.v1",
+  "row": "R-CW-1",
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "docsRef": "1303a03c2858fce82c235992b7ee06385e8e6304",
+  "seat": "silas-lothric",
+  "trace": {
+    "id": "6e7ce77d61548079a36a0493d0a6a55f",
+    "fetched": true,
+    "publicProjection": "tempo-trace-postrun.json",
+    "sha256": "e0576ea9d4be453d12021e6d225278fd78c76d79694023a98d18fd503f845c61",
+    "totalSpans": 22
+  },
+  "expected": {
+    "acceptSpan": "continuation.work",
+    "fireSpan": "continuation.work.fire",
+    "tool": "continue_work",
+    "acceptCount": 1,
+    "fireCount": 1,
+    "toolCount": 1,
+    "status": "OK",
+    "sameTrace": true,
+    "sameChain": true,
+    "sameCausalParent": true
+  },
+  "observed": {
+    "acceptCount": 1,
+    "fireCount": 2,
+    "toolCount": 1,
+    "acceptStatuses": [
+      "UNSET"
+    ],
+    "fireStatuses": [
+      "UNSET",
+      "UNSET"
+    ],
+    "toolStatuses": [
+      "UNSET"
+    ],
+    "sameTrace": true,
+    "sameChain": true,
+    "sameCausalParent": false,
+    "chainIds": [
+      "1cc31841-dd31-47e1-9cac-927de11ea50f"
+    ],
+    "relevantSpans": [
+      {
+        "name": "continuation.work",
+        "status": "UNSET",
+        "spanId": "7074cb0ea373bcfd",
+        "parentSpanId": "1eb96ed8ce231949",
+        "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+        "chainId": "1cc31841-dd31-47e1-9cac-927de11ea50f"
+      },
+      {
+        "name": "continuation.work.fire",
+        "status": "UNSET",
+        "spanId": "6e18cd8a235f5439",
+        "parentSpanId": "1eb96ed8ce231949",
+        "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+        "chainId": "1cc31841-dd31-47e1-9cac-927de11ea50f"
+      },
+      {
+        "name": "continuation.work.fire",
+        "status": "UNSET",
+        "spanId": "0ee8b6fe089f8379",
+        "parentSpanId": "1eb96ed8ce231949",
+        "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+        "chainId": "1cc31841-dd31-47e1-9cac-927de11ea50f"
+      },
+      {
+        "name": "openclaw.tool.execution",
+        "status": "UNSET",
+        "spanId": "48cb8eaf80626756",
+        "parentSpanId": "6c61a0c3dfb8b7af",
+        "traceId": "6e7ce77d61548079a36a0493d0a6a55f",
+        "chainId": null
+      }
+    ]
+  },
+  "contractOutcome": "invalid",
+  "blockers": [
+    "required continuation/tool spans are status UNSET rather than OK",
+    "expected exactly one continuation.work.fire span; observed 2",
+    "tool, accept, and fire spans do not share one causal parent"
+  ],
+  "rawNoncePersisted": false,
+  "rawSessionKeyPersisted": false
+}

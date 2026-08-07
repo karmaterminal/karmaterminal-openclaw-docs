@@ -11,11 +11,11 @@ Validates the `request_compaction` tool's gating and execution semantics.
 
 ### 2. `R-OBS-*` (Observer / Telemetry)
 Validates that telemetry and observer receipts are correctly generated and reachable.
-- **R-OBS-status**: Validates `status`/Tempo traces and observer receipts. This is a read-only row.
+- **R-OBS-STATUS**: Validates `status`/Tempo traces and observer receipts. This is a read-only row.
 
 ### 3. `R-CONFIG-*` (Configuration & Defaults)
 Validates configuration integrity and intersession defaults.
-- **R-CONFIG-defaults**: Verifies config, defaults, and intersession checks. This is a read-only row.
+- **R-CONFIG-DEFAULTS**: Verifies config, defaults, and intersession checks. This is a read-only row.
 
 *Note: `R-REGRESSION-TRAP-TESTS` (repo test trap rows) are managed via CI/test-runner suites, not as live-session k6 scenarios.*
 

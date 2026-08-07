@@ -1,0 +1,11 @@
+{
+  "schema": "openclaw.project81.r-cw-5.fixture-readiness.v1",
+  "candidateSha": "4c235d8c1997e8964160117f8d6bf650ad1e8203",
+  "sourceHeadMatchesCandidate": true,
+  "sourceTrackedCleanBefore": true,
+  "productionConfigTouched": false,
+  "productionStateTouched": false,
+  "fixtureKind": "source-only-production-module-plus-dispatch-boundary-suite",
+  "dependencyTree": "pre-existing-real-source-node_modules; no-install",
+  "cap": 100
+}

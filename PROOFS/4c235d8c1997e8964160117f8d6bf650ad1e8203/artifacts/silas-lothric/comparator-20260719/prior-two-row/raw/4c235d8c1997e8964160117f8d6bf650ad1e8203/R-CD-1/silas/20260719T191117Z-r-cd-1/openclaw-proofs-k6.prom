@@ -1,0 +1,16 @@
+# TYPE openclaw_proofs_k6_run_total counter
+openclaw_proofs_k6_run_total{row_id="R-CD-1",seat="silas",candidate_sha="4c235d8c1997e8964160117f8d6bf650ad1e8203",scenario="r-cd-1-typed-delegate.js",run_id="20260719T191117Z-r-cd-1",tool_surface="typed-tool",transport="websocket",outcome="PASS-candidate",candidate_only="true",fold_requires_review="true",failure_class="missing-receipt"} 1
+# TYPE openclaw_proofs_k6_proof_failures_total counter
+openclaw_proofs_k6_proof_failures_total{row_id="R-CD-1",seat="silas",candidate_sha="4c235d8c1997e8964160117f8d6bf650ad1e8203",scenario="r-cd-1-typed-delegate.js",run_id="20260719T191117Z-r-cd-1",failure_class="missing-receipt"} 0
+# TYPE openclaw_proofs_k6_candidate_pending_review gauge
+openclaw_proofs_k6_candidate_pending_review{row_id="R-CD-1",seat="silas",candidate_sha="4c235d8c1997e8964160117f8d6bf650ad1e8203",run_id="20260719T191117Z-r-cd-1",outcome="PASS-candidate",fold_requires_review="true"} 1
+# TYPE openclaw_proofs_k6_duration_ms gauge
+openclaw_proofs_k6_duration_ms{row_id="R-CD-1",seat="silas",candidate_sha="4c235d8c1997e8964160117f8d6bf650ad1e8203",scenario="r-cd-1-typed-delegate.js",run_id="20260719T191117Z-r-cd-1",outcome="PASS-candidate"} 43847
+# TYPE openclaw_proofs_k6_receipt_status gauge
+openclaw_proofs_k6_receipt_status{row_id="R-CD-1",seat="silas",candidate_sha="4c235d8c1997e8964160117f8d6bf650ad1e8203",run_id="20260719T191117Z-r-cd-1",receipt_name="continuation-trace-correlation",receipt_required="true",receipt_status="missing"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-1",seat="silas",candidate_sha="4c235d8c1997e8964160117f8d6bf650ad1e8203",run_id="20260719T191117Z-r-cd-1",receipt_name="tempo-trace-json",receipt_required="true",receipt_status="missing"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-1",seat="silas",candidate_sha="4c235d8c1997e8964160117f8d6bf650ad1e8203",run_id="20260719T191117Z-r-cd-1",receipt_name="seat-readiness",receipt_required="true",receipt_status="present"} 1
+openclaw_proofs_k6_receipt_status{row_id="R-CD-1",seat="silas",candidate_sha="4c235d8c1997e8964160117f8d6bf650ad1e8203",run_id="20260719T191117Z-r-cd-1",receipt_name="tool-invoke-accepted",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-1",seat="silas",candidate_sha="4c235d8c1997e8964160117f8d6bf650ad1e8203",run_id="20260719T191117Z-r-cd-1",receipt_name="delegate-scheduled-sentinel",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-1",seat="silas",candidate_sha="4c235d8c1997e8964160117f8d6bf650ad1e8203",run_id="20260719T191117Z-r-cd-1",receipt_name="parent-return-event",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-1",seat="silas",candidate_sha="4c235d8c1997e8964160117f8d6bf650ad1e8203",run_id="20260719T191117Z-r-cd-1",receipt_name="trace-id",receipt_required="true",receipt_status="missing"} 0

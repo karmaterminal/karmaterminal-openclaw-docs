@@ -1,0 +1,49 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: silas
+Target Candidate SHA: 4c235d8c1997e8964160117f8d6bf650ad1e8203
+Deployed Runtime SHA: 4c235d8c1997e8964160117f8d6bf650ad1e8203
+Session configured: true
+Artifact root: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended
+Rows: R-TRACE-REDACTION-1121
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/seat-readiness.json
+
+----------------------------------------
+Row: R-TRACE-REDACTION-1121
+Manifest: /tmp/silas-proof-matrix-20260719-1206/tools/k6-proofs/manifests/r-trace-redaction-1121.json
+Scenario: scenarios/r-trace-redaction-1121.js
+Status: runnable
+Live Safety: k6-runnable
+[R-TRACE-REDACTION-1121] RUNNING...
+./r-trace-redaction-1121-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-trace-redaction-1121.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 40s max duration (incl. graceful stop):
+              * r_trace_redaction_1121_static: 1 iterations shared among 1 VUs (maxDuration: 10s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-TRACE-REDACTION-1121","manifest_loaded":true,"candidateSha":"4c235d8c1997e8964160117f8d6bf650ad1e8203","currentProofSha":"4c235d8c1997e8964160117f8d6bf650ad1e8203","sourceEvidenceSha":"1cc8f4e3d617ef6f173283ef83d7b739a4995734","started":"2026-07-19T20:05:57.169Z","pass_heading_present":true,"safe_attrs_present":true,"no_preview_contract_present":true,"raw_reason_guard_present":true,"test_pass_present":true,"source_surface_present":true,"source_files":{"evidence":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-TRACE-REDACTION-1121/EVIDENCE.md"},"ended":"2026-07-19T20:05:57.169Z","duration_ms":0,"verdict":"PASS-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_trace_redaction_1121_static ✓ [ 100% ] 1 VUs  00.0s/10s  1/1 shared iters
+[R-TRACE-REDACTION-1121] CANDIDATE REVIEW ENVELOPE: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-TRACE-REDACTION-1121/silas/20260719T200557Z-r-trace-redaction-1121/candidate-run-result.json
+[R-TRACE-REDACTION-1121] METRICS: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-TRACE-REDACTION-1121/silas/20260719T200557Z-r-trace-redaction-1121/openclaw-proofs-k6.prom
+[R-TRACE-REDACTION-1121] ARTIFACTS: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-TRACE-REDACTION-1121/silas/20260719T200557Z-r-trace-redaction-1121
+[R-TRACE-REDACTION-1121] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /tmp/silas-comparator-full-4c235d8c-20260719T1930Z/unattended/report.html
+
+==========================================================
+Runner execution finished.

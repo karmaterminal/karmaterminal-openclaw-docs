@@ -48,7 +48,7 @@
     </Step>
     <Step order="3" id="evidence-capture">
       <Action>Grep journal for nonce; pull Tempo trace; query Loki</Action>
-      <Artifacts>EVIDENCE.md + raw trace JSON + summary JSON</Artifacts>
+      <Artifacts>EVIDENCE.md + public-safe trace projection JSON + summary JSON</Artifacts>
       <Destination>PROOFS/{SHA}/R-{ROW-NAME}/</Destination>
     </Step>
     <Step order="4" id="commit">
@@ -87,10 +87,11 @@
       <Evidence>Journal shows "[continuation:work-rejected] N/N"; Tempo trace captures rejection</Evidence>
       <Restore>Return original caps + gateway-reload</Restore>
     </Row>
-    <Row id="R-CW-6" owner="rune" forms="tool" issue="117" procedure="caps-test">
+    <Row id="R-CW-6" owner="rune" forms="tool" issue="117" procedure="isolated-max-chain-fixture">
       <Behavior>chain-depth-boundary reject</Behavior>
-      <FireMethod>Lower maxChainLength; fire continue_work past limit; verify reject</FireMethod>
-      <Evidence>Journal reject + Tempo trace</Evidence>
+      <FireMethod>Run the exact-candidate process-local fixture at a small explicit maxChainLength; schedule below/at/first-over elections through the production runtime without fleet mutation</FireMethod>
+      <Evidence>Structured chain-capped, rejected-hop no-spawn, durable recovery, typed-tool, dispatcher, readiness, cleanup, and public-artifact-safety receipts</Evidence>
+      <Constraint>Review-required component evidence; no shared gateway config mutation and no automatic corpus fold</Constraint>
     </Row>
     <Row id="R-CW-7" owner="rune" forms="tool" issue="117">
       <Behavior>traceparent E2E propagation across continuation spans</Behavior>

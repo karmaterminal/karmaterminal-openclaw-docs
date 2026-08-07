@@ -1,0 +1,35 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-07-13T02:42:26Z",
+  "verdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-obs-status-summary.json"
+  ],
+  "evidence": {
+    "row": "R-OBS-status",
+    "candidate_sha": "cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
+    "source_repository": "karmaterminal/openclaw",
+    "source_path": "src/status/status-text.ts",
+    "source_fetch_ok": true,
+    "source_sha256": "6704a2cce3d1c9f620f7c7cbe09f626d45c4232199a809575bf505d958860dcd",
+    "formatter_extracted": true,
+    "active_continuation_line_present": true,
+    "clean_session_continuation_line_absent": true,
+    "ended": "2026-07-13T02:42:26.755Z",
+    "duration_ms": 0
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

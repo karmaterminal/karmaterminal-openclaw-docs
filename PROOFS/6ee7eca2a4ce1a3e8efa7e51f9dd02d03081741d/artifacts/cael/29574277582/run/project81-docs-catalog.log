@@ -1,0 +1,2016 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d
+Deployed Runtime SHA: OpenClaw 2026.7.2 (6ee7eca)
+Session configured: true
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265
+Rows: R-CD-CHAINED-DEPTH-2,R-CD-COLLECTION-ON-COLLAPSE,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-RETURN-OVERLAP,R-CD-SILENT,R-CD-TOKEN
+Dry Run: false
+==========================================================
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/seat-readiness.json
+
+----------------------------------------
+Row: R-CD-CHAINED-DEPTH-2
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-chained-depth-2.json
+Scenario: scenarios/r-cd-chained-depth-2.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-CHAINED-DEPTH-2] RUNNING...
+./r-cd-chained-depth-2-summary.json
+[R-CD-CHAINED-DEPTH-2] TRACE CORRELATION FAILED; see /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-CHAINED-DEPTH-2/cael/20260717T104107Z-r-cd-chained-depth-2/continuation-trace-collector.error.log
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-chained-depth-2.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m30s max duration (incl. graceful stop):
+              * r_cd_chained_depth_2: 1 iterations shared among 1 VUs (maxDuration: 3m0s, gracefulStop: 30s)
+
+time="2026-07-17T03:41:08-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-07-17T03:41:08-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for depth-2 chain" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m01.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:41:09-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m02.0s/3m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m03.0s/3m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m04.0s/3m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m05.0s/3m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m06.0s/3m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m07.0s/3m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m08.0s/3m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m09.0s/3m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m10.0s/3m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m11.0s/3m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m12.0s/3m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m13.0s/3m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m14.0s/3m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m15.0s/3m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m16.0s/3m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m17.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:41:25-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m18.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:41:26-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m19.0s/3m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m20.0s/3m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m21.0s/3m0s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m22.0s/3m0s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m23.0s/3m0s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m24.0s/3m0s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m25.0s/3m0s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m26.0s/3m0s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m27.0s/3m0s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m28.0s/3m0s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m29.0s/3m0s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m30.0s/3m0s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m31.0s/3m0s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m32.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:41:40-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m33.0s/3m0s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m34.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:41:42-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m35.0s/3m0s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m36.0s/3m0s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m37.0s/3m0s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m38.0s/3m0s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m39.0s/3m0s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m40.0s/3m0s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m41.0s/3m0s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m42.0s/3m0s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m43.0s/3m0s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m44.0s/3m0s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m45.0s/3m0s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m46.0s/3m0s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m47.0s/3m0s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m48.0s/3m0s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m49.0s/3m0s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m50.0s/3m0s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m51.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:41:59-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-07-17T03:41:59-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m52.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:42:00-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-07-17T03:42:00-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+time="2026-07-17T03:42:00-07:00" level=info msg="Full chain evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-CHAINED-DEPTH-2","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:41:08.008Z","parent_dispatch_accepted":true,"child_spawned":true,"grandchild_spawned":true,"child_done_sentinel":true,"grandchild_done_sentinel":true,"chain_return_received":true,"dispatch_accepted_at_ms":1784284868972,"max_depth_observed":2,"reason_hash":"99ba179cb46d1b07","reason_length":441,"delegate_mode":"silent-wake","trace_id":null,"ended":"2026-07-17T10:42:00.996Z","duration_ms":52988}
+time="2026-07-17T03:42:00-07:00" level=info msg="\n[R-CD-CHAINED-DEPTH-2] VERDICT: PASS-candidate" source=console
+time="2026-07-17T03:42:00-07:00" level=info msg="  Max depth observed: 2" source=console
+
+[R-CD-CHAINED-DEPTH-2] Summary: PASS-candidate | SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d | Seat: cael
+
+running (0m53.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_chained_depth_2 ✓ [ 100% ] 1 VUs  0m53.0s/3m0s  1/1 shared iters
+[R-CD-CHAINED-DEPTH-2] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate.
+[R-CD-CHAINED-DEPTH-2] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-CHAINED-DEPTH-2/cael/20260717T104107Z-r-cd-chained-depth-2/openclaw-proofs-k6.prom
+[R-CD-CHAINED-DEPTH-2] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-CHAINED-DEPTH-2/cael/20260717T104107Z-r-cd-chained-depth-2
+[R-CD-CHAINED-DEPTH-2] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-COLLECTION-ON-COLLAPSE
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-collection-on-collapse.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-COLLECTION-ON-COLLAPSE] RUNNING...
+./static-corpus-row-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CD-COLLECTION-ON-COLLAPSE","sourceRow":"R-CD-COLLECTION-ON-COLLAPSE","staticBoundaryVariant":false,"manifest_loaded":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","currentProofSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","sourceEvidenceSha":"1cc8f4e3d617ef6f173283ef83d7b739a4995734","carriedFrom":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:43:02.535Z","checks":{"verdictPass":true,"methodScope":true,"bTypedDelegate":true,"cAfterB":true,"cSentinelPresent":true,"rootCollection":true,"durableRows":true,"evaluationPass":true,"tracePresent":true},"source_files":{"evidence":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/EVIDENCE.md","evaluation":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/evaluation.json","flowRows":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/flow-rows-concise.json","taskRows":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/task-rows-concise.json","rootReceipt":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/main/root-collection-receipt.md","journal":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/journal/filtered.log","traceSummary":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/tempo/trace-summary.json"},"ended":"2026-07-17T10:43:02.535Z","duration_ms":0,"verdict":"PASS-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+[R-CD-COLLECTION-ON-COLLAPSE] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-COLLECTION-ON-COLLAPSE/cael/20260717T104302Z-r-cd-collection-on-collapse/candidate-run-result.json
+[R-CD-COLLECTION-ON-COLLAPSE] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-COLLECTION-ON-COLLAPSE/cael/20260717T104302Z-r-cd-collection-on-collapse/openclaw-proofs-k6.prom
+[R-CD-COLLECTION-ON-COLLAPSE] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-COLLECTION-ON-COLLAPSE/cael/20260717T104302Z-r-cd-collection-on-collapse
+[R-CD-COLLECTION-ON-COLLAPSE] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-MODEL-CHAINED-ALT
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-model-chained-alt.json
+Scenario: scenarios/r-cd-model-chained-alt.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-MODEL-CHAINED-ALT] RUNNING...
+./r-cd-model-chained-alt-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-model-chained-alt.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 4m30s max duration (incl. graceful stop):
+              * r_cd_model_chained_alt: 1 iterations shared among 1 VUs (maxDuration: 4m0s, gracefulStop: 30s)
+
+time="2026-07-17T03:43:03-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-07-17T03:43:03-07:00" level=info msg="✓ sessions.send accepted — chained model parent turn triggered" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m01.0s/4m0s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m02.0s/4m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m03.0s/4m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m04.0s/4m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m05.0s/4m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m06.0s/4m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m07.0s/4m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m08.0s/4m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m09.0s/4m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m10.0s/4m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m11.0s/4m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m12.0s/4m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m13.0s/4m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m14.0s/4m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m15.0s/4m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m16.0s/4m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m17.0s/4m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m18.0s/4m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m19.0s/4m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m20.0s/4m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m21.0s/4m0s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m22.0s/4m0s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m23.0s/4m0s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m24.0s/4m0s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m25.0s/4m0s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m26.0s/4m0s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m27.0s/4m0s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m28.0s/4m0s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m29.0s/4m0s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m30.0s/4m0s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m31.0s/4m0s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m32.0s/4m0s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m33.0s/4m0s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m34.0s/4m0s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m35.0s/4m0s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m36.0s/4m0s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m37.0s/4m0s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m38.0s/4m0s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m39.0s/4m0s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m40.0s/4m0s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m41.0s/4m0s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m42.0s/4m0s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m43.0s/4m0s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m44.0s/4m0s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m45.0s/4m0s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m46.0s/4m0s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m47.0s/4m0s  0/1 shared iters
+time="2026-07-17T03:43:50-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:43:50-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m48.0s/4m0s  0/1 shared iters
+time="2026-07-17T03:43:50-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:43:50-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:43:50-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:43:51-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:43:51-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:43:51-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:43:51-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:43:51-07:00" level=info msg="✓ depth-1 scheduled depth-2 sentinel observed" source=console
+time="2026-07-17T03:43:51-07:00" level=info msg="✓ depth-2 model return observed" source=console
+time="2026-07-17T03:43:51-07:00" level=info msg="All required R-CD-MODEL-CHAINED-ALT evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-MODEL-CHAINED-ALT","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:43:02.879Z","requested_model_byte":"gpt","dispatch_accepted":true,"dispatch_accepted_at_ms":1784284983816,"depth_1_child_observed":true,"depth_2_child_observed":true,"depth_1_scheduled_inner":true,"depth_2_model_byte":"gpt.","model_matches":true,"return_payload":true,"trace_id":null,"ended":"2026-07-17T10:43:51.301Z","duration_ms":48422}
+time="2026-07-17T03:43:51-07:00" level=info msg="\n[R-CD-MODEL-CHAINED-ALT] VERDICT: PASS-candidate" source=console
+
+[R-CD-MODEL-CHAINED-ALT] Summary: PASS-candidate | SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d | Seat: cael
+
+running (0m48.4s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_model_chained_alt ✓ [ 100% ] 1 VUs  0m48.4s/4m0s  1/1 shared iters
+[R-CD-MODEL-CHAINED-ALT] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-MODEL-CHAINED-ALT/cael/20260717T104302Z-r-cd-model-chained-alt/candidate-run-result.json
+[R-CD-MODEL-CHAINED-ALT] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-MODEL-CHAINED-ALT/cael/20260717T104302Z-r-cd-model-chained-alt/openclaw-proofs-k6.prom
+[R-CD-MODEL-CHAINED-ALT] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-MODEL-CHAINED-ALT/cael/20260717T104302Z-r-cd-model-chained-alt
+[R-CD-MODEL-CHAINED-ALT] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-MODEL-DEFAULT
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-model-default.json
+Scenario: scenarios/r-cd-model-default.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-MODEL-DEFAULT] RUNNING...
+./r-cd-model-default-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-model-default.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m30s max duration (incl. graceful stop):
+              * r_cd_model_default: 1 iterations shared among 1 VUs (maxDuration: 3m0s, gracefulStop: 30s)
+
+time="2026-07-17T03:43:52-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m01.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:43:53-07:00" level=info msg="✓ sessions.send accepted — default model delegate turn triggered" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m02.0s/3m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m03.0s/3m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m04.0s/3m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m05.0s/3m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m06.0s/3m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m07.0s/3m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m08.0s/3m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m09.0s/3m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m10.0s/3m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m11.0s/3m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m12.0s/3m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m13.0s/3m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m14.0s/3m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m15.0s/3m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m16.0s/3m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m17.0s/3m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m18.0s/3m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m19.0s/3m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m20.0s/3m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m21.0s/3m0s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m22.0s/3m0s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m23.0s/3m0s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m24.0s/3m0s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m25.0s/3m0s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m26.0s/3m0s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m27.0s/3m0s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m28.0s/3m0s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m29.0s/3m0s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m30.0s/3m0s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m31.0s/3m0s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m32.0s/3m0s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m33.0s/3m0s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m34.0s/3m0s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m35.0s/3m0s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m36.0s/3m0s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m37.0s/3m0s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m38.0s/3m0s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m39.0s/3m0s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m40.0s/3m0s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m41.0s/3m0s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m42.0s/3m0s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m43.0s/3m0s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m44.0s/3m0s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m45.0s/3m0s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m46.0s/3m0s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m47.0s/3m0s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m48.0s/3m0s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m49.0s/3m0s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m50.0s/3m0s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m51.0s/3m0s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m52.0s/3m0s  0/1 shared iters
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m53.0s/3m0s  0/1 shared iters
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m54.0s/3m0s  0/1 shared iters
+
+running (0m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m55.0s/3m0s  0/1 shared iters
+
+running (0m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m56.0s/3m0s  0/1 shared iters
+
+running (0m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m57.0s/3m0s  0/1 shared iters
+
+running (0m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m58.0s/3m0s  0/1 shared iters
+
+running (0m59.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m59.0s/3m0s  0/1 shared iters
+
+running (1m00.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m00.0s/3m0s  0/1 shared iters
+
+running (1m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m01.0s/3m0s  0/1 shared iters
+
+running (1m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m02.0s/3m0s  0/1 shared iters
+
+running (1m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m03.0s/3m0s  0/1 shared iters
+
+running (1m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m04.0s/3m0s  0/1 shared iters
+
+running (1m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m05.0s/3m0s  0/1 shared iters
+
+running (1m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m06.0s/3m0s  0/1 shared iters
+
+running (1m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m07.0s/3m0s  0/1 shared iters
+
+running (1m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m08.0s/3m0s  0/1 shared iters
+
+running (1m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m09.0s/3m0s  0/1 shared iters
+
+running (1m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m10.0s/3m0s  0/1 shared iters
+
+running (1m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m11.0s/3m0s  0/1 shared iters
+
+running (1m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m12.0s/3m0s  0/1 shared iters
+
+running (1m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m13.0s/3m0s  0/1 shared iters
+
+running (1m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m14.0s/3m0s  0/1 shared iters
+
+running (1m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m15.0s/3m0s  0/1 shared iters
+
+running (1m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m16.0s/3m0s  0/1 shared iters
+
+running (1m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m17.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:45:08-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:08-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:08-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:08-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:08-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:08-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:09-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:09-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:09-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:09-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:09-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:09-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+
+running (1m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m18.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:45:10-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:10-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:10-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:10-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:10-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:10-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:10-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:10-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:45:10-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+
+running (1m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  1m19.0s/3m0s  0/1 shared iters
+time="2026-07-17T03:45:10-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-07-17T03:45:10-07:00" level=info msg="All required R-CD-MODEL-DEFAULT evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-MODEL-DEFAULT","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:43:51.655Z","parent_model_byte":"github-copilot/gpt-5.5","dispatch_accepted":true,"child_session_observed":true,"child_model_byte":"github-copilot/gpt-5.5","model_matches":true,"return_payload":true,"trace_id":null,"ended":"2026-07-17T10:45:10.683Z","duration_ms":79028}
+time="2026-07-17T03:45:10-07:00" level=info msg="\n[R-CD-MODEL-DEFAULT] VERDICT: PASS-candidate" source=console
+
+[R-CD-MODEL-DEFAULT] Summary: PASS-candidate | SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d | Seat: cael
+
+running (1m19.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_model_default ✓ [ 100% ] 1 VUs  1m19.0s/3m0s  1/1 shared iters
+[R-CD-MODEL-DEFAULT] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-MODEL-DEFAULT/cael/20260717T104351Z-r-cd-model-default/candidate-run-result.json
+[R-CD-MODEL-DEFAULT] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-MODEL-DEFAULT/cael/20260717T104351Z-r-cd-model-default/openclaw-proofs-k6.prom
+[R-CD-MODEL-DEFAULT] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-MODEL-DEFAULT/cael/20260717T104351Z-r-cd-model-default
+[R-CD-MODEL-DEFAULT] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-MODEL-TOKEN
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-model-token.json
+Scenario: scenarios/r-cd-model-token.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-MODEL-TOKEN] RUNNING...
+./r-cd-model-token-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-model-token.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 4m0s max duration (incl. graceful stop):
+              * r_cd_model_token: 1 iterations shared among 1 VUs (maxDuration: 3m30s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m01.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:45:12-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m02.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:45:13-07:00" level=info msg="✓ sessions.send accepted — parent agent turn triggered" source=console
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m03.0s/3m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m04.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:45:15-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m05.0s/3m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m06.0s/3m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m07.0s/3m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m08.0s/3m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m09.0s/3m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m10.0s/3m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m11.0s/3m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m12.0s/3m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m13.0s/3m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m14.0s/3m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m15.0s/3m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m16.0s/3m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m17.0s/3m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m18.0s/3m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m19.0s/3m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m20.0s/3m30s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m21.0s/3m30s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m22.0s/3m30s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m23.0s/3m30s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m24.0s/3m30s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m25.0s/3m30s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m26.0s/3m30s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m27.0s/3m30s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m28.0s/3m30s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m29.0s/3m30s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m30.0s/3m30s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m31.0s/3m30s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m32.0s/3m30s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m33.0s/3m30s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m34.0s/3m30s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m35.0s/3m30s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m36.0s/3m30s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m37.0s/3m30s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m38.0s/3m30s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m39.0s/3m30s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m40.0s/3m30s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m41.0s/3m30s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m42.0s/3m30s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m43.0s/3m30s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m44.0s/3m30s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m45.0s/3m30s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m46.0s/3m30s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m47.0s/3m30s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m48.0s/3m30s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m49.0s/3m30s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m50.0s/3m30s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m51.0s/3m30s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m52.0s/3m30s  0/1 shared iters
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m53.0s/3m30s  0/1 shared iters
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m54.0s/3m30s  0/1 shared iters
+
+running (0m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m55.0s/3m30s  0/1 shared iters
+
+running (0m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m56.0s/3m30s  0/1 shared iters
+
+running (0m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m57.0s/3m30s  0/1 shared iters
+
+running (0m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m58.0s/3m30s  0/1 shared iters
+
+running (0m59.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m59.0s/3m30s  0/1 shared iters
+
+running (1m00.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m00.0s/3m30s  0/1 shared iters
+
+running (1m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m01.0s/3m30s  0/1 shared iters
+
+running (1m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m02.0s/3m30s  0/1 shared iters
+
+running (1m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m03.0s/3m30s  0/1 shared iters
+
+running (1m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m04.0s/3m30s  0/1 shared iters
+
+running (1m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m05.0s/3m30s  0/1 shared iters
+
+running (1m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m06.0s/3m30s  0/1 shared iters
+
+running (1m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m07.0s/3m30s  0/1 shared iters
+
+running (1m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m08.0s/3m30s  0/1 shared iters
+
+running (1m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m09.0s/3m30s  0/1 shared iters
+
+running (1m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m10.0s/3m30s  0/1 shared iters
+
+running (1m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m11.0s/3m30s  0/1 shared iters
+
+running (1m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m12.0s/3m30s  0/1 shared iters
+
+running (1m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m13.0s/3m30s  0/1 shared iters
+
+running (1m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m14.0s/3m30s  0/1 shared iters
+
+running (1m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m15.0s/3m30s  0/1 shared iters
+
+running (1m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m16.0s/3m30s  0/1 shared iters
+
+running (1m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m17.0s/3m30s  0/1 shared iters
+
+running (1m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m18.0s/3m30s  0/1 shared iters
+
+running (1m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m19.0s/3m30s  0/1 shared iters
+
+running (1m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m20.0s/3m30s  0/1 shared iters
+
+running (1m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m21.0s/3m30s  0/1 shared iters
+
+running (1m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m22.0s/3m30s  0/1 shared iters
+
+running (1m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m23.0s/3m30s  0/1 shared iters
+
+running (1m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m24.0s/3m30s  0/1 shared iters
+
+running (1m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m25.0s/3m30s  0/1 shared iters
+
+running (1m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m26.0s/3m30s  0/1 shared iters
+
+running (1m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m27.0s/3m30s  0/1 shared iters
+
+running (1m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m28.0s/3m30s  0/1 shared iters
+
+running (1m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m29.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:46:40-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:46:40-07:00" level=info msg="✓ bracket-token child turn observed" source=console
+time="2026-07-17T03:46:40-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:46:40-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:46:40-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:46:40-07:00" level=info msg="✓ bracket-token child turn observed" source=console
+
+running (1m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m30.0s/3m30s  0/1 shared iters
+
+running (1m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m31.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:46:42-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:46:42-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:46:42-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:46:42-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:46:42-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:46:42-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:46:42-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:46:42-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+
+running (1m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  1m32.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:46:43-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:46:43-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-07-17T03:46:43-07:00" level=info msg="✓ bracket-token child turn observed" source=console
+time="2026-07-17T03:46:43-07:00" level=info msg="✓ bracket model modifier observed" source=console
+time="2026-07-17T03:46:43-07:00" level=info msg="✓ MODEL-TOKEN-DELEGATE-DONE return sentinel observed" source=console
+time="2026-07-17T03:46:43-07:00" level=info msg="All required R-CD-MODEL-TOKEN evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-MODEL-TOKEN","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:45:11.015Z","requested_model_byte":"gpt","prompt_injected":true,"subagent_spawn_requested":true,"subagent_spawn_accepted":true,"bracket_token_observed":true,"bracket_model_modifier_observed":true,"child_session_observed":true,"child_model_byte":"gpt","model_matches":true,"return_payload":true,"dispatch_accepted_at_ms":1784285113891,"trace_id":null,"ended":"2026-07-17T10:46:43.118Z","duration_ms":92103}
+time="2026-07-17T03:46:43-07:00" level=info msg="\n[R-CD-MODEL-TOKEN] VERDICT: PASS-candidate" source=console
+
+[R-CD-MODEL-TOKEN] Summary: PASS-candidate | SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d | Seat: cael
+
+running (1m32.1s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_model_token ✓ [ 100% ] 1 VUs  1m32.1s/3m30s  1/1 shared iters
+[R-CD-MODEL-TOKEN] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-MODEL-TOKEN/cael/20260717T104510Z-r-cd-model-token/candidate-run-result.json
+[R-CD-MODEL-TOKEN] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-MODEL-TOKEN/cael/20260717T104510Z-r-cd-model-token/openclaw-proofs-k6.prom
+[R-CD-MODEL-TOKEN] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-MODEL-TOKEN/cael/20260717T104510Z-r-cd-model-token
+[R-CD-MODEL-TOKEN] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-MODEL-TOOL
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-model-tool.json
+Scenario: scenarios/r-cd-model-tool.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-MODEL-TOOL] RUNNING...
+./r-cd-model-tool-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-model-tool.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 4m0s max duration (incl. graceful stop):
+              * r_cd_model_tool: 1 iterations shared among 1 VUs (maxDuration: 3m30s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m01.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:46:44-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-07-17T03:46:45-07:00" level=info msg="✓ sessions.send accepted — explicit model delegate turn triggered" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m02.0s/3m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m03.0s/3m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m04.0s/3m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m05.0s/3m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m06.0s/3m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m07.0s/3m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m08.0s/3m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m09.0s/3m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m10.0s/3m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m11.0s/3m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m12.0s/3m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m13.0s/3m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m14.0s/3m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m15.0s/3m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m16.0s/3m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m17.0s/3m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m18.0s/3m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m19.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:47:02-07:00" level=info msg="✓ child session metadata observed" source=console
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m20.0s/3m30s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m21.0s/3m30s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m22.0s/3m30s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m23.0s/3m30s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m24.0s/3m30s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m25.0s/3m30s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m26.0s/3m30s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m27.0s/3m30s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m28.0s/3m30s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m29.0s/3m30s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m30.0s/3m30s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m31.0s/3m30s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m32.0s/3m30s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m33.0s/3m30s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m34.0s/3m30s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m35.0s/3m30s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m36.0s/3m30s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m37.0s/3m30s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m38.0s/3m30s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m39.0s/3m30s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m40.0s/3m30s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m41.0s/3m30s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m42.0s/3m30s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m43.0s/3m30s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m44.0s/3m30s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m45.0s/3m30s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m46.0s/3m30s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m47.0s/3m30s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m48.0s/3m30s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m49.0s/3m30s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m50.0s/3m30s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m51.0s/3m30s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m52.0s/3m30s  0/1 shared iters
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m53.0s/3m30s  0/1 shared iters
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m54.0s/3m30s  0/1 shared iters
+
+running (0m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m55.0s/3m30s  0/1 shared iters
+
+running (0m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m56.0s/3m30s  0/1 shared iters
+
+running (0m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m57.0s/3m30s  0/1 shared iters
+
+running (0m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m58.0s/3m30s  0/1 shared iters
+
+running (0m59.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  0m59.0s/3m30s  0/1 shared iters
+
+running (1m00.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m00.0s/3m30s  0/1 shared iters
+
+running (1m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m01.0s/3m30s  0/1 shared iters
+
+running (1m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m02.0s/3m30s  0/1 shared iters
+
+running (1m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m03.0s/3m30s  0/1 shared iters
+
+running (1m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m04.0s/3m30s  0/1 shared iters
+
+running (1m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m05.0s/3m30s  0/1 shared iters
+
+running (1m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m06.0s/3m30s  0/1 shared iters
+
+running (1m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m07.0s/3m30s  0/1 shared iters
+
+running (1m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m08.0s/3m30s  0/1 shared iters
+
+running (1m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m09.0s/3m30s  0/1 shared iters
+
+running (1m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m10.0s/3m30s  0/1 shared iters
+
+running (1m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m11.0s/3m30s  0/1 shared iters
+
+running (1m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m12.0s/3m30s  0/1 shared iters
+
+running (1m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m13.0s/3m30s  0/1 shared iters
+
+running (1m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m14.0s/3m30s  0/1 shared iters
+
+running (1m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m15.0s/3m30s  0/1 shared iters
+
+running (1m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m16.0s/3m30s  0/1 shared iters
+
+running (1m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m17.0s/3m30s  0/1 shared iters
+
+running (1m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m18.0s/3m30s  0/1 shared iters
+
+running (1m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m19.0s/3m30s  0/1 shared iters
+
+running (1m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m20.0s/3m30s  0/1 shared iters
+
+running (1m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m21.0s/3m30s  0/1 shared iters
+
+running (1m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m22.0s/3m30s  0/1 shared iters
+
+running (1m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m23.0s/3m30s  0/1 shared iters
+
+running (1m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m24.0s/3m30s  0/1 shared iters
+
+running (1m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m25.0s/3m30s  0/1 shared iters
+
+running (1m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m26.0s/3m30s  0/1 shared iters
+
+running (1m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m27.0s/3m30s  0/1 shared iters
+
+running (1m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m28.0s/3m30s  0/1 shared iters
+
+running (1m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m29.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:48:13-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:48:13-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+
+running (1m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m30.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:48:13-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:48:13-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:48:13-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:48:13-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:48:13-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:48:13-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:48:13-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:48:13-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:48:13-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:48:14-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:48:14-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:48:14-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-07-17T03:48:14-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+
+running (1m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m31.0s/3m30s  0/1 shared iters
+
+running (1m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m32.0s/3m30s  0/1 shared iters
+
+running (1m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m33.0s/3m30s  0/1 shared iters
+
+running (1m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m34.0s/3m30s  0/1 shared iters
+
+running (1m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m35.0s/3m30s  0/1 shared iters
+
+running (1m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m36.0s/3m30s  0/1 shared iters
+
+running (1m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m37.0s/3m30s  0/1 shared iters
+
+running (1m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m38.0s/3m30s  0/1 shared iters
+
+running (1m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m39.0s/3m30s  0/1 shared iters
+
+running (1m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m40.0s/3m30s  0/1 shared iters
+
+running (1m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m41.0s/3m30s  0/1 shared iters
+
+running (1m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m42.0s/3m30s  0/1 shared iters
+
+running (1m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m43.0s/3m30s  0/1 shared iters
+
+running (1m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m44.0s/3m30s  0/1 shared iters
+
+running (1m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m45.0s/3m30s  0/1 shared iters
+
+running (1m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m46.0s/3m30s  0/1 shared iters
+
+running (1m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m47.0s/3m30s  0/1 shared iters
+
+running (1m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m48.0s/3m30s  0/1 shared iters
+
+running (1m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m49.0s/3m30s  0/1 shared iters
+
+running (1m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_tool   [   0% ] 1 VUs  1m50.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:48:33-07:00" level=info msg="✓ MODEL-TOOL-CHILD return payload observed" source=console
+time="2026-07-17T03:48:33-07:00" level=info msg="R-CD-MODEL-TOOL return gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-MODEL-TOOL","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:46:43.478Z","requested_model_byte":"openai/gpt-5.6-luna","requested_model_source":"continue_delegate.model parameter","dispatch_accepted":true,"parent_scheduled_sentinel":true,"child_session_observed":true,"child_session_metadata_observed":true,"child_metadata_model_byte":"openai/gpt-5.6-terra","child_metadata_model_source":"gateway sessions.list persisted provider/model metadata","child_self_reported_model":"openai/gpt-","child_self_reported_model_source":"auxiliary child runtime-context self-report (not used for equality)","child_session_metadata":{"key":"<redacted-session-key>","provider":"openai","model":"gpt-5.6-terra","modelSelectionLocked":false},"child_metadata_requested":true,"model_matches":false,"return_payload":true,"trace_id":null,"honest_limit_reason":"requested/child-session-metadata model mismatch or unavailable metadata","ended":"2026-07-17T10:48:33.574Z","duration_ms":110096}
+time="2026-07-17T03:48:33-07:00" level=info msg="\n[R-CD-MODEL-TOOL] VERDICT: HONEST-LIMIT-candidate" source=console
+
+[R-CD-MODEL-TOOL] Summary: PARTIAL-candidate | SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d | Seat: cael
+
+running (1m50.1s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_model_tool ✓ [ 100% ] 1 VUs  1m50.1s/3m30s  1/1 shared iters
+[R-CD-MODEL-TOOL] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-MODEL-TOOL/cael/20260717T104643Z-r-cd-model-tool/candidate-run-result.json
+[R-CD-MODEL-TOOL] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-MODEL-TOOL/cael/20260717T104643Z-r-cd-model-tool/openclaw-proofs-k6.prom
+[R-CD-MODEL-TOOL] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-MODEL-TOOL/cael/20260717T104643Z-r-cd-model-tool
+[R-CD-MODEL-TOOL] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-RETURN-OVERLAP
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-return-overlap.json
+Scenario: scenarios/r-cd-return-overlap.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-RETURN-OVERLAP] RUNNING...
+./r-cd-return-overlap-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-return-overlap.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * r_cd_return_overlap_static: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CD-RETURN-OVERLAP","manifest_loaded":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","currentProofSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","sourceEvidenceSha":"1cc8f4e3d617ef6f173283ef83d7b739a4995734","started":"2026-07-17T10:48:33.951Z","pass_with_caveat_present":true,"silent_flow_present":true,"silent_wake_flow_present":true,"both_markers_in_tasks":true,"both_targeted_returns_in_journal":true,"no_duplicate_storm_claim_present":true,"tempo_trace_present":true,"source_files":{"evidence":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/EVIDENCE.md","flowRows":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/db/flow-rows-concise.json","taskRows":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/db/task-rows-concise.json","journal":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/journal/journal-filtered.log","tempo":"../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-RETURN-OVERLAP/cael-dgx/tempo/trace-0d676f84623ebfe6499a324d039ee050-summary.json"},"ended":"2026-07-17T10:48:33.952Z","duration_ms":2,"verdict":"PASS-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_return_overlap_static ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+[R-CD-RETURN-OVERLAP] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-RETURN-OVERLAP/cael/20260717T104833Z-r-cd-return-overlap/candidate-run-result.json
+[R-CD-RETURN-OVERLAP] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-RETURN-OVERLAP/cael/20260717T104833Z-r-cd-return-overlap/openclaw-proofs-k6.prom
+[R-CD-RETURN-OVERLAP] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-RETURN-OVERLAP/cael/20260717T104833Z-r-cd-return-overlap
+[R-CD-RETURN-OVERLAP] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-SILENT
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-silent.json
+Scenario: scenarios/r-cd-silent.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-SILENT] RUNNING...
+./r-cd-silent-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-silent.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 4m0s max duration (incl. graceful stop):
+              * r_cd_silent: 1 iterations shared among 1 VUs (maxDuration: 3m30s, gracefulStop: 30s)
+
+time="2026-07-17T03:48:34-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m01.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:48:35-07:00" level=info msg="✓ dispatch sessions.send accepted for mode=silent" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m02.0s/3m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m03.0s/3m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m04.0s/3m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m05.0s/3m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m06.0s/3m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m07.0s/3m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m08.0s/3m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m09.0s/3m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m10.0s/3m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m11.0s/3m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m12.0s/3m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m13.0s/3m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m14.0s/3m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m15.0s/3m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m16.0s/3m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m17.0s/3m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m18.0s/3m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m19.0s/3m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m20.0s/3m30s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m21.0s/3m30s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m22.0s/3m30s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m23.0s/3m30s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m24.0s/3m30s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m25.0s/3m30s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m26.0s/3m30s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m27.0s/3m30s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m28.0s/3m30s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m29.0s/3m30s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m30.0s/3m30s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m31.0s/3m30s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m32.0s/3m30s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m33.0s/3m30s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m34.0s/3m30s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m35.0s/3m30s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m36.0s/3m30s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m37.0s/3m30s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m38.0s/3m30s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m39.0s/3m30s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m40.0s/3m30s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m41.0s/3m30s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m42.0s/3m30s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m43.0s/3m30s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m44.0s/3m30s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m45.0s/3m30s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m46.0s/3m30s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m47.0s/3m30s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m48.0s/3m30s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m49.0s/3m30s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m50.0s/3m30s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m51.0s/3m30s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m52.0s/3m30s  0/1 shared iters
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m53.0s/3m30s  0/1 shared iters
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m54.0s/3m30s  0/1 shared iters
+
+running (0m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m55.0s/3m30s  0/1 shared iters
+
+running (0m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m56.0s/3m30s  0/1 shared iters
+
+running (0m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m57.0s/3m30s  0/1 shared iters
+
+running (0m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m58.0s/3m30s  0/1 shared iters
+
+running (0m59.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m59.0s/3m30s  0/1 shared iters
+
+running (1m00.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m00.0s/3m30s  0/1 shared iters
+
+running (1m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m01.0s/3m30s  0/1 shared iters
+
+running (1m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m02.0s/3m30s  0/1 shared iters
+
+running (1m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m03.0s/3m30s  0/1 shared iters
+
+running (1m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m04.0s/3m30s  0/1 shared iters
+
+running (1m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m05.0s/3m30s  0/1 shared iters
+
+running (1m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m06.0s/3m30s  0/1 shared iters
+
+running (1m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m07.0s/3m30s  0/1 shared iters
+
+running (1m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m08.0s/3m30s  0/1 shared iters
+
+running (1m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m09.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:49:43-07:00" level=info msg="✓ scheduled sentinel observed" source=console
+time="2026-07-17T03:49:43-07:00" level=info msg="✓ scheduled sentinel observed" source=console
+time="2026-07-17T03:49:44-07:00" level=info msg="✓ scheduled sentinel observed" source=console
+time="2026-07-17T03:49:44-07:00" level=info msg="✓ scheduled sentinel observed" source=console
+
+running (1m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m10.0s/3m30s  0/1 shared iters
+
+running (1m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m11.0s/3m30s  0/1 shared iters
+
+running (1m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m12.0s/3m30s  0/1 shared iters
+
+running (1m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m13.0s/3m30s  0/1 shared iters
+
+running (1m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m14.0s/3m30s  0/1 shared iters
+
+running (1m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m15.0s/3m30s  0/1 shared iters
+
+running (1m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m16.0s/3m30s  0/1 shared iters
+
+running (1m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m17.0s/3m30s  0/1 shared iters
+
+running (1m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m18.0s/3m30s  0/1 shared iters
+
+running (1m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m19.0s/3m30s  0/1 shared iters
+
+running (1m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m20.0s/3m30s  0/1 shared iters
+
+running (1m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m21.0s/3m30s  0/1 shared iters
+
+running (1m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m22.0s/3m30s  0/1 shared iters
+
+running (1m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m23.0s/3m30s  0/1 shared iters
+
+running (1m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m24.0s/3m30s  0/1 shared iters
+
+running (1m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m25.0s/3m30s  0/1 shared iters
+
+running (1m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m26.0s/3m30s  0/1 shared iters
+
+running (1m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m27.0s/3m30s  0/1 shared iters
+
+running (1m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m28.0s/3m30s  0/1 shared iters
+
+running (1m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m29.0s/3m30s  0/1 shared iters
+
+running (1m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m30.0s/3m30s  0/1 shared iters
+
+running (1m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m31.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:50:06-07:00" level=info msg="✓ silent child completion observed on internal stream" source=console
+
+running (1m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m32.0s/3m30s  0/1 shared iters
+
+running (1m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m33.0s/3m30s  0/1 shared iters
+
+running (1m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m34.0s/3m30s  0/1 shared iters
+
+running (1m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m35.0s/3m30s  0/1 shared iters
+
+running (1m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m36.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:50:11-07:00" level=info msg="✓ follow-up sessions.send accepted" source=console
+
+running (1m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m37.0s/3m30s  0/1 shared iters
+
+running (1m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m38.0s/3m30s  0/1 shared iters
+
+running (1m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m39.0s/3m30s  0/1 shared iters
+
+running (1m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m40.0s/3m30s  0/1 shared iters
+
+running (1m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m41.0s/3m30s  0/1 shared iters
+
+running (1m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m42.0s/3m30s  0/1 shared iters
+
+running (1m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m43.0s/3m30s  0/1 shared iters
+
+running (1m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m44.0s/3m30s  0/1 shared iters
+
+running (1m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m45.0s/3m30s  0/1 shared iters
+
+running (1m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m46.0s/3m30s  0/1 shared iters
+
+running (1m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m47.0s/3m30s  0/1 shared iters
+
+running (1m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m48.0s/3m30s  0/1 shared iters
+
+running (1m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m49.0s/3m30s  0/1 shared iters
+
+running (1m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m50.0s/3m30s  0/1 shared iters
+
+running (1m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m51.0s/3m30s  0/1 shared iters
+
+running (1m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m52.0s/3m30s  0/1 shared iters
+
+running (1m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m53.0s/3m30s  0/1 shared iters
+
+running (1m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m54.0s/3m30s  0/1 shared iters
+
+running (1m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m55.0s/3m30s  0/1 shared iters
+
+running (1m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m56.0s/3m30s  0/1 shared iters
+
+running (1m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m57.0s/3m30s  0/1 shared iters
+
+running (1m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m58.0s/3m30s  0/1 shared iters
+
+running (1m59.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  1m59.0s/3m30s  0/1 shared iters
+
+running (2m00.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m00.0s/3m30s  0/1 shared iters
+
+running (2m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m01.0s/3m30s  0/1 shared iters
+
+running (2m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m02.0s/3m30s  0/1 shared iters
+
+running (2m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m03.0s/3m30s  0/1 shared iters
+
+running (2m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m04.0s/3m30s  0/1 shared iters
+
+running (2m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m05.0s/3m30s  0/1 shared iters
+
+running (2m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m06.0s/3m30s  0/1 shared iters
+
+running (2m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m07.0s/3m30s  0/1 shared iters
+
+running (2m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m08.0s/3m30s  0/1 shared iters
+
+running (2m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m09.0s/3m30s  0/1 shared iters
+
+running (2m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m10.0s/3m30s  0/1 shared iters
+
+running (2m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m11.0s/3m30s  0/1 shared iters
+
+running (2m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m12.0s/3m30s  0/1 shared iters
+
+running (2m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m13.0s/3m30s  0/1 shared iters
+
+running (2m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m14.0s/3m30s  0/1 shared iters
+
+running (2m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m15.0s/3m30s  0/1 shared iters
+
+running (2m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m16.0s/3m30s  0/1 shared iters
+
+running (2m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m17.0s/3m30s  0/1 shared iters
+
+running (2m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m18.0s/3m30s  0/1 shared iters
+
+running (2m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m19.0s/3m30s  0/1 shared iters
+
+running (2m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m20.0s/3m30s  0/1 shared iters
+
+running (2m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m21.0s/3m30s  0/1 shared iters
+
+running (2m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m22.0s/3m30s  0/1 shared iters
+
+running (2m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m23.0s/3m30s  0/1 shared iters
+
+running (2m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m24.0s/3m30s  0/1 shared iters
+
+running (2m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m25.0s/3m30s  0/1 shared iters
+
+running (2m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m26.0s/3m30s  0/1 shared iters
+
+running (2m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m27.0s/3m30s  0/1 shared iters
+
+running (2m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m28.0s/3m30s  0/1 shared iters
+
+running (2m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m29.0s/3m30s  0/1 shared iters
+
+running (2m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m30.0s/3m30s  0/1 shared iters
+
+running (2m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m31.0s/3m30s  0/1 shared iters
+
+running (2m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m32.0s/3m30s  0/1 shared iters
+
+running (2m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m33.0s/3m30s  0/1 shared iters
+
+running (2m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m34.0s/3m30s  0/1 shared iters
+
+running (2m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  2m35.0s/3m30s  0/1 shared iters
+time="2026-07-17T03:51:10-07:00" level=info msg="✓ parent reported silent child token from internal context" source=console
+time="2026-07-17T03:51:10-07:00" level=info msg="All required R-CD-SILENT evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-SILENT","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d","started":"2026-07-17T10:48:34.296Z","dispatch_accepted":true,"scheduled_sentinel":true,"child_completion_observed":true,"followup_accepted":true,"parent_internal_context_observed":true,"no_channel_delivery":true,"child_channel_delivery_observed":false,"dispatch_accepted_at_ms":1784285315811,"followup_sent_at_ms":1784285411105,"trace_id":null,"ended":"2026-07-17T10:51:10.115Z","duration_ms":155819}
+time="2026-07-17T03:51:10-07:00" level=info msg="\n[R-CD-SILENT] VERDICT: PASS-candidate" source=console
+
+[R-CD-SILENT] Summary: PASS-candidate | SHA: 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d | Seat: cael
+
+running (2m35.8s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_silent ✓ [ 100% ] 1 VUs  2m35.8s/3m30s  1/1 shared iters
+[R-CD-SILENT] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-SILENT/cael/20260717T104834Z-r-cd-silent/candidate-run-result.json
+[R-CD-SILENT] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-SILENT/cael/20260717T104834Z-r-cd-silent/openclaw-proofs-k6.prom
+[R-CD-SILENT] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/project81-k6/20260717T104105Z-cael-dgx-508265/6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d/R-CD-SILENT/cael/20260717T104834Z-r-cd-silent
+[R-CD-SILENT] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-TOKEN
+Manifest: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/karmaterminal-openclaw-docs/tools/k6-proofs/manifests/r-cd-token.json
+Scenario: scenarios/r-cd-token-bracket-delegate.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-TOKEN] RUNNING...

@@ -23,6 +23,8 @@ import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { gatewayLifecycleRunId, gatewayLifecyclePhase, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../lib/gateway-lifecycle.js';
+import { observesRcd2DispatchTerminalSentinel } from '../lib/r-cd-2-terminal-sentinel.js';
 
 export const options = {
   scenarios: {
@@ -80,14 +82,19 @@ export function isOutboundChannelDeliveryEvent(eventName, eventData) {
   return Boolean(channelTarget) && ['sent', 'delivered', 'completed'].includes(deliveryStatus);
 }
 
+export function lifecycleRunId(value) {
+  return gatewayLifecycleRunId(value);
+}
+
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
   const requestedSessionKey = manifest && manifest.sessionKey || __ENV.OPENCLAW_SESSION_KEY || DEFAULTS.sessionKey;
   let sessionKey = requestedSessionKey;
-  const createDisposableSession = (__ENV.OPENCLAW_CREATE_DISPOSABLE_SESSION || '').toLowerCase() === 'true';
+  const createDisposableSession = (__ENV.OPENCLAW_CREATE_DISPOSABLE_SESSION || 'true').toLowerCase() === 'true';
   const seat = manifest && manifest.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CD-2');
+  const dispatchTerminalSentinel = `RCD2-DELEGATE-SCHEDULED ${rowNonce}`;
 
   if (!token) {
     console.error('OPENCLAW_GATEWAY_TOKEN is required');
@@ -106,15 +113,36 @@ export default function () {
     row: 'R-CD-2',
     manifest_loaded: !!manifest,
     nonce: rowNonce,
+    row_nonce_fingerprint: crypto.sha256(rowNonce, 'hex').slice(0, 16),
     seat,
     sessionKey,
     requestedSessionKey,
     session_created: false,
+    session_unbound_confirmed: false,
     created_session_key: null,
     candidateSha: manifest && manifest.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
     // Required receipts
-    tool_accepted: false,
+    // send acceptance is not lifecycle proof; the resolver requires every
+    // same-run field below before it can promote this row.
+    send_accepted: false,
+    send_run_captured: false,
+    send_run_fingerprint: null,
+    terminal_run_fingerprint: null,
+    wake_run_fingerprint: null,
+    send_run_success_end_observed: false,
+    dispatch_terminal_sentinel_observed: false,
+    dispatch_terminal_sentinel_same_run_window: false,
+    terminal_success_same_run: false,
+    typed_delegate_success_same_run: false,
+    // The silent wake is a fresh parent turn.  Its identity is therefore a
+    // distinct top-level gateway lifecycle run, not a field guessed from a
+    // session.message transcript payload.
+    wake_lifecycle_observed: false,
+    post_wake_quiet: false,
+    post_wake_quiet_timer_started: false,
+    dispatch_failure_observed: false,
+    send_run_mismatch: false,
     task_created: false,
     task_mode: null,
     // Silent-wake specific
@@ -125,18 +153,33 @@ export default function () {
     silent_status_record_observed: false,
     dispatch_accepted_at_ms: null,
     wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
+    post_wake_quiet_ms: Number(__ENV.OPENCLAW_POST_WAKE_QUIET_MS || 5000),
     child_session: null,
     reason_hash: null,
     reason_length: null,
     delegate_mode: null,
     trace_id: null,
+    accepted_send_trace_id: null,
     redacted_events: [],
   };
 
   const started = Date.now();
+  let acceptedRunId = null;
+  let dispatchLifecycleActive = false;
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+
+    function maybeRecordDispatchTerminalSuccess() {
+      if (!acceptedRunId ||
+          !evidence.send_run_success_end_observed ||
+          !evidence.dispatch_terminal_sentinel_observed ||
+          !evidence.dispatch_terminal_sentinel_same_run_window) {
+        return;
+      }
+      evidence.terminal_success_same_run = true;
+      evidence.terminal_run_fingerprint = crypto.sha256(String(acceptedRunId), 'hex').slice(0, 16);
+    }
 
     function startProofFlow(socket) {
       // Subscribe to parent session messages to detect wake + verify no channel delivery.
@@ -153,7 +196,10 @@ export default function () {
         evidence.reason_hash = crypto.sha256(prompt, 'hex').slice(0, 16);
         evidence.reason_length = prompt.length;
         evidence.delegate_mode = inv.mode;
-        const agentInstruction = `[k6-proof-harness] Call continue_delegate with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. This is a proof run — execute the tool call immediately, no other action needed.`;
+        const agentInstruction =
+          `[k6-proof-harness] Call continue_delegate with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. ` +
+          `After the continue_delegate tool result reports scheduled, reply exactly RCD2-DELEGATE-SCHEDULED ${rowNonce}. ` +
+          'Do not call another tool or send any channel message.';
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
           message: agentInstruction,
@@ -207,9 +253,24 @@ export default function () {
             evidence.session_created = true;
             evidence.created_session_key = sessionKey;
             console.log(`✓ disposable session created: ${sessionKey}`);
-            startProofFlow(socket);
+            tracker.send(socket, 'sessions.list', { limit: 20 });
           } else {
             console.error(`✗ sessions.create rejected: ${JSON.stringify(classified.error)}`);
+            failures.add(1);
+            socket.close();
+          }
+        }
+
+        if (classified.kind === 'response' && classified.method === 'sessions.list') {
+          const sessions = classified.payload?.sessions || classified.payload?.items || [];
+          const created = sessions.find((session) => session?.key === sessionKey);
+          const bound = Boolean(created?.channelId || created?.channel || created?.deliveryChannel);
+          if (evidence.session_created && created && !bound) {
+            evidence.session_unbound_confirmed = true;
+            startProofFlow(socket);
+          } else {
+            evidence.dispatch_failure_observed = true;
+            console.error('✗ disposable session is missing or bound');
             failures.add(1);
             socket.close();
           }
@@ -218,9 +279,19 @@ export default function () {
         // Check sessions.send accepted (agent turn triggered)
         if (classified.kind === 'response' && classified.method === 'sessions.send') {
           if (classified.ok) {
-            evidence.tool_accepted = true;
+            evidence.send_accepted = true;
             evidence.dispatch_accepted_at_ms = Date.now();
-            if (classified.payload && classified.payload.traceId) evidence.trace_id = classified.payload.traceId;
+            acceptedRunId = lifecycleRunId(classified.payload);
+            if (acceptedRunId) {
+              evidence.send_run_captured = true;
+              evidence.send_run_fingerprint = crypto.sha256(String(acceptedRunId), 'hex').slice(0, 16);
+            } else {
+              evidence.dispatch_failure_observed = true;
+            }
+            if (classified.payload && classified.payload.traceId) {
+              evidence.accepted_send_trace_id = classified.payload.traceId;
+              evidence.trace_id = classified.payload.traceId;
+            }
             console.log('✓ sessions.send accepted — agent turn triggered for R-CD-2 (mode=silent-wake)');
           } else if (classified.error) {
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
@@ -253,23 +324,68 @@ export default function () {
           // Some target sessions emit generic agent lifecycle events rather than
           // an early session.message before the delayed wake. Count these as the
           // dispatching agent turn, not as the silent-wake return.
-          if (eventName === 'agent' && evidence.tool_accepted) {
+          if (eventName === 'agent' && evidence.send_accepted) {
             evidence.agent_turn_observed = true;
+            const eventRunId = lifecycleRunId(eventData);
+            const sameRun = Boolean(acceptedRunId && eventRunId === acceptedRunId);
+            const phase = gatewayLifecyclePhase(eventData);
+            if (sameRun && phase === 'start') {
+              dispatchLifecycleActive = true;
+            }
+            if (phase === 'end' && eventRunId === acceptedRunId) {
+              dispatchLifecycleActive = false;
+              if (!sameRun) evidence.send_run_mismatch = true;
+              else if (!gatewayLifecycleSucceeded(eventData)) {
+                evidence.dispatch_failure_observed = true;
+                evidence.failureCategory = eventData.data?.replayInvalid === true
+                  ? 'delegate-replay-unsafe' : 'provider-or-turn-failure';
+              } else {
+                evidence.send_run_success_end_observed = true;
+                maybeRecordDispatchTerminalSuccess();
+              }
+            }
+            // The deployed gateway gives agent lifecycle events a top-level
+            // runId.  A later, distinct lifecycle start in this subscribed
+            // parent session is the only authoritative silent-wake receipt.
+            const wakeRunId = gatewayWakeRunId(eventData, acceptedRunId);
+            const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
+            if (wakeRunId && elapsed >= evidence.wake_gate_ms) {
+              evidence.parent_wake_observed = true;
+              evidence.wake_lifecycle_observed = true;
+              evidence.wake_run_fingerprint = crypto.sha256(String(wakeRunId), 'hex').slice(0, 16);
+              if (!evidence.post_wake_quiet_timer_started) {
+                evidence.post_wake_quiet_timer_started = true;
+                socket.setTimeout(() => {
+                  if (!evidence.channel_message_observed) evidence.post_wake_quiet = true;
+                  socket.close();
+                }, evidence.post_wake_quiet_ms);
+              }
+              console.log('✓ delayed parent lifecycle wake observed');
+            }
           }
 
           // session.message events immediately after sessions.send are the dispatching
           // agent turn, not the silent-wake return.  The delegate delay is clamped
           // by the gateway, so only count a parent wake after the minimum delay.
-          if (eventName === 'session.message' && evidence.tool_accepted) {
-            const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
-            if (elapsed >= evidence.wake_gate_ms) {
-              evidence.parent_wake_observed = true;
-              evidence.agent_turn_observed = true;
-              console.log('✓ delayed session.message event observed (silent-wake return candidate)');
-            } else {
-              evidence.agent_turn_observed = true;
-              console.log('✓ initial session.message event observed (dispatching agent turn)');
+          if (eventName === 'session.message' && evidence.send_accepted) {
+            // session.message carries transcript content but no documented
+            // lifecycle run identity. It is diagnostic only, never a wake
+            // receipt; otherwise a delayed unrelated message could certify.
+            evidence.agent_turn_observed = true;
+            if (observesRcd2DispatchTerminalSentinel(
+              eventData,
+              dispatchTerminalSentinel,
+              {
+                dispatchLifecycleActive,
+                wakeLifecycleObserved: evidence.wake_lifecycle_observed,
+              },
+            )) {
+              evidence.dispatch_terminal_sentinel_observed = true;
+              evidence.dispatch_terminal_sentinel_same_run_window = true;
+              maybeRecordDispatchTerminalSuccess();
+              console.log('✓ exact post-tool dispatch terminal sentinel observed within dispatch lifecycle');
             }
+            console.log('ℹ session.message observed (non-authoritative for wake identity)');
           }
 
           // continue_status({ notify:false }) is internal completion bookkeeping,
@@ -279,6 +395,9 @@ export default function () {
           if (eventStr.includes(rowNonce) && eventStr.includes('"notify":false') &&
               eventStr.includes('"outcome":"done"')) {
             evidence.silent_status_record_observed = true;
+            if (acceptedRunId && lifecycleRunId(eventData) === acceptedRunId) {
+              evidence.typed_delegate_success_same_run = true;
+            }
             console.log('ℹ internal continue_status notify:false receipt observed');
           }
 
@@ -301,7 +420,7 @@ export default function () {
         // Early close only after a delayed parent wake candidate is observed; task
         // ledger context remains optional.  Do not close on the initial dispatch
         // agent turn, or this row only proves sessions.send.
-        if (evidence.tool_accepted && evidence.parent_wake_observed) {
+        if (evidence.send_accepted && evidence.parent_wake_observed && evidence.post_wake_quiet) {
           console.log('Primary silent-wake evidence gathered, closing early');
           socket.close();
         }
@@ -318,6 +437,13 @@ export default function () {
 
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
+  if (evidence.send_run_success_end_observed &&
+      (!evidence.dispatch_terminal_sentinel_observed ||
+       !evidence.dispatch_terminal_sentinel_same_run_window) &&
+      evidence.dispatch_failure_observed !== true) {
+    evidence.dispatch_failure_observed = true;
+    evidence.failureCategory = 'missing-terminal-sentinel';
+  }
   finalEvidence = evidence;
   duration.add(evidence.duration_ms);
 
@@ -329,13 +455,19 @@ export default function () {
   // use their own tracking surface, not the generic task ledger.
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
-    'agent turn triggered (sessions.send accepted)': () => evidence.tool_accepted,
+    'agent turn triggered (sessions.send accepted)': () => evidence.send_accepted,
     'dispatching agent turn observed': () => evidence.agent_turn_observed,
+    'exact post-tool dispatch terminal sentinel observed': () => evidence.dispatch_terminal_sentinel_observed,
+    'terminal sentinel observed within dispatch lifecycle': () => evidence.dispatch_terminal_sentinel_same_run_window,
     'delayed parent wake candidate observed': () => evidence.parent_wake_observed,
     'no channel delivery (silent verified)': () => !evidence.channel_message_observed,
   });
 
-  if (!evidence.tool_accepted || !evidence.agent_turn_observed || !evidence.parent_wake_observed) {
+  if (!evidence.send_accepted ||
+      !evidence.agent_turn_observed ||
+      !evidence.dispatch_terminal_sentinel_observed ||
+      !evidence.dispatch_terminal_sentinel_same_run_window ||
+      !evidence.parent_wake_observed) {
     failures.add(1);
   }
   if (evidence.channel_message_observed) {
@@ -343,40 +475,32 @@ export default function () {
     console.error('FAIL: silent-wake delegate produced channel output');
   }
 
-  // Verdict — PASS when: turn triggered + events flowing + no channel delivery
-  const passed = (!createDisposableSession || evidence.session_created) &&
-    evidence.tool_accepted && evidence.agent_turn_observed &&
-    evidence.parent_wake_observed && !evidence.channel_message_observed;
-
   console.log(`R_CD_2_EVIDENCE ${JSON.stringify(evidence)}`);
   console.log(`\n--- R-CD-2 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));
   console.log(`--- END EVIDENCE ---`);
-  console.log(`\n[R-CD-2] VERDICT: ${passed ? 'PASS-candidate' : 'PARTIAL-candidate'}`);
+  // Only the row-scoped resolver may join this private run evidence to the
+  // same-trace/chain tool topology and promote a PASS-candidate.
+  console.log('\n[R-CD-2] VERDICT: PARTIAL-candidate');
 }
 
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
-  const passRate = data.metrics.proof_failures && data.metrics.proof_failures.values && data.metrics.proof_failures.values.count === 0;
-  const traceId = finalEvidence && finalEvidence.trace_id || null;
   const summary = {
     row: 'R-CD-2',
     sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     seat: __ENV.OPENCLAW_SEAT_NAME || 'ronan-dgx',
     timestamp,
-    verdict: passRate ? 'PASS-candidate' : 'PARTIAL-candidate',
+    verdict: 'PARTIAL-candidate',
     candidateOnly: true,
     foldRequiresReview: true,
     observability: {
-      traceId,
-      traceJson: traceId ? 'pending-fetch' : 'missing',
+      traceStatus: 'resolved-after-run',
     },
     review: {
-      status: traceId ? 'ready-for-human-review' : 'review-pending',
-      pendingReceipts: traceId ? [] : ['tempo-trace-json'],
-      notes: traceId
-        ? ['Trace id captured; fetch and attach Tempo trace JSON before canonical fold.']
-        : ['No trace_id was emitted by this candidate run; keep PASS-candidate as review-pending until trace JSON is fetched or the fold explicitly accepts trace-missing.'],
+      status: 'review-pending',
+      pendingReceipts: ['r-cd-2-authoritative-receipt'],
+      notes: ['The runner owns final R-CD-2 candidate disposition from its validated row-scoped receipt.'],
     },
     metrics: {
       duration_ms: data.metrics.r_cd_2_duration && data.metrics.r_cd_2_duration.values || null,

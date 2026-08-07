@@ -27,7 +27,7 @@ This document complements:
 - Do not count message-tool body text as a continuation token proof. Token rows must record the exact originating surface.
 - Keep the proof target explicit: `OPENCLAW_CANDIDATE_SHA=<40-char-sha>`.
 - For PR-presentation/GATES work, the proof SHA must be the SHA that will be presented. If the code changes, rerun or explicitly classify the drift.
-- `HONEST_LIMIT` is allowed when the substrate blocks the canonical PASS shape and that condition is the evidence. Do not relabel it as PASS.
+- `HONEST_LIMIT` is reserved for `R-RC-2` when a structured live receipt proves `request_compaction` was denied because context pressure remained below threshold. Every other incomplete substrate or receipt condition is `PARTIAL`, never PASS.
 
 ## Local proof round shape
 
@@ -46,6 +46,13 @@ node tools/k6-proofs/scripts/check-scenario-alignment.mjs
 node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
 node tools/k6-proofs/scripts/validate-corpus.mjs --current
 ```
+
+The three catalog validators share one repository-root contract (#495), so the
+same commands produce identical results from `tools/k6-proofs` or
+`tools/k6-proofs/scripts`. Use `--repo-root <dir>` or `OPENCLAW_PROOFS_REPO_ROOT`
+to point them at an explicit checkout. `run-proofs.sh` runs all three as a
+preflight; a failure is harness infrastructure (`harness-control-receipt.json`,
+exit 78, zero rows executed), never a per-row product verdict.
 
 The “all” denominator includes `preflight`; the live-suite denominator may be smaller when it excludes static/support rows. Record which denominator you cite.
 
@@ -75,7 +82,7 @@ OPENCLAW_GATEWAY_TOKEN=*** \
 node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json
 ```
 
-A missing k6 binary/version mismatch, disabled continuation config, missing required env, or unreachable gateway is `HONEST_LIMIT-candidate` / setup failure until fixed.
+A missing k6 binary/version mismatch, disabled continuation config, missing required env, or unreachable gateway is `PARTIAL-candidate` / setup failure until fixed.
 
 ### 4. Dry-run the selected set
 
@@ -105,10 +112,33 @@ OPENCLAW_CANDIDATE_SHA=<40-char-sha> \
 OPENCLAW_SEAT_NAME=<seat> \
 OPENCLAW_CREATE_DISPOSABLE_SESSION=true \
 OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true \
-./scripts/run-proofs.sh R-CD-2,R-CD-4 <40-char-sha>
+./scripts/run-proofs.sh --live --docs-ref <40-char-docs-sha> R-CD-2,R-CD-4 <40-char-sha>
 ```
 
+`--docs-ref` (or `OPENCLAW_PROOFS_DOCS_REF`) is mandatory for a live run (#496).
+It is resolved and frozen once at startup; the runner refuses to fire unless
+repository `HEAD` equals it, tracked bytes under `tools/k6-proofs` are clean, and
+every selected runnable row's manifest and scenario are tracked at that exact
+commit. A stale, dirty, mixed, or unrecorded harness fails once as infrastructure
+(`harness-control-receipt.json`, exit 78) and never synthesizes a row verdict.
+
+An approved run writes `harness-provenance.json` at the artifact root before the
+first row fires (matrix id, docs ref, repository, candidate SHA, runtime identity
+receipt, runner script digest, row selection and per-row manifest/scenario
+digests, start time), keeps an immutable per-matrix copy under
+`harness-provenance/<matrix-id>.json`, records `docsRef` / `repository` /
+`matrixId` / `manifestSha256` / `scenarioSha256` in every
+`runner-metadata.json`, and copies the exact scenario source next to each receipt
+as `row-scenario.js`. Because the working tree is what k6 actually reads, the
+frozen digests are re-asserted immediately before capture and again immediately
+before k6 executes. A candidate routing envelope is withheld unless those values
+bind to the approved ref and the copied source bytes.
+
 Each row remains candidate evidence until reviewed and folded.
+
+Every live row also captures the `openclaw-gateway` user journal for the bounded row window. Raw journal bytes remain transient; the artifact contains only `gateway-journal.log`, `gateway-journal-capture.json`, and `gateway-journal-redaction.json`. Correlated continuation/model/tool failures are retained while proof nonces, session keys, authorization material, and unrelated routine lines are removed. Journal access is required by default; set `OPENCLAW_PROOFS_SERVICE_LOG_REQUIRED=false` only when the resulting receipt debt is intentionally retained as PARTIAL.
+
+The runner selects the VU-emitted `VERDICT:` line over a conflicting `handleSummary()` verdict because k6 summary callbacks cannot read mutable VU-local evidence. Any disagreement is retained as `verdict-reconciliation.json`; it is a harness-classification receipt, never a reason to refire the row.
 
 ## GitHub Actions wrapper
 
@@ -151,7 +181,7 @@ A row must define:
 - required env vars and safe defaults;
 - live-run safety metadata;
 - evidence JSON shape;
-- PASS / HONEST_LIMIT / FAIL criteria;
+- PASS / PARTIAL / FAIL criteria, plus the single `R-RC-2` below-threshold HONEST_LIMIT exception;
 - trace/log/report expectations;
 - linked issue and PR.
 
@@ -168,7 +198,7 @@ For `R-RC-2` / accepted `request_compaction`, “orchestration/receipts” means
 7. verify a successor sentinel that could not exist before compaction;
 8. write cleanup and trace receipts.
 
-Loki/Tempo/log pickup is supporting evidence for this sequence. It is not the core blocker. Until those lifecycle receipts exist, the row must stay `HONEST_LIMIT` at `force-context-budget` rather than PASS.
+Loki/Tempo/log pickup is supporting evidence for this sequence. It is not the core blocker. A structured below-threshold refusal remains the sole allowed `HONEST_LIMIT`; any other missing lifecycle receipt is `PARTIAL`, never PASS.
 
 ## Portable observability endpoints
 

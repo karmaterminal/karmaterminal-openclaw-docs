@@ -15,9 +15,11 @@
   },
   "scenario": {
     "name": "r-cd-2-silent-wake",
-    "description": "continue_delegate(mode='silent-wake') full path. Fires a delegate that returns silently and triggers a fresh parent turn without channel output.",
+    "description": "continue_delegate(mode='silent-wake') full path. The dispatch turn closes with an exact post-tool sentinel; the delegate return stays silent while triggering a fresh parent turn without channel output.",
     "methods": [
       "sessions.send",
+      "sessions.create",
+      "sessions.list",
       "sessions.messages.subscribe",
       "tasks.list"
     ],
@@ -41,19 +43,20 @@
     "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
       "seat-readiness",
-      "dispatch-accepted",
-      "parent-wake-event",
+      "send-run-lifecycle",
+      "typed-delegate-topology",
+      "row-scoped-authoritative-receipt",
       "no-channel-delivery",
-      "trace-id"
+      "tempo-trace-json"
     ],
     "foldRequiresReview": true,
     "notes": "Live continuation row. Fail closed when token/session env is missing, serialize per target session, and treat generated output as a PASS-candidate until required receipts are reviewed."
   },
   "expectedReceipts": [
     {
-      "name": "dispatch-accepted",
+      "name": "send-run-lifecycle",
       "required": true,
-      "description": "Gateway accepted the dispatching sessions.send request that asks the agent to call continue_delegate(mode=silent-wake)"
+      "description": "Accepted sessions.send run/turn ID is bound to lifecycle-start/end success, an exact sentinel observed only while that dispatch lifecycle is active, and a distinct same-session parent wake; generic delayed messages cannot satisfy it"
     },
     {
       "name": "task-ledger-entry",
@@ -66,9 +69,14 @@
       "description": "Child session key from task metadata"
     },
     {
-      "name": "parent-wake-event",
+      "name": "typed-delegate-topology",
       "required": true,
-      "description": "Parent session wakes after silent return (session.message or run event with no channel delivery)"
+      "description": "One topology-scoped continue_delegate silent-wake tool execution plus continuation.delegate.dispatch/fire spans share one non-zero trace and chain, even when the trace carries older unrelated activity"
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace projection that carries the same authoritative trace and chain binding as the accepted send lifecycle"
     },
     {
       "name": "no-channel-delivery",
@@ -76,9 +84,9 @@
       "description": "Delegate return does NOT produce a channel message (silent mode verified)"
     },
     {
-      "name": "trace-id",
+      "name": "row-scoped-authoritative-receipt",
       "required": true,
-      "description": "Trace ID from dispatch response or optional task metadata; Tempo trace JSON must be fetched before folding a PASS."
+      "description": "Validated public-safe R-CD-2 receipt is the sole authority for candidate verdict surfaces"
     }
   ],
   "artifactDestination": {
@@ -91,6 +99,6 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Silent-wake path. PASS-candidate when: (1) dispatching agent turn accepted, (2) parent session emits wake/agent events, (3) NO channel message delivered from the delegate return, and (4) trace/receipt artifacts are fetched for review. A nonce-correlated tasks.list row is optional because continue_delegate uses pending-delegate/subagent surfaces, not the generic task registry."
+    "notes": "Silent-wake path. Only the row-scoped authoritative receipt can produce PASS-candidate: the accepted dispatch turn must reach its explicit post-tool terminal boundary, one topology-scoped typed continue_delegate must complete, Tempo must prove same trace/chain dispatch+fire topology, the distinct wake lifecycle must be observed, and no channel delivery may occur."
   }
 }

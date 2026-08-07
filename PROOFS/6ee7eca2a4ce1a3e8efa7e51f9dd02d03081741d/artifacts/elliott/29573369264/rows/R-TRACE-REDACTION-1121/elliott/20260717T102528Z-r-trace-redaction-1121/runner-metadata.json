@@ -1,0 +1,9 @@
+{
+  "row": "R-TRACE-REDACTION-1121",
+  "scenario": "r-trace-redaction-1121.js",
+  "candidateSha": "6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d",
+  "runtimeBuildSha": "OpenClaw 2026.7.2 (6ee7eca)",
+  "seat": "elliott",
+  "sessionConfigured": true,
+  "startedAt": "2026-07-17T10:25:28Z"
+}

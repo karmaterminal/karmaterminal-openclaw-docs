@@ -1,0 +1,6 @@
+2026-08-04T23:25:57.148678-07:00 cael node[3546538]: 2026-08-04T23:25:57.148-07:00 [ws] ⇄ res ✓ sessions.send 291ms runId=R-CW-1-<redacted-nonce> conn=03eb90f3…5e7a id=1-0-1785911156856-xpi75r
+2026-08-04T23:26:07.201570-07:00 cael node[3546538]: 2026-08-04T23:26:07.201-07:00 [memory] sync failed (search-bootstrap): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:26:07.202292-07:00 cael node[3546538]: 2026-08-04T23:26:07.202-07:00 [memory] sync failed (search-bootstrap): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:26:07.202893-07:00 cael node[3546538]: 2026-08-04T23:26:07.202-07:00 [memory] sync failed (search): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:26:07.203403-07:00 cael node[3546538]: 2026-08-04T23:26:07.203-07:00 [memory] sync failed (session-start): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}
+2026-08-04T23:26:07.203914-07:00 cael node[3546538]: 2026-08-04T23:26:07.203-07:00 [memory] sync failed (session update): Error: Ollama embed HTTP 400: {"error":"the input length exceeds the context length"}

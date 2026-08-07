@@ -1,0 +1,41 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-07-13T02:18:44Z",
+  "verdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-cw-1-tool-schedule-wake-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CW-1",
+    "manifest_loaded": true,
+    "seat": "silas",
+    "session_created": true,
+    "candidateSha": "cea9e4296b7e5cd37f0a491d637ef8459ea2e737",
+    "started": "2026-07-13T02:17:44.034Z",
+    "tool_invoke_accepted": true,
+    "continue_work_tool_result_scheduled": true,
+    "work_woke_event": true,
+    "dispatch_accepted_at_ms": 1783909065210,
+    "scheduled_result_at_ms": 1783909111002,
+    "wake_delay_ms": 13060,
+    "reason_hash": "52f678c22427f8da",
+    "reason_length": 121,
+    "trace_id": null,
+    "ended": "2026-07-13T02:18:44.062Z",
+    "duration_ms": 60028
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "present",
+    "traceId": "7ee6322b39875ac81d29dc590bc739b0",
+    "tempoTraceJson": "tempo-trace-7ee6322b3987.json",
+    "correlationReceipt": "continuation-trace-correlation.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

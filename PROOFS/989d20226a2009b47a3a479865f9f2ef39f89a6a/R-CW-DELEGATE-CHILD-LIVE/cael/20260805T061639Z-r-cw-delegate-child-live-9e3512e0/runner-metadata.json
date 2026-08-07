@@ -1,0 +1,17 @@
+{
+  "row": "R-CW-DELEGATE-CHILD-LIVE",
+  "scenario": "static-corpus-row-validator.js",
+  "candidateSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "runtimeBuildSha": "989d20226a2009b47a3a479865f9f2ef39f89a6a",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-05T06:16:39Z",
+  "docsRef": "50be3360876c9d4ed0332642d2f4f8597870bca2",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260805T061636Z-50be3360876c-9e3512e0",
+  "runId": "20260805T061639Z-r-cw-delegate-child-live-9e3512e0",
+  "manifestPath": "tools/k6-proofs/manifests/r-cw-delegate-child-live.json",
+  "manifestSha256": "d5f509007c2e7eca6395076f541af010bbf1b41d17b5472ba9c39db73463547d",
+  "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+  "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+}

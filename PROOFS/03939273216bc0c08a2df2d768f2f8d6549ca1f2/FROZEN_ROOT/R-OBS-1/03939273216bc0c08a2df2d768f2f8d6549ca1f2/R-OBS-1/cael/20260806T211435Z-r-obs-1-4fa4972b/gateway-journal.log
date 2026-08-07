@@ -1,0 +1,11 @@
+2026-08-06T14:14:36.586702-07:00 cael node[711002]: 2026-08-06T14:14:36.586-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-06T14:14:36.587335-07:00 cael node[711002]: 2026-08-06T14:14:36.587-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-06T14:14:36.666247-07:00 cael node[711002]: 2026-08-06T14:14:36.666-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key> ended with stopReason=stop
+2026-08-06T14:14:36.682188-07:00 cael node[711002]: 2026-08-06T14:14:36.681-07:00 [warn] Subagent completion direct announce failed for run 1a9a8c16-4555-484c-8e28-8ffee9a9603e: completion agent did not produce a visible reply
+2026-08-06T14:14:36.765819-07:00 cael node[711002]: 2026-08-06T14:14:36.765-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-06T14:14:36.786519-07:00 cael node[711002]: 2026-08-06T14:14:36.786-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-06T14:14:40.395759-07:00 cael node[711002]: 2026-08-06T14:14:40.395-07:00 [ws] ⇄ res ✓ sessions.send 334ms runId=R-OBS-1-<redacted-nonce> conn=30ac1d71…4ccd id=1-0-1786050880059-eo7br7
+2026-08-06T14:14:42.374090-07:00 cael node[711002]: 2026-08-06T14:14:42.373-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-06T14:14:42.374514-07:00 cael node[711002]: 2026-08-06T14:14:42.374-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-06T14:14:45.272047-07:00 cael node[711002]: 2026-08-06T14:14:45.271-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-08-06T14:14:52.479923-07:00 cael node[711002]: 2026-08-06T14:14:52.478-07:00 [warn] Subagent orphan run pruned source=resume run=1a9a8c16-4555-484c-8e28-8ffee9a9603e child=<redacted-session-key> reason=missing-session-entry

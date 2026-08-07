@@ -1,0 +1,96 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-3",
+  "issue": 119,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 300,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-3-post-compaction",
+    "description": "Stage continue_delegate(mode=post-compaction), then call request_compaction. PASS requires the post-compaction lifeboat return; a structured below-threshold refusal remains PARTIAL.",
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "request_compaction-threshold-guard"
+    ],
+    "status": "runnable",
+    "file": "r-cd-3-post-compaction.js",
+    "notes": "Does not lower thresholds or mutate config. In ordinary disposable sessions a below-threshold refusal is retained as PARTIAL proof debt."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "post-compaction",
+    "delaySeconds": 0,
+    "promptTemplate": "Post-compaction lifeboat nonce {{nonce}}: you are a post-compaction delegate. Reply with LIFEBOAT-RECEIVED and the nonce. Do not mutate files.",
+    "idempotencyKeyPrefix": "R-CD-3"
+  },
+  "prerequisites": {
+    "contextUsage": "Any; < threshold is retained as PARTIAL-candidate proof debt",
+    "notes": "If context is below compaction threshold, request_compaction should reject structurally and the scenario records that environmental limit. If context is above threshold, the staged post-compaction lifeboat may fire after compaction."
+  },
+  "expectedReceipts": [
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the sessions.send proof turn"
+    },
+    {
+      "name": "delegate-staging-requested",
+      "required": true,
+      "description": "Agent was instructed to stage continue_delegate(mode=post-compaction)"
+    },
+    {
+      "name": "compaction-requested",
+      "required": true,
+      "description": "Agent was instructed to call request_compaction after staging the delegate"
+    },
+    {
+      "name": "threshold-refusal-or-lifeboat",
+      "required": true,
+      "description": "Either structured below-threshold request_compaction refusal is observed, or post-compaction lifeboat return is observed"
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID for gateway/session dispatch correlation when available"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-3",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "R-CD-3 is PASS-candidate on real lifeboat return after compaction. A below-threshold request_compaction refusal remains PARTIAL-candidate; do not overclaim compaction firing."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "dispatch-accepted",
+      "delegate-staging-requested",
+      "compaction-requested",
+      "threshold-refusal-or-lifeboat"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Runs in a disposable session by default. Does not mutate config; if compaction is accepted it only compacts that proof session. Public/dry environments commonly retain a below-threshold refusal as PARTIAL proof debt."
+  }
+}

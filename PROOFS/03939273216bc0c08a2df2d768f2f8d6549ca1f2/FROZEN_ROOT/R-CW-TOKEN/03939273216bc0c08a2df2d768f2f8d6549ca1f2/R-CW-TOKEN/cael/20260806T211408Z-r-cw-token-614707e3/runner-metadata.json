@@ -1,0 +1,16 @@
+{
+  "row": "R-CW-TOKEN",
+  "scenario": "r-cw-token-bracket.js",
+  "candidateSha": "03939273216bc0c08a2df2d768f2f8d6549ca1f2",
+  "runtimeBuildSha": "03939273216bc0c08a2df2d768f2f8d6549ca1f2",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-06T21:14:08Z",
+  "docsRef": "52941484c258f353a91d783a635ba6c841d1c38a",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260806T211405Z-52941484c258-614707e3",
+  "manifestPath": "tools/k6-proofs/manifests/r-cw-token.json",
+  "manifestSha256": "a46013967060b6a71e90e30b7ce67607c030209829998845e002d116402f3fe4",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-cw-token-bracket.js",
+  "scenarioSha256": "c74e75c9115145160a97f54b7c6f980a73509d9f27a248d3f1823fb1e2373478"
+}

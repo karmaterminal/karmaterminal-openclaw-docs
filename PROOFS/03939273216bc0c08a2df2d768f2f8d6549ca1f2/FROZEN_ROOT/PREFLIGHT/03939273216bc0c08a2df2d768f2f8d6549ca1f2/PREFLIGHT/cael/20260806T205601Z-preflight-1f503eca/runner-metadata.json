@@ -1,0 +1,16 @@
+{
+  "row": "PREFLIGHT",
+  "scenario": "preflight.js",
+  "candidateSha": "03939273216bc0c08a2df2d768f2f8d6549ca1f2",
+  "runtimeBuildSha": "03939273216bc0c08a2df2d768f2f8d6549ca1f2",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-06T20:56:01Z",
+  "docsRef": "52941484c258f353a91d783a635ba6c841d1c38a",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260806T205559Z-52941484c258-1f503eca",
+  "manifestPath": "tools/k6-proofs/manifests/preflight.example.json",
+  "manifestSha256": "c5c146f9930ed37372fc2dab8dc083a1acbeb840a617f7316dd31aba51aff23f",
+  "scenarioPath": "tools/k6-proofs/scenarios/preflight.js",
+  "scenarioSha256": "ca6c3300d2bcb6147168e6abf0c09314c0bc4f4edc1cc22e64c934a50d3bde79"
+}

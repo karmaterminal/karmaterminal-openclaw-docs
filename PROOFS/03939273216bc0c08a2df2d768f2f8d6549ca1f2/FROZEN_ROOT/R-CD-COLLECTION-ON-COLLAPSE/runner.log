@@ -1,0 +1,64 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Artifact root: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CD-COLLECTION-ON-COLLAPSE
+Row selection: R-CD-COLLECTION-ON-COLLAPSE
+Dry Run: false
+==========================================================
+Harness execution: handing off to the approved runner in an immutable snapshot.
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Artifact root: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CD-COLLECTION-ON-COLLAPSE
+Row selection: R-CD-COLLECTION-ON-COLLAPSE
+Dry Run: false
+==========================================================
+Approved docs ref: 52941484c258f353a91d783a635ba6c841d1c38a (karmaterminal/karmaterminal-openclaw-docs)
+Harness identity: every tracked byte under tools/k6-proofs matches the approved docs ref.
+Harness execution: immutable snapshot of the approved tree (runner included).
+Running catalog preflight (repository root: tools/k6-proofs resolved once)...
+CATALOG PREFLIGHT: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CD-COLLECTION-ON-COLLAPSE/catalog-preflight.log
+Rows: R-CD-COLLECTION-ON-COLLAPSE
+Harness contract binding: frozen manifest/scenario digests for every selected runnable row.
+Resolving session key for selector: main
+Deployed Runtime SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Session configured: true
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CD-COLLECTION-ON-COLLAPSE/seat-readiness.json
+HARNESS PROVENANCE: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CD-COLLECTION-ON-COLLAPSE/harness-provenance.json
+HARNESS PROVENANCE (matrix 20260806T210236Z-52941484c258-8424d751): /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CD-COLLECTION-ON-COLLAPSE/harness-provenance/20260806T210236Z-52941484c258-8424d751.json
+
+----------------------------------------
+Row: R-CD-COLLECTION-ON-COLLAPSE
+Manifest: /tmp/openclaw-k6-harness.IbJvGT/tools/k6-proofs/manifests/r-cd-collection-on-collapse.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-COLLECTION-ON-COLLAPSE] RUNNING...
+./static-corpus-row-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CD-COLLECTION-ON-COLLAPSE","sourceRow":"R-CD-COLLECTION-ON-COLLAPSE","staticBoundaryVariant":false,"manifest_loaded":true,"candidateSha":"03939273216bc0c08a2df2d768f2f8d6549ca1f2","currentProofSha":"989d20226a2009b47a3a479865f9f2ef39f89a6a","sourceEvidenceSha":"989d20226a2009b47a3a479865f9f2ef39f89a6a","carriedFrom":"989d20226a2009b47a3a479865f9f2ef39f89a6a","started":"2026-08-06T21:02:41.963Z","checks":{"verdictPass":false,"methodScope":false,"bTypedDelegate":false,"cAfterB":false,"cSentinelPresent":false,"rootCollection":false,"durableRows":false,"evaluationPass":false,"tracePresent":false},"source_files":{"evidence":"../../../PROOFS/989d20226a2009b47a3a479865f9f2ef39f89a6a/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/EVIDENCE.md","evaluation":"../../../PROOFS/989d20226a2009b47a3a479865f9f2ef39f89a6a/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/evaluation.json","flowRows":"../../../PROOFS/989d20226a2009b47a3a479865f9f2ef39f89a6a/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/flow-rows-concise.json","taskRows":"../../../PROOFS/989d20226a2009b47a3a479865f9f2ef39f89a6a/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/task-rows-concise.json","rootReceipt":"../../../PROOFS/989d20226a2009b47a3a479865f9f2ef39f89a6a/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/main/root-collection-receipt.md","journal":"../../../PROOFS/989d20226a2009b47a3a479865f9f2ef39f89a6a/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/journal/filtered.log","traceSummary":"../../../PROOFS/989d20226a2009b47a3a479865f9f2ef39f89a6a/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/tempo/trace-summary.json"},"ended":"2026-08-06T21:02:41.963Z","duration_ms":0,"verdict":"FAIL-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+time="2026-08-06T14:02:42-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"
+[R-CD-COLLECTION-ON-COLLAPSE] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate.
+[R-CD-COLLECTION-ON-COLLAPSE] METRICS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CD-COLLECTION-ON-COLLAPSE/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-CD-COLLECTION-ON-COLLAPSE/cael/20260806T210239Z-r-cd-collection-on-collapse-8424d751/openclaw-proofs-k6.prom
+[R-CD-COLLECTION-ON-COLLAPSE] ARTIFACTS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CD-COLLECTION-ON-COLLAPSE/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-CD-COLLECTION-ON-COLLAPSE/cael/20260806T210239Z-r-cd-collection-on-collapse-8424d751
+[R-CD-COLLECTION-ON-COLLAPSE] FAILED with effective exit code 99. Public-safe artifacts preserved.

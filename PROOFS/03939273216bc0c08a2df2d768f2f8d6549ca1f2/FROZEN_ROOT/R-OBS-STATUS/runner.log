@@ -1,0 +1,68 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Artifact root: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-STATUS
+Row selection: R-OBS-STATUS
+Dry Run: false
+==========================================================
+Harness execution: handing off to the approved runner in an immutable snapshot.
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Artifact root: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-STATUS
+Row selection: R-OBS-STATUS
+Dry Run: false
+==========================================================
+Approved docs ref: 52941484c258f353a91d783a635ba6c841d1c38a (karmaterminal/karmaterminal-openclaw-docs)
+Harness identity: every tracked byte under tools/k6-proofs matches the approved docs ref.
+Harness execution: immutable snapshot of the approved tree (runner included).
+Running catalog preflight (repository root: tools/k6-proofs resolved once)...
+CATALOG PREFLIGHT: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-STATUS/catalog-preflight.log
+Rows: R-OBS-STATUS
+Harness contract binding: frozen manifest/scenario digests for every selected runnable row.
+Resolving session key for selector: main
+Deployed Runtime SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Session configured: true
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-STATUS/seat-readiness.json
+HARNESS PROVENANCE: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-STATUS/harness-provenance.json
+HARNESS PROVENANCE (matrix 20260806T211513Z-52941484c258-70b1686c): /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-STATUS/harness-provenance/20260806T211513Z-52941484c258-70b1686c.json
+
+----------------------------------------
+Row: R-OBS-STATUS
+Manifest: /tmp/openclaw-k6-harness.mQ3QSN/tools/k6-proofs/manifests/r-obs-status.json
+Scenario: scenarios/r-obs-status.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-STATUS] RUNNING...
+./r-obs-status-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-obs-status.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m0s max duration (incl. graceful stop):
+              * r_obs_status: 1 iterations shared among 1 VUs (maxDuration: 30s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-OBS-STATUS","candidate_sha":"03939273216bc0c08a2df2d768f2f8d6549ca1f2","source_repository":"karmaterminal/openclaw","source_path":"src/status/status-continuation-line.ts","source_fetch_ok":true,"source_sha256":"96370622632121bc109e61d93e649c9fde8a55dbcf692754fe5e2556cb0176e7","formatter_extracted":true,"active_continuation_line_present":true,"clean_session_continuation_line_absent":true,"ended":"2026-08-06T21:15:19.129Z","duration_ms":0}
+
+running (0m00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_obs_status ✓ [ 100% ] 1 VUs  00.0s/30s  1/1 shared iters
+[R-OBS-STATUS] CANDIDATE REVIEW ENVELOPE: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-STATUS/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-OBS-STATUS/cael/20260806T211516Z-r-obs-status-70b1686c/candidate-run-result.json
+[R-OBS-STATUS] METRICS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-STATUS/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-OBS-STATUS/cael/20260806T211516Z-r-obs-status-70b1686c/openclaw-proofs-k6.prom
+[R-OBS-STATUS] ARTIFACTS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-STATUS/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-OBS-STATUS/cael/20260806T211516Z-r-obs-status-70b1686c
+[R-OBS-STATUS] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-STATUS/report.html
+
+==========================================================
+Runner execution finished.

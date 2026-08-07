@@ -1,0 +1,70 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Artifact root: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CONFIG-INTERSESSION
+Row selection: R-CONFIG-INTERSESSION
+Dry Run: false
+==========================================================
+Harness execution: handing off to the approved runner in an immutable snapshot.
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Artifact root: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CONFIG-INTERSESSION
+Row selection: R-CONFIG-INTERSESSION
+Dry Run: false
+==========================================================
+Approved docs ref: 52941484c258f353a91d783a635ba6c841d1c38a (karmaterminal/karmaterminal-openclaw-docs)
+Harness identity: every tracked byte under tools/k6-proofs matches the approved docs ref.
+Harness execution: immutable snapshot of the approved tree (runner included).
+Running catalog preflight (repository root: tools/k6-proofs resolved once)...
+CATALOG PREFLIGHT: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CONFIG-INTERSESSION/catalog-preflight.log
+Rows: R-CONFIG-INTERSESSION
+Harness contract binding: frozen manifest/scenario digests for every selected runnable row.
+Resolving session key for selector: main
+Deployed Runtime SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Session configured: true
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CONFIG-INTERSESSION/seat-readiness.json
+HARNESS PROVENANCE: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CONFIG-INTERSESSION/harness-provenance.json
+HARNESS PROVENANCE (matrix 20260806T210910Z-52941484c258-ab136862): /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CONFIG-INTERSESSION/harness-provenance/20260806T210910Z-52941484c258-ab136862.json
+
+----------------------------------------
+Row: R-CONFIG-INTERSESSION
+Manifest: /tmp/openclaw-k6-harness.Fu8bMY/tools/k6-proofs/manifests/r-config-intersession.json
+Scenario: scenarios/r-config-intersession.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CONFIG-INTERSESSION] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-config-intersession.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m15s max duration (incl. graceful stop):
+              * r_config_intersession: 1 iterations shared among 1 VUs (maxDuration: 45s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CONFIG-INTERSESSION","manifest_loaded":true,"seat":"cael","candidateSha":"03939273216bc0c08a2df2d768f2f8d6549ca1f2","started":"2026-08-06T21:09:16.234Z","rpc":{"method":"config.get","operator_surface":true,"response_ok":true,"response_shape":{"config_present":true,"continuation_present":true}},"config_read":true,"cross_session_targeting":"enabled","trace_id":null,"correlation":{"service":"cael-prince","query_window_start":"2026-08-06T21:09:16.234Z","query_window_end":"2026-08-06T21:09:16.543Z"},"ended":"2026-08-06T21:09:16.543Z","duration_ms":309}
+time="2026-08-06T14:09:16-07:00" level=info msg="\n[R-CONFIG-INTERSESSION] VERDICT: PASS-candidate" source=console
+
+[R-CONFIG-INTERSESSION] Summary: PASS-candidate | SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2 | Seat: cael
+
+running (0m00.3s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_config_intersession ✓ [ 100% ] 1 VUs  00.3s/45s  1/1 shared iters
+[R-CONFIG-INTERSESSION] CANDIDATE REVIEW ENVELOPE: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CONFIG-INTERSESSION/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-CONFIG-INTERSESSION/cael/20260806T210913Z-r-config-intersession-ab136862/candidate-run-result.json
+[R-CONFIG-INTERSESSION] METRICS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CONFIG-INTERSESSION/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-CONFIG-INTERSESSION/cael/20260806T210913Z-r-config-intersession-ab136862/openclaw-proofs-k6.prom
+[R-CONFIG-INTERSESSION] ARTIFACTS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CONFIG-INTERSESSION/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-CONFIG-INTERSESSION/cael/20260806T210913Z-r-config-intersession-ab136862
+[R-CONFIG-INTERSESSION] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CONFIG-INTERSESSION/report.html
+
+==========================================================
+Runner execution finished.

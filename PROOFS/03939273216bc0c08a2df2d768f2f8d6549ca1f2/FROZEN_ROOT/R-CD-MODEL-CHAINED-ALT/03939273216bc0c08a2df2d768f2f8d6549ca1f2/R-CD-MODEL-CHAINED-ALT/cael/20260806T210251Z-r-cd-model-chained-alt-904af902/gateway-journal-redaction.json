@@ -1,0 +1,8 @@
+{
+  "schema": "openclaw.k6.public-service-log-redaction.v1",
+  "generatedAt": "2026-08-06T21:03:14.789Z",
+  "totalLines": 8,
+  "retainedLines": 2,
+  "removedSensitiveValues": 2,
+  "output": "gateway-journal.log"
+}

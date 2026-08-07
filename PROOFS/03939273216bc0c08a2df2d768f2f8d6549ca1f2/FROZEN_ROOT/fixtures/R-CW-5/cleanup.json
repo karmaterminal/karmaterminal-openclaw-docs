@@ -1,0 +1,37 @@
+{
+  "schema": "openclaw.project81.r-cw-5.cleanup.v1",
+  "productionConfigTouched": false,
+  "productionStateTouched": false,
+  "sourceMutated": false,
+  "sourceHeadMatchesCandidateAfter": true,
+  "sourceTrackedCleanAfter": true,
+  "executionWorktreeIntegrity": {
+    "beforeInstall": {
+      "head": "03939273216bc0c08a2df2d768f2f8d6549ca1f2",
+      "trackedClean": true,
+      "candidateFileSha256": {
+        "package.json": "1de6d8b11cb7b0775dd78e7e17416d021f5d79734bf21a8fc1e37b4bb0cc627f",
+        "pnpm-lock.yaml": "3451d1b3f955cd6d7b9d5d4e7a37d95a4191edca66d0aec3ddb70648958c4341"
+      }
+    },
+    "afterInstall": {
+      "head": "03939273216bc0c08a2df2d768f2f8d6549ca1f2",
+      "trackedClean": true,
+      "candidateFileSha256": {
+        "package.json": "1de6d8b11cb7b0775dd78e7e17416d021f5d79734bf21a8fc1e37b4bb0cc627f",
+        "pnpm-lock.yaml": "3451d1b3f955cd6d7b9d5d4e7a37d95a4191edca66d0aec3ddb70648958c4341"
+      }
+    },
+    "afterExecution": {
+      "head": "03939273216bc0c08a2df2d768f2f8d6549ca1f2",
+      "trackedClean": true,
+      "candidateFileSha256": {
+        "package.json": "1de6d8b11cb7b0775dd78e7e17416d021f5d79734bf21a8fc1e37b4bb0cc627f",
+        "pnpm-lock.yaml": "3451d1b3f955cd6d7b9d5d4e7a37d95a4191edca66d0aec3ddb70648958c4341"
+      }
+    }
+  },
+  "disposableWorktreeRemoved": true,
+  "cleanupRequired": false,
+  "result": "source-only fixture left no gateway/config/state process to restore"
+}

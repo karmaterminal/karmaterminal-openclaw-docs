@@ -1,0 +1,118 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Artifact root: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-RC-1
+Row selection: R-RC-1
+Dry Run: false
+==========================================================
+Harness execution: handing off to the approved runner in an immutable snapshot.
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Artifact root: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-RC-1
+Row selection: R-RC-1
+Dry Run: false
+==========================================================
+Approved docs ref: 52941484c258f353a91d783a635ba6c841d1c38a (karmaterminal/karmaterminal-openclaw-docs)
+Harness identity: every tracked byte under tools/k6-proofs matches the approved docs ref.
+Harness execution: immutable snapshot of the approved tree (runner included).
+Running catalog preflight (repository root: tools/k6-proofs resolved once)...
+CATALOG PREFLIGHT: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-RC-1/catalog-preflight.log
+Rows: R-RC-1
+Harness contract binding: frozen manifest/scenario digests for every selected runnable row.
+Resolving session key for selector: main
+Deployed Runtime SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Session configured: true
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-RC-1/seat-readiness.json
+HARNESS PROVENANCE: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-RC-1/harness-provenance.json
+HARNESS PROVENANCE (matrix 20260806T211526Z-52941484c258-359d40cd): /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-RC-1/harness-provenance/20260806T211526Z-52941484c258-359d40cd.json
+
+----------------------------------------
+Row: R-RC-1
+Manifest: /tmp/openclaw-k6-harness.2kgkfj/tools/k6-proofs/manifests/r-rc-1.json
+Scenario: scenarios/r-rc-1-threshold-reject.js
+Status: runnable
+Live Safety: k6-runnable
+[R-RC-1] RUNNING...
+./r-rc-1-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-rc-1-threshold-reject.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m0s max duration (incl. graceful stop):
+              * r_rc_1_threshold_reject: 1 iterations shared among 1 VUs (maxDuration: 1m30s, gracefulStop: 30s)
+
+time="2026-08-06T14:15:32-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m01.0s/1m30s  0/1 shared iters
+time="2026-08-06T14:15:32-07:00" level=info msg="✓ request_compaction present in effective inventory" source=console
+time="2026-08-06T14:15:33-07:00" level=info msg="✓ sessions.send accepted — awaiting authoritative request_compaction tool result" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m02.0s/1m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m03.0s/1m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m04.0s/1m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m05.0s/1m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m06.0s/1m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m07.0s/1m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m08.0s/1m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m09.0s/1m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m10.0s/1m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m11.0s/1m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m12.0s/1m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m13.0s/1m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_1_threshold_reject   [   0% ] 1 VUs  0m14.0s/1m30s  0/1 shared iters
+time="2026-08-06T14:15:46-07:00" level=info msg="ℹ assistant sentinel observed (diagnostic only; not accepted as row evidence)" source=console
+time="2026-08-06T14:15:46-07:00" level=info msg="✓ authoritative toolResult: status=rejected guard=context_threshold context=unknown threshold=unknown" source=console
+PUBLIC_EVIDENCE {"row":"R-RC-1","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"03939273216bc0c08a2df2d768f2f8d6549ca1f2","started":"2026-08-06T21:15:31.744Z","tool_inventory_checked":true,"tool_registered":true,"dispatch_accepted":true,"dispatch_accepted_at_ms":1786050933148,"tool_name":"request_compaction","tool_invocation_observed":true,"tool_result_observed":true,"tool_call_id":"exec-71794703-2397-489f-8515-95e8439c1c48","tool_result_status":"rejected","tool_invoke_rejected":true,"guard":"context_threshold","context_usage":null,"threshold":null,"no_compaction_side_effect":true,"assistant_sentinel_observed":true,"history_requested":true,"history_attempts":1,"trace_id":null,"ended":"2026-08-06T21:15:46.618Z","duration_ms":14874}
+time="2026-08-06T14:15:46-07:00" level=info msg="\n[R-RC-1] VERDICT: PASS-candidate" source=console
+
+[R-RC-1] Summary: PASS-candidate | SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2 | Seat: cael
+
+running (0m14.9s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_rc_1_threshold_reject ✓ [ 100% ] 1 VUs  0m14.9s/1m30s  1/1 shared iters
+[R-RC-1] CANDIDATE REVIEW ENVELOPE: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-RC-1/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-RC-1/cael/20260806T211528Z-r-rc-1-359d40cd/candidate-run-result.json
+[R-RC-1] METRICS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-RC-1/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-RC-1/cael/20260806T211528Z-r-rc-1-359d40cd/openclaw-proofs-k6.prom
+[R-RC-1] ARTIFACTS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-RC-1/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-RC-1/cael/20260806T211528Z-r-rc-1-359d40cd
+[R-RC-1] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-RC-1/report.html
+
+==========================================================
+Runner execution finished.

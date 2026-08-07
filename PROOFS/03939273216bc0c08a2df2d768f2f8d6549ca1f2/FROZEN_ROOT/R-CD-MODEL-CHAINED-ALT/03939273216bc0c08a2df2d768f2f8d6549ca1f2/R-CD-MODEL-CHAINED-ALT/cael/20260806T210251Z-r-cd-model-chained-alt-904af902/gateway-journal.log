@@ -1,0 +1,2 @@
+2026-08-06T14:02:55.859983-07:00 cael node[711002]: 2026-08-06T14:02:55.859-07:00 [ws] ⇄ res ✓ sessions.send 320ms runId=R-CD-MODEL-CHAINED-ALT-DISPATCH-<redacted-nonce> conn=7a41152d…342b id=1-0-1786050175537-tz42j2
+2026-08-06T14:03:09.339921-07:00 cael node[711002]: 2026-08-06T14:03:09.339-07:00 [agent/embedded] empty response detected: runId=7a97c7d2-7437-40c0-8093-4638044c7724 sessionId=81e13776-d44a-4522-9cb4-3d36d8b6f320 provider=openai/gpt-5.6-terra — retrying 1/1 with visible-answer continuation

@@ -1,0 +1,5 @@
+2026-08-06T14:15:17.351379-07:00 cael node[711002]: 2026-08-06T14:15:17.351-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-08-06T14:15:17.353803-07:00 cael node[711002]: 2026-08-06T14:15:17.353-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=60000ms fireAt=1786050977352 session=<redacted-session-key>
+2026-08-06T14:15:17.355359-07:00 cael node[711002]: 2026-08-06T14:15:17.355-07:00 [continuation/work-dispatch] [continuation:work-fold-note-undelivered] session=<redacted-session-key> count=1 reason=active-embedded-run-required-for-transcript-proof rows kept recoverable, not terminalized
+2026-08-06T14:15:17.356616-07:00 cael node[711002]: 2026-08-06T14:15:17.356-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=29998ms fireAt=1786050947353 session=<redacted-session-key>
+2026-08-06T14:15:17.357413-07:00 cael node[711002]: 2026-08-06T14:15:17.357-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-armed] trigger=reply-run-ended session=<redacted-session-key>

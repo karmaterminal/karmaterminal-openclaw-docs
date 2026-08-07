@@ -1,0 +1,116 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Artifact root: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CW-3
+Row selection: R-CW-3
+Dry Run: false
+==========================================================
+Harness execution: handing off to the approved runner in an immutable snapshot.
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Artifact root: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CW-3
+Row selection: R-CW-3
+Dry Run: false
+==========================================================
+Approved docs ref: 52941484c258f353a91d783a635ba6c841d1c38a (karmaterminal/karmaterminal-openclaw-docs)
+Harness identity: every tracked byte under tools/k6-proofs matches the approved docs ref.
+Harness execution: immutable snapshot of the approved tree (runner included).
+Running catalog preflight (repository root: tools/k6-proofs resolved once)...
+CATALOG PREFLIGHT: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CW-3/catalog-preflight.log
+Rows: R-CW-3
+Harness contract binding: frozen manifest/scenario digests for every selected runnable row.
+Resolving session key for selector: main
+Deployed Runtime SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Session configured: true
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CW-3/seat-readiness.json
+HARNESS PROVENANCE: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CW-3/harness-provenance.json
+HARNESS PROVENANCE (matrix 20260806T211029Z-52941484c258-1c301968): /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CW-3/harness-provenance/20260806T211029Z-52941484c258-1c301968.json
+
+----------------------------------------
+Row: R-CW-3
+Manifest: /tmp/openclaw-k6-harness.Oh6KWk/tools/k6-proofs/manifests/r-cw-3.json
+Scenario: scenarios/r-cw-3-reason-telemetry.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CW-3] RUNNING...
+./r-cw-3-reason-telemetry-summary.json
+[R-CW-3] TRACE CORRELATION FAILED; see /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CW-3/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-CW-3/cael/20260806T211032Z-r-cw-3-1c301968/continuation-trace-collector.error.log
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-3-reason-telemetry.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 10m30s max duration (incl. graceful stop):
+              * r_cw_3_reason_telemetry: 1 iterations shared among 1 VUs (maxDuration: 10m0s, gracefulStop: 30s)
+
+time="2026-08-06T14:10:35-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (00m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m01.0s/10m0s  0/1 shared iters
+time="2026-08-06T14:10:36-07:00" level=info msg="✓ sessions.send accepted — reason telemetry turn triggered" source=console
+
+running (00m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m02.0s/10m0s  0/1 shared iters
+
+running (00m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m03.0s/10m0s  0/1 shared iters
+
+running (00m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m04.0s/10m0s  0/1 shared iters
+
+running (00m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m05.0s/10m0s  0/1 shared iters
+
+running (00m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m06.0s/10m0s  0/1 shared iters
+
+running (00m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m07.0s/10m0s  0/1 shared iters
+
+running (00m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m08.0s/10m0s  0/1 shared iters
+
+running (00m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m09.0s/10m0s  0/1 shared iters
+
+running (00m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m10.0s/10m0s  0/1 shared iters
+
+running (00m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m11.0s/10m0s  0/1 shared iters
+
+running (00m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m12.0s/10m0s  0/1 shared iters
+
+running (00m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m13.0s/10m0s  0/1 shared iters
+time="2026-08-06T14:10:48-07:00" level=info msg="✓ CW3-SCHEDULED sentinel observed" source=console
+time="2026-08-06T14:10:48-07:00" level=info msg="✓ CW3-WOKE sentinel observed" source=console
+time="2026-08-06T14:10:48-07:00" level=info msg="Required R-CW-3 schedule/wake evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CW-3","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"03939273216bc0c08a2df2d768f2f8d6549ca1f2","started":"2026-08-06T21:10:35.152Z","dispatch_accepted":true,"scheduled_sentinel":true,"wake_observed":true,"public_artifact_raw_reason_absent":true,"tempo_assertion":"pending-review","reason_hash":"2873137f5d4f6798","reason_length":139,"trace_id":null,"trace_id_source":null,"dispatch_accepted_at_ms":1786050636822,"scheduled_result_at_ms":1786050648777,"wake_delay_ms":219,"ended":"2026-08-06T21:10:48.996Z","duration_ms":13844}
+time="2026-08-06T14:10:48-07:00" level=info msg="\n[R-CW-3] VERDICT: PARTIAL-candidate" source=console
+
+[R-CW-3] Summary: PARTIAL-candidate | SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2 | Seat: cael
+
+running (00m13.8s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry ✓ [ 100% ] 1 VUs  00m13.8s/10m0s  1/1 shared iters
+[R-CW-3] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate.
+[R-CW-3] METRICS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CW-3/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-CW-3/cael/20260806T211032Z-r-cw-3-1c301968/openclaw-proofs-k6.prom
+[R-CW-3] ARTIFACTS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CW-3/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-CW-3/cael/20260806T211032Z-r-cw-3-1c301968
+[R-CW-3] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+REPORT: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-CW-3/report.html
+
+==========================================================
+Runner execution finished.

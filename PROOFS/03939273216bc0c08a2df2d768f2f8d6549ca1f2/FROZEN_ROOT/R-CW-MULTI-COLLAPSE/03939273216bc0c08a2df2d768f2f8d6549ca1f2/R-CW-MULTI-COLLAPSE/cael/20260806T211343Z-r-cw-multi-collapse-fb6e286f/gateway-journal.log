@@ -1,0 +1,3 @@
+2026-08-06T14:13:45.269091-07:00 cael node[711002]: 2026-08-06T14:13:45.268-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-08-06T14:13:45.270633-07:00 cael node[711002]: 2026-08-06T14:13:45.270-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=60000ms fireAt=1786050885269 session=<redacted-session-key>
+2026-08-06T14:13:45.271705-07:00 cael node[711002]: 2026-08-06T14:13:45.271-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=2/200 session=<redacted-session-key> reasonCategory=follow-up-work

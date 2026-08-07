@@ -1,0 +1,56 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-06T21:10:49Z",
+  "verdict": "PARTIAL-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": "PARTIAL-candidate",
+  "vuLogVerdict": "PARTIAL-candidate",
+  "summaryFiles": [
+    "r-cw-3-reason-telemetry-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CW-3",
+    "manifest_loaded": true,
+    "seat": "cael",
+    "session_created": true,
+    "candidateSha": "03939273216bc0c08a2df2d768f2f8d6549ca1f2",
+    "started": "2026-08-06T21:10:35.152Z",
+    "dispatch_accepted": true,
+    "scheduled_sentinel": true,
+    "wake_observed": true,
+    "public_artifact_raw_reason_absent": true,
+    "tempo_assertion": "pending-review",
+    "reason_hash": "2873137f5d4f6798",
+    "reason_length": 139,
+    "trace_id": null,
+    "trace_id_source": null,
+    "dispatch_accepted_at_ms": 1786050636822,
+    "scheduled_result_at_ms": 1786050648777,
+    "wake_delay_ms": 219,
+    "ended": "2026-08-06T21:10:48.996Z",
+    "duration_ms": 13844
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "missing",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "continuation-trace-correlation",
+      "tempo-trace-json"
+    ]
+  }
+}

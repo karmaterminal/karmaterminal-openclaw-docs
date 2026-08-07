@@ -1,0 +1,16 @@
+2026-08-06T14:10:09.927722-07:00 cael node[711002]: 2026-08-06T14:10:09.927-07:00 [ws] ⇄ res ✓ sessions.send 318ms runId=R-CW-2-DISPATCH-<redacted-nonce> conn=315106fa…9586 id=1-0-1786050609607-f2pol0
+2026-08-06T14:10:17.361351-07:00 cael node[711002]: 2026-08-06T14:10:17.361-07:00 [continuation/signal] [continuation:trace] bracket-parse skipped: empty payloads session=<redacted-session-key>
+2026-08-06T14:10:17.362024-07:00 cael node[711002]: 2026-08-06T14:10:17.362-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-06T14:10:21.256318-07:00 cael node[711002]: 2026-08-06T14:10:21.256-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-08-06T14:10:21.259139-07:00 cael node[711002]: 2026-08-06T14:10:21.259-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=60000ms fireAt=1786050681258 session=<redacted-session-key>
+2026-08-06T14:10:22.494669-07:00 cael node[711002]: 2026-08-06T14:10:22.494-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-06T14:10:22.495451-07:00 cael node[711002]: 2026-08-06T14:10:22.495-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-08-06T14:10:22.583707-07:00 cael node[711002]: 2026-08-06T14:10:22.582-07:00 [continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=1 reasonCategory=follow-up-work
+2026-08-06T14:10:22.584658-07:00 cael node[711002]: 2026-08-06T14:10:22.584-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-armed] trigger=reply-run-ended session=<redacted-session-key>
+2026-08-06T14:10:22.585772-07:00 cael node[711002]: 2026-08-06T14:10:22.585-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=86399997ms fireAt=1786137022581 session=<redacted-session-key>
+2026-08-06T14:10:22.672844-07:00 cael node[711002]: 2026-08-06T14:10:22.672-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-fired] trigger=reply-run-ended waitMs=88 session=<redacted-session-key>
+2026-08-06T14:10:22.674609-07:00 cael node[711002]: 2026-08-06T14:10:22.674-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=60000ms fireAt=1786050682673 session=<redacted-session-key>
+2026-08-06T14:10:22.675650-07:00 cael node[711002]: 2026-08-06T14:10:22.675-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=<redacted-session-key> reasonCategory=follow-up-work
+2026-08-06T14:10:22.676735-07:00 cael node[711002]: 2026-08-06T14:10:22.676-07:00 [continuation/work-dispatch] [continuation:work-drive-skipped] flowId=32b1926a-b5f8-4145-b78b-c952c5d0bf2d session=<redacted-session-key> reason=command-queue-busy reasonCategory=follow-up-work
+2026-08-06T14:10:22.678011-07:00 cael node[711002]: 2026-08-06T14:10:22.677-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=86399999ms fireAt=1786137022676 session=<redacted-session-key>
+2026-08-06T14:10:22.678719-07:00 cael node[711002]: 2026-08-06T14:10:22.678-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-armed] trigger=command-lane-idle session=<redacted-session-key>

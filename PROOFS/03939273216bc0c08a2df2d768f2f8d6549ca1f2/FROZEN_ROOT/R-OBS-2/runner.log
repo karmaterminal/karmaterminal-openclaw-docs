@@ -1,0 +1,46 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Artifact root: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-2
+Row selection: R-OBS-2
+Dry Run: false
+==========================================================
+Harness execution: handing off to the approved runner in an immutable snapshot.
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Artifact root: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-2
+Row selection: R-OBS-2
+Dry Run: false
+==========================================================
+Approved docs ref: 52941484c258f353a91d783a635ba6c841d1c38a (karmaterminal/karmaterminal-openclaw-docs)
+Harness identity: every tracked byte under tools/k6-proofs matches the approved docs ref.
+Harness execution: immutable snapshot of the approved tree (runner included).
+Running catalog preflight (repository root: tools/k6-proofs resolved once)...
+CATALOG PREFLIGHT: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-2/catalog-preflight.log
+Rows: R-OBS-2
+Harness contract binding: frozen manifest/scenario digests for every selected runnable row.
+Resolving session key for selector: main
+Deployed Runtime SHA: 03939273216bc0c08a2df2d768f2f8d6549ca1f2
+Session configured: true
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-2/seat-readiness.json
+HARNESS PROVENANCE: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-2/harness-provenance.json
+HARNESS PROVENANCE (matrix 20260806T211500Z-52941484c258-bdca32fd): /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-2/harness-provenance/20260806T211500Z-52941484c258-bdca32fd.json
+
+----------------------------------------
+Row: R-OBS-2
+Manifest: /tmp/openclaw-k6-harness.PUiDB0/tools/k6-proofs/manifests/r-obs-2.json
+Scenario: scenarios/r-obs-2.js
+Status: runnable
+Live Safety: k6-runnable
+[R-OBS-2] RUNNING...
+[R-OBS-2] EVIDENCE EXTRACTION FAILED; see /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-2/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-OBS-2/cael/20260806T211503Z-r-obs-2-bdca32fd/evidence-extraction.error.log
+[R-OBS-2] PUBLIC ARTIFACT REDACTION FAILED; see /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-2/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-OBS-2/cael/20260806T211503Z-r-obs-2-bdca32fd/evidence-redaction.error.log
+time="2026-08-06T14:15:06-07:00" level=error msg="GoError: stat /tmp/openclaw-k6-harness.PUiDB0/PROOFS/989d20226a2009b47a3a479865f9f2ef39f89a6a/R-OBS-2/cael-dgx/trace-tree.json: no such file or directory\n\tat go.k6.io/k6/v2/internal/js.(*Bundle).setInitGlobals.func3 (native)\n\tat file:///tmp/openclaw-k6-harness.PUiDB0/tools/k6-proofs/scenarios/r-obs-2.js:25:34(83)\n" hint="script exception"
+[R-OBS-2] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate.
+[R-OBS-2] METRICS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-2/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-OBS-2/cael/20260806T211503Z-r-obs-2-bdca32fd/openclaw-proofs-k6.prom
+[R-OBS-2] ARTIFACTS: /home/figs/.local/state/openclaw-proof-runs/03939273216bc0c08a2df2d768f2f8d6549ca1f2-rowwise-20260806T205552Z/R-OBS-2/03939273216bc0c08a2df2d768f2f8d6549ca1f2/R-OBS-2/cael/20260806T211503Z-r-obs-2-bdca32fd
+[R-OBS-2] FAILED with effective exit code 107. Public-safe artifacts preserved.

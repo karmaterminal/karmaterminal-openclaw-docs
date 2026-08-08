@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       rows:
-        description: "Comma-separated row ids, 'all', or 'live-suite' for unattended k6-runnable rows"
+        description: "Comma-separated row ids, 'all', 'live-suite', or 'from:<ROW>'"
         required: true
         default: "live-suite"
         type: string
@@ -123,6 +123,8 @@ jobs:
             rows="$(node tools/k6-proofs/scripts/list-runnable-rows.mjs --live-suite)"
           elif [[ "$ROWS_INPUT" == "all" ]]; then
             rows="$(node tools/k6-proofs/scripts/list-runnable-rows.mjs)"
+          elif [[ "$ROWS_INPUT" == from:* ]]; then
+            rows="$(node tools/k6-proofs/scripts/list-runnable-rows.mjs --from "${ROWS_INPUT#from:}")"
           else
             rows="$ROWS_INPUT"
           fi

@@ -174,4 +174,23 @@ test('R-CW-6 stays process-local and fixture-gated while static variants cannot 
   assert.equal(allRows.status, 0, allRows.stderr || allRows.stdout);
   assert.match(allRows.stdout, /R-CW-5A/);
   assert.match(allRows.stdout, /R-CW-6A/);
+
+  const resumedRows = spawnSync(
+    process.execPath,
+    [rowListScript, '--from', 'R-CD-4'],
+    { cwd: repoRoot, encoding: 'utf8' },
+  );
+  assert.equal(resumedRows.status, 0, resumedRows.stderr || resumedRows.stdout);
+  const resumed = resumedRows.stdout.trim().split(',');
+  assert.equal(resumed[0], 'R-CD-4');
+  assert.doesNotMatch(resumedRows.stdout, /(?:^|,)R-CD-[123](?:,|$)/);
+  assert.match(resumedRows.stdout, /R-TRACE-REDACTION-1121/);
+
+  const unknownResume = spawnSync(
+    process.execPath,
+    [rowListScript, '--from', 'R-NOT-A-ROW'],
+    { cwd: repoRoot, encoding: 'utf8' },
+  );
+  assert.equal(unknownResume.status, 2);
+  assert.match(unknownResume.stderr, /--from row is not runnable/);
 });

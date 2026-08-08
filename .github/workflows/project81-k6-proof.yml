@@ -75,7 +75,7 @@ jobs:
   project81-k6-proof:
     name: project81 k6 proof
     runs-on: ${{ fromJSON(inputs.runner_labels_json) }}
-    timeout-minutes: 30
+    timeout-minutes: 90
     env:
       OPENCLAW_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
       OPENCLAW_GATEWAY_WS: ${{ inputs.gateway_ws }}

@@ -130,6 +130,15 @@ jobs:
           echo "rows=$rows" >> "$GITHUB_OUTPUT"
           echo "Resolved rows: $rows"
 
+      - name: Resolve self-hosted k6
+        if: ${{ !inputs.dry_run }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v k6 >/dev/null && [[ -x "$HOME/bin/k6" ]]; then
+            echo "$HOME/bin" >> "$GITHUB_PATH"
+          fi
+
       - name: Check live prerequisites
         if: ${{ !inputs.dry_run }}
         shell: bash

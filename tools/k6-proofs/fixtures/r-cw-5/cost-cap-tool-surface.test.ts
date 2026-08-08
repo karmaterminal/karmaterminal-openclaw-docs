@@ -7,7 +7,8 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { clearRuntimeConfigSnapshot, setRuntimeConfigSnapshot } from "../../src/config/config.js";
-import { clearSessionStoreCacheForTest, saveSessionStore, type SessionEntry } from "../../src/config/sessions.js";
+import { replaceSessionEntry } from "../../src/config/sessions/session-accessor.js";
+import type { SessionEntry } from "../../src/config/sessions.js";
 import type { OpenClawConfig } from "../../src/config/types.openclaw.js";
 import { peekSystemEvents, resetSystemEventsForTest } from "../../src/infra/system-events.js";
 import { runAgentAttempt } from "../../src/agents/command/attempt-execution.js";
@@ -67,8 +68,7 @@ describe("R-CW-5 disposable typed tool surface", () => {
       continuationChainStartedAt: Date.now(),
       continuationChainTokens: __RCW5_OVER_CAP__,
     } as SessionEntry;
-    await saveSessionStore(storePath, { [sessionKey]: sessionEntry }, { skipMaintenance: true });
-    clearSessionStoreCacheForTest();
+    await replaceSessionEntry({ sessionKey, storePath }, sessionEntry);
     setRuntimeConfigSnapshot(cfg);
     runEmbeddedAgentMock.mockReset();
     runCliAgentMock.mockReset();
@@ -76,7 +76,6 @@ describe("R-CW-5 disposable typed tool surface", () => {
 
   afterEach(async () => {
     clearRuntimeConfigSnapshot();
-    clearSessionStoreCacheForTest();
     resetSystemEventsForTest();
     await fs.rm(root, { recursive: true, force: true });
   });

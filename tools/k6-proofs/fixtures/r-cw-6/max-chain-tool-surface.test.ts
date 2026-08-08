@@ -8,11 +8,10 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { clearRuntimeConfigSnapshot, setRuntimeConfigSnapshot } from "../../src/config/config.js";
 import {
-  clearSessionStoreCacheForTest,
-  loadSessionStore,
-  saveSessionStore,
-  type SessionEntry,
-} from "../../src/config/sessions.js";
+  loadSessionEntry,
+  replaceSessionEntry,
+} from "../../src/config/sessions/session-accessor.js";
+import type { SessionEntry } from "../../src/config/sessions.js";
 import type { OpenClawConfig } from "../../src/config/types.openclaw.js";
 import { peekSystemEvents, resetSystemEventsForTest } from "../../src/infra/system-events.js";
 import { runAgentAttempt } from "../../src/agents/command/attempt-execution.js";
@@ -111,7 +110,6 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
     const { resetTaskFlowRegistryForTests } = await import("../../src/tasks/task-runtime.test-helpers.js");
     resetContinuationWorkDispatchForTests();
     resetTaskFlowRegistryForTests({ persist: false });
-    clearSessionStoreCacheForTest();
     resetSystemEventsForTest();
     setRuntimeConfigSnapshot(cfg);
     runEmbeddedAgentMock.mockReset();
@@ -123,7 +121,6 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
     resetContinuationWorkDispatchForTests();
     resetTaskFlowRegistryForTests({ persist: false });
     clearRuntimeConfigSnapshot();
-    clearSessionStoreCacheForTest();
     resetSystemEventsForTest();
     await Promise.all(roots.map(async (root) => await fs.rm(root, { recursive: true, force: true })));
   });
@@ -141,8 +138,7 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
       continuationChainTokens: 0,
     } as SessionEntry;
     const sessionStore = { [sessionKey]: sessionEntry };
-    await saveSessionStore(storePath, sessionStore, { skipMaintenance: true });
-    clearSessionStoreCacheForTest();
+    await replaceSessionEntry({ sessionKey, storePath }, sessionEntry);
 
     const logs: string[] = [];
     const initialState = loadContinuationChainState(sessionEntry);
@@ -182,10 +178,12 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
       tokens: result.chainState.accumulatedChainTokens,
       ...(result.chainState.chainId ? { chainId: result.chainState.chainId } : {}),
     });
-    await saveSessionStore(storePath, sessionStore, { skipMaintenance: true });
-    clearSessionStoreCacheForTest();
-    const recoveredStore = loadSessionStore(storePath, { skipCache: true });
-    const recoveredEntry = recoveredStore[sessionKey];
+    await replaceSessionEntry({ sessionKey, storePath }, sessionEntry);
+    const recoveredEntry = loadSessionEntry({
+      sessionKey,
+      storePath,
+      readConsistency: "latest",
+    });
     const recoveredState = loadContinuationChainState(recoveredEntry);
     const flowsBeforeRecoveredAttempt = listTaskFlowsForOwnerKey(sessionKey).length;
     const recoveryLogs: string[] = [];
@@ -274,8 +272,7 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
       continuationChainTokens: 0,
     } as SessionEntry;
     const sessionStore = { [sessionKey]: sessionEntry };
-    await saveSessionStore(storePath, sessionStore, { skipMaintenance: true });
-    clearSessionStoreCacheForTest();
+    await replaceSessionEntry({ sessionKey, storePath }, sessionEntry);
 
     let registeredContinueWorkTools = 0;
     let continueWorkToolExecutions = 0;
@@ -322,8 +319,11 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
     const flows = listTaskFlowsForOwnerKey(sessionKey)
       .map((flow) => flow.stateJson as { hop?: number; reason?: string })
       .toSorted((left, right) => (left.hop ?? 0) - (right.hop ?? 0));
-    clearSessionStoreCacheForTest();
-    const persisted = loadSessionStore(storePath, { skipCache: true });
+    const persisted = loadSessionEntry({
+      sessionKey,
+      storePath,
+      readConsistency: "latest",
+    });
     const capNotice = peekSystemEvents(sessionKey).find((event) =>
       event.includes("1 of 3 continue_work elections were not scheduled"),
     );
@@ -335,7 +335,7 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
     expect(flows.map((flow) => flow.hop)).toEqual([maxChainLength - 1, maxChainLength]);
     expect(flows.some((flow) => flow.reason?.includes("first-over-limit"))).toBe(false);
     expect(sessionEntry.continuationChainCount).toBe(maxChainLength);
-    expect(persisted[sessionKey]?.continuationChainCount).toBe(maxChainLength);
+    expect(persisted?.continuationChainCount).toBe(maxChainLength);
     expect(capNotice).toContain("1 of 3 continue_work elections were not scheduled");
 
     await writeReceipt("RCW6_TYPED_RECEIPT_PATH", {
@@ -349,7 +349,7 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
       scheduledFlows: flows.map((flow) => ({ hop: flow.hop, reason: flow.reason })),
       firstOverLimitFlowPresent: false,
       finalInMemoryCount: sessionEntry.continuationChainCount,
-      finalPersistedCount: persisted[sessionKey]?.continuationChainCount,
+      finalPersistedCount: persisted?.continuationChainCount,
       capNoticeObserved: Boolean(capNotice),
     });
   });

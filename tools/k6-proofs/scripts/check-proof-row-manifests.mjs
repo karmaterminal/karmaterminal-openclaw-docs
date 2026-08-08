@@ -70,7 +70,7 @@ const duplicateManifestRows = [...manifestRows.reduce((byRow, row) => {
 // board corpus (e.g. model-override rows, R-CW-4, R-OBS-STATUS, or static boundary
 // checks). These are intentional catalog entries, not proof-corpus gaps.
 const manifestOnly = manifestRows.filter(
-  (row) => row.rowId !== 'preflight' && !proofRowUpperSet.has(row.rowId.toUpperCase()),
+  (row) => row.rowId.toUpperCase() !== 'PREFLIGHT' && !proofRowUpperSet.has(row.rowId.toUpperCase()),
 );
 
 if (missing.length) {

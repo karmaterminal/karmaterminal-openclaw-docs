@@ -136,6 +136,37 @@ export function rCd4SessionMessageObservation({
   };
 }
 
+export function rCd4HistoryObservation({
+  messages,
+  sessionKey,
+  targetSessionKey,
+  parentSessionKey,
+  nonce,
+  elapsedMs,
+  wakeGateMs,
+}) {
+  const result = {
+    targetCandidate: null,
+    parentCandidate: null,
+    genericWakeObserved: false,
+  };
+  for (const message of Array.isArray(messages) ? messages : []) {
+    const observation = rCd4SessionMessageObservation({
+      eventName: 'session.message',
+      eventData: { sessionKey, message },
+      targetSessionKey,
+      parentSessionKey,
+      nonce,
+      elapsedMs,
+      wakeGateMs,
+    });
+    result.targetCandidate ??= observation.targetCandidate;
+    result.parentCandidate ??= observation.parentCandidate;
+    result.genericWakeObserved ||= observation.genericWakeObserved;
+  }
+  return result;
+}
+
 /**
  * Treat tasks.list as child authority only when one structured task record
  * binds its real childSessionKey to this row nonce.

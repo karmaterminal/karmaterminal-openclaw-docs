@@ -326,7 +326,10 @@ test('R-CW-6 runtime template proves the real budget and durable recovery path',
   assert.match(template, /scheduleContinuationWork/);
   assert.match(template, /checkContinuationBudget/);
   assert.match(template, /persistContinuationChainState/);
-  assert.match(template, /loadSessionStore/);
+  assert.match(template, /loadSessionEntry/);
+  assert.match(template, /replaceSessionEntry/);
+  assert.doesNotMatch(template, /loadSessionStore/);
+  assert.doesNotMatch(template, /saveSessionStore/);
   assert.match(template, /reason:\s*structuredReason/);
   assert.match(template, /flowCountBeforeRejectedHop/);
   assert.match(template, /flowCountAfterRejectedHop/);

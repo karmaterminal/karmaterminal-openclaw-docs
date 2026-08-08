@@ -4,6 +4,7 @@ import {
   R_CD_4_DURATION_THRESHOLD_MS,
   R_CD_4_OBSERVATION_WINDOW_MS,
   rCd4ChildAuthority,
+  rCd4HistoryObservation,
   rCd4ReturnCandidate,
   rCd4ReturnReceipt,
   rCd4SessionMessageObservation,
@@ -167,6 +168,38 @@ test('R-CD-4 retains an authoritative target receipt before the generic wake gat
     observation.targetCandidate,
     'agent:main:subagent:child',
   ), null);
+});
+
+test('R-CD-4 recovers an authoritative target return from sessions.get history', () => {
+  const observation = rCd4HistoryObservation({
+    messages: [
+      { role: 'user', content: `[k6-proof-harness] ask for TARGET-RECEIVED ${nonce}` },
+      { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+    ],
+    sessionKey: target,
+    targetSessionKey: target,
+    parentSessionKey: parent,
+    nonce,
+    elapsedMs: 6_000,
+    wakeGateMs: 5_000,
+  });
+  assert.equal(observation.parentCandidate, null);
+  assert.equal(observation.targetCandidate?.sessionKey, target);
+  assert.equal(observation.genericWakeObserved, true);
+});
+
+test('R-CD-4 history recovery still identifies a parent-session misroute', () => {
+  const observation = rCd4HistoryObservation({
+    messages: [{ role: 'system', content: `TARGET-RECEIVED ${nonce}` }],
+    sessionKey: parent,
+    targetSessionKey: target,
+    parentSessionKey: parent,
+    nonce,
+    elapsedMs: 6_000,
+    wakeGateMs: 5_000,
+  });
+  assert.equal(observation.targetCandidate, null);
+  assert.equal(observation.parentCandidate?.sessionKey, parent);
 });
 
 test('R-CD-4 retains an early parent receipt so a later target cannot false-PASS', () => {

@@ -18,6 +18,7 @@ import {
   R_CD_4_DURATION_THRESHOLD_MS,
   R_CD_4_OBSERVATION_WINDOW_MS,
   rCd4ChildAuthority,
+  rCd4HistoryObservation,
   rCd4ReturnReceipt,
   rCd4SessionMessageObservation,
   rCd4ShouldScheduleEarlyClose,
@@ -145,6 +146,9 @@ export default function () {
     const tracker = new RequestTracker();
     let createPhase = 'none';
     let returnCloseScheduled = false;
+    let returnHistoryPollScheduled = false;
+    let returnHistoryPollInFlight = false;
+    let returnHistoryPhase = null;
 
     function finalizeReturnReceipts() {
       evidence.target_return_receipt = rCd4ReturnReceipt(
@@ -183,6 +187,38 @@ export default function () {
       return !authority.ambiguous &&
         !evidence.child_session_invalid &&
         authority.childSessionKey === possibleChild;
+    }
+
+    function applyReturnObservation(observation, source) {
+      if (observation.targetCandidate) {
+        evidence.target_return_candidate = observation.targetCandidate;
+        evidence.agent_turn_observed = true;
+        console.log(`✓ nonce-bound TARGET-RECEIVED candidate landed in target session (${source})`);
+      }
+      if (observation.parentCandidate) {
+        evidence.parent_return_candidate = observation.parentCandidate;
+        console.warn(`✗ nonce-bound TARGET-RECEIVED candidate landed in parent session (${source})`);
+      }
+      finalizeReturnReceipts();
+    }
+
+    function requestReturnHistories(delayMs) {
+      if (!evidence.tool_accepted || returnHistoryPollScheduled || returnHistoryPollInFlight) return;
+      returnHistoryPollScheduled = true;
+      socket.setTimeout(() => {
+        returnHistoryPollScheduled = false;
+        returnHistoryPollInFlight = true;
+        returnHistoryPhase = 'target';
+        tracker.send(socket, 'sessions.get', { key: targetSessionKey, limit: 200 });
+      }, delayMs);
+    }
+
+    function finishReturnHistoryPoll() {
+      returnHistoryPollInFlight = false;
+      returnHistoryPhase = null;
+      if (!evidence.target_return_receipt && !evidence.parent_return_receipt) {
+        requestReturnHistories(2000);
+      }
     }
 
     function createParent(socket) {
@@ -281,6 +317,7 @@ export default function () {
             evidence.dispatch_accepted_at_ms = Date.now();
             if (classified.payload.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — agent turn triggered for R-CD-4 (targetSessionKey)');
+            requestReturnHistories(1000);
           } else if (classified.error) {
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
             failures.add(1);
@@ -298,8 +335,35 @@ export default function () {
             if (observation.completed) {
               evidence.child_completed = true;
               console.log('✓ Child task completed');
+              requestReturnHistories(0);
             }
             if (observation.traceId) evidence.trace_id = observation.traceId;
+          }
+        }
+
+        if (classified.kind === 'response' && classified.method === 'sessions.get') {
+          const polledSessionKey = returnHistoryPhase === 'parent' ? sessionKey : targetSessionKey;
+          if (classified.ok) {
+            const messages = Array.isArray(classified.payload?.messages)
+              ? classified.payload.messages
+              : [];
+            applyReturnObservation(rCd4HistoryObservation({
+              messages,
+              sessionKey: polledSessionKey,
+              targetSessionKey,
+              parentSessionKey: sessionKey,
+              nonce: rowNonce,
+              elapsedMs: evidence.dispatch_accepted_at_ms
+                ? Date.now() - evidence.dispatch_accepted_at_ms
+                : 0,
+              wakeGateMs: evidence.wake_gate_ms,
+            }), 'sessions.get');
+          }
+          if (returnHistoryPhase === 'target') {
+            returnHistoryPhase = 'parent';
+            tracker.send(socket, 'sessions.get', { key: sessionKey, limit: 200 });
+          } else {
+            finishReturnHistoryPoll();
           }
         }
 
@@ -330,16 +394,7 @@ export default function () {
               elapsedMs: elapsed,
               wakeGateMs: evidence.wake_gate_ms,
             });
-            if (observation.targetCandidate) {
-              evidence.target_return_candidate = observation.targetCandidate;
-              evidence.agent_turn_observed = true;
-              console.log('✓ nonce-bound TARGET-RECEIVED candidate landed in target session');
-            }
-            if (observation.parentCandidate) {
-              evidence.parent_return_candidate = observation.parentCandidate;
-              console.warn('✗ nonce-bound TARGET-RECEIVED candidate landed in parent session');
-            }
-            finalizeReturnReceipts();
+            applyReturnObservation(observation, 'session.message');
 
             if (!observation.targetCandidate && !observation.parentCandidate) {
               evidence.agent_turn_observed = true;

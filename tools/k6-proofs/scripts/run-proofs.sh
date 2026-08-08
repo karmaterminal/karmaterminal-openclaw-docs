@@ -115,6 +115,8 @@ ROW_SELECTION_JSON='[]'
 PROVISIONAL_RUN_DIR=""
 ROWS_DISPATCHED=0
 ROWS_TERMINAL_PRE_DISPATCH=0
+MATRIX_EXIT_CODE=0
+declare -a MATRIX_ROW_FAILURES=()
 MATRIX_NONCE=""
 declare -A ROW_MANIFEST_RELPATH=()
 declare -A ROW_MANIFEST_SHA256=()
@@ -1533,7 +1535,12 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     echo "[$ROW_ID] ARTIFACTS: $RUN_DIR"
     if [[ "$EFFECTIVE_RC" -ne 0 ]]; then
       echo "[$ROW_ID] FAILED with effective exit code $EFFECTIVE_RC. Public-safe artifacts preserved."
-      exit "$EFFECTIVE_RC"
+      MATRIX_ROW_FAILURES+=("$ROW_ID:$EFFECTIVE_RC")
+      if [[ "$MATRIX_EXIT_CODE" -eq 0 ]]; then
+        MATRIX_EXIT_CODE="$EFFECTIVE_RC"
+      fi
+      echo "[$ROW_ID] Continuing matrix so later rows retain their one-shot execution and receipts."
+      continue
     fi
 
     echo "[$ROW_ID] COMPLETED."
@@ -1556,3 +1563,7 @@ fi
 echo ""
 echo "=========================================================="
 echo "Runner execution finished."
+if [[ "${#MATRIX_ROW_FAILURES[@]}" -gt 0 ]]; then
+  echo "Rows with non-zero effective exits: ${MATRIX_ROW_FAILURES[*]}" >&2
+  exit "$MATRIX_EXIT_CODE"
+fi

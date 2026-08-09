@@ -1,0 +1,16 @@
+{
+  "row": "R-CD-TOKEN",
+  "scenario": "r-cd-token-bracket-delegate.js",
+  "candidateSha": "b27a2624ed333b0f3a613893968d2e555d90fce1",
+  "runtimeBuildSha": "OpenClaw 2026.8.1 (b27a262)",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-09T19:05:08Z",
+  "docsRef": "21b24fa470d289e470fbb78085adef2c78502a62",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260809T184837Z-21b24fa470d2-7f675e5a",
+  "manifestPath": "tools/k6-proofs/manifests/r-cd-token.json",
+  "manifestSha256": "7b96ff52671575220a8fcfe283afa19e4ec2d921b7b2fda634cf63d722cf4f4d",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-cd-token-bracket-delegate.js",
+  "scenarioSha256": "e4da30a666b0ef9e59b4edf1677cc3a8da80b59d5385ee00fdb8905556422699"
+}

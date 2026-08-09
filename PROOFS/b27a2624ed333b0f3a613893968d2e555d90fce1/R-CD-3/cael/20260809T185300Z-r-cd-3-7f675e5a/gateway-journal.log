@@ -1,0 +1,3 @@
+2026-08-09T11:53:05.138399-07:00 cael node[3950126]: 2026-08-09T11:53:05.138-07:00 [ws] ⇄ res ✓ sessions.send 447ms runId=R-CD-3-<redacted-nonce> conn=540d1b97…4182 id=1-0-1786301584689-4mndl3
+2026-08-09T11:53:08.718160-07:00 cael node[3950126]: 2026-08-09T11:53:08.717-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T11:53:08.718830-07:00 cael node[3950126]: 2026-08-09T11:53:08.718-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

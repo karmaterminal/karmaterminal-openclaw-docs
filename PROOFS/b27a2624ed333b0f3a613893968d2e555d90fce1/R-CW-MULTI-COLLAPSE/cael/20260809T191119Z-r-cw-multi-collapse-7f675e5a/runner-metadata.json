@@ -1,0 +1,16 @@
+{
+  "row": "R-CW-MULTI-COLLAPSE",
+  "scenario": "static-corpus-row-validator.js",
+  "candidateSha": "b27a2624ed333b0f3a613893968d2e555d90fce1",
+  "runtimeBuildSha": "OpenClaw 2026.8.1 (b27a262)",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-09T19:11:19Z",
+  "docsRef": "21b24fa470d289e470fbb78085adef2c78502a62",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260809T184837Z-21b24fa470d2-7f675e5a",
+  "manifestPath": "tools/k6-proofs/manifests/r-cw-multi-collapse.json",
+  "manifestSha256": "e920ce36f434d52117d05bbbab435c47e827bec6aec914b1b41d71563a083ffa",
+  "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+  "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48"
+}

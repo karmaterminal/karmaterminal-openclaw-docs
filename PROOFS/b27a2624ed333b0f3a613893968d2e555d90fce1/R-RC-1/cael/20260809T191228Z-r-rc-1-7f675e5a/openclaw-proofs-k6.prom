@@ -1,0 +1,13 @@
+# TYPE openclaw_proofs_k6_run_total counter
+openclaw_proofs_k6_run_total{row_id="R-RC-1",seat="cael",candidate_sha="b27a2624ed333b0f3a613893968d2e555d90fce1",scenario="r-rc-1-threshold-reject.js",run_id="20260809T191228Z-r-rc-1-7f675e5a",tool_surface="typed-tool",transport="websocket",outcome="PASS-candidate",candidate_only="true",fold_requires_review="true",failure_class="none"} 1
+# TYPE openclaw_proofs_k6_proof_failures_total counter
+openclaw_proofs_k6_proof_failures_total{row_id="R-RC-1",seat="cael",candidate_sha="b27a2624ed333b0f3a613893968d2e555d90fce1",scenario="r-rc-1-threshold-reject.js",run_id="20260809T191228Z-r-rc-1-7f675e5a",failure_class="none"} 0
+# TYPE openclaw_proofs_k6_candidate_pending_review gauge
+openclaw_proofs_k6_candidate_pending_review{row_id="R-RC-1",seat="cael",candidate_sha="b27a2624ed333b0f3a613893968d2e555d90fce1",run_id="20260809T191228Z-r-rc-1-7f675e5a",outcome="PASS-candidate",fold_requires_review="true"} 1
+# TYPE openclaw_proofs_k6_duration_ms gauge
+openclaw_proofs_k6_duration_ms{row_id="R-RC-1",seat="cael",candidate_sha="b27a2624ed333b0f3a613893968d2e555d90fce1",scenario="r-rc-1-threshold-reject.js",run_id="20260809T191228Z-r-rc-1-7f675e5a",outcome="PASS-candidate"} 15091
+# TYPE openclaw_proofs_k6_receipt_status gauge
+openclaw_proofs_k6_receipt_status{row_id="R-RC-1",seat="cael",candidate_sha="b27a2624ed333b0f3a613893968d2e555d90fce1",run_id="20260809T191228Z-r-rc-1-7f675e5a",receipt_name="seat-readiness",receipt_required="true",receipt_status="present"} 1
+openclaw_proofs_k6_receipt_status{row_id="R-RC-1",seat="cael",candidate_sha="b27a2624ed333b0f3a613893968d2e555d90fce1",run_id="20260809T191228Z-r-rc-1-7f675e5a",receipt_name="tool-registered",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-RC-1",seat="cael",candidate_sha="b27a2624ed333b0f3a613893968d2e555d90fce1",run_id="20260809T191228Z-r-rc-1-7f675e5a",receipt_name="tool-invoked",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-RC-1",seat="cael",candidate_sha="b27a2624ed333b0f3a613893968d2e555d90fce1",run_id="20260809T191228Z-r-rc-1-7f675e5a",receipt_name="tool-invoke-rejected",receipt_required="true",receipt_status="unknown"} 0

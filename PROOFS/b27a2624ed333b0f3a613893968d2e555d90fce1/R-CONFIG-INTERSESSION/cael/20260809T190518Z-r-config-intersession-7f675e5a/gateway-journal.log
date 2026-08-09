@@ -1,0 +1,2 @@
+2026-08-09T12:05:22.605868-07:00 cael node[3950126]: 2026-08-09T12:05:22.605-07:00 [continuation/signal] [continuation:trace] bracket-parse skipped: empty payloads session=<redacted-session-key>
+2026-08-09T12:05:22.606520-07:00 cael node[3950126]: 2026-08-09T12:05:22.606-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

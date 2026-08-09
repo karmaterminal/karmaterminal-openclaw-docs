@@ -1,0 +1,61 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-09T18:49:24Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-cd-1-typed-delegate-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CD-1",
+    "manifest_loaded": true,
+    "seat": "cael",
+    "session_created": true,
+    "candidateSha": "b27a2624ed333b0f3a613893968d2e555d90fce1",
+    "started": "2026-08-09T18:48:50.212Z",
+    "tool_invoke_accepted": true,
+    "delegate_scheduled_sentinel": true,
+    "parent_return_event": true,
+    "task_ledger_entry_optional": true,
+    "channel_message_observed": false,
+    "dispatch_accepted_at_ms": 1786301332236,
+    "wake_gate_ms": 5000,
+    "delegate_scheduled_at_ms": 1786301348961,
+    "parent_return_event_at_ms": 1786301357502,
+    "trace_collect_after_ms": 1786301363961,
+    "reason_hash": "1d0f323a8eb4f1f5",
+    "reason_length": 139,
+    "delegate_mode": "normal",
+    "delegate_delay_ms": 1000,
+    "delegate_wake_gate_ms": 5000,
+    "prompt_echoes_ignored": 3,
+    "trace_id": null,
+    "ended": "2026-08-09T18:49:23.961Z",
+    "duration_ms": 33749
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "missing",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "continuation-trace-correlation",
+      "tempo-trace-json"
+    ]
+  }
+}

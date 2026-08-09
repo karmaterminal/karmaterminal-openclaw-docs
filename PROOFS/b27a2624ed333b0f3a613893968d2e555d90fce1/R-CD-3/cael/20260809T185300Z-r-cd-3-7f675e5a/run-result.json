@@ -1,0 +1,52 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-09T18:53:16Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-cd-3-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CD-3",
+    "manifest_loaded": true,
+    "seat": "cael",
+    "session_created": true,
+    "candidateSha": "b27a2624ed333b0f3a613893968d2e555d90fce1",
+    "started": "2026-08-09T18:53:02.867Z",
+    "dispatch_accepted": true,
+    "delegate_staging_requested": true,
+    "compaction_requested": true,
+    "threshold_refusal_observed": false,
+    "compaction_accepted": false,
+    "lifeboat_return_observed": true,
+    "guard": null,
+    "context_usage": null,
+    "threshold": null,
+    "trace_id": null,
+    "ended": "2026-08-09T18:53:16.840Z",
+    "duration_ms": 13973,
+    "verdict": "PASS-candidate"
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

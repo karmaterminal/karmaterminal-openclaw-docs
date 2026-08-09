@@ -1,0 +1,20 @@
+2026-08-09T12:12:54.442033-07:00 cael node[3950126]: 2026-08-09T12:12:54.441-07:00 [ws] ⇄ res ✓ sessions.send 459ms runId=R-RC-2-<redacted-nonce> conn=9321149c…c384 id=1-0-1786302773981-s3q02t
+2026-08-09T12:12:56.694127-07:00 cael node[3950126]: 2026-08-09T12:12:56.694-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-08-09T12:13:09.024232-07:00 cael node[3950126]: 2026-08-09T12:13:09.024-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T12:13:09.024928-07:00 cael node[3950126]: 2026-08-09T12:13:09.024-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-09T12:13:09.025659-07:00 cael node[3950126]: 2026-08-09T12:13:09.025-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T12:13:09.026334-07:00 cael node[3950126]: 2026-08-09T12:13:09.026-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-09T12:13:09.040058-07:00 cael node[3950126]: 2026-08-09T12:13:09.040-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-08-09T12:13:10.264258-07:00 cael node[3950126]: 2026-08-09T12:13:10.264-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=<redacted-session-key> task=<redacted-payload>
+2026-08-09T12:13:11.364967-07:00 cael node[3950126]: 2026-08-09T12:13:11.364-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-09T12:13:11.387996-07:00 cael node[3950126]: 2026-08-09T12:13:11.387-07:00 [agents/tool-policy] tool policy removed 4 tool(s) via subagent tools.deny: agents_list, message, session_status, sessions_send; matched agents_list, message, session_status, sessions_send
+2026-08-09T12:13:20.514887-07:00 cael node[3950126]: 2026-08-09T12:13:20.514-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T12:13:20.515634-07:00 cael node[3950126]: 2026-08-09T12:13:20.515-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-09T12:13:20.845626-07:00 cael node[3950126]: 2026-08-09T12:13:20.844-07:00 REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD <redacted-nonce> CONTEXT unknown THRESHOLD 70%
+2026-08-09T12:13:20.846570-07:00 cael node[3950126]: 2026-08-09T12:13:20.846-07:00 [agents/agent-command] [agent] run continuation-delegate-9dd0412d95fba86382b43962a70da636 ended with stopReason=stop
+2026-08-09T12:13:23.116367-07:00 cael node[3950126]: 2026-08-09T12:13:23.116-07:00 [agent/embedded] [session-writer] replacing claim session=<redacted-session-key> previousRunId=sha256:21aeb8a11bca nextRunId=sha256:705d1f261810 live=false
+2026-08-09T12:13:30.201844-07:00 cael node[3950126]: 2026-08-09T12:13:30.201-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T12:13:30.203492-07:00 cael node[3950126]: 2026-08-09T12:13:30.203-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-09T12:13:30.533028-07:00 cael node[3950126]: 2026-08-09T12:13:30.531-07:00 REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD <redacted-nonce> CONTEXT unknown THRESHOLD 70%
+2026-08-09T12:13:30.534013-07:00 cael node[3950126]: 2026-08-09T12:13:30.533-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key> ended with stopReason=stop
+2026-08-09T12:13:34.592421-07:00 cael node[3950126]: 2026-08-09T12:13:34.591-07:00 [warn] Subagent completion direct announce failed for run continuation-delegate-7e0586f63eac972fb0df9fdde31020c0: completion agent did not produce a visible reply

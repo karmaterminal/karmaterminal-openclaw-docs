@@ -1,0 +1,10 @@
+2026-08-09T11:57:41.459779-07:00 cael node[3950126]: 2026-08-09T11:57:41.459-07:00 [agent/embedded] empty response detected: runId=ce1ee2a6-98cf-4618-81b1-4d59ff10796b sessionId=81e13776-d44a-4522-9cb4-3d36d8b6f320 provider=openai/gpt-5.6-terra — retrying 1/1 with visible-answer continuation
+2026-08-09T11:57:46.225382-07:00 cael node[3950126]: 2026-08-09T11:57:46.225-07:00 [ws] ⇄ res ✓ sessions.send 301ms runId=R-CD-MODEL-CHAINED-ALT-DISPATCH-<redacted-nonce> conn=f23950b9…6d4a id=1-0-1786301865919-0mfw0a
+2026-08-09T11:57:53.945255-07:00 cael node[3950126]: 2026-08-09T11:57:53.945-07:00 [agent/embedded] codex app-server turn released after terminal dynamic tool result
+2026-08-09T11:57:56.645714-07:00 cael node[3950126]: 2026-08-09T11:57:56.645-07:00 [continuation/signal] [continuation:trace] bracket-parse skipped: empty payloads session=<redacted-session-key>
+2026-08-09T11:57:56.646486-07:00 cael node[3950126]: 2026-08-09T11:57:56.646-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-09T11:58:02.659045-07:00 cael node[3950126]: 2026-08-09T11:58:02.658-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T11:58:02.659761-07:00 cael node[3950126]: 2026-08-09T11:58:02.659-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-09T11:58:02.660498-07:00 cael node[3950126]: 2026-08-09T11:58:02.660-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T11:58:02.661198-07:00 cael node[3950126]: 2026-08-09T11:58:02.661-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-09T11:58:02.672427-07:00 cael node[3950126]: 2026-08-09T11:58:02.672-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=2687ms fireAt=1786301885358 session=<redacted-session-key>

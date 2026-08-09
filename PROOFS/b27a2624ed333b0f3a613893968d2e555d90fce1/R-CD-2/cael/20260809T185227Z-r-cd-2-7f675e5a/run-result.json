@@ -1,0 +1,41 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-09T18:52:57Z",
+  "verdict": "PARTIAL-candidate",
+  "verdictSource": "r-cd-2-authoritative-receipt",
+  "summaryFileVerdict": "PARTIAL-candidate",
+  "vuLogVerdict": null,
+  "summaryFiles": [
+    "r-cd-2-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CD-2",
+    "verdict": "PARTIAL-candidate",
+    "authoritativeReceipt": "r-cd-2-authoritative-receipt.json"
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": {
+    "file": "r-cd-2-authoritative-receipt.json",
+    "sha256": "1bc31e8f42eb28cf0379d82c67d15d260d2669e3c7afd4861d1f2bc58a2ea2cd",
+    "validated": true,
+    "source": "r-cd-2-row-scoped-resolver"
+  },
+  "observability": {
+    "traceStatus": "r-cd-2-authoritative-receipt",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": "r-cd-2-authoritative-receipt.json",
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

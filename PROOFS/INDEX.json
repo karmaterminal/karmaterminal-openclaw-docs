@@ -1,23 +1,23 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for the current proof corpus.",
-  "current_sha": "0921776150142c3fd8d517de5c73e1c94732f004",
-  "current_sha_short": "0921776",
-  "build_string": "OpenClaw exact candidate (0921776)",
-  "corpus_path": "PROOFS/0921776150142c3fd8d517de5c73e1c94732f004/",
-  "manifest_path": "PROOFS/0921776150142c3fd8d517de5c73e1c94732f004/proofs-manifest.json",
-  "readme_path": "PROOFS/0921776150142c3fd8d517de5c73e1c94732f004/README.md",
+  "current_sha": "b27a2624ed333b0f3a613893968d2e555d90fce1",
+  "current_sha_short": "b27a262",
+  "build_string": "OpenClaw exact candidate (b27a262) \u2014 continuation assembly + Emeric #1229 composite",
+  "corpus_path": "PROOFS/b27a2624ed333b0f3a613893968d2e555d90fce1/",
+  "manifest_path": "PROOFS/b27a2624ed333b0f3a613893968d2e555d90fce1/proofs-manifest.json",
+  "readme_path": "PROOFS/b27a2624ed333b0f3a613893968d2e555d90fce1/README.md",
   "rollup": {
-    "pass": 0,
-    "partial": 0,
+    "pass": 17,
+    "partial": 6,
     "thin": 0,
-    "fail": 0,
-    "honest_limit": 0,
-    "missing": 38,
+    "fail": 11,
+    "honest_limit": 4,
+    "missing": 0,
     "total_rows": 38
   },
-  "disposition_note": "fresh exact-SHA Cael execution seed; no historical verdict carried",
+  "disposition_note": "Live execution on cael at exact candidate; build-info commit verified == candidate before capture. 4 rows (R-CW-5/5A/6/6A) are orchestration-required and excluded from --live-suite by design, not dropped. 6 of the failures are static-corpus-row-validators that compared against the previous published corpus (0921776) and are expected to clear once this corpus is the published one. Remaining failures and partials are genuine and untriaged; this corpus is evidence, not a green light.",
   "navigation": "read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-08-08",
-  "generated_by": "frond-scribe for Cael execution"
+  "generated": "2026-08-09",
+  "generated_by": "frond-scribe from project81-k6-proof run 31329925997 (cael)"
 }

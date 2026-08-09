@@ -1,0 +1,15 @@
+2026-08-09T12:05:32.823045-07:00 cael node[3950126]: 2026-08-09T12:05:32.822-07:00 [ws] ⇄ res ✓ sessions.send 458ms runId=R-CW-1-<redacted-nonce> conn=82e5fc74…9026 id=1-0-1786302332363-8vnlg4
+2026-08-09T12:05:33.726322-07:00 cael node[3950126]: 2026-08-09T12:05:33.726-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T12:05:33.727178-07:00 cael node[3950126]: 2026-08-09T12:05:33.727-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-09T12:05:33.727957-07:00 cael node[3950126]: 2026-08-09T12:05:33.727-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T12:05:33.728657-07:00 cael node[3950126]: 2026-08-09T12:05:33.728-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-09T12:05:33.816263-07:00 cael node[3950126]: 2026-08-09T12:05:33.815-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T12:05:33.816808-07:00 cael node[3950126]: 2026-08-09T12:05:33.816-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-09T12:05:33.817519-07:00 cael node[3950126]: 2026-08-09T12:05:33.817-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T12:05:33.818099-07:00 cael node[3950126]: 2026-08-09T12:05:33.818-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-09T12:05:39.627741-07:00 cael node[3950126]: 2026-08-09T12:05:39.626-07:00 [warn] Subagent completion direct announce failed for run continuation-delegate-d551e868147fd47bd8a6bd6a30fefe30: completion agent did not produce a visible reply
+2026-08-09T12:05:44.792518-07:00 cael node[3950126]: 2026-08-09T12:05:44.792-07:00 [agent/embedded] empty response detected: runId=83070425-70af-4c31-8f72-2b339267fc83 sessionId=81e13776-d44a-4522-9cb4-3d36d8b6f320 provider=openai/gpt-5.6-terra — retrying 1/1 with visible-answer continuation
+2026-08-09T12:05:49.125946-07:00 cael node[3950126]: 2026-08-09T12:05:49.125-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T12:05:49.126598-07:00 cael node[3950126]: 2026-08-09T12:05:49.126-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-08-09T12:05:49.127300-07:00 cael node[3950126]: 2026-08-09T12:05:49.127-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T12:05:49.127970-07:00 cael node[3950126]: 2026-08-09T12:05:49.127-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

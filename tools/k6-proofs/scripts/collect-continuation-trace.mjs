@@ -21,13 +21,19 @@ function usage() {
   console.error(`Usage: node collect-continuation-trace.mjs \\
   --run-dir <row-run-dir> --manifest <row-manifest.json> --seat <seat> \\
   [--evidence <private-evidence.jsonl>] \\
-  [--tempo-url <base-url>] [--timeout-ms 60000] [--poll-ms 2000]`);
+  [--tempo-url <base-url>] [--timeout-ms 180000] [--poll-ms 2000]`);
 }
 
 function parseArgs(argv, env = process.env) {
   const out = {
     tempoUrl: env.OPENCLAW_PROOFS_TEMPO_BASE_URL || env.TEMPO_BASE_URL || DEFAULT_TEMPO_BASE_URL,
-    timeoutMs: 60000,
+    // A row finishes when its own receipts land, but the spans it caused are
+    // still in flight: the batch span processor has not flushed and Tempo has
+    // not ingested. A continue_work tool span was observed starting ~77s after
+    // dispatch inside a ~107s root trace, so a 60s budget expired while the
+    // trace was still being assembled and reported an otherwise complete trace
+    // as missing its originating tool span.
+    timeoutMs: 180000,
     pollMs: 2000,
   };
   for (let i = 2; i < argv.length; i += 1) {

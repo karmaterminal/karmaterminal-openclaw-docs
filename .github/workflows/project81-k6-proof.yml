@@ -141,13 +141,40 @@ jobs:
             echo "$HOME/bin" >> "$GITHUB_PATH"
           fi
 
+      - name: Resolve gateway token for this seat
+        if: ${{ !inputs.dry_run }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The runner executes ON the prince's own host, so the authoritative
+          # token for THIS seat's gateway is the one in that seat's own config.
+          # A single shared secret cannot authenticate against six gateways that
+          # each hold a different token -- it only ever matched one seat, and
+          # every other seat failed at `connect`, surfacing later and confusingly
+          # as "invalid handshake: first request must be connect" on sessions.create.
+          # Prefer local; fall back to the secret for non-seat runners.
+          cfg="$HOME/.openclaw/openclaw.json"
+          local_token=""
+          if [[ -r "$cfg" ]]; then
+            local_token="$(python3 -c 'import json,os,sys; d=json.load(open(os.path.expanduser("~/.openclaw/openclaw.json"))); t=(((d.get("gateway") or {}).get("auth") or {}).get("token")) or ""; sys.stdout.write(t if isinstance(t,str) else "")' 2>/dev/null || true)"
+          fi
+          if [[ -n "$local_token" ]]; then
+            echo "::add-mask::$local_token"
+            echo "OPENCLAW_GATEWAY_TOKEN=$local_token" >> "$GITHUB_ENV"
+            echo "gateway token: using this seat's own config (${cfg})"
+          elif [[ -n "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then
+            echo "gateway token: no local config token; falling back to the repository secret"
+          else
+            echo "gateway token: neither a local seat token nor a secret is available"
+          fi
+
       - name: Check live prerequisites
         if: ${{ !inputs.dry_run }}
         shell: bash
         run: |
           set -euo pipefail
           command -v k6 >/dev/null || { echo "k6 is required for live runs: https://grafana.com/docs/k6/latest/set-up/install-k6/"; exit 1; }
-          test -n "${OPENCLAW_GATEWAY_TOKEN:-}" || { echo "OPENCLAW_GATEWAY_TOKEN secret is required for live runs"; exit 1; }
+          test -n "${OPENCLAW_GATEWAY_TOKEN:-}" || { echo "no gateway token: this seat's ~/.openclaw/openclaw.json has no gateway.auth.token and no OPENCLAW_GATEWAY_TOKEN secret is set"; exit 1; }
 
       - name: Run Project 81 proof suite
         shell: bash

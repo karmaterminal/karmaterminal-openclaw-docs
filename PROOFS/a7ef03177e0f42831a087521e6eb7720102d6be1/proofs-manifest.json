@@ -1,0 +1,1031 @@
+{
+  "schema": "openclaw.k6.proofs-manifest.v1",
+  "candidateSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+  "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+  "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+  "runtimeCompositeParents": {
+    "continuation": "c868194997d0a61de2e648580afdf40e0d0b34b9",
+    "emericFixPr121204": "6f276fa24da8174cd97a029ce9e47f2141032c8a"
+  },
+  "provenanceNote": "The runtime executed was the composite (continuation + PR #121204 content), because Emeric's fix is not yet merged upstream and must not be conflated with the continuation feature; the composite runtime SHA is recorded alongside the presentation SHA.",
+  "sourceRun": {
+    "id": "31367303220",
+    "workflow": "project81-k6-proof.yml",
+    "seat": "cael",
+    "artifactPathOnCael": "/home/figs/actions-runner/_work/karmaterminal-openclaw-docs/karmaterminal-openclaw-docs/project81-k6-proof-artifacts/2e72b665229bac6c41388d10a6b979b86750211b/"
+  },
+  "seat": "cael",
+  "canonicalSeatPath": "cael-dgx",
+  "generatedAt": "2026-08-10T08:39:44Z",
+  "generatedBy": "Copilot CLI from copied project81-k6-proof run artifacts; proof workflow was not re-run",
+  "runnableRows": 34,
+  "proofRowsRun": 33,
+  "totalCorpusRows": 38,
+  "excludedOrchestrationRequired": [
+    "R-CW-5",
+    "R-CW-5A",
+    "R-CW-6",
+    "R-CW-6A"
+  ],
+  "verdictRollup": {
+    "PARTIAL-candidate": 7,
+    "PASS-candidate": 26,
+    "unclassified": 1
+  },
+  "proofRowVerdictRollup": {
+    "PARTIAL-candidate": 7,
+    "PASS-candidate": 26
+  },
+  "reviewRollup": {
+    "ready-for-human-review": 30,
+    "review-pending": 4
+  },
+  "pendingReceiptTally": {
+    "attempt-state": 1,
+    "child-completed": 1,
+    "child-spawned": 1,
+    "continuation-trace-correlation": 4,
+    "exact-candidate-runtime-identity": 1,
+    "parent-return-event": 1,
+    "parser-detected": 1,
+    "queue-identity": 1,
+    "raw-final-text-origin": 1,
+    "tempo-trace-json": 4
+  },
+  "reviewEnvelopes": 26,
+  "rows": {
+    "PREFLIGHT": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/PREFLIGHT/cael/20260810T074801Z-preflight-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/PREFLIGHT/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "unclassified",
+      "verdictSource": "none",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": false,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "preflight",
+        "file": "preflight.js",
+        "status": "runnable",
+        "manifestPath": null,
+        "scenarioPath": null
+      }
+    },
+    "R-CD-1": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-1/cael/20260810T074808Z-r-cd-1-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-1/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "present",
+        "traceId": "608836f4e924dfbbf7126efdeee149e1",
+        "tempoTraceJson": "tempo-trace-608836f4e924.json",
+        "correlationReceipt": "continuation-trace-correlation.json"
+      },
+      "scenario": {
+        "name": "r-cd-1-typed-delegate",
+        "file": "r-cd-1-typed-delegate.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cd-1.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-cd-1-typed-delegate.js"
+      }
+    },
+    "R-CD-2": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-2/cael/20260810T074903Z-r-cd-2-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-2/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PARTIAL-candidate",
+      "verdictSource": "r-cd-2-authoritative-receipt",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "r-cd-2-authoritative-receipt",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-cd-2-silent-wake",
+        "file": "r-cd-2-silent-wake.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cd-2.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-cd-2-silent-wake.js"
+      }
+    },
+    "R-CD-3": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-3/cael/20260810T074943Z-r-cd-3-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-3/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-cd-3-post-compaction",
+        "file": "r-cd-3-post-compaction.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cd-3.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-cd-3-post-compaction.js"
+      }
+    },
+    "R-CD-4": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-4/cael/20260810T075003Z-r-cd-4-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-4/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PARTIAL-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 99,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": false,
+      "observability": {
+        "traceStatus": "present",
+        "traceId": "608836f4e924dfbbf7126efdeee149e1",
+        "tempoTraceJson": "tempo-trace-608836f4e924.json",
+        "correlationReceipt": "continuation-trace-correlation.json"
+      },
+      "scenario": {
+        "name": "r-cd-4-target-session-key",
+        "file": "r-cd-4-target-session-key.js",
+        "status": "runnable",
+        "manifestPath": null,
+        "scenarioPath": null
+      }
+    },
+    "R-CD-CHAINED-DEPTH-2": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-CHAINED-DEPTH-2/cael/20260810T075141Z-r-cd-chained-depth-2-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-CHAINED-DEPTH-2/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PARTIAL-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 99,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": false,
+      "observability": {
+        "traceStatus": "present",
+        "traceId": "66d888a7ec742a674985bb86ded00ef6",
+        "tempoTraceJson": "tempo-trace-66d888a7ec74.json",
+        "correlationReceipt": "continuation-trace-correlation.json"
+      },
+      "scenario": {
+        "name": "r-cd-chained-depth-2",
+        "file": "r-cd-chained-depth-2.js",
+        "status": "runnable",
+        "manifestPath": null,
+        "scenarioPath": null
+      }
+    },
+    "R-CD-COLLECTION-ON-COLLAPSE": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-COLLECTION-ON-COLLAPSE/cael/20260810T075419Z-r-cd-collection-on-collapse-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "summary-file",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "static-corpus-row-validator",
+        "file": "static-corpus-row-validator.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cd-collection-on-collapse.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js"
+      }
+    },
+    "R-CD-MODEL-CHAINED-ALT": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-MODEL-CHAINED-ALT/cael/20260810T075424Z-r-cd-model-chained-alt-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-MODEL-CHAINED-ALT/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-cd-model-chained-alt",
+        "file": "r-cd-model-chained-alt.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cd-model-chained-alt.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-cd-model-chained-alt.js"
+      }
+    },
+    "R-CD-MODEL-DEFAULT": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-MODEL-DEFAULT/cael/20260810T075450Z-r-cd-model-default-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-MODEL-DEFAULT/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-cd-model-default",
+        "file": "r-cd-model-default.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cd-model-default.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-cd-model-default.js"
+      }
+    },
+    "R-CD-MODEL-TOKEN": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-MODEL-TOKEN/cael/20260810T075524Z-r-cd-model-token-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-MODEL-TOKEN/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-cd-model-token",
+        "file": "r-cd-model-token.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cd-model-token.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-cd-model-token.js"
+      }
+    },
+    "R-CD-MODEL-TOOL": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-MODEL-TOOL/cael/20260810T075601Z-r-cd-model-tool-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-MODEL-TOOL/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PARTIAL-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 99,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": false,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-cd-model-tool",
+        "file": "r-cd-model-tool.js",
+        "status": "runnable",
+        "manifestPath": null,
+        "scenarioPath": null
+      }
+    },
+    "R-CD-RETURN-OVERLAP": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-RETURN-OVERLAP/cael/20260810T075908Z-r-cd-return-overlap-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-RETURN-OVERLAP/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "summary-file",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-cd-return-overlap",
+        "file": "r-cd-return-overlap.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cd-return-overlap.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-cd-return-overlap.js"
+      }
+    },
+    "R-CD-SILENT": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-SILENT/cael/20260810T075914Z-r-cd-silent-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-SILENT/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-cd-silent",
+        "file": "r-cd-silent.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cd-silent.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-cd-silent.js"
+      }
+    },
+    "R-CD-TOKEN": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-TOKEN/cael/20260810T080009Z-r-cd-token-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-TOKEN/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PARTIAL-candidate",
+      "verdictSource": "pre-dispatch-build-identity-gate",
+      "effectiveExitCode": 0,
+      "reviewStatus": "review-pending",
+      "pendingReceipts": [
+        "exact-candidate-runtime-identity",
+        "attempt-state",
+        "raw-final-text-origin",
+        "parser-detected",
+        "queue-identity",
+        "child-spawned",
+        "child-completed",
+        "parent-return-event",
+        "tempo-trace-json",
+        "continuation-trace-correlation"
+      ],
+      "reviewEnvelope": false,
+      "observability": {
+        "traceStatus": "not-applicable",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-cd-token-bracket-delegate",
+        "file": "r-cd-token-bracket-delegate.js",
+        "status": "runnable",
+        "manifestPath": null,
+        "scenarioPath": null
+      }
+    },
+    "R-CONFIG-DEFAULTS": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CONFIG-DEFAULTS/cael/20260810T080011Z-r-config-defaults-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CONFIG-DEFAULTS/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-config-defaults",
+        "file": "r-config-defaults.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-config-defaults.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-config-defaults.js"
+      }
+    },
+    "R-CONFIG-INTERSESSION": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CONFIG-INTERSESSION/cael/20260810T080021Z-r-config-intersession-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CONFIG-INTERSESSION/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-config-intersession",
+        "file": "r-config-intersession.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-config-intersession.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-config-intersession.js"
+      }
+    },
+    "R-CW-1": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-1/cael/20260810T080029Z-r-cw-1-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-1/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "review-pending",
+      "pendingReceipts": [
+        "continuation-trace-correlation",
+        "tempo-trace-json"
+      ],
+      "reviewEnvelope": false,
+      "observability": {
+        "traceStatus": "missing",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-cw-1-tool-schedule-wake",
+        "file": "r-cw-1-tool-schedule-wake.js",
+        "status": "runnable",
+        "manifestPath": null,
+        "scenarioPath": null
+      }
+    },
+    "R-CW-2": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-2/cael/20260810T080357Z-r-cw-2-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-2/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-cw-2-immediate-wake",
+        "file": "r-cw-2-immediate-wake.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cw-2.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-cw-2-immediate-wake.js"
+      }
+    },
+    "R-CW-3": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-3/cael/20260810T080429Z-r-cw-3-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-3/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PARTIAL-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "review-pending",
+      "pendingReceipts": [
+        "continuation-trace-correlation",
+        "tempo-trace-json"
+      ],
+      "reviewEnvelope": false,
+      "observability": {
+        "traceStatus": "missing",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-cw-3-reason-telemetry",
+        "file": "r-cw-3-reason-telemetry.js",
+        "status": "runnable",
+        "manifestPath": null,
+        "scenarioPath": null
+      }
+    },
+    "R-CW-4": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-4/cael/20260810T080757Z-r-cw-4-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-4/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-cw-4-chain-depth",
+        "file": "r-cw-4-chain-depth.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cw-4.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-cw-4-chain-depth.js"
+      }
+    },
+    "R-CW-7": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-7/cael/20260810T080901Z-r-cw-7-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-7/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "summary-file",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "static-corpus-row-validator",
+        "file": "static-corpus-row-validator.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cw-7.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js"
+      }
+    },
+    "R-CW-DELEGATE-CHILD-LIVE": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-DELEGATE-CHILD-LIVE/cael/20260810T080907Z-r-cw-delegate-child-live-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "summary-file",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "static-corpus-row-validator",
+        "file": "static-corpus-row-validator.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cw-delegate-child-live.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js"
+      }
+    },
+    "R-CW-DELEGATE-SELF-CONTINUATION": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-DELEGATE-SELF-CONTINUATION/cael/20260810T080913Z-r-cw-delegate-self-continuation-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-DELEGATE-SELF-CONTINUATION/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-cw-delegate-self-continuation",
+        "file": "r-cw-delegate-self-continuation.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cw-delegate-self.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-cw-delegate-self-continuation.js"
+      }
+    },
+    "R-CW-DELEGATE-TOKEN": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-DELEGATE-TOKEN/cael/20260810T080935Z-r-cw-delegate-token-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-DELEGATE-TOKEN/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "summary-file",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "static-corpus-row-validator",
+        "file": "static-corpus-row-validator.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cw-delegate-token.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js"
+      }
+    },
+    "R-CW-MULTI": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-MULTI/cael/20260810T080947Z-r-cw-multi-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-MULTI/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "summary-file",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "static-corpus-row-validator",
+        "file": "static-corpus-row-validator.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cw-multi.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js"
+      }
+    },
+    "R-CW-MULTI-COLLAPSE": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-MULTI-COLLAPSE/cael/20260810T080941Z-r-cw-multi-collapse-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-MULTI-COLLAPSE/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "summary-file",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "static-corpus-row-validator",
+        "file": "static-corpus-row-validator.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cw-multi-collapse.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js"
+      }
+    },
+    "R-CW-TOKEN": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-TOKEN/cael/20260810T080953Z-r-cw-token-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-TOKEN/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-cw-token-bracket",
+        "file": "r-cw-token-bracket.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-cw-token.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-cw-token-bracket.js"
+      }
+    },
+    "R-OBS-1": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-OBS-1/cael/20260810T081030Z-r-obs-1-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-OBS-1/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "summary-file",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-obs-1",
+        "file": "r-obs-1.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-obs-1.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-obs-1.js"
+      }
+    },
+    "R-OBS-2": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-OBS-2/cael/20260810T081055Z-r-obs-2-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-OBS-2/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "summary-file",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-obs-2",
+        "file": "r-obs-2.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-obs-2.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-obs-2.js"
+      }
+    },
+    "R-OBS-STATUS": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-OBS-STATUS/cael/20260810T081101Z-r-obs-status-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-OBS-STATUS/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "summary-file",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-obs-status",
+        "file": "r-obs-status.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-obs-status.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-obs-status.js"
+      }
+    },
+    "R-RC-1": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-RC-1/cael/20260810T081107Z-r-rc-1-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-RC-1/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-rc-1-threshold-reject",
+        "file": "r-rc-1-threshold-reject.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-rc-1.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-rc-1-threshold-reject.js"
+      }
+    },
+    "R-RC-2": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-RC-2/cael/20260810T081126Z-r-rc-2-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-RC-2/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PARTIAL-candidate",
+      "verdictSource": "vu-log",
+      "effectiveExitCode": 0,
+      "reviewStatus": "review-pending",
+      "pendingReceipts": [
+        "continuation-trace-correlation",
+        "tempo-trace-json"
+      ],
+      "reviewEnvelope": false,
+      "observability": {
+        "traceStatus": "missing",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-rc-2-delegate-request-compaction",
+        "file": "r-rc-2-delegate-request-compaction.js",
+        "status": "runnable",
+        "manifestPath": null,
+        "scenarioPath": null
+      }
+    },
+    "R-REGRESSION-TRAP-TESTS": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-REGRESSION-TRAP-TESTS/cael/20260810T081635Z-r-regression-trap-tests-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-REGRESSION-TRAP-TESTS/cael-dgx/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "summary-file",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-regression-trap-tests",
+        "file": "r-regression-trap-tests.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-regression-trap-tests.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-regression-trap-tests.js"
+      }
+    },
+    "R-TRACE-REDACTION-1121": {
+      "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-TRACE-REDACTION-1121/cael/20260810T081642Z-r-trace-redaction-1121-34f430ee",
+      "evidencePath": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-TRACE-REDACTION-1121/EVIDENCE.md",
+      "candidateOnly": true,
+      "foldRequiresReview": true,
+      "canonicalFoldForbidden": true,
+      "runtimeCompositeSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+      "presentationSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+      "verdict": "PASS-candidate",
+      "verdictSource": "summary-file",
+      "effectiveExitCode": 0,
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "observability": {
+        "traceStatus": "unknown",
+        "traceId": null,
+        "tempoTraceJson": null,
+        "correlationReceipt": null
+      },
+      "scenario": {
+        "name": "r-trace-redaction-1121",
+        "file": "r-trace-redaction-1121.js",
+        "status": "runnable",
+        "manifestPath": "tools/k6-proofs/manifests/r-trace-redaction-1121.json",
+        "scenarioPath": "tools/k6-proofs/scenarios/r-trace-redaction-1121.js"
+      }
+    }
+  },
+  "runLogVerdictLines": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/run-31367303220-verdict-lines.txt"
+}

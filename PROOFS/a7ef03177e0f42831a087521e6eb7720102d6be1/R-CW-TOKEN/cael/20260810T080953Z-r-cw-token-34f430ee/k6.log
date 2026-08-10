@@ -1,0 +1,166 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-token-bracket.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m30s max duration (incl. graceful stop):
+              * r_cw_token_bracket: 1 iterations shared among 1 VUs (maxDuration: 3m0s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m01.0s/3m0s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m02.0s/3m0s  0/1 shared iters
+time="2026-08-10T01:09:58-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-08-10T01:09:59-07:00" level=info msg="✓ sessions.send accepted — parent agent turn triggered" source=console
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m03.0s/3m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m04.0s/3m0s  0/1 shared iters
+time="2026-08-10T01:10:01-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m05.0s/3m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m06.0s/3m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m07.0s/3m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m08.0s/3m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m09.0s/3m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m10.0s/3m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m11.0s/3m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m12.0s/3m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m13.0s/3m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m14.0s/3m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m15.0s/3m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m16.0s/3m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m17.0s/3m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m18.0s/3m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m19.0s/3m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m20.0s/3m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m21.0s/3m0s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m22.0s/3m0s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m23.0s/3m0s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m24.0s/3m0s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m25.0s/3m0s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m26.0s/3m0s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m27.0s/3m0s  0/1 shared iters
+time="2026-08-10T01:10:24-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m28.0s/3m0s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m29.0s/3m0s  0/1 shared iters
+time="2026-08-10T01:10:25-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:25-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:25-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_token_bracket   [   0% ] 1 VUs  0m30.0s/3m0s  0/1 shared iters
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:26-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:27-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:27-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:27-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-10T01:10:27-07:00" level=info msg="✓ token-emitting child turn observed" source=console
+time="2026-08-10T01:10:27-07:00" level=info msg="✓ TOKEN-HOP2-DONE sentinel observed — hop-2 executed" source=console
+time="2026-08-10T01:10:27-07:00" level=info msg="All required R-CW-TOKEN evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CW-TOKEN","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"2e72b665229bac6c41388d10a6b979b86750211b","started":"2026-08-10T08:09:56.489Z","parent_dispatch_accepted":true,"subagent_spawn_requested":true,"subagent_spawn_accepted":true,"token_emitted_or_stripped":true,"hop_2_executed":true,"parent_return":true,"dispatch_accepted_at_ms":1786349399390,"hop_2_at_ms":1786349427191,"trace_id":null,"ended":"2026-08-10T08:10:27.192Z","duration_ms":30703}
+time="2026-08-10T01:10:27-07:00" level=info msg="\n[R-CW-TOKEN] VERDICT: PASS-candidate" source=console
+
+[R-CW-TOKEN] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+
+running (0m30.7s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_token_bracket ✓ [ 100% ] 1 VUs  0m30.7s/3m0s  1/1 shared iters

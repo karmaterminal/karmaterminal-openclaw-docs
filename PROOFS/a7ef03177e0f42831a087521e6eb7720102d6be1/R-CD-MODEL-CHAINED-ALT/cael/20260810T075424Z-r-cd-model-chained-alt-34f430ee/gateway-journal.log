@@ -1,0 +1,7 @@
+2026-08-10T00:54:31.757092-07:00 cael node[2927]: 2026-08-10T00:54:31.756-07:00 [ws] ⇄ res ✓ sessions.send 342ms runId=R-CD-MODEL-CHAINED-ALT-DISPATCH-<redacted-nonce> conn=98cce9fe…ef46 id=1-0-1786348471412-a96i0h
+2026-08-10T00:54:37.461568-07:00 cael node[2927]: 2026-08-10T00:54:37.461-07:00 [agent/embedded] empty response detected: runId=b3b81068-7e10-4873-9bbd-92f7efb0bf84 sessionId=81e13776-d44a-4522-9cb4-3d36d8b6f320 provider=openai/gpt-5.6-terra — retrying 1/1 with visible-answer continuation
+2026-08-10T00:54:46.914321-07:00 cael node[2927]: 2026-08-10T00:54:46.914-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T00:54:46.914947-07:00 cael node[2927]: 2026-08-10T00:54:46.914-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T00:54:46.915634-07:00 cael node[2927]: 2026-08-10T00:54:46.915-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T00:54:46.916287-07:00 cael node[2927]: 2026-08-10T00:54:46.916-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T00:54:46.925596-07:00 cael node[2927]: 2026-08-10T00:54:46.925-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=3387ms fireAt=1786348490311 session=<redacted-session-key>

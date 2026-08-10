@@ -1,0 +1,16 @@
+{
+  "row": "R-CD-RETURN-OVERLAP",
+  "scenario": "r-cd-return-overlap.js",
+  "candidateSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+  "runtimeBuildSha": "OpenClaw 2026.8.1 (2e72b66)",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-10T07:59:08Z",
+  "docsRef": "c53b4c28de291067bfd11e411ba2c25b35775f31",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260810T074758Z-c53b4c28de29-34f430ee",
+  "manifestPath": "tools/k6-proofs/manifests/r-cd-return-overlap.json",
+  "manifestSha256": "e01f4f63f21808500bdb14428148becf7069ddb751fc9fb02e7aea50c433f49e",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-cd-return-overlap.js",
+  "scenarioSha256": "6cd48219e45615cd36a43f72d1500b9d5583dff381c14602a97f35a382762561"
+}

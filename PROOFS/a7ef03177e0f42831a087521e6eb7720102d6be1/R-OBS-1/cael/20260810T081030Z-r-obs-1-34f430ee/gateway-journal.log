@@ -1,0 +1,20 @@
+2026-08-10T01:10:30.512847-07:00 cael node[2927]: 2026-08-10T01:10:30.512-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=0 [0]text=true session=<redacted-session-key>
+2026-08-10T01:10:30.513620-07:00 cael node[2927]: 2026-08-10T01:10:30.513-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=work delayMs=5000 session=<redacted-session-key>
+2026-08-10T01:10:30.514321-07:00 cael node[2927]: 2026-08-10T01:10:30.514-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=work session=<redacted-session-key>
+2026-08-10T01:10:30.517131-07:00 cael node[2927]: 2026-08-10T01:10:30.517-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=4998ms fireAt=1786349435514 session=<redacted-session-key>
+2026-08-10T01:10:35.425519-07:00 cael node[2927]: 2026-08-10T01:10:35.425-07:00 [ws] ⇄ res ✓ sessions.send 335ms runId=R-OBS-1-<redacted-nonce> conn=fb989820…cf86 id=1-0-1786349435087-ts5429
+2026-08-10T01:10:36.319907-07:00 cael node[2927]: 2026-08-10T01:10:36.319-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-08-10T01:10:36.321749-07:00 cael node[2927]: 2026-08-10T01:10:36.321-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=60000ms fireAt=1786349496320 session=<redacted-session-key>
+2026-08-10T01:10:36.322790-07:00 cael node[2927]: 2026-08-10T01:10:36.322-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=<redacted-session-key> reasonCategory=unknown
+2026-08-10T01:10:38.602402-07:00 cael node[2927]: 2026-08-10T01:10:38.602-07:00 [agent/embedded] [session-writer] replacing claim session=<redacted-session-key> previousRunId=sha256:4cfab98226d0 nextRunId=sha256:646e2b498c21 live=false
+2026-08-10T01:10:38.858396-07:00 cael node[2927]: 2026-08-10T01:10:38.858-07:00 [agents/tool-policy] tool policy removed 4 tool(s) via subagent tools.deny: agents_list, message, session_status, sessions_send; matched agents_list, message, session_status, sessions_send
+2026-08-10T01:10:38.884295-07:00 cael node[2927]: 2026-08-10T01:10:38.883-07:00 [agents/tool-policy] tool policy removed 4 tool(s) via subagent tools.deny: agents_list, message, session_status, sessions_send; matched agents_list, message, session_status, sessions_send
+2026-08-10T01:10:43.229346-07:00 cael node[2927]: 2026-08-10T01:10:43.229-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:10:43.229968-07:00 cael node[2927]: 2026-08-10T01:10:43.229-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:10:43.230647-07:00 cael node[2927]: 2026-08-10T01:10:43.230-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:10:43.231291-07:00 cael node[2927]: 2026-08-10T01:10:43.231-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:10:43.459605-07:00 cael node[2927]: 2026-08-10T01:10:43.459-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:10:43.460274-07:00 cael node[2927]: 2026-08-10T01:10:43.460-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:10:43.573031-07:00 cael node[2927]: 2026-08-10T01:10:43.572-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key> ended with stopReason=stop
+2026-08-10T01:10:43.584152-07:00 cael node[2927]: 2026-08-10T01:10:43.583-07:00 [warn] Subagent completion direct announce failed for run e1c1c665-0a7d-4c29-8074-45d2ff335906: completion agent did not produce a visible reply
+2026-08-10T01:10:50.757477-07:00 cael node[2927]: 2026-08-10T01:10:50.757-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>

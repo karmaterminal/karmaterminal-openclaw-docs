@@ -1,0 +1,43 @@
+2026-08-10T00:59:16.311649-07:00 cael node[2927]: 2026-08-10T00:59:16.311-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T00:59:16.312312-07:00 cael node[2927]: 2026-08-10T00:59:16.312-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T00:59:16.313008-07:00 cael node[2927]: 2026-08-10T00:59:16.312-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T00:59:16.313647-07:00 cael node[2927]: 2026-08-10T00:59:16.313-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T00:59:22.785451-07:00 cael node[2927]: 2026-08-10T00:59:22.785-07:00 [ws] ⇄ res ✓ sessions.send 332ms runId=R-CD-SILENT-DISPATCH-<redacted-nonce> conn=640a0920…a6b7 id=1-0-1786348762451-ysvjzc
+2026-08-10T00:59:24.732169-07:00 cael node[2927]: 2026-08-10T00:59:24.732-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T00:59:24.732948-07:00 cael node[2927]: 2026-08-10T00:59:24.732-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T00:59:24.733596-07:00 cael node[2927]: 2026-08-10T00:59:24.733-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T00:59:24.734259-07:00 cael node[2927]: 2026-08-10T00:59:24.734-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T00:59:33.324314-07:00 cael node[2927]: 2026-08-10T00:59:33.324-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T00:59:33.324985-07:00 cael node[2927]: 2026-08-10T00:59:33.324-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T00:59:33.325683-07:00 cael node[2927]: 2026-08-10T00:59:33.325-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T00:59:33.326341-07:00 cael node[2927]: 2026-08-10T00:59:33.326-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T00:59:40.113665-07:00 cael node[2927]: 2026-08-10T00:59:40.113-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T00:59:40.114328-07:00 cael node[2927]: 2026-08-10T00:59:40.114-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T00:59:40.115021-07:00 cael node[2927]: 2026-08-10T00:59:40.114-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T00:59:40.115665-07:00 cael node[2927]: 2026-08-10T00:59:40.115-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T00:59:40.136053-07:00 cael node[2927]: 2026-08-10T00:59:40.135-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=2659ms fireAt=1786348782793 session=<redacted-session-key>
+2026-08-10T00:59:40.562259-07:00 cael node[2927]: 2026-08-10T00:59:40.562-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T00:59:40.562984-07:00 cael node[2927]: 2026-08-10T00:59:40.562-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T00:59:40.563688-07:00 cael node[2927]: 2026-08-10T00:59:40.563-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T00:59:40.564344-07:00 cael node[2927]: 2026-08-10T00:59:40.564-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T00:59:44.916402-07:00 cael node[2927]: 2026-08-10T00:59:44.916-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-fired] session=<redacted-session-key>
+2026-08-10T00:59:44.918230-07:00 cael node[2927]: 2026-08-10T00:59:44.918-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-08-10T00:59:46.110728-07:00 cael node[2927]: 2026-08-10T00:59:46.110-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=silent session=<redacted-session-key> task=<redacted-payload>
+2026-08-10T00:59:47.325142-07:00 cael node[2927]: 2026-08-10T00:59:47.325-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-10T00:59:47.348937-07:00 cael node[2927]: 2026-08-10T00:59:47.348-07:00 [agents/tool-policy] tool policy removed 4 tool(s) via subagent tools.deny: agents_list, message, session_status, sessions_send; matched agents_list, message, session_status, sessions_send
+2026-08-10T00:59:51.126741-07:00 cael node[2927]: 2026-08-10T00:59:51.126-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T00:59:51.127387-07:00 cael node[2927]: 2026-08-10T00:59:51.127-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T00:59:51.128090-07:00 cael node[2927]: 2026-08-10T00:59:51.128-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T00:59:51.128741-07:00 cael node[2927]: 2026-08-10T00:59:51.128-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T00:59:53.905762-07:00 cael node[2927]: 2026-08-10T00:59:53.905-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T00:59:53.906433-07:00 cael node[2927]: 2026-08-10T00:59:53.906-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T00:59:54.018937-07:00 cael node[2927]: 2026-08-10T00:59:54.017-07:00 SILENTCHILD-<redacted-nonce>-edkoza
+2026-08-10T00:59:54.019640-07:00 cael node[2927]: 2026-08-10T00:59:54.019-07:00 [agents/agent-command] [agent] run continuation-delegate-bc5e28b6e366f2675e236866282c0556 ended with stopReason=stop
+2026-08-10T00:59:54.506753-07:00 cael node[2927]: 2026-08-10T00:59:54.506-07:00 [continuation/announce] [continuation:enrichment-return] Delivered to <redacted-session-key> from <redacted-session-key>
+2026-08-10T00:59:59.527987-07:00 cael node[2927]: 2026-08-10T00:59:59.527-07:00 [ws] ⇄ res ✓ sessions.send 370ms runId=R-CD-SILENT-FOLLOWUP-<redacted-nonce> conn=640a0920…a6b7 id=1-0-1786348799023-rws0jq
+2026-08-10T01:00:00.674816-07:00 cael node[2927]: 2026-08-10T01:00:00.674-07:00 [continuation/context-pressure] [context-pressure:fire] band=13 previous=none ratio=13% tokens=34k/272k session=<redacted-session-key>
+2026-08-10T01:00:01.000905-07:00 cael node[2927]: 2026-08-10T01:00:01.000-07:00 [agent/embedded] [session-writer] replacing claim session=<redacted-session-key> previousRunId=sha256:908c8573fe4d nextRunId=sha256:72dc19127a96 live=false
+2026-08-10T01:00:05.082178-07:00 cael node[2927]: 2026-08-10T01:00:05.082-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:00:05.082854-07:00 cael node[2927]: 2026-08-10T01:00:05.082-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:00:05.083577-07:00 cael node[2927]: 2026-08-10T01:00:05.083-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:00:05.084238-07:00 cael node[2927]: 2026-08-10T01:00:05.084-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

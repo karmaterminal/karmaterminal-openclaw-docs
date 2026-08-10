@@ -1,0 +1,641 @@
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "openclaw-k6-proofs"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {
+            "name": "openclaw-k6-proofs-exporter",
+            "version": "1"
+          },
+          "metrics": [
+            {
+              "name": "openclaw_proofs_k6_run_total",
+              "sum": {
+                "aggregationTemporality": 2,
+                "isMonotonic": true,
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-CD-MODEL-CHAINED-ALT"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "2e72b665229bac6c41388d10a6b979b86750211b"
+                        }
+                      },
+                      {
+                        "key": "scenario",
+                        "value": {
+                          "stringValue": "r-cd-model-chained-alt.js"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T075424Z-r-cd-model-chained-alt-34f430ee"
+                        }
+                      },
+                      {
+                        "key": "tool_surface",
+                        "value": {
+                          "stringValue": "typed-tool"
+                        }
+                      },
+                      {
+                        "key": "transport",
+                        "value": {
+                          "stringValue": "websocket"
+                        }
+                      },
+                      {
+                        "key": "outcome",
+                        "value": {
+                          "stringValue": "PASS-candidate"
+                        }
+                      },
+                      {
+                        "key": "candidate_only",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "fold_requires_review",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "failure_class",
+                        "value": {
+                          "stringValue": "none"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786348487219000000",
+                    "asInt": "1"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_proof_failures_total",
+              "sum": {
+                "aggregationTemporality": 2,
+                "isMonotonic": true,
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-CD-MODEL-CHAINED-ALT"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "2e72b665229bac6c41388d10a6b979b86750211b"
+                        }
+                      },
+                      {
+                        "key": "scenario",
+                        "value": {
+                          "stringValue": "r-cd-model-chained-alt.js"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T075424Z-r-cd-model-chained-alt-34f430ee"
+                        }
+                      },
+                      {
+                        "key": "failure_class",
+                        "value": {
+                          "stringValue": "none"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786348487219000000",
+                    "asInt": "0"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_candidate_pending_review",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-CD-MODEL-CHAINED-ALT"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "2e72b665229bac6c41388d10a6b979b86750211b"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T075424Z-r-cd-model-chained-alt-34f430ee"
+                        }
+                      },
+                      {
+                        "key": "outcome",
+                        "value": {
+                          "stringValue": "PASS-candidate"
+                        }
+                      },
+                      {
+                        "key": "fold_requires_review",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786348487219000000",
+                    "asInt": "1"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_duration_ms",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-CD-MODEL-CHAINED-ALT"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "2e72b665229bac6c41388d10a6b979b86750211b"
+                        }
+                      },
+                      {
+                        "key": "scenario",
+                        "value": {
+                          "stringValue": "r-cd-model-chained-alt.js"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T075424Z-r-cd-model-chained-alt-34f430ee"
+                        }
+                      },
+                      {
+                        "key": "outcome",
+                        "value": {
+                          "stringValue": "PASS-candidate"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786348487219000000",
+                    "asDouble": 19068
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_receipt_status",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-CD-MODEL-CHAINED-ALT"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "2e72b665229bac6c41388d10a6b979b86750211b"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T075424Z-r-cd-model-chained-alt-34f430ee"
+                        }
+                      },
+                      {
+                        "key": "receipt_name",
+                        "value": {
+                          "stringValue": "seat-readiness"
+                        }
+                      },
+                      {
+                        "key": "receipt_required",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "receipt_status",
+                        "value": {
+                          "stringValue": "present"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786348487219000000",
+                    "asInt": "1"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_receipt_status",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-CD-MODEL-CHAINED-ALT"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "2e72b665229bac6c41388d10a6b979b86750211b"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T075424Z-r-cd-model-chained-alt-34f430ee"
+                        }
+                      },
+                      {
+                        "key": "receipt_name",
+                        "value": {
+                          "stringValue": "dispatch-accepted"
+                        }
+                      },
+                      {
+                        "key": "receipt_required",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "receipt_status",
+                        "value": {
+                          "stringValue": "unknown"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786348487219000000",
+                    "asInt": "0"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_receipt_status",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-CD-MODEL-CHAINED-ALT"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "2e72b665229bac6c41388d10a6b979b86750211b"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T075424Z-r-cd-model-chained-alt-34f430ee"
+                        }
+                      },
+                      {
+                        "key": "receipt_name",
+                        "value": {
+                          "stringValue": "depth-1-child-observed"
+                        }
+                      },
+                      {
+                        "key": "receipt_required",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "receipt_status",
+                        "value": {
+                          "stringValue": "unknown"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786348487219000000",
+                    "asInt": "0"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_receipt_status",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-CD-MODEL-CHAINED-ALT"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "2e72b665229bac6c41388d10a6b979b86750211b"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T075424Z-r-cd-model-chained-alt-34f430ee"
+                        }
+                      },
+                      {
+                        "key": "receipt_name",
+                        "value": {
+                          "stringValue": "depth-1-scheduled-inner"
+                        }
+                      },
+                      {
+                        "key": "receipt_required",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "receipt_status",
+                        "value": {
+                          "stringValue": "unknown"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786348487219000000",
+                    "asInt": "0"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_receipt_status",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-CD-MODEL-CHAINED-ALT"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "2e72b665229bac6c41388d10a6b979b86750211b"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T075424Z-r-cd-model-chained-alt-34f430ee"
+                        }
+                      },
+                      {
+                        "key": "receipt_name",
+                        "value": {
+                          "stringValue": "depth-2-child-observed"
+                        }
+                      },
+                      {
+                        "key": "receipt_required",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "receipt_status",
+                        "value": {
+                          "stringValue": "unknown"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786348487219000000",
+                    "asInt": "0"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_receipt_status",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-CD-MODEL-CHAINED-ALT"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "2e72b665229bac6c41388d10a6b979b86750211b"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T075424Z-r-cd-model-chained-alt-34f430ee"
+                        }
+                      },
+                      {
+                        "key": "receipt_name",
+                        "value": {
+                          "stringValue": "depth-2-model-byte"
+                        }
+                      },
+                      {
+                        "key": "receipt_required",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "receipt_status",
+                        "value": {
+                          "stringValue": "unknown"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786348487219000000",
+                    "asInt": "0"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_receipt_status",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-CD-MODEL-CHAINED-ALT"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "cael"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "2e72b665229bac6c41388d10a6b979b86750211b"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T075424Z-r-cd-model-chained-alt-34f430ee"
+                        }
+                      },
+                      {
+                        "key": "receipt_name",
+                        "value": {
+                          "stringValue": "return-payload"
+                        }
+                      },
+                      {
+                        "key": "receipt_required",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "receipt_status",
+                        "value": {
+                          "stringValue": "unknown"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786348487219000000",
+                    "asInt": "0"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

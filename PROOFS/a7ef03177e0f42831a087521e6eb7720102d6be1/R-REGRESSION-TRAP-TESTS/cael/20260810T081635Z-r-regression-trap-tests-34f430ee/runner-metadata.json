@@ -1,0 +1,16 @@
+{
+  "row": "R-REGRESSION-TRAP-TESTS",
+  "scenario": "r-regression-trap-tests.js",
+  "candidateSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+  "runtimeBuildSha": "OpenClaw 2026.8.1 (2e72b66)",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-10T08:16:36Z",
+  "docsRef": "c53b4c28de291067bfd11e411ba2c25b35775f31",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260810T074758Z-c53b4c28de29-34f430ee",
+  "manifestPath": "tools/k6-proofs/manifests/r-regression-trap-tests.json",
+  "manifestSha256": "5c9577e54a2006354fab72703132cf5ca17a4b1901d28bc4196cd207cfbabf5d",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-regression-trap-tests.js",
+  "scenarioSha256": "14cfdb0ec302aecf389f1d2d914c7f281cd15d6f2382c6383ce22d4e79e867d6"
+}

@@ -1,0 +1,134 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-model-chained-alt.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 4m30s max duration (incl. graceful stop):
+              * r_cd_model_chained_alt: 1 iterations shared among 1 VUs (maxDuration: 4m0s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m01.0s/4m0s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m02.0s/4m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m03.0s/4m0s  0/1 shared iters
+time="2026-08-10T00:54:30-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-08-10T00:54:31-07:00" level=info msg="✓ sessions.send accepted — chained model parent turn triggered" source=console
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m04.0s/4m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m05.0s/4m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m06.0s/4m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m07.0s/4m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m08.0s/4m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m09.0s/4m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m10.0s/4m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m11.0s/4m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m12.0s/4m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m13.0s/4m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m14.0s/4m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m15.0s/4m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m16.0s/4m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m17.0s/4m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m18.0s/4m0s  0/1 shared iters
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m19.0s/4m0s  0/1 shared iters
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ depth-1 scheduled depth-2 sentinel observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="✓ depth-2 model return observed" source=console
+time="2026-08-10T00:54:46-07:00" level=info msg="All required R-CD-MODEL-CHAINED-ALT evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-MODEL-CHAINED-ALT","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"2e72b665229bac6c41388d10a6b979b86750211b","started":"2026-08-10T07:54:27.807Z","requested_model_byte":"gpt","dispatch_accepted":true,"dispatch_accepted_at_ms":1786348471756,"depth_1_child_observed":true,"depth_2_child_observed":true,"depth_1_scheduled_inner":true,"depth_2_model_byte":"gpt.","model_matches":true,"return_payload":true,"trace_id":null,"ended":"2026-08-10T07:54:46.875Z","duration_ms":19068}
+time="2026-08-10T00:54:46-07:00" level=info msg="\n[R-CD-MODEL-CHAINED-ALT] VERDICT: PASS-candidate" source=console
+
+[R-CD-MODEL-CHAINED-ALT] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+
+running (0m19.1s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_model_chained_alt ✓ [ 100% ] 1 VUs  0m19.1s/4m0s  1/1 shared iters

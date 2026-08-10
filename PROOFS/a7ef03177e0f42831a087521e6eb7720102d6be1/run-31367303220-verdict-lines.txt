@@ -1,0 +1,36 @@
+project81 k6 proof Run Project 81 proof suite 2026-08-10T07:49:00.2335983Z time="2026-08-10T00:48:55-07:00" level=info msg="\n[R-CD-1] VERDICT: PASS-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T07:49:00.2336614Z [R-CD-1] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T07:50:00.6274243Z time="2026-08-10T00:50:00-07:00" level=info msg="\n[R-CD-3] VERDICT: PASS-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T07:51:38.9885984Z time="2026-08-10T00:51:38-07:00" level=info msg="\n[R-CD-4] VERDICT: PARTIAL-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T07:51:38.9886643Z [R-CD-4] Summary: PARTIAL-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T07:54:16.2001545Z time="2026-08-10T00:54:15-07:00" level=info msg="\n[R-CD-CHAINED-DEPTH-2] VERDICT: PARTIAL-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T07:54:16.2002302Z [R-CD-CHAINED-DEPTH-2] Summary: PARTIAL-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T07:54:47.1422312Z time="2026-08-10T00:54:46-07:00" level=info msg="\n[R-CD-MODEL-CHAINED-ALT] VERDICT: PASS-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T07:54:47.1422717Z [R-CD-MODEL-CHAINED-ALT] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T07:55:22.0654424Z time="2026-08-10T00:55:21-07:00" level=info msg="\n[R-CD-MODEL-DEFAULT] VERDICT: PASS-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T07:55:22.0655158Z [R-CD-MODEL-DEFAULT] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T07:55:58.7650038Z time="2026-08-10T00:55:58-07:00" level=info msg="\n[R-CD-MODEL-TOKEN] VERDICT: PASS-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T07:55:58.7650790Z [R-CD-MODEL-TOKEN] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T07:59:06.1877168Z time="2026-08-10T00:59:05-07:00" level=info msg="\n[R-CD-MODEL-TOOL] VERDICT: PARTIAL-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T07:59:06.1877896Z [R-CD-MODEL-TOOL] Summary: PARTIAL-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:00:05.7552499Z time="2026-08-10T01:00:05-07:00" level=info msg="\n[R-CD-SILENT] VERDICT: PASS-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:00:05.7553271Z [R-CD-SILENT] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:00:17.6869901Z time="2026-08-10T01:00:17-07:00" level=info msg="\n[R-CONFIG-DEFAULTS] VERDICT: PASS-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:00:17.6870644Z [R-CONFIG-DEFAULTS] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:00:26.4499672Z time="2026-08-10T01:00:26-07:00" level=info msg="\n[R-CONFIG-INTERSESSION] VERDICT: PASS-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:00:26.4500507Z [R-CONFIG-INTERSESSION] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:03:54.7747534Z time="2026-08-10T01:00:53-07:00" level=info msg="\n[R-CW-1] VERDICT: PASS-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:03:54.7748163Z [R-CW-1] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:04:26.3784517Z time="2026-08-10T01:04:26-07:00" level=info msg="\n[R-CW-2] VERDICT: PASS-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:04:26.3785144Z [R-CW-2] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:07:54.1245631Z time="2026-08-10T01:04:53-07:00" level=info msg="\n[R-CW-3] VERDICT: PARTIAL-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:07:54.1245974Z [R-CW-3] Summary: PARTIAL-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:08:58.5812324Z time="2026-08-10T01:08:58-07:00" level=info msg="\n[R-CW-4] VERDICT: PASS-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:08:58.5812658Z [R-CW-4] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:09:32.3931136Z time="2026-08-10T01:09:32-07:00" level=info msg="\n[R-CW-DELEGATE-SELF-CONTINUATION] VERDICT: PASS-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:09:32.3931994Z [R-CW-DELEGATE-SELF-CONTINUATION] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:10:27.4289117Z time="2026-08-10T01:10:27-07:00" level=info msg="\n[R-CW-TOKEN] VERDICT: PASS-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:10:27.4289870Z [R-CW-TOKEN] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:11:23.8493622Z time="2026-08-10T01:11:23-07:00" level=info msg="\n[R-RC-1] VERDICT: PASS-candidate" source=console
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:11:23.8494253Z [R-RC-1] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+project81 k6 proof Run Project 81 proof suite 2026-08-10T08:16:32.9276279Z time="2026-08-10T01:13:30-07:00" level=info msg="\n[R-RC-2] VERDICT: PARTIAL-candidate" source=console

@@ -1,0 +1,16 @@
+{
+  "row": "R-CW-3",
+  "scenario": "r-cw-3-reason-telemetry.js",
+  "candidateSha": "2e72b665229bac6c41388d10a6b979b86750211b",
+  "runtimeBuildSha": "OpenClaw 2026.8.1 (2e72b66)",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-10T08:04:29Z",
+  "docsRef": "c53b4c28de291067bfd11e411ba2c25b35775f31",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260810T074758Z-c53b4c28de29-34f430ee",
+  "manifestPath": "tools/k6-proofs/manifests/r-cw-3.json",
+  "manifestSha256": "55857909cb34dfacbd2188f7301431416f2deab56b58d288fdcf3807a96592b0",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-cw-3-reason-telemetry.js",
+  "scenarioSha256": "825e4d1afdb39ce03312e64006cce47cad58ed9abbf306a93b51c5a80aeac788"
+}

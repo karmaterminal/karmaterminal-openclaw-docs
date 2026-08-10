@@ -1,0 +1,21 @@
+2026-08-10T01:04:00.411095-07:00 cael node[2927]: 2026-08-10T01:04:00.410-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:04:00.411769-07:00 cael node[2927]: 2026-08-10T01:04:00.411-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:04:00.412447-07:00 cael node[2927]: 2026-08-10T01:04:00.412-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:04:00.413077-07:00 cael node[2927]: 2026-08-10T01:04:00.413-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:04:06.768566-07:00 cael node[2927]: 2026-08-10T01:04:06.768-07:00 [ws] ⇄ res ✓ sessions.send 341ms runId=R-CW-2-DISPATCH-<redacted-nonce> conn=8c738153…8703 id=1-0-1786349046426-8zyhlz
+2026-08-10T01:04:08.981823-07:00 cael node[2927]: 2026-08-10T01:04:08.981-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:04:08.982462-07:00 cael node[2927]: 2026-08-10T01:04:08.982-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:04:08.983264-07:00 cael node[2927]: 2026-08-10T01:04:08.983-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:04:08.983917-07:00 cael node[2927]: 2026-08-10T01:04:08.983-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:04:17.583160-07:00 cael node[2927]: 2026-08-10T01:04:17.583-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:04:17.583910-07:00 cael node[2927]: 2026-08-10T01:04:17.583-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:04:17.584609-07:00 cael node[2927]: 2026-08-10T01:04:17.584-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:04:17.585267-07:00 cael node[2927]: 2026-08-10T01:04:17.585-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:04:25.774758-07:00 cael node[2927]: 2026-08-10T01:04:25.774-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:04:25.775403-07:00 cael node[2927]: 2026-08-10T01:04:25.775-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:04:25.776084-07:00 cael node[2927]: 2026-08-10T01:04:25.776-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:04:25.776710-07:00 cael node[2927]: 2026-08-10T01:04:25.776-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:04:26.179214-07:00 cael node[2927]: 2026-08-10T01:04:26.179-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:04:26.179897-07:00 cael node[2927]: 2026-08-10T01:04:26.179-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-08-10T01:04:26.180547-07:00 cael node[2927]: 2026-08-10T01:04:26.180-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:04:26.181167-07:00 cael node[2927]: 2026-08-10T01:04:26.181-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

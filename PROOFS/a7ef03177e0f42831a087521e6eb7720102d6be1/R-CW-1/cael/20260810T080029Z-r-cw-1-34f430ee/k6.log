@@ -1,0 +1,91 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-1-tool-schedule-wake.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m30s max duration (incl. graceful stop):
+              * r_cw_1_tool_schedule_wake: 1 iterations shared among 1 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m01.0s/2m0s  0/1 shared iters
+time="2026-08-10T01:00:33-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m02.0s/2m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m03.0s/2m0s  0/1 shared iters
+time="2026-08-10T01:00:35-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered (will call continue_work)" source=console
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m04.0s/2m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m05.0s/2m0s  0/1 shared iters
+time="2026-08-10T01:00:37-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m06.0s/2m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m07.0s/2m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m08.0s/2m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m09.0s/2m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m10.0s/2m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m11.0s/2m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m12.0s/2m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m13.0s/2m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m14.0s/2m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m15.0s/2m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m16.0s/2m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m17.0s/2m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m18.0s/2m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m19.0s/2m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m20.0s/2m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake   [   0% ] 1 VUs  0m21.0s/2m0s  0/1 shared iters
+time="2026-08-10T01:00:53-07:00" level=info msg="✓ CW-SCHEDULED sentinel observed: agent" source=console
+time="2026-08-10T01:00:53-07:00" level=info msg="✓ CW-WOKE sentinel observed: session.message (20ms after scheduled)" source=console
+time="2026-08-10T01:00:53-07:00" level=info msg="All required R-CW-1 evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CW-1","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"2e72b665229bac6c41388d10a6b979b86750211b","started":"2026-08-10T08:00:32.163Z","tool_invoke_accepted":true,"continue_work_tool_result_scheduled":true,"work_woke_event":true,"dispatch_accepted_at_ms":1786348835613,"scheduled_result_at_ms":1786348853373,"wake_delay_ms":20,"reason_hash":"42ce8aa4d8f45556","reason_length":121,"trace_id":null,"ended":"2026-08-10T08:00:53.393Z","duration_ms":21230}
+time="2026-08-10T01:00:53-07:00" level=info msg="\n[R-CW-1] VERDICT: PASS-candidate" source=console
+
+[R-CW-1] Summary: PASS-candidate | SHA: 2e72b665229bac6c41388d10a6b979b86750211b | Seat: cael
+
+running (0m21.2s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_1_tool_schedule_wake ✓ [ 100% ] 1 VUs  0m21.2s/2m0s  1/1 shared iters

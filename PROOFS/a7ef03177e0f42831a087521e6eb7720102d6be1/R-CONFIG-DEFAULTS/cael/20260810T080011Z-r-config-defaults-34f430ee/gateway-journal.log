@@ -1,0 +1,4 @@
+2026-08-10T01:00:12.834198-07:00 cael node[2927]: 2026-08-10T01:00:12.834-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:00:12.834838-07:00 cael node[2927]: 2026-08-10T01:00:12.834-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:00:12.835552-07:00 cael node[2927]: 2026-08-10T01:00:12.835-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:00:12.836215-07:00 cael node[2927]: 2026-08-10T01:00:12.836-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

@@ -1,0 +1,20 @@
+2026-08-10T01:11:31.937352-07:00 cael node[2927]: 2026-08-10T01:11:31.937-07:00 [ws] ⇄ res ✓ sessions.send 520ms runId=R-RC-2-<redacted-nonce> conn=f22b60a6…4a6d id=1-0-1786349491414-llbo01
+2026-08-10T01:11:36.324158-07:00 cael node[2927]: 2026-08-10T01:11:36.323-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-08-10T01:11:48.166264-07:00 cael node[2927]: 2026-08-10T01:11:48.166-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:11:48.166831-07:00 cael node[2927]: 2026-08-10T01:11:48.166-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:11:48.167520-07:00 cael node[2927]: 2026-08-10T01:11:48.167-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:11:48.168185-07:00 cael node[2927]: 2026-08-10T01:11:48.168-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:11:48.177751-07:00 cael node[2927]: 2026-08-10T01:11:48.177-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-08-10T01:11:49.529264-07:00 cael node[2927]: 2026-08-10T01:11:49.529-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=<redacted-session-key> task=<redacted-payload>
+2026-08-10T01:11:50.795106-07:00 cael node[2927]: 2026-08-10T01:11:50.795-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-10T01:11:50.821327-07:00 cael node[2927]: 2026-08-10T01:11:50.821-07:00 [agents/tool-policy] tool policy removed 4 tool(s) via subagent tools.deny: agents_list, message, session_status, sessions_send; matched agents_list, message, session_status, sessions_send
+2026-08-10T01:11:58.753013-07:00 cael node[2927]: 2026-08-10T01:11:58.752-07:00 [discord] ingress: Channel ingress claim→adoption stalled for event 1536278749018984479 on lane channel:1466192485440164011 after 300000ms; marking failed (handler-timeout).
+2026-08-10T01:12:01.276256-07:00 cael node[2927]: 2026-08-10T01:12:01.276-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:12:01.277936-07:00 cael node[2927]: 2026-08-10T01:12:01.277-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:12:01.615519-07:00 cael node[2927]: 2026-08-10T01:12:01.614-07:00 REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD <redacted-nonce> CONTEXT unknown THRESHOLD 70%
+2026-08-10T01:12:01.616304-07:00 cael node[2927]: 2026-08-10T01:12:01.616-07:00 [agents/agent-command] [agent] run continuation-delegate-37906edb482a0acab04d6fcb70593fb4 ended with stopReason=stop
+2026-08-10T01:12:04.054411-07:00 cael node[2927]: 2026-08-10T01:12:04.054-07:00 [agent/embedded] [session-writer] replacing claim session=<redacted-session-key> previousRunId=sha256:f085b5eff4b0 nextRunId=sha256:462ba776c9cf live=false
+2026-08-10T01:12:11.488321-07:00 cael node[2927]: 2026-08-10T01:12:11.488-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T01:12:11.489021-07:00 cael node[2927]: 2026-08-10T01:12:11.488-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T01:12:11.609891-07:00 cael node[2927]: 2026-08-10T01:12:11.608-07:00 REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD <redacted-nonce> CONTEXT unknown THRESHOLD 70%
+2026-08-10T01:12:11.610680-07:00 cael node[2927]: 2026-08-10T01:12:11.610-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key> ended with stopReason=stop

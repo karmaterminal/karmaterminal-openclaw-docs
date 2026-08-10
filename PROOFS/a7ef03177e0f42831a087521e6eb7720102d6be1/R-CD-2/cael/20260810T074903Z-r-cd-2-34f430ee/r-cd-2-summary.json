@@ -1,0 +1,32 @@
+{
+  "row": "R-CD-2",
+  "sha": "2e72b665229bac6c41388d10a6b979b86750211b",
+  "seat": "cael",
+  "timestamp": "2026-08-10T07:49:33.925Z",
+  "verdict": "PARTIAL-candidate",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "resolved-after-run"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "r-cd-2-authoritative-receipt"
+    ],
+    "notes": [
+      "The runner owns final R-CD-2 candidate disposition from its validated row-scoped receipt."
+    ]
+  },
+  "metrics": {
+    "duration_ms": {
+      "avg": 27929,
+      "min": 27929,
+      "med": 27929,
+      "max": 27929,
+      "p(90)": 27929,
+      "p(95)": 27929
+    },
+    "failures": 0
+  }
+}

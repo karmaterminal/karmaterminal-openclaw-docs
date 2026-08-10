@@ -1,0 +1,16 @@
+{
+  "row": "R-CW-7",
+  "sha": "2e72b665229bac6c41388d10a6b979b86750211b",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "failures": 0,
+    "duration_ms": {
+      "p(95)": 0,
+      "avg": 0,
+      "min": 0,
+      "med": 0,
+      "max": 0,
+      "p(90)": 0
+    }
+  }
+}

@@ -3,6 +3,8 @@
  "purpose": "Top-level signpost for the current proof corpus.",
  "current_sha": "c868194997d0a61de2e648580afdf40e0d0b34b9",
  "current_sha_short": "c868194",
+ "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+ "static_evidence_note": "Static-corpus scenarios (static-corpus-row-validator.js and the four row-specific readers) load PRIOR evidence as a comparison baseline via `index.static_evidence_sha || index.current_sha`. current_sha (c868194) holds live run artefacts only and carries no EVIDENCE.md, so every static-corpus row resolved a non-existent path and reported all checks false - 13 rows failed (9 x exit 99 threshold, 4 x exit 107 open() abort) for that single reason, not for product regressions. This pin names the last corpus that actually carries the static baseline in the layout the scenarios read (<row>/cael-dgx/ plus its ancillary receipts: test logs, source snippets, hop1/hop2, verifier and tempo receipts - all verified present for all 13 rows). Baseline only: it never supplies candidate verdicts, and each row's evidence records `carriedFrom` so the provenance is explicit in the published artefact rather than implied.",
  "build_string": "OpenClaw exact candidate (c868194) \u2014 continuation PR-presentation head for openclaw/openclaw#85651",
  "corpus_path": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/",
  "manifest_path": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/proofs-manifest.json",

@@ -1,0 +1,13 @@
+# TYPE openclaw_proofs_k6_run_total counter
+openclaw_proofs_k6_run_total{row_id="R-CD-3",seat="cael",candidate_sha="a7ef03177e0f42831a087521e6eb7720102d6be1",scenario="r-cd-3-post-compaction.js",run_id="20260810T135042Z-r-cd-3-738429c4",tool_surface="typed-tool",transport="websocket",outcome="PASS-candidate",candidate_only="true",fold_requires_review="true",failure_class="none"} 1
+# TYPE openclaw_proofs_k6_proof_failures_total counter
+openclaw_proofs_k6_proof_failures_total{row_id="R-CD-3",seat="cael",candidate_sha="a7ef03177e0f42831a087521e6eb7720102d6be1",scenario="r-cd-3-post-compaction.js",run_id="20260810T135042Z-r-cd-3-738429c4",failure_class="none"} 0
+# TYPE openclaw_proofs_k6_candidate_pending_review gauge
+openclaw_proofs_k6_candidate_pending_review{row_id="R-CD-3",seat="cael",candidate_sha="a7ef03177e0f42831a087521e6eb7720102d6be1",run_id="20260810T135042Z-r-cd-3-738429c4",outcome="PASS-candidate",fold_requires_review="true"} 1
+# TYPE openclaw_proofs_k6_duration_ms gauge
+openclaw_proofs_k6_duration_ms{row_id="R-CD-3",seat="cael",candidate_sha="a7ef03177e0f42831a087521e6eb7720102d6be1",scenario="r-cd-3-post-compaction.js",run_id="20260810T135042Z-r-cd-3-738429c4",outcome="PASS-candidate"} 19302
+# TYPE openclaw_proofs_k6_receipt_status gauge
+openclaw_proofs_k6_receipt_status{row_id="R-CD-3",seat="cael",candidate_sha="a7ef03177e0f42831a087521e6eb7720102d6be1",run_id="20260810T135042Z-r-cd-3-738429c4",receipt_name="dispatch-accepted",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-3",seat="cael",candidate_sha="a7ef03177e0f42831a087521e6eb7720102d6be1",run_id="20260810T135042Z-r-cd-3-738429c4",receipt_name="delegate-staging-requested",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-3",seat="cael",candidate_sha="a7ef03177e0f42831a087521e6eb7720102d6be1",run_id="20260810T135042Z-r-cd-3-738429c4",receipt_name="compaction-requested",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-3",seat="cael",candidate_sha="a7ef03177e0f42831a087521e6eb7720102d6be1",run_id="20260810T135042Z-r-cd-3-738429c4",receipt_name="threshold-refusal-or-lifeboat",receipt_required="true",receipt_status="unknown"} 0

@@ -22,26 +22,26 @@
   "excluded_orchestration_required": 4,
   "total_rows": 38
  },
- "disposition_note": "Published under the presentation SHA a7ef03177e0f42831a087521e6eb7720102d6be1 because that is the upstream PR-presentation branch tip verified before packaging. The runtime executed on cael was the composite 2e72b665229bac6c41388d10a6b979b86750211b (continuation c868194997d0a61de2e648580afdf40e0d0b34b9 plus Emeric PR #121204 fix 6f276fa24da8174cd97a029ce9e47f2141032c8a); Emeric's fix is not yet merged upstream and must not be conflated with the continuation feature, so the composite runtime SHA is recorded as ancillary provenance rather than used as the publication directory. The copied run produced 34 artifact directories: 33 proof rows plus PREFLIGHT. The broader denominator remains 38; R-CW-5/R-CW-5A/R-CW-6/R-CW-6A are orchestration-required and excluded by design, not dropped. Proof-row verdicts are 26 PASS-candidate, 7 PARTIAL-candidate, and 0 FAIL-candidate; PREFLIGHT is unclassified. Remaining honest limits: R-CD-2, R-CD-4, R-CD-CHAINED-DEPTH-2, R-CD-MODEL-TOOL, R-CD-TOKEN, R-CW-3, and R-RC-2 remain PARTIAL; R-CW-1 is PASS-candidate but review-pending for trace/Tempo receipts. All rows remain candidateOnly/foldRequiresReview where the source artifacts record those flags.",
+ "disposition_note": "Published under the presentation SHA a7ef03177e0f42831a087521e6eb7720102d6be1 because that is the upstream PR-presentation branch tip verified before packaging. The runtime executed on cael was the composite 2e72b665229bac6c41388d10a6b979b86750211b (continuation c868194997d0a61de2e648580afdf40e0d0b34b9 plus Emeric PR #121204 fix 6f276fa24da8174cd97a029ce9e47f2141032c8a); Emeric's fix is not yet merged upstream and must not be conflated with the continuation feature, so the composite runtime SHA is recorded as ancillary provenance rather than used as the publication directory. Two runs are merged: 31367303220 (initial) and 31394791476 (re-run after OTel exporter corrected from 2026.7.1\u21922026.8.1; exited 99 due to 3 PARTIAL rows but all artifacts written). The corpus now contains 34 artifact directories x2 run instances (33 proof rows + PREFLIGHT). Row count remains 33/38; R-CW-5/R-CW-5A/R-CW-6/R-CW-6A excluded by design. Proof-row verdicts: 26 PASS-candidate, 7 PARTIAL-candidate, 0 FAIL-candidate; PREFLIGHT unclassified. R-CW-1 trace receipts closed by run 31394791476. Remaining pending receipts: 14 (3 continuation-trace-correlation, 3 tempo-trace-json on R-CD-TOKEN/R-CW-3/R-RC-2; plus 8 delegate-return receipts on R-CD-TOKEN). All rows executed on seat cael; per-owner execution blocked because the workflow passes one shared OPENCLAW_GATEWAY_TOKEN while each prince's gateway has its own token.",
  "navigation": "read INDEX.json -> current_sha -> manifest_path -> rows[]; per-row public evidence is at <row>/cael-dgx/EVIDENCE.md except R-TRACE-REDACTION-1121/EVIDENCE.md",
  "generated": "2026-08-10",
- "generated_by": "Copilot CLI from project81-k6-proof run 31367303220 (cael); workflow not re-run",
+ "generated_by": "Copilot CLI merge of runs 31367303220 + 31394791476; R-CW-1 trace receipts closed by run 31394791476 (OTel exporter fixed)",
  "review": {
-  "readyForHumanReview": 30,
-  "reviewPending": 4,
+  "readyForHumanReview": 31,
+  "reviewPending": 3,
   "validatedCandidateEnvelopes": 26,
   "pendingReceiptTally": {
    "attempt-state": 1,
    "child-completed": 1,
    "child-spawned": 1,
-   "continuation-trace-correlation": 4,
+   "continuation-trace-correlation": 3,
    "exact-candidate-runtime-identity": 1,
    "parent-return-event": 1,
    "parser-detected": 1,
    "queue-identity": 1,
    "raw-final-text-origin": 1,
-   "tempo-trace-json": 4
+   "tempo-trace-json": 3
   }
  },
- "generated_at": "2026-08-10T08:39:44Z"
+ "generated_at": "2026-08-10T15:11:00Z"
 }

@@ -1,0 +1,108 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "issue": 140,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "mutates": false,
+  "timeoutSeconds": 180,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "rowId": "R-CD-MODEL-TOKEN",
+  "toolSurface": "bracket-token",
+  "scenario": {
+    "name": "r-cd-model-token",
+    "description": "continue_delegate bracket/token form parses and forwards model=<provider/model> to the delegate child.",
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe"
+    ],
+    "status": "runnable",
+    "notes": "Requires a seat/session surface where final bracket text is scanned; message-body seats remain PARTIAL by declared seat class.",
+    "file": "r-cd-model-token.js",
+    "registryNotes": "Runnable local conversion: lightContext subagent emits terminal [[CONTINUE_DELEGATE: ... | model=<alias>]] bracket; delegated child returns nonce and requested model byte."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "forms": [
+      "bracket-token-model-override"
+    ],
+    "model": "${OPENCLAW_ALT_MODEL:-gpt}",
+    "tokenTemplate": "[[CONTINUE_DELEGATE: Proof nonce {{nonce}}: report observed provider/model and nonce only. Do not mutate files. | silent-wake | model=${OPENCLAW_ALT_MODEL:-gpt}]]",
+    "idempotencyKeyPrefix": "R-CD-MODEL-TOKEN",
+    "delaySeconds": 1,
+    "taskNamePrefix": "r-cd-model-token"
+  },
+  "expectedReceipts": [
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the parent request that asks the agent to call continue_delegate for this model row"
+    },
+    {
+      "name": "child-session-observed",
+      "required": true,
+      "description": "A nonce-correlated delegate child session/run is observed on the subscribed session stream or session history"
+    },
+    {
+      "name": "child-model-byte",
+      "required": true,
+      "description": "Observed child runtime model/provider byte from status/session metadata or child self-report backed by session metadata"
+    },
+    {
+      "name": "return-payload",
+      "required": true,
+      "description": "Delegate return includes the row nonce and observed model/provider summary"
+    },
+    {
+      "name": "trace-or-session-correlation",
+      "required": false,
+      "description": "Trace id, span tree, or session-event correlation tying dispatch to child and return"
+    },
+    {
+      "name": "bracket-parse-origin",
+      "required": true,
+      "description": "Journal/session evidence that the delegate originated from bracket-token parsing with model modifier present"
+    },
+    {
+      "name": "bracket-model-modifier",
+      "required": true,
+      "description": "Observed terminal bracket included model=<requested> modifier before scan/strip"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-MODEL-TOKEN",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "PASS-candidate only when bracket parse origin, requested model, and observed child model all match. Declare seat-class before firing; do not retro-justify scanner suppression."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "dispatch-accepted",
+      "bracket-parse-origin",
+      "bracket-model-modifier",
+      "child-session-observed",
+      "child-model-byte",
+      "return-payload"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Bracket-token model override row. Use lightContext subagent/raw final text so scanner sees terminal bracket; message-body surfaces remain PARTIAL. PASS requires bracket origin + model modifier + delegate return with requested model byte."
+  }
+}

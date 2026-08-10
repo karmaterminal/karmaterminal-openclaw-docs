@@ -105,3 +105,14 @@ Raw run directory file count: `22`.
 
 `tools/k6-proofs/scripts/evidence-writer.mjs` was read before this file was generated. It expects a k6 console-output input and writes `PROOFS/<sha>/<row>/<seat>/k6-run-<timestamp>/EVIDENCE.md`; this corpus must publish already-produced row artifacts and place canonical evidence at `<row>/cael-dgx/EVIDENCE.md` (or row-root for `R-TRACE-REDACTION-1121`). Therefore this file was generated directly from the real copied artifacts above rather than by rewriting the run into a new `k6-run-*` directory.
 
+
+## Trace receipts closed (run 31394791476)
+
+The OTel exporter was corrected from 2026.7.1 → 2026.8.1 at ~13:47Z on 2026-08-10. Run 31394791476 is the first with a working exporter for this row. Trace artifacts are now present:
+
+| Receipt | File | Source run dir |
+|---|---|---|
+| `continuation-trace-correlation` | `continuation-trace-correlation.json` | `../cael/20260810T140116Z-r-cw-1-738429c4/` |
+| `tempo-trace-json` | `tempo-trace-1b9598ca68d1.json` | `../cael/20260810T140116Z-r-cw-1-738429c4/` |
+
+Review status upgraded from `review-pending` → `ready-for-human-review`. Pending receipts for this row: **none**.

@@ -1,0 +1,23 @@
+{
+  "row": "R-CD-MODEL-TOOL",
+  "sha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+  "seat": "cael",
+  "timestamp": "2026-08-10T14:00:07.245Z",
+  "verdict": "PARTIAL-candidate",
+  "requestedModel": null,
+  "observedModel": null,
+  "observedModelSource": null,
+  "auxiliarySelfReport": null,
+  "classificationReason": null,
+  "metrics": {
+    "duration_ms": {
+      "p(90)": 181881,
+      "p(95)": 181881,
+      "avg": 181881,
+      "min": 181881,
+      "med": 181881,
+      "max": 181881
+    },
+    "failures": 1
+  }
+}

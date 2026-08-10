@@ -1,0 +1,6 @@
+2026-08-10T07:01:21.356789-07:00 cael node[973186]: 2026-08-10T07:01:21.356-07:00 [ws] ⇄ res ✓ sessions.send 461ms runId=R-CW-1-<redacted-nonce> conn=1107f272…4f51 id=1-0-1786370480893-l4r8jd
+2026-08-10T07:01:29.463646-07:00 cael node[973186]: 2026-08-10T07:01:29.462-07:00 [warn] Subagent completion direct announce failed for run continuation-delegate-41f9203f054567c5dd9fffb137e63d2c: completion agent did not produce a visible reply
+2026-08-10T07:01:37.966984-07:00 cael node[973186]: 2026-08-10T07:01:37.966-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T07:01:37.967595-07:00 cael node[973186]: 2026-08-10T07:01:37.967-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-08-10T07:01:37.968259-07:00 cael node[973186]: 2026-08-10T07:01:37.968-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T07:01:37.968887-07:00 cael node[973186]: 2026-08-10T07:01:37.968-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

@@ -1,0 +1,16 @@
+{
+  "row": "R-CONFIG-INTERSESSION",
+  "scenario": "r-config-intersession.js",
+  "candidateSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+  "runtimeBuildSha": "OpenClaw 2026.8.1 (2e72b66)",
+  "seat": "cael",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-10T14:01:10Z",
+  "docsRef": "a36bb42e83a15b2708632255bccaf46d6a546f90",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260810T134902Z-a36bb42e83a1-738429c4",
+  "manifestPath": "tools/k6-proofs/manifests/r-config-intersession.json",
+  "manifestSha256": "3465c20187d5c8a72317e2107e59c4d808ce92ef32e3cb01477c6fbdb85c67c5",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-config-intersession.js",
+  "scenarioSha256": "4ffbae9d40ce25ed44ef68bc1434b004a047de58d1fe62097cc9232901215a6c"
+}

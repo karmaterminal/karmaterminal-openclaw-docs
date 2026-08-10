@@ -9,15 +9,33 @@
   },
   "provenanceNote": "The runtime executed was the composite (continuation + PR #121204 content), because Emeric's fix is not yet merged upstream and must not be conflated with the continuation feature; the composite runtime SHA is recorded alongside the presentation SHA.",
   "sourceRun": {
-    "id": "31367303220",
-    "workflow": "project81-k6-proof.yml",
-    "seat": "cael",
-    "artifactPathOnCael": "/home/figs/actions-runner/_work/karmaterminal-openclaw-docs/karmaterminal-openclaw-docs/project81-k6-proof-artifacts/2e72b665229bac6c41388d10a6b979b86750211b/"
+    "runs": [
+      {
+        "id": "31367303220",
+        "workflow": "project81-k6-proof.yml",
+        "seat": "cael",
+        "artifactPathOnCael": "/home/figs/actions-runner/_work/karmaterminal-openclaw-docs/karmaterminal-openclaw-docs/project81-k6-proof-artifacts/2e72b665229bac6c41388d10a6b979b86750211b/",
+        "note": "Initial run; OTel exporter pinned at stale 2026.7.1"
+      },
+      {
+        "id": "31394791476",
+        "workflow": "project81-k6-proof.yml",
+        "seat": "cael",
+        "artifactPathOnCael": "/home/figs/actions-runner/_work/karmaterminal-openclaw-docs/karmaterminal-openclaw-docs/project81-k6-proof-artifacts/a7ef03177e0f42831a087521e6eb7720102d6be1/",
+        "note": "Re-run after OTel exporter fixed to 2026.8.1; exited 99 (3 PARTIAL rows: R-CD-4, R-CD-CHAINED-DEPTH-2, R-CD-MODEL-TOOL) but all artifacts written; publish steps skipped",
+        "exitCode": 99,
+        "partialRows": [
+          "R-CD-4",
+          "R-CD-CHAINED-DEPTH-2",
+          "R-CD-MODEL-TOOL"
+        ]
+      }
+    ]
   },
   "seat": "cael",
   "canonicalSeatPath": "cael-dgx",
-  "generatedAt": "2026-08-10T08:39:44Z",
-  "generatedBy": "Copilot CLI from copied project81-k6-proof run artifacts; proof workflow was not re-run",
+  "generatedAt": "2026-08-10T15:11:00Z",
+  "generatedBy": "Copilot CLI merge of runs 31367303220 + 31394791476; R-CW-1 trace receipts closed",
   "runnableRows": 34,
   "proofRowsRun": 33,
   "totalCorpusRows": 38,
@@ -37,20 +55,20 @@
     "PASS-candidate": 26
   },
   "reviewRollup": {
-    "ready-for-human-review": 30,
-    "review-pending": 4
+    "ready-for-human-review": 31,
+    "review-pending": 3
   },
   "pendingReceiptTally": {
     "attempt-state": 1,
     "child-completed": 1,
     "child-spawned": 1,
-    "continuation-trace-correlation": 4,
+    "continuation-trace-correlation": 3,
     "exact-candidate-runtime-identity": 1,
     "parent-return-event": 1,
     "parser-detected": 1,
     "queue-identity": 1,
     "raw-final-text-origin": 1,
-    "tempo-trace-json": 4
+    "tempo-trace-json": 3
   },
   "reviewEnvelopes": 26,
   "rows": {
@@ -524,11 +542,8 @@
       "verdict": "PASS-candidate",
       "verdictSource": "vu-log",
       "effectiveExitCode": 0,
-      "reviewStatus": "review-pending",
-      "pendingReceipts": [
-        "continuation-trace-correlation",
-        "tempo-trace-json"
-      ],
+      "reviewStatus": "ready-for-human-review",
+      "pendingReceipts": [],
       "reviewEnvelope": false,
       "observability": {
         "traceStatus": "missing",
@@ -542,6 +557,11 @@
         "status": "runnable",
         "manifestPath": null,
         "scenarioPath": null
+      },
+      "traceArtifacts": {
+        "continuationTraceCorrelation": "../cael/20260810T140116Z-r-cw-1-738429c4/continuation-trace-correlation.json",
+        "tempoTraceJson": "../cael/20260810T140116Z-r-cw-1-738429c4/tempo-trace-1b9598ca68d1.json",
+        "closedBy": "run-31394791476"
       }
     },
     "R-CW-2": {

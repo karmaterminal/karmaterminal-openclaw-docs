@@ -1,0 +1,16 @@
+{
+  "row": "R-TRACE-REDACTION-1121",
+  "sha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "failures": 0,
+    "duration_ms": {
+      "avg": 0,
+      "min": 0,
+      "med": 0,
+      "max": 0,
+      "p(90)": 0,
+      "p(95)": 0
+    }
+  }
+}

@@ -1,0 +1,20 @@
+2026-08-10T06:49:19.999950-07:00 cael node[973186]: 2026-08-10T06:49:19.999-07:00 [ws] ⇄ res ✓ sessions.send 464ms runId=R-CD-1-DISPATCH-<redacted-nonce> conn=69960e35…b6a3 id=1-0-1786369759505-zp2gjh
+2026-08-10T06:49:25.547732-07:00 cael node[973186]: 2026-08-10T06:49:25.547-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T06:49:25.548446-07:00 cael node[973186]: 2026-08-10T06:49:25.548-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T06:49:25.549285-07:00 cael node[973186]: 2026-08-10T06:49:25.549-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T06:49:25.549922-07:00 cael node[973186]: 2026-08-10T06:49:25.549-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T06:49:40.897352-07:00 cael node[973186]: 2026-08-10T06:49:40.896-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T06:49:40.899096-07:00 cael node[973186]: 2026-08-10T06:49:40.898-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T06:49:40.899749-07:00 cael node[973186]: 2026-08-10T06:49:40.899-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T06:49:40.900416-07:00 cael node[973186]: 2026-08-10T06:49:40.900-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T06:49:40.932783-07:00 cael node[973186]: 2026-08-10T06:49:40.932-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=2802ms fireAt=1786369783733 session=<redacted-session-key>
+2026-08-10T06:49:43.735855-07:00 cael node[973186]: 2026-08-10T06:49:43.735-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-fired] session=<redacted-session-key>
+2026-08-10T06:49:43.738212-07:00 cael node[973186]: 2026-08-10T06:49:43.738-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-08-10T06:49:45.037166-07:00 cael node[973186]: 2026-08-10T06:49:45.036-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=<redacted-session-key> task=<redacted-payload>
+2026-08-10T06:49:46.305174-07:00 cael node[973186]: 2026-08-10T06:49:46.305-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-10T06:49:46.331949-07:00 cael node[973186]: 2026-08-10T06:49:46.331-07:00 [agents/tool-policy] tool policy removed 4 tool(s) via subagent tools.deny: agents_list, message, session_status, sessions_send; matched agents_list, message, session_status, sessions_send
+2026-08-10T06:49:49.690718-07:00 cael node[973186]: 2026-08-10T06:49:49.690-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T06:49:49.691444-07:00 cael node[973186]: 2026-08-10T06:49:49.691-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T06:49:50.058292-07:00 cael node[973186]: 2026-08-10T06:49:50.057-07:00 CD1-DONE <redacted-nonce>
+2026-08-10T06:49:50.059200-07:00 cael node[973186]: 2026-08-10T06:49:50.059-07:00 [agents/agent-command] [agent] run continuation-delegate-252eaef0dc7b1cf2ed209903c783a214 ended with stopReason=stop
+2026-08-10T06:49:52.419303-07:00 cael node[973186]: 2026-08-10T06:49:52.419-07:00 [agent/embedded] [session-writer] replacing claim session=<redacted-session-key> previousRunId=sha256:1820c13dd30a nextRunId=sha256:e4619fb53bfc live=false

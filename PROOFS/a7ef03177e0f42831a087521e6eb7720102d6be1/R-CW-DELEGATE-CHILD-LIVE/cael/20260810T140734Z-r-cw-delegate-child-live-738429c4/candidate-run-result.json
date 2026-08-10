@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+    "docsRef": "a36bb42e83a15b2708632255bccaf46d6a546f90"
+  },
+  "harness": {
+    "docsRef": "a36bb42e83a15b2708632255bccaf46d6a546f90",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cw-delegate-child-live.json",
+    "manifestSha256": "d5f509007c2e7eca6395076f541af010bbf1b41d17b5472ba9c39db73463547d",
+    "scenarioPath": "tools/k6-proofs/scenarios/static-corpus-row-validator.js",
+    "scenarioSha256": "97cd063c7c90ccb73d222dbe02c6a7ebc775951e12b7813702ffb66f33b3cc48",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20260810T140734Z-r-cw-delegate-child-live-738429c4",
+    "rowId": "R-CW-DELEGATE-CHILD-LIVE",
+    "seat": "cael",
+    "scenario": "static-corpus-row-validator",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "summary-file",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "unknown",
+    "traceCaptured": false,
+    "correlationReceiptPresent": false
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json",
+      "static-corpus-row-summary.json"
+    ],
+    "tempoTraceJson": null,
+    "correlationReceipt": null
+  }
+}

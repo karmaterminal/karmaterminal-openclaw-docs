@@ -1,0 +1,1 @@
+2026-08-10T07:15:12.658330-07:00 cael node[973186]: 2026-08-10T07:15:12.658-07:00 [agent/embedded] empty response detected: runId=c1a1d672-372d-4e07-91b8-3f665e3d3705 sessionId=26241013-c003-4eec-922e-d1c90c7e8723 provider=openai/gpt-5.6-terra — retrying 1/1 with visible-answer continuation

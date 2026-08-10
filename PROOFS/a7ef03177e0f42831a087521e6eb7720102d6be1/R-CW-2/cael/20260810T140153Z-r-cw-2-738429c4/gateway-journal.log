@@ -1,0 +1,10 @@
+2026-08-10T07:01:56.828992-07:00 cael node[973186]: 2026-08-10T07:01:56.828-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T07:01:56.829600-07:00 cael node[973186]: 2026-08-10T07:01:56.829-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T07:01:56.830261-07:00 cael node[973186]: 2026-08-10T07:01:56.830-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T07:01:56.830875-07:00 cael node[973186]: 2026-08-10T07:01:56.830-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T07:01:59.600087-07:00 cael node[973186]: 2026-08-10T07:01:59.600-07:00 [ws] ⇄ res ✓ sessions.send 330ms runId=R-CW-2-DISPATCH-<redacted-nonce> conn=4ea5c042…2562 id=1-0-1786370519268-5opy9s
+2026-08-10T07:02:10.753550-07:00 cael node[973186]: 2026-08-10T07:02:10.753-07:00 [agent/embedded] empty response detected: runId=d708af81-e143-4721-ad77-dd5ae52109f8 sessionId=26241013-c003-4eec-922e-d1c90c7e8723 provider=openai/gpt-5.6-terra — retrying 1/1 with visible-answer continuation
+2026-08-10T07:02:13.863087-07:00 cael node[973186]: 2026-08-10T07:02:13.862-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T07:02:13.863432-07:00 cael node[973186]: 2026-08-10T07:02:13.863-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-08-10T07:02:13.864085-07:00 cael node[973186]: 2026-08-10T07:02:13.864-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T07:02:13.864690-07:00 cael node[973186]: 2026-08-10T07:02:13.864-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

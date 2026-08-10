@@ -1,0 +1,6 @@
+2026-08-10T07:08:07.046932-07:00 cael node[973186]: 2026-08-10T07:08:07.046-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=<redacted-session-key> task=<redacted-payload>
+2026-08-10T07:08:07.716635-07:00 cael node[973186]: 2026-08-10T07:08:07.716-07:00 [agent/embedded] codex app-server turn released after terminal dynamic tool result
+2026-08-10T07:08:08.540663-07:00 cael node[973186]: 2026-08-10T07:08:08.540-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-10T07:08:08.559907-07:00 cael node[973186]: 2026-08-10T07:08:08.559-07:00 [agents/tool-policy] tool policy removed 4 tool(s) via subagent tools.deny: agents_list, message, session_status, sessions_send; matched agents_list, message, session_status, sessions_send
+2026-08-10T07:08:08.618531-07:00 cael node[973186]: 2026-08-10T07:08:08.618-07:00 [continuation/signal] [continuation:trace] bracket-parse skipped: empty payloads session=<redacted-session-key>
+2026-08-10T07:08:08.619464-07:00 cael node[973186]: 2026-08-10T07:08:08.619-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

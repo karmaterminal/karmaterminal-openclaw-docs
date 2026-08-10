@@ -1,0 +1,14 @@
+2026-08-10T07:07:46.034122-07:00 cael node[973186]: 2026-08-10T07:07:46.034-07:00 [ws] ⇄ res ✓ sessions.send 430ms runId=R-CW-DELEGATE-SELF-DISPATCH-<redacted-nonce> conn=b22a640f…cfd7 id=1-0-1786370865500-dkvaxr
+2026-08-10T07:07:46.044400-07:00 cael node[973186]: 2026-08-10T07:07:46.044-07:00 [agent/embedded] codex app-server turn released after terminal dynamic tool result
+2026-08-10T07:07:46.900260-07:00 cael node[973186]: 2026-08-10T07:07:46.900-07:00 [continuation/signal] [continuation:trace] bracket-parse skipped: empty payloads session=<redacted-session-key>
+2026-08-10T07:07:46.901008-07:00 cael node[973186]: 2026-08-10T07:07:46.900-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T07:07:53.861790-07:00 cael node[973186]: 2026-08-10T07:07:53.861-07:00 [agent/embedded] empty response detected: runId=3accf8bb-d220-4ee0-9863-6c814fe20c97 sessionId=26241013-c003-4eec-922e-d1c90c7e8723 provider=openai/gpt-5.6-terra — retrying 1/1 with visible-answer continuation
+2026-08-10T07:07:57.892549-07:00 cael node[973186]: 2026-08-10T07:07:57.892-07:00 [agent/embedded] codex app-server turn released after terminal dynamic tool result
+2026-08-10T07:07:57.993096-07:00 cael node[973186]: 2026-08-10T07:07:57.992-07:00 [continuation/signal] [continuation:trace] bracket-parse skipped: empty payloads session=<redacted-session-key>
+2026-08-10T07:07:57.994000-07:00 cael node[973186]: 2026-08-10T07:07:57.993-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T07:08:01.155296-07:00 cael node[973186]: 2026-08-10T07:08:01.155-07:00 [agent/embedded] empty response detected: runId=9a565bfb-ac1a-4327-a1ca-c06ba7ee697c sessionId=26241013-c003-4eec-922e-d1c90c7e8723 provider=openai/gpt-5.6-terra — retrying 1/1 with visible-answer continuation
+2026-08-10T07:08:02.769498-07:00 cael node[973186]: 2026-08-10T07:08:02.769-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T07:08:02.769863-07:00 cael node[973186]: 2026-08-10T07:08:02.769-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T07:08:02.770543-07:00 cael node[973186]: 2026-08-10T07:08:02.770-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T07:08:02.771177-07:00 cael node[973186]: 2026-08-10T07:08:02.771-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T07:08:02.784257-07:00 cael node[973186]: 2026-08-10T07:08:02.784-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=3015ms fireAt=1786370885798 session=<redacted-session-key>

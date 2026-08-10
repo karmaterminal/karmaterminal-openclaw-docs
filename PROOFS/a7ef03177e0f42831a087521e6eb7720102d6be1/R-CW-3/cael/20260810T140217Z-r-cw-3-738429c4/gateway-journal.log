@@ -1,0 +1,14 @@
+2026-08-10T07:02:21.162825-07:00 cael node[973186]: 2026-08-10T07:02:21.162-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T07:02:21.163578-07:00 cael node[973186]: 2026-08-10T07:02:21.163-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T07:02:21.164278-07:00 cael node[973186]: 2026-08-10T07:02:21.164-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T07:02:21.164909-07:00 cael node[973186]: 2026-08-10T07:02:21.164-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T07:02:21.200450-07:00 cael node[973186]: 2026-08-10T07:02:21.200-07:00 [agent/embedded] empty response detected: runId=d708af81-e143-4721-ad77-dd5ae52109f8 sessionId=26241013-c003-4eec-922e-d1c90c7e8723 provider=openai/gpt-5.6-sol — retrying 1/1 with visible-answer continuation
+2026-08-10T07:02:21.805626-07:00 cael node[973186]: 2026-08-10T07:02:21.805-07:00 [ws] ⇄ res ✓ sessions.send 343ms runId=R-CW-3-DISPATCH-<redacted-nonce> conn=3dba0514…6ec2 id=1-0-1786370541459-jdlow2
+2026-08-10T07:02:27.345218-07:00 cael node[973186]: 2026-08-10T07:02:27.345-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T07:02:27.345971-07:00 cael node[973186]: 2026-08-10T07:02:27.345-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T07:02:27.346659-07:00 cael node[973186]: 2026-08-10T07:02:27.346-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T07:02:27.347300-07:00 cael node[973186]: 2026-08-10T07:02:27.347-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-10T07:02:34.982130-07:00 cael node[973186]: 2026-08-10T07:02:34.981-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T07:02:34.984812-07:00 cael node[973186]: 2026-08-10T07:02:34.984-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-08-10T07:02:34.985553-07:00 cael node[973186]: 2026-08-10T07:02:34.985-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-10T07:02:34.986254-07:00 cael node[973186]: 2026-08-10T07:02:34.986-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

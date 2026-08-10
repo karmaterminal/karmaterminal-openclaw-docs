@@ -1,0 +1,65 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-10T13:55:25Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "summary-file",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": null,
+  "summaryFiles": [
+    "static-corpus-row-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CD-COLLECTION-ON-COLLAPSE",
+    "sourceRow": "R-CD-COLLECTION-ON-COLLAPSE",
+    "staticBoundaryVariant": false,
+    "manifest_loaded": true,
+    "candidateSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+    "currentProofSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+    "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+    "carriedFrom": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+    "started": "2026-08-10T13:55:25.506Z",
+    "checks": {
+      "verdictPass": true,
+      "methodScope": true,
+      "bTypedDelegate": true,
+      "cAfterB": true,
+      "cSentinelPresent": true,
+      "rootCollection": true,
+      "durableRows": true,
+      "evaluationPass": true,
+      "tracePresent": true
+    },
+    "source_files": {
+      "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/EVIDENCE.md",
+      "evaluation": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/evaluation.json",
+      "flowRows": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/flow-rows-concise.json",
+      "taskRows": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/task-rows-concise.json",
+      "rootReceipt": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/main/root-collection-receipt.md",
+      "journal": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/journal/filtered.log",
+      "traceSummary": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/tempo/trace-summary.json"
+    },
+    "ended": "2026-08-10T13:55:25.506Z",
+    "duration_ms": 0,
+    "verdict": "PASS-candidate"
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

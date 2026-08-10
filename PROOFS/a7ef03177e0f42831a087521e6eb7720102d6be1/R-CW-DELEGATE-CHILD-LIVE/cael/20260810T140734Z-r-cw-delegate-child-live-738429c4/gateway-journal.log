@@ -1,0 +1,3 @@
+2026-08-10T07:07:36.819739-07:00 cael node[973186]: 2026-08-10T07:07:36.819-07:00 [agent/embedded] codex app-server turn released after terminal dynamic tool result
+2026-08-10T07:07:36.912817-07:00 cael node[973186]: 2026-08-10T07:07:36.912-07:00 [continuation/signal] [continuation:trace] bracket-parse skipped: empty payloads session=<redacted-session-key>
+2026-08-10T07:07:36.913802-07:00 cael node[973186]: 2026-08-10T07:07:36.913-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

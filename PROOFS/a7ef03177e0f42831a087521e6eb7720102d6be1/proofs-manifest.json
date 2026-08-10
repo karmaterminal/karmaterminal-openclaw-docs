@@ -62,13 +62,22 @@
           "R-REGRESSION-TRAP-TESTS"
         ],
         "note": "First per-seat run on emeric with local gateway token (PR #507). All rows PASS-candidate."
+      },
+      {
+        "id": "31412540257",
+        "workflow": "project81-k6-proof.yml",
+        "seat": "ronan",
+        "rows": [
+          "R-CD-1"
+        ],
+        "note": "Re-fired R-CD-1 on ronan after earlier run workspace wiped. PASS-candidate with parent_return_event true. Direct evidence that earlier delegate-return gap was a transport artifact (pre-PR#507 shared token), not a product defect."
       }
     ]
   },
   "seat": "cael",
   "canonicalSeatPath": "cael-dgx",
-  "generatedAt": "2026-08-10T16:49:00Z",
-  "generatedBy": "Copilot CLI merge of per-seat runs (ronan 31406009157, emeric 31408090482) into corpus",
+  "generatedAt": "2026-08-10T17:23:00Z",
+  "generatedBy": "Copilot CLI: added R-CD-1 ronan PASS (run 31412540257, parent_return_event true)",
   "runnableRows": 34,
   "proofRowsRun": 33,
   "totalCorpusRows": 38,
@@ -159,7 +168,17 @@
         "status": "runnable",
         "manifestPath": "tools/k6-proofs/manifests/r-cd-1.json",
         "scenarioPath": "tools/k6-proofs/scenarios/r-cd-1-typed-delegate.js"
-      }
+      },
+      "perSeatRuns": [
+        {
+          "verdict": "PASS-candidate",
+          "seat": "ronan",
+          "runDir": "ronan/20260810T171957Z-r-cd-1-c125a490",
+          "runId": "31412540257",
+          "parentReturnEvent": true,
+          "note": "Per-owner PASS from owning seat. Supersedes cael runs as per-owner evidence (cael runs preserved). Confirms delegate-return gap was transport artifact from shared gateway token."
+        }
+      ]
     },
     "R-CD-2": {
       "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-2/cael/20260810T074903Z-r-cd-2-34f430ee",
@@ -1152,7 +1171,7 @@
   },
   "runLogVerdictLines": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/run-31367303220-verdict-lines.txt",
   "perSeatNotes": {
-    "R-CD-1": "Run 31405763095 on ronan reported R-CD-1 PASS-candidate with parent_return_event true, but artifacts are not present on ronan at the expected path. Not published.",
+    "R-CD-1": "Run 31412540257 on ronan: PASS-candidate with parent_return_event true. Artifacts recovered after earlier workspace wiped. This is the primary per-owner evidence for R-CD-1.",
     "R-OBS-1": "Could not run on emeric (elliott): seat-readiness refused because candidate a7ef0317 does not equal deployed runtime 2e72b665. This is an honest constraint of running the composite, not a failure.",
     "partialReason": "R-CD-4, R-CD-CHAINED-DEPTH-2, R-CD-MODEL-TOOL on ronan are PARTIAL because child completes but return never lands (tracked: karmaterminal/openclaw#1241)."
   }

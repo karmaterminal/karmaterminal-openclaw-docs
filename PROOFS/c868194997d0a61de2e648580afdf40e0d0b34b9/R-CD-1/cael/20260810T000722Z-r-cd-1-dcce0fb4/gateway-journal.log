@@ -1,0 +1,16 @@
+2026-08-09T17:07:27.431769-07:00 cael node[1232392]: 2026-08-09T17:07:27.431-07:00 [ws] ⇄ res ✓ sessions.send 355ms runId=R-CD-1-DISPATCH-<redacted-nonce> conn=16f2a38f…e5fe id=1-0-1786320447075-hp496f
+2026-08-09T17:07:40.087201-07:00 cael node[1232392]: 2026-08-09T17:07:40.087-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T17:07:40.087821-07:00 cael node[1232392]: 2026-08-09T17:07:40.087-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-09T17:07:40.088498-07:00 cael node[1232392]: 2026-08-09T17:07:40.088-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T17:07:40.089142-07:00 cael node[1232392]: 2026-08-09T17:07:40.089-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-09T17:07:40.098719-07:00 cael node[1232392]: 2026-08-09T17:07:40.098-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=1203ms fireAt=1786320461300 session=<redacted-session-key>
+2026-08-09T17:07:41.303840-07:00 cael node[1232392]: 2026-08-09T17:07:41.303-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-fired] session=<redacted-session-key>
+2026-08-09T17:07:41.305631-07:00 cael node[1232392]: 2026-08-09T17:07:41.305-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-08-09T17:07:42.483821-07:00 cael node[1232392]: 2026-08-09T17:07:42.483-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=<redacted-session-key> task=<redacted-payload>
+2026-08-09T17:07:43.598648-07:00 cael node[1232392]: 2026-08-09T17:07:43.598-07:00 [agents/tool-policy] tool policy removed 3 tool(s) via subagent tools.deny: agents_list, session_status, sessions_send; matched agents_list, session_status, sessions_send
+2026-08-09T17:07:43.618322-07:00 cael node[1232392]: 2026-08-09T17:07:43.617-07:00 [agents/tool-policy] tool policy removed 4 tool(s) via subagent tools.deny: agents_list, message, session_status, sessions_send; matched agents_list, message, session_status, sessions_send
+2026-08-09T17:07:48.942210-07:00 cael node[1232392]: 2026-08-09T17:07:48.942-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-09T17:07:48.942963-07:00 cael node[1232392]: 2026-08-09T17:07:48.942-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-09T17:07:49.267417-07:00 cael node[1232392]: 2026-08-09T17:07:49.266-07:00 CD1-DONE <redacted-nonce>
+2026-08-09T17:07:49.268292-07:00 cael node[1232392]: 2026-08-09T17:07:49.268-07:00 [agents/agent-command] [agent] run continuation-delegate-428483b6dc20b6dd640b06a33ee6a6ac ended with stopReason=stop
+2026-08-09T17:07:51.537984-07:00 cael node[1232392]: 2026-08-09T17:07:51.537-07:00 [agent/embedded] [session-writer] replacing claim session=<redacted-session-key> previousRunId=sha256:c31ef9203a32 nextRunId=sha256:2624cbce9c4c live=false

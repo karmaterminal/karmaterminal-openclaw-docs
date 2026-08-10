@@ -1,23 +1,43 @@
 {
-  "schema": "openclaw.proofs.index.v1",
-  "purpose": "Top-level signpost for the current proof corpus.",
-  "current_sha": "b27a2624ed333b0f3a613893968d2e555d90fce1",
-  "current_sha_short": "b27a262",
-  "build_string": "OpenClaw exact candidate (b27a262) \u2014 continuation assembly + Emeric #1229 composite",
-  "corpus_path": "PROOFS/b27a2624ed333b0f3a613893968d2e555d90fce1/",
-  "manifest_path": "PROOFS/b27a2624ed333b0f3a613893968d2e555d90fce1/proofs-manifest.json",
-  "readme_path": "PROOFS/b27a2624ed333b0f3a613893968d2e555d90fce1/README.md",
-  "rollup": {
-    "pass": 17,
-    "partial": 6,
-    "thin": 0,
-    "fail": 11,
-    "honest_limit": 4,
-    "missing": 0,
-    "total_rows": 38
-  },
-  "disposition_note": "Live execution on cael at exact candidate; build-info commit verified == candidate before capture. 4 rows (R-CW-5/5A/6/6A) are orchestration-required and excluded from --live-suite by design, not dropped. 6 of the failures are static-corpus-row-validators that compared against the previous published corpus (0921776) and are expected to clear once this corpus is the published one. Remaining failures and partials are genuine and untriaged; this corpus is evidence, not a green light.",
-  "navigation": "read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-08-09",
-  "generated_by": "frond-scribe from project81-k6-proof run 31329925997 (cael)"
+ "schema": "openclaw.proofs.index.v1",
+ "purpose": "Top-level signpost for the current proof corpus.",
+ "current_sha": "c868194997d0a61de2e648580afdf40e0d0b34b9",
+ "current_sha_short": "c868194",
+ "build_string": "OpenClaw exact candidate (c868194) \u2014 continuation PR-presentation head for openclaw/openclaw#85651",
+ "corpus_path": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/",
+ "manifest_path": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/proofs-manifest.json",
+ "readme_path": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/README.md",
+ "rollup": {
+  "pass": 16,
+  "partial": 7,
+  "thin": 0,
+  "fail": 7,
+  "unclassified": 4,
+  "honest_limit": 4,
+  "missing": 0,
+  "total_rows": 38
+ },
+ "disposition_note": "Live execution on cael. This corpus is bound to the EXACT SHA the upstream PR presents (c868194): build-info commit on the seat was verified == candidate before capture, and the PR head equalled the presentation branch tip at capture time. The previous corpus (b27a262) was NOT transposable onto this head - it is not an ancestor of it and carried Emeric #1229 bytes the PR does not ship - so it was replaced rather than relabelled. 4 rows (R-CW-5/5A/6/6A) are orchestration-required and excluded from --live-suite by design, not dropped, so 34 is the runnable denominator. All rows are candidateOnly with foldRequiresReview: nothing here is canonical proof or an automatic fold input. 7 rows remain review-pending; their receipts are itemised in review.pendingReceiptTally. The continuation-trace-correlation and tempo-trace-json debts have a known cause: the seat has no built extensions (extensions/*/dist is empty) and diagnostics-otel is not enabled, so the openclaw.tool.execution span carrying gen_ai.tool.name is never exported. Core continuation.* spans DO reach Tempo, which is why traces match but lack the originating tool span. That is a seat observability gap, not a product defect, and it is stated here rather than papered over.",
+ "navigation": "read INDEX.json -> current_sha -> manifest_path -> rows[]",
+ "generated": "2026-08-09",
+ "generated_by": "frond-scribe from project81-k6-proof run 31329925997 (cael)",
+ "review": {
+  "readyForHumanReview": 27,
+  "reviewPending": 7,
+  "validatedCandidateEnvelopes": 16,
+  "pendingReceiptTally": {
+   "attempt-state": 1,
+   "child-completed": 1,
+   "child-spawned": 1,
+   "continuation-trace-correlation": 4,
+   "exact-candidate-runtime-identity": 1,
+   "parent-return-event": 1,
+   "parser-detected": 1,
+   "public-safe-evidence": 3,
+   "queue-identity": 1,
+   "raw-final-text-origin": 1,
+   "tempo-trace-json": 4
+  }
+ },
+ "generated_at": "2026-08-10T00:37:06.139311Z"
 }

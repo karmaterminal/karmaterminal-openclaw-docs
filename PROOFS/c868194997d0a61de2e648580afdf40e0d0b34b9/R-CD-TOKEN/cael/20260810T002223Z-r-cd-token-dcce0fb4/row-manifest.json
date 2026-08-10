@@ -1,0 +1,142 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-TOKEN",
+  "issue": 103,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "bracket-token",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-token-bracket-delegate",
+    "description": "Terminal [[CONTINUE_DELEGATE:...]] path from an isolated raw-final-text child; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "tasks.list",
+      "sessions.messages.subscribe"
+    ],
+    "status": "runnable",
+    "expectedFile": "r-cd-token-bracket-delegate.js",
+    "registryNotes": "Issue #426 runnable repair: runner owns the attempt/nonce before launch; scenario requires a disposable raw-final-text origin and exactly one nonce-bound origin/delegate task identity through a settle window.",
+    "file": "r-cd-token-bracket-delegate.js"
+  },
+  "seatClassExpectation": {
+    "raw-final-text-seat": "PASS-candidate",
+    "message-body-seat": "PARTIAL-candidate",
+    "reason": "Bracket scanner fires only on scanned-final-text. Seats that route final-text through message(send) body cannot prove this row and remain PARTIAL unless raw-final-text mode is forced (no message-tool call that turn). See TOOLS.md bracket-position-sensitive notes."
+  },
+  "expectedReceipts": [
+    {
+      "name": "exact-candidate-runtime-identity",
+      "required": true,
+      "description": "Exact 40-character candidate and deployed runtime SHAs are equal before dispatch and bound into the signed authority receipt"
+    },
+    {
+      "name": "attempt-state",
+      "required": true,
+      "description": "Runner-owned attempt/nonce fingerprint and automatic-retry disposition persisted before k6 launch"
+    },
+    {
+      "name": "raw-final-text-origin",
+      "required": true,
+      "description": "Declared scanner-supported raw-final-text surface; message-body and unknown surfaces cannot PASS"
+    },
+    {
+      "name": "prompt-injected",
+      "required": true,
+      "description": "sessions.send accepted the bracket-instructing prompt with a concrete run identity"
+    },
+    {
+      "name": "parser-detected",
+      "required": true,
+      "description": "Terminal bracket text observed from the isolated origin child and joined to the token delegate reason fingerprint"
+    },
+    {
+      "name": "queue-identity",
+      "required": true,
+      "description": "Exactly one token delegate task identity appears in the authoritative task ledger"
+    },
+    {
+      "name": "child-spawned",
+      "required": true,
+      "description": "Exactly one nonce-bound token delegate child/run identity is present"
+    },
+    {
+      "name": "child-completed",
+      "required": true,
+      "description": "The one token delegate task reaches succeeded state"
+    },
+    {
+      "name": "parent-return-event",
+      "required": true,
+      "description": "The exact nonce-bound delegate return sentinel is observed on the parent"
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace for the token delegate dispatch/fire topology"
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "Reason fingerprint, one dispatch, one fire, chain identity, and absence of a typed continue_delegate tool origin are validated"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-TOKEN",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Bracket/token path. Message-body delivery cannot prove this contract and remains PARTIAL-candidate. PASS-candidate requires a raw-final-text seat. candidateSha and seat resolve from env at runtime."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "forms": [
+      "bracket-token-delegate-from-lightcontext-subagent"
+    ],
+    "delaySeconds": 10,
+    "lightContext": true,
+    "taskNamePrefix": "r-cd-token",
+    "idempotencyKeyPrefix": "R-CD-TOKEN",
+    "originSurface": "raw-final-text",
+    "promptTemplate": "{{marker}} reply exactly RCDT-RETURN-{{tag}}",
+    "parserSignalKind": "bracket-delegate"
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "exact-candidate-runtime-identity",
+      "attempt-state",
+      "raw-final-text-origin",
+      "prompt-injected",
+      "parser-detected",
+      "queue-identity",
+      "child-spawned",
+      "child-completed",
+      "parent-return-event",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "foldRequiresReview": true,
+    "notes": "PASS requires a runner-owned attempt, disposable raw-final-text origin, exactly one origin task and one token-scheduled delegate task through a settle window, exact completion/return binding, and public Tempo topology. Message-body/unknown surfaces and interruption are structured PARTIAL and never auto-retried.",
+    "requiresDisposableSession": true
+  }
+}

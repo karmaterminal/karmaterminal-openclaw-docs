@@ -1,0 +1,55 @@
+{
+  "k6ExitCode": 99,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 99,
+  "endedAt": "2026-08-10T00:17:10Z",
+  "verdict": "PARTIAL-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": "PARTIAL-candidate",
+  "vuLogVerdict": "PARTIAL-candidate",
+  "summaryFiles": [
+    "r-cd-chained-depth-2-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CD-CHAINED-DEPTH-2",
+    "manifest_loaded": true,
+    "seat": "cael",
+    "session_created": true,
+    "candidateSha": "c868194997d0a61de2e648580afdf40e0d0b34b9",
+    "started": "2026-08-10T00:14:39.188Z",
+    "parent_dispatch_accepted": true,
+    "child_spawned": true,
+    "grandchild_spawned": true,
+    "child_done_sentinel": true,
+    "grandchild_done_sentinel": true,
+    "chain_return_received": false,
+    "root_return_candidate": null,
+    "root_return_receipt": null,
+    "dispatch_accepted_at_ms": 1786320881111,
+    "max_depth_observed": 2,
+    "reason_hash": "806fca58af125a0c",
+    "reason_length": 441,
+    "delegate_mode": "silent-wake",
+    "trace_id": null,
+    "ended": "2026-08-10T00:17:10.183Z",
+    "duration_ms": 150995
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "present",
+    "traceId": "75294051590a879d383fd0284709284c",
+    "tempoTraceJson": "tempo-trace-75294051590a.json",
+    "correlationReceipt": "continuation-trace-correlation.json",
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

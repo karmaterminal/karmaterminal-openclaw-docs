@@ -1,0 +1,406 @@
+{
+  "candidateSha": "c868194997d0a61de2e648580afdf40e0d0b34b9",
+  "excludedOrchestrationRequired": [
+    "R-CW-5",
+    "R-CW-5A",
+    "R-CW-6",
+    "R-CW-6A"
+  ],
+  "generatedAt": "2026-08-10T00:36:35.385380Z",
+  "pendingReceiptTally": {
+    "attempt-state": 1,
+    "child-completed": 1,
+    "child-spawned": 1,
+    "continuation-trace-correlation": 4,
+    "exact-candidate-runtime-identity": 1,
+    "parent-return-event": 1,
+    "parser-detected": 1,
+    "public-safe-evidence": 3,
+    "queue-identity": 1,
+    "raw-final-text-origin": 1,
+    "tempo-trace-json": 4
+  },
+  "reviewEnvelopes": 16,
+  "reviewRollup": {
+    "ready-for-human-review": 27,
+    "review-pending": 7
+  },
+  "rows": {
+    "PREFLIGHT": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/PREFLIGHT/cael/20260810T000715Z-preflight-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": false,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "unclassified"
+    },
+    "R-CD-1": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CD-1/cael/20260810T000722Z-r-cd-1-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-CD-2": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CD-2/cael/20260810T000800Z-r-cd-2-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 99,
+      "foldRequiresReview": true,
+      "pendingReceipts": [
+        "continuation-trace-correlation",
+        "tempo-trace-json"
+      ],
+      "reviewEnvelope": false,
+      "reviewStatus": "review-pending",
+      "verdict": "PARTIAL-candidate"
+    },
+    "R-CD-3": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CD-3/cael/20260810T001238Z-r-cd-3-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-CD-4": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CD-4/cael/20260810T001258Z-r-cd-4-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 99,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": false,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PARTIAL-candidate"
+    },
+    "R-CD-CHAINED-DEPTH-2": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CD-CHAINED-DEPTH-2/cael/20260810T001436Z-r-cd-chained-depth-2-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 99,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": false,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PARTIAL-candidate"
+    },
+    "R-CD-COLLECTION-ON-COLLAPSE": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CD-COLLECTION-ON-COLLAPSE/cael/20260810T001713Z-r-cd-collection-on-collapse-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 99,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": false,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "FAIL-candidate"
+    },
+    "R-CD-MODEL-CHAINED-ALT": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CD-MODEL-CHAINED-ALT/cael/20260810T001719Z-r-cd-model-chained-alt-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-CD-MODEL-DEFAULT": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CD-MODEL-DEFAULT/cael/20260810T001743Z-r-cd-model-default-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-CD-MODEL-TOKEN": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CD-MODEL-TOKEN/cael/20260810T001803Z-r-cd-model-token-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-CD-MODEL-TOOL": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CD-MODEL-TOOL/cael/20260810T001829Z-r-cd-model-tool-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 99,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": false,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PARTIAL-candidate"
+    },
+    "R-CD-RETURN-OVERLAP": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CD-RETURN-OVERLAP/cael/20260810T002139Z-r-cd-return-overlap-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 107,
+      "foldRequiresReview": true,
+      "pendingReceipts": [
+        "public-safe-evidence"
+      ],
+      "reviewEnvelope": false,
+      "reviewStatus": "review-pending",
+      "verdict": "unclassified"
+    },
+    "R-CD-SILENT": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CD-SILENT/cael/20260810T002144Z-r-cd-silent-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-CD-TOKEN": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CD-TOKEN/cael/20260810T002223Z-r-cd-token-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [
+        "exact-candidate-runtime-identity",
+        "attempt-state",
+        "raw-final-text-origin",
+        "parser-detected",
+        "queue-identity",
+        "child-spawned",
+        "child-completed",
+        "parent-return-event",
+        "tempo-trace-json",
+        "continuation-trace-correlation"
+      ],
+      "reviewEnvelope": false,
+      "reviewStatus": "review-pending",
+      "verdict": "PARTIAL-candidate"
+    },
+    "R-CONFIG-DEFAULTS": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CONFIG-DEFAULTS/cael/20260810T002226Z-r-config-defaults-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-CONFIG-INTERSESSION": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CONFIG-INTERSESSION/cael/20260810T002232Z-r-config-intersession-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-CW-1": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CW-1/cael/20260810T002238Z-r-cw-1-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-CW-2": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CW-2/cael/20260810T002310Z-r-cw-2-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-CW-3": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CW-3/cael/20260810T002335Z-r-cw-3-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [
+        "continuation-trace-correlation",
+        "tempo-trace-json"
+      ],
+      "reviewEnvelope": false,
+      "reviewStatus": "review-pending",
+      "verdict": "PARTIAL-candidate"
+    },
+    "R-CW-4": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CW-4/cael/20260810T002657Z-r-cw-4-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-CW-7": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CW-7/cael/20260810T002757Z-r-cw-7-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 99,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": false,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "FAIL-candidate"
+    },
+    "R-CW-DELEGATE-CHILD-LIVE": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CW-DELEGATE-CHILD-LIVE/cael/20260810T002802Z-r-cw-delegate-child-live-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 99,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": false,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "FAIL-candidate"
+    },
+    "R-CW-DELEGATE-SELF-CONTINUATION": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CW-DELEGATE-SELF-CONTINUATION/cael/20260810T002808Z-r-cw-delegate-self-continuation-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-CW-DELEGATE-TOKEN": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CW-DELEGATE-TOKEN/cael/20260810T002828Z-r-cw-delegate-token-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 99,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": false,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "FAIL-candidate"
+    },
+    "R-CW-MULTI": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CW-MULTI/cael/20260810T002840Z-r-cw-multi-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 99,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": false,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "FAIL-candidate"
+    },
+    "R-CW-MULTI-COLLAPSE": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CW-MULTI-COLLAPSE/cael/20260810T002834Z-r-cw-multi-collapse-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 99,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": false,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "FAIL-candidate"
+    },
+    "R-CW-TOKEN": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-CW-TOKEN/cael/20260810T002846Z-r-cw-token-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-OBS-1": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-OBS-1/cael/20260810T002906Z-r-obs-1-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-OBS-2": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-OBS-2/cael/20260810T002928Z-r-obs-2-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 107,
+      "foldRequiresReview": true,
+      "pendingReceipts": [
+        "public-safe-evidence"
+      ],
+      "reviewEnvelope": false,
+      "reviewStatus": "review-pending",
+      "verdict": "unclassified"
+    },
+    "R-OBS-STATUS": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-OBS-STATUS/cael/20260810T002934Z-r-obs-status-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-RC-1": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-RC-1/cael/20260810T002940Z-r-rc-1-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": true,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "PASS-candidate"
+    },
+    "R-RC-2": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-RC-2/cael/20260810T002957Z-r-rc-2-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 0,
+      "foldRequiresReview": true,
+      "pendingReceipts": [
+        "continuation-trace-correlation",
+        "tempo-trace-json"
+      ],
+      "reviewEnvelope": false,
+      "reviewStatus": "review-pending",
+      "verdict": "PARTIAL-candidate"
+    },
+    "R-REGRESSION-TRAP-TESTS": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-REGRESSION-TRAP-TESTS/cael/20260810T003505Z-r-regression-trap-tests-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 107,
+      "foldRequiresReview": true,
+      "pendingReceipts": [
+        "public-safe-evidence"
+      ],
+      "reviewEnvelope": false,
+      "reviewStatus": "review-pending",
+      "verdict": "unclassified"
+    },
+    "R-TRACE-REDACTION-1121": {
+      "artifactDir": "PROOFS/c868194997d0a61de2e648580afdf40e0d0b34b9/R-TRACE-REDACTION-1121/cael/20260810T003510Z-r-trace-redaction-1121-dcce0fb4",
+      "candidateOnly": true,
+      "effectiveExitCode": 99,
+      "foldRequiresReview": true,
+      "pendingReceipts": [],
+      "reviewEnvelope": false,
+      "reviewStatus": "ready-for-human-review",
+      "verdict": "FAIL-candidate"
+    }
+  },
+  "runnableRows": 34,
+  "schema": "openclaw.k6.proofs-manifest.v1",
+  "seat": "cael",
+  "totalCorpusRows": 38,
+  "verdictRollup": {
+    "FAIL-candidate": 7,
+    "PARTIAL-candidate": 7,
+    "PASS-candidate": 16,
+    "unclassified": 4
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "row": "R-CW-TOKEN",
+  "sha": "c868194997d0a61de2e648580afdf40e0d0b34b9",
+  "seat": "cael",
+  "timestamp": "2026-08-10T00:29:03.481Z",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "duration_ms": {
+      "avg": 14704,
+      "min": 14704,
+      "med": 14704,
+      "max": 14704,
+      "p(90)": 14704,
+      "p(95)": 14704
+    },
+    "failures": 0
+  }
+}

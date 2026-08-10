@@ -1,0 +1,20 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CW-7","sourceRow":"R-CW-7","staticBoundaryVariant":false,"manifest_loaded":true,"candidateSha":"c868194997d0a61de2e648580afdf40e0d0b34b9","currentProofSha":"b27a2624ed333b0f3a613893968d2e555d90fce1","sourceEvidenceSha":"b27a2624ed333b0f3a613893968d2e555d90fce1","carriedFrom":"b27a2624ed333b0f3a613893968d2e555d90fce1","started":"2026-08-10T00:27:59.879Z","checks":{"passScope":false,"internalNotPublic":false,"autoPickup":false,"dispatchPreserves":false,"childReceives":false,"testsPassed":false,"sourceSha":false},"source_files":{"evidence":"../../../PROOFS/b27a2624ed333b0f3a613893968d2e555d90fce1/R-CW-7/cael-dgx/EVIDENCE.md","testLog":"../../../PROOFS/b27a2624ed333b0f3a613893968d2e555d90fce1/R-CW-7/cael-dgx/test/focused-traceparent-tests.log","sourceSnippets":"../../../PROOFS/b27a2624ed333b0f3a613893968d2e555d90fce1/R-CW-7/cael-dgx/source/source-snippets.md"},"ended":"2026-08-10T00:27:59.879Z","duration_ms":0,"verdict":"FAIL-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+time="2026-08-09T17:27:59-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"

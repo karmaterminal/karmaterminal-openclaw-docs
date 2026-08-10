@@ -1,0 +1,10 @@
+# TYPE openclaw_proofs_k6_run_total counter
+openclaw_proofs_k6_run_total{row_id="R-OBS-2",seat="cael",candidate_sha="c868194997d0a61de2e648580afdf40e0d0b34b9",scenario="r-obs-2.js",run_id="20260810T002928Z-r-obs-2-dcce0fb4",tool_surface="read-only",transport="offline",outcome="FAIL-candidate",candidate_only="true",fold_requires_review="true",failure_class="threshold"} 1
+# TYPE openclaw_proofs_k6_proof_failures_total counter
+openclaw_proofs_k6_proof_failures_total{row_id="R-OBS-2",seat="cael",candidate_sha="c868194997d0a61de2e648580afdf40e0d0b34b9",scenario="r-obs-2.js",run_id="20260810T002928Z-r-obs-2-dcce0fb4",failure_class="threshold"} 1
+# TYPE openclaw_proofs_k6_candidate_pending_review gauge
+openclaw_proofs_k6_candidate_pending_review{row_id="R-OBS-2",seat="cael",candidate_sha="c868194997d0a61de2e648580afdf40e0d0b34b9",run_id="20260810T002928Z-r-obs-2-dcce0fb4",outcome="FAIL-candidate",fold_requires_review="true"} 1
+# TYPE openclaw_proofs_k6_receipt_status gauge
+openclaw_proofs_k6_receipt_status{row_id="R-OBS-2",seat="cael",candidate_sha="c868194997d0a61de2e648580afdf40e0d0b34b9",run_id="20260810T002928Z-r-obs-2-dcce0fb4",receipt_name="public-safe-evidence",receipt_required="true",receipt_status="missing"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-OBS-2",seat="cael",candidate_sha="c868194997d0a61de2e648580afdf40e0d0b34b9",run_id="20260810T002928Z-r-obs-2-dcce0fb4",receipt_name="trace-tree-artifacts",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-OBS-2",seat="cael",candidate_sha="c868194997d0a61de2e648580afdf40e0d0b34b9",run_id="20260810T002928Z-r-obs-2-dcce0fb4",receipt_name="continuation-lineage",receipt_required="true",receipt_status="unknown"} 0

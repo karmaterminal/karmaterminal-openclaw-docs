@@ -1,0 +1,88 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "PREFLIGHT",
+  "issue": 101,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ci-runner}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY}",
+  "transport": "websocket",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 30,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "preflight",
+    "description": "Authenticate/read-only gateway inventory plus seat-readiness contract: health/status, sessions.list, tools.effective, k6 version/path, env presence, and candidate metadata. Offline mode validates manifest shape without gateway traffic.",
+    "methods": [
+      "health",
+      "status",
+      "sessions.list",
+      "tools.effective"
+    ],
+    "status": "runnable",
+    "file": "preflight.js"
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": false,
+    "requiresExternalAgentOrToolInvocation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "manifest-loaded",
+      "k6-summary",
+      "seat-readiness"
+    ],
+    "foldRequiresReview": true,
+    "notes": "The live preflight is read-only and concurrency-safe, but it authenticates to the gateway. Use the documented runner command with an operator token; offline golden-path validation remains available without secrets."
+  },
+  "expectedReceipts": [
+    {
+      "name": "manifest-loaded",
+      "required": true,
+      "pathHint": "row-manifest.json",
+      "description": "The exact row manifest used for the k6 run."
+    },
+    {
+      "name": "k6-summary",
+      "required": true,
+      "pathHint": "k6-summary.json",
+      "description": "Raw k6 summary/export for the run."
+    },
+    {
+      "name": "seat-readiness",
+      "required": true,
+      "pathHint": "seat-readiness.json",
+      "description": "Public-safe seat/tooling preflight: k6 path/version, gateway reachability, candidate SHA validity, env presence booleans, seat/session class, and concurrency safety."
+    },
+    {
+      "name": "tool-inventory",
+      "required": false,
+      "pathHint": "artifacts/tool-inventory.json",
+      "description": "Live preflight only: tools.effective inventory for the target session."
+    },
+    {
+      "name": "session-inventory",
+      "required": false,
+      "pathHint": "artifacts/session-inventory.json",
+      "description": "Live preflight only: sessions.list/session resolution receipt."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "PREFLIGHT",
+    "seat": "${OPENCLAW_SEAT_NAME:-ci-runner}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Preflight is non-mutating and should never write a final proof verdict by itself. k6 version/env/gateway mismatches are PARTIAL/setup candidates, not product failures."
+  }
+}

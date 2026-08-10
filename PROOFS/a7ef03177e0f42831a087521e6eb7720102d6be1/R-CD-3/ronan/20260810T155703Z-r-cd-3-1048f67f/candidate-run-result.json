@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+    "docsRef": "95cd516f84613114628349634a3237c60ffa6176"
+  },
+  "harness": {
+    "docsRef": "95cd516f84613114628349634a3237c60ffa6176",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cd-3.json",
+    "manifestSha256": "2ee3461c50d8786cea7c18ee649f8f41a4c840ebfa32aaac66b90a95082cdb75",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-cd-3-post-compaction.js",
+    "scenarioSha256": "dcd26f9f9006d7bfe7ad445cdd736c1271949b1f4d5f98e9d58bc4b63abb2c05",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20260810T155703Z-r-cd-3-1048f67f",
+    "rowId": "R-CD-3",
+    "seat": "ronan",
+    "scenario": "r-cd-3-post-compaction",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "vu-log",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "unknown",
+    "traceCaptured": false,
+    "correlationReceiptPresent": false
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "r-cd-3-summary.json",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": null,
+    "correlationReceipt": null
+  }
+}

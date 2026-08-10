@@ -1,0 +1,22 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-config-intersession.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m15s max duration (incl. graceful stop):
+              * r_config_intersession: 1 iterations shared among 1 VUs (maxDuration: 45s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CONFIG-INTERSESSION","manifest_loaded":true,"seat":"emeric","candidateSha":"a7ef03177e0f42831a087521e6eb7720102d6be1","started":"2026-08-10T16:25:05.938Z","rpc":{"method":"config.get","operator_surface":true,"response_ok":true,"response_shape":{"config_present":true,"continuation_present":true}},"config_read":true,"cross_session_targeting":"enabled","trace_id":null,"correlation":{"service":"emeric-prince","query_window_start":"2026-08-10T16:25:05.938Z","query_window_end":"2026-08-10T16:25:06.245Z"},"ended":"2026-08-10T16:25:06.245Z","duration_ms":307}
+time="2026-08-10T09:25:06-07:00" level=info msg="\n[R-CONFIG-INTERSESSION] VERDICT: PASS-candidate" source=console
+
+[R-CONFIG-INTERSESSION] Summary: PASS-candidate | SHA: a7ef03177e0f42831a087521e6eb7720102d6be1 | Seat: emeric
+
+running (0m00.3s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_config_intersession ✓ [ 100% ] 1 VUs  00.3s/45s  1/1 shared iters

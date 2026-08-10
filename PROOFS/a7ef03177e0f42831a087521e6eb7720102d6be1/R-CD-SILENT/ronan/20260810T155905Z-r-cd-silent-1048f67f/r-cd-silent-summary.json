@@ -1,0 +1,34 @@
+{
+  "row": "R-CD-SILENT",
+  "sha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+  "seat": "ronan",
+  "timestamp": "2026-08-10T15:59:41.321Z",
+  "verdict": "PASS-candidate",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "evidenceJsonl": "evidence.jsonl",
+  "observability": {
+    "traceId": null,
+    "traceJson": "missing"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "tempo-trace-json"
+    ],
+    "notes": [
+      "No trace_id emitted; keep PASS-candidate review-pending until trace JSON is fetched or trace-missing is explicitly accepted."
+    ]
+  },
+  "metrics": {
+    "duration_ms": {
+      "p(95)": 32165,
+      "avg": 32165,
+      "min": 32165,
+      "med": 32165,
+      "max": 32165,
+      "p(90)": 32165
+    },
+    "failures": 0
+  }
+}

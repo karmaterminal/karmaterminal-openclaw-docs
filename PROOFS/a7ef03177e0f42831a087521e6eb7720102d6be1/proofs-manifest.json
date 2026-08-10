@@ -29,13 +29,46 @@
           "R-CD-CHAINED-DEPTH-2",
           "R-CD-MODEL-TOOL"
         ]
+      },
+      {
+        "id": "31406009157",
+        "workflow": "project81-k6-proof.yml",
+        "seat": "ronan",
+        "rows": [
+          "R-CD-2",
+          "R-CD-3",
+          "R-CD-4",
+          "R-CD-CHAINED-DEPTH-2",
+          "R-CD-MODEL-TOOL",
+          "R-CD-SILENT",
+          "R-CD-TOKEN"
+        ],
+        "note": "First per-seat run on ronan with local gateway token (PR #507). R-CD-SILENT PASS; R-CD-4, R-CD-CHAINED-DEPTH-2, R-CD-MODEL-TOOL PARTIAL (child completes, return never lands; tracked openclaw#1241). R-CD-2, R-CD-TOKEN PARTIAL (same transport issue). R-CD-3 PASS.",
+        "partialRows": [
+          "R-CD-2",
+          "R-CD-4",
+          "R-CD-CHAINED-DEPTH-2",
+          "R-CD-MODEL-TOOL",
+          "R-CD-TOKEN"
+        ]
+      },
+      {
+        "id": "31408090482",
+        "workflow": "project81-k6-proof.yml",
+        "seat": "emeric",
+        "rows": [
+          "R-CONFIG-DEFAULTS",
+          "R-CONFIG-INTERSESSION",
+          "R-REGRESSION-TRAP-TESTS"
+        ],
+        "note": "First per-seat run on emeric with local gateway token (PR #507). All rows PASS-candidate."
       }
     ]
   },
   "seat": "cael",
   "canonicalSeatPath": "cael-dgx",
-  "generatedAt": "2026-08-10T15:11:00Z",
-  "generatedBy": "Copilot CLI merge of runs 31367303220 + 31394791476; R-CW-1 trace receipts closed",
+  "generatedAt": "2026-08-10T16:49:00Z",
+  "generatedBy": "Copilot CLI merge of per-seat runs (ronan 31406009157, emeric 31408090482) into corpus",
   "runnableRows": 34,
   "proofRowsRun": 33,
   "totalCorpusRows": 38,
@@ -154,7 +187,14 @@
         "status": "runnable",
         "manifestPath": "tools/k6-proofs/manifests/r-cd-2.json",
         "scenarioPath": "tools/k6-proofs/scenarios/r-cd-2-silent-wake.js"
-      }
+      },
+      "perSeatRuns": [
+        {
+          "verdict": "PARTIAL-candidate",
+          "seat": "ronan",
+          "runDir": "ronan/20260810T155629Z-r-cd-2-1048f67f"
+        }
+      ]
     },
     "R-CD-3": {
       "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-3/cael/20260810T074943Z-r-cd-3-34f430ee",
@@ -182,7 +222,14 @@
         "status": "runnable",
         "manifestPath": "tools/k6-proofs/manifests/r-cd-3.json",
         "scenarioPath": "tools/k6-proofs/scenarios/r-cd-3-post-compaction.js"
-      }
+      },
+      "perSeatRuns": [
+        {
+          "verdict": "PASS-candidate",
+          "seat": "ronan",
+          "runDir": "ronan/20260810T155703Z-r-cd-3-1048f67f"
+        }
+      ]
     },
     "R-CD-4": {
       "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-4/cael/20260810T075003Z-r-cd-4-34f430ee",
@@ -210,7 +257,14 @@
         "status": "runnable",
         "manifestPath": null,
         "scenarioPath": null
-      }
+      },
+      "perSeatRuns": [
+        {
+          "verdict": "PARTIAL-candidate",
+          "seat": "ronan",
+          "runDir": "ronan/20260810T155728Z-r-cd-4-1048f67f"
+        }
+      ]
     },
     "R-CD-CHAINED-DEPTH-2": {
       "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-CHAINED-DEPTH-2/cael/20260810T075141Z-r-cd-chained-depth-2-34f430ee",
@@ -238,7 +292,14 @@
         "status": "runnable",
         "manifestPath": null,
         "scenarioPath": null
-      }
+      },
+      "perSeatRuns": [
+        {
+          "verdict": "PARTIAL-candidate",
+          "seat": "ronan",
+          "runDir": "ronan/20260810T160255Z-r-cd-chained-depth-2-1048f67f"
+        }
+      ]
     },
     "R-CD-COLLECTION-ON-COLLAPSE": {
       "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-COLLECTION-ON-COLLAPSE/cael/20260810T075419Z-r-cd-collection-on-collapse-34f430ee",
@@ -378,7 +439,14 @@
         "status": "runnable",
         "manifestPath": null,
         "scenarioPath": null
-      }
+      },
+      "perSeatRuns": [
+        {
+          "verdict": "PARTIAL-candidate",
+          "seat": "ronan",
+          "runDir": "ronan/20260810T155948Z-r-cd-model-tool-1048f67f"
+        }
+      ]
     },
     "R-CD-RETURN-OVERLAP": {
       "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-RETURN-OVERLAP/cael/20260810T075908Z-r-cd-return-overlap-34f430ee",
@@ -434,7 +502,14 @@
         "status": "runnable",
         "manifestPath": "tools/k6-proofs/manifests/r-cd-silent.json",
         "scenarioPath": "tools/k6-proofs/scenarios/r-cd-silent.js"
-      }
+      },
+      "perSeatRuns": [
+        {
+          "verdict": "PASS-candidate",
+          "seat": "ronan",
+          "runDir": "ronan/20260810T155905Z-r-cd-silent-1048f67f"
+        }
+      ]
     },
     "R-CD-TOKEN": {
       "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CD-TOKEN/cael/20260810T080009Z-r-cd-token-34f430ee",
@@ -473,7 +548,14 @@
         "status": "runnable",
         "manifestPath": null,
         "scenarioPath": null
-      }
+      },
+      "perSeatRuns": [
+        {
+          "verdict": "PARTIAL-candidate",
+          "seat": "ronan",
+          "runDir": "ronan/20260810T155944Z-r-cd-token-1048f67f"
+        }
+      ]
     },
     "R-CONFIG-DEFAULTS": {
       "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CONFIG-DEFAULTS/cael/20260810T080011Z-r-config-defaults-34f430ee",
@@ -501,7 +583,14 @@
         "status": "runnable",
         "manifestPath": "tools/k6-proofs/manifests/r-config-defaults.json",
         "scenarioPath": "tools/k6-proofs/scenarios/r-config-defaults.js"
-      }
+      },
+      "perSeatRuns": [
+        {
+          "verdict": "PASS-candidate",
+          "seat": "emeric",
+          "runDir": "emeric/20260810T162456Z-r-config-defaults-ee590209"
+        }
+      ]
     },
     "R-CONFIG-INTERSESSION": {
       "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CONFIG-INTERSESSION/cael/20260810T080021Z-r-config-intersession-34f430ee",
@@ -529,7 +618,14 @@
         "status": "runnable",
         "manifestPath": "tools/k6-proofs/manifests/r-config-intersession.json",
         "scenarioPath": "tools/k6-proofs/scenarios/r-config-intersession.js"
-      }
+      },
+      "perSeatRuns": [
+        {
+          "verdict": "PASS-candidate",
+          "seat": "emeric",
+          "runDir": "emeric/20260810T162503Z-r-config-intersession-ee590209"
+        }
+      ]
     },
     "R-CW-1": {
       "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-CW-1/cael/20260810T080029Z-r-cw-1-34f430ee",
@@ -1016,7 +1112,14 @@
         "status": "runnable",
         "manifestPath": "tools/k6-proofs/manifests/r-regression-trap-tests.json",
         "scenarioPath": "tools/k6-proofs/scenarios/r-regression-trap-tests.js"
-      }
+      },
+      "perSeatRuns": [
+        {
+          "verdict": "PASS-candidate",
+          "seat": "emeric",
+          "runDir": "emeric/20260810T162509Z-r-regression-trap-tests-ee590209"
+        }
+      ]
     },
     "R-TRACE-REDACTION-1121": {
       "artifactDir": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/R-TRACE-REDACTION-1121/cael/20260810T081642Z-r-trace-redaction-1121-34f430ee",
@@ -1047,5 +1150,10 @@
       }
     }
   },
-  "runLogVerdictLines": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/run-31367303220-verdict-lines.txt"
+  "runLogVerdictLines": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/run-31367303220-verdict-lines.txt",
+  "perSeatNotes": {
+    "R-CD-1": "Run 31405763095 on ronan reported R-CD-1 PASS-candidate with parent_return_event true, but artifacts are not present on ronan at the expected path. Not published.",
+    "R-OBS-1": "Could not run on emeric (elliott): seat-readiness refused because candidate a7ef0317 does not equal deployed runtime 2e72b665. This is an honest constraint of running the composite, not a failure.",
+    "partialReason": "R-CD-4, R-CD-CHAINED-DEPTH-2, R-CD-MODEL-TOOL on ronan are PARTIAL because child completes but return never lands (tracked: karmaterminal/openclaw#1241)."
+  }
 }

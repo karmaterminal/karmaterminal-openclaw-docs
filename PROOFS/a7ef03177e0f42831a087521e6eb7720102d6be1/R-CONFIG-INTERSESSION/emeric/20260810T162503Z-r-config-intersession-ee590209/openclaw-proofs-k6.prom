@@ -1,0 +1,10 @@
+# TYPE openclaw_proofs_k6_run_total counter
+openclaw_proofs_k6_run_total{row_id="R-CONFIG-INTERSESSION",seat="emeric",candidate_sha="a7ef03177e0f42831a087521e6eb7720102d6be1",scenario="r-config-intersession.js",run_id="20260810T162503Z-r-config-intersession-ee590209",tool_surface="read-only",transport="websocket",outcome="PASS-candidate",candidate_only="true",fold_requires_review="true",failure_class="none"} 1
+# TYPE openclaw_proofs_k6_proof_failures_total counter
+openclaw_proofs_k6_proof_failures_total{row_id="R-CONFIG-INTERSESSION",seat="emeric",candidate_sha="a7ef03177e0f42831a087521e6eb7720102d6be1",scenario="r-config-intersession.js",run_id="20260810T162503Z-r-config-intersession-ee590209",failure_class="none"} 0
+# TYPE openclaw_proofs_k6_candidate_pending_review gauge
+openclaw_proofs_k6_candidate_pending_review{row_id="R-CONFIG-INTERSESSION",seat="emeric",candidate_sha="a7ef03177e0f42831a087521e6eb7720102d6be1",run_id="20260810T162503Z-r-config-intersession-ee590209",outcome="PASS-candidate",fold_requires_review="true"} 1
+# TYPE openclaw_proofs_k6_receipt_status gauge
+openclaw_proofs_k6_receipt_status{row_id="R-CONFIG-INTERSESSION",seat="emeric",candidate_sha="a7ef03177e0f42831a087521e6eb7720102d6be1",run_id="20260810T162503Z-r-config-intersession-ee590209",receipt_name="seat-readiness",receipt_required="true",receipt_status="present"} 1
+openclaw_proofs_k6_receipt_status{row_id="R-CONFIG-INTERSESSION",seat="emeric",candidate_sha="a7ef03177e0f42831a087521e6eb7720102d6be1",run_id="20260810T162503Z-r-config-intersession-ee590209",receipt_name="config-read",receipt_required="true",receipt_status="present"} 1
+openclaw_proofs_k6_receipt_status{row_id="R-CONFIG-INTERSESSION",seat="emeric",candidate_sha="a7ef03177e0f42831a087521e6eb7720102d6be1",run_id="20260810T162503Z-r-config-intersession-ee590209",receipt_name="cross-session-targeting",receipt_required="true",receipt_status="present"} 1

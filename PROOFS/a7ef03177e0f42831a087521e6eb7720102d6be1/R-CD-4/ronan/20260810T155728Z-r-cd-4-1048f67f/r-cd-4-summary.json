@@ -1,0 +1,18 @@
+{
+  "row": "R-CD-4",
+  "sha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+  "seat": "ronan",
+  "timestamp": "2026-08-10T15:59:02.188Z",
+  "verdict": "PARTIAL-candidate",
+  "metrics": {
+    "duration_ms": {
+      "max": 90521,
+      "p(90)": 90521,
+      "p(95)": 90521,
+      "avg": 90521,
+      "min": 90521,
+      "med": 90521
+    },
+    "failures": 1
+  }
+}

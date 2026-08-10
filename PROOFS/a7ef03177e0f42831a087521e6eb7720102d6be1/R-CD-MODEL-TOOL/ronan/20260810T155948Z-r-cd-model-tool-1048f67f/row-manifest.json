@@ -1,0 +1,101 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "issue": 140,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "mutates": false,
+  "timeoutSeconds": 180,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "rowId": "R-CD-MODEL-TOOL",
+  "toolSurface": "typed-tool",
+  "scenario": {
+    "name": "r-cd-model-tool",
+    "description": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe"
+    ],
+    "status": "runnable",
+    "expectedFile": "r-cd-model-tool.js",
+    "notes": "Alternate-model rows are blocked on karmaterminal/openclaw#1103 until the child runtime observes the requested model instead of inheriting gpt-5.5.",
+    "file": "r-cd-model-tool.js",
+    "registryNotes": "Runnable k6 scenario exercises typed continue_delegate with explicit model override; authoritative model mismatch is FAIL-candidate and unavailable metadata is PARTIAL-candidate."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "forms": [
+      "typed-tool-model-override"
+    ],
+    "model": "${OPENCLAW_ALT_MODEL:-openai/gpt-5.6-luna}",
+    "promptTemplate": "Proof nonce {{nonce}}: report the current model identity from runtime context and the nonce only. The requested model is intentionally omitted from the child task to prevent echo-based false PASS. Do not mutate files. Do not post to any channel.",
+    "idempotencyKeyPrefix": "R-CD-MODEL-TOOL"
+  },
+  "expectedReceipts": [
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the parent request that asks the agent to call continue_delegate for this model row"
+    },
+    {
+      "name": "child-session-observed",
+      "required": true,
+      "description": "A nonce-correlated delegate child session/run is observed on the subscribed session stream or session history"
+    },
+    {
+      "name": "child-model-byte",
+      "required": true,
+      "description": "Observed child provider/model byte from authoritative gateway child-session metadata or spawn record; child prose is auxiliary only"
+    },
+    {
+      "name": "return-payload",
+      "required": true,
+      "description": "Delegate return includes the row nonce and observed model/provider summary"
+    },
+    {
+      "name": "trace-or-session-correlation",
+      "required": false,
+      "description": "Trace id, span tree, or session-event correlation tying dispatch to child and return"
+    },
+    {
+      "name": "requested-model-byte",
+      "required": true,
+      "description": "Committed request byte showing continue_delegate model=<provider/model>"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-MODEL-TOOL",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "PASS-candidate only when the requested model byte matches authoritative gateway child-session metadata or spawn-record model bytes. The child task omits the requested model and its self-report is auxiliary only; mismatch is FAIL-candidate and unavailable metadata is PARTIAL-candidate."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "dispatch-accepted",
+      "requested-model-byte",
+      "child-session-observed",
+      "child-model-byte",
+      "return-payload"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Explicit model override row. Prevent echo-based false PASS by omitting requested model from the child task; authoritative fallback/inheritance is FAIL-candidate, while unavailable authoritative metadata is PARTIAL-candidate."
+  }
+}

@@ -1,0 +1,366 @@
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "openclaw-k6-proofs"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {
+            "name": "openclaw-k6-proofs-exporter",
+            "version": "1"
+          },
+          "metrics": [
+            {
+              "name": "openclaw_proofs_k6_run_total",
+              "sum": {
+                "aggregationTemporality": 2,
+                "isMonotonic": true,
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-REGRESSION-TRAP-TESTS"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "emeric"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "a7ef03177e0f42831a087521e6eb7720102d6be1"
+                        }
+                      },
+                      {
+                        "key": "scenario",
+                        "value": {
+                          "stringValue": "r-regression-trap-tests.js"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T162509Z-r-regression-trap-tests-ee590209"
+                        }
+                      },
+                      {
+                        "key": "tool_surface",
+                        "value": {
+                          "stringValue": "read-only"
+                        }
+                      },
+                      {
+                        "key": "transport",
+                        "value": {
+                          "stringValue": "offline"
+                        }
+                      },
+                      {
+                        "key": "outcome",
+                        "value": {
+                          "stringValue": "PASS-candidate"
+                        }
+                      },
+                      {
+                        "key": "candidate_only",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "fold_requires_review",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "failure_class",
+                        "value": {
+                          "stringValue": "none"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786379112259000000",
+                    "asInt": "1"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_proof_failures_total",
+              "sum": {
+                "aggregationTemporality": 2,
+                "isMonotonic": true,
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-REGRESSION-TRAP-TESTS"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "emeric"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "a7ef03177e0f42831a087521e6eb7720102d6be1"
+                        }
+                      },
+                      {
+                        "key": "scenario",
+                        "value": {
+                          "stringValue": "r-regression-trap-tests.js"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T162509Z-r-regression-trap-tests-ee590209"
+                        }
+                      },
+                      {
+                        "key": "failure_class",
+                        "value": {
+                          "stringValue": "none"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786379112259000000",
+                    "asInt": "0"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_candidate_pending_review",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-REGRESSION-TRAP-TESTS"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "emeric"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "a7ef03177e0f42831a087521e6eb7720102d6be1"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T162509Z-r-regression-trap-tests-ee590209"
+                        }
+                      },
+                      {
+                        "key": "outcome",
+                        "value": {
+                          "stringValue": "PASS-candidate"
+                        }
+                      },
+                      {
+                        "key": "fold_requires_review",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786379112259000000",
+                    "asInt": "1"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_duration_ms",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-REGRESSION-TRAP-TESTS"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "emeric"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "a7ef03177e0f42831a087521e6eb7720102d6be1"
+                        }
+                      },
+                      {
+                        "key": "scenario",
+                        "value": {
+                          "stringValue": "r-regression-trap-tests.js"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T162509Z-r-regression-trap-tests-ee590209"
+                        }
+                      },
+                      {
+                        "key": "outcome",
+                        "value": {
+                          "stringValue": "PASS-candidate"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786379112259000000",
+                    "asDouble": 1
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_receipt_status",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-REGRESSION-TRAP-TESTS"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "emeric"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "a7ef03177e0f42831a087521e6eb7720102d6be1"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T162509Z-r-regression-trap-tests-ee590209"
+                        }
+                      },
+                      {
+                        "key": "receipt_name",
+                        "value": {
+                          "stringValue": "regression-trap-artifacts"
+                        }
+                      },
+                      {
+                        "key": "receipt_required",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "receipt_status",
+                        "value": {
+                          "stringValue": "unknown"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786379112259000000",
+                    "asInt": "0"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "openclaw_proofs_k6_receipt_status",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "row_id",
+                        "value": {
+                          "stringValue": "R-REGRESSION-TRAP-TESTS"
+                        }
+                      },
+                      {
+                        "key": "seat",
+                        "value": {
+                          "stringValue": "emeric"
+                        }
+                      },
+                      {
+                        "key": "candidate_sha",
+                        "value": {
+                          "stringValue": "a7ef03177e0f42831a087521e6eb7720102d6be1"
+                        }
+                      },
+                      {
+                        "key": "run_id",
+                        "value": {
+                          "stringValue": "20260810T162509Z-r-regression-trap-tests-ee590209"
+                        }
+                      },
+                      {
+                        "key": "receipt_name",
+                        "value": {
+                          "stringValue": "regression-tests-passed"
+                        }
+                      },
+                      {
+                        "key": "receipt_required",
+                        "value": {
+                          "stringValue": "true"
+                        }
+                      },
+                      {
+                        "key": "receipt_status",
+                        "value": {
+                          "stringValue": "unknown"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1786379112259000000",
+                    "asInt": "0"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "schema": "openclaw.k6.public-tempo-trace.v1",
+  "traceId": "86b6cefef92223bfea82232af34815c1",
+  "spans": [
+    {
+      "name": "openclaw.tool.execution",
+      "traceId": "86b6cefef92223bfea82232af34815c1",
+      "spanId": "93d1619059279174",
+      "parentSpanId": "1cf1f07d160971b9",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": [
+        {
+          "key": "openclaw.toolName",
+          "value": {
+            "stringValue": "continue_delegate"
+          }
+        },
+        {
+          "key": "gen_ai.tool.name",
+          "value": {
+            "stringValue": "continue_delegate"
+          }
+        }
+      ]
+    },
+    {
+      "name": "continuation.delegate.fire",
+      "traceId": "86b6cefef92223bfea82232af34815c1",
+      "spanId": "8bdfe21577878710",
+      "parentSpanId": "1cf1f07d160971b9",
+      "status": {
+        "code": "OK"
+      },
+      "attributes": [
+        {
+          "key": "chain.id",
+          "value": {
+            "stringValue": "c1e51d00-32bf-4608-a9de-964964f89a17"
+          }
+        },
+        {
+          "key": "delegate.mode",
+          "value": {
+            "stringValue": "normal"
+          }
+        },
+        {
+          "key": "reason.present",
+          "value": {
+            "boolValue": true
+          }
+        },
+        {
+          "key": "reason.length",
+          "value": {
+            "intValue": "139"
+          }
+        },
+        {
+          "key": "reason.hash",
+          "value": {
+            "stringValue": "4c16000e3a0740b6"
+          }
+        }
+      ]
+    },
+    {
+      "name": "continuation.delegate.dispatch",
+      "traceId": "86b6cefef92223bfea82232af34815c1",
+      "spanId": "949720d11ad9dff3",
+      "parentSpanId": "1cf1f07d160971b9",
+      "status": {
+        "code": "OK"
+      },
+      "attributes": [
+        {
+          "key": "chain.id",
+          "value": {
+            "stringValue": "c1e51d00-32bf-4608-a9de-964964f89a17"
+          }
+        },
+        {
+          "key": "delegate.mode",
+          "value": {
+            "stringValue": "normal"
+          }
+        },
+        {
+          "key": "reason.present",
+          "value": {
+            "boolValue": true
+          }
+        },
+        {
+          "key": "reason.length",
+          "value": {
+            "intValue": "139"
+          }
+        },
+        {
+          "key": "reason.hash",
+          "value": {
+            "stringValue": "4c16000e3a0740b6"
+          }
+        }
+      ]
+    },
+    {
+      "name": "openclaw.harness.run",
+      "traceId": "86b6cefef92223bfea82232af34815c1",
+      "spanId": "3102b17e659ab69c",
+      "parentSpanId": "949720d11ad9dff3",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    }
+  ]
+}

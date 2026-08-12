@@ -2,61 +2,70 @@
 
 ## Branch / PR
 - Branch: `codeagent/wo1217-proof-harness-authority-fix`
-- Review-fix code commit: `dffb1ceb8c78c789442c18135f00618b564da85d`
-- Branch tip: use `git rev-parse HEAD` / origin branch tip after push
 - Base: docs `origin/main` @ `513a74ad1db3cfbb5ac10cc45155ee1e1acb911a`
 - PR: https://github.com/karmaterminal/karmaterminal-openclaw-docs/pull/510 (not merged)
+- Review-fix head before this turn: `5046874a38da47e074c61630b26c4e02f54853c3`
+- Branch tip: use `git rev-parse HEAD` / origin branch tip after push
 
-## Review fix (PR review 4920192489)
+## Review fix (PR review 4920347189)
 
-**Finding:** `parentReturnContainsNonce` accepted any assistant/system message containing the nonce, so a paraphrased schedule acknowledgement could falsely satisfy `parent_return_nonce_bound`.
-
-**Reproduction (now false):**
-`parentReturnContainsNonce([{role:'assistant', content:'Scheduled delegate for nonce-x; waiting for completion.'}], 'nonce-x')` => `false`
-
+### Finding 1 — targeted-return `authoritativeReceipt` unsigned / structuralOk false PASS
 **Fix:**
-- Require the exact `MODEL-TOOL-CHILD <nonce> MODEL <provider/model>` marker for parent return authority (shared via `childReturnMarkerRegex` with auxiliary self-report parse).
-- Adversarial schedule-paraphrase + loose MODEL-TOOL-CHILD mention cases added.
-- Exact marker still accepted on assistant/system history.
-- Metadata-only model equality unchanged (`resolveModelToolChildAuthority` / spawnedBy set-diff).
-- Runbook authority note updated.
+- HMAC-seal targeted-return receipts with `hmac-sha256-gateway-token-v1` over canonical closed fields (same createHmac/timingSafeEqual pattern as R-CD-2/R-CD-TOKEN).
+- Collector requires `OPENCLAW_GATEWAY_TOKEN`; self-validates seal before write.
+- `validateTargetedReturnReceipt(receipt, signingKey, expectedRow)` rejects missing token, forged unsigned PASS, tampered fields, wrong key.
+- PASS requires `structuralOk === true` (plus existing counts/fingerprints); hand-forged PASS with structuralOk:false is rejected even when HMAC is valid for that impossible body.
+- Candidate contract/validator wrappers pass the gateway token through.
+- `run-proofs.sh` fails closed if token missing on R-CD-4 / R-CD-CHAINED-DEPTH-2 collector path.
+- Public artifacts remain redacted (fingerprints only; token never serialized).
 
-**Files touched in this fix:**
+### Finding 2 — R-CD-MODEL-TOOL sole dispatch lost when pre baseline >500ms
+**Fix:**
+- Added `createModelToolDispatchGate()` state machine: dispatch exactly once from successful pre `sessions.list` baseline response.
+- Removed fixed +800ms sole dispatch timer.
+- 5s watchdog still fail-closes if baseline never arrives; late baseline after fail-closed cannot resurrect dispatch.
+- Delayed-baseline regression tests prove dispatchCount===1 and never-before-baseline.
+
+## Files touched this fix
+- `tools/k6-proofs/lib/targeted-return-receipt.mjs`
+- `tools/k6-proofs/scripts/collect-targeted-return-receipt.mjs`
+- `tools/k6-proofs/scripts/candidate-run-result-contract.mjs`
+- `tools/k6-proofs/scripts/validate-candidate-run-result.mjs`
+- `tools/k6-proofs/scripts/run-proofs.sh`
+- `tools/k6-proofs/lib/r-cd-4-authority.mjs`
+- `tools/k6-proofs/lib/r-cd-chained-depth-2-authority.mjs`
 - `tools/k6-proofs/lib/r-cd-model-tool-authority.mjs`
+- `tools/k6-proofs/scenarios/r-cd-model-tool.js`
+- `tools/k6-proofs/tests/targeted-return-receipt.test.mjs`
 - `tools/k6-proofs/tests/r-cd-model-tool-authority.test.mjs`
-- `RUNBOOKS/project-81/rows/R-CD-MODEL-TOOL.md`
+- `tools/k6-proofs/tests/r-cd-4-authority.test.mjs`
+- `tools/k6-proofs/tests/r-cd-chained-depth-2-authority.test.mjs`
 - `output.md`
-
-## Prior WO-1217 work (a26ca671)
-Shared targeted-return collector for R-CD-4 / R-CD-CHAINED-DEPTH-2; disposable-parent spawnedBy set-diff for R-CD-MODEL-TOOL; Tempo 31-hex pad. Historical PROOFS untouched; no product code.
 
 ## Validation
 
 ```bash
-node --test tools/k6-proofs/tests/r-cd-model-tool-authority.test.mjs
-# 5 pass / 0 fail
+node --test \
+  tools/k6-proofs/tests/targeted-return-receipt.test.mjs \
+  tools/k6-proofs/tests/r-cd-model-tool-authority.test.mjs \
+  tools/k6-proofs/tests/r-cd-chained-depth-2-authority.test.mjs \
+  tools/k6-proofs/tests/r-cd-4-authority.test.mjs
+# 36 pass / 0 fail
 
 node --test tools/k6-proofs/tests/**/*.test.mjs tools/k6-proofs/scripts/__tests__/**/*.test.mjs
-# full-suite: 363 pass / 1 fail (pre-existing INDEX schema drift on current_sha proofs-manifest)
+# full-suite: 367 pass / 1 fail (pre-existing INDEX schema drift on current_sha proofs-manifest)
 
 node tools/k6-proofs/scripts/check-manifest-scenarios.mjs --repo-root "$PWD"  # pass
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs --repo-root "$PWD"  # pass
 node tools/k6-proofs/scripts/check-proof-row-manifests.mjs --repo-root "$PWD" # pass
 ```
 
-## Coupled fallout
-- No other k6-proofs lib helper used the loose assistant/system nonce-text return gate.
-- Targeted-return authority remains journal-line bound.
-- Model equality remains metadata-only.
-
-## GitNexus
-- Index present (70,515 nodes); impact/detect-changes blocked by LadybugDB v42 vs runtime v40.
-- Manual blast radius LOW: only r-cd-model-tool scenario + unit test.
-
-## Remaining live reruns
-R-CD-4, R-CD-CHAINED-DEPTH-2, R-CD-MODEL-TOOL need fresh disposable-session PASS-candidate fires under new authority.
-
 ## Product notes
 - R-CD-4 behavior did not regress.
 - Product trace bug remains karmaterminal/openclaw#1251.
-- Old artifacts unchanged. Do not merge.
+- Old PROOFS artifacts unchanged. Do not merge.
+- Remaining live reruns: R-CD-4, R-CD-CHAINED-DEPTH-2, R-CD-MODEL-TOOL under sealed authority.
+
+## GitNexus
+- Index present; prior LadybugDB version skew may block impact/detect-changes MCP.
+- Manual blast radius LOW: receipt seal + model-tool dispatch gate + collector/validator plumbing only.

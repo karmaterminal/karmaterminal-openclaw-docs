@@ -142,3 +142,44 @@ export function parseAuxiliaryChildSelfReport(text, nonce) {
   const match = text.match(marker);
   return match ? normalizeModel(match[1]) : null;
 }
+
+/**
+ * Baseline-gated dispatch controller for R-CD-MODEL-TOOL.
+ *
+ * The sole sessions.send dispatch fires exactly once from a successful
+ * pre-dispatch sessions.list {spawnedBy} baseline response — never from a
+ * fixed timing gap after subscribe. A watchdog may fail-closed if the
+ * baseline never arrives; after fail-closed, a late baseline cannot dispatch.
+ */
+export function createModelToolDispatchGate() {
+  let baselineCaptured = false;
+  let dispatched = false;
+  let failedClosed = false;
+
+  return {
+    /** Successful pre sessions.list response — may trigger the sole dispatch. */
+    onPreBaselineCaptured() {
+      if (failedClosed) return { action: 'noop', reason: 'already-failed-closed' };
+      if (dispatched) return { action: 'noop', reason: 'already-dispatched' };
+      baselineCaptured = true;
+      dispatched = true;
+      return { action: 'dispatch' };
+    },
+    /** Watchdog: if baseline never arrived, fail closed. */
+    onBaselineWatchdog() {
+      if (dispatched || baselineCaptured) {
+        return { action: 'noop', reason: 'baseline-already-handled' };
+      }
+      failedClosed = true;
+      return { action: 'fail-closed' };
+    },
+    getState() {
+      return {
+        baselineCaptured,
+        dispatched,
+        failedClosed,
+        dispatchCount: dispatched ? 1 : 0,
+      };
+    },
+  };
+}

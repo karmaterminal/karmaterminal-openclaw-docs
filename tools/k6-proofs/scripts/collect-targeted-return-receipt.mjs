@@ -4,12 +4,15 @@ import path from 'node:path';
 import {
   assertPublicSafeTargetedReturnReceipt,
   resolveTargetedReturnAuthority,
+  validateTargetedReturnReceipt,
 } from '../lib/targeted-return-receipt.mjs';
 
 function usage() {
   console.error(`Usage: node collect-targeted-return-receipt.mjs \\
   --run-dir <dir> --evidence <private-evidence.json> --journal <private-gateway.log> \\
-  [--row R-CD-4|R-CD-CHAINED-DEPTH-2]`);
+  [--row R-CD-4|R-CD-CHAINED-DEPTH-2]
+
+Requires OPENCLAW_GATEWAY_TOKEN in the environment to HMAC-seal the receipt.`);
 }
 
 function parseArgs(argv) {
@@ -81,13 +84,18 @@ async function main() {
     return;
   }
 
+  const signingKey = process.env.OPENCLAW_GATEWAY_TOKEN;
+  if (typeof signingKey !== 'string' || signingKey.length === 0) {
+    throw new Error('OPENCLAW_GATEWAY_TOKEN is required to seal targeted-return receipts');
+  }
+
   const runDir = path.resolve(args.runDir);
   const evidence = JSON.parse(await readFile(path.resolve(args.evidence), 'utf8'));
   const journalText = await readFile(path.resolve(args.journal), 'utf8');
   const binding = bindRow(evidence, args.row);
   const { windowStartMs, windowEndMs } = windowFromEvidence(evidence);
 
-  const authority = resolveTargetedReturnAuthority({
+  const receipt = resolveTargetedReturnAuthority({
     journalText,
     targetSessionKey: binding.targetSessionKey,
     parentSessionKey: binding.parentSessionKey,
@@ -96,24 +104,14 @@ async function main() {
     windowEndMs,
     row: binding.row,
     allowIntermediateAncestorTargets: binding.allowIntermediateAncestorTargets === true,
+    structuralOk: binding.structuralOk === true,
+    signingKey,
   });
 
-  // Structural child/completion gates stay independent of journal routing.
-  let verdict = authority.verdict;
-  let failureCategory = authority.failureCategory;
-  if (!binding.structuralOk) {
-    verdict = 'PARTIAL-candidate';
-    failureCategory = failureCategory || 'structural-gates-incomplete';
-  } else if (authority.verdict !== 'PASS-candidate') {
-    verdict = 'PARTIAL-candidate';
+  const integrity = validateTargetedReturnReceipt(receipt, signingKey, binding.row);
+  if (!integrity.valid) {
+    throw new Error(`sealed targeted-return receipt failed self-validation: ${integrity.reason}`);
   }
-
-  const receipt = {
-    ...authority,
-    verdict,
-    failureCategory,
-    structuralOk: binding.structuralOk,
-  };
   assertPublicSafeTargetedReturnReceipt(receipt);
 
   const outName = 'targeted-return-receipt.json';
@@ -123,9 +121,11 @@ async function main() {
     row: binding.row,
     verdict: receipt.verdict,
     failureCategory: receipt.failureCategory,
+    structuralOk: receipt.structuralOk === true,
     receipt: outName,
     targetMatchCount: receipt.targetMatchCount,
     parentMatchCount: receipt.parentMatchCount,
+    integrity: receipt.integrity?.algorithm || null,
   })}\n`);
 }
 

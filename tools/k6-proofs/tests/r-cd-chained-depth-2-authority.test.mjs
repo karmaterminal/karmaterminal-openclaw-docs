@@ -14,6 +14,7 @@ const nonce = 'R-CD-CHAIN-EXACT-NONCE';
 const root = 'agent:main:r-cd-chain-root';
 const child = 'agent:main:subagent:child';
 const grandchild = 'agent:main:subagent:grandchild';
+const signingKey = 'r-cd-chained-depth-2-unit-gateway-token';
 
 function systemEvent(text, sessionKey = root) {
   return { sessionKey, message: { role: 'system', content: [{ type: 'text', text }] } };
@@ -68,10 +69,13 @@ test('depth-2 shared journal collector binds grandchild→root under fanoutMode=
     grandchildSessionKey: grandchild,
     windowStartMs: start,
     windowEndMs: end,
+    signingKey,
   });
   assert.equal(receipt.verdict, 'PASS-candidate');
   assert.equal(receipt.targetMatchCount, 1);
   assert.equal(receipt.parentMatchCount, 0);
+  assert.equal(receipt.structuralOk, true);
+  assert.equal(receipt.integrity?.algorithm, 'hmac-sha256-gateway-token-v1');
 });
 
 test('depth-2 journal authority fails when hops are missing', () => {
@@ -80,9 +84,12 @@ test('depth-2 journal authority fails when hops are missing', () => {
     rootSessionKey: root,
     childSessionKey: child,
     grandchildSessionKey: null,
+    signingKey,
   });
   assert.equal(receipt.failureCategory, 'missing-hop');
   assert.equal(receipt.verdict, 'PARTIAL-candidate');
+  assert.equal(receipt.structuralOk, false);
+  assert.equal(receipt.integrity?.algorithm, 'hmac-sha256-gateway-token-v1');
 });
 
 test('depth-2 tree multi-target delivery to root+intermediate PASSes', () => {
@@ -98,6 +105,7 @@ test('depth-2 tree multi-target delivery to root+intermediate PASSes', () => {
     grandchildSessionKey: grandchild,
     windowStartMs: start,
     windowEndMs: end,
+    signingKey,
   });
   assert.equal(receipt.verdict, 'PASS-candidate');
   assert.equal(receipt.targetMatchCount, 1);
@@ -117,6 +125,7 @@ test('depth-2 separate intermediate+root lines still PASS under tree fanout', ()
     grandchildSessionKey: grandchild,
     windowStartMs: start,
     windowEndMs: end,
+    signingKey,
   });
   assert.equal(receipt.verdict, 'PASS-candidate');
 });

@@ -5,6 +5,7 @@ import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import {
+  createModelToolDispatchGate,
   parentReturnContainsNonce,
   resolveModelToolChildAuthority,
   sessionKeysFromListPayload,
@@ -95,6 +96,7 @@ export default function() {
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    const dispatchGate = createModelToolDispatchGate();
     let listPhase = null; // 'pre' | 'post' | 'parent-history'
     let postListPolls = 0;
     let parentHistoryPolls = 0;
@@ -157,36 +159,40 @@ export default function() {
       }
     }
 
+    // Sole dispatch: armed only by a successful pre-baseline response (once).
+    function dispatchModelToolTurn() {
+      const childTask =
+        'Proof nonce ' + rowNonce + ': read your runtime context/current model identity. ' +
+        'Reply exactly MODEL-TOOL-CHILD ' + rowNonce + ' MODEL <provider/model>. ' +
+        'Use UNKNOWN only if no runtime model identity is available. Do not mutate files. Do not post externally.';
+      const instruction =
+        HARNESS_MARKER + ' R-CD-MODEL-TOOL nonce ' + rowNonce + '. ' +
+        'Call continue_delegate with task=' + JSON.stringify(childTask) +
+        ', mode="normal", delaySeconds=' + delaySeconds +
+        ', model=' + JSON.stringify(requestedModel) + '. ' +
+        'After the continue_delegate tool result reports scheduled, reply exactly ' +
+        'MODEL-TOOL-PARENT-SCHEDULED ' + rowNonce + ' REQUESTED ' + requestedModel + '. No other action.';
+      tracker.send(socket, 'sessions.send', {
+        key: sessionKey,
+        message: instruction,
+        idempotencyKey: idPrefix + '-DISPATCH-' + rowNonce,
+      });
+    }
+
     function start(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       // Pre-dispatch baseline: server-filtered children of this disposable parent.
+      // Dispatch is NOT on a fixed gap after this request — it fires from the
+      // successful pre response via createModelToolDispatchGate (exactly once).
       socket.setTimeout(() => requestSpawnedByList('pre'), 300);
       socket.setTimeout(() => {
-        if (!evidence.pre_spawned_by_captured) {
+        const watchdog = dispatchGate.onBaselineWatchdog();
+        if (watchdog.action === 'fail-closed') {
           console.error('✗ pre-dispatch sessions.list {spawnedBy} baseline missing');
           failures.add(1);
           socket.close();
         }
       }, 5000);
-      socket.setTimeout(() => {
-        if (!evidence.pre_spawned_by_captured) return;
-        const childTask =
-          'Proof nonce ' + rowNonce + ': read your runtime context/current model identity. ' +
-          'Reply exactly MODEL-TOOL-CHILD ' + rowNonce + ' MODEL <provider/model>. ' +
-          'Use UNKNOWN only if no runtime model identity is available. Do not mutate files. Do not post externally.';
-        const instruction =
-          HARNESS_MARKER + ' R-CD-MODEL-TOOL nonce ' + rowNonce + '. ' +
-          'Call continue_delegate with task=' + JSON.stringify(childTask) +
-          ', mode="normal", delaySeconds=' + delaySeconds +
-          ', model=' + JSON.stringify(requestedModel) + '. ' +
-          'After the continue_delegate tool result reports scheduled, reply exactly ' +
-          'MODEL-TOOL-PARENT-SCHEDULED ' + rowNonce + ' REQUESTED ' + requestedModel + '. No other action.';
-        tracker.send(socket, 'sessions.send', {
-          key: sessionKey,
-          message: instruction,
-          idempotencyKey: idPrefix + '-DISPATCH-' + rowNonce,
-        });
-      }, 800);
       // Independent post-dispatch polls (not event-correlation gated).
       socket.setTimeout(() => { if (evidence.dispatch_accepted) requestSpawnedByList('post'); }, 4000);
       socket.setTimeout(() => { if (evidence.dispatch_accepted) requestSpawnedByList('post'); }, 12000);
@@ -234,10 +240,24 @@ export default function() {
         }
         if (classified.kind === 'response' && classified.method === 'sessions.list') {
           if (listPhase === 'pre') {
-            evidence.pre_spawned_by_keys = sessionKeysFromListPayload(classified.payload);
-            evidence.pre_spawned_by_captured = true;
-            console.log('✓ pre-dispatch spawnedBy baseline captured (' + evidence.pre_spawned_by_keys.length + ')');
-            listPhase = null;
+            // Dispatch exactly once from the successful pre-baseline response.
+            // A late baseline (e.g. RPC >500ms) still arms dispatch; a fixed
+            // +800ms timer must never be the sole dispatch trigger.
+            if (classified.ok) {
+              evidence.pre_spawned_by_keys = sessionKeysFromListPayload(classified.payload || {});
+              evidence.pre_spawned_by_captured = true;
+              console.log('✓ pre-dispatch spawnedBy baseline captured (' + evidence.pre_spawned_by_keys.length + ')');
+              listPhase = null;
+              const gateResult = dispatchGate.onPreBaselineCaptured();
+              if (gateResult.action === 'dispatch') {
+                console.log('✓ baseline-gated model-tool dispatch armed (once)');
+                dispatchModelToolTurn();
+              }
+            } else {
+              console.error('✗ pre-dispatch sessions.list rejected: ' + JSON.stringify(classified.error));
+              listPhase = null;
+              // Leave pre_spawned_by_captured false so the watchdog fail-closes.
+            }
           } else if (listPhase === 'post' || evidence.dispatch_accepted) {
             postListPolls += 1;
             if (classified.ok) applyChildAuthority(classified.payload || {});

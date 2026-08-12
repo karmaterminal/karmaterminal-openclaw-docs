@@ -220,7 +220,12 @@ export function rCd4ShouldScheduleEarlyClose({ parentReturnReceipt }) {
 
 /**
  * Finalize R-CD-4 return authority from the shared journal collector only.
+ * Requires signingKey (OPENCLAW_GATEWAY_TOKEN) — same HMAC contract as collector.
  */
 export function rCd4JournalReturnAuthority(args) {
-  return resolveTargetedReturnAuthority({ ...args, row: args.row || 'R-CD-4' });
+  return resolveTargetedReturnAuthority({
+    ...args,
+    row: args.row || 'R-CD-4',
+    signingKey: args.signingKey,
+  });
 }

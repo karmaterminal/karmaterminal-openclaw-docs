@@ -1398,7 +1398,18 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     TARGETED_RETURN_RECEIPT_SHA256=""
     if [[ "$ROW_ID" == "R-CD-4" || "$ROW_ID" == "R-CD-CHAINED-DEPTH-2" ]]; then
       TARGETED_RETURN_RECEIPT="targeted-return-receipt.json"
-      if [[ -s "$PRIVATE_EVIDENCE_FILE" && -f "$PRIVATE_GATEWAY_LOG" ]] && \
+      # Collector HMAC-seals with OPENCLAW_GATEWAY_TOKEN (same contract as R-CD-2/TOKEN).
+      # Candidate validator re-checks the seal via validateTargetedReturnReceipt(receipt, token).
+      if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then
+        echo "[$ROW_ID] TARGETED-RETURN COLLECTOR FAILED: OPENCLAW_GATEWAY_TOKEN required for HMAC seal" >&2
+        SUMMARY_VERDICT="PARTIAL-candidate"
+        SUMMARY_VERDICT_SOURCE="targeted-return-receipt-missing"
+        REVIEW_PENDING_RECEIPTS="$(
+          jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
+            '$current + ["targeted-return-receipt"] | unique'
+        )"
+        POSTPROCESS_RC=1
+      elif [[ -s "$PRIVATE_EVIDENCE_FILE" && -f "$PRIVATE_GATEWAY_LOG" ]] && \
         node "$TARGETED_RETURN_COLLECTOR" \
           --run-dir "$RUN_DIR" \
           --evidence "$PRIVATE_EVIDENCE_FILE" \

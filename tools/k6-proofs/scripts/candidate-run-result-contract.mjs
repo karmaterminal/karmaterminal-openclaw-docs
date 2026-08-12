@@ -206,7 +206,8 @@ function authoritativeReceiptContract(rowId) {
       file: 'targeted-return-receipt.json',
       source: 'shared-targeted-return-collector',
       verdictSource: 'targeted-return-receipt',
-      validate: (receipt) => validateTargetedReturnReceipt(receipt, rowId),
+      // Same gateway-token HMAC contract as R-CD-2/R-CD-TOKEN authoritative receipts.
+      validate: (receipt, signingKey) => validateTargetedReturnReceipt(receipt, signingKey, rowId),
     };
   }
   return null;

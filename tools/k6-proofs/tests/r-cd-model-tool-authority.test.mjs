@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  createModelToolDispatchGate,
   diffSpawnedByChildren,
   modelFromSessionMetadata,
   parentReturnContainsNonce,
@@ -126,7 +127,53 @@ test('child self-report cannot establish equality; parent schedule ack is not re
   );
 });
 
-test('scenario requires disposable parent and spawnedBy list filter', async () => {
+test('delayed pre-baseline still dispatches exactly once and never before baseline', () => {
+  const gate = createModelToolDispatchGate();
+  // Simulate the old fixed +800ms gap elapsing while pre sessions.list is still
+  // in flight: no dispatch may occur before baseline capture.
+  assert.deepEqual(gate.getState(), {
+    baselineCaptured: false,
+    dispatched: false,
+    failedClosed: false,
+    dispatchCount: 0,
+  });
+
+  // Baseline arrives late (e.g. RPC took >500ms). Dispatch arms exactly once.
+  assert.deepEqual(gate.onPreBaselineCaptured(), { action: 'dispatch' });
+  assert.equal(gate.getState().dispatchCount, 1);
+  assert.equal(gate.getState().dispatched, true);
+  assert.equal(gate.getState().baselineCaptured, true);
+
+  // Duplicate/late baseline responses must not re-dispatch.
+  assert.deepEqual(gate.onPreBaselineCaptured(), {
+    action: 'noop',
+    reason: 'already-dispatched',
+  });
+  assert.equal(gate.getState().dispatchCount, 1);
+
+  // Watchdog after a successful baseline is a no-op (preserve post polls).
+  assert.deepEqual(gate.onBaselineWatchdog(), {
+    action: 'noop',
+    reason: 'baseline-already-handled',
+  });
+  assert.equal(gate.getState().failedClosed, false);
+  assert.equal(gate.getState().dispatchCount, 1);
+});
+
+test('baseline watchdog fail-closes when pre list never arrives; late baseline cannot dispatch', () => {
+  const gate = createModelToolDispatchGate();
+  assert.deepEqual(gate.onBaselineWatchdog(), { action: 'fail-closed' });
+  assert.equal(gate.getState().failedClosed, true);
+  assert.equal(gate.getState().dispatched, false);
+  // A baseline that arrives after the watchdog must not resurrect dispatch.
+  assert.deepEqual(gate.onPreBaselineCaptured(), {
+    action: 'noop',
+    reason: 'already-failed-closed',
+  });
+  assert.equal(gate.getState().dispatchCount, 0);
+});
+
+test('scenario requires disposable parent, spawnedBy filter, and baseline-gated dispatch', async () => {
   const { readFile } = await import('node:fs/promises');
   const scenario = await readFile(new URL('../scenarios/r-cd-model-tool.js', import.meta.url), 'utf8');
   assert.match(scenario, /OPENCLAW_CREATE_DISPOSABLE_SESSION=true is required/);
@@ -135,5 +182,11 @@ test('scenario requires disposable parent and spawnedBy list filter', async () =
   assert.match(scenario, /post_spawned_by_keys/);
   assert.match(scenario, /auxiliary child runtime-context self-report \(not used for equality\)/);
   assert.match(scenario, /sessions\.get/);
+  assert.match(scenario, /createModelToolDispatchGate/);
+  assert.match(scenario, /onPreBaselineCaptured/);
+  assert.match(scenario, /dispatchModelToolTurn/);
+  assert.match(scenario, /onBaselineWatchdog/);
+  // Fixed +800ms sole dispatch timer must not remain (latency-dependent drop).
+  assert.doesNotMatch(scenario, /setTimeout\(\s*\(\)\s*=>\s*\{[^}]*pre_spawned_by_captured[^}]*sessions\.send[\s\S]*?\},\s*800\s*\)/);
   assert.doesNotMatch(scenario, /production DB|sqlite|better-sqlite/i);
 });

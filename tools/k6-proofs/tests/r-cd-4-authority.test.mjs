@@ -98,6 +98,7 @@ test('R-CD-4 session/history observations never populate authoritative candidate
 });
 
 test('R-CD-4 journal authority PASSes on exact target delivery and rejects parent', () => {
+  const signingKey = 'r-cd-4-unit-gateway-token';
   const ts = '2026-08-09T17:13:29.848-07:00';
   const start = Date.parse('2026-08-09T17:13:00.000-07:00');
   const end = Date.parse('2026-08-09T17:14:00.000-07:00');
@@ -109,8 +110,11 @@ test('R-CD-4 journal authority PASSes on exact target delivery and rejects paren
     childSessionKey: child,
     windowStartMs: start,
     windowEndMs: end,
+    signingKey,
   });
   assert.equal(pass.verdict, 'PASS-candidate');
+  assert.equal(pass.structuralOk, true);
+  assert.equal(pass.integrity?.algorithm, 'hmac-sha256-gateway-token-v1');
 
   const withParent = rCd4JournalReturnAuthority({
     journalText: journal + `${ts} node: [continuation:targeted-return] Delivered to ${parent} from ${child}\n`,
@@ -119,6 +123,7 @@ test('R-CD-4 journal authority PASSes on exact target delivery and rejects paren
     childSessionKey: child,
     windowStartMs: start,
     windowEndMs: end,
+    signingKey,
   });
   assert.equal(withParent.failureCategory, 'parent-delivery');
 });

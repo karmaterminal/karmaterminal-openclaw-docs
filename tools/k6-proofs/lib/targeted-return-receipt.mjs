@@ -1,10 +1,13 @@
-import { createHash } from 'node:crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 
 export const TARGETED_RETURN_RECEIPT_SCHEMA = 'openclaw.k6.targeted-return-receipt.v1';
 export const TARGETED_RETURN_MARKER = '[continuation:targeted-return]';
+export const TARGETED_RETURN_INTEGRITY_ALGORITHM = 'hmac-sha256-gateway-token-v1';
 
 const DELIVERED_RE = /\[continuation:targeted-return\]\s+Delivered to\s+(.+?)\s+from\s+(\S+)/i;
 const ISO_RE = /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))/;
+const FP16 = /^[a-f0-9]{16}$/i;
+const HEX64 = /^[a-f0-9]{64}$/i;
 
 export function fingerprintIdentity(value) {
   if (typeof value !== 'string' || value.length === 0) return null;
@@ -59,6 +62,40 @@ function inWindow(timestampMs, windowStartMs, windowEndMs) {
   return true;
 }
 
+/** Canonical closed fields bound by the gateway-token HMAC seal. */
+export function canonicalTargetedReturnReceipt(receipt) {
+  return JSON.stringify({
+    schema: receipt.schema,
+    row: receipt.row,
+    authority: receipt.authority,
+    candidateOnly: receipt.candidateOnly,
+    foldRequiresReview: receipt.foldRequiresReview,
+    verdict: receipt.verdict,
+    failureCategory: receipt.failureCategory || null,
+    structuralOk: receipt.structuralOk === true,
+    window: receipt.window || null,
+    targetMatchCount: receipt.targetMatchCount,
+    parentMatchCount: receipt.parentMatchCount,
+    deliveryCountInWindow: receipt.deliveryCountInWindow,
+    deliveryCountTotal: receipt.deliveryCountTotal,
+    childBound: receipt.childBound === true,
+    bindings: receipt.bindings,
+  });
+}
+
+function seal(receipt, key) {
+  if (typeof key !== 'string' || key.length === 0) {
+    throw new Error('missing gateway signing key');
+  }
+  return {
+    ...receipt,
+    integrity: {
+      algorithm: TARGETED_RETURN_INTEGRITY_ALGORITHM,
+      signature: createHmac('sha256', key).update(canonicalTargetedReturnReceipt(receipt)).digest('hex'),
+    },
+  };
+}
+
 /**
  * Bind exact target/parent/child/window against payload-free gateway receipts.
  *
@@ -71,6 +108,10 @@ function inWindow(timestampMs, windowStartMs, windowEndMs) {
  * solely because an intermediate ancestor also received the delivery. Still
  * fail closed on missing root, wrong child, or duplicate root-bearing lines.
  * Child identity and completion gates stay independent of this authority.
+ *
+ * Structural gates (tool accepted, unique child, completion sentinels) are an
+ * independent boolean. PASS requires structuralOk === true AND journal match.
+ * The receipt is HMAC-sealed to OPENCLAW_GATEWAY_TOKEN like R-CD-2/R-CD-TOKEN.
  */
 export function resolveTargetedReturnAuthority({
   journalText,
@@ -81,6 +122,8 @@ export function resolveTargetedReturnAuthority({
   windowEndMs = null,
   row = null,
   allowIntermediateAncestorTargets = false,
+  structuralOk = true,
+  signingKey,
 } = {}) {
   const deliveries = collectTargetedReturnDeliveries(journalText);
   const windowed = deliveries.filter((delivery) =>
@@ -124,19 +167,26 @@ export function resolveTargetedReturnAuthority({
     failureCategory = 'parent-delivery';
   }
 
-  const pass = failureCategory === null &&
+  const journalPass = failureCategory === null &&
     targetMatches.length === 1 &&
     (allowIntermediateAncestorTargets || parentMatches.length === 0) &&
     childBound;
+  const structural = structuralOk === true;
+  if (!structural) {
+    failureCategory = failureCategory || 'structural-gates-incomplete';
+  }
+  const pass = journalPass && structural;
   const primary = targetMatches[0] || null;
-  return {
+
+  return seal({
     schema: TARGETED_RETURN_RECEIPT_SCHEMA,
     row: row || null,
     authority: 'gateway-journal-targeted-return',
     candidateOnly: true,
     foldRequiresReview: true,
     verdict: pass ? 'PASS-candidate' : 'PARTIAL-candidate',
-    failureCategory,
+    failureCategory: pass ? null : failureCategory,
+    structuralOk: structural,
     window: {
       startMs: Number.isFinite(windowStartMs) ? windowStartMs : null,
       endMs: Number.isFinite(windowEndMs) ? windowEndMs : null,
@@ -155,7 +205,7 @@ export function resolveTargetedReturnAuthority({
         ? primary.targetSessionKeys.map((key) => fingerprintIdentity(key)).filter(Boolean)
         : [],
     },
-  };
+  }, signingKey);
 }
 
 export function assertPublicSafeTargetedReturnReceipt(receipt) {
@@ -172,13 +222,12 @@ export function assertPublicSafeTargetedReturnReceipt(receipt) {
   return true;
 }
 
-const FP16 = /^[a-f0-9]{16}$/i;
-
 /**
- * Shape/public-safety validator for candidate envelope routing.
- * No gateway-token seal: the receipt is already redacted closed fields only.
+ * Authoritative receipt validator for candidate envelope routing.
+ * Requires the gateway-token HMAC seal (same contract as R-CD-2/R-CD-TOKEN).
+ * PASS demands structuralOk === true plus closed journal counts/fingerprints.
  */
-export function validateTargetedReturnReceipt(receipt, expectedRow = null) {
+export function validateTargetedReturnReceipt(receipt, signingKey, expectedRow = null) {
   try {
     if (!receipt || receipt.schema !== TARGETED_RETURN_RECEIPT_SCHEMA) {
       return { valid: false, reason: 'invalid-schema' };
@@ -198,7 +247,26 @@ export function validateTargetedReturnReceipt(receipt, expectedRow = null) {
     if (receipt.verdict !== 'PASS-candidate' && receipt.verdict !== 'PARTIAL-candidate') {
       return { valid: false, reason: 'invalid-verdict' };
     }
+    if (typeof signingKey !== 'string' || signingKey.length === 0) {
+      return { valid: false, reason: 'missing-signing-key' };
+    }
+    if (receipt.integrity?.algorithm !== TARGETED_RETURN_INTEGRITY_ALGORITHM ||
+        !HEX64.test(receipt.integrity?.signature || '')) {
+      return { valid: false, reason: 'invalid-shape' };
+    }
+    const expected = createHmac('sha256', signingKey)
+      .update(canonicalTargetedReturnReceipt(receipt))
+      .digest('hex');
+    const actual = receipt.integrity.signature;
+    if (expected.length !== actual.length ||
+        !timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(actual, 'hex'))) {
+      return { valid: false, reason: 'invalid-integrity' };
+    }
+
     if (receipt.verdict === 'PASS-candidate') {
+      if (receipt.structuralOk !== true) {
+        return { valid: false, reason: 'pass-structural-ok' };
+      }
       if (receipt.targetMatchCount !== 1 || receipt.parentMatchCount !== 0 || receipt.childBound !== true) {
         return { valid: false, reason: 'pass-counts' };
       }
@@ -212,7 +280,12 @@ export function validateTargetedReturnReceipt(receipt, expectedRow = null) {
       if (!FP16.test(receipt.bindings?.deliveryLineFingerprint || '')) {
         return { valid: false, reason: 'missing-delivery-fingerprint' };
       }
+    } else if (receipt.verdict === 'PARTIAL-candidate') {
+      if (typeof receipt.failureCategory !== 'string' || receipt.failureCategory.length === 0) {
+        return { valid: false, reason: 'invalid-failure-category' };
+      }
     }
+
     assertPublicSafeTargetedReturnReceipt(receipt);
     return { valid: true, verdict: receipt.verdict };
   } catch (error) {

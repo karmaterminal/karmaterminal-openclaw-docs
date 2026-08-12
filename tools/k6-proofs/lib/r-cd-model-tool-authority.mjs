@@ -86,28 +86,50 @@ function messageText(message) {
   return parts.length > 0 ? parts.join('\n') : null;
 }
 
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Exact child→parent return marker required for return authority:
+ *   MODEL-TOOL-CHILD <nonce> MODEL <provider/model>
+ *
+ * Generic assistant/system text that merely mentions the nonce (including
+ * paraphrased schedule acknowledgements) is NOT return authority.
+ * Model equality still comes solely from spawnedBy metadata — this marker
+ * only proves a nonce-bound return payload landed in parent history.
+ */
+export function childReturnMarkerRegex(nonce) {
+  if (!nonce || typeof nonce !== 'string') return null;
+  return new RegExp(
+    `\\bMODEL-TOOL-CHILD\\s+${escapeRegex(nonce)}\\s+MODEL\\s+([A-Za-z0-9_.\\/-]+)\\b`,
+  );
+}
+
 /**
  * Parent sessions.get history may confirm a nonce-bound child return.
  *
- * The parent's own schedule ack (MODEL-TOOL-PARENT-SCHEDULED) is NOT a return.
- * Child MODEL-TOOL-CHILD self-report text is auxiliary equality evidence only —
- * when present in parent history it proves a child→parent return payload landed,
- * but model equality still comes solely from spawnedBy metadata.
+ * Authority requires the exact MODEL-TOOL-CHILD <nonce> MODEL ... marker
+ * (or the same typed pattern already used for auxiliary self-report parse).
+ * The parent's own schedule ack (MODEL-TOOL-PARENT-SCHEDULED) and any
+ * paraphrased schedule/waiting text are NOT returns.
+ * When the marker is present in parent history it proves a child→parent
+ * return payload landed, but model equality still comes solely from
+ * spawnedBy metadata.
  */
 export function parentReturnContainsNonce(messages, nonce) {
-  if (!nonce || typeof nonce !== 'string') return false;
+  const marker = childReturnMarkerRegex(nonce);
+  if (!marker) return false;
   for (const message of Array.isArray(messages) ? messages : []) {
     const role = message?.role;
     if (role !== 'user' && role !== 'assistant' && role !== 'system') continue;
     const text = messageText(message);
-    if (typeof text !== 'string' || !text.includes(nonce)) continue;
+    if (typeof text !== 'string') continue;
     if (text.includes('[k6-proof-harness]')) continue;
     // Parent schedule ack is not child→parent return authority.
     if (/\bMODEL-TOOL-PARENT-SCHEDULED\b/.test(text)) continue;
-    // Accept child return marker or other non-schedule nonce-bearing return text.
-    if (/\bMODEL-TOOL-CHILD\b/.test(text) || role === 'system' || role === 'assistant') {
-      return true;
-    }
+    // Strict: only the exact child-return marker counts.
+    if (marker.test(text)) return true;
   }
   return false;
 }
@@ -115,8 +137,8 @@ export function parentReturnContainsNonce(messages, nonce) {
 /** Auxiliary only — never establishes model equality. */
 export function parseAuxiliaryChildSelfReport(text, nonce) {
   if (typeof text !== 'string' || !nonce) return null;
-  const match = text.match(new RegExp(
-    `MODEL-TOOL-CHILD\\s+${String(nonce).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+MODEL\\s+([A-Za-z0-9_.\\/-]+)`,
-  ));
+  const marker = childReturnMarkerRegex(nonce);
+  if (!marker) return null;
+  const match = text.match(marker);
   return match ? normalizeModel(match[1]) : null;
 }

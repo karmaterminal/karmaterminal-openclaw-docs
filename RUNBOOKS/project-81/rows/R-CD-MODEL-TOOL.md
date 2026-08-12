@@ -64,7 +64,9 @@ If the child observes fallback/inherited/UNKNOWN model instead of the requested 
 Requires a disposable parent. Authoritative child identity is
 `sessions.list { spawnedBy: <parent>, limit: 100 }` pre/post set-diff with
 exactly one new child key; provider/model is read from that row. Parent
-`sessions.get` must show a nonce-bound normal-mode return. Child self-report
-is auxiliary and cannot establish model equality. Direct production DB queries
-are forbidden as PASS authority.
+`sessions.get` must show a nonce-bound normal-mode return via the exact
+`MODEL-TOOL-CHILD <nonce> MODEL <provider/model>` marker (paraphrased schedule
+acks or generic nonce text do not count). Child self-report is auxiliary and
+cannot establish model equality. Direct production DB queries are forbidden as
+PASS authority.
 

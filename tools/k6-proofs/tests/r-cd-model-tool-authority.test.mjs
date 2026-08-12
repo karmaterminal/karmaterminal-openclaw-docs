@@ -84,10 +84,30 @@ test('child self-report cannot establish equality; parent schedule ack is not re
     ], 'nonce-x'),
     false,
   );
+  // Adversarial: paraphrased schedule acknowledgement must NOT prove return.
+  assert.equal(
+    parentReturnContainsNonce([
+      { role: 'assistant', content: 'Scheduled delegate for nonce-x; waiting for completion.' },
+    ], 'nonce-x'),
+    false,
+  );
+  // Loose MODEL-TOOL-CHILD mention without exact MODEL byte is not authority.
+  assert.equal(
+    parentReturnContainsNonce([
+      { role: 'assistant', content: 'saw MODEL-TOOL-CHILD for nonce-x earlier' },
+    ], 'nonce-x'),
+    false,
+  );
   // Child return marker in parent history IS a return receipt (auxiliary model text).
   assert.equal(
     parentReturnContainsNonce([
       { role: 'system', content: 'MODEL-TOOL-CHILD nonce-x MODEL openai/gpt-5.6-luna' },
+    ], 'nonce-x'),
+    true,
+  );
+  assert.equal(
+    parentReturnContainsNonce([
+      { role: 'assistant', content: 'Child finished: MODEL-TOOL-CHILD nonce-x MODEL openai/gpt-5.6-luna' },
     ], 'nonce-x'),
     true,
   );

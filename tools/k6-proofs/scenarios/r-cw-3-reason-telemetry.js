@@ -9,7 +9,7 @@ import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
-import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { connectFrame, nonce, RequestTracker, redactEvent, assertConnected } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
 /**
@@ -119,6 +119,12 @@ export default function () {
         if (evidence.dispatch_accepted && evidence.scheduled_sentinel && evidence.wake_observed) { console.log('Required R-CW-3 schedule/wake evidence gathered, closing early'); socket.close(); }
       } catch (e) { console.warn('parse error: ' + e); }
     });
+
+  // Rig-fault guard (see assertConnected): a refused WS upgrade yields an
+  // artefact identical to a genuine failure — 0 ms, every flag false. Record
+  // it so this row is never published as evidence about the feature.
+  const connectFault = assertConnected(res);
+  if (connectFault) evidence.connect_failed = connectFault;
     socket.on('error', (e) => { console.error('ws error: ' + (e && e.error ? e.error() : e)); failures.add(1); });
   });
   evidence.ended = new Date().toISOString(); evidence.duration_ms = Date.now() - started; finalEvidence = evidence; duration.add(evidence.duration_ms);

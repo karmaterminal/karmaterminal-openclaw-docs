@@ -2,7 +2,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
-import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { connectFrame, nonce, RequestTracker, redactEvent, assertConnected } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
 export const options = { scenarios: { r_cw_2_immediate_wake: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '120s' } }, thresholds: { proof_failures: ['count==0'], r_cw_2_duration: ['p(95)<90000'] } };
@@ -56,6 +56,12 @@ export default function () {
         if (evidence.dispatch_accepted && evidence.scheduled_sentinel && evidence.immediate_wake_observed) { console.log('All required R-CW-2 evidence gathered, closing early'); socket.close(); }
       } catch (e) { console.warn('parse error: ' + e); }
     });
+
+  // Rig-fault guard (see assertConnected): a refused WS upgrade yields an
+  // artefact identical to a genuine failure — 0 ms, every flag false. Record
+  // it so this row is never published as evidence about the feature.
+  const connectFault = assertConnected(res);
+  if (connectFault) evidence.connect_failed = connectFault;
     socket.on('error', (e) => { console.error('ws error: ' + (e && e.error ? e.error() : e)); failures.add(1); });
   });
   evidence.ended = new Date().toISOString(); evidence.duration_ms = Date.now() - started; finalEvidence = evidence; duration.add(evidence.duration_ms);

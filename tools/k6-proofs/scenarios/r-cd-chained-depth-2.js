@@ -21,7 +21,7 @@ import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
-import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { connectFrame, nonce, RequestTracker, redactEvent, assertConnected } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
 import {
@@ -356,6 +356,12 @@ export default function () {
     evidence.root_return_receipt !== null;
 
   console.log(`\n--- R-CD-CHAINED-DEPTH-2 EVIDENCE SUMMARY ---`);
+  // Rig-fault guard (see assertConnected): a refused WS upgrade yields an
+  // artefact identical to a genuine failure — 0 ms, every flag false. Record
+  // it explicitly so this row is never published as evidence about the feature.
+  const connectFault = assertConnected(res);
+  if (connectFault) evidence.connect_failed = connectFault;
+
   console.log(JSON.stringify(evidence, null, 2));
   console.log(`--- END EVIDENCE ---`);
   console.log(`\n[R-CD-CHAINED-DEPTH-2] VERDICT: ${passed ? 'PASS-candidate' : 'PARTIAL-candidate'}`);

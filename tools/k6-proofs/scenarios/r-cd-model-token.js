@@ -2,7 +2,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
-import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { connectFrame, nonce, RequestTracker, redactEvent, assertConnected } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
 export const options = {
@@ -73,6 +73,12 @@ export default function () {
         }, 250);
       } else socket.setTimeout(() => startProofFlow(socket), 500);
     });
+
+  // Rig-fault guard (see assertConnected): a refused WS upgrade yields an
+  // artefact identical to a genuine failure — 0 ms, every flag false. Record
+  // it so this row is never published as evidence about the feature.
+  const connectFault = assertConnected(res);
+  if (connectFault) evidence.connect_failed = connectFault;
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw); const classified = tracker.classify(msg);

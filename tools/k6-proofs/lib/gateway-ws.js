@@ -121,3 +121,51 @@ export function redactEvent(event) {
   }
   return out;
 }
+
+/**
+ * Detect a WebSocket upgrade that never actually happened.
+ *
+ * WHY THIS EXISTS (rig fault #8, 2026-08-10)
+ * ------------------------------------------
+ * k6's `ws.connect()` does not throw when the gateway refuses the upgrade.
+ * It returns a response and simply never invokes the socket callback. Every
+ * scenario in this suite assigned that response to `const res` and then
+ * ignored it, so a refused connection produced exactly the same artefact as
+ * a genuine proof failure:
+ *
+ *     duration ~0 ms, every evidence flag false, no trace, no error
+ *
+ * On 2026-08-10 the gateway on silas restarted mid-run. Three rows that had
+ * previously PASSed (R-CW-TOKEN, R-CW-DELEGATE-SELF-CONTINUATION, R-CD-3)
+ * were recorded as failures and reported as such. Re-running them against a
+ * healthy gateway flipped all three back to PASS — R-CW-TOKEN went from
+ * 0 ms/all-false to PASS in 12,605 ms. The evidence had been describing the
+ * harness, not the feature.
+ *
+ * A successful RFC 6455 upgrade is exactly HTTP 101. Anything else is a rig
+ * fault and must never be published as a statement about continuation:
+ *   0    TCP refused / DNS failure — gateway not listening at all
+ *   401  token rejected (expired OPENCLAW_TOKEN)
+ *   426  server declined the upgrade
+ *   5xx  gateway alive but broken
+ *
+ * Returns null when the connection is sound, or a structured fault object to
+ * be attached to the evidence as `connect_failed`. Callers deliberately do
+ * not throw: the evidence file must still be written so the aggregator can
+ * see *why* the row is empty.
+ */
+export function assertConnected(res) {
+  const status = res && typeof res.status === 'number' ? res.status : 0;
+  if (status === 101) return null;
+  return {
+    ws_status: status,
+    detail:
+      status === 0
+        ? 'connection refused before upgrade — gateway not listening on the proof port'
+        : `gateway refused the WebSocket upgrade with HTTP ${status}`,
+    meaning:
+      'RIG FAULT, not a proof result. This row measured the harness, not the feature. Do not publish it as evidence either way.',
+    remedy:
+      'confirm gateway uptime spans the entire run window before trusting any row: ps -o lstart= -p <gateway pid>',
+  };
+}

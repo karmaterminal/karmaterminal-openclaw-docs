@@ -8,7 +8,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
-import { connectFrame, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { connectFrame, RequestTracker, redactEvent, assertConnected } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
 export const options = {
@@ -88,6 +88,12 @@ export default function () {
   });
   if (!evidence.config_read) failures.add(1);
   console.log('\n--- R-CONFIG-INTERSESSION EVIDENCE SUMMARY ---');
+  // Rig-fault guard (see assertConnected): a refused WS upgrade yields an
+  // artefact identical to a genuine failure — 0 ms, every flag false. Record
+  // it explicitly so this row is never published as evidence about the feature.
+  const connectFault = assertConnected(res);
+  if (connectFault) evidence.connect_failed = connectFault;
+
   console.log(JSON.stringify(evidence, null, 2));
   console.log('--- END EVIDENCE ---');
   console.log(`\n[R-CONFIG-INTERSESSION] VERDICT: ${evidence.config_read ? 'PASS-candidate' : 'PARTIAL-candidate'}`);

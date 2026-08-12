@@ -1,0 +1,51 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-12T11:47:33Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "summary-file",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": null,
+  "summaryFiles": [
+    "r-trace-redaction-1121-summary.json"
+  ],
+  "evidence": {
+    "row": "R-TRACE-REDACTION-1121",
+    "manifest_loaded": true,
+    "candidateSha": "2b07ba509564bd8a8f1031bf58dd107c1a24c78f",
+    "currentProofSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+    "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+    "started": "2026-08-12T11:47:33.878Z",
+    "pass_heading_present": true,
+    "safe_attrs_present": true,
+    "no_preview_contract_present": true,
+    "raw_reason_guard_present": true,
+    "test_pass_present": true,
+    "source_surface_present": true,
+    "source_files": {
+      "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-TRACE-REDACTION-1121/EVIDENCE.md"
+    },
+    "ended": "2026-08-12T11:47:33.878Z",
+    "duration_ms": 0,
+    "verdict": "PASS-candidate"
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

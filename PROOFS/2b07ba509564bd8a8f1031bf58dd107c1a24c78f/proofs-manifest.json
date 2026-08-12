@@ -1,0 +1,362 @@
+{
+ "schema": "openclaw.k6.proofs-manifest.v1",
+ "candidateSha": "2b07ba509564bd8a8f1031bf58dd107c1a24c78f",
+ "presentationSha": "2b07ba509564bd8a8f1031bf58dd107c1a24c78f",
+ "runtimeCompositeSha": "310252733a626568c98071bdaf9ee09dbdf38a88",
+ "runtimeCompositeBase": "8318e58bd22186ffd4bd317ccb05b8592570ad57",
+ "status": "supplementary",
+ "supersedes": null,
+ "boundCorpusAtPublication": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+ "provenanceNote": "Runtime executed was the composite (continuation + PR #121204 + discord dead-letter), bound at the PR-presentation branch tip because clawsweeper rejects a SHA unreachable from the PR under review. SUPPLEMENTARY: this run is weaker than the bound corpus a7ef0317 (which has 0 failures) and deliberately does NOT replace it; INDEX.json was not repointed.",
+ "sourceRun": {
+  "runs": [
+   {
+    "id": "31590642301",
+    "workflow": "project81-k6-proof.yml",
+    "seat": "cael",
+    "rows": "live-suite",
+    "dryRun": false
+   }
+  ]
+ },
+ "fleetCondition": "All four available seats (cael, ronan, elliott, rune) were on composite 310252733a at agent-DB schema 17, each verified by dist/build-info.json commit plus http 200. Emeric excluded, host offline. This was the first corpus fired with no seat missing the discord plugin and no seat carrying a message backlog.",
+ "rollup": {
+  "envelopeValidated": 24,
+  "genuineFailuresNonZeroExit": 3,
+  "heldOnTraceReceiptsOnly": 2,
+  "artifactDirs": 34,
+  "thinRows": 4
+ },
+ "verdictClassification": {
+  "A_genuine_failures": {
+   "rows": [
+    "R-CD-4",
+    "R-CD-CHAINED-DEPTH-2",
+    "R-CD-MODEL-TOOL"
+   ],
+   "note": "Non-zero effective exit; crossed duration thresholds. These rows have never recorded a pass in corpus history, so they are persistently unproven shapes, NOT regressions."
+  },
+  "B_held_on_trace_receipts": {
+   "rows": [
+    "R-CD-1",
+    "R-CW-1"
+   ],
+   "note": "verdict PASS-candidate with effectiveExitCode 0; held only by validate-candidate-run-result.mjs requiring review.status=ready-for-human-review and empty pendingReceipts. Blocker is Tempo receipt collection (missing openclaw.tool.execution span with gen_ai.tool.name=continue_delegate, emitted by the diagnostics-otel extension), NOT the product. diagnostics-otel was confirmed enabled and loaded. Not counted as passes."
+  },
+  "C_partial_clean_exit": {
+   "rows": [
+    "R-CD-2",
+    "R-CW-3",
+    "R-RC-2",
+    "R-CD-TOKEN"
+   ],
+   "note": "PARTIAL-candidate with exit 0; R-CD-TOKEN carries 10 receipts and emitted no validation file. NOT one receipt from passing."
+  }
+ },
+ "rows": {
+  "PREFLIGHT": {
+   "verdict": null,
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": false,
+   "validatorError": "run result verdict must be an explicit candidate outcome"
+  },
+  "R-CD-1": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "review-pending",
+   "pendingReceipts": [
+    "continuation-trace-correlation",
+    "tempo-trace-json"
+   ],
+   "envelopeValidated": false,
+   "validatorError": "candidate run is review-incomplete: resolve or explicitly classify pending receipts first"
+  },
+  "R-CD-2": {
+   "verdict": "PARTIAL-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "review-pending",
+   "pendingReceipts": [
+    "continuation-trace-correlation",
+    "tempo-trace-json"
+   ],
+   "envelopeValidated": false,
+   "validatorError": "candidate run is review-incomplete: resolve or explicitly classify pending receipts first"
+  },
+  "R-CD-3": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CD-4": {
+   "verdict": "PARTIAL-candidate",
+   "effectiveExitCode": 99,
+   "reviewStatus": "review-pending",
+   "pendingReceipts": [
+    "continuation-trace-correlation",
+    "tempo-trace-json"
+   ],
+   "envelopeValidated": false,
+   "validatorError": "candidate run is incomplete: effective exit code is non-zero"
+  },
+  "R-CD-CHAINED-DEPTH-2": {
+   "verdict": "PARTIAL-candidate",
+   "effectiveExitCode": 99,
+   "reviewStatus": "review-pending",
+   "pendingReceipts": [
+    "continuation-trace-correlation",
+    "tempo-trace-json"
+   ],
+   "envelopeValidated": false,
+   "validatorError": "candidate run is incomplete: effective exit code is non-zero"
+  },
+  "R-CD-COLLECTION-ON-COLLAPSE": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CD-MODEL-CHAINED-ALT": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CD-MODEL-DEFAULT": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CD-MODEL-TOKEN": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CD-MODEL-TOOL": {
+   "verdict": "PARTIAL-candidate",
+   "effectiveExitCode": 99,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": false,
+   "validatorError": "candidate run is incomplete: effective exit code is non-zero"
+  },
+  "R-CD-RETURN-OVERLAP": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CD-SILENT": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CD-TOKEN": {
+   "verdict": "PARTIAL-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "review-pending",
+   "pendingReceipts": [
+    "exact-candidate-runtime-identity",
+    "attempt-state",
+    "raw-final-text-origin",
+    "parser-detected",
+    "queue-identity",
+    "child-spawned",
+    "child-completed",
+    "parent-return-event",
+    "tempo-trace-json",
+    "continuation-trace-correlation"
+   ],
+   "envelopeValidated": false,
+   "validatorError": null
+  },
+  "R-CONFIG-DEFAULTS": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CONFIG-INTERSESSION": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CW-1": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "review-pending",
+   "pendingReceipts": [
+    "continuation-trace-correlation",
+    "tempo-trace-json"
+   ],
+   "envelopeValidated": false,
+   "validatorError": "candidate run is review-incomplete: resolve or explicitly classify pending receipts first"
+  },
+  "R-CW-2": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CW-3": {
+   "verdict": "PARTIAL-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "review-pending",
+   "pendingReceipts": [
+    "continuation-trace-correlation",
+    "tempo-trace-json"
+   ],
+   "envelopeValidated": false,
+   "validatorError": "candidate run is review-incomplete: resolve or explicitly classify pending receipts first"
+  },
+  "R-CW-4": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CW-7": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CW-DELEGATE-CHILD-LIVE": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CW-DELEGATE-SELF-CONTINUATION": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CW-DELEGATE-TOKEN": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CW-MULTI-COLLAPSE": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CW-MULTI": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-CW-TOKEN": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-OBS-1": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-OBS-2": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-OBS-STATUS": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-RC-1": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-RC-2": {
+   "verdict": "PARTIAL-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "review-pending",
+   "pendingReceipts": [
+    "continuation-trace-correlation",
+    "tempo-trace-json"
+   ],
+   "envelopeValidated": false,
+   "validatorError": "candidate run is review-incomplete: resolve or explicitly classify pending receipts first"
+  },
+  "R-REGRESSION-TRAP-TESTS": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  },
+  "R-TRACE-REDACTION-1121": {
+   "verdict": "PASS-candidate",
+   "effectiveExitCode": 0,
+   "reviewStatus": "ready-for-human-review",
+   "pendingReceipts": [],
+   "envelopeValidated": true,
+   "validatorError": null
+  }
+ }
+}

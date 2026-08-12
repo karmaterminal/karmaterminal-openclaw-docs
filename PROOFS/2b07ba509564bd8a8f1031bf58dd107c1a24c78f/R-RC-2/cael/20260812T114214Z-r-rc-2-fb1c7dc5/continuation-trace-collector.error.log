@@ -1,0 +1,1 @@
+Tempo trace did not reach valid continuation topology before timeout: matched trace lacks the expected continuation.delegate.fire span

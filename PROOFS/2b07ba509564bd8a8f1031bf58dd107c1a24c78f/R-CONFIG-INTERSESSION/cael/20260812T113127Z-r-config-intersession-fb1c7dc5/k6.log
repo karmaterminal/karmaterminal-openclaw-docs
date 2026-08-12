@@ -1,0 +1,22 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-config-intersession.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m15s max duration (incl. graceful stop):
+              * r_config_intersession: 1 iterations shared among 1 VUs (maxDuration: 45s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CONFIG-INTERSESSION","manifest_loaded":true,"seat":"cael","candidateSha":"2b07ba509564bd8a8f1031bf58dd107c1a24c78f","started":"2026-08-12T11:31:30.279Z","rpc":{"method":"config.get","operator_surface":true,"response_ok":true,"response_shape":{"config_present":true,"continuation_present":true}},"config_read":true,"cross_session_targeting":"enabled","trace_id":null,"correlation":{"service":"cael-prince","query_window_start":"2026-08-12T11:31:30.279Z","query_window_end":"2026-08-12T11:31:30.585Z"},"ended":"2026-08-12T11:31:30.585Z","duration_ms":306}
+time="2026-08-12T04:31:30-07:00" level=info msg="\n[R-CONFIG-INTERSESSION] VERDICT: PASS-candidate" source=console
+
+[R-CONFIG-INTERSESSION] Summary: PASS-candidate | SHA: 2b07ba509564bd8a8f1031bf58dd107c1a24c78f | Seat: cael
+
+running (0m00.3s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_config_intersession ✓ [ 100% ] 1 VUs  00.3s/45s  1/1 shared iters

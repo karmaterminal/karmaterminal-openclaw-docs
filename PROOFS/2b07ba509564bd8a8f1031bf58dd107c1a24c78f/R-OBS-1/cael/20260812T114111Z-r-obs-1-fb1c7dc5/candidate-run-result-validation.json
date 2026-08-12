@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "2b07ba509564bd8a8f1031bf58dd107c1a24c78f",
+    "docsRef": "a524ab8c33cec66b103d995ae835766af5ca5e7c"
+  },
+  "harness": {
+    "docsRef": "a524ab8c33cec66b103d995ae835766af5ca5e7c",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-obs-1.json",
+    "manifestSha256": "63588a11932ad7895575790664389d29ed9bfbd64cb205b0f9735044f8246655",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-obs-1.js",
+    "scenarioSha256": "e4ff43d0a361cf20f0a82cbe25fd77417131dfd44362d77577e3a701cf7f41c1",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20260812T114111Z-r-obs-1-fb1c7dc5",
+    "rowId": "R-OBS-1",
+    "seat": "cael",
+    "scenario": "r-obs-1",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "summary-file",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "unknown",
+    "traceCaptured": false,
+    "correlationReceiptPresent": false
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "r-obs-1-summary.json",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": null,
+    "correlationReceipt": null
+  }
+}

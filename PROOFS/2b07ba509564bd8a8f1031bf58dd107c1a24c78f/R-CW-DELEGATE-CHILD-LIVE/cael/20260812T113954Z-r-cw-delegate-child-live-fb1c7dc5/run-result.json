@@ -1,0 +1,61 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-12T11:39:57Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "summary-file",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": null,
+  "summaryFiles": [
+    "static-corpus-row-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CW-DELEGATE-CHILD-LIVE",
+    "sourceRow": "R-CW-DELEGATE-CHILD-LIVE",
+    "staticBoundaryVariant": false,
+    "manifest_loaded": true,
+    "candidateSha": "2b07ba509564bd8a8f1031bf58dd107c1a24c78f",
+    "currentProofSha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+    "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+    "carriedFrom": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+    "started": "2026-08-12T11:39:57.086Z",
+    "checks": {
+      "verdictPass": true,
+      "hop1BeforeWork": true,
+      "hop2AfterWake": true,
+      "verifierBoth": true,
+      "parentDelegateTrace": true,
+      "childWorkFireTrace": true,
+      "flowReceipts": true
+    },
+    "source_files": {
+      "evidence": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/EVIDENCE.md",
+      "hop1": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/hop1.txt",
+      "hop2": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/hop2.txt",
+      "verifier": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/verifier-receipt.txt",
+      "tempo": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-DELEGATE-CHILD-LIVE/cael-dgx/tempo-attribute-receipt.txt"
+    },
+    "ended": "2026-08-12T11:39:57.086Z",
+    "duration_ms": 0,
+    "verdict": "PASS-candidate"
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

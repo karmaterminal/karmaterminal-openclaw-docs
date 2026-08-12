@@ -1,0 +1,18 @@
+{
+  "schema": "openclaw.k6.proof-metrics-export.v1",
+  "rowId": "R-CD-MODEL-CHAINED-ALT",
+  "candidateSha": "2b07ba509564bd8a8f1031bf58dd107c1a24c78f",
+  "seat": "cael",
+  "outcome": "PASS-candidate",
+  "sampleCount": 11,
+  "metricNames": [
+    "openclaw_proofs_k6_run_total",
+    "openclaw_proofs_k6_proof_failures_total",
+    "openclaw_proofs_k6_candidate_pending_review",
+    "openclaw_proofs_k6_duration_ms",
+    "openclaw_proofs_k6_receipt_status"
+  ],
+  "prometheusOut": "openclaw-proofs-k6.prom",
+  "otlpOut": "openclaw-proofs-k6.otlp.json",
+  "push": null
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "openclaw.k6.gateway-journal-capture.v1",
+  "unit": "openclaw-gateway",
+  "method": "cursor",
+  "status": "captured",
+  "startedAt": "2026-08-12T11:41:50Z",
+  "endedAt": "2026-08-12T11:41:53Z",
+  "exitCode": 0,
+  "rawLines": 3
+}

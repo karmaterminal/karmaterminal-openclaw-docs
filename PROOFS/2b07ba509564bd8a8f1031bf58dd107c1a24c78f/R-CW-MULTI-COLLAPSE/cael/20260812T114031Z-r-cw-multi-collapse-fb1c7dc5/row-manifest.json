@@ -1,0 +1,62 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CW-MULTI-COLLAPSE",
+  "issue": 216,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "offline",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 15,
+  "scenario": {
+    "name": "static-corpus-row-validator",
+    "description": "Static validator for committed synthetic stale/new continuation collapse proof receipts.",
+    "methods": [
+      "manual-corpus-review",
+      "static-artifact-parse"
+    ],
+    "status": "runnable",
+    "file": "static-corpus-row-validator.js"
+  },
+  "expectedReceipts": [
+    {
+      "name": "multi-collapse-artifacts",
+      "required": true,
+      "description": "Current PROOFS corpus receipts parse for this row."
+    },
+    {
+      "name": "stale-superseded-newest-granted-config-restored",
+      "required": true,
+      "description": "Committed evidence satisfies the row-specific PASS predicate."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CW-MULTI-COLLAPSE",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "manual-corpus"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Static artifact validator for R-CW-MULTI-COLLAPSE. Validates committed corpus receipts; does not fire live behavior."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "multi-collapse-artifacts",
+      "stale-superseded-newest-granted-config-restored"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Offline/static current-corpus validator; safe in broad suite because it does not connect to or mutate gateway state."
+  }
+}

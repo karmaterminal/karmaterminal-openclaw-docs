@@ -1,0 +1,4 @@
+2026-08-12T04:40:39.477509-07:00 cael node[487645]: 2026-08-12T04:40:39.476-07:00 [warn] Subagent completion direct announce failed for run continuation-delegate-d04fcfb5a67b9eee9be9651f4910f7ff: completion agent did not produce a visible reply
+2026-08-12T04:40:39.478864-07:00 cael node[487645]: 2026-08-12T04:40:39.478-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-08-12T04:40:39.480488-07:00 cael node[487645]: 2026-08-12T04:40:39.480-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=60000ms fireAt=1786534899479 session=<redacted-session-key>
+2026-08-12T04:40:39.481370-07:00 cael node[487645]: 2026-08-12T04:40:39.481-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=2/200 session=<redacted-session-key> reasonCategory=follow-up-work

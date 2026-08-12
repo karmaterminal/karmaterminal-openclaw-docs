@@ -1,0 +1,4 @@
+2026-08-12T04:40:33.407490-07:00 cael node[487645]: 2026-08-12T04:40:33.407-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-12T04:40:33.407974-07:00 cael node[487645]: 2026-08-12T04:40:33.407-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-08-12T04:40:33.410064-07:00 cael node[487645]: 2026-08-12T04:40:33.410-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=4999ms fireAt=1786534838408 session=<redacted-session-key>
+2026-08-12T04:40:34.167672-07:00 cael node[487645]: 2026-08-12T04:40:34.167-07:00 [agents/agent-command] [agent] run continuation-delegate-e9e688a4c4c0d40e7bdb57e67207190c ended with stopReason=stop

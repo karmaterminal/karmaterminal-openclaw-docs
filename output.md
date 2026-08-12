@@ -2,7 +2,7 @@
 
 ## Branch / PR
 - Branch: `codeagent/wo1217-proof-harness-authority-fix`
-- Head SHA: `83a8da38b480ae329f55b6c2889b96944f59f763`
+- Head SHA: `bed55dbaa9ec6d58b8413eb23b52e7083b9dde9c`
 - Base: docs `origin/main` @ `513a74ad1db3cfbb5ac10cc45155ee1e1acb911a`
 - PR: https://github.com/karmaterminal/karmaterminal-openclaw-docs/pull/510 (not merged)
 

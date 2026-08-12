@@ -85,3 +85,15 @@ run=3 rc=0 verdict=PASS-candidate failures=0 duration_avg=14636ms evidence=paren
 ```
 
 This makes the positive targeted-return row mechanically repeatable as `PASS-candidate`. The older guard-side proof for invalid `fanoutMode + targetSessionKey` remains valid but is a different row shape; this scenario now covers the positive targeted-return path.
+
+## Authority note (WO-1217)
+
+Silent-wake delivery authority is the shared post-run collector over the
+payload-free gateway journal line:
+
+`[continuation:targeted-return] Delivered to <target> from <child>`
+
+Transcript `session.message` / `sessions.get` `TARGET-RECEIVED` text is
+diagnostic only and cannot promote PASS. The collector binds exact
+target/parent/child/window and publishes fingerprint fields only.
+

@@ -1,7 +1,15 @@
 import { directChildSessionKeyForRow } from './row-child-correlation.mjs';
+import {
+  resolveTargetedReturnAuthority,
+  fingerprintIdentity,
+} from './targeted-return-receipt.mjs';
 
 export const R_CD_4_OBSERVATION_WINDOW_MS = 90_000;
 export const R_CD_4_DURATION_THRESHOLD_MS = 110_000;
+export {
+  resolveTargetedReturnAuthority,
+  fingerprintIdentity,
+};
 
 const HARNESS_MARKER = '[k6-proof-harness]';
 const R_CD_4_TASK_TOKEN_SUFFIX_CHARS = 16;
@@ -51,14 +59,13 @@ function hasExactSentinel(eventData, marker, nonce) {
 }
 
 /**
- * Identify the target/parent session event that carries the exact row marker.
+ * Diagnostic-only marker observation.
  *
- * This deliberately accepts only the structured top-level event session. A
- * session key or nonce appearing in nested prompt text must not route the
- * receipt. Child identity is bound separately after a nonce-correlated spawn
- * event is observed.
+ * Silent-wake delivery authority is the payload-free gateway
+ * `[continuation:targeted-return]` receipt (see targeted-return-receipt.mjs).
+ * Transcript session.message / sessions.get nonce text must never promote PASS.
  */
-export function rCd4ReturnCandidate({ eventName, eventData, expectedSessionKey, nonce }) {
+export function rCd4DiagnosticMarkerCandidate({ eventName, eventData, expectedSessionKey, nonce }) {
   if (eventName !== 'session.message') return null;
   if (!expectedSessionKey || !nonce) return null;
   const sessionKey = directSessionKey(eventData);
@@ -67,11 +74,17 @@ export function rCd4ReturnCandidate({ eventName, eventData, expectedSessionKey, 
   if (!hasExactSentinel(eventData, 'TARGET-RECEIVED', nonce)) return null;
   return {
     eventName,
-    sessionKey,
-    nonce,
-    marker: `TARGET-RECEIVED ${nonce}`,
+    sessionKeyFingerprint: fingerprintIdentity(sessionKey),
+    nonceFingerprint: fingerprintIdentity(nonce),
+    marker: 'TARGET-RECEIVED',
     role: 'system',
+    authoritative: false,
   };
+}
+
+/** @deprecated message markers are not delivery authority; use resolveTargetedReturnAuthority */
+export function rCd4ReturnCandidate(args) {
+  return rCd4DiagnosticMarkerCandidate(args);
 }
 
 export function rCd4TaskIdentityToken(nonce) {
@@ -100,13 +113,7 @@ export function rCd4ChildAuthority(candidates) {
 }
 
 /**
- * Inspect return authority for every post-dispatch session.message.
- *
- * `wakeGateMs` is intentionally diagnostic-only: it tells the caller whether
- * a generic message arrived after the expected wake delay, but it never gates
- * nonce-bound target or parent authority. A legitimate continuation return can
- * arrive before the generic wake timer, especially when delaySeconds is below
- * the default observation gate.
+ * Inspect diagnostic marker observations only. Never gates silent-wake delivery.
  */
 export function rCd4SessionMessageObservation({
   eventName,
@@ -120,18 +127,21 @@ export function rCd4SessionMessageObservation({
   const elapsed = Number.isFinite(elapsedMs) ? elapsedMs : 0;
   const gate = Number.isFinite(wakeGateMs) ? wakeGateMs : 0;
   return {
-    targetCandidate: rCd4ReturnCandidate({
+    targetDiagnosticMarker: rCd4DiagnosticMarkerCandidate({
       eventName,
       eventData,
       expectedSessionKey: targetSessionKey,
       nonce,
     }),
-    parentCandidate: rCd4ReturnCandidate({
+    parentDiagnosticMarker: rCd4DiagnosticMarkerCandidate({
       eventName,
       eventData,
       expectedSessionKey: parentSessionKey,
       nonce,
     }),
+    // Back-compat aliases — still non-authoritative.
+    targetCandidate: null,
+    parentCandidate: null,
     genericWakeObserved: elapsed >= gate,
   };
 }
@@ -146,6 +156,8 @@ export function rCd4HistoryObservation({
   wakeGateMs,
 }) {
   const result = {
+    targetDiagnosticMarker: null,
+    parentDiagnosticMarker: null,
     targetCandidate: null,
     parentCandidate: null,
     genericWakeObserved: false,
@@ -160,8 +172,8 @@ export function rCd4HistoryObservation({
       elapsedMs,
       wakeGateMs,
     });
-    result.targetCandidate ??= observation.targetCandidate;
-    result.parentCandidate ??= observation.parentCandidate;
+    result.targetDiagnosticMarker ??= observation.targetDiagnosticMarker;
+    result.parentDiagnosticMarker ??= observation.parentDiagnosticMarker;
     result.genericWakeObserved ||= observation.genericWakeObserved;
   }
   return result;
@@ -195,18 +207,20 @@ export function rCd4TaskObservation(task, nonce) {
 }
 
 /**
- * A target receipt still needs the remaining observation window to prove that
- * no matching parent receipt arrives later. A parent receipt is already a
- * terminal target-only failure and may close early.
+ * Message-marker receipts are never authoritative for silent-wake delivery.
+ * Always returns null so callers cannot promote transcript text to PASS.
  */
+export function rCd4ReturnReceipt(_candidate, _childSessionKey) {
+  return null;
+}
+
 export function rCd4ShouldScheduleEarlyClose({ parentReturnReceipt }) {
   return parentReturnReceipt !== null && parentReturnReceipt !== undefined;
 }
 
-/** Finalize only after the row has independently observed its spawned child. */
-export function rCd4ReturnReceipt(candidate, childSessionKey) {
-  if (!candidate || typeof childSessionKey !== 'string' || childSessionKey.length === 0) {
-    return null;
-  }
-  return { ...candidate, childSessionKey };
+/**
+ * Finalize R-CD-4 return authority from the shared journal collector only.
+ */
+export function rCd4JournalReturnAuthority(args) {
+  return resolveTargetedReturnAuthority({ ...args, row: args.row || 'R-CD-4' });
 }

@@ -161,6 +161,11 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
       if (manifest.rowId === 'R-CD-4') {
         assert.match(manifest.invocation.promptTemplate, /^RCD4:\{\{nonceSuffix16\}\}/);
         assert.match(scenario, /rCd4TaskPrompt\(inv\.promptTemplate,\s*rowNonce\)/);
+        assert.match(scenario, /return_authority:\s*'gateway-journal-targeted-return-post-run'/);
+      } else if (manifest.rowId === 'R-CD-CHAINED-DEPTH-2') {
+        assert.match(manifest.invocation.promptTemplate, /fanoutMode='tree'/);
+        assert.match(scenario, /(?:promptTemplate|template)\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,/);
+        assert.match(scenario, /return_authority:\s*'gateway-journal-targeted-return-post-run'/);
       } else {
         assert.match(scenario, /promptTemplate\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,/);
       }
@@ -231,8 +236,14 @@ test('every trace-required continue_work row persists the safe fingerprint contr
 
 test('depth-2 chain dispatch uses the exact committed manifest task', async () => {
   const source = await readFile(path.join(scenariosDir, 'r-cd-chained-depth-2.js'), 'utf8');
-  assert.match(source, /const task = inv\.promptTemplate\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g, chainNonce\)/);
+  const manifest = JSON.parse(await readFile(path.join(manifestsDir, 'r-cd-chained-depth-2.json'), 'utf8'));
+  // Nested call must request fanoutMode=tree; outer parent→child has no fanoutMode.
+  assert.match(manifest.invocation.promptTemplate, /fanoutMode='tree'/);
+  assert.match(source, /const template = inv\.promptTemplate \|\| rCdChainPromptTemplate\(\)/);
+  assert.match(source, /const task = template\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g, chainNonce\)/);
   assert.match(source, /task=\$\{JSON\.stringify\(task\)\}/);
+  assert.match(source, /fanoutMode='tree'/);
+  assert.equal(manifest.scenario.subtests, undefined);
 });
 
 test('row runner keeps private acquisition transient and publishes sanitized evidence', async () => {

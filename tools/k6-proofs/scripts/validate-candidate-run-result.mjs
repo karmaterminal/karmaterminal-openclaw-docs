@@ -10,6 +10,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
+import { validateTargetedReturnReceipt } from '../lib/targeted-return-receipt.mjs';
 import { COPIED_MANIFEST, COPIED_SCENARIO, isSafeArtifactReference, isSafeCandidateArtifact } from './candidate-run-result-contract.mjs';
 
 const SHA = /^[0-9a-f]{40}$/;
@@ -185,6 +186,13 @@ function authoritativeReceiptContract(rowId) {
       file: 'r-cd-token-authoritative-receipt.json',
       verdictSource: 'r-cd-token-authoritative-receipt',
       validate: validateRcdTokenAuthoritativeReceipt,
+    };
+  }
+  if (rowId === 'R-CD-4' || rowId === 'R-CD-CHAINED-DEPTH-2') {
+    return {
+      file: 'targeted-return-receipt.json',
+      verdictSource: 'targeted-return-receipt',
+      validate: (receipt) => validateTargetedReturnReceipt(receipt, rowId),
     };
   }
   return null;

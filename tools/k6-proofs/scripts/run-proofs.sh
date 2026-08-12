@@ -52,6 +52,7 @@ bind_execution_roots() {
   EVIDENCE_EXTRACTOR="$SCRIPT_DIR/extract-k6-evidence.mjs"
   CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
   R_CD_2_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-2-authoritative-receipt.mjs"
+  TARGETED_RETURN_COLLECTOR="$SCRIPT_DIR/collect-targeted-return-receipt.mjs"
   ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
   CANDIDATE_RESULT_VALIDATOR="$SCRIPT_DIR/validate-candidate-run-result.mjs"
   INTERRUPTED_RESULT_WRITER="$SCRIPT_DIR/write-interrupted-run-result.mjs"
@@ -1391,6 +1392,38 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       fi
     fi
 
+    # R-CD-4 and R-CD-CHAINED-DEPTH-2 share one payload-free journal collector.
+    # Transcript session.message markers never promote silent-wake routing.
+    TARGETED_RETURN_RECEIPT=""
+    TARGETED_RETURN_RECEIPT_SHA256=""
+    if [[ "$ROW_ID" == "R-CD-4" || "$ROW_ID" == "R-CD-CHAINED-DEPTH-2" ]]; then
+      TARGETED_RETURN_RECEIPT="targeted-return-receipt.json"
+      if [[ -s "$PRIVATE_EVIDENCE_FILE" && -f "$PRIVATE_GATEWAY_LOG" ]] && \
+        node "$TARGETED_RETURN_COLLECTOR" \
+          --run-dir "$RUN_DIR" \
+          --evidence "$PRIVATE_EVIDENCE_FILE" \
+          --journal "$PRIVATE_GATEWAY_LOG" \
+          --row "$ROW_ID" \
+          > "$RUN_DIR/targeted-return-resolution.json" 2> "$RUN_DIR/targeted-return-collector.error.log"; then
+        TARGETED_RETURN_RECEIPT_SHA256="$(node --input-type=module -e 'import { createHash } from "node:crypto"; import { readFileSync } from "node:fs"; process.stdout.write(createHash("sha256").update(readFileSync(process.argv[1])).digest("hex"));' "$RUN_DIR/$TARGETED_RETURN_RECEIPT")"
+        SUMMARY_VERDICT="$(jq -r '.verdict // "PARTIAL-candidate"' "$RUN_DIR/$TARGETED_RETURN_RECEIPT")"
+        SUMMARY_VERDICT_SOURCE="targeted-return-receipt"
+        SUMMARY_FILE_VERDICT="$SUMMARY_VERDICT"
+        VU_LOG_VERDICT=""
+        rm -f "$RUN_DIR/targeted-return-collector.error.log"
+        echo "[$ROW_ID] TARGETED-RETURN RECEIPT: $RUN_DIR/$TARGETED_RETURN_RECEIPT ($SUMMARY_VERDICT)"
+      else
+        SUMMARY_VERDICT="PARTIAL-candidate"
+        SUMMARY_VERDICT_SOURCE="targeted-return-receipt-missing"
+        REVIEW_PENDING_RECEIPTS="$(
+          jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
+            '$current + ["targeted-return-receipt"] | unique'
+        )"
+        echo "[$ROW_ID] TARGETED-RETURN COLLECTOR FAILED; see $RUN_DIR/targeted-return-collector.error.log" >&2
+        POSTPROCESS_RC=1
+      fi
+    fi
+
     if ! node "$ARTIFACT_SANITIZER" \
       --input "$PRIVATE_EVIDENCE_FILE" \
       --out "$RUN_DIR/evidence.jsonl" \
@@ -1462,6 +1495,10 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       AUTHORITATIVE_RECEIPT="$R_CD_TOKEN_RECEIPT"
       AUTHORITATIVE_RECEIPT_SHA256="$R_CD_TOKEN_RECEIPT_SHA256"
       AUTHORITATIVE_RECEIPT_SOURCE="r-cd-token-row-scoped-resolver"
+    elif [[ "$ROW_ID" == "R-CD-4" || "$ROW_ID" == "R-CD-CHAINED-DEPTH-2" ]]; then
+      AUTHORITATIVE_RECEIPT="$TARGETED_RETURN_RECEIPT"
+      AUTHORITATIVE_RECEIPT_SHA256="$TARGETED_RETURN_RECEIPT_SHA256"
+      AUTHORITATIVE_RECEIPT_SOURCE="shared-targeted-return-collector"
     fi
     jq -n \
       --argjson rc "$k6_rc" \

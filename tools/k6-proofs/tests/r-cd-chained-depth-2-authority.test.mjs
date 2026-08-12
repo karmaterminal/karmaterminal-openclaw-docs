@@ -1,99 +1,123 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import {
+  rCdChainHopIdentities,
+  rCdChainJournalReturnAuthority,
+  rCdChainNestedDelegateSpec,
+  rCdChainPromptTemplate,
   rCdChainRootReturnCandidate,
   rCdChainRootReturnReceipt,
 } from '../lib/r-cd-chained-depth-2-authority.mjs';
 
 const nonce = 'R-CD-CHAIN-EXACT-NONCE';
 const root = 'agent:main:r-cd-chain-root';
+const child = 'agent:main:subagent:child';
+const grandchild = 'agent:main:subagent:grandchild';
 
 function systemEvent(text, sessionKey = root) {
   return { sessionKey, message: { role: 'system', content: [{ type: 'text', text }] } };
 }
 
-test('depth-2 chain binds an explicit root system receipt to both hop identities', () => {
+test('depth-2 nested call explicitly requests fanoutMode=tree', () => {
+  const nested = rCdChainNestedDelegateSpec({ nonce });
+  assert.equal(nested.fanoutMode, 'tree');
+  assert.equal(nested.mode, 'silent-wake');
+  const template = rCdChainPromptTemplate();
+  assert.match(template, /fanoutMode='tree'/);
+  assert.match(template, /GRANDCHILD-DONE \{\{nonce\}\}/);
+  assert.match(template, /CHILD-DONE \{\{nonce\}\} CHILD-DELEGATE-SCHEDULED/);
+});
+
+test('manifest nested prompt includes fanoutMode=tree and no fictional three-subtest list', async () => {
+  const manifest = JSON.parse(await readFile(new URL('../manifests/r-cd-chained-depth-2.json', import.meta.url), 'utf8'));
+  assert.match(manifest.invocation.promptTemplate, /fanoutMode='tree'/);
+  assert.equal(manifest.scenario.subtests, undefined);
+  assert.doesNotMatch(manifest.scenario.description, /Three sub-tests/i);
+});
+
+test('depth-2 requires two distinct hop identities', () => {
+  assert.equal(rCdChainHopIdentities({ childSessionKey: child, grandchildSessionKey: null }).ok, false);
+  assert.equal(rCdChainHopIdentities({ childSessionKey: child, grandchildSessionKey: child }).ok, false);
+  assert.equal(rCdChainHopIdentities({ childSessionKey: child, grandchildSessionKey: grandchild }).ok, true);
+});
+
+test('depth-2 transcript root marker is never routing authority', () => {
   const candidate = rCdChainRootReturnCandidate({
     eventName: 'session.message',
     eventData: systemEvent(`GRANDCHILD-DONE ${nonce}`),
     rootSessionKey: root,
     nonce,
   });
-  assert.deepEqual(rCdChainRootReturnReceipt(candidate, {
-    childSessionKey: 'agent:main:subagent:child',
-    grandchildSessionKey: 'agent:main:subagent:grandchild',
-  }), {
-    eventName: 'session.message',
-    rootSessionKey: root,
-    nonce,
-    marker: `GRANDCHILD-DONE ${nonce}`,
-    role: 'system',
-    childSessionKey: 'agent:main:subagent:child',
-    grandchildSessionKey: 'agent:main:subagent:grandchild',
-  });
-});
-
-test('depth-2 chain rejects ordinary GRANDCHILD-DONE assistant output', () => {
-  assert.equal(rCdChainRootReturnCandidate({
-    eventName: 'session.message',
-    eventData: {
-      sessionKey: root,
-      message: { role: 'assistant', content: `GRANDCHILD-DONE ${nonce}` },
-    },
-    rootSessionKey: root,
-    nonce,
-  }), null);
-});
-
-test('depth-2 chain rejects a correct marker delivered outside the root', () => {
-  assert.equal(rCdChainRootReturnCandidate({
-    eventName: 'session.message',
-    eventData: systemEvent(`GRANDCHILD-DONE ${nonce}`, 'agent:main:subagent:child'),
-    rootSessionKey: root,
-    nonce,
-  }), null);
-});
-
-test('depth-2 chain rejects prompt echoes and nonce-prefix lookalikes', () => {
-  assert.equal(rCdChainRootReturnCandidate({
-    eventName: 'session.message',
-    eventData: systemEvent(`[k6-proof-harness] expect GRANDCHILD-DONE ${nonce}`),
-    rootSessionKey: root,
-    nonce,
-  }), null);
-  assert.equal(rCdChainRootReturnCandidate({
-    eventName: 'session.message',
-    eventData: systemEvent(`GRANDCHILD-DONE ${nonce}-STALE`),
-    rootSessionKey: root,
-    nonce,
-  }), null);
-});
-
-test('depth-2 chain rejects a marker present only in sibling or nested metadata', () => {
-  const eventData = systemEvent('unrelated root system message');
-  eventData.metadata = { returnMarker: `GRANDCHILD-DONE ${nonce}` };
-  eventData.message.metadata = { echoedMarker: `GRANDCHILD-DONE ${nonce}` };
-  assert.equal(rCdChainRootReturnCandidate({
-    eventName: 'session.message',
-    eventData,
-    rootSessionKey: root,
-    nonce,
-  }), null);
-});
-
-test('depth-2 chain withholds return authority without two distinct hop identities', () => {
-  const candidate = rCdChainRootReturnCandidate({
-    eventName: 'session.message',
-    eventData: systemEvent(`GRANDCHILD-DONE ${nonce}`),
-    rootSessionKey: root,
-    nonce,
-  });
+  assert.equal(candidate.authoritative, false);
   assert.equal(rCdChainRootReturnReceipt(candidate, {
-    childSessionKey: 'agent:main:subagent:child',
+    childSessionKey: child,
+    grandchildSessionKey: grandchild,
+  }), null);
+});
+
+test('depth-2 shared journal collector binds grandchild→root under fanoutMode=tree', () => {
+  const ts = '2026-08-09T17:15:19.000-07:00';
+  const start = Date.parse('2026-08-09T17:14:00.000-07:00');
+  const end = Date.parse('2026-08-09T17:16:00.000-07:00');
+  const journal = `${ts} node: [continuation:targeted-return] Delivered to ${root} from ${grandchild}\n`;
+  const receipt = rCdChainJournalReturnAuthority({
+    journalText: journal,
+    rootSessionKey: root,
+    childSessionKey: child,
+    grandchildSessionKey: grandchild,
+    windowStartMs: start,
+    windowEndMs: end,
+  });
+  assert.equal(receipt.verdict, 'PASS-candidate');
+  assert.equal(receipt.targetMatchCount, 1);
+  assert.equal(receipt.parentMatchCount, 0);
+});
+
+test('depth-2 journal authority fails when hops are missing', () => {
+  const receipt = rCdChainJournalReturnAuthority({
+    journalText: '',
+    rootSessionKey: root,
+    childSessionKey: child,
     grandchildSessionKey: null,
-  }), null);
-  assert.equal(rCdChainRootReturnReceipt(candidate, {
-    childSessionKey: 'agent:main:subagent:same',
-    grandchildSessionKey: 'agent:main:subagent:same',
-  }), null);
+  });
+  assert.equal(receipt.failureCategory, 'missing-hop');
+  assert.equal(receipt.verdict, 'PARTIAL-candidate');
 });
+
+test('depth-2 tree multi-target delivery to root+intermediate PASSes', () => {
+  const ts = '2026-08-09T17:15:19.000-07:00';
+  const start = Date.parse('2026-08-09T17:14:00.000-07:00');
+  const end = Date.parse('2026-08-09T17:16:00.000-07:00');
+  const journal =
+    `${ts} node: [continuation:targeted-return] Delivered to ${child},${root} from ${grandchild}\n`;
+  const receipt = rCdChainJournalReturnAuthority({
+    journalText: journal,
+    rootSessionKey: root,
+    childSessionKey: child,
+    grandchildSessionKey: grandchild,
+    windowStartMs: start,
+    windowEndMs: end,
+  });
+  assert.equal(receipt.verdict, 'PASS-candidate');
+  assert.equal(receipt.targetMatchCount, 1);
+});
+
+test('depth-2 separate intermediate+root lines still PASS under tree fanout', () => {
+  const start = Date.parse('2026-08-09T17:14:00.000-07:00');
+  const end = Date.parse('2026-08-09T17:16:00.000-07:00');
+  const journal = [
+    '2026-08-09T17:15:18.000-07:00 node: [continuation:targeted-return] Delivered to ' + child + ' from ' + grandchild,
+    '2026-08-09T17:15:19.000-07:00 node: [continuation:targeted-return] Delivered to ' + root + ' from ' + grandchild,
+  ].join('\n');
+  const receipt = rCdChainJournalReturnAuthority({
+    journalText: journal,
+    rootSessionKey: root,
+    childSessionKey: child,
+    grandchildSessionKey: grandchild,
+    windowStartMs: start,
+    windowEndMs: end,
+  });
+  assert.equal(receipt.verdict, 'PASS-candidate');
+});
+

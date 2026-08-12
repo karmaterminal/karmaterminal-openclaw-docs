@@ -1,13 +1,13 @@
 /**
  * Scenario: R-CD-CHAINED-DEPTH-2 — depth-2 delegate chain.
  *
- * Fires parent→child→grandchild chain and verifies the full return path.
- * The child is instructed to fire its OWN continue_delegate, creating a
- * depth-2 chain. The proof verifies:
- *   1. Parent dispatches (depth-0 → depth-1) via sessions.send (agent turn)
- *   2. Child spawns and fires its own delegate (depth-1 → depth-2)
- *   3. Grandchild spawns and completes
- *   4. Return propagates up-tree to parent
+ * Fires parent→child→grandchild chain. The nested (child→grandchild) call
+ * must request fanoutMode="tree" so grandchild completion routes to root.
+ * Outer parent→child stays unchanged (no fanoutMode).
+ *
+ * Root routing authority is the shared post-run
+ * `[continuation:targeted-return]` collector (grandchild→root), not transcript
+ * GRANDCHILD-DONE system text. This VU gathers hop identities + sentinels.
  *
  * Repeatable mode: set OPENCLAW_CREATE_DISPOSABLE_SESSION=true to create a
  * disposable parent session, so the proof does not touch the live #sprites/main
@@ -25,6 +25,8 @@ import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
 import {
+  rCdChainHopIdentities,
+  rCdChainPromptTemplate,
   rCdChainRootReturnCandidate,
   rCdChainRootReturnReceipt,
 } from '../lib/r-cd-chained-depth-2-authority.mjs';
@@ -115,6 +117,9 @@ export default function () {
     chain_return_received: false,
     root_return_candidate: null,
     root_return_receipt: null,
+    root_diagnostic_marker: null,
+    return_authority: 'gateway-journal-targeted-return-post-run',
+    nested_fanout_mode: 'tree',
     dispatch_accepted_at_ms: null,
     // Depth tracking
     max_depth_observed: 0,
@@ -133,6 +138,7 @@ export default function () {
     const tracker = new RequestTracker();
 
     function finalizeRootReturnReceipt() {
+      // Transcript markers are never root routing authority.
       evidence.root_return_receipt = rCdChainRootReturnReceipt(
         evidence.root_return_candidate,
         {
@@ -140,7 +146,7 @@ export default function () {
           grandchildSessionKey: evidence.grandchild_session,
         },
       );
-      evidence.chain_return_received = evidence.root_return_receipt !== null;
+      evidence.chain_return_received = false;
     }
 
     function observeChainSession(observedSessionKey) {
@@ -166,10 +172,19 @@ export default function () {
       // tools; sessions.send is the correct E2E path.
       socket.setTimeout(() => {
         const inv = invocationCfg();
-        const task = inv.promptTemplate.replace(/\{\{nonce\}\}/g, chainNonce);
+        // Prefer manifest template; fall back to the fanoutMode=tree canonical form.
+        const template = inv.promptTemplate || rCdChainPromptTemplate();
+        if (!template.includes("fanoutMode='tree'") && !template.includes('fanoutMode="tree"')) {
+          console.error('✗ nested chain prompt must request fanoutMode="tree"');
+          failures.add(1);
+          socket.close();
+          return;
+        }
+        const task = template.replace(/\{\{nonce\}\}/g, chainNonce);
         evidence.reason_hash = crypto.sha256(task, 'hex').slice(0, 16);
         evidence.reason_length = task.length;
         evidence.delegate_mode = inv.mode;
+        // Outer parent→child call is unchanged: no fanoutMode on the root dispatch.
         const agentInstruction =
           `[k6-proof-harness] Chain proof nonce ${chainNonce}. ` +
           `Call continue_delegate with: mode="${inv.mode}", delaySeconds=${inv.delaySeconds}, ` +
@@ -289,16 +304,17 @@ export default function () {
                   evidence.grandchild_done_sentinel = true;
                   console.log('✓ GRANDCHILD-DONE sentinel observed post-dispatch');
                 }
-                const rootReturnCandidate = rCdChainRootReturnCandidate({
+                const rootDiagnostic = rCdChainRootReturnCandidate({
                   eventName,
                   eventData,
                   rootSessionKey: sessionKey,
                   nonce: chainNonce,
                 });
-                if (rootReturnCandidate) {
-                  evidence.root_return_candidate = rootReturnCandidate;
+                if (rootDiagnostic) {
+                  evidence.root_diagnostic_marker = rootDiagnostic;
+                  evidence.root_return_candidate = null;
                   finalizeRootReturnReceipt();
-                  console.log('✓ explicit nonce-bound root system return candidate observed');
+                  console.log('ℹ diagnostic root GRANDCHILD-DONE marker observed; not routing authority');
                 }
               }
             }
@@ -306,13 +322,15 @@ export default function () {
         }
 
         // Early close only on strict post-dispatch sentinels.
+        const hops = rCdChainHopIdentities({
+          childSessionKey: evidence.child_session,
+          grandchildSessionKey: evidence.grandchild_session,
+        });
         if (evidence.parent_dispatch_accepted &&
             evidence.child_done_sentinel &&
             evidence.grandchild_done_sentinel &&
-            evidence.child_session &&
-            evidence.grandchild_session &&
-            evidence.root_return_receipt) {
-          console.log('Full chain evidence gathered, closing early');
+            hops.ok) {
+          console.log('Structural chain evidence gathered, closing early (routing authority is post-run)');
           socket.close();
         }
       } catch (e) {
@@ -331,46 +349,45 @@ export default function () {
   chainDuration.add(evidence.duration_ms);
 
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
+  const hops = rCdChainHopIdentities({
+    childSessionKey: evidence.child_session,
+    grandchildSessionKey: evidence.grandchild_session,
+  });
   check(null, {
     'parent dispatch accepted': () => evidence.parent_dispatch_accepted,
     'child sentinel observed post-dispatch': () => evidence.child_done_sentinel,
     'grandchild sentinel observed post-dispatch': () => evidence.grandchild_done_sentinel,
     'nonce-bound child identity observed': () => evidence.child_session !== null,
     'nonce-bound grandchild identity observed': () => evidence.grandchild_session !== null,
-    'explicit root return receipt observed': () => evidence.root_return_receipt !== null,
+    'two distinct hop identities': () => hops.ok,
+    'vu does not claim root routing authority': () => evidence.root_return_receipt === null,
     'max depth >= 2': () => evidence.max_depth_observed >= 2,
   });
 
-  if (!evidence.parent_dispatch_accepted || !evidence.child_done_sentinel ||
-      !evidence.grandchild_done_sentinel || !evidence.child_session ||
-      !evidence.grandchild_session || !evidence.root_return_receipt) {
-    failures.add(1);
-  }
-
-  const passed = (!createDisposableSession || evidence.session_created) &&
+  const structuralOk = (!createDisposableSession || evidence.session_created) &&
     evidence.parent_dispatch_accepted &&
     evidence.child_done_sentinel &&
     evidence.grandchild_done_sentinel &&
-    evidence.child_session !== null &&
-    evidence.grandchild_session !== null &&
-    evidence.root_return_receipt !== null;
+    hops.ok;
+  if (!structuralOk) {
+    failures.add(1);
+  }
 
   console.log(`\n--- R-CD-CHAINED-DEPTH-2 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));
   console.log(`--- END EVIDENCE ---`);
-  console.log(`\n[R-CD-CHAINED-DEPTH-2] VERDICT: ${passed ? 'PASS-candidate' : 'PARTIAL-candidate'}`);
+  console.log(`\n[R-CD-CHAINED-DEPTH-2] VERDICT: PARTIAL-candidate`);
   console.log(`  Max depth observed: ${evidence.max_depth_observed}`);
 }
 
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
-  const passRate = data.metrics.proof_failures?.values?.count === 0;
   const summary = {
     row: 'R-CD-CHAINED-DEPTH-2',
     sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     seat: __ENV.OPENCLAW_SEAT_NAME || 'ronan-dgx',
     timestamp,
-    verdict: passRate ? 'PASS-candidate' : 'PARTIAL-candidate',
+    verdict: 'PARTIAL-candidate',
     metrics: {
       duration_ms: data.metrics.r_cd_chain_duration?.values || null,
       failures: data.metrics.proof_failures?.values?.count || 0,

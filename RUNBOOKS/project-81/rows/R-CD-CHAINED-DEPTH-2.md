@@ -54,3 +54,12 @@ OPENCLAW_CANDIDATE_SHA=<candidate-sha> \
 PASS requires parent→child→grandchild correlation and root/parent receipt of the final return. If the scenario observes only spawn but not final root receipt, fold as PARTIAL with exact missing surface.
 
 Before unattended runner use, add `liveRunSafety` with external tool invocation required and same-session concurrency unsafe.
+
+## Authority note (WO-1217)
+
+Nested child→grandchild call must request `fanoutMode="tree"` so grandchild
+completion routes to root. Outer parent→child is unchanged. Root routing
+authority is the shared targeted-return journal collector (grandchild→root),
+not transcript `GRANDCHILD-DONE` system text. Two distinct hop identities are
+required. The manifest no longer claims three separate subtests.
+

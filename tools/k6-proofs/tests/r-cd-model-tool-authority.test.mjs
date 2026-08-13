@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   createModelToolDispatchGate,
   diffSpawnedByChildren,
+  mergeModelToolChildAuthorityEvidence,
   modelFromSessionMetadata,
   parentReturnContainsNonce,
   resolveModelToolChildAuthority,
@@ -40,6 +41,243 @@ test('model authority reads provider/model from the unique new child row only', 
     postKeys: sessionKeysFromListPayload(payload),
     sessionsPayload: payload,
     requestedModel: 'openai/gpt-5.6-luna',
+  });
+
+  test('event correlation confirms but never disambiguates the unique set-diff child', () => {
+    const payload = {
+      sessions: [
+        {
+          key: childA,
+          spawnedBy: parent,
+          modelProvider: 'openai',
+          model: 'gpt-5.6-luna',
+        },
+        {
+          key: childB,
+          spawnedBy: parent,
+          modelProvider: 'openai',
+          model: 'gpt-5.5',
+        },
+      ],
+    };
+    const ambiguous = resolveModelToolChildAuthority({
+      preKeys: [],
+      postKeys: [childA, childB],
+      sessionsPayload: payload,
+      requestedModel: 'openai/gpt-5.6-luna',
+      eventChildSessionKey: childA,
+      parentSessionKey: parent,
+    });
+    assert.equal(ambiguous.childSessionKey, null);
+    assert.equal(ambiguous.failureCategory, 'multiple-new-children');
+
+    const authority = resolveModelToolChildAuthority({
+      preKeys: [],
+      postKeys: [childA],
+      sessionsPayload: payload,
+      requestedModel: 'openai/gpt-5.6-luna',
+      eventChildSessionKey: childA,
+      parentSessionKey: parent,
+    });
+    assert.equal(authority.childSessionKey, childA);
+    assert.equal(authority.authoritySource, 'event-correlated-sessions-list');
+    assert.equal(authority.modelMatches, true);
+
+    const wrongParent = resolveModelToolChildAuthority({
+      preKeys: [],
+      postKeys: [childA],
+      sessionsPayload: payload,
+      requestedModel: 'openai/gpt-5.6-luna',
+      eventChildSessionKey: childA,
+      parentSessionKey: 'agent:main:other-parent',
+    });
+    assert.equal(wrongParent.childSessionKey, null);
+    assert.equal(wrongParent.failureCategory, 'child-parent-mismatch');
+  });
+
+  test('positive child metadata evidence is sticky across later empty polls', () => {
+    const positive = mergeModelToolChildAuthorityEvidence({}, {
+      childSessionKey: childA,
+      childSession: {
+        key: childA,
+        spawnedBy: parent,
+        modelProvider: 'openai',
+        model: 'gpt-5.6-luna',
+      },
+      childMetadataModelByte: 'openai/gpt-5.6-luna',
+      modelMatches: true,
+      authoritySource: 'event-correlated-sessions-list',
+      empty: false,
+      ambiguous: false,
+      failureCategory: null,
+    });
+    const afterEmptyPoll = mergeModelToolChildAuthorityEvidence(positive, {
+      childSessionKey: null,
+      childMetadataModelByte: null,
+      empty: true,
+      ambiguous: false,
+      failureCategory: 'zero-new-children',
+    });
+    assert.equal(afterEmptyPoll.child_session_key, childA);
+    assert.equal(afterEmptyPoll.child_session_metadata_observed, true);
+    assert.equal(afterEmptyPoll.model_matches, true);
+    assert.equal(afterEmptyPoll.spawned_by_diff_empty, false);
+    assert.equal(afterEmptyPoll.model_classification_reason, null);
+  });
+
+  test('later multiple-child ambiguity is sticky and invalidates prior authority', () => {
+    const positive = mergeModelToolChildAuthorityEvidence({}, {
+      childSessionKey: childA,
+      childSession: {
+        key: childA,
+        spawnedBy: parent,
+        modelProvider: 'openai',
+        model: 'gpt-5.6-luna',
+      },
+      childMetadataModelByte: 'openai/gpt-5.6-luna',
+      modelMatches: true,
+      authoritySource: 'spawned-by-set-diff',
+      empty: false,
+      ambiguous: false,
+      failureCategory: null,
+    });
+    const ambiguous = mergeModelToolChildAuthorityEvidence(positive, {
+      childSessionKey: null,
+      childMetadataModelByte: null,
+      empty: false,
+      ambiguous: true,
+      failureCategory: 'multiple-new-children',
+    });
+    assert.equal(ambiguous.spawned_by_diff_ambiguous, true);
+    assert.equal(ambiguous.model_matches, false);
+
+    const afterUniquePoll = mergeModelToolChildAuthorityEvidence(ambiguous, {
+      childSessionKey: childA,
+      childSession: {
+        key: childA,
+        spawnedBy: parent,
+        modelProvider: 'openai',
+        model: 'gpt-5.6-luna',
+      },
+      childMetadataModelByte: 'openai/gpt-5.6-luna',
+      modelMatches: true,
+      authoritySource: 'spawned-by-set-diff',
+      empty: false,
+      ambiguous: false,
+      failureCategory: null,
+    });
+    assert.equal(afterUniquePoll.spawned_by_diff_ambiguous, true);
+    assert.equal(afterUniquePoll.model_matches, false);
+  });
+
+  test('event and metadata child conflicts remain sticky and cannot be cleared', () => {
+    const conflict = mergeModelToolChildAuthorityEvidence({
+      event_child_session_key: childB,
+      event_child_session_observed: true,
+    }, {
+      childSessionKey: childA,
+      childSession: {
+        key: childA,
+        spawnedBy: parent,
+        modelProvider: 'openai',
+        model: 'gpt-5.6-luna',
+      },
+      childMetadataModelByte: 'openai/gpt-5.6-luna',
+      modelMatches: true,
+      authoritySource: 'spawned-by-set-diff',
+    });
+    assert.equal(conflict.child_identity_conflict, true);
+    assert.equal(conflict.model_matches, false);
+
+    const afterMatchingPoll = mergeModelToolChildAuthorityEvidence(conflict, {
+      childSessionKey: childB,
+      childSession: {
+        key: childB,
+        spawnedBy: parent,
+        modelProvider: 'openai',
+        model: 'gpt-5.6-luna',
+      },
+      childMetadataModelByte: 'openai/gpt-5.6-luna',
+      modelMatches: true,
+      authoritySource: 'event-correlated-sessions-list',
+    });
+    assert.equal(afterMatchingPoll.child_identity_conflict, true);
+    assert.equal(afterMatchingPoll.model_matches, false);
+  });
+
+  test('metadata-less replacement child invalidates prior authority', () => {
+    const positive = mergeModelToolChildAuthorityEvidence({}, {
+      childSessionKey: childA,
+      childSession: {
+        key: childA,
+        spawnedBy: parent,
+        modelProvider: 'openai',
+        model: 'gpt-5.6-luna',
+      },
+      childMetadataModelByte: 'openai/gpt-5.6-luna',
+      modelMatches: true,
+      authoritySource: 'spawned-by-set-diff',
+      empty: false,
+      ambiguous: false,
+    });
+    const replacementWithoutModel = mergeModelToolChildAuthorityEvidence(positive, {
+      childSessionKey: childB,
+      childSession: {
+        key: childB,
+        spawnedBy: parent,
+        model: null,
+      },
+      childMetadataModelByte: null,
+      modelMatches: false,
+      authoritySource: 'spawned-by-set-diff',
+      empty: false,
+      ambiguous: false,
+      failureCategory: 'missing-child-model-byte',
+    });
+    assert.equal(replacementWithoutModel.child_identity_conflict, true);
+    assert.equal(replacementWithoutModel.model_matches, false);
+  });
+
+  test('event-correlated authority cannot mask a later unique replacement child', () => {
+    const positive = mergeModelToolChildAuthorityEvidence({
+      event_child_session_key: childA,
+      event_child_session_observed: true,
+    }, resolveModelToolChildAuthority({
+      preKeys: [],
+      postKeys: [childA],
+      sessionsPayload: {
+        sessions: [{
+          key: childA,
+          spawnedBy: parent,
+          modelProvider: 'openai',
+          model: 'gpt-5.6-luna',
+        }],
+      },
+      requestedModel: 'openai/gpt-5.6-luna',
+      eventChildSessionKey: childA,
+      parentSessionKey: parent,
+    }));
+    const replacementAuthority = resolveModelToolChildAuthority({
+      preKeys: [childA],
+      postKeys: [childA, childB],
+      sessionsPayload: {
+        sessions: [{
+          key: childB,
+          spawnedBy: parent,
+          modelProvider: 'openai',
+          model: 'gpt-5.5',
+        }],
+      },
+      requestedModel: 'openai/gpt-5.6-luna',
+      eventChildSessionKey: childA,
+      parentSessionKey: parent,
+    });
+    assert.equal(replacementAuthority.childSessionKey, childB);
+    assert.equal(replacementAuthority.failureCategory, 'event-child-preexisting');
+
+    const merged = mergeModelToolChildAuthorityEvidence(positive, replacementAuthority);
+    assert.equal(merged.child_identity_conflict, true);
+    assert.equal(merged.model_matches, false);
   });
   assert.equal(ok.uniqueNewChildKey, null); // two added
   assert.equal(ok.failureCategory, 'multiple-new-children');
@@ -178,6 +416,12 @@ test('scenario requires disposable parent, spawnedBy filter, and baseline-gated 
   const scenario = await readFile(new URL('../scenarios/r-cd-model-tool.js', import.meta.url), 'utf8');
   assert.match(scenario, /OPENCLAW_CREATE_DISPOSABLE_SESSION=true is required/);
   assert.match(scenario, /sessions\.list',\s*\{\s*spawnedBy:\s*sessionKey,\s*limit:\s*100\s*\}/);
+  assert.match(scenario, /childSessionKeysForRow/);
+  assert.match(scenario, /event_child_session_key/);
+  assert.match(scenario, /listRequestPhases/);
+  assert.match(scenario, /mergeModelToolChildAuthorityEvidence/);
+  assert.match(scenario, /CHILD_AUTHORITY_STABILITY_MS = 30000/);
+  assert.match(scenario, /child_authority_stable === true/);
   assert.match(scenario, /pre_spawned_by_keys/);
   assert.match(scenario, /post_spawned_by_keys/);
   assert.match(scenario, /auxiliary child runtime-context self-report \(not used for equality\)/);

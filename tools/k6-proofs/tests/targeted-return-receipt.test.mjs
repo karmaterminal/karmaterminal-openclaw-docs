@@ -291,6 +291,88 @@ test('collector CLI seals with OPENCLAW_GATEWAY_TOKEN and rejects missing token'
   assert.equal(partialSummary.structuralOk, false);
 });
 
+test('depth-2 collector cannot seal PASS when spawnedBy ancestry is ambiguous', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'targeted-return-chain-'));
+  const root = 'agent:main:r-cd-chain-root';
+  const depthOne = 'agent:main:subagent:depth-one';
+  const depthTwo = 'agent:main:subagent:depth-two';
+  const evidence = {
+    row: 'R-CD-CHAINED-DEPTH-2',
+    sessionKey: root,
+    parent_dispatch_accepted: true,
+    child_done_sentinel: true,
+    grandchild_done_sentinel: true,
+    child_session: depthOne,
+    grandchild_session: depthTwo,
+    child_authority_source: 'sessions.list spawnedBy ancestry',
+    grandchild_authority_source: 'sessions.list spawnedBy ancestry',
+    child_ancestry_confirmations: 2,
+    grandchild_ancestry_confirmations: 2,
+    grandchild_ancestry_confirmed_at_ms: windowStart + 30_000,
+    ancestry_stable: true,
+    ancestry_ambiguous: true,
+    dispatch_accepted_at_ms: windowStart,
+    started: new Date(windowStart).toISOString(),
+    ended: new Date(windowEnd - 1000).toISOString(),
+  };
+  const evidencePath = path.join(dir, 'evidence.json');
+  const journalPath = path.join(dir, 'journal.log');
+  await writeFile(evidencePath, JSON.stringify(evidence));
+  await writeFile(journalPath, `${line(inWindow, root, depthTwo)}\n`);
+
+  const { stdout } = await run('node', [
+    collector,
+    '--run-dir', dir,
+    '--evidence', evidencePath,
+    '--journal', journalPath,
+    '--row', 'R-CD-CHAINED-DEPTH-2',
+  ], { env: { ...process.env, OPENCLAW_GATEWAY_TOKEN: signingKey } });
+  const summary = JSON.parse(stdout);
+  assert.equal(summary.verdict, 'PARTIAL-candidate');
+  assert.equal(summary.structuralOk, false);
+});
+
+test('depth-2 collector independently rejects a sub-30s stability claim', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'targeted-return-chain-fast-'));
+  const root = 'agent:main:r-cd-chain-root';
+  const depthOne = 'agent:main:subagent:depth-one';
+  const depthTwo = 'agent:main:subagent:depth-two';
+  const evidence = {
+    row: 'R-CD-CHAINED-DEPTH-2',
+    sessionKey: root,
+    parent_dispatch_accepted: true,
+    child_done_sentinel: true,
+    grandchild_done_sentinel: true,
+    child_session: depthOne,
+    grandchild_session: depthTwo,
+    child_authority_source: 'sessions.list spawnedBy ancestry',
+    grandchild_authority_source: 'sessions.list spawnedBy ancestry',
+    child_ancestry_confirmations: 2,
+    grandchild_ancestry_confirmations: 2,
+    ancestry_stable: true,
+    ancestry_ambiguous: false,
+    dispatch_accepted_at_ms: windowStart,
+    grandchild_ancestry_confirmed_at_ms: windowStart + 12_000,
+    started: new Date(windowStart).toISOString(),
+    ended: new Date(windowEnd - 1000).toISOString(),
+  };
+  const evidencePath = path.join(dir, 'evidence.json');
+  const journalPath = path.join(dir, 'journal.log');
+  await writeFile(evidencePath, JSON.stringify(evidence));
+  await writeFile(journalPath, `${line(inWindow, root, depthTwo)}\n`);
+
+  const { stdout } = await run('node', [
+    collector,
+    '--run-dir', dir,
+    '--evidence', evidencePath,
+    '--journal', journalPath,
+    '--row', 'R-CD-CHAINED-DEPTH-2',
+  ], { env: { ...process.env, OPENCLAW_GATEWAY_TOKEN: signingKey } });
+  const summary = JSON.parse(stdout);
+  assert.equal(summary.verdict, 'PARTIAL-candidate');
+  assert.equal(summary.structuralOk, false);
+});
+
 test('replay redacted historical journal remains unproven (no manufactured PASS)', () => {
   const redacted = [
     '2026-08-09T17:13:29.848-07:00 cael node[1]: [continuation:targeted-return] Delivered to <redacted-session-key> from <redacted-session-key>',

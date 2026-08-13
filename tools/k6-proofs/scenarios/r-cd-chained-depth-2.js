@@ -23,12 +23,12 @@ import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
-import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
 import {
   rCdChainHopIdentities,
   rCdChainPromptTemplate,
   rCdChainRootReturnCandidate,
   rCdChainRootReturnReceipt,
+  resolveUniqueSpawnedByChild,
 } from '../lib/r-cd-chained-depth-2-authority.mjs';
 
 export const options = {
@@ -59,6 +59,10 @@ const DEFAULTS = {
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
 const POST_DISPATCH_EVIDENCE_GATE_MS = Number(__ENV.OPENCLAW_MIN_CHAIN_EVIDENCE_DELAY_MS || 1500);
+const configuredAncestryStabilityMs = Number(__ENV.OPENCLAW_CHAIN_ANCESTRY_STABILITY_MS);
+const ANCESTRY_STABILITY_MS = Number.isFinite(configuredAncestryStabilityMs)
+  ? Math.max(30000, configuredAncestryStabilityMs)
+  : 30000;
 
 function boolEnv(name) {
   return (__ENV[name] || '').toLowerCase() === 'true';
@@ -89,6 +93,11 @@ export default function () {
     failures.add(1);
     return;
   }
+  if (!createDisposableSession) {
+    console.error('OPENCLAW_CREATE_DISPOSABLE_SESSION=true is required for R-CD-CHAINED-DEPTH-2');
+    failures.add(1);
+    return;
+  }
 
   if (manifest) {
     const errors = validateManifest(manifest);
@@ -112,6 +121,14 @@ export default function () {
     parent_dispatch_accepted: false,
     child_spawned: false,
     grandchild_spawned: false,
+    child_authority_source: null,
+    grandchild_authority_source: null,
+    ancestry_ambiguous: false,
+    ancestry_stable: false,
+    child_ancestry_confirmations: 0,
+    grandchild_ancestry_confirmations: 0,
+    child_ancestry_confirmed_at_ms: null,
+    grandchild_ancestry_confirmed_at_ms: null,
     child_done_sentinel: false,
     grandchild_done_sentinel: false,
     chain_return_received: false,
@@ -136,6 +153,7 @@ export default function () {
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    const ancestryRequests = {};
 
     function finalizeRootReturnReceipt() {
       // Transcript markers are never root routing authority.
@@ -149,18 +167,54 @@ export default function () {
       evidence.chain_return_received = false;
     }
 
-    function observeChainSession(observedSessionKey) {
+    function observeAncestrySession(depth, observedSessionKey) {
       if (!observedSessionKey || observedSessionKey === sessionKey) return;
-      if (!evidence.child_session) {
+      const observedAtMs = Date.now();
+      if (depth === 1 && !evidence.child_session) {
         evidence.child_session = observedSessionKey;
         evidence.child_spawned = true;
+        evidence.child_authority_source = 'sessions.list spawnedBy ancestry';
+        evidence.child_ancestry_confirmations = 1;
+        evidence.child_ancestry_confirmed_at_ms = observedAtMs;
         if (evidence.max_depth_observed < 1) evidence.max_depth_observed = 1;
-      } else if (observedSessionKey !== evidence.child_session && !evidence.grandchild_session) {
+      } else if (depth === 1 && evidence.child_session !== observedSessionKey) {
+        evidence.ancestry_ambiguous = true;
+      } else if (depth === 1) {
+        evidence.child_ancestry_confirmations += 1;
+        evidence.child_ancestry_confirmed_at_ms = observedAtMs;
+      } else if (depth === 2 && observedSessionKey !== evidence.child_session &&
+                 !evidence.grandchild_session) {
         evidence.grandchild_session = observedSessionKey;
         evidence.grandchild_spawned = true;
+        evidence.grandchild_authority_source = 'sessions.list spawnedBy ancestry';
+        evidence.grandchild_ancestry_confirmations = 1;
+        evidence.grandchild_ancestry_confirmed_at_ms = observedAtMs;
         if (evidence.max_depth_observed < 2) evidence.max_depth_observed = 2;
+      } else if (depth === 2 && evidence.grandchild_session !== observedSessionKey) {
+        evidence.ancestry_ambiguous = true;
+      } else if (depth === 2) {
+        evidence.grandchild_ancestry_confirmations += 1;
+        evidence.grandchild_ancestry_confirmed_at_ms = observedAtMs;
       }
+      evidence.ancestry_stable = (
+        evidence.ancestry_ambiguous !== true
+        && evidence.dispatch_accepted_at_ms !== null
+        && evidence.child_ancestry_confirmations >= 2
+        && evidence.grandchild_ancestry_confirmations >= 2
+        && evidence.grandchild_ancestry_confirmed_at_ms !== null
+        && evidence.grandchild_ancestry_confirmed_at_ms - evidence.dispatch_accepted_at_ms
+          >= ANCESTRY_STABILITY_MS
+      );
       finalizeRootReturnReceipt();
+    }
+
+    function requestAncestryList(depth, parentSessionKey) {
+      if (!parentSessionKey) return;
+      const requestId = tracker.send(socket, 'sessions.list', {
+        spawnedBy: parentSessionKey,
+        limit: 100,
+      });
+      ancestryRequests[requestId] = { depth, parentSessionKey };
     }
 
     function startProofFlow(socket) {
@@ -205,6 +259,9 @@ export default function () {
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 60000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 90000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 120000);
+      for (const delayMs of [4000, 12000, 30000, 60000, 90000, 120000]) {
+        socket.setTimeout(() => requestAncestryList(1, sessionKey), delayMs);
+      }
 
       // Extended timeout for depth-2 chain completion.
       socket.setTimeout(() => socket.close(), 150000);
@@ -221,14 +278,14 @@ export default function () {
             label: `k6 R-CD-CHAINED-DEPTH-2 ${chainNonce}`,
           });
         }, 250);
-      } else {
-        socket.setTimeout(() => startProofFlow(socket), 500);
       }
     });
 
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
+        const ancestryRequest = msg?.id ? ancestryRequests[msg.id] || null : null;
+        if (msg?.id) delete ancestryRequests[msg.id];
         const classified = tracker.classify(msg);
 
         evidence.redacted_events.push({
@@ -269,15 +326,32 @@ export default function () {
           }
         }
 
+        if (classified.kind === 'response' && classified.method === 'sessions.list' &&
+            ancestryRequest) {
+          if (classified.ok) {
+            const resolved = resolveUniqueSpawnedByChild({
+              sessionsPayload: classified.payload || {},
+              parentSessionKey: ancestryRequest.parentSessionKey,
+            });
+            if (resolved.uniqueChildKey) {
+              observeAncestrySession(ancestryRequest.depth, resolved.uniqueChildKey);
+              if (ancestryRequest.depth === 1 && evidence.child_session) {
+                requestAncestryList(2, evidence.child_session);
+              }
+            } else if (resolved.ambiguous) {
+              evidence.ancestry_ambiguous = true;
+            }
+          }
+        }
+
         // Optional TaskFlow ledger context. Absence here is not a failure:
-        // continue_delegate uses pending-delegate/subagent surfaces.
+        // continue_delegate uses pending-delegate/subagent surfaces. Titles are
+        // capped and cannot establish nonce-bound hop identities.
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
           const tasks = classified.payload?.tasks || [];
           for (const task of tasks) {
             const taskStr = JSON.stringify(task);
             if (!taskStr.includes(chainNonce)) continue;
-            observeChainSession(task.sessionKey);
-            observeChainSession(task.childSessionKey);
             if (task.traceId) evidence.trace_id = task.traceId;
           }
         }
@@ -289,7 +363,6 @@ export default function () {
           const eventName = classified.event || '';
           const eventData = classified.data || {};
           const eventStr = JSON.stringify(eventData);
-          observeChainSession(childSessionKeyForRow(eventData, chainNonce));
           if (eventStr.includes(chainNonce)) {
             if (eventStr.includes(HARNESS_MARKER)) {
               console.log('ℹ Ignoring harness prompt echo event');
@@ -329,7 +402,13 @@ export default function () {
         if (evidence.parent_dispatch_accepted &&
             evidence.child_done_sentinel &&
             evidence.grandchild_done_sentinel &&
-            hops.ok) {
+            hops.ok &&
+            evidence.dispatch_accepted_at_ms &&
+            Date.now() - evidence.dispatch_accepted_at_ms >= ANCESTRY_STABILITY_MS &&
+            evidence.child_ancestry_confirmations >= 2 &&
+            evidence.grandchild_ancestry_confirmations >= 2 &&
+            evidence.ancestry_stable === true &&
+            !evidence.ancestry_ambiguous) {
           console.log('Structural chain evidence gathered, closing early (routing authority is post-run)');
           socket.close();
         }
@@ -368,7 +447,11 @@ export default function () {
     evidence.parent_dispatch_accepted &&
     evidence.child_done_sentinel &&
     evidence.grandchild_done_sentinel &&
-    hops.ok;
+    hops.ok &&
+    evidence.child_ancestry_confirmations >= 2 &&
+    evidence.grandchild_ancestry_confirmations >= 2 &&
+    evidence.ancestry_stable === true &&
+    !evidence.ancestry_ambiguous;
   if (!structuralOk) {
     failures.add(1);
   }

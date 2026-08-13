@@ -70,7 +70,17 @@ function bindRow(evidence, rowHint) {
         evidence?.grandchild_done_sentinel === true &&
         !!evidence?.child_session &&
         !!evidence?.grandchild_session &&
-        evidence.child_session !== evidence.grandchild_session,
+        evidence.child_session !== evidence.grandchild_session &&
+        evidence?.ancestry_ambiguous !== true &&
+        evidence?.ancestry_stable === true &&
+        Number(evidence?.child_ancestry_confirmations) >= 2 &&
+        Number(evidence?.grandchild_ancestry_confirmations) >= 2 &&
+        Number.isFinite(Number(evidence?.dispatch_accepted_at_ms)) &&
+        Number.isFinite(Number(evidence?.grandchild_ancestry_confirmed_at_ms)) &&
+        Number(evidence.grandchild_ancestry_confirmed_at_ms) -
+          Number(evidence.dispatch_accepted_at_ms) >= 30_000 &&
+        evidence?.child_authority_source === 'sessions.list spawnedBy ancestry' &&
+        evidence?.grandchild_authority_source === 'sessions.list spawnedBy ancestry',
     };
   }
   throw new Error(`unsupported targeted-return row: ${row || '(missing)'}`);

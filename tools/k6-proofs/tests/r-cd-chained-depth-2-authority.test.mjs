@@ -8,6 +8,7 @@ import {
   rCdChainPromptTemplate,
   rCdChainRootReturnCandidate,
   rCdChainRootReturnReceipt,
+  resolveUniqueSpawnedByChild,
 } from '../lib/r-cd-chained-depth-2-authority.mjs';
 
 const nonce = 'R-CD-CHAIN-EXACT-NONCE';
@@ -37,10 +38,82 @@ test('manifest nested prompt includes fanoutMode=tree and no fictional three-sub
   assert.doesNotMatch(manifest.scenario.description, /Three sub-tests/i);
 });
 
+test('depth-2 scenario requires a disposable ancestry root', async () => {
+  const scenario = await readFile(
+    new URL('../scenarios/r-cd-chained-depth-2.js', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    scenario,
+    /OPENCLAW_CREATE_DISPOSABLE_SESSION=true is required for R-CD-CHAINED-DEPTH-2/,
+  );
+  assert.match(scenario, /sessions\.list',\s*\{\s*spawnedBy:\s*parentSessionKey/);
+  assert.doesNotMatch(scenario, /observeChainSession\(task\.childSessionKey\)/);
+  assert.match(scenario, /child_ancestry_confirmations\s*>=\s*2/);
+  assert.match(scenario, /grandchild_ancestry_confirmations\s*>=\s*2/);
+  assert.match(scenario, /grandchild_ancestry_confirmed_at_ms\s*-\s*evidence\.dispatch_accepted_at_ms/);
+  assert.match(scenario, /evidence\.ancestry_stable === true/);
+  assert.match(scenario, /Math\.max\(30000,\s*configuredAncestryStabilityMs\)/);
+  assert.doesNotMatch(
+    scenario,
+    /ancestryRequest\.depth === 1 && evidence\.child_session &&\s*!evidence\.grandchild_session/,
+  );
+});
+
 test('depth-2 requires two distinct hop identities', () => {
   assert.equal(rCdChainHopIdentities({ childSessionKey: child, grandchildSessionKey: null }).ok, false);
   assert.equal(rCdChainHopIdentities({ childSessionKey: child, grandchildSessionKey: child }).ok, false);
   assert.equal(rCdChainHopIdentities({ childSessionKey: child, grandchildSessionKey: grandchild }).ok, true);
+});
+
+test('depth-2 resolves direct hops from spawnedBy ancestry despite truncated titles', () => {
+  const childPayload = {
+    sessions: [{
+      key: child,
+      spawnedBy: root,
+      title: 'Proof chain nonce R-CD-CHAIN-EXACT-NONCE-TRUNCATED-BEFORE-THE-REST',
+    }],
+  };
+  const childResult = resolveUniqueSpawnedByChild({
+    sessionsPayload: childPayload,
+    parentSessionKey: root,
+  });
+  assert.equal(childResult.uniqueChildKey, child);
+
+  const grandchildPayload = {
+    sessions: [{
+      key: grandchild,
+      spawnedBy: child,
+      title: 'Grandchild nonce R-CD-CHAIN-EXACT-NONCE-TRUNCATED-BEFORE-THE-REST',
+    }],
+  };
+  const grandchildResult = resolveUniqueSpawnedByChild({
+    sessionsPayload: grandchildPayload,
+    parentSessionKey: child,
+  });
+  assert.equal(grandchildResult.uniqueChildKey, grandchild);
+  assert.equal(
+    rCdChainHopIdentities({
+      childSessionKey: childResult.uniqueChildKey,
+      grandchildSessionKey: grandchildResult.uniqueChildKey,
+    }).ok,
+    true,
+  );
+});
+
+test('depth-2 ancestry fails closed on ambiguous direct children', () => {
+  const resolved = resolveUniqueSpawnedByChild({
+    sessionsPayload: {
+      sessions: [
+        { key: child, spawnedBy: root },
+        { key: 'agent:main:subagent:other', parentSessionKey: root },
+      ],
+    },
+    parentSessionKey: root,
+  });
+  assert.equal(resolved.uniqueChildKey, null);
+  assert.equal(resolved.ambiguous, true);
+  assert.equal(resolved.failureCategory, 'multiple-direct-children');
 });
 
 test('depth-2 transcript root marker is never routing authority', () => {
@@ -129,4 +202,3 @@ test('depth-2 separate intermediate+root lines still PASS under tree fanout', ()
   });
   assert.equal(receipt.verdict, 'PASS-candidate');
 });
-

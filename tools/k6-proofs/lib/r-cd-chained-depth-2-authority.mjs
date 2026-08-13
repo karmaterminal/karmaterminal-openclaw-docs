@@ -126,6 +126,42 @@ export function rCdChainHopIdentities({ childSessionKey, grandchildSessionKey } 
   };
 }
 
+export function resolveUniqueSpawnedByChild({ sessionsPayload, parentSessionKey } = {}) {
+  if (typeof parentSessionKey !== 'string' || parentSessionKey.length === 0) {
+    return {
+      uniqueChildKey: null,
+      child: null,
+      candidates: [],
+      ambiguous: false,
+      empty: true,
+      failureCategory: 'missing-parent-session',
+    };
+  }
+  const sessions = Array.isArray(sessionsPayload?.sessions)
+    ? sessionsPayload.sessions
+    : (Array.isArray(sessionsPayload) ? sessionsPayload : []);
+  const children = sessions.filter((session) => (
+    typeof session?.key === 'string'
+    && session.key.length > 0
+    && session.key !== parentSessionKey
+    && (session.spawnedBy === parentSessionKey || session.parentSessionKey === parentSessionKey)
+  ));
+  const candidates = [...new Set(children.map((session) => session.key))].sort();
+  const uniqueChildKey = candidates.length === 1 ? candidates[0] : null;
+  return {
+    uniqueChildKey,
+    child: uniqueChildKey
+      ? children.find((session) => session.key === uniqueChildKey) || null
+      : null,
+    candidates,
+    ambiguous: candidates.length > 1,
+    empty: candidates.length === 0,
+    failureCategory: candidates.length > 1
+      ? 'multiple-direct-children'
+      : (candidates.length === 0 ? 'zero-direct-children' : null),
+  };
+}
+
 /**
  * Nested depth-2 call must request fanoutMode=tree so grandchild completion
  * routes up the ancestry to root. Outer parent→child call stays unchanged.

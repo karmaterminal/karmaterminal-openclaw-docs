@@ -334,3 +334,23 @@ test('retry and availability agree on what counts as a transport failure', () =>
   assert.equal(httpStatusOf(Object.assign(new Error('x'), { cause: { httpStatus: 503 } })), 503);
   assert.equal(httpStatusOf(new Error('x')), null);
 });
+
+test('an untagged HTTP failure never manufactures a claim about the run', () => {
+  // A future call site that forgets `tempoEndpoint` must lose information, not
+  // gain a product statement. `no-matching-trace` asserts the backend answered;
+  // an unlabeled error cannot establish that.
+  const untagged404 = Object.assign(new Error('Tempo fetch failed: HTTP 404'), { httpStatus: 404 });
+  assert.equal(classifyTraceFailure({ error: untagged404, candidateCount: 1 }), TRACE_OUTCOME.BACKEND_UNAVAILABLE);
+
+  const tagged404 = Object.assign(new Error('Tempo trace fetch failed: HTTP 404'), { httpStatus: 404, tempoEndpoint: 'trace' });
+  assert.equal(classifyTraceFailure({ error: tagged404, candidateCount: 1 }), TRACE_OUTCOME.NO_MATCHING_TRACE);
+});
+
+test('the legitimate empty-result path is untouched by the narrowed rule', () => {
+  // An empty search is a 200 with no traces: the collector throws a plain
+  // error with no status, and `candidateCount === 0` carries the meaning.
+  const emptySearch = new Error('no Tempo trace matched reason hash 1dcaf2da9577f8eb before timeout');
+  assert.equal(classifyTraceFailure({ error: emptySearch, candidateCount: 0 }), TRACE_OUTCOME.NO_MATCHING_TRACE);
+  const emptyToolSearch = new Error('no Tempo trace matched tool continue_delegate in the evidence window');
+  assert.equal(classifyTraceFailure({ error: emptyToolSearch, candidateCount: 0 }), TRACE_OUTCOME.NO_MATCHING_TRACE);
+});

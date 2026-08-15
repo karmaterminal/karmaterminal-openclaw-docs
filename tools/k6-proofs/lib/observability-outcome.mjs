@@ -93,10 +93,14 @@ export function tempoEndpointOf(error) {
  * `no-matching-trace` would state something about the product run that nobody
  * established. Only a 404 from `/api/traces/<id>` is Tempo telling us it is not
  * carrying that trace; a 401/403 means we were refused and learned nothing.
+ *
+ * The endpoint must say so explicitly. An untagged 404 — from a call site that
+ * has not declared which route it hit — resolves to unavailable rather than to
+ * a claim about the run, so forgetting the tag can only lose information, never
+ * manufacture a product statement.
  */
 function answeredWithNothing(error, status) {
-  if (status !== 404) return false;
-  return tempoEndpointOf(error) !== 'search';
+  return status === 404 && tempoEndpointOf(error) === 'trace';
 }
 
 /**

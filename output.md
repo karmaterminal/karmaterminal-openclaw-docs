@@ -265,9 +265,9 @@ Named rather than bundled, per the workorder.
 
 | Validation | Result |
 | --- | --- |
-| Full sanctioned docs harness suite | **452 passed, 1 failed, 0 cancelled** (453 tests) |
+| Full sanctioned docs harness suite | **454 passed, 1 failed, 0 cancelled** (455 tests) |
 | Baseline classification of the single red | `candidate envelope is outside and invisible to canonical corpus validation` — the documented pre-existing failure; reproduces at base `87f6e143` and on fork base `f7e307d7`. Not owned by this lane |
-| Test-count delta | 382 → 453 (+71): 15 proof-session, 12 observability-outcome, 6 collector observability e2e, 8 receipt-seal, 6 tempo-span-match, 7 scenario-handshake contract, 15 import-guard negatives, 2 journal-availability, plus 5 R-CD-MODEL-TOOL controls that previously never ran |
+| Test-count delta | 382 → 455 (+73): 15 proof-session, 14 observability-outcome, 6 collector observability e2e, 8 receipt-seal, 6 tempo-span-match, 7 scenario-handshake contract, 15 import-guard negatives, 2 journal-availability, plus 5 R-CD-MODEL-TOOL controls that previously never ran |
 | Cancelled tests | 0 (was 5 at base when the model-tool file runs standalone) |
 | All-scenario import-closure scan | 35 scenarios, 35 graphs, **0 violations** |
 | k6 v2.0.0 `inspect` | All 35 scenarios load and initialize; 0 failures |

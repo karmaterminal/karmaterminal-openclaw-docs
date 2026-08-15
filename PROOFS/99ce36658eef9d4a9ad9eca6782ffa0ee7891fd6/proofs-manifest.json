@@ -1,0 +1,3184 @@
+{
+  "boundCorpusAtPublication": "a7ef03177e0f42831a087521e6eb7720102d6be1",
+  "candidateSha": "99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6",
+  "capture_sha": "99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6",
+  "docsHarnessRef": "7ab525923833cbddffa5c75c22481fcbe9d12fe9",
+  "excludedOrchestrationRequired": [
+    "R-CW-5",
+    "R-CW-5A",
+    "R-CW-6",
+    "R-CW-6A"
+  ],
+  "generatedAt": "2026-08-15T10:56:07+00:00",
+  "generatedBy": "frond-scribe proof-corpus fold",
+  "presentationSha": "99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6",
+  "provenanceNote": "Runtime execution used composite 6b09 (pure continuation 99ce plus the separately reconstructed PR #121204 semantics). Publication is bound to pure 99ce. This corpus is supplementary because its ten offline/static readers could not load the 092177 baseline from the immutable docs snapshot and the resulting rollup is weaker than the current bound corpus a7ef; PROOFS/INDEX.json is deliberately unchanged.",
+  "pureContinuationIsAncestor": true,
+  "rollup": {
+    "artifactDirs": 35,
+    "catalogRows": 38,
+    "excludedOrchestrationRequired": 4,
+    "fail": 0,
+    "honest_limit": 0,
+    "live-partial": 7,
+    "live-pass-review-pending": 1,
+    "live-validated-pass": 15,
+    "liveProofRows": 23,
+    "missing": 4,
+    "partial": 8,
+    "pass": 15,
+    "proofRowsRun": 33,
+    "static-proof-substrate-failure": 10,
+    "staticArtifactRows": 10,
+    "thin": 11,
+    "total_rows": 38,
+    "unclassified": 1,
+    "uniqueArtifactRows": 34
+  },
+  "rowLedger": {
+    "PREFLIGHT": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/PREFLIGHT/cael/20260815T101138Z-preflight-d796a55d",
+          "effectiveExitCode": 0,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T101138Z-preflight-d796a55d",
+          "scenario": {
+            "description": "Authenticate/read-only gateway inventory plus seat-readiness contract: health/status, sessions.list, tools.effective, k6 version/path, env presence, and candidate metadata. Offline mode validates manifest shape without gateway traffic.",
+            "file": "preflight.js",
+            "methods": [
+              "health",
+              "status",
+              "sessions.list",
+              "tools.effective"
+            ],
+            "name": "preflight"
+          },
+          "sourceRunId": "31878888351",
+          "staticArtifactReader": false,
+          "validatorError": "run result verdict must be an explicit candidate outcome",
+          "verdict": null
+        }
+      ],
+      "classification": "unclassified",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/PREFLIGHT/cael/20260815T101138Z-preflight-d796a55d",
+        "effectiveExitCode": 0,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T101138Z-preflight-d796a55d",
+        "scenario": {
+          "description": "Authenticate/read-only gateway inventory plus seat-readiness contract: health/status, sessions.list, tools.effective, k6 version/path, env presence, and candidate metadata. Offline mode validates manifest shape without gateway traffic.",
+          "file": "preflight.js",
+          "methods": [
+            "health",
+            "status",
+            "sessions.list",
+            "tools.effective"
+          ],
+          "name": "preflight"
+        },
+        "sourceRunId": "31878888351",
+        "staticArtifactReader": false,
+        "validatorError": "run result verdict must be an explicit candidate outcome",
+        "verdict": null
+      }
+    },
+    "R-CD-1": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-1/cael/20260815T101145Z-r-cd-1-d796a55d",
+          "effectiveExitCode": 0,
+          "envelopeValidated": true,
+          "observability": {
+            "correlationReceiptPresent": true,
+            "traceCaptured": true,
+            "traceStatus": "present"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T101145Z-r-cd-1-d796a55d",
+          "scenario": {
+            "description": "Typed continue_delegate() schedule/spawn/return. Fires a delegate with a nonce-only child task, observes task ledger entry and parent return.",
+            "file": "r-cd-1-typed-delegate.js",
+            "methods": [
+              "sessions.create",
+              "sessions.send",
+              "sessions.messages.subscribe",
+              "tasks.list"
+            ],
+            "name": "r-cd-1-typed-delegate"
+          },
+          "sourceRunId": "31878888351",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-validated-pass",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-1/cael/20260815T101145Z-r-cd-1-d796a55d",
+        "effectiveExitCode": 0,
+        "envelopeValidated": true,
+        "observability": {
+          "correlationReceiptPresent": true,
+          "traceCaptured": true,
+          "traceStatus": "present"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T101145Z-r-cd-1-d796a55d",
+        "scenario": {
+          "description": "Typed continue_delegate() schedule/spawn/return. Fires a delegate with a nonce-only child task, observes task ledger entry and parent return.",
+          "file": "r-cd-1-typed-delegate.js",
+          "methods": [
+            "sessions.create",
+            "sessions.send",
+            "sessions.messages.subscribe",
+            "tasks.list"
+          ],
+          "name": "r-cd-1-typed-delegate"
+        },
+        "sourceRunId": "31878888351",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-CD-2": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-2/cael/20260815T101220Z-r-cd-2-d796a55d",
+          "effectiveExitCode": 0,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": "r-cd-2-authoritative-receipt.json",
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "r-cd-2-authoritative-receipt"
+          },
+          "pendingReceipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "reviewStatus": "review-pending",
+          "runDir": "20260815T101220Z-r-cd-2-d796a55d",
+          "scenario": {
+            "description": "continue_delegate(mode='silent-wake') full path. The dispatch turn closes with an exact post-tool sentinel; the delegate return stays silent while triggering a fresh parent turn without channel output.",
+            "file": "r-cd-2-silent-wake.js",
+            "methods": [
+              "sessions.send",
+              "sessions.create",
+              "sessions.list",
+              "sessions.messages.subscribe",
+              "tasks.list"
+            ],
+            "name": "r-cd-2-silent-wake"
+          },
+          "sourceRunId": "31878888351",
+          "staticArtifactReader": false,
+          "validatorError": "candidate run is review-incomplete: resolve or explicitly classify pending receipts first",
+          "verdict": "PARTIAL-candidate"
+        }
+      ],
+      "classification": "live-partial",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-2/cael/20260815T101220Z-r-cd-2-d796a55d",
+        "effectiveExitCode": 0,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": "r-cd-2-authoritative-receipt.json",
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "r-cd-2-authoritative-receipt"
+        },
+        "pendingReceipts": [
+          "continuation-trace-correlation",
+          "tempo-trace-json"
+        ],
+        "reviewStatus": "review-pending",
+        "runDir": "20260815T101220Z-r-cd-2-d796a55d",
+        "scenario": {
+          "description": "continue_delegate(mode='silent-wake') full path. The dispatch turn closes with an exact post-tool sentinel; the delegate return stays silent while triggering a fresh parent turn without channel output.",
+          "file": "r-cd-2-silent-wake.js",
+          "methods": [
+            "sessions.send",
+            "sessions.create",
+            "sessions.list",
+            "sessions.messages.subscribe",
+            "tasks.list"
+          ],
+          "name": "r-cd-2-silent-wake"
+        },
+        "sourceRunId": "31878888351",
+        "staticArtifactReader": false,
+        "validatorError": "candidate run is review-incomplete: resolve or explicitly classify pending receipts first",
+        "verdict": "PARTIAL-candidate"
+      }
+    },
+    "R-CD-3": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-3/cael/20260815T101351Z-r-cd-3-d796a55d",
+          "effectiveExitCode": 0,
+          "envelopeValidated": true,
+          "observability": {
+            "correlationReceiptPresent": false,
+            "traceCaptured": false,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T101351Z-r-cd-3-d796a55d",
+          "scenario": {
+            "description": "Stage continue_delegate(mode=post-compaction), then call request_compaction. PASS requires the post-compaction lifeboat return; a structured below-threshold refusal remains PARTIAL.",
+            "file": "r-cd-3-post-compaction.js",
+            "methods": [
+              "sessions.send",
+              "sessions.messages.subscribe",
+              "request_compaction-threshold-guard"
+            ],
+            "name": "r-cd-3-post-compaction"
+          },
+          "sourceRunId": "31878888351",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-validated-pass",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-3/cael/20260815T101351Z-r-cd-3-d796a55d",
+        "effectiveExitCode": 0,
+        "envelopeValidated": true,
+        "observability": {
+          "correlationReceiptPresent": false,
+          "traceCaptured": false,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T101351Z-r-cd-3-d796a55d",
+        "scenario": {
+          "description": "Stage continue_delegate(mode=post-compaction), then call request_compaction. PASS requires the post-compaction lifeboat return; a structured below-threshold refusal remains PARTIAL.",
+          "file": "r-cd-3-post-compaction.js",
+          "methods": [
+            "sessions.send",
+            "sessions.messages.subscribe",
+            "request_compaction-threshold-guard"
+          ],
+          "name": "r-cd-3-post-compaction"
+        },
+        "sourceRunId": "31878888351",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-CD-4": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-4/cael/20260815T101412Z-r-cd-4-d796a55d",
+          "effectiveExitCode": 99,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "missing"
+          },
+          "pendingReceipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "reviewStatus": "review-pending",
+          "runDir": "20260815T101412Z-r-cd-4-d796a55d",
+          "scenario": {
+            "description": "continue_delegate with targetSessionKey: delegate return lands in a SPECIFIED target session, not the dispatching session. Cross-session targeted delivery.",
+            "file": "r-cd-4-target-session-key.js",
+            "methods": [
+              "sessions.create",
+              "sessions.send",
+              "sessions.messages.subscribe",
+              "tasks.list"
+            ],
+            "name": "r-cd-4-target-session-key"
+          },
+          "sourceRunId": "31878888351",
+          "staticArtifactReader": false,
+          "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+          "verdict": "PARTIAL-candidate"
+        }
+      ],
+      "classification": "live-partial",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-4/cael/20260815T101412Z-r-cd-4-d796a55d",
+        "effectiveExitCode": 99,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "missing"
+        },
+        "pendingReceipts": [
+          "continuation-trace-correlation",
+          "tempo-trace-json"
+        ],
+        "reviewStatus": "review-pending",
+        "runDir": "20260815T101412Z-r-cd-4-d796a55d",
+        "scenario": {
+          "description": "continue_delegate with targetSessionKey: delegate return lands in a SPECIFIED target session, not the dispatching session. Cross-session targeted delivery.",
+          "file": "r-cd-4-target-session-key.js",
+          "methods": [
+            "sessions.create",
+            "sessions.send",
+            "sessions.messages.subscribe",
+            "tasks.list"
+          ],
+          "name": "r-cd-4-target-session-key"
+        },
+        "sourceRunId": "31878888351",
+        "staticArtifactReader": false,
+        "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+        "verdict": "PARTIAL-candidate"
+      }
+    },
+    "R-CD-CHAINED-DEPTH-2": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-CHAINED-DEPTH-2/cael/20260815T101550Z-r-cd-chained-depth-2-d796a55d",
+          "effectiveExitCode": 99,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "missing"
+          },
+          "pendingReceipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "reviewStatus": "review-pending",
+          "runDir": "20260815T101550Z-r-cd-chained-depth-2-d796a55d",
+          "scenario": {
+            "description": "Depth-2 delegate chain: parent\u2192child\u2192grandchild\u2192return path. Three sub-tests: (1) up-tree silent-wake, (2) inter-session return, (3) echo+broadcast via fanoutMode.",
+            "file": "r-cd-chained-depth-2.js",
+            "methods": [
+              "sessions.create",
+              "sessions.send",
+              "sessions.messages.subscribe",
+              "tasks.list"
+            ],
+            "name": "r-cd-chained-depth-2"
+          },
+          "sourceRunId": "31878888351",
+          "staticArtifactReader": false,
+          "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+          "verdict": "PARTIAL-candidate"
+        }
+      ],
+      "classification": "live-partial",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-CHAINED-DEPTH-2/cael/20260815T101550Z-r-cd-chained-depth-2-d796a55d",
+        "effectiveExitCode": 99,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "missing"
+        },
+        "pendingReceipts": [
+          "continuation-trace-correlation",
+          "tempo-trace-json"
+        ],
+        "reviewStatus": "review-pending",
+        "runDir": "20260815T101550Z-r-cd-chained-depth-2-d796a55d",
+        "scenario": {
+          "description": "Depth-2 delegate chain: parent\u2192child\u2192grandchild\u2192return path. Three sub-tests: (1) up-tree silent-wake, (2) inter-session return, (3) echo+broadcast via fanoutMode.",
+          "file": "r-cd-chained-depth-2.js",
+          "methods": [
+            "sessions.create",
+            "sessions.send",
+            "sessions.messages.subscribe",
+            "tasks.list"
+          ],
+          "name": "r-cd-chained-depth-2"
+        },
+        "sourceRunId": "31878888351",
+        "staticArtifactReader": false,
+        "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+        "verdict": "PARTIAL-candidate"
+      }
+    },
+    "R-CD-COLLECTION-ON-COLLAPSE": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-COLLECTION-ON-COLLAPSE/cael/20260815T101929Z-r-cd-collection-on-collapse-d796a55d",
+          "effectiveExitCode": 99,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T101929Z-r-cd-collection-on-collapse-d796a55d",
+          "scenario": {
+            "description": "Static validator for committed A\u2192B\u2192delayed-C collection-on-collapse proof receipts.",
+            "file": "static-corpus-row-validator.js",
+            "methods": [
+              "manual-corpus-review",
+              "static-artifact-parse"
+            ],
+            "name": "static-corpus-row-validator"
+          },
+          "sourceRunId": "31878888351",
+          "staticArtifactReader": true,
+          "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+          "verdict": "FAIL-candidate"
+        }
+      ],
+      "classification": "static-proof-substrate-failure",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-COLLECTION-ON-COLLAPSE/cael/20260815T101929Z-r-cd-collection-on-collapse-d796a55d",
+        "effectiveExitCode": 99,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T101929Z-r-cd-collection-on-collapse-d796a55d",
+        "scenario": {
+          "description": "Static validator for committed A\u2192B\u2192delayed-C collection-on-collapse proof receipts.",
+          "file": "static-corpus-row-validator.js",
+          "methods": [
+            "manual-corpus-review",
+            "static-artifact-parse"
+          ],
+          "name": "static-corpus-row-validator"
+        },
+        "sourceRunId": "31878888351",
+        "staticArtifactReader": true,
+        "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+        "verdict": "FAIL-candidate"
+      }
+    },
+    "R-CD-MODEL-CHAINED-ALT": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-CHAINED-ALT/cael/20260815T101935Z-r-cd-model-chained-alt-d796a55d",
+          "effectiveExitCode": 0,
+          "envelopeValidated": true,
+          "observability": {
+            "correlationReceiptPresent": false,
+            "traceCaptured": false,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T101935Z-r-cd-model-chained-alt-d796a55d",
+          "scenario": {
+            "description": "Depth-1 delegate schedules a depth-2 continue_delegate with explicit alternate model; depth-2 reports observed model/provider.",
+            "file": "r-cd-model-chained-alt.js",
+            "methods": [
+              "sessions.send",
+              "sessions.messages.subscribe"
+            ],
+            "name": "r-cd-model-chained-alt"
+          },
+          "sourceRunId": "31878888351",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-validated-pass",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-CHAINED-ALT/cael/20260815T101935Z-r-cd-model-chained-alt-d796a55d",
+        "effectiveExitCode": 0,
+        "envelopeValidated": true,
+        "observability": {
+          "correlationReceiptPresent": false,
+          "traceCaptured": false,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T101935Z-r-cd-model-chained-alt-d796a55d",
+        "scenario": {
+          "description": "Depth-1 delegate schedules a depth-2 continue_delegate with explicit alternate model; depth-2 reports observed model/provider.",
+          "file": "r-cd-model-chained-alt.js",
+          "methods": [
+            "sessions.send",
+            "sessions.messages.subscribe"
+          ],
+          "name": "r-cd-model-chained-alt"
+        },
+        "sourceRunId": "31878888351",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-CD-MODEL-DEFAULT": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-DEFAULT/cael/20260815T101959Z-r-cd-model-default-d796a55d",
+          "effectiveExitCode": 0,
+          "envelopeValidated": true,
+          "observability": {
+            "correlationReceiptPresent": false,
+            "traceCaptured": false,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T101959Z-r-cd-model-default-d796a55d",
+          "scenario": {
+            "description": "Default provider/model inheritance for continue_delegate tool and bracket/token forms when no override is supplied.",
+            "file": "r-cd-model-default.js",
+            "methods": [
+              "sessions.send",
+              "sessions.messages.subscribe"
+            ],
+            "name": "r-cd-model-default"
+          },
+          "sourceRunId": "31878888351",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-validated-pass",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-DEFAULT/cael/20260815T101959Z-r-cd-model-default-d796a55d",
+        "effectiveExitCode": 0,
+        "envelopeValidated": true,
+        "observability": {
+          "correlationReceiptPresent": false,
+          "traceCaptured": false,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T101959Z-r-cd-model-default-d796a55d",
+        "scenario": {
+          "description": "Default provider/model inheritance for continue_delegate tool and bracket/token forms when no override is supplied.",
+          "file": "r-cd-model-default.js",
+          "methods": [
+            "sessions.send",
+            "sessions.messages.subscribe"
+          ],
+          "name": "r-cd-model-default"
+        },
+        "sourceRunId": "31878888351",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-CD-MODEL-TOKEN": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-TOKEN/cael/20260815T102028Z-r-cd-model-token-d796a55d",
+          "effectiveExitCode": 0,
+          "envelopeValidated": true,
+          "observability": {
+            "correlationReceiptPresent": false,
+            "traceCaptured": false,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T102028Z-r-cd-model-token-d796a55d",
+          "scenario": {
+            "description": "continue_delegate bracket/token form parses and forwards model=<provider/model> to the delegate child.",
+            "file": "r-cd-model-token.js",
+            "methods": [
+              "sessions.send",
+              "sessions.messages.subscribe"
+            ],
+            "name": "r-cd-model-token"
+          },
+          "sourceRunId": "31878888351",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-validated-pass",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-TOKEN/cael/20260815T102028Z-r-cd-model-token-d796a55d",
+        "effectiveExitCode": 0,
+        "envelopeValidated": true,
+        "observability": {
+          "correlationReceiptPresent": false,
+          "traceCaptured": false,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T102028Z-r-cd-model-token-d796a55d",
+        "scenario": {
+          "description": "continue_delegate bracket/token form parses and forwards model=<provider/model> to the delegate child.",
+          "file": "r-cd-model-token.js",
+          "methods": [
+            "sessions.send",
+            "sessions.messages.subscribe"
+          ],
+          "name": "r-cd-model-token"
+        },
+        "sourceRunId": "31878888351",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-CD-MODEL-TOOL": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-TOOL/cael/20260815T102053Z-r-cd-model-tool-d796a55d",
+          "effectiveExitCode": null,
+          "envelopeValidated": false,
+          "observability": {},
+          "pendingReceipts": [],
+          "reviewStatus": "review-pending",
+          "runDir": "20260815T102053Z-r-cd-model-tool-d796a55d",
+          "scenario": {
+            "description": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
+            "file": "r-cd-model-tool.js",
+            "methods": [
+              "sessions.send",
+              "sessions.messages.subscribe"
+            ],
+            "name": "r-cd-model-tool"
+          },
+          "sourceRunId": "31878888351",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": null
+        },
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-TOOL/cael/20260815T102511Z-r-cd-model-tool-273343a5",
+          "effectiveExitCode": 99,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T102511Z-r-cd-model-tool-273343a5",
+          "scenario": {
+            "description": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
+            "file": "r-cd-model-tool.js",
+            "methods": [
+              "sessions.send",
+              "sessions.messages.subscribe"
+            ],
+            "name": "r-cd-model-tool"
+          },
+          "sourceRunId": "31879446802",
+          "staticArtifactReader": false,
+          "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+          "verdict": "PARTIAL-candidate"
+        }
+      ],
+      "classification": "live-partial",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-TOOL/cael/20260815T102511Z-r-cd-model-tool-273343a5",
+        "effectiveExitCode": 99,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T102511Z-r-cd-model-tool-273343a5",
+        "scenario": {
+          "description": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
+          "file": "r-cd-model-tool.js",
+          "methods": [
+            "sessions.send",
+            "sessions.messages.subscribe"
+          ],
+          "name": "r-cd-model-tool"
+        },
+        "sourceRunId": "31879446802",
+        "staticArtifactReader": false,
+        "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+        "verdict": "PARTIAL-candidate"
+      }
+    },
+    "R-CD-RETURN-OVERLAP": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-RETURN-OVERLAP/cael/20260815T102824Z-r-cd-return-overlap-273343a5",
+          "effectiveExitCode": 107,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [
+            "public-safe-evidence"
+          ],
+          "reviewStatus": "review-pending",
+          "runDir": "20260815T102824Z-r-cd-return-overlap-273343a5",
+          "scenario": {
+            "description": "Offline/static validator for committed silent plus silent-wake delegate return overlap receipts in the current PROOFS corpus; proves collection/no-loss, not isolated wake causality.",
+            "file": "r-cd-return-overlap.js",
+            "methods": [
+              "manual-corpus-review",
+              "static-artifact-parse"
+            ],
+            "name": "r-cd-return-overlap"
+          },
+          "sourceRunId": "31879446802",
+          "staticArtifactReader": true,
+          "validatorError": "run result verdict must be an explicit candidate outcome",
+          "verdict": null
+        }
+      ],
+      "classification": "static-proof-substrate-failure",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-RETURN-OVERLAP/cael/20260815T102824Z-r-cd-return-overlap-273343a5",
+        "effectiveExitCode": 107,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [
+          "public-safe-evidence"
+        ],
+        "reviewStatus": "review-pending",
+        "runDir": "20260815T102824Z-r-cd-return-overlap-273343a5",
+        "scenario": {
+          "description": "Offline/static validator for committed silent plus silent-wake delegate return overlap receipts in the current PROOFS corpus; proves collection/no-loss, not isolated wake causality.",
+          "file": "r-cd-return-overlap.js",
+          "methods": [
+            "manual-corpus-review",
+            "static-artifact-parse"
+          ],
+          "name": "r-cd-return-overlap"
+        },
+        "sourceRunId": "31879446802",
+        "staticArtifactReader": true,
+        "validatorError": "run result verdict must be an explicit candidate outcome",
+        "verdict": null
+      }
+    },
+    "R-CD-SILENT": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-SILENT/cael/20260815T102830Z-r-cd-silent-273343a5",
+          "effectiveExitCode": 0,
+          "envelopeValidated": true,
+          "observability": {
+            "correlationReceiptPresent": false,
+            "traceCaptured": false,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T102830Z-r-cd-silent-273343a5",
+          "scenario": {
+            "description": "Typed continue_delegate(mode='silent') proof. Fires a silent delegate, waits for child internal completion, then asks the parent to report the silent child token from internal context while checking no child channel delivery occurred.",
+            "file": "r-cd-silent.js",
+            "methods": [
+              "sessions.create",
+              "sessions.send",
+              "sessions.messages.subscribe"
+            ],
+            "name": "r-cd-silent"
+          },
+          "sourceRunId": "31879446802",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-validated-pass",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-SILENT/cael/20260815T102830Z-r-cd-silent-273343a5",
+        "effectiveExitCode": 0,
+        "envelopeValidated": true,
+        "observability": {
+          "correlationReceiptPresent": false,
+          "traceCaptured": false,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T102830Z-r-cd-silent-273343a5",
+        "scenario": {
+          "description": "Typed continue_delegate(mode='silent') proof. Fires a silent delegate, waits for child internal completion, then asks the parent to report the silent child token from internal context while checking no child channel delivery occurred.",
+          "file": "r-cd-silent.js",
+          "methods": [
+            "sessions.create",
+            "sessions.send",
+            "sessions.messages.subscribe"
+          ],
+          "name": "r-cd-silent"
+        },
+        "sourceRunId": "31879446802",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-CD-TOKEN": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-TOKEN/cael/20260815T102907Z-r-cd-token-273343a5",
+          "effectiveExitCode": 0,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "serviceLog": null,
+            "serviceLogCapture": null,
+            "serviceLogRedaction": null,
+            "serviceLogStatus": "not-started",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "not-applicable"
+          },
+          "pendingReceipts": [
+            "exact-candidate-runtime-identity",
+            "attempt-state",
+            "raw-final-text-origin",
+            "parser-detected",
+            "queue-identity",
+            "child-spawned",
+            "child-completed",
+            "parent-return-event",
+            "tempo-trace-json",
+            "continuation-trace-correlation"
+          ],
+          "reviewStatus": "review-pending",
+          "runDir": "20260815T102907Z-r-cd-token-273343a5",
+          "scenario": {
+            "description": "Terminal [[CONTINUE_DELEGATE:...]] path from an isolated raw-final-text child; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
+            "file": "r-cd-token-bracket-delegate.js",
+            "methods": [
+              "sessions.create",
+              "sessions.send",
+              "tasks.list",
+              "sessions.messages.subscribe"
+            ],
+            "name": "r-cd-token-bracket-delegate"
+          },
+          "sourceRunId": "31879446802",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PARTIAL-candidate"
+        }
+      ],
+      "classification": "live-partial",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-TOKEN/cael/20260815T102907Z-r-cd-token-273343a5",
+        "effectiveExitCode": 0,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "serviceLog": null,
+          "serviceLogCapture": null,
+          "serviceLogRedaction": null,
+          "serviceLogStatus": "not-started",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "not-applicable"
+        },
+        "pendingReceipts": [
+          "exact-candidate-runtime-identity",
+          "attempt-state",
+          "raw-final-text-origin",
+          "parser-detected",
+          "queue-identity",
+          "child-spawned",
+          "child-completed",
+          "parent-return-event",
+          "tempo-trace-json",
+          "continuation-trace-correlation"
+        ],
+        "reviewStatus": "review-pending",
+        "runDir": "20260815T102907Z-r-cd-token-273343a5",
+        "scenario": {
+          "description": "Terminal [[CONTINUE_DELEGATE:...]] path from an isolated raw-final-text child; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
+          "file": "r-cd-token-bracket-delegate.js",
+          "methods": [
+            "sessions.create",
+            "sessions.send",
+            "tasks.list",
+            "sessions.messages.subscribe"
+          ],
+          "name": "r-cd-token-bracket-delegate"
+        },
+        "sourceRunId": "31879446802",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PARTIAL-candidate"
+      }
+    },
+    "R-CONFIG-DEFAULTS": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CONFIG-DEFAULTS/cael/20260815T102910Z-r-config-defaults-273343a5",
+          "effectiveExitCode": 0,
+          "envelopeValidated": true,
+          "observability": {
+            "correlationReceiptPresent": false,
+            "traceCaptured": false,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T102910Z-r-config-defaults-273343a5",
+          "scenario": {
+            "description": "Read-only continuation config defaults via direct authenticated operator config.get RPC.",
+            "file": "r-config-defaults.js",
+            "methods": [
+              "config.get"
+            ],
+            "name": "r-config-defaults"
+          },
+          "sourceRunId": "31879446802",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-validated-pass",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CONFIG-DEFAULTS/cael/20260815T102910Z-r-config-defaults-273343a5",
+        "effectiveExitCode": 0,
+        "envelopeValidated": true,
+        "observability": {
+          "correlationReceiptPresent": false,
+          "traceCaptured": false,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T102910Z-r-config-defaults-273343a5",
+        "scenario": {
+          "description": "Read-only continuation config defaults via direct authenticated operator config.get RPC.",
+          "file": "r-config-defaults.js",
+          "methods": [
+            "config.get"
+          ],
+          "name": "r-config-defaults"
+        },
+        "sourceRunId": "31879446802",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-CONFIG-INTERSESSION": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CONFIG-INTERSESSION/cael/20260815T102917Z-r-config-intersession-273343a5",
+          "effectiveExitCode": 0,
+          "envelopeValidated": true,
+          "observability": {
+            "correlationReceiptPresent": false,
+            "traceCaptured": false,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T102917Z-r-config-intersession-273343a5",
+          "scenario": {
+            "description": "Read-only continuation cross-session targeting config receipt via direct authenticated operator config.get RPC.",
+            "file": "r-config-intersession.js",
+            "methods": [
+              "config.get"
+            ],
+            "name": "r-config-intersession"
+          },
+          "sourceRunId": "31879446802",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-validated-pass",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CONFIG-INTERSESSION/cael/20260815T102917Z-r-config-intersession-273343a5",
+        "effectiveExitCode": 0,
+        "envelopeValidated": true,
+        "observability": {
+          "correlationReceiptPresent": false,
+          "traceCaptured": false,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T102917Z-r-config-intersession-273343a5",
+        "scenario": {
+          "description": "Read-only continuation cross-session targeting config receipt via direct authenticated operator config.get RPC.",
+          "file": "r-config-intersession.js",
+          "methods": [
+            "config.get"
+          ],
+          "name": "r-config-intersession"
+        },
+        "sourceRunId": "31879446802",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-CW-1": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-1/cael/20260815T102924Z-r-cw-1-273343a5",
+          "effectiveExitCode": 0,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "missing"
+          },
+          "pendingReceipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "reviewStatus": "review-pending",
+          "runDir": "20260815T102924Z-r-cw-1-273343a5",
+          "scenario": {
+            "description": "Typed continue_work() tool-form schedule + wake. Fires continue_work with a reason, observes the scheduled work entry and wake event on the session.",
+            "file": "r-cw-1-tool-schedule-wake.js",
+            "methods": [
+              "sessions.create",
+              "sessions.send",
+              "sessions.messages.subscribe"
+            ],
+            "name": "r-cw-1-tool-schedule-wake"
+          },
+          "sourceRunId": "31879446802",
+          "staticArtifactReader": false,
+          "validatorError": "candidate run is review-incomplete: resolve or explicitly classify pending receipts first",
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-pass-review-pending",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-1/cael/20260815T102924Z-r-cw-1-273343a5",
+        "effectiveExitCode": 0,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "missing"
+        },
+        "pendingReceipts": [
+          "continuation-trace-correlation",
+          "tempo-trace-json"
+        ],
+        "reviewStatus": "review-pending",
+        "runDir": "20260815T102924Z-r-cw-1-273343a5",
+        "scenario": {
+          "description": "Typed continue_work() tool-form schedule + wake. Fires continue_work with a reason, observes the scheduled work entry and wake event on the session.",
+          "file": "r-cw-1-tool-schedule-wake.js",
+          "methods": [
+            "sessions.create",
+            "sessions.send",
+            "sessions.messages.subscribe"
+          ],
+          "name": "r-cw-1-tool-schedule-wake"
+        },
+        "sourceRunId": "31879446802",
+        "staticArtifactReader": false,
+        "validatorError": "candidate run is review-incomplete: resolve or explicitly classify pending receipts first",
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-CW-2": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-2/cael/20260815T103044Z-r-cw-2-273343a5",
+          "effectiveExitCode": 0,
+          "envelopeValidated": true,
+          "observability": {
+            "correlationReceiptPresent": false,
+            "traceCaptured": false,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T103044Z-r-cw-2-273343a5",
+          "scenario": {
+            "description": "Typed continue_work(delaySeconds=0) immediate wake proof. Requires an explicit scheduled sentinel and a continuation wake sentinel, while ignoring harness prompt echoes.",
+            "file": "r-cw-2-immediate-wake.js",
+            "methods": [
+              "sessions.create",
+              "sessions.send",
+              "sessions.messages.subscribe"
+            ],
+            "name": "r-cw-2-immediate-wake"
+          },
+          "sourceRunId": "31879446802",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-validated-pass",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-2/cael/20260815T103044Z-r-cw-2-273343a5",
+        "effectiveExitCode": 0,
+        "envelopeValidated": true,
+        "observability": {
+          "correlationReceiptPresent": false,
+          "traceCaptured": false,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T103044Z-r-cw-2-273343a5",
+        "scenario": {
+          "description": "Typed continue_work(delaySeconds=0) immediate wake proof. Requires an explicit scheduled sentinel and a continuation wake sentinel, while ignoring harness prompt echoes.",
+          "file": "r-cw-2-immediate-wake.js",
+          "methods": [
+            "sessions.create",
+            "sessions.send",
+            "sessions.messages.subscribe"
+          ],
+          "name": "r-cw-2-immediate-wake"
+        },
+        "sourceRunId": "31879446802",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-CW-3": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-3/cael/20260815T103103Z-r-cw-3-273343a5",
+          "effectiveExitCode": 0,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "missing"
+          },
+          "pendingReceipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "reviewStatus": "review-pending",
+          "runDir": "20260815T103103Z-r-cw-3-273343a5",
+          "scenario": {
+            "description": "continue_work reason telemetry/redaction partial candidate. k6 proves schedule+wake and keeps the raw reason out of public artifacts; Tempo JSON review must verify safe reason attrs present and raw reason absent before a PASS fold.",
+            "file": "r-cw-3-reason-telemetry.js",
+            "methods": [
+              "sessions.create",
+              "sessions.send",
+              "sessions.messages.subscribe",
+              "tempo-trace-review"
+            ],
+            "name": "r-cw-3-reason-telemetry"
+          },
+          "sourceRunId": "31879446802",
+          "staticArtifactReader": false,
+          "validatorError": "candidate run is review-incomplete: resolve or explicitly classify pending receipts first",
+          "verdict": "PARTIAL-candidate"
+        }
+      ],
+      "classification": "live-partial",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-3/cael/20260815T103103Z-r-cw-3-273343a5",
+        "effectiveExitCode": 0,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "missing"
+        },
+        "pendingReceipts": [
+          "continuation-trace-correlation",
+          "tempo-trace-json"
+        ],
+        "reviewStatus": "review-pending",
+        "runDir": "20260815T103103Z-r-cw-3-273343a5",
+        "scenario": {
+          "description": "continue_work reason telemetry/redaction partial candidate. k6 proves schedule+wake and keeps the raw reason out of public artifacts; Tempo JSON review must verify safe reason attrs present and raw reason absent before a PASS fold.",
+          "file": "r-cw-3-reason-telemetry.js",
+          "methods": [
+            "sessions.create",
+            "sessions.send",
+            "sessions.messages.subscribe",
+            "tempo-trace-review"
+          ],
+          "name": "r-cw-3-reason-telemetry"
+        },
+        "sourceRunId": "31879446802",
+        "staticArtifactReader": false,
+        "validatorError": "candidate run is review-incomplete: resolve or explicitly classify pending receipts first",
+        "verdict": "PARTIAL-candidate"
+      }
+    },
+    "R-CW-4": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-4/cael/20260815T103225Z-r-cw-4-273343a5",
+          "effectiveExitCode": 0,
+          "envelopeValidated": true,
+          "observability": {
+            "correlationReceiptPresent": false,
+            "traceCaptured": false,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T103225Z-r-cw-4-273343a5",
+          "scenario": {
+            "description": "Chain depth hop counter: fires continue_work 3\u00d7 in sequence, verifies hop increments from 1/200 \u2192 3/200 in traced responses.",
+            "file": "r-cw-4-chain-depth.js",
+            "methods": [
+              "tools.invoke",
+              "sessions.messages.subscribe"
+            ],
+            "name": "r-cw-4-chain-depth"
+          },
+          "sourceRunId": "31879446802",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-validated-pass",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-4/cael/20260815T103225Z-r-cw-4-273343a5",
+        "effectiveExitCode": 0,
+        "envelopeValidated": true,
+        "observability": {
+          "correlationReceiptPresent": false,
+          "traceCaptured": false,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T103225Z-r-cw-4-273343a5",
+        "scenario": {
+          "description": "Chain depth hop counter: fires continue_work 3\u00d7 in sequence, verifies hop increments from 1/200 \u2192 3/200 in traced responses.",
+          "file": "r-cw-4-chain-depth.js",
+          "methods": [
+            "tools.invoke",
+            "sessions.messages.subscribe"
+          ],
+          "name": "r-cw-4-chain-depth"
+        },
+        "sourceRunId": "31879446802",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-CW-7": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-7/cael/20260815T103822Z-r-cw-7-7947e9ec",
+          "effectiveExitCode": 99,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T103822Z-r-cw-7-7947e9ec",
+          "scenario": {
+            "description": "Static validator for committed runtime traceparent propagation source/test receipts.",
+            "file": "static-corpus-row-validator.js",
+            "methods": [
+              "manual-corpus-review",
+              "static-artifact-parse"
+            ],
+            "name": "static-corpus-row-validator"
+          },
+          "sourceRunId": "31879999334",
+          "staticArtifactReader": true,
+          "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+          "verdict": "FAIL-candidate"
+        }
+      ],
+      "classification": "static-proof-substrate-failure",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-7/cael/20260815T103822Z-r-cw-7-7947e9ec",
+        "effectiveExitCode": 99,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T103822Z-r-cw-7-7947e9ec",
+        "scenario": {
+          "description": "Static validator for committed runtime traceparent propagation source/test receipts.",
+          "file": "static-corpus-row-validator.js",
+          "methods": [
+            "manual-corpus-review",
+            "static-artifact-parse"
+          ],
+          "name": "static-corpus-row-validator"
+        },
+        "sourceRunId": "31879999334",
+        "staticArtifactReader": true,
+        "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+        "verdict": "FAIL-candidate"
+      }
+    },
+    "R-CW-DELEGATE-CHILD-LIVE": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-DELEGATE-CHILD-LIVE/cael/20260815T103828Z-r-cw-delegate-child-live-7947e9ec",
+          "effectiveExitCode": 99,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T103828Z-r-cw-delegate-child-live-7947e9ec",
+          "scenario": {
+            "description": "Static validator for committed delegate-child self-continuation hop1/hop2 receipts.",
+            "file": "static-corpus-row-validator.js",
+            "methods": [
+              "manual-corpus-review",
+              "static-artifact-parse"
+            ],
+            "name": "static-corpus-row-validator"
+          },
+          "sourceRunId": "31879999334",
+          "staticArtifactReader": true,
+          "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+          "verdict": "FAIL-candidate"
+        }
+      ],
+      "classification": "static-proof-substrate-failure",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-DELEGATE-CHILD-LIVE/cael/20260815T103828Z-r-cw-delegate-child-live-7947e9ec",
+        "effectiveExitCode": 99,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T103828Z-r-cw-delegate-child-live-7947e9ec",
+        "scenario": {
+          "description": "Static validator for committed delegate-child self-continuation hop1/hop2 receipts.",
+          "file": "static-corpus-row-validator.js",
+          "methods": [
+            "manual-corpus-review",
+            "static-artifact-parse"
+          ],
+          "name": "static-corpus-row-validator"
+        },
+        "sourceRunId": "31879999334",
+        "staticArtifactReader": true,
+        "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+        "verdict": "FAIL-candidate"
+      }
+    },
+    "R-CW-DELEGATE-SELF-CONTINUATION": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-DELEGATE-SELF-CONTINUATION/cael/20260815T103834Z-r-cw-delegate-self-continuation-7947e9ec",
+          "effectiveExitCode": 0,
+          "envelopeValidated": true,
+          "observability": {
+            "correlationReceiptPresent": false,
+            "traceCaptured": false,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T103834Z-r-cw-delegate-self-continuation-7947e9ec",
+          "scenario": {
+            "description": "Fires continue_delegate that internally calls continue_work \u2014 proves hop-2 woke inside a delegate child session. The delegate dispatches, the child fires its own continue_work, and the hop-2 turn executes.",
+            "file": "r-cw-delegate-self-continuation.js",
+            "methods": [
+              "sessions.create",
+              "sessions.send",
+              "sessions.messages.subscribe",
+              "tasks.list"
+            ],
+            "name": "r-cw-delegate-self-continuation"
+          },
+          "sourceRunId": "31879999334",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-validated-pass",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-DELEGATE-SELF-CONTINUATION/cael/20260815T103834Z-r-cw-delegate-self-continuation-7947e9ec",
+        "effectiveExitCode": 0,
+        "envelopeValidated": true,
+        "observability": {
+          "correlationReceiptPresent": false,
+          "traceCaptured": false,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T103834Z-r-cw-delegate-self-continuation-7947e9ec",
+        "scenario": {
+          "description": "Fires continue_delegate that internally calls continue_work \u2014 proves hop-2 woke inside a delegate child session. The delegate dispatches, the child fires its own continue_work, and the hop-2 turn executes.",
+          "file": "r-cw-delegate-self-continuation.js",
+          "methods": [
+            "sessions.create",
+            "sessions.send",
+            "sessions.messages.subscribe",
+            "tasks.list"
+          ],
+          "name": "r-cw-delegate-self-continuation"
+        },
+        "sourceRunId": "31879999334",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-CW-DELEGATE-TOKEN": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-DELEGATE-TOKEN/cael/20260815T103856Z-r-cw-delegate-token-7947e9ec",
+          "effectiveExitCode": 99,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T103856Z-r-cw-delegate-token-7947e9ec",
+          "scenario": {
+            "description": "Static validator for committed delegate child bare-token continuation receipts.",
+            "file": "static-corpus-row-validator.js",
+            "methods": [
+              "manual-corpus-review",
+              "static-artifact-parse"
+            ],
+            "name": "static-corpus-row-validator"
+          },
+          "sourceRunId": "31879999334",
+          "staticArtifactReader": true,
+          "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+          "verdict": "FAIL-candidate"
+        }
+      ],
+      "classification": "static-proof-substrate-failure",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-DELEGATE-TOKEN/cael/20260815T103856Z-r-cw-delegate-token-7947e9ec",
+        "effectiveExitCode": 99,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T103856Z-r-cw-delegate-token-7947e9ec",
+        "scenario": {
+          "description": "Static validator for committed delegate child bare-token continuation receipts.",
+          "file": "static-corpus-row-validator.js",
+          "methods": [
+            "manual-corpus-review",
+            "static-artifact-parse"
+          ],
+          "name": "static-corpus-row-validator"
+        },
+        "sourceRunId": "31879999334",
+        "staticArtifactReader": true,
+        "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+        "verdict": "FAIL-candidate"
+      }
+    },
+    "R-CW-MULTI": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-MULTI/cael/20260815T103908Z-r-cw-multi-7947e9ec",
+          "effectiveExitCode": 99,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T103908Z-r-cw-multi-7947e9ec",
+          "scenario": {
+            "description": "Static validator for committed same-turn multi continue_work fanout/collapse receipts.",
+            "file": "static-corpus-row-validator.js",
+            "methods": [
+              "manual-corpus-review",
+              "static-artifact-parse"
+            ],
+            "name": "static-corpus-row-validator"
+          },
+          "sourceRunId": "31879999334",
+          "staticArtifactReader": true,
+          "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+          "verdict": "FAIL-candidate"
+        }
+      ],
+      "classification": "static-proof-substrate-failure",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-MULTI/cael/20260815T103908Z-r-cw-multi-7947e9ec",
+        "effectiveExitCode": 99,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T103908Z-r-cw-multi-7947e9ec",
+        "scenario": {
+          "description": "Static validator for committed same-turn multi continue_work fanout/collapse receipts.",
+          "file": "static-corpus-row-validator.js",
+          "methods": [
+            "manual-corpus-review",
+            "static-artifact-parse"
+          ],
+          "name": "static-corpus-row-validator"
+        },
+        "sourceRunId": "31879999334",
+        "staticArtifactReader": true,
+        "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+        "verdict": "FAIL-candidate"
+      }
+    },
+    "R-CW-MULTI-COLLAPSE": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-MULTI-COLLAPSE/cael/20260815T103902Z-r-cw-multi-collapse-7947e9ec",
+          "effectiveExitCode": 99,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T103902Z-r-cw-multi-collapse-7947e9ec",
+          "scenario": {
+            "description": "Static validator for committed synthetic stale/new continuation collapse proof receipts.",
+            "file": "static-corpus-row-validator.js",
+            "methods": [
+              "manual-corpus-review",
+              "static-artifact-parse"
+            ],
+            "name": "static-corpus-row-validator"
+          },
+          "sourceRunId": "31879999334",
+          "staticArtifactReader": true,
+          "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+          "verdict": "FAIL-candidate"
+        }
+      ],
+      "classification": "static-proof-substrate-failure",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-MULTI-COLLAPSE/cael/20260815T103902Z-r-cw-multi-collapse-7947e9ec",
+        "effectiveExitCode": 99,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T103902Z-r-cw-multi-collapse-7947e9ec",
+        "scenario": {
+          "description": "Static validator for committed synthetic stale/new continuation collapse proof receipts.",
+          "file": "static-corpus-row-validator.js",
+          "methods": [
+            "manual-corpus-review",
+            "static-artifact-parse"
+          ],
+          "name": "static-corpus-row-validator"
+        },
+        "sourceRunId": "31879999334",
+        "staticArtifactReader": true,
+        "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+        "verdict": "FAIL-candidate"
+      }
+    },
+    "R-CW-TOKEN": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-TOKEN/cael/20260815T103914Z-r-cw-token-7947e9ec",
+          "effectiveExitCode": 0,
+          "envelopeValidated": true,
+          "observability": {
+            "correlationReceiptPresent": false,
+            "traceCaptured": false,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T103914Z-r-cw-token-7947e9ec",
+          "scenario": {
+            "description": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives. Proves the token-form continuation works for subagents (the #952 row lineage).",
+            "file": "r-cw-token-bracket.js",
+            "methods": [
+              "sessions.send",
+              "sessions.messages.subscribe",
+              "subagents.spawn"
+            ],
+            "name": "r-cw-token-bracket"
+          },
+          "sourceRunId": "31879999334",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-validated-pass",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-TOKEN/cael/20260815T103914Z-r-cw-token-7947e9ec",
+        "effectiveExitCode": 0,
+        "envelopeValidated": true,
+        "observability": {
+          "correlationReceiptPresent": false,
+          "traceCaptured": false,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T103914Z-r-cw-token-7947e9ec",
+        "scenario": {
+          "description": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives. Proves the token-form continuation works for subagents (the #952 row lineage).",
+          "file": "r-cw-token-bracket.js",
+          "methods": [
+            "sessions.send",
+            "sessions.messages.subscribe",
+            "subagents.spawn"
+          ],
+          "name": "r-cw-token-bracket"
+        },
+        "sourceRunId": "31879999334",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-OBS-1": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-OBS-1/cael/20260815T104232Z-r-obs-1-329c17e1",
+          "effectiveExitCode": 0,
+          "envelopeValidated": true,
+          "observability": {
+            "correlationReceiptPresent": false,
+            "traceCaptured": false,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T104232Z-r-obs-1-329c17e1",
+          "scenario": {
+            "description": "Session-status-card observability via the session_status tool. Creates a disposable session, asks the agent to call session_status, and verifies build/context/continuation-chain/route visibility by nonce-correlated sentinel.",
+            "file": "r-obs-1.js",
+            "methods": [
+              "sessions.create",
+              "sessions.send",
+              "sessions.messages.subscribe",
+              "session_status"
+            ],
+            "name": "r-obs-1"
+          },
+          "sourceRunId": "31880178849",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-validated-pass",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-OBS-1/cael/20260815T104232Z-r-obs-1-329c17e1",
+        "effectiveExitCode": 0,
+        "envelopeValidated": true,
+        "observability": {
+          "correlationReceiptPresent": false,
+          "traceCaptured": false,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T104232Z-r-obs-1-329c17e1",
+        "scenario": {
+          "description": "Session-status-card observability via the session_status tool. Creates a disposable session, asks the agent to call session_status, and verifies build/context/continuation-chain/route visibility by nonce-correlated sentinel.",
+          "file": "r-obs-1.js",
+          "methods": [
+            "sessions.create",
+            "sessions.send",
+            "sessions.messages.subscribe",
+            "session_status"
+          ],
+          "name": "r-obs-1"
+        },
+        "sourceRunId": "31880178849",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-OBS-2": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-OBS-2/cael/20260815T104252Z-r-obs-2-329c17e1",
+          "effectiveExitCode": 107,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [
+            "public-safe-evidence"
+          ],
+          "reviewStatus": "review-pending",
+          "runDir": "20260815T104252Z-r-obs-2-329c17e1",
+          "scenario": {
+            "description": "Offline/static validator for committed R-OBS-2 trace-tree/span-tree/span-count artifacts in the current PROOFS corpus.",
+            "file": "r-obs-2.js",
+            "methods": [
+              "manual-corpus-review",
+              "static-artifact-parse"
+            ],
+            "name": "r-obs-2"
+          },
+          "sourceRunId": "31880178849",
+          "staticArtifactReader": true,
+          "validatorError": "run result verdict must be an explicit candidate outcome",
+          "verdict": null
+        }
+      ],
+      "classification": "static-proof-substrate-failure",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-OBS-2/cael/20260815T104252Z-r-obs-2-329c17e1",
+        "effectiveExitCode": 107,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [
+          "public-safe-evidence"
+        ],
+        "reviewStatus": "review-pending",
+        "runDir": "20260815T104252Z-r-obs-2-329c17e1",
+        "scenario": {
+          "description": "Offline/static validator for committed R-OBS-2 trace-tree/span-tree/span-count artifacts in the current PROOFS corpus.",
+          "file": "r-obs-2.js",
+          "methods": [
+            "manual-corpus-review",
+            "static-artifact-parse"
+          ],
+          "name": "r-obs-2"
+        },
+        "sourceRunId": "31880178849",
+        "staticArtifactReader": true,
+        "validatorError": "run result verdict must be an explicit candidate outcome",
+        "verdict": null
+      }
+    },
+    "R-OBS-STATUS": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-OBS-STATUS/cael/20260815T104258Z-r-obs-status-329c17e1",
+          "effectiveExitCode": 0,
+          "envelopeValidated": true,
+          "observability": {
+            "correlationReceiptPresent": false,
+            "traceCaptured": false,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T104258Z-r-obs-status-329c17e1",
+          "scenario": {
+            "description": "Exact-SHA #1172 source contract: active continuation renders a line while a clean all-zero session omits it.",
+            "file": "r-obs-status.js",
+            "methods": [],
+            "name": "r-obs-status"
+          },
+          "sourceRunId": "31880178849",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-validated-pass",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-OBS-STATUS/cael/20260815T104258Z-r-obs-status-329c17e1",
+        "effectiveExitCode": 0,
+        "envelopeValidated": true,
+        "observability": {
+          "correlationReceiptPresent": false,
+          "traceCaptured": false,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T104258Z-r-obs-status-329c17e1",
+        "scenario": {
+          "description": "Exact-SHA #1172 source contract: active continuation renders a line while a clean all-zero session omits it.",
+          "file": "r-obs-status.js",
+          "methods": [],
+          "name": "r-obs-status"
+        },
+        "sourceRunId": "31880178849",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-RC-1": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-RC-1/cael/20260815T104305Z-r-rc-1-329c17e1",
+          "effectiveExitCode": 0,
+          "envelopeValidated": true,
+          "observability": {
+            "correlationReceiptPresent": false,
+            "traceCaptured": false,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T104305Z-r-rc-1-329c17e1",
+          "scenario": {
+            "description": "request_compaction below-threshold structured reject via disposable session/inventory-only path",
+            "file": "r-rc-1-threshold-reject.js",
+            "methods": [
+              "sessions.create",
+              "tools.effective",
+              "sessions.messages.subscribe",
+              "sessions.send",
+              "sessions.get"
+            ],
+            "name": "r-rc-1-threshold-reject"
+          },
+          "sourceRunId": "31880178849",
+          "staticArtifactReader": false,
+          "validatorError": null,
+          "verdict": "PASS-candidate"
+        }
+      ],
+      "classification": "live-validated-pass",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-RC-1/cael/20260815T104305Z-r-rc-1-329c17e1",
+        "effectiveExitCode": 0,
+        "envelopeValidated": true,
+        "observability": {
+          "correlationReceiptPresent": false,
+          "traceCaptured": false,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T104305Z-r-rc-1-329c17e1",
+        "scenario": {
+          "description": "request_compaction below-threshold structured reject via disposable session/inventory-only path",
+          "file": "r-rc-1-threshold-reject.js",
+          "methods": [
+            "sessions.create",
+            "tools.effective",
+            "sessions.messages.subscribe",
+            "sessions.send",
+            "sessions.get"
+          ],
+          "name": "r-rc-1-threshold-reject"
+        },
+        "sourceRunId": "31880178849",
+        "staticArtifactReader": false,
+        "validatorError": null,
+        "verdict": "PASS-candidate"
+      }
+    },
+    "R-RC-2": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-RC-2/cael/20260815T104326Z-r-rc-2-329c17e1",
+          "effectiveExitCode": 0,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "missing"
+          },
+          "pendingReceipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "reviewStatus": "review-pending",
+          "runDir": "20260815T104326Z-r-rc-2-329c17e1",
+          "scenario": {
+            "description": "Parent fires continue_delegate to a child that calls request_compaction. Accepts actual compaction path or structured below-threshold rejection as environmental honest limit.",
+            "file": "r-rc-2-delegate-request-compaction.js",
+            "methods": [
+              "sessions.send",
+              "sessions.messages.subscribe",
+              "continue_delegate",
+              "request_compaction-threshold-guard"
+            ],
+            "name": "r-rc-2-delegate-request-compaction"
+          },
+          "sourceRunId": "31880178849",
+          "staticArtifactReader": false,
+          "validatorError": "candidate run is review-incomplete: resolve or explicitly classify pending receipts first",
+          "verdict": "PARTIAL-candidate"
+        }
+      ],
+      "classification": "live-partial",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-RC-2/cael/20260815T104326Z-r-rc-2-329c17e1",
+        "effectiveExitCode": 0,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "missing"
+        },
+        "pendingReceipts": [
+          "continuation-trace-correlation",
+          "tempo-trace-json"
+        ],
+        "reviewStatus": "review-pending",
+        "runDir": "20260815T104326Z-r-rc-2-329c17e1",
+        "scenario": {
+          "description": "Parent fires continue_delegate to a child that calls request_compaction. Accepts actual compaction path or structured below-threshold rejection as environmental honest limit.",
+          "file": "r-rc-2-delegate-request-compaction.js",
+          "methods": [
+            "sessions.send",
+            "sessions.messages.subscribe",
+            "continue_delegate",
+            "request_compaction-threshold-guard"
+          ],
+          "name": "r-rc-2-delegate-request-compaction"
+        },
+        "sourceRunId": "31880178849",
+        "staticArtifactReader": false,
+        "validatorError": "candidate run is review-incomplete: resolve or explicitly classify pending receipts first",
+        "verdict": "PARTIAL-candidate"
+      }
+    },
+    "R-REGRESSION-TRAP-TESTS": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-REGRESSION-TRAP-TESTS/cael/20260815T104635Z-r-regression-trap-tests-329c17e1",
+          "effectiveExitCode": 107,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [
+            "public-safe-evidence"
+          ],
+          "reviewStatus": "review-pending",
+          "runDir": "20260815T104635Z-r-regression-trap-tests-329c17e1",
+          "scenario": {
+            "description": "Offline/static validator for committed continuation sibling-surface regression-trap test receipts in the current PROOFS corpus.",
+            "file": "r-regression-trap-tests.js",
+            "methods": [
+              "manual-corpus-review",
+              "static-artifact-parse"
+            ],
+            "name": "r-regression-trap-tests"
+          },
+          "sourceRunId": "31880178849",
+          "staticArtifactReader": true,
+          "validatorError": "run result verdict must be an explicit candidate outcome",
+          "verdict": null
+        }
+      ],
+      "classification": "static-proof-substrate-failure",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-REGRESSION-TRAP-TESTS/cael/20260815T104635Z-r-regression-trap-tests-329c17e1",
+        "effectiveExitCode": 107,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [
+          "public-safe-evidence"
+        ],
+        "reviewStatus": "review-pending",
+        "runDir": "20260815T104635Z-r-regression-trap-tests-329c17e1",
+        "scenario": {
+          "description": "Offline/static validator for committed continuation sibling-surface regression-trap test receipts in the current PROOFS corpus.",
+          "file": "r-regression-trap-tests.js",
+          "methods": [
+            "manual-corpus-review",
+            "static-artifact-parse"
+          ],
+          "name": "r-regression-trap-tests"
+        },
+        "sourceRunId": "31880178849",
+        "staticArtifactReader": true,
+        "validatorError": "run result verdict must be an explicit candidate outcome",
+        "verdict": null
+      }
+    },
+    "R-TRACE-REDACTION-1121": {
+      "attempts": [
+        {
+          "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-TRACE-REDACTION-1121/cael/20260815T104640Z-r-trace-redaction-1121-329c17e1",
+          "effectiveExitCode": 99,
+          "envelopeValidated": false,
+          "observability": {
+            "correlationReceipt": null,
+            "lifecycleReceipt": null,
+            "serviceLog": "gateway-journal.log",
+            "serviceLogCapture": "gateway-journal-capture.json",
+            "serviceLogRedaction": "gateway-journal-redaction.json",
+            "serviceLogStatus": "captured",
+            "tempoTraceJson": null,
+            "traceId": null,
+            "traceStatus": "unknown"
+          },
+          "pendingReceipts": [],
+          "reviewStatus": "ready-for-human-review",
+          "runDir": "20260815T104640Z-r-trace-redaction-1121-329c17e1",
+          "scenario": {
+            "description": "Offline/static validator for committed #1121 trace-redaction contract evidence in the current PROOFS corpus.",
+            "file": "r-trace-redaction-1121.js",
+            "methods": [
+              "manual-corpus-review",
+              "static-artifact-parse"
+            ],
+            "name": "r-trace-redaction-1121"
+          },
+          "sourceRunId": "31880178849",
+          "staticArtifactReader": true,
+          "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+          "verdict": "FAIL-candidate"
+        }
+      ],
+      "classification": "static-proof-substrate-failure",
+      "selectedAttempt": {
+        "artifactDir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-TRACE-REDACTION-1121/cael/20260815T104640Z-r-trace-redaction-1121-329c17e1",
+        "effectiveExitCode": 99,
+        "envelopeValidated": false,
+        "observability": {
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json",
+          "serviceLogStatus": "captured",
+          "tempoTraceJson": null,
+          "traceId": null,
+          "traceStatus": "unknown"
+        },
+        "pendingReceipts": [],
+        "reviewStatus": "ready-for-human-review",
+        "runDir": "20260815T104640Z-r-trace-redaction-1121-329c17e1",
+        "scenario": {
+          "description": "Offline/static validator for committed #1121 trace-redaction contract evidence in the current PROOFS corpus.",
+          "file": "r-trace-redaction-1121.js",
+          "methods": [
+            "manual-corpus-review",
+            "static-artifact-parse"
+          ],
+          "name": "r-trace-redaction-1121"
+        },
+        "sourceRunId": "31880178849",
+        "staticArtifactReader": true,
+        "validatorError": "candidate run is incomplete: effective exit code is non-zero",
+        "verdict": "FAIL-candidate"
+      }
+    }
+  },
+  "rows": [
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/PREFLIGHT/cael/20260815T101138Z-preflight-d796a55d"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/PREFLIGHT",
+      "effectiveExitCode": 0,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/PREFLIGHT/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": null,
+      "reviewStatus": "ready-for-human-review",
+      "row": "PREFLIGHT",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31878888351"
+      ],
+      "state": "thin",
+      "staticArtifactReader": false,
+      "summary": "unclassified"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-1/cael/20260815T101145Z-r-cd-1-d796a55d"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-1",
+      "effectiveExitCode": 0,
+      "envelopeValidated": true,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-1/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CD-1",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31878888351"
+      ],
+      "state": "pass",
+      "staticArtifactReader": false,
+      "summary": "live-validated-pass"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-2/cael/20260815T101220Z-r-cd-2-d796a55d"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-2",
+      "effectiveExitCode": 0,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-2/EVIDENCE.md",
+      "pendingReceipts": [
+        "continuation-trace-correlation",
+        "tempo-trace-json"
+      ],
+      "rawVerdict": "PARTIAL-candidate",
+      "reviewStatus": "review-pending",
+      "row": "R-CD-2",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31878888351"
+      ],
+      "state": "partial",
+      "staticArtifactReader": false,
+      "summary": "live-partial"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-3/cael/20260815T101351Z-r-cd-3-d796a55d"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-3",
+      "effectiveExitCode": 0,
+      "envelopeValidated": true,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-3/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CD-3",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31878888351"
+      ],
+      "state": "pass",
+      "staticArtifactReader": false,
+      "summary": "live-validated-pass"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-4/cael/20260815T101412Z-r-cd-4-d796a55d"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-4",
+      "effectiveExitCode": 99,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-4/EVIDENCE.md",
+      "pendingReceipts": [
+        "continuation-trace-correlation",
+        "tempo-trace-json"
+      ],
+      "rawVerdict": "PARTIAL-candidate",
+      "reviewStatus": "review-pending",
+      "row": "R-CD-4",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31878888351"
+      ],
+      "state": "partial",
+      "staticArtifactReader": false,
+      "summary": "live-partial"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-CHAINED-DEPTH-2/cael/20260815T101550Z-r-cd-chained-depth-2-d796a55d"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-CHAINED-DEPTH-2",
+      "effectiveExitCode": 99,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
+      "pendingReceipts": [
+        "continuation-trace-correlation",
+        "tempo-trace-json"
+      ],
+      "rawVerdict": "PARTIAL-candidate",
+      "reviewStatus": "review-pending",
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31878888351"
+      ],
+      "state": "partial",
+      "staticArtifactReader": false,
+      "summary": "live-partial"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-COLLECTION-ON-COLLAPSE/cael/20260815T101929Z-r-cd-collection-on-collapse-d796a55d"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-COLLECTION-ON-COLLAPSE",
+      "effectiveExitCode": 99,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "FAIL-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31878888351"
+      ],
+      "state": "thin",
+      "staticArtifactReader": true,
+      "summary": "static-proof-substrate-failure"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-CHAINED-ALT/cael/20260815T101935Z-r-cd-model-chained-alt-d796a55d"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-CHAINED-ALT",
+      "effectiveExitCode": 0,
+      "envelopeValidated": true,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31878888351"
+      ],
+      "state": "pass",
+      "staticArtifactReader": false,
+      "summary": "live-validated-pass"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-DEFAULT/cael/20260815T101959Z-r-cd-model-default-d796a55d"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-DEFAULT",
+      "effectiveExitCode": 0,
+      "envelopeValidated": true,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-DEFAULT/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CD-MODEL-DEFAULT",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31878888351"
+      ],
+      "state": "pass",
+      "staticArtifactReader": false,
+      "summary": "live-validated-pass"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-TOKEN/cael/20260815T102028Z-r-cd-model-token-d796a55d"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-TOKEN",
+      "effectiveExitCode": 0,
+      "envelopeValidated": true,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-TOKEN/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CD-MODEL-TOKEN",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31878888351"
+      ],
+      "state": "pass",
+      "staticArtifactReader": false,
+      "summary": "live-validated-pass"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-TOOL/cael/20260815T102053Z-r-cd-model-tool-d796a55d",
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-TOOL/cael/20260815T102511Z-r-cd-model-tool-273343a5"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-TOOL",
+      "effectiveExitCode": 99,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-MODEL-TOOL/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PARTIAL-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CD-MODEL-TOOL",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31878888351",
+        "31879446802"
+      ],
+      "state": "partial",
+      "staticArtifactReader": false,
+      "summary": "live-partial"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-RETURN-OVERLAP/cael/20260815T102824Z-r-cd-return-overlap-273343a5"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-RETURN-OVERLAP",
+      "effectiveExitCode": 107,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-RETURN-OVERLAP/EVIDENCE.md",
+      "pendingReceipts": [
+        "public-safe-evidence"
+      ],
+      "rawVerdict": null,
+      "reviewStatus": "review-pending",
+      "row": "R-CD-RETURN-OVERLAP",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879446802"
+      ],
+      "state": "thin",
+      "staticArtifactReader": true,
+      "summary": "static-proof-substrate-failure"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-SILENT/cael/20260815T102830Z-r-cd-silent-273343a5"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-SILENT",
+      "effectiveExitCode": 0,
+      "envelopeValidated": true,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-SILENT/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CD-SILENT",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879446802"
+      ],
+      "state": "pass",
+      "staticArtifactReader": false,
+      "summary": "live-validated-pass"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-TOKEN/cael/20260815T102907Z-r-cd-token-273343a5"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-TOKEN",
+      "effectiveExitCode": 0,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CD-TOKEN/EVIDENCE.md",
+      "pendingReceipts": [
+        "exact-candidate-runtime-identity",
+        "attempt-state",
+        "raw-final-text-origin",
+        "parser-detected",
+        "queue-identity",
+        "child-spawned",
+        "child-completed",
+        "parent-return-event",
+        "tempo-trace-json",
+        "continuation-trace-correlation"
+      ],
+      "rawVerdict": "PARTIAL-candidate",
+      "reviewStatus": "review-pending",
+      "row": "R-CD-TOKEN",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879446802"
+      ],
+      "state": "partial",
+      "staticArtifactReader": false,
+      "summary": "live-partial"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CONFIG-DEFAULTS/cael/20260815T102910Z-r-config-defaults-273343a5"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CONFIG-DEFAULTS",
+      "effectiveExitCode": 0,
+      "envelopeValidated": true,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CONFIG-DEFAULTS/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CONFIG-DEFAULTS",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879446802"
+      ],
+      "state": "pass",
+      "staticArtifactReader": false,
+      "summary": "live-validated-pass"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CONFIG-INTERSESSION/cael/20260815T102917Z-r-config-intersession-273343a5"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CONFIG-INTERSESSION",
+      "effectiveExitCode": 0,
+      "envelopeValidated": true,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CONFIG-INTERSESSION/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CONFIG-INTERSESSION",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879446802"
+      ],
+      "state": "pass",
+      "staticArtifactReader": false,
+      "summary": "live-validated-pass"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-1/cael/20260815T102924Z-r-cw-1-273343a5"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-1",
+      "effectiveExitCode": 0,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-1/EVIDENCE.md",
+      "pendingReceipts": [
+        "continuation-trace-correlation",
+        "tempo-trace-json"
+      ],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "review-pending",
+      "row": "R-CW-1",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879446802"
+      ],
+      "state": "partial",
+      "staticArtifactReader": false,
+      "summary": "live-pass-review-pending"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-2/cael/20260815T103044Z-r-cw-2-273343a5"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-2",
+      "effectiveExitCode": 0,
+      "envelopeValidated": true,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-2/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CW-2",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879446802"
+      ],
+      "state": "pass",
+      "staticArtifactReader": false,
+      "summary": "live-validated-pass"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-3/cael/20260815T103103Z-r-cw-3-273343a5"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-3",
+      "effectiveExitCode": 0,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-3/EVIDENCE.md",
+      "pendingReceipts": [
+        "continuation-trace-correlation",
+        "tempo-trace-json"
+      ],
+      "rawVerdict": "PARTIAL-candidate",
+      "reviewStatus": "review-pending",
+      "row": "R-CW-3",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879446802"
+      ],
+      "state": "partial",
+      "staticArtifactReader": false,
+      "summary": "live-partial"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-4/cael/20260815T103225Z-r-cw-4-273343a5"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-4",
+      "effectiveExitCode": 0,
+      "envelopeValidated": true,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-4/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CW-4",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879446802"
+      ],
+      "state": "pass",
+      "staticArtifactReader": false,
+      "summary": "live-validated-pass"
+    },
+    {
+      "artifactDirs": [],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-5",
+      "effectiveExitCode": null,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-5/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": null,
+      "reviewStatus": "not-run",
+      "row": "R-CW-5",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [],
+      "state": "missing",
+      "staticArtifactReader": false,
+      "summary": "orchestration-required row produced no artifact directory"
+    },
+    {
+      "artifactDirs": [],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-5A",
+      "effectiveExitCode": null,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-5A/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": null,
+      "reviewStatus": "not-run",
+      "row": "R-CW-5A",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [],
+      "state": "missing",
+      "staticArtifactReader": true,
+      "summary": "orchestration-required row produced no artifact directory"
+    },
+    {
+      "artifactDirs": [],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-6",
+      "effectiveExitCode": null,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-6/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": null,
+      "reviewStatus": "not-run",
+      "row": "R-CW-6",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [],
+      "state": "missing",
+      "staticArtifactReader": false,
+      "summary": "orchestration-required row produced no artifact directory"
+    },
+    {
+      "artifactDirs": [],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-6A",
+      "effectiveExitCode": null,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-6A/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": null,
+      "reviewStatus": "not-run",
+      "row": "R-CW-6A",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [],
+      "state": "missing",
+      "staticArtifactReader": true,
+      "summary": "orchestration-required row produced no artifact directory"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-7/cael/20260815T103822Z-r-cw-7-7947e9ec"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-7",
+      "effectiveExitCode": 99,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-7/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "FAIL-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CW-7",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879999334"
+      ],
+      "state": "thin",
+      "staticArtifactReader": true,
+      "summary": "static-proof-substrate-failure"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-DELEGATE-CHILD-LIVE/cael/20260815T103828Z-r-cw-delegate-child-live-7947e9ec"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-DELEGATE-CHILD-LIVE",
+      "effectiveExitCode": 99,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "FAIL-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879999334"
+      ],
+      "state": "thin",
+      "staticArtifactReader": true,
+      "summary": "static-proof-substrate-failure"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-DELEGATE-SELF-CONTINUATION/cael/20260815T103834Z-r-cw-delegate-self-continuation-7947e9ec"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-DELEGATE-SELF-CONTINUATION",
+      "effectiveExitCode": 0,
+      "envelopeValidated": true,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879999334"
+      ],
+      "state": "pass",
+      "staticArtifactReader": false,
+      "summary": "live-validated-pass"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-DELEGATE-TOKEN/cael/20260815T103856Z-r-cw-delegate-token-7947e9ec"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-DELEGATE-TOKEN",
+      "effectiveExitCode": 99,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "FAIL-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CW-DELEGATE-TOKEN",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879999334"
+      ],
+      "state": "thin",
+      "staticArtifactReader": true,
+      "summary": "static-proof-substrate-failure"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-MULTI/cael/20260815T103908Z-r-cw-multi-7947e9ec"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-MULTI",
+      "effectiveExitCode": 99,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-MULTI/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "FAIL-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CW-MULTI",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879999334"
+      ],
+      "state": "thin",
+      "staticArtifactReader": true,
+      "summary": "static-proof-substrate-failure"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-MULTI-COLLAPSE/cael/20260815T103902Z-r-cw-multi-collapse-7947e9ec"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-MULTI-COLLAPSE",
+      "effectiveExitCode": 99,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "FAIL-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CW-MULTI-COLLAPSE",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879999334"
+      ],
+      "state": "thin",
+      "staticArtifactReader": true,
+      "summary": "static-proof-substrate-failure"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-TOKEN/cael/20260815T103914Z-r-cw-token-7947e9ec"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-TOKEN",
+      "effectiveExitCode": 0,
+      "envelopeValidated": true,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-CW-TOKEN/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-CW-TOKEN",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31879999334"
+      ],
+      "state": "pass",
+      "staticArtifactReader": false,
+      "summary": "live-validated-pass"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-OBS-1/cael/20260815T104232Z-r-obs-1-329c17e1"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-OBS-1",
+      "effectiveExitCode": 0,
+      "envelopeValidated": true,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-OBS-1/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-OBS-1",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31880178849"
+      ],
+      "state": "pass",
+      "staticArtifactReader": false,
+      "summary": "live-validated-pass"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-OBS-2/cael/20260815T104252Z-r-obs-2-329c17e1"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-OBS-2",
+      "effectiveExitCode": 107,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-OBS-2/EVIDENCE.md",
+      "pendingReceipts": [
+        "public-safe-evidence"
+      ],
+      "rawVerdict": null,
+      "reviewStatus": "review-pending",
+      "row": "R-OBS-2",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31880178849"
+      ],
+      "state": "thin",
+      "staticArtifactReader": true,
+      "summary": "static-proof-substrate-failure"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-OBS-STATUS/cael/20260815T104258Z-r-obs-status-329c17e1"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-OBS-STATUS",
+      "effectiveExitCode": 0,
+      "envelopeValidated": true,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-OBS-STATUS/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-OBS-STATUS",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31880178849"
+      ],
+      "state": "pass",
+      "staticArtifactReader": false,
+      "summary": "live-validated-pass"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-RC-1/cael/20260815T104305Z-r-rc-1-329c17e1"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-RC-1",
+      "effectiveExitCode": 0,
+      "envelopeValidated": true,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-RC-1/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "PASS-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-RC-1",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31880178849"
+      ],
+      "state": "pass",
+      "staticArtifactReader": false,
+      "summary": "live-validated-pass"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-RC-2/cael/20260815T104326Z-r-rc-2-329c17e1"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-RC-2",
+      "effectiveExitCode": 0,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-RC-2/EVIDENCE.md",
+      "pendingReceipts": [
+        "continuation-trace-correlation",
+        "tempo-trace-json"
+      ],
+      "rawVerdict": "PARTIAL-candidate",
+      "reviewStatus": "review-pending",
+      "row": "R-RC-2",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31880178849"
+      ],
+      "state": "partial",
+      "staticArtifactReader": false,
+      "summary": "live-partial"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-REGRESSION-TRAP-TESTS/cael/20260815T104635Z-r-regression-trap-tests-329c17e1"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-REGRESSION-TRAP-TESTS",
+      "effectiveExitCode": 107,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
+      "pendingReceipts": [
+        "public-safe-evidence"
+      ],
+      "rawVerdict": null,
+      "reviewStatus": "review-pending",
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31880178849"
+      ],
+      "state": "thin",
+      "staticArtifactReader": true,
+      "summary": "static-proof-substrate-failure"
+    },
+    {
+      "artifactDirs": [
+        "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-TRACE-REDACTION-1121/cael/20260815T104640Z-r-trace-redaction-1121-329c17e1"
+      ],
+      "dir": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-TRACE-REDACTION-1121",
+      "effectiveExitCode": 99,
+      "envelopeValidated": false,
+      "evidence_doc": "PROOFS/99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6/R-TRACE-REDACTION-1121/EVIDENCE.md",
+      "pendingReceipts": [],
+      "rawVerdict": "FAIL-candidate",
+      "reviewStatus": "ready-for-human-review",
+      "row": "R-TRACE-REDACTION-1121",
+      "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "sourceRuns": [
+        "31880178849"
+      ],
+      "state": "thin",
+      "staticArtifactReader": true,
+      "summary": "static-proof-substrate-failure"
+    }
+  ],
+  "runtimeCompositeParents": {
+    "pureContinuationParent": "99ce36658eef9d4a9ad9eca6782ffa0ee7891fd6",
+    "semanticFixParent": "b5de30c6ffe068d26f6b18e416f8f4659088241f"
+  },
+  "runtimeCompositeSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+  "schema": "openclaw.proofs.manifest.v1",
+  "sourceRun": {
+    "runs": [
+      {
+        "conclusion": "cancelled at workflow ceiling",
+        "dryRun": false,
+        "id": "31878888351",
+        "rows": "PREFLIGHT through R-CD-MODEL-TOOL",
+        "seat": "cael",
+        "workflow": "project81-k6-proof.yml"
+      },
+      {
+        "conclusion": "failure from honest non-zero row exits",
+        "dryRun": false,
+        "id": "31879446802",
+        "rows": "R-CD-MODEL-TOOL through R-CW-4",
+        "seat": "cael",
+        "workflow": "project81-k6-proof.yml"
+      },
+      {
+        "conclusion": "failure from honest non-zero row exits",
+        "dryRun": false,
+        "id": "31879999334",
+        "rows": "continuation remainder through R-CW-TOKEN",
+        "seat": "cael",
+        "workflow": "project81-k6-proof.yml"
+      },
+      {
+        "conclusion": "failure from honest non-zero row exits",
+        "dryRun": false,
+        "id": "31880178849",
+        "rows": "R-OBS-1 through R-TRACE-REDACTION-1121",
+        "seat": "cael",
+        "workflow": "project81-k6-proof.yml"
+      }
+    ]
+  },
+  "staticArtifactReaders": [
+    "R-CD-COLLECTION-ON-COLLAPSE",
+    "R-CD-RETURN-OVERLAP",
+    "R-CW-7",
+    "R-CW-DELEGATE-CHILD-LIVE",
+    "R-CW-DELEGATE-TOKEN",
+    "R-CW-MULTI",
+    "R-CW-MULTI-COLLAPSE",
+    "R-OBS-2",
+    "R-REGRESSION-TRAP-TESTS",
+    "R-TRACE-REDACTION-1121"
+  ],
+  "staticEvidenceBaselineRequested": "0921776150142c3fd8d517de5c73e1c94732f004",
+  "status": "supplementary",
+  "supersedes": null
+}

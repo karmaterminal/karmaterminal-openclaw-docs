@@ -1,0 +1,16 @@
+{
+  "row": "R-CW-7",
+  "sha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+  "verdict": "FAIL-candidate",
+  "metrics": {
+    "failures": 1,
+    "duration_ms": {
+      "med": 1,
+      "max": 1,
+      "p(90)": 1,
+      "p(95)": 1,
+      "avg": 1,
+      "min": 1
+    }
+  }
+}

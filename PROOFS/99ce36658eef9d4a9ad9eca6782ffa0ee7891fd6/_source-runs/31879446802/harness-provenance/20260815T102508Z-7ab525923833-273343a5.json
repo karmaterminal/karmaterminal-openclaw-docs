@@ -1,0 +1,107 @@
+{
+  "schema": "openclaw.k6.harness-provenance.v1",
+  "classification": "harness-provenance",
+  "matrixId": "20260815T102508Z-7ab525923833-273343a5",
+  "mode": "live",
+  "docsRef": "7ab525923833cbddffa5c75c22481fcbe9d12fe9",
+  "docsRefSource": "approved-input",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "harnessIdentityVerified": true,
+  "candidateSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+  "runtimeIdentity": {
+    "seat": "cael",
+    "runtimeBuildSha": "OpenClaw 2026.8.1 (6b09b1d)",
+    "candidateMatchesRuntime": false,
+    "seatReadinessReceipt": "seat-readiness.json",
+    "seatReadinessSha256": "a122c4cd4350f26aa54b081dafcb5585e8220d06488183259c74acec514b16f0"
+  },
+  "runnerScript": "tools/k6-proofs/scripts/run-proofs.sh",
+  "runnerScriptSha256": "5a9cc20a665bd2cb4f59517e0155b587cc734c2ceecceaf9bedaa956b38d460e",
+  "rowSelection": [
+    "R-CD-MODEL-TOOL",
+    "R-CD-RETURN-OVERLAP",
+    "R-CD-SILENT",
+    "R-CD-TOKEN",
+    "R-CONFIG-DEFAULTS",
+    "R-CONFIG-INTERSESSION",
+    "R-CW-1",
+    "R-CW-2",
+    "R-CW-3",
+    "R-CW-4"
+  ],
+  "rows": [
+    {
+      "rowId": "R-CD-MODEL-TOOL",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-model-tool.json",
+      "manifestSha256": "df83ff8ee2bdb2e7454a90f99cc4398460db5c2e00585d4c2b5cb17ea52ae034",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-model-tool.js",
+      "scenarioSha256": "2d66462b9e98fe755c2bf3886693adc3a9312927a3c223e61b969066149ff937"
+    },
+    {
+      "rowId": "R-CD-RETURN-OVERLAP",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-return-overlap.json",
+      "manifestSha256": "e01f4f63f21808500bdb14428148becf7069ddb751fc9fb02e7aea50c433f49e",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-return-overlap.js",
+      "scenarioSha256": "6cd48219e45615cd36a43f72d1500b9d5583dff381c14602a97f35a382762561"
+    },
+    {
+      "rowId": "R-CD-SILENT",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-silent.json",
+      "manifestSha256": "9c9576d2704a6e7e7d145beb3275d1f054779bf81f98bbf484f01467600e92a1",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-silent.js",
+      "scenarioSha256": "34a5813f9cf00c55f9c15487e7f987973e48ff82a8fd06e1da20e13bc833e5b1"
+    },
+    {
+      "rowId": "R-CD-TOKEN",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-token.json",
+      "manifestSha256": "7b96ff52671575220a8fcfe283afa19e4ec2d921b7b2fda634cf63d722cf4f4d",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-token-bracket-delegate.js",
+      "scenarioSha256": "e4da30a666b0ef9e59b4edf1677cc3a8da80b59d5385ee00fdb8905556422699"
+    },
+    {
+      "rowId": "R-CONFIG-DEFAULTS",
+      "manifestPath": "tools/k6-proofs/manifests/r-config-defaults.json",
+      "manifestSha256": "dec0be0a591aecf9ea4c74371d9c54b2239aa95f498e3d9e9933659112a2e29b",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-config-defaults.js",
+      "scenarioSha256": "ee6994ff6e2963dce172f078f24d05f504719db4fb49876a4eb08250c908dada"
+    },
+    {
+      "rowId": "R-CONFIG-INTERSESSION",
+      "manifestPath": "tools/k6-proofs/manifests/r-config-intersession.json",
+      "manifestSha256": "3465c20187d5c8a72317e2107e59c4d808ce92ef32e3cb01477c6fbdb85c67c5",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-config-intersession.js",
+      "scenarioSha256": "4ffbae9d40ce25ed44ef68bc1434b004a047de58d1fe62097cc9232901215a6c"
+    },
+    {
+      "rowId": "R-CW-1",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-1.json",
+      "manifestSha256": "6159bf0cdeb38e3ee7905a4eeaff01e33e0b4ffedafef48682441f9c0ffb4a78",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-1-tool-schedule-wake.js",
+      "scenarioSha256": "a511f5815c9dffe1baf1d14d1a04612bcc3f86c7b0ecb0b4a2659cf39880c2f5"
+    },
+    {
+      "rowId": "R-CW-2",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-2.json",
+      "manifestSha256": "412976b30208d875edae6a3c00228a19cde014a24de2c30249fe0360a386de22",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-2-immediate-wake.js",
+      "scenarioSha256": "d601711e6dab0404bb42923e2013f9463b2bb07f4f4b338874a2ee2ba869de10"
+    },
+    {
+      "rowId": "R-CW-3",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-3.json",
+      "manifestSha256": "55857909cb34dfacbd2188f7301431416f2deab56b58d288fdcf3807a96592b0",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-3-reason-telemetry.js",
+      "scenarioSha256": "825e4d1afdb39ce03312e64006cce47cad58ed9abbf306a93b51c5a80aeac788"
+    },
+    {
+      "rowId": "R-CW-4",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-4.json",
+      "manifestSha256": "125e0aec0a3bd35f53b70b456db32fb727d80f3e428a47bd9ec2456cc7be173d",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-4-chain-depth.js",
+      "scenarioSha256": "44af78e59957c8cb5ca883c3c831d827c171cfd51d7688b4f1fb3cde863f8cd1"
+    }
+  ],
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "startedAt": "2026-08-15T10:25:08Z"
+}

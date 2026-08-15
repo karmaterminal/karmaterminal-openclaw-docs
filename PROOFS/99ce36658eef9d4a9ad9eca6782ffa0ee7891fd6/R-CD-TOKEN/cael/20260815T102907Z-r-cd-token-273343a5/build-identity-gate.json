@@ -1,0 +1,10 @@
+{
+  "schema": "openclaw.k6.r-cd-token.build-identity-gate.v1",
+  "row": "R-CD-TOKEN",
+  "candidateSha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+  "runtimeBuildSha": "malformed",
+  "equalExactSha": false,
+  "dispatched": false,
+  "verdict": "PARTIAL-candidate",
+  "endedAt": "2026-08-15T10:29:08Z"
+}

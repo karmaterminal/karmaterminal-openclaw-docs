@@ -1,0 +1,10 @@
+2026-08-15T03:19:43.037453-07:00 cael node[3925310]: 2026-08-15T03:19:43.037-07:00 [ws] ⇄ res ✓ sessions.send 413ms runId=R-CD-MODEL-CHAINED-ALT-DISPATCH-<redacted-nonce> conn=faefe456…671b id=1-0-1786789182623-rpefje
+2026-08-15T03:19:48.435937-07:00 cael node[3925310]: 2026-08-15T03:19:48.435-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-15T03:19:48.436373-07:00 cael node[3925310]: 2026-08-15T03:19:48.436-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-15T03:19:48.436774-07:00 cael node[3925310]: 2026-08-15T03:19:48.436-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-15T03:19:48.437139-07:00 cael node[3925310]: 2026-08-15T03:19:48.437-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-15T03:19:56.370506-07:00 cael node[3925310]: 2026-08-15T03:19:56.370-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-15T03:19:56.370965-07:00 cael node[3925310]: 2026-08-15T03:19:56.370-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-15T03:19:56.371386-07:00 cael node[3925310]: 2026-08-15T03:19:56.371-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-15T03:19:56.371764-07:00 cael node[3925310]: 2026-08-15T03:19:56.371-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-15T03:19:56.379997-07:00 cael node[3925310]: 2026-08-15T03:19:56.379-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=3234ms fireAt=1786789199613 session=<redacted-session-key>

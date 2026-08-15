@@ -1,0 +1,1764 @@
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270
+Row selection: all
+Dry Run: false
+==========================================================
+Harness execution: handing off to the approved runner in an immutable snapshot.
+==========================================================
+Project 81: Seat-Aware k6 Proof Runner
+Seat: cael
+Target Candidate SHA: 6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955
+Artifact root: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270
+Row selection: all
+Dry Run: false
+==========================================================
+Approved docs ref: 7ab525923833cbddffa5c75c22481fcbe9d12fe9 (karmaterminal/karmaterminal-openclaw-docs)
+Harness identity: every tracked byte under tools/k6-proofs matches the approved docs ref.
+Harness execution: immutable snapshot of the approved tree (runner included).
+Running catalog preflight (repository root: tools/k6-proofs resolved once)...
+CATALOG PREFLIGHT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/catalog-preflight.log
+Rows: PREFLIGHT,R-CD-1,R-CD-2,R-CD-3,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-COLLECTION-ON-COLLAPSE,R-CD-MODEL-CHAINED-ALT,R-CD-MODEL-DEFAULT,R-CD-MODEL-TOKEN,R-CD-MODEL-TOOL,R-CD-RETURN-OVERLAP,R-CD-SILENT,R-CD-TOKEN,R-CONFIG-DEFAULTS,R-CONFIG-INTERSESSION,R-CW-1,R-CW-2,R-CW-3,R-CW-4,R-CW-5A,R-CW-6A,R-CW-7,R-CW-DELEGATE-CHILD-LIVE,R-CW-DELEGATE-SELF-CONTINUATION,R-CW-DELEGATE-TOKEN,R-CW-MULTI-COLLAPSE,R-CW-MULTI,R-CW-TOKEN,R-OBS-1,R-OBS-2,R-OBS-STATUS,R-RC-1,R-RC-2,R-REGRESSION-TRAP-TESTS,R-TRACE-REDACTION-1121
+Harness contract binding: frozen manifest/scenario digests for every selected runnable row.
+Deployed Runtime SHA: OpenClaw 2026.8.1 (6b09b1d)
+Session configured: true
+Running seat-readiness preflight (k6/tooling/gateway/continuation config)...
+SEAT READINESS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/seat-readiness.json
+HARNESS PROVENANCE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/harness-provenance.json
+HARNESS PROVENANCE (matrix 20260815T101135Z-7ab525923833-d796a55d): /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/harness-provenance/20260815T101135Z-7ab525923833-d796a55d.json
+
+----------------------------------------
+Row: PREFLIGHT
+Manifest: /tmp/openclaw-k6-harness.n1Hv7m/tools/k6-proofs/manifests/preflight.example.json
+Scenario: scenarios/preflight.js
+Status: runnable
+Live Safety: k6-runnable
+[PREFLIGHT] RUNNING...
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/preflight.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m15s max duration (incl. graceful stop):
+              * preflight_inventory: 1 iterations shared among 1 VUs (maxDuration: 45s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+preflight_inventory   [   0% ] 1 VUs  01.0s/45s  0/1 shared iters
+PUBLIC_EVIDENCE {"row":"preflight","manifest_loaded":true,"seat":"cael","candidateSha":"6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955","started":"2026-08-15T10:11:41.126Z","connected":true,"sessions_list_ok":true,"tools_effective_ok":true,"tool_inventory_count":0,"ended":"2026-08-15T10:11:42.195Z","duration_ms":1069}
+
+
+  █ THRESHOLDS 
+
+    preflight_duration
+    ✓ 'p(95)<30000' p(95)=1069
+
+    proof_failures
+    ✓ 'count==0' count=0
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 3       2.803807/s
+    checks_succeeded...: 100.00% 3 out of 3
+    checks_failed......: 0.00%   0 out of 3
+
+    ✓ websocket connected
+    ✓ sessions.list accepted
+    ✓ tools.effective accepted
+
+    CUSTOM
+    preflight_duration....: avg=1069   min=1069   med=1069   max=1069   p(90)=1069   p(95)=1069  
+    proof_failures........: 0     0/s
+
+    EXECUTION
+    iteration_duration....: avg=1.06s  min=1.06s  med=1.06s  max=1.06s  p(90)=1.06s  p(95)=1.06s 
+    iterations............: 1     0.934602/s
+    vus...................: 1     min=1      max=1
+    vus_max...............: 1     min=1      max=1
+
+    NETWORK
+    data_received.........: 86 kB 81 kB/s
+    data_sent.............: 830 B 776 B/s
+
+    WEBSOCKET
+    ws_connecting.........: avg=1.39ms min=1.39ms med=1.39ms max=1.39ms p(90)=1.39ms p(95)=1.39ms
+    ws_msgs_received......: 5     4.673012/s
+    ws_msgs_sent..........: 3     2.803807/s
+    ws_session_duration...: avg=1.06s  min=1.06s  med=1.06s  max=1.06s  p(90)=1.06s  p(95)=1.06s 
+    ws_sessions...........: 1     0.934602/s
+
+
+
+
+running (0m01.1s), 0/1 VUs, 1 complete and 0 interrupted iterations
+preflight_inventory ✓ [ 100% ] 1 VUs  01.1s/45s  1/1 shared iters
+[PREFLIGHT] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate.
+[PREFLIGHT] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/PREFLIGHT/cael/20260815T101138Z-preflight-d796a55d/openclaw-proofs-k6.prom
+[PREFLIGHT] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/PREFLIGHT/cael/20260815T101138Z-preflight-d796a55d
+[PREFLIGHT] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-1
+Manifest: /tmp/openclaw-k6-harness.n1Hv7m/tools/k6-proofs/manifests/r-cd-1.json
+Scenario: scenarios/r-cd-1-typed-delegate.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-1] RUNNING...
+./r-cd-1-typed-delegate-summary.json
+[R-CD-1] CONTINUATION TRACE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-1/cael/20260815T101145Z-r-cd-1-d796a55d/tempo-trace-4aa9eeefcab9.json
+[R-CD-1] CORRELATION RECEIPT: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-1/cael/20260815T101145Z-r-cd-1-d796a55d/continuation-trace-correlation.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-1-typed-delegate.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m0s max duration (incl. graceful stop):
+              * r_cd_1_typed_delegate: 1 iterations shared among 1 VUs (maxDuration: 2m30s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m01.0s/2m30s  0/1 shared iters
+time="2026-08-15T03:11:49-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m02.0s/2m30s  0/1 shared iters
+time="2026-08-15T03:11:50-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered (will call continue_delegate)" source=console
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m03.0s/2m30s  0/1 shared iters
+time="2026-08-15T03:11:51-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m04.0s/2m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m05.0s/2m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m06.0s/2m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m07.0s/2m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m08.0s/2m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m09.0s/2m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m10.0s/2m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m11.0s/2m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m12.0s/2m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m13.0s/2m30s  0/1 shared iters
+time="2026-08-15T03:12:00-07:00" level=info msg="ℹ Ignored delegate return-like event before delayed wake gate" source=console
+time="2026-08-15T03:12:00-07:00" level=info msg="ℹ Ignored delegate return-like event before delayed wake gate" source=console
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m14.0s/2m30s  0/1 shared iters
+time="2026-08-15T03:12:02-07:00" level=info msg="✓ CD1-DELEGATE-SCHEDULED sentinel observed post-dispatch: agent" source=console
+time="2026-08-15T03:12:02-07:00" level=info msg="✓ CD1-DELEGATE-SCHEDULED sentinel observed post-dispatch: chat" source=console
+time="2026-08-15T03:12:02-07:00" level=info msg="✓ CD1-DELEGATE-SCHEDULED sentinel observed post-dispatch: agent" source=console
+time="2026-08-15T03:12:02-07:00" level=info msg="✓ CD1-DELEGATE-SCHEDULED sentinel observed post-dispatch: agent" source=console
+time="2026-08-15T03:12:02-07:00" level=info msg="ℹ Ignored delegate return-like event before delayed wake gate" source=console
+time="2026-08-15T03:12:02-07:00" level=info msg="✓ CD1-DELEGATE-SCHEDULED sentinel observed post-dispatch: session.message" source=console
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m15.0s/2m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m16.0s/2m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m17.0s/2m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m18.0s/2m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m19.0s/2m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m20.0s/2m30s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m21.0s/2m30s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m22.0s/2m30s  0/1 shared iters
+time="2026-08-15T03:12:10-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: agent" source=console
+time="2026-08-15T03:12:10-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: chat" source=console
+time="2026-08-15T03:12:10-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: agent" source=console
+time="2026-08-15T03:12:10-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: task" source=console
+time="2026-08-15T03:12:10-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: task" source=console
+time="2026-08-15T03:12:10-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: task" source=console
+time="2026-08-15T03:12:10-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: agent" source=console
+time="2026-08-15T03:12:10-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: task" source=console
+time="2026-08-15T03:12:10-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: agent" source=console
+time="2026-08-15T03:12:10-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: chat" source=console
+time="2026-08-15T03:12:10-07:00" level=info msg="✓ CD1-DONE/delegate return evidence observed post-dispatch: task" source=console
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m23.0s/2m30s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m24.0s/2m30s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m25.0s/2m30s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m26.0s/2m30s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m27.0s/2m30s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m28.0s/2m30s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_1_typed_delegate   [   0% ] 1 VUs  0m29.0s/2m30s  0/1 shared iters
+time="2026-08-15T03:12:17-07:00" level=info msg="Required R-CD-1 receipts and trace-ingest grace gathered, closing" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-1","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955","started":"2026-08-15T10:11:47.904Z","tool_invoke_accepted":true,"delegate_scheduled_sentinel":true,"parent_return_event":true,"task_ledger_entry_optional":false,"channel_message_observed":false,"dispatch_accepted_at_ms":1786788710192,"wake_gate_ms":5000,"delegate_scheduled_at_ms":1786788722095,"parent_return_event_at_ms":1786788730488,"trace_collect_after_ms":1786788737095,"reason_hash":"1dcaf2da9577f8eb","reason_length":139,"delegate_mode":"normal","delegate_delay_ms":1000,"delegate_wake_gate_ms":5000,"prompt_echoes_ignored":3,"trace_id":null,"ended":"2026-08-15T10:12:17.096Z","duration_ms":29192}
+time="2026-08-15T03:12:17-07:00" level=info msg="\n[R-CD-1] VERDICT: PASS-candidate" source=console
+
+[R-CD-1] Summary: PASS-candidate | SHA: 6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955 | Seat: cael
+
+running (0m29.2s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_1_typed_delegate ✓ [ 100% ] 1 VUs  0m29.2s/2m30s  1/1 shared iters
+[R-CD-1] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-1/cael/20260815T101145Z-r-cd-1-d796a55d/candidate-run-result.json
+[R-CD-1] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-1/cael/20260815T101145Z-r-cd-1-d796a55d/openclaw-proofs-k6.prom
+[R-CD-1] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-1/cael/20260815T101145Z-r-cd-1-d796a55d
+[R-CD-1] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-2
+Manifest: /tmp/openclaw-k6-harness.n1Hv7m/tools/k6-proofs/manifests/r-cd-2.json
+Scenario: scenarios/r-cd-2-silent-wake.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-2] RUNNING...
+./r-cd-2-summary.json
+[R-CD-2] TRACE CORRELATION FAILED; see /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-2/cael/20260815T101220Z-r-cd-2-d796a55d/continuation-trace-collector.error.log
+R-CD-2 private k6 acquisition withheld; inspect the authoritative receipt.
+[R-CD-2] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate.
+[R-CD-2] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-2/cael/20260815T101220Z-r-cd-2-d796a55d/openclaw-proofs-k6.prom
+[R-CD-2] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-2/cael/20260815T101220Z-r-cd-2-d796a55d
+[R-CD-2] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-3
+Manifest: /tmp/openclaw-k6-harness.n1Hv7m/tools/k6-proofs/manifests/r-cd-3.json
+Scenario: scenarios/r-cd-3-post-compaction.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-3] RUNNING...
+./r-cd-3-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-3-post-compaction.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m30s max duration (incl. graceful stop):
+              * r_cd_3_post_compaction: 1 iterations shared among 1 VUs (maxDuration: 3m0s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m01.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:13:55-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m02.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:13:56-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for R-CD-3" source=console
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m03.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:13:58-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m04.0s/3m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m05.0s/3m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m06.0s/3m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m07.0s/3m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m08.0s/3m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m09.0s/3m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m10.0s/3m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m11.0s/3m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m12.0s/3m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m13.0s/3m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_3_post_compaction   [   0% ] 1 VUs  0m14.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:14:08-07:00" level=info msg="✓ R-CD-3 post-compaction lifeboat return observed" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-3","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955","started":"2026-08-15T10:13:54.788Z","dispatch_accepted":true,"delegate_staging_requested":true,"compaction_requested":true,"threshold_refusal_observed":false,"compaction_accepted":false,"lifeboat_return_observed":true,"guard":null,"context_usage":null,"threshold":null,"trace_id":null,"ended":"2026-08-15T10:14:08.933Z","duration_ms":14145,"verdict":"PASS-candidate"}
+time="2026-08-15T03:14:08-07:00" level=info msg="\n[R-CD-3] VERDICT: PASS-candidate" source=console
+
+running (0m14.1s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_3_post_compaction ✓ [ 100% ] 1 VUs  0m14.1s/3m0s  1/1 shared iters
+[R-CD-3] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-3/cael/20260815T101351Z-r-cd-3-d796a55d/candidate-run-result.json
+[R-CD-3] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-3/cael/20260815T101351Z-r-cd-3-d796a55d/openclaw-proofs-k6.prom
+[R-CD-3] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-3/cael/20260815T101351Z-r-cd-3-d796a55d
+[R-CD-3] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-4
+Manifest: /tmp/openclaw-k6-harness.n1Hv7m/tools/k6-proofs/manifests/r-cd-4.json
+Scenario: scenarios/r-cd-4-target-session-key.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-4] RUNNING...
+./r-cd-4-summary.json
+[R-CD-4] TRACE CORRELATION FAILED; see /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-4/cael/20260815T101412Z-r-cd-4-d796a55d/continuation-trace-collector.error.log
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-4-target-session-key.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m30s max duration (incl. graceful stop):
+              * r_cd_4_target_session: 1 iterations shared among 1 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m01.0s/2m0s  0/1 shared iters
+time="2026-08-15T03:14:16-07:00" level=info msg="✓ disposable parent session created: <redacted-session-key>" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m02.0s/2m0s  0/1 shared iters
+time="2026-08-15T03:14:16-07:00" level=info msg="✓ disposable target session created: <redacted-session-key>" source=console
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m03.0s/2m0s  0/1 shared iters
+time="2026-08-15T03:14:17-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for R-CD-4 (targetSessionKey)" source=console
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m04.0s/2m0s  0/1 shared iters
+time="2026-08-15T03:14:19-07:00" level=info msg="✓ initial pre-gate session.message event observed (dispatching agent turn)" source=console
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m05.0s/2m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m06.0s/2m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m07.0s/2m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m08.0s/2m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m09.0s/2m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m10.0s/2m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m11.0s/2m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m12.0s/2m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m13.0s/2m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m14.0s/2m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m15.0s/2m0s  0/1 shared iters
+time="2026-08-15T03:14:30-07:00" level=info msg="✓ generic post-gate session.message event observed" source=console
+time="2026-08-15T03:14:30-07:00" level=info msg="✓ generic post-gate session.message event observed" source=console
+time="2026-08-15T03:14:30-07:00" level=info msg="✓ generic post-gate session.message event observed" source=console
+time="2026-08-15T03:14:30-07:00" level=info msg="✓ generic post-gate session.message event observed" source=console
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m16.0s/2m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m17.0s/2m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m18.0s/2m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m19.0s/2m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m20.0s/2m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m21.0s/2m0s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m22.0s/2m0s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m23.0s/2m0s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m24.0s/2m0s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m25.0s/2m0s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m26.0s/2m0s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m27.0s/2m0s  0/1 shared iters
+time="2026-08-15T03:14:42-07:00" level=info msg="✓ Child task completed" source=console
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m28.0s/2m0s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m29.0s/2m0s  0/1 shared iters
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m30.0s/2m0s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m31.0s/2m0s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m32.0s/2m0s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m33.0s/2m0s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m34.0s/2m0s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m35.0s/2m0s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m36.0s/2m0s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m37.0s/2m0s  0/1 shared iters
+time="2026-08-15T03:14:52-07:00" level=info msg="✓ generic post-gate session.message event observed" source=console
+time="2026-08-15T03:14:52-07:00" level=info msg="✓ generic post-gate session.message event observed" source=console
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m38.0s/2m0s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m39.0s/2m0s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m40.0s/2m0s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m41.0s/2m0s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m42.0s/2m0s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m43.0s/2m0s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m44.0s/2m0s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m45.0s/2m0s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m46.0s/2m0s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m47.0s/2m0s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m48.0s/2m0s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m49.0s/2m0s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m50.0s/2m0s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m51.0s/2m0s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m52.0s/2m0s  0/1 shared iters
+time="2026-08-15T03:15:06-07:00" level=info msg="✓ Child task completed" source=console
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m53.0s/2m0s  0/1 shared iters
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m54.0s/2m0s  0/1 shared iters
+
+running (0m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m55.0s/2m0s  0/1 shared iters
+
+running (0m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m56.0s/2m0s  0/1 shared iters
+
+running (0m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m57.0s/2m0s  0/1 shared iters
+
+running (0m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m58.0s/2m0s  0/1 shared iters
+
+running (0m59.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m59.0s/2m0s  0/1 shared iters
+
+running (1m00.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m00.0s/2m0s  0/1 shared iters
+
+running (1m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m01.0s/2m0s  0/1 shared iters
+
+running (1m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m02.0s/2m0s  0/1 shared iters
+
+running (1m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m03.0s/2m0s  0/1 shared iters
+
+running (1m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m04.0s/2m0s  0/1 shared iters
+
+running (1m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m05.0s/2m0s  0/1 shared iters
+
+running (1m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m06.0s/2m0s  0/1 shared iters
+
+running (1m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m07.0s/2m0s  0/1 shared iters
+
+running (1m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m08.0s/2m0s  0/1 shared iters
+
+running (1m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m09.0s/2m0s  0/1 shared iters
+
+running (1m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m10.0s/2m0s  0/1 shared iters
+
+running (1m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m11.0s/2m0s  0/1 shared iters
+
+running (1m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m12.0s/2m0s  0/1 shared iters
+
+running (1m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m13.0s/2m0s  0/1 shared iters
+
+running (1m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m14.0s/2m0s  0/1 shared iters
+
+running (1m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m15.0s/2m0s  0/1 shared iters
+
+running (1m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m16.0s/2m0s  0/1 shared iters
+
+running (1m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m17.0s/2m0s  0/1 shared iters
+
+running (1m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m18.0s/2m0s  0/1 shared iters
+
+running (1m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m19.0s/2m0s  0/1 shared iters
+
+running (1m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m20.0s/2m0s  0/1 shared iters
+
+running (1m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m21.0s/2m0s  0/1 shared iters
+
+running (1m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m22.0s/2m0s  0/1 shared iters
+
+running (1m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m23.0s/2m0s  0/1 shared iters
+
+running (1m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m24.0s/2m0s  0/1 shared iters
+
+running (1m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m25.0s/2m0s  0/1 shared iters
+
+running (1m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m26.0s/2m0s  0/1 shared iters
+
+running (1m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m27.0s/2m0s  0/1 shared iters
+
+running (1m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m28.0s/2m0s  0/1 shared iters
+
+running (1m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m29.0s/2m0s  0/1 shared iters
+
+running (1m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m30.0s/2m0s  0/1 shared iters
+
+running (1m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m31.0s/2m0s  0/1 shared iters
+
+running (1m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m32.0s/2m0s  0/1 shared iters
+PUBLIC_EVIDENCE {"row":"R-CD-4","manifest_loaded":true,"task_identity_token":"RCD4:8854851-5sv8c451","seat":"cael","parent_session_created":true,"target_session_created":true,"candidateSha":"6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955","started":"2026-08-15T10:14:14.851Z","tool_accepted":true,"agent_turn_observed":true,"child_completed":true,"child_session_candidates":["<redacted-session-key>"],"child_session_ambiguous":false,"child_session_invalid":false,"return_in_target":false,"return_in_parent":false,"target_return_candidate":null,"parent_return_candidate":null,"target_return_receipt":null,"parent_return_receipt":null,"dispatch_accepted_at_ms":1786788857940,"wake_gate_ms":5000,"reason_hash":"80b6b8ee52f093ae","reason_length":127,"delegate_mode":"silent-wake","trace_id":null,"ended":"2026-08-15T10:15:46.993Z","duration_ms":92142}
+time="2026-08-15T03:15:46-07:00" level=info msg="\n[R-CD-4] VERDICT: PARTIAL-candidate" source=console
+
+[R-CD-4] Summary: PARTIAL-candidate | SHA: 6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955 | Seat: cael
+
+running (1m32.1s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_4_target_session ✓ [ 100% ] 1 VUs  1m32.1s/2m0s  1/1 shared iters
+time="2026-08-15T03:15:47-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"
+[R-CD-4] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate.
+[R-CD-4] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-4/cael/20260815T101412Z-r-cd-4-d796a55d/openclaw-proofs-k6.prom
+[R-CD-4] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-4/cael/20260815T101412Z-r-cd-4-d796a55d
+[R-CD-4] FAILED with effective exit code 99. Public-safe artifacts preserved.
+[R-CD-4] Continuing matrix so later rows retain their one-shot execution and receipts.
+
+----------------------------------------
+Row: R-CD-CHAINED-DEPTH-2
+Manifest: /tmp/openclaw-k6-harness.n1Hv7m/tools/k6-proofs/manifests/r-cd-chained-depth-2.json
+Scenario: scenarios/r-cd-chained-depth-2.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-CHAINED-DEPTH-2] RUNNING...
+./r-cd-chained-depth-2-summary.json
+[R-CD-CHAINED-DEPTH-2] TRACE CORRELATION FAILED; see /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-CHAINED-DEPTH-2/cael/20260815T101550Z-r-cd-chained-depth-2-d796a55d/continuation-trace-collector.error.log
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-chained-depth-2.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m30s max duration (incl. graceful stop):
+              * r_cd_chained_depth_2: 1 iterations shared among 1 VUs (maxDuration: 3m0s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m01.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:15:54-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m02.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:15:55-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for depth-2 chain" source=console
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m03.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:15:56-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m04.0s/3m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m05.0s/3m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m06.0s/3m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m07.0s/3m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m08.0s/3m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m09.0s/3m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m10.0s/3m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m11.0s/3m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m12.0s/3m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m13.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:16:06-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:06-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m14.0s/3m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m15.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:16:08-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:08-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m16.0s/3m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m17.0s/3m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m18.0s/3m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m19.0s/3m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m20.0s/3m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m21.0s/3m0s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m22.0s/3m0s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m23.0s/3m0s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m24.0s/3m0s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m25.0s/3m0s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m26.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:16:19-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:19-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m27.0s/3m0s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m28.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:16:21-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:21-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:21-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:21-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:21-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:21-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:21-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:21-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:21-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:21-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:21-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:21-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m29.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:16:23-07:00" level=info msg="✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch" source=console
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m30.0s/3m0s  0/1 shared iters
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m31.0s/3m0s  0/1 shared iters
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m32.0s/3m0s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m33.0s/3m0s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m34.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:16:27-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:27-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:27-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:27-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:27-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:27-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:27-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:27-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:27-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:27-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:27-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+time="2026-08-15T03:16:27-07:00" level=info msg="✓ GRANDCHILD-DONE sentinel observed post-dispatch" source=console
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m35.0s/3m0s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m36.0s/3m0s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m37.0s/3m0s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m38.0s/3m0s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m39.0s/3m0s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m40.0s/3m0s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m41.0s/3m0s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m42.0s/3m0s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m43.0s/3m0s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m44.0s/3m0s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m45.0s/3m0s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m46.0s/3m0s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m47.0s/3m0s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m48.0s/3m0s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m49.0s/3m0s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m50.0s/3m0s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m51.0s/3m0s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m52.0s/3m0s  0/1 shared iters
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m53.0s/3m0s  0/1 shared iters
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m54.0s/3m0s  0/1 shared iters
+
+running (0m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m55.0s/3m0s  0/1 shared iters
+
+running (0m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m56.0s/3m0s  0/1 shared iters
+
+running (0m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m57.0s/3m0s  0/1 shared iters
+
+running (0m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m58.0s/3m0s  0/1 shared iters
+
+running (0m59.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  0m59.0s/3m0s  0/1 shared iters
+
+running (1m00.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m00.0s/3m0s  0/1 shared iters
+
+running (1m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m01.0s/3m0s  0/1 shared iters
+
+running (1m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m02.0s/3m0s  0/1 shared iters
+
+running (1m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m03.0s/3m0s  0/1 shared iters
+
+running (1m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m04.0s/3m0s  0/1 shared iters
+
+running (1m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m05.0s/3m0s  0/1 shared iters
+
+running (1m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m06.0s/3m0s  0/1 shared iters
+
+running (1m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m07.0s/3m0s  0/1 shared iters
+
+running (1m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m08.0s/3m0s  0/1 shared iters
+
+running (1m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m09.0s/3m0s  0/1 shared iters
+
+running (1m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m10.0s/3m0s  0/1 shared iters
+
+running (1m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m11.0s/3m0s  0/1 shared iters
+
+running (1m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m12.0s/3m0s  0/1 shared iters
+
+running (1m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m13.0s/3m0s  0/1 shared iters
+
+running (1m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m14.0s/3m0s  0/1 shared iters
+
+running (1m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m15.0s/3m0s  0/1 shared iters
+
+running (1m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m16.0s/3m0s  0/1 shared iters
+
+running (1m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m17.0s/3m0s  0/1 shared iters
+
+running (1m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m18.0s/3m0s  0/1 shared iters
+
+running (1m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m19.0s/3m0s  0/1 shared iters
+
+running (1m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m20.0s/3m0s  0/1 shared iters
+
+running (1m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m21.0s/3m0s  0/1 shared iters
+
+running (1m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m22.0s/3m0s  0/1 shared iters
+
+running (1m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m23.0s/3m0s  0/1 shared iters
+
+running (1m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m24.0s/3m0s  0/1 shared iters
+
+running (1m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m25.0s/3m0s  0/1 shared iters
+
+running (1m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m26.0s/3m0s  0/1 shared iters
+
+running (1m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m27.0s/3m0s  0/1 shared iters
+
+running (1m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m28.0s/3m0s  0/1 shared iters
+
+running (1m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m29.0s/3m0s  0/1 shared iters
+
+running (1m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m30.0s/3m0s  0/1 shared iters
+
+running (1m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m31.0s/3m0s  0/1 shared iters
+
+running (1m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m32.0s/3m0s  0/1 shared iters
+
+running (1m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m33.0s/3m0s  0/1 shared iters
+
+running (1m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m34.0s/3m0s  0/1 shared iters
+
+running (1m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m35.0s/3m0s  0/1 shared iters
+
+running (1m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m36.0s/3m0s  0/1 shared iters
+
+running (1m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m37.0s/3m0s  0/1 shared iters
+
+running (1m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m38.0s/3m0s  0/1 shared iters
+
+running (1m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m39.0s/3m0s  0/1 shared iters
+
+running (1m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m40.0s/3m0s  0/1 shared iters
+
+running (1m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m41.0s/3m0s  0/1 shared iters
+
+running (1m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m42.0s/3m0s  0/1 shared iters
+
+running (1m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m43.0s/3m0s  0/1 shared iters
+
+running (1m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m44.0s/3m0s  0/1 shared iters
+
+running (1m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m45.0s/3m0s  0/1 shared iters
+
+running (1m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m46.0s/3m0s  0/1 shared iters
+
+running (1m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m47.0s/3m0s  0/1 shared iters
+
+running (1m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m48.0s/3m0s  0/1 shared iters
+
+running (1m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m49.0s/3m0s  0/1 shared iters
+
+running (1m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m50.0s/3m0s  0/1 shared iters
+
+running (1m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m51.0s/3m0s  0/1 shared iters
+
+running (1m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m52.0s/3m0s  0/1 shared iters
+
+running (1m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m53.0s/3m0s  0/1 shared iters
+
+running (1m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m54.0s/3m0s  0/1 shared iters
+
+running (1m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m55.0s/3m0s  0/1 shared iters
+
+running (1m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m56.0s/3m0s  0/1 shared iters
+
+running (1m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m57.0s/3m0s  0/1 shared iters
+
+running (1m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m58.0s/3m0s  0/1 shared iters
+
+running (1m59.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  1m59.0s/3m0s  0/1 shared iters
+
+running (2m00.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m00.0s/3m0s  0/1 shared iters
+
+running (2m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m01.0s/3m0s  0/1 shared iters
+
+running (2m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m02.0s/3m0s  0/1 shared iters
+
+running (2m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m03.0s/3m0s  0/1 shared iters
+
+running (2m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m04.0s/3m0s  0/1 shared iters
+
+running (2m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m05.0s/3m0s  0/1 shared iters
+
+running (2m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m06.0s/3m0s  0/1 shared iters
+
+running (2m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m07.0s/3m0s  0/1 shared iters
+
+running (2m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m08.0s/3m0s  0/1 shared iters
+
+running (2m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m09.0s/3m0s  0/1 shared iters
+
+running (2m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m10.0s/3m0s  0/1 shared iters
+
+running (2m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m11.0s/3m0s  0/1 shared iters
+
+running (2m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m12.0s/3m0s  0/1 shared iters
+
+running (2m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m13.0s/3m0s  0/1 shared iters
+
+running (2m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m14.0s/3m0s  0/1 shared iters
+
+running (2m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m15.0s/3m0s  0/1 shared iters
+
+running (2m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m16.0s/3m0s  0/1 shared iters
+
+running (2m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m17.0s/3m0s  0/1 shared iters
+
+running (2m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m18.0s/3m0s  0/1 shared iters
+
+running (2m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m19.0s/3m0s  0/1 shared iters
+
+running (2m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m20.0s/3m0s  0/1 shared iters
+
+running (2m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m21.0s/3m0s  0/1 shared iters
+
+running (2m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m22.0s/3m0s  0/1 shared iters
+
+running (2m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m23.0s/3m0s  0/1 shared iters
+
+running (2m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m24.0s/3m0s  0/1 shared iters
+
+running (2m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m25.0s/3m0s  0/1 shared iters
+
+running (2m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m26.0s/3m0s  0/1 shared iters
+
+running (2m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m27.0s/3m0s  0/1 shared iters
+
+running (2m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m28.0s/3m0s  0/1 shared iters
+
+running (2m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m29.0s/3m0s  0/1 shared iters
+
+running (2m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m30.0s/3m0s  0/1 shared iters
+
+running (2m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_chained_depth_2   [   0% ] 1 VUs  2m31.0s/3m0s  0/1 shared iters
+PUBLIC_EVIDENCE {"row":"R-CD-CHAINED-DEPTH-2","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955","started":"2026-08-15T10:15:53.072Z","parent_dispatch_accepted":true,"child_spawned":true,"grandchild_spawned":true,"child_done_sentinel":true,"grandchild_done_sentinel":true,"chain_return_received":false,"root_return_candidate":null,"root_return_receipt":null,"dispatch_accepted_at_ms":1786788955268,"max_depth_observed":2,"reason_hash":"4bdc647f2789dc32","reason_length":441,"delegate_mode":"silent-wake","trace_id":null,"ended":"2026-08-15T10:18:24.232Z","duration_ms":151160}
+time="2026-08-15T03:18:24-07:00" level=info msg="\n[R-CD-CHAINED-DEPTH-2] VERDICT: PARTIAL-candidate" source=console
+time="2026-08-15T03:18:24-07:00" level=info msg="  Max depth observed: 2" source=console
+
+[R-CD-CHAINED-DEPTH-2] Summary: PARTIAL-candidate | SHA: 6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955 | Seat: cael
+
+running (2m31.2s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_chained_depth_2 ✓ [ 100% ] 1 VUs  2m31.2s/3m0s  1/1 shared iters
+time="2026-08-15T03:18:24-07:00" level=error msg="thresholds on metrics 'proof_failures, r_cd_chain_duration' have been crossed"
+[R-CD-CHAINED-DEPTH-2] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate.
+[R-CD-CHAINED-DEPTH-2] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-CHAINED-DEPTH-2/cael/20260815T101550Z-r-cd-chained-depth-2-d796a55d/openclaw-proofs-k6.prom
+[R-CD-CHAINED-DEPTH-2] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-CHAINED-DEPTH-2/cael/20260815T101550Z-r-cd-chained-depth-2-d796a55d
+[R-CD-CHAINED-DEPTH-2] FAILED with effective exit code 99. Public-safe artifacts preserved.
+[R-CD-CHAINED-DEPTH-2] Continuing matrix so later rows retain their one-shot execution and receipts.
+
+----------------------------------------
+Row: R-CD-COLLECTION-ON-COLLAPSE
+Manifest: /tmp/openclaw-k6-harness.n1Hv7m/tools/k6-proofs/manifests/r-cd-collection-on-collapse.json
+Scenario: scenarios/static-corpus-row-validator.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-COLLECTION-ON-COLLAPSE] RUNNING...
+./static-corpus-row-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CD-COLLECTION-ON-COLLAPSE","sourceRow":"R-CD-COLLECTION-ON-COLLAPSE","staticBoundaryVariant":false,"manifest_loaded":true,"candidateSha":"6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955","currentProofSha":"0921776150142c3fd8d517de5c73e1c94732f004","sourceEvidenceSha":"0921776150142c3fd8d517de5c73e1c94732f004","carriedFrom":"0921776150142c3fd8d517de5c73e1c94732f004","started":"2026-08-15T10:19:32.055Z","checks":{"verdictPass":false,"methodScope":false,"bTypedDelegate":false,"cAfterB":false,"cSentinelPresent":false,"rootCollection":false,"durableRows":false,"evaluationPass":false,"tracePresent":false},"source_files":{"evidence":"../../../PROOFS/0921776150142c3fd8d517de5c73e1c94732f004/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/EVIDENCE.md","evaluation":"../../../PROOFS/0921776150142c3fd8d517de5c73e1c94732f004/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/evaluation.json","flowRows":"../../../PROOFS/0921776150142c3fd8d517de5c73e1c94732f004/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/flow-rows-concise.json","taskRows":"../../../PROOFS/0921776150142c3fd8d517de5c73e1c94732f004/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/db/task-rows-concise.json","rootReceipt":"../../../PROOFS/0921776150142c3fd8d517de5c73e1c94732f004/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/main/root-collection-receipt.md","journal":"../../../PROOFS/0921776150142c3fd8d517de5c73e1c94732f004/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/journal/filtered.log","traceSummary":"../../../PROOFS/0921776150142c3fd8d517de5c73e1c94732f004/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx/tempo/trace-summary.json"},"ended":"2026-08-15T10:19:32.055Z","duration_ms":0,"verdict":"FAIL-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+time="2026-08-15T03:19:32-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"
+[R-CD-COLLECTION-ON-COLLAPSE] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate.
+[R-CD-COLLECTION-ON-COLLAPSE] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-COLLECTION-ON-COLLAPSE/cael/20260815T101929Z-r-cd-collection-on-collapse-d796a55d/openclaw-proofs-k6.prom
+[R-CD-COLLECTION-ON-COLLAPSE] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-COLLECTION-ON-COLLAPSE/cael/20260815T101929Z-r-cd-collection-on-collapse-d796a55d
+[R-CD-COLLECTION-ON-COLLAPSE] FAILED with effective exit code 99. Public-safe artifacts preserved.
+[R-CD-COLLECTION-ON-COLLAPSE] Continuing matrix so later rows retain their one-shot execution and receipts.
+
+----------------------------------------
+Row: R-CD-MODEL-CHAINED-ALT
+Manifest: /tmp/openclaw-k6-harness.n1Hv7m/tools/k6-proofs/manifests/r-cd-model-chained-alt.json
+Scenario: scenarios/r-cd-model-chained-alt.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-MODEL-CHAINED-ALT] RUNNING...
+./r-cd-model-chained-alt-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-model-chained-alt.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 4m30s max duration (incl. graceful stop):
+              * r_cd_model_chained_alt: 1 iterations shared among 1 VUs (maxDuration: 4m0s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m01.0s/4m0s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m02.0s/4m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m03.0s/4m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m04.0s/4m0s  0/1 shared iters
+time="2026-08-15T03:19:42-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m05.0s/4m0s  0/1 shared iters
+time="2026-08-15T03:19:43-07:00" level=info msg="✓ sessions.send accepted — chained model parent turn triggered" source=console
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m06.0s/4m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m07.0s/4m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m08.0s/4m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m09.0s/4m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m10.0s/4m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m11.0s/4m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m12.0s/4m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m13.0s/4m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m14.0s/4m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m15.0s/4m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m16.0s/4m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m17.0s/4m0s  0/1 shared iters
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_chained_alt   [   0% ] 1 VUs  0m18.0s/4m0s  0/1 shared iters
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:55-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ depth-1 scheduled depth-2 sentinel observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="✓ depth-2 model return observed" source=console
+time="2026-08-15T03:19:56-07:00" level=info msg="All required R-CD-MODEL-CHAINED-ALT evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-MODEL-CHAINED-ALT","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955","started":"2026-08-15T10:19:37.882Z","requested_model_byte":"gpt","dispatch_accepted":true,"dispatch_accepted_at_ms":1786789183036,"depth_1_child_observed":true,"depth_2_child_observed":true,"depth_1_scheduled_inner":true,"depth_2_model_byte":"gpt.","model_matches":true,"return_payload":true,"trace_id":null,"ended":"2026-08-15T10:19:56.330Z","duration_ms":18448}
+time="2026-08-15T03:19:56-07:00" level=info msg="\n[R-CD-MODEL-CHAINED-ALT] VERDICT: PASS-candidate" source=console
+
+[R-CD-MODEL-CHAINED-ALT] Summary: PASS-candidate | SHA: 6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955 | Seat: cael
+
+running (0m18.4s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_model_chained_alt ✓ [ 100% ] 1 VUs  0m18.4s/4m0s  1/1 shared iters
+[R-CD-MODEL-CHAINED-ALT] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-MODEL-CHAINED-ALT/cael/20260815T101935Z-r-cd-model-chained-alt-d796a55d/candidate-run-result.json
+[R-CD-MODEL-CHAINED-ALT] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-MODEL-CHAINED-ALT/cael/20260815T101935Z-r-cd-model-chained-alt-d796a55d/openclaw-proofs-k6.prom
+[R-CD-MODEL-CHAINED-ALT] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-MODEL-CHAINED-ALT/cael/20260815T101935Z-r-cd-model-chained-alt-d796a55d
+[R-CD-MODEL-CHAINED-ALT] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-MODEL-DEFAULT
+Manifest: /tmp/openclaw-k6-harness.n1Hv7m/tools/k6-proofs/manifests/r-cd-model-default.json
+Scenario: scenarios/r-cd-model-default.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-MODEL-DEFAULT] RUNNING...
+./r-cd-model-default-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-model-default.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m30s max duration (incl. graceful stop):
+              * r_cd_model_default: 1 iterations shared among 1 VUs (maxDuration: 3m0s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m01.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:20:03-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m02.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:20:04-07:00" level=info msg="✓ sessions.send accepted — default model delegate turn triggered" source=console
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m03.0s/3m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m04.0s/3m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m05.0s/3m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m06.0s/3m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m07.0s/3m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m08.0s/3m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m09.0s/3m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m10.0s/3m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m11.0s/3m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m12.0s/3m0s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m13.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m14.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:16-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:17-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+time="2026-08-15T03:20:17-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:17-07:00" level=info msg="✓ parent scheduled sentinel observed" source=console
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m15.0s/3m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m16.0s/3m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m17.0s/3m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m18.0s/3m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m19.0s/3m0s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m20.0s/3m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m21.0s/3m0s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_default   [   0% ] 1 VUs  0m22.0s/3m0s  0/1 shared iters
+time="2026-08-15T03:20:24-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:24-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:24-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:24-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="✓ MODEL-DEFAULT-CHILD return payload observed" source=console
+time="2026-08-15T03:20:25-07:00" level=info msg="All required R-CD-MODEL-DEFAULT evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-MODEL-DEFAULT","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955","started":"2026-08-15T10:20:02.424Z","parent_model_byte":"github-copilot/gpt-5.5","dispatch_accepted":true,"child_session_observed":true,"child_model_byte":"github-copilot/gpt-5.5","model_matches":true,"return_payload":true,"trace_id":null,"ended":"2026-08-15T10:20:25.175Z","duration_ms":22751}
+time="2026-08-15T03:20:25-07:00" level=info msg="\n[R-CD-MODEL-DEFAULT] VERDICT: PASS-candidate" source=console
+
+[R-CD-MODEL-DEFAULT] Summary: PASS-candidate | SHA: 6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955 | Seat: cael
+
+running (0m22.8s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_model_default ✓ [ 100% ] 1 VUs  0m22.8s/3m0s  1/1 shared iters
+[R-CD-MODEL-DEFAULT] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-MODEL-DEFAULT/cael/20260815T101959Z-r-cd-model-default-d796a55d/candidate-run-result.json
+[R-CD-MODEL-DEFAULT] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-MODEL-DEFAULT/cael/20260815T101959Z-r-cd-model-default-d796a55d/openclaw-proofs-k6.prom
+[R-CD-MODEL-DEFAULT] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-MODEL-DEFAULT/cael/20260815T101959Z-r-cd-model-default-d796a55d
+[R-CD-MODEL-DEFAULT] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-MODEL-TOKEN
+Manifest: /tmp/openclaw-k6-harness.n1Hv7m/tools/k6-proofs/manifests/r-cd-model-token.json
+Scenario: scenarios/r-cd-model-token.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-MODEL-TOKEN] RUNNING...
+./r-cd-model-token-summary.json
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-model-token.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 4m0s max duration (incl. graceful stop):
+              * r_cd_model_token: 1 iterations shared among 1 VUs (maxDuration: 3m30s, gracefulStop: 30s)
+
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m01.0s/3m30s  0/1 shared iters
+time="2026-08-15T03:20:32-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m02.0s/3m30s  0/1 shared iters
+time="2026-08-15T03:20:33-07:00" level=info msg="✓ sessions.send accepted — parent agent turn triggered" source=console
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m03.0s/3m30s  0/1 shared iters
+time="2026-08-15T03:20:34-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m04.0s/3m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m05.0s/3m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m06.0s/3m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m07.0s/3m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m08.0s/3m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m09.0s/3m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m10.0s/3m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m11.0s/3m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m12.0s/3m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m13.0s/3m30s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m14.0s/3m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m15.0s/3m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m16.0s/3m30s  0/1 shared iters
+time="2026-08-15T03:20:47-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:47-07:00" level=info msg="✓ bracket-token child turn observed" source=console
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m17.0s/3m30s  0/1 shared iters
+time="2026-08-15T03:20:48-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:48-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:48-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:48-07:00" level=info msg="✓ bracket-token child turn observed" source=console
+time="2026-08-15T03:20:48-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_model_token   [   0% ] 1 VUs  0m18.0s/3m30s  0/1 shared iters
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ parent sessions_spawn acceptance signal observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ bracket-token child turn observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ bracket model modifier observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="✓ MODEL-TOKEN-DELEGATE-DONE return sentinel observed" source=console
+time="2026-08-15T03:20:49-07:00" level=info msg="All required R-CD-MODEL-TOKEN evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-MODEL-TOKEN","manifest_loaded":true,"seat":"cael","session_created":true,"candidateSha":"6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955","started":"2026-08-15T10:20:31.284Z","requested_model_byte":"gpt","prompt_injected":true,"subagent_spawn_requested":true,"subagent_spawn_accepted":true,"bracket_token_observed":true,"bracket_model_modifier_observed":true,"child_session_observed":true,"child_model_byte":"gpt","model_matches":true,"return_payload":true,"dispatch_accepted_at_ms":1786789233771,"trace_id":null,"ended":"2026-08-15T10:20:49.822Z","duration_ms":18538}
+time="2026-08-15T03:20:49-07:00" level=info msg="\n[R-CD-MODEL-TOKEN] VERDICT: PASS-candidate" source=console
+
+[R-CD-MODEL-TOKEN] Summary: PASS-candidate | SHA: 6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955 | Seat: cael
+
+running (0m18.5s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_model_token ✓ [ 100% ] 1 VUs  0m18.5s/3m30s  1/1 shared iters
+[R-CD-MODEL-TOKEN] CANDIDATE REVIEW ENVELOPE: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-MODEL-TOKEN/cael/20260815T102028Z-r-cd-model-token-d796a55d/candidate-run-result.json
+[R-CD-MODEL-TOKEN] METRICS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-MODEL-TOKEN/cael/20260815T102028Z-r-cd-model-token-d796a55d/openclaw-proofs-k6.prom
+[R-CD-MODEL-TOKEN] ARTIFACTS: /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/openclaw-bootstrap/PROOFS/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/project81-k6/20260815T101121Z-cael-dgx-4077270/6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955/R-CD-MODEL-TOKEN/cael/20260815T102028Z-r-cd-model-token-d796a55d
+[R-CD-MODEL-TOKEN] COMPLETED.
+Observability check: query Grafana for run/nonce or review Tempo traces if trace ID was emitted.
+
+----------------------------------------
+Row: R-CD-MODEL-TOOL
+Manifest: /tmp/openclaw-k6-harness.n1Hv7m/tools/k6-proofs/manifests/r-cd-model-tool.json
+Scenario: scenarios/r-cd-model-tool.js
+Status: runnable
+Live Safety: k6-runnable
+[R-CD-MODEL-TOOL] RUNNING...

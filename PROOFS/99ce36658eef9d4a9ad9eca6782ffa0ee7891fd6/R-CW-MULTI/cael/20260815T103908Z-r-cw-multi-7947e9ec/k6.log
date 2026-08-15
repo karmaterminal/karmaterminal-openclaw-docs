@@ -1,0 +1,20 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CW-MULTI","sourceRow":"R-CW-MULTI","staticBoundaryVariant":false,"manifest_loaded":true,"candidateSha":"6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955","currentProofSha":"0921776150142c3fd8d517de5c73e1c94732f004","sourceEvidenceSha":"0921776150142c3fd8d517de5c73e1c94732f004","carriedFrom":"0921776150142c3fd8d517de5c73e1c94732f004","started":"2026-08-15T10:39:11.453Z","checks":{"verdictPass":false,"threeToolReceipts":false,"grantedA":false,"foldedBC":false,"journalFolded":false,"noInventedMarkers":false,"traceThreeWorkSpans":false},"source_files":{"evidence":"../../../PROOFS/0921776150142c3fd8d517de5c73e1c94732f004/R-CW-MULTI/cael-dgx/EVIDENCE.md","sourceReceipts":"../../../PROOFS/0921776150142c3fd8d517de5c73e1c94732f004/R-CW-MULTI/cael-dgx/source-tool-receipts.jsonl","flowRows":"../../../PROOFS/0921776150142c3fd8d517de5c73e1c94732f004/R-CW-MULTI/cael-dgx/flow-runs-final.json","journal":"../../../PROOFS/0921776150142c3fd8d517de5c73e1c94732f004/R-CW-MULTI/cael-dgx/journal-continuation-lines.txt","traceSummary":"../../../PROOFS/0921776150142c3fd8d517de5c73e1c94732f004/R-CW-MULTI/cael-dgx/tempo/trace-summary.jsonl"},"ended":"2026-08-15T10:39:11.453Z","duration_ms":0,"verdict":"FAIL-candidate"}
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+time="2026-08-15T03:39:11-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"

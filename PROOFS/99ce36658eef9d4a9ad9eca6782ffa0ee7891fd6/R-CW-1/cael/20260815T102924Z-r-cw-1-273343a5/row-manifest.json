@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CW-1",
+  "issue": 117,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cw-1-tool-schedule-wake",
+    "description": "Typed continue_work() tool-form schedule + wake. Fires continue_work with a reason, observes the scheduled work entry and wake event on the session.",
+    "methods": ["sessions.create", "sessions.send", "sessions.messages.subscribe"],
+    "status": "runnable",
+    "file": "r-cw-1-tool-schedule-wake.js"
+  },
+  "invocation": {
+    "tool": "continue_work",
+    "delaySeconds": 5,
+    "reason": "k6-proof-R-CW-1-{{nonce}} -- on continuation wake reply exactly CW-WOKE {{nonce}}",
+    "idempotencyKeyPrefix": "R-CW-1"
+  },
+  "expectedReceipts": [
+    { "name": "tool-invoke-accepted", "required": true, "description": "Gateway accepted the continue_work tool invocation" },
+    { "name": "continue-work-tool-result-scheduled", "required": true, "description": "Post-dispatch non-harness event includes explicit CW-SCHEDULED sentinel emitted after continue_work tool result reports scheduled" },
+    { "name": "work-woke-event", "required": true, "description": "Session wake event delivered after delaySeconds" },
+    { "name": "trace-id", "required": true, "description": "Unique safe-fingerprint correlation to a public-safe Tempo projection containing same-trace continue_work tool, continuation.work, and continuation.work.fire spans" }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CW-1",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Tool-form continue_work. PASS-candidate requires dispatch accepted + observable scheduled tool result + wake event. Detector must ignore [k6-proof-harness] prompt echoes; do not require an event name that the seat does not emit."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "tool-invoke-accepted",
+      "continue-work-tool-result-scheduled",
+      "work-woke-event",
+      "trace-id"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live continue_work schedule + wake row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore harness prompt echo; PASS requires explicit CW-SCHEDULED and CW-WOKE sentinels; the scenario embeds the CW-WOKE instruction in the continue_work reason so the wake turn has the required sentinel instruction."
+  }
+}

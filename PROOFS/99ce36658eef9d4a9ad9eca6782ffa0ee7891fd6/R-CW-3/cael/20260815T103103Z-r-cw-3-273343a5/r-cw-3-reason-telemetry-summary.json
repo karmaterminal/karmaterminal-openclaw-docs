@@ -1,0 +1,37 @@
+{
+  "row": "R-CW-3",
+  "sha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+  "seat": "cael",
+  "timestamp": "2026-08-15T10:31:22.054Z",
+  "verdict": "PARTIAL-candidate",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "evidenceJsonl": "evidence.jsonl",
+  "observability": {
+    "traceId": null,
+    "traceIdSource": null,
+    "traceJson": "missing"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "tempo-trace-json",
+      "reason-telemetry-redaction-review"
+    ],
+    "notes": [
+      "k6 proved dispatch/schedule/wake and kept the raw reason out of public evidence; the row remains partial until Tempo reason telemetry/redaction review.",
+      "No traceId emitted by gateway WS API: checked root frame (traceId/trace_id/traceparent), sessions.send response payload, and CW3-SCHEDULED event data (including nested result/state/payload). This is a gateway API limitation — the WS protocol for these methods does not expose a traceId. Keep as PARTIAL/trace-missing until trace JSON is obtained via Tempo search (query by chain.id or flow.id attributes) or trace-missing is explicitly accepted."
+    ]
+  },
+  "metrics": {
+    "duration_ms": {
+      "p(90)": 15412,
+      "p(95)": 15412,
+      "avg": 15412,
+      "min": 15412,
+      "med": 15412,
+      "max": 15412
+    },
+    "failures": 0
+  }
+}

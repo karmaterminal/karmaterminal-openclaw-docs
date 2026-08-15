@@ -1,0 +1,34 @@
+{
+  "row": "R-CW-2",
+  "sha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+  "seat": "cael",
+  "timestamp": "2026-08-15T10:31:00.605Z",
+  "verdict": "PASS-candidate",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "evidenceJsonl": "evidence.jsonl",
+  "observability": {
+    "traceId": null,
+    "traceJson": "missing"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "tempo-trace-json"
+    ],
+    "notes": [
+      "No trace_id emitted; keep PASS-candidate review-pending until trace JSON is fetched or trace-missing is explicitly accepted."
+    ]
+  },
+  "metrics": {
+    "duration_ms": {
+      "avg": 12776,
+      "min": 12776,
+      "med": 12776,
+      "max": 12776,
+      "p(90)": 12776,
+      "p(95)": 12776
+    },
+    "failures": 0
+  }
+}

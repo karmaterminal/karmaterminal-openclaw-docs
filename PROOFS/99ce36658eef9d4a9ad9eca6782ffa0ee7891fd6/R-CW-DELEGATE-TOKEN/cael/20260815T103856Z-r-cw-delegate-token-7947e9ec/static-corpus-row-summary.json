@@ -1,0 +1,16 @@
+{
+  "row": "R-CW-DELEGATE-TOKEN",
+  "sha": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+  "verdict": "FAIL-candidate",
+  "metrics": {
+    "failures": 1,
+    "duration_ms": {
+      "avg": 0,
+      "min": 0,
+      "med": 0,
+      "max": 0,
+      "p(90)": 0,
+      "p(95)": 0
+    }
+  }
+}

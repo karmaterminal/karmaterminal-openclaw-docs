@@ -1,0 +1,5 @@
+2026-08-15T03:29:29.228014-07:00 cael node[3925310]: 2026-08-15T03:29:29.227-07:00 [ws] ⇄ res ✓ sessions.send 572ms runId=R-CW-1-<redacted-nonce> conn=7af1be0d…2771 id=1-0-1786789768655-d28jro
+2026-08-15T03:29:40.950554-07:00 cael node[3925310]: 2026-08-15T03:29:40.950-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-15T03:29:40.951187-07:00 cael node[3925310]: 2026-08-15T03:29:40.950-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-08-15T03:29:40.951290-07:00 cael node[3925310]: 2026-08-15T03:29:40.951-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-15T03:29:40.951661-07:00 cael node[3925310]: 2026-08-15T03:29:40.951-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

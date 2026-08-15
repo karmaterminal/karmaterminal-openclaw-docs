@@ -3,7 +3,8 @@
 Issue binding: openclaw/openclaw#85651
 Base (exact repaired harness head): `87f6e14354544a0b29cb35d12ae9aabc7e9032cf`
 Branch: `codeagent/k6-scenario-library-consolidation`
-Head: `aadfc7c5`
+Head: branch tip (a recorded self-SHA churns on every amend; the exact head is
+in the COMPLETE report and in `git log`)
 Files changed: 53
 No PR opened. No live proof run fired. No product source, prince runtime,
 configuration, database, or continuation ref touched.

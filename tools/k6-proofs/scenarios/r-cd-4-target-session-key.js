@@ -3,9 +3,13 @@
  *
  * Repeatable mode creates disposable dispatch/target sessions so the proof does
  * not depend on the live #sprites/main lane. The dispatch session asks the
- * agent to call continue_delegate(..., targetSessionKey=<target>). The harness
- * subscribes to both sessions and verifies the delayed return/wake lands in the
- * target session and not the dispatching parent.
+ * agent to call continue_delegate(..., targetSessionKey=<target>).
+ *
+ * Silent-wake delivery authority is NOT transcript session.message /
+ * sessions.get nonce text. The shared post-run collector binds the payload-free
+ * gateway `[continuation:targeted-return] Delivered to <target> from <child>`
+ * receipt. This VU gathers structural gates (dispatch, child identity) and
+ * leaves return authority to that collector.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';
@@ -129,8 +133,11 @@ export default function () {
     return_in_parent: false,
     target_return_candidate: null,
     parent_return_candidate: null,
+    target_diagnostic_marker: null,
+    parent_diagnostic_marker: null,
     target_return_receipt: null,
     parent_return_receipt: null,
+    return_authority: 'gateway-journal-targeted-return-post-run',
     dispatch_accepted_at_ms: null,
     wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
     reason_hash: null,
@@ -151,6 +158,8 @@ export default function () {
     let returnHistoryPhase = null;
 
     function finalizeReturnReceipts() {
+      // Transcript markers are diagnostic only. Silent-wake delivery authority
+      // is the shared post-run targeted-return journal collector.
       evidence.target_return_receipt = rCd4ReturnReceipt(
         evidence.target_return_candidate,
         evidence.child_session,
@@ -159,11 +168,8 @@ export default function () {
         evidence.parent_return_candidate,
         evidence.child_session,
       );
-      evidence.return_in_target = evidence.target_return_receipt !== null;
-      evidence.return_in_parent = evidence.parent_return_receipt !== null;
-      if (evidence.return_in_target) {
-        evidence.child_completed = true;
-      }
+      evidence.return_in_target = false;
+      evidence.return_in_parent = false;
     }
 
     function observeChildSessionKey(possibleChild) {
@@ -190,15 +196,16 @@ export default function () {
     }
 
     function applyReturnObservation(observation, source) {
-      if (observation.targetCandidate) {
-        evidence.target_return_candidate = observation.targetCandidate;
+      if (observation.targetDiagnosticMarker) {
+        evidence.target_diagnostic_marker = observation.targetDiagnosticMarker;
         evidence.agent_turn_observed = true;
-        console.log(`✓ nonce-bound TARGET-RECEIVED candidate landed in target session (${source})`);
+        console.log(`ℹ diagnostic TARGET-RECEIVED marker in target session (${source}); not delivery authority`);
       }
-      if (observation.parentCandidate) {
-        evidence.parent_return_candidate = observation.parentCandidate;
-        console.warn(`✗ nonce-bound TARGET-RECEIVED candidate landed in parent session (${source})`);
+      if (observation.parentDiagnosticMarker) {
+        evidence.parent_diagnostic_marker = observation.parentDiagnosticMarker;
+        console.log(`ℹ diagnostic TARGET-RECEIVED marker in parent session (${source}); not delivery authority`);
       }
+      // Intentionally do not promote transcript markers to return receipts.
       finalizeReturnReceipts();
     }
 
@@ -435,38 +442,34 @@ export default function () {
     'nonce-bound child identity observed': () => evidence.child_session !== null,
     'nonce-bound child identity is unambiguous': () => !evidence.child_session_ambiguous,
     'nonce-bound child identity is not parent or target': () => !evidence.child_session_invalid,
-    'nonce-bound target return receipt observed': () => evidence.target_return_receipt !== null,
-    'no nonce-bound parent return receipt': () => evidence.parent_return_receipt === null,
+    // Return authority is post-run journal collector — VU must not claim PASS.
+    'vu does not claim targeted-return authority': () => evidence.target_return_receipt === null,
   });
 
-  if (!evidence.tool_accepted || !evidence.agent_turn_observed || !evidence.child_session ||
-      evidence.child_session_ambiguous || evidence.child_session_invalid ||
-      !evidence.target_return_receipt || evidence.parent_return_receipt) {
+  const structuralOk = evidence.tool_accepted && evidence.agent_turn_observed &&
+    evidence.child_session !== null && !evidence.child_session_ambiguous &&
+    !evidence.child_session_invalid;
+  // VU never emits PASS-candidate; shared post-run collector owns delivery authority.
+  if (!structuralOk) {
     failures.add(1);
   }
-
-  const passed = evidence.tool_accepted && evidence.agent_turn_observed &&
-    evidence.child_session !== null && !evidence.child_session_ambiguous &&
-    !evidence.child_session_invalid &&
-    evidence.target_return_receipt !== null &&
-    evidence.parent_return_receipt === null;
 
   console.log(`R_CD_4_EVIDENCE ${JSON.stringify(evidence)}`);
   console.log(`\n--- R-CD-4 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));
   console.log(`--- END EVIDENCE ---`);
-  console.log(`\n[R-CD-4] VERDICT: ${passed ? 'PASS-candidate' : 'PARTIAL-candidate'}`);
+  console.log(`\n[R-CD-4] VERDICT: PARTIAL-candidate`);
 }
 
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
-  const passRate = data.metrics.proof_failures?.values?.count === 0;
   const summary = {
     row: 'R-CD-4',
     sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     seat: __ENV.OPENCLAW_SEAT_NAME || 'ronan-dgx',
     timestamp,
-    verdict: passRate ? 'PASS-candidate' : 'PARTIAL-candidate',
+    // VU structural gates only; targeted-return authority is post-run.
+    verdict: 'PARTIAL-candidate',
     metrics: {
       duration_ms: data.metrics.r_cd_4_duration?.values || null,
       failures: data.metrics.proof_failures?.values?.count || 0,

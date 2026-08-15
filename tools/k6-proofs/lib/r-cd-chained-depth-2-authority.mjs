@@ -1,3 +1,31 @@
+import { createHmac } from 'node:crypto';
+import {
+  TARGETED_RETURN_INTEGRITY_ALGORITHM,
+  canonicalTargetedReturnReceipt,
+  fingerprintIdentity,
+  resolveTargetedReturnAuthority,
+} from './targeted-return-receipt.mjs';
+
+export {
+  resolveTargetedReturnAuthority,
+  fingerprintIdentity,
+};
+
+function sealPartial(receipt, signingKey) {
+  if (typeof signingKey !== 'string' || signingKey.length === 0) {
+    throw new Error('missing gateway signing key');
+  }
+  return {
+    ...receipt,
+    integrity: {
+      algorithm: TARGETED_RETURN_INTEGRITY_ALGORITHM,
+      signature: createHmac('sha256', signingKey)
+        .update(canonicalTargetedReturnReceipt(receipt))
+        .digest('hex'),
+    },
+  };
+}
+
 const HARNESS_MARKER = '[k6-proof-harness]';
 
 function escapeRegex(value) {
@@ -45,11 +73,12 @@ function hasExactGrandchildMarker(eventData, nonce) {
 }
 
 /**
- * Identify the root system-event candidate independently of the grandchild's
- * ordinary assistant output. The event must be a structured session.message
- * for the exact root and must carry the exact row marker as role=system.
+ * Diagnostic-only root marker observation.
+ *
+ * Grandchild→root silent-wake routing authority is the shared payload-free
+ * `[continuation:targeted-return]` collector, not transcript system text.
  */
-export function rCdChainRootReturnCandidate({ eventName, eventData, rootSessionKey, nonce }) {
+export function rCdChainRootDiagnosticMarker({ eventName, eventData, rootSessionKey, nonce }) {
   if (eventName !== 'session.message') return null;
   if (!rootSessionKey || !nonce) return null;
   if (directSessionKey(eventData) !== rootSessionKey) return null;
@@ -57,19 +86,150 @@ export function rCdChainRootReturnCandidate({ eventName, eventData, rootSessionK
   if (!hasExactGrandchildMarker(eventData, nonce)) return null;
   return {
     eventName,
-    rootSessionKey,
-    nonce,
-    marker: `GRANDCHILD-DONE ${nonce}`,
+    rootSessionFingerprint: fingerprintIdentity(rootSessionKey),
+    nonceFingerprint: fingerprintIdentity(nonce),
+    marker: 'GRANDCHILD-DONE',
     role: 'system',
+    authoritative: false,
   };
 }
 
-/** Finalize only when both distinct nonce-bound hop identities are known. */
-export function rCdChainRootReturnReceipt(
-  candidate,
-  { childSessionKey, grandchildSessionKey } = {},
-) {
-  if (!candidate || !childSessionKey || !grandchildSessionKey) return null;
-  if (childSessionKey === grandchildSessionKey) return null;
-  return { ...candidate, childSessionKey, grandchildSessionKey };
+/** @deprecated transcript markers are not routing authority */
+export function rCdChainRootReturnCandidate(args) {
+  return rCdChainRootDiagnosticMarker(args);
+}
+
+/**
+ * Message-marker receipts never establish root routing authority.
+ */
+export function rCdChainRootReturnReceipt(_candidate, _hops) {
+  return null;
+}
+
+/**
+ * Require two distinct nonce-bound hop identities before journal authority
+ * can finalize grandchild→root routing.
+ */
+export function rCdChainHopIdentities({ childSessionKey, grandchildSessionKey } = {}) {
+  if (!childSessionKey || !grandchildSessionKey) {
+    return { ok: false, reason: 'missing-hop' };
+  }
+  if (childSessionKey === grandchildSessionKey) {
+    return { ok: false, reason: 'indistinct-hops' };
+  }
+  return {
+    ok: true,
+    childSessionKey,
+    grandchildSessionKey,
+    childFingerprint: fingerprintIdentity(childSessionKey),
+    grandchildFingerprint: fingerprintIdentity(grandchildSessionKey),
+  };
+}
+
+export function resolveUniqueSpawnedByChild({ sessionsPayload, parentSessionKey } = {}) {
+  if (typeof parentSessionKey !== 'string' || parentSessionKey.length === 0) {
+    return {
+      uniqueChildKey: null,
+      child: null,
+      candidates: [],
+      ambiguous: false,
+      empty: true,
+      failureCategory: 'missing-parent-session',
+    };
+  }
+  const sessions = Array.isArray(sessionsPayload?.sessions)
+    ? sessionsPayload.sessions
+    : (Array.isArray(sessionsPayload) ? sessionsPayload : []);
+  const children = sessions.filter((session) => (
+    typeof session?.key === 'string'
+    && session.key.length > 0
+    && session.key !== parentSessionKey
+    && (session.spawnedBy === parentSessionKey || session.parentSessionKey === parentSessionKey)
+  ));
+  const candidates = [...new Set(children.map((session) => session.key))].sort();
+  const uniqueChildKey = candidates.length === 1 ? candidates[0] : null;
+  return {
+    uniqueChildKey,
+    child: uniqueChildKey
+      ? children.find((session) => session.key === uniqueChildKey) || null
+      : null,
+    candidates,
+    ambiguous: candidates.length > 1,
+    empty: candidates.length === 0,
+    failureCategory: candidates.length > 1
+      ? 'multiple-direct-children'
+      : (candidates.length === 0 ? 'zero-direct-children' : null),
+  };
+}
+
+/**
+ * Nested depth-2 call must request fanoutMode=tree so grandchild completion
+ * routes up the ancestry to root. Outer parent→child call stays unchanged.
+ */
+export function rCdChainNestedDelegateSpec({ nonce, mode = 'silent-wake' } = {}) {
+  if (typeof nonce !== 'string' || nonce.length === 0) return null;
+  return {
+    mode,
+    fanoutMode: 'tree',
+    task: `Grandchild nonce ${nonce}: reply exactly GRANDCHILD-DONE ${nonce} only after you arrive. Do not mutate files.`,
+  };
+}
+
+export function rCdChainPromptTemplate() {
+  return (
+    "Proof chain nonce {{nonce}}: you are depth-1. Fire your own continue_delegate(" +
+    "mode='silent-wake', fanoutMode='tree', " +
+    "task='Grandchild nonce {{nonce}}: reply exactly GRANDCHILD-DONE {{nonce}} only after you arrive. Do not mutate files.'" +
+    "). After the nested continue_delegate tool result reports scheduled, reply exactly " +
+    'CHILD-DONE {{nonce}} CHILD-DELEGATE-SCHEDULED.'
+  );
+}
+
+export function rCdChainJournalReturnAuthority(args) {
+  const hops = rCdChainHopIdentities({
+    childSessionKey: args.childSessionKey,
+    grandchildSessionKey: args.grandchildSessionKey,
+  });
+  if (!hops.ok) {
+    return sealPartial({
+      schema: 'openclaw.k6.targeted-return-receipt.v1',
+      row: 'R-CD-CHAINED-DEPTH-2',
+      authority: 'gateway-journal-targeted-return',
+      candidateOnly: true,
+      foldRequiresReview: true,
+      verdict: 'PARTIAL-candidate',
+      failureCategory: hops.reason,
+      structuralOk: false,
+      targetMatchCount: 0,
+      parentMatchCount: 0,
+      deliveryCountInWindow: 0,
+      deliveryCountTotal: 0,
+      childBound: false,
+      window: {
+        startMs: Number.isFinite(args.windowStartMs) ? args.windowStartMs : null,
+        endMs: Number.isFinite(args.windowEndMs) ? args.windowEndMs : null,
+      },
+      bindings: {
+        targetSessionFingerprint: fingerprintIdentity(args.rootSessionKey),
+        parentSessionFingerprint: fingerprintIdentity(args.childSessionKey),
+        childSessionFingerprint: fingerprintIdentity(args.grandchildSessionKey),
+        deliveryLineFingerprint: null,
+        deliveredTargetFingerprints: [],
+      },
+    }, args.signingKey);
+  }
+  // Grandchild is the delivering child; root must appear among tree targets.
+  // Intermediate depth-1 is an expected co-target under fanoutMode=tree.
+  return resolveTargetedReturnAuthority({
+    journalText: args.journalText,
+    targetSessionKey: args.rootSessionKey,
+    parentSessionKey: args.childSessionKey,
+    childSessionKey: args.grandchildSessionKey,
+    windowStartMs: args.windowStartMs,
+    windowEndMs: args.windowEndMs,
+    row: 'R-CD-CHAINED-DEPTH-2',
+    allowIntermediateAncestorTargets: true,
+    structuralOk: args.structuralOk !== false,
+    signingKey: args.signingKey,
+  });
 }

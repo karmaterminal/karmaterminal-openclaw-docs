@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
+import { validateTargetedReturnReceipt } from '../lib/targeted-return-receipt.mjs';
 
 export const CANDIDATE_RUN_RESULT_SCHEMA = 'openclaw.k6.candidate-run-result.v1';
 export const PROOF_ROW_MANIFEST_SCHEMA = 'openclaw.k6.proof-row-manifest.v1';
@@ -24,6 +25,8 @@ export const SAFE_CANDIDATE_ARTIFACTS = new Set([
   'r-cd-2-authoritative-receipt.json',
   'attempt-state.json', 'build-identity-gate.json', 'interruption-receipt.json',
   'r-cd-token-authoritative-receipt.json',
+  'targeted-return-receipt.json',
+  'targeted-return-resolution.json',
   'evidence-lines.log', 'evidence-redaction.json', 'gateway-journal.log',
   'gateway-journal-capture.json', 'gateway-journal-redaction.json',
 ]);
@@ -196,6 +199,15 @@ function authoritativeReceiptContract(rowId) {
       source: 'r-cd-token-row-scoped-resolver',
       verdictSource: 'r-cd-token-authoritative-receipt',
       validate: validateRcdTokenAuthoritativeReceipt,
+    };
+  }
+  if (rowId === 'R-CD-4' || rowId === 'R-CD-CHAINED-DEPTH-2') {
+    return {
+      file: 'targeted-return-receipt.json',
+      source: 'shared-targeted-return-collector',
+      verdictSource: 'targeted-return-receipt',
+      // Same gateway-token HMAC contract as R-CD-2/R-CD-TOKEN authoritative receipts.
+      validate: (receipt, signingKey) => validateTargetedReturnReceipt(receipt, signingKey, rowId),
     };
   }
   return null;

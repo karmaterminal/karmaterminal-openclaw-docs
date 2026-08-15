@@ -50,9 +50,9 @@
       "description": "Gateway accepted the dispatching sessions.send request that asks the agent to call continue_delegate with targetSessionKey"
     },
     {
-      "name": "target-return-event",
+      "name": "target-return-journal-receipt",
       "required": true,
-      "description": "The TARGET session receives the exact TARGET-RECEIVED {{nonce}} marker in a structured role=system session.message event"
+      "description": "Shared post-run collector binds exactly one in-window [continuation:targeted-return] Delivered to <target> from <child> receipt"
     },
     {
       "name": "child-session-identity",
@@ -62,7 +62,7 @@
     {
       "name": "no-parent-return",
       "required": true,
-      "description": "Dispatching parent session does NOT receive the delayed return/wake"
+      "description": "Shared collector finds zero matching parent targeted-return receipts for the same child/window"
     },
     {
       "name": "task-ledger-entry",
@@ -85,7 +85,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Cross-session targeted return. PASS-candidate requires dispatch acceptance, a nonce-bound child identity, the exact TARGET-RECEIVED {{nonce}} marker in a role=system TARGET event, and no matching parent receipt. Unrelated/assistant messages and nested session-key mentions fail closed."
+    "notes": "Cross-session targeted return. PASS-candidate requires dispatch acceptance, a nonce-bound child identity, and the shared payload-free gateway [continuation:targeted-return] receipt bound to exact target/parent/child/window. Transcript session.message / sessions.get TARGET-RECEIVED text is not delivery authority."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -101,11 +101,11 @@
       "target-session-created",
       "dispatch-accepted",
       "child-session-identity",
-      "target-return-event",
+      "target-return-journal-receipt",
       "no-parent-return",
       "trace-id"
     ],
     "foldRequiresReview": true,
-    "notes": "Live continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true for repeatability; explicit OPENCLAW_TARGET_SESSION_KEY still supported for reviewed manual runs. The detector requires exact row marker, structured target session, and separately nonce-bound child identity."
+    "notes": "Live continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true. Silent-wake delivery authority is the shared journal targeted-return collector, not transcript nonce text."
   }
 }

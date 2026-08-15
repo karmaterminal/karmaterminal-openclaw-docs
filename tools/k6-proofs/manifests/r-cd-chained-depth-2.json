@@ -15,17 +15,12 @@
   },
   "scenario": {
     "name": "r-cd-chained-depth-2",
-    "description": "Depth-2 delegate chain: parent→child→grandchild→return path. Three sub-tests: (1) up-tree silent-wake, (2) inter-session return, (3) echo+broadcast via fanoutMode.",
+    "description": "Depth-2 delegate chain: parent\u2192child\u2192grandchild. Nested call requests fanoutMode=tree so grandchild completion routes to root; outer parent\u2192child is unchanged. Routing authority is the shared gateway targeted-return collector.",
     "methods": [
       "sessions.create",
       "sessions.send",
       "sessions.messages.subscribe",
       "tasks.list"
-    ],
-    "subtests": [
-      "chain-1-uptree-silent-wake",
-      "chain-2-inter-session-return",
-      "chain-3-echo-broadcast"
     ],
     "status": "runnable",
     "file": "r-cd-chained-depth-2.js"
@@ -34,14 +29,14 @@
     "tool": "continue_delegate",
     "mode": "silent-wake",
     "delaySeconds": 1,
-    "promptTemplate": "Proof chain nonce {{nonce}}: you are depth-1. Fire your own continue_delegate(mode='silent-wake', task='Grandchild nonce {{nonce}}: reply exactly GRANDCHILD-DONE {{nonce}} only after you arrive. Do not mutate files.'). After the nested continue_delegate tool result reports scheduled, reply exactly CHILD-DONE {{nonce}} CHILD-DELEGATE-SCHEDULED.",
+    "promptTemplate": "Proof chain nonce {{nonce}}: you are depth-1. Fire your own continue_delegate(mode='silent-wake', fanoutMode='tree', task='Grandchild nonce {{nonce}}: reply exactly GRANDCHILD-DONE {{nonce}} only after you arrive. Do not mutate files.'). After the nested continue_delegate tool result reports scheduled, reply exactly CHILD-DONE {{nonce}} CHILD-DELEGATE-SCHEDULED.",
     "idempotencyKeyPrefix": "R-CD-CHAIN"
   },
   "expectedReceipts": [
     {
       "name": "parent-dispatch-accepted",
       "required": true,
-      "description": "Parent fires continue_delegate → accepted"
+      "description": "Parent fires continue_delegate \u2192 accepted"
     },
     {
       "name": "child-spawns",
@@ -66,7 +61,7 @@
     {
       "name": "parent-receives-chain-return",
       "required": true,
-      "description": "The exact root session receives GRANDCHILD-DONE {{nonce}} as a structured role=system return event, bound to distinct child and grandchild identities"
+      "description": "Shared post-run collector binds exactly one in-window [continuation:targeted-return] Delivered to <root> from <grandchild> receipt with zero matching parent(child-session) receipts"
     },
     {
       "name": "trace-id",
@@ -84,7 +79,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Depth-2 chain proof. PASS-candidate requires strict child/grandchild sentinels, two distinct nonce-bound hop identities, and an explicit role=system GRANDCHILD-DONE {{nonce}} receipt in the exact root session. Grandchild assistant output alone is not return authority."
+    "notes": "Depth-2 chain proof. PASS-candidate requires strict child/grandchild sentinels, two distinct nonce-bound hop identities, nested fanoutMode=tree, and the shared payload-free gateway targeted-return collector proving grandchild\u2192root routing. Transcript GRANDCHILD-DONE text is not routing authority."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -105,6 +100,6 @@
       "trace-id"
     ],
     "foldRequiresReview": true,
-    "notes": "Live depth-2 chain row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Detector ignores prompt echoes and ordinary GRANDCHILD-DONE assistant output; PASS requires distinct hop identities plus the exact root role=system return receipt."
+    "notes": "Live depth-2 chain row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Nested call must request fanoutMode=tree. Detector ignores prompt echoes and ordinary GRANDCHILD-DONE assistant/system transcript text; PASS requires distinct hop identities plus the shared journal targeted-return receipt."
   }
 }

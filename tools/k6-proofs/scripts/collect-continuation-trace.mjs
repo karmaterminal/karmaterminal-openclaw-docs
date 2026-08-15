@@ -65,9 +65,25 @@ function safeHex(value, length, label) {
   return text;
 }
 
+/**
+ * Tempo search sometimes strips one leading zero from 16-byte trace IDs,
+ * yielding 31 hex characters. Accept exactly that form by left-padding one
+ * `0`; reject every other malformed length and all-zero IDs.
+ */
+export function normalizeTempoSearchTraceId(value, label = 'search trace id') {
+  const text = String(value ?? '').toLowerCase();
+  if (/^[0-9a-f]{32}$/.test(text)) return safeHex(text, 32, label);
+  if (/^[0-9a-f]{31}$/.test(text)) return safeHex(`0${text}`, 32, label);
+  throw new Error(`invalid ${label}: ${text || '(empty)'}`);
+}
+
 function idHex(value, bytes, label) {
   const text = String(value ?? '');
   if (text.length === bytes * 2 && /^[0-9a-f]+$/i.test(text)) return safeHex(text, bytes * 2, label);
+  // Tempo search may emit a 31-hex trace id for a 16-byte value.
+  if (bytes === 16 && text.length === 31 && /^[0-9a-f]+$/i.test(text)) {
+    return normalizeTempoSearchTraceId(text, label);
+  }
   const decoded = Buffer.from(text, 'base64');
   if (decoded.length !== bytes) throw new Error(`invalid ${label} byte length`);
   return safeHex(decoded.toString('hex'), bytes * 2, label);
@@ -486,7 +502,10 @@ async function main() {
       throw new Error(`trace correlation is ambiguous: ${candidates.length} Tempo traces matched`);
     }
     if (candidates.length === 1) {
-      traceId = safeHex(candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id, 32, 'search trace id');
+      traceId = normalizeTempoSearchTraceId(
+        candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id,
+        'search trace id',
+      );
       trace = await fetchTrace(args.tempoUrl, traceId);
       try {
         topology = contract.kind === 'continuation'

@@ -4,7 +4,14 @@ import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
-import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
+import { childSessionKeysForRow } from '../lib/row-child-correlation.mjs';
+import {
+  createModelToolDispatchGate,
+  mergeModelToolChildAuthorityEvidence,
+  parentReturnContainsNonce,
+  resolveModelToolChildAuthority,
+  sessionKeysFromListPayload,
+} from '../lib/r-cd-model-tool-authority.mjs';
 
 export const options = {
   scenarios: { r_cd_model_tool: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '210s' } },
@@ -22,16 +29,11 @@ const DEFAULTS = {
   requestedModel: 'openai/gpt-5.6-luna',
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
+const CHILD_AUTHORITY_STABILITY_MS = 30000;
 
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
 function normalizeModel(value) { return String(value || '').trim().replace(/[.,;:]+$/, ''); }
 function escapeRegex(value) { return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-function modelFromSessionMetadata(session) {
-  const model = normalizeModel(session?.model);
-  const provider = normalizeModel(session?.modelProvider || session?.provider);
-  if (!model) return null;
-  return model.includes('/') ? model : (provider ? `${provider}/${model}` : model);
-}
 let finalEvidence = null;
 
 export default function() {
@@ -47,6 +49,12 @@ export default function() {
   const delaySeconds = Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds);
   const idPrefix = inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix;
   if (!token) { console.error('OPENCLAW_GATEWAY_TOKEN is required'); failures.add(1); return; }
+  // Disposable parent is mandatory so spawnedBy set-diff is unambiguous.
+  if (!createDisposableSession) {
+    console.error('OPENCLAW_CREATE_DISPOSABLE_SESSION=true is required for R-CD-MODEL-TOOL');
+    failures.add(1);
+    return;
+  }
   if (manifest) { const errors = validateManifest(manifest); if (errors.length) console.warn('Manifest validation warnings: ' + errors.join('; ')); }
 
   const evidence = {
@@ -58,17 +66,33 @@ export default function() {
     sessionKey,
     session_created: false,
     created_session_key: null,
+    disposable_parent_required: true,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
     requested_model_byte: requestedModel,
     requested_model_source: 'continue_delegate.model parameter',
+    pre_spawned_by_keys: [],
+    post_spawned_by_keys: [],
+    pre_spawned_by_captured: false,
+    post_spawned_by_captured: false,
+    spawned_by_diff_empty: false,
+    spawned_by_diff_ambiguous: false,
     dispatch_accepted: false,
+    dispatch_accepted_at_ms: null,
     parent_scheduled_sentinel: false,
+    parent_return_nonce_bound: false,
     child_session_observed: false,
     child_session_key: null,
+    event_child_session_key: null,
+    event_child_session_observed: false,
+    child_identity_conflict: false,
     child_session_metadata_observed: false,
     child_metadata_model_byte: null,
     child_metadata_model_source: null,
+    child_authority_source: null,
+    child_authority_confirmations: 0,
+    child_authority_confirmed_at_ms: null,
+    child_authority_stable: false,
     child_self_reported_model: null,
     child_self_reported_model_source: null,
     child_session_metadata: null,
@@ -83,42 +107,106 @@ export default function() {
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    const dispatchGate = createModelToolDispatchGate();
+    const listRequestPhases = {};
+    let postListPolls = 0;
+    let parentHistoryPolls = 0;
+
+    function requestSpawnedByList(phase) {
+      evidence.child_metadata_requested = true;
+      const requestId = tracker.send(socket, 'sessions.list', { spawnedBy: sessionKey, limit: 100 });
+      listRequestPhases[requestId] = phase;
+    }
+
+    function requestParentHistory() {
+      tracker.send(socket, 'sessions.get', { key: sessionKey, limit: 200 });
+    }
+
+    function applyChildAuthority(payload) {
+      const authority = resolveModelToolChildAuthority({
+        preKeys: evidence.pre_spawned_by_keys,
+        postKeys: sessionKeysFromListPayload(payload),
+        sessionsPayload: payload,
+        requestedModel,
+        eventChildSessionKey: evidence.event_child_session_key,
+        parentSessionKey: sessionKey,
+      });
+      evidence.post_spawned_by_keys = sessionKeysFromListPayload(payload);
+      evidence.post_spawned_by_captured = true;
+      Object.assign(evidence, mergeModelToolChildAuthorityEvidence(evidence, authority));
+      if (authority.childSessionKey && authority.childMetadataModelByte) {
+        evidence.child_authority_confirmations += 1;
+        evidence.child_authority_confirmed_at_ms = Date.now();
+        evidence.child_authority_stable = (
+          evidence.child_identity_conflict !== true
+          && evidence.spawned_by_diff_ambiguous !== true
+          && evidence.dispatch_accepted_at_ms !== null
+          && evidence.child_authority_confirmed_at_ms - evidence.dispatch_accepted_at_ms
+            >= CHILD_AUTHORITY_STABILITY_MS
+        );
+        console.log('✓ authoritative child metadata bound via ' + authority.authoritySource);
+      } else if (!evidence.child_session_metadata_observed) {
+        console.warn('✗ child metadata unresolved: ' + authority.failureCategory);
+      }
+    }
+
+    // Sole dispatch: armed only by a successful pre-baseline response (once).
+    function dispatchModelToolTurn() {
+      const childTask =
+        'Proof nonce ' + rowNonce + ': read your runtime context/current model identity. ' +
+        'Reply exactly MODEL-TOOL-CHILD ' + rowNonce + ' MODEL <provider/model>. ' +
+        'Use UNKNOWN only if no runtime model identity is available. Do not mutate files. Do not post externally.';
+      const instruction =
+        HARNESS_MARKER + ' R-CD-MODEL-TOOL nonce ' + rowNonce + '. ' +
+        'Call continue_delegate with task=' + JSON.stringify(childTask) +
+        ', mode="normal", delaySeconds=' + delaySeconds +
+        ', model=' + JSON.stringify(requestedModel) + '. ' +
+        'After the continue_delegate tool result reports scheduled, reply exactly ' +
+        'MODEL-TOOL-PARENT-SCHEDULED ' + rowNonce + ' REQUESTED ' + requestedModel + '. No other action.';
+      tracker.send(socket, 'sessions.send', {
+        key: sessionKey,
+        message: instruction,
+        idempotencyKey: idPrefix + '-DISPATCH-' + rowNonce,
+      });
+    }
+
     function start(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
+      // Pre-dispatch baseline: server-filtered children of this disposable parent.
+      // Dispatch is NOT on a fixed gap after this request — it fires from the
+      // successful pre response via createModelToolDispatchGate (exactly once).
+      socket.setTimeout(() => requestSpawnedByList('pre'), 300);
       socket.setTimeout(() => {
-        // Deliberately do NOT include requestedModel in the child task. The child
-        // must report its own runtime identity instead of echoing the request.
-        const childTask =
-          'Proof nonce ' + rowNonce + ': read your runtime context/current model identity. ' +
-          'Reply exactly MODEL-TOOL-CHILD ' + rowNonce + ' MODEL <provider/model>. ' +
-          'Use UNKNOWN only if no runtime model identity is available. Do not mutate files. Do not post externally.';
-        const instruction =
-          HARNESS_MARKER + ' R-CD-MODEL-TOOL nonce ' + rowNonce + '. ' +
-          'Call continue_delegate with task=' + JSON.stringify(childTask) +
-          ', mode="normal", delaySeconds=' + delaySeconds +
-          ', model=' + JSON.stringify(requestedModel) + '. ' +
-          'After the continue_delegate tool result reports scheduled, reply exactly ' +
-          'MODEL-TOOL-PARENT-SCHEDULED ' + rowNonce + ' REQUESTED ' + requestedModel + '. No other action.';
-        tracker.send(socket, 'sessions.send', {
-          key: sessionKey,
-          message: instruction,
-          idempotencyKey: idPrefix + '-DISPATCH-' + rowNonce,
-        });
-      }, 500);
+        const watchdog = dispatchGate.onBaselineWatchdog();
+        if (watchdog.action === 'fail-closed') {
+          console.error('✗ pre-dispatch sessions.list {spawnedBy} baseline missing');
+          failures.add(1);
+          socket.close();
+        }
+      }, 5000);
+      // Independent post-dispatch polls (not event-correlation gated).
+      socket.setTimeout(() => { if (evidence.dispatch_accepted) requestSpawnedByList('post'); }, 4000);
+      socket.setTimeout(() => { if (evidence.dispatch_accepted) requestSpawnedByList('post'); }, 12000);
+      socket.setTimeout(() => { if (evidence.dispatch_accepted) requestSpawnedByList('post'); }, 30000);
+      socket.setTimeout(() => { if (evidence.dispatch_accepted) requestSpawnedByList('post'); }, 60000);
+      socket.setTimeout(() => { if (evidence.dispatch_accepted) requestParentHistory(); }, 8000);
+      socket.setTimeout(() => { if (evidence.dispatch_accepted) requestParentHistory(); }, 25000);
+      socket.setTimeout(() => { if (evidence.dispatch_accepted) requestParentHistory(); }, 70000);
       socket.setTimeout(() => socket.close(), 180000);
     }
     socket.on('open', () => {
       socket.send(connectFrame(token));
-      if (createDisposableSession) {
-        socket.setTimeout(() => {
-          const key = ('r-cd-model-tool-' + rowNonce).toLowerCase().replace(/[^a-z0-9-]/g, '-');
-          tracker.send(socket, 'sessions.create', { key, label: 'k6 R-CD-MODEL-TOOL ' + rowNonce });
-        }, 250);
-      } else socket.setTimeout(() => start(socket), 500);
+      socket.setTimeout(() => {
+        const key = ('r-cd-model-tool-' + rowNonce).toLowerCase().replace(/[^a-z0-9-]/g, '-');
+        tracker.send(socket, 'sessions.create', { key, label: 'k6 R-CD-MODEL-TOOL ' + rowNonce });
+      }, 250);
     });
     socket.on('message', (raw) => {
       try {
-        const msg = JSON.parse(raw); const classified = tracker.classify(msg);
+        const msg = JSON.parse(raw);
+        const listPhase = msg?.id ? listRequestPhases[msg.id] || null : null;
+        if (msg?.id) delete listRequestPhases[msg.id];
+        const classified = tracker.classify(msg);
         evidence.redacted_events.push({
           ts: Date.now(),
           kind: classified.kind,
@@ -140,65 +228,107 @@ export default function() {
         if (classified.kind === 'response' && classified.method === 'sessions.send') {
           if (classified.ok) {
             evidence.dispatch_accepted = true;
+            evidence.dispatch_accepted_at_ms = Date.now();
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — explicit model delegate turn triggered');
           } else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); }
         }
         if (classified.kind === 'response' && classified.method === 'sessions.list') {
-          const sessions = Array.isArray(classified.payload?.sessions) ? classified.payload.sessions : [];
-          const child = sessions.find((session) => session?.key === evidence.child_session_key);
-          if (child) {
-            evidence.child_session_observed = true;
-            evidence.child_session_metadata_observed = true;
-            evidence.child_metadata_model_byte = modelFromSessionMetadata(child);
-            evidence.child_metadata_model_source = 'gateway sessions.list persisted provider/model metadata';
-            evidence.child_session_metadata = {
-              key: child.key || null,
-              provider: child.modelProvider || child.provider || null,
-              model: child.model || null,
-              modelSelectionLocked: child.modelSelectionLocked === true,
-            };
-            evidence.model_matches = evidence.child_metadata_model_byte === requestedModel;
-            if (!evidence.model_matches) {
-              evidence.model_classification_reason =
-                'requested model does not match authoritative child-session metadata';
+          if (listPhase === 'pre') {
+            // Dispatch exactly once from the successful pre-baseline response.
+            // A late baseline (e.g. RPC >500ms) still arms dispatch; a fixed
+            // +800ms timer must never be the sole dispatch trigger.
+            if (classified.ok) {
+              evidence.pre_spawned_by_keys = sessionKeysFromListPayload(classified.payload || {});
+              evidence.pre_spawned_by_captured = true;
+              console.log('✓ pre-dispatch spawnedBy baseline captured (' + evidence.pre_spawned_by_keys.length + ')');
+              const gateResult = dispatchGate.onPreBaselineCaptured();
+              if (gateResult.action === 'dispatch') {
+                console.log('✓ baseline-gated model-tool dispatch armed (once)');
+                dispatchModelToolTurn();
+              }
+            } else {
+              console.error('✗ pre-dispatch sessions.list rejected: ' + JSON.stringify(classified.error));
+              // Leave pre_spawned_by_captured false so the watchdog fail-closes.
             }
-            console.log('✓ child session metadata observed');
-          } else if (!classified.ok) {
-            evidence.model_classification_reason =
-              'gateway sessions.list unavailable while resolving child session metadata';
+          } else if (listPhase === 'post') {
+            postListPolls += 1;
+            if (classified.ok) applyChildAuthority(classified.payload || {});
+            else {
+              evidence.model_classification_reason =
+                'gateway sessions.list unavailable while resolving child session metadata';
+            }
+          }
+        }
+        if (classified.kind === 'response' && classified.method === 'sessions.get') {
+          parentHistoryPolls += 1;
+          if (classified.ok) {
+            const messages = Array.isArray(classified.payload?.messages) ? classified.payload.messages : [];
+            if (parentReturnContainsNonce(messages, rowNonce)) {
+              evidence.parent_return_nonce_bound = true;
+              console.log('✓ parent sessions.get nonce-bound normal-mode return observed');
+            }
           }
         }
         if (classified.kind === 'event') {
           const eventData = classified.data || {}; const eventStr = JSON.stringify(eventData);
           if (eventData.traceId) evidence.trace_id = eventData.traceId;
-          const eventBelongsToRow = eventStr.includes(rowNonce);
-          const observedChildSessionKey = childSessionKeyForRow(eventData, rowNonce);
+          const observedChildSessionKeys = childSessionKeysForRow(eventData, rowNonce);
+          if (observedChildSessionKeys.length > 1) {
+            evidence.child_identity_conflict = true;
+            evidence.spawned_by_diff_ambiguous = true;
+            evidence.model_matches = false;
+            evidence.model_classification_reason =
+              'multiple nonce-bound child-session keys observed in one event';
+          }
+          const observedChildSessionKey = observedChildSessionKeys.length === 1
+            ? observedChildSessionKeys[0]
+            : null;
           if (observedChildSessionKey) {
-            evidence.child_session_observed = true;
-            evidence.child_session_key = observedChildSessionKey;
-            if (!evidence.child_metadata_requested) {
-              evidence.child_metadata_requested = true;
-              socket.setTimeout(() => tracker.send(socket, 'sessions.list', { limit: 100 }), 500);
+            evidence.event_child_session_observed = true;
+            if (!evidence.event_child_session_key) {
+              evidence.event_child_session_key = observedChildSessionKey;
+              console.log('✓ event-correlated child session key observed');
+              if (!evidence.child_session_metadata_observed) requestSpawnedByList('post');
+            } else if (evidence.event_child_session_key !== observedChildSessionKey) {
+              evidence.child_identity_conflict = true;
+              evidence.spawned_by_diff_ambiguous = true;
+              evidence.model_classification_reason =
+                'multiple event-correlated child-session keys observed';
+            }
+            if (evidence.child_session_key &&
+                evidence.child_session_key !== observedChildSessionKey) {
+              evidence.child_identity_conflict = true;
+              evidence.model_matches = false;
+              evidence.model_classification_reason =
+                'event-correlated child differs from authoritative metadata child';
             }
           }
-          if (eventBelongsToRow && !eventStr.includes(HARNESS_MARKER)) {
+          // Event correlation may observe child text, but cannot establish model equality
+          // without the matching sessions.list provider/model metadata row.
+          if (eventStr.includes(rowNonce) && !eventStr.includes(HARNESS_MARKER)) {
             if (eventStr.includes('MODEL-TOOL-PARENT-SCHEDULED')) {
               evidence.parent_scheduled_sentinel = true;
               console.log('✓ parent scheduled sentinel observed');
             }
             const childMatch = eventStr.match(new RegExp('MODEL-TOOL-CHILD\\s+' + escapeRegex(rowNonce) + '\\s+MODEL\\s+([A-Za-z0-9_.\\/-]+)'));
             if (childMatch) {
-              evidence.child_session_observed = true;
               evidence.return_payload = true;
               evidence.child_self_reported_model = normalizeModel(childMatch[1]);
               evidence.child_self_reported_model_source = 'auxiliary child runtime-context self-report (not used for equality)';
-              console.log('✓ MODEL-TOOL-CHILD return payload observed');
+              console.log('✓ MODEL-TOOL-CHILD return payload observed (auxiliary only)');
             }
           }
         }
-        if (evidence.dispatch_accepted && evidence.child_session_metadata_observed && evidence.return_payload) {
-          console.log('R-CD-MODEL-TOOL return gathered, closing early');
+        const childIdentityConsistent = (
+          (!evidence.event_child_session_observed
+            || evidence.event_child_session_key === evidence.child_session_key)
+          && evidence.child_identity_conflict !== true
+        );
+        if (evidence.dispatch_accepted && evidence.child_session_metadata_observed &&
+            evidence.parent_return_nonce_bound && childIdentityConsistent &&
+            evidence.child_authority_stable === true) {
+          console.log('R-CD-MODEL-TOOL authority gathered, closing early');
           socket.close();
         }
       } catch (e) { console.warn('parse error: ' + e); }
@@ -208,14 +338,30 @@ export default function() {
 
   evidence.ended = new Date().toISOString(); evidence.duration_ms = Date.now() - started; duration.add(evidence.duration_ms);
   finalEvidence = evidence;
-  const complete = (!createDisposableSession || evidence.session_created) && evidence.dispatch_accepted && evidence.parent_scheduled_sentinel && evidence.child_session_metadata_observed && evidence.child_metadata_model_byte && evidence.return_payload;
+  // Child self-report (return_payload) is auxiliary and never required for PASS.
+  const complete = evidence.session_created && evidence.dispatch_accepted &&
+    evidence.pre_spawned_by_captured && evidence.post_spawned_by_captured &&
+    evidence.child_session_metadata_observed && evidence.child_metadata_model_byte &&
+    (!evidence.event_child_session_observed ||
+      evidence.event_child_session_key === evidence.child_session_key) &&
+    evidence.child_identity_conflict !== true &&
+    evidence.child_authority_stable === true &&
+    evidence.parent_return_nonce_bound &&
+    !evidence.spawned_by_diff_ambiguous && !evidence.spawned_by_diff_empty;
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
+    'disposable parent created': () => evidence.session_created,
+    'pre spawnedBy baseline': () => evidence.pre_spawned_by_captured,
     'dispatch accepted': () => evidence.dispatch_accepted,
-    'parent scheduled sentinel': () => evidence.parent_scheduled_sentinel,
-    'child session observed': () => evidence.child_session_observed,
+    'post spawnedBy poll': () => evidence.post_spawned_by_captured,
+    'exactly one new child': () => !!evidence.child_session_key && !evidence.spawned_by_diff_ambiguous,
+    'event identity agrees with metadata when observed': () =>
+      (!evidence.event_child_session_observed ||
+        evidence.event_child_session_key === evidence.child_session_key) &&
+      evidence.child_identity_conflict !== true,
     'authoritative child-session model byte': () => !!evidence.child_metadata_model_byte,
-    'return payload': () => evidence.return_payload,
+    'child authority stable through 30s poll': () => evidence.child_authority_stable === true,
+    'parent nonce-bound return': () => evidence.parent_return_nonce_bound,
     'requested model observed': () => evidence.model_matches,
   });
   const authoritativeMismatch =
@@ -232,7 +378,15 @@ export default function() {
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
   const failuresCount = data.metrics.proof_failures?.values?.count || 0;
-  const complete = !!(finalEvidence?.dispatch_accepted && finalEvidence?.parent_scheduled_sentinel && finalEvidence?.child_session_metadata_observed && finalEvidence?.child_metadata_model_byte && finalEvidence?.return_payload);
+  const complete = !!(finalEvidence?.session_created && finalEvidence?.dispatch_accepted &&
+    finalEvidence?.pre_spawned_by_captured && finalEvidence?.post_spawned_by_captured &&
+    finalEvidence?.child_session_metadata_observed && finalEvidence?.child_metadata_model_byte &&
+    (!finalEvidence?.event_child_session_observed ||
+      finalEvidence?.event_child_session_key === finalEvidence?.child_session_key) &&
+    finalEvidence?.child_identity_conflict !== true &&
+    finalEvidence?.child_authority_stable === true &&
+    finalEvidence?.parent_return_nonce_bound &&
+    !finalEvidence?.spawned_by_diff_ambiguous && !finalEvidence?.spawned_by_diff_empty);
   const authoritativeMismatch =
     finalEvidence?.child_session_metadata_observed &&
     !!finalEvidence?.child_metadata_model_byte &&

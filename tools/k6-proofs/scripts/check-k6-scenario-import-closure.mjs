@@ -35,17 +35,36 @@ const NODE_ONLY_GLOBALS = [
 const GLOBAL_THIS_ESCAPE_RE = /\bglobalThis\s*\.\s*(process|Buffer|require|module|exports)\b/gu;
 
 /**
- * Blank out the *contents* of string literals, template literals and comments
- * so identifier and call scans cannot fire on prose, prompts, or marker text.
+ * Blank out the *contents* of string literals, template literals, regex
+ * literals and comments so identifier and call scans cannot fire on prose,
+ * prompts, or marker text.
  *
  * Delimiters are preserved: a scan that needs to know "was the next token a
  * quote?" — such as literal-vs-computed dynamic import — must still see them.
+ *
+ * Regex literals have to be recognized, not skipped. A regex containing an odd
+ * number of quote characters (`/'/g`) would otherwise put the scanner into
+ * string mode and blank the rest of the file, silently hiding every later
+ * `require`, computed import, and Node global from the scan — a guard that
+ * fails *open* is worse than no guard.
+ *
+ * Returns `{ code, unterminated }`. An unterminated literal means the scan
+ * cannot be trusted, and the caller fails closed rather than reporting a clean
+ * file it never really read.
  */
 function stripLiterals(source) {
   let out = '';
   let i = 0;
   const n = source.length;
+  let unterminated = false;
+  // Last significant character of emitted code, used to tell a regex literal
+  // from a division operator.
+  let lastSignificant = '';
   const blank = (text) => text.replace(/[^\n]/gu, ' ');
+  const REGEX_PRECEDERS = new Set(['', '(', ',', '=', ':', '[', '!', '&', '|', '?', '{', ';', '+', '-', '*', '%', '~', '^', '<', '>']);
+  const REGEX_KEYWORDS = /(?:^|[^\w$])(?:return|typeof|case|in|of|new|delete|void|instanceof|do|else|yield|await)$/u;
+  const regexPosition = () => REGEX_PRECEDERS.has(lastSignificant) || REGEX_KEYWORDS.test(out);
+
   while (i < n) {
     const c = source[i];
     if (c === '/' && source[i + 1] === '/') {
@@ -57,10 +76,31 @@ function stripLiterals(source) {
     }
     if (c === '/' && source[i + 1] === '*') {
       const end = source.indexOf('*/', i + 2);
-      const stop = end === -1 ? n : end + 2;
-      out += blank(source.slice(i, stop));
-      i = stop;
+      if (end === -1) { out += blank(source.slice(i)); i = n; unterminated = true; continue; }
+      out += blank(source.slice(i, end + 2));
+      i = end + 2;
       continue;
+    }
+    if (c === '/' && regexPosition()) {
+      let j = i + 1;
+      let inClass = false;
+      let closed = false;
+      while (j < n) {
+        const d = source[j];
+        if (d === '\\') { j += 2; continue; }
+        if (d === '\n') break;
+        if (d === '[') inClass = true;
+        else if (d === ']') inClass = false;
+        else if (d === '/' && !inClass) { closed = true; break; }
+        j += 1;
+      }
+      if (closed) {
+        out += `/${blank(source.slice(i + 1, j))}/`;
+        i = j + 1;
+        lastSignificant = '/';
+        continue;
+      }
+      // Not a terminated regex after all; fall through and treat as an operator.
     }
     if (c === '"' || c === "'" || c === '`') {
       const quote = c;
@@ -74,12 +114,15 @@ function stripLiterals(source) {
       const contentEnd = Math.min(j, n);
       out += quote + blank(source.slice(i + 1, contentEnd)) + (closed ? quote : '');
       i = closed ? contentEnd + 1 : contentEnd;
+      if (!closed) unterminated = true;
+      lastSignificant = quote;
       continue;
     }
     out += c;
+    if (c.trim()) lastSignificant = c;
     i += 1;
   }
-  return out;
+  return { code: out, unterminated };
 }
 
 function lineNumber(source, index) {
@@ -139,7 +182,11 @@ function collectScenarioClosure(scenarioFile) {
     visited.add(file);
 
     const source = fs.readFileSync(file, 'utf8');
-    const code = stripLiterals(source);
+    const { code, unterminated } = stripLiterals(source);
+    if (unterminated) {
+      // The scan could not be completed, so a clean result would be a lie.
+      violations.push(violation(file, 1, 'unterminated-literal', 'unscannable-source'));
+    }
 
     for (const match of code.matchAll(COMPUTED_IMPORT_RE)) {
       violations.push(violation(file, lineNumber(code, match.index), 'import(<computed>)', 'computed-dynamic-import'));

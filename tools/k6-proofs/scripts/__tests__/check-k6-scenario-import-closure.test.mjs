@@ -196,3 +196,74 @@ test('k6 import-closure guard does not fire on prose, prompts, or member names',
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('a quote-bearing regex literal cannot blind the guard to a later violation', async () => {
+  // `/'/g` puts a naive scanner into string mode and blanks the rest of the
+  // file, so every later require/import/global silently disappears from the
+  // scan. A guard that fails open is worse than no guard.
+  const root = await fixtureRepo({
+    'scenarios/r-regex.js': [
+      "import { helper } from '../lib/regex-helper.mjs';",
+      'export default function () { return helper; }',
+    ].join('\n'),
+    'lib/regex-helper.mjs': [
+      "const APOSTROPHE = /'/g;",
+      "const QUOTED = /\"status\":\"scheduled\"/g;",
+      "const cleaned = 'x'.replace(APOSTROPHE, '').replace(QUOTED, '');",
+      'const seat = process.env.OPENCLAW_SEAT_NAME;',
+      'export const helper = cleaned + seat;',
+    ].join('\n'),
+  });
+  try {
+    const result = run(root);
+    assert.equal(result.status, 1);
+    const violation = result.report.violations.find((entry) => entry.reason === 'node-only-global');
+    assert.ok(violation, JSON.stringify(result.report.violations));
+    assert.equal(violation.specifier, 'process');
+    assert.equal(violation.line, 4);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('regex contents are still blanked, so a pattern cannot forge a violation', async () => {
+  const root = await fixtureRepo({
+    'scenarios/r-regex-clean.js': [
+      "import { matcher } from '../lib/regex-clean.mjs';",
+      'export default function () { return matcher; }',
+    ].join('\n'),
+    'lib/regex-clean.mjs': [
+      'const SESSION_KEY = /[^a-z0-9-]/g;',
+      'const MENTIONS_NODE = /process|Buffer|require\\(|__dirname/u;',
+      'const DIVISION = (a, b) => a / b / 2;',
+      'export const matcher = { SESSION_KEY, MENTIONS_NODE, DIVISION };',
+    ].join('\n'),
+  });
+  try {
+    const result = run(root);
+    assert.equal(result.status, 0, JSON.stringify(result.report.violations));
+    assert.deepEqual(result.report.violations, []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('an unterminated literal fails closed instead of reporting a clean scan', async () => {
+  const root = await fixtureRepo({
+    'scenarios/r-unterminated.js': [
+      "import { broken } from '../lib/unterminated.mjs';",
+      'export default function () { return broken; }',
+    ].join('\n'),
+    // Deliberately malformed: the scanner must refuse to certify what it could
+    // not finish reading.
+    'lib/unterminated.mjs': "export const broken = 'never closed;\n",
+  });
+  try {
+    const result = run(root);
+    assert.equal(result.status, 1);
+    const violation = result.report.violations.find((entry) => entry.reason === 'unscannable-source');
+    assert.ok(violation, JSON.stringify(result.report.violations));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

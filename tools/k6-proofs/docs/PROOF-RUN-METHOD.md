@@ -48,7 +48,7 @@ node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
 node tools/k6-proofs/scripts/validate-corpus.mjs --current
 ```
 
-The three catalog validators share one repository-root contract (#495), so the
+The four catalog validators share one repository-root contract (#495), so the
 same commands produce identical results from `tools/k6-proofs` or
 `tools/k6-proofs/scripts`. Use `--repo-root <dir>` or `OPENCLAW_PROOFS_REPO_ROOT`
 to point them at an explicit checkout. `run-proofs.sh` runs all three as a

@@ -704,7 +704,7 @@ explicit contract error, never a silently empty catalog.
 
 ### Immutable harness identity for live matrices (#496)
 
-`scripts/run-proofs.sh` runs the three catalog validators as a preflight before
+`scripts/run-proofs.sh` runs the four catalog validators as a preflight before
 any row executes. The validators run with the gateway token and session material
 stripped from their environment (unproven harness code must never see live
 credentials), and their captured output is scrubbed of local filesystem
@@ -748,7 +748,7 @@ catalog is parsed before it is validated:
    operator's checkout. The re-executed copy proves it really is the snapshot's
    own runner, that the snapshot is a distinct tree from the checkout, and that
    the snapshot matches the approved ref, before trusting any of it.
-3. **catalog preflight** — the three validators run from the snapshot under
+3. **catalog preflight** — the four validators run from the snapshot under
    `env -i` with a minimal allowlist.
 4. **row selection and contract binding** — `all` expansion and the per-row
    manifest/scenario digest freeze, on a catalog the validators have approved. A

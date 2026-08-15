@@ -58,6 +58,7 @@ test('k6 import-closure guard permits k6 modules and transitive relative helpers
 test('k6 import-closure guard rejects direct and transitive Node builtins', async () => {
   const root = await fixtureRepo({
     'scenarios/r-direct.js': "import crypto from 'node:crypto';\nexport default function () {}\n",
+    'scenarios/r-dynamic.js': "export default async function () { return import('node:os'); }\n",
     'scenarios/r-transitive.js': "import '../lib/node-helper.mjs';\nexport default function () {}\n",
     'lib/node-helper.mjs': "import { readFile } from 'fs/promises';\nexport { readFile };\n",
   });
@@ -77,6 +78,12 @@ test('k6 import-closure guard rejects direct and transitive Node builtins', asyn
           scenario: 'tools/k6-proofs/scenarios/r-direct.js',
           file: 'tools/k6-proofs/scenarios/r-direct.js',
           specifier: 'node:crypto',
+          reason: 'node-builtin-import',
+        },
+        {
+          scenario: 'tools/k6-proofs/scenarios/r-dynamic.js',
+          file: 'tools/k6-proofs/scenarios/r-dynamic.js',
+          specifier: 'node:os',
           reason: 'node-builtin-import',
         },
         {

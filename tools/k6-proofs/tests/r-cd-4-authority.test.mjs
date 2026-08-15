@@ -6,7 +6,6 @@ import {
   rCd4ChildAuthority,
   rCd4DiagnosticMarkerCandidate,
   rCd4HistoryObservation,
-  rCd4JournalReturnAuthority,
   rCd4ReturnCandidate,
   rCd4ReturnReceipt,
   rCd4SessionMessageObservation,
@@ -14,6 +13,7 @@ import {
   rCd4TaskObservation,
   rCd4TaskPrompt,
 } from '../lib/r-cd-4-authority.mjs';
+import { rCd4JournalReturnAuthority } from '../lib/r-cd-4-return-authority.mjs';
 
 const nonce = 'R-CD-4-EXACT-NONCE';
 const target = 'agent:main:r-cd-4-target';

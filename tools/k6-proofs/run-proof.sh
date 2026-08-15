@@ -13,6 +13,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCENARIOS_DIR="${SCRIPT_DIR}/scenarios"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 SCENARIO="${1:?Usage: ./run-proof.sh <scenario-name> [k6 args]}"
 shift || true
@@ -25,6 +26,8 @@ if [[ ! -f "$SCENARIO_FILE" ]]; then
   ls "${SCENARIOS_DIR}"/*.js 2>/dev/null | xargs -I{} basename {} .js
   exit 1
 fi
+
+node "${SCRIPT_DIR}/scripts/check-k6-scenario-import-closure.mjs" --repo-root "$REPO_ROOT"
 
 LOCK_FD=""
 if [[ -n "${OPENCLAW_ROW_MANIFEST:-}" ]]; then

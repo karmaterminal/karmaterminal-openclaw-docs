@@ -49,6 +49,11 @@ export const options = {
 const failures = new Counter('proof_failures');
 const chainDuration = new Trend('r_cd_chain_duration');
 
+function fingerprintIdentity(value) {
+  if (typeof value !== 'string' || value.length === 0) return null;
+  return crypto.sha256(value, 'hex').slice(0, 16);
+}
+
 const manifest = loadManifestFromEnv();
 const DEFAULTS = {
   sessionKey: 'main',
@@ -382,6 +387,7 @@ export default function () {
                   eventData,
                   rootSessionKey: sessionKey,
                   nonce: chainNonce,
+                  fingerprintIdentity,
                 });
                 if (rootDiagnostic) {
                   evidence.root_diagnostic_marker = rootDiagnostic;
@@ -398,6 +404,7 @@ export default function () {
         const hops = rCdChainHopIdentities({
           childSessionKey: evidence.child_session,
           grandchildSessionKey: evidence.grandchild_session,
+          fingerprintIdentity,
         });
         if (evidence.parent_dispatch_accepted &&
             evidence.child_done_sentinel &&
@@ -431,6 +438,7 @@ export default function () {
   const hops = rCdChainHopIdentities({
     childSessionKey: evidence.child_session,
     grandchildSessionKey: evidence.grandchild_session,
+    fingerprintIdentity,
   });
   check(null, {
     'parent dispatch accepted': () => evidence.parent_dispatch_accepted,

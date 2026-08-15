@@ -19,7 +19,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
-const CHECKS = ['check-manifest-scenarios.mjs', 'check-scenario-alignment.mjs', 'check-proof-row-manifests.mjs'];
+const CHECKS = [
+  'check-manifest-scenarios.mjs',
+  'check-scenario-alignment.mjs',
+  'check-k6-scenario-import-closure.mjs',
+  'check-proof-row-manifests.mjs',
+];
 const CATALOG_READERS = [...CHECKS, 'list-runnable-rows.mjs'];
 const scriptPath = (name) => path.join(repoRoot, 'tools/k6-proofs/scripts', name);
 const CORPUS_SHA = '0123456789abcdef0123456789abcdef01234567';

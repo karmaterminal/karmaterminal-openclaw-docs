@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import {
   rCdChainHopIdentities,
-  rCdChainJournalReturnAuthority,
   rCdChainNestedDelegateSpec,
   rCdChainPromptTemplate,
   rCdChainRootReturnCandidate,
   rCdChainRootReturnReceipt,
   resolveUniqueSpawnedByChild,
 } from '../lib/r-cd-chained-depth-2-authority.mjs';
+import { rCdChainJournalReturnAuthority } from '../lib/r-cd-chained-depth-2-return-authority.mjs';
 
 const nonce = 'R-CD-CHAIN-EXACT-NONCE';
 const root = 'agent:main:r-cd-chain-root';

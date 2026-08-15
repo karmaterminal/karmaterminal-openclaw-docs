@@ -118,6 +118,7 @@ jobs:
           # from the repository root and from tools/k6-proofs.
           node tools/k6-proofs/scripts/check-manifest-scenarios.mjs --repo-root "$GITHUB_WORKSPACE"
           node tools/k6-proofs/scripts/check-scenario-alignment.mjs --repo-root "$GITHUB_WORKSPACE"
+          node tools/k6-proofs/scripts/check-k6-scenario-import-closure.mjs --repo-root "$GITHUB_WORKSPACE"
           node tools/k6-proofs/scripts/check-proof-row-manifests.mjs --repo-root "$GITHUB_WORKSPACE"
           if [[ "$ROWS_INPUT" == "live-suite" ]]; then
             rows="$(node tools/k6-proofs/scripts/list-runnable-rows.mjs --live-suite)"

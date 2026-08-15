@@ -1,18 +1,14 @@
 import { directChildSessionKeyForRow } from './row-child-correlation.mjs';
-import {
-  resolveTargetedReturnAuthority,
-  fingerprintIdentity,
-} from './targeted-return-receipt.mjs';
 
 export const R_CD_4_OBSERVATION_WINDOW_MS = 90_000;
 export const R_CD_4_DURATION_THRESHOLD_MS = 110_000;
-export {
-  resolveTargetedReturnAuthority,
-  fingerprintIdentity,
-};
 
 const HARNESS_MARKER = '[k6-proof-harness]';
 const R_CD_4_TASK_TOKEN_SUFFIX_CHARS = 16;
+
+function fingerprint(value, fingerprintIdentity) {
+  return typeof fingerprintIdentity === 'function' ? fingerprintIdentity(value) : null;
+}
 
 function escapeRegex(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -65,7 +61,13 @@ function hasExactSentinel(eventData, marker, nonce) {
  * `[continuation:targeted-return]` receipt (see targeted-return-receipt.mjs).
  * Transcript session.message / sessions.get nonce text must never promote PASS.
  */
-export function rCd4DiagnosticMarkerCandidate({ eventName, eventData, expectedSessionKey, nonce }) {
+export function rCd4DiagnosticMarkerCandidate({
+  eventName,
+  eventData,
+  expectedSessionKey,
+  nonce,
+  fingerprintIdentity,
+}) {
   if (eventName !== 'session.message') return null;
   if (!expectedSessionKey || !nonce) return null;
   const sessionKey = directSessionKey(eventData);
@@ -74,8 +76,8 @@ export function rCd4DiagnosticMarkerCandidate({ eventName, eventData, expectedSe
   if (!hasExactSentinel(eventData, 'TARGET-RECEIVED', nonce)) return null;
   return {
     eventName,
-    sessionKeyFingerprint: fingerprintIdentity(sessionKey),
-    nonceFingerprint: fingerprintIdentity(nonce),
+    sessionKeyFingerprint: fingerprint(sessionKey, fingerprintIdentity),
+    nonceFingerprint: fingerprint(nonce, fingerprintIdentity),
     marker: 'TARGET-RECEIVED',
     role: 'system',
     authoritative: false,
@@ -123,6 +125,7 @@ export function rCd4SessionMessageObservation({
   nonce,
   elapsedMs,
   wakeGateMs,
+  fingerprintIdentity,
 }) {
   const elapsed = Number.isFinite(elapsedMs) ? elapsedMs : 0;
   const gate = Number.isFinite(wakeGateMs) ? wakeGateMs : 0;
@@ -132,12 +135,14 @@ export function rCd4SessionMessageObservation({
       eventData,
       expectedSessionKey: targetSessionKey,
       nonce,
+      fingerprintIdentity,
     }),
     parentDiagnosticMarker: rCd4DiagnosticMarkerCandidate({
       eventName,
       eventData,
       expectedSessionKey: parentSessionKey,
       nonce,
+      fingerprintIdentity,
     }),
     // Back-compat aliases — still non-authoritative.
     targetCandidate: null,
@@ -154,6 +159,7 @@ export function rCd4HistoryObservation({
   nonce,
   elapsedMs,
   wakeGateMs,
+  fingerprintIdentity,
 }) {
   const result = {
     targetDiagnosticMarker: null,
@@ -171,6 +177,7 @@ export function rCd4HistoryObservation({
       nonce,
       elapsedMs,
       wakeGateMs,
+      fingerprintIdentity,
     });
     result.targetDiagnosticMarker ??= observation.targetDiagnosticMarker;
     result.parentDiagnosticMarker ??= observation.parentDiagnosticMarker;
@@ -216,16 +223,4 @@ export function rCd4ReturnReceipt(_candidate, _childSessionKey) {
 
 export function rCd4ShouldScheduleEarlyClose({ parentReturnReceipt }) {
   return parentReturnReceipt !== null && parentReturnReceipt !== undefined;
-}
-
-/**
- * Finalize R-CD-4 return authority from the shared journal collector only.
- * Requires signingKey (OPENCLAW_GATEWAY_TOKEN) — same HMAC contract as collector.
- */
-export function rCd4JournalReturnAuthority(args) {
-  return resolveTargetedReturnAuthority({
-    ...args,
-    row: args.row || 'R-CD-4',
-    signingKey: args.signingKey,
-  });
 }

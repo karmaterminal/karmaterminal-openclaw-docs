@@ -1,29 +1,5 @@
-import { createHmac } from 'node:crypto';
-import {
-  TARGETED_RETURN_INTEGRITY_ALGORITHM,
-  canonicalTargetedReturnReceipt,
-  fingerprintIdentity,
-  resolveTargetedReturnAuthority,
-} from './targeted-return-receipt.mjs';
-
-export {
-  resolveTargetedReturnAuthority,
-  fingerprintIdentity,
-};
-
-function sealPartial(receipt, signingKey) {
-  if (typeof signingKey !== 'string' || signingKey.length === 0) {
-    throw new Error('missing gateway signing key');
-  }
-  return {
-    ...receipt,
-    integrity: {
-      algorithm: TARGETED_RETURN_INTEGRITY_ALGORITHM,
-      signature: createHmac('sha256', signingKey)
-        .update(canonicalTargetedReturnReceipt(receipt))
-        .digest('hex'),
-    },
-  };
+function fingerprint(value, fingerprintIdentity) {
+  return typeof fingerprintIdentity === 'function' ? fingerprintIdentity(value) : null;
 }
 
 const HARNESS_MARKER = '[k6-proof-harness]';
@@ -78,7 +54,13 @@ function hasExactGrandchildMarker(eventData, nonce) {
  * Grandchild→root silent-wake routing authority is the shared payload-free
  * `[continuation:targeted-return]` collector, not transcript system text.
  */
-export function rCdChainRootDiagnosticMarker({ eventName, eventData, rootSessionKey, nonce }) {
+export function rCdChainRootDiagnosticMarker({
+  eventName,
+  eventData,
+  rootSessionKey,
+  nonce,
+  fingerprintIdentity,
+}) {
   if (eventName !== 'session.message') return null;
   if (!rootSessionKey || !nonce) return null;
   if (directSessionKey(eventData) !== rootSessionKey) return null;
@@ -86,8 +68,8 @@ export function rCdChainRootDiagnosticMarker({ eventName, eventData, rootSession
   if (!hasExactGrandchildMarker(eventData, nonce)) return null;
   return {
     eventName,
-    rootSessionFingerprint: fingerprintIdentity(rootSessionKey),
-    nonceFingerprint: fingerprintIdentity(nonce),
+    rootSessionFingerprint: fingerprint(rootSessionKey, fingerprintIdentity),
+    nonceFingerprint: fingerprint(nonce, fingerprintIdentity),
     marker: 'GRANDCHILD-DONE',
     role: 'system',
     authoritative: false,
@@ -110,7 +92,11 @@ export function rCdChainRootReturnReceipt(_candidate, _hops) {
  * Require two distinct nonce-bound hop identities before journal authority
  * can finalize grandchild→root routing.
  */
-export function rCdChainHopIdentities({ childSessionKey, grandchildSessionKey } = {}) {
+export function rCdChainHopIdentities({
+  childSessionKey,
+  grandchildSessionKey,
+  fingerprintIdentity,
+} = {}) {
   if (!childSessionKey || !grandchildSessionKey) {
     return { ok: false, reason: 'missing-hop' };
   }
@@ -121,8 +107,8 @@ export function rCdChainHopIdentities({ childSessionKey, grandchildSessionKey } 
     ok: true,
     childSessionKey,
     grandchildSessionKey,
-    childFingerprint: fingerprintIdentity(childSessionKey),
-    grandchildFingerprint: fingerprintIdentity(grandchildSessionKey),
+    childFingerprint: fingerprint(childSessionKey, fingerprintIdentity),
+    grandchildFingerprint: fingerprint(grandchildSessionKey, fingerprintIdentity),
   };
 }
 
@@ -183,53 +169,4 @@ export function rCdChainPromptTemplate() {
     "). After the nested continue_delegate tool result reports scheduled, reply exactly " +
     'CHILD-DONE {{nonce}} CHILD-DELEGATE-SCHEDULED.'
   );
-}
-
-export function rCdChainJournalReturnAuthority(args) {
-  const hops = rCdChainHopIdentities({
-    childSessionKey: args.childSessionKey,
-    grandchildSessionKey: args.grandchildSessionKey,
-  });
-  if (!hops.ok) {
-    return sealPartial({
-      schema: 'openclaw.k6.targeted-return-receipt.v1',
-      row: 'R-CD-CHAINED-DEPTH-2',
-      authority: 'gateway-journal-targeted-return',
-      candidateOnly: true,
-      foldRequiresReview: true,
-      verdict: 'PARTIAL-candidate',
-      failureCategory: hops.reason,
-      structuralOk: false,
-      targetMatchCount: 0,
-      parentMatchCount: 0,
-      deliveryCountInWindow: 0,
-      deliveryCountTotal: 0,
-      childBound: false,
-      window: {
-        startMs: Number.isFinite(args.windowStartMs) ? args.windowStartMs : null,
-        endMs: Number.isFinite(args.windowEndMs) ? args.windowEndMs : null,
-      },
-      bindings: {
-        targetSessionFingerprint: fingerprintIdentity(args.rootSessionKey),
-        parentSessionFingerprint: fingerprintIdentity(args.childSessionKey),
-        childSessionFingerprint: fingerprintIdentity(args.grandchildSessionKey),
-        deliveryLineFingerprint: null,
-        deliveredTargetFingerprints: [],
-      },
-    }, args.signingKey);
-  }
-  // Grandchild is the delivering child; root must appear among tree targets.
-  // Intermediate depth-1 is an expected co-target under fanoutMode=tree.
-  return resolveTargetedReturnAuthority({
-    journalText: args.journalText,
-    targetSessionKey: args.rootSessionKey,
-    parentSessionKey: args.childSessionKey,
-    childSessionKey: args.grandchildSessionKey,
-    windowStartMs: args.windowStartMs,
-    windowEndMs: args.windowEndMs,
-    row: 'R-CD-CHAINED-DEPTH-2',
-    allowIntermediateAncestorTargets: true,
-    structuralOk: args.structuralOk !== false,
-    signingKey: args.signingKey,
-  });
 }

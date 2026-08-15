@@ -43,6 +43,7 @@ cd karmaterminal-openclaw-docs
 node tools/k6-proofs/scripts/list-runnable-rows.mjs --all
 node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs
+node tools/k6-proofs/scripts/check-k6-scenario-import-closure.mjs
 node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
 node tools/k6-proofs/scripts/validate-corpus.mjs --current
 ```
@@ -171,6 +172,7 @@ Minimum patch shape:
 ```bash
 node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs
+node tools/k6-proofs/scripts/check-k6-scenario-import-closure.mjs
 node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
 node --test tools/k6-proofs/scripts/__tests__/*.test.mjs
 ```

@@ -663,6 +663,9 @@ node tools/k6-proofs/scripts/live-run-guard.mjs --manifest tools/k6-proofs/manif
 # Validate workflow scenario choices and row-manifest scenario alignment
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs
 
+# Reject Node-only builtins anywhere in a k6 scenario dependency graph
+node tools/k6-proofs/scripts/check-k6-scenario-import-closure.mjs
+
 # Export candidate artifact row-result.json files as Prometheus text exposition
 node tools/k6-proofs/scripts/export-prometheus-metrics.mjs --root PROOFS --out /tmp/openclaw-proofs-k6.prom
 ```
@@ -683,8 +686,9 @@ no runnable file must say `scenario.status` is `scaffold` or `construct-only`.
 
 ### Repository-root contract for catalog validators (#495)
 
-`check-manifest-scenarios.mjs`, `check-scenario-alignment.mjs`, and
-`check-proof-row-manifests.mjs` share one repository-root contract
+`check-manifest-scenarios.mjs`, `check-scenario-alignment.mjs`,
+`check-k6-scenario-import-closure.mjs`, and `check-proof-row-manifests.mjs`
+share one repository-root contract
 (`tools/k6-proofs/lib/repo-root.mjs`) and join `tools/k6-proofs` exactly once.
 The root is resolved in this order:
 

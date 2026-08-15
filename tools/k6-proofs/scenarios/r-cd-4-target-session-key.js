@@ -50,6 +50,11 @@ export const options = {
 const failures = new Counter('proof_failures');
 const duration = new Trend('r_cd_4_duration');
 
+function fingerprintIdentity(value) {
+  if (typeof value !== 'string' || value.length === 0) return null;
+  return crypto.sha256(value, 'hex').slice(0, 16);
+}
+
 const manifest = loadManifestFromEnv();
 const DEFAULTS = {
   sessionKey: 'main',
@@ -364,6 +369,7 @@ export default function () {
                 ? Date.now() - evidence.dispatch_accepted_at_ms
                 : 0,
               wakeGateMs: evidence.wake_gate_ms,
+              fingerprintIdentity,
             }), 'sessions.get');
           }
           if (returnHistoryPhase === 'target') {
@@ -400,6 +406,7 @@ export default function () {
               nonce: rowNonce,
               elapsedMs: elapsed,
               wakeGateMs: evidence.wake_gate_ms,
+              fingerprintIdentity,
             });
             applyReturnObservation(observation, 'session.message');
 

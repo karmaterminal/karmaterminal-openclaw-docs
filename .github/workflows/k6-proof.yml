@@ -124,6 +124,7 @@ jobs:
             echo "::error::manifest path not found: $MANIFEST_PATH"
             exit 1
           fi
+          node tools/k6-proofs/scripts/check-k6-scenario-import-closure.mjs --repo-root "$GITHUB_WORKSPACE"
           if [ "$DRY_RUN" != "true" ]; then
             if [ -z "$ROW" ]; then
               echo "::error::row is required when dry_run=false"

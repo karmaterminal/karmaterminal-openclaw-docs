@@ -3,8 +3,8 @@
 Issue binding: openclaw/openclaw#85651
 Base (exact repaired harness head): `87f6e14354544a0b29cb35d12ae9aabc7e9032cf`
 Branch: `codeagent/k6-scenario-library-consolidation`
-Head: `52db18fe`
-Files changed: 52 (+2685 / −393)
+Head: `2a60ca95`
+Files changed: 53
 No PR opened. No live proof run fired. No product source, prince runtime,
 configuration, database, or continuation ref touched.
 
@@ -264,13 +264,15 @@ Named rather than bundled, per the workorder.
 
 | Validation | Result |
 | --- | --- |
-| Full sanctioned docs harness suite | **432 passed, 1 failed, 0 cancelled** (433 tests) |
+| Full sanctioned docs harness suite | **452 passed, 1 failed, 0 cancelled** (453 tests) |
 | Baseline classification of the single red | `candidate envelope is outside and invisible to canonical corpus validation` — the documented pre-existing failure; reproduces at base `87f6e143` and on fork base `f7e307d7`. Not owned by this lane |
-| Test-count delta | 382 → 433 (+51): 12 proof-session, 8 observability-outcome, 6 collector observability e2e, 8 receipt-seal, 4 tempo-span-match, 7 scenario-handshake contract, 4 import-guard negatives, 2 journal-availability, plus 5 R-CD-MODEL-TOOL controls that previously never ran |
+| Test-count delta | 382 → 453 (+71): 15 proof-session, 12 observability-outcome, 6 collector observability e2e, 8 receipt-seal, 6 tempo-span-match, 7 scenario-handshake contract, 15 import-guard negatives, 2 journal-availability, plus 5 R-CD-MODEL-TOOL controls that previously never ran |
 | Cancelled tests | 0 (was 5 at base when the model-tool file runs standalone) |
 | All-scenario import-closure scan | 35 scenarios, 35 graphs, **0 violations** |
 | k6 v2.0.0 `inspect` | All 35 scenarios load and initialize; 0 failures |
 | Dry-run selection, six topology classes | R-CD-4 (targeted return), R-CD-CHAINED-DEPTH-2 (chained depth), R-CD-MODEL-TOOL (model metadata), R-CD-TOKEN (token form), R-CW-3 (reason telemetry), R-RC-2 (compaction limit) — all selected, catalog preflight green, `liveRunSafety: k6-runnable`, **zero rows dispatched** |
+| Receipt refactor equivalence | `canonical()` byte-identical to base for all three modules; signatures identical for R-CD-2 PASS/PARTIAL, R-CD-TOKEN and targeted-return; receipts cross-validate in both directions (base receipt against new validator, new receipt against base validator) |
+| Scenario codemod scope check | Every transformed `onReady` body resolves all referenced identifiers in-file; all targets are hoisted function declarations |
 | Live proof runs | **None fired**, per the workorder |
 
 ### Exact commands
@@ -326,6 +328,9 @@ Relative to docs PR #510 and repair `87f6e143`:
    - `b585b763` — response-driven handshake, session mechanics, guard extension
    - `02d220f9` — journal availability, collector observability e2e tests
    - `52db18fe` — the authoring guide and doc pointers
+   - `3b2265cf` / `ba70cffd` / `bcb7ac5a` / `7426ac5c` / `2a60ca95` — the guard,
+     classifier, negative-control and error-provenance repairs found by
+     self-probe and two rounds of independent review
 
 4. **Highest-value review targets.** The tool-span matcher change
    (`lib/tempo-span-match.mjs`) alters which traces five continuation rows accept
@@ -341,6 +346,72 @@ Relative to docs PR #510 and repair `87f6e143`:
    product — the distinction the 99ce artifacts could not express.
 
 ---
+
+## Review pass
+
+The change set was put through an independent read before finalizing. It
+returned four Medium findings, **all of them defects in this lane's own work,
+and all four failing in the permissive direction**. That is the useful shape of
+the result: the consolidation's whole purpose is to stop evidence gaps from
+rendering as success, and four of its new mechanisms did exactly that.
+
+| Finding | Why it mattered | Fix |
+| --- | --- | --- |
+| The guard's regex-keyword branch never fired | `REGEX_KEYWORDS` was tested against the accumulated output with a `$` anchor, but the whitespace between keyword and slash had already been emitted. Every idiomatic `return /'/.test(s)` still reopened the blindness the previous commit was meant to close — and the bogus string usually closes cleanly on a later apostrophe, so the fail-closed net never fired either | The scanner tracks the last significant *token*, not just the last character |
+| Ambiguity inverted on the negative control | `toolSpanMatchesName` rejecting a two-name span is right for "exactly one origin" and exactly wrong for R-CD-TOKEN's "no typed tool span": there `false` reads as *absent* and satisfies the assertion it exists to break | `toolSpanDeclaresName` backs the negative control; ambiguity now fails closed on both sides |
+| A Tempo 404 was an availability excuse | Every non-2xx mapped to `backend-unavailable`, contradicting this module's own stated invariant that a reachable backend returning nothing is an evidence statement | 5xx/429 stay availability claims, 4xx becomes `no-matching-trace`; a 404 on the trace body is retried inside the deadline as the ordinary ingest-flush window rather than aborting the poll loop |
+| The handshake receipt was documented but never recorded | Nothing outside the tests called `receipt()`, so a gateway that never acknowledges `connect` would emit evidence byte-identical to a healthy run — and all twenty rows could have silently degraded to the pre-change fixed sleep with no trace of it | The handshake publishes into `evidence.handshake`; the scenario contract test requires it |
+
+A second review round then caught that **my own 404 fix was defeated on the only
+path that mattered**: the collector re-wrapped its last failure in a bare
+`new Error()` when the deadline expired, dropping `httpStatus`, `code` and
+`cause`. Since moving `fetchTrace` inside the retry made that wrap the normal
+route for the motivating case, a persistent 404 fell through to
+`topology-invalid` — the most product-blaming outcome in the enum, asserting a
+malformed trace for a trace never obtained. Worse than what it replaced. The
+wrapper preserves `cause` now, and the retry guard, which had been keyed on
+"has an HTTP status", no longer swallows transport failures.
+
+Three further defects were caught by self-probing rather than by a test failing,
+which is worth recording because in all three cases the tests were green:
+
+- `stripLiterals` did not recognize regex literals at all, so `/'/g` — ordinary
+  code — blanked the rest of the file and the guard certified it clean.
+- It then blanked template `${…}` interpolations wholesale, so
+  `${process.env.SEAT}` was invisible. Measured against the real closure that
+  was 602 substitutions and ~8.7 KB of live code excluded from every scan.
+- `classifyTraceFailure` treated any `TypeError` as transport failure, which
+  would have let a bug inside the harness present itself as infrastructure.
+
+**The pattern is the finding.** Eight defects in this lane's own new code, every
+one failing in the permissive direction, and not one caught by a failing test —
+they were found by reading the code against its own stated invariant and by
+probing it with inputs it claimed to handle. A guard, a classifier, and a
+receipt all shipped green while quietly certifying things they had not checked.
+That is precisely the failure mode this consolidation exists to remove from the
+proof corpus, reproduced inside the tooling built to remove it.
+
+Confirmed clean by the review: all 20 codemod transforms, `k6 inspect` on all
+35 scenarios, `canonical()` byte-identity across all three receipt modules with
+strictly-stricter validators, the impossibility of the `journalAvailable` change
+promoting a PARTIAL to a PASS, and that scoping `declaredTools` rather than
+`matchingTools` is monotonically stricter and cannot loosen any
+non-`raw-final-text` row.
+
+### Known residuals in the guard's scanner
+
+Recorded rather than hidden, because a guard's limits are part of its contract:
+
+- A regex in statement position after `)` — `if (x) /'/.test(x)` — is read as
+  division. `)` is deliberately not a regex preceder, because treating
+  `(a + b) / c` as a regex would blank real code and trade one fail-open for
+  another. The residual is **fail-closed, not silent**: quoted strings no longer
+  run past a newline, so the stray quote cannot close and the guard reports
+  `unscannable-source`. Pinned by test.
+- `x.return / 2` — division after a property named with a keyword — is read as
+  a regex, since the token stream does not distinguish a property name from a
+  keyword. Not idiomatic, absent from the corpus, and caught by the same
+  newline guard when it would otherwise matter.
 
 ## Uncertainties
 

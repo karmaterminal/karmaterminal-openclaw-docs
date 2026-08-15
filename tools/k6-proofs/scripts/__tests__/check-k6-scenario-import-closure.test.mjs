@@ -319,3 +319,92 @@ test('keyword-lookalike identifiers still divide rather than open a regex', asyn
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('a Node global inside a template interpolation is code, not prose', async () => {
+  // `${process.env.SEAT}` is code wearing a string's clothes. Blanking the whole
+  // template hides exactly the Node-global reach this guard exists to catch,
+  // and `${...}` is the dominant idiom across this harness.
+  const root = await fixtureRepo({
+    'scenarios/r-template.js': [
+      "import { seat, path } from '../lib/template-helper.mjs';",
+      'export default function () { return seat + path; }',
+    ].join('\n'),
+    'lib/template-helper.mjs': [
+      'export const seat = `seat=${process.env.OPENCLAW_SEAT_NAME}`;',
+      'export const path = `dir=${__dirname}`;',
+    ].join('\n'),
+  });
+  try {
+    const result = run(root);
+    assert.equal(result.status, 1);
+    const specifiers = result.report.violations
+      .filter((entry) => entry.reason === 'node-only-global')
+      .map((entry) => entry.specifier)
+      .sort();
+    assert.deepEqual(specifiers, ['__dirname', 'process']);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('template text stays prose even when it mentions Node globals', async () => {
+  const root = await fixtureRepo({
+    'scenarios/r-template-prose.js': [
+      "import { prompt } from '../lib/template-prose.mjs';",
+      'export default function () { return prompt; }',
+    ].join('\n'),
+    'lib/template-prose.mjs': [
+      'const row = "R-CD-1";',
+      '// The literal text mentions process and require( but never reaches them.',
+      'export const prompt = `[k6-proof-harness] ${row}: do not call process.env or require() here`;',
+    ].join('\n'),
+  });
+  try {
+    const result = run(root);
+    assert.equal(result.status, 0, JSON.stringify(result.report.violations));
+    assert.deepEqual(result.report.violations, []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('nested templates and object literals inside interpolations stay balanced', async () => {
+  const root = await fixtureRepo({
+    'scenarios/r-nested.js': [
+      "import { label } from '../lib/nested-template.mjs';",
+      'export default function () { return label; }',
+    ].join('\n'),
+    'lib/nested-template.mjs': [
+      'const inner = (o) => `${o.a}`;',
+      'export const label = `outer ${inner({ a: `deep ${1 + 1}` })} tail`;',
+      "export const after = 'process and require( in a plain string are prose';",
+    ].join('\n'),
+  });
+  try {
+    const result = run(root);
+    assert.equal(result.status, 0, JSON.stringify(result.report.violations));
+    assert.deepEqual(result.report.violations, []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('an unterminated template literal fails closed', async () => {
+  const root = await fixtureRepo({
+    'scenarios/r-open-template.js': [
+      "import { broken } from '../lib/open-template.mjs';",
+      'export default function () { return broken; }',
+    ].join('\n'),
+    'lib/open-template.mjs': 'export const broken = `never closed;\n',
+  });
+  try {
+    const result = run(root);
+    assert.equal(result.status, 1);
+    assert.ok(
+      result.report.violations.some((entry) => entry.reason === 'unscannable-source'),
+      JSON.stringify(result.report.violations),
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

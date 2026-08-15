@@ -35,18 +35,22 @@ const NODE_ONLY_GLOBALS = [
 const GLOBAL_THIS_ESCAPE_RE = /\bglobalThis\s*\.\s*(process|Buffer|require|module|exports)\b/gu;
 
 /**
- * Blank out the *contents* of string literals, template literals, regex
- * literals and comments so identifier and call scans cannot fire on prose,
- * prompts, or marker text.
+ * Blank out the *contents* of string literals, regex literals and comments so
+ * identifier and call scans cannot fire on prose, prompts, or marker text —
+ * while keeping everything that is actually code.
  *
- * Delimiters are preserved: a scan that needs to know "was the next token a
- * quote?" — such as literal-vs-computed dynamic import — must still see them.
+ * Three things have to be true at once, and each was learned the hard way:
  *
- * Regex literals have to be recognized, not skipped. A regex containing an odd
- * number of quote characters (`/'/g`) would otherwise put the scanner into
- * string mode and blank the rest of the file, silently hiding every later
- * `require`, computed import, and Node global from the scan — a guard that
- * fails *open* is worse than no guard.
+ *  - Delimiters survive, because a scan that needs to know "was the next token
+ *    a quote?" — literal-vs-computed dynamic import — must still see them.
+ *  - Regex literals are recognized, not skipped. `/'/g` is ordinary code, and a
+ *    naive scanner treats its apostrophe as a string open, blanks the rest of
+ *    the file and certifies it clean. Telling a regex from a division needs the
+ *    last significant *token*, not just the last character: `return /'/.test(s)`
+ *    has whitespace between the keyword and the slash.
+ *  - Template interpolations stay live. `${process.env.SEAT}` is code wearing a
+ *    string's clothes; blanking it hides exactly the Node-global reach this
+ *    guard exists to catch.
  *
  * Returns `{ code, unterminated }`. An unterminated literal means the scan
  * cannot be trusted, and the caller fails closed rather than reporting a clean
@@ -57,6 +61,8 @@ function stripLiterals(source) {
   let i = 0;
   const n = source.length;
   let unterminated = false;
+  // Nesting stack of `{ kind: 'template' }` and `{ kind: 'interp', depth }`.
+  const stack = [];
   // Last significant character of emitted code, plus the last identifier token,
   // used together to tell a regex literal from a division operator.
   let lastSignificant = '';
@@ -70,27 +76,45 @@ function stripLiterals(source) {
     'instanceof', 'do', 'else', 'yield', 'await',
   ]);
   const isWordChar = (c) => /[\w$]/u.test(c);
+  const top = () => (stack.length > 0 ? stack[stack.length - 1] : null);
+  const inTemplateText = () => top()?.kind === 'template';
+  const breakToken = () => {
+    if (token) { lastToken = token; token = ''; }
+  };
   const regexPosition = () => {
     if (REGEX_PRECEDERS.has(lastSignificant)) return true;
-    // `return /'/.test(s)` — the keyword is the previous *token*, and the
-    // whitespace between it and the slash has already been emitted, so this
-    // has to be answered from the token stream rather than from the output.
     if (isWordChar(lastSignificant)) return REGEX_KEYWORDS.has(token || lastToken);
     return false;
   };
   const emit = (c) => {
     out += c;
-    if (isWordChar(c)) {
-      token += c;
-    } else if (token) {
-      lastToken = token;
-      token = '';
-    }
+    if (isWordChar(c)) token += c;
+    else breakToken();
     if (c.trim()) lastSignificant = c;
+  };
+  const emitRaw = (text, significant) => {
+    out += text;
+    breakToken();
+    if (significant) lastSignificant = significant;
   };
 
   while (i < n) {
     const c = source[i];
+
+    if (inTemplateText()) {
+      if (c === '\\') { out += blank(source.slice(i, i + 2)); i += 2; continue; }
+      if (c === '`') { emitRaw('`', '`'); stack.pop(); i += 1; continue; }
+      if (c === '$' && source[i + 1] === '{') {
+        emitRaw('${', '{');
+        stack.push({ kind: 'interp', depth: 0 });
+        i += 2;
+        continue;
+      }
+      out += blank(c);
+      i += 1;
+      continue;
+    }
+
     if (c === '/' && source[i + 1] === '/') {
       const end = source.indexOf('\n', i);
       const stop = end === -1 ? n : end;
@@ -119,36 +143,47 @@ function stripLiterals(source) {
         j += 1;
       }
       if (closed) {
-        out += `/${blank(source.slice(i + 1, j))}/`;
+        emitRaw(`/${blank(source.slice(i + 1, j))}/`, '/');
         i = j + 1;
-        lastSignificant = '/';
-        lastToken = token || lastToken;
-        token = '';
         continue;
       }
       // Not a terminated regex after all; fall through and treat as an operator.
     }
-    if (c === '"' || c === "'" || c === '`') {
+    if (c === '"' || c === "'") {
       const quote = c;
       let j = i + 1;
       let closed = false;
       while (j < n) {
         if (source[j] === '\\') { j += 2; continue; }
         if (source[j] === quote) { closed = true; break; }
+        if (source[j] === '\n') break;
         j += 1;
       }
       const contentEnd = Math.min(j, n);
-      out += quote + blank(source.slice(i + 1, contentEnd)) + (closed ? quote : '');
+      emitRaw(quote + blank(source.slice(i + 1, contentEnd)) + (closed ? quote : ''), quote);
       i = closed ? contentEnd + 1 : contentEnd;
       if (!closed) unterminated = true;
-      lastSignificant = quote;
-      lastToken = token || lastToken;
-      token = '';
       continue;
     }
+    if (c === '`') {
+      emitRaw('`', '`');
+      stack.push({ kind: 'template' });
+      i += 1;
+      continue;
+    }
+    if (c === '{' && top()?.kind === 'interp') { top().depth += 1; emit(c); i += 1; continue; }
+    if (c === '}' && top()?.kind === 'interp') {
+      if (top().depth === 0) { emitRaw('}', '}'); stack.pop(); i += 1; continue; }
+      top().depth -= 1;
+      emit(c);
+      i += 1;
+      continue;
+    }
+
     emit(c);
     i += 1;
   }
+  if (stack.length > 0) unterminated = true;
   return { code: out, unterminated };
 }
 

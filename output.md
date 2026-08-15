@@ -384,7 +384,7 @@ which is worth recording because in all three cases the tests were green:
 - `classifyTraceFailure` treated any `TypeError` as transport failure, which
   would have let a bug inside the harness present itself as infrastructure.
 
-**The pattern is the finding.** Eight defects in this lane's own new code, every
+**The pattern is the finding.** Ten defects in this lane's own new code, every
 one failing in the permissive direction, and not one caught by a failing test —
 they were found by reading the code against its own stated invariant and by
 probing it with inputs it claimed to handle. A guard, a classifier, and a
@@ -398,6 +398,22 @@ strictly-stricter validators, the impossibility of the `journalAvailable` change
 promoting a PARTIAL to a PASS, and that scoping `declaredTools` rather than
 `matchingTools` is monotonically stricter and cannot loosen any
 non-`raw-final-text` row.
+
+A third round then caught that my newly-narrowed 4xx rule was itself wrong in
+two directions: Tempo answers an empty search with 200, so a 404 from
+`/api/search` means the *route* is missing (an operator condition, not a
+statement about the run), and 401/403 on either endpoint means we were refused
+and learned nothing. The rule is now stated positively — `no-matching-trace`
+requires that the backend answered and had nothing — and a self-check on that
+fix found one more: the predicate was a denylist, so an untagged 404 from a
+future call site would have manufactured exactly the product claim the rule
+exists to prevent. It is an allowlist now; forgetting the endpoint tag can only
+lose information, never invent a claim.
+
+**Final review verdict: no significant issues; clear to close.** The reviewer
+independently traced every route by which a genuine empty result reaches the
+classifier and confirmed none of them degrades to an availability claim, and
+verified the untagged-error behaviour through the deadline wrapper.
 
 ### Known residuals in the guard's scanner
 

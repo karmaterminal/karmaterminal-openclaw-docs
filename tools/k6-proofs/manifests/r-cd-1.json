@@ -61,7 +61,7 @@
     },
     {
       "name": "trace-id",
-      "required": false,
+      "required": true,
       "description": "Trace ID from tool response or task metadata for Tempo fetch"
     }
   ],

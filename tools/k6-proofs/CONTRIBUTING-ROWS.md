@@ -118,10 +118,14 @@ Every `PROOFS/<sha>/<row>/<seat>/k6-run-<ts>/` directory must contain:
   only if the row genuinely captured no frames; note the absence in EVIDENCE.md.
 - `row-result.json` — normalised outcome (`PASS-candidate` / `PARTIAL-candidate` /
   `FAIL-candidate`, plus `HONEST-LIMIT-candidate` only for `R-RC-2` when a structured
-  receipt proves below-threshold `request_compaction` refusal). For a row that
+  receipt proves below-threshold `request_compaction` refusal). When the artifact
+  comes from the summary-driven path (`postprocess-k6-summary.mjs`) and the row
   declares a `telemetryContract`, this file also carries a `telemetryRebind`
   block recording whether the row's rebind receipts were proven, so the
-  instrumentation debt is durable in the artifact rather than implied.
+  instrumentation debt is durable in the artifact rather than implied. The
+  row-list runner (`scripts/run-proofs.sh`) writes its own `run-result.json`
+  shape and does not yet carry the block — see
+  [`docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md`](docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md).
 - Trace JSON (e.g. Tempo dump) under `artifacts/` if the row produced one. Trace
   evidence is required before a continuation row can be folded as `pass`.
 

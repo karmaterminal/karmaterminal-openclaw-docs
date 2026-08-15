@@ -71,7 +71,7 @@
     },
     {
       "name": "trace-id",
-      "required": false,
+      "required": true,
       "description": "Trace ID for Tempo correlation when emitted"
     }
   ],

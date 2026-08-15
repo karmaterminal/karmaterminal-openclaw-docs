@@ -290,25 +290,33 @@ async function main() {
   // an authoritative signed receipt keeps that receipt as its sole authority and
   // is not re-judged here.
   const summaryDerivedVerdict = verdictSource === 'k6-summary';
+  // A receipt is required when either list says so. `liveRunSafety.requiredReceipts`
+  // is the live-run required set and `expectedReceipts[].required` is what this
+  // post-processor grades; a row must not be gradeable as optional on a receipt
+  // its own live-run policy calls required.
+  const liveRequiredReceipts = new Set(manifest.liveRunSafety?.requiredReceipts || []);
   const missingRequiredReceipts = receipts
-    .filter((receipt) => receipt.required && receipt.status === 'missing')
+    .filter((receipt) => (receipt.required || liveRequiredReceipts.has(receipt.name)) && receipt.status === 'missing')
     .map((receipt) => receipt.name);
+  const rebindablePassClaimed =
+    telemetryRebind?.rebindable === true ||
+    telemetryRebind?.passScope === 'behavioral-and-telemetry-rebindable';
   const telemetryRebindBlocked = Boolean(
     summaryDerivedVerdict &&
     outcome === 'PASS-candidate' &&
     telemetryRebind &&
-    telemetryRebind.enforcement === 'blocking' &&
-    telemetryRebind.unprovenRebindReceipts.length > 0,
+    (telemetryRebind.enforcement === 'blocking' || rebindablePassClaimed) &&
+    telemetryRebind.status !== 'proven',
   );
   const downgradeReasons = [];
   if (summaryDerivedVerdict && outcome === 'PASS-candidate' && missingRequiredReceipts.length) {
     downgradeReasons.push(`required receipt(s) reported missing: ${missingRequiredReceipts.join(', ')}`);
   }
   if (telemetryRebindBlocked) {
-    downgradeReasons.push(
-      'telemetry rebind receipt(s) not proven under a blocking telemetryContract: ' +
-      telemetryRebind.unprovenRebindReceipts.map((entry) => `${entry.name}=${entry.status}`).join(', '),
-    );
+    const unproven = telemetryRebind.unprovenRebindReceipts.length
+      ? telemetryRebind.unprovenRebindReceipts.map((entry) => `${entry.name}=${entry.status}`).join(', ')
+      : 'no rebind receipt declared';
+    downgradeReasons.push(`telemetry rebind not proven (${telemetryRebind.enforcement}): ${unproven}`);
   }
   if (downgradeReasons.length) outcome = 'PARTIAL-candidate';
 

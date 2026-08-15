@@ -128,6 +128,14 @@ harness infrastructure (exit 78) and never synthesizes a row verdict.
   **This is the gate: missing origin, session, turn, or proof marker cannot
   become a telemetry-rebindable PASS.**
 - `passScope: behavioral-and-telemetry-rebindable` requires `rebindable: true`.
+- A telemetry-rebindable claim (`rebindable: true` or the rebindable pass scope)
+  additionally requires `enforcement: blocking` and a non-empty
+  `rebindReceipts[]`, so the claim is enforceable at run time rather than merely
+  declared.
+- A telemetry receipt named in `liveRunSafety.requiredReceipts` must also be
+  `required: true` in `expectedReceipts`. The two lists disagreeing let a row
+  report its required telemetry receipt missing and still be graded as if the
+  receipt were optional.
 - `productInstrumentationPrerequisite: true` requires `rebindable: false` and a
   non-empty `prerequisiteRows[]` naming rows that exist and are not itself.
 - Any span/attribute with `emittedByProduct: false` must name a `productIssue`.
@@ -140,15 +148,41 @@ harness infrastructure (exit 78) and never synthesizes a row verdict.
 `scripts/postprocess-k6-summary.mjs` writes a `telemetryRebind` block into every
 `row-result.json` for a row that declares a contract, so the debt is durable in
 the artifact rather than implied. It also withholds a summary-derived
-`PASS-candidate` in two cases:
+`PASS-candidate` in three cases:
 
-- a **required** receipt is explicitly reported `missing`
+- a receipt required by **either** `expectedReceipts[].required` or
+  `liveRunSafety.requiredReceipts` is explicitly reported `missing`
   (`failureClass: missing-receipt`);
-- a row with `enforcement: blocking` has a `rebindReceipts` entry that is not
-  explicitly `present` (`failureClass: telemetry-rebind-unproven`).
+- a row with `enforcement: blocking` has a rebind receipt that is not explicitly
+  `present` (`failureClass: telemetry-rebind-unproven`);
+- a row claims `rebindable: true` or the rebindable pass scope and its rebind
+  status is not `proven`, regardless of the declared `enforcement`.
 
 Rows that declare a signed authoritative receipt (`R-CD-2`) keep that receipt as
 their sole verdict authority and are not re-judged here.
+
+### Scope and known limits of that gate
+
+Three limits are stated here rather than implied:
+
+1. **The gate is on the summary-driven path.** `postprocess-k6-summary.mjs` is
+   the single-row path documented in `README.md` and `docs/PROOF-RUN-METHOD.md`.
+   The row-list runner `scripts/run-proofs.sh` builds its own `run-result.json`
+   inline and does not call the post-processor, so runner artifacts do not carry
+   `telemetryRebind` yet. Wiring the contract into the runner's verdict policy is
+   follow-up work.
+2. **No committed row can trigger the blocking downgrade today.** The only rows
+   with `enforcement: blocking` are the four `R-OBS-*` remedy rows, and they are
+   `construct-only`, so their outcome is `construct-only` before any PASS can
+   exist. The nine behavioral rows are `advisory` by design. The blocking path is
+   therefore a forward guarantee, exercised by tests, not a currently active
+   downgrade.
+3. **Receipt status is self-asserted.** A receipt is `present` because the row's
+   own k6 summary said so; nothing yet cross-checks that claim against
+   `artifact.requiredFiles`, the Tempo projection, or
+   `backendUnavailable.requiredCompletenessKeys`. That corroboration is owed
+   alongside the product instrumentation, and it is why these rows remain
+   `foldRequiresReview: true`.
 
 `enforcement` is `advisory` on the nine existing behavioral rows: the rebind
 debt is recorded, and their behavioral verdict is unchanged. It flips to

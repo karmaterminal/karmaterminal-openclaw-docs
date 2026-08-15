@@ -11,7 +11,7 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, rm, readFile, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, rm, readFile, symlink, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -40,6 +40,7 @@ const CENSUS = {
 
 /** The rows the census workorder requires to carry a telemetry contract. */
 const AUDITED_ROWS = [
+  'R-CD-1',
   'R-CD-2',
   'R-CD-4',
   'R-CD-CHAINED-DEPTH-2',
@@ -246,6 +247,8 @@ test('rebindable=true is refused without product-emitted identity and proof mark
       rebindable: true,
       productInstrumentationPrerequisite: false,
       prerequisiteRows: undefined,
+      enforcement: 'blocking',
+      rebindReceipts: ['trace-id'],
       expectedTelemetry: {
         spans: [{ name: 'continuation.work', role: 'accepted-entry', emittedByProduct: true }],
         attributes: [
@@ -271,6 +274,48 @@ test('a rebindable pass scope cannot be declared while the row is not rebindable
     }),
   );
   assert.ok(failures.some((f) => /passScope=behavioral-and-telemetry-rebindable requires rebindable=true/.test(f)));
+});
+
+test('a telemetry-rebindable claim must be enforceable, not merely declared', () => {
+  // The hole this closes: rebindable=true with advisory enforcement and no
+  // rebind receipts left the post-processor nothing to withhold a PASS on.
+  const advisoryRebindable = validateTelemetryContract(
+    manifestFixture({
+      rebindable: true,
+      productInstrumentationPrerequisite: false,
+      prerequisiteRows: undefined,
+      enforcement: 'advisory',
+      rebindReceipts: undefined,
+      expectedTelemetry: {
+        spans: [{ name: 'continuation.work', role: 'accepted-entry', emittedByProduct: true }],
+        attributes: [
+          ...identityAttributes(),
+          { key: 'openclaw.proof.run_id', purpose: 'proof-run', emittedByProduct: true, publicSafeForm: 'sha256-16' },
+        ],
+      },
+      verdictAuthority: { passScope: 'behavioral-and-telemetry-rebindable', pass: 'p', partial: 'q', fail: 'r' },
+    }),
+  );
+  assert.ok(advisoryRebindable.some((f) => /requires telemetryContract\.enforcement=blocking/.test(f)));
+  assert.ok(advisoryRebindable.some((f) => /requires a non-empty telemetryContract\.rebindReceipts list/.test(f)));
+});
+
+test('the two required-receipt lists must agree about a telemetry receipt', () => {
+  const drifted = manifestFixture({}, {
+    expectedReceipts: [{ name: 'trace-id', required: false }],
+    liveRunSafety: { requiredReceipts: ['trace-id'] },
+  });
+  const failures = validateTelemetryContract(drifted);
+  assert.ok(
+    failures.some((f) => /receipt 'trace-id' is in liveRunSafety\.requiredReceipts but expectedReceipts marks it required=false/.test(f)),
+  );
+
+  // A telemetry receipt that is optional in both lists is fine.
+  const consistentlyOptional = manifestFixture({ rebindReceipts: ['tempo-trace-json'] }, {
+    expectedReceipts: [{ name: 'trace-id', required: true }, { name: 'tempo-trace-json', required: false }],
+    liveRunSafety: { requiredReceipts: ['trace-id'] },
+  });
+  assert.deepEqual(validateTelemetryContract(consistentlyOptional), []);
 });
 
 test('a product prerequisite must name real remedy rows and cannot name itself', () => {
@@ -409,7 +454,117 @@ test('the validator fails closed on the real catalog when a contract is stripped
   }
 });
 
-test('a missing required receipt can no longer ride out as a candidate PASS', async () => {
+test('the validator still runs when it is reached through a symlinked path', async () => {
+  // import.meta.url is realpath-resolved but process.argv[1] is not, so a naive
+  // entrypoint guard turns this validator into a silent exit-0 no-op inside the
+  // catalog preflight whenever TMPDIR or the origin root contains a symlink.
+  const workdir = await mkdtemp(path.join(tmpdir(), 'p81-telemetry-symlink-'));
+  try {
+    const proofs = path.join(workdir, 'repo/tools/k6-proofs');
+    await mkdir(path.join(proofs, 'manifests'), { recursive: true });
+    await mkdir(path.join(proofs, 'scenarios'), { recursive: true });
+    const manifest = JSON.parse(await readFile(path.join(manifestsDir, 'r-cw-1.json'), 'utf8'));
+    delete manifest.telemetryContract;
+    await writeFile(path.join(proofs, 'manifests/r-cw-1.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+
+    const linkedScripts = path.join(workdir, 'linked-scripts');
+    await symlink(path.join(repoRoot, 'tools/k6-proofs/scripts'), linkedScripts, 'dir');
+
+    const direct = spawnSync(process.execPath, [validator, '--repo-root', path.join(workdir, 'repo')], { encoding: 'utf8' });
+    const linked = spawnSync(
+      process.execPath,
+      [path.join(linkedScripts, 'check-telemetry-contracts.mjs'), '--repo-root', path.join(workdir, 'repo')],
+      { encoding: 'utf8' },
+    );
+
+    assert.equal(direct.status, 1);
+    assert.equal(linked.status, 1, 'validator must not silently no-op through a symlinked path');
+    assert.match(linked.stderr, /r-cw-1\.json: liveRunSafety\.requiredReceipts includes telemetry receipt/);
+  } finally {
+    await rm(workdir, { recursive: true, force: true });
+  }
+});
+
+test('a rebindable pass claim is withheld at run time even under advisory enforcement', async () => {
+  // Defence in depth: the catalog validator refuses this declaration, so a
+  // manifest can only reach the post-processor by bypassing the preflight.
+  const outRoot = await mkdtemp(path.join(tmpdir(), 'p81-telemetry-rebind-claim-'));
+  try {
+    const manifest = JSON.parse(await readFile(preflightManifest, 'utf8'));
+    manifest.telemetryContract = contractFixture({
+      enforcement: 'advisory',
+      rebindable: true,
+      productInstrumentationPrerequisite: false,
+      prerequisiteRows: undefined,
+      rebindReceipts: undefined,
+      verdictAuthority: { passScope: 'behavioral-and-telemetry-rebindable', pass: 'p', partial: 'q', fail: 'r' },
+    });
+    const manifestPath = path.join(outRoot, 'claimed-manifest.json');
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+
+    const run = spawnSync(
+      process.execPath,
+      [postprocess, '--manifest', manifestPath, '--summary', preflightSummary, '--out-root', outRoot, '--run-id', 'k6-run-claimed'],
+      { cwd: repoRoot, encoding: 'utf8' },
+    );
+    assert.equal(run.status, 0, run.stderr || run.stdout);
+    const result = JSON.parse(await readFile(path.join(JSON.parse(run.stdout).runDir, 'row-result.json'), 'utf8'));
+
+    assert.equal(result.outcome, 'PARTIAL-candidate');
+    assert.equal(result.failureClass, 'telemetry-rebind-unproven');
+    assert.match(result.reason, /telemetry rebind not proven \(advisory\): no rebind receipt declared/);
+  } finally {
+    await rm(outRoot, { recursive: true, force: true });
+  }
+});
+
+test('a receipt required only by liveRunSafety still withholds a PASS when it is missing', async () => {
+  // r-cd-1 / r-cd-4 / r-cd-chained-depth-2 used to declare trace-id required in
+  // liveRunSafety.requiredReceipts and optional in expectedReceipts, so the row
+  // could report its required telemetry receipt missing and still be a PASS.
+  const outRoot = await mkdtemp(path.join(tmpdir(), 'p81-telemetry-live-required-'));
+  try {
+    const manifest = JSON.parse(await readFile(preflightManifest, 'utf8'));
+    manifest.expectedReceipts = [
+      ...(manifest.expectedReceipts || []),
+      { name: 'trace-id', required: false, description: 'optional in expectedReceipts, required by live-run policy' },
+    ];
+    manifest.liveRunSafety = { ...(manifest.liveRunSafety || {}), requiredReceipts: ['trace-id'], foldRequiresReview: true };
+    const manifestPath = path.join(outRoot, 'drifted-manifest.json');
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+
+    const summary = JSON.parse(await readFile(preflightSummary, 'utf8'));
+    summary.proof_receipts = { 'trace-id': false };
+    const summaryPath = path.join(outRoot, 'summary.json');
+    await writeFile(summaryPath, `${JSON.stringify(summary, null, 2)}\n`);
+
+    const run = spawnSync(
+      process.execPath,
+      [postprocess, '--manifest', manifestPath, '--summary', summaryPath, '--out-root', outRoot, '--run-id', 'k6-run-live-required'],
+      { cwd: repoRoot, encoding: 'utf8' },
+    );
+    assert.equal(run.status, 0, run.stderr || run.stdout);
+    const result = JSON.parse(await readFile(path.join(JSON.parse(run.stdout).runDir, 'row-result.json'), 'utf8'));
+
+    assert.equal(result.outcome, 'PARTIAL-candidate');
+    assert.match(result.reason, /required receipt\(s\) reported missing: trace-id/);
+  } finally {
+    await rm(outRoot, { recursive: true, force: true });
+  }
+});
+
+test('the committed catalog has no telemetry receipt whose required-ness disagrees between the two lists', async () => {
+  for (const { file, manifest } of await loadCatalog()) {
+    const live = new Set(manifest?.liveRunSafety?.requiredReceipts || []);
+    for (const receipt of manifest?.expectedReceipts || []) {
+      if (!TELEMETRY_RECEIPTS.has(receipt.name)) continue;
+      if (live.has(receipt.name)) {
+        assert.equal(receipt.required, true, `${file}: ${receipt.name} disagrees between the two required-receipt lists`);
+      }
+    }
+  }
+});
+test('an explicitly missing required receipt can no longer ride out as a candidate PASS', async () => {
   const outRoot = await mkdtemp(path.join(tmpdir(), 'p81-telemetry-postprocess-'));
   try {
     const summary = JSON.parse(await readFile(preflightSummary, 'utf8'));

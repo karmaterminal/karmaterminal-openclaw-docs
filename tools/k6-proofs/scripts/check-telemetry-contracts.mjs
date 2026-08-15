@@ -25,7 +25,7 @@
  * from the repository root, from tools/k6-proofs, and from
  * tools/k6-proofs/scripts inspects the same files.
  */
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, realpathSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { proofsToolPath, resolveRepositoryRoot } from '../lib/repo-root.mjs';
@@ -239,6 +239,19 @@ export function validateTelemetryContract(manifest, { file = manifest?.rowId || 
   }
 
   const expectedReceiptNames = new Set((manifest.expectedReceipts || []).map((receipt) => receipt?.name));
+  const claimsRebindablePass =
+    contract.rebindable === true || verdict.passScope === 'behavioral-and-telemetry-rebindable';
+
+  // A telemetry-rebindable claim must be enforceable at run time, not merely
+  // declared. Without blocking enforcement and a concrete receipt list the
+  // post-processor has nothing to withhold a PASS on.
+  if (claimsRebindablePass && contract.enforcement !== 'blocking') {
+    fail('a telemetry-rebindable claim (rebindable=true or passScope=behavioral-and-telemetry-rebindable) requires telemetryContract.enforcement=blocking');
+  }
+  if (claimsRebindablePass && !nonEmptyArray(contract.rebindReceipts)) {
+    fail('a telemetry-rebindable claim requires a non-empty telemetryContract.rebindReceipts list');
+  }
+
   if (contract.enforcement === 'blocking') {
     if (!nonEmptyArray(contract.rebindReceipts)) {
       fail('telemetryContract.enforcement=blocking requires a non-empty rebindReceipts list');
@@ -251,6 +264,22 @@ export function validateTelemetryContract(manifest, { file = manifest?.rowId || 
     }
   } else if (contract.rebindReceipts !== undefined && !nonEmptyArray(contract.rebindReceipts)) {
     fail('telemetryContract.rebindReceipts must be a non-empty string array when present');
+  }
+
+  // The two required-receipt lists must agree about any telemetry receipt.
+  // `liveRunSafety.requiredReceipts` is what pulls a row into this contract,
+  // while `expectedReceipts[].required` is what the post-processor judges, so a
+  // disagreement lets a row declare a receipt required and be graded as if it
+  // were optional.
+  const liveRequired = new Set(Array.isArray(requiredReceipts) ? requiredReceipts : []);
+  for (const receipt of manifest.expectedReceipts || []) {
+    if (!receipt || !TELEMETRY_RECEIPTS.has(receipt.name)) continue;
+    if (liveRequired.has(receipt.name) && receipt.required !== true) {
+      fail(
+        `receipt '${receipt.name}' is in liveRunSafety.requiredReceipts but expectedReceipts marks it required=${JSON.stringify(receipt.required)}; ` +
+        'the two required-receipt lists must agree for a telemetry receipt',
+      );
+    }
   }
 
   if (contract.remedyConcern !== undefined && !REMEDY_CONCERNS.includes(contract.remedyConcern)) {
@@ -354,6 +383,28 @@ function main() {
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+/**
+ * True when this module is the process entry point.
+ *
+ * `import.meta.url` is realpath-resolved but `process.argv[1]` is not, so a
+ * symlinked invocation path (a symlinked TMPDIR snapshot root, an operator
+ * -supplied origin root) would otherwise make the comparison false and turn
+ * this validator into a silent exit-0 no-op inside the catalog preflight.
+ */
+function invokedAsCli() {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  const resolved = path.resolve(entry);
+  let real = resolved;
+  try {
+    real = realpathSync(resolved);
+  } catch {
+    // Keep the non-realpath form; an unreadable entry path is still comparable.
+  }
+  const self = import.meta.url;
+  return self === pathToFileURL(real).href || self === pathToFileURL(resolved).href;
+}
+
+if (invokedAsCli()) {
   main();
 }

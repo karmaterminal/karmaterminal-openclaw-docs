@@ -1,0 +1,233 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-OBS-CONT-PROVENANCE",
+  "issue": 1254,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "offline",
+  "toolSurface": "mixed",
+  "mutates": false,
+  "timeoutSeconds": 300,
+  "scenario": {
+    "status": "construct-only",
+    "name": "r-obs-cont-provenance",
+    "description": "Accepted continuation entry spans carry primitive/origin classification plus stable public-safe run, session, and turn correlation, so a typed-tool span and its accepted-entry span can be causally joined after the fact.",
+    "notes": "Construct-only. The continuation telemetry census (karmaterminal/openclaw#1254) established that continuation.work and continuation.delegate.dispatch carry no signal.kind and no session/turn/run identity on the exact product basis 6b09b1db. Until OpenClaw emits the declared attributes there is nothing for a scenario to assert, so this row publishes the contract instead of a scenario.",
+    "registryNotes": "Cross-cutting instrumentation contract. It is not a behavioral row: R-CW-1, R-CW-3, R-CD-2, R-CD-4, R-CD-CHAINED-DEPTH-2, R-CD-TOKEN, R-CD-MODEL-TOOL and R-RC-2 each depend on it for their telemetry rebind claim and none of them can honestly own it alone."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "remedyConcern": "origin-provenance",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "Accepted entry spans totalled 23 in 24h and 366 in 7d and carried no signal.kind. Primitive attribution came from three separate, non-additive evidence streams (typed-tool spans, bracket effective-signal logs, tool-call effective-signal logs); census confidence for primitive attribution and unique user-visible turns was explicitly low."
+    },
+    "enforcement": "blocking",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": ["R-OBS-PROOF-MARKER", "R-OBS-BACKEND-DISPOSITION"],
+    "rebindReceipts": [
+      "entry-span-origin-attribute",
+      "entry-span-identity-attributes",
+      "tool-to-entry-causal-join",
+      "backend-completeness-receipt"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.work",
+          "role": "accepted-entry",
+          "emittedByProduct": true,
+          "notes": "Exists on 6b09b1db but carries no origin/session/turn/run identity."
+        },
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "accepted-entry",
+          "emittedByProduct": true,
+          "notes": "Exists on 6b09b1db but carries no origin/session/turn/run identity."
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "Typed-tool evidence stream. It cannot currently be joined to an accepted-entry span because neither side shares a stable correlation key."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Closed enum: typed-tool | tool-call | bracket | post-compaction | queue-drain. Today signal.kind is attached only to continuation.disabled and compaction-release spans."
+        },
+        {
+          "key": "continuation.signal.kind",
+          "purpose": "other",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "work | delegate | compaction, on the accepted-entry span rather than only on disabled/compaction-release spans."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Tempo intentionally drops raw session identifiers from exported span attributes; the remedy is a stable salted fingerprint, not the raw key."
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No exported span retains a stable turn identifier today, so unique user-visible turns cannot be counted."
+        },
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Already present on continuation spans and already asserted by the trace-correlation resolvers."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Identity is published as a salted fingerprint or a closed enum only. Raw session keys, raw run/turn identifiers, prompt or reason bodies, task text, channel payloads and Discord receipt identifiers never enter a span attribute or a committed artifact.",
+      "forbiddenInArtifacts": [
+        "raw session key",
+        "raw run id",
+        "raw turn id",
+        "reason body",
+        "prompt body",
+        "task text",
+        "gateway token"
+      ],
+      "saltSource": "Per-fleet salt supplied at runtime and never committed; fingerprints are stable within a fleet and non-reversible outside it."
+    },
+    "controls": {
+      "positive": "In one bounded window fire the same primitive on both entry surfaces: a typed continue_work tool call and a bare CONTINUE_WORK response token. Both must produce accepted-entry spans, the typed one must join to its openclaw.tool.execution span through the shared run fingerprint, and the two spans must report different continuation.signal.origin values while sharing the session fingerprint.",
+      "negative": "An empty continuation.queue.drain, an unrelated openclaw.run, and a CONTINUE_WORK string carried inside a message tool body must produce no accepted-entry span and no origin attribute. A window with no continuation activity must return zero accepted-entry spans with a complete backend receipt, proving the query itself is not the thing producing the zero.",
+      "notes": "The negative control is what separates 'no continuation happened' from 'the query or the backend hid it'; the census could not make that separation."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": ["totalBlocks", "completedJobs", "inspectedBytes", "tempoApiStatus"],
+      "rebindKeys": [
+        "candidate_sha",
+        "proof_run_id",
+        "row_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id"
+      ],
+      "notes": "During the census, identical historical Tempo searches later returned HTTP 200 live-store-only responses with no totalBlocks and zero historical matches while /ready stayed 200. A response missing the completeness keys is unavailable/partial evidence, never a zero."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.continuation-provenance-receipt.v1",
+      "requiredFiles": [
+        "EVIDENCE.md",
+        "row-result.json",
+        "continuation-provenance-receipt.json",
+        "tempo-trace.json",
+        "backend-status.json"
+      ],
+      "notes": "continuation-provenance-receipt.json enumerates every accepted-entry span in the window with its origin enum, identity fingerprints, and the tool span it joined to (or the explicit reason no tool span exists for a bracket origin)."
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "Every accepted-entry span in the bounded window carries continuation.signal.origin, continuation.signal.kind and all three identity fingerprints; every typed-tool origin joins to exactly one openclaw.tool.execution span; both positive-control surfaces are distinguishable; the negative controls stay empty; and the backend receipt is complete.",
+      "partial": "The backend receipt is missing a completeness key, the window is degraded/partial, or one or more declared attributes are absent. Absent attributes are recorded as instrumentation debt against karmaterminal/openclaw#1254, never as a behavioral finding.",
+      "fail": "An accepted-entry span reports an origin contradicted by the fired surface, two distinct sessions or turns collide on one fingerprint, or a typed-tool origin joins to more than one tool execution."
+    },
+    "execution": {
+      "deterministicK6": "A deterministic k6 row fires both entry surfaces with a runner-owned nonce and a bounded window, then asserts the declared attributes on the exported spans.",
+      "manual": "Until the product emits the attributes, only the manual Tempo JSON read exists, and it can report nothing but their absence.",
+      "relationship": "The manual read is the interim instrument and produces PARTIAL only. The deterministic k6 row becomes the authority the moment the product emits the attributes; the manual read then degrades to a spot-check and never overrides the k6 receipt."
+    }
+  },
+  "expectedReceipts": [
+    {
+      "name": "entry-span-origin-attribute",
+      "required": true,
+      "description": "Every accepted continuation entry span in the bounded window carries continuation.signal.origin and continuation.signal.kind from the closed enum"
+    },
+    {
+      "name": "entry-span-identity-attributes",
+      "required": true,
+      "description": "Every accepted entry span carries stable public-safe run, session, and turn fingerprints"
+    },
+    {
+      "name": "tool-to-entry-causal-join",
+      "required": true,
+      "description": "Each typed-tool origin joins to exactly one openclaw.tool.execution span through the shared run fingerprint, and each bracket origin proves the absence of a typed-tool span"
+    },
+    {
+      "name": "both-forms-origin-discrimination",
+      "required": true,
+      "description": "The typed-tool and token/bracket positive controls fired in one window are separable by origin enum alone"
+    },
+    {
+      "name": "negative-control-empty",
+      "required": true,
+      "description": "Empty queue drains, unrelated runs, and message-tool-body tokens produce no accepted-entry span and no origin attribute"
+    },
+    {
+      "name": "backend-completeness-receipt",
+      "required": true,
+      "description": "Telemetry backend response carries the declared completeness keys; a degraded response is recorded as unavailable/partial and never as zero"
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace projection for the bounded window"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-OBS-CONT-PROVENANCE",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Construct-only remedy contract from the continuation telemetry census. It publishes what OpenClaw must emit before any continuation row can claim a telemetry-rebindable PASS. It must not be read as evidence that the instrumentation exists."
+  },
+  "liveRunSafety": {
+    "classification": "construct-only",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "construct-only",
+    "requiredReceipts": [
+      "entry-span-origin-attribute",
+      "entry-span-identity-attributes",
+      "tool-to-entry-causal-join",
+      "both-forms-origin-discrimination",
+      "negative-control-empty",
+      "backend-completeness-receipt",
+      "tempo-trace-json"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Construct-only rows are rejected by the live-run guard. Publication path for a future product PR that lands the instrumentation is PR-NNNNNN/PROOFS/<FULL_SHA>/."
+  }
+}

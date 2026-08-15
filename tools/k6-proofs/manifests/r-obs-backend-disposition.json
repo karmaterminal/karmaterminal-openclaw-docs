@@ -1,0 +1,213 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-OBS-BACKEND-DISPOSITION",
+  "issue": 1254,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "offline",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 180,
+  "scenario": {
+    "status": "construct-only",
+    "name": "r-obs-backend-disposition",
+    "description": "A degraded telemetry backend produces explicit unavailable/partial evidence plus the keys needed to rebind the same slice later, instead of a zero that reads as absence.",
+    "notes": "Construct-only. This contract is harness-side: it does not wait on OpenClaw instrumentation, it waits on harness work that is deliberately out of scope for a catalog/contract PR. During the census, identical historical Tempo searches later returned HTTP 200 live-store-only responses with no totalBlocks and zero historical matches while /ready stayed 200, and journalctl was scope-inconsistent across five hosts with a timeout on the sixth; both were recorded as unavailable rather than zero.",
+    "registryNotes": "Cross-cutting harness contract. Every telemetry-dependent row inherits its backend disposition from here, which is why it is one row rather than a repeated clause in nine."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "remedyConcern": "backend-disposition",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "Tempo /ready stayed 200 while historical search silently degraded to live-store-only. The 7d search hit the 10,000-result cap and had to be recomputed as seven complete 24h slices, so 7d trace counts are medium confidence. Loki range queries reject limit > 5000 (max_entries_limit), so instant count_over_time was used."
+    },
+    "enforcement": "blocking",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": false,
+    "rebindReceipts": [
+      "backend-completeness-receipt",
+      "degraded-response-classified",
+      "rebind-key-set-published"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "tempo.api.search",
+          "role": "backend-status",
+          "emittedByProduct": false,
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Not an OpenClaw span. The harness records the backend request/response as a status receipt; naming it here keeps the disposition explicit rather than implicit in a fetch helper."
+        },
+        {
+          "name": "tempo.api.traces",
+          "role": "backend-status",
+          "emittedByProduct": false,
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Trace-by-id fetch status, including the live-store-only degradation shape."
+        },
+        {
+          "name": "loki.api.query",
+          "role": "backend-status",
+          "emittedByProduct": false,
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Instant/range query status, including max_entries_limit rejection."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "telemetry.backend.status",
+          "purpose": "backend-completeness",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Closed enum: complete | partial | unavailable | capped | unknown. 'unknown' is the only honest value when the response carries no completeness metadata."
+        },
+        {
+          "key": "telemetry.backend.total_blocks",
+          "purpose": "backend-completeness",
+          "emittedByProduct": false,
+          "publicSafeForm": "integer",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Absent totalBlocks is the exact shape of the live-store-only degradation the census hit."
+        },
+        {
+          "key": "telemetry.backend.completed_jobs",
+          "purpose": "backend-completeness",
+          "emittedByProduct": false,
+          "publicSafeForm": "integer",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "telemetry.backend.result_capped",
+          "purpose": "backend-completeness",
+          "emittedByProduct": false,
+          "publicSafeForm": "boolean",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "True when the backend limit was reached, as with the 7d limit=10000 search that had to be re-sliced."
+        },
+        {
+          "key": "telemetry.backend.window_start_utc",
+          "purpose": "backend-completeness",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Recorded as a literal ISO-8601 instant. Enum form here means a fixed, machine-parseable value rather than prose."
+        },
+        {
+          "key": "telemetry.backend.query_fingerprint",
+          "purpose": "backend-completeness",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Digest of the exact TraceQL/LogQL text, so a later reader can prove the same query was reissued."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Backend receipts publish endpoint hostnames only as configured base-URL environment names, plus status codes, counts, window bounds and query fingerprints. Query text is published only when it is already committed in the catalog; response bodies are never copied verbatim.",
+      "forbiddenInArtifacts": [
+        "bearer token",
+        "basic auth header",
+        "raw response body",
+        "raw log line",
+        "raw session key"
+      ]
+    },
+    "controls": {
+      "positive": "A healthy backend returns telemetry.backend.status=complete with totalBlocks and completed jobs present, and the published rebind keys re-derive an identical result set on a second issue of the same query.",
+      "negative": "A backend that answers HTTP 200 with no completeness metadata, a capped result set, or an unreachable endpoint must classify as partial/capped/unavailable and must not yield a zero-result finding. A row whose only evidence is such a response cannot reach PASS.",
+      "notes": "This inverts the census failure mode directly: the degraded searches returned 200 and zero, and only the completeness metadata distinguished them from a genuinely empty window."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": ["totalBlocks", "completedJobs", "inspectedBytes", "tempoApiStatus"],
+      "rebindKeys": [
+        "backend_base_url_env",
+        "query_fingerprint",
+        "window_start_utc",
+        "window_end_utc",
+        "slice_strategy",
+        "result_capped",
+        "candidate_sha",
+        "proof_run_id"
+      ],
+      "notes": "slice_strategy records that a capped multi-day window was recomputed from complete daily slices, which is the difference between the census's high-confidence 24h totals and its medium-confidence 7d totals."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.telemetry-backend-status.v1",
+      "requiredFiles": [
+        "EVIDENCE.md",
+        "row-result.json",
+        "backend-status.json"
+      ],
+      "notes": "backend-status.json is the sibling receipt every other telemetry-dependent row cites; it is written even when the backend is healthy so an absent file is itself a defect rather than an assumption of health."
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "Every backend interaction in the row window produced a status receipt with the declared completeness keys, degraded and capped responses were classified as such, and the published rebind keys re-derived an identical result set.",
+      "partial": "A backend was unavailable, partial, or capped, or a completeness key was missing. This is the expected disposition on a degraded fleet and is not a product finding.",
+      "fail": "A zero-result response with missing completeness metadata was reported as an absence, a status receipt was omitted for an interaction that happened, or the rebind keys did not re-derive the same slice."
+    },
+    "execution": {
+      "deterministicK6": "The deterministic harness path writes backend-status.json for every telemetry fetch and refuses to emit a telemetry-dependent PASS when the status is not complete.",
+      "manual": "A manual reviewer reading a Tempo UI has no completeness metadata at all and cannot distinguish an empty window from a degraded one.",
+      "relationship": "Harness-side only: this row is not blocked on OpenClaw instrumentation. It is construct-only because the harness receipt does not exist yet, not because the product must change first."
+    }
+  },
+  "expectedReceipts": [
+    {
+      "name": "backend-completeness-receipt",
+      "required": true,
+      "description": "Every telemetry backend interaction writes a status receipt carrying the declared completeness keys"
+    },
+    {
+      "name": "degraded-response-classified",
+      "required": true,
+      "description": "A 200-with-no-completeness-metadata, capped, or unreachable response classifies as partial/capped/unavailable and never as zero"
+    },
+    {
+      "name": "rebind-key-set-published",
+      "required": true,
+      "description": "The published rebind keys re-derive an identical result set when the same query is reissued"
+    },
+    {
+      "name": "slice-strategy-recorded",
+      "required": true,
+      "description": "A capped window records how it was re-sliced and which slices were complete, so the resulting confidence is explicit"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-OBS-BACKEND-DISPOSITION",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Construct-only remedy contract, harness-side. It is the one row in this set that does not wait on OpenClaw instrumentation; it waits on harness receipt work that is out of scope for a catalog/contract PR."
+  },
+  "liveRunSafety": {
+    "classification": "construct-only",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "construct-only",
+    "requiredReceipts": [
+      "backend-completeness-receipt",
+      "degraded-response-classified",
+      "rebind-key-set-published",
+      "slice-strategy-recorded"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Construct-only rows are rejected by the live-run guard. Publication path for a future PR that lands the harness receipt is PR-NNNNNN/PROOFS/<FULL_SHA>/."
+  }
+}

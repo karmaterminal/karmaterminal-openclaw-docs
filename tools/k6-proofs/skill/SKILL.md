@@ -35,6 +35,14 @@ tools/k6-proofs/k6-proofs-pipeline.xml — structured one-shot decision tree
 
 ## How to Build a New Proof Scenario
 
+> **Start here:** `tools/k6-proofs/docs/AUTHORING-A-PROOF-ROW.md` is the
+> code-grounded authoring guide — the k6/Node runtime boundary and why it is
+> load-bearing, the shared helpers (`lib/proof-session.js`,
+> `lib/receipt-seal.mjs`, `lib/tempo-trace-id.mjs`, `lib/tempo-span-match.mjs`,
+> `lib/observability-outcome.mjs`) to reuse instead of rebuilding, and the three
+> checks to run before pushing. The steps below remain the row-selection and
+> template walkthrough.
+
 ### 1. Identify the Row
 Check `tools/k6-proofs/k6-proofs-pipeline.xml`, `tools/k6-proofs/CONTRIBUTING-ROWS.md`, and the Project-81 issue for the row definition:
 - Row name (e.g., `R-CD-2`)
@@ -150,6 +158,18 @@ node tools/k6-proofs/scripts/evidence-writer.mjs \
 ```
 
 ## Key Patterns
+
+### Missing Observability Stays Explicit
+When Tempo or the gateway journal is unavailable, the row must say so in a way
+a reader can act on. `collect-continuation-trace.mjs` writes
+`continuation-trace-observability.json` on every exit with an explicit status
+(`correlated`, `backend-unavailable`, `no-matching-trace`, `ambiguous-trace`,
+`topology-invalid`, `contract-invalid`). Only `correlated` may carry correlation
+artifacts; every other status carries public-safe rebind keys so the row can be
+re-bound later without refiring the product. On the log side,
+`resolveTargetedReturnAuthority` reports `journal-unavailable` for an unread
+journal and `no-delivery` only for a captured journal that genuinely contains no
+matching delivery. An evidence gap must never render as a product claim.
 
 ### Evidence Correlation
 The gateway doesn't expose a REST API for delegate dispatch — delegates fire via the agent's tool surface. The k6 harness verifies infrastructure readiness and captures evidence post-run:

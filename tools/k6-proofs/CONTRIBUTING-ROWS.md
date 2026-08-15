@@ -6,6 +6,11 @@ The goal: **running a k6 proof is very little work beyond kickoff**. This page i
 short version of what each row PR must include so the coordinator can fold it
 into `PROOFS/<sha>/` without back-and-forth.
 
+Writing or repairing the scenario itself?
+[`docs/AUTHORING-A-PROOF-ROW.md`](docs/AUTHORING-A-PROOF-ROW.md) covers the
+k6/Node boundary, the shared helpers to reuse instead of rebuilding, and the
+three checks to run before you push.
+
 ## Before you start
 
 1. **Claim the labelled issue on [Project 81](https://github.com/orgs/karmaterminal/projects/81)

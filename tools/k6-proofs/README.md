@@ -8,16 +8,34 @@ Deterministic proof-row fire-and-observe harness for the OpenClaw continuation f
 tools/k6-proofs/
 ├── lib/
 │   ├── gateway-ws.js              # WS helpers (frame, connect, nonce, RequestTracker, redaction)
-│   └── manifest-loader.js         # Manifest loading, env-var resolution, validation
+│   ├── proof-session.js           # k6-safe: tracked connect handshake, disposable keys, evidence records
+│   ├── manifest-loader.js         # Manifest loading, env-var resolution, validation
+│   ├── receipt-seal.mjs           # Node-only: the one gateway-token HMAC seal/verify boundary
+│   ├── tempo-trace-id.mjs         # Node-only: the one Tempo/OTLP identifier contract
+│   ├── tempo-span-match.mjs       # Node-only: the one originating-tool-span identity
+│   └── observability-outcome.mjs  # Node-only: explicit trace-correlation outcome + rebind keys
 ├── manifests/                    # Row manifests (R-CD, R-CW, R-RC, R-OBS, safety/config rows)
 ├── scenarios/
 │   ├── preflight.js               # Scenario 0: auth + tool inventory check
 │   ├── r-cd-*.js                  # continue_delegate rows
 │   └── r-cw*.js                   # continue_work rows
 ├── dashboards/                    # Grafana dashboard JSON
-├── docs/                          # Folded row-family docs
+├── docs/                          # Folded row-family docs + AUTHORING-A-PROOF-ROW.md
 └── scripts/                       # evidence writer, postprocessor, corpus validator
 ```
+
+**Writing a new row?** Start at
+[`docs/AUTHORING-A-PROOF-ROW.md`](docs/AUTHORING-A-PROOF-ROW.md): the k6/Node
+boundary, the shared helpers to reuse instead of rebuilding, and the checks to
+run before you push.
+
+`lib/*.js` modules are k6-safe and may be imported by scenarios. `lib/*.mjs`
+modules are Node-only *unless* they are structural observers with no Node
+dependency (`row-child-correlation.mjs`, `r-cd-4-authority.mjs`,
+`r-cd-chained-depth-2-authority.mjs`, `r-cd-model-tool-authority.mjs`). The
+authority is not the extension but
+`scripts/check-k6-scenario-import-closure.mjs`, which walks every scenario's
+transitive closure and fails closed.
 
 ## Prerequisites
 
@@ -663,7 +681,8 @@ node tools/k6-proofs/scripts/live-run-guard.mjs --manifest tools/k6-proofs/manif
 # Validate workflow scenario choices and row-manifest scenario alignment
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs
 
-# Reject Node-only builtins anywhere in a k6 scenario dependency graph
+# Reject Node-only builtins, CommonJS require, computed dynamic imports, and
+# Node-only globals anywhere in a k6 scenario dependency graph
 node tools/k6-proofs/scripts/check-k6-scenario-import-closure.mjs
 
 # Export candidate artifact row-result.json files as Prometheus text exposition
@@ -683,6 +702,36 @@ supplied. The script never mutates corpus data.
 `check-manifest-scenarios.mjs` is the row-harness registry check: runnable
 manifests must point at an existing `tools/k6-proofs/scenarios/*.js`; rows with
 no runnable file must say `scenario.status` is `scaffold` or `construct-only`.
+
+`check-k6-scenario-import-closure.mjs` is the k6-runtime-safety gate. k6
+resolves a scenario's whole ESM graph before the first VU starts, so anything
+Node-only that is *reachable* aborts the run at initialization — exit 107,
+before a single frame is sent, producing a PARTIAL with no product evidence in
+it. The guard walks each scenario's transitive closure and fails closed on:
+
+- direct or transitive `node:` / bare Node builtin imports;
+- unsupported bare imports and unresolved relative imports;
+- CommonJS `require()`;
+- dynamic `import()` whose specifier is not a literal, because the closure it
+  opens cannot be verified ahead of the run;
+- Node-only globals — `process`, `Buffer`, `__dirname`, `__filename`, `module`,
+  `exports`, and `globalThis.<node-global>` — which abort a VU exactly like an
+  import does.
+
+String and template contents and comments are blanked before the identifier and
+call scans, with delimiters preserved, so prompts and prose cannot trip the
+guard while a literal `import('node:os')` is still classified as the builtin
+import it is. Member access (`step.process`) and object keys (`{ process: … }`)
+are excluded; neither reaches the Node global.
+
+Observability outcome artifact: `collect-continuation-trace.mjs` writes
+`continuation-trace-observability.json` into the run dir on **every** exit. Its
+`status` is one of `correlated`, `backend-unavailable`, `no-matching-trace`,
+`ambiguous-trace`, `topology-invalid`, or `contract-invalid`. Only `correlated`
+may carry `traceId` / `traceJson` / `correlationReceipt`; every other status
+carries public-safe `rebind` keys (service, TraceQL query, search window, reason
+fingerprint, nonce/session fingerprints) so the row can be re-bound when the
+backend returns without refiring the product.
 
 ### Repository-root contract for catalog validators (#495)
 

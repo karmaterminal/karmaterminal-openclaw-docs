@@ -28,6 +28,14 @@ The harness, scenarios, runner, dashboards, and the machine-parseable pipeline a
 > Same reason `PROOFS/INDEX.json` + the per-SHA `manifest.json` made the corpus machine-legible.
 > XML/JSON for the queryable decision/index/manifest layer; Markdown for the human glue.
 
+**Writing or repairing a scenario?** `tools/k6-proofs/docs/AUTHORING-A-PROOF-ROW.md`
+is the code-grounded authoring guide: the k6-VU vs Node post-run boundary and why
+a single reachable `node:` import aborts a run before it dispatches, the shared
+helpers to reuse instead of rebuilding (`lib/proof-session.js`,
+`lib/receipt-seal.mjs`, `lib/tempo-trace-id.mjs`, `lib/tempo-span-match.mjs`,
+`lib/observability-outcome.mjs`), and the import-closure / `k6 inspect` /
+`node --test` checks to run before pushing.
+
 ## Components
 
 The harness is environment-agnostic; the deployment endpoints below are an **internal-fleet

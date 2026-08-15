@@ -78,11 +78,32 @@ export function httpStatusOf(error) {
   return Number.isInteger(wrapped) ? wrapped : null;
 }
 
+/** Which Tempo endpoint produced the failure, if the thrower said so. */
+export function tempoEndpointOf(error) {
+  return error?.tempoEndpoint || error?.cause?.tempoEndpoint || null;
+}
+
+/**
+ * True when the backend actually answered the question and had nothing.
+ *
+ * This is a narrower test than "4xx", and the narrowness is the point. Tempo
+ * answers a search that matches nothing with 200 and an empty result set, so a
+ * 404 from `/api/search` means the route is not there — a wrong base URL, API
+ * version, or tenant prefix. That is an operator condition, and reporting it as
+ * `no-matching-trace` would state something about the product run that nobody
+ * established. Only a 404 from `/api/traces/<id>` is Tempo telling us it is not
+ * carrying that trace; a 401/403 means we were refused and learned nothing.
+ */
+function answeredWithNothing(error, status) {
+  if (status !== 404) return false;
+  return tempoEndpointOf(error) !== 'search';
+}
+
 /**
  * Classify a collector failure without guessing.
  *
- * A transport failure is the only case allowed to claim the backend was
- * unavailable; a reachable backend that returned nothing stays
+ * A failure to obtain an answer is the only case allowed to claim the backend
+ * was unavailable; a reachable backend that answered and had nothing stays
  * `no-matching-trace`, which is a product/evidence statement, not an
  * infrastructure excuse. The transport test is deliberately narrow — any
  * `TypeError` would sweep an internal collector bug into the same excuse.
@@ -96,13 +117,11 @@ export function httpStatusOf(error) {
 export function classifyTraceFailure({ error, candidateCount = 0, contractResolved = true } = {}) {
   const message = String(error?.message || error || '');
   if (!contractResolved) return TRACE_OUTCOME.CONTRACT_INVALID;
-  // A reachable Tempo that answers 404 or another 4xx has *told* us something:
-  // it is not carrying the trace. Only a server-side or rate-limit refusal is
-  // an availability claim.
   const status = httpStatusOf(error);
   if (status !== null) {
-    if (status >= 500 || status === 429) return TRACE_OUTCOME.BACKEND_UNAVAILABLE;
-    return TRACE_OUTCOME.NO_MATCHING_TRACE;
+    return answeredWithNothing(error, status)
+      ? TRACE_OUTCOME.NO_MATCHING_TRACE
+      : TRACE_OUTCOME.BACKEND_UNAVAILABLE;
   }
   if (isTransportFailure(error)) return TRACE_OUTCOME.BACKEND_UNAVAILABLE;
   if (/trace correlation is ambiguous/i.test(message)) return TRACE_OUTCOME.AMBIGUOUS_TRACE;

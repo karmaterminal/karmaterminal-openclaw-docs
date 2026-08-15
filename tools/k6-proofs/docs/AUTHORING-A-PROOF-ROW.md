@@ -139,8 +139,8 @@ A row that cannot get its trace must say *why*. The collector writes
 | status | meaning |
 | --- | --- |
 | `correlated` | a trace was found and passed every topology gate |
-| `backend-unavailable` | Tempo could not be reached, or refused with 5xx/429 |
-| `no-matching-trace` | Tempo answered — including a 404 for the trace body — and had nothing to give |
+| `backend-unavailable` | Tempo could not be reached, or refused: transport failure, 5xx, 429, 401/403, or a 404 from the *search* route (which means the route is missing, since an empty search answers 200) |
+| `no-matching-trace` | Tempo answered and had nothing: an empty search result, or a 404 for the trace body |
 | `ambiguous-trace` | more than one trace matched; no first-wins selection |
 | `topology-invalid` | a trace matched but failed a topology gate |
 | `contract-invalid` | the manifest/evidence could not produce a query at all |

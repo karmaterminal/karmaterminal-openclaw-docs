@@ -203,7 +203,7 @@ async function tempoSearch(baseUrl, query, start, end) {
   if (!response.ok) {
     throw Object.assign(
       new Error(`Tempo search failed: HTTP ${response.status} ${response.statusText}`.trim()),
-      { httpStatus: response.status },
+      { httpStatus: response.status, tempoEndpoint: 'search' },
     );
   }
   const json = JSON.parse(text);
@@ -219,7 +219,7 @@ async function fetchTrace(baseUrl, traceId) {
   if (!response.ok) {
     throw Object.assign(
       new Error(`Tempo trace fetch failed: HTTP ${response.status} ${response.statusText}`.trim()),
-      { httpStatus: response.status },
+      { httpStatus: response.status, tempoEndpoint: 'trace' },
     );
   }
   return JSON.parse(text);

@@ -257,21 +257,38 @@ test('an internal collector bug is never excused as backend trouble', () => {
   );
 });
 
-test('a reachable Tempo answering 404 is not an availability claim', () => {
-  // A 404 on the trace body is Tempo telling us it is not carrying that trace —
-  // the module's own invariant says a reachable backend returning nothing stays
-  // an evidence statement, not an infrastructure excuse.
-  const notFound = Object.assign(new Error('Tempo trace fetch failed: HTTP 404 Not Found'), { httpStatus: 404 });
-  assert.equal(classifyTraceFailure({ error: notFound, candidateCount: 1 }), TRACE_OUTCOME.NO_MATCHING_TRACE);
+test('only a trace-body 404 means the backend answered and had nothing', () => {
+  // Tempo answers a search that matches nothing with 200 and an empty result
+  // set. A 404 from /api/search therefore means the route is not there — a
+  // wrong base URL, API version, or tenant prefix — which is an operator
+  // condition, not a statement about the product run.
+  const traceMissing = Object.assign(
+    new Error('Tempo trace fetch failed: HTTP 404 Not Found'),
+    { httpStatus: 404, tempoEndpoint: 'trace' },
+  );
+  assert.equal(classifyTraceFailure({ error: traceMissing, candidateCount: 1 }), TRACE_OUTCOME.NO_MATCHING_TRACE);
 
-  const forbidden = Object.assign(new Error('Tempo search failed: HTTP 403 Forbidden'), { httpStatus: 403 });
-  assert.equal(classifyTraceFailure({ error: forbidden }), TRACE_OUTCOME.NO_MATCHING_TRACE);
+  const routeMissing = Object.assign(
+    new Error('Tempo search failed: HTTP 404 Not Found'),
+    { httpStatus: 404, tempoEndpoint: 'search' },
+  );
+  assert.equal(classifyTraceFailure({ error: routeMissing }), TRACE_OUTCOME.BACKEND_UNAVAILABLE);
 
-  // Server-side refusal and rate limiting remain availability claims.
-  for (const status of [500, 502, 503, 504, 429]) {
-    const error = Object.assign(new Error(`Tempo search failed: HTTP ${status}`), { httpStatus: status });
+  // Being refused is not being answered: we learned nothing about the trace.
+  for (const status of [401, 403, 500, 502, 503, 504, 429]) {
+    const error = Object.assign(
+      new Error(`Tempo search failed: HTTP ${status}`),
+      { httpStatus: status, tempoEndpoint: 'search' },
+    );
     assert.equal(classifyTraceFailure({ error }), TRACE_OUTCOME.BACKEND_UNAVAILABLE, `status ${status}`);
   }
+
+  // The endpoint tag survives the collector's deadline wrapper.
+  const wrapped = Object.assign(
+    new Error('Tempo trace did not reach valid continuation topology before timeout: HTTP 404'),
+    { cause: routeMissing },
+  );
+  assert.equal(classifyTraceFailure({ error: wrapped, candidateCount: 1 }), TRACE_OUTCOME.BACKEND_UNAVAILABLE);
 });
 
 test('the deadline wrapper must not erase the failure it wraps', () => {
@@ -284,10 +301,10 @@ test('the deadline wrapper must not erase the failure it wraps', () => {
     { cause: inner },
   );
 
-  const notFound = wrap(Object.assign(new Error('Tempo trace fetch failed: HTTP 404 Not Found'), { httpStatus: 404 }));
+  const notFound = wrap(Object.assign(new Error('Tempo trace fetch failed: HTTP 404 Not Found'), { httpStatus: 404, tempoEndpoint: 'trace' }));
   assert.equal(classifyTraceFailure({ error: notFound, candidateCount: 1 }), TRACE_OUTCOME.NO_MATCHING_TRACE);
 
-  const throttled = wrap(Object.assign(new Error('Tempo trace fetch failed: HTTP 429'), { httpStatus: 429 }));
+  const throttled = wrap(Object.assign(new Error('Tempo trace fetch failed: HTTP 429'), { httpStatus: 429, tempoEndpoint: 'trace' }));
   assert.equal(classifyTraceFailure({ error: throttled, candidateCount: 1 }), TRACE_OUTCOME.BACKEND_UNAVAILABLE);
 
   const transport = wrap(Object.assign(new TypeError('fetch failed'), { cause: { code: 'ECONNREFUSED' } }));

@@ -16,6 +16,7 @@ import { check } from 'k6';
 import crypto from 'k6/crypto';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { GatewayHandshake, disposableSessionKey, recordClassifiedEvent } from '../lib/proof-session.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { findRequestCompactionReceipt } from '../lib/request-compaction-receipt.js';
 import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
@@ -115,6 +116,24 @@ export default function () {
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    // Response-driven handshake: start the row when the gateway
+    // acknowledges connect, not after a fixed guess. The old fixed delay
+    // survives only as the recorded upper bound.
+    const handshake = new GatewayHandshake({
+      tracker,
+      fallbackMs: 500,
+      onReady: () => {
+      if (createDisposableSession) {
+        (() => {
+          const disposableKey = disposableSessionKey('r-rc-2', rowNonce);
+          tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-RC-2 ${rowNonce}` });
+        })();
+      } else {
+        startProofFlow();
+      }
+      },
+    });
+
     let childHistoryPolls = 0;
     let childHistoryPollScheduled = false;
     let childHistoryPollInFlight = false;
@@ -196,29 +215,15 @@ export default function () {
     }
 
     socket.on('open', () => {
-      socket.send(connectFrame(token));
-      if (createDisposableSession) {
-        socket.setTimeout(() => {
-          const disposableKey = `r-rc-2-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-          tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-RC-2 ${rowNonce}` });
-        }, 250);
-      } else {
-        socket.setTimeout(startProofFlow, 500);
-      }
+      handshake.begin(socket, token);
     });
 
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
         const classified = tracker.classify(msg);
-        evidence.redacted_events.push({
-          ts: Date.now(),
-          kind: classified.kind,
-          method: classified.method || null,
-          event: classified.event || null,
-          ok: classified.ok !== undefined ? classified.ok : null,
-          data: classified.payload ? redactEvent(classified.payload) : null,
-        });
+        handshake.observe(classified);
+        recordClassifiedEvent(evidence, classified, redactEvent);
 
         if (classified.kind === 'response' && classified.method === 'sessions.create') {
           if (classified.ok && classified.payload) {

@@ -4,6 +4,7 @@ import { check } from 'k6';
 import crypto from 'k6/crypto';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker } from '../lib/gateway-ws.js';
+import { GatewayHandshake, normalizedProofName } from '../lib/proof-session.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import {
   classifyTokenEvidence,
@@ -64,7 +65,7 @@ export default function () {
   const attemptId = __ENV.OPENCLAW_PROOF_ATTEMPT_ID || rowNonce;
   const tag = hash(rowNonce);
   const inv = invocationCfg();
-  const taskName = `${inv.taskNamePrefix}-${tag}`.toLowerCase().replace(/[^a-z0-9-]/g, '-').slice(0, 80);
+  const taskName = normalizedProofName(inv.taskNamePrefix, tag).slice(0, 80);
   const originTitle = `RCDT-O-${tag}`;
   // Production prepends 63 characters before signal.task and then exposes only
   // the first 80 title characters. Keep this marker to 14 characters so it is
@@ -103,6 +104,30 @@ export default function () {
   const started = Date.now();
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    // Response-driven handshake: start the row when the gateway
+    // acknowledges connect, not after a fixed guess. The old fixed delay
+    // survives only as the recorded upper bound.
+    const handshake = new GatewayHandshake({
+      tracker,
+      fallbackMs: 250,
+      onReady: () => {
+      if (!createDisposableSession) {
+        evidence.interrupted = false;
+        evidence.terminal_reason = 'pre-dispatch-disposable-creation-not-enabled';
+        failures.add(1);
+        closed = true;
+        socket.close();
+        return;
+      }
+      (() => {
+        tracker.send(socket, 'sessions.create', {
+          key: `r-cd-token-${tag}`,
+          label: `k6 R-CD-TOKEN ${tag}`,
+        });
+      })();
+      },
+    });
+
     let taskPollPending = false;
     let taskSnapshot = [];
     let taskSnapshotPages = 0;
@@ -300,21 +325,7 @@ export default function () {
     }
 
     socket.on('open', () => {
-      socket.send(connectFrame(token));
-      if (!createDisposableSession) {
-        evidence.interrupted = false;
-        evidence.terminal_reason = 'pre-dispatch-disposable-creation-not-enabled';
-        failures.add(1);
-        closed = true;
-        socket.close();
-        return;
-      }
-      socket.setTimeout(() => {
-        tracker.send(socket, 'sessions.create', {
-          key: `r-cd-token-${tag}`,
-          label: `k6 R-CD-TOKEN ${tag}`,
-        });
-      }, 250);
+      handshake.begin(socket, token);
     });
 
     socket.on('message', (raw) => {
@@ -324,6 +335,7 @@ export default function () {
           originSubscriptionRequestId && msg.type === 'res' && msg.id === originSubscriptionRequestId,
         );
         const classified = tracker.classify(msg);
+        handshake.observe(classified);
         evidence.event_receipt_kinds.push(
           `${classified.kind}:${classified.method || classified.event || 'other'}`,
         );

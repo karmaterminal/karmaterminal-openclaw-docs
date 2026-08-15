@@ -14,6 +14,7 @@ import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { recordClassifiedEvent } from '../lib/proof-session.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
 export const options = {
@@ -91,14 +92,7 @@ export default function () {
       try {
         const msg = JSON.parse(raw);
         const classified = tracker.classify(msg);
-        evidence.redacted_events.push({
-          ts: Date.now(),
-          kind: classified.kind,
-          method: classified.method || null,
-          event: classified.event || null,
-          ok: classified.ok !== undefined ? classified.ok : null,
-          data: classified.payload ? redactEvent(classified.payload) : null,
-        });
+        recordClassifiedEvent(evidence, classified, redactEvent);
 
         if (classified.kind === 'response' && classified.method === 'sessions.list') {
           evidence.sessions_list_ok = classified.ok;

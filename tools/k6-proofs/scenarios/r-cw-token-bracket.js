@@ -21,6 +21,7 @@ import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { GatewayHandshake, disposableSessionKey, normalizedProofName, recordClassifiedEvent } from '../lib/proof-session.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
 export const options = {
@@ -117,13 +118,35 @@ export default function () {
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    // Response-driven handshake: start the row when the gateway
+    // acknowledges connect, not after a fixed guess. The old fixed delay
+    // survives only as the recorded upper bound.
+    const handshake = new GatewayHandshake({
+      tracker,
+      fallbackMs: 500,
+      onReady: () => {
+
+      if (createDisposableSession) {
+        (() => {
+          const disposableKey = disposableSessionKey('r-cw-token', rowNonce);
+          tracker.send(socket, 'sessions.create', {
+            key: disposableKey,
+            label: `k6 R-CW-TOKEN ${rowNonce}`,
+          });
+        })();
+      } else {
+        startProofFlow(socket);
+      }
+      },
+    });
+
 
     function startProofFlow(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
 
       socket.setTimeout(() => {
         const inv = invocationCfg();
-        const taskName = `${inv.taskNamePrefix}-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-').slice(0, 80);
+        const taskName = normalizedProofName(inv.taskNamePrefix, rowNonce).slice(0, 80);
         const childTask =
           `k6 proof R-CW-TOKEN nonce ${rowNonce}. ` +
           `First turn: reply exactly TOKEN-HOP1 ${rowNonce}, then end your entire response with a bare CONTINUE_WORK:${inv.tokenDelaySeconds} token on its own final line. ` +
@@ -149,34 +172,16 @@ export default function () {
     }
 
     socket.on('open', () => {
-      socket.send(connectFrame(token));
-
-      if (createDisposableSession) {
-        socket.setTimeout(() => {
-          const disposableKey = `r-cw-token-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-          tracker.send(socket, 'sessions.create', {
-            key: disposableKey,
-            label: `k6 R-CW-TOKEN ${rowNonce}`,
-          });
-        }, 250);
-      } else {
-        socket.setTimeout(() => startProofFlow(socket), 500);
-      }
+      handshake.begin(socket, token);
     });
 
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
         const classified = tracker.classify(msg);
+        handshake.observe(classified);
 
-        evidence.redacted_events.push({
-          ts: Date.now(),
-          kind: classified.kind,
-          method: classified.method || null,
-          event: classified.event || null,
-          ok: classified.ok !== undefined ? classified.ok : null,
-          data: classified.payload ? redactEvent(classified.payload) : null,
-        });
+        recordClassifiedEvent(evidence, classified, redactEvent);
 
         if (classified.kind === 'response' && classified.method === 'sessions.create') {
           if (classified.ok && classified.payload) {

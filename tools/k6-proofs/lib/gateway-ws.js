@@ -31,9 +31,15 @@ export function frame(method, params = {}) {
 
 /**
  * Build the initial connect frame for operator auth.
+ *
+ * `connectFrame` returns only the frame string, which is why no scenario could
+ * ever be response-driven on the acknowledgement: the request id was thrown
+ * away at the call site and every row fell back to a fixed sleep.
+ * `connectRequest` keeps the id so the handshake can be tracked and correlated
+ * like any other request.
  */
-export function connectFrame(token) {
-  return frame('connect', {
+export function connectRequest(token) {
+  return buildRequest('connect', {
     minProtocol: 3,
     maxProtocol: 4,
     client: {
@@ -50,6 +56,13 @@ export function connectFrame(token) {
     auth: { token },
     userAgent: 'k6-proof-harness/0.2.0',
   });
+}
+
+/**
+ * Build the initial connect frame for operator auth.
+ */
+export function connectFrame(token) {
+  return connectRequest(token).frame;
 }
 
 /**
@@ -72,6 +85,19 @@ export class RequestTracker {
     const { id, frame } = buildRequest(method, params);
     this._pending[id] = { method, sentAt: Date.now() };
     socket.send(frame);
+    return id;
+  }
+
+  /**
+   * Track a request that the caller sends itself.
+   *
+   * The connect handshake builds its frame separately so it can be sent the
+   * instant the socket opens; registering it here is what lets the
+   * acknowledgement classify as a response instead of untracked noise.
+   */
+  register({ id, method }) {
+    if (!id || !method) return null;
+    this._pending[id] = { method, sentAt: Date.now() };
     return id;
   }
 

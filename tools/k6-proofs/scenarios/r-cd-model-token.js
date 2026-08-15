@@ -3,6 +3,7 @@ import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { GatewayHandshake, disposableSessionKey, normalizedProofName, recordClassifiedEvent } from '../lib/proof-session.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
 export const options = {
@@ -49,12 +50,28 @@ export default function () {
   const started = Date.now();
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    // Response-driven handshake: start the row when the gateway
+    // acknowledges connect, not after a fixed guess. The old fixed delay
+    // survives only as the recorded upper bound.
+    const handshake = new GatewayHandshake({
+      tracker,
+      fallbackMs: 500,
+      onReady: () => {
+      if (createDisposableSession) {
+        (() => {
+          const disposableKey = disposableSessionKey('r-cd-model-token', rowNonce);
+          tracker.send(socket, 'sessions.create', { key: disposableKey, label: 'k6 R-CD-MODEL-TOKEN ' + rowNonce });
+        })();
+      } else startProofFlow(socket);
+      },
+    });
+
     function startProofFlow(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       socket.setTimeout(() => {
         const inv = invocationCfg();
         evidence.requested_model_byte = inv.requestedModel;
-        const taskName = (inv.taskNamePrefix + '-' + rowNonce).toLowerCase().replace(/[^a-z0-9-]/g, '-').slice(0, 80);
+        const taskName = normalizedProofName(inv.taskNamePrefix, rowNonce).slice(0, 80);
         const delegateTask = 'Proof R-CD-MODEL-TOKEN delegate nonce ' + rowNonce + ': reply exactly MODEL-TOKEN-DELEGATE-DONE ' + rowNonce + ' MODEL ' + inv.requestedModel + '. Do not mutate files. Do not post externally.';
         const bracket = '[[CONTINUE_DELEGATE: ' + delegateTask + ' +' + inv.delaySeconds + 's | model=' + inv.requestedModel + ']]';
         const childTask = 'k6 proof R-CD-MODEL-TOKEN nonce ' + rowNonce + '. Reply exactly MODEL-TOKEN-HOP1 ' + rowNonce + ' MODEL ' + inv.requestedModel + ', then end your entire response with this exact terminal bracket on its own final line: ' + bracket + ' Do not call continue_delegate tool. Do not put any text after the closing brackets. Do not mutate files.';
@@ -65,18 +82,13 @@ export default function () {
       socket.setTimeout(() => socket.close(), 180000);
     }
     socket.on('open', () => {
-      socket.send(connectFrame(token));
-      if (createDisposableSession) {
-        socket.setTimeout(() => {
-          const disposableKey = ('r-cd-model-token-' + rowNonce).toLowerCase().replace(/[^a-z0-9-]/g, '-');
-          tracker.send(socket, 'sessions.create', { key: disposableKey, label: 'k6 R-CD-MODEL-TOKEN ' + rowNonce });
-        }, 250);
-      } else socket.setTimeout(() => startProofFlow(socket), 500);
+      handshake.begin(socket, token);
     });
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw); const classified = tracker.classify(msg);
-        evidence.redacted_events.push({ ts: Date.now(), kind: classified.kind, method: classified.method || null, event: classified.event || null, ok: classified.ok !== undefined ? classified.ok : null, data: classified.payload ? redactEvent(classified.payload) : null });
+        handshake.observe(classified);
+        recordClassifiedEvent(evidence, classified, redactEvent);
         if (classified.kind === 'response' && classified.method === 'sessions.create') {
           if (classified.ok && classified.payload) { sessionKey = classified.payload.key || sessionKey; evidence.sessionKey = sessionKey; evidence.session_created = true; evidence.created_session_key = sessionKey; console.log('✓ disposable session created: ' + sessionKey); startProofFlow(socket); }
           else { console.error('✗ sessions.create rejected: ' + JSON.stringify(classified.error)); failures.add(1); socket.close(); }

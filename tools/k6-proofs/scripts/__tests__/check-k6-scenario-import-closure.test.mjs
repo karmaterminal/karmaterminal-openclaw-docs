@@ -113,3 +113,86 @@ test('k6 import-closure guard fails closed on unresolved local imports', async (
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('k6 import-closure guard rejects a CommonJS require anywhere in the closure', async () => {
+  const root = await fixtureRepo({
+    'scenarios/r-require.js': [
+      "import { helper } from '../lib/cjs-helper.mjs';",
+      'export default function () { return helper; }',
+    ].join('\n'),
+    'lib/cjs-helper.mjs': "const os = require('node:os');\nexport const helper = os;\n",
+  });
+  try {
+    const result = run(root);
+    assert.equal(result.status, 1);
+    assert.equal(result.report.ok, false);
+    const reasons = result.report.violations.map((entry) => entry.reason);
+    assert.ok(reasons.includes('commonjs-require'), JSON.stringify(result.report.violations));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('k6 import-closure guard rejects a computed dynamic import it cannot verify', async () => {
+  const root = await fixtureRepo({
+    'scenarios/r-computed.js': [
+      "const name = 'node:' + 'crypto';",
+      'export default async function () { const mod = await import(name); return mod; }',
+    ].join('\n'),
+  });
+  try {
+    const result = run(root);
+    assert.equal(result.status, 1);
+    assert.equal(result.report.ok, false);
+    const reasons = result.report.violations.map((entry) => entry.reason);
+    assert.ok(reasons.includes('computed-dynamic-import'), JSON.stringify(result.report.violations));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('k6 import-closure guard rejects Node-only globals reachable from a scenario', async () => {
+  const root = await fixtureRepo({
+    'scenarios/r-globals.js': [
+      "import { seat } from '../lib/env-helper.mjs';",
+      'export default function () { return seat; }',
+    ].join('\n'),
+    'lib/env-helper.mjs': "export const seat = process.env.OPENCLAW_SEAT_NAME;\n",
+  });
+  try {
+    const result = run(root);
+    assert.equal(result.status, 1);
+    assert.equal(result.report.ok, false);
+    const violation = result.report.violations.find((entry) => entry.reason === 'node-only-global');
+    assert.ok(violation, JSON.stringify(result.report.violations));
+    assert.equal(violation.specifier, 'process');
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('k6 import-closure guard does not fire on prose, prompts, or member names', async () => {
+  const root = await fixtureRepo({
+    'scenarios/r-prose.js': [
+      '// The gateway will process the request and buffer the reply.',
+      "import { note } from '../lib/prose-helper.mjs';",
+      'export default function () {',
+      "  const step = { process: 'named property is not the Node global' };",
+      "  const text = 'require(\"node:fs\") inside a prompt is not code';",
+      '  return [note, step.process, text, step.module, step.exports];',
+      '}',
+    ].join('\n'),
+    'lib/prose-helper.mjs': [
+      '/* Buffer and __dirname appear here only in a comment. */',
+      "export const note = `a template with process and require( inside`;",
+      'export const preprocessed = 1;',
+    ].join('\n'),
+  });
+  try {
+    const result = run(root);
+    assert.equal(result.status, 0, JSON.stringify(result.report.violations));
+    assert.deepEqual(result.report.violations, []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

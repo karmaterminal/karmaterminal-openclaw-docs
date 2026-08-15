@@ -3,6 +3,7 @@ import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { GatewayHandshake, disposableSessionKey, recordClassifiedEvent } from '../lib/proof-session.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { childSessionKeysForRow } from '../lib/row-child-correlation.mjs';
 import {
@@ -107,6 +108,20 @@ export default function() {
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    // Response-driven handshake: start the row when the gateway
+    // acknowledges connect, not after a fixed guess. The old fixed delay
+    // survives only as the recorded upper bound.
+    const handshake = new GatewayHandshake({
+      tracker,
+      fallbackMs: 250,
+      onReady: () => {
+      (() => {
+        const key = disposableSessionKey('r-cd-model-tool', rowNonce);
+        tracker.send(socket, 'sessions.create', { key, label: 'k6 R-CD-MODEL-TOOL ' + rowNonce });
+      })();
+      },
+    });
+
     const dispatchGate = createModelToolDispatchGate();
     const listRequestPhases = {};
     let postListPolls = 0;
@@ -195,11 +210,7 @@ export default function() {
       socket.setTimeout(() => socket.close(), 180000);
     }
     socket.on('open', () => {
-      socket.send(connectFrame(token));
-      socket.setTimeout(() => {
-        const key = ('r-cd-model-tool-' + rowNonce).toLowerCase().replace(/[^a-z0-9-]/g, '-');
-        tracker.send(socket, 'sessions.create', { key, label: 'k6 R-CD-MODEL-TOOL ' + rowNonce });
-      }, 250);
+      handshake.begin(socket, token);
     });
     socket.on('message', (raw) => {
       try {
@@ -207,14 +218,8 @@ export default function() {
         const listPhase = msg?.id ? listRequestPhases[msg.id] || null : null;
         if (msg?.id) delete listRequestPhases[msg.id];
         const classified = tracker.classify(msg);
-        evidence.redacted_events.push({
-          ts: Date.now(),
-          kind: classified.kind,
-          method: classified.method || null,
-          event: classified.event || null,
-          ok: classified.ok !== undefined ? classified.ok : null,
-          data: classified.payload ? redactEvent(classified.payload) : null,
-        });
+        handshake.observe(classified);
+        recordClassifiedEvent(evidence, classified, redactEvent);
         if (classified.kind === 'response' && classified.method === 'sessions.create') {
           if (classified.ok && classified.payload) {
             sessionKey = classified.payload.key || sessionKey;

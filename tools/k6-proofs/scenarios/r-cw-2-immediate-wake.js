@@ -3,6 +3,7 @@ import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { GatewayHandshake, disposableSessionKey, recordClassifiedEvent } from '../lib/proof-session.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
 export const options = { scenarios: { r_cw_2_immediate_wake: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '120s' } }, thresholds: { proof_failures: ['count==0'], r_cw_2_duration: ['p(95)<90000'] } };
@@ -31,6 +32,16 @@ export default function () {
   const started = Date.now();
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    // Response-driven handshake: start the row when the gateway
+    // acknowledges connect, not after a fixed guess. The old fixed delay
+    // survives only as the recorded upper bound.
+    const handshake = new GatewayHandshake({
+      tracker,
+      fallbackMs: 500,
+      onReady: () => { if (createDisposableSession) { (() => { const disposableKey = disposableSessionKey('r-cw-2', rowNonce); tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-CW-2 ${rowNonce}` }); })(); } else startProofFlow(socket);
+      },
+    });
+
     function startProofFlow(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       socket.setTimeout(() => {
@@ -40,11 +51,14 @@ export default function () {
       }, 500);
       socket.setTimeout(() => socket.close(), 90000);
     }
-    socket.on('open', () => { socket.send(connectFrame(token)); if (createDisposableSession) { socket.setTimeout(() => { const disposableKey = `r-cw-2-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'); tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-CW-2 ${rowNonce}` }); }, 250); } else socket.setTimeout(() => startProofFlow(socket), 500); });
+    socket.on('open', () => {
+      handshake.begin(socket, token);
+    });
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw); const classified = tracker.classify(msg);
-        evidence.redacted_events.push({ ts: Date.now(), kind: classified.kind, method: classified.method || null, event: classified.event || null, ok: classified.ok !== undefined ? classified.ok : null, data: safeRedact(classified) });
+        handshake.observe(classified);
+        recordClassifiedEvent(evidence, classified, redactEvent, { redactData: safeRedact });
         if (classified.kind === 'response' && classified.method === 'sessions.create') { if (classified.ok && classified.payload) { sessionKey = classified.payload.key || sessionKey; evidence.sessionKey = sessionKey; evidence.session_created = true; evidence.created_session_key = sessionKey; console.log('✓ disposable session created: ' + sessionKey); startProofFlow(socket); } else { console.error('✗ sessions.create rejected: ' + JSON.stringify(classified.error)); failures.add(1); socket.close(); } }
         if (classified.kind === 'response' && classified.method === 'sessions.send') { if (classified.ok) { evidence.dispatch_accepted = true; evidence.dispatch_accepted_at_ms = Date.now(); if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId; console.log('✓ sessions.send accepted — immediate continue_work turn triggered'); } else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); } }
         if (classified.kind === 'event') {

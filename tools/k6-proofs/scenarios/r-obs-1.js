@@ -11,6 +11,7 @@ import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { GatewayHandshake, disposableSessionKey, recordClassifiedEvent } from '../lib/proof-session.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
 export const options = {
@@ -97,6 +98,24 @@ export default function () {
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    // Response-driven handshake: start the row when the gateway
+    // acknowledges connect, not after a fixed guess. The old fixed delay
+    // survives only as the recorded upper bound.
+    const handshake = new GatewayHandshake({
+      tracker,
+      fallbackMs: 500,
+      onReady: () => {
+      if (createDisposableSession) {
+        (() => {
+          const disposableKey = disposableSessionKey('r-obs-1', rowNonce);
+          tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-OBS-1 ${rowNonce}` });
+        })();
+      } else {
+        startProofFlow();
+      }
+      },
+    });
+
 
     function startProofFlow() {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
@@ -116,29 +135,15 @@ export default function () {
     }
 
     socket.on('open', () => {
-      socket.send(connectFrame(token));
-      if (createDisposableSession) {
-        socket.setTimeout(() => {
-          const disposableKey = `r-obs-1-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-          tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-OBS-1 ${rowNonce}` });
-        }, 250);
-      } else {
-        socket.setTimeout(startProofFlow, 500);
-      }
+      handshake.begin(socket, token);
     });
 
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
         const classified = tracker.classify(msg);
-        evidence.redacted_events.push({
-          ts: Date.now(),
-          kind: classified.kind,
-          method: classified.method || null,
-          event: classified.event || null,
-          ok: classified.ok !== undefined ? classified.ok : null,
-          data: classified.payload ? redactEvent(classified.payload) : null,
-        });
+        handshake.observe(classified);
+        recordClassifiedEvent(evidence, classified, redactEvent);
 
         if (classified.kind === 'response' && classified.method === 'sessions.create') {
           if (classified.ok && classified.payload) {

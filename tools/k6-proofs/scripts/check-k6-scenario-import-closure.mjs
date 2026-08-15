@@ -14,6 +14,73 @@ const SCENARIOS_DIR = proofsToolPath(ROOT, 'scenarios');
 const NODE_BUILTINS = new Set(builtinModules.map((name) => name.replace(/^node:/u, '')));
 const STATIC_IMPORT_RE = /(?:^|\n)\s*(?:import\s+(?:[\s\S]*?\s+from\s+)?|export\s+(?:[\s\S]*?\s+from\s+)?)(['"])([^'"]+)\1/g;
 const DYNAMIC_IMPORT_RE = /\bimport\s*\(\s*(['"])([^'"]+)\1\s*\)/g;
+// A dynamic import whose specifier is not a literal cannot be verified ahead of
+// the run, so the closure it opens is unbounded. Fail closed on it.
+const COMPUTED_IMPORT_RE = /\bimport\s*\(\s*(?!['"])/g;
+const REQUIRE_RE = /(?<![.\w$])require\s*\(/g;
+
+// Globals that exist in Node but not in a k6 VU. A helper can pass the import
+// scan and still abort the run by touching one of these, which is the same
+// failure class as a `node:` import: the row dies before it dispatches and
+// publishes an empty PARTIAL.
+const NODE_ONLY_GLOBALS = [
+  'process',
+  'Buffer',
+  '__dirname',
+  '__filename',
+  'module',
+  'exports',
+];
+// `globalThis` itself is valid in k6; reaching a Node global through it is not.
+const GLOBAL_THIS_ESCAPE_RE = /\bglobalThis\s*\.\s*(process|Buffer|require|module|exports)\b/gu;
+
+/**
+ * Blank out the *contents* of string literals, template literals and comments
+ * so identifier and call scans cannot fire on prose, prompts, or marker text.
+ *
+ * Delimiters are preserved: a scan that needs to know "was the next token a
+ * quote?" — such as literal-vs-computed dynamic import — must still see them.
+ */
+function stripLiterals(source) {
+  let out = '';
+  let i = 0;
+  const n = source.length;
+  const blank = (text) => text.replace(/[^\n]/gu, ' ');
+  while (i < n) {
+    const c = source[i];
+    if (c === '/' && source[i + 1] === '/') {
+      const end = source.indexOf('\n', i);
+      const stop = end === -1 ? n : end;
+      out += blank(source.slice(i, stop));
+      i = stop;
+      continue;
+    }
+    if (c === '/' && source[i + 1] === '*') {
+      const end = source.indexOf('*/', i + 2);
+      const stop = end === -1 ? n : end + 2;
+      out += blank(source.slice(i, stop));
+      i = stop;
+      continue;
+    }
+    if (c === '"' || c === "'" || c === '`') {
+      const quote = c;
+      let j = i + 1;
+      let closed = false;
+      while (j < n) {
+        if (source[j] === '\\') { j += 2; continue; }
+        if (source[j] === quote) { closed = true; break; }
+        j += 1;
+      }
+      const contentEnd = Math.min(j, n);
+      out += quote + blank(source.slice(i + 1, contentEnd)) + (closed ? quote : '');
+      i = closed ? contentEnd + 1 : contentEnd;
+      continue;
+    }
+    out += c;
+    i += 1;
+  }
+  return out;
+}
 
 function lineNumber(source, index) {
   return source.slice(0, index).split('\n').length;
@@ -72,6 +139,26 @@ function collectScenarioClosure(scenarioFile) {
     visited.add(file);
 
     const source = fs.readFileSync(file, 'utf8');
+    const code = stripLiterals(source);
+
+    for (const match of code.matchAll(COMPUTED_IMPORT_RE)) {
+      violations.push(violation(file, lineNumber(code, match.index), 'import(<computed>)', 'computed-dynamic-import'));
+    }
+    for (const match of code.matchAll(REQUIRE_RE)) {
+      violations.push(violation(file, lineNumber(code, match.index), 'require()', 'commonjs-require'));
+    }
+    for (const name of NODE_ONLY_GLOBALS) {
+      // Exclude member access (`step.process`) and object keys (`{ process: … }`):
+      // neither reaches the Node global, and rows legitimately use both words.
+      const globalRe = new RegExp(`(?<![.\\w$])${name}(?![\\w$])(?!\\s*:)`, 'gu');
+      for (const match of code.matchAll(globalRe)) {
+        violations.push(violation(file, lineNumber(code, match.index), name, 'node-only-global'));
+      }
+    }
+    for (const match of code.matchAll(GLOBAL_THIS_ESCAPE_RE)) {
+      violations.push(violation(file, lineNumber(code, match.index), `globalThis.${match[1]}`, 'node-only-global'));
+    }
+
     for (const imported of importSpecifiers(source)) {
       const { specifier, line } = imported;
       if (specifier.startsWith('.')) {

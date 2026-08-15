@@ -11,6 +11,7 @@ import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { recordClassifiedEvent } from '../lib/proof-session.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
 export const options = {
@@ -66,9 +67,7 @@ export default function () {
     socket.on('message', (raw) => {
       try {
         const classified = tracker.classify(JSON.parse(raw));
-        evidence.redacted_events.push({ ts: Date.now(), kind: classified.kind, method: classified.method || null,
-          event: classified.event || null, ok: classified.ok !== undefined ? classified.ok : null,
-          data: classified.payload ? redactEvent(classified.payload) : null });
+        recordClassifiedEvent(evidence, classified, redactEvent);
         if (classified.kind !== 'response' || classified.method !== 'config.get') return;
         evidence.rpc.response_ok = classified.ok;
         evidence.rpc.response_shape.config_present = Boolean(classified.payload?.config);

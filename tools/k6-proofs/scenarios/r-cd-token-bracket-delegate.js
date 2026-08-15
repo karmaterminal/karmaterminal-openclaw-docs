@@ -111,20 +111,18 @@ export default function () {
       tracker,
       fallbackMs: 250,
       onReady: () => {
-      if (!createDisposableSession) {
-        evidence.interrupted = false;
-        evidence.terminal_reason = 'pre-dispatch-disposable-creation-not-enabled';
-        failures.add(1);
-        closed = true;
-        socket.close();
-        return;
-      }
-      (() => {
+        if (!createDisposableSession) {
+          evidence.interrupted = false;
+          evidence.terminal_reason = 'pre-dispatch-disposable-creation-not-enabled';
+          failures.add(1);
+          closed = true;
+          socket.close();
+          return;
+        }
         tracker.send(socket, 'sessions.create', {
           key: `r-cd-token-${tag}`,
           label: `k6 R-CD-TOKEN ${tag}`,
         });
-      })();
       },
     });
 

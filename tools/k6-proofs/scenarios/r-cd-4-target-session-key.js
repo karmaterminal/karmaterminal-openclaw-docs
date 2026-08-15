@@ -164,11 +164,11 @@ export default function () {
       tracker,
       fallbackMs: 500,
       onReady: () => {
-      if (createDisposableSessions) {
-        createParent(socket);
-      } else {
-        startProofFlow(socket);
-      }
+        if (createDisposableSessions) {
+          createParent(socket);
+        } else {
+          startProofFlow(socket);
+        }
       },
     });
 

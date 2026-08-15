@@ -166,16 +166,13 @@ export default function () {
       tracker,
       fallbackMs: 250,
       onReady: () => {
-
-      if (createDisposableSession) {
-        (() => {
+        if (createDisposableSession) {
           const disposableKey = disposableSessionKey('r-cd-chain', chainNonce);
           tracker.send(socket, 'sessions.create', {
             key: disposableKey,
             label: `k6 R-CD-CHAINED-DEPTH-2 ${chainNonce}`,
           });
-        })();
-      }
+        }
       },
     });
 

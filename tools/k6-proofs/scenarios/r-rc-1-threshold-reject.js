@@ -105,14 +105,12 @@ export default function () {
       tracker,
       fallbackMs: 500,
       onReady: () => {
-      if (createDisposableSession) {
-        (() => {
+        if (createDisposableSession) {
           const disposableKey = disposableSessionKey('r-rc-1', rowNonce);
           tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-RC-1 ${rowNonce}` });
-        })();
-      } else {
-        startProofFlow();
-      }
+        } else {
+          startProofFlow();
+        }
       },
     });
 

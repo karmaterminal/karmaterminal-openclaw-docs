@@ -67,12 +67,11 @@ export default function () {
       tracker,
       fallbackMs: 500,
       onReady: () => {
-      if (createDisposableSession) {
-        (() => {
+        if (createDisposableSession) {
           const key = disposableSessionKey('r-cd-model-chain', rowNonce);
           tracker.send(socket, 'sessions.create', { key, label: `k6 R-CD-MODEL-CHAINED-ALT ${rowNonce}` });
-        })();
-      } else start(socket);
+
+        } else start(socket);
       },
     });
 

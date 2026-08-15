@@ -125,18 +125,15 @@ export default function () {
       tracker,
       fallbackMs: 500,
       onReady: () => {
-
-      if (createDisposableSession) {
-        (() => {
+        if (createDisposableSession) {
           const disposableKey = disposableSessionKey('r-cw-token', rowNonce);
           tracker.send(socket, 'sessions.create', {
             key: disposableKey,
             label: `k6 R-CW-TOKEN ${rowNonce}`,
           });
-        })();
-      } else {
-        startProofFlow(socket);
-      }
+        } else {
+          startProofFlow(socket);
+        }
       },
     });
 

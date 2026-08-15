@@ -41,7 +41,8 @@ export default function(){
     const handshake = new GatewayHandshake({
       tracker,
       fallbackMs: 500,
-      onReady: () => { if(createDisposableSession){ (()=>{ const key=disposableSessionKey('r-cd-model-default', rowNonce); tracker.send(socket,'sessions.create',{key,label:'k6 R-CD-MODEL-DEFAULT '+rowNonce}); })(); } else start(socket);
+      onReady: () => {
+        if(createDisposableSession){ const key=disposableSessionKey('r-cd-model-default', rowNonce); tracker.send(socket,'sessions.create',{key,label:'k6 R-CD-MODEL-DEFAULT '+rowNonce}); } else start(socket);
       },
     });
 

@@ -41,7 +41,8 @@ export default function () {
     const handshake = new GatewayHandshake({
       tracker,
       fallbackMs: 500,
-      onReady: () => { if (createDisposableSession) { (() => { const disposableKey = disposableSubagentKey(rowNonce); tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-CW-4 ${rowNonce}` }); })(); } else startProofFlow(socket);
+      onReady: () => {
+        if (createDisposableSession) { const disposableKey = disposableSubagentKey(rowNonce); tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-CW-4 ${rowNonce}` }); } else startProofFlow(socket);
       },
     });
 

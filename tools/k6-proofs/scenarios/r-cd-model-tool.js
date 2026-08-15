@@ -115,10 +115,8 @@ export default function() {
       tracker,
       fallbackMs: 250,
       onReady: () => {
-      (() => {
         const key = disposableSessionKey('r-cd-model-tool', rowNonce);
         tracker.send(socket, 'sessions.create', { key, label: 'k6 R-CD-MODEL-TOOL ' + rowNonce });
-      })();
       },
     });
 

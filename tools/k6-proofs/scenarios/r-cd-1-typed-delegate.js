@@ -139,18 +139,15 @@ export default function () {
       tracker,
       fallbackMs: 500,
       onReady: () => {
-
-      if (createDisposableSession) {
-        (() => {
+        if (createDisposableSession) {
           const disposableKey = disposableSessionKey('r-cd-1', rowNonce);
           tracker.send(socket, 'sessions.create', {
             key: disposableKey,
             label: `k6 R-CD-1 ${rowNonce}`,
           });
-        })();
-      } else {
-        startProofFlow(socket);
-      }
+        } else {
+          startProofFlow(socket);
+        }
       },
     });
 

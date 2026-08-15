@@ -11,7 +11,7 @@ import {
   tempoAttributeValue as attributeValue,
 } from '../lib/public-tempo-trace.mjs';
 import { normalizeOtlpId, normalizeTempoSearchTraceId } from '../lib/tempo-trace-id.mjs';
-import { toolSpanMatchesName } from '../lib/tempo-span-match.mjs';
+import { toolSpanDeclaresName, toolSpanMatchesName } from '../lib/tempo-span-match.mjs';
 import {
   buildObservabilityOutcome,
   classifyTraceFailure,
@@ -197,7 +197,12 @@ async function tempoSearch(baseUrl, query, start, end) {
   const params = new URLSearchParams({ q: query, start: String(start), end: String(end), limit: '20' });
   const response = await fetch(`${root}/api/search?${params}`, { headers: { accept: 'application/json' } });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Tempo search failed: HTTP ${response.status} ${response.statusText}`.trim());
+  if (!response.ok) {
+    throw Object.assign(
+      new Error(`Tempo search failed: HTTP ${response.status} ${response.statusText}`.trim()),
+      { httpStatus: response.status },
+    );
+  }
   const json = JSON.parse(text);
   return json.traces || [];
 }
@@ -208,7 +213,12 @@ async function fetchTrace(baseUrl, traceId) {
     headers: { accept: 'application/json' },
   });
   const text = await response.text();
-  if (!response.ok) throw new Error(`Tempo trace fetch failed: HTTP ${response.status} ${response.statusText}`.trim());
+  if (!response.ok) {
+    throw Object.assign(
+      new Error(`Tempo trace fetch failed: HTTP ${response.status} ${response.statusText}`.trim()),
+      { httpStatus: response.status },
+    );
+  }
   return JSON.parse(text);
 }
 
@@ -331,19 +341,23 @@ function validateTrace(trace, expected) {
     throw new Error(`${expected.fireSpanName} span is not status OK`);
   }
 
-  const matchingTools = spans.filter((span) => toolSpanMatchesName(span, expected.tool, attributeValue));
+  // The negative control ("a bracket-token trace must contain no typed tool
+  // span") and the positive gate ("exactly one unambiguous origin") need
+  // different predicates, or ambiguity fails closed on one side and open on the
+  // other. Scope the declared set once, then narrow it for the positive gate.
+  const declaredTools = spans.filter((span) => toolSpanDeclaresName(span, expected.tool, attributeValue));
   const toolScope = expected.tool === 'continue_delegate'
-    ? scopeDelegateToolSpans(trace, matchingTools, accept, fires)
+    ? scopeDelegateToolSpans(trace, declaredTools, accept, fires)
     : null;
   if (toolScope?.kind === 'invalid-timing') {
     throw new Error('matched raw trace lacks complete causal timing for continue_delegate generation scope');
   }
-  const tools = toolScope?.tools ?? matchingTools;
-  if (expected.originSurface === 'raw-final-text') {
-    if (tools.length !== 0) {
-      throw new Error(`bracket-token trace must not contain a typed ${expected.tool} tool span`);
-    }
-  } else if (tools.length !== 1) {
+  const scopedDeclared = toolScope?.tools ?? declaredTools;
+  if (expected.originSurface === 'raw-final-text' && scopedDeclared.length !== 0) {
+    throw new Error(`bracket-token trace must not contain a typed ${expected.tool} tool span`);
+  }
+  const tools = scopedDeclared.filter((span) => toolSpanMatchesName(span, expected.tool, attributeValue));
+  if (expected.originSurface !== 'raw-final-text' && tools.length !== 1) {
     throw new Error(
       tools.length === 0
         ? `matched trace lacks the originating ${expected.tool} tool span`
@@ -585,8 +599,8 @@ async function collect(args, runDir, state) {
         candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id,
         'search trace id',
       );
-      trace = await fetchTrace(args.tempoUrl, traceId);
       try {
+        trace = await fetchTrace(args.tempoUrl, traceId);
         topology = contract.kind === 'continuation'
           ? validateTrace(trace, {
               tool: contract.tool,
@@ -601,6 +615,11 @@ async function collect(args, runDir, state) {
         if (topology.traceId !== traceId) throw new Error('Tempo search and trace payload IDs disagree');
         break;
       } catch (error) {
+        // Search found the id but the block store has not flushed the body yet:
+        // keep polling. Any other transport status is a real failure.
+        if (error?.httpStatus !== undefined && error.httpStatus !== 404 && error.httpStatus !== 429) {
+          throw error;
+        }
         validationError = error;
       }
     }

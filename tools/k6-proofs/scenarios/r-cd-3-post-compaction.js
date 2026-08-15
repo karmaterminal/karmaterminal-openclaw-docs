@@ -100,6 +100,7 @@ export default function () {
     // survives only as the recorded upper bound.
     const handshake = new GatewayHandshake({
       tracker,
+      evidence,
       fallbackMs: 500,
       onReady: () => {
         if (createDisposableSession) {

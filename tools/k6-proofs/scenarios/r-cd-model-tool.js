@@ -113,6 +113,7 @@ export default function() {
     // survives only as the recorded upper bound.
     const handshake = new GatewayHandshake({
       tracker,
+      evidence,
       fallbackMs: 250,
       onReady: () => {
         const key = disposableSessionKey('r-cd-model-tool', rowNonce);

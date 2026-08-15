@@ -37,6 +37,7 @@ export default function () {
     // survives only as the recorded upper bound.
     const handshake = new GatewayHandshake({
       tracker,
+      evidence,
       fallbackMs: 500,
       onReady: () => {
         if (createDisposableSession) { const disposableKey = disposableSessionKey('r-cw-2', rowNonce); tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-CW-2 ${rowNonce}` }); } else startProofFlow(socket);

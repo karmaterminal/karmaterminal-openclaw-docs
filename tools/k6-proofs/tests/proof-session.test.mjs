@@ -171,3 +171,54 @@ test('an untracked connect frame cannot be correlated — the defect this replac
   const classified = tracker.classify({ type: 'res', id: sent.id, payload: {} });
   assert.equal(classified.kind, 'other', 'legacy connectFrame discards the id, so the ack is untrackable');
 });
+
+test('the handshake receipt reaches the row evidence, not just the object', () => {
+  // Documented as recorded in evidence; if nothing writes it, a gateway that
+  // never acknowledges connect produces evidence byte-identical to a healthy
+  // run — the success-shaped hole the handshake exists to close.
+  const tracker = new RequestTracker();
+  const socket = fakeSocket();
+  const evidence = { row: 'R-TEST', redacted_events: [] };
+  const handshake = new GatewayHandshake({ tracker, evidence, fallbackMs: 250 });
+
+  assert.ok(evidence.handshake, 'the receipt is present before the socket opens');
+  assert.equal(evidence.handshake.ready, false);
+  assert.equal(evidence.handshake.readySource, null);
+
+  const id = handshake.begin(socket, 'token-value');
+  handshake.observe(tracker.classify({ type: 'res', id, payload: {} }));
+  assert.equal(evidence.handshake.ready, true);
+  assert.equal(evidence.handshake.readySource, HANDSHAKE_SOURCE.CONNECT_ACK);
+  assert.equal(evidence.handshake.connectAckObserved, true);
+  assert.ok(Number.isFinite(evidence.handshake.readyLatencyMs));
+});
+
+test('a silent gateway is visible in evidence rather than indistinguishable', () => {
+  const tracker = new RequestTracker();
+  const socket = fakeSocket();
+  const evidence = { row: 'R-TEST', redacted_events: [] };
+  const handshake = new GatewayHandshake({ tracker, evidence, fallbackMs: 500 });
+  handshake.begin(socket, 'token-value');
+  socket.fireTimers();
+  assert.equal(evidence.handshake.readySource, HANDSHAKE_SOURCE.DEADLINE_FALLBACK);
+  assert.equal(evidence.handshake.connectAckObserved, false);
+  assert.equal(evidence.handshake.connectAccepted, null);
+  assert.equal(evidence.handshake.fallbackMs, 500);
+});
+
+test('the handshake receipt carries no identities', () => {
+  const tracker = new RequestTracker();
+  const socket = fakeSocket();
+  const evidence = { row: 'R-TEST', redacted_events: [] };
+  const handshake = new GatewayHandshake({ tracker, evidence, fallbackMs: 250 });
+  handshake.begin(socket, 'super-secret-gateway-token');
+  socket.fireTimers();
+  const serialized = JSON.stringify(evidence.handshake);
+  assert.ok(!serialized.includes('super-secret-gateway-token'));
+  for (const value of Object.values(evidence.handshake)) {
+    assert.ok(
+      value === null || typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string',
+      'the receipt must stay scalar and publishable',
+    );
+  }
+});

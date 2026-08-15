@@ -40,6 +40,7 @@ export default function(){
     // survives only as the recorded upper bound.
     const handshake = new GatewayHandshake({
       tracker,
+      evidence,
       fallbackMs: 500,
       onReady: () => {
         if(createDisposableSession){ const key=disposableSessionKey('r-cd-model-default', rowNonce); tracker.send(socket,'sessions.create',{key,label:'k6 R-CD-MODEL-DEFAULT '+rowNonce}); } else start(socket);

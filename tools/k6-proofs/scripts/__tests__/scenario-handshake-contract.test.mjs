@@ -68,6 +68,10 @@ test('every websocket proof row starts on the tracked connect acknowledgement', 
       !/socket\.send\(connectFrame\(/.test(source),
       `${file} must not send an untracked connect frame; the ack would be uncorrelatable`,
     );
+    assert.ok(
+      /new GatewayHandshake\(\{\s*\n\s*tracker,\s*\n\s*evidence,/.test(source),
+      `${file} must record its handshake receipt in evidence; a silent gateway would otherwise be invisible`,
+    );
   }
 });
 

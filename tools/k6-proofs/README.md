@@ -727,7 +727,10 @@ are excluded; neither reaches the Node global.
 Observability outcome artifact: `collect-continuation-trace.mjs` writes
 `continuation-trace-observability.json` into the run dir on **every** exit. Its
 `status` is one of `correlated`, `backend-unavailable`, `no-matching-trace`,
-`ambiguous-trace`, `topology-invalid`, or `contract-invalid`. Only `correlated`
+`ambiguous-trace`, `topology-invalid`, or `contract-invalid`. A 5xx or 429 is
+`backend-unavailable`; a 404 for the trace body is a reachable Tempo with
+nothing to give, so it is `no-matching-trace` and is retried inside the
+deadline while the block store flushes. Only `correlated`
 may carry `traceId` / `traceJson` / `correlationReceipt`; every other status
 carries public-safe `rebind` keys (service, TraceQL query, search window, reason
 fingerprint, nonce/session fingerprints) so the row can be re-bound when the

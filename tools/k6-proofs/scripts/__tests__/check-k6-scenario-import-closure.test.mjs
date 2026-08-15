@@ -267,3 +267,55 @@ test('an unterminated literal fails closed instead of reporting a clean scan', a
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('a keyword-position regex literal cannot blind the guard either', async () => {
+  // `return /'/.test(s)` is the idiomatic form. The slash sits after a keyword,
+  // not after an operator, so a preceder-character test alone still misparses
+  // it — and the bogus string it opens closes cleanly on a later apostrophe,
+  // so the unterminated-literal safety net never fires.
+  const root = await fixtureRepo({
+    'scenarios/r-keyword-regex.js': [
+      "import { poke } from '../lib/keyword-regex.mjs';",
+      'export default function () { return poke(); }',
+    ].join('\n'),
+    'lib/keyword-regex.mjs': [
+      "export function strip(s) { return /'/g.test(s); }",
+      'export function poke() {',
+      "  const fs = require('node:fs');",
+      '  return process.env.HOME + fs;',
+      '}',
+      "// This comment's apostrophe would close the bogus string cleanly.",
+    ].join('\n'),
+  });
+  try {
+    const result = run(root);
+    assert.equal(result.status, 1);
+    const reasons = result.report.violations.map((entry) => entry.reason);
+    assert.ok(reasons.includes('commonjs-require'), JSON.stringify(result.report.violations));
+    assert.ok(reasons.includes('node-only-global'), JSON.stringify(result.report.violations));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('keyword-lookalike identifiers still divide rather than open a regex', async () => {
+  const root = await fixtureRepo({
+    'scenarios/r-divide.js': [
+      "import { ratio } from '../lib/divide.mjs';",
+      'export default function () { return ratio; }',
+    ].join('\n'),
+    'lib/divide.mjs': [
+      'const preturn = 10;',
+      'const caseCount = 4;',
+      'export const ratio = preturn / caseCount / 2;',
+      'export function ok(s) { return s.length / 2; }',
+    ].join('\n'),
+  });
+  try {
+    const result = run(root);
+    assert.equal(result.status, 0, JSON.stringify(result.report.violations));
+    assert.deepEqual(result.report.violations, []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

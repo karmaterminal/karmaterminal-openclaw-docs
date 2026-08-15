@@ -62,7 +62,14 @@ const NETWORK_ERROR_CODES = new Set([
 export function classifyTraceFailure({ error, candidateCount = 0, contractResolved = true } = {}) {
   const message = String(error?.message || error || '');
   if (!contractResolved) return TRACE_OUTCOME.CONTRACT_INVALID;
-  if (/Tempo (search|trace fetch) failed: HTTP/i.test(message)) return TRACE_OUTCOME.BACKEND_UNAVAILABLE;
+  // A reachable Tempo that answers 404 or another 4xx has *told* us something:
+  // it is not carrying the trace. Only a server-side or rate-limit refusal is
+  // an availability claim.
+  const status = Number(error?.httpStatus);
+  if (Number.isInteger(status)) {
+    if (status >= 500 || status === 429) return TRACE_OUTCOME.BACKEND_UNAVAILABLE;
+    return TRACE_OUTCOME.NO_MATCHING_TRACE;
+  }
   if (NETWORK_ERROR_CODES.has(error?.code) || NETWORK_ERROR_CODES.has(error?.cause?.code)) {
     return TRACE_OUTCOME.BACKEND_UNAVAILABLE;
   }

@@ -92,16 +92,23 @@ export const HANDSHAKE_SOURCE = {
  * evidence instead of being absorbed into an unexplained downstream failure.
  */
 export class GatewayHandshake {
-  constructor({ tracker, fallbackMs = 500, onReady = null } = {}) {
+  constructor({ tracker, fallbackMs = 500, onReady = null, evidence = null } = {}) {
     this._tracker = tracker;
     this._fallbackMs = Number.isFinite(fallbackMs) && fallbackMs >= 0 ? fallbackMs : 500;
     this._onReady = typeof onReady === 'function' ? onReady : null;
+    // The receipt is only worth producing if something records it. A row that
+    // silently takes `deadline-fallback` on every run — because the gateway
+    // never answers `connect` at all — would otherwise emit evidence
+    // byte-identical to a healthy run, which is the exact success-shaped hole
+    // the handshake exists to close.
+    this._evidence = evidence && typeof evidence === 'object' ? evidence : null;
     this._fired = false;
     this.sentAt = null;
     this.readySource = null;
     this.readyLatencyMs = null;
     this.ackObserved = false;
     this.ackOk = null;
+    this._publish();
   }
 
   /** Send the tracked connect frame and arm the bounded fallback. */
@@ -148,11 +155,16 @@ export class GatewayHandshake {
     };
   }
 
+  _publish() {
+    if (this._evidence) this._evidence.handshake = this.receipt();
+  }
+
   _fire(source) {
     if (this._fired) return;
     this._fired = true;
     this.readySource = source;
     this.readyLatencyMs = this.sentAt === null ? null : Date.now() - this.sentAt;
+    this._publish();
     if (this._onReady) this._onReady(source);
   }
 }

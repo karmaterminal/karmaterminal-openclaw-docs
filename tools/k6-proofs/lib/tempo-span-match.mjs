@@ -52,3 +52,21 @@ export function toolSpanMatchesName(span, toolName, attributeValue) {
   if (names.length !== 1) return false;
   return names[0] === toolName;
 }
+
+/**
+ * True when this span declares `toolName` under *any* tool-name attribute,
+ * even alongside a conflicting one.
+ *
+ * This is the predicate for negative controls — "the bracket-token path must
+ * not go through the typed tool". There, `toolSpanMatchesName`'s ambiguity
+ * rejection would invert into a false pass: a span carrying the tool under one
+ * key and something else under another would read as "no typed tool span
+ * present" and satisfy the assertion it exists to break. Ambiguity has to fail
+ * closed on both sides of the gate, which means the two sides need different
+ * predicates.
+ */
+export function toolSpanDeclaresName(span, toolName, attributeValue) {
+  if (span?.name !== TOOL_EXECUTION_SPAN_NAME) return false;
+  if (typeof toolName !== 'string' || toolName.length === 0) return false;
+  return toolSpanNames(span, attributeValue).includes(toolName);
+}

@@ -188,7 +188,7 @@ test('validation refuses to publish private attribution material', () => {
 
 test('failures classify by cause, not by convenience', () => {
   assert.equal(
-    classifyTraceFailure({ error: new Error('Tempo search failed: HTTP 503 Service Unavailable') }),
+    classifyTraceFailure({ error: Object.assign(new Error('Tempo search failed: HTTP 503 Service Unavailable'), { httpStatus: 503 }) }),
     TRACE_OUTCOME.BACKEND_UNAVAILABLE,
   );
   assert.equal(
@@ -252,4 +252,21 @@ test('an internal collector bug is never excused as backend trouble', () => {
     classifyTraceFailure({ error: Object.assign(new Error('socket hang up'), { code: 'ECONNRESET' }) }),
     TRACE_OUTCOME.BACKEND_UNAVAILABLE,
   );
+});
+
+test('a reachable Tempo answering 404 is not an availability claim', () => {
+  // A 404 on the trace body is Tempo telling us it is not carrying that trace —
+  // the module's own invariant says a reachable backend returning nothing stays
+  // an evidence statement, not an infrastructure excuse.
+  const notFound = Object.assign(new Error('Tempo trace fetch failed: HTTP 404 Not Found'), { httpStatus: 404 });
+  assert.equal(classifyTraceFailure({ error: notFound, candidateCount: 1 }), TRACE_OUTCOME.NO_MATCHING_TRACE);
+
+  const forbidden = Object.assign(new Error('Tempo search failed: HTTP 403 Forbidden'), { httpStatus: 403 });
+  assert.equal(classifyTraceFailure({ error: forbidden }), TRACE_OUTCOME.NO_MATCHING_TRACE);
+
+  // Server-side refusal and rate limiting remain availability claims.
+  for (const status of [500, 502, 503, 504, 429]) {
+    const error = Object.assign(new Error(`Tempo search failed: HTTP ${status}`), { httpStatus: status });
+    assert.equal(classifyTraceFailure({ error }), TRACE_OUTCOME.BACKEND_UNAVAILABLE, `status ${status}`);
+  }
 });

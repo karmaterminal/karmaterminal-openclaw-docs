@@ -57,13 +57,37 @@ function stripLiterals(source) {
   let i = 0;
   const n = source.length;
   let unterminated = false;
-  // Last significant character of emitted code, used to tell a regex literal
-  // from a division operator.
+  // Last significant character of emitted code, plus the last identifier token,
+  // used together to tell a regex literal from a division operator.
   let lastSignificant = '';
+  let token = '';
+  let lastToken = '';
   const blank = (text) => text.replace(/[^\n]/gu, ' ');
   const REGEX_PRECEDERS = new Set(['', '(', ',', '=', ':', '[', '!', '&', '|', '?', '{', ';', '+', '-', '*', '%', '~', '^', '<', '>']);
-  const REGEX_KEYWORDS = /(?:^|[^\w$])(?:return|typeof|case|in|of|new|delete|void|instanceof|do|else|yield|await)$/u;
-  const regexPosition = () => REGEX_PRECEDERS.has(lastSignificant) || REGEX_KEYWORDS.test(out);
+  // Keywords after which a `/` opens a regex rather than dividing.
+  const REGEX_KEYWORDS = new Set([
+    'return', 'typeof', 'case', 'in', 'of', 'new', 'delete', 'void',
+    'instanceof', 'do', 'else', 'yield', 'await',
+  ]);
+  const isWordChar = (c) => /[\w$]/u.test(c);
+  const regexPosition = () => {
+    if (REGEX_PRECEDERS.has(lastSignificant)) return true;
+    // `return /'/.test(s)` — the keyword is the previous *token*, and the
+    // whitespace between it and the slash has already been emitted, so this
+    // has to be answered from the token stream rather than from the output.
+    if (isWordChar(lastSignificant)) return REGEX_KEYWORDS.has(token || lastToken);
+    return false;
+  };
+  const emit = (c) => {
+    out += c;
+    if (isWordChar(c)) {
+      token += c;
+    } else if (token) {
+      lastToken = token;
+      token = '';
+    }
+    if (c.trim()) lastSignificant = c;
+  };
 
   while (i < n) {
     const c = source[i];
@@ -98,6 +122,8 @@ function stripLiterals(source) {
         out += `/${blank(source.slice(i + 1, j))}/`;
         i = j + 1;
         lastSignificant = '/';
+        lastToken = token || lastToken;
+        token = '';
         continue;
       }
       // Not a terminated regex after all; fall through and treat as an operator.
@@ -116,10 +142,11 @@ function stripLiterals(source) {
       i = closed ? contentEnd + 1 : contentEnd;
       if (!closed) unterminated = true;
       lastSignificant = quote;
+      lastToken = token || lastToken;
+      token = '';
       continue;
     }
-    out += c;
-    if (c.trim()) lastSignificant = c;
+    emit(c);
     i += 1;
   }
   return { code: out, unterminated };

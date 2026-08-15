@@ -62,6 +62,7 @@ import {
 const tracker = new RequestTracker();
 const handshake = new GatewayHandshake({
   tracker,
+  evidence,                      // records the receipt into evidence.handshake
   fallbackMs: 500,
   onReady: () => { createDisposableSession(socket); },
 });
@@ -78,8 +79,10 @@ socket.on('message', (raw) => {
 
 - `handshake.begin` sends a **tracked** connect, so the row starts when the
   gateway acknowledges rather than after a fixed guess. `fallbackMs` is an
-  upper bound only, and the path taken (`connect-ack` / `connect-rejected` /
-  `deadline-fallback`) is recorded in `handshake.receipt()`.
+  upper bound only. Pass `evidence` so the path taken (`connect-ack` /
+  `connect-rejected` / `deadline-fallback`) lands in `evidence.handshake`; a
+  gateway that never acknowledges would otherwise produce evidence identical to
+  a healthy run.
 - `disposableSessionKey('r-cd-4-parent', rowNonce)` is the one normalization.
   Do not inline `.toLowerCase().replace(/[^a-z0-9-]/g, '-')`; a row whose
   normalization differs creates sessions its own negative controls no longer
@@ -136,8 +139,8 @@ A row that cannot get its trace must say *why*. The collector writes
 | status | meaning |
 | --- | --- |
 | `correlated` | a trace was found and passed every topology gate |
-| `backend-unavailable` | Tempo could not be reached or returned an error |
-| `no-matching-trace` | Tempo answered, and nothing matched the window |
+| `backend-unavailable` | Tempo could not be reached, or refused with 5xx/429 |
+| `no-matching-trace` | Tempo answered — including a 404 for the trace body — and had nothing to give |
 | `ambiguous-trace` | more than one trace matched; no first-wins selection |
 | `topology-invalid` | a trace matched but failed a topology gate |
 | `contract-invalid` | the manifest/evidence could not produce a query at all |

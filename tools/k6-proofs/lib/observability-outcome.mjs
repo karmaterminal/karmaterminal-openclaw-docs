@@ -51,6 +51,34 @@ const NETWORK_ERROR_CODES = new Set([
 ]);
 
 /**
+ * True when the failure is a transport failure rather than an answer.
+ *
+ * Shared with the collector's retry decision so "should this be retried?" and
+ * "was the backend unavailable?" cannot drift into two different answers.
+ */
+export function isTransportFailure(error) {
+  if (!error) return false;
+  if (NETWORK_ERROR_CODES.has(error.code) || NETWORK_ERROR_CODES.has(error.cause?.code)) return true;
+  // Node's fetch reports every transport failure as `TypeError: fetch failed`.
+  const message = String(error.message || '');
+  if (error.name === 'TypeError' && /fetch failed/i.test(message)) return true;
+  return error.cause?.name === 'TypeError' && /fetch failed/i.test(String(error.cause.message || ''));
+}
+
+/** HTTP statuses worth another attempt inside the collection deadline. */
+export function isRetryableHttpStatus(status) {
+  return status === 404 || status === 429;
+}
+
+/** The HTTP status carried by an error or the error it wraps, if any. */
+export function httpStatusOf(error) {
+  const direct = Number(error?.httpStatus);
+  if (Number.isInteger(direct)) return direct;
+  const wrapped = Number(error?.cause?.httpStatus);
+  return Number.isInteger(wrapped) ? wrapped : null;
+}
+
+/**
  * Classify a collector failure without guessing.
  *
  * A transport failure is the only case allowed to claim the backend was
@@ -58,6 +86,12 @@ const NETWORK_ERROR_CODES = new Set([
  * `no-matching-trace`, which is a product/evidence statement, not an
  * infrastructure excuse. The transport test is deliberately narrow — any
  * `TypeError` would sweep an internal collector bug into the same excuse.
+ *
+ * The status and transport checks look through `cause`, because the collector
+ * re-wraps the last failure when its deadline expires. Reading only the outer
+ * error would drop the status and land every timed-out fetch on
+ * `topology-invalid` — the most product-blaming outcome in the enum — for a
+ * trace the collector never actually obtained.
  */
 export function classifyTraceFailure({ error, candidateCount = 0, contractResolved = true } = {}) {
   const message = String(error?.message || error || '');
@@ -65,18 +99,12 @@ export function classifyTraceFailure({ error, candidateCount = 0, contractResolv
   // A reachable Tempo that answers 404 or another 4xx has *told* us something:
   // it is not carrying the trace. Only a server-side or rate-limit refusal is
   // an availability claim.
-  const status = Number(error?.httpStatus);
-  if (Number.isInteger(status)) {
+  const status = httpStatusOf(error);
+  if (status !== null) {
     if (status >= 500 || status === 429) return TRACE_OUTCOME.BACKEND_UNAVAILABLE;
     return TRACE_OUTCOME.NO_MATCHING_TRACE;
   }
-  if (NETWORK_ERROR_CODES.has(error?.code) || NETWORK_ERROR_CODES.has(error?.cause?.code)) {
-    return TRACE_OUTCOME.BACKEND_UNAVAILABLE;
-  }
-  // Node's fetch reports every transport failure as `TypeError: fetch failed`.
-  if (error?.name === 'TypeError' && /fetch failed/i.test(message)) {
-    return TRACE_OUTCOME.BACKEND_UNAVAILABLE;
-  }
+  if (isTransportFailure(error)) return TRACE_OUTCOME.BACKEND_UNAVAILABLE;
   if (/trace correlation is ambiguous/i.test(message)) return TRACE_OUTCOME.AMBIGUOUS_TRACE;
   if (candidateCount > 1) return TRACE_OUTCOME.AMBIGUOUS_TRACE;
   if (candidateCount === 0) return TRACE_OUTCOME.NO_MATCHING_TRACE;

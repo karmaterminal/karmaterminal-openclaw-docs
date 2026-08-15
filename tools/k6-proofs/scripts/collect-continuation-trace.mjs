@@ -15,6 +15,9 @@ import { toolSpanDeclaresName, toolSpanMatchesName } from '../lib/tempo-span-mat
 import {
   buildObservabilityOutcome,
   classifyTraceFailure,
+  httpStatusOf,
+  isRetryableHttpStatus,
+  isTransportFailure,
   traceRebindKeys,
   TRACE_OUTCOME,
   validateObservabilityOutcome,
@@ -616,10 +619,12 @@ async function collect(args, runDir, state) {
         break;
       } catch (error) {
         // Search found the id but the block store has not flushed the body yet:
-        // keep polling. Any other transport status is a real failure.
-        if (error?.httpStatus !== undefined && error.httpStatus !== 404 && error.httpStatus !== 429) {
-          throw error;
-        }
+        // keep polling. A transport failure or any non-retryable status is a
+        // real failure and must surface now, with its own identity intact,
+        // rather than being retried and then reported as bad topology.
+        const status = httpStatusOf(error);
+        if (isTransportFailure(error)) throw error;
+        if (status !== null && !isRetryableHttpStatus(status)) throw error;
         validationError = error;
       }
     }
@@ -629,7 +634,13 @@ async function collect(args, runDir, state) {
 
   if (candidates.length === 0 || !topology || !trace) {
     if (validationError) {
-      throw new Error(`Tempo trace did not reach valid continuation topology before timeout: ${validationError.message}`);
+      // Keep the cause: the deadline wrapper must not erase the status or
+      // transport identity that decides whether this row's evidence gap is
+      // infrastructure, an absent trace, or a malformed one.
+      throw Object.assign(
+        new Error(`Tempo trace did not reach valid continuation topology before timeout: ${validationError.message}`),
+        { cause: validationError },
+      );
     }
     const fingerprint = contract.kind === 'continuation'
       ? `reason hash ${contract.hash}`

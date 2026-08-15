@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import {
   buildObservabilityOutcome,
   classifyTraceFailure,
+  httpStatusOf,
+  isRetryableHttpStatus,
+  isTransportFailure,
   OBSERVABILITY_OUTCOME_SCHEMA,
   TRACE_OUTCOME,
   traceRebindKeys,
@@ -269,4 +272,48 @@ test('a reachable Tempo answering 404 is not an availability claim', () => {
     const error = Object.assign(new Error(`Tempo search failed: HTTP ${status}`), { httpStatus: status });
     assert.equal(classifyTraceFailure({ error }), TRACE_OUTCOME.BACKEND_UNAVAILABLE, `status ${status}`);
   }
+});
+
+test('the deadline wrapper must not erase the failure it wraps', () => {
+  // The collector re-wraps the last failure when its budget expires. Reading
+  // only the outer error drops the status and lands every timed-out fetch on
+  // `topology-invalid` — the most product-blaming outcome in the enum — for a
+  // trace the collector never obtained.
+  const wrap = (inner) => Object.assign(
+    new Error(`Tempo trace did not reach valid continuation topology before timeout: ${inner.message}`),
+    { cause: inner },
+  );
+
+  const notFound = wrap(Object.assign(new Error('Tempo trace fetch failed: HTTP 404 Not Found'), { httpStatus: 404 }));
+  assert.equal(classifyTraceFailure({ error: notFound, candidateCount: 1 }), TRACE_OUTCOME.NO_MATCHING_TRACE);
+
+  const throttled = wrap(Object.assign(new Error('Tempo trace fetch failed: HTTP 429'), { httpStatus: 429 }));
+  assert.equal(classifyTraceFailure({ error: throttled, candidateCount: 1 }), TRACE_OUTCOME.BACKEND_UNAVAILABLE);
+
+  const transport = wrap(Object.assign(new TypeError('fetch failed'), { cause: { code: 'ECONNREFUSED' } }));
+  assert.equal(classifyTraceFailure({ error: transport, candidateCount: 1 }), TRACE_OUTCOME.BACKEND_UNAVAILABLE);
+
+  // A genuine topology failure still reads as one.
+  const malformed = wrap(new Error('matched trace lacks the originating continue_work tool span'));
+  assert.equal(classifyTraceFailure({ error: malformed, candidateCount: 1 }), TRACE_OUTCOME.TOPOLOGY_INVALID);
+});
+
+test('retry and availability agree on what counts as a transport failure', () => {
+  // The collector's retry decision and this classification read the same
+  // predicate, so "should this be retried?" and "was the backend unavailable?"
+  // cannot drift into two different answers.
+  assert.equal(isTransportFailure(Object.assign(new TypeError('fetch failed'), { cause: { code: 'ECONNREFUSED' } })), true);
+  assert.equal(isTransportFailure(Object.assign(new Error('boom'), { code: 'ETIMEDOUT' })), true);
+  assert.equal(isTransportFailure(new TypeError("Cannot read properties of undefined (reading 'spanId')")), false);
+  assert.equal(isTransportFailure(Object.assign(new Error('HTTP 404'), { httpStatus: 404 })), false);
+  assert.equal(isTransportFailure(null), false);
+
+  assert.equal(isRetryableHttpStatus(404), true);
+  assert.equal(isRetryableHttpStatus(429), true);
+  assert.equal(isRetryableHttpStatus(503), false);
+  assert.equal(isRetryableHttpStatus(403), false);
+
+  assert.equal(httpStatusOf(Object.assign(new Error('x'), { httpStatus: 404 })), 404);
+  assert.equal(httpStatusOf(Object.assign(new Error('x'), { cause: { httpStatus: 503 } })), 503);
+  assert.equal(httpStatusOf(new Error('x')), null);
 });

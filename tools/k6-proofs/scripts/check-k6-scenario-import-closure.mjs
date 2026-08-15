@@ -69,7 +69,13 @@ function stripLiterals(source) {
   let token = '';
   let lastToken = '';
   const blank = (text) => text.replace(/[^\n]/gu, ' ');
-  const REGEX_PRECEDERS = new Set(['', '(', ',', '=', ':', '[', '!', '&', '|', '?', '{', ';', '+', '-', '*', '%', '~', '^', '<', '>']);
+  // `}` is included: a regex opening a statement after a block close is
+  // plausible, while dividing by a block or object literal is meaningless.
+  // `)` is deliberately excluded — `(a + b) / c` is ordinary arithmetic, and
+  // treating it as a regex would blank real code. The unbalanced-quote case
+  // that leaves is caught instead by the newline guard on quoted strings,
+  // which surfaces `unscannable-source` rather than certifying a short read.
+  const REGEX_PRECEDERS = new Set(['', '(', ',', '=', ':', '[', '!', '&', '|', '?', '{', '}', ';', '+', '-', '*', '%', '~', '^', '<', '>']);
   // Keywords after which a `/` opens a regex rather than dividing.
   const REGEX_KEYWORDS = new Set([
     'return', 'typeof', 'case', 'in', 'of', 'new', 'delete', 'void',

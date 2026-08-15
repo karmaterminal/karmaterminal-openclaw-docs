@@ -408,3 +408,69 @@ test('an unterminated template literal fails closed', async () => {
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('a regex after a block close parses, and one after `)` fails closed', async () => {
+  // `}` is a plausible regex position, so it is recognized. `)` is not, because
+  // treating `(a + b) / c` as a regex would blank real code — a fail-open. The
+  // residual misparse is caught instead by the newline guard on quoted strings,
+  // which reports `unscannable-source` rather than certifying a short read.
+  const braced = await fixtureRepo({
+    'scenarios/r-brace.js': [
+      "import { a } from '../lib/brace-regex.mjs';",
+      'export default function () { return a; }',
+    ].join('\n'),
+    'lib/brace-regex.mjs': [
+      'function noop() {}',
+      "/'/.test('x');",
+      'export const a = process.env.HOME;',
+    ].join('\n'),
+  });
+  try {
+    const result = run(braced);
+    assert.equal(result.status, 1);
+    const reasons = result.report.violations.map((entry) => entry.reason);
+    assert.ok(reasons.includes('node-only-global'), JSON.stringify(result.report.violations));
+    assert.ok(!reasons.includes('unscannable-source'), 'a block-close regex position should parse cleanly');
+  } finally {
+    await rm(braced, { recursive: true, force: true });
+  }
+
+  const parened = await fixtureRepo({
+    'scenarios/r-paren.js': [
+      "import { b } from '../lib/paren-regex.mjs';",
+      'export default function () { return b; }',
+    ].join('\n'),
+    'lib/paren-regex.mjs': [
+      "export function check(x) { if (x) /'/.test(x); return x; }",
+      'export const b = process.env.HOME;',
+    ].join('\n'),
+  });
+  try {
+    const result = run(parened);
+    assert.equal(result.status, 1, 'the unparsed case must not certify clean');
+    const reasons = result.report.violations.map((entry) => entry.reason);
+    assert.ok(reasons.includes('unscannable-source'), JSON.stringify(result.report.violations));
+  } finally {
+    await rm(parened, { recursive: true, force: true });
+  }
+});
+
+test('ordinary arithmetic after a closing paren is never read as a regex', async () => {
+  const root = await fixtureRepo({
+    'scenarios/r-arith.js': [
+      "import { mean } from '../lib/arith.mjs';",
+      'export default function () { return mean; }',
+    ].join('\n'),
+    'lib/arith.mjs': [
+      'const total = (a, b) => (a + b) / 2;',
+      "export const mean = total(1, 3) / 2 + 'ok'.length / 1;",
+    ].join('\n'),
+  });
+  try {
+    const result = run(root);
+    assert.equal(result.status, 0, JSON.stringify(result.report.violations));
+    assert.deepEqual(result.report.violations, []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

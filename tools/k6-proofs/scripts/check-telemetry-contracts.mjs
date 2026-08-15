@@ -291,12 +291,17 @@ export function validateTelemetryCatalog(entries) {
     }
   }
 
-  for (const concern of REMEDY_CONCERNS) {
-    const owners = concernOwners.get(concern);
-    if (owners.length === 0) {
-      failures.push(`census remedy concern '${concern}' has no owning row (${CENSUS_ISSUE})`);
-    } else if (owners.length > 1) {
-      failures.push(`census remedy concern '${concern}' is claimed by more than one row: ${owners.join(', ')}`);
+  // Concern ownership only binds once the catalog carries telemetry contracts at
+  // all. A catalog with no contracts is separately caught by the per-row rule
+  // that a telemetry-dependent row must declare one.
+  if (rows.length) {
+    for (const concern of REMEDY_CONCERNS) {
+      const owners = concernOwners.get(concern);
+      if (owners.length === 0) {
+        failures.push(`census remedy concern '${concern}' has no owning row (${CENSUS_ISSUE})`);
+      } else if (owners.length > 1) {
+        failures.push(`census remedy concern '${concern}' is claimed by more than one row: ${owners.join(', ')}`);
+      }
     }
   }
 

@@ -128,8 +128,30 @@ Each cycle should produce verdicts for at least these rows:
 | R-CONFIG-DEFAULTS | 🕯 Emeric | continuation config defaults applied on bootstrap (lamp-axis cure-authoring natural fit) |
 | R-CONFIG-INTERSESSION | 🕯 Emeric | continuation config persists across session boundaries (lamp-axis cure-authoring natural fit) |
 | R-REGRESSION-TRAP-TESTS | 🕯 Emeric | sister-trap-tests landed alongside each cure-PR (#898 / #913 / #914 / #915 / etc.) substantively-lock-in the cure going-forward. Emerged from figs's 2026-06-03 framing "its frightening how we keep losing things" + the half-symmetric-cure-class (cure ships for one tool but not the sibling tool sharing the same plumbing, e.g. `continueWorkOpts` cured but `requestCompactionOpts` missed at spawn-init code-path). Lamp-axis owns because the authoring-seat is best-positioned to enumerate the sibling-surfaces that need parallel trap-test coverage. |
+| R-OBS-CONT-PROVENANCE | unclaimed | **CONSTRUCT-ONLY remedy row** (`karmaterminal/openclaw#1254`). Accepted continuation entry spans must carry primitive/origin classification (`continuation.signal.origin` / `.kind`) plus stable public-safe run/session/turn fingerprints, so a typed-tool span and its accepted-entry span can be causally joined. Product instrumentation is PREREQUISITE — it does not exist on the census product basis `6b09b1db`. |
+| R-OBS-PROOF-MARKER | unclaimed | **CONSTRUCT-ONLY remedy row** (`#1254`). Proof-originated traffic must be separable from organic fleet traffic by a durable marker (proof run id, row id, product SHA, immutable harness ref, synthetic flag). The census found zero k6/Project-81 resource markers, so proof classification stays `unknown_without_stable_marker`. Product instrumentation is PREREQUISITE. |
+| R-OBS-TERMINAL-OUTCOME | unclaimed | **CONSTRUCT-ONLY remedy row** (`#1254`). Continuation/finalization must terminate into a canonical outcome enum on a span. Today zero-payload and finalization-failure exist only as `empty payload` / `finalization failed` log strings, which the census bounded as heuristics, not counters. Product instrumentation is PREREQUISITE. |
+| R-OBS-BACKEND-DISPOSITION | unclaimed | **CONSTRUCT-ONLY remedy row** (`#1254`), HARNESS-SIDE. A degraded telemetry backend must produce explicit unavailable/partial/capped evidence plus a rebind key set, never a zero that reads as absence. Mid-census, historical Tempo searches returned HTTP 200 live-store-only with no `totalBlocks` and zero matches while `/ready` stayed 200. This is the one remedy row that does NOT wait on product instrumentation. |
 
 If the fleet is on CANDIDATE_SHA + each prince fires assigned rows from own seat, the cross-walk is complete. Substitutions are fine if a prince's seat is unavailable; document the substitution in the row's EVIDENCE.md (see substitution-pattern formalization below).
+
+### Continuation telemetry rebind contract (census `karmaterminal/openclaw#1254`)
+
+> **The instrumentation described by the four `R-OBS-*` remedy rows does not exist yet.** Those rows publish the contract; they are `construct-only`, rejected by the live-run guard, and must never be read as evidence that the attributes are emitted.
+
+The continuation telemetry census (report `39803b297bd4786db3971eb82a3a7fd0b29bc643`, exact product basis `6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955`) measured the fleet's actual continuation telemetry and found:
+
+- accepted continuation entry spans are **rare** — 23 in 24h, 366 in 7d, against 585 / 23,796 model-turn spans. Continuation alone does not explain fleet symptom prevalence; it intersects the symptoms and causation is unproven;
+- accepted entry spans omit **origin, session, and turn identity** (`signal.kind` is attached only to `continuation.disabled` and compaction-release spans), so typed-tool spans and accepted-entry spans **cannot be causally joined**;
+- proof/k6 traffic has **no durable resource/trace marker** and cannot be excluded honestly;
+- canonical zero-payload/finalization outcome spans **do not exist**; log strings are only heuristics;
+- Tempo degradation must produce **explicit unavailable/partial evidence rather than zero**.
+
+The consequence for this runbook: a proof row can execute real behavior and still be impossible to rebind or correlate later. Nine behavioral rows now carry a machine-readable `telemetryContract` recording exactly that debt — R-CD-1, R-CD-2, R-CD-4, R-CD-CHAINED-DEPTH-2, R-CD-MODEL-TOOL, R-CD-TOKEN, R-CW-1, R-CW-3, R-RC-2 — and the catalog validator refuses any row that claims a telemetry-rebindable PASS without product-emitted origin/session/turn/run identity and a proof-run marker.
+
+Full contract, per-row mapping, and validator rules: [`tools/k6-proofs/docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md`](../tools/k6-proofs/docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md).
+
+Evidence for a future OpenClaw PR that lands the instrumentation publishes under the non-continuation proof convention `PR-NNNNNN/PROOFS/<FULL_SHA>/` (full 40-character SHA, never abbreviated), separate from the continuation corpus at `PROOFS/<CANDIDATE_SHA>/`, and does not repoint `PROOFS/INDEX.json`.
 
 ### Caps-test procedure (figs, 2026-06-21; fixture split 2026-07-17)
 

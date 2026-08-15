@@ -33,6 +33,187 @@
     "promptTemplate": "Proof nonce {{nonce}}: reply with DONE and the nonce only. Do not mutate files. Do not post to any channel.",
     "idempotencyKeyPrefix": "R-CD-2"
   },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "The row’s topology receipt joins the typed tool span to the dispatch/fire spans by shared trace and chain identity. The census established that this is the only join available: the accepted entry span carries no origin, session, or turn identity, so the same-trace join cannot be reconstructed independently if the artifact is lost."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-TERMINAL-OUTCOME",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "tempo-trace-json",
+      "typed-delegate-topology"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "accepted-entry",
+          "emittedByProduct": true
+        },
+        {
+          "name": "continuation.delegate.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true
+        },
+        {
+          "name": "continuation.finalization",
+          "role": "terminal-outcome",
+          "emittedByProduct": false,
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "The silent-wake claim ends at an observed wake lifecycle plus absence of channel delivery; there is no canonical terminal-outcome span to bind it to."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and already asserted by the row’s trace-correlation resolver. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "delegate.mode",
+          "purpose": "other",
+          "emittedByProduct": true,
+          "publicSafeForm": "enum",
+          "notes": "silent-wake is already exported and is asserted by the row-scoped resolver."
+        },
+        {
+          "key": "reason.hash",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16"
+        },
+        {
+          "key": "reason.length",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "integer"
+        },
+        {
+          "key": "continuation.outcome",
+          "purpose": "terminal-outcome",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "no-channel-delivery is proven by absence today; a canonical outcome would make it a positive assertion."
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Reason material is published as a digest and a length only. The row-scoped authoritative receipt is signed and public-safe; raw reasons, prompts, session keys, run identifiers, and tokens never enter it.",
+      "forbiddenInArtifacts": [
+        "raw reason",
+        "prompt body",
+        "raw session key",
+        "raw run id",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "The dispatch turn reaches its exact post-tool terminal sentinel inside its own run window, one topology-scoped typed continue_delegate completes, and a distinct same-session wake lifecycle is observed.",
+      "negative": "No channel message is delivered for the silent-wake return, generic delayed messages do not satisfy the lifecycle receipt, and a trace carrying older unrelated activity does not satisfy the topology receipt.",
+      "notes": "The negative control is an absence proof. Without a canonical terminal outcome it cannot distinguish suppressed delivery from delivery that never happened."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "accepted_send_trace_id",
+        "continuation.chain.id",
+        "reason.hash"
+      ],
+      "notes": "The row-scoped authoritative receipt is the verdict authority; a degraded Tempo makes the topology receipt unavailable and caps the row at PARTIAL-candidate rather than failing it."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.candidate-run-result.v1",
+      "requiredFiles": [
+        "EVIDENCE.md",
+        "row-result.json",
+        "r-cd-2-authoritative-receipt.json",
+        "candidate-run-result.json",
+        "seat-readiness.json"
+      ],
+      "notes": "The authoritative receipt is digest-bound; a tampered receipt withholds the candidate envelope entirely."
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "Only the validated row-scoped authoritative receipt can produce PASS-candidate, and only for the observed behavior. It is not a claim that the silent wake is re-identifiable from telemetry.",
+      "partial": "Topology, wake lifecycle, or trace receipts are unavailable, including when the telemetry backend is degraded or partial.",
+      "fail": "A channel message is delivered for the silent-wake return, or the dispatch lifecycle does not reach its terminal sentinel."
+    },
+    "execution": {
+      "deterministicK6": "r-cd-2-silent-wake.js plus the row-scoped resolver produce the signed receipt; the runner withholds the envelope if the digest does not match.",
+      "manual": "Manual review inspects the Tempo projection for topology and redaction.",
+      "relationship": "The signed receipt outranks both the k6 summary verdict and manual review; manual review cannot promote a withheld envelope."
+    }
+  },
   "liveRunSafety": {
     "classification": "k6-runnable",
     "requiresLiveGatewayToken": true,

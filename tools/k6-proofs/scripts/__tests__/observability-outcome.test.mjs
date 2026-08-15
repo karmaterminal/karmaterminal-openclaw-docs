@@ -228,3 +228,28 @@ test('a reachable backend with nothing to show is never excused as unavailable',
     TRACE_OUTCOME.BACKEND_UNAVAILABLE,
   );
 });
+
+test('an internal collector bug is never excused as backend trouble', () => {
+  // Any TypeError used to sweep straight to `backend-unavailable`, which would
+  // let a defect in the harness masquerade as infrastructure and quietly excuse
+  // a row that the harness itself broke.
+  const internal = new TypeError("Cannot read properties of undefined (reading 'spanId')");
+  assert.equal(
+    classifyTraceFailure({ error: internal, candidateCount: 1 }),
+    TRACE_OUTCOME.TOPOLOGY_INVALID,
+  );
+  assert.equal(
+    classifyTraceFailure({ error: internal, candidateCount: 0 }),
+    TRACE_OUTCOME.NO_MATCHING_TRACE,
+  );
+
+  // Node's fetch transport failure still classifies correctly, by both routes.
+  const transport = new TypeError('fetch failed');
+  assert.equal(classifyTraceFailure({ error: transport }), TRACE_OUTCOME.BACKEND_UNAVAILABLE);
+  transport.cause = { code: 'ECONNREFUSED' };
+  assert.equal(classifyTraceFailure({ error: transport }), TRACE_OUTCOME.BACKEND_UNAVAILABLE);
+  assert.equal(
+    classifyTraceFailure({ error: Object.assign(new Error('socket hang up'), { code: 'ECONNRESET' }) }),
+    TRACE_OUTCOME.BACKEND_UNAVAILABLE,
+  );
+});

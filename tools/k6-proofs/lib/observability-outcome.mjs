@@ -46,20 +46,28 @@ const UNRESOLVED_OUTCOMES = new Set([
   TRACE_OUTCOME.CONTRACT_INVALID,
 ]);
 
+const NETWORK_ERROR_CODES = new Set([
+  'ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ECONNRESET', 'EAI_AGAIN', 'EHOSTUNREACH', 'ENETUNREACH',
+]);
+
 /**
  * Classify a collector failure without guessing.
  *
  * A transport failure is the only case allowed to claim the backend was
  * unavailable; a reachable backend that returned nothing stays
  * `no-matching-trace`, which is a product/evidence statement, not an
- * infrastructure excuse.
+ * infrastructure excuse. The transport test is deliberately narrow — any
+ * `TypeError` would sweep an internal collector bug into the same excuse.
  */
 export function classifyTraceFailure({ error, candidateCount = 0, contractResolved = true } = {}) {
   const message = String(error?.message || error || '');
   if (!contractResolved) return TRACE_OUTCOME.CONTRACT_INVALID;
   if (/Tempo (search|trace fetch) failed: HTTP/i.test(message)) return TRACE_OUTCOME.BACKEND_UNAVAILABLE;
-  if (error && (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' ||
-      error.code === 'ETIMEDOUT' || error.name === 'TypeError')) {
+  if (NETWORK_ERROR_CODES.has(error?.code) || NETWORK_ERROR_CODES.has(error?.cause?.code)) {
+    return TRACE_OUTCOME.BACKEND_UNAVAILABLE;
+  }
+  // Node's fetch reports every transport failure as `TypeError: fetch failed`.
+  if (error?.name === 'TypeError' && /fetch failed/i.test(message)) {
     return TRACE_OUTCOME.BACKEND_UNAVAILABLE;
   }
   if (/trace correlation is ambiguous/i.test(message)) return TRACE_OUTCOME.AMBIGUOUS_TRACE;

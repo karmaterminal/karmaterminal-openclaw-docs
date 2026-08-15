@@ -107,6 +107,13 @@ function seal(receipt, key) {
  * Structural gates (tool accepted, unique child, completion sentinels) are an
  * independent boolean. PASS requires structuralOk === true AND journal match.
  * The receipt is HMAC-sealed to OPENCLAW_GATEWAY_TOKEN like R-CD-2/R-CD-TOKEN.
+ *
+ * `journalAvailable` separates two statements that an empty journal otherwise
+ * collapses into one. "The gateway journal was captured and contains no
+ * matching delivery" is a claim about the product. "No gateway journal was
+ * read" is a claim about the evidence. Reporting the second as `no-delivery`
+ * makes an absent log look like a proven absence of routing, which is the same
+ * success-shaped hole as a silently missing trace — only inverted.
  */
 export function resolveTargetedReturnAuthority({
   journalText,
@@ -118,8 +125,12 @@ export function resolveTargetedReturnAuthority({
   row = null,
   allowIntermediateAncestorTargets = false,
   structuralOk = true,
+  journalAvailable = null,
   signingKey,
 } = {}) {
+  const journalRead = journalAvailable === null
+    ? typeof journalText === 'string' && journalText.trim().length > 0
+    : journalAvailable === true;
   const deliveries = collectTargetedReturnDeliveries(journalText);
   const windowed = deliveries.filter((delivery) =>
     inWindow(delivery.timestampMs, windowStartMs, windowEndMs));
@@ -156,6 +167,7 @@ export function resolveTargetedReturnAuthority({
     if (anyChildOutOfWindow.length > 0) failureCategory = 'out-of-window';
     else if (anyTargetAnyChild.length > 0) failureCategory = 'wrong-child';
     else if (deliveries.length > 0) failureCategory = 'no-matching-delivery';
+    else if (!journalRead) failureCategory = 'journal-unavailable';
     else failureCategory = 'no-delivery';
   } else if (targetMatches.length > 1) failureCategory = 'duplicate-target';
   else if (!allowIntermediateAncestorTargets && parentMatches.length > 0) {

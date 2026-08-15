@@ -381,3 +381,55 @@ test('replay redacted historical journal remains unproven (no manufactured PASS)
   assert.notEqual(receipt.verdict, 'PASS-candidate');
   assert.equal(collectTargetedReturnDeliveries(redacted).length, 1);
 });
+
+test('an unread gateway journal is not reported as a proven non-delivery', () => {
+  const bound = {
+    targetSessionKey: 'agent:main:target',
+    childSessionKey: 'agent:main:child',
+    parentSessionKey: 'agent:main:parent',
+    row: 'R-CD-4',
+    structuralOk: true,
+    signingKey,
+  };
+
+  // No journal was read at all: an evidence gap.
+  const unread = resolveTargetedReturnAuthority({ ...bound, journalText: '', journalAvailable: false });
+  assert.equal(unread.verdict, 'PARTIAL-candidate');
+  assert.equal(unread.failureCategory, 'journal-unavailable');
+
+  // A captured journal that genuinely contains no delivery: a product claim.
+  const captured = resolveTargetedReturnAuthority({
+    ...bound,
+    journalText: '2026-08-15T10:14:42.000Z gateway: unrelated line\n',
+    journalAvailable: true,
+  });
+  assert.equal(captured.verdict, 'PARTIAL-candidate');
+  assert.equal(captured.failureCategory, 'no-delivery');
+
+  // Both remain valid sealed PARTIAL receipts; neither can be promoted.
+  assert.equal(validateTargetedReturnReceipt(unread, signingKey, 'R-CD-4').valid, true);
+  assert.equal(validateTargetedReturnReceipt(captured, signingKey, 'R-CD-4').valid, true);
+  assert.notEqual(unread.integrity.signature, captured.integrity.signature);
+});
+
+test('journal availability is inferred from content when the runner does not declare it', () => {
+  const bound = {
+    targetSessionKey: 'agent:main:target',
+    childSessionKey: 'agent:main:child',
+    row: 'R-CD-4',
+    structuralOk: true,
+    signingKey,
+  };
+  assert.equal(
+    resolveTargetedReturnAuthority({ ...bound, journalText: '' }).failureCategory,
+    'journal-unavailable',
+  );
+  assert.equal(
+    resolveTargetedReturnAuthority({ ...bound, journalText: '   \n  \n' }).failureCategory,
+    'journal-unavailable',
+  );
+  assert.equal(
+    resolveTargetedReturnAuthority({ ...bound, journalText: 'gateway: some captured line\n' }).failureCategory,
+    'no-delivery',
+  );
+});

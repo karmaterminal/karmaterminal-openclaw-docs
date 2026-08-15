@@ -71,6 +71,7 @@ export function rCdChainJournalReturnAuthority(args) {
     row: 'R-CD-CHAINED-DEPTH-2',
     allowIntermediateAncestorTargets: true,
     structuralOk: args.structuralOk !== false,
+    journalAvailable: args.journalAvailable ?? null,
     signingKey: args.signingKey,
   });
 }

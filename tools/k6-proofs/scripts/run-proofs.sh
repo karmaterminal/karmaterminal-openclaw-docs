@@ -1429,6 +1429,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           --run-dir "$RUN_DIR" \
           --evidence "$PRIVATE_EVIDENCE_FILE" \
           --journal "$PRIVATE_GATEWAY_LOG" \
+          --journal-status "$([[ "$GATEWAY_JOURNAL_STATUS" == "captured" ]] && echo captured || echo unavailable)" \
           --row "$ROW_ID" \
           > "$RUN_DIR/targeted-return-resolution.json" 2> "$RUN_DIR/targeted-return-collector.error.log"; then
         TARGETED_RETURN_RECEIPT_SHA256="$(node --input-type=module -e 'import { createHash } from "node:crypto"; import { readFileSync } from "node:fs"; process.stdout.write(createHash("sha256").update(readFileSync(process.argv[1])).digest("hex"));' "$RUN_DIR/$TARGETED_RETURN_RECEIPT")"

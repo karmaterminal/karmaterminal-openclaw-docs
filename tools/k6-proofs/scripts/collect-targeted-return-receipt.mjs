@@ -10,7 +10,7 @@ import {
 function usage() {
   console.error(`Usage: node collect-targeted-return-receipt.mjs \\
   --run-dir <dir> --evidence <private-evidence.json> --journal <private-gateway.log> \\
-  [--row R-CD-4|R-CD-CHAINED-DEPTH-2]
+  [--row R-CD-4|R-CD-CHAINED-DEPTH-2] [--journal-status captured|unavailable]
 
 Requires OPENCLAW_GATEWAY_TOKEN in the environment to HMAC-seal the receipt.`);
 }
@@ -19,7 +19,7 @@ function parseArgs(argv) {
   const out = {};
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
-    if (!['--run-dir', '--evidence', '--journal', '--row'].includes(arg)) {
+    if (!['--run-dir', '--evidence', '--journal', '--row', '--journal-status'].includes(arg)) {
       throw new Error(`unexpected argument: ${arg}`);
     }
     const value = argv[i + 1];
@@ -102,6 +102,14 @@ async function main() {
   const runDir = path.resolve(args.runDir);
   const evidence = JSON.parse(await readFile(path.resolve(args.evidence), 'utf8'));
   const journalText = await readFile(path.resolve(args.journal), 'utf8');
+  // An unread journal is an evidence gap, not a proven absence of routing.
+  // The runner knows which it is; without that signal fall back to content.
+  if (args.journalStatus && !['captured', 'unavailable'].includes(args.journalStatus)) {
+    throw new Error(`unsupported journal status: ${args.journalStatus}`);
+  }
+  const journalAvailable = args.journalStatus
+    ? args.journalStatus === 'captured'
+    : null;
   const binding = bindRow(evidence, args.row);
   const { windowStartMs, windowEndMs } = windowFromEvidence(evidence);
 
@@ -115,6 +123,7 @@ async function main() {
     row: binding.row,
     allowIntermediateAncestorTargets: binding.allowIntermediateAncestorTargets === true,
     structuralOk: binding.structuralOk === true,
+    journalAvailable,
     signingKey,
   });
 
@@ -132,6 +141,7 @@ async function main() {
     verdict: receipt.verdict,
     failureCategory: receipt.failureCategory,
     structuralOk: receipt.structuralOk === true,
+    journalAvailable: journalAvailable ?? (journalText.trim().length > 0),
     receipt: outName,
     targetMatchCount: receipt.targetMatchCount,
     parentMatchCount: receipt.parentMatchCount,

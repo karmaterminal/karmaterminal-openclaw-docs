@@ -1,17 +1,21 @@
-import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
+import {
+  fingerprint16,
+  isHexOfLength,
+  RECEIPT_INTEGRITY_ALGORITHM,
+  sealReceipt,
+  verifyReceiptSeal,
+} from './receipt-seal.mjs';
 
 export const TARGETED_RETURN_RECEIPT_SCHEMA = 'openclaw.k6.targeted-return-receipt.v1';
 export const TARGETED_RETURN_MARKER = '[continuation:targeted-return]';
-export const TARGETED_RETURN_INTEGRITY_ALGORITHM = 'hmac-sha256-gateway-token-v1';
+export const TARGETED_RETURN_INTEGRITY_ALGORITHM = RECEIPT_INTEGRITY_ALGORITHM;
 
 const DELIVERED_RE = /\[continuation:targeted-return\]\s+Delivered to\s+(.+?)\s+from\s+(\S+)/i;
 const ISO_RE = /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))/;
-const FP16 = /^[a-f0-9]{16}$/i;
-const HEX64 = /^[a-f0-9]{64}$/i;
+const FP16 = (value) => isHexOfLength(value, 16);
 
 export function fingerprintIdentity(value) {
-  if (typeof value !== 'string' || value.length === 0) return null;
-  return createHash('sha256').update(value).digest('hex').slice(0, 16);
+  return fingerprint16(value);
 }
 
 export function parseJournalLineTimestampMs(line) {
@@ -84,16 +88,7 @@ export function canonicalTargetedReturnReceipt(receipt) {
 }
 
 function seal(receipt, key) {
-  if (typeof key !== 'string' || key.length === 0) {
-    throw new Error('missing gateway signing key');
-  }
-  return {
-    ...receipt,
-    integrity: {
-      algorithm: TARGETED_RETURN_INTEGRITY_ALGORITHM,
-      signature: createHmac('sha256', key).update(canonicalTargetedReturnReceipt(receipt)).digest('hex'),
-    },
-  };
+  return sealReceipt(receipt, key, canonicalTargetedReturnReceipt);
 }
 
 /**
@@ -251,17 +246,11 @@ export function validateTargetedReturnReceipt(receipt, signingKey, expectedRow =
       return { valid: false, reason: 'missing-signing-key' };
     }
     if (receipt.integrity?.algorithm !== TARGETED_RETURN_INTEGRITY_ALGORITHM ||
-        !HEX64.test(receipt.integrity?.signature || '')) {
+        !isHexOfLength(receipt.integrity?.signature, 64)) {
       return { valid: false, reason: 'invalid-shape' };
     }
-    const expected = createHmac('sha256', signingKey)
-      .update(canonicalTargetedReturnReceipt(receipt))
-      .digest('hex');
-    const actual = receipt.integrity.signature;
-    if (expected.length !== actual.length ||
-        !timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(actual, 'hex'))) {
-      return { valid: false, reason: 'invalid-integrity' };
-    }
+    const sealed = verifyReceiptSeal(receipt, signingKey, canonicalTargetedReturnReceipt);
+    if (!sealed.valid) return sealed;
 
     if (receipt.verdict === 'PASS-candidate') {
       if (receipt.structuralOk !== true) {
@@ -271,13 +260,13 @@ export function validateTargetedReturnReceipt(receipt, signingKey, expectedRow =
         return { valid: false, reason: 'pass-counts' };
       }
       if (receipt.failureCategory != null) return { valid: false, reason: 'pass-failure-category' };
-      if (!FP16.test(receipt.bindings?.targetSessionFingerprint || '')) {
+      if (!FP16(receipt.bindings?.targetSessionFingerprint)) {
         return { valid: false, reason: 'missing-target-fingerprint' };
       }
-      if (!FP16.test(receipt.bindings?.childSessionFingerprint || '')) {
+      if (!FP16(receipt.bindings?.childSessionFingerprint)) {
         return { valid: false, reason: 'missing-child-fingerprint' };
       }
-      if (!FP16.test(receipt.bindings?.deliveryLineFingerprint || '')) {
+      if (!FP16(receipt.bindings?.deliveryLineFingerprint)) {
         return { valid: false, reason: 'missing-delivery-fingerprint' };
       }
     } else if (receipt.verdict === 'PARTIAL-candidate') {

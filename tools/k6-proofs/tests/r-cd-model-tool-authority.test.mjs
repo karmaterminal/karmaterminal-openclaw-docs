@@ -29,7 +29,7 @@ test('spawnedBy set-diff requires exactly one new child', () => {
   assert.equal(diffSpawnedByChildren([childA], [childA]).empty, true);
 });
 
-test('model authority reads provider/model from the unique new child row only', () => {
+test('model authority reads provider/model from the unique new child row only', async () => {
   const payload = {
     sessions: [
       { key: childA, modelProvider: 'openai', model: 'gpt-5.6-luna' },
@@ -43,7 +43,7 @@ test('model authority reads provider/model from the unique new child row only', 
     requestedModel: 'openai/gpt-5.6-luna',
   });
 
-  test('event correlation confirms but never disambiguates the unique set-diff child', () => {
+  await test('event correlation confirms but never disambiguates the unique set-diff child', () => {
     const payload = {
       sessions: [
         {
@@ -95,7 +95,7 @@ test('model authority reads provider/model from the unique new child row only', 
     assert.equal(wrongParent.failureCategory, 'child-parent-mismatch');
   });
 
-  test('positive child metadata evidence is sticky across later empty polls', () => {
+  await test('positive child metadata evidence is sticky across later empty polls', () => {
     const positive = mergeModelToolChildAuthorityEvidence({}, {
       childSessionKey: childA,
       childSession: {
@@ -125,7 +125,7 @@ test('model authority reads provider/model from the unique new child row only', 
     assert.equal(afterEmptyPoll.model_classification_reason, null);
   });
 
-  test('later multiple-child ambiguity is sticky and invalidates prior authority', () => {
+  await test('later multiple-child ambiguity is sticky and invalidates prior authority', () => {
     const positive = mergeModelToolChildAuthorityEvidence({}, {
       childSessionKey: childA,
       childSession: {
@@ -170,7 +170,7 @@ test('model authority reads provider/model from the unique new child row only', 
     assert.equal(afterUniquePoll.model_matches, false);
   });
 
-  test('event and metadata child conflicts remain sticky and cannot be cleared', () => {
+  await test('event and metadata child conflicts remain sticky and cannot be cleared', () => {
     const conflict = mergeModelToolChildAuthorityEvidence({
       event_child_session_key: childB,
       event_child_session_observed: true,
@@ -205,7 +205,7 @@ test('model authority reads provider/model from the unique new child row only', 
     assert.equal(afterMatchingPoll.model_matches, false);
   });
 
-  test('metadata-less replacement child invalidates prior authority', () => {
+  await test('metadata-less replacement child invalidates prior authority', () => {
     const positive = mergeModelToolChildAuthorityEvidence({}, {
       childSessionKey: childA,
       childSession: {
@@ -238,7 +238,7 @@ test('model authority reads provider/model from the unique new child row only', 
     assert.equal(replacementWithoutModel.model_matches, false);
   });
 
-  test('event-correlated authority cannot mask a later unique replacement child', () => {
+  await test('event-correlated authority cannot mask a later unique replacement child', () => {
     const positive = mergeModelToolChildAuthorityEvidence({
       event_child_session_key: childA,
       event_child_session_observed: true,

@@ -1,11 +1,17 @@
-import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash } from 'node:crypto';
 import { classifyTokenEvidence } from './r-cd-token-contract.js';
+import {
+  digest64,
+  isHexOfLength,
+  RECEIPT_INTEGRITY_ALGORITHM,
+  sealReceipt,
+  verifyReceiptSeal,
+} from './receipt-seal.mjs';
 
 export const R_CD_TOKEN_RECEIPT_SCHEMA = 'openclaw.k6.r-cd-token-authoritative-receipt.v1';
 const SHA = /^[a-f0-9]{40}$/;
-const hex = (value, length) => typeof value === 'string' &&
-  new RegExp(`^[a-f0-9]{${length}}$`, 'i').test(value);
-const digest = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+const hex = isHexOfLength;
+const digest = digest64;
 
 function canonical(receipt) {
   return JSON.stringify({
@@ -22,14 +28,7 @@ function canonical(receipt) {
 }
 
 function seal(receipt, key) {
-  if (typeof key !== 'string' || !key) throw new Error('missing gateway signing key');
-  return {
-    ...receipt,
-    integrity: {
-      algorithm: 'hmac-sha256-gateway-token-v1',
-      signature: createHmac('sha256', key).update(canonical(receipt)).digest('hex'),
-    },
-  };
+  return sealReceipt(receipt, key, canonical);
 }
 
 function topologyPasses(correlation) {
@@ -172,15 +171,13 @@ export function validateRcdTokenAuthoritativeReceipt(receipt, key) {
       receipt.binding?.runtimeBuildSha !== receipt.binding.candidateSha ||
       !hex(receipt.binding?.localEvidenceFingerprint, 64) ||
       !hex(receipt.binding?.topologyFingerprint, 64) ||
-      receipt.integrity?.algorithm !== 'hmac-sha256-gateway-token-v1' ||
+      receipt.integrity?.algorithm !== RECEIPT_INTEGRITY_ALGORITHM ||
       !hex(receipt.integrity?.signature, 64) ||
       typeof key !== 'string' || !key) {
     return { valid: false, reason: 'invalid-shape' };
   }
-  const expected = createHmac('sha256', key).update(canonical(receipt)).digest('hex');
-  if (!timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(receipt.integrity.signature, 'hex'))) {
-    return { valid: false, reason: 'invalid-integrity' };
-  }
+  const sealed = verifyReceiptSeal(receipt, key, canonical);
+  if (!sealed.valid) return sealed;
   if (receipt.verdict !== 'PASS-candidate') {
     return receipt.verdict === 'PARTIAL-candidate' &&
       typeof receipt.failureCategory === 'string'

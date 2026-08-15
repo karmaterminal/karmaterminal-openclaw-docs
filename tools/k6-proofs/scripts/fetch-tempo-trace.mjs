@@ -10,6 +10,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { projectPublicTempoTrace } from '../lib/public-tempo-trace.mjs';
+import { normalizeFetchTraceIdInput } from '../lib/tempo-trace-id.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
 
@@ -41,10 +42,11 @@ function parseArgs(argv, env = process.env) {
   return out;
 }
 
+// Single identifier contract shared with the row collector. A 31-hex Tempo
+// search id is recovered to its real 32-hex value instead of being fetched
+// verbatim — the failure class that cost R-CD-4 its correlation receipt.
 function safeTraceId(value) {
-  const text = String(value ?? '').trim();
-  if (!/^[A-Fa-f0-9]{8,64}$/.test(text)) throw new Error(`invalid trace id: ${text || '(empty)'}`);
-  return text.toLowerCase();
+  return normalizeFetchTraceIdInput(value);
 }
 
 async function traceIdFromRunDir(runDir) {

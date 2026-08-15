@@ -10,6 +10,15 @@ import {
   publicTempoStatusCode as publicStatusCode,
   tempoAttributeValue as attributeValue,
 } from '../lib/public-tempo-trace.mjs';
+import { normalizeOtlpId, normalizeTempoSearchTraceId } from '../lib/tempo-trace-id.mjs';
+import { toolSpanMatchesName } from '../lib/tempo-span-match.mjs';
+import {
+  buildObservabilityOutcome,
+  classifyTraceFailure,
+  traceRebindKeys,
+  TRACE_OUTCOME,
+  validateObservabilityOutcome,
+} from '../lib/observability-outcome.mjs';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
@@ -65,28 +74,12 @@ function safeHex(value, length, label) {
   return text;
 }
 
-/**
- * Tempo search sometimes strips one leading zero from 16-byte trace IDs,
- * yielding 31 hex characters. Accept exactly that form by left-padding one
- * `0`; reject every other malformed length and all-zero IDs.
- */
-export function normalizeTempoSearchTraceId(value, label = 'search trace id') {
-  const text = String(value ?? '').toLowerCase();
-  if (/^[0-9a-f]{32}$/.test(text)) return safeHex(text, 32, label);
-  if (/^[0-9a-f]{31}$/.test(text)) return safeHex(`0${text}`, 32, label);
-  throw new Error(`invalid ${label}: ${text || '(empty)'}`);
-}
+// Re-exported so existing callers and contract tests keep one import site
+// while `lib/tempo-trace-id.mjs` owns the single identifier contract.
+export { normalizeTempoSearchTraceId };
 
 function idHex(value, bytes, label) {
-  const text = String(value ?? '');
-  if (text.length === bytes * 2 && /^[0-9a-f]+$/i.test(text)) return safeHex(text, bytes * 2, label);
-  // Tempo search may emit a 31-hex trace id for a 16-byte value.
-  if (bytes === 16 && text.length === 31 && /^[0-9a-f]+$/i.test(text)) {
-    return normalizeTempoSearchTraceId(text, label);
-  }
-  const decoded = Buffer.from(text, 'base64');
-  if (decoded.length !== bytes) throw new Error(`invalid ${label} byte length`);
-  return safeHex(decoded.toString('hex'), bytes * 2, label);
+  return normalizeOtlpId(value, bytes, label);
 }
 
 function attributes(span) {
@@ -338,11 +331,7 @@ function validateTrace(trace, expected) {
     throw new Error(`${expected.fireSpanName} span is not status OK`);
   }
 
-  const matchingTools = spans.filter((span) => {
-    const attrs = attributes(span);
-    return span.name === 'openclaw.tool.execution' &&
-      attrs.get('gen_ai.tool.name') === expected.tool;
-  });
+  const matchingTools = spans.filter((span) => toolSpanMatchesName(span, expected.tool, attributeValue));
   const toolScope = expected.tool === 'continue_delegate'
     ? scopeDelegateToolSpans(trace, matchingTools, accept, fires)
     : null;
@@ -421,12 +410,7 @@ function validateTrace(trace, expected) {
 
 function validateToolTrace(trace, expected) {
   const spans = allSpans(trace);
-  const tools = spans.filter((span) => {
-    const attrs = attributes(span);
-    return span.name === 'openclaw.tool.execution' &&
-      (attrs.get('gen_ai.tool.name') === expected.tool ||
-        attrs.get('openclaw.toolName') === expected.tool);
-  });
+  const tools = spans.filter((span) => toolSpanMatchesName(span, expected.tool, attributeValue));
   if (tools.length === 0) {
     throw new Error(`matched trace lacks the originating ${expected.tool} tool span`);
   }
@@ -452,6 +436,28 @@ async function sleep(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+const OBSERVABILITY_OUTCOME_FILE = 'continuation-trace-observability.json';
+
+/**
+ * Persist the explicit observability outcome for this row.
+ *
+ * Every collector exit — correlated or not — leaves this artifact behind. A
+ * missing trace is then a named, machine-readable classification carrying the
+ * keys needed to re-bind later, instead of an empty stdout capture that a
+ * downstream reader cannot distinguish from any other unresolved row.
+ */
+async function writeObservabilityOutcome(runDir, outcome) {
+  const check = validateObservabilityOutcome(outcome);
+  if (!check.valid) {
+    throw new Error(`refusing to write invalid observability outcome: ${check.reason}`);
+  }
+  await writeFile(
+    path.join(runDir, OBSERVABILITY_OUTCOME_FILE),
+    `${JSON.stringify(outcome, null, 2)}\n`,
+  );
+  return outcome;
+}
+
 async function main() {
   const args = parseArgs(process.argv);
   if (!args.runDir || !args.manifest || !args.seat) {
@@ -465,13 +471,81 @@ async function main() {
   }
 
   const runDir = path.resolve(args.runDir);
+  // Collected as the run progresses so a throw at any depth can still emit an
+  // outcome bound to whatever binding keys were resolvable.
+  const state = {
+    row: null,
+    contract: null,
+    contractResolved: false,
+    serviceName: null,
+    query: null,
+    start: null,
+    end: null,
+    rowNonce: null,
+    sessionKeys: [],
+    candidateCount: 0,
+    attempts: 0,
+  };
+
+  const rebindKeys = () => traceRebindKeys({
+    serviceName: state.serviceName,
+    query: state.query,
+    startUnixSeconds: state.start,
+    endUnixSeconds: state.end,
+    reasonHash: state.contract?.hash ?? null,
+    reasonLength: state.contract?.length ?? null,
+    delegateMode: state.contract?.mode ?? null,
+    tool: state.contract?.tool ?? null,
+    rowNonce: state.rowNonce,
+    sessionKeys: state.sessionKeys,
+  });
+
+  const recordFailure = async (error) => {
+    const status = classifyTraceFailure({
+      error,
+      candidateCount: state.candidateCount,
+      contractResolved: state.contractResolved,
+    });
+    await writeObservabilityOutcome(runDir, buildObservabilityOutcome({
+      row: state.row,
+      seat: args.seat,
+      status,
+      detail: error?.message || String(error),
+      candidateCount: state.candidateCount,
+      attempts: state.attempts,
+      timeoutMs: args.timeoutMs,
+      rebind: rebindKeys(),
+    }));
+  };
+
+  try {
+    return await collect(args, runDir, state);
+  } catch (error) {
+    // A failure to record the outcome must not mask the real cause.
+    try {
+      await recordFailure(error);
+    } catch (writeError) {
+      console.error(`observability outcome not written: ${writeError.message}`);
+    }
+    throw error;
+  }
+}
+
+async function collect(args, runDir, state) {
   const evidencePath = path.resolve(args.evidence || path.join(runDir, 'evidence.jsonl'));
   const evidence = await readEvidence(evidencePath);
   const manifest = JSON.parse(await readFile(args.manifest, 'utf8'));
+  state.row = evidence.row || manifest.rowId || null;
+  state.rowNonce = evidence.nonce || null;
+  state.sessionKeys = [evidence.sessionKey, evidence.targetSessionKey, evidence.child_session]
+    .filter((value) => typeof value === 'string' && value.length > 0);
 
   const contract = traceContract(manifest, evidence);
+  state.contract = contract;
+  state.contractResolved = true;
   const prince = escapeTraceqlString(String(args.seat).split('-')[0]);
   const serviceName = `${prince}-prince`;
+  state.serviceName = serviceName;
   const query = contract.kind === 'continuation'
     ? (() => {
         const modeClause = contract.mode === undefined
@@ -480,6 +554,7 @@ async function main() {
         return `{ resource.service.name="${serviceName}" && name="${contract.acceptSpanName}" && .reason.hash="${contract.hash}" && .reason.length=${contract.length}${modeClause} }`;
       })()
     : `{ resource.service.name="${serviceName}" && name="openclaw.tool.execution" && .gen_ai.tool.name="${contract.tool}" }`;
+  state.query = query;
   const dispatchMs = Number(evidence.dispatch_accepted_at_ms || Date.parse(evidence.started));
   if (!Number.isFinite(dispatchMs)) throw new Error('evidence lacks a valid dispatch/start time');
   const dispatchSeconds = Math.floor(dispatchMs / 1000);
@@ -489,6 +564,8 @@ async function main() {
     ? Math.floor(evidenceEndMs / 1000)
     : dispatchSeconds;
   const end = Math.max(dispatchSeconds, evidenceEndSeconds) + CORRELATION_WINDOW_PADDING_SECONDS;
+  state.start = start;
+  state.end = end;
   const deadline = Date.now() + args.timeoutMs;
   let candidates = [];
   let traceId = '';
@@ -497,7 +574,9 @@ async function main() {
   let validationError = null;
 
   do {
+    state.attempts += 1;
     candidates = await tempoSearch(args.tempoUrl, query, start, end);
+    state.candidateCount = candidates.length;
     if (candidates.length > 1) {
       throw new Error(`trace correlation is ambiguous: ${candidates.length} Tempo traces matched`);
     }
@@ -613,10 +692,22 @@ async function main() {
         }),
   };
   await writeFile(receiptOut, JSON.stringify(receipt, null, 2) + '\n');
+  await writeObservabilityOutcome(runDir, buildObservabilityOutcome({
+    row: state.row,
+    seat: args.seat,
+    status: TRACE_OUTCOME.CORRELATED,
+    candidateCount: state.candidateCount,
+    attempts: state.attempts,
+    timeoutMs: args.timeoutMs,
+    traceId,
+    traceJson: path.basename(traceOut),
+    correlationReceipt: path.basename(receiptOut),
+  }));
   console.log(JSON.stringify({
     traceId,
     traceFile: path.basename(traceOut),
     receiptFile: path.basename(receiptOut),
+    observabilityFile: OBSERVABILITY_OUTCOME_FILE,
     ...(contract.kind === 'continuation'
       ? {
           reasonHash: contract.hash,

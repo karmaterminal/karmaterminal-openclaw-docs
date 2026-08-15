@@ -1277,6 +1277,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     fi
     TRACE_REQUIRED="$(jq -r '((.liveRunSafety.requiredReceipts // []) | map(ascii_downcase) | any(. == "trace-id" or . == "tempo-trace-json"))' "$MANIFEST_FILE")"
     MANIFEST_TOOL="$(jq -r '.invocation.tool // empty' "$MANIFEST_FILE")"
+    OBSERVABILITY_OUTCOME_FILE=""
+    OBSERVABILITY_OUTCOME_STATUS=""
     if [[ -s "$PRIVATE_EVIDENCE_FILE" ]]; then
       if jq -e 'select(has("trace_id"))' "$PRIVATE_EVIDENCE_FILE" >/dev/null; then
         TRACE_ID="$(jq -r 'select((.trace_id // "") != "") | .trace_id' "$PRIVATE_EVIDENCE_FILE" | head -n 1)"
@@ -1321,6 +1323,14 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         if [[ "${OPENCLAW_PROOFS_K6_TEMPO_REQUIRED:-false}" == "true" ]]; then
           POSTPROCESS_RC=1
         fi
+      fi
+      # The collector writes this classification on BOTH paths. It is the
+      # machine-readable answer to "why is this row's trace missing?" and it
+      # carries the keys needed to re-bind later without refiring the product.
+      if [[ -s "$RUN_DIR/continuation-trace-observability.json" ]]; then
+        OBSERVABILITY_OUTCOME_FILE="continuation-trace-observability.json"
+        OBSERVABILITY_OUTCOME_STATUS="$(jq -r '.status // ""' "$RUN_DIR/continuation-trace-observability.json")"
+        echo "[$ROW_ID] OBSERVABILITY OUTCOME: $OBSERVABILITY_OUTCOME_STATUS"
       fi
     elif [[ -n "$TRACE_ID" ]]; then
       TEMPO_TRACE_JSON="tempo-trace-${TRACE_ID:0:12}.json"
@@ -1530,6 +1540,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg authoritativeReceiptSource "$AUTHORITATIVE_RECEIPT_SOURCE" \
       --arg authoritativeReceiptSha256 "$AUTHORITATIVE_RECEIPT_SHA256" \
       --arg serviceLogStatus "$GATEWAY_JOURNAL_STATUS" \
+      --arg observabilityOutcome "$OBSERVABILITY_OUTCOME_FILE" \
+      --arg observabilityOutcomeStatus "$OBSERVABILITY_OUTCOME_STATUS" \
       --arg verdict "$SUMMARY_VERDICT" \
       --arg verdictSource "$SUMMARY_VERDICT_SOURCE" \
       --arg summaryFileVerdict "$SUMMARY_FILE_VERDICT" \
@@ -1537,7 +1549,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --argjson summaryFiles "$SUMMARY_FILES_JSON" \
       --argjson evidence "$EVIDENCE_JSON" \
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
-      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, authoritativeReceipt:(if $authoritativeReceiptSha256 == "" then null else {file:$authoritativeReceipt, sha256:$authoritativeReceiptSha256, validated:true, source:$authoritativeReceiptSource} end), observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
+      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, authoritativeReceipt:(if $authoritativeReceiptSha256 == "" then null else {file:$authoritativeReceipt, sha256:$authoritativeReceiptSha256, validated:true, source:$authoritativeReceiptSource} end), observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json", observabilityOutcome:(if $observabilityOutcome == "" then null else $observabilityOutcome end), observabilityOutcomeStatus:(if $observabilityOutcomeStatus == "" then null else $observabilityOutcomeStatus end)}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       jq \

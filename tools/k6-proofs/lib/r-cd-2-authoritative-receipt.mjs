@@ -1,4 +1,11 @@
-import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
+import {
+  digest64,
+  fingerprintValue16,
+  isHexOfLength,
+  RECEIPT_INTEGRITY_ALGORITHM,
+  sealReceipt,
+  verifyReceiptSeal,
+} from './receipt-seal.mjs';
 
 // R-CD-2 has one authority.  The scenario gathers private, nonce-bound
 // acquisition data; this module joins it with the private Tempo topology and
@@ -16,9 +23,9 @@ const FAILURE_CATEGORIES = new Set([
   'invalid-continuation-topology',
 ]);
 
-const hex = (value, length) => typeof value === 'string' && new RegExp(`^[a-f0-9]{${length}}$`, 'i').test(value);
-const fingerprint = (value) => createHash('sha256').update(String(value)).digest('hex').slice(0, 16);
-const binding = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+const hex = isHexOfLength;
+const fingerprint = fingerprintValue16;
+const binding = digest64;
 
 function canonical(receipt) {
   return JSON.stringify({
@@ -35,14 +42,7 @@ function canonical(receipt) {
 }
 
 function seal(receipt, key) {
-  if (typeof key !== 'string' || key.length === 0) throw new Error('missing gateway signing key');
-  return {
-    ...receipt,
-    integrity: {
-      algorithm: 'hmac-sha256-gateway-token-v1',
-      signature: createHmac('sha256', key).update(canonical(receipt)).digest('hex'),
-    },
-  };
+  return sealReceipt(receipt, key, canonical);
 }
 
 function evidencePasses(evidence) {
@@ -185,10 +185,10 @@ export function validateRcd2AuthoritativeReceipt(receipt, signingKey) {
   if (!receipt || receipt.schema !== R_CD_2_AUTHORITATIVE_RECEIPT_SCHEMA || receipt.row !== 'R-CD-2' ||
       receipt.authoritativeSource !== 'r-cd-2-row-scoped-resolver' || receipt.candidateOnly !== true ||
       receipt.foldRequiresReview !== true || !hex(receipt.binding?.localEvidenceFingerprint, 64) ||
-      !hex(receipt.binding?.topologyFingerprint, 64) || receipt.integrity?.algorithm !== 'hmac-sha256-gateway-token-v1' ||
+      !hex(receipt.binding?.topologyFingerprint, 64) || receipt.integrity?.algorithm !== RECEIPT_INTEGRITY_ALGORITHM ||
       !hex(receipt.integrity?.signature, 64)) return { valid: false, reason: 'invalid-shape' };
-  const expected = createHmac('sha256', signingKey).update(canonical(receipt)).digest('hex');
-  if (!timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(receipt.integrity.signature, 'hex'))) return { valid: false, reason: 'invalid-integrity' };
+  const sealed = verifyReceiptSeal(receipt, signingKey, canonical);
+  if (!sealed.valid) return sealed;
   if (receipt.verdict === 'PARTIAL-candidate') return FAILURE_CATEGORIES.has(receipt.failureCategory)
     ? { valid: true, verdict: receipt.verdict } : { valid: false, reason: 'invalid-failure-category' };
   const life = receipt.lifecycle;

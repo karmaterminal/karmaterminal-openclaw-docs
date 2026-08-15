@@ -1,155 +1,367 @@
-# R-CD-4 k6 harness repair
+# k6 continuation scenario library consolidation
 
 Issue binding: openclaw/openclaw#85651
-Authority baseline: `10f98e60cd48eba4d598a0e8805ec42d632a1326`
-Product candidate: `6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955`
-Implementation checkpoint: `fcbb8153`
+Base (exact repaired harness head): `87f6e14354544a0b29cb35d12ae9aabc7e9032cf`
+Branch: `codeagent/k6-scenario-library-consolidation`
+Head: `52db18fe`
+Files changed: 52 (+2685 / −393)
+No PR opened. No live proof run fired. No product source, prince runtime,
+configuration, database, or continuation ref touched.
+
+---
 
 ## Result
 
-The failed R-CD-4 run was a harness initialization failure, not a product
-verdict. Its copied scenario bytes exactly match the accepted authority
-baseline:
+The seven PARTIAL rows were not seven problems. Their run artifacts differ in
+prose but cluster into two shared mechanisms, and both of those mechanisms had
+already drifted into per-caller copies. The lane's work was to make each
+mechanism have exactly one implementation, and to make the absence of evidence a
+first-class named outcome instead of an empty file.
 
-| Source | SHA-256 | Comparison |
-| --- | --- | --- |
-| Failed workflow `row-scenario.js` | `1646a2062484349b320f63aaf65d5ee2228965bb01873dff1cb781ff0bec012a` | Exact |
-| `10f98e60:tools/k6-proofs/scenarios/r-cd-4-target-session-key.js` | `1646a2062484349b320f63aaf65d5ee2228965bb01873dff1cb781ff0bec012a` | Exact |
+One finding reframes the workorder's premise, and it is the first thing a
+reviewer should check: **the 99ce PARTIAL artifacts are largely pre-repair
+evidence.** That corpus ran on docs harness ref `7ab52592`, which predates two
+fixes already present at `87f6e143`.
 
-At `2026-08-15T10:28:12-07:00`, k6 exited 107 while initializing that
-scenario, before opening the WebSocket or creating a session:
-
-```text
-The moduleSpecifier "node:crypto" couldn't be recognised as something k6 supports.
-```
-
-The structural repair makes both affected VU graphs k6-compatible. Node-only
-HMAC receipt sealing and validation remain in post-run modules:
-
-| k6-safe structural observer | Node-only post-run authority |
+| Fix | Present at 99ce harness ref `7ab52592`? |
 | --- | --- |
-| `lib/r-cd-4-authority.mjs` | `lib/r-cd-4-return-authority.mjs` |
-| `lib/r-cd-chained-depth-2-authority.mjs` | `lib/r-cd-chained-depth-2-return-authority.mjs` |
+| `21b24fa4` — trace-collection budget 60s → 180s | No |
+| `a26ca671` — 31-hex Tempo search trace-id normalization | No |
 
-The k6 scenarios retain their `k6/crypto` fingerprints and all existing
-structural gates. The collector remains the only return PASS authority:
-gateway-token HMAC, `structuralOk`, exact target/parent/child/window binding,
-one target receipt, zero forbidden parent receipts, and candidate-only review
-flags are unchanged.
+So the two error strings in the 99ce artifacts —
+`invalid search trace id: 7abdc3584196ef745cb4d8c85897a88` and
+`Tempo trace did not reach valid continuation topology before timeout` — are not
+open defects at this base. Re-fixing them here would have been re-fixing
+history. What *was* still open is that neither repair had been carried across
+the callers that share the contract, and that is what this lane closed.
 
-## Manual versus failed-harness control matrix
+---
 
-Cael's reported manual fire is the behavioral control. Its raw request,
-nonce-bound receipt, and cleanup confirmation were relay-blocked, so this
-matrix distinguishes observed facts from unavailable bytes rather than
-inventing equivalence.
+## Inventory
 
-| Surface | Cael manual control | Failed R-CD-4 harness execution | Comparison |
-| --- | --- | --- | --- |
-| Runtime candidate | Reported exact `6b09…` | `6b09…` in workflow artifact path and job inputs | Candidate aligned |
-| Docs/harness | Not supplied | Accepted `10f98e60` scenario bytes, proven byte-identical to artifact | Manual harness bytes unavailable |
-| Session topology | One reported nonce-bound manual attempt; receipt retrieval relay-blocked | Planned disposable parent plus target sessions; no `sessions.create` occurred | Harness made no product mutation |
-| Parent/source/target identity | Not recoverable without reading sovereign session content | Generated only after k6 initialization; therefore absent | No identity comparison is possible |
-| Prompt/tool invocation | Not recoverable | Typed `continue_delegate`, `mode=silent-wake`, response-driven `sessions.send`; source task prompt uses `RCD4:<nonce suffix>` | Harness contract known; manual bytes unavailable |
-| Nonce/marker | Nonce not supplied | Nonce would be generated only after init; none was emitted | No marker comparison is possible |
-| `targetSessionKey` | Reported targeted-return control, no sealed receipt | Planned target is the disposable target session; VU never reached dispatch | No product claim from the failed run |
-| Runtime imports | Manual product execution does not use the k6 graph | `scenario -> r-cd-4-authority -> targeted-return-receipt -> node:crypto` | Root cause |
-| Dispatch/wake timing | Not recoverable | Planned 500 ms dispatch delay, then 8/25/50 s task polls in a 90 s window | Harness timing never started |
-| Child completion/return | Targeted-return journal marker stream exists but is unbound | No child, return, trace, or scenario evidence | No comparison can establish delivery |
-| Loki/Tempo/journal | Payload-free Loki markers observed; Tempo correlation absent | Workflow journal has no proof-relevant product line because k6 never dispatched | Manual is corroborative only |
-| Cleanup | Relay-blocked at last report | No sessions were created, so no cleanup was necessary | Manual cleanup still unknown |
-| Verdict authority | No HMAC-bound target/child/window receipt available | `PARTIAL-candidate`, `k6ExitCode=107` | Neither side supports a product PASS/FAIL |
+35 checked-in scenarios, 24 shared library modules (19 at base, 5 added here), 30 post-run scripts.
 
-## Telemetry recovery
+### Live scenarios by class
 
-Read-only checks were limited to public-safe metadata and did not inspect
-prince memory, mutate sessions, query databases, or initiate a second live
-run.
+| Class | Scenarios |
+| --- | --- |
+| WebSocket proof rows (dispatch a turn) | `r-cd-1-typed-delegate`, `r-cd-2-silent-wake`, `r-cd-3-post-compaction`, `r-cd-4-target-session-key`, `r-cd-chained-depth-2`, `r-cd-model-chained-alt`, `r-cd-model-default`, `r-cd-model-token`, `r-cd-model-tool`, `r-cd-silent`, `r-cd-token-bracket-delegate`, `r-cw-1-tool-schedule-wake`, `r-cw-2-immediate-wake`, `r-cw-3-reason-telemetry`, `r-cw-4-chain-depth`, `r-cw-delegate-self-continuation`, `r-cw-token-bracket`, `r-obs-1`, `r-rc-1-threshold-reject`, `r-rc-2-delegate-request-compaction` |
+| WebSocket read-only inventory | `preflight`, `r-config-defaults`, `r-config-intersession` |
+| Static / fixture-entry (no WS) | `r-cd-collection-on-collapse`, `r-cd-return-overlap`, `r-cw-5-cost-cap-reject`, `r-cw-6-max-chain-length`, `r-obs-2`, `r-obs-status`, `r-rc-2`, `r-regression-trap-tests`, `r-trace-redaction-1121`, `static-corpus-row-validator` |
+| Legacy HTTP | `r-cw`, `r-cw-1` |
 
-| Source | Result | Authority consequence |
+### Shared modules, by runtime
+
+| k6-safe (`lib/*.js` + k6-safe `.mjs` observers) | Node-only post-run |
+| --- | --- |
+| `gateway-ws.js`, `manifest-loader.js`, `socket-close.js`, `gateway-lifecycle.js`, `r-cd-2-terminal-sentinel.js`, `r-cd-token-contract.js`, `request-compaction-receipt.js`, `source-function-extractor.js`, `row-child-correlation.mjs`, `r-cd-4-authority.mjs`, `r-cd-chained-depth-2-authority.mjs`, `r-cd-model-tool-authority.mjs`, **`proof-session.js` (new)** | `targeted-return-receipt.mjs`, `r-cd-2-authoritative-receipt.mjs`, `r-cd-token-authoritative-receipt.mjs`, `r-cd-4-return-authority.mjs`, `r-cd-chained-depth-2-return-authority.mjs`, `public-tempo-trace.mjs`, `repo-root.mjs`, **`receipt-seal.mjs` (new)**, **`tempo-trace-id.mjs` (new)**, **`tempo-span-match.mjs` (new)**, **`observability-outcome.mjs` (new)** |
+
+The split was previously carried only by file extension and reviewer memory —
+and the extension convention is already violated in the correct direction (four
+`.mjs` modules are legitimately k6-safe structural observers). The authority is
+the import-closure guard, not the suffix; the README now says so.
+
+---
+
+## Pattern matrix
+
+Concern by concern, what existed before and what it is now. "Divergent" means
+two live implementations of one contract that could disagree on the same input.
+
+| Concern | Before | Now |
 | --- | --- | --- |
-| Loki targeted-return marker query | Eight payload-free marker lines in two Cael streams (four mirrored records per stream), at `10:14:42Z`, `10:20:19Z`, `10:20:42Z`, and `17:23:01Z` on 2026-08-15 | No nonce, target, child, or bounded dispatch window binding; cannot be a receipt |
-| Tempo `/ready` | HTTP 503 during initial check | Availability gap |
-| Tempo host/time search | HTTP 200, zero traces for Cael over the marker window | No trace correlation recovered |
-| Failed workflow artifact | Full artifact downloaded and inspected; compiler failure occurred before WebSocket dispatch | Confirms harness origin and zero product evidence |
-| Manual receipt/cleanup relay | Still unavailable | Leave manual control `PARTIAL`; do not infer delivery or cleanup |
+| Deterministic nonce + public-safe hashing | `nonce()` in `gateway-ws.js`, plus private variants in `r-cd-silent` and legacy `r-cw-1`; `fingerprintIdentity` / `fingerprint` / inline `sha256().slice(0,16)` in three receipt modules | Fingerprint/digest primitives unified in `receipt-seal.mjs`. Nonce generation left row-owned (see severable follow-ups) |
+| Disposable session creation | 22 inline `` `<prefix>-${nonce}`.toLowerCase().replace(/[^a-z0-9-]/g,'-') `` derivations across 19 scenarios, in three syntactic forms | One `disposableSessionKey` / `normalizedProofName` in `proof-session.js`; a contract test fails any reintroduction |
+| Session-key / `targetSessionKey` binding | Row-owned (R-CD-4 parent/target, chained-depth root/child/grandchild) | Unchanged — genuinely row-specific semantics |
+| Tool dispatch and response-driven acceptance | Response-driven for `sessions.create` / `sessions.send`; **not** for `connect`, because `connectFrame()` discarded the request id | `connectRequest()` + `RequestTracker.register()` + `GatewayHandshake` make the ack trackable and the start response-driven |
+| Child/session discovery without fixed sleeps | `row-child-correlation.mjs` shared; hard-coded `tasks.list` ladders per row (5/15/30/60s, 8/25/50s, 8/20/40/60/90/120s) | Ladders left in place — they are observation windows, not stand-ins for an available response. Named as a severable follow-up |
+| Lifecycle/history polling with bounded deadlines | R-CD-4 re-arms on response; others use fixed ladders + a close timer | Unchanged this lane |
+| Exact child completion / targeted-return authority | Shared `resolveTargetedReturnAuthority`; two thin row wrappers | Unchanged semantics; journal availability now distinguished from non-delivery |
+| Parent-vs-target negative assertions | Shared in `targeted-return-receipt.mjs` (`parentMatchCount`, `allowIntermediateAncestorTargets`) | Unchanged |
+| Chained/depth topology construction | `r-cd-chained-depth-2-authority.mjs` (k6-safe) + return authority (Node) | Unchanged; forwards journal availability |
+| Model metadata discovery | `r-cd-model-tool-authority.mjs` `spawnedBy` set-diff; three other model rows read `sessions.list` inline | Unchanged. **Its five negative controls never actually ran** — fixed (below) |
+| Context-pressure / honest-limit measurement | R-RC-2 only, with a dedicated `HONEST-LIMIT-candidate` outcome enumerated in four scripts | Unchanged |
+| Gateway journal collection | `journalctl` in `run-proofs.sh`; `GATEWAY_JOURNAL_STATUS` gates a `gateway-journal` pending receipt | Status now also reaches the targeted-return authority, so an unread journal cannot read as a product non-delivery |
+| Tempo/Loki correlation when the WS API has no trace id | TraceQL reason-hash search in `collect-continuation-trace.mjs`. **Divergent trace-id validators**: the collector normalized 31-hex, `fetch-tempo-trace.mjs` accepted any 8..64 hex and would fetch the truncated id verbatim | One `tempo-trace-id.mjs`; both callers resolve there |
+| Originating-tool-span identity | **Divergent inside one file**: `validateTrace` matched only `gen_ai.tool.name`; `validateToolTrace` matched `gen_ai.tool.name \|\| openclaw.toolName` | One `tempo-span-match.mjs`; ambiguous multi-name spans fail closed |
+| Service-log redaction | `redactEvent` allowlist + `sanitize-k6-artifacts.mjs`; 18 identical inline record blocks, 4 with row-specific redactors | `recordClassifiedEvent` with `options.redactData`; the four row-specific redactions preserved verbatim |
+| Cleanup and transcript archival | No scenario deletes its disposable sessions; child cleanup is delegated to `sessions_spawn cleanup="delete"` | Unchanged — named as a severable follow-up |
+| Run-result / verdict reconciliation | `postprocess-k6-summary.mjs` → `run-result.json` → `validate-candidate-run-result.mjs` → candidate envelope with an exact-key contract | `run-result.json` gains `observability.observabilityOutcome` + `observabilityOutcomeStatus`; the envelope's exact-key contract is untouched |
+| Node-only postprocessing vs k6-safe runtime | Import-closure guard for `node:` imports only | Guard extended to `require()`, computed `import()`, and Node-only globals |
+| **Receipt construction/validation** | Three private copies of hex-shape / fingerprint / digest / canonical / seal / HMAC-verify. Only one rejected a missing signing key | `receipt-seal.mjs` owns the primitives; each row still owns its canonical field list |
+| **Observability outcome** | On failure: an empty `continuation-trace-collector.json` and a one-line prose error log. Nothing machine-readable | `continuation-trace-observability.json` on every exit, with an explicit status and public-safe rebind keys |
 
-The latest marker at `17:23:01Z` is not attributed to the manual attempt:
-payload-free lines lack the required exact binding and must not be reverse
-engineered into an authoritative session identity.
+---
 
-## Import-closure guard
+## What changed, and why each change is load-bearing
 
-`scripts/check-k6-scenario-import-closure.mjs` now walks every checked-in
-`tools/k6-proofs/scenarios/*.js` dependency closure and fails closed on:
+### 1. One Tempo identifier contract — `lib/tempo-trace-id.mjs`
 
-- direct or transitive `node:` and bare Node builtin imports;
-- unsupported bare imports;
-- unresolved relative imports.
+`a26ca671` taught the row collector to left-pad a 31-hex Tempo search id.
+`fetch-tempo-trace.mjs` kept `/^[A-Fa-f0-9]{8,64}$/` and would have issued
+`GET /api/traces/7abdc3584196ef745cb4d8c85897a88` — the exact truncated form —
+as if it were a real trace. Its `--traceql` path reads from the same Tempo
+search response that produced the original defect. Both callers now resolve
+here. The fetcher keeps its 8..64 width for hand and fixture use, but recovers
+the 31-hex form and fails closed on the all-zero OTel invalid-trace sentinel,
+which previously produced a confident "fetched: true" receipt over nothing.
 
-It covers static and literal dynamic imports. The guard is wired into:
+### 2. One originating-tool-span identity — `lib/tempo-span-match.mjs`
 
-- `scripts/run-proofs.sh` catalog preflight;
-- `run-proof.sh`;
-- both GitHub Actions proof workflows;
-- the catalog root-contract test; and
-- operator documentation.
+`collect-continuation-trace.mjs` answered the same question two ways, forty
+lines apart. The continuation path — the one used by R-CD-2, R-CD-4,
+R-CD-CHAINED-DEPTH-2, R-CW-1, R-CW-3 and R-RC-2 — required `gen_ai.tool.name`.
+The generic tool path accepted `gen_ai.tool.name` **or** `openclaw.toolName`.
+Published corpora (`PROOFS/077b261d…`, twenty trace files) carry **both** keys
+on the same `openclaw.tool.execution` span, so the narrower copy could report
+`matched trace lacks the originating <tool> tool span` for a trace the wider
+copy in the same file accepted. That is exactly the error text five PARTIAL rows
+recorded. One matcher now serves both, and a span declaring two *different* tool
+names is no longer treated as an unambiguous origin — an ambiguous span must
+never satisfy an exactly-one gate.
 
-Before the repair, the all-scenario scan found only R-CD-4 and
-R-CD-CHAINED-DEPTH-2. The latter shared the same invalid design: a scenario
-observer imported Node HMAC/journal helpers. It was fixed as shared harness
-infrastructure, not as a new row behavior change.
+### 3. One receipt seal — `lib/receipt-seal.mjs`
+
+R-CD-2, R-CD-TOKEN and the targeted-return authority each carried private copies
+of five primitives. The copies had drifted in a way that mattered: only the
+targeted-return validator rejected a missing signing key, so
+`validateRcd2AuthoritativeReceipt(receipt)` with no key threw a raw `TypeError`
+out of the resolver instead of returning a reason. The primitives are shared
+now; **each row keeps its own canonical field list**, so one row's signature
+still cannot certify another — asserted directly by a cross-row swap test.
+Signatures and verdict semantics are unchanged.
+
+### 4. Explicit observability — `lib/observability-outcome.mjs`
+
+This is the change with the widest effect on the PARTIAL rows, and it is not a
+repair of a trace failure. It is a repair of what a trace failure *records*.
+
+Before: a failed correlation left an empty `continuation-trace-collector.json`
+and one line of prose. Every row that lost its trace therefore looked identical
+in the manifest — the same two `pendingReceipts`, `review-pending`, forever —
+whether Tempo was down, the window held nothing, two traces matched, or a
+matched trace failed a topology gate. Re-binding a row later required firing the
+product again.
+
+Now the collector writes `continuation-trace-observability.json` on **every**
+exit:
+
+| status | asserts |
+| --- | --- |
+| `correlated` | a trace was found and passed every topology gate |
+| `backend-unavailable` | Tempo unreachable or returned an error — infrastructure |
+| `no-matching-trace` | Tempo answered and nothing matched — a claim about the run |
+| `ambiguous-trace` | more than one candidate; never first-wins |
+| `topology-invalid` | a trace matched and failed a gate |
+| `contract-invalid` | manifest/evidence could not produce a query at all |
+
+Only `correlated` may carry `traceId` / `traceJson` / `correlationReceipt`;
+`buildObservabilityOutcome` throws rather than construct any other combination,
+and `validateObservabilityOutcome` rejects a hand-forged success shape. Every
+unresolved status carries `rebind` — service name, TraceQL query, search window,
+reason hash and length, and public-safe nonce/session fingerprints — so the row
+can be re-resolved when the backend returns **without refiring the product**.
+Raw nonces, session keys and traceparent material are rejected outright.
+
+The log side got the same treatment, inverted. `resolveTargetedReturnAuthority`
+previously reported `no-delivery` whenever the journal held no matching
+`[continuation:targeted-return]` line — *including when no journal had been
+read*. "The journal was captured and contains no delivery" is a claim about the
+product; "no journal was read" is a claim about the evidence. R-CD-4 and
+R-CD-CHAINED-DEPTH-2 now receive the runner's own `GATEWAY_JOURNAL_STATUS` and
+report `journal-unavailable` for the gap. `failureCategory` is already inside
+the HMAC-closed canonical form, so the distinction is sealed; no receipt field
+or signature shape changed.
+
+### 5. The connect race — `lib/proof-session.js`
+
+`connectFrame()` returned only the frame string, discarding the request id. That
+was not a style choice: it made a response-driven handshake impossible, so all
+twenty WS proof rows guessed with `socket.setTimeout(startProofFlow, 500)` or
+`setTimeout(createSession, 250)` that authentication had completed, then issued
+`sessions.create` / `sessions.send` into the dark.
+
+`connectRequest()` keeps the id, `RequestTracker.register()` accepts a
+caller-sent request, and `GatewayHandshake` releases a row the moment the
+gateway acknowledges. The old delay survives only as the fallback, so worst-case
+timing is exactly what it was — and the path taken (`connect-ack`,
+`connect-rejected`, `deadline-fallback`) is recorded rather than absorbed into
+an unexplained downstream failure. A rejected connect still releases the row,
+because suppressing the start would turn a visible auth rejection into a silent
+timeout.
+
+Read-only inventory rows (PREFLIGHT, R-CONFIG-DEFAULTS, R-CONFIG-INTERSESSION)
+are deliberately excluded: their open handler is an ordered probe sequence, not
+a handshake guard, and converting them would reorder their probes for no gain.
+The contract test names them rather than leaving them silently inconsistent.
+
+### 6. The import-closure guard
+
+Passing the import scan was never sufficient to prove a graph is k6-safe. A
+CommonJS `require`, a computed `import(expr)` whose closure cannot be verified
+ahead of the run, and Node-only globals (`process`, `Buffer`, `__dirname`,
+`__filename`, `module`, `exports`, `globalThis.<node-global>`) each abort a VU
+exactly like a `node:` import — exit 107, before a single frame is sent. All
+three are now rejected. Literal contents and comments are blanked before the
+identifier and call scans, with delimiters preserved, so prompts and prose
+cannot trip the guard while a literal `import('node:os')` is still classified as
+the builtin import it is; member access and object keys are excluded.
+
+### 7. A validation hole that was not in the workorder
+
+`tests/r-cd-model-tool-authority.test.mjs` nested six subtests inside a
+**synchronous** parent callback. Node's test runner cancels subtests when the
+parent returns, so five of them — every sticky-evidence and ambiguity negative
+control for R-CD-MODEL-TOOL, one of the seven target PARTIAL rows — had never
+executed on any run since they were written. They ran as `cancelled`, which does
+not fail a suite.
+
+This is a false PASS in the validation layer itself, and it sits directly under
+this lane: the consolidation's whole claim is that shared helpers preserve row
+semantics, which is unprovable if the row's negative controls do not run. Made
+the parent `async` and awaited the subtests. All six now execute and pass.
+
+---
+
+## Effect on each PARTIAL row
+
+No row is claimed repaired. What changed is which failures remain possible, and
+what a failure will now tell a reviewer.
+
+| Row | Effect of this lane | Still owed |
+| --- | --- | --- |
+| **R-CD-4** | Its 99ce `invalid search trace id` was already fixed at base. This lane closes the unconsolidated half: `fetch-tempo-trace.mjs` can no longer fetch that truncated id. Journal absence now reports `journal-unavailable` instead of `no-delivery`, so an uncaptured journal can no longer read as proven non-routing. Starts on the connect ack. | A live run. Its return authority still needs one in-window delivery, exact child binding, zero parent deliveries |
+| **R-CD-CHAINED-DEPTH-2** | Same journal-availability and handshake benefits; the return authority forwards availability through the tree-fanout path. | Live run behind the disposable-ancestry preflight; two stable `spawnedBy` observations, distinct hop identities, cleanup, Tempo receipt |
+| **R-CD-2** | `validateRcd2AuthoritativeReceipt` no longer throws on a missing key — it fails closed with `missing-signing-key`. Its `matched trace lacks the originating continue_delegate tool span` class is now covered by the unified matcher when the runtime emits `openclaw.toolName`. A future correlation failure records its own classification. | Its signed row-scoped authority still needs reconciling against a manual control on the accepted send lifecycle |
+| **R-CD-MODEL-TOOL** | **Five negative controls now actually execute** (all pass). No Node-import leak; no other shared defect found. | Row-specific: manual requested-model byte vs `spawnedBy` set-diff child model byte vs parent return byte; the known explicit-model runtime mismatch |
+| **R-CD-TOKEN** | Its ten pending receipts are row-contract, not shared-library. It gains the seal consolidation, the handshake, and an explicit observability outcome for the two of the ten that are trace receipts. | The other eight receipts are row-specific and out of scope for library work |
+| **R-CW-3** | Its `matched trace lacks the originating continue_work tool span` is the unified-matcher class. Keeps its own `safeData` redaction through `options.redactData` — that difference is load-bearing and was not flattened. | The row is intentionally PARTIAL pending review: a public-safe Tempo trace with exact trace/chain correlation showing safe reason attributes and no raw sentinel |
+| **R-RC-2** | Same matcher and observability benefits; `HONEST-LIMIT-candidate` handling untouched. | Nonce-bound child tool result rather than assistant text; below-threshold rejection stays the only HONEST-LIMIT path |
+
+Rows outside the seven that also benefit: **R-CW-1** (same two pending trace
+receipts, same matcher class) and the three exit-107 `static-proof-substrate-failure`
+rows (R-CD-RETURN-OVERLAP, R-OBS-2, R-REGRESSION-TRAP-TESTS), whose class the
+extended guard now covers more completely.
+
+---
+
+## Severable follow-ups
+
+Named rather than bundled, per the workorder.
+
+| # | Follow-up | Why not here |
+| --- | --- | --- |
+| 1 | Replace the hard-coded `tasks.list` ladders (5/15/30/60s, 8/25/50s, 8/20/40/60/90/120s) with a shared deadline-bounded poller | These are observation windows, not stand-ins for an available response. Changing them changes each row's evidence window and needs live validation this lane may not fire |
+| 2 | Disposable-session cleanup | **No scenario deletes the sessions it creates.** Child cleanup relies on `sessions_spawn cleanup="delete"`; disposable parent/target sessions are left behind. Needs a policy decision (delete vs retain for post-run reads) before code |
+| 3 | Deterministic nonce | `nonce()` is `Date.now()` + `Math.random()`. Two rows roll their own. A seeded, run-id-derived nonce would make a re-run re-bindable, but it changes every row's identity surface |
+| 4 | Handshake for the read-only inventory rows | PREFLIGHT gates every run; converting its ordered probe sequence is a separate, independently reviewable change |
+| 5 | Re-resolution driver consuming `rebind` keys | The keys are now emitted; a `resolve-pending-observability.mjs` that re-attempts correlation from them is the natural next step and is severable |
+| 6 | Model-row consolidation | `r-cd-model-{default,token,chained-alt}` read `sessions.list` inline rather than through `r-cd-model-tool-authority.mjs`. Their assertions differ enough that unifying them needs row-owner review |
+
+---
 
 ## Validation
 
 | Validation | Result |
 | --- | --- |
-| Focused R-CD-4, targeted-return, chained-depth, catalog-root, and import-closure tests | 46 passed, 0 failed |
-| Catalog-wide closure scan | 35 scenario graphs, 0 Node-builtin violations |
-| k6 v2.0.0 import/initialization | `k6 inspect` passed for R-CD-4 and R-CD-CHAINED-DEPTH-2 without live dispatch |
-| Sanctioned full docs harness command | 381 passed, 1 failed |
-| Baseline classification | The sole red reproduces on accepted `10f98e60` and fork base `f7e307d7`; not repaired here |
-| Project 81 R-CD-4 dry-run | Workflow `31900349285` succeeded; docs `10f98e60`, candidate `6b09…`, scratch selector `r-cd-4-scratch-20260815`, disposable sessions requested, zero rows dispatched |
+| Full sanctioned docs harness suite | **432 passed, 1 failed, 0 cancelled** (433 tests) |
+| Baseline classification of the single red | `candidate envelope is outside and invisible to canonical corpus validation` — the documented pre-existing failure; reproduces at base `87f6e143` and on fork base `f7e307d7`. Not owned by this lane |
+| Test-count delta | 382 → 433 (+51): 12 proof-session, 8 observability-outcome, 6 collector observability e2e, 8 receipt-seal, 4 tempo-span-match, 7 scenario-handshake contract, 4 import-guard negatives, 2 journal-availability, plus 5 R-CD-MODEL-TOOL controls that previously never ran |
+| Cancelled tests | 0 (was 5 at base when the model-tool file runs standalone) |
+| All-scenario import-closure scan | 35 scenarios, 35 graphs, **0 violations** |
+| k6 v2.0.0 `inspect` | All 35 scenarios load and initialize; 0 failures |
+| Dry-run selection, six topology classes | R-CD-4 (targeted return), R-CD-CHAINED-DEPTH-2 (chained depth), R-CD-MODEL-TOOL (model metadata), R-CD-TOKEN (token form), R-CW-3 (reason telemetry), R-RC-2 (compaction limit) — all selected, catalog preflight green, `liveRunSafety: k6-runnable`, **zero rows dispatched** |
+| Live proof runs | **None fired**, per the workorder |
 
-Exact commands:
+### Exact commands
 
 ```bash
-node tools/k6-proofs/scripts/check-k6-scenario-import-closure.mjs --repo-root "$PWD"
-node --test tools/k6-proofs/scripts/__tests__/check-k6-scenario-import-closure.test.mjs \
-  tools/k6-proofs/scripts/__tests__/catalog-root-contract.test.mjs \
-  tools/k6-proofs/tests/r-cd-4-authority.test.mjs \
-  tools/k6-proofs/tests/r-cd-chained-depth-2-authority.test.mjs \
-  tools/k6-proofs/tests/targeted-return-receipt.test.mjs
-k6 inspect tools/k6-proofs/scenarios/r-cd-4-target-session-key.js
-k6 inspect tools/k6-proofs/scenarios/r-cd-chained-depth-2.js
+# Full sanctioned docs harness suite
 node --test tools/k6-proofs/scripts/__tests__/*.test.mjs tools/k6-proofs/tests/*.test.mjs
+
+# All-scenario k6 import closure
+node tools/k6-proofs/scripts/check-k6-scenario-import-closure.mjs --repo-root "$PWD"
+
+# k6 module-graph initialization for every scenario
+for f in tools/k6-proofs/scenarios/*.js; do k6 inspect "$f" >/dev/null || echo "FAIL $f"; done
+
+# Focused contract + negative suites for the new shared helpers
+node --test \
+  tools/k6-proofs/tests/proof-session.test.mjs \
+  tools/k6-proofs/tests/targeted-return-receipt.test.mjs \
+  tools/k6-proofs/tests/r-cd-model-tool-authority.test.mjs \
+  tools/k6-proofs/scripts/__tests__/receipt-seal.test.mjs \
+  tools/k6-proofs/scripts/__tests__/tempo-span-match.test.mjs \
+  tools/k6-proofs/scripts/__tests__/observability-outcome.test.mjs \
+  tools/k6-proofs/scripts/__tests__/collector-observability-outcome.test.mjs \
+  tools/k6-proofs/scripts/__tests__/scenario-handshake-contract.test.mjs \
+  tools/k6-proofs/scripts/__tests__/check-k6-scenario-import-closure.test.mjs
+
+# Dry-run selection across the six representative topology classes
+cd tools/k6-proofs && OPENCLAW_CANDIDATE_SHA=<40-hex> OPENCLAW_SEAT_NAME=<seat> \
+  ./scripts/run-proofs.sh --dry-run --out-dir /tmp/k6-dryrun \
+  R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-MODEL-TOOL,R-CD-TOKEN,R-CW-3,R-RC-2
 ```
 
-The known baseline failure is
-`candidate envelope is outside and invisible to canonical corpus validation`.
-`PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/proofs-manifest.json` retains
-`openclaw.k6.proofs-manifest.v1` instead of
-`openclaw.proofs.manifest.v1` and lacks `capture_sha` and `rows[]`.
+---
 
-No post-fix live R-CD-4 run was fired. The corrected scenario import smoke,
-the single dry-run, and the failed-run evidence make another product dispatch
-unnecessary in this lane.
+## Recommended fold strategy
 
-## Follow-up plan for other PARTIAL rows
+Relative to docs PR #510 and repair `87f6e143`:
 
-| Row | Shared status | Row-specific follow-up; do not bundle into this lane |
-| --- | --- | --- |
-| R-CD-CHAINED-DEPTH-2 | Its identical Node-import defect is fixed by this shared boundary split | Fire only after disposable ancestry preflight; retain two stable spawnedBy observations, distinct hop identities, tree-fanout journal receipt, cleanup, and Tempo receipt |
-| R-CD-MODEL-TOOL | No Node-import leak | Compare manual requested-model byte, spawnedBy set-diff child model byte, and parent return byte. Keep child prose auxiliary; separately resolve the known explicit-model runtime mismatch if it reproduces |
-| R-CD-TOKEN | No Node-import leak | Record raw-final-text seat class before dispatch and compare manual token surface with one origin task, one token delegate, stable full task snapshots, bound return, signed resolver, and Tempo topology |
-| R-CW-3 | No Node-import leak | Obtain a public-safe Tempo trace using an exact trace/chain correlation, then verify safe reason attributes exist and the raw reason sentinel does not. The scenario intentionally remains PARTIAL until review |
-| R-RC-2 | No Node-import leak | Compare a nonce-bound child tool result, not assistant text. Keep below-threshold rejection as the only HONEST-LIMIT path; accepted compaction needs the isolated lifecycle/post-compaction/cleanup fixture receipts |
-| R-CD-2 | No Node-import leak; authority remains under review | Reconcile its signed row-scoped authority with a manual control using the accepted send lifecycle, exact terminal boundary, one typed topology, distinct silent wake, no-channel receipt, and same trace/chain projection |
+1. **Do not extend PR #510.** It establishes R-CD-4's signed target-return
+   authority. This change is a successor with an independently reviewable
+   purpose: give every duplicated mechanism exactly one implementation, and make
+   missing observability explicit rather than empty.
 
-## Recommendation
+2. **Land after `87f6e143`, as its completion.** `87f6e143` proved a class of
+   defect (a Node import reachable from a scenario) and fixed the two instances
+   it found. This lane generalizes that reasoning in three directions:
+   the guard now covers the rest of the class (`require`, computed `import()`,
+   Node globals); the repairs that shipped to one caller are carried to their
+   siblings; and the artifact a failed row leaves behind became machine-readable.
 
-Land this as a severable successor to docs PR #510 rather than extending that
-PR. PR #510 establishes R-CD-4's signed target-return authority; this change
-has an independently reviewable purpose: keep every k6 scenario graph free of
-Node builtins, preserve the post-run HMAC boundary, and prevent the complete
-failure class across the catalog. No PR was opened or modified.
+3. **Reviewable in four commits, in order.** Each is independently revertible:
+   - `37094db1` — trace identity, span match, receipt seal, observability outcome
+   - `b585b763` — response-driven handshake, session mechanics, guard extension
+   - `02d220f9` — journal availability, collector observability e2e tests
+   - `52db18fe` — the authoring guide and doc pointers
+
+4. **Highest-value review targets.** The tool-span matcher change
+   (`lib/tempo-span-match.mjs`) alters which traces five continuation rows accept
+   — it is the one change with direct verdict reach, and it widens acceptance, so
+   it deserves the closest look. Second: confirm the `GatewayHandshake` fallback
+   values are right for any seat where connect acknowledgement is slower than the
+   500ms upper bound; behaviour there is identical to today, but the recorded
+   `deadline-fallback` will make that visible for the first time.
+
+5. **Before any re-fire.** The next live run of the seven PARTIAL rows will emit
+   `continuation-trace-observability.json` per row. Read those first: they will
+   say, per row, whether the remaining gap is infrastructure, evidence, or
+   product — the distinction the 99ce artifacts could not express.
+
+---
+
+## Uncertainties
+
+- **The unified tool-span matcher widens acceptance.** Historical corpora prove
+  the runtime emits both `gen_ai.tool.name` and `openclaw.toolName` on the same
+  span, so the wider matcher is correct. But whether that alone converts the
+  five affected rows to `correlated` cannot be established without a live run,
+  which this lane does not fire. It removes one specific cause; it does not
+  prove it was the only one.
+- **`GatewayHandshake` is validated structurally, not live.** Twelve unit tests
+  cover ack, rejection, fallback, single-fire and non-interference; `k6 inspect`
+  proves every graph initializes; a contract test locks the wiring. What no
+  local check can prove is that the gateway answers `connect` with a tracked
+  `{type:'res', id}` frame. If it does not, every row takes the
+  `deadline-fallback` path and behaves exactly as before — the change is
+  fail-safe in that direction, and the receipt will say which path was taken.
+- **Journal-availability inference.** When `--journal-status` is absent the
+  helper infers availability from journal content. A captured-but-genuinely-empty
+  journal would be misreported as `journal-unavailable`. `run-proofs.sh` always
+  passes the explicit status, so this only affects direct manual invocation.
+- **The `no-delivery` → `journal-unavailable` split changes signatures** for
+  receipts sealed over an empty journal, because `failureCategory` is a closed
+  field. That is intended: the two cases must not be interchangeable. Archived
+  receipts are unaffected — nothing re-verifies them against current code.

@@ -58,12 +58,46 @@ The live run therefore uses Rune, not Cael and not a channel session, with dispo
 
 ## 5. Live rerun
 
-Pending at this checkpoint. The single authorized live dispatch will use the same Project 81 workflow and docs ref, with `target_prince=rune`, `dry_run=false`, `rows=R-CD-4`, `candidate_sha=6b09b1d...`, `use_docs_catalog=true`, `create_disposable_sessions=true`, `session_selector=r-cd-4-scratch-20260815`, and metrics push disabled. No product source, gateway configuration, database, protected ref, or corpus/index bytes are modified.
+The single authorized live dispatch was executed exactly once:
+
+```text
+gh workflow run project81-k6-proof.yml
+  --repo karmaterminal/openclaw-bootstrap
+  --ref scribe/20260815/project81-docs-ref-env
+  -f target_prince=rune
+  -f candidate_sha=6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955
+  -f rows=R-CD-4
+  -f session_selector=r-cd-4-scratch-20260815
+  -f docs_ref=10f98e60cd48eba4d598a0e8805ec42d632a1326
+  -f use_docs_catalog=true
+  -f dry_run=false
+  -f create_disposable_sessions=true
+  -f metrics_push=false
+```
+
+Workflow run `31898368482`, job `95045082431`; downloaded artifact: `/tmp/rcd4-live-31898368482/`. The immutable harness gate passed (`harnessIdentityVerified=true`) and seat-readiness passed: k6 v2.0.0, gateway health/status reachable, continuation enabled, and the configured candidate was observed. The provenance receipt still records `candidateMatchesRuntime=false` because the runtime identity is only `OpenClaw 2026.8.1 (6b09b1d)`, not the full 40-character candidate; this is an additional receipt gap, not a product failure. The row then failed before any WebSocket scenario action: k6 exited `107` while importing the scenario because `r-cd-4-authority.mjs` imports `targeted-return-receipt.mjs`, which imports Node-only `node:crypto`. k6 v2.0.0 reports that `node:crypto` is unsupported. The gateway capture retained no proof-relevant lines, and no `sessions.create`, `sessions.send`, delegate, or product mutation occurred.
+
+This is a harness-origin failure, not a product result. No live retry is authorized.
 
 ## 6. Disposition and receipt gaps
 
-The prior `99ce` row remains a PARTIAL-candidate and review-pending. Its trace collector failed on a malformed 31-hex trace id, both trace JSON outputs are empty, and no authoritative HMAC targeted-return receipt exists. Its redacted journal is corroborative only because the exact target/parent/child identity binding is unavailable after redaction. The corrected rerun must classify only from the sealed targeted-return receipt and its structural binding.
+The prior `99ce` row remains a PARTIAL-candidate and review-pending. Its trace collector failed on a malformed 31-hex trace id, both trace JSON outputs are empty, and no authoritative HMAC targeted-return receipt exists. Its redacted journal is corroborative only because the exact target/parent/child identity binding is unavailable after redaction.
+
+The live `6b09` row is also a harness PARTIAL: `run-result.json` reports `k6ExitCode=107`, no evidence/summary, no targeted-return receipt, no trace, and no candidate envelope. The report correctly keeps it review-pending rather than synthesizing a product FAIL. The accepted authority tests passed `56/56`; the complete accepted proof-harness test invocation produced `378/379` with one pre-existing corpus-validator failure. That same failure reproduces on docs main (`28/29` in `candidate-run-result.test.mjs`): `PROOFS/a7ef0317.../proofs-manifest.json` has the old `openclaw.k6.proofs-manifest.v1` shape instead of the validator's expected `openclaw.proofs.manifest.v1`, and lacks `capture_sha`/`rows[]`. It is unrelated to this lane and was not repaired.
 
 ## 7. Recommendation for other PARTIAL rows
 
-Re-audit every continuation row whose PASS predicate is based on assistant-authored text, transcript nonce scans, generic wake timing, or a static sleep. Separate structural dispatch/child identity from behavior-specific authority, make the runtime-owned receipt the sole PASS authority, bind target and child identities exactly, authenticate public receipts, and preserve raw evidence only transiently. Treat missing observability as receipt debt/PARTIAL; never upgrade it to a product defect or excuse a valid target-return absence as harness noise.
+Re-audit every continuation row whose PASS predicate is based on assistant-authored text, transcript nonce scans, generic wake timing, or a static sleep. Separate structural dispatch/child identity from behavior-specific authority, make the runtime-owned receipt the sole PASS authority, bind target and child identities exactly, authenticate public receipts, and preserve raw evidence only transiently. Also add a k6 import smoke to every live row: Node-only HMAC/collector modules must not be imported by k6 scenario dependency graphs. Treat missing observability or an un-runnable scenario as receipt debt/PARTIAL; never upgrade it to a product defect or excuse a valid target-return absence as harness noise.
+
+## 8. Validation and uncertainties
+
+The docs repository has no `package.json` test script and no OpenClaw `scripts/test-projects.mts`; its sanctioned proof-harness surface is `node --test`. The accepted lane command was:
+
+```text
+cd /home/figs/flesh_beast_best_beast/source/WORKTREES/karmaterminal-openclaw-docs-wo1217-observation-repair
+node --test tools/k6-proofs/scripts/__tests__/*.test.mjs tools/k6-proofs/tests/*.test.mjs
+```
+
+Result: `378 pass / 1 fail`; the single failure is the pre-existing corpus-schema mismatch reproduced on docs main. The accepted R-CD-4/targeted-return row-authority tests independently pass `56/56`. The pre-PR-510 exact-ref R-CD-4 and child-correlation focus passes `27/27`.
+
+The live attempt proves only that the approved harness identity and Rune readiness gates ran; it cannot classify 6b09 product behavior because k6 never loaded the scenario. A future rerun must first make the k6 import graph k6-compatible while keeping HMAC sealing in the post-run Node collector, then repeat the same dry-run/live controls. No product fix, deployment, restart, database/config mutation, GitHub issue/comment write, corpus fold, or ref movement was performed here.

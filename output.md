@@ -3,7 +3,7 @@
 Issue binding: openclaw/openclaw#85651
 Base (exact repaired harness head): `87f6e14354544a0b29cb35d12ae9aabc7e9032cf`
 Branch: `codeagent/k6-scenario-library-consolidation`
-Head: `2a60ca95`
+Head: `aadfc7c5`
 Files changed: 53
 No PR opened. No live proof run fired. No product source, prince runtime,
 configuration, database, or continuation ref touched.
@@ -149,8 +149,8 @@ exit:
 | status | asserts |
 | --- | --- |
 | `correlated` | a trace was found and passed every topology gate |
-| `backend-unavailable` | Tempo unreachable or returned an error — infrastructure |
-| `no-matching-trace` | Tempo answered and nothing matched — a claim about the run |
+| `backend-unavailable` | Nothing prevented an answer from being *unavailable*: transport failure, 5xx, 429, 401/403, or a 404 from the search route (an empty search answers 200, so a 404 there means the route is missing) |
+| `no-matching-trace` | The backend answered and had nothing: an empty search result, or a 404 for the trace body — a claim about the run |
 | `ambiguous-trace` | more than one candidate; never first-wins |
 | `topology-invalid` | a trace matched and failed a gate |
 | `contract-invalid` | manifest/evidence could not produce a query at all |

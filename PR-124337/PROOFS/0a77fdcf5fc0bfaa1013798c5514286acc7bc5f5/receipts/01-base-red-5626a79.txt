@@ -1,0 +1,53 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m<product-worktree>[39m
+
+ [31m❯[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain.abandonment-retry-budget.test.ts [2m([22m[2m5 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 413[2mms[22m[39m
+[31m     [31m×[31m terminalizes a repeatedly abandoned pre-adoption claim at the attempt ceiling[39m[32m 156[2mms[22m[39m
+     [32m✓[39m keeps an abandoned claim retryable below the attempt ceiling[32m 65[2mms[22m[39m
+     [32m✓[39m leaves cancellation budget-free even at the attempt ceiling[32m 62[2mms[22m[39m
+     [32m✓[39m keeps an unrelated lane draining while one lane head is abandoned[32m 62[2mms[22m[39m
+     [32m✓[39m still dead-letters an ordinary thrown dispatch failure on its bounded path[32m 66[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[43m channels [49m[39m src/channels/message/ingress-drain.abandonment-retry-budget.test.ts[2m > [22mchannel ingress drain abandonment retry budget[2m > [22mterminalizes a repeatedly abandoned pre-adoption claim at the attempt ceiling
+[31m[1mAssertionError[22m: expected [] to deeply equal [ ObjectContaining{…} ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   ObjectContaining {[39m
+[32m-     "attempts": 7,[39m
+[32m-     "id": "source-message-head",[39m
+[32m-     "laneKey": "guild/channel/silas",[39m
+[32m-     "message": "turn-abandoned",[39m
+[32m-     "payload": {[39m
+[32m-       "text": "session changed while starting work",[39m
+[32m-     },[39m
+[32m-     "reason": "retry-limit-exceeded",[39m
+[32m-   },[39m
+[32m- ][39m
+[31m+ [][39m
+
+[36m [2m❯[22m src/channels/message/ingress-drain.abandonment-retry-budget.test.ts:[2m110:58[22m[39m
+    [90m108|[39m       [34mexpect[39m([35mawait[39m queue[33m.[39m[34mlistClaims[39m())[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m109|[39m
+    [90m110|[39m       [34mexpect[39m([35mawait[39m queue[33m.[39m[34mlistFailed[39m[33m?.[39m({ limit[33m:[39m [32m"all"[39m }))[33m.[39m[34mtoEqual[39m([
+    [90m   |[39m                                                          [31m^[39m
+    [90m111|[39m         expect[33m.[39m[34mobjectContaining[39m({
+    [90m112|[39m           id[33m:[39m [33mHEAD[39m[33m,[39m
+[90m [2m❯[22m withTempState src/channels/message/ingress-drain.test-helpers.ts:[2m29:12[22m[39m
+[90m [2m❯[22m src/channels/message/ingress-drain.abandonment-retry-budget.test.ts:[2m71:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m4 passed[39m[22m[90m (5)[39m
+[2m   Start at [22m 17:04:07
+[2m   Duration [22m 1.71s[2m (transform 984ms, setup 655ms, import 418ms, tests 413ms, environment 0ms)[22m
+
+[vitest] FAILED (exit 1)
+[test] FAILED (exit 1)
+EXIT=1

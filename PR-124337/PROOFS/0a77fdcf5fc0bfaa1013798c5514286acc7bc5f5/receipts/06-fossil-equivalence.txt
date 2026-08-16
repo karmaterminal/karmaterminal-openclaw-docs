@@ -1,0 +1,62 @@
+fossil source sha256 (c17a5c73 6f4ef385ea7):        573e0283ccedbeaea01b941c148963a71c97682d3772ccf7bcd31f8fe6d1522c
+shipped source sha256 (this branch):                ac150d78639dbe32832b84a4976fb14eec849e6c0eff3dd8a99d9139d1f26346
+fossil assertion/input (comment-stripped) sha256:   fb2f1bd8bf875baf77b757f3726e68d1d82c9a11112c0fb9e3ddc53454bdc8d7
+shipped assertion/input (comment-stripped) sha256:  fb2f1bd8bf875baf77b757f3726e68d1d82c9a11112c0fb9e3ddc53454bdc8d7
+
+diff of comment-stripped executable surfaces (must be empty):
+(identical)
+
+raw diff (comment-only changes expected):
+--- <tmp>/fossil-original.ts	2026-08-15 17:03:41.230978076 -0700
++++ src/channels/message/ingress-drain.abandonment-retry-budget.test.ts	2026-08-15 17:08:39.627349917 -0700
+@@ -1,21 +1,19 @@
+ /**
+- * Characterization fossil for karmaterminal/openclaw#1254 (Silas seat).
++ * Bounded pre-adoption abandonment for the core channel ingress drain.
+  *
+- * Deployed composite `6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955` routes an
+- * ordinary dispatch failure through `onFailed -> applyFailureDisposition ->
+- * resolveIngressFailureDisposition`, which is the only place `maxAttempts` and
+- * `deadLetterMinAgeMs` are enforced. Pre-adoption abandonment instead routes
+- * `onAbandoned -> releaseUnadopted -> queue.release` unconditionally, so a claim
+- * that can never be adopted consumes attempts forever without ever reaching the
+- * bounded disposition, retries at the capped 180s backoff indefinitely, and
+- * holds the head of its FIFO ingress lane.
++ * An ordinary dispatch failure routes through `onFailed ->
++ * applyFailureDisposition -> resolveIngressFailureDisposition`, the only place
++ * `maxAttempts` and `deadLetterMinAgeMs` are enforced. Pre-adoption abandonment
++ * used to route `onAbandoned -> releaseClaim` unconditionally, so a claim that
++ * can never be adopted consumed attempts forever without ever reaching the
++ * bounded disposition, retried at the capped 180s backoff indefinitely, and
++ * held the head of its FIFO ingress lane.
+  *
+- * The first test states the desired contract and is expected to be RED until the
+- * drain routes abandonment through the same bounded disposition. Every negative
+- * control below is green before and after that repair and must stay that way:
+- * they bound the repair so it cannot dead-letter early, cannot consume the
+- * budget on cancellation, cannot disturb an unrelated lane, and cannot collapse
+- * the abandonment producer identity into the ordinary-failure reason.
++ * The first test states the contract: abandonment enters the same bounded
++ * disposition and terminalizes at the ceiling. Every negative control below
++ * bounds that repair so it cannot dead-letter early, cannot consume the budget
++ * on cancellation, cannot disturb an unrelated lane, and cannot collapse the
++ * abandonment producer identity into the ordinary-failure reason.
+  */
+ import { expectDefined } from "@openclaw/normalization-core";
+ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+@@ -31,12 +29,13 @@
+   DEFAULT_INGRESS_RETRY_MAX_MS,
+ } from "./ingress-retry-policy.js";
+ 
+-// Module-private in ingress-drain.ts; derive from the factory signature.
++// Derive from the public factory signature so this test does not bind to the
++// module layout that happens to export the lifecycle type.
+ type ChannelIngressDispatchLifecycle = Parameters<
+   Parameters<typeof createChannelIngressDrain>[0]["dispatchClaimedEvent"]
+ >[1];
+ 
+-/** Exactly what extensions/discord/src/monitor/ingress.ts configures for the incident seat. */
++/** Exactly what extensions/discord/src/monitor/ingress.ts configures. */
+ const INCIDENT_RETRY_POLICY = {
+   maxAttempts: DEFAULT_INGRESS_RETRY_MAX_ATTEMPTS,
+   deadLetterMinAgeMs: 0,

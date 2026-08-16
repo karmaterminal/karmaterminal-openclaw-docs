@@ -1,0 +1,121 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m<product-worktree>[39m
+
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/message-actions.security.test.ts [2m([22m[2m77 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/bundled.shape-guard.test.ts [2m([22m[2m25 tests[22m[2m)[22m[33m 8057[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-queue.test.ts [2m([22m[2m34 tests[22m[2m)[22m[33m 2076[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain.test.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 1807[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/read-only.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 210[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/setup-wizard-helpers.test.ts [2m([22m[2m52 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/progress-draft-compositor.test.ts [2m([22m[2m43 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/turn/run-channel-turn.delivery.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 156[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/turn/run-channel-turn.pipeline.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 127[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/turn/run-channel-turn.finalize.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/streaming.lifecycle.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-monitor.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 2392[2mms[22m[39m
+     [33m[2m✓[22m[39m fails start once when the durable queue cannot be opened [33m 431[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/inbound-event/context.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/status-reactions.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/inbound-event/media.test.ts [2m([22m[2m74 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/send.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/account-helpers.test.ts [2m([22m[2m42 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/setup-helpers.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+[90mstderr[2m | src/channels/typing.test.ts[2m > [22m[2mcreateTypingCallbacks[2m > [22m[2mTTL safety[2m > [22m[2muses default 60s TTL when not specified
+[22m[39m[typing] TTL exceeded (60000ms), auto-stopping typing indicator
+
+[90mstderr[2m | src/channels/typing.test.ts[2m > [22m[2mcreateTypingCallbacks[2m > [22m[2mTTL safety[2m > [22m[2muses default 60s TTL for non-finite maxDurationMs
+[22m[39m[typing] TTL exceeded (60000ms), auto-stopping typing indicator
+
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/typing.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/lifecycle.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/bundled-channel-catalog-read.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/model-overrides.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 239[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/conversation-resolution.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/draft-stream-loop.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message-access/admission-evidence.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain.abandonment-retry-budget.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 367[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/outbound-bridge.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/package-state-probes.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/message-actions.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message-access/context-builder-callers.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/setup-promotion-helpers.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/draft-stream-controls.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 217[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/account-config-mutation.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/config-schema.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/status-reactions.slack-lifecycle.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/turn/run-channel-turn.prepared-lifecycle.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/acp-bindings.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/bundled-root-caches.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/setup-contract.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/session.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/transport/stall-watchdog.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/legacy-config.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/message-capability-matrix.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-queue.dead-letters.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 280[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/direct-dm.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/turn/message-turn-guardrails.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 409[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps plugin runtime files off deprecated reply-history map helpers [33m 367[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/inbound-event/session-transcript-context.runtime.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/turn/durable-delivery.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/module-loader.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/feedback-reflection.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/turn/pending-delivery-notice.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 256[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/setup-group-access-configure.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/turn/pending-delivery-notice.integration.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 171[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/catalog.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/ack-reactions.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain-supersede.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 222[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain.debounce-failure.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 160[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-queue-health.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 107[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/contracts.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/registry.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/setup-wizard-binary.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/session-conversation.bundled-fallback.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/binding-routing.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 142[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/binding-targets.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/turn/run-channel-turn.custody.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 169[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/config-presence.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/allowlists/resolve-utils.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/session-conversation.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/thread-bindings-policy.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/route-projection.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/runtime-forwarders.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/conversation-binding-context.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/registry.helpers.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain.watchdog.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 242[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/doctor-contract-api.fast-path.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/tts-capabilities.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/draft-preview-finalizer.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain.cancellation.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 104[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/durable-receive.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 97[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/outbound-echo.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/read-only.legacy-workspace.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/thread-binding-api.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/status.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/acp-stateful-target-driver.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/inbound-event/envelope.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/read-only-command-defaults.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/gateway-auth-bypass.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/thread-addressing.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/inbound-debounce-policy.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/message-tool-api.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/setup-wizard-legacy-compat.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/setup-group-access.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/approvals.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/progress-draft-compositor.visibility.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/typing-start-guard.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/target-parsing-loaded.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/run-state-machine.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain-lanes.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 101[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/pairing-adapters.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/bundled-channel-catalog-read.fail-soft.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/stateful-target-drivers.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/stateful-target-builtins.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/plugins/setup-helpers.import-safety.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m103 passed[39m[22m[90m (103)[39m
+[2m      Tests [22m [1m[32m1129 passed[39m[22m[90m (1129)[39m
+[2m   Start at [22m 17:06:34
+[2m   Duration [22m 36.83s[2m (transform 11.32s, setup 714ms, import 16.69s, tests 18.78s, environment 0ms)[22m
+
+EXIT=0

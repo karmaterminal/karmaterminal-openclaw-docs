@@ -1,0 +1,125 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m<product-worktree>[39m
+
+ [31m❯[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain.test.ts [2m([22m[2m27 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 1839[2mms[22m[39m
+     [32m✓[39m crash-window: lost claim is recovered and dispatched exactly once[32m 136[2mms[22m[39m
+     [32m✓[39m dispatches a resubmitted dead letter exactly once[32m 62[2mms[22m[39m
+     [32m✓[39m complete-at-adoption: adoption tombstones; settle is not required[32m 58[2mms[22m[39m
+     [32m✓[39m deferred holds claim without complete until adopted or abandoned[32m 59[2mms[22m[39m
+     [32m✓[39m keeps the lane owned until a dead-letter write commits[32m 63[2mms[22m[39m
+     [32m✓[39m keeps ownership when every dead-letter write fails[32m 59[2mms[22m[39m
+     [32m✓[39m holds lanes by default and releases only opted-in deferred lanes[32m 117[2mms[22m[39m
+     [32m✓[39m keeps heartbeat and watchdog ownership after releasing a deferred lane[32m 60[2mms[22m[39m
+     [32m✓[39m applies retry, non-retryable, and retry-limit policy to deferred failures[32m 116[2mms[22m[39m
+     [32m✓[39m protects and aborts released deferred claims until disposal[32m 56[2mms[22m[39m
+     [32m✓[39m lets callers await an abandoned claim release[32m 57[2mms[22m[39m
+     [32m✓[39m abandoned reply ownership releases claim with attempt increment[32m 55[2mms[22m[39m
+     [32m✓[39m queued deferral -> admission completes the claim exactly once[32m 56[2mms[22m[39m
+     [32m✓[39m supersede tombstones the superseded claim (never re-dispatches)[32m 57[2mms[22m[39m
+     [32m✓[39m does not supersede without predicate[32m 56[2mms[22m[39m
+     [32m✓[39m dead-letter needs both attempt floor and age (releases when age insufficient)[32m 67[2mms[22m[39m
+[31m     [31m×[31m retry-accounts abandonment and dead-letters it at the failure threshold[39m[32m 64[2mms[22m[39m
+     [32m✓[39m refreshes active claims on claimLeaseMs/3 while deferred[32m 58[2mms[22m[39m
+     [32m✓[39m throws IngressAdoptionLostError when onAdopted races supersede[32m 59[2mms[22m[39m
+     [32m✓[39m retries tombstone complete failures then commits[32m 57[2mms[22m[39m
+     [32m✓[39m holds claim ownership when tombstone complete keeps failing[32m 58[2mms[22m[39m
+     [32m✓[39m does not steal live peer-drain claims; recovers after owner abort[32m 59[2mms[22m[39m
+     [32m✓[39m throws IngressAdoptionLostError when complete returns false (lease reclaimed)[32m 57[2mms[22m[39m
+     [32m✓[39m exports default adoption stall matching Telegram product default[32m 0[2mms[22m[39m
+     [32m✓[39m tombstone-fail after handler completed keeps ownership and never re-dispatches[32m 57[2mms[22m[39m
+     [32m✓[39m refreshClaim false aborts the handler mid-dispatch (lease reclaimed)[32m 68[2mms[22m[39m
+     [32m✓[39m late supersede predicate does not kill an adopted turn[32m 164[2mms[22m[39m
+ [31m❯[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain.abandonment-retry-budget.test.ts [2m([22m[2m5 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 349[2mms[22m[39m
+[31m     [31m×[31m terminalizes a repeatedly abandoned pre-adoption claim at the attempt ceiling[39m[32m 102[2mms[22m[39m
+     [32m✓[39m keeps an abandoned claim retryable below the attempt ceiling[32m 64[2mms[22m[39m
+     [32m✓[39m leaves cancellation budget-free even at the attempt ceiling[32m 60[2mms[22m[39m
+     [32m✓[39m keeps an unrelated lane draining while one lane head is abandoned[32m 60[2mms[22m[39m
+     [32m✓[39m still dead-letters an ordinary thrown dispatch failure on its bounded path[32m 64[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[43m channels [49m[39m src/channels/message/ingress-drain.abandonment-retry-budget.test.ts[2m > [22mchannel ingress drain abandonment retry budget[2m > [22mterminalizes a repeatedly abandoned pre-adoption claim at the attempt ceiling
+[31m[1mAssertionError[22m: expected [] to deeply equal [ ObjectContaining{…} ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   ObjectContaining {[39m
+[32m-     "attempts": 7,[39m
+[32m-     "id": "source-message-head",[39m
+[32m-     "laneKey": "guild/channel/silas",[39m
+[32m-     "message": "turn-abandoned",[39m
+[32m-     "payload": {[39m
+[32m-       "text": "session changed while starting work",[39m
+[32m-     },[39m
+[32m-     "reason": "retry-limit-exceeded",[39m
+[32m-   },[39m
+[32m- ][39m
+[31m+ [][39m
+
+[36m [2m❯[22m src/channels/message/ingress-drain.abandonment-retry-budget.test.ts:[2m110:58[22m[39m
+    [90m108|[39m       [34mexpect[39m([35mawait[39m queue[33m.[39m[34mlistClaims[39m())[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m109|[39m
+    [90m110|[39m       [34mexpect[39m([35mawait[39m queue[33m.[39m[34mlistFailed[39m[33m?.[39m({ limit[33m:[39m [32m"all"[39m }))[33m.[39m[34mtoEqual[39m([
+    [90m   |[39m                                                          [31m^[39m
+    [90m111|[39m         expect[33m.[39m[34mobjectContaining[39m({
+    [90m112|[39m           id[33m:[39m [33mHEAD[39m[33m,[39m
+[90m [2m❯[22m withTempState src/channels/message/ingress-drain.test-helpers.ts:[2m29:12[22m[39m
+[90m [2m❯[22m src/channels/message/ingress-drain.abandonment-retry-budget.test.ts:[2m71:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[43m channels [49m[39m src/channels/message/ingress-drain.test.ts[2m > [22mchannel ingress drain[2m > [22mretry-accounts abandonment and dead-letters it at the failure threshold
+[31m[1mAssertionError[22m: expected [ Array(3) ] to deeply equal [ [ ObjectContaining{…} ], …(2) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -31,7 +31,23 @@[39m
+[2m        "queueName": "[\"test\",\"a\"]",[22m
+[2m        "receivedAt": 1,[22m
+[2m        "updatedAt": 3,[22m
+[2m      },[22m
+[2m    ],[22m
+[32m-   [],[39m
+[31m+   [[39m
+[31m+     {[39m
+[31m+       "accountId": "a",[39m
+[31m+       "attempts": 3,[39m
+[31m+       "channelId": "test",[39m
+[31m+       "id": "abandoned",[39m
+[31m+       "laneKey": "l",[39m
+[31m+       "lastAttemptAt": 4,[39m
+[31m+       "lastError": "turn-abandoned",[39m
+[31m+       "payload": {[39m
+[31m+         "text": "x",[39m
+[31m+       },[39m
+[31m+       "queueName": "[\"test\",\"a\"]",[39m
+[31m+       "receivedAt": 1,[39m
+[31m+       "updatedAt": 4,[39m
+[31m+     },[39m
+[31m+   ],[39m
+[2m  ][22m
+
+[36m [2m❯[22m src/channels/message/ingress-drain.test.ts:[2m709:30[22m[39m
+    [90m707|[39m       // records the durable last error; the pass that reaches maxAtte…
+    [90m708|[39m       [90m// leaves nothing pending.[39m
+    [90m709|[39m       [34mexpect[39m(pendingPerPass)[33m.[39m[34mtoEqual[39m([
+    [90m   |[39m                              [31m^[39m
+    [90m710|[39m         [expect.objectContaining({ id: "abandoned", attempts: 1, lastE…
+    [90m711|[39m         [expect.objectContaining({ id: "abandoned", attempts: 2, lastE…
+[90m [2m❯[22m withTempState src/channels/message/ingress-drain.test-helpers.ts:[2m29:12[22m[39m
+[90m [2m❯[22m src/channels/message/ingress-drain.test.ts:[2m682:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m30 passed[39m[22m[90m (32)[39m
+[2m   Start at [22m 17:07:29
+[2m   Duration [22m 2.89s[2m (transform 347ms, setup 307ms, import 256ms, tests 2.19s, environment 0ms)[22m
+
+[vitest] FAILED (exit 1)
+[test] FAILED (exit 1)
+EXIT=1

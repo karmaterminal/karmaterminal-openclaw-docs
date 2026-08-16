@@ -1,0 +1,36 @@
+########## extension-discord ##########
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/setup-entry.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/error-body.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 35[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m221 passed[39m[22m[90m (221)[39m
+[2m      Tests [22m [1m[32m2775 passed[39m[22m[90m (2775)[39m
+[2m   Start at [22m 17:13:21
+[2m   Duration [22m 147.99s[2m (transform 19.36s, setup 1.94s, import 37.30s, tests 105.02s, environment 0ms)[22m
+
+########## extension-line ##########
+ [32m✓[39m [30m[46m extension-line [49m[39m extensions/line/src/messaging-target.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[46m extension-line [49m[39m extensions/line/src/session-route.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m33 passed[39m[22m[90m (33)[39m
+[2m      Tests [22m [1m[32m528 passed[39m[22m[90m (528)[39m
+[2m   Start at [22m 17:15:51
+[2m   Duration [22m 30.90s[2m (transform 16.34s, setup 834ms, import 21.39s, tests 8.30s, environment 0ms)[22m
+
+########## plugin-sdk ##########
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/test-helpers/node-builtin-mocks.child-process.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/agent-runtime-avatar-contract.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m77 passed[39m[22m[90m (77)[39m
+[2m      Tests [22m [1m[32m765 passed[39m[22m[2m | [22m[33m13 skipped[39m[90m (778)[39m
+[2m   Start at [22m 17:16:22
+[2m   Duration [22m 56.33s[2m (transform 16.21s, setup 914ms, import 21.08s, tests 33.71s, environment 0ms)[22m
+
+########## auto-reply-reply ##########
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/queue/settings-runtime.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/dispatch-from-config.test.ts [2m([22m[2m363 tests[22m[2m)[22m[33m 2897[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m169 passed[39m[22m[90m (169)[39m
+[2m      Tests [22m [1m[32m3795 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (3796)[39m
+[2m   Start at [22m 17:17:19
+[2m   Duration [22m 233.89s[2m (transform 20.57s, setup 1.40s, import 37.72s, tests 192.60s, environment 0ms)[22m
+

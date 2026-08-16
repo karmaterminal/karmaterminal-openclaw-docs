@@ -62,6 +62,246 @@
         "registryNotes": { "type": "string" }
       }
     },
+    "invocation": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Row-specific fire parameters consumed by the scenario (tool, forms, delay, prompt template, idempotency prefix)."
+    },
+    "seatClassExpectation": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Per-seat-class expected artifact classes for rows whose provable ceiling depends on the seat's final-text surface."
+    },
+    "sourceContract": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Exact-SHA source-contract binding for rows proven against committed product source rather than a live gateway."
+    },
+    "telemetryContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Telemetry rebind contract (karmaterminal/openclaw#1254). Declares the product spans/attributes a row's claim rests on, whether the product emits them today, and what a later independent observer needs to re-derive the same slice. A row may only claim a telemetry-rebindable PASS when every identity and proof-run marker is declared emitted by the product.",
+      "required": [
+        "schema",
+        "census",
+        "enforcement",
+        "rebindable",
+        "productInstrumentationPrerequisite",
+        "expectedTelemetry",
+        "redaction",
+        "controls",
+        "backendUnavailable",
+        "artifact",
+        "verdictAuthority",
+        "execution"
+      ],
+      "properties": {
+        "schema": { "const": "openclaw.k6.row-telemetry-contract.v1" },
+        "remedyConcern": {
+          "enum": [
+            "origin-provenance",
+            "proof-run-classification",
+            "terminal-outcome",
+            "backend-disposition"
+          ],
+          "description": "Set only on the cross-cutting remedy rows. Each concern is owned by exactly one row so the split cannot silently lose a census finding."
+        },
+        "census": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["issue", "reportCommit", "productBasis"],
+          "properties": {
+            "issue": { "type": "string", "minLength": 1 },
+            "reportCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+            "productBasis": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+            "limits": { "type": "string" }
+          }
+        },
+        "enforcement": {
+          "enum": ["advisory", "blocking"],
+          "description": "advisory records unproven rebind receipts in row-result.json without changing the row's behavioral verdict. blocking caps the row below PASS-candidate until every rebindReceipt is explicitly present."
+        },
+        "rebindable": {
+          "type": "boolean",
+          "description": "True only when an independent observer could re-derive this row's claim from committed telemetry alone."
+        },
+        "productInstrumentationPrerequisite": {
+          "type": "boolean",
+          "description": "True when the contract cannot be satisfied until OpenClaw emits the declared attributes/spans."
+        },
+        "prerequisiteRows": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Remedy rows that must land before this row can become rebindable."
+        },
+        "rebindReceipts": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Receipt names that must be explicitly present before a telemetry-rebindable claim is allowed."
+        },
+        "expectedTelemetry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["spans", "attributes"],
+          "properties": {
+            "spans": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name", "role", "emittedByProduct"],
+                "properties": {
+                  "name": { "type": "string", "minLength": 1 },
+                  "role": {
+                    "enum": [
+                      "accepted-entry",
+                      "fire",
+                      "wake",
+                      "return",
+                      "terminal-outcome",
+                      "tool-execution",
+                      "queue",
+                      "compaction",
+                      "proof-marker-carrier",
+                      "backend-status"
+                    ]
+                  },
+                  "emittedByProduct": { "type": "boolean" },
+                  "productIssue": { "type": "string" },
+                  "notes": { "type": "string" }
+                }
+              }
+            },
+            "attributes": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["key", "purpose", "emittedByProduct", "publicSafeForm"],
+                "properties": {
+                  "key": { "type": "string", "minLength": 1 },
+                  "purpose": {
+                    "enum": [
+                      "origin",
+                      "session",
+                      "turn",
+                      "run",
+                      "proof-run",
+                      "terminal-outcome",
+                      "chain",
+                      "reason",
+                      "backend-completeness",
+                      "other"
+                    ]
+                  },
+                  "emittedByProduct": { "type": "boolean" },
+                  "publicSafeForm": {
+                    "enum": [
+                      "enum",
+                      "salted-fingerprint",
+                      "sha256-16",
+                      "literal-sha",
+                      "integer",
+                      "boolean",
+                      "duration-ms"
+                    ]
+                  },
+                  "productIssue": { "type": "string" },
+                  "notes": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "redaction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["rule", "forbiddenInArtifacts"],
+          "properties": {
+            "rule": { "type": "string", "minLength": 1 },
+            "forbiddenInArtifacts": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "saltSource": { "type": "string" }
+          }
+        },
+        "controls": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["positive", "negative"],
+          "properties": {
+            "positive": { "type": "string", "minLength": 1 },
+            "negative": { "type": "string", "minLength": 1 },
+            "notes": { "type": "string" }
+          }
+        },
+        "backendUnavailable": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["disposition", "treatZeroAsAbsence", "requiredCompletenessKeys", "rebindKeys"],
+          "properties": {
+            "disposition": { "enum": ["PARTIAL-candidate", "FAIL-candidate"] },
+            "treatZeroAsAbsence": {
+              "const": false,
+              "description": "A degraded backend that answers 200 with zero results is never evidence of absence."
+            },
+            "requiredCompletenessKeys": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "rebindKeys": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "notes": { "type": "string" }
+          }
+        },
+        "artifact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema", "requiredFiles"],
+          "properties": {
+            "schema": { "type": "string", "minLength": 1 },
+            "requiredFiles": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "notes": { "type": "string" }
+          }
+        },
+        "verdictAuthority": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["passScope", "pass", "partial", "fail"],
+          "properties": {
+            "passScope": {
+              "enum": ["behavioral-only", "behavioral-and-telemetry-rebindable"]
+            },
+            "pass": { "type": "string", "minLength": 1 },
+            "partial": { "type": "string", "minLength": 1 },
+            "fail": { "type": "string", "minLength": 1 },
+            "honestLimit": { "type": "string" }
+          }
+        },
+        "execution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["deterministicK6", "manual", "relationship"],
+          "properties": {
+            "deterministicK6": { "type": "string", "minLength": 1 },
+            "manual": { "type": "string", "minLength": 1 },
+            "relationship": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
     "liveRunSafety": {
       "type": "object",
       "additionalProperties": false,
@@ -90,6 +330,14 @@
         "requiresExternalAgentOrToolInvocation": {
           "type": "boolean",
           "description": "True when k6 REST/WS alone is not enough and an agent/tool invocation outside the raw k6 transport is required."
+        },
+        "requiresHumanConfirmation": {
+          "type": "boolean",
+          "description": "True when a human must confirm the row before or during the fire."
+        },
+        "requiresDisposableSession": {
+          "type": "boolean",
+          "description": "True when the row must run against a disposable session rather than a long-lived seat session."
         },
         "sameSessionConcurrencySafe": {
           "type": "boolean",

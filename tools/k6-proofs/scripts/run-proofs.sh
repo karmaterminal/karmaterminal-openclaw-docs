@@ -43,7 +43,7 @@ HARNESS_SNAPSHOT_SENTINEL=".openclaw-harness-snapshot"
 # effective exit code so a harness setup failure can never be read as a product
 # verdict.
 HARNESS_INFRA_EXIT=78
-CATALOG_CHECKS=(check-manifest-scenarios.mjs check-scenario-alignment.mjs check-proof-row-manifests.mjs)
+CATALOG_CHECKS=(check-manifest-scenarios.mjs check-scenario-alignment.mjs check-proof-row-manifests.mjs check-telemetry-contracts.mjs)
 
 # Point every executed harness component at the current execution root.
 bind_execution_roots() {

@@ -1,0 +1,226 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-OBS-PROOF-MARKER",
+  "issue": 1254,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "offline",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 300,
+  "scenario": {
+    "status": "construct-only",
+    "name": "r-obs-proof-marker",
+    "description": "Proof-originated traffic is separable from organic fleet traffic by a durable telemetry marker carrying the Project-81/k6 proof run id, the row id, the product candidate SHA, and the immutable harness ref.",
+    "notes": "Construct-only. The census queried Tempo resource tags for k6 and Project-81 markers in both windows and found none; that is absence of a marker, not absence of proof traffic. The known manual proof window that began around 2026-08-15T16:25Z could not be excluded, so the aggregate records proof classification as unknown_without_stable_marker rather than converting the missing marker into zero.",
+    "registryNotes": "Cross-cutting instrumentation contract. Every row's census-time classification depends on it, so no single behavioral row can own it. The harness already knows the run id, row id, candidate SHA and docs ref (harness-provenance.json, runner-metadata.json); what is missing is a path for those values to reach the product's exported spans."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "remedyConcern": "proof-run-classification",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "tempo_k6_marker_matches=0 and tempo_project81_marker_matches=0 with resource_marker_present=false. The 24h totals may include the known manual proof window; proof traffic was not silently removed and the classification stayed unknown."
+    },
+    "enforcement": "blocking",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": ["R-OBS-BACKEND-DISPOSITION"],
+    "rebindReceipts": [
+      "proof-run-marker-present",
+      "proof-traffic-selectable",
+      "organic-traffic-unmarked",
+      "backend-completeness-receipt"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "openclaw.run",
+          "role": "proof-marker-carrier",
+          "emittedByProduct": true,
+          "notes": "Exists; carries no proof marker."
+        },
+        {
+          "name": "continuation.work",
+          "role": "proof-marker-carrier",
+          "emittedByProduct": true,
+          "notes": "Exists; carries no proof marker."
+        },
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "proof-marker-carrier",
+          "emittedByProduct": true,
+          "notes": "Exists; carries no proof marker."
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "proof-marker-carrier",
+          "emittedByProduct": true,
+          "notes": "Exists; carries no proof marker."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "The harness-owned proof run identity, stamped on every span the run causes. Public-safe by construction: it is a digest of harness-owned values, not of user content."
+        },
+        {
+          "key": "openclaw.proof.row_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Closed set: the committed row catalog under tools/k6-proofs/manifests/."
+        },
+        {
+          "key": "openclaw.proof.candidate_sha",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "literal-sha",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "The 40-character product SHA the gateway is deployed at, so a later reader can bind the trace to the exact code under proof."
+        },
+        {
+          "key": "openclaw.proof.harness_ref",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "literal-sha",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "The immutable karmaterminal-openclaw-docs commit the harness was frozen to (--docs-ref, already recorded in harness-provenance.json)."
+        },
+        {
+          "key": "openclaw.proof.synthetic",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "boolean",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "True for harness-originated traffic. A census may exclude it only when this attribute is present; its absence must classify as unknown, not as organic."
+        },
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Existing chain identity, retained so a marked proof run can still be walked as a chain."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "All four marker values are harness-owned identifiers or SHAs. No session key, seat credential, prompt body or user content is admissible in a proof marker, and the marker must never be derived from user content.",
+      "forbiddenInArtifacts": [
+        "gateway token",
+        "raw session key",
+        "prompt body",
+        "seat credential",
+        "webhook url"
+      ],
+      "saltSource": "Not applicable: the run id is a digest of harness-owned values (docs ref, row id, candidate SHA, run start) and needs no secret salt."
+    },
+    "controls": {
+      "positive": "A row fired with a known proof run id is fully selectable by that marker alone, and every span the run caused carries the same row id, candidate SHA and harness ref. Selecting by marker returns exactly the run's spans.",
+      "negative": "Organic fleet traffic in the same window returns zero matches for that proof run id and carries openclaw.proof.synthetic=false or no marker at all. Re-running the census aggregation over one window with and without the marker filter must differ by exactly the marked span count and by nothing else.",
+      "notes": "The negative control is the census exclusion itself: it is only honest when excluding marked traffic changes the totals by a knowable amount."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": ["totalBlocks", "completedJobs", "inspectedBytes", "tempoApiStatus"],
+      "rebindKeys": [
+        "proof_run_id",
+        "row_id",
+        "candidate_sha",
+        "harness_ref",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query"
+      ],
+      "notes": "A zero-match marker query against a degraded backend proves nothing. Marker absence and backend degradation must be reported as two distinct dispositions."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.proof-run-marker-receipt.v1",
+      "requiredFiles": [
+        "EVIDENCE.md",
+        "row-result.json",
+        "proof-run-marker-receipt.json",
+        "harness-provenance.json",
+        "backend-status.json"
+      ],
+      "notes": "proof-run-marker-receipt.json binds the harness-side identity already in harness-provenance.json to the marker values observed on the exported spans."
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "Every span caused by the marked run carries all four marker values, selection by marker alone returns exactly that set, organic traffic in the same window is unmarked, and the backend receipt is complete.",
+      "partial": "The marker is absent, partially applied, or the backend receipt is incomplete. Proof-traffic classification then stays unknown_without_stable_marker, exactly as the census recorded it.",
+      "fail": "A marker value disagrees with the harness-frozen identity (wrong candidate SHA, wrong harness ref, wrong row id), or organic traffic carries a proof marker."
+    },
+    "execution": {
+      "deterministicK6": "The row-list runner already freezes the docs ref, row selection, manifest and scenario digests before the first row fires; the deterministic k6 row asserts that those exact frozen values appear on the exported spans.",
+      "manual": "A manual proof window has no stable marker at all, so a manual fire can only ever be classified by wall-clock overlap, which the census showed is not exclusion-grade.",
+      "relationship": "Deterministic k6 is the only path to a PASS here. Manual fires remain PARTIAL by construction and must be declared in the artifact so a later census can bound, not remove, their contribution."
+    }
+  },
+  "expectedReceipts": [
+    {
+      "name": "proof-run-marker-present",
+      "required": true,
+      "description": "Every span caused by the proof run carries proof run id, row id, candidate SHA, harness ref, and the synthetic flag"
+    },
+    {
+      "name": "proof-traffic-selectable",
+      "required": true,
+      "description": "A backend query on the proof run id alone returns exactly the spans that run caused"
+    },
+    {
+      "name": "organic-traffic-unmarked",
+      "required": true,
+      "description": "Organic fleet traffic in the same window carries no proof marker and is not returned by the marker query"
+    },
+    {
+      "name": "harness-identity-agreement",
+      "required": true,
+      "description": "Marker values equal the frozen harness identity in harness-provenance.json (docs ref, row id, candidate SHA)"
+    },
+    {
+      "name": "backend-completeness-receipt",
+      "required": true,
+      "description": "Backend response carries the declared completeness keys so a zero-match result can be distinguished from a degraded query"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-OBS-PROOF-MARKER",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Construct-only remedy contract. Until it lands, no census, dashboard, or proof artifact may claim that proof traffic was excluded; the honest classification is unknown_without_stable_marker."
+  },
+  "liveRunSafety": {
+    "classification": "construct-only",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "construct-only",
+    "requiredReceipts": [
+      "proof-run-marker-present",
+      "proof-traffic-selectable",
+      "organic-traffic-unmarked",
+      "harness-identity-agreement",
+      "backend-completeness-receipt"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Construct-only rows are rejected by the live-run guard. Publication path for a future product PR that lands the instrumentation is PR-NNNNNN/PROOFS/<FULL_SHA>/."
+  }
+}

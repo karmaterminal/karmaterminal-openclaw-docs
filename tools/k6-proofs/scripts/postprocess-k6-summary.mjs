@@ -52,17 +52,49 @@ function durationMsFromSummary(summary, rowId) {
   return null;
 }
 
-function failureClassFrom({ outcome, failureCount, checkRate, receipts, summary }) {
+function failureClassFrom({ outcome, failureCount, checkRate, receipts, summary, telemetryRebindBlocked }) {
   const statusText = JSON.stringify(summary?.root_group || {}) + JSON.stringify(summary?.errors || {});
   if (/timeout|timed out/i.test(statusText)) return 'timeout';
   if (/auth|unauthorized|forbidden|token/i.test(statusText)) return 'auth';
   if (/transport|websocket|network|ECONNREFUSED|connection/i.test(statusText)) return 'transport';
   if (/redaction/i.test(statusText)) return 'redaction-gate';
   if (receipts.some((r) => r.required && r.status === 'missing')) return 'missing-receipt';
+  if (telemetryRebindBlocked) return 'telemetry-rebind-unproven';
   if (failureCount > 0) return 'threshold';
   if (checkRate !== null && checkRate < 1) return 'checks';
   if (outcome === 'FAIL-candidate') return 'postprocess';
   return 'none';
+}
+
+/**
+ * Summarise the row's telemetry rebind contract against the receipts actually
+ * observed (karmaterminal/openclaw#1254).
+ *
+ * The census established that a row can execute real behavior and still be
+ * impossible to rebind afterwards. Recording that debt in every run artifact is
+ * what keeps the gap visible instead of implied.
+ */
+function telemetryRebindFrom(manifest, receipts) {
+  const contract = manifest?.telemetryContract;
+  if (!contract) return null;
+  const statusByName = new Map(receipts.map((receipt) => [receipt.name, receipt.status]));
+  const declared = Array.isArray(contract.rebindReceipts) ? contract.rebindReceipts : [];
+  const unproven = declared
+    .map((name) => ({ name, status: statusByName.get(name) ?? 'absent' }))
+    .filter((entry) => entry.status !== 'present');
+
+  return {
+    contract: contract.schema,
+    enforcement: contract.enforcement,
+    rebindable: contract.rebindable === true,
+    passScope: contract.verdictAuthority?.passScope ?? null,
+    productInstrumentationPrerequisite: contract.productInstrumentationPrerequisite === true,
+    prerequisiteRows: Array.isArray(contract.prerequisiteRows) ? contract.prerequisiteRows : [],
+    backendUnavailableDisposition: contract.backendUnavailable?.disposition ?? null,
+    declaredRebindReceipts: declared,
+    unprovenRebindReceipts: unproven,
+    status: unproven.length === 0 && declared.length > 0 ? 'proven' : 'unproven',
+  };
 }
 
 function receiptStatusFromName(name, summary) {
@@ -252,7 +284,43 @@ async function main() {
     required: Boolean(r.required),
     status: receiptStatusFromName(r.name, summary),
   }));
-  const failureClass = failureClassFrom({ outcome, failureCount, checkRate, receipts, summary });
+  const telemetryRebind = telemetryRebindFrom(manifest, receipts);
+
+  // A summary-derived PASS may not outrun its own receipts. A row that declares
+  // an authoritative signed receipt keeps that receipt as its sole authority and
+  // is not re-judged here.
+  const summaryDerivedVerdict = verdictSource === 'k6-summary';
+  // A receipt is required when either list says so. `liveRunSafety.requiredReceipts`
+  // is the live-run required set and `expectedReceipts[].required` is what this
+  // post-processor grades; a row must not be gradeable as optional on a receipt
+  // its own live-run policy calls required.
+  const liveRequiredReceipts = new Set(manifest.liveRunSafety?.requiredReceipts || []);
+  const missingRequiredReceipts = receipts
+    .filter((receipt) => (receipt.required || liveRequiredReceipts.has(receipt.name)) && receipt.status === 'missing')
+    .map((receipt) => receipt.name);
+  const rebindablePassClaimed =
+    telemetryRebind?.rebindable === true ||
+    telemetryRebind?.passScope === 'behavioral-and-telemetry-rebindable';
+  const telemetryRebindBlocked = Boolean(
+    summaryDerivedVerdict &&
+    outcome === 'PASS-candidate' &&
+    telemetryRebind &&
+    (telemetryRebind.enforcement === 'blocking' || rebindablePassClaimed) &&
+    telemetryRebind.status !== 'proven',
+  );
+  const downgradeReasons = [];
+  if (summaryDerivedVerdict && outcome === 'PASS-candidate' && missingRequiredReceipts.length) {
+    downgradeReasons.push(`required receipt(s) reported missing: ${missingRequiredReceipts.join(', ')}`);
+  }
+  if (telemetryRebindBlocked) {
+    const unproven = telemetryRebind.unprovenRebindReceipts.length
+      ? telemetryRebind.unprovenRebindReceipts.map((entry) => `${entry.name}=${entry.status}`).join(', ')
+      : 'no rebind receipt declared';
+    downgradeReasons.push(`telemetry rebind not proven (${telemetryRebind.enforcement}): ${unproven}`);
+  }
+  if (downgradeReasons.length) outcome = 'PARTIAL-candidate';
+
+  const failureClass = failureClassFrom({ outcome, failureCount, checkRate, receipts, summary, telemetryRebindBlocked });
   const result = {
     schema: 'openclaw.k6.proof-row-result.v1',
     runId,
@@ -272,6 +340,7 @@ async function main() {
       durationMs: durationMsFromSummary(summary, manifest.rowId),
     },
     receipts,
+    ...(telemetryRebind ? { telemetryRebind } : {}),
     liveRunSafety: manifest.liveRunSafety ? {
       classification: manifest.liveRunSafety.classification,
       requiresLiveGatewayToken: Boolean(manifest.liveRunSafety.requiresLiveGatewayToken),
@@ -284,7 +353,9 @@ async function main() {
       foldRequiresReview: manifest.liveRunSafety.foldRequiresReview === true,
     } : null,
     failureClass,
-    reason: outcome === 'construct-only'
+    reason: downgradeReasons.length
+      ? `withheld from PASS-candidate: ${downgradeReasons.join('; ')}`
+      : outcome === 'construct-only'
       ? 'manifest caps this row at construct-only; it is not behavioral candidate evidence'
       : outcome === 'FAIL-candidate'
       ? 'k6 proof_failures metric is non-zero'

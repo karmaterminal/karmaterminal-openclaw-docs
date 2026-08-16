@@ -1,389 +1,425 @@
-# WO-P86-495/496 — Close Catalog Roots and Harness Provenance
+# Continuation telemetry remedy rows — `karmaterminal/openclaw#1254`
 
-Branch: `codeagent/p86-495-496-harness-provenance`
-Base: `fb9d26b10a0fe90f24146015d3800efc60a3fa75` (docs `main`)
-Scope: harness/docs only. No `PROOFS/**` corpus, `proofs-manifest.json`, or
-`PROOFS/INDEX.json` bytes were touched. No product (`karmaterminal/openclaw`)
-change. No live row fired, no gateway restarted, no prince seat touched.
+Branch: `codeagent/continuation-telemetry-remedy-rows`
+Base: `ead47a618c539c535e6845c52207f7a16b23d677` (docs `main`)
+Commits: `85454fff`, `b0f373f2`, and the review-fix commit that carries this report
 
----
+Scope: docs / catalog / harness-contract only. No `karmaterminal/openclaw`
+product change. No live row fired, no gateway touched, no fleet mutation. No
+`PROOFS/**` corpus bytes, no `proofs-manifest.json`, no `PROOFS/INDEX.json`.
 
-## 1. What changed
+Inputs:
 
-### 1.1 One repository-root contract (#495)
-
-**New:** `tools/k6-proofs/lib/repo-root.mjs`
-
-Resolution order, applied identically by every catalog reader:
-
-1. `--repo-root <dir>` (also `--repo-root=<dir>`);
-2. `OPENCLAW_PROOFS_REPO_ROOT`;
-3. the nearest ancestor-or-self of the working directory that contains a
-   `tools/k6-proofs` directory.
-
-Rule 3 makes the repository root, `tools/k6-proofs`, and
-`tools/k6-proofs/scripts` all resolve to the same root, so the tool prefix can
-never be joined twice. There is deliberately **no** fallback to the checkout that
-happens to contain the module: a caller standing outside any harness fails closed
-with an explicit contract error instead of silently validating an unrelated
-catalog (or, as before, reporting an infrastructure ENOENT as an empty catalog).
-
-**Migrated to the shared resolver** (each previously used `process.cwd()` or
-caller-specific path stripping):
-
-- `tools/k6-proofs/scripts/check-manifest-scenarios.mjs`
-- `tools/k6-proofs/scripts/check-scenario-alignment.mjs`
-- `tools/k6-proofs/scripts/check-proof-row-manifests.mjs`
-- `tools/k6-proofs/scripts/list-runnable-rows.mjs` — this one carried the
-  `process.cwd().endsWith('/tools/k6-proofs') ? … : join(cwd, 'tools/k6-proofs')`
-  stripping the workorder explicitly forbids; it is now the same contract as the
-  other three.
-
-`run-proofs.sh` also resolves its own harness root from its script location and
-`cd`s there, so the runner is no longer sensitive to the caller's directory
-either. `--out-dir` is made absolute before that `cd`.
-
-### 1.1b Ordered verification stages
-
-A live matrix now proceeds strictly as: **byte-only identity** (no catalog is
-parsed) → **immutable snapshot** (`git archive` of `tools/k6-proofs`, `PROOFS`
-and `.github`, then `exec` into the snapshot's own `run-proofs.sh` with an
-authenticated ownership handoff) → **catalog preflight** (validators run from the
-snapshot under `env -i`) → **row selection and contract binding** → **credential
-and session resolution** → **seat readiness** → **provenance** → **rows**.
-
-Nothing the matrix consumes is read from the operator's mutable checkout after
-the snapshot exists, and no credential is present in the process while unproven
-bytes are executing.
-
-### 1.2 Catalog preflight is harness infrastructure, not a product verdict (#495)
-
-`run-proofs.sh` now runs all three catalog validators (with an explicit
-`--repo-root`) **before any row work**. On failure it:
-
-- writes exactly one `"$OUT_ROOT"/harness-control-receipt.json`
-  (`openclaw.k6.harness-control-receipt.v1`, `classification:
-  "harness-infrastructure"`, `rowsExecuted: 0`, `rowVerdictsSynthesized: false`,
-  `productVerdict: null`, `stage`, `reason`, `detail`, `rowSelection`);
-- preserves the raw validator output as `catalog-preflight.log`;
-- exits `78` (`EX_CONFIG`), deliberately distinct from any row's effective exit
-  code so a setup fault can never be read as a candidate outcome;
-- executes **no** rows and synthesizes **no** per-row FAIL/BAD_PROOF.
-
-On success any stale control receipt is removed.
-
-### 1.3 Immutable harness identity (#496)
-
-`run-proofs.sh --docs-ref <40-hex>` (env equivalent `OPENCLAW_PROOFS_DOCS_REF`).
-A **live** run refuses to fire — same control receipt, same exit 78, zero rows —
-unless all of:
-
-| check | `detail.check` |
-| --- | --- |
-| approved ref is a 40-char lowercase SHA | `docs-ref-shape` |
-| repository `HEAD` equals that ref | `head-equals-docs-ref` |
-| every tracked byte under `tools/k6-proofs`, `PROOFS` and `.github` hashes to the approved blob (`git hash-object --no-filters`, never `git status`) | `harness-tree-clean` |
-| the candidate SHA is exact 40-hex | `candidate-sha-shape` |
-| the extracted snapshot matches the approved ref | `harness-snapshot-matches-docs-ref` |
-| the executing runner is the snapshot's own, with a valid ownership sentinel | `snapshot-handoff-authentic` |
-| every selected row is recorded at the approved ref | `row-recorded-at-docs-ref` |
-| a public-safe `<owner>/<repo>` identity exists | `repository-identity` |
-| each selected runnable row's scenario file exists | `scenario-present` |
-| each selected manifest + scenario is tracked at that commit | `tracked-at-docs-ref` |
-| those tracked bytes equal the working-tree bytes | `bytes-match-docs-ref` |
-
-The ref and the per-row `manifestSha256` / `scenarioSha256` are resolved and
-frozen once at startup into read-only state; the row loop refuses to fire any row
-that is not in the frozen binding. The previous ambient
-`DOCS_REF="$(git rev-parse HEAD)"` — which ran **after** each row had already
-executed — is gone.
-
-New/changed artifacts:
-
-- `"$OUT_ROOT"/harness-provenance.json` (`openclaw.k6.harness-provenance.v1`),
-  written before the first row fires: docs ref + source, repository identity,
-  candidate SHA, runtime identity receipt (seat, runtime build SHA,
-  candidate/runtime match, `seat-readiness.json` digest), runner script path +
-  sha256, row selection, per-row manifest/scenario paths + sha256, `mode`,
-  `harnessIdentityVerified`, `candidateOnly`, `foldRequiresReview`, `startedAt`.
-- every `runner-metadata.json` gains `docsRef`, `repository`, `manifestPath`,
-  `manifestSha256`, `scenarioPath`, `scenarioSha256`.
-- every live run directory gains `row-scenario.js` — the exact scenario source
-  bytes that fired, next to the already-copied `row-manifest.json`.
-
-### 1.4 Candidate envelope binding (#496)
-
-`validate-candidate-run-result.mjs` (emit side) now requires the metadata to
-carry `docsRef` (equal to the approved `--docs-ref`), a safe `<owner>/<repo>`
-`repository`, and both 64-hex digests; it recomputes the digests from the copied
-`row-manifest.json` and `row-scenario.js` and refuses to emit on any mismatch or
-omission. The envelope gains a `harness` block carrying those values plus the
-artifact names it bound.
-
-`candidate-run-result-contract.mjs` (`candidateEnvelopeMatchesSiblings`, the
-consumer side used by `summarize-review-debt.mjs` and `render-run-report.mjs`)
-performs the same re-verification, so a sidecar whose harness identity is
-omitted, mismatched, or whose copied source was mutated after capture can no
-longer suppress raw review debt or reach the report as ready-for-human-review.
-
-Review-boundary invariants are unchanged: `candidateOnly:true`,
-`foldRequiresReview:true`, `canonicalFoldForbidden:true`, `behaviorProof:false`.
-
-### 1.5 Public-safety
-
-- The control receipt records only `"malformed"` for a badly-shaped
-  operator-supplied docs ref; it never echoes an arbitrary input string.
-- Repository identity is derived only from a real remote (scheme or scp form) or
-  the explicit `OPENCLAW_PROOFS_DOCS_REPOSITORY` override, so a local clone path
-  can never reach a public receipt. A local-path remote yields no identity and a
-  live run fails closed instead.
-- All new receipt fields are repo-relative paths, SHAs, digests, booleans, and
-  timestamps. No token, session key, prompt, private path, or raw process output
-  is added to any public artifact.
-
-### 1.6 CI
-
-`.github/workflows/project81-k6-proof.yml`:
-
-- `actions/checkout@v4` pinned to `ref: ${{ github.sha }}`;
-- `DOCS_REF: ${{ github.sha }}` and `OPENCLAW_PROOFS_DOCS_REPOSITORY: ${{ github.repository }}`;
-- the runner is invoked with `--docs-ref "$DOCS_REF"`;
-- the catalog validators are invoked with `--repo-root "$GITHUB_WORKSPACE"`.
+- census report branch `karmaterminal/openclaw:codeagent/continuation-tempo-usage-census`
+- census commit `39803b297bd4786db3971eb82a3a7fd0b29bc643`
+- exact product basis `6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955`
+- k6 library consolidation branch `codeagent/k6-scenario-library-consolidation@249f7dc9` — read as context only. **Nothing was absorbed from it.** No code, scenario, or library file from that 53-file branch appears in this change, and this branch has no dependency on it.
 
 ---
 
-## 2. Exact changed files (22 files, +3163 / −134)
+## 1. What the census forced
 
-New:
+The census measured the fleet's actual continuation telemetry and found that a
+proof row can execute real behavior and still be impossible to rebind or
+correlate later:
 
-```
-tools/k6-proofs/lib/repo-root.mjs
-tools/k6-proofs/scripts/__tests__/catalog-root-contract.test.mjs
-tools/k6-proofs/scripts/__tests__/harness-provenance-runner.test.mjs
-tools/k6-proofs/scripts/__tests__/helpers/harness-checkout.mjs
-```
+| Finding | Number | Consequence for this catalog |
+|---|---|---|
+| Accepted continuation entry spans are rare | 23 / 24h, 366 / 7d vs 585 / 23,796 model-turn spans | Continuation alone does not explain fleet symptom prevalence. Causation unproven. |
+| Accepted entry spans omit identity | no `signal.kind`, no origin/session/turn/run | Typed-tool spans and accepted-entry spans **cannot be causally joined** |
+| Proof traffic has no marker | 0 k6 / Project-81 resource matches | Proof traffic cannot be excluded honestly; classification is `unknown_without_stable_marker` |
+| No canonical terminal outcome | 147 / 115 (24h), 12,722 / 1,664 (7d) log-string matches | Zero-payload and finalization-failure are heuristics, not counters |
+| Backend degrades silently | Tempo 200 live-store-only, no `totalBlocks`, `/ready` still 200 | Zero must never be read as absence |
 
-Modified:
-
-```
-.github/workflows/project81-k6-proof.yml
-RUNBOOKS/project-81/EXECUTABLE-SUITE.md
-RUNBOOKS/project-81/README.md
-tools/k6-proofs/README.md
-tools/k6-proofs/docs/PROOF-RUN-METHOD.md
-tools/k6-proofs/scripts/candidate-run-result-contract.mjs
-tools/k6-proofs/scripts/check-manifest-scenarios.mjs
-tools/k6-proofs/scripts/check-proof-row-manifests.mjs
-tools/k6-proofs/scripts/check-scenario-alignment.mjs
-tools/k6-proofs/scripts/list-runnable-rows.mjs
-tools/k6-proofs/scripts/run-proofs.sh
-tools/k6-proofs/scripts/validate-candidate-run-result.mjs
-tools/k6-proofs/scripts/__tests__/candidate-run-result.test.mjs
-tools/k6-proofs/scripts/__tests__/continuation-row-contract.test.mjs
-tools/k6-proofs/scripts/__tests__/report-render.test.mjs
-tools/k6-proofs/scripts/__tests__/review-debt.test.mjs
-```
+**No product instrumentation for any of the remedy attributes exists.** This
+change publishes the contract, not a claim that the contract is satisfied.
 
 ---
 
-## 3. Validation
+## 2. Row mapping
 
-### 3.1 Full-suite tally
+### 2a. New cross-cutting remedy rows (4, all `construct-only`)
 
-The repository has no `scripts/test-projects.mjs` and no `package.json`; the
-sanctioned complete k6 proof-script surface documented in
-`tools/k6-proofs/docs/PROOF-RUN-METHOD.md` is `node --test`. No new test runner
-was installed.
+Added only where a contract is genuinely cross-cutting and cannot honestly live
+inside one behavioral row. Each census concern is owned by **exactly one** row,
+and `check-telemetry-contracts.mjs` fails the catalog if a concern is orphaned
+or double-claimed.
+
+| Row | Manifest | Concern | Product instrumentation prerequisite |
+|---|---|---|---|
+| `R-OBS-CONT-PROVENANCE` | `tools/k6-proofs/manifests/r-obs-cont-provenance.json` | `origin-provenance` | **yes** |
+| `R-OBS-PROOF-MARKER` | `tools/k6-proofs/manifests/r-obs-proof-marker.json` | `proof-run-classification` | **yes** |
+| `R-OBS-TERMINAL-OUTCOME` | `tools/k6-proofs/manifests/r-obs-terminal-outcome.json` | `terminal-outcome` | **yes** |
+| `R-OBS-BACKEND-DISPOSITION` | `tools/k6-proofs/manifests/r-obs-backend-disposition.json` | `backend-disposition` | **no — harness-side** |
+
+All four are `scenario.status: construct-only` +
+`liveRunSafety.classification: construct-only` +
+`expectedArtifactClass: construct-only`, so they are rejected by the live-run
+guard, skipped by `run-proofs.sh`, and excluded from `list-runnable-rows.mjs`.
+
+`R-OBS-BACKEND-DISPOSITION` is deliberately the odd one out: it is blocked on
+harness receipt work (out of scope for a contract PR), **not** on OpenClaw.
+Keeping that distinction machine-readable is the point of the
+`productInstrumentationPrerequisite` flag.
+
+### 2b. Existing rows extended (9, contract is intrinsic to the proof)
+
+The workorder named eight rows at minimum. The validator's rule — "a row whose
+required receipts include a telemetry receipt must declare a contract" —
+resolves to eight rows, seven of which overlap the named set; `R-CD-1` is caught
+by the rule and `R-CD-MODEL-TOOL` declares a contract voluntarily because the
+workorder names it (its telemetry receipt is optional, not required). Nine
+total.
+
+| Row | Why the contract is intrinsic | What it can and cannot prove today |
+|---|---|---|
+| `R-CD-1` | required `trace-id` | Behavioral schedule/spawn/return holds. The dispatch cannot be re-identified from telemetry. |
+| `R-CD-2` | required `tempo-trace-json` | Same-trace + `chain.id` topology is the only join available. Not equivalent to identity. |
+| `R-CD-4` | required `trace-id`; claim is *which session* | Tempo drops session identifiers, so the cross-session claim rests entirely on the captured gateway event stream. |
+| `R-CD-CHAINED-DEPTH-2` | required `trace-id` | `chain.id` makes the chain visible; **no span says which hop was which**. |
+| `R-CD-MODEL-TOOL` | optional `trace-or-session-correlation` | Authority is gateway child-session metadata by design; telemetry cannot corroborate it. Separately blocked on `openclaw#1103`. |
+| `R-CD-TOKEN` | required `tempo-trace-json` + `continuation-trace-correlation` | Bracket origin is proven by the **absence** of a typed-tool span — a heuristic until an origin attribute exists. Positive bracket evidence lives only in payload-free Loki `effective-signal` logs, unbound to the trace. |
+| `R-CW-1` | required `trace-id` | Same-trace join only; 8 accepted `continuation.work` spans fleet-wide in 24h. |
+| `R-CW-3` | required `tempo-trace-json` + review | Redaction half **is** telemetry-backed (`reason.hash`, `reason.length` are exported). Provenance half is not. |
+| `R-RC-2` | required `trace-id` | Accept-vs-refuse has no canonical span; the distinction lives only in the structured tool result. |
+
+All nine declare `enforcement: advisory`, `rebindable: false`,
+`passScope: behavioral-only`, `productInstrumentationPrerequisite: true`. Their
+behavioral verdicts are unchanged; the rebind debt is recorded, not enacted.
+
+### 2c. What every changed/new row defines
+
+Enforced by schema and validator, per the workorder's eight requirements:
+
+| Requirement | Field |
+|---|---|
+| expected product attributes/spans | `expectedTelemetry.spans[]` / `.attributes[]` with `emittedByProduct` + `productIssue` |
+| public-safe identity and redaction | `attributes[].publicSafeForm`, `redaction.rule`, `redaction.forbiddenInArtifacts[]` |
+| positive/negative controls | `controls.positive`, `controls.negative` |
+| backend-unavailable disposition | `backendUnavailable.*` (`treatZeroAsAbsence` pinned `false` by schema) |
+| artifact schema | `artifact.schema`, `artifact.requiredFiles[]` |
+| PASS/PARTIAL/FAIL authority | `verdictAuthority.*` incl. `passScope`, `honestLimit` (R-RC-2 only) |
+| manual vs deterministic k6 | `execution.deterministicK6` / `.manual` / `.relationship` |
+| product instrumentation prerequisite | `productInstrumentationPrerequisite`, `prerequisiteRows[]` |
+
+---
+
+## 3. Product prerequisites (owed on `karmaterminal/openclaw`)
+
+Nothing below exists on `6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955`.
+
+### 3a. Accepted continuation entry provenance — `R-OBS-CONT-PROVENANCE`
+
+On `continuation.work` and `continuation.delegate.dispatch`:
+
+| Attribute | Public-safe form | Notes |
+|---|---|---|
+| `continuation.signal.origin` | enum | `typed-tool \| tool-call \| bracket \| post-compaction \| queue-drain` |
+| `continuation.signal.kind` | enum | `work \| delegate \| compaction`, on the **entry** span (today it is only on `continuation.disabled` and compaction-release) |
+| `continuation.origin.run.fingerprint` | salted fingerprint | |
+| `continuation.session.fingerprint` | salted fingerprint | Tempo drops raw session ids by design; the remedy is a stable salted fingerprint, not the raw key |
+| `continuation.turn.fingerprint` | salted fingerprint | No exported span retains a stable turn id today |
+
+`continuation.chain.id` already exists and is retained.
+
+### 3b. Proof-run classification — `R-OBS-PROOF-MARKER`
+
+On every span a proof run causes: `openclaw.proof.run_id` (sha256-16),
+`openclaw.proof.row_id` (enum over the committed catalog),
+`openclaw.proof.candidate_sha` (40-char), `openclaw.proof.harness_ref`
+(40-char docs commit), `openclaw.proof.synthetic` (boolean).
+
+The harness already knows all four values
+(`harness-provenance.json`, `runner-metadata.json`); what is missing is a path
+for them to reach the product's exported spans.
+
+### 3c. Canonical terminal outcomes — `R-OBS-TERMINAL-OUTCOME`
+
+New span `continuation.finalization`, plus on terminal spans:
+`continuation.outcome` (closed enum: `delivered | superseded | folded |
+evaporated | rejected-cap | rejected-threshold | zero-payload |
+finalization-failed | interrupted | disabled`),
+`continuation.outcome.reason` (closed enum), `continuation.payload.bytes`
+(integer — the canonical zero-payload signal), `continuation.finalization.status`.
+
+### 3d. Backend disposition — `R-OBS-BACKEND-DISPOSITION` (harness-side, not product)
+
+`telemetry.backend.status` (`complete | partial | unavailable | capped |
+unknown`), `total_blocks`, `completed_jobs`, `result_capped`,
+`window_start_utc`, `query_fingerprint`, written to `backend-status.json` for
+every telemetry interaction — including healthy ones, so an absent file is a
+defect rather than an assumption of health.
+
+---
+
+## 4. Enforcement added
+
+### 4a. Catalog time — `tools/k6-proofs/scripts/check-telemetry-contracts.mjs`
+
+Wired into `CATALOG_CHECKS` in `run-proofs.sh`, so a defect fails once as
+harness infrastructure (`harness-control-receipt.json`, exit 78, zero rows
+executed) and never synthesizes a row verdict.
+
+- A row whose `liveRunSafety.requiredReceipts` include `trace-id`,
+  `tempo-trace-json`, `continuation-trace-correlation`,
+  `trace-or-session-correlation`, or `reason-telemetry-redaction-review` **must**
+  declare a `telemetryContract`.
+- **`rebindable: true` requires all four identity purposes (origin, session,
+  turn, run) *and* a `proof-run` marker attribute declared
+  `emittedByProduct: true`, and forbids `productInstrumentationPrerequisite`.**
+  This is the "missing origin/session/turn/proof marker cannot become PASS"
+  gate. No committed row can satisfy it today, so no row can declare a
+  telemetry-rebindable PASS.
+- `passScope: behavioral-and-telemetry-rebindable` requires `rebindable: true`.
+- `productInstrumentationPrerequisite: true` requires `rebindable: false` and a
+  non-empty `prerequisiteRows[]` naming existing rows, never itself.
+- Any span/attribute with `emittedByProduct: false` must name a `productIssue`.
+- `backendUnavailable.disposition ∈ {PARTIAL-candidate, FAIL-candidate}` and
+  `treatZeroAsAbsence` must be `false`.
+- `census.{issue,reportCommit,productBasis}` must equal the exact census values.
+- Each remedy concern owned by exactly one row.
+
+### 4b. Run time — `tools/k6-proofs/scripts/postprocess-k6-summary.mjs`
+
+- Emits a `telemetryRebind` block into `row-result.json` for every row with a
+  contract (enforcement, rebindable, passScope, prerequisite rows, backend
+  disposition, unproven rebind receipts), so the debt is durable in the artifact.
+- Withholds a summary-derived `PASS-candidate` when a receipt required by
+  **either** `expectedReceipts[].required` or `liveRunSafety.requiredReceipts` is
+  explicitly reported `missing` (`failureClass: missing-receipt`). This closed a
+  real pre-existing hole: `outcomeFromSummary` returned `PASS-candidate` on a
+  clean check rate even when `failureClass` was already `missing-receipt`. The
+  union matters: `R-CD-1`, `R-CD-4` and `R-CD-CHAINED-DEPTH-2` had drifted, with
+  `trace-id` required in `liveRunSafety.requiredReceipts` and `required: false`
+  in `expectedReceipts`. The three manifests were aligned and the validator now
+  rejects that drift for any telemetry receipt.
+- Withholds a summary-derived `PASS-candidate` when a row with
+  `enforcement: blocking` has a rebind receipt that is not explicitly `present`,
+  **or** when a row claims `rebindable: true` / the rebindable pass scope and its
+  rebind status is not `proven` (`failureClass: telemetry-rebind-unproven`).
+- A row with a signed authoritative receipt (`R-CD-2`) keeps that receipt as its
+  sole verdict authority and is **not** re-judged. `construct-only` and
+  `HONEST-LIMIT-candidate` outcomes are untouched (the gate only fires on
+  `PASS-candidate` from `verdictSource === 'k6-summary'`).
+
+No scenario in the repository emits `proof_receipts` today, so the
+`missing`-receipt gate changes no current live verdict; it removes the future
+possibility. The gate's scope limits are stated in §8.
+
+---
+
+## 5. Files changed
 
 ```
-node --test tools/k6-proofs/scripts/__tests__/*.test.mjs
-  baseline @ fb9d26b1 : 263 pass / 0 fail
-  final    @ HEAD     : 319 pass / 0 fail   (+56)
-
-node --test tools/k6-proofs/tests/*.test.mjs
-  baseline @ fb9d26b1 :  31 pass / 0 fail
-  final    @ HEAD     :  31 pass / 0 fail
+RUNBOOKS/PROOF-CORPUS-METHOD.md                                  (+ 4 rows, + census section)
+tools/k6-proofs/CONTRIBUTING-ROWS.md                             (contract requirement, backend debt rule)
+tools/k6-proofs/docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md       (new — full contract doc)
+tools/k6-proofs/docs/PROOF-RUN-METHOD.md                         (4th validator, contract section)
+tools/k6-proofs/k6-proofs-pipeline.xml                           (4 rows, telemetry-rebind mandate)
+tools/k6-proofs/row-manifest.schema.json                         (telemetryContract + schema truthfulness)
+tools/k6-proofs/scripts/check-telemetry-contracts.mjs            (new — validator)
+tools/k6-proofs/scripts/postprocess-k6-summary.mjs               (telemetryRebind + PASS gate)
+tools/k6-proofs/scripts/run-proofs.sh                            (CATALOG_CHECKS + 1)
+tools/k6-proofs/scripts/__tests__/catalog-root-contract.test.mjs (CHECKS + 1)
+tools/k6-proofs/scripts/__tests__/telemetry-contract.test.mjs    (new — 18 tests)
+tools/k6-proofs/manifests/r-obs-cont-provenance.json             (new)
+tools/k6-proofs/manifests/r-obs-proof-marker.json                (new)
+tools/k6-proofs/manifests/r-obs-terminal-outcome.json            (new)
+tools/k6-proofs/manifests/r-obs-backend-disposition.json         (new)
+tools/k6-proofs/manifests/{r-cd-1,r-cd-2,r-cd-4,r-cd-chained-depth-2,
+  r-cd-model-tool,r-cd-token,r-cw-1,r-cw-3,r-rc-2}.json          (+ telemetryContract)
+output.md                                                        (this report)
 ```
 
-`bash -n` clean. `shellcheck -S warning` reports only the two pre-existing SC2155
-warnings. `git diff --check` clean. `PROOFS/**` diff is empty (0 files).
+The schema also stopped lying: `invocation`, `seatClassExpectation`,
+`sourceContract`, `liveRunSafety.requiresHumanConfirmation` and
+`liveRunSafety.requiresDisposableSession` are all used by shipped manifests but
+were absent from a schema declaring `additionalProperties: false`.
 
-### 3.2 Exact commands
+---
+
+## 6. Validation
+
+### 6a. Baseline (origin/main `ead47a61`, before any change)
 
 ```bash
-# full k6 proof-script surface (completion signal)
 node --test tools/k6-proofs/scripts/__tests__/*.test.mjs
-node --test tools/k6-proofs/tests/*.test.mjs
-
-# targeted new suites
-node --test tools/k6-proofs/scripts/__tests__/catalog-root-contract.test.mjs
-node --test tools/k6-proofs/scripts/__tests__/harness-provenance-runner.test.mjs
-
-# targeted changed suites
-node --test tools/k6-proofs/scripts/__tests__/candidate-run-result.test.mjs
-node --test tools/k6-proofs/scripts/__tests__/continuation-row-contract.test.mjs
-node --test tools/k6-proofs/scripts/__tests__/report-render.test.mjs
-node --test tools/k6-proofs/scripts/__tests__/review-debt.test.mjs
-node --test tools/k6-proofs/scripts/__tests__/check-proof-row-manifests.test.mjs
-
-# #495 parity, by hand, against the real catalog
-for s in check-manifest-scenarios check-scenario-alignment check-proof-row-manifests list-runnable-rows; do
-  diff <(node tools/k6-proofs/scripts/$s.mjs 2>&1; echo "exit=$?") \
-       <(cd tools/k6-proofs && node scripts/$s.mjs 2>&1; echo "exit=$?") && echo "$s IDENTICAL"
-done
-
-# runner smoke, from both directories
-./tools/k6-proofs/scripts/run-proofs.sh --dry-run --out-dir /tmp/p86-dry all <40-hex>
-(cd tools/k6-proofs && ./scripts/run-proofs.sh --dry-run --out-dir /tmp/p86-dry2 all <40-hex>)
-
-bash -n tools/k6-proofs/scripts/run-proofs.sh
-shellcheck -S warning tools/k6-proofs/scripts/run-proofs.sh   # only pre-existing SC2155
-python3 -c "import yaml; yaml.safe_load(open('.github/workflows/project81-k6-proof.yml'))"
-git --no-pager diff --check
 ```
 
-### 3.3 Defect reproduction, before and after
+**320 tests · 319 pass · 1 fail.**
 
-**#495 — empirically confirmed, not assumed.** The pre-change validator was
-extracted from the base commit and run against the same fixture:
+The single failure is `candidate envelope is outside and invisible to canonical
+corpus validation` (`candidate-run-result.test.mjs:474`). It fails because
+`validate-corpus.mjs --index` rejects the committed
+`PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/proofs-manifest.json`:
+
+```
+schema-manifest            ✗ expected openclaw.proofs.manifest.v1, got "openclaw.k6.proofs-manifest.v1"
+schema-manifest-capture-sha ✗ missing capture_sha
+schema-manifest-rows       ✗ rows[] missing or not an array
+```
+
+**Classification: pre-existing on `origin/main`, out of this lane.** It is a
+corpus/manifest-schema divergence in published `PROOFS/**` bytes. Repairing it
+would require editing the published corpus manifest or `validate-corpus.mjs`
+verdict schema, both of which this workorder explicitly forbids ("preserve the
+current never-regress corpus/index rules", "no corpus verdict publication or
+INDEX movement"). Not repaired here.
+
+### 6b. After the change
 
 ```bash
-git show fb9d26b1:tools/k6-proofs/scripts/check-manifest-scenarios.mjs > /tmp/old.mjs
-# from the repository root:        "check passed: 1 manifests; 1 scenario files."
-# from tools/k6-proofs:            ENOENT crash (doubled prefix)
-# new script from tools/k6-proofs: identical to the repository-root run
+node --test tools/k6-proofs/scripts/__tests__/*.test.mjs
 ```
 
-**#496 — the exact Cael failure mode now fails closed.** Firing with the stale
-detached runner commit while `HEAD` is current docs `main`:
+**344 tests · 343 pass · 1 fail** — the same single pre-existing failure, byte
+for byte. Net **+24 tests, all passing**; zero new failures; zero previously
+passing tests broken.
 
-```
-$ ./scripts/run-proofs.sh --live --docs-ref 25d330ef558eefce124fe3b5a787d426e6adf772 ... ; echo $?
-78
-{"stage":"harness-identity",
- "reason":"harness checkout does not match the approved docs ref; refusing to fire a stale or mixed harness",
- "detail":{"check":"head-equals-docs-ref",
-           "head":"fb9d26b10a0fe90f24146015d3800efc60a3fa75",
-           "approved":"25d330ef558eefce124fe3b5a787d426e6adf772"},
- "rowsExecuted":0,"rowVerdictsSynthesized":false,"productVerdict":null}
+### 6c. Focused
+
+```bash
+node --test tools/k6-proofs/scripts/__tests__/telemetry-contract.test.mjs
+# 24 tests · 24 pass · 0 fail
 ```
 
-### 3.4 Adversarial review
+### 6d. Catalog validators
 
-The branch went through **seven** rounds with an independent reviewer before it
-was declared shippable. Findings that were real defects, all fixed and each
-pinned by a regression test:
+```bash
+node tools/k6-proofs/scripts/check-manifest-scenarios.mjs      # 42 manifests; 35 scenario files — passed
+node tools/k6-proofs/scripts/check-scenario-alignment.mjs      # ok:true
+node tools/k6-proofs/scripts/check-proof-row-manifests.mjs     # Missing manifests: 0 — passed
+node tools/k6-proofs/scripts/check-telemetry-contracts.mjs     # 13 contracts; 9 telemetry-required; 0 rebindable — passed
+node tools/k6-proofs/scripts/list-runnable-rows.mjs --all      # 36 rows; the 4 construct-only remedy rows correctly absent
+```
 
-| # | Defect | Round |
-| --- | --- | --- |
-| 1 | Catalog validators executed with the gateway token in their environment, and their raw output was published | 1 |
-| 2 | Digests were frozen at startup but k6 read the ambient worktree (TOCTOU) | 1 |
-| 3 | `git` honours `refs/replace/*`, so `rev-parse` and `cat-file` could describe different trees | 1 |
-| 4 | Failure receipts echoed rejected operator input verbatim | 1 |
-| 5 | The consumer envelope contract accepted unknown keys, so a sidecar could smuggle extra material past review | 1 |
-| 6 | The env-isolation test was vacuous; a denylist could not stop unrelated credentials | 2 |
-| 7 | Only the manifest and top-level scenario were re-hashed — a scenario's `lib/` imports were unguarded | 2 |
-| 8 | A missing file made the digest check abort under `set -e` with no control receipt and no exit 78 | 2 |
-| 9 | A pre-execution failure left a provisional run directory and could let the interruption writer contradict `rowsExecuted:0` | 2 |
-| 10 | `git status` is not byte integrity: `assume-unchanged` / `skip-worktree` hid a modified import | 3 |
-| 11 | The catalog was parsed before it was validated, so a malformed manifest aborted with no receipt | 3 |
-| 12 | `RUN_ID` was second-granular, so the provisional purge could delete a concurrent run's evidence | 3 |
-| 13 | `rowsExecuted:0` was hard-coded and false once a later row failed | 3 |
-| 14 | `git hash-object` applies clean filters by default — a filter could forge the approved blob hash and execute during the identity stage | 4 |
-| 15 | Bracketing hash assertions only narrow a check-then-use window; harness code had to execute from an immutable snapshot | 4 |
-| 16 | Unvalidated candidate input reached artifact paths and metadata | 4 |
-| 17 | `rowsExecuted` counted pre-dispatch gates that never dispatched | 4 |
-| 18 | Bash reads its own source incrementally, so the executing runner had to be the snapshot's copy | 5 |
-| 19 | `PROOFS` was symlinked unverified, and static rows read it — a clean harness could emit `PASS-candidate` from dirty corpus bytes | 5 |
-| 20 | The snapshot handoff was spoofable by setting the handoff variables and skipping `exec` | 6 |
-| 21 | The bootstrap invoked `openclaw` and resolved session state with credentials present | 6 |
-| 22 | **A rejected handoff `rm -rf`'d the directory it claimed** — introduced by the fix for #20 | 7 |
+### 6e. Dry catalog selection — affected rows only, no live dispatch
 
-Defect 22 was the most dangerous in the set and was introduced by this work, not
-inherited; it is now covered by a test asserting that an unrelated bystander
-directory claimed as a snapshot survives with its contents intact.
+```bash
+cd tools/k6-proofs
+K6_PROOF_OUT_DIR=/tmp/p81-remedy-dryrun \
+OPENCLAW_CANDIDATE_SHA=6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955 \
+  ./scripts/run-proofs.sh --dry-run \
+  R-CD-1,R-CD-2,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-MODEL-TOOL,R-CD-TOKEN,R-CW-1,R-CW-3,R-RC-2,\
+R-OBS-CONT-PROVENANCE,R-OBS-PROOF-MARKER,R-OBS-TERMINAL-OUTCOME,R-OBS-BACKEND-DISPOSITION \
+  6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955
+# exit 0
+```
 
-### 3.5 New test coverage
+- Catalog preflight ran all four validators including the new one.
+- 9 runnable rows: `DRY RUN: Would execute k6 run …` — nothing fired.
+- 4 construct-only rows: `SKIPPED: Scenario status is construct-only (not runnable).`
+- 0 live gateway connections, 0 product dispatches, 0 corpus writes.
 
-`catalog-root-contract.test.mjs` (6 tests) — all four catalog readers must
-produce byte-identical stdout, stderr and exit status from the repository root,
-from `tools/k6-proofs`, and from `tools/k6-proofs/scripts`, on both the passing
-and a genuine-defect path; `--repo-root` and `OPENCLAW_PROOFS_REPO_ROOT`
-overrides; fail-closed contract error outside any harness; decoy directories
-containing only `notes`, only `scenarios`, or only `manifests`; and an assertion
-that no output ever contains `tools/k6-proofs/tools/k6-proofs`.
+### 6f. Independent review
 
-`harness-provenance-runner.test.mjs` (28 tests) — missing/malformed/mismatched
-docs refs; the env equivalent; index-hidden (`assume-unchanged`,
-`skip-worktree`) mutation of a shared import; a mutated proof-corpus evidence
-file; an unrecorded row; a catalog-preflight failure; an unvalidated candidate
-SHA; three spoofed-handoff shapes, each also asserting the claimed directory
-survives; mid-matrix mutation before capture and between capture and k6, the
-latter asserting the provisional directory is purged; `env -i` isolation proved
-by a probe validator; log scrubbing proved by that probe printing its own working
-directory; runner cwd-independence; a `git replace` decoy; direct observation
-that k6 executes from the snapshot with the approved scenario bytes; and an
-approved run's full provenance receipt.
+A read-only `code-review` agent reviewed the full `origin/main...HEAD` diff
+against the census brief, targeting validator loopholes, post-processor
+ordering, schema/validator/doc consistency, and any implication that the product
+instrumentation exists. It reported six findings; **all six were accepted and
+fixed** in the third commit on this branch. Dispositions:
 
-Existing suites that would otherwise have started passing for the wrong reason
-were repaired rather than left green: the `report-render` and `review-debt`
-envelope-consumption fixtures now carry the complete canonical envelope shape
-and valid harness identity. The report fixture proves the accepted sidecar path
-by suppressing raw-only timing output, while the debt fixture directly verifies
-the acceptance predicate before checking that the raw sibling is not counted.
+| # | Severity | Finding | Disposition |
+|---|---|---|---|
+| 1 | Critical | `check-telemetry-contracts.mjs` CLI entrypoint guard compared `import.meta.url` (realpath-resolved) against a non-realpath `process.argv[1]`, so any symlinked invocation path — a symlinked `TMPDIR` snapshot root, an operator-supplied `OPENCLAW_PROOFS_ORIGIN_ROOT` — made the validator a **silent exit-0 no-op inside the catalog preflight**, while the other three validators still ran and the preflight looked green. Reproduced. | **Fixed.** `invokedAsCli()` now compares against `realpathSync(process.argv[1])` with a non-realpath fallback. New regression test `the validator still runs when it is reached through a symlinked path` runs the validator through a symlinked scripts dir and asserts exit 1 on a stripped contract. |
+| 2 | High | `enforcement` was author-chosen and independent of `rebindable`, so a manifest could declare `rebindable:true` + `passScope:behavioral-and-telemetry-rebindable` with `enforcement:advisory` and no `rebindReceipts`, and the post-processor would publish a full `PASS-candidate` carrying `status:"unproven"` — a self-contradictory artifact that defeated the documented gate. Reproduced. | **Fixed, both layers.** Validator: a telemetry-rebindable claim now requires `enforcement:blocking` **and** a non-empty `rebindReceipts[]`. Post-processor: withholds PASS whenever a rebindable claim's status is not `proven`, regardless of `enforcement`. Two new tests. |
+| 3 | High | The new missing-receipt downgrade read `expectedReceipts[].required`, while the rule that *pulls a row into the contract* reads `liveRunSafety.requiredReceipts`. Three shipped rows disagreed on exactly the receipt that scoped them in — `R-CD-1`, `R-CD-4`, `R-CD-CHAINED-DEPTH-2` all had `trace-id` required in `liveRunSafety` and `required:false` in `expectedReceipts` — so a row could report its required telemetry receipt missing and still publish a clean PASS. Reproduced. (The reviewer also named `R-CD-MODEL-TOOL`; verified **not** applicable — its telemetry receipt is in neither required list.) | **Fixed three ways.** Post-processor takes the **union** of both lists. Validator now fails any telemetry receipt whose required-ness disagrees between the lists. The three drifted manifests were aligned to `required:true`. Two new tests, one of which pins the whole committed catalog. |
+| 4 | Medium | `enforcement:blocking` is unreachable on every committed row (the four blocking rows are `construct-only`, so their outcome short-circuits before any PASS), and receipt "proven" status is self-asserted by the same k6 summary that produced the PASS. | **Accepted; documented rather than redesigned.** `CONTINUATION-TELEMETRY-REMEDY-ROWS.md` now carries an explicit "Scope and known limits of that gate" section stating that the blocking path is a forward guarantee exercised by tests, not a currently active downgrade, and that receipt corroboration against `artifact.requiredFiles` / the Tempo projection / backend completeness keys is owed alongside the product instrumentation. Redesigning the harness receipt model is out of scope for a contract PR. |
+| 5 | Medium | `run-proofs.sh` never calls `postprocess-k6-summary.mjs` — the row-list runner builds its own `run-result.json` inline with `jq`. The `CONTRIBUTING-ROWS.md` edit claimed every run dir carries `telemetryRebind`, which the runner cannot produce. Verified: `grep -c postprocess-k6-summary run-proofs.sh` → 0. | **Fixed (honesty).** The `CONTRIBUTING-ROWS.md` claim is now scoped to the summary-driven path, and the remedy doc names the runner gap explicitly as follow-up work. |
+| 6 | Low | `AUDITED_ROWS` in the test omitted `R-CD-1`, so one of the nine bound rows was not pinned by the census-binding and eight-definitions assertions. | **Fixed.** `R-CD-1` added; the test now covers all nine. |
+
+Categories the reviewer found clean: corpus/verdict/instrumentation-implication
+(no `PROOFS/**` or `INDEX.json` byte touched, all four remedy rows guard-rejected
+and excluded from `list-runnable-rows.mjs`, every non-emitted attribute carries a
+`productIssue`, every doc carries a "does not exist yet" banner); secrets
+(validator reads no `process.env`, `telemetryRebind` is composed solely of
+manifest-derived fields, no new artifact write path); the `R-CD-2` authoritative
+receipt path (genuinely untouched — `verdictSource` is set before the gate reads
+it); and `validateTelemetryContract` robustness against null/partial inputs.
 
 ---
 
-## 4. Uncertainties and agreed follow-ups
+## 7. Constraints honoured
 
-The reviewer explicitly confirmed all three of the following are correctly
-classified as follow-ups rather than blockers on this branch.
+| Constraint | Status |
+|---|---|
+| No OpenClaw product edits | ✅ nothing outside this repo touched |
+| No live proofs | ✅ dry-run only; construct-only rows are guard-rejected |
+| No fleet mutation | ✅ no gateway, no seat, no config |
+| No corpus verdict publication | ✅ zero `PROOFS/**` bytes changed |
+| No INDEX movement | ✅ `PROOFS/INDEX.json` untouched |
+| Never-regress corpus/index rules preserved | ✅ existing rows keep their behavioral verdict authority; contracts are `advisory` |
+| Severable from k6 library consolidation | ✅ no file, code, or dependency from `249f7dc9` |
+| Publication convention for future product PRs | ✅ `PR-NNNNNN/PROOFS/<FULL_SHA>/`, documented in all four remedy manifests, the remedy doc, and the corpus runbook |
 
-1. **Committed symlinks, gitlinks and executable-mode changes are not type- or
-   mode-compared.** The verification compares blob content. No such entries
-   exist in the verified trees today, and they fail closed if introduced, but a
-   mode-only change would not be detected. Recommend a follow-up issue.
+---
 
-2. **`analysis/project86-proof-issue-plan.corrected.json` was deliberately not
-   rewritten.** Its 23 emitted commands still read
-   `./scripts/run-proofs.sh --live <ROW> <FINAL_CANDIDATE_SHA>`. Those commands
-   now **fail closed** (exit 78, `docs-ref-shape`) unless the operator exports
-   `OPENCLAW_PROOFS_DOCS_REF` — the correct safety posture, but it means a matrix
-   generated verbatim from that plan will refuse to fire until the ref is
-   supplied. I left it alone because that file is guarded by
-   `apply-project86-plan-corrections.mjs` plus its idempotence and
-   lock-serialization tests, and because adding a `<DOCS_REF>` placeholder would
-   collide with the separate R-CD-2 runtime-selection correction the workorder
-   excludes from this branch. Recommend a follow-up issue.
+## 8. Uncertainties and follow-ups
 
-3. **Inherited-token trust boundary.** The bootstrap phase reads no credential
-   and invokes no product tooling, but if the caller has already exported
-   `OPENCLAW_GATEWAY_TOKEN` then that value is in the bootstrap process's
-   environment by construction and cannot be dropped from inside the same
-   script. The reviewer classified this as a trust-boundary hardening item, not
-   a demonstrated receipt bypass.
+1. **Three limits of the run-time gate are stated, not hidden** (review findings
+   4 and 5). The gate lives on the summary-driven `postprocess-k6-summary.mjs`
+   path; the row-list runner `run-proofs.sh` builds its own `run-result.json`
+   inline and does not yet carry `telemetryRebind`. No committed row can trigger
+   the blocking downgrade today, because the four blocking rows are
+   `construct-only` and short-circuit before any PASS exists — the blocking path
+   is a forward guarantee exercised by tests. And receipt `present` status is
+   self-asserted by the row's own k6 summary, with no cross-check yet against
+   `artifact.requiredFiles`, the Tempo projection, or the backend completeness
+   keys. All three are recorded in
+   `tools/k6-proofs/docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md` under "Scope and
+   known limits of that gate". Wiring the contract into the runner's verdict
+   policy (near the existing `R-RC-2` policy at `run-proofs.sh:1212-1229`) is the
+   natural follow-up.
+2. **`enforcement: advisory` on the nine existing rows is a deliberate choice.**
+   Flipping them to `blocking` today would downgrade live PASS rows to
+   `PARTIAL-candidate` fleet-wide — a corpus-policy change that needs cohort
+   ratification and is outside a contract PR. The contract records the debt and
+   names the flip condition (prerequisite rows landing). If the cohort wants the
+   downgrade now, it is a one-word change per manifest.
+3. **The pre-existing `validate-corpus --index` red (§6a) is still red.** It is a
+   published-corpus schema divergence, not this lane's.
+4. **`R-OBS-BACKEND-DISPOSITION` is implementable today** (Tempo already returns
+   `totalBlocks` / `completedJobs`), but implementing the harness receipt is
+   harness work, not contract work, so the row ships `construct-only`. It is the
+   cheapest next step and the only remedy row not gated on OpenClaw.
+5. **No `.github/PULL_REQUEST_TEMPLATE` exists in this repository.** The PR body
+   follows the repository's documented PR contract in
+   `tools/k6-proofs/CONTRIBUTING-ROWS.md` § "PR contract" instead. Flagged, not
+   silently substituted.
+6. **Salt management for the identity fingerprints is unspecified.** The
+   contracts state a per-fleet salt supplied at runtime and never committed;
+   where it lives and how it rotates is an OpenClaw implementation decision, not
+   a catalog one.
+7. **`publicSafeForm: "enum"` is used for a literal ISO-8601 instant** in
+   `R-OBS-BACKEND-DISPOSITION` (`telemetry.backend.window_start_utc`), meaning
+   "fixed machine-parseable value, not prose". If a future contract needs more
+   temporal forms, the enum should gain an explicit `timestamp` member.
 
-Other notes:
+---
 
-4. **Pre-existing candidate artifacts** produced before this change carry no
-   `docsRef`/digests and no `row-scenario.js`. Their sidecar envelopes will no
-   longer suppress raw review debt and will fall back to the raw
-   `run-result.json` path. That is the intended fail-closed behaviour — they
-   genuinely cannot prove which harness contract produced them — but reviewers
-   should expect existing bundles to reappear as review debt rather than
-   silently as ready-for-human-review.
+## 9. Exact commands to reproduce
 
-5. **New hard requirements for a live run**, each of which fails closed with a
-   control receipt: an approved `--docs-ref`; an exact 40-hex candidate SHA; a
-   public-safe `<owner>/<repo>` identity (set `OPENCLAW_PROOFS_DOCS_REPOSITORY`
-   when the clone has no public remote); and every selected row being recorded at
-   the approved ref. A live matrix also needs roughly 400MB of `TMPDIR` space for
-   the snapshot, which is removed on exit.
+```bash
+git clone https://github.com/karmaterminal/karmaterminal-openclaw-docs.git
+cd karmaterminal-openclaw-docs
+git checkout codeagent/continuation-telemetry-remedy-rows
 
-6. **Not exercised end-to-end against a real gateway.** The workorder forbids
-   firing a live row. The R-CD-2 fixture drives the full pipeline — k6 → evidence
-   extraction → trace collection → resolver → sanitizer → candidate envelope →
-   metrics → report — but against a stubbed `k6` and a local HTTP endpoint.
+# catalog
+node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
+node tools/k6-proofs/scripts/check-scenario-alignment.mjs
+node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
+node tools/k6-proofs/scripts/check-telemetry-contracts.mjs
+node tools/k6-proofs/scripts/list-runnable-rows.mjs --all
 
-7. **`shellcheck -S warning`** still reports two pre-existing SC2155 warnings in
-   `run-proofs.sh`. They are untouched by this change and out of scope.
+# focused
+node --test tools/k6-proofs/scripts/__tests__/telemetry-contract.test.mjs
+
+# full sanctioned docs harness suite
+node --test tools/k6-proofs/scripts/__tests__/*.test.mjs
+
+# dry catalog selection, no live dispatch
+cd tools/k6-proofs
+K6_PROOF_OUT_DIR=/tmp/p81-remedy-dryrun \
+OPENCLAW_CANDIDATE_SHA=6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955 \
+  ./scripts/run-proofs.sh --dry-run R-CD-1,R-CD-2,R-CD-4,R-CD-CHAINED-DEPTH-2,R-CD-MODEL-TOOL,R-CD-TOKEN,R-CW-1,R-CW-3,R-RC-2,R-OBS-CONT-PROVENANCE,R-OBS-PROOF-MARKER,R-OBS-TERMINAL-OUTCOME,R-OBS-BACKEND-DISPOSITION 6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955
+```

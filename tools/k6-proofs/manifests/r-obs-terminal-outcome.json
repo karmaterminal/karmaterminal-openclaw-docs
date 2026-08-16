@@ -1,0 +1,226 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-OBS-TERMINAL-OUTCOME",
+  "issue": 1254,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "offline",
+  "toolSurface": "mixed",
+  "mutates": false,
+  "timeoutSeconds": 300,
+  "scenario": {
+    "status": "construct-only",
+    "name": "r-obs-terminal-outcome",
+    "description": "Continuation and finalization terminate into a canonical outcome enum on a span, replacing the log-string heuristics that are currently the only available signal for zero-payload and finalization failure.",
+    "notes": "Construct-only. On the exact product basis 6b09b1db there is no canonical zero-payload or finalization-failure span. The census counted 147 'empty payload' and 115 'finalization failed' Loki lines in 24h (12,722 and 1,664 in 7d) and recorded explicitly that these strings are not source-owned telemetry enums and must not be treated as exact failure counters.",
+    "registryNotes": "Cross-cutting instrumentation contract. R-CW-1, R-CW-3, R-CD-2, R-CD-4, R-CD-CHAINED-DEPTH-2 and R-RC-2 all assert a terminal condition today through sentinels and prose; none of them can define the product's canonical outcome vocabulary on its own."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "remedyConcern": "terminal-outcome",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "Zero-payload and finalization comparisons in the census are log heuristics only. continuation.queue.drain is emitted for empty drains (586 in 24h, 32,284 in 7d), so span presence is an instrumentation footprint rather than an outcome."
+    },
+    "enforcement": "blocking",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": ["R-OBS-CONT-PROVENANCE", "R-OBS-BACKEND-DISPOSITION"],
+    "rebindReceipts": [
+      "canonical-outcome-attribute",
+      "heuristic-string-not-authoritative",
+      "outcome-covers-every-terminal-span",
+      "backend-completeness-receipt"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.work.fire",
+          "role": "terminal-outcome",
+          "emittedByProduct": true,
+          "notes": "Exists; reports that a fire happened, not how it ended."
+        },
+        {
+          "name": "continuation.delegate.fire",
+          "role": "terminal-outcome",
+          "emittedByProduct": true,
+          "notes": "Exists; reports that a fire happened, not how it ended."
+        },
+        {
+          "name": "continuation.compaction.released",
+          "role": "compaction",
+          "emittedByProduct": true,
+          "notes": "Exists and already carries signal.kind."
+        },
+        {
+          "name": "continuation.finalization",
+          "role": "terminal-outcome",
+          "emittedByProduct": false,
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "New span. Today finalization outcome exists only as a log string."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.outcome",
+          "purpose": "terminal-outcome",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Closed enum: delivered | superseded | folded | evaporated | rejected-cap | rejected-threshold | zero-payload | finalization-failed | interrupted | disabled."
+        },
+        {
+          "key": "continuation.outcome.reason",
+          "purpose": "terminal-outcome",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Closed reason enum bound to the outcome value; free prose is not admissible."
+        },
+        {
+          "key": "continuation.payload.bytes",
+          "purpose": "terminal-outcome",
+          "emittedByProduct": false,
+          "publicSafeForm": "integer",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Canonical zero-payload signal: a size, not a matched log string. Byte count only; never the payload."
+        },
+        {
+          "key": "continuation.finalization.status",
+          "purpose": "terminal-outcome",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "succeeded | failed | skipped, on the finalization span."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Carried from R-OBS-CONT-PROVENANCE so a terminal outcome can be bound back to the entry that caused it."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Outcome and reason are closed enums; payload evidence is a byte count. No payload body, message text, error text, stack trace, or matched log line enters a span attribute or a committed artifact.",
+      "forbiddenInArtifacts": [
+        "payload body",
+        "message text",
+        "error text",
+        "stack trace",
+        "raw log line",
+        "prompt body"
+      ]
+    },
+    "controls": {
+      "positive": "Deliberately induce one zero-payload termination and one superseded fold in a bounded window. Each must produce exactly one terminal span carrying the matching canonical outcome value, and continuation.payload.bytes must be 0 for the zero-payload case.",
+      "negative": "A healthy delivered continuation must not carry a zero-payload or finalization-failed outcome, and an empty continuation.queue.drain must not produce a terminal outcome at all. Log lines matching 'empty payload' or 'finalization failed' with no corresponding canonical outcome attribute must not satisfy any receipt: heuristic-string-only evidence is PARTIAL, never PASS.",
+      "notes": "The negative control is the point of the row. It makes the string heuristic explicitly non-authoritative rather than quietly load-bearing."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": ["totalBlocks", "completedJobs", "inspectedBytes", "tempoApiStatus"],
+      "rebindKeys": [
+        "candidate_sha",
+        "proof_run_id",
+        "row_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.origin.run.fingerprint"
+      ],
+      "notes": "Zero terminal-outcome spans from a degraded backend is not zero terminations. Loki degradation is separately dispositioned because the heuristic strings live there."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.continuation-terminal-outcome-receipt.v1",
+      "requiredFiles": [
+        "EVIDENCE.md",
+        "row-result.json",
+        "continuation-terminal-outcome-receipt.json",
+        "tempo-trace.json",
+        "backend-status.json"
+      ],
+      "notes": "The receipt tabulates each terminal span with its canonical outcome, its payload byte count, and the entry run fingerprint it terminates, plus the count of heuristic log lines that had no canonical counterpart."
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "Every terminal span in the bounded window carries a canonical outcome from the closed enum, both positive controls produce their expected outcome value, the negative controls stay clean, no receipt is satisfied by a log string alone, and the backend receipt is complete.",
+      "partial": "The canonical attributes are absent, only partially applied, or the backend receipt is incomplete. Log-string counts may be reported as context but never as an outcome tally.",
+      "fail": "A terminal span reports an outcome contradicted by the observed behavior, or a delivered continuation is labelled zero-payload or finalization-failed."
+    },
+    "execution": {
+      "deterministicK6": "A deterministic k6 row induces the two positive-control terminations with a runner-owned nonce and asserts the canonical outcome attributes on the exported terminal spans.",
+      "manual": "Manual review can currently only count log strings, which the census bounded as heuristics; it cannot distinguish a genuine zero-payload termination from an unrelated line that happens to match.",
+      "relationship": "Deterministic k6 is the verdict authority once the enum exists. Manual log counts stay context-only and may never be folded as an outcome count."
+    }
+  },
+  "expectedReceipts": [
+    {
+      "name": "canonical-outcome-attribute",
+      "required": true,
+      "description": "Every terminal continuation/finalization span carries continuation.outcome from the closed enum"
+    },
+    {
+      "name": "zero-payload-canonical-signal",
+      "required": true,
+      "description": "Zero-payload termination is proven by continuation.payload.bytes=0 with the matching outcome value, not by a log string"
+    },
+    {
+      "name": "heuristic-string-not-authoritative",
+      "required": true,
+      "description": "Log lines matching 'empty payload' or 'finalization failed' without a canonical outcome attribute satisfy no receipt and are reported as unmatched heuristics"
+    },
+    {
+      "name": "outcome-covers-every-terminal-span",
+      "required": true,
+      "description": "No terminal span in the bounded window is missing an outcome value, and empty queue drains produce none"
+    },
+    {
+      "name": "outcome-binds-to-entry",
+      "required": true,
+      "description": "Each terminal outcome carries the run fingerprint of the accepted entry it terminates"
+    },
+    {
+      "name": "backend-completeness-receipt",
+      "required": true,
+      "description": "Backend response carries the declared completeness keys for both the trace and log queries"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-OBS-TERMINAL-OUTCOME",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Construct-only remedy contract. Until it lands, any zero-payload or finalization-failure figure in a proof artifact must be labelled a log heuristic with the census bound attached."
+  },
+  "liveRunSafety": {
+    "classification": "construct-only",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "construct-only",
+    "requiredReceipts": [
+      "canonical-outcome-attribute",
+      "zero-payload-canonical-signal",
+      "heuristic-string-not-authoritative",
+      "outcome-covers-every-terminal-span",
+      "outcome-binds-to-entry",
+      "backend-completeness-receipt"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Construct-only rows are rejected by the live-run guard. Publication path for a future product PR that lands the instrumentation is PR-NNNNNN/PROOFS/<FULL_SHA>/."
+  }
+}

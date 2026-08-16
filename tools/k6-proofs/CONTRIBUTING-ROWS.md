@@ -54,6 +54,19 @@ into `PROOFS/<sha>/` without back-and-forth.
    `expectedArtifactClass`, `requiredReceipts`, and `foldRequiresReview:true`.
    `OPENCLAW_SESSION_KEY` must be explicit when the row mutates/wakes a session; do
    not rely on the `main` fallback for live continuation rows.
+5. **If any required receipt is a telemetry receipt** (`trace-id`,
+   `tempo-trace-json`, `continuation-trace-correlation`,
+   `trace-or-session-correlation`, `reason-telemetry-redaction-review`), the
+   manifest must also declare a `telemetryContract` block. See
+   [`docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md`](docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md)
+   for what it must define and what the validator refuses. Verify with:
+   ```bash
+   node tools/k6-proofs/scripts/check-telemetry-contracts.mjs
+   ```
+   A row may only claim `rebindable:true` when origin, session, turn and run
+   identity plus the proof-run marker are all declared as emitted by the
+   product. None of them are today (`karmaterminal/openclaw#1254`), so every
+   committed row is `behavioral-only`.
 
 ## Running the row
 
@@ -105,9 +118,22 @@ Every `PROOFS/<sha>/<row>/<seat>/k6-run-<ts>/` directory must contain:
   only if the row genuinely captured no frames; note the absence in EVIDENCE.md.
 - `row-result.json` — normalised outcome (`PASS-candidate` / `PARTIAL-candidate` /
   `FAIL-candidate`, plus `HONEST-LIMIT-candidate` only for `R-RC-2` when a structured
-  receipt proves below-threshold `request_compaction` refusal).
+  receipt proves below-threshold `request_compaction` refusal). When the artifact
+  comes from the summary-driven path (`postprocess-k6-summary.mjs`) and the row
+  declares a `telemetryContract`, this file also carries a `telemetryRebind`
+  block recording whether the row's rebind receipts were proven, so the
+  instrumentation debt is durable in the artifact rather than implied. The
+  row-list runner (`scripts/run-proofs.sh`) writes its own `run-result.json`
+  shape and does not yet carry the block — see
+  [`docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md`](docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md).
 - Trace JSON (e.g. Tempo dump) under `artifacts/` if the row produced one. Trace
   evidence is required before a continuation row can be folded as `pass`.
+
+A degraded telemetry backend is receipt debt, not a finding. A Tempo or Loki
+response that answers 200 with zero results and no completeness metadata must be
+recorded as unavailable/partial per the row's
+`telemetryContract.backendUnavailable`, never as evidence that the behavior did
+not happen.
 
 ## EVIDENCE.md must record
 
@@ -162,5 +188,7 @@ Every `PROOFS/<sha>/<row>/<seat>/k6-run-<ts>/` directory must contain:
 ## See also
 
 - [README.md](README.md) — harness usage, design principles, redaction boundary.
+- [`docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md`](docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md) — telemetry rebind contract (`karmaterminal/openclaw#1254`).
 - [`validate-corpus.mjs`](scripts/validate-corpus.mjs) — invariants enforced at fold time.
+- [`check-telemetry-contracts.mjs`](scripts/check-telemetry-contracts.mjs) — telemetry contract invariants enforced at catalog preflight.
 - [Project 81](https://github.com/orgs/karmaterminal/projects/81) — row backlog.

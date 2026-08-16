@@ -44,13 +44,14 @@ node tools/k6-proofs/scripts/list-runnable-rows.mjs --all
 node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs
 node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
+node tools/k6-proofs/scripts/check-telemetry-contracts.mjs
 node tools/k6-proofs/scripts/validate-corpus.mjs --current
 ```
 
-The three catalog validators share one repository-root contract (#495), so the
+The four catalog validators share one repository-root contract (#495), so the
 same commands produce identical results from `tools/k6-proofs` or
 `tools/k6-proofs/scripts`. Use `--repo-root <dir>` or `OPENCLAW_PROOFS_REPO_ROOT`
-to point them at an explicit checkout. `run-proofs.sh` runs all three as a
+to point them at an explicit checkout. `run-proofs.sh` runs all four as a
 preflight; a failure is harness infrastructure (`harness-control-receipt.json`,
 exit 78, zero rows executed), never a per-row product verdict.
 
@@ -172,6 +173,7 @@ Minimum patch shape:
 node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs
 node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
+node tools/k6-proofs/scripts/check-telemetry-contracts.mjs
 node --test tools/k6-proofs/scripts/__tests__/*.test.mjs
 ```
 
@@ -183,7 +185,35 @@ A row must define:
 - evidence JSON shape;
 - PASS / PARTIAL / FAIL criteria, plus the single `R-RC-2` below-threshold HONEST_LIMIT exception;
 - trace/log/report expectations;
+- a `telemetryContract` when any required receipt is a telemetry receipt — see
+  [`CONTINUATION-TELEMETRY-REMEDY-ROWS.md`](CONTINUATION-TELEMETRY-REMEDY-ROWS.md);
 - linked issue and PR.
+
+## Telemetry rebind contract (#1254)
+
+The continuation telemetry census
+(`karmaterminal/openclaw#1254`, report `39803b297bd4786db3971eb82a3a7fd0b29bc643`,
+product basis `6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955`) established that
+accepted continuation entry spans carry no origin, session, turn, or run
+identity; that typed-tool spans and accepted-entry spans cannot be causally
+joined; that proof traffic carries no durable marker and so cannot be excluded
+honestly; that zero-payload and finalization outcomes exist only as log-string
+heuristics; and that a degraded backend answers 200 with zero.
+
+A row can therefore execute real behavior and still be impossible to rebind
+later. Rows record that gap explicitly rather than implying it is absent:
+
+- the manifest's `telemetryContract` names the spans/attributes the claim rests
+  on and whether the product emits them today;
+- `row-result.json` carries a `telemetryRebind` block with the unproven rebind
+  receipts;
+- a row may only claim `rebindable:true` (and the
+  `behavioral-and-telemetry-rebindable` pass scope) when origin, session, turn,
+  run identity and the proof-run marker are all product-emitted. No committed
+  row can today, so every committed row is `behavioral-only`.
+
+Backend degradation is dispositioned by contract: `PARTIAL-candidate` or
+`FAIL-candidate`, never a PASS and never a zero-means-absent finding.
 
 ## Accepted-compaction boundary (#331)
 

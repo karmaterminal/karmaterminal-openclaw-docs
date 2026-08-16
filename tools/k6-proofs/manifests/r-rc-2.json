@@ -67,6 +67,182 @@
     "foldRequiresReview": true,
     "notes": "R-RC-2 is HONEST-LIMIT-candidate when the delegated child reaches request_compaction and receives a structured below-threshold rejection. A true accepted compaction path remains fixture-gated until reviewed tiny-context env/config exists."
   },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "request_compaction is tool-only and has no token form, so this row has 101 typed tool spans in 7d to work with and 254 continuation.compaction.released spans, but no span that records whether a given request was accepted or refused. The accept/refuse distinction — which is the entire row — exists only in the structured tool result captured at run time. signal.kind is exported on compaction-release spans, which is the one place the census found it."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-TERMINAL-OUTCOME",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "trace-id"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "accepted-entry",
+          "emittedByProduct": true,
+          "notes": "The parent delegate that carries the child which calls request_compaction."
+        },
+        {
+          "name": "continuation.delegate.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "Typed request_compaction executions are visible but carry no accepted/rejected outcome."
+        },
+        {
+          "name": "continuation.compaction.released",
+          "role": "compaction",
+          "emittedByProduct": true,
+          "notes": "Post-compaction release. Emitted only on the accepted path, so its absence cannot distinguish a refusal from a missing trace."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and already asserted by the row’s trace-correlation resolver. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "signal.kind",
+          "purpose": "other",
+          "emittedByProduct": true,
+          "publicSafeForm": "enum",
+          "notes": "Exported on compaction-release spans. It is not present on accepted continuation entry spans."
+        },
+        {
+          "key": "continuation.outcome",
+          "purpose": "terminal-outcome",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "rejected-threshold versus delivered is the whole row and has no canonical span today."
+        },
+        {
+          "key": "continuation.compaction.context_ratio",
+          "purpose": "terminal-outcome",
+          "emittedByProduct": false,
+          "publicSafeForm": "integer",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Context usage against threshold as an integer percentage, so a below-threshold refusal is a number rather than a sentence in a child reply."
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Context usage and threshold are published as numbers; the compaction reason is published as text only because it is harness-authored. Session content, summarised history, prompt bodies, session keys, and tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "session history",
+        "compaction summary text",
+        "prompt body",
+        "raw session key",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "The delegated child reaches request_compaction and returns a structured tool result: either an accepted compaction with the post-compaction path observed, or a below-threshold refusal carrying context and threshold values.",
+      "negative": "A child that merely reports a threshold refusal in prose without the structured toolResult receipt does not satisfy the row, and the absence of a compaction-release span is not by itself evidence of refusal.",
+      "notes": "The negative control is what keeps HONEST-LIMIT from degenerating into \"nothing happened\"."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "compaction_request_id"
+      ],
+      "notes": "Because refusal has no canonical span, a degraded backend cannot be used to argue either outcome. Backend-partial caps the row at PARTIAL-candidate and never converts into HONEST-LIMIT."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.proof-row-result.v1",
+      "requiredFiles": [
+        "EVIDENCE.md",
+        "row-result.json",
+        "k6-summary.json",
+        "seat-readiness.json",
+        "artifacts/compaction_accept_request_trace.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "A genuine accepted compaction with the post-compaction path observed and the structured accepted toolResult receipt.",
+      "partial": "Any other incomplete substrate, including a degraded or partial telemetry backend, a missing trace receipt, or a prose-only child report.",
+      "fail": "The structured receipt contradicts the observed path, or request_compaction is never reached by the child.",
+      "honestLimit": "The sole corpus HONEST-LIMIT: a structured toolResult receipt proving request_compaction was refused because context pressure remained below threshold. It requires the structured receipt and is never inferred from absence."
+    },
+    "execution": {
+      "deterministicK6": "r-rc-2-delegate-request-compaction.js runs in a disposable session, delegates request_compaction to a child, and captures the structured receipt without mutating config.",
+      "manual": "A reviewed tiny-context environment is still required to exercise a true accepted-compaction path; that fixture is separate from this row’s unattended fire.",
+      "relationship": "The deterministic row reaches HONEST-LIMIT-candidate unattended. Only a reviewed accepted-compaction fixture can produce a PASS-candidate, and it does not override the deterministic receipt."
+    }
+  },
   "liveRunSafety": {
     "classification": "k6-runnable",
     "requiresLiveGatewayToken": true,

@@ -1,0 +1,63 @@
+COMMAND: node scripts/run-vitest.mjs run --config test/vitest/vitest.extension-msteams.config.ts --maxWorkers=1 extensions/msteams/src/monitor-handler/message-handler.ingress-lifecycle.test.ts
+CWD_SHA: 5626a79cc836d95d236debd720a34fc2dcdcc685
+NOTE: retargeted MS Teams test overlaid on exact-base drain (uncommitted test-only overlay)
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m<product-worktree-base>[39m
+
+[vitest] still running with no output for 30000ms (run --config test/vitest/vitest.extension-msteams.config.ts --maxWorkers=1 extensions/msteams/src/monitor-handler/message-handler.ingress-lifecycle.test.ts --passWithNoTests=false).
+ [31m❯[39m [30m[43m extension-msteams [49m[39m extensions/msteams/src/monitor-handler/message-handler.ingress-lifecycle.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 1917[2mms[22m[39m
+     [33m[2m✓[22m[39m defers a claimed activity and binds completion to reply adoption [33m 413[2mms[22m[39m
+     [32m✓[39m fans merged-flush adoption to every constituent claim[32m 53[2mms[22m[39m
+     [32m✓[39m completes a gated no-dispatch turn instead of stalling its claim[32m 52[2mms[22m[39m
+[31m     [31m×[31m retry-accounts abandonment, honors backoff, and dead-letters at the aged attempt ceiling[39m[33m 1392[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[43m extension-msteams [49m[39m extensions/msteams/src/monitor-handler/message-handler.ingress-lifecycle.test.ts[2m > [22mMicrosoft Teams drain claim ownership[2m > [22mretry-accounts abandonment, honors backoff, and dead-letters at the aged attempt ceiling
+[31m[1mAssertionError[22m: expected [ { id: 'activity-abandon', …(10) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "accountId":"<fixture-account>",[39m
+[31m+     "attempts": 8,[39m
+[31m+     "channelId": "msteams",[39m
+[31m+     "id": "activity-abandon",[39m
+[31m+     "laneKey": "dm-conversation",[39m
+[31m+     "lastAttemptAt": 1767312065302,[39m
+[31m+     "lastError": "turn-abandoned",[39m
+[31m+     "payload": {[39m
+[31m+       "rawActivity":"<redacted-fixture-activity>"id\":\"activity-abandon\",\"type\":\"message\",\"text\":\"retry me\",\"from\":{\"id\":\"<fixture>\",\"aadObjectId\":\"<fixture>\",\"name\":\"<fixture>\"},\"recipient\":{\"id\":\"<fixture>\",\"name\":\"Bot\"},\"conversation\":{\"id\":\"dm-conversation\",\"conversationType\":\"personal\"},\"channelData\":{},\"attachments\":[],\"entities\":[]}",[39m
+[31m+       "receivedAt": 1767139200000,[39m
+[31m+       "version": 1,[39m
+[31m+     },[39m
+[31m+     "queueName": "[\"msteams\",\"test-app\"]",[39m
+[31m+     "receivedAt": 1767139200000,[39m
+[31m+     "updatedAt": 1767312065302,[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m extensions/msteams/src/monitor-handler/message-handler.ingress-lifecycle.test.ts:[2m273:59[22m[39m
+    [90m271|[39m       }[33m;[39m
+    [90m272|[39m       [35mawait[39m vi[33m.[39m[34mwaitFor[39m([35masync[39m () [33m=>[39m {
+    [90m273|[39m         [34mexpect[39m([35mawait[39m queue[33m.[39m[34mlistPending[39m({ limit[33m:[39m [32m"all"[39m }))[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m   |[39m                                                           [31m^[39m
+    [90m274|[39m         [34mexpect[39m([35mawait[39m queue[33m.[39m[34mlistFailed[39m[33m?.[39m({ limit[33m:[39m [32m"all"[39m }))[33m.[39m[34mtoEqual[39m([
+    [90m275|[39m           expect[33m.[39m[34mobjectContaining[39m(failedCeiling)[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (4)[39m
+[2m   Start at [22m 19:57:49
+[2m   Duration [22m 40.62s[2m (transform 31.87s, setup 2.23s, import 35.48s, tests 1.92s, environment 0ms)[22m
+
+[vitest] FAILED (exit 1)
+[test] FAILED (exit 1)
+
+EXIT=1

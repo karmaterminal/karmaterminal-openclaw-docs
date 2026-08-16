@@ -1,0 +1,64 @@
+COMMAND: node scripts/run-vitest.mjs run --config test/vitest/vitest.channels.config.ts --maxWorkers=1 src/channels/message/ingress-drain.cancellation.test.ts
+CWD_SHA: 70d47bec1f93c5f4c7e07eebb84ef9548a480751
+TREE_NOTE: production files replaced with exact-base 5626a79 bytes; tests remain 70d47bec
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m<product-worktree-head>[39m
+
+ [31m❯[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain.cancellation.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 472[2mms[22m[39m
+     [33m[2m✓[22m[39m cancels unadopted work without changing its retry facts [33m 316[2mms[22m[39m
+[31m     [31m×[31m mixed capable and legacy fan-in cancel stays budget-free while genuine abandon terminalizes[39m[32m 151[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[43m channels [49m[39m src/channels/message/ingress-drain.cancellation.test.ts[2m > [22mchannel ingress drain cancellation[2m > [22mmixed capable and legacy fan-in cancel stays budget-free while genuine abandon terminalizes
+[31m[1mAssertionError[22m: expected [ { id: 'capable', …(8) }, …(1) ] to deeply equal [ ObjectContaining{…}, …(1) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -11,9 +11,20 @@[39m
+[2m      "queueName": "[\"test\",\"a\"]",[22m
+[2m      "receivedAt": 1,[22m
+[2m      "updatedAt": 2,[22m
+[2m    },[22m
+[2m    {[22m
+[32m-     "attempts": 0,[39m
+[31m+     "accountId": "a",[39m
+[31m+     "attempts": 1,[39m
+[31m+     "channelId": "test",[39m
+[2m      "id": "legacy",[22m
+[31m+     "laneKey": "legacy",[39m
+[31m+     "lastAttemptAt": 2,[39m
+[31m+     "lastError": "turn-abandoned",[39m
+[31m+     "payload": {[39m
+[31m+       "text": "keep",[39m
+[31m+     },[39m
+[31m+     "queueName": "[\"test\",\"a\"]",[39m
+[31m+     "receivedAt": 1,[39m
+[31m+     "updatedAt": 2,[39m
+[2m    },[22m
+[2m  ][22m
+
+[36m [2m❯[22m src/channels/message/ingress-drain.cancellation.test.ts:[2m136:43[22m[39m
+    [90m134|[39m         ])[33m.[39m[34mcancel[39m()[33m;[39m
+    [90m135|[39m         [34mexpect[39m([35mawait[39m queue[33m.[39m[34mlistFailed[39m[33m?.[39m({ limit[33m:[39m [32m"all"[39m }))[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m136|[39m         [34mexpect[39m([35mawait[39m queue[33m.[39m[34mlistPending[39m())[33m.[39m[34mtoEqual[39m([
+    [90m   |[39m                                           [31m^[39m
+    [90m137|[39m           expect[33m.[39m[34mobjectContaining[39m({ id[33m:[39m [32m"capable"[39m[33m,[39m attempts[33m:[39m [34m0[39m })[33m,[39m
+    [90m138|[39m           expect[33m.[39m[34mobjectContaining[39m({ id[33m:[39m [32m"legacy"[39m[33m,[39m attempts[33m:[39m [34m0[39m })[33m,[39m
+[90m [2m❯[22m withTempState src/channels/message/ingress-drain.test-helpers.ts:[2m29:12[22m[39m
+[90m [2m❯[22m src/channels/message/ingress-drain.cancellation.test.ts:[2m104:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 20:01:26
+[2m   Duration [22m 1.97s[2m (transform 794ms, setup 601ms, import 467ms, tests 472ms, environment 1ms)[22m
+
+[vitest] FAILED (exit 1)
+[test] FAILED (exit 1)
+
+EXIT=1

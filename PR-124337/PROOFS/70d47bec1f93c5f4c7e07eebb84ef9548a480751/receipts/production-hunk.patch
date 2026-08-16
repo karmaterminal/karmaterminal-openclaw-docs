@@ -1,0 +1,134 @@
+diff --git a/src/channels/message/ingress-drain-lifecycle.ts b/src/channels/message/ingress-drain-lifecycle.ts
+index 0090847ef3a..8017a2b21e1 100644
+--- a/src/channels/message/ingress-drain-lifecycle.ts
++++ b/src/channels/message/ingress-drain-lifecycle.ts
+@@ -1,3 +1,20 @@
++import { AsyncLocalStorage } from "node:async_hooks";
++
++const ingressCancelCompat = new AsyncLocalStorage<true>();
++
++/**
++ * Fan-in cancel falls back to `onAbandoned` for sources that predate
++ * `onCancelled`. That invocation is still cancellation: it must not consume
++ * retry budget. Genuine `onAbandoned()` callers leave this store unset.
++ */
++export function runIngressCancelCompat<T>(fn: () => T): T {
++  return ingressCancelCompat.run(true, fn);
++}
++
++export function isIngressCancelCompat(): boolean {
++  return ingressCancelCompat.getStore() === true;
++}
++
+ /** Full pre-adoption -> adoption ownership lifecycle for one claimed event. */
+ export type ChannelIngressDispatchLifecycle = {
+   /** Pre-adoption only. After adopt the drain treats this signal as inert. */
+@@ -25,7 +42,8 @@ export type ChannelIngressDispatchLifecycle = {
+   onCancelled?: () => void | Promise<void>;
+   /**
+    * Deferred turn finished without ever owning the reply lane.
+-   * Drain releases the claim for retry.
++   * Drain applies the bounded retry disposition unless the call is
++   * fan-in cancel-compat (see `runIngressCancelCompat`).
+    */
+   onAbandoned: () => void | Promise<void>;
+ };
+@@ -36,6 +54,7 @@ export function bindIngressLifecycleToReplyOptions(lifecycle: ChannelIngressDisp
+     admission: "exclusive";
+     onAdopted: () => void | Promise<void>;
+     onDeferred: () => void;
++    onCancelled?: () => void | Promise<void>;
+     onAbandoned: () => void | Promise<void>;
+     abortSignal: AbortSignal;
+   };
+@@ -45,6 +64,9 @@ export function bindIngressLifecycleToReplyOptions(lifecycle: ChannelIngressDisp
+       admission: "exclusive",
+       onAdopted: lifecycle.onAdopted,
+       onDeferred: lifecycle.onDeferred,
++      // Debounce/fan-in cancel uses this object. Omitting onCancelled made
++      // cancel fall back to onAbandoned and charge the retry budget.
++      ...(lifecycle.onCancelled ? { onCancelled: lifecycle.onCancelled } : {}),
+       onAbandoned: lifecycle.onAbandoned,
+       abortSignal: lifecycle.abortSignal,
+     },
+diff --git a/src/channels/message/ingress-drain.ts b/src/channels/message/ingress-drain.ts
+index d713e3a1ec4..5bff1aca025 100644
+--- a/src/channels/message/ingress-drain.ts
++++ b/src/channels/message/ingress-drain.ts
+@@ -15,7 +15,10 @@ import {
+   isLiveLocalIngressDrainOwner,
+   registerLiveIngressDrainInstance,
+ } from "./ingress-claim-owner.js";
+-import type { ChannelIngressDispatchLifecycle } from "./ingress-drain-lifecycle.js";
++import {
++  isIngressCancelCompat,
++  type ChannelIngressDispatchLifecycle,
++} from "./ingress-drain-lifecycle.js";
+ import {
+   activeClaimKey,
+   IngressAdoptionLostError,
+@@ -411,9 +414,9 @@ export function createChannelIngressDrain<
+     state.stallTimer.unref?.();
+   };
+ 
+-  const releaseUnadopted = async (
++  const settleUnadopted = async (
+     state: ActiveHandlerState<TPayload, TMetadata>,
+-    releaseOptions: { lastError?: string; recordAttempt?: boolean },
++    settle: (claim: ChannelIngressQueueClaim<TPayload, TMetadata>) => Promise<void>,
+   ) => {
+     if (state.phase !== "deferred" && state.phase !== "dispatching") {
+       return;
+@@ -424,7 +427,7 @@ export function createChannelIngressDrain<
+     clearStallTimer(state);
+     await state
+       .settleOnce(async () => {
+-        await releaseClaim(state.claim, releaseOptions);
++        await settle(state.claim);
+       })
+       .catch(() => undefined);
+   };
+@@ -492,10 +495,18 @@ export function createChannelIngressDrain<
+       onCancelled: async () => {
+         // Cancellation means ownership ended before delivery, so preserve every
+         // prior retry fact while reopening the canonical row for replacement.
+-        await releaseUnadopted(state, { recordAttempt: false });
++        await settleUnadopted(state, (claim) => releaseClaim(claim, { recordAttempt: false }));
+       },
+       onAbandoned: async () => {
+-        await releaseUnadopted(state, { lastError: "turn-abandoned" });
++        // Mixed fan-in cancel falls back to onAbandoned when a source predates
++        // onCancelled. That path is still cancellation: do not charge budget.
++        // A genuine un-admitted turn takes the same bounded disposition as
++        // onFailed, or it retries forever and holds the head of its FIFO lane.
++        await settleUnadopted(state, (claim) =>
++          isIngressCancelCompat()
++            ? releaseClaim(claim, { recordAttempt: false })
++            : applyFailureDisposition(claim, new Error("turn-abandoned")),
++        );
+       },
+     };
+   };
+diff --git a/src/plugin-sdk/channel-ingress-runtime.ts b/src/plugin-sdk/channel-ingress-runtime.ts
+index bbcae72d6c4..db280929507 100644
+--- a/src/plugin-sdk/channel-ingress-runtime.ts
++++ b/src/plugin-sdk/channel-ingress-runtime.ts
+@@ -46,6 +46,7 @@ export type {
+ } from "../channels/message-access/index.js";
+ export type { ResolvedChannelImplicitMentions } from "../config/implicit-mentions.js";
+ 
++import { runIngressCancelCompat } from "../channels/message/ingress-drain-lifecycle.js";
+ import {
+   createChannelIngressMonitor,
+   type ChannelIngressMonitorDrainOptions,
+@@ -161,7 +162,9 @@ export function fanInChannelIngressLifecycles(
+   // can then use settle/abandon without an acknowledged-but-unsettled claim.
+   const cancelAll = () =>
+     fanOut((lifecycle) =>
+-      lifecycle.onCancelled ? lifecycle.onCancelled() : lifecycle.onAbandoned(),
++      lifecycle.onCancelled
++        ? lifecycle.onCancelled()
++        : runIngressCancelCompat(() => lifecycle.onAbandoned()),
+     );
+   return {
+     lifecycle: {

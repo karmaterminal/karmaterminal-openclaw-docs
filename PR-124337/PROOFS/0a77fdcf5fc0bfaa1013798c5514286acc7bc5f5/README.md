@@ -56,7 +56,7 @@ This directory is a PR-scoped sidecar. It does **not** repoint
 | Patch-only revert RED | [receipts/04-patch-only-revert-red.txt](receipts/04-patch-only-revert-red.txt) | fossil RED + retargeted drain expectation RED |
 | Reapply GREEN | [receipts/05-reapply-green.txt](receipts/05-reapply-green.txt) | 32 passed |
 | Fossil surface | [receipts/06-fossil-equivalence.txt](receipts/06-fossil-equivalence.txt) | assertion/input bodies identical to `c17a5c73` |
-| Negative controls | [receipts/07-negative-control-shards.txt](receipts/07-negative-control-shards.txt) | discord 2775, line 528, plugin-sdk 765, auto-reply 3795 |
+| Negative controls | [receipts/07-negative-control-shards.txt](receipts/07-negative-control-shards.txt) | condensed staged summary: discord 2775, line 528, plugin-sdk 765, auto-reply 3795 |
 | Full suite | [receipts/08-full-suite.txt](receipts/08-full-suite.txt) | 539 shards / 15 failed; classified in `RESOLVED-SHA.md` |
 
 ## Honest limits
@@ -69,6 +69,9 @@ This directory is a PR-scoped sidecar. It does **not** repoint
    `activity-abandon`) are synthetic test constants, not live IDs.
 4. Host worktree paths were substituted in published receipts; original SHA-256
    values are in `SHA256SUMS`.
+5. Staged `07` was already a condensed shard summary (no command/`EXIT=`).
+   Dedicated post-retarget MS Teams logs were not in the staged set; `08`
+   carries the pre-retarget sibling FAIL.
 
 ## Navigation
 

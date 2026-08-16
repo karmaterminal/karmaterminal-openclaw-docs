@@ -40,18 +40,31 @@ Independent review found
 aged a row two days (24h floor met) and still expected pending `attempts: 8`
 then `9`. That is the same defective contract.
 
-Corrected name:
+Corrected name on `a01d78a4`:
 `retry-accounts abandonment, honors backoff, and dead-letters at the aged attempt ceiling`.
 
-| Combination | Result |
+**Raw receipt in this corpus:** [08-full-suite.txt](../receipts/08-full-suite.txt)
+records the implementation-head run **before** that retarget. The old
+assertion `preserves abandon retry accounting, backoff, threshold, and restart
+behavior` FAILs because `listPending` is `[]` where pending `attempts: 8` was
+required — i.e. the patch already terminalized the aged row.
+
+**Attested on product head `0a77fdcf` / `output.md`, but not present as a
+separate staged command log:**
+
+| Combination | Attested result |
 | --- | --- |
 | Exact-base drain + **old** assertion | GREEN (4 passed) |
-| Patch + **old** assertion | RED until retarget |
+| Patch + **old** assertion | RED (this is what `08` contains) |
 | Exact-base drain + **new** assertion | RED (`pending attempts: 8`, intended) |
 | Patch + **new** assertion (`a01d78a4`) | GREEN (4 passed) |
 
+This row's **unit** pass is the shared `settleOnce` owner plus the channels
+shard. The sibling correction is cited from `08` + the product-head attestation;
+this publication does not invent the three missing dedicated logs.
+
 Feishu and Mattermost copies stay pending because they never meet the 24h age
-floor; comments record that expectation so they are not silent cousins.
+floor; comments on those tests record that expectation.
 
 ## Not claimed
 

@@ -57,10 +57,11 @@ node scripts/run-vitest.mjs run --config test/vitest/vitest.channels.config.ts -
 # receipt: receipts/05-reapply-green.txt  EXIT=0
 
 # 6. MS Teams aged-ceiling sibling (review commit)
+# Dedicated post-retarget logs were not in the staged receipt set.
+# Raw pre-retarget FAIL is inside receipts/08-full-suite.txt (old assertion name).
 node scripts/run-vitest.mjs run --config test/vitest/vitest.extension-msteams.config.ts --maxWorkers=1 \
   extensions/msteams/src/monitor-handler/message-handler.ingress-lifecycle.test.ts
-# expected on patch: 4 passed
-# expected on exact-base drain + new assertion: 1 failed (pending attempts: 8)
+# attested on product head: 4 passed on patch; 1 failed on exact-base drain
 
 # 7. Sanctioned full suite (already received; do not treat as fleet-heal)
 node --import tsx scripts/test-projects.mts
